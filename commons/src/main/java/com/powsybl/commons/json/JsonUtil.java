@@ -138,6 +138,15 @@ public final class JsonUtil {
         }
     }
 
+    public static void writeOptionalDoubleField(JsonGenerator jsonGenerator, String fieldName, double value) throws IOException {
+        Objects.requireNonNull(jsonGenerator);
+        Objects.requireNonNull(fieldName);
+
+        if (!Double.isNaN(value)) {
+            jsonGenerator.writeNumberField(fieldName, value);
+        }
+    }
+
     public static void writeOptionalIntegerField(JsonGenerator jsonGenerator, String fieldName, int value) throws IOException {
         Objects.requireNonNull(jsonGenerator);
         Objects.requireNonNull(fieldName);
