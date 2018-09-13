@@ -498,5 +498,12 @@ public abstract class AbstractAppStorageTest {
             fail();
         } catch (NullPointerException ignored) {
         }
+
+        NodeInfo folder7Info = storage.createNode(rootFolderInfo.getId(), "test7", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
+        try {
+            folder7Info.setName("");
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
     }
 }

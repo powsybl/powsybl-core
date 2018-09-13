@@ -382,7 +382,6 @@ public class MapDbAppStorage implements AppStorage {
     @Override
     public void renameNode(String nodeId, String name) {
         UUID nodeUuid = checkNodeId(nodeId);
-        Objects.requireNonNull(name);
         NodeInfo nodeInfo = getNodeInfo(nodeId);
         nodeInfo.setName(name);
         nodeInfoMap.put(nodeUuid, nodeInfo);

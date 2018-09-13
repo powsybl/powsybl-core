@@ -29,16 +29,6 @@ public class Project extends File {
         super(context, VERSION);
     }
 
-    public void delete() {
-        storage.deleteNode(info.getId());
-        storage.flush();
-    }
-
-    public void rename(String name) {
-        storage.renameNode(info.getId(), name);
-        storage.flush();
-    }
-
 
     /**
      * Get the root folder of this project.

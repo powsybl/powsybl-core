@@ -107,6 +107,11 @@ public class AfsBaseTest {
         project3.delete();
         assertTrue(dir41.getChildren().isEmpty());
 
+        Folder dir71 = root.createFolder("dir7");
+        Project project4 = dir41.createProject("projet4");
+        project4.moveTo(dir71);
+        assertFalse(dir71.getChildren().isEmpty());
+
         List<String> added = new ArrayList<>();
         List<String> removed = new ArrayList<>();
         ProjectFolderListener l = new ProjectFolderListener() {

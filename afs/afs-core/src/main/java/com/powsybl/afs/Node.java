@@ -25,6 +25,22 @@ public class Node extends AbstractNodeBase<Folder> {
         this.folder = folder;
     }
 
+    public void delete() {
+        storage.deleteNode(info.getId());
+        storage.flush();
+    }
+
+    public void rename(String name) {
+        storage.renameNode(info.getId(), name);
+        storage.flush();
+    }
+
+    public void moveTo(Folder folder) {
+        Objects.requireNonNull(folder);
+        storage.setParentNode(info.getId(), folder.getId());
+        storage.flush();
+    }
+
     @Override
     public boolean isFolder() {
         return folder;
