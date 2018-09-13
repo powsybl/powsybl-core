@@ -35,7 +35,6 @@ import java.util.stream.Collectors;
 import java.util.zip.GZIPInputStream;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class MpiJobSchedulerImpl implements MpiJobScheduler {
@@ -63,14 +62,11 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
     private final Lock newJobsLock = new ReentrantLock();
 
     // active contexts ordered by priority
-    private final Set<MpiJob> jobs = new TreeSet<>(new Comparator<MpiJob>() {
-        @Override
-        public int compare(MpiJob c1, MpiJob c2) {
-            if (c1.getExecution().getPriority() != c2.getExecution().getPriority()) {
-                return c1.getExecution().getPriority() - c2.getExecution().getPriority();
-            } else {
-                return System.identityHashCode(c1) - System.identityHashCode(c2);
-            }
+    private final Set<MpiJob> jobs = new TreeSet<>((c1, c2) -> {
+        if (c1.getExecution().getPriority() != c2.getExecution().getPriority()) {
+            return c1.getExecution().getPriority() - c2.getExecution().getPriority();
+        } else {
+            return System.identityHashCode(c1) - System.identityHashCode(c2);
         }
     });
 
@@ -98,6 +94,66 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
                         int coresPerRank, boolean verbose, ExecutorService executor, Path stdOutArchive) throws InterruptedException, IOException {
         this.nativeServices = Objects.requireNonNull(nativeServices);
         this.statistics = Objects.requireNonNull(statisticsFactory).create(statisticsDbDir, statisticsDbName);
+        this.stdOutArchive = checkOutputArchive(stdOutArchive);
+        final CountDownLatch initialized = new CountDownLatch(1);
+        future = executor.submit(() -> {
+            LOGGER.trace("Job scheduler started");
+            try {
+                nativeServices.initMpi(coresPerRank, verbose);
+
+                mpiVersion = nativeServices.getMpiVersion();
+                resources = new MpiResources(nativeServices.getMpiCommSize(), coresPerRank);
+
+                initialized.countDown();
+
+                long time = System.currentTimeMillis();
+
+                List<MpiTask> completedTasks = new ArrayList<>();
+                while (!stopRequested || !jobs.isEmpty()) {
+                    // check performances
+                    long oldTime = time;
+                    time = System.currentTimeMillis();
+                    long diff = time - oldTime;
+                    if (diff > 1000) { // 1s
+                        LOGGER.warn("Slowness ({} ms) has been detected in the job scheduler (startTasksTime={}, startTasksJniTime={}, processCompletedTasksTime={}, checkTaskCompletionTime={})",
+                                diff, startTasksTime, startTasksJniTime, processCompletedTasksTime, checkTaskCompletionTime);
+                    }
+                    startTasksTime = 0;
+                    startTasksJniTime = 0;
+                    processCompletedTasksTime = 0;
+                    checkTaskCompletionTime = 0;
+
+                    sendCommonFilesChunks();
+
+                    // add new context
+                    newJobsLock.lock();
+                    try {
+                        jobs.addAll(newJobs);
+                        newJobs.clear();
+                    } finally {
+                        newJobsLock.unlock();
+                    }
+
+                    // just sleep in the case nothing has been done in the loop
+                    if (processJobs(completedTasks)) {
+                        TimeUnit.MILLISECONDS.sleep(TIMEOUT);
+                    }
+                }
+
+                nativeServices.terminateMpi();
+
+            } catch (Throwable t) {
+                LOGGER.error(t.toString(), t);
+                System.exit(-1);
+            }
+
+            LOGGER.trace("Job scheduler stopped");
+        });
+
+        initialized.await();
+    }
+
+    private static Path checkOutputArchive(Path stdOutArchive) throws IOException {
         if (stdOutArchive != null) {
             if (Files.exists(stdOutArchive)) {
                 if (!Files.isRegularFile(stdOutArchive)) {
@@ -107,143 +163,7 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
             }
             LOGGER.info("Standard output of failed commands will be archived {}", stdOutArchive);
         }
-        this.stdOutArchive = stdOutArchive;
-        final CountDownLatch initialized = new CountDownLatch(1);
-        future = executor.submit(new Runnable() {
-
-            @Override
-            public void run() {
-                LOGGER.trace("Job scheduler started");
-                try {
-                    nativeServices.initMpi(coresPerRank, verbose);
-
-                    mpiVersion = nativeServices.getMpiVersion();
-                    resources = new MpiResources(nativeServices.getMpiCommSize(), coresPerRank);
-
-                    initialized.countDown();
-
-                    long time = System.currentTimeMillis();
-
-                    List<MpiTask> completedTasks = new ArrayList<>();
-                    while (!stopRequested || !jobs.isEmpty()) {
-                        boolean sleep = true;
-
-                        // check performances
-                        long oldTime = time;
-                        time = System.currentTimeMillis();
-                        long diff = time - oldTime;
-                        if (diff > 1000) { // 1s
-                            LOGGER.warn("Slowness ({} ms) has been detected in the job scheduler (startTasksTime={}, startTasksJniTime={}, processCompletedTasksTime={}, checkTaskCompletionTime={})",
-                                    diff, startTasksTime, startTasksJniTime, processCompletedTasksTime, checkTaskCompletionTime);
-                        }
-                        startTasksTime = 0;
-                        startTasksJniTime = 0;
-                        processCompletedTasksTime = 0;
-                        checkTaskCompletionTime = 0;
-
-                        newCommonFileLock.lock();
-                        try {
-                            for (CommonFile commonFile : newCommonFiles) {
-                                LOGGER.info("Sending chunk {} of common file '{}' (last={})",
-                                        commonFile.getChunk(), commonFile.getName(), commonFile.isLast());
-                                List<Core> allCores = resources.reserveAllCoresOrFail();
-                                try {
-                                    try (ByteArrayInputStream is = new ByteArrayInputStream(commonFile.getData())) {
-                                        // no pre-processor let it as it is
-                                        Messages.CommonFile message = Messages.CommonFile.newBuilder()
-                                                .setName(commonFile.getName())
-                                                .setChunk(commonFile.getChunk())
-                                                .setLast(commonFile.isLast())
-                                                .setData(ByteString.readFrom(is))
-                                                .build();
-                                        long t1 = System.currentTimeMillis();
-                                        nativeServices.sendCommonFile(message.toByteArray());
-                                        long t2 = System.currentTimeMillis();
-                                        commonFiles.add(commonFile.getName());
-                                        MpiJobSchedulerImpl.this.statistics.logCommonFileTransfer(commonFile.getName(), commonFile.getChunk(), commonFile.getData().length, t2 - t1);
-                                    }
-                                } finally {
-                                    resources.releaseCores(allCores);
-                                }
-                            }
-                            newCommonFiles.clear();
-                        } finally {
-                            newCommonFileLock.unlock();
-                        }
-
-                        // add new context
-                        newJobsLock.lock();
-                        try {
-                            jobs.addAll(newJobs);
-                            newJobs.clear();
-                        } finally {
-                            newJobsLock.unlock();
-                        }
-
-                        for (Iterator<MpiJob> it = jobs.iterator(); it.hasNext(); ) {
-                            MpiJob job = it.next();
-
-                            sleep = startTasks(job);
-
-                            long t0 = System.currentTimeMillis();
-                            try {
-                                nativeServices.checkTasksCompletion(job.getRunningTasks(), completedTasks);
-                            } finally {
-                                checkTaskCompletionTime += System.currentTimeMillis() - t0;
-                            }
-                            if (!completedTasks.isEmpty()) {
-                                DateTime endTime = DateTime.now();
-
-                                // release cores as fast as possible
-                                for (MpiTask tasks : completedTasks) {
-                                    MpiJobSchedulerImpl.this.resources.releaseCore(tasks.getCore());
-                                    tasks.setEndTime(endTime);
-                                }
-
-                                // ...and re-use immediatly free cores
-                                startTasks(job);
-
-                                // ...and then post process terminated tasks
-                                processCompletedTasks(job, completedTasks);
-
-                                // ...no more tasks to start or running, we can remove the context
-                                if (job.isCompleted()) {
-                                    // remove the job
-                                    it.remove();
-
-                                    ExecutionReport report = new ExecutionReport(job.getErrors());
-                                    try {
-                                        job.getListener().onEnd(report);
-                                    } catch (Exception e) {
-                                        LOGGER.error(e.toString(), e);
-                                    }
-                                    job.getFuture().complete(report);
-
-                                    MpiJobSchedulerImpl.this.statistics.logJobEnd(job.getId());
-                                }
-
-                                sleep = false;
-                            }
-                        }
-
-                        // just sleep in the case nothing has been done in the loop
-                        if (sleep) {
-                            TimeUnit.MILLISECONDS.sleep(TIMEOUT);
-                        }
-                    }
-
-                    nativeServices.terminateMpi();
-
-                } catch (Throwable t) {
-                    LOGGER.error(t.toString(), t);
-                    System.exit(-1);
-                }
-
-                LOGGER.trace("Job scheduler stopped");
-            }
-        });
-
-        initialized.await();
+        return stdOutArchive;
     }
 
     @Override
@@ -273,9 +193,9 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
         Messages.Task.Environment.Builder builder = Messages.Task.Environment.newBuilder();
         for (Map.Entry<String, String> var : variables.entrySet()) {
             builder.addVariable(Messages.Task.Variable.newBuilder()
-                                                      .setName(var.getKey())
-                                                      .setValue(var.getValue())
-                                                      .build());
+                    .setName(var.getKey())
+                    .setValue(var.getValue())
+                    .build());
         }
         return builder.build();
     }
@@ -315,86 +235,10 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
         // select which files have to be send with the message
         //
         for (InputFile file : command.getInputFiles()) {
-            String fileName = file.getName(taskIndex);
             if (file.dependsOnExecutionNumber()) {
-                //
-                // case 1: the file name depends on the execution instance, it has
-                // to be sent with the message
-                //
-                Path path = job.getWorkingDir().resolve(fileName);
-                if (Files.exists(path)) {
-                    try (InputStream is = Files.newInputStream(path)) {
-                        builder.addInputFile(Messages.Task.InputFile.newBuilder()
-                                                               .setName(fileName)
-                                                               .setScope(Messages.Task.InputFile.Scope.TASK)
-                                                               .setPreProcessor(createPreProcessor(file.getPreProcessor()))
-                                                               .setData(ByteString.readFrom(is))
-                                                               .build());
-                    }
-                } else {
-                    if (commonFiles.contains(fileName)) {
-                        builder.addInputFile(Messages.Task.InputFile.newBuilder()
-                                                               .setName(fileName)
-                                                               .setScope(Messages.Task.InputFile.Scope.RUN)
-                                                               .setPreProcessor(createPreProcessor(file.getPreProcessor()))
-                                                               .build());
-                    } else {
-                        throw new PowsyblException("Input file " + fileName
-                                + " not found in the working directory nor in the common file list");
-                    }
-                }
+                addInputFile(builder, job, file, taskIndex);
             } else {
-
-                Path path = job.getWorkingDir().resolve(fileName);
-                if (Files.exists(path)) {
-                    //
-                    // case 2: the file name does not depend on the execution instance
-                    // and exists in the working directory
-                    //
-                    if (initJob) {
-                        //
-                        // case 2-1: this is the first task of the job executed by
-                        // the slave with specified rank, we pack the file with
-                        // the message
-                        //
-                        try (InputStream is = Files.newInputStream(path)) {
-                            builder.addInputFile(Messages.Task.InputFile.newBuilder()
-                                                                   .setName(fileName)
-                                                                   .setScope(Messages.Task.InputFile.Scope.JOB)
-                                                                   .setPreProcessor(createPreProcessor(file.getPreProcessor()))
-                                                                   .setData(ByteString.readFrom(is))
-                                                                   .build());
-                        }
-                    } else {
-                        //
-                        // case 2-2: another task of the job has already been
-                        // handled by the slave with the specified rank, so the file
-                        // is already cached on the slave node and there is no need
-                        // the pack it with the message
-                        //
-                        builder.addInputFile(Messages.Task.InputFile.newBuilder()
-                                                                   .setName(fileName)
-                                                                   .setScope(Messages.Task.InputFile.Scope.JOB)
-                                                                   .setPreProcessor(createPreProcessor(file.getPreProcessor()))
-                                                                   .build());
-                    }
-                } else {
-                    //
-                    // case 3: the file name does not depend on the execution instance
-                    // and belongs to the common file list, it has already been
-                    // sent to all slave so no need to pack it in the message
-                    //
-                    if (commonFiles.contains(fileName)) {
-                        builder.addInputFile(Messages.Task.InputFile.newBuilder()
-                                                               .setName(fileName)
-                                                               .setScope(Messages.Task.InputFile.Scope.RUN)
-                                                               .setPreProcessor(createPreProcessor(file.getPreProcessor()))
-                                                               .build());
-                    } else {
-                        throw new PowsyblException("Input file " + fileName
-                                + " not found in the common file list");
-                    }
-                }
+                addInputFile(builder, job, file, taskIndex, initJob);
             }
         }
 
@@ -406,23 +250,21 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
                 break;
 
             case GROUP:
-                for (GroupCommand.SubCommand subCmd : ((GroupCommand) command).getSubCommands()) {
-                    builder.addCommand(createCommand(subCmd, taskIndex));
-                }
+                GroupCommand groupCommand = (GroupCommand) command;
+                groupCommand.getSubCommands().forEach(subCmd -> builder.addCommand(createCommand(subCmd, taskIndex)));
                 break;
 
             default:
                 throw new AssertionError("Unexpected CommandType value: " + command.getType());
         }
 
-        for (OutputFile outputFile : command.getOutputFiles()) {
-            builder.addOutputFile(Messages.Task.OutputFile.newBuilder()
-                                                          .setName(outputFile.getName(taskIndex))
-                                                          .setPostProcessor(createPostProcessor(outputFile.getPostProcessor()))
-                                                          .build());
-        }
+        command.getOutputFiles().forEach(outputFile ->
+                builder.addOutputFile(Messages.Task.OutputFile.newBuilder()
+                        .setName(outputFile.getName(taskIndex))
+                        .setPostProcessor(createPostProcessor(outputFile.getPostProcessor()))
+                        .build()));
 
-        for (Iterator<MpiJob> it = rank.jobs.iterator(); it.hasNext();) {
+        for (Iterator<MpiJob> it = rank.jobs.iterator(); it.hasNext(); ) {
             MpiJob otherJob = it.next();
             if (otherJob.isCompleted()) {
                 it.remove();
@@ -431,6 +273,130 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
         }
 
         return builder.build();
+    }
+
+    private void addInputFile(Messages.Task.Builder builder, MpiJob job, InputFile file, int taskIndex) throws IOException {
+        //
+        // The file name depends on the execution instance, it has
+        // to be sent with the message
+        //
+        String fileName = file.getName(taskIndex);
+        Path path = job.getWorkingDir().resolve(fileName);
+        if (Files.exists(path)) {
+            try (InputStream is = Files.newInputStream(path)) {
+                builder.addInputFile(Messages.Task.InputFile.newBuilder()
+                        .setName(fileName)
+                        .setScope(Messages.Task.InputFile.Scope.TASK)
+                        .setPreProcessor(createPreProcessor(file.getPreProcessor()))
+                        .setData(ByteString.readFrom(is))
+                        .build());
+            }
+        } else if (commonFiles.contains(fileName)) {
+            builder.addInputFile(Messages.Task.InputFile.newBuilder()
+                    .setName(fileName)
+                    .setScope(Messages.Task.InputFile.Scope.RUN)
+                    .setPreProcessor(createPreProcessor(file.getPreProcessor()))
+                    .build());
+        } else {
+            throw new PowsyblException("Input file " + fileName
+                    + " not found in the working directory nor in the common file list");
+        }
+    }
+
+    private void addInputFile(Messages.Task.Builder builder, MpiJob job, InputFile file, int taskIndex, boolean initJob) throws IOException {
+        String fileName = file.getName(taskIndex);
+        Path path = job.getWorkingDir().resolve(fileName);
+        if (Files.exists(path)) {
+            //
+            // case 2: the file name does not depend on the execution instance
+            // and exists in the working directory
+            //
+            if (initJob) {
+                //
+                // This is the first task of the job executed by
+                // the slave with specified rank, we pack the file with
+                // the message
+                //
+                try (InputStream is = Files.newInputStream(path)) {
+                    builder.addInputFile(Messages.Task.InputFile.newBuilder()
+                            .setName(fileName)
+                            .setScope(Messages.Task.InputFile.Scope.JOB)
+                            .setPreProcessor(createPreProcessor(file.getPreProcessor()))
+                            .setData(ByteString.readFrom(is))
+                            .build());
+                }
+            } else {
+                //
+                // Another task of the job has already been
+                // handled by the slave with the specified rank, so the file
+                // is already cached on the slave node and there is no need
+                // the pack it with the message
+                //
+                builder.addInputFile(Messages.Task.InputFile.newBuilder()
+                        .setName(fileName)
+                        .setScope(Messages.Task.InputFile.Scope.JOB)
+                        .setPreProcessor(createPreProcessor(file.getPreProcessor()))
+                        .build());
+            }
+        } else if (commonFiles.contains(fileName)) {
+            //
+            // The file name does not depend on the execution instance
+            // and belongs to the common file list, it has already been
+            // sent to all slave so no need to pack it in the message
+            //
+            builder.addInputFile(Messages.Task.InputFile.newBuilder()
+                    .setName(fileName)
+                    .setScope(Messages.Task.InputFile.Scope.RUN)
+                    .setPreProcessor(createPreProcessor(file.getPreProcessor()))
+                    .build());
+        } else {
+            throw new PowsyblException("Input file " + fileName
+                    + " not found in the common file list");
+        }
+    }
+
+    private boolean processJobs(List<MpiTask> completedTasks) throws IOException, InterruptedException {
+        boolean sleep = true;
+
+        for (Iterator<MpiJob> it = jobs.iterator(); it.hasNext(); ) {
+            MpiJob job = it.next();
+
+            sleep = startTasks(job);
+
+            long t0 = System.currentTimeMillis();
+            try {
+                nativeServices.checkTasksCompletion(job.getRunningTasks(), completedTasks);
+            } finally {
+                checkTaskCompletionTime += System.currentTimeMillis() - t0;
+            }
+            if (!completedTasks.isEmpty()) {
+                DateTime endTime = DateTime.now();
+
+                // release cores as fast as possible
+                completedTasks.forEach(task -> {
+                    MpiJobSchedulerImpl.this.resources.releaseCore(task.getCore());
+                    task.setEndTime(endTime);
+                });
+
+                // ...and re-use immediatly free cores
+                startTasks(job);
+
+                // ...and then post process terminated tasks
+                processCompletedTasks(job, completedTasks);
+
+                // ...no more tasks to start or running, we can remove the context
+                if (job.isCompleted()) {
+                    // remove the job
+                    it.remove();
+
+                    processCompletedJob(job);
+                }
+
+                sleep = false;
+            }
+        }
+
+        return sleep;
     }
 
     private boolean startTasks(MpiJob job) throws IOException, InterruptedException {
@@ -444,67 +410,68 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
             if (taskIndex < execution.getExecutionCount()) {
                 // reserve one core for each of the execution instances
                 List<Core> allocatedCores = resources.reserveCores(execution.getExecutionCount() - taskIndex, job.getUsedRanks());
-                if (allocatedCores != null && !allocatedCores.isEmpty()) {
-
-                    if (taskIndex == 0) {
-                        statistics.logJobStart(job.getId(), command.getId(), execution.getTags());
-                    }
-
-                    LOGGER.debug("Sending commands {} to slaves {} using working directory {}",
-                            command.toString(-1), allocatedCores, job.getWorkingDir());
-
-                    DateTime startTime = DateTime.now();
-
-                    // encode task messages
-                    int oldTaskIndex = taskIndex;
-                    List<MpiTask> tasks = new ArrayList<>(allocatedCores.size());
-                    for (Core core : allocatedCores) {
-                        byte[] message = createTaskMessage(job, core.rank, command, taskIndex).toByteArray();
-
-                        MpiTask task = new MpiTask(taskId++, core, taskIndex, message, startTime);
-                        tasks.add(task);
-
-                        statistics.logTaskStart(task.getId(),
-                                                job.getId(),
-                                                taskIndex,
-                                                startTime,
-                                                core.rank.num,
-                                                core.thread,
-                                                message.length);
-
-                        taskIndex++;
-
-                        // update used ranks
-                        // TODO c'est completement bugge, ne pas reactiver!!!!
-//                        job.getUsedRanks().add(core.rank.num);
-                    }
-
-                    if (LOGGER.isTraceEnabled()) {
-                        LOGGER.trace("Starting tasks {} of job {}",
-                                tasks.stream().map(MpiTask::getIndex).collect(Collectors.toList()), job.getId());
-                    }
-
-                    // run tasks on slaves nodes
-                    long t1 = System.currentTimeMillis();
-                    try {
-                        nativeServices.startTasks(tasks);
-                    } finally {
-                        startTasksJniTime += System.currentTimeMillis() - t1;
-                    }
-
-                    startedTasks.addAndGet(allocatedCores.size());
-
-                    job.setTaskIndex(taskIndex);
-                    job.getRunningTasks().addAll(tasks);
-
-                    // notify execution start
-                    try {
-                        job.getListener().onExecutionStart(oldTaskIndex, taskIndex);
-                    } catch (Exception e) {
-                        LOGGER.error(e.toString(), e);
-                    }
-                    return false;
+                if (allocatedCores == null || allocatedCores.isEmpty()) {
+                    return true;
                 }
+
+                if (taskIndex == 0) {
+                    statistics.logJobStart(job.getId(), command.getId(), execution.getTags());
+                }
+
+                LOGGER.debug("Sending commands {} to slaves {} using working directory {}",
+                        command.toString(-1), allocatedCores, job.getWorkingDir());
+
+                DateTime startTime = DateTime.now();
+
+                // encode task messages
+                int oldTaskIndex = taskIndex;
+                List<MpiTask> tasks = new ArrayList<>(allocatedCores.size());
+                for (Core core : allocatedCores) {
+                    byte[] message = createTaskMessage(job, core.rank, command, taskIndex).toByteArray();
+
+                    MpiTask task = new MpiTask(taskId++, core, taskIndex, message, startTime);
+                    tasks.add(task);
+
+                    statistics.logTaskStart(task.getId(),
+                            job.getId(),
+                            taskIndex,
+                            startTime,
+                            core.rank.num,
+                            core.thread,
+                            message.length);
+
+                    taskIndex++;
+
+                    // update used ranks
+                    // TODO c'est completement bugge, ne pas reactiver!!!!
+//                        job.getUsedRanks().add(core.rank.num);
+                }
+
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace("Starting tasks {} of job {}",
+                            tasks.stream().map(MpiTask::getIndex).collect(Collectors.toList()), job.getId());
+                }
+
+                // run tasks on slaves nodes
+                long t1 = System.currentTimeMillis();
+                try {
+                    nativeServices.startTasks(tasks);
+                } finally {
+                    startTasksJniTime += System.currentTimeMillis() - t1;
+                }
+
+                startedTasks.addAndGet(allocatedCores.size());
+
+                job.setTaskIndex(taskIndex);
+                job.getRunningTasks().addAll(tasks);
+
+                // notify execution start
+                try {
+                    job.getListener().onExecutionStart(oldTaskIndex, taskIndex);
+                } catch (Exception e) {
+                    LOGGER.error(e.toString(), e);
+                }
+                return false;
             }
             return true;
         } finally {
@@ -537,32 +504,16 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
                 String stdOutGzFileName = job.getExecution().getCommand().getId() + "_" + task.getIndex() + ".out.gz";
                 for (Messages.TaskResult.OutputFile outputFile : message.getOutputFileList()) {
                     // std out file special case directly unzip it on working dir
-                    if (outputFile.getName().equals(stdOutGzFileName)) {
-                        Path path = job.getWorkingDir().resolve(outputFile.getName().substring(0, outputFile.getName().length() - 3));
-                        try (InputStream is = new GZIPInputStream(outputFile.getData().newInput());
-                             OutputStream os = Files.newOutputStream(path)) {
-                            ByteStreams.copy(is, os);
-                        }
-                    } else {
-                        Path path = job.getWorkingDir().resolve(outputFile.getName());
-                        try (InputStream is = outputFile.getData().newInput();
-                             OutputStream os = Files.newOutputStream(path)) {
-                            ByteStreams.copy(is, os);
-                        }
-                    }
+                    copyFileToWorkingDirectory(outputFile, job, stdOutGzFileName);
 
                     // archive standard output of problematic tasks
-                    if (stdOutArchive != null) {
-                        if (message.getExitCode() != 0) {
-                            if (outputFile.getName().equals(stdOutGzFileName)) {
-                                try (FileSystem archiveFileSystem = FileSystems.newFileSystem(URI.create("jar:file:" + stdOutArchive.toUri().getPath()), ZIP_FS_ENV)) {
-                                    Path dir = archiveFileSystem.getPath("/").resolve("job-" + job.getId());
-                                    Files.createDirectories(dir);
-                                    try (InputStream is = outputFile.getData().newInput();
-                                        OutputStream os = Files.newOutputStream(dir.resolve(outputFile.getName()))) {
-                                        ByteStreams.copy(is, os);
-                                    }
-                                }
+                    if ((stdOutArchive != null) && (message.getExitCode() != 0) && outputFile.getName().equals(stdOutGzFileName)) {
+                        try (FileSystem archiveFileSystem = FileSystems.newFileSystem(URI.create("jar:file:" + stdOutArchive.toUri().getPath()), ZIP_FS_ENV)) {
+                            Path dir = archiveFileSystem.getPath("/").resolve("job-" + job.getId());
+                            Files.createDirectories(dir);
+                            try (InputStream is = outputFile.getData().newInput();
+                                 OutputStream os = Files.newOutputStream(dir.resolve(outputFile.getName()))) {
+                                ByteStreams.copy(is, os);
                             }
                         }
                     }
@@ -570,8 +521,8 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
 
                 if (message.getExitCode() != 0) {
                     job.getErrors().add(new ExecutionError(command,
-                                                           task.getIndex(),
-                                                           message.getExitCode()));
+                            task.getIndex(),
+                            message.getExitCode()));
                 }
 
                 // notify execution completion
@@ -583,12 +534,12 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
 
                 // update execution statistics
                 statistics.logTaskEnd(task.getId(),
-                                      taskDurationSeenByMaster,
-                                      message.getCommandDurationList(),
-                                      taskDurationSeenByMaster - taskDurationSeenBySlave,
-                                      task.getResultMessage().length,
-                                      message.getWorkingDataSize(),
-                                      message.getExitCode());
+                        taskDurationSeenByMaster,
+                        message.getCommandDurationList(),
+                        taskDurationSeenByMaster - taskDurationSeenBySlave,
+                        task.getResultMessage().length,
+                        message.getWorkingDataSize(),
+                        message.getExitCode());
             }
 
             job.getRunningTasks().removeAll(completedTasks);
@@ -596,6 +547,34 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
         } finally {
             processCompletedTasksTime += System.currentTimeMillis() - t0;
         }
+    }
+
+    private void copyFileToWorkingDirectory(Messages.TaskResult.OutputFile outputFile, MpiJob job, String stdOutGzFileName) throws IOException {
+        if (outputFile.getName().equals(stdOutGzFileName)) {
+            Path path = job.getWorkingDir().resolve(outputFile.getName().substring(0, outputFile.getName().length() - 3));
+            try (InputStream is = new GZIPInputStream(outputFile.getData().newInput());
+                 OutputStream os = Files.newOutputStream(path)) {
+                ByteStreams.copy(is, os);
+            }
+        } else {
+            Path path = job.getWorkingDir().resolve(outputFile.getName());
+            try (InputStream is = outputFile.getData().newInput();
+                 OutputStream os = Files.newOutputStream(path)) {
+                ByteStreams.copy(is, os);
+            }
+        }
+    }
+
+    private void processCompletedJob(MpiJob job) {
+        ExecutionReport report = new ExecutionReport(job.getErrors());
+        try {
+            job.getListener().onEnd(report);
+        } catch (Exception e) {
+            LOGGER.error(e.toString(), e);
+        }
+        job.getFuture().complete(report);
+
+        MpiJobSchedulerImpl.this.statistics.logJobEnd(job.getId());
     }
 
     @Override
@@ -608,12 +587,44 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
         }
     }
 
+    private void sendCommonFilesChunks() throws IOException {
+        newCommonFileLock.lock();
+        try {
+            for (CommonFile commonFile : newCommonFiles) {
+                LOGGER.info("Sending chunk {} of common file '{}' (last={})",
+                        commonFile.getChunk(), commonFile.getName(), commonFile.isLast());
+                List<Core> allCores = resources.reserveAllCoresOrFail();
+                try {
+                    try (ByteArrayInputStream is = new ByteArrayInputStream(commonFile.getData())) {
+                        // no pre-processor let it as it is
+                        Messages.CommonFile message = Messages.CommonFile.newBuilder()
+                                .setName(commonFile.getName())
+                                .setChunk(commonFile.getChunk())
+                                .setLast(commonFile.isLast())
+                                .setData(ByteString.readFrom(is))
+                                .build();
+                        long t1 = System.currentTimeMillis();
+                        nativeServices.sendCommonFile(message.toByteArray());
+                        long t2 = System.currentTimeMillis();
+                        commonFiles.add(commonFile.getName());
+                        MpiJobSchedulerImpl.this.statistics.logCommonFileTransfer(commonFile.getName(), commonFile.getChunk(), commonFile.getData().length, t2 - t1);
+                    }
+                } finally {
+                    resources.releaseCores(allCores);
+                }
+            }
+            newCommonFiles.clear();
+        } finally {
+            newCommonFileLock.unlock();
+        }
+    }
+
     @Override
     public CompletableFuture<ExecutionReport> execute(CommandExecution execution, Path workingDir, Map<String, String> variables, ExecutionListener listener) {
-        CompletableFuture<ExecutionReport> future = new CompletableFuture<>();
+        CompletableFuture<ExecutionReport> report = new CompletableFuture<>();
         newJobsLock.lock();
         try {
-            MpiJob job = new MpiJob(jobId++, execution, workingDir, variables, listener, future);
+            MpiJob job = new MpiJob(jobId++, execution, workingDir, variables, listener, report);
             newJobs.add(job);
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("Job {} scheduled ({} tasks)", job.getId(), job.getExecution().getExecutionCount());
@@ -621,7 +632,7 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
         } finally {
             newJobsLock.unlock();
         }
-        return future;
+        return report;
     }
 
     @Override
