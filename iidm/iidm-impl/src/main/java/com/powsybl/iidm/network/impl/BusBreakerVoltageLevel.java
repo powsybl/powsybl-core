@@ -498,6 +498,11 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
+        public int getSwitchCount() {
+            return graph.getEdgeCount();
+        }
+
+        @Override
         public void removeSwitch(String switchId) {
             BusBreakerVoltageLevel.this.removeSwitch(switchId);
         }

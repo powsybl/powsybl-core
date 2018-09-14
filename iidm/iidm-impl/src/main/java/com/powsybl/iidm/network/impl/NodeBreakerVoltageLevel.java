@@ -785,6 +785,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
+        public int getSwitchCount() {
+            return Iterables.size(getSwitches());
+        }
+
+        @Override
         public void removeSwitch(String switchId) {
             throw createNotSupportedNodeBreakerTopologyException();
         }

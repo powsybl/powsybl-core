@@ -69,6 +69,11 @@ public interface Substation extends Container<Substation> {
     Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream();
 
     /**
+     * Get the two windings transformers count
+     */
+    int getTwoWindingsTransformerCount();
+
+    /**
      * Get a builder to create a new 3 windings transformer in the substation.
      */
     ThreeWindingsTransformerAdder newThreeWindingsTransformer();
@@ -82,6 +87,11 @@ public interface Substation extends Container<Substation> {
      * Get the 3 windings transformers connected to the substation.
      */
     Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream();
+
+    /**
+     * Get the three windings transformers count
+     */
+    int getThreeWindingsTransformerCount();
 
     /**
      * Get geographical tags associated to the substation.
