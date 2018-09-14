@@ -1,7 +1,9 @@
 # Tutorial - Howto extend the IIDM importer
 
-[IIDM](../../architecture/iidm/README.md) data models can be loaded from files encoded in multiple file formats.  
-powsybl is not limited to the set of currently available formats (XIIDM, UCTE-DEF, Entso-E CGMES, etc): the framework's IIDM importer mechanism is designed to be extended to read a network from other file formats.  
+[IIDM](../../architecture/iidm/README.md) data models can be loaded from files encoded in multiple file formats.
+powsybl is not limited to the set of currently available formats ([XIIDM](../../architecture/iidm/importer/iidm.md),
+[UCTE-DEF](../../architecture/iidm/importer/ucte.md), [Entso-E CGMES](../../architecture/iidm/importer/cgmes.md), etc):
+the framework's IIDM importer mechanism is designed to be extended to read a network from other file formats.  
 
 To support an additional format, a new `Importer` implementation is needed, so you'll have to:
 
@@ -23,7 +25,7 @@ The file contains two lines, as showed in the following table:
 
 
 ## Maven dependencies
-  
+
 After creating the Maven project, you need to add the necessary framework's dependencies to your pom.xml file.  
 
 ```xml
@@ -123,7 +125,6 @@ public class CsvLinesImporter implements Importer {
         try {
             return datasource.exists(null, EXTENSION);
         } catch (IOException e) {
-            e.printStackTrace();
             LOGGER.error(e.toString(), e);
             return false;
         }
@@ -140,8 +141,8 @@ public class CsvLinesImporter implements Importer {
             while(reader.readRecord()) {
                 String id = reader.get("LineId");   
                 LOGGER.info("import lineID {} ", id);
-                Substation s1 = getSubStation(reader.get("SubStationId1"), network, Country.FR);
-                Substation s2 = getSubStation(reader.get("SubStationId2"), network, Country.FR);
+                Substation s1 = getSubstation(reader.get("SubStationId1"), network, Country.FR);
+                Substation s2 = getSubstation(reader.get("SubStationId2"), network, Country.FR);
                 VoltageLevel vlhv1 = getVoltageLevel(reader.get("VoltageLevelId1"), network, s1, 220, TopologyKind.BUS_BREAKER);
                 VoltageLevel vlhv2 = getVoltageLevel(reader.get("VoltageLevelId2"), network, s2, 220, TopologyKind.BUS_BREAKER);
                 Bus nhv1 = getBus(vlhv1, reader.get("BusId1")) ;
@@ -166,13 +167,12 @@ public class CsvLinesImporter implements Importer {
             return network;
             
         } catch (IOException e) {
-            e.printStackTrace();
             LOGGER.error(e.toString(), e);
             return null;
         }
     }    
         
-    private Substation getSubStation(String id, Network network, Country country) {
+    private Substation getSubstation(String id, Network network, Country country) {
         return (network.getSubstation(id) == null) ? network.newSubstation().setId(id).setCountry(country).add() : network.getSubstation(id);    
     }
     
@@ -192,7 +192,7 @@ The `data` parameter  provides access to inputStream, fileName and methods to ve
 
 The `prop` parameter can be used to set properties to configure the import.
 
-The rest of the code in our sample class parse a CSV file using CSV Reader, a class belong to [JAVACSV](https://sourceforge.net/projects/javacsv/) and loads network data, using IIDM API.
+The rest of the code in our sample class parse a CSV file using CSV Reader, a class belong to [JavaCSV](https://sourceforge.net/projects/javacsv/) and loads network data, using IIDM API.
 
 ## Update your installation with the new importer
 
@@ -203,7 +203,7 @@ $> cd <PROJECT_HOME>
 $> mvn install
 ```
 
-Copy the generated jar (in your project's target folder) and javacsv.jar to `<POWSYBL_HOME>/share/java/` folder (you might need to copy in this directory other dependencies jars, specific to your new importer).  
+Copy the generated jar (in your project's target folder) and `javacsv.jar` to `<POWSYBL_HOME>/share/java/` folder (you might need to copy in this directory other dependencies jars, specific to your new importer).  
   
 To test the new importer, run an itools command that involve a network import. 
 For instance [convert-network](../../tools/convert-network.md):
@@ -244,5 +244,3 @@ ceFormat="csv">
 </iidm:network>
 
 ```
-
-
