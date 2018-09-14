@@ -35,19 +35,17 @@ load-flow-action-simulator:
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
-   <componentDefaultConfig>
-       <ContingenciesProviderFactory>com.powsybl.action.dsl.GroovyDslContingenciesProviderFactory</ContingenciesProviderFactory>
-       <SecurityAnalysisFactory>com.powsybl.security.SecurityAnalysisFactoryImpl</SecurityAnalysisFactory>
-       <LoadFlowFactory>com.powsybl.loadflow.mock.LoadFlowFactoryMock</LoadFlowFactory>
-   </componentDefaultConfig>
+    <componentDefaultConfig>
+        <ContingenciesProviderFactory>com.powsybl.action.dsl.GroovyDslContingenciesProviderFactory</ContingenciesProviderFactory>
+        <SecurityAnalysisFactory>com.powsybl.security.SecurityAnalysisFactoryImpl</SecurityAnalysisFactory>
+        <LoadFlowFactory>com.powsybl.loadflow.mock.LoadFlowFactoryMock</LoadFlowFactory>
+    </componentDefaultConfig>
     <load-flow-action-simulator>
-    <load-flow-factory>com.powsybl.loadflow.mock.LoadFlowFactoryMock</load-flow-factory>
-    <max-iterations>4</max-iterations>
-    <ignore-pre-contingency-violations>true</ignore-pre-contingency-violations>
+        <load-flow-factory>com.powsybl.loadflow.mock.LoadFlowFactoryMock</load-flow-factory>
+        <max-iterations>4</max-iterations>
+        <ignore-pre-contingency-violations>true</ignore-pre-contingency-violations>
   </load-flow-action-simulator>
-  
 </config>
-
 ```
 
 ## Running security-analysis command 
@@ -122,8 +120,8 @@ Following is a sample `contingencies_dsl.groovy`, with two contingencies:
 Contingencies_dsl.groovy file, must be declared in the itools security-analysis command line as an additional argument 'contingencies-file':
 
 ```shell
-	$> cd <POWSYBL_HOME>/bin
-	$>./itools security-analysis  --case-file <POWSYBL_SAMPLES>/resources/eurostag_example.xiidm --contingencies-file <POWSYBL_SAMPLES>/resources//contingencies_dsl.groovy
+$> cd <POWSYBL_HOME>/bin
+$>./itools security-analysis  --case-file <POWSYBL_SAMPLES>/resources/eurostag_example.xiidm --contingencies-file <POWSYBL_SAMPLES>/resources//contingencies_dsl.groovy
 ```
 
 

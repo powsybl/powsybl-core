@@ -56,26 +56,31 @@ The methods of the `ImportPostProcessor` interface to override in your class are
  - `process` method, that  executes the processing on the imported network
 
 ```java
-    public static final String NAME = "increaseActivePower";
-    private static final Logger LOGGER = LoggerFactory.getLogger(IncreaseActivePowerPostProcessor.class);
+@AutoService(ImportPostProcessor.class)
+public class IncreaseActivePowerPostProcessor implements ImportPostProcessor {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(IncreaseActivePowerPostProcessor.class);
+    
+    private static final String NAME = "increaseActivePower";
+    
     @Override
     public String getName() {
         return NAME;
     }
 
     @Override
-    public void process(Network network, ComputationManager computationManager) throws Exception {
+    public void process(Network network, ComputationManager computationManager) {
         Objects.requireNonNull(network);
         LOGGER.info("Execute {} post processor on network {}", getName(), network.getId());
         double percent = 1.01;
-        network.getLoads().forEach(load -> {
+        network.getLoadStream().forEach(load -> {
             load.setP0(load.getP0() * percent);
             double p = load.getTerminal().getP();
             load.getTerminal().setP(p * percent);
             LOGGER.info("Load {} : p {} -> {}", load.getId(), p, load.getTerminal().getP());
         });
     }
+}
 ```
 
 The `process` method is in charge of executing your processing, implementing your business logic.  

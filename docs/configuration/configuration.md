@@ -2,9 +2,10 @@
 
 powsybl-core configuration mechanism supports the following file formats: YAML, XML.
 
-The platform will look inside `$HOME/.itools` for a YAML configuration file named `config.yml`; if not found it will try reading an XML file `config.xml`;
-To specify a different configuration directory (other than the default `$HOME/.itools`), and /or specify a different configuration file name (other than the default `config`),
-please ref. [this page](README.md).
+The platform will look inside `$HOME/.itools` for a YAML configuration file named `config.yml`; if not found it will try
+reading an XML file `config.xml`;
+To specify a different configuration directory (other than the default `$HOME/.itools`), and /or specify a different
+configuration file name (other than the default `config`), please ref. [this page](README.md).
 Platform configuration is divided in different sections, as shown here 
 
 ### YAML config file structure

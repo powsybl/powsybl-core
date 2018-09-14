@@ -66,7 +66,7 @@ Available arguments are:
 
 
 ```
-                                        
+
 In order to run the `loadflow-validation` command, you must provide at least these required arguments: 
 - case-file: path of the input network file.
 - output-folder: folder path where validation results will be stored.

@@ -1,4 +1,4 @@
-# itools convert-network command
+# iTools convert-network command
 
 itools `convert-network` command allows you to convert a network, imported from a case file, to a specified output format, exporting it to a file.  
 In powsyble-core, supported output formats are:

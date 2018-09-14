@@ -1,4 +1,4 @@
-# itools run-script command
+# iTools run-script command
 
 itools `run-script` command allows you to run scripts (only Groovy is supported, so far).
 

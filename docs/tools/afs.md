@@ -29,27 +29,27 @@ Available arguments are:
 ```
 
 - `<FILE_SYSTEM_NAME>` is an AFS `drive-name`, as described in [AFS (Application File System)](../../afs/README.md) and configured in  [powsybl configuration file](../configuration/configuration.md)
-- `<PATH>` is an AFS filesystem path (*Note:* to refer a specific AFS, use a  `drive-name:/` prefix in the path)
+- `<PATH>` is an AFS filesystem path (*Note:* to refer a specific AFS, use a `drive-name:/` prefix in the path)
 - `<DIR>` is local filesystem path
 
-##Examples
+## Examples
 Here below we assume that an afs named `my-first-fs` is configured and populated as described in [AFS (Application File System)](../../afs/README.md), section *Using AFS from groovy scripts*.
 
-###Example1: list an afs root folder contents
+### Example 1: list an afs root folder contents
 ```shell
 $> cd <POWSYBL_HOME>/bin
 $> ./itools afs --ls "my-first-fs"
 my-first-folder
 ```
 
-###Example2: list an afs specific folder contents
+### Example 2: list an afs specific folder contents
 ```shell
 $> cd <POWSYBL_HOME>/bin
 $> ./itools afs --ls "my-first-fs:/my-first-folder"
 my-first-project
 ```
 
-###Example3: export the afs content to a directory
+### Example 3: export the afs content to a directory
 The target directory, e.g. `/tmp/archive_my_first_fs` must exist
 
 ```shell 
@@ -59,7 +59,7 @@ $> ./itools afs --archive my-first-fs --dir ./archive_my_first_fs
 ```
 *Note*: The `archive` command exports both the afs' contents and its structure. 
 
-###Example4: restore an afs with a previously archived content directory
+### Example 4: restore an afs with a previously archived content directory
 Let's assume `/tmp/archive_my_first_fs` contains an afs archived content, previously created using the `--archive` argument (ref. Example3, above)
 ```shell 
 $> cd <POWSYBL_HOME>/bin

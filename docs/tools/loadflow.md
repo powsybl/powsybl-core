@@ -1,4 +1,4 @@
-# itools loadflow command
+# iTools loadflow command
 
 itools loadflow command allows you to run a [loadflow](../architecture/loadflow) on a IIDM network, imported from a case file.  
 

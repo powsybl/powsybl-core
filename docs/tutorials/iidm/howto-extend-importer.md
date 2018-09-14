@@ -28,21 +28,21 @@ After creating the Maven project, you need to add the necessary framework's depe
 
 ```xml
 <dependencies>
-       	<dependency>
-		<groupId>com.google.auto.service</groupId>
-		<artifactId>auto-service</artifactId>
-		<version>1.0-rc2</version>
-	</dependency>
-	<dependency>
-		<groupId>com.powsybl</groupId>
-		<artifactId>powsybl-iidm-converter-api</artifactId>
-		<version>${project.version}</version>
-	</dependency>
-	<dependency>
-		<groupId>com.powsybl</groupId>
-		<artifactId>powsybl-iidm-impl</artifactId>
-		<version>${project.version}</version>	
-	</dependency>		
+    <dependency>
+        <groupId>com.google.auto.service</groupId>
+        <artifactId>auto-service</artifactId>
+        <version>1.0-rc2</version>
+    </dependency>
+    <dependency>
+        <groupId>com.powsybl</groupId>
+        <artifactId>powsybl-iidm-converter-api</artifactId>
+        <version>${project.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>com.powsybl</groupId>
+        <artifactId>powsybl-iidm-impl</artifactId>
+        <version>${project.version}</version>
+    </dependency>
 </dependencies>
 ```
 
@@ -51,9 +51,9 @@ E.g. in our sample implementation we use `javacsv` library, so we have to add a 
  
 ```xml
 <dependency>
-	<groupId>net.sourceforge.javacsv</groupId>
-	<artifactId>javacsv</artifactId>
-	<version>2.0</version>
+    <groupId>net.sourceforge.javacsv</groupId>
+    <artifactId>javacsv</artifactId>
+    <version>2.0</version>
 </dependency>
 ```
 
@@ -69,22 +69,22 @@ public class CsvImporter implements Importer {
 
     @Override
     public String getFormat() {
-    	return null;
+        return null;
     }
-	
+
     @Override
     public String getComment() {
-    	return null;
+        return null;
     }
 
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
-    	return false;
+        return false;
     }
-	
+
     @Override
     public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
-    	return null;
+        return null;
     }
 }
 ```
@@ -106,11 +106,11 @@ public class CsvLinesImporter implements Importer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CsvImporter.class);
 
-    private static final String EXTENSION = "csv";	
+    private static final String EXTENSION = "csv";
 
     @Override
     public String getFormat() {
-    	return "CSV";
+        return "CSV";
     }
     
     @Override
@@ -131,7 +131,7 @@ public class CsvLinesImporter implements Importer {
 
     @Override
     public Network importData(ReadOnlyDataSource data, Properties props) {
-    	Network network = NetworkFactory.create("Network_2Lines_Example", EXTENSION);
+        Network network = NetworkFactory.create("Network_2Lines_Example", EXTENSION);
         LOGGER.debug("Start import from file {}", data.getBaseName());
         long startTime = System.currentTimeMillis();
         try {
@@ -173,16 +173,17 @@ public class CsvLinesImporter implements Importer {
     }    
         
     private Substation getSubStation(String id, Network network, Country country) {
-    	return (network.getSubstation(id) == null) ? network.newSubstation().setId(id).setCountry(country).add() : network.getSubstation(id);    
+        return (network.getSubstation(id) == null) ? network.newSubstation().setId(id).setCountry(country).add() : network.getSubstation(id);    
     }
     
     private Bus getBus(VoltageLevel vlhv, String id) {
-    	return (vlhv.getBusBreakerView().getBus(id) == null) ? vlhv.getBusBreakerView().newBus().setId(id).add() : vlhv.getBusBreakerView().getBus(id);
+        return (vlhv.getBusBreakerView().getBus(id) == null) ? vlhv.getBusBreakerView().newBus().setId(id).add() : vlhv.getBusBreakerView().getBus(id);
     }
     
     private VoltageLevel getVoltageLevel(String id, Network network, Substation s, double nominalVoltage,TopologyKind topologyKind ) {
-    	return (network.getVoltageLevel(id) == null) ? s.newVoltageLevel().setId(id).setNominalV(nominalVoltage).setTopologyKind(topologyKind).add() : network.getVoltageLevel(id);    
+        return (network.getVoltageLevel(id) == null) ? s.newVoltageLevel().setId(id).setNominalV(nominalVoltage).setTopologyKind(topologyKind).add() : network.getVoltageLevel(id);    
     }
+}
 ```
 
 The `importData` method is in charge of executing your import.  
@@ -209,13 +210,13 @@ For instance [convert-network](../../tools/convert-network.md):
 
 ```bash
 $> cd <POWSYBL_HOME>/bin
-$>  ./itools convert-network --input-file <POWSYBL_SAMPLES>/resources/test_lines.csv  --output-format XIIDM --output-file /tmp/test_csv_to_xiidm
+$> ./itools convert-network --input-file <POWSYBL_SAMPLES>/resources/test_lines.csv  --output-format XIIDM --output-file /tmp/test_csv_to_xiidm
 
 ```
 
 In the output folder you can find the network converted from csv to xiidm: 
 ```bash
-$>more /tmp/test_csv_to_xiidm
+$> more /tmp/test_csv_to_xiidm
 ```
 
 ```xml
