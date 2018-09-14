@@ -420,6 +420,16 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             return graph.getEdgeObjectStream().filter(Objects::nonNull).filter(Switch::isRetained).map(Function.identity());
         }
 
+        int getSwitchCount() {
+            int count = 0;
+            for (SwitchImpl s : graph.getEdgesObject()) {
+                if (s != null && s.isRetained()) {
+                    count++;
+                }
+            }
+            return count;
+        }
+
         SwitchImpl getSwitch(String switchId, boolean throwException) {
             Integer edge = getEdge(switchId, false);
             if (edge != null) {
@@ -786,7 +796,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public int getSwitchCount() {
-            return Iterables.size(getSwitches());
+            return states.get().calculatedBusBreakerTopology.getSwitchCount();
         }
 
         @Override
@@ -829,6 +839,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     @Override
     public Iterable<Switch> getSwitches() {
         return getNodeBreakerView().getSwitches();
+    }
+
+    @Override
+    public int getSwitchCount() {
+        return getNodeBreakerView().getSwitchCount();
     }
 
     @Override
