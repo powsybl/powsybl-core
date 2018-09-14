@@ -272,7 +272,7 @@ public class BranchDataTest {
     // We check flows in 3-winding transformer BE-TR3_1
 
     enum CAS1EntsoeMicroGrid3wTxVariant {
-        BC, BC_NO_TRANSFORMER_REGULATION, BC_AREA_CONTROL_ON
+        BC, BC_NO_TRANSFORMER_REGULATION, BC_AREA_CONTROL_ON, T1, T2, T3, T4
     }
 
     @Test
@@ -288,6 +288,26 @@ public class BranchDataTest {
     @Test
     public void testCAS1EntsoeMicroGrid3wTxBCAreaControlOn() {
         testCAS1EntsoeMicroGrid3wTx(CAS1EntsoeMicroGrid3wTxVariant.BC_AREA_CONTROL_ON);
+    }
+
+    @Test
+    public void testCAS1EntsoeMicroGrid3wTxT1() {
+        testCAS1EntsoeMicroGrid3wTx(CAS1EntsoeMicroGrid3wTxVariant.T1);
+    }
+
+    @Test
+    public void testCAS1EntsoeMicroGrid3wTxT2() {
+        testCAS1EntsoeMicroGrid3wTx(CAS1EntsoeMicroGrid3wTxVariant.T2);
+    }
+
+    @Test
+    public void testCAS1EntsoeMicroGrid3wTxT3() {
+        testCAS1EntsoeMicroGrid3wTx(CAS1EntsoeMicroGrid3wTxVariant.T3);
+    }
+
+    @Test
+    public void testCAS1EntsoeMicroGrid3wTxT4() {
+        testCAS1EntsoeMicroGrid3wTx(CAS1EntsoeMicroGrid3wTxVariant.T4);
     }
 
     private void testCAS1EntsoeMicroGrid3wTx(CAS1EntsoeMicroGrid3wTxVariant variant) {
@@ -328,6 +348,30 @@ public class BranchDataTest {
                 t.expectedFlow1.p = 61.652507;
                 t.expectedFlow1.q = 5.431494;
                 break;
+            case T1:
+                t.bus1.u = 412.989258;
+                t.bus1.theta = Math.toRadians(-6.78901);
+                t.expectedFlow1.p = 99.586268;
+                t.expectedFlow1.q = 3.250355;
+                break;
+            case T2:
+                t.bus1.u = 412.633073;
+                t.bus1.theta = Math.toRadians(-5.82972);
+                t.expectedFlow1.p = -2.463349;
+                t.expectedFlow1.q = 4.837149;
+                break;
+            case T3:
+                t.bus1.u = 413.589856;
+                t.bus1.theta = Math.toRadians(-6.64052);
+                t.expectedFlow1.p = 67.610584;
+                t.expectedFlow1.q = -11.251975;
+                break;
+            case T4:
+                t.bus1.u = 414.114413;
+                t.bus1.theta = Math.toRadians(-21.5265);
+                t.expectedFlow1.p = -37.513383;
+                t.expectedFlow1.q = 28.348302;
+                break;
         }
         return t;
     }
@@ -365,6 +409,30 @@ public class BranchDataTest {
                 t.expectedFlow1.p = -195.95349;
                 t.expectedFlow1.q = -86.033369;
                 break;
+            case T1:
+                t.bus1.u = 224.315838;
+                t.bus1.theta = Math.toRadians(-8.77964);
+                t.expectedFlow1.p = -216.06472;
+                t.expectedFlow1.q = -85.396168;
+                break;
+            case T2:
+                t.bus1.u = 224.114164;
+                t.bus1.theta = Math.toRadians(-6.54843);
+                t.expectedFlow1.p = -114.74994;
+                t.expectedFlow1.q = -95.746507;
+                break;
+            case T3:
+                t.bus1.u = 226.03389;
+                t.bus1.theta = Math.toRadians(-8.23977);
+                t.expectedFlow1.p = -184.84088;
+                t.expectedFlow1.q = -49.665543;
+                break;
+            case T4:
+                t.bus1.u = 224.156562;
+                t.bus1.theta = Math.toRadians(-21.7962);
+                t.expectedFlow1.p = -79.771949;
+                t.expectedFlow1.q = -108.56893;
+                break;
         }
         return t;
     }
@@ -398,6 +466,30 @@ public class BranchDataTest {
                 t.expectedFlow1.p = 135.34484;
                 t.expectedFlow1.q = 90.056974;
                 break;
+            case T1:
+                t.bus1.u = 21.987;
+                t.bus1.theta = Math.toRadians(-6.665);
+                t.expectedFlow1.p = 117.495810;
+                t.expectedFlow1.q = 92.681978;
+                break;
+            case T2:
+                t.bus1.u = 21.987;
+                t.bus1.theta = Math.toRadians(-5.11757);
+                t.expectedFlow1.p = 118.0;
+                t.expectedFlow1.q = 96.822572;
+                break;
+            case T3:
+                t.bus1.u = 21.987;
+                t.bus1.theta = Math.toRadians(-6.29357);
+                t.expectedFlow1.p = 118.0;
+                t.expectedFlow1.q = 68.339383;
+                break;
+            case T4:
+                t.bus1.u = 21.987;
+                t.bus1.theta = Math.toRadians(-20.5883);
+                t.expectedFlow1.p = 118.0;
+                t.expectedFlow1.q = 85.603401;
+                break;
         }
         return t;
     }
@@ -405,6 +497,11 @@ public class BranchDataTest {
     // Test tools
 
     private void check3wTx(BranchTestCase w1, BranchTestCase w2, BranchTestCase w3) {
+        String label1 = String.format("star bus from V1, S1 (%s)", w1.branch.id);
+        String label2 = String.format("star bus from V2, S2 (%s)", w2.branch.id);
+        String label3 = String.format("star bus from V3, S3 (%s)", w3.branch.id);
+        String label123 = "star bus from V1, V2, V3";
+
         Bus starBus1tx = calcStarBusFromVkSk(w1);
         Bus starBus2tx = calcStarBusFromVkSk(w2);
         Bus starBus3tx = calcStarBusFromVkSk(w3);
@@ -418,15 +515,15 @@ public class BranchDataTest {
         Bus starBusV1V2V3Y = calcStarBusV1V2V3Y(w1, w2, w3);
         LOG.debug("comparing voltages computed from different alternatives");
         LOG.debug("applying conversion to IIDM transformer modeling for each end");
-        logVoltage(w1.branch.id, starBus1tx);
-        logVoltage(w2.branch.id, starBus2tx);
-        logVoltage(w3.branch.id, starBus3tx);
-        logVoltage("V1,V2,V3", starBusV1V2V3Ytx);
+        logVoltage(label1, starBus1tx);
+        logVoltage(label2, starBus2tx);
+        logVoltage(label3, starBus3tx);
+        logVoltage(label123, starBusV1V2V3Ytx);
         LOG.debug("without applying conversion to IIDM transformer modeling for each end");
-        logVoltage(w1.branch.id, starBus1);
-        logVoltage(w2.branch.id, starBus2);
-        logVoltage(w3.branch.id, starBus3);
-        logVoltage("V1,V2,V3", starBusV1V2V3Y);
+        logVoltage(label1, starBus1);
+        logVoltage(label2, starBus2);
+        logVoltage(label3, starBus3);
+        logVoltage(label123, starBusV1V2V3Y);
 
         // Ensure the voltage of the star bus is similar
         // when it is computed using the different alternatives
@@ -448,19 +545,22 @@ public class BranchDataTest {
         // there will be a non-zero balance at star bus,
         // either because flows are not given with enough precision or because
         // the given solution already contained had a mismatch at star bus
-        checkBusBalance3wStarBus(w3, w2, w1, starBus1, TOLERANCE_BALANCE_3W_STAR_BUS, "star bus from V1, S1");
-        checkBusBalance3wStarBus(w3, w2, w1, starBus2, TOLERANCE_BALANCE_3W_STAR_BUS, "star bus from V2, S2");
-        checkBusBalance3wStarBus(w3, w2, w1, starBus3, TOLERANCE_BALANCE_3W_STAR_BUS, "star bus from V3, S3");
+        w1.config.toleranceFlow = TOLERANCE_FLOW_WHEN_3W_STAR_BUS_FROM_VS;
+        w2.config.toleranceFlow = TOLERANCE_FLOW_WHEN_3W_STAR_BUS_FROM_VS;
+        w3.config.toleranceFlow = TOLERANCE_FLOW_WHEN_3W_STAR_BUS_FROM_VS;
+        checkBusBalance3wStarBus(w3, w2, w1, starBus1, TOLERANCE_BALANCE_3W_STAR_BUS, label1);
+        checkBusBalance3wStarBus(w3, w2, w1, starBus2, TOLERANCE_BALANCE_3W_STAR_BUS, label2);
+        checkBusBalance3wStarBus(w3, w2, w1, starBus3, TOLERANCE_BALANCE_3W_STAR_BUS, label3);
 
         // When star bus voltage is computed from the three transformer end voltages,
         // it is calculated imposing bus balance equals zero at star bus,
         // so we can check the bus balance is exactly zero,
         // but we have to increase to tolerance when comparing flows
         // with the given values
-        w3.config.toleranceFlow = 0.3;
-        w2.config.toleranceFlow = 0.3;
-        w1.config.toleranceFlow = 0.3;
-        checkBusBalance3wStarBus(w3, w2, w1, starBusV1V2V3Y, TOLERANCE_BALANCE_EXACT, "star bus from V1, V2, V3");
+        w1.config.toleranceFlow = TOLERANCE_FLOW_WHEN_3W_STAR_BUS_FROM_V1V2V3Y;
+        w2.config.toleranceFlow = TOLERANCE_FLOW_WHEN_3W_STAR_BUS_FROM_V1V2V3Y;
+        w3.config.toleranceFlow = TOLERANCE_FLOW_WHEN_3W_STAR_BUS_FROM_V1V2V3Y;
+        checkBusBalance3wStarBus(w3, w2, w1, starBusV1V2V3Y, TOLERANCE_BALANCE_EXACT, label123);
     }
 
     private BranchData checkTestCase(String title, BranchTestCase t) {
@@ -585,9 +685,9 @@ public class BranchDataTest {
         w1.bus2 = starBus;
         w2.bus2 = starBus;
         w3.bus2 = starBus;
-        BranchData r1 = checkTestCase(w1.branch.id, w1);
-        BranchData r2 = checkTestCase(w2.branch.id, w2);
-        BranchData r3 = checkTestCase(w3.branch.id, w3);
+        BranchData r1 = checkTestCase(label, w1);
+        BranchData r2 = checkTestCase(label, w2);
+        BranchData r3 = checkTestCase(label, w3);
         Flow f1 = flow(r1, Side.TWO);
         Flow f2 = flow(r2, Side.TWO);
         Flow f3 = flow(r3, Side.TWO);
@@ -688,6 +788,9 @@ public class BranchDataTest {
         LOG.debug(String.format("    diff       = %14.6f  %14.6f",
                 Math.abs(t.expectedFlow1.p - b.getComputedP1()),
                 Math.abs(t.expectedFlow1.q - b.getComputedQ1())));
+        LOG.debug(String.format("    tolerance  = %14.6f  %14.6f",
+                t.config.toleranceFlow,
+                t.config.toleranceFlow));
         LOG.debug("End2");
         LOG.debug(String.format("    V          = %14.6f  %14.6f",
                 b.getComputedU2(),
@@ -701,6 +804,9 @@ public class BranchDataTest {
         LOG.debug(String.format("    diff       = %14.6f  %14.6f",
                 Math.abs(t.expectedFlow2.p - b.getComputedP2()),
                 Math.abs(t.expectedFlow2.q - b.getComputedQ2())));
+        LOG.debug(String.format("    tolerance  = %14.6f  %14.6f",
+                t.config.toleranceFlow,
+                t.config.toleranceFlow));
     }
 
     private void logBusBalance(String title, Flow... flows) {
@@ -800,4 +906,6 @@ public class BranchDataTest {
     private static final double TOLERANCE_FLOW = 0.01;
     private static final double TOLERANCE_BALANCE_EXACT = 1e-10;
     private static final double TOLERANCE_BALANCE_3W_STAR_BUS = 0.8;
+    private static final double TOLERANCE_FLOW_WHEN_3W_STAR_BUS_FROM_VS = 0.03;
+    private static final double TOLERANCE_FLOW_WHEN_3W_STAR_BUS_FROM_V1V2V3Y = 0.3;
 }
