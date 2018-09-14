@@ -6,10 +6,10 @@ The generic syntax to describe a rule is:
 
 ```
 rule('rule-id') {
-  description "This is a description" // optional
-  when (condition1 || condition2) && condition3
-  apply 'action1-id', 'action2-id'
-  life N // optional
+    description "This is a description" // optional
+    when (condition1 || condition2) && condition3
+    apply 'action1-id', 'action2-id'
+    life N // optional
 }
 ```
 
@@ -40,8 +40,8 @@ In the example below, action2 is applied only if action1 was applied in a previo
 
 ```
 rule('rule2-id') {
-  when actionTaken('action1-id') && Switch1_is_open
-  apply 'action2-id'
+    when actionTaken('action1-id') && Switch1_is_open
+    apply 'action2-id'
 }
 ```
 
@@ -54,16 +54,15 @@ In the current implementation, there is no notion of timeline. The only way to s
 Here is an example of action applied on the pre contingency state.
 ```
 rule('rule-id') {
-  when !contingencyOccurred()
-  apply 'pre-contingency-action-id'
+    when !contingencyOccurred()
+    apply 'pre-contingency-action-id'
 }
 ```
 
 Here is an example of action applied on a post contingency state (after contingency1).
 ```
 rule('rule-id') {
-  when contingencyOccurred('contingency1')
-  apply 'post-contingency1-action-id'
+    when contingencyOccurred('contingency1')
+    apply 'post-contingency1-action-id'
 }
 ```
-

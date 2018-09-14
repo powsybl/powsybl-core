@@ -6,17 +6,18 @@ The generic syntax to describe a single or a set of actions is:
 
 ```
 action('action-id') {
-  description "this is a description" // optional
-  tasks{
-    preDefinedAction1
-    ...
-    preDefinedActionN
-    script{ // optional
-      scriptAction1
-      ...
-      scriptActionN
+    description "this is a description" // optional
+    tasks {
+        preDefinedAction1
+        ...
+        preDefinedActionN
+        
+        script { // optional
+            scriptAction1
+            ...
+            scriptActionN
+        }
     }
-  }
 }
 ```
 
@@ -28,12 +29,12 @@ This action consists in 2 manipulations of switches and a composite action (chan
 
 ```
 action('action-id') {
-  description "this is a description"
-  tasks{
-    openSwitch 'switch1-id'
-    closeSwitch 'switch2-id'
-    PhaseShifterFixedTap('pst-id',25)
-  }
+    description "this is a description"
+    tasks {
+        openSwitch 'switch1-id'
+        closeSwitch 'switch2-id'
+        PhaseShifterFixedTap('pst-id', 25)
+    }
 }
 ```
 
@@ -45,16 +46,17 @@ The same set of actions as above can be described directly in the script. The us
 import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.FIXED_TAP
 
 action('action-id') {
-  description "this is a description"
-  tasks{
-    script{
-      // switch is a reserved groovy key word
-      switch_('switch1-id').open = true
-      _switch('switch2-id').open = false
-      transformer('pst-id').phaseTapChanger.regulationMode = FIXED_TAP
-      transformer('pst-id').phaseTapChanger.tapPosition = 25
+    description "this is a description"
+    tasks {
+        script {
+            // switch is a reserved groovy keyword, use _switch or switch_ instead
+            switch_('switch1-id').open = true
+            _switch('switch2-id').open = false
+            
+            transformer('pst-id').phaseTapChanger.regulationMode = FIXED_TAP
+            transformer('pst-id').phaseTapChanger.tapPosition = 25
+        }
     }
-  }
 }
 ```
 
@@ -75,7 +77,7 @@ closeSwitch 'switch-id'
 ```
 ### Set a new tap and switch to fixed tap mode
 ```
-PhaseShifterFixedTap('pst-id',tapPosition)
+PhaseShifterFixedTap('pst-id', tapPosition)
 ```
 
 ### Set the best optimal tap (loadflow based)

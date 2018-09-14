@@ -6,7 +6,7 @@ This list contains one contingency.
 
 ```
 contingency('contingency-id') {
-  equipments 'equipment-id'
+    equipments 'equipment-id'
 }
 ```
 
@@ -16,7 +16,7 @@ This list contains one contingency on both "equipment1" and "equipment2".
 
 ```
 contingency('contingency-id') {
-  equipments 'equipment1-id', 'equipement2-id'
+    equipments 'equipment1-id', 'equipement2-id'
 }
 ```
 
@@ -26,11 +26,11 @@ This list contains two contingencies. The first one on "equipment1" and the seco
 
 ```
 contingency('contingency1-id') {
-  equipments 'equipment1-id'
+    equipments 'equipment1-id'
 }
 
 contingency('contingency2-id') {
-  equipments 'equipment2-id'
+    equipments 'equipment2-id'
 }
 ```
 
@@ -44,14 +44,15 @@ Here is a list of contingencies with only tie lines.
 
 ```
 import com.powsybl.iidm.network.Country
+
 for (l in network.lines) {
-  s1 = l.terminal1.voltageLevel.substation
-  s2 = l.terminal2.voltageLevel.substation
-  if (s1.country != s2.country) {
-    contingency(l.id) {
-      equipments l.id
+    s1 = l.terminal1.voltageLevel.substation
+    s2 = l.terminal2.voltageLevel.substation
+    if (s1.country != s2.country) {
+        contingency(l.id) {
+            equipments l.id
+        }
     }
-  }
 }
 ```
 
@@ -59,29 +60,30 @@ Here is a list of contingencies with only 380 kV lines.
 
 ```
 for (l in network.lines) {
-  s1 = l.terminal1.voltageLevel
-  s2 = l.terminal2.voltageLevel
-  if (s1.nominalV == 380 || s2.nominalV == 380) {
-    contingency(l.id) {
-      equipments l.id
+    s1 = l.terminal1.voltageLevel
+    s2 = l.terminal2.voltageLevel
+    if (s1.nominalV == 380 || s2.nominalV == 380) {
+        contingency(l.id) {
+            equipments l.id
+        }
     }
-  }
 }
 ```
 
-An alternative way to list contingencies using "stream" is possible.
+An alternative way to list contingencies using the Stream API is possible.
 
 Here is a list of contingencies with the 3 first 225 kV lines in France.
 
 ```
 import com.powsybl.iidm.network.Country
+
 network.lineStream
     .filter({l -> l.terminal1.voltageLevel.substation.country == Country.FR})
     .filter({l -> l.terminal2.voltageLevel.substation.country == Country.FR})
     .filter({l -> l.terminal1.voltageLevel.nominalV == 225.0})
     .filter({l -> l.terminal2.voltageLevel.nominalV == 225.0})
     .limit(3)
-	  .sorted({l1,l2 -> l1.id.compareTo(l2.id)})
+    .sorted({l1,l2 -> l1.id.compareTo(l2.id)})
     .forEach({l ->
         contingency(l.id) {
             equipments l.id
@@ -94,8 +96,9 @@ Here is a list of contingencies with the 3 first nuclear generators with a maxim
 ```
 import com.powsybl.iidm.network.Country
 import com.powsybl.iidm.network.EnergySource
+
 network.generatorStream
-	  .filter({g -> g.terminal.voltageLevel.substation.country == Country.FR})
+    .filter({g -> g.terminal.voltageLevel.substation.country == Country.FR})
     .filter({g -> g.energySource == EnergySource.NUCLEAR})
     .filter({g -> g.maxP > 1000})
     .limit(3)
@@ -106,5 +109,3 @@ network.generatorStream
         }
     })
 ```
-
-
