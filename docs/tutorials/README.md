@@ -1,7 +1,7 @@
 # Tutorials
 
 ## iTools
-- [Howto configure iTools log file](../configuration/logger.md)
+- [Howto configure iTools log file](itools/howto-logger.md)
 - [Howto extend iTools](itools/howto-extend-itools.md)
 
 ## IIDM
