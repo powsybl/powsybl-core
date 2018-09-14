@@ -13,7 +13,7 @@ A sample maven project implementing this command can be found [here](../../sampl
 After creating the Maven project, you need to add the necessary dependencies to your pom.xml file.  
 Maven dependencies required for implementing a new itools command are the following:  
 
-```
+```xml
 <dependency>
     <groupId>com.google.auto.service</groupId>
     <artifactId>auto-service</artifactId>
@@ -22,13 +22,13 @@ Maven dependencies required for implementing a new itools command are the follow
 <dependency>
     <groupId>com.powsybl</groupId>
     <artifactId>powsybl-tools</artifactId>
-    <version>${project.version}</version>
+    <version>${powsybl.version}</version>
 </dependency>
 ```
 
 In your project you also need to add the other dependencies required by your command business logic implementation, e.g. for implementing the itools command displaying the number of lines of a network, you would have to add the following dependency to IIDM converter API, needed to import IIDM networks:
 
-```
+```xml
 <dependency>
     <groupId>com.powsybl</groupId>
     <artifactId>powsybl-iidm-converter-api</artifactId>
@@ -41,7 +41,7 @@ In your project you also need to add the other dependencies required by your com
 For creating a new itool command, you need to implement the `com.powsybl.tools.Tools` interface.  
 Following is a sample class, where you will put the code for displaying the number of lines of a IIDM network.  
 
-```
+```java
 @AutoService(Tool.class)
 public class CountNetworkLinesTool implements Tool {
 
@@ -62,7 +62,7 @@ The methods of the `Tools` interface to override in your class are:
  - `getCommand` method, that returns the declaration of your command
  - `run` method, in charge of running your command 
 
-```
+```java
     private static final String CASE_FILE = "case-file";
 
     @Override
@@ -107,7 +107,7 @@ The methods of the `Tools` interface to override in your class are:
 The `getCommand` method returns a class implementing the `com.powsybl.tools.Command` interface. This interface declares your command, defining name, description and theme (the theme is used to group the commands, see [itools description](../../tools/README.md); already available values, in powsybl-core, are: *application file system, computation, data conversion, MBI statistics*, but you can also define new themes). Our samples class defines name (`count-network-lines`), description (`Count network lines`) and theme (`Network`, a new theme) of the new command for counting network lines.  
 The `Command` class also defines your command options (input parameters), if they are required and/or they need an argument (see `org.apache.commons.cli.Options` and `org.apache.commons.cli.Option` classes). The only option defined in our sample class, `case-file`, allows the user to specify the network file to analyze. The option is required (`.required()`) and has an argument, the input case file (`.hasArg().argName("FILE")`).  
 
-```
+```java
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE));
@@ -130,7 +130,7 @@ The rest of the code in our sample class loads the input network, using the impo
 
 Run the following command to create your project jar:
 
-```
+```bash
 $> cd <PROJECT_HOME>
 $> mvn install
 ```
@@ -140,7 +140,7 @@ Copy the generated jar to `<POWSYBL_HOME>/share/java/` folder (you might need to
 Adding the jar containing our sample command implementation to your powsybl installation, the new `count-network-lines` command will be listed in the itools commands list.  
 Following is the help of the the new `count-network-lines` sample command:
 
-```
+```bash
 $> cd <POWSYBL_HOME>/bin
 $> ./itools count-network-lines --help
 
@@ -157,7 +157,7 @@ Available arguments are:
 
 In order to run the new command enter:
 
-```
+```bash
 $> cd <POWSYBL_HOME>/bin
 $> ./itools count-network-lines --case-file networkfileName
 ```
