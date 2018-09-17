@@ -355,7 +355,7 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
         }
     }
 
-    private boolean processJobs(List<MpiTask> completedTasks) throws IOException, InterruptedException {
+    private boolean processJobs(List<MpiTask> completedTasks) throws IOException {
         boolean sleep = true;
 
         for (Iterator<MpiJob> it = jobs.iterator(); it.hasNext(); ) {
@@ -399,7 +399,7 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
         return sleep;
     }
 
-    private boolean startTasks(MpiJob job) throws IOException, InterruptedException {
+    private boolean startTasks(MpiJob job) throws IOException {
         long t0 = System.currentTimeMillis();
         try {
             CommandExecution execution = job.getExecution();
