@@ -6,32 +6,14 @@
  */
 package com.powsybl.timeseries;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 /**
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface TimeSeriesNameResolver {
-
-    TimeSeriesNameResolver EMPTY = new TimeSeriesNameResolver() {
-
-        @Override
-        public List<TimeSeriesMetadata> getTimeSeriesMetadata(Set<String> timeSeriesNames) {
-            return Collections.emptyList();
-        }
-
-        @Override
-        public Set<Integer> getTimeSeriesDataVersions(String timeSeriesName) {
-            return Collections.emptySet();
-        }
-
-        @Override
-        public List<DoubleTimeSeries> getDoubleTimeSeries(Set<String> timeSeriesNames) {
-            return Collections.emptyList();
-        }
-    };
 
     List<TimeSeriesMetadata> getTimeSeriesMetadata(Set<String> timeSeriesNames);
 

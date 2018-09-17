@@ -25,11 +25,29 @@ import java.util.stream.Stream;
  */
 public class CalculatedTimeSeries implements DoubleTimeSeries {
 
+    public static final TimeSeriesNameResolver EMPTY_RESOLVER = new TimeSeriesNameResolver() {
+
+        @Override
+        public List<TimeSeriesMetadata> getTimeSeriesMetadata(Set<String> timeSeriesNames) {
+            return Collections.emptyList();
+        }
+
+        @Override
+        public Set<Integer> getTimeSeriesDataVersions(String timeSeriesName) {
+            return Collections.emptySet();
+        }
+
+        @Override
+        public List<DoubleTimeSeries> getDoubleTimeSeries(Set<String> timeSeriesNames) {
+            return Collections.emptyList();
+        }
+    };
+
     private final String name;
 
     private final NodeCalc nodeCalc;
 
-    private TimeSeriesNameResolver resolver = TimeSeriesNameResolver.EMPTY;
+    private TimeSeriesNameResolver resolver = EMPTY_RESOLVER;
 
     private final TimeSeriesMetadata metadata;
 
@@ -77,7 +95,7 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
             index = InfiniteTimeSeriesIndex.INSTANCE;
         } else {
             if (resolver == null) {
-                throw new TimeSeriesException("Time series resolver is null");
+                throw new TimeSeriesException("Time series name resolver is null");
             }
 
             // check all time series are already sync on the same index
@@ -102,7 +120,7 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
             return Collections.emptySet();
         } else {
             if (resolver == null) {
-                throw new TimeSeriesException("Time series resolver is null");
+                throw new TimeSeriesException("Time series name resolver is null");
             }
 
             Set<Integer> commonVersions = new HashSet<>();
