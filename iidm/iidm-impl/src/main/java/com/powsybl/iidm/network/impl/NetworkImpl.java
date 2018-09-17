@@ -70,6 +70,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
             return getVoltageLevelStream().flatMap(vl -> vl.getBusBreakerView().getSwitchStream());
         }
 
+        @Override
+        public int getSwitchCount() {
+            return getVoltageLevelStream().mapToInt(vl -> vl.getBusBreakerView().getSwitchCount()).sum();
+        }
+
     }
 
     private final BusBreakerViewImpl busBreakerView = new BusBreakerViewImpl();

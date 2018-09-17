@@ -65,6 +65,11 @@ public interface Network extends Container<Network> {
          * Get all switches.
          */
         Stream<Switch> getSwitchStream();
+
+        /**
+         * Get the switch count.
+         */
+        int getSwitchCount();
     }
 
     /**
