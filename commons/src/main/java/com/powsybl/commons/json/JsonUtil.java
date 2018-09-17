@@ -23,9 +23,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -190,12 +188,23 @@ public final class JsonUtil {
         }
     }
 
+    public static void readDoubleArray(List<Double> doubles, JsonParser parser) throws IOException {
+        while (parser.nextToken() != JsonToken.END_ARRAY) {
+            doubles.add(parser.readValueAs(Double.class));
+        }
+    }
+
     public static <T> List<Extension<T>> readExtensions(JsonParser parser, DeserializationContext context) throws IOException {
         return readExtensions(parser, context, SUPPLIER.get());
     }
 
     public static <T> List<Extension<T>> readExtensions(JsonParser parser, DeserializationContext context,
                                                         ExtensionProviders<? extends ExtensionJsonSerializer> supplier) throws IOException {
+        return readExtensions(parser, context, supplier, null);
+    }
+
+    public static <T> List<Extension<T>> readExtensions(JsonParser parser, DeserializationContext context,
+                                                        ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound) throws IOException {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(context);
         Objects.requireNonNull(supplier);
@@ -210,6 +219,9 @@ public final class JsonUtil {
                 Extension<T> extension = extensionJsonSerializer.deserialize(parser, context);
                 extensions.add(extension);
             } else {
+                if (extensionsNotFound != null) {
+                    extensionsNotFound.add(extensionName);
+                }
                 skip(parser);
             }
         }
