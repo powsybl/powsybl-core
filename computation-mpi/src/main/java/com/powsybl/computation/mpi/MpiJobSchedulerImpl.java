@@ -418,8 +418,10 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
                     statistics.logJobStart(job.getId(), command.getId(), execution.getTags());
                 }
 
-                LOGGER.debug("Sending commands {} to slaves {} using working directory {}",
-                        command.toString(-1), allocatedCores, job.getWorkingDir());
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Sending commands {} to slaves {} using working directory {}",
+                            command.toString(-1), allocatedCores, job.getWorkingDir());
+                }
 
                 DateTime startTime = DateTime.now();
 

@@ -23,12 +23,7 @@ import java.io.UncheckedIOException;
  */
 abstract class AbstractSecurityIndex implements SecurityIndex {
 
-    protected static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(new Supplier<XMLOutputFactory>() {
-        @Override
-        public XMLOutputFactory get() {
-            return XMLOutputFactory.newInstance();
-        }
-    });
+    protected static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLOutputFactory::newInstance);
 
     protected final SecurityIndexId id;
 

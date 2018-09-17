@@ -35,11 +35,9 @@ final class ContingencyTopologyTraverser {
             public boolean traverse(Terminal terminal, boolean connected) {
                 boolean traverse = true;
 
-                if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
-                    if (connected) {
-                        terminalsToDisconnect.add(terminal);
-                        traverse = false;
-                    }
+                if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER && connected) {
+                    terminalsToDisconnect.add(terminal);
+                    traverse = false;
                 }
 
                 return traverse;

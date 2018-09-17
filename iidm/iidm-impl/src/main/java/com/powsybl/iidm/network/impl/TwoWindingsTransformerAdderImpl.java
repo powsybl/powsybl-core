@@ -82,16 +82,16 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
     @Override
     public TwoWindingsTransformer add() {
         String id = checkAndGetUniqueId();
-        VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1(id);
-        VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2(id);
+        VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
+        VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
         if (voltageLevel1.getSubstation() != substation || voltageLevel2.getSubstation() != substation) {
             throw new ValidationException(this,
                     "the 2 windings of the transformer shall belong to the substation '"
                     + substation.getId() + "' ('" + voltageLevel1.getSubstation().getId() + "', '"
                     + voltageLevel2.getSubstation().getId() + "')");
         }
-        TerminalExt terminal1 = checkAndGetTerminal1(id);
-        TerminalExt terminal2 = checkAndGetTerminal2(id);
+        TerminalExt terminal1 = checkAndGetTerminal1();
+        TerminalExt terminal2 = checkAndGetTerminal2();
 
         ValidationUtil.checkR(this, r);
         ValidationUtil.checkX(this, x);

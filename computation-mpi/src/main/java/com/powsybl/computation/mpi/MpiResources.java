@@ -56,7 +56,7 @@ class MpiResources {
         }
     }
 
-    List<Core> reserveCores(int required, Set<Integer> preferedRanks) throws InterruptedException {
+    List<Core> reserveCores(int required, Set<Integer> preferedRanks) {
         int provided;
         if (semaphore.tryAcquire(required)) {
             provided = required;

@@ -10,7 +10,7 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface TapChanger<TC extends TapChanger<TC, TCS>, TCS extends TapChangerStep<TCS>> {
+public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep<S>> {
 
     /**
      * Get the lowest tap position corresponding to the first step of the tap changer.
@@ -40,7 +40,7 @@ public interface TapChanger<TC extends TapChanger<TC, TCS>, TCS extends TapChang
      *
      * @param tapPosition the current tap position
      */
-    TC setTapPosition(int tapPosition);
+    C setTapPosition(int tapPosition);
 
     /**
      * Get the number of steps.
@@ -53,7 +53,7 @@ public interface TapChanger<TC extends TapChanger<TC, TCS>, TCS extends TapChang
      * @param tapPosition position of the tap
      * @return the step
      */
-    TCS getStep(int tapPosition);
+    S getStep(int tapPosition);
 
     /**
      * Get the current step.
@@ -61,7 +61,7 @@ public interface TapChanger<TC extends TapChanger<TC, TCS>, TCS extends TapChang
      * Depends on the working state.
      * @see StateManager
      */
-    TCS getCurrentStep();
+    S getCurrentStep();
 
     /**
      * Get the regulating status.
@@ -77,7 +77,7 @@ public interface TapChanger<TC extends TapChanger<TC, TCS>, TCS extends TapChang
      * Depends on the working state.
      * @see StateManager
      */
-    TC setRegulating(boolean regulating);
+    C setRegulating(boolean regulating);
 
     /**
      * Get the terminal used for regulation.
@@ -87,7 +87,7 @@ public interface TapChanger<TC extends TapChanger<TC, TCS>, TCS extends TapChang
     /**
      * Set the terminal used for regulation.
      */
-    TC setRegulationTerminal(Terminal regulationTerminal);
+    C setRegulationTerminal(Terminal regulationTerminal);
 
     /**
      * Remove the tap changer.
