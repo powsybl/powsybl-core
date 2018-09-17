@@ -47,18 +47,21 @@ public interface NodeCalc {
     static NodeCalc parseJson(JsonParser parser) {
         Objects.requireNonNull(parser);
         try {
+            NodeCalc nodeCalc = null;
             JsonToken token;
             while ((token = parser.nextToken()) != null) {
                 if (token == JsonToken.START_OBJECT) {
                     // skip
+                } else if (token == JsonToken.END_OBJECT) {
+                    break;
                 } else {
-                    return parseJson(parser, token);
+                    nodeCalc = parseJson(parser, token);
                 }
             }
+            return nodeCalc;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        return null;
     }
 
     static TimeSeriesException createUnexpectedToken(JsonToken token) {

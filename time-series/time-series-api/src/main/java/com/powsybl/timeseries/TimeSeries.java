@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.google.common.base.Stopwatch;
 import com.google.common.primitives.Doubles;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.timeseries.ast.NodeCalc;
 import gnu.trove.list.array.TDoubleArrayList;
 import org.slf4j.LoggerFactory;
 import org.threeten.extra.Interval;
@@ -40,6 +41,8 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     Iterator<P> iterator();
 
     List<T> split(int newChunkSize);
+
+    void setTimeSeriesNameResolver(TimeSeriesNameResolver resolver);
 
     static <P extends AbstractPoint, T extends TimeSeries<P, T>> List<List<T>> split(List<T> timeSeriesList, int newChunkSize) {
         Objects.requireNonNull(timeSeriesList);
@@ -116,8 +119,8 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             values = new Object[names.size()];
         }
 
-        private static AssertionError assertDataType(TimeSeriesDataType dataType) {
-            return new AssertionError("Unexpected data type " + dataType);
+        private static TimeSeriesException assertDataType(TimeSeriesDataType dataType) {
+            return new TimeSeriesException("Unexpected data type " + dataType);
         }
 
         private TDoubleArrayList createDoubleValues() {
@@ -317,8 +320,14 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     static void writeJson(JsonGenerator generator, List<? extends TimeSeries> timeSeriesList) {
         Objects.requireNonNull(timeSeriesList);
-        for (TimeSeries timeSeries : timeSeriesList) {
-            timeSeries.writeJson(generator);
+        try {
+            generator.writeStartArray();
+            for (TimeSeries timeSeries : timeSeriesList) {
+                timeSeries.writeJson(generator);
+            }
+            generator.writeEndArray();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -328,6 +337,10 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     static void writeJson(Path file, List<? extends TimeSeries> timeSeriesList) {
         JsonUtil.writeJson(file, generator -> writeJson(generator, timeSeriesList));
+    }
+
+    static String toJson(List<? extends TimeSeries> timeSeriesList) {
+        return JsonUtil.toJson(generator -> writeJson(generator, timeSeriesList));
     }
 
     static void parseChunks(JsonParser parser, TimeSeriesMetadata metadata, List<TimeSeries> timeSeriesList) {
@@ -346,7 +359,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             }
             timeSeriesList.add(new StringTimeSeries(metadata, stringChunks));
         } else {
-            throw new AssertionError("Unexpected time series data type " + metadata.getDataType());
+            throw new TimeSeriesException("Unexpected time series data type " + metadata.getDataType());
         }
     }
 
@@ -359,6 +372,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         List<TimeSeries> timeSeriesList = new ArrayList<>();
         try {
             TimeSeriesMetadata metadata = null;
+            String name = null;
             JsonToken token;
             while ((token = parser.nextToken()) != null) {
                 if (token == JsonToken.FIELD_NAME) {
@@ -368,11 +382,17 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                             metadata = TimeSeriesMetadata.parseJson(parser);
                             break;
                         case "chunks":
-                            if (metadata == null) {
-                                throw new AssertionError("metadata is null");
-                            }
+                            Objects.requireNonNull(metadata);
                             parseChunks(parser, metadata, timeSeriesList);
                             metadata = null;
+                            break;
+                        case "name":
+                            name = parser.nextTextValue();
+                            break;
+                        case "expr":
+                            Objects.requireNonNull(name);
+                            NodeCalc nodeCalc = NodeCalc.parseJson(parser);
+                            timeSeriesList.add(new CalculatedTimeSeries(name, nodeCalc));
                             break;
                         default:
                             break;

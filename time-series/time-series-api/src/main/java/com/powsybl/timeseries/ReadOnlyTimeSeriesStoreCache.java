@@ -40,50 +40,55 @@ public class ReadOnlyTimeSeriesStoreCache implements ReadOnlyTimeSeriesStore {
 
     @Override
     public TimeSeriesMetadata getTimeSeriesMetadata(String timeSeriesName) {
-        return getDoubleTimeSeries(timeSeriesName, 1).getMetadata();
+        Objects.requireNonNull(timeSeriesName);
+        DoubleTimeSeries timeSeries = doubleTimeSeriesMap.get(timeSeriesName);
+        return timeSeries != null ? timeSeries.getMetadata() : null;
     }
 
     @Override
     public List<TimeSeriesMetadata> getTimeSeriesMetadata(Set<String> timeSeriesNames) {
-        return getDoubleTimeSeries(timeSeriesNames, 1).stream().map(TimeSeries::getMetadata).collect(Collectors.toList());
-    }
-
-    private static UnsupportedOperationException createNotImplementedException() {
-        return new UnsupportedOperationException("Not implemented");
+        Objects.requireNonNull(timeSeriesNames);
+        return timeSeriesNames.stream()
+                .map(this::getTimeSeriesMetadata)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     @Override
     public Set<Integer> getTimeSeriesDataVersions() {
-        throw createNotImplementedException();
+        return Collections.emptySet();
     }
 
     @Override
     public Set<Integer> getTimeSeriesDataVersions(String timeSeriesName) {
-        throw createNotImplementedException();
+        return Collections.emptySet();
     }
 
     @Override
     public DoubleTimeSeries getDoubleTimeSeries(String timeSeriesName, int version) {
-        DoubleTimeSeries doubleTimeSeries = doubleTimeSeriesMap.get(timeSeriesName);
-        if (doubleTimeSeries == null) {
-            throw new TimeSeriesException("Time series '" + timeSeriesName + "' not found");
-        }
-        return doubleTimeSeries;
+        return doubleTimeSeriesMap.get(timeSeriesName);
     }
 
     @Override
     public List<DoubleTimeSeries> getDoubleTimeSeries(Set<String> timeSeriesNames, int version) {
-        return timeSeriesNames.stream().map(timeSeriesName -> getDoubleTimeSeries(timeSeriesName, version)).collect(Collectors.toList());
+        return timeSeriesNames.stream()
+                .map(timeSeriesName -> getDoubleTimeSeries(timeSeriesName, version))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
     }
 
     @Override
     public StringTimeSeries getStringTimeSeries(String timeSeriesName, int version) {
-        throw createNotImplementedException();
+        return null;
     }
 
     @Override
     public List<StringTimeSeries> getStringTimeSeries(Set<String> timeSeriesNames, int version) {
-        throw createNotImplementedException();
+        return Collections.emptyList();
+    }
+
+    private static UnsupportedOperationException createNotImplementedException() {
+        return new UnsupportedOperationException("Not implemented");
     }
 
     @Override

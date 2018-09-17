@@ -6,20 +6,22 @@
  */
 package com.powsybl.timeseries;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.collect.ImmutableMap;
-import com.powsybl.timeseries.ast.IntegerNodeCalc;
-import com.powsybl.timeseries.ast.NodeCalc;
-import com.powsybl.timeseries.ast.NodeCalcEvaluator;
-import com.powsybl.timeseries.ast.NodeCalcResolver;
+import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.timeseries.ast.*;
+import com.powsybl.timeseries.json.TimeSeriesJsonModule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.threeten.extra.Interval;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.time.ZonedDateTime;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -35,8 +37,7 @@ public class CalculatedTimeSeriesTest {
 
     @Before
     public void setUp() {
-        ReadOnlyTimeSeriesStore store = new ReadOnlyTimeSeriesStoreCache();
-        timeSeries = new CalculatedTimeSeries("ts1", new IntegerNodeCalc(1), store, 0);
+        timeSeries = new CalculatedTimeSeries("ts1", new IntegerNodeCalc(1));
     }
 
     private void evaluate(String expr, double expectedValue) {
@@ -183,5 +184,85 @@ public class CalculatedTimeSeriesTest {
     public void syncTest() {
         timeSeries.synchronize(RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-07-20T00:00:00Z"), Duration.ofDays(100)));
         assertArrayEquals(new double[] {1d, 1d, 1d}, timeSeries.toArray(), 0d);
+    }
+
+    @Test
+    public void jsonTest() throws IOException {
+        TimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-07-20T00:00:00Z"), Duration.ofDays(200));
+        DoubleTimeSeries ts = StoredDoubleTimeSeries.create("ts", index, new double[] {1d, 2d});
+        TimeSeriesNameResolver resolver = new TimeSeriesNameResolver() {
+
+            @Override
+            public List<TimeSeriesMetadata> getTimeSeriesMetadata(Set<String> timeSeriesNames) {
+                List<TimeSeriesMetadata> metadataList = new ArrayList<>(1);
+                if (timeSeriesNames.contains("ts")) {
+                    metadataList.add(ts.getMetadata());
+                }
+                return metadataList;
+            }
+
+            @Override
+            public Set<Integer> getTimeSeriesDataVersions(String timeSeriesName) {
+                return Collections.singleton(1);
+            }
+
+            @Override
+            public List<DoubleTimeSeries> getDoubleTimeSeries(Set<String> timeSeriesNames) {
+                List<DoubleTimeSeries> timeSeriesList = new ArrayList<>(1);
+                if (timeSeriesNames.contains("ts")) {
+                    timeSeriesList.add(ts);
+                }
+                return timeSeriesList;
+            }
+        };
+        CalculatedTimeSeries tsCalc = new CalculatedTimeSeries("ts_calc", BinaryOperation.plus(new TimeSeriesNameNodeCalc("ts"),
+                                                                                               new IntegerNodeCalc(1)));
+        List<DoubleTimeSeries> tsLs = Arrays.asList(ts, tsCalc);
+        String json = TimeSeries.toJson(tsLs);
+        String jsonRef = String.join(System.lineSeparator(),
+                "[ {",
+                "  \"metadata\" : {",
+                "    \"name\" : \"ts\",",
+                "    \"dataType\" : \"DOUBLE\",",
+                "    \"tags\" : [ ],",
+                "    \"regularIndex\" : {",
+                "      \"startTime\" : 1420070400000,",
+                "      \"endTime\" : 1437350400000,",
+                "      \"spacing\" : 17280000000",
+                "    }",
+                "  },",
+                "  \"chunks\" : [ {",
+                "    \"offset\" : 0,",
+                "    \"values\" : [ 1.0, 2.0 ]",
+                "  } ]",
+                "}, {",
+                "  \"name\" : \"ts_calc\",",
+                "  \"expr\" : {",
+                "    \"binaryOp\" : {",
+                "      \"op\" : \"PLUS\",",
+                "      \"timeSeriesName\" : \"ts\",",
+                "      \"integer\" : 1",
+                "    }",
+                "  }",
+                "} ]");
+        assertEquals(jsonRef, json);
+
+        List<TimeSeries> timeSeriesList = TimeSeries.parseJson(json);
+        for (TimeSeries timeSeries : timeSeriesList) {
+            timeSeries.setTimeSeriesNameResolver(resolver);
+        }
+
+        assertEquals(2, timeSeriesList.size());
+        assertTrue(timeSeriesList.get(0) instanceof StoredDoubleTimeSeries);
+        assertTrue(timeSeriesList.get(1) instanceof CalculatedTimeSeries);
+        assertArrayEquals(new double[] {1d, 2d}, ((DoubleTimeSeries) timeSeriesList.get(0)).toArray(), 0d);
+        assertArrayEquals(new double[] {2d, 3d}, ((DoubleTimeSeries) timeSeriesList.get(1)).toArray(), 0d);
+
+        // automatic jackson serialization
+        ObjectMapper objectMapper = JsonUtil.createObjectMapper()
+                .registerModule(new TimeSeriesJsonModule());
+        List<TimeSeries> tsLs2 = objectMapper.readValue(objectMapper.writeValueAsString(tsLs),
+                                                        TypeFactory.defaultInstance().constructCollectionType(List.class, TimeSeries.class));
+        assertEquals(tsLs, tsLs2);
     }
 }

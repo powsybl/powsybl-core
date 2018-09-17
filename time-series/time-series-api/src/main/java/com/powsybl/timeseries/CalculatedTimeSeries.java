@@ -8,8 +8,11 @@ package com.powsybl.timeseries;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Sets;
 import com.powsybl.timeseries.ast.*;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.DoubleBuffer;
 import java.util.*;
 import java.util.function.Function;
@@ -22,41 +25,50 @@ import java.util.stream.Stream;
  */
 public class CalculatedTimeSeries implements DoubleTimeSeries {
 
-    private TimeSeriesMetadata metadata;
+    private final String name;
 
     private final NodeCalc nodeCalc;
 
-    private final List<DoubleTimeSeries> timeSeriesList;
+    private TimeSeriesNameResolver resolver = TimeSeriesNameResolver.EMPTY;
 
-    private final NodeCalc resolvedNodeCalc;
+    private final TimeSeriesMetadata metadata;
 
-    public CalculatedTimeSeries(String name, NodeCalc nodeCalc, ReadOnlyTimeSeriesStore timeSeriesStore, int version) {
+    private TimeSeriesIndex index;
+
+    public CalculatedTimeSeries(String name, NodeCalc nodeCalc) {
+        this.name = Objects.requireNonNull(name);
         this.nodeCalc = Objects.requireNonNull(nodeCalc);
-        Objects.requireNonNull(timeSeriesStore);
+        metadata = new TimeSeriesMetadata(name, TimeSeriesDataType.DOUBLE, InfiniteTimeSeriesIndex.INSTANCE) {
+            @Override
+            public TimeSeriesIndex getIndex() {
+                return CalculatedTimeSeries.this.getIndex();
+            }
+        };
+    }
 
+    @Override
+    public void setTimeSeriesNameResolver(TimeSeriesNameResolver resolver) {
+        this.resolver = Objects.requireNonNull(resolver);
+    }
+
+    private List<DoubleTimeSeries> loadData() {
+        Set<String> timeSeriesNames = TimeSeriesNames.list(nodeCalc);
+        return timeSeriesNames.isEmpty() ? Collections.emptyList() : resolver.getDoubleTimeSeries(timeSeriesNames);
+    }
+
+    private NodeCalc resolve(List<DoubleTimeSeries> timeSeriesList) {
         NodeCalc simplifiedNodeCalc = NodeCalcSimplifier.simplify(nodeCalc);
-
-        metadata = getMetadata(name, simplifiedNodeCalc, timeSeriesStore);
-
-        Set<String> timeSeriesNames = TimeSeriesNames.list(simplifiedNodeCalc);
-        if (timeSeriesNames.isEmpty()) {
-            timeSeriesList = Collections.emptyList();
-        } else {
-            timeSeriesList = timeSeriesStore.getDoubleTimeSeries(timeSeriesNames, version);
-        }
 
         Map<String, Integer> timeSeriesNums = IntStream.range(0, timeSeriesList.size())
                 .boxed()
                 .collect(Collectors.toMap(i -> timeSeriesList.get(i).getMetadata().getName(),
-                                          Function.identity()));
-        resolvedNodeCalc = NodeCalcResolver.resolve(simplifiedNodeCalc, timeSeriesNums);
+                        Function.identity()));
+        return NodeCalcResolver.resolve(simplifiedNodeCalc, timeSeriesNums);
     }
 
-    public static TimeSeriesMetadata getMetadata(String name, NodeCalc nodeCalc, ReadOnlyTimeSeriesStore timeSeriesStore) {
-        return new TimeSeriesMetadata(name, TimeSeriesDataType.DOUBLE, computeIndex(nodeCalc, timeSeriesStore));
-    }
+    public static TimeSeriesIndex computeIndex(NodeCalc nodeCalc, TimeSeriesNameResolver resolver) {
+        Objects.requireNonNull(nodeCalc);
 
-    private static TimeSeriesIndex computeIndex(NodeCalc nodeCalc, ReadOnlyTimeSeriesStore timeSeriesStore) {
         TimeSeriesIndex index;
 
         Set<String> timeSeriesNames = TimeSeriesNames.list(nodeCalc);
@@ -64,12 +76,12 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
             // no reference index to sync the calculated time series, use infinite one
             index = InfiniteTimeSeriesIndex.INSTANCE;
         } else {
-            if (timeSeriesStore == null) {
-                throw new AssertionError("Time series store is null");
+            if (resolver == null) {
+                throw new TimeSeriesException("Time series resolver is null");
             }
 
             // check all time series are already sync on the same index
-            Set<TimeSeriesIndex> indexes = timeSeriesStore.getTimeSeriesMetadata(timeSeriesNames).stream()
+            Set<TimeSeriesIndex> indexes = resolver.getTimeSeriesMetadata(timeSeriesNames).stream()
                     .map(TimeSeriesMetadata::getIndex)
                     .collect(Collectors.toSet());
             if (indexes.size() > 1) {
@@ -82,11 +94,36 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
         return index;
     }
 
+    public static Set<Integer> computeVersions(NodeCalc nodeCalc, TimeSeriesNameResolver resolver) {
+        Objects.requireNonNull(nodeCalc);
+
+        Set<String> timeSeriesNames = TimeSeriesNames.list(nodeCalc);
+        if (timeSeriesNames.isEmpty()) {
+            return Collections.emptySet();
+        } else {
+            if (resolver == null) {
+                throw new TimeSeriesException("Time series resolver is null");
+            }
+
+            Set<Integer> commonVersions = new HashSet<>();
+            for (String timeSeriesName : timeSeriesNames) {
+                Set<Integer> versions = resolver.getTimeSeriesDataVersions(timeSeriesName);
+                if (commonVersions.isEmpty()) {
+                    commonVersions = versions;
+                } else {
+                    commonVersions = Sets.intersection(commonVersions, versions);
+                }
+            }
+
+            return commonVersions;
+        }
+    }
+
     @Override
     public void synchronize(TimeSeriesIndex newIndex) {
         Objects.requireNonNull(newIndex);
         if (metadata.getIndex() == InfiniteTimeSeriesIndex.INSTANCE) {
-            metadata = new TimeSeriesMetadata(metadata.getName(), metadata.getDataType(), metadata.getTags(), newIndex);
+            index = newIndex;
         } else {
             if (!metadata.getIndex().equals(newIndex)) {
                 throw new UnsupportedOperationException("Not yet implemented");
@@ -129,31 +166,42 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
         return metadata;
     }
 
-    private DoublePoint evaluateMultiPoint(DoubleMultiPoint multiPoint) {
+    public TimeSeriesIndex getIndex() {
+        if (index == null) {
+            index = computeIndex(nodeCalc, resolver);
+        }
+        return index;
+    }
+
+    private static DoublePoint evaluateMultiPoint(NodeCalc resolvedNodeCalc, DoubleMultiPoint multiPoint) {
         double value = NodeCalcEvaluator.eval(resolvedNodeCalc, multiPoint);
         return new DoublePoint(multiPoint.getIndex(), multiPoint.getTime(), value);
     }
 
-    private DoublePoint evaluate() {
+    private static DoublePoint evaluate(NodeCalc resolvedNodeCalc) {
         double value = NodeCalcEvaluator.eval(resolvedNodeCalc, null);
         return new DoublePoint(0, InfiniteTimeSeriesIndex.START_TIME, value);
     }
 
     @Override
     public Stream<DoublePoint> stream() {
+        List<DoubleTimeSeries> timeSeriesList = loadData();
+        NodeCalc resolvedNodeCalc = resolve(timeSeriesList);
         if (timeSeriesList.isEmpty()) {
-            return Stream.of(evaluate());
+            return Stream.of(evaluate(resolvedNodeCalc));
         } else {
-            return DoubleTimeSeries.stream(timeSeriesList).map(this::evaluateMultiPoint);
+            return DoubleTimeSeries.stream(timeSeriesList).map(multiPoint -> evaluateMultiPoint(resolvedNodeCalc, multiPoint));
         }
     }
 
     @Override
     public Iterator<DoublePoint> iterator() {
+        List<DoubleTimeSeries> timeSeriesList = loadData();
+        NodeCalc resolvedNodeCalc = resolve(timeSeriesList);
         if (timeSeriesList.isEmpty()) {
-            return Iterators.singletonIterator(evaluate());
+            return Iterators.singletonIterator(evaluate(resolvedNodeCalc));
         } else {
-            return Iterators.transform(DoubleTimeSeries.iterator(timeSeriesList), this::evaluateMultiPoint);
+            return Iterators.transform(DoubleTimeSeries.iterator(timeSeriesList), multiPoint -> evaluateMultiPoint(resolvedNodeCalc, multiPoint));
         }
     }
 
@@ -164,6 +212,30 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
 
     @Override
     public void writeJson(JsonGenerator generator) {
-        NodeCalc.writeJson(nodeCalc, generator);
+        try {
+            generator.writeStartObject();
+            generator.writeStringField("name", name);
+            generator.writeFieldName("expr");
+            generator.writeStartObject();
+            nodeCalc.writeJson(generator);
+            generator.writeEndObject();
+            generator.writeEndObject();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, nodeCalc);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof CalculatedTimeSeries) {
+            CalculatedTimeSeries other = (CalculatedTimeSeries) obj;
+            return name.equals(other.name) && nodeCalc.equals(other.nodeCalc);
+        }
+        return false;
     }
 }

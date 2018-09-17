@@ -157,6 +157,10 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Arra
         }
     }
 
+    public void setTimeSeriesNameResolver(TimeSeriesNameResolver ignored) {
+        // nothing to do
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(metadata, chunks);

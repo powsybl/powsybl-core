@@ -8,6 +8,7 @@ package com.powsybl.timeseries.json;
 
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.powsybl.timeseries.*;
+import com.powsybl.timeseries.ast.NodeCalc;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -18,6 +19,7 @@ public class TimeSeriesJsonModule extends SimpleModule {
         addSerializer(TimeSeriesMetadata.class, new TimeSeriesMetadataJsonSerializer());
         addSerializer(ArrayChunk.class, new ArrayChunkJsonSerializer());
         addSerializer(TimeSeries.class, new TimeSeriesJsonSerializer());
+        addSerializer(NodeCalc.class, new NodeCalcJsonSerializer());
 
         addDeserializer(TimeSeriesMetadata.class, new TimeSeriesMetadataJsonDeserializer());
         addDeserializer(ArrayChunk.class, new ArrayChunkJsonDeserializer());
@@ -26,5 +28,6 @@ public class TimeSeriesJsonModule extends SimpleModule {
         addDeserializer(TimeSeries.class, new TimeSeriesJsonDeserializer());
         addDeserializer(DoubleTimeSeries.class, new DoubleTimeSeriesJsonDeserializer());
         addDeserializer(StringTimeSeries.class, new StringTimeSeriesJsonDeserializer());
+        addDeserializer(NodeCalc.class, new NodeCalcJsonDeserializer());
     }
 }
