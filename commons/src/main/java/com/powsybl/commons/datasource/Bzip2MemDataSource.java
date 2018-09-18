@@ -20,7 +20,7 @@ public class Bzip2MemDataSource extends ReadOnlyMemDataSource {
     Bzip2MemDataSource(String fileName, InputStream content) {
         super(DataSourceUtil.getBaseName(fileName));
 
-        String zipped = fileName.substring(0, fileName.lastIndexOf("."));
+        String zipped = fileName.substring(0, fileName.lastIndexOf('.'));
         putData(zipped, content);
     }
 
