@@ -60,7 +60,7 @@ public class NodeInfo {
 
     private static String checkName(String name) {
         Objects.requireNonNull(name);
-        if (Objects.equals("", name)) {
+        if (name.isEmpty()) {
             throw new IllegalArgumentException("name should not be empty");
         }
         return name;

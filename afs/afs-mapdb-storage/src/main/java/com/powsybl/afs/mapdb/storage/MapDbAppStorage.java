@@ -383,6 +383,10 @@ public class MapDbAppStorage implements AppStorage {
     public void renameNode(String nodeId, String name) {
         UUID nodeUuid = checkNodeId(nodeId);
         NodeInfo nodeInfo = getNodeInfo(nodeId);
+        Optional<NodeInfo> parentNode = getParentNode(nodeId);
+        UUID parentNodeUuid = checkNodeId(parentNode.get().getId());
+        childNodeMap.remove(new NamedLink(parentNodeUuid, nodeInfo.getName()));
+        childNodeMap.put(new NamedLink(parentNodeUuid, name), nodeUuid);
         nodeInfo.setName(name);
         nodeInfoMap.put(nodeUuid, nodeInfo);
     }
@@ -552,7 +556,7 @@ public class MapDbAppStorage implements AppStorage {
         checkNodeExists(nodeUuid);
         Objects.requireNonNull(timeSeriesName);
         return Stream.concat(doubleTimeSeriesChunksMap.keySet().stream(),
-                             stringTimeSeriesChunksMap.keySet().stream())
+                stringTimeSeriesChunksMap.keySet().stream())
                 .map(TimeSeriesChunkKey::getTimeSeriesKey)
                 .filter(key -> key.getNodeUuid().equals(nodeUuid) && key.getTimeSeriesName().equals(timeSeriesName))
                 .map(TimeSeriesKey::getVersion)
@@ -581,8 +585,7 @@ public class MapDbAppStorage implements AppStorage {
         return chunks;
     }
 
-    private <P extends AbstractPoint, C extends ArrayChunk<P, C>>
-        Map<String, List<C>> getTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version, ConcurrentMap<TimeSeriesChunkKey, C> map) {
+    private <P extends AbstractPoint, C extends ArrayChunk<P, C>> Map<String, List<C>> getTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version, ConcurrentMap<TimeSeriesChunkKey, C> map) {
         UUID nodeUuid = checkNodeId(nodeId);
         Objects.requireNonNull(timeSeriesNames);
         TimeSeriesIndex.checkVersion(version);
@@ -592,7 +595,7 @@ public class MapDbAppStorage implements AppStorage {
             TimeSeriesMetadata metadata = timeSeriesMetadataMap.get(new NamedLink(nodeUuid, timeSeriesName));
             if (metadata != null &&
                     ((metadata.getDataType() == TimeSeriesDataType.DOUBLE && map == doubleTimeSeriesChunksMap)
-                        || (metadata.getDataType() == TimeSeriesDataType.STRING && map == stringTimeSeriesChunksMap))) {
+                            || (metadata.getDataType() == TimeSeriesDataType.STRING && map == stringTimeSeriesChunksMap))) {
                 List<C> chunks = getChunks(nodeUuid, version, timeSeriesName, metadata, map);
                 timeSeriesData.put(timeSeriesName, chunks);
             }
@@ -686,8 +689,8 @@ public class MapDbAppStorage implements AppStorage {
             throw createNodeNotFoundException(nodeUuid);
         }
         return dependencyNodes.stream()
-                              .map(namedLink -> new NodeDependency(namedLink.getName(), getNodeInfo(namedLink.getNodeUuid())))
-                              .collect(Collectors.toSet());
+                .map(namedLink -> new NodeDependency(namedLink.getName(), getNodeInfo(namedLink.getNodeUuid())))
+                .collect(Collectors.toSet());
     }
 
     @Override
@@ -698,8 +701,8 @@ public class MapDbAppStorage implements AppStorage {
             throw createNodeNotFoundException(nodeUuid);
         }
         return backwardDependencyNodes.stream()
-                                      .map(this::getNodeInfo)
-                                      .collect(Collectors.toSet());
+                .map(this::getNodeInfo)
+                .collect(Collectors.toSet());
     }
 
     @Override
