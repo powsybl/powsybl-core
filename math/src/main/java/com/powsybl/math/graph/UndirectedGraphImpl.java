@@ -342,7 +342,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     @Override
-    public void traverse(int v, Traverser<E> traverser, boolean[] encountered) {
+    public void traverse(int v, Traverser traverser, boolean[] encountered) {
         checkVertex(v);
         Objects.requireNonNull(traverser);
         Objects.requireNonNull(encountered);
@@ -372,7 +372,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
     }
 
     @Override
-    public void traverse(int v, Traverser<E> traverser) {
+    public void traverse(int v, Traverser traverser) {
         boolean[] encountered = new boolean[vertices.size()];
         Arrays.fill(encountered, false);
         traverse(v, traverser, encountered);

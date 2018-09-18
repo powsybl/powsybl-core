@@ -22,12 +22,8 @@ import java.util.Set;
  */
 class BusTerminal extends AbstractTerminal {
 
-    private final NodeBreakerView nodeBreakerView = new NodeBreakerView() {
-
-        @Override
-        public int getNode() {
-            throw BusBreakerVoltageLevel.createNotSupportedBusBreakerTopologyException();
-        }
+    private final NodeBreakerView nodeBreakerView = () -> {
+        throw BusBreakerVoltageLevel.createNotSupportedBusBreakerTopologyException();
     };
 
     private final BusBreakerViewExt busBreakerView = new BusBreakerViewExt() {
