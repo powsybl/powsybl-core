@@ -188,12 +188,6 @@ public final class JsonUtil {
         }
     }
 
-    public static void readDoubleArray(List<Double> doubles, JsonParser parser) throws IOException {
-        while (parser.nextToken() != JsonToken.END_ARRAY) {
-            doubles.add(parser.readValueAs(Double.class));
-        }
-    }
-
     public static <T> List<Extension<T>> readExtensions(JsonParser parser, DeserializationContext context) throws IOException {
         return readExtensions(parser, context, SUPPLIER.get());
     }
