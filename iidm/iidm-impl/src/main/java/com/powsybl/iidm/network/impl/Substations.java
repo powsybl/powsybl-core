@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Substation;
@@ -27,22 +26,19 @@ final class Substations {
         if (geographicalTags.length == 0) {
             return substations;
         }
-        return Iterables.filter(substations, new Predicate<Substation>() {
-            @Override
-            public boolean apply(Substation substation) {
-                if (country != null && country == substation.getCountry()) {
-                    return false;
-                }
-                if (tso != null && !tso.equals(substation.getTso())) {
-                    return false;
-                }
-                for (String tag : geographicalTags) {
-                    if (!substation.getGeographicalTags().contains(tag)) {
-                        return false;
-                    }
-                }
-                return true;
+        return Iterables.filter(substations, substation -> {
+            if (country != null && country == substation.getCountry()) {
+                return false;
             }
+            if (tso != null && !tso.equals(substation.getTso())) {
+                return false;
+            }
+            for (String tag : geographicalTags) {
+                if (!substation.getGeographicalTags().contains(tag)) {
+                    return false;
+                }
+            }
+            return true;
         });
     }
 }

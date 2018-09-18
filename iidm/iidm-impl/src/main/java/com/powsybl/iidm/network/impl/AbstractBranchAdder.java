@@ -48,7 +48,7 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
         return (T) this;
     }
 
-    protected TerminalExt checkAndGetTerminal1(String id) {
+    protected TerminalExt checkAndGetTerminal1() {
         return new TerminalBuilder(getNetwork().getRef(), this)
                 .setNode(node1)
                 .setBus(bus1)
@@ -56,7 +56,7 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
                 .build();
     }
 
-    protected VoltageLevelExt checkAndGetVoltageLevel1(String id) {
+    protected VoltageLevelExt checkAndGetVoltageLevel1() {
         if (voltageLevelId1 == null) {
             throw new ValidationException(this,  "first voltage level is not set");
         }
@@ -88,7 +88,7 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
         return (T) this;
     }
 
-    protected TerminalExt checkAndGetTerminal2(String id) {
+    protected TerminalExt checkAndGetTerminal2() {
         return new TerminalBuilder(getNetwork().getRef(), this)
                 .setNode(node2)
                 .setBus(bus2)
@@ -96,7 +96,7 @@ abstract class AbstractBranchAdder<T extends AbstractBranchAdder<T>> extends Abs
                 .build();
     }
 
-    protected VoltageLevelExt checkAndGetVoltageLevel2(String id) {
+    protected VoltageLevelExt checkAndGetVoltageLevel2() {
         if (voltageLevelId2 == null) {
             throw new ValidationException(this, "second voltage level is not set");
         }

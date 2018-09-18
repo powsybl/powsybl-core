@@ -10,7 +10,6 @@ import com.powsybl.commons.PowsyblException;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
 
 /**
  *
@@ -18,9 +17,6 @@ import java.util.List;
  * @param <R>
  */
 public abstract class AbstractExecutionHandler<R> implements ExecutionHandler<R> {
-
-    @Override
-    public abstract List<CommandExecution> before(Path workingDir) throws IOException;
 
     @Override
     public void onExecutionStart(CommandExecution execution, int executionIndex) {
