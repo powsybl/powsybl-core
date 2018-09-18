@@ -8,8 +8,6 @@ package com.powsybl.commons.extensions;
 
 import com.powsybl.commons.PowsyblException;
 
-import java.util.Objects;
-
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
@@ -22,7 +20,7 @@ public abstract class AbstractExtension<T> implements Extension<T> {
     }
 
     protected AbstractExtension(T extendable) {
-        this.extendable = Objects.requireNonNull(extendable);
+        this.extendable = extendable;
     }
 
     public T getExtendable() {
