@@ -62,23 +62,23 @@ public enum EntsoeGeographicalCode {
     UC(null),
     UX(null);
 
-    private static Multimap<Country, EntsoeGeographicalCode> COUNTRY_TO_GEOGRAPHICAL_CODES;
+    private static Multimap<Country, EntsoeGeographicalCode> countryToGeographicalCodes;
 
     private static final Lock LOCK = new ReentrantLock();
 
     public static Collection<EntsoeGeographicalCode> forCountry(Country country) {
         LOCK.lock();
         try {
-            if (COUNTRY_TO_GEOGRAPHICAL_CODES == null) {
-                COUNTRY_TO_GEOGRAPHICAL_CODES = HashMultimap.create();
+            if (countryToGeographicalCodes == null) {
+                countryToGeographicalCodes = HashMultimap.create();
                 for (EntsoeGeographicalCode geographicalCode : EntsoeGeographicalCode.values()) {
-                    COUNTRY_TO_GEOGRAPHICAL_CODES.put(geographicalCode.getCountry(), geographicalCode);
+                    countryToGeographicalCodes.put(geographicalCode.getCountry(), geographicalCode);
                 }
             }
         } finally {
             LOCK.unlock();
         }
-        return COUNTRY_TO_GEOGRAPHICAL_CODES.get(country);
+        return countryToGeographicalCodes.get(country);
     }
 
     private final Country country;

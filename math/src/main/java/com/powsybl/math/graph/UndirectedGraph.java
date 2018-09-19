@@ -61,9 +61,9 @@ public interface UndirectedGraph<V, E> {
 
     List<E> getEdgeObjects(int v1, int v2);
 
-    void traverse(int v, Traverser<E> traverser, boolean[] encountered);
+    void traverse(int v, Traverser traverser, boolean[] encountered);
 
-    void traverse(int v, Traverser<E> traverser);
+    void traverse(int v, Traverser traverser);
 
     List<TIntArrayList> findAllPaths(int from, Function<V, Boolean> pathComplete, Function<E, Boolean> pathCanceled);
 

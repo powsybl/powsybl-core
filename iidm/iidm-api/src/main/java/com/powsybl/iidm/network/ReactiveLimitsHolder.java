@@ -16,7 +16,7 @@ public interface ReactiveLimitsHolder {
      */
     ReactiveLimits getReactiveLimits();
 
-    <RL extends ReactiveLimits> RL getReactiveLimits(Class<RL> type);
+    <L extends ReactiveLimits> L getReactiveLimits(Class<L> type);
 
     /**
      * Get a builder to create and associate a new reactive capability curve

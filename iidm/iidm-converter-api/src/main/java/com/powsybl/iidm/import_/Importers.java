@@ -122,19 +122,6 @@ public final class Importers {
         return getPostProcessorNames(LOADER);
     }
 
-    private static ImportPostProcessor getPostProcessor(ImportersLoader loader, String name) {
-        for (ImportPostProcessor ipp : loader.loadPostProcessors()) {
-            if (ipp.getName().equals(name)) {
-                return ipp;
-            }
-        }
-        throw new PowsyblException("Post processor " + name + " not found");
-    }
-
-    private static ImportPostProcessor getPostProcessor(String name) {
-        return getPostProcessor(LOADER, name);
-    }
-
     private static class ImporterWrapper implements Importer {
 
         private final Importer importer;
@@ -171,6 +158,19 @@ public final class Importers {
         @Override
         public boolean exists(ReadOnlyDataSource dataSource) {
             return importer.exists(dataSource);
+        }
+
+        private static ImportPostProcessor getPostProcessor(ImportersLoader loader, String name) {
+            for (ImportPostProcessor ipp : loader.loadPostProcessors()) {
+                if (ipp.getName().equals(name)) {
+                    return ipp;
+                }
+            }
+            throw new PowsyblException("Post processor " + name + " not found");
+        }
+
+        private static ImportPostProcessor getPostProcessor(String name) {
+            return getPostProcessor(LOADER, name);
         }
 
         @Override

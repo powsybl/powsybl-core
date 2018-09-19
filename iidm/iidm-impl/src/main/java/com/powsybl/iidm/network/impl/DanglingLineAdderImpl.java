@@ -89,7 +89,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
     @Override
     public DanglingLineImpl add() {
         String id = checkAndGetUniqueId();
-        TerminalExt terminal = checkAndGetTerminal(id);
+        TerminalExt terminal = checkAndGetTerminal();
 
         ValidationUtil.checkP0(this, p0);
         ValidationUtil.checkQ0(this, q0);

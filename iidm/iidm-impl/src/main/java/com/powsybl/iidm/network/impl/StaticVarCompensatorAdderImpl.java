@@ -76,7 +76,7 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
     public StaticVarCompensatorImpl add() {
         String id = checkAndGetUniqueId();
         String name = getName();
-        TerminalExt terminal = checkAndGetTerminal(id);
+        TerminalExt terminal = checkAndGetTerminal();
         ValidationUtil.checkBmin(this, bMin);
         ValidationUtil.checkBmax(this, bMax);
         ValidationUtil.checkSvcRegulator(this, voltageSetPoint, reactivePowerSetPoint, regulationMode);

@@ -22,6 +22,8 @@ import java.util.stream.Stream;
  */
 public class FileDataSource implements DataSource {
 
+    private static final String COMPRESSION_EXT = "";
+
     private final Path directory;
 
     private final String baseName;
@@ -44,7 +46,7 @@ public class FileDataSource implements DataSource {
     }
 
     protected String getCompressionExt() {
-        return "";
+        return COMPRESSION_EXT;
     }
 
     protected InputStream getCompressedInputStream(InputStream is) throws IOException {

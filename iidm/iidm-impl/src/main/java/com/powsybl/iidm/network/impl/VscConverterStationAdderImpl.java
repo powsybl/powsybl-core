@@ -51,7 +51,7 @@ class VscConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Vsc
     public VscConverterStationImpl add() {
         String id = checkAndGetUniqueId();
         String name = getName();
-        TerminalExt terminal = checkAndGetTerminal(id);
+        TerminalExt terminal = checkAndGetTerminal();
         validate();
         VscConverterStationImpl converterStation
                 = new VscConverterStationImpl(id, name, getLossFactor(), getNetwork().getRef(), voltageRegulatorOn, reactivePowerSetpoint, voltageSetpoint);
