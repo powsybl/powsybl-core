@@ -63,7 +63,8 @@
         <module>distribution-core</module>
         <module>entsoe-util</module>
         <module>iidm</module>
-        <module>itools-packager</module>
+        <!-- https://github.com/apache/maven-plugin-tools/pull/14 -->
+        <!--<module>itools-packager</module>-->
         <module>loadflow</module>
         <module>math</module>
         <module>scripting</module>
@@ -112,7 +113,7 @@
         </sonar.exclusions>
 
         <arquillianbom.version>1.2.0.Final</arquillianbom.version>
-        <asm.version>6.2</asm.version>
+        <asm.version>6.2.1</asm.version>
         <assertj.version>3.11.0</assertj.version>
         <autoservice.version>1.0-rc2</autoservice.version>
         <commonscli.version>1.3.1</commonscli.version>
@@ -127,7 +128,8 @@
         <jackson.version>2.8.7</jackson.version>
         <jama.version>1.0.3</jama.version>
         <javaeeapi.version>7.0</javaeeapi.version>
-        <jaxb.version>2.3.0</jaxb.version>
+        <jaxb-api.version>2.4.0-b180830.0359</jaxb-api.version>
+        <jaxb-runtime.version>2.4.0-b180830.0438</jaxb-runtime.version>
         <jgrapht.version>1.0.1</jgrapht.version>
         <jimfs.version>1.1</jimfs.version>
         <jjwt.version>0.9.0</jjwt.version>
@@ -549,14 +551,9 @@
                 <version>${javaeeapi.version}</version>
             </dependency>
             <dependency>
-                <groupId>javax.activation</groupId>
-                <artifactId>javax.activation-api</artifactId>
-                <version>1.2.0</version>
-            </dependency>
-            <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
-                <version>${jaxb.version}</version>
+                <version>${jaxb-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>joda-time</groupId>
@@ -622,7 +619,7 @@
             <dependency>
                 <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-runtime</artifactId>
-                <version>${jaxb.version}</version>
+                <version>${jaxb-runtime.version}</version>
                 <scope>runtime</scope>
             </dependency>
             <dependency>
