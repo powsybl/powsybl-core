@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2017, RTE (http://www.rte-france.com)
+    Copyright (c) 2018, RTE (http://www.rte-france.com)
     This Source Code Form is subject to the terms of the Mozilla Public
     License, v. 2.0. If a copy of the MPL was not distributed with this
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -14,7 +14,7 @@
 
     <groupId>com.powsybl</groupId>
     <artifactId>powsybl-samples</artifactId>
-    <version>0.1-SNAPSHOT</version>
+    <version>0.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <name>Powsybl Samples</name>
@@ -23,10 +23,11 @@
     <modules>
         <module>count-lines-tool</module>
         <module>increase-active-power-postprocessor</module>
-		<module>importer-csv</module>
+        <module>csv-importer</module>
+        <module>csv-exporter</module>
     </modules>
 
-	 
+
     <properties>
         <java.version>1.8</java.version>
         <maven.assembly.version>3.0.0</maven.assembly.version>
@@ -35,7 +36,8 @@
         <maven.jar.version>3.1.0</maven.jar.version>
         <maven.templating.version>1.0.0</maven.templating.version>
         <autoservice.version>1.0-rc2</autoservice.version>
-        <powsybl.version>2.1.0-SNAPSHOT</powsybl.version>
+        <javacsv.version>2.0</javacsv.version>
+        <powsybl.version>2.2.0-SNAPSHOT</powsybl.version>
     </properties>
 
     <build>
@@ -105,13 +107,23 @@
             </dependency>
             <dependency>
                 <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-tools</artifactId>
+                <artifactId>powsybl-iidm-converter-api</artifactId>
                 <version>${powsybl.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.powsybl</groupId>
-                <artifactId>powsybl-iidm-converter-api</artifactId>
+                <artifactId>powsybl-iidm-impl</artifactId>
                 <version>${powsybl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.powsybl</groupId>
+                <artifactId>powsybl-tools</artifactId>
+                <version>${powsybl.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.sourceforge.javacsv</groupId>
+                <artifactId>javacsv</artifactId>
+                <version>${javacsv.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

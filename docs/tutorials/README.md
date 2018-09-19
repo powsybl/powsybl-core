@@ -6,5 +6,5 @@
 
 ## IIDM
 - [Howto write a post-processor](iidm/howto-extend-postprocessor.md)
-- [Howto write a IIDM importer](iidm/howto-extend-importer.md)
-- [Howto write a IIDM exporter](iidm/howto-extend-exporter.md)
+- [Howto write an IIDM importer](iidm/howto-extend-importer.md)
+- [Howto write an IIDM exporter](iidm/howto-extend-exporter.md)

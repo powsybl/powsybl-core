@@ -1,9 +1,9 @@
-# Tutorial - Howto extend the IIDM importer
+# Tutorial - Howto write an IIDM importer
 
 [IIDM](../../architecture/iidm/README.md) data models can be loaded from files encoded in multiple file formats.
 powsybl is not limited to the set of currently available formats ([XIIDM](../../architecture/iidm/importer/iidm.md),
 [UCTE-DEF](../../architecture/iidm/importer/ucte.md), [Entso-E CGMES](../../architecture/iidm/importer/cgmes.md), etc):
-the framework's IIDM importer mechanism is designed to be extended to read a network from other file formats.  
+the framework's IIDM [importer](../../architecture/iidm/importer/README.md) mechanism is designed to be extended to read a network from other file formats.  
 
 To support an additional format, a new `Importer` implementation is needed, so you'll have to:
 
@@ -11,7 +11,7 @@ To support an additional format, a new `Importer` implementation is needed, so y
 2. Write a new class that implements the `com.powsybl.iidm.import_.Importer` interface. 
 3. Compile your project and add the jar to your powsybl installation.
 
-In the following sections you will see how, following these steps, you can implement a new simple importer, able to read network data from a CSV file.  
+In the following sections you will see how you can implement a new simple importer, able to read network data from a CSV file.  
 The purpose of this tutorial is to provide a simple example of how to implement an IIDM importer, not to actually implement a full network importer from csv data.  
 Therefore the csv data to be imported is for demostration purposes only (it just contains some lines data). It's beyond the scope of this tutorial to explain how to represent a full network data in csv files.  
 The full importer's project code can be found [here](../../samples/csv-importer).  
