@@ -78,7 +78,7 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <java.version>10</java.version>
+        <java.version>11</java.version>
 
         <maven.antrun.version>1.8</maven.antrun.version>
         <maven.assembly.version>3.1.0</maven.assembly.version>
@@ -101,9 +101,6 @@
         <maven.source.version>3.0.1</maven.source.version>
         <maven.surefire.version>2.22.0</maven.surefire.version>
         <maven.templating.version>1.0.0</maven.templating.version>
-
-        <groovyeclipsecompiler.version>3.0.0-01</groovyeclipsecompiler.version>
-        <groovyeclipsebatch.version>2.5.2-01</groovyeclipsebatch.version>
 
         <sonar.jacoco.reportPaths>
             ../target/jacoco-merge.exec,
@@ -130,7 +127,7 @@
         <jackson.version>2.8.7</jackson.version>
         <jama.version>1.0.3</jama.version>
         <javaeeapi.version>7.0</javaeeapi.version>
-        <jaxb-api.version>2.3.0</jaxb-api.version>
+        <jaxb.version>2.3.0</jaxb.version>
         <jgrapht.version>1.0.1</jgrapht.version>
         <jimfs.version>1.1</jimfs.version>
         <jjwt.version>0.9.0</jjwt.version>
@@ -160,20 +157,6 @@
         <xmlunit.version>2.3.0</xmlunit.version>
     </properties>
 
-    <pluginRepositories>
-        <pluginRepository>
-            <id>bintray</id>
-            <name>Groovy Bintray</name>
-            <url>https://dl.bintray.com/groovy/maven</url>
-            <releases>
-                <updatePolicy>never</updatePolicy>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </pluginRepository>
-    </pluginRepositories>
-
     <build>
         <plugins>
             <plugin>
@@ -190,22 +173,19 @@
                         <artifactId>asm</artifactId>
                         <version>${asm.version}</version>
                     </dependency>
-                    <dependency>
-                        <groupId>org.codehaus.groovy</groupId>
-                        <artifactId>groovy-eclipse-compiler</artifactId>
-                        <version>${groovyeclipsecompiler.version}</version>
-                    </dependency>
-                    <dependency>
-                        <groupId>org.codehaus.groovy</groupId>
-                        <artifactId>groovy-eclipse-batch</artifactId>
-                        <version>${groovyeclipsebatch.version}</version>
-                    </dependency>
                 </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>${maven.surefire.version}</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.ow2.asm</groupId>
+                        <artifactId>asm</artifactId>
+                        <version>${asm.version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
@@ -576,7 +556,7 @@
             <dependency>
                 <groupId>javax.xml.bind</groupId>
                 <artifactId>jaxb-api</artifactId>
-                <version>${jaxb-api.version}</version>
+                <version>${jaxb.version}</version>
             </dependency>
             <dependency>
                 <groupId>joda-time</groupId>
@@ -642,7 +622,7 @@
             <dependency>
                 <groupId>org.glassfish.jaxb</groupId>
                 <artifactId>jaxb-runtime</artifactId>
-                <version>${jaxb-api.version}</version>
+                <version>${jaxb.version}</version>
                 <scope>runtime</scope>
             </dependency>
             <dependency>
