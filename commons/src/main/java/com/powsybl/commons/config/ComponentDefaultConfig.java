@@ -12,7 +12,6 @@ import com.powsybl.commons.exceptions.UncheckedIllegalAccessException;
 import com.powsybl.commons.exceptions.UncheckedInstantiationException;
 
 import java.util.Objects;
-import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
