@@ -383,12 +383,11 @@ public class MapDbAppStorage implements AppStorage {
     public void renameNode(String nodeId, String name) {
         UUID nodeUuid = checkNodeId(nodeId);
         NodeInfo nodeInfo = getNodeInfo(nodeId);
-        Optional<NodeInfo> parentNode = getParentNode(nodeId);
-        if (parentNode.isPresent()) {
-            UUID parentNodeUuid = checkNodeId(parentNode.get().getId());
+        getParentNode(nodeId).ifPresent(parentNode -> {
+            UUID parentNodeUuid = checkNodeId(parentNode.getId());
             childNodeMap.remove(new NamedLink(parentNodeUuid, nodeInfo.getName()));
             childNodeMap.put(new NamedLink(parentNodeUuid, name), nodeUuid);
-        }
+        });
         nodeInfo.setName(name);
         nodeInfoMap.put(nodeUuid, nodeInfo);
     }
