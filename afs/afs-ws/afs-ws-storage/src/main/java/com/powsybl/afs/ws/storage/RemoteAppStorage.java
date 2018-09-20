@@ -207,6 +207,7 @@ public class RemoteAppStorage implements AppStorage {
             response.close();
         }
     }
+
     @Override
     public void renameNode(String nodeId, String name) {
         Objects.requireNonNull(nodeId);

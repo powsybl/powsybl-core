@@ -29,7 +29,6 @@ public class Project extends File {
         super(context, VERSION);
     }
 
-
     /**
      * Get the root folder of this project.
      */

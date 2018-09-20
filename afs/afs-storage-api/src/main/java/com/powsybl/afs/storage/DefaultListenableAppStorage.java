@@ -67,7 +67,6 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
     public void renameNode(String nodeId, String name) {
         super.renameNode(nodeId, name);
         addEvent(new NodeNameUpdated(nodeId, name));
-
     }
 
     @Override
