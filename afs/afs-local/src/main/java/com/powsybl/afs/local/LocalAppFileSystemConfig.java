@@ -10,6 +10,7 @@ import com.powsybl.afs.AfsException;
 import com.powsybl.afs.storage.AbstractAppFileSystemConfig;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.VersionConfig;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,13 +24,15 @@ import java.util.OptionalInt;
  */
 public class LocalAppFileSystemConfig extends AbstractAppFileSystemConfig<LocalAppFileSystemConfig> {
 
+    private static final VersionConfig DEFAULT_VERSION = VersionConfig.LATEST_VERSION;
+
     private Path rootDir;
 
     public static List<LocalAppFileSystemConfig> load() {
         return load(PlatformConfig.defaultConfig());
     }
 
-    private static void load(ModuleConfig moduleConfig, OptionalInt num, List<LocalAppFileSystemConfig> configs) {
+    private static void load(ModuleConfig moduleConfig, OptionalInt num, List<LocalAppFileSystemConfig> configs, VersionConfig version) {
         StringBuilder driveNameTag = new StringBuilder("drive-name");
         StringBuilder rootDirTag = new StringBuilder("root-dir");
         StringBuilder remotelyAccessibleTag = new StringBuilder("remotely-accessible");
@@ -43,23 +46,25 @@ public class LocalAppFileSystemConfig extends AbstractAppFileSystemConfig<LocalA
             String driveName = moduleConfig.getStringProperty(driveNameTag.toString());
             boolean remotelyAccessible = moduleConfig.getBooleanProperty(remotelyAccessibleTag.toString(), DEFAULT_REMOTELY_ACCESSIBLE);
             Path rootDir = moduleConfig.getPathProperty(rootDirTag.toString());
-            configs.add(new LocalAppFileSystemConfig(driveName, remotelyAccessible, rootDir));
+            configs.add(new LocalAppFileSystemConfig(driveName, remotelyAccessible, rootDir, version));
         }
     }
 
     public static List<LocalAppFileSystemConfig> load(PlatformConfig platformConfig) {
         List<LocalAppFileSystemConfig> configs = new ArrayList<>();
         ModuleConfig moduleConfig = platformConfig.getModuleConfigIfExists("local-app-file-system");
+        VersionConfig version = platformConfig.getVersion();
         if (moduleConfig != null) {
-            load(moduleConfig, OptionalInt.empty(), configs);
+            version = moduleConfig.hasProperty("version") ? VersionConfig.valueOfByString(moduleConfig.getStringProperty("version")) : version;
+            load(moduleConfig, OptionalInt.empty(), configs, version);
             int maxAdditionalDriveCount = moduleConfig.getIntProperty("max-additional-drive-count", 0);
             for (int i = 0; i < maxAdditionalDriveCount; i++) {
-                load(moduleConfig, OptionalInt.of(i), configs);
+                load(moduleConfig, OptionalInt.of(i), configs, version);
             }
         } else {
             for (Path rootDir : platformConfig.getFileSystem().getRootDirectories()) {
                 if (Files.isDirectory(rootDir)) {
-                    configs.add(new LocalAppFileSystemConfig(rootDir.toString(), false, rootDir));
+                    configs.add(new LocalAppFileSystemConfig(rootDir.toString(), false, rootDir, version));
                 }
             }
         }
@@ -75,7 +80,11 @@ public class LocalAppFileSystemConfig extends AbstractAppFileSystemConfig<LocalA
     }
 
     public LocalAppFileSystemConfig(String driveName, boolean remotelyAccessible, Path rootDir) {
-        super(driveName, remotelyAccessible);
+        this(driveName, remotelyAccessible, rootDir, DEFAULT_VERSION);
+    }
+
+    public LocalAppFileSystemConfig(String driveName, boolean remotelyAccessible, Path rootDir, VersionConfig version) {
+        super(driveName, remotelyAccessible, version);
         this.rootDir = checkRootDir(rootDir).toAbsolutePath();
     }
 

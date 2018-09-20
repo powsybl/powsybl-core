@@ -14,6 +14,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import com.powsybl.commons.config.VersionConfig;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -89,8 +90,8 @@ public class CIM1ConverterRatioTapChangerSide2FixTest {
 
     private ValidationConfig createValidationConfig(LoadFlowParameters loadFlowParameters) {
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
-        MapModuleConfig defaultConfig = platformConfig.createModuleConfig("componentDefaultConfig");
-        defaultConfig.setStringProperty("LoadFlowFactory",
+        MapModuleConfig defaultConfig = platformConfig.createModuleConfig("component-default-config");
+        defaultConfig.setStringProperty("load-flow-factory",
                 LoadFlowFactoryMock.class.getCanonicalName());
         ValidationConfig config = ValidationConfig.load(platformConfig);
         config.setVerbose(true);
@@ -103,7 +104,7 @@ public class CIM1ConverterRatioTapChangerSide2FixTest {
     private void computeMissingFlows(Network network, LoadFlowParameters loadFlowParameters) {
         float epsilonX = 0f;
         boolean applyXCorrection = false;
-        LoadFlowResultsCompletionParameters p = new LoadFlowResultsCompletionParameters(epsilonX, applyXCorrection);
+        LoadFlowResultsCompletionParameters p = new LoadFlowResultsCompletionParameters(epsilonX, applyXCorrection, VersionConfig.LATEST_VERSION);
         LoadFlowResultsCompletion lf = new LoadFlowResultsCompletion(p, loadFlowParameters);
         lf.run(network, null);
     }

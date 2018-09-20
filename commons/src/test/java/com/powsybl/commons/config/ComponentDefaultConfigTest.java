@@ -6,6 +6,7 @@
  */
 package com.powsybl.commons.config;
 
+import com.google.common.base.CaseFormat;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import org.junit.After;
@@ -38,8 +39,9 @@ public class ComponentDefaultConfigTest {
     public void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
-        moduleConfig = platformConfig.createModuleConfig("componentDefaultConfig");
-        config = new ComponentDefaultConfig.Impl(moduleConfig);
+        moduleConfig = platformConfig.createModuleConfig("component-default-config");
+        VersionConfig version = platformConfig.getVersion();
+        config = new ComponentDefaultConfig.Impl(moduleConfig, version);
     }
 
     @After
@@ -49,7 +51,7 @@ public class ComponentDefaultConfigTest {
 
     @Test
     public void findFactoryImplClassTest() throws IOException {
-        moduleConfig.setClassProperty(A.class.getSimpleName(), B.class);
+        moduleConfig.setClassProperty(CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, A.class.getSimpleName()), B.class);
         assertEquals(B.class, config.findFactoryImplClass(A.class));
     }
 
@@ -60,7 +62,7 @@ public class ComponentDefaultConfigTest {
 
     @Test
     public void newFactoryImplTest() throws IOException {
-        moduleConfig.setClassProperty(A.class.getSimpleName(), B.class);
+        moduleConfig.setClassProperty(CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, A.class.getSimpleName()), B.class);
         assertTrue(config.newFactoryImpl(A.class) instanceof B);
     }
 

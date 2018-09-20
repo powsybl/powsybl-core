@@ -21,9 +21,13 @@ import java.util.Optional;
  */
 public class PlatformConfig {
 
+    private static final VersionConfig DEFAULT_VERSION = VersionConfig.LATEST_VERSION;
+
     private static PlatformConfig defaultConfig;
 
     private static CacheManager defaultCacheManager;
+
+    protected final VersionConfig version;
 
     protected final FileSystem fileSystem;
 
@@ -67,10 +71,19 @@ public class PlatformConfig {
     }
 
     protected PlatformConfig(FileSystem fileSystem, Path configDir, Path cacheDir, ModuleConfigContainer container) {
+        this(fileSystem, configDir, cacheDir, container, DEFAULT_VERSION);
+    }
+
+    protected PlatformConfig(FileSystem fileSystem, Path configDir, Path cacheDir, ModuleConfigContainer container, VersionConfig versionConfig) {
         this.fileSystem = Objects.requireNonNull(fileSystem);
         this.configDir = FileUtil.createDirectory(configDir);
         this.cacheDir = FileUtil.createDirectory(cacheDir);
         this.container = Objects.requireNonNull(container);
+        this.version = versionConfig;
+    }
+
+    public VersionConfig getVersion() {
+        return version;
     }
 
     public FileSystem getFileSystem() {

@@ -31,7 +31,7 @@ public class SensitivityComputationParametersSerializer extends StdSerializer<Se
 
         jsonGenerator.writeStartObject();
 
-        jsonGenerator.writeStringField("version", SensitivityComputationParameters.VERSION);
+        jsonGenerator.writeStringField("version", parameters.getVersion().toString());
 
         jsonGenerator.writeFieldName("load-flow-parameters");
         JsonLoadFlowParameters.serialize(parameters.getLoadFlowParameters(), jsonGenerator, serializerProvider);

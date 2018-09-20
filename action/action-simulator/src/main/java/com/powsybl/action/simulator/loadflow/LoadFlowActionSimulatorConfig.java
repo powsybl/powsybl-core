@@ -8,6 +8,7 @@ package com.powsybl.action.simulator.loadflow;
 
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.VersionConfig;
 import com.powsybl.loadflow.LoadFlowFactory;
 
 import java.util.Objects;
@@ -25,12 +26,16 @@ public class LoadFlowActionSimulatorConfig {
         Objects.requireNonNull(platformConfig);
 
         ModuleConfig config = platformConfig.getModuleConfig("load-flow-action-simulator");
+        String version = config.getStringProperty("version", platformConfig.getVersion().toString());
+        VersionConfig versionConfig = VersionConfig.valueOfByString(version);
         Class<? extends LoadFlowFactory> loadFlowFactoryClass = config.getClassProperty("load-flow-factory", LoadFlowFactory.class);
         int maxIterations = config.getIntProperty("max-iterations");
         boolean ignorePreContingencyViolations = config.getBooleanProperty("ignore-pre-contingency-violations", false);
         boolean debug = config.getBooleanProperty("debug", false);
-        return new LoadFlowActionSimulatorConfig(loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations, debug);
+        return new LoadFlowActionSimulatorConfig(loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations, debug, versionConfig);
     }
+
+    private VersionConfig version;
 
     private Class<? extends LoadFlowFactory> loadFlowFactoryClass;
 
@@ -42,10 +47,16 @@ public class LoadFlowActionSimulatorConfig {
 
     public LoadFlowActionSimulatorConfig(Class<? extends LoadFlowFactory> loadFlowFactoryClass, int maxIterations, boolean ignorePreContingencyViolations,
                                          boolean debug) {
+        this(loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations, debug, VersionConfig.LATEST_VERSION);
+    }
+
+    public LoadFlowActionSimulatorConfig(Class<? extends LoadFlowFactory> loadFlowFactoryClass, int maxIterations, boolean ignorePreContingencyViolations,
+                                         boolean debug, VersionConfig versionConfig) {
         this.loadFlowFactoryClass = Objects.requireNonNull(loadFlowFactoryClass);
         this.maxIterations = maxIterations;
         this.ignorePreContingencyViolations = ignorePreContingencyViolations;
         this.debug = debug;
+        this.version = versionConfig;
     }
 
     public Class<? extends LoadFlowFactory> getLoadFlowFactoryClass() {

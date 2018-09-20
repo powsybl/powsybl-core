@@ -10,6 +10,7 @@ import com.powsybl.afs.AfsException;
 import com.powsybl.afs.storage.AbstractAppFileSystemConfig;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.VersionConfig;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,6 +23,8 @@ import java.util.Objects;
  */
 public class MapDbAppFileSystemConfig extends AbstractAppFileSystemConfig<MapDbAppFileSystemConfig> {
 
+    private static final VersionConfig DEFAULT_VERSION = VersionConfig.LATEST_VERSION;
+
     private Path dbFile;
 
     public static List<MapDbAppFileSystemConfig> load() {
@@ -32,12 +35,13 @@ public class MapDbAppFileSystemConfig extends AbstractAppFileSystemConfig<MapDbA
         List<MapDbAppFileSystemConfig> configs = new ArrayList<>();
         ModuleConfig moduleConfig = platformConfig.getModuleConfigIfExists("mapdb-app-file-system");
         if (moduleConfig != null) {
+            VersionConfig version = moduleConfig.hasProperty("version") ? VersionConfig.valueOfByString(moduleConfig.getStringProperty("version")) : platformConfig.getVersion();
             if (moduleConfig.hasProperty("drive-name")
                     && moduleConfig.hasProperty("db-file")) {
                 String driveName = moduleConfig.getStringProperty("drive-name");
                 boolean remotelyAccessible = moduleConfig.getBooleanProperty("remotely-accessible", DEFAULT_REMOTELY_ACCESSIBLE);
                 Path rootDir = moduleConfig.getPathProperty("db-file");
-                configs.add(new MapDbAppFileSystemConfig(driveName, remotelyAccessible, rootDir));
+                configs.add(new MapDbAppFileSystemConfig(driveName, remotelyAccessible, rootDir, version));
             }
             int maxAdditionalDriveCount = moduleConfig.getIntProperty("max-additional-drive-count", 0);
             for (int i = 0; i < maxAdditionalDriveCount; i++) {
@@ -46,7 +50,7 @@ public class MapDbAppFileSystemConfig extends AbstractAppFileSystemConfig<MapDbA
                     String driveName = moduleConfig.getStringProperty("drive-name-" + i);
                     boolean remotelyAccessible = moduleConfig.getBooleanProperty("remotely-accessible-" + i, DEFAULT_REMOTELY_ACCESSIBLE);
                     Path rootDir = moduleConfig.getPathProperty("db-file-" + i);
-                    configs.add(new MapDbAppFileSystemConfig(driveName, remotelyAccessible, rootDir));
+                    configs.add(new MapDbAppFileSystemConfig(driveName, remotelyAccessible, rootDir, version));
                 }
             }
         }
@@ -62,7 +66,11 @@ public class MapDbAppFileSystemConfig extends AbstractAppFileSystemConfig<MapDbA
     }
 
     public MapDbAppFileSystemConfig(String driveName, boolean remotelyAccessible, Path dbFile) {
-        super(driveName, remotelyAccessible);
+        this(driveName, remotelyAccessible, dbFile, DEFAULT_VERSION);
+    }
+
+    public MapDbAppFileSystemConfig(String driveName, boolean remotelyAccessible, Path dbFile, VersionConfig version) {
+        super(driveName, remotelyAccessible, version);
         this.dbFile = checkDbFile(dbFile);
     }
 

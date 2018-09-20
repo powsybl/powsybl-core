@@ -49,8 +49,8 @@ public class ValidationConfigTest {
     public void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
-        MapModuleConfig defaultConfig = platformConfig.createModuleConfig("componentDefaultConfig");
-        defaultConfig.setStringProperty("LoadFlowFactory", loadFlowFactory.getCanonicalName());
+        MapModuleConfig defaultConfig = platformConfig.createModuleConfig("component-default-config");
+        defaultConfig.setStringProperty("load-flow-factory", loadFlowFactory.getCanonicalName());
     }
 
     @After

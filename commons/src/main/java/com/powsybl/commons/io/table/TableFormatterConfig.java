@@ -8,6 +8,7 @@ package com.powsybl.commons.io.table;
 
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.VersionConfig;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -17,6 +18,7 @@ import java.util.Objects;
  */
 public class TableFormatterConfig {
 
+    private static final VersionConfig DEFAULT_VERSION = VersionConfig.LATEST_VERSION;
     private static final String CONFIG_MODULE_NAME = "table-formatter";
     private static final Locale DEFAULT_LOCALE = Locale.getDefault();
     private static final String DEFAULT_LANGUAGE = DEFAULT_LOCALE.getLanguage();
@@ -25,6 +27,7 @@ public class TableFormatterConfig {
     private static final boolean DEFAULT_PRINT_HEADER = true;
     private static final boolean DEFAULT_PRINT_TITLE = true;
 
+    private final VersionConfig version;
     private final Locale locale;
     private final char csvSeparator;
     private final String invalidString;
@@ -41,9 +44,11 @@ public class TableFormatterConfig {
         String invalidString = DEFAULT_INVALID_STRING;
         boolean printHeader = DEFAULT_PRINT_HEADER;
         boolean printTitle = DEFAULT_PRINT_TITLE;
+        VersionConfig version = platformConfig.getVersion();
 
         if (platformConfig.moduleExists(CONFIG_MODULE_NAME)) {
             ModuleConfig config = platformConfig.getModuleConfig(CONFIG_MODULE_NAME);
+            version = config.hasProperty("version") ? VersionConfig.valueOfByString(config.getStringProperty("version")) : version;
             language = config.getStringProperty("language", DEFAULT_LANGUAGE);
             separator = config.getStringProperty("separator", Character.toString(DEFAULT_CSV_SEPARATOR));
             invalidString = config.getStringProperty("invalid-string", DEFAULT_INVALID_STRING);
@@ -52,16 +57,21 @@ public class TableFormatterConfig {
         }
 
         Locale locale = Locale.forLanguageTag(language);
-        return new TableFormatterConfig(locale, separator.charAt(0), invalidString, printHeader, printTitle);
+        return new TableFormatterConfig(locale, separator.charAt(0), invalidString, printHeader, printTitle, version);
     }
 
-    public TableFormatterConfig(Locale locale, char csvSeparator, String invalidString, boolean printHeader, boolean printTitle) {
+    public TableFormatterConfig(Locale locale, char csvSeparator, String invalidString, boolean printHeader, boolean printTitle, VersionConfig version) {
         Objects.requireNonNull(locale);
         this.locale = locale;
         this.csvSeparator = csvSeparator;
         this.invalidString = invalidString;
         this.printHeader = printHeader;
         this.printTitle = printTitle;
+        this.version = version;
+    }
+
+    public TableFormatterConfig(Locale locale, char csvSeparator, String invalidString, boolean printHeader, boolean printTitle) {
+        this(locale, csvSeparator, invalidString, printHeader, printTitle, DEFAULT_VERSION);
     }
 
     public TableFormatterConfig(Locale locale, String invalidString, boolean printHeader, boolean printTitle) {

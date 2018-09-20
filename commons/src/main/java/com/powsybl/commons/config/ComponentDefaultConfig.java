@@ -6,11 +6,13 @@
  */
 package com.powsybl.commons.config;
 
+import com.google.common.base.CaseFormat;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedIllegalAccessException;
 import com.powsybl.commons.exceptions.UncheckedInstantiationException;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -23,7 +25,11 @@ public interface ComponentDefaultConfig {
     }
 
     static ComponentDefaultConfig load(PlatformConfig platformConfig) {
-        return new Impl(platformConfig.getModuleConfigIfExists("componentDefaultConfig"));
+        return platformConfig.getOptionalModuleConfig("componentDefaultConfig")
+                .map(moduleConfig -> new Impl(moduleConfig, VersionConfig.VERSION_1_0))
+                .orElseGet(() -> platformConfig.getOptionalModuleConfig("component-default-config")
+                        .map(moduleConfig -> new Impl(moduleConfig, VersionConfig.LATEST_VERSION))
+                .orElse(null));
     }
 
     class Impl implements ComponentDefaultConfig {
@@ -40,16 +46,31 @@ public interface ComponentDefaultConfig {
             return defaultConfig;
         }
 
+        private static final String ERROR_MESSAGE_VERSION = "Unexpected version of configuration file : this version is not supported for this module.";
+
+        private final VersionConfig version;
+
         private final ModuleConfig config;
 
-        public Impl(ModuleConfig config) {
+        public Impl(ModuleConfig config, VersionConfig version) {
             this.config = config;
+            this.version = version;
         }
 
         @Override
         public <T> Class<? extends T> findFactoryImplClass(Class<T> factoryBaseClass) {
             Objects.requireNonNull(factoryBaseClass);
-            String propertyName = factoryBaseClass.getSimpleName();
+            String propertyName;
+            switch (version) {
+                case VERSION_1_0:
+                    propertyName = factoryBaseClass.getSimpleName();
+                    break;
+                case LATEST_VERSION:
+                    propertyName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, factoryBaseClass.getSimpleName());
+                    break;
+                default:
+                    throw new PowsyblException(ERROR_MESSAGE_VERSION);
+            }
             if (config == null) {
                 throw new PowsyblException("Property " + propertyName + " is not set");
             }
@@ -60,7 +81,17 @@ public interface ComponentDefaultConfig {
         public <T, U extends T> Class<? extends T> findFactoryImplClass(Class<T> factoryBaseClass, Class<U> defaultFactoryImplClass) {
             Objects.requireNonNull(factoryBaseClass);
             Objects.requireNonNull(defaultFactoryImplClass);
-            String propertyName = factoryBaseClass.getSimpleName();
+            String propertyName;
+            switch (version) {
+                case VERSION_1_0:
+                    propertyName = factoryBaseClass.getSimpleName();
+                    break;
+                case LATEST_VERSION:
+                    propertyName = CaseFormat.UPPER_CAMEL.to(CaseFormat.LOWER_HYPHEN, factoryBaseClass.getSimpleName());
+                    break;
+                default:
+                    throw new PowsyblException(ERROR_MESSAGE_VERSION);
+            }
             return config != null ? config.getClassProperty(propertyName, factoryBaseClass, defaultFactoryImplClass)
                     : defaultFactoryImplClass;
         }
