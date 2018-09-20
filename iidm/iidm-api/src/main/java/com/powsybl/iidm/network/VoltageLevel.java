@@ -564,6 +564,11 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         Stream<Switch> getSwitchStream();
 
         /**
+         * Get the switch count
+         */
+        int getSwitchCount();
+
+        /**
          * Remove a switch.
          * @param switchId the switch id
          */
@@ -798,6 +803,11 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get switches.
      */
     Iterable<Switch> getSwitches();
+
+    /**
+     * Get switch count.
+     */
+    int getSwitchCount();
 
     /**
      * Get load count.

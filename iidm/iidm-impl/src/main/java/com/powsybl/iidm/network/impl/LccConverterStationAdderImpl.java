@@ -36,7 +36,7 @@ class LccConverterStationAdderImpl extends AbstractHvdcConverterStationAdder<Lcc
     public LccConverterStation add() {
         String id = checkAndGetUniqueId();
         String name = getName();
-        TerminalExt terminal = checkAndGetTerminal(id);
+        TerminalExt terminal = checkAndGetTerminal();
         validate();
         LccConverterStationImpl converterStation
                 = new LccConverterStationImpl(id, name, getLossFactor(), powerFactor);

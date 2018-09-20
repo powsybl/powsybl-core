@@ -10,7 +10,7 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface TapChangerStep<TCS extends TapChangerStep> {
+public interface TapChangerStep<S extends TapChangerStep> {
 
     /**
      * Get the voltage ratio in per unit.
@@ -20,7 +20,7 @@ public interface TapChangerStep<TCS extends TapChangerStep> {
     /**
      * Set the voltage ratio in per unit.
      */
-    TCS setRho(double rho);
+    S setRho(double rho);
 
     /**
      * Get the resistance deviation in percent of nominal value.
@@ -30,7 +30,7 @@ public interface TapChangerStep<TCS extends TapChangerStep> {
     /**
      * Set the resistance deviation in percent of nominal value.
      */
-    TCS setR(double r);
+    S setR(double r);
 
     /**
      * Get the reactance deviation in percent of nominal value.
@@ -40,7 +40,7 @@ public interface TapChangerStep<TCS extends TapChangerStep> {
     /**
      * Set the reactance deviation in percent of nominal value.
      */
-    TCS setX(double x);
+    S setX(double x);
 
     /**
      * Get the susceptance deviation in percent of nominal value.
@@ -50,7 +50,7 @@ public interface TapChangerStep<TCS extends TapChangerStep> {
     /**
      * Set the susceptance deviation in percent of nominal value.
      */
-    TCS setB(double b);
+    S setB(double b);
 
     /**
      * Get the conductance deviation in percent of nominal value.
@@ -60,6 +60,6 @@ public interface TapChangerStep<TCS extends TapChangerStep> {
     /**
      * Set the conductance deviation in percent of nominal value.
      */
-    TCS setG(double g);
+    S setG(double g);
 
 }

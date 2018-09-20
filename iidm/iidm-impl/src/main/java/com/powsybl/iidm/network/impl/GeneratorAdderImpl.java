@@ -107,7 +107,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
     @Override
     public GeneratorImpl add() {
         String id = checkAndGetUniqueId();
-        TerminalExt terminal = checkAndGetTerminal(id);
+        TerminalExt terminal = checkAndGetTerminal();
         ValidationUtil.checkEnergySource(this, energySource);
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkMaxP(this, maxP);
