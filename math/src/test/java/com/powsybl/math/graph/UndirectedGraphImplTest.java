@@ -401,7 +401,7 @@ public class UndirectedGraphImplTest {
         graph.addEdge(4, 5, null); // 5
         graph.addEdge(3, 5, null); // 6
 
-        Traverser<Object> traverser = Mockito.mock(Traverser.class);
+        Traverser traverser = Mockito.mock(Traverser.class);
         // Stops  on 1, 2 and 3
         Mockito.when(traverser.traverse(Mockito.anyInt(), Mockito.anyInt(), Mockito.anyInt())).thenReturn(TraverseResult.CONTINUE);
         Mockito.when(traverser.traverse(4, 3, 1)).thenReturn(TraverseResult.TERMINATE);

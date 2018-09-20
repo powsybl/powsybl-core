@@ -49,7 +49,7 @@ public class AmplNetworkReader {
         this.dataSource = dataSource;
         this.network = network;
         this.mapper = mapper;
-        this.buses = network.getBusView().getBusStream().collect(Collectors.toMap(b -> b.getId(), Function.identity()));
+        this.buses = network.getBusView().getBusStream().collect(Collectors.toMap(Identifiable::getId, Function.identity()));
     }
 
     private static AmplException createWrongNumberOfColumnException(int expected, int actual) {
