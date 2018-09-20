@@ -70,6 +70,7 @@ public class LoadFlowParametersTest {
         LoadFlowParameters.VoltageInitMode voltageInitMode = LoadFlowParameters.VoltageInitMode.UNIFORM_VALUES;
 
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow-default-parameters");
+        moduleConfig.setStringProperty("version", "1.0");
         moduleConfig.setStringProperty("voltageInitMode", "UNIFORM_VALUES");
         moduleConfig.setStringProperty("transformerVoltageControlOn", Boolean.toString(transformerVoltageControlOn));
         moduleConfig.setStringProperty("noGeneratorReactiveLimits", Boolean.toString(noGeneratorReactiveLimits));
@@ -85,6 +86,7 @@ public class LoadFlowParametersTest {
     public void checkIncompleteConfig() throws Exception {
         boolean transformerVoltageControlOn = true;
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow-default-parameters");
+        moduleConfig.setStringProperty("version", "1.0");
         moduleConfig.setStringProperty("transformerVoltageControlOn", Boolean.toString(transformerVoltageControlOn));
         LoadFlowParameters parameters = new LoadFlowParameters();
         LoadFlowParameters.load(parameters, platformConfig);

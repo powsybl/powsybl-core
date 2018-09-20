@@ -9,6 +9,7 @@ package com.powsybl.computation;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.config.PropertiesPlatformConfig;
+import com.powsybl.commons.config.VersionConfig;
 import com.powsybl.commons.exceptions.UncheckedClassNotFoundException;
 import com.powsybl.commons.exceptions.UncheckedIllegalAccessException;
 import com.powsybl.commons.exceptions.UncheckedInstantiationException;
@@ -24,6 +25,8 @@ public class DefaultComputationManagerConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultComputationManagerConfig.class);
 
+    private static final VersionConfig DEFAULT_VERSION = VersionConfig.LATEST_VERSION;
+
     /**
      * A String is used here for default computation manager factory to avoid a direct dependency to local computation
      * manager.
@@ -31,14 +34,18 @@ public class DefaultComputationManagerConfig {
     private static final String DEFAULT_SHORT_TIME_EXECUTION_COMPUTATION_MANAGER_FACTORY_CLASS
             = "com.powsybl.computation.local.LocalComputationManagerFactory";
 
+    private final VersionConfig version;
+
     private final Class<? extends ComputationManagerFactory> shortTimeExecutionComputationManagerFactoryClass;
 
     private final Class<? extends ComputationManagerFactory> longTimeExecutionComputationManagerFactoryClass;
 
     public DefaultComputationManagerConfig(Class<? extends ComputationManagerFactory> shortTimeExecutionComputationManagerFactoryClass,
-                                           Class<? extends ComputationManagerFactory> longTimeExecutionComputationManagerFactoryClass) {
+                                           Class<? extends ComputationManagerFactory> longTimeExecutionComputationManagerFactoryClass,
+                                           VersionConfig version) {
         this.shortTimeExecutionComputationManagerFactoryClass = Objects.requireNonNull(shortTimeExecutionComputationManagerFactoryClass);
         this.longTimeExecutionComputationManagerFactoryClass = longTimeExecutionComputationManagerFactoryClass;
+        this.version = version;
     }
 
     public static DefaultComputationManagerConfig load() {
@@ -49,8 +56,10 @@ public class DefaultComputationManagerConfig {
         Objects.requireNonNull(platformConfig);
         Class<? extends ComputationManagerFactory> shortTimeExecutionComputationManagerFactoryClass;
         Class<? extends ComputationManagerFactory> longTimeExecutionComputationManagerFactoryClass;
+        VersionConfig version = platformConfig.getVersion();
         ModuleConfig moduleConfig = platformConfig.getModuleConfigIfExists("default-computation-manager");
         if (moduleConfig != null) {
+            version = moduleConfig.hasProperty("version") ? VersionConfig.valueOfByString(moduleConfig.getStringProperty("version")) : version;
             shortTimeExecutionComputationManagerFactoryClass = moduleConfig.getClassProperty("short-time-execution-computation-manager-factory", ComputationManagerFactory.class);
             longTimeExecutionComputationManagerFactoryClass = moduleConfig.getClassProperty("long-time-execution-computation-manager-factory", ComputationManagerFactory.class, null);
         } else {
@@ -61,7 +70,7 @@ public class DefaultComputationManagerConfig {
             }
             longTimeExecutionComputationManagerFactoryClass = null;
         }
-        DefaultComputationManagerConfig config = new DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass, longTimeExecutionComputationManagerFactoryClass);
+        DefaultComputationManagerConfig config = new DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass, longTimeExecutionComputationManagerFactoryClass, version);
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info(config.toString());
         }

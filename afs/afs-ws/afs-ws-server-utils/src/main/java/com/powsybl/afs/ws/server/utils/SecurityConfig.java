@@ -8,6 +8,7 @@ package com.powsybl.afs.ws.server.utils;
 
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.VersionConfig;
 
 import java.util.Objects;
 
@@ -18,6 +19,8 @@ public class SecurityConfig {
 
     private static final long DEFAULT_TOKEN_VALIDITY = 3600L; // minutes
     private static final boolean DEFAULT_SKIP_TOKEN_VALIDITY_CHECK = true;
+
+    private final VersionConfig version;
 
     private long tokenValidity;
 
@@ -35,16 +38,19 @@ public class SecurityConfig {
         long tokenValidity = DEFAULT_TOKEN_VALIDITY;
         boolean skipTokenValidityCheck = DEFAULT_SKIP_TOKEN_VALIDITY_CHECK;
         ModuleConfig securityConfig = platformConfig.getModuleConfigIfExists("security");
+        VersionConfig version = platformConfig.getVersion();
         if (securityConfig != null) {
+            version = VersionConfig.valueOfByString(securityConfig.getStringProperty("version", platformConfig.getVersion().toString()));
             tokenValidity = securityConfig.getOptionalLongProperty("token-validity").orElse(DEFAULT_TOKEN_VALIDITY);
             skipTokenValidityCheck = securityConfig.getOptionalBooleanProperty("skip-token-validity-check").orElse(DEFAULT_SKIP_TOKEN_VALIDITY_CHECK);
         }
-        return new SecurityConfig(tokenValidity, skipTokenValidityCheck);
+        return new SecurityConfig(tokenValidity, skipTokenValidityCheck, version);
     }
 
-    public SecurityConfig(long tokenValidity, boolean skipTokenValidityCheck) {
+    public SecurityConfig(long tokenValidity, boolean skipTokenValidityCheck, VersionConfig version) {
         this.tokenValidity = checkTokenValidity(tokenValidity);
         this.skipTokenValidityCheck = skipTokenValidityCheck;
+        this.version = version;
     }
 
     public long getTokenValidity() {

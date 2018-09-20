@@ -6,6 +6,7 @@
  */
 package com.powsybl.afs.ws.client.utils;
 
+import com.powsybl.commons.config.VersionConfig;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -17,11 +18,11 @@ public class RemoteServiceConfigTest {
 
     @Test
     public void test() {
-        RemoteServiceConfig config = new RemoteServiceConfig("host", "test", 443, true);
+        RemoteServiceConfig config = new RemoteServiceConfig("host", "test", 443, true, VersionConfig.LATEST_VERSION);
         assertEquals("https://host:443/test", config.getRestUri().toString());
         assertEquals("wss://host:443/test", config.getWsUri().toString());
 
-        RemoteServiceConfig config2 = new RemoteServiceConfig("host", "test", 80, false);
+        RemoteServiceConfig config2 = new RemoteServiceConfig("host", "test", 80, false, VersionConfig.LATEST_VERSION);
         assertEquals("http://host:80/test", config2.getRestUri().toString());
         assertEquals("ws://host:80/test", config2.getWsUri().toString());
     }

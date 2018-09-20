@@ -12,6 +12,7 @@ import java.util.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.VersionConfig;
 
 /**
  *
@@ -19,9 +20,11 @@ import com.powsybl.commons.config.PlatformConfig;
  */
 public class LoadFlowResultsCompletionParameters {
 
+    public static final VersionConfig DEFAULT_VERSION = VersionConfig.LATEST_VERSION;
     public static final float EPSILON_X_DEFAULT = 0.1f;
     public static final boolean APPLY_REACTANCE_CORRECTION_DEFAULT = false;
 
+    private final VersionConfig version;
     private final float epsilonX;
     private final boolean applyReactanceCorrection;
 
@@ -31,23 +34,26 @@ public class LoadFlowResultsCompletionParameters {
 
     public static LoadFlowResultsCompletionParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
+        VersionConfig version = platformConfig.getVersion();
         float epsilonX = LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT;
         boolean applyReactanceCorrection = LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT;
         ModuleConfig config = platformConfig.getModuleConfigIfExists("loadflow-results-completion-parameters");
         if (config != null) {
+            version = config.hasProperty("version") ? VersionConfig.valueOfByString(config.getStringProperty("version")) : version;
             epsilonX = config.getFloatProperty("epsilon-x", LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT);
             applyReactanceCorrection = config.getBooleanProperty("apply-reactance-correction", LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT);
         }
-        return new LoadFlowResultsCompletionParameters(epsilonX, applyReactanceCorrection);
+        return new LoadFlowResultsCompletionParameters(epsilonX, applyReactanceCorrection, version);
     }
 
-    public LoadFlowResultsCompletionParameters(float epsilonX, boolean applyReactanceCorrection) {
+    public LoadFlowResultsCompletionParameters(float epsilonX, boolean applyReactanceCorrection, VersionConfig version) {
         this.epsilonX = epsilonX;
         this.applyReactanceCorrection = applyReactanceCorrection;
+        this.version = version;
     }
 
     public LoadFlowResultsCompletionParameters() {
-        this(EPSILON_X_DEFAULT, APPLY_REACTANCE_CORRECTION_DEFAULT);
+        this(EPSILON_X_DEFAULT, APPLY_REACTANCE_CORRECTION_DEFAULT, DEFAULT_VERSION);
     }
 
     public float getEpsilonX() {

@@ -7,8 +7,10 @@
  */
 package com.powsybl.security;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.VersionConfig;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 
@@ -23,6 +25,7 @@ import java.util.stream.Collectors;
  */
 public class LimitViolationFilter {
 
+    private static final VersionConfig DEFAULT_VERSION = VersionConfig.LATEST_VERSION;
     private static final Set<LimitViolationType> DEFAULT_VIOLATION_TYPES = EnumSet.allOf(LimitViolationType.class);
     private static final double DEFAULT_MIN_BASE_VOLTAGE = 0.0;
     private static final Set<Country> DEFAULT_COUNTRIES = EnumSet.allOf(Country.class);
@@ -62,12 +65,25 @@ public class LimitViolationFilter {
         LimitViolationFilter filter = new LimitViolationFilter();
         ModuleConfig moduleConfig = platformConfig.getModuleConfigIfExists("limit-violation-default-filter");
         if (moduleConfig != null) {
-            filter.setViolationTypes(moduleConfig.getEnumSetProperty("violationTypes", LimitViolationType.class, DEFAULT_VIOLATION_TYPES));
-            filter.setMinBaseVoltage(moduleConfig.getDoubleProperty("minBaseVoltage", DEFAULT_MIN_BASE_VOLTAGE));
+            filter.setVersion(moduleConfig.hasProperty("version") ? VersionConfig.valueOfByString(moduleConfig.getStringProperty("version")) : platformConfig.getVersion());
+            switch (filter.getVersion()) {
+                case VERSION_1_0:
+                    filter.setViolationTypes(moduleConfig.getEnumSetProperty("violationTypes", LimitViolationType.class, DEFAULT_VIOLATION_TYPES));
+                    filter.setMinBaseVoltage(moduleConfig.getDoubleProperty("minBaseVoltage", DEFAULT_MIN_BASE_VOLTAGE));
+                    break;
+                case LATEST_VERSION:
+                    filter.setViolationTypes(moduleConfig.getEnumSetProperty("violation-types", LimitViolationType.class, DEFAULT_VIOLATION_TYPES));
+                    filter.setMinBaseVoltage(moduleConfig.getDoubleProperty("min-base-voltage", DEFAULT_MIN_BASE_VOLTAGE));
+                    break;
+                default:
+                    throw new PowsyblException("Unexpected module version : this version is not supported");
+            }
             filter.setCountries(moduleConfig.getEnumSetProperty("countries", Country.class, DEFAULT_COUNTRIES));
         }
         return filter;
     }
+
+    private VersionConfig version;
 
     private Set<LimitViolationType> violationTypes;
 
@@ -88,9 +104,23 @@ public class LimitViolationFilter {
     }
 
     public LimitViolationFilter(Set<LimitViolationType> violationTypes, double minBaseVoltage, Set<Country> countries) {
+        this(violationTypes, minBaseVoltage, countries, DEFAULT_VERSION);
+    }
+
+    public LimitViolationFilter(Set<LimitViolationType> violationTypes, double minBaseVoltage, Set<Country> countries, VersionConfig version) {
         this.violationTypes = checkViolationTypes(violationTypes);
         this.minBaseVoltage = checkMinBaseVoltage(minBaseVoltage);
         this.countries = checkCountries(countries);
+        this.version = version;
+    }
+
+    public VersionConfig getVersion() {
+        return version;
+    }
+
+    public LimitViolationFilter setVersion(VersionConfig version) {
+        this.version = version;
+        return this;
     }
 
     public Set<LimitViolationType> getViolationTypes() {
@@ -125,10 +155,10 @@ public class LimitViolationFilter {
         Objects.requireNonNull(network);
 
         return violations.stream()
-            .filter(violation -> accept(violation.getLimitType()))
-            .filter(violation -> accept(LimitViolationHelper.getNominalVoltage(violation, network)))
-            .filter(violation -> accept(LimitViolationHelper.getCountry(violation, network)))
-            .collect(Collectors.toList());
+                .filter(violation -> accept(violation.getLimitType()))
+                .filter(violation -> accept(LimitViolationHelper.getNominalVoltage(violation, network)))
+                .filter(violation -> accept(LimitViolationHelper.getCountry(violation, network)))
+                .collect(Collectors.toList());
     }
 
     private boolean accept(Country country) {

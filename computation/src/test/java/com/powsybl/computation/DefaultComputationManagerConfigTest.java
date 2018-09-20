@@ -10,6 +10,7 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
+import com.powsybl.commons.config.VersionConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -53,12 +54,13 @@ public class DefaultComputationManagerConfigTest {
     @Test
     public void test() {
         DefaultComputationManagerConfig config = new DefaultComputationManagerConfig(FirstComputationManagerFactory.class,
-                                                                                     SecondComputationManagerFactory.class);
+                                                                                     SecondComputationManagerFactory.class,
+                                                                                        VersionConfig.LATEST_VERSION);
         assertEquals("DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass=com.powsybl.computation.DefaultComputationManagerConfigTest$FirstComputationManagerFactory, longTimeExecutionComputationManagerFactoryClass=com.powsybl.computation.DefaultComputationManagerConfigTest$SecondComputationManagerFactory)", config.toString());
         assertNotNull(config.createShortTimeExecutionComputationManager());
         assertNotNull(config.createLongTimeExecutionComputationManager());
 
-        config = new DefaultComputationManagerConfig(FirstComputationManagerFactory.class, null);
+        config = new DefaultComputationManagerConfig(FirstComputationManagerFactory.class, null, VersionConfig.LATEST_VERSION);
         assertEquals("DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass=com.powsybl.computation.DefaultComputationManagerConfigTest$FirstComputationManagerFactory)", config.toString());
         assertNotNull(config.createShortTimeExecutionComputationManager());
         assertNull(config.createLongTimeExecutionComputationManager());

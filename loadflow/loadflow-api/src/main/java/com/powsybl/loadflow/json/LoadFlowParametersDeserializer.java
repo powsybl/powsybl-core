@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.commons.config.VersionConfig;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -41,7 +42,7 @@ class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowParameters>
             switch (parser.getCurrentName()) {
 
                 case "version":
-                    parser.nextToken();
+                    parameters.setVersion(VersionConfig.valueOfByString(parser.nextTextValue()));
                     break;
 
                 case "voltageInitMode":

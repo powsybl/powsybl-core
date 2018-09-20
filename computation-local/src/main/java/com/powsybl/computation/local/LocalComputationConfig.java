@@ -6,9 +6,11 @@
  */
 package com.powsybl.computation.local;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ConfigurationException;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.VersionConfig;
 
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
@@ -25,9 +27,13 @@ public class LocalComputationConfig {
 
     private static final String CONFIG_MODULE_NAME = "computation-local";
 
+    private static final VersionConfig DEFAULT_VERSION = VersionConfig.LATEST_VERSION;
+
     static final String DEFAULT_LOCAL_DIR = System.getProperty("java.io.tmpdir");
 
     private static final int DEFAULT_AVAILABLE_CORE = 1;
+
+    private final VersionConfig version;
 
     private final Path localDir;
 
@@ -60,19 +66,31 @@ public class LocalComputationConfig {
 
         Path localDir = getDefaultLocalDir(platformConfig.getFileSystem());
         int availableCore = DEFAULT_AVAILABLE_CORE;
+        VersionConfig version = platformConfig.getVersion();
         if (platformConfig.moduleExists(CONFIG_MODULE_NAME)) {
             ModuleConfig config = platformConfig.getModuleConfig(CONFIG_MODULE_NAME);
-            localDir = getTmpDir(config, "tmpDir")
-                           .orElseGet(() -> getTmpDir(config, "tmp-dir")
-                                                .orElseGet(() -> getDefaultLocalDir(platformConfig.getFileSystem())));
-            availableCore = config.getOptionalIntegerProperty("availableCore")
-                                  .orElseGet(() -> config.getOptionalIntegerProperty("available-core")
-                                                         .orElse(DEFAULT_AVAILABLE_CORE));
+            version = config.hasProperty("version") ? VersionConfig.valueOfByString(config.getStringProperty("version")) : version;
+            switch (version) {
+                case VERSION_1_0:
+                    localDir = getTmpDir(config, "tmpDir")
+                            .orElseGet(() -> getDefaultLocalDir(platformConfig.getFileSystem()));
+                    availableCore = config.getOptionalIntegerProperty("availableCore")
+                            .orElse(DEFAULT_AVAILABLE_CORE);
+                    break;
+                case LATEST_VERSION:
+                    localDir = getTmpDir(config, "tmp-dir")
+                            .orElseGet(() -> getDefaultLocalDir(platformConfig.getFileSystem()));
+                    availableCore = config.getOptionalIntegerProperty("available-core")
+                            .orElse(DEFAULT_AVAILABLE_CORE);
+                    break;
+                default:
+                    throw new PowsyblException("Unexpected module version : this version is not supported");
+            }
         }
         if (availableCore <= 0) {
             availableCore = Runtime.getRuntime().availableProcessors();
         }
-        return new LocalComputationConfig(localDir, availableCore);
+        return new LocalComputationConfig(localDir, availableCore, version);
     }
 
     public LocalComputationConfig(Path localDir) {
@@ -80,8 +98,13 @@ public class LocalComputationConfig {
     }
 
     public LocalComputationConfig(Path localDir, int availableCore) {
+        this(localDir, availableCore, DEFAULT_VERSION);
+    }
+
+    public LocalComputationConfig(Path localDir, int availableCore, VersionConfig version) {
         this.localDir = localDir;
         this.availableCore = availableCore;
+        this.version = version;
     }
 
     public Path getLocalDir() {

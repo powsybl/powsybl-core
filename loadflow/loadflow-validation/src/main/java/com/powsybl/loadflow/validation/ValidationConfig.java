@@ -11,6 +11,7 @@ import java.util.Objects;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.VersionConfig;
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterFactory;
 import com.powsybl.loadflow.LoadFlowFactory;
@@ -22,6 +23,7 @@ import com.powsybl.loadflow.LoadFlowParameters;
  */
 public class ValidationConfig {
 
+    public static final VersionConfig VERSION_DEFAULT = VersionConfig.LATEST_VERSION;
     public static final double THRESHOLD_DEFAULT = 0.0;
     public static final boolean VERBOSE_DEFAULT = false;
     public static final Class<? extends TableFormatterFactory> TABLE_FORMATTER_FACTORY_DEFAULT = CsvTableFormatterFactory.class;
@@ -34,6 +36,7 @@ public class ValidationConfig {
     public static final boolean CHECK_MAIN_COMPONENT_ONLY_DEFAULT = true;
     public static final boolean NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS = false;
 
+    private VersionConfig version;
     private double threshold;
     private boolean verbose;
     private Class<? extends LoadFlowFactory> loadFlowFactory;
@@ -53,6 +56,7 @@ public class ValidationConfig {
     }
 
     public static ValidationConfig load(PlatformConfig platformConfig) {
+        VersionConfig version = platformConfig.getVersion();
         double threshold = THRESHOLD_DEFAULT;
         boolean verbose = VERBOSE_DEFAULT;
         ComponentDefaultConfig componentDefaultConfig = ComponentDefaultConfig.load(platformConfig);
@@ -69,6 +73,7 @@ public class ValidationConfig {
         LoadFlowParameters loadFlowParameter = LoadFlowParameters.load(platformConfig);
         if (platformConfig.moduleExists("loadflow-validation")) {
             ModuleConfig config = platformConfig.getModuleConfig("loadflow-validation");
+            version = config.hasProperty("version") ? VersionConfig.valueOfByString(config.getStringProperty("version")) : version;
             threshold = config.getDoubleProperty("threshold", THRESHOLD_DEFAULT);
             verbose = config.getBooleanProperty("verbose", VERBOSE_DEFAULT);
             if (config.hasProperty("load-flow-factory")) {
@@ -85,7 +90,7 @@ public class ValidationConfig {
             noRequirementIfSetpointOutsidePowerBounds = config.getBooleanProperty("no-requirement-if-setpoint-outside-power-bounds", NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
         }
         return new ValidationConfig(threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, loadFlowParameter,
-                                    okMissingValues, noRequirementIfReactiveBoundInversion, compareResults, checkMainComponentOnly, noRequirementIfSetpointOutsidePowerBounds);
+                okMissingValues, noRequirementIfReactiveBoundInversion, compareResults, checkMainComponentOnly, noRequirementIfSetpointOutsidePowerBounds, version);
     }
 
     public ValidationConfig(double threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory,
@@ -93,6 +98,16 @@ public class ValidationConfig {
                             boolean applyReactanceCorrection, ValidationOutputWriter validationOutputWriter, LoadFlowParameters loadFlowParameters,
                             boolean okMissingValues, boolean noRequirementIfReactiveBoundInversion, boolean compareResults, boolean checkMainComponentOnly,
                             boolean noRequirementIfSetpointOutsidePowerBounds) {
+        this(threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter,
+                loadFlowParameters, okMissingValues, noRequirementIfReactiveBoundInversion, compareResults, checkMainComponentOnly, noRequirementIfSetpointOutsidePowerBounds,
+                VERSION_DEFAULT);
+    }
+
+    public ValidationConfig(double threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory,
+                            Class<? extends TableFormatterFactory> tableFormatterFactory, double epsilonX,
+                            boolean applyReactanceCorrection, ValidationOutputWriter validationOutputWriter, LoadFlowParameters loadFlowParameters,
+                            boolean okMissingValues, boolean noRequirementIfReactiveBoundInversion, boolean compareResults, boolean checkMainComponentOnly,
+                            boolean noRequirementIfSetpointOutsidePowerBounds, VersionConfig version) {
         if (threshold < 0) {
             throw new IllegalArgumentException("Negative values for threshold not permitted");
         }
@@ -112,6 +127,7 @@ public class ValidationConfig {
         this.compareResults = compareResults;
         this.checkMainComponentOnly = checkMainComponentOnly;
         this.noRequirementIfSetpointOutsidePowerBounds = noRequirementIfSetpointOutsidePowerBounds;
+        this.version = version;
     }
 
     public double getThreshold() {

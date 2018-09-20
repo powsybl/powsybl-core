@@ -28,7 +28,7 @@ class LoadFlowParametersSerializer extends StdSerializer<LoadFlowParameters> {
 
         jsonGenerator.writeStartObject();
 
-        jsonGenerator.writeStringField("version", LoadFlowParameters.VERSION);
+        jsonGenerator.writeStringField("version", parameters.getVersion().toString());
         jsonGenerator.writeStringField("voltageInitMode", parameters.getVoltageInitMode().name());
         jsonGenerator.writeBooleanField("transformerVoltageControlOn", parameters.isTransformerVoltageControlOn());
         jsonGenerator.writeBooleanField("phaseShifterRegulationOn", parameters.isPhaseShifterRegulationOn());

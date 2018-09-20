@@ -41,6 +41,7 @@ public class LimitViolationFilterTest {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("limit-violation-default-filter");
+        moduleConfig.setStringProperty("version", "1.0");
         moduleConfig.setStringListProperty("violationTypes", Arrays.asList("CURRENT", "LOW_VOLTAGE"));
         moduleConfig.setStringProperty("minBaseVoltage", "150");
         moduleConfig.setStringListProperty("countries", Arrays.asList("FR", "BE"));

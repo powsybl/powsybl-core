@@ -7,6 +7,7 @@
 package com.powsybl.afs.ws.client.utils;
 
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.VersionConfig;
 import com.powsybl.commons.exceptions.UncheckedUriSyntaxException;
 
 import java.net.URI;
@@ -19,6 +20,8 @@ import java.util.Optional;
  */
 public class RemoteServiceConfig {
 
+    private final VersionConfig version;
+
     private String hostName;
 
     private String appName;
@@ -27,11 +30,12 @@ public class RemoteServiceConfig {
 
     private boolean secure;
 
-    public RemoteServiceConfig(String hostName, String appName, int port, boolean secure) {
+    public RemoteServiceConfig(String hostName, String appName, int port, boolean secure, VersionConfig version) {
         this.hostName = Objects.requireNonNull(hostName);
         this.appName = Objects.requireNonNull(appName);
         this.port = checkPort(port);
         this.secure = secure;
+        this.version = version;
     }
 
     public static Optional<RemoteServiceConfig> load() {
@@ -41,11 +45,12 @@ public class RemoteServiceConfig {
     public static Optional<RemoteServiceConfig> load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         return platformConfig.getOptionalModuleConfig("remote-service").map(moduleConfig -> {
+            VersionConfig version = moduleConfig.hasProperty("version") ? VersionConfig.valueOfByString(moduleConfig.getStringProperty("version")) : platformConfig.getVersion();
             String hostName = moduleConfig.getStringProperty("host-name");
             String appName = moduleConfig.getStringProperty("app-name");
             boolean secure = moduleConfig.getBooleanProperty("secure", true);
             int port = moduleConfig.getIntProperty("port", secure ? 443 : 80);
-            return new RemoteServiceConfig(hostName, appName, port, secure);
+            return new RemoteServiceConfig(hostName, appName, port, secure, version);
         });
     }
 

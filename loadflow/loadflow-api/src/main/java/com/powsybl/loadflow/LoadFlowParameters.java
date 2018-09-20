@@ -9,8 +9,10 @@ package com.powsybl.loadflow;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableMap;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.VersionConfig;
 import com.powsybl.commons.extensions.*;
 
 import java.util.Map;
@@ -37,8 +39,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         DC_VALUES // preprocessing to compute DC angles
     }
 
-    public static final String VERSION = "1.0";
-
+    public static final VersionConfig DEFAULT_VERSION = VersionConfig.LATEST_VERSION;
     public static final VoltageInitMode DEFAULT_VOLTAGE_INIT_MODE = VoltageInitMode.UNIFORM_VALUES;
     public static final boolean DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON = false;
     public static final boolean DEFAULT_NO_GENERATOR_REACTIVE_LIMITS = false;
@@ -46,7 +47,7 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     public static final boolean DEFAULT_SPECIFIC_COMPATIBILITY = false;
 
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
-        Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "loadflow-parameters"));
+            Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "loadflow-parameters"));
 
     /**
      * Loads parameters from the default platform configuration.
@@ -77,13 +78,29 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
 
         ModuleConfig config = platformConfig.getModuleConfigIfExists("load-flow-default-parameters");
         if (config != null) {
-            parameters.setVoltageInitMode(config.getEnumProperty("voltageInitMode", VoltageInitMode.class, DEFAULT_VOLTAGE_INIT_MODE));
-            parameters.setTransformerVoltageControlOn(config.getBooleanProperty("transformerVoltageControlOn", DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON));
-            parameters.setNoGeneratorReactiveLimits(config.getBooleanProperty("noGeneratorReactiveLimits", DEFAULT_NO_GENERATOR_REACTIVE_LIMITS));
-            parameters.setPhaseShifterRegulationOn(config.getBooleanProperty("phaseShifterRegulationOn", DEFAULT_PHASE_SHIFTER_REGULATION_ON));
-            parameters.setSpecificCompatibility(config.getBooleanProperty("specificCompatibility", DEFAULT_SPECIFIC_COMPATIBILITY));
+            parameters.setVersion(config.hasProperty("version") ? VersionConfig.valueOfByString(config.getStringProperty("version")) : platformConfig.getVersion());
+            switch (parameters.getVersion()) {
+                case VERSION_1_0:
+                    parameters.setVoltageInitMode(config.getEnumProperty("voltageInitMode", VoltageInitMode.class, DEFAULT_VOLTAGE_INIT_MODE));
+                    parameters.setTransformerVoltageControlOn(config.getBooleanProperty("transformerVoltageControlOn", DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON));
+                    parameters.setNoGeneratorReactiveLimits(config.getBooleanProperty("noGeneratorReactiveLimits", DEFAULT_NO_GENERATOR_REACTIVE_LIMITS));
+                    parameters.setPhaseShifterRegulationOn(config.getBooleanProperty("phaseShifterRegulationOn", DEFAULT_PHASE_SHIFTER_REGULATION_ON));
+                    parameters.setSpecificCompatibility(config.getBooleanProperty("specificCompatibility", DEFAULT_SPECIFIC_COMPATIBILITY));
+                    break;
+                case LATEST_VERSION:
+                    parameters.setVoltageInitMode(config.getEnumProperty("voltage-init-mode", VoltageInitMode.class, DEFAULT_VOLTAGE_INIT_MODE));
+                    parameters.setTransformerVoltageControlOn(config.getBooleanProperty("transformer-voltage-control-on", DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON));
+                    parameters.setNoGeneratorReactiveLimits(config.getBooleanProperty("no-generator-reactive-limits", DEFAULT_NO_GENERATOR_REACTIVE_LIMITS));
+                    parameters.setPhaseShifterRegulationOn(config.getBooleanProperty("phase-shifter-regulation-on", DEFAULT_PHASE_SHIFTER_REGULATION_ON));
+                    parameters.setSpecificCompatibility(config.getBooleanProperty("specific-compatibility", DEFAULT_SPECIFIC_COMPATIBILITY));
+                    break;
+                default:
+                    throw new PowsyblException("Unexpected module version : this version is not supported");
+            }
         }
     }
+
+    private VersionConfig version;
 
     private VoltageInitMode voltageInitMode;
 
@@ -96,24 +113,34 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
     private boolean specificCompatibility;
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
-                              boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn, boolean specificCompatibility) {
+                              boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn, boolean specificCompatibility, VersionConfig version) {
         this.voltageInitMode = voltageInitMode;
         this.transformerVoltageControlOn = transformerVoltageControlOn;
         this.noGeneratorReactiveLimits = noGeneratorReactiveLimits;
         this.phaseShifterRegulationOn = phaseShifterRegulationOn;
         this.specificCompatibility = specificCompatibility;
+        this.version = version;
+    }
+
+    public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn,
+                              boolean noGeneratorReactiveLimits, boolean phaseShifterRegulationOn, boolean specificCompatibility) {
+        this(voltageInitMode, transformerVoltageControlOn, noGeneratorReactiveLimits, phaseShifterRegulationOn, specificCompatibility, DEFAULT_VERSION);
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode, boolean transformerVoltageControlOn) {
-        this(voltageInitMode, transformerVoltageControlOn, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_SPECIFIC_COMPATIBILITY);
+        this(voltageInitMode, transformerVoltageControlOn, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_SPECIFIC_COMPATIBILITY, DEFAULT_VERSION);
     }
 
     public LoadFlowParameters(VoltageInitMode voltageInitMode) {
-        this(voltageInitMode, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_SPECIFIC_COMPATIBILITY);
+        this(voltageInitMode, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_SPECIFIC_COMPATIBILITY, DEFAULT_VERSION);
+    }
+
+    public LoadFlowParameters(VersionConfig version) {
+        this(DEFAULT_VOLTAGE_INIT_MODE, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_SPECIFIC_COMPATIBILITY, version);
     }
 
     public LoadFlowParameters() {
-        this(DEFAULT_VOLTAGE_INIT_MODE, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_SPECIFIC_COMPATIBILITY);
+        this(DEFAULT_VOLTAGE_INIT_MODE, DEFAULT_TRANSFORMER_VOLTAGE_CONTROL_ON, DEFAULT_NO_GENERATOR_REACTIVE_LIMITS, DEFAULT_PHASE_SHIFTER_REGULATION_ON, DEFAULT_SPECIFIC_COMPATIBILITY, DEFAULT_VERSION);
     }
 
     protected LoadFlowParameters(LoadFlowParameters other) {
@@ -123,6 +150,16 @@ public class LoadFlowParameters extends AbstractExtendable<LoadFlowParameters> {
         noGeneratorReactiveLimits = other.noGeneratorReactiveLimits;
         phaseShifterRegulationOn = other.phaseShifterRegulationOn;
         specificCompatibility = other.specificCompatibility;
+        version = other.version;
+    }
+
+    public VersionConfig getVersion() {
+        return version;
+    }
+
+    public LoadFlowParameters setVersion(VersionConfig version) {
+        this.version = version;
+        return this;
     }
 
     public VoltageInitMode getVoltageInitMode() {

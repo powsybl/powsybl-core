@@ -6,8 +6,10 @@
  */
 package com.powsybl.iidm.import_;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.VersionConfig;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -19,7 +21,11 @@ import java.util.Objects;
  */
 public class ImportConfig {
 
+    private static final VersionConfig DEFAULT_VERSION = VersionConfig.LATEST_VERSION;
+
     private static final List<String> DEFAULT_POST_PROCESSORS = Collections.emptyList();
+
+    private final VersionConfig version;
 
     private final List<String> postProcessors;
 
@@ -30,24 +36,40 @@ public class ImportConfig {
     public static ImportConfig load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         List<String> postProcessors;
+        VersionConfig version = platformConfig.getVersion();
         if (platformConfig.moduleExists("import")) {
             ModuleConfig config = platformConfig.getModuleConfig("import");
-            postProcessors = config.getStringListProperty("postProcessors", DEFAULT_POST_PROCESSORS);
+            version = config.hasProperty("version") ? VersionConfig.valueOfByString(config.getStringProperty("version")) : version;
+            switch (version) {
+                case VERSION_1_0:
+                    postProcessors = config.getStringListProperty("postProcessors", DEFAULT_POST_PROCESSORS);
+                    break;
+                case LATEST_VERSION:
+                    postProcessors = config.getStringListProperty("post-processors", DEFAULT_POST_PROCESSORS);
+                    break;
+                default:
+                    throw new PowsyblException("Unexpected module version : this version is not supported");
+            }
         } else {
             postProcessors = DEFAULT_POST_PROCESSORS;
         }
-        return new ImportConfig(postProcessors);
+        return new ImportConfig(version, postProcessors);
     }
 
     public ImportConfig() {
-        this(Collections.emptyList());
+        this(DEFAULT_VERSION);
     }
 
-    public ImportConfig(String... postProcessors) {
-        this(Arrays.asList(postProcessors));
+    public ImportConfig(VersionConfig version) {
+        this(version, Collections.emptyList());
     }
 
-    public ImportConfig(List<String> postProcessors) {
+    public ImportConfig(VersionConfig version, String... postProcessors) {
+        this(version, Arrays.asList(postProcessors));
+    }
+
+    public ImportConfig(VersionConfig version, List<String> postProcessors) {
+        this.version = version;
         this.postProcessors = Objects.requireNonNull(postProcessors);
     }
 
