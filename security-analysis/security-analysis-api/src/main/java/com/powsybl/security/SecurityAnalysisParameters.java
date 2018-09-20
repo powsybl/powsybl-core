@@ -9,6 +9,7 @@ package com.powsybl.security;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.VersionConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
@@ -26,6 +27,10 @@ import java.util.Objects;
  */
 public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnalysisParameters> {
 
+    private static final VersionConfig DEFAULT_VERSION = VersionConfig.LATEST_VERSION;
+
+    private VersionConfig version;
+
     /**
      * A configuration loader interface for the SecurityAnalysisParameters extensions loaded from the platform configuration
      * @param <E> The extension class
@@ -33,12 +38,19 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
     public static interface ConfigLoader<E extends Extension<SecurityAnalysisParameters>> extends ExtensionConfigLoader<SecurityAnalysisParameters, E> {
     }
 
-    public static final String VERSION = "1.0";
-
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
         Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "security-analysis-parameters"));
 
-    private LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+    private LoadFlowParameters loadFlowParameters;
+
+    public SecurityAnalysisParameters() {
+        this(DEFAULT_VERSION);
+    }
+
+    public SecurityAnalysisParameters(VersionConfig version) {
+        this.version = version;
+        this.loadFlowParameters = new LoadFlowParameters(version);
+    }
 
     /**
      * Load parameters from platform default config.
@@ -53,7 +65,7 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
     public static SecurityAnalysisParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
 
-        SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
+        SecurityAnalysisParameters parameters = new SecurityAnalysisParameters(platformConfig.getVersion());
         parameters.readExtensions(platformConfig);
 
         parameters.setLoadFlowParameters(LoadFlowParameters.load(platformConfig));
@@ -65,6 +77,15 @@ public class SecurityAnalysisParameters extends AbstractExtendable<SecurityAnaly
         for (ExtensionConfigLoader provider : SUPPLIER.get().getProviders()) {
             addExtension(provider.getExtensionClass(), provider.load(platformConfig));
         }
+    }
+
+    public VersionConfig getVersion() {
+        return version;
+    }
+
+    public SecurityAnalysisParameters setVersion(VersionConfig versionConfig) {
+        this.version = versionConfig;
+        return this;
     }
 
     public LoadFlowParameters getLoadFlowParameters() {

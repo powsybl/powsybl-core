@@ -6,6 +6,8 @@
  */
 package com.powsybl.afs.storage;
 
+import com.powsybl.commons.config.VersionConfig;
+
 import java.util.Objects;
 
 /**
@@ -15,13 +17,16 @@ public abstract class AbstractAppFileSystemConfig<T extends AbstractAppFileSyste
 
     protected static final boolean DEFAULT_REMOTELY_ACCESSIBLE = false;
 
+    protected final VersionConfig version;
+
     protected String driveName;
 
     protected boolean remotelyAccessible;
 
-    public AbstractAppFileSystemConfig(String driveName, boolean remotelyAccessible) {
+    public AbstractAppFileSystemConfig(String driveName, boolean remotelyAccessible, VersionConfig version) {
         this.driveName = Objects.requireNonNull(driveName);
         this.remotelyAccessible = remotelyAccessible;
+        this.version = version;
     }
 
     public String getDriveName() {

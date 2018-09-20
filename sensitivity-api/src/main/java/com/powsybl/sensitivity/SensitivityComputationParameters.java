@@ -9,6 +9,7 @@ package com.powsybl.sensitivity;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.VersionConfig;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionConfigLoader;
@@ -25,7 +26,9 @@ import java.util.Objects;
  */
 public class SensitivityComputationParameters extends AbstractExtendable<SensitivityComputationParameters> {
 
-    public static final String VERSION = "1.0";
+    private static final VersionConfig DEFAULT_VERSION = VersionConfig.LATEST_VERSION;
+
+    private VersionConfig version;
 
     /**
      * A configuration loader interface for the SecurityAnalysisParameters extensions loaded from the platform configuration
@@ -37,7 +40,16 @@ public class SensitivityComputationParameters extends AbstractExtendable<Sensiti
     private static final Supplier<ExtensionProviders<ConfigLoader>> SUPPLIER =
             Suppliers.memoize(() -> ExtensionProviders.createProvider(ConfigLoader.class, "sensitivity-parameters"));
 
-    private LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
+    private LoadFlowParameters loadFlowParameters;
+
+    public SensitivityComputationParameters() {
+        this(DEFAULT_VERSION);
+    }
+
+    public SensitivityComputationParameters(VersionConfig version) {
+        this.version = version;
+        this.loadFlowParameters = new LoadFlowParameters(version);
+    }
 
     /**
      * Load parameters from platform default config.
@@ -52,7 +64,7 @@ public class SensitivityComputationParameters extends AbstractExtendable<Sensiti
     public static SensitivityComputationParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
 
-        SensitivityComputationParameters parameters = new SensitivityComputationParameters();
+        SensitivityComputationParameters parameters = new SensitivityComputationParameters(platformConfig.getVersion());
         parameters.readExtensions(platformConfig);
 
         parameters.setLoadFlowParameters(LoadFlowParameters.load(platformConfig));
@@ -64,6 +76,15 @@ public class SensitivityComputationParameters extends AbstractExtendable<Sensiti
         for (ExtensionConfigLoader provider : SUPPLIER.get().getProviders()) {
             addExtension(provider.getExtensionClass(), provider.load(platformConfig));
         }
+    }
+
+    public VersionConfig getVersion() {
+        return version;
+    }
+
+    public SensitivityComputationParameters setVersion(VersionConfig version) {
+        this.version = version;
+        return this;
     }
 
     public LoadFlowParameters getLoadFlowParameters() {

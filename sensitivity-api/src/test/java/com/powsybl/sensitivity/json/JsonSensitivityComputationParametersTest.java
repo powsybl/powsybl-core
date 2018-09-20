@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.config.VersionConfig;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.sensitivity.SensitivityComputationParameters;
 import org.junit.Assert;
@@ -30,13 +31,13 @@ public class JsonSensitivityComputationParametersTest extends AbstractConverterT
 
     @Test
     public void roundTrip() throws IOException {
-        SensitivityComputationParameters parameters = new SensitivityComputationParameters();
+        SensitivityComputationParameters parameters = new SensitivityComputationParameters(VersionConfig.VERSION_1_0);
         roundTripTest(parameters, JsonSensitivityComputationParameters::write, JsonSensitivityComputationParameters::read, "/SensitivityComputationParameters.json");
     }
 
     @Test
     public void writeExtension() throws IOException {
-        SensitivityComputationParameters parameters = new SensitivityComputationParameters();
+        SensitivityComputationParameters parameters = new SensitivityComputationParameters(VersionConfig.VERSION_1_0);
         parameters.addExtension(DummyExtension.class, new DummyExtension());
         writeTest(parameters, JsonSensitivityComputationParameters::write, AbstractConverterTest::compareTxt, "/SensitivityComputationParametersWithExtension.json");
     }

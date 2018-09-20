@@ -8,6 +8,7 @@ package com.powsybl.action.util;
 
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.VersionConfig;
 import com.powsybl.loadflow.LoadFlowFactory;
 
 import java.util.Objects;
@@ -24,15 +25,19 @@ public class LoadFlowBasedPhaseShifterOptimizerConfig {
     public static LoadFlowBasedPhaseShifterOptimizerConfig load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         ModuleConfig config = platformConfig.getModuleConfig("load-flow-based-phase-shifter-optimizer");
+        String version = config.getStringProperty("version", platformConfig.getVersion().toString());
         Class<? extends LoadFlowFactory> loadFlowFactoryClass = config.getClassProperty("load-flow-factory", LoadFlowFactory.class);
-        return new LoadFlowBasedPhaseShifterOptimizerConfig(loadFlowFactoryClass);
+        return new LoadFlowBasedPhaseShifterOptimizerConfig(loadFlowFactoryClass, VersionConfig.valueOfByString(version));
 
     }
 
+    private final VersionConfig version;
+
     private Class<? extends LoadFlowFactory> loadFlowFactoryClass;
 
-    public LoadFlowBasedPhaseShifterOptimizerConfig(Class<? extends LoadFlowFactory> loadFlowFactoryClass) {
+    public LoadFlowBasedPhaseShifterOptimizerConfig(Class<? extends LoadFlowFactory> loadFlowFactoryClass, VersionConfig version) {
         this.loadFlowFactoryClass = Objects.requireNonNull(loadFlowFactoryClass);
+        this.version = version;
     }
 
     public Class<? extends LoadFlowFactory> getLoadFlowFactoryClass() {

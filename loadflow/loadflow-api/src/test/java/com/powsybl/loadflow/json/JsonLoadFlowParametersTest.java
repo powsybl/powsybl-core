@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.config.VersionConfig;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.Assert;
@@ -25,6 +26,7 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
     @Test
     public void roundTrip() throws IOException {
         LoadFlowParameters parameters = new LoadFlowParameters()
+                .setVersion(VersionConfig.VERSION_1_0)
                 .setVoltageInitMode(PREVIOUS_VALUES)
                 .setNoGeneratorReactiveLimits(true)
                 .setTransformerVoltageControlOn(true);
@@ -33,7 +35,8 @@ public class JsonLoadFlowParametersTest extends AbstractConverterTest {
 
     @Test
     public void writeExtension() throws IOException {
-        LoadFlowParameters parameters = new LoadFlowParameters();
+        LoadFlowParameters parameters = new LoadFlowParameters()
+                .setVersion(VersionConfig.VERSION_1_0);
         parameters.addExtension(DummyExtension.class, new DummyExtension());
         writeTest(parameters, JsonLoadFlowParameters::write, AbstractConverterTest::compareTxt, "/LoadFlowParametersWithExtension.json");
     }

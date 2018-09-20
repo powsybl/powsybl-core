@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.config.VersionConfig;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.security.SecurityAnalysisParameters;
 import org.junit.Assert;
@@ -24,13 +25,13 @@ public class JsonSecurityAnalysisParametersTest extends AbstractConverterTest {
 
     @Test
     public void roundTrip() throws IOException {
-        SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
+        SecurityAnalysisParameters parameters = new SecurityAnalysisParameters(VersionConfig.VERSION_1_0);
         roundTripTest(parameters, JsonSecurityAnalysisParameters::write, JsonSecurityAnalysisParameters::read, "/SecurityAnalysisParameters.json");
     }
 
     @Test
     public void writeExtension() throws IOException {
-        SecurityAnalysisParameters parameters = new SecurityAnalysisParameters();
+        SecurityAnalysisParameters parameters = new SecurityAnalysisParameters(VersionConfig.VERSION_1_0);
         parameters.addExtension(DummyExtension.class, new DummyExtension());
         writeTest(parameters, JsonSecurityAnalysisParameters::write, AbstractConverterTest::compareTxt, "/SecurityAnalysisParametersWithExtension.json");
     }
