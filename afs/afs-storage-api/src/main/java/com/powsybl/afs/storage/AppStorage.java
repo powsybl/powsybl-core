@@ -80,6 +80,12 @@ public interface AppStorage extends AutoCloseable {
     String deleteNode(String nodeId);
 
     /**
+     * Rename the node with ID {@code nodeId}
+     */
+    default void renameNode(String nodeId, String name) {
+    }
+
+    /**
      * Reads data associated to the node with ID {@code nodeId}. A node may have several data blobs associated to it,
      * with different names. The parameters {@code name} specifies which of those data is requested.
      */
