@@ -49,6 +49,9 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         if (timeSeriesList.isEmpty()) {
             throw new IllegalArgumentException("Time series list is empty");
         }
+        if (newChunkSize < 1) {
+            throw new IllegalArgumentException("Invalid chunk size: " + newChunkSize);
+        }
         TimeSeriesIndex index = timeSeriesList.get(0).getMetadata().getIndex();
         for (int i = 1; i < timeSeriesList.size(); i++) {
             TimeSeriesMetadata metadata = timeSeriesList.get(i).getMetadata();
