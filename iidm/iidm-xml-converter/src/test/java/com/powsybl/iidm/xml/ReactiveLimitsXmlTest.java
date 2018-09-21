@@ -7,8 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.iidm.network.*;
-import org.joda.time.DateTime;
+import com.powsybl.iidm.network.test.ReactiveLimitsTestNetworkFactory;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -18,67 +17,9 @@ import java.io.IOException;
  */
 public class ReactiveLimitsXmlTest extends AbstractConverterTest {
 
-    private static Network createNetwork() {
-        Network network = NetworkFactory.create("ReactiveLimits", "???");
-        network.setCaseDate(DateTime.parse("2016-01-01T10:00:00.000+02:00"));
-        Substation s = network.newSubstation()
-                .setId("S")
-                .setCountry(Country.FR)
-                .setTso("RTE")
-                .add();
-        VoltageLevel vl = s.newVoltageLevel()
-                .setId("VL")
-                .setNominalV(380)
-                .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
-        vl.getBusBreakerView().newBus()
-                .setId("B")
-                .add();
-        Generator g1 = vl.newGenerator()
-                .setId("G1")
-                .setEnergySource(EnergySource.OTHER)
-                .setMaxP(10)
-                .setMinP(0)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(380)
-                .setTargetP(10)
-                .setBus("B")
-                .setConnectableBus("B")
-                .add();
-        g1.newReactiveCapabilityCurve()
-                .beginPoint()
-                .setP(5)
-                .setMinQ(1)
-                .setMaxQ(10)
-                .endPoint()
-                .beginPoint()
-                .setP(10)
-                .setMinQ(-10)
-                .setMaxQ(1)
-                .endPoint()
-                .add();
-        Generator g2 = vl.newGenerator()
-                .setId("G2")
-                .setEnergySource(EnergySource.OTHER)
-                .setMaxP(10)
-                .setMinP(0)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(380)
-                .setTargetP(10)
-                .setBus("B")
-                .setConnectableBus("B")
-                .add();
-        g2.newMinMaxReactiveLimits()
-                .setMinQ(1)
-                .setMaxQ(10)
-                .add();
-
-        return network;
-    }
-
     @Test
     public void roundTripTest() throws IOException {
-        roundTripXmlTest(createNetwork(),
+        roundTripXmlTest(ReactiveLimitsTestNetworkFactory.create(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
                 "/reactiveLimitsRoundTripRef.xml");

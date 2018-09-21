@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network
 
+import com.powsybl.commons.PowsyblException
 import com.powsybl.commons.extensions.Extension
 
 /**
@@ -21,5 +22,13 @@ class IdentifiableExtension {
 
     static void propertyMissing(Identifiable self, String name, Object value) {
         self.properties[name] = value
+    }
+
+    /**
+     * To fix private field accessibility issue.
+     * https://issues.apache.org/jira/browse/GROOVY-3010
+     */
+    static void setId(Identifiable self, String id) {
+        throw new PowsyblException("ID modification of '" + self.id + "' is not allowed")
     }
 }
