@@ -66,6 +66,14 @@ public class NodeCalcEquals {
     }
 
     @Test
+    public void timeTest() {
+        new EqualsTester()
+                .addEqualityGroup(new TimeNodeCalc(new IntegerNodeCalc(1)), new TimeNodeCalc(new IntegerNodeCalc(1)))
+                .addEqualityGroup(new TimeNodeCalc(new IntegerNodeCalc(2)), new TimeNodeCalc(new IntegerNodeCalc(2)))
+                .testEquals();
+    }
+
+    @Test
     public void binaryOperationTest() {
         new EqualsTester()
                 .addEqualityGroup(BinaryOperation.plus(new IntegerNodeCalc(1), new IntegerNodeCalc(2)),

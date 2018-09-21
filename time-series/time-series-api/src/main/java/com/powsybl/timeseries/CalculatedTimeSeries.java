@@ -137,6 +137,10 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
         }
     }
 
+    public Set<Integer> getVersions() {
+        return computeVersions(nodeCalc, resolver);
+    }
+
     @Override
     public void synchronize(TimeSeriesIndex newIndex) {
         Objects.requireNonNull(newIndex);

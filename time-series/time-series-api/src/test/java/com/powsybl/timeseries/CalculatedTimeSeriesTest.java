@@ -9,6 +9,7 @@ package com.powsybl.timeseries;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Sets;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.ast.*;
 import com.powsybl.timeseries.json.TimeSeriesJsonModule;
@@ -217,6 +218,12 @@ public class CalculatedTimeSeriesTest {
         };
         CalculatedTimeSeries tsCalc = new CalculatedTimeSeries("ts_calc", BinaryOperation.plus(new TimeSeriesNameNodeCalc("ts"),
                                                                                                new IntegerNodeCalc(1)));
+
+
+        // check versions of the data available for the calculated time series
+        tsCalc.setTimeSeriesNameResolver(resolver);
+        assertEquals(Sets.newHashSet(1), tsCalc.getVersions());
+
         List<DoubleTimeSeries> tsLs = Arrays.asList(ts, tsCalc);
         String json = TimeSeries.toJson(tsLs);
         String jsonRef = String.join(System.lineSeparator(),
