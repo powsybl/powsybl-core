@@ -30,7 +30,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>com.powsybl.computation</Automatic-Module-Name>
+                            <Automatic-Module-Name>com.powsybl.computation.api</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
