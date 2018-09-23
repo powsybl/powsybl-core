@@ -17,8 +17,8 @@ public class ReadOnlyTimeSeriesStoreAggregatorTest {
     @Test
     public void test() {
         TestTimeSeriesIndex index = new TestTimeSeriesIndex(10000, 2);
-        DoubleTimeSeries ts1 = StoredDoubleTimeSeries.create("ts1", index, new double[] {1d, 2d});
-        DoubleTimeSeries ts2 = StoredDoubleTimeSeries.create("ts2", index, new double[] {3d, 4d});
+        DoubleTimeSeries ts1 = TimeSeries.create("ts1", index, 1d, 2d);
+        DoubleTimeSeries ts2 = TimeSeries.create("ts2", index, 3d, 4d);
         ReadOnlyTimeSeriesStore store1 = new ReadOnlyTimeSeriesStoreCache(ts1);
         ReadOnlyTimeSeriesStore store2 = new ReadOnlyTimeSeriesStoreCache(ts2);
         ReadOnlyTimeSeriesStore store12 = new ReadOnlyTimeSeriesStoreAggregator(store1, store2);

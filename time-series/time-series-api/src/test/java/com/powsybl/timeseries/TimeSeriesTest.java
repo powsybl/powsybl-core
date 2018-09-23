@@ -8,11 +8,12 @@ package com.powsybl.timeseries;
 
 import org.junit.Test;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -66,8 +67,8 @@ public class TimeSeriesTest {
         } catch (IllegalArgumentException ignored) {
         }
         TimeSeriesIndex index = new TestTimeSeriesIndex(10000, 3);
-        List<DoubleTimeSeries> timeSeriesList = Arrays.asList(StoredDoubleTimeSeries.create("ts1", index, new double[] {1d, 2d, 3d}),
-                                                              StoredDoubleTimeSeries.create("ts1", index, new double[] {4d, 5d, 6d}));
+        List<DoubleTimeSeries> timeSeriesList = Arrays.asList(TimeSeries.create("ts1", index, 1d, 2d, 3d),
+                                                              TimeSeries.create("ts1", index, 4d, 5d, 6d));
         try {
             TimeSeries.split(timeSeriesList, 4);
             fail();

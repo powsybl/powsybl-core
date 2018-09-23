@@ -9,6 +9,7 @@ package com.powsybl.timeseries;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
+import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.ast.*;
 
 import java.io.IOException;
@@ -47,21 +48,26 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
 
     private final NodeCalc nodeCalc;
 
-    private TimeSeriesNameResolver resolver = EMPTY_RESOLVER;
+    private TimeSeriesNameResolver resolver;
 
     private final TimeSeriesMetadata metadata;
 
     private TimeSeriesIndex index;
 
-    public CalculatedTimeSeries(String name, NodeCalc nodeCalc) {
+    public CalculatedTimeSeries(String name, NodeCalc nodeCalc, TimeSeriesNameResolver resolver) {
         this.name = Objects.requireNonNull(name);
         this.nodeCalc = Objects.requireNonNull(nodeCalc);
+        this.resolver = Objects.requireNonNull(resolver);
         metadata = new TimeSeriesMetadata(name, TimeSeriesDataType.DOUBLE, InfiniteTimeSeriesIndex.INSTANCE) {
             @Override
             public TimeSeriesIndex getIndex() {
                 return CalculatedTimeSeries.this.getIndex();
             }
         };
+    }
+
+    public CalculatedTimeSeries(String name, NodeCalc nodeCalc) {
+        this(name, nodeCalc, EMPTY_RESOLVER);
     }
 
     @Override
@@ -245,6 +251,11 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    @Override
+    public String toJson() {
+        return JsonUtil.toJson(this::writeJson);
     }
 
     @Override

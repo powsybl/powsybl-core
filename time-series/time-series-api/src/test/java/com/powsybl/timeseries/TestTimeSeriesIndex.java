@@ -41,4 +41,9 @@ public class TestTimeSeriesIndex implements TimeSeriesIndex {
     public void writeJson(JsonGenerator generator) {
         throw new AssertionError();
     }
+
+    @Override
+    public String toJson() {
+        throw new AssertionError();
+    }
 }

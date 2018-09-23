@@ -8,6 +8,7 @@ package com.powsybl.timeseries;
 
 import java.nio.DoubleBuffer;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -109,5 +110,33 @@ public interface DoubleTimeSeries extends TimeSeries<DoublePoint, DoubleTimeSeri
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(
                 iterator(timeSeriesList),
                 Spliterator.ORDERED | Spliterator.IMMUTABLE), false);
+    }
+
+    class Builder {
+
+        private final List<DoubleTimeSeries> list;
+
+        Builder(List<DoubleTimeSeries> list) {
+            this.list = list;
+        }
+
+        public List<DoubleTimeSeries> build(String... scriptLines) {
+            String script = Arrays.stream(scriptLines).collect(Collectors.joining(System.lineSeparator()));
+            ReadOnlyTimeSeriesStore store = new ReadOnlyTimeSeriesStoreCache(list);
+            return new CalculatedTimeSeriesDslLoader(script)
+                    .load(store)
+                    .entrySet()
+                    .stream()
+                    .map(e -> new CalculatedTimeSeries(e.getKey(), e.getValue(), new FromStoreTimeSeriesNameResolver(store, -1)))
+                    .collect(Collectors.toList());
+        }
+    }
+
+    static Builder fromTimeSeries(List<DoubleTimeSeries> list) {
+        return new Builder(list);
+    }
+
+    static Builder fromTimeSeries(DoubleTimeSeries... list) {
+        return new Builder(Arrays.asList(list));
     }
 }

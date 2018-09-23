@@ -33,4 +33,6 @@ public interface TimeSeriesIndex {
     String getType();
 
     void writeJson(JsonGenerator generator);
+
+    String toJson();
 }

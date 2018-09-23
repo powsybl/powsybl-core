@@ -44,6 +44,17 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     void setTimeSeriesNameResolver(TimeSeriesNameResolver resolver);
 
+    static DoubleTimeSeries create(String name, TimeSeriesIndex index, double... values) {
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(index);
+        Objects.requireNonNull(values);
+        if (index.getPointCount() != values.length) {
+            throw new IllegalArgumentException("Bad number of values " + values.length + ", expected " + index.getPointCount());
+        }
+        return new StoredDoubleTimeSeries(new TimeSeriesMetadata(name, TimeSeriesDataType.DOUBLE, index),
+                                          new UncompressedDoubleArrayChunk(0, values));
+    }
+
     static <P extends AbstractPoint, T extends TimeSeries<P, T>> List<List<T>> split(List<T> timeSeriesList, int newChunkSize) {
         Objects.requireNonNull(timeSeriesList);
         if (timeSeriesList.isEmpty()) {
@@ -320,6 +331,8 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     }
 
     void writeJson(JsonGenerator generator);
+
+    String toJson();
 
     static void writeJson(JsonGenerator generator, List<? extends TimeSeries> timeSeriesList) {
         Objects.requireNonNull(timeSeriesList);

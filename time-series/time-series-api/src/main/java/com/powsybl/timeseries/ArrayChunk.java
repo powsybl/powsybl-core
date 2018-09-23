@@ -126,6 +126,22 @@ public interface ArrayChunk<P extends AbstractPoint, A extends ArrayChunk<P, A>>
      */
     void writeJson(JsonGenerator generator);
 
+    static DoubleArrayChunk create(int offset, double[] values) {
+        return new UncompressedDoubleArrayChunk(offset, values);
+    }
+
+    static DoubleArrayChunk create(double... values) {
+        return new UncompressedDoubleArrayChunk(0, values);
+    }
+
+    static StringArrayChunk create(int offset, String[] values) {
+        return new UncompressedStringArrayChunk(offset, values);
+    }
+
+    static StringArrayChunk create(String... values) {
+        return new UncompressedStringArrayChunk(0, values);
+    }
+
     /**
      * Serialize a chunk list to json
      *
@@ -144,6 +160,8 @@ public interface ArrayChunk<P extends AbstractPoint, A extends ArrayChunk<P, A>>
             throw new UncheckedIOException(e);
         }
     }
+
+    String toJson();
 
     class JsonParsingContext {
         JsonParsingContext(List<DoubleArrayChunk> doubleChunks, List<StringArrayChunk> stringChunks) {

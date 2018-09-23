@@ -8,6 +8,7 @@ package com.powsybl.timeseries;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.common.collect.Iterators;
+import com.powsybl.commons.json.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,11 +29,11 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Arra
 
     protected final List<C> chunks;
 
-    public AbstractTimeSeries(TimeSeriesMetadata metadata, C... chunks) {
+    protected AbstractTimeSeries(TimeSeriesMetadata metadata, C... chunks) {
         this(metadata, Arrays.asList(chunks));
     }
 
-    public AbstractTimeSeries(TimeSeriesMetadata metadata, List<C> chunks) {
+    protected AbstractTimeSeries(TimeSeriesMetadata metadata, List<C> chunks) {
         this.metadata = Objects.requireNonNull(metadata);
         this.chunks = Objects.requireNonNull(chunks);
     }
@@ -155,6 +156,10 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Arra
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    public String toJson() {
+        return JsonUtil.toJson(this::writeJson);
     }
 
     public void setTimeSeriesNameResolver(TimeSeriesNameResolver ignored) {
