@@ -26,7 +26,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
     private final List<RatioTapChangerStepImpl> steps = new ArrayList<>();
 
-    private boolean loadTapChangingCapabilities = false;
+    private boolean onLoadTapChanger = false;
 
     private boolean regulating = false;
 
@@ -121,8 +121,8 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
     }
 
     @Override
-    public RatioTapChangerAdder setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities) {
-        this.loadTapChangingCapabilities = loadTapChangingCapabilities;
+    public RatioTapChangerAdder setOnLoadTapChanger(boolean onLoadTapChanger) {
+        this.onLoadTapChanger = onLoadTapChanger;
         return this;
     }
 
@@ -163,9 +163,9 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
                     + tapPosition + " [" + lowTapPosition + ", "
                     + highTapPosition + "]");
         }
-        ValidationUtil.checkRatioTapChangerRegulation(parent, loadTapChangingCapabilities, regulating, regulationTerminal, targetV, getNetwork());
+        ValidationUtil.checkRatioTapChangerRegulation(parent, onLoadTapChanger, regulating, regulationTerminal, targetV, getNetwork());
         RatioTapChangerImpl tapChanger
-                = new RatioTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities,
+                = new RatioTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, onLoadTapChanger,
                                           tapPosition, regulating, targetV);
         parent.setRatioTapChanger(tapChanger);
         return tapChanger;

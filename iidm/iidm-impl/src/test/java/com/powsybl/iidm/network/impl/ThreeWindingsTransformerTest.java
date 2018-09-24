@@ -109,7 +109,7 @@ public class ThreeWindingsTransformerTest {
 
         RatioTapChanger ratioTapChangerInLeg2 = leg2.newRatioTapChanger()
                                             .setTargetV(200.0)
-                                            .setLoadTapChangingCapabilities(false)
+                                            .setOnLoadTapChanger(false)
                                             .setLowTapPosition(0)
                                             .setTapPosition(0)
                                             .setRegulating(false)
@@ -149,7 +149,7 @@ public class ThreeWindingsTransformerTest {
 
         RatioTapChanger ratioTapChangerInLeg3 = leg3.newRatioTapChanger()
                                                     .setTargetV(200.0)
-                                                    .setLoadTapChangingCapabilities(false)
+                                                    .setOnLoadTapChanger(false)
                                                     .setLowTapPosition(0)
                                                     .setTapPosition(0)
                                                     .setRegulating(false)

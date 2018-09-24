@@ -151,7 +151,7 @@ public final class EurostagTutorialExample1Factory {
                     .setRdb(0.0)
                 .endStep()
                 .setTapPosition(1)
-                .setLoadTapChangingCapabilities(true)
+                .setOnLoadTapChanger(true)
                 .setRegulating(true)
                 .setTargetV(158.0)
                 .setRegulationTerminal(nhv2Nload.getTerminal2())

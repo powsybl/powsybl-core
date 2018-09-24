@@ -506,9 +506,9 @@ public class UcteImporter implements Importer {
         RatioTapChangerAdder rtca = transformer.newRatioTapChanger()
                 .setLowTapPosition(-uctePhaseRegulation.getN())
                 .setTapPosition(uctePhaseRegulation.getNp())
-                .setLoadTapChangingCapabilities(!Float.isNaN(uctePhaseRegulation.getU()));
+                .setOnLoadTapChanger(!Float.isNaN(uctePhaseRegulation.getU()));
         if (!Float.isNaN(uctePhaseRegulation.getU())) {
-            rtca.setLoadTapChangingCapabilities(true)
+            rtca.setOnLoadTapChanger(true)
                     .setRegulating(true)
                     .setTargetV(uctePhaseRegulation.getU())
                     .setRegulationTerminal(transformer.getTerminal1());
