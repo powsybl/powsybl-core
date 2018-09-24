@@ -36,7 +36,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
     class StepAdderImpl implements StepAdder {
 
-        private double rho = Double.NaN;
+        private double ratio = Double.NaN;
 
         private double rdr = Double.NaN;
 
@@ -47,8 +47,8 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
         private double rdb = Double.NaN;
 
         @Override
-        public StepAdder setRho(double rho) {
-            this.rho = rho;
+        public StepAdder setRatio(double ratio) {
+            this.ratio = ratio;
             return this;
         }
 
@@ -78,8 +78,8 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
         @Override
         public RatioTapChangerAdder endStep() {
-            if (Double.isNaN(rho)) {
-                throw new ValidationException(parent, "step rho is not set");
+            if (Double.isNaN(ratio)) {
+                throw new ValidationException(parent, "step ratio is not set");
             }
             if (Double.isNaN(rdr)) {
                 throw new ValidationException(parent, "step rdr is not set");
@@ -93,7 +93,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
             if (Double.isNaN(rdb)) {
                 throw new ValidationException(parent, "step rdb is not set");
             }
-            RatioTapChangerStepImpl step = new RatioTapChangerStepImpl(rho, rdr, rdx, rdg, rdb);
+            RatioTapChangerStepImpl step = new RatioTapChangerStepImpl(ratio, rdr, rdx, rdg, rdb);
             steps.add(step);
             return RatioTapChangerAdderImpl.this;
         }

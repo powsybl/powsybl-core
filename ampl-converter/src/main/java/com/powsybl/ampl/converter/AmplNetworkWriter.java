@@ -1011,7 +1011,7 @@ public class AmplNetworkWriter {
             double x = reactance * (1 + step.getRdx() / 100) / zb2;
             formatter.writeCell(num)
                 .writeCell(position - rtc.getLowTapPosition() + 1)
-                .writeCell(step.getRho())
+                .writeCell(step.getRatio())
                 .writeCell(x)
                 .writeCell(0.0)
                 .writeCell(faultNum)
@@ -1027,7 +1027,7 @@ public class AmplNetworkWriter {
             double x = reactance * (1 + step.getRdx() / 100) / zb2;
             formatter.writeCell(num)
                 .writeCell(position - ptc.getLowTapPosition() + 1)
-                .writeCell(step.getRho())
+                .writeCell(step.getRatio())
                 .writeCell(x)
                 .writeCell(Math.toRadians(step.getAlpha()))
                 .writeCell(faultNum)

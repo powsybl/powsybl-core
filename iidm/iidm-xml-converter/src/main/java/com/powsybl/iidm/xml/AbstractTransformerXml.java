@@ -32,7 +32,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         XmlUtil.writeDouble("rdx", tcs.getRdx(), writer);
         XmlUtil.writeDouble("rdg", tcs.getRdg(), writer);
         XmlUtil.writeDouble("rdb", tcs.getRdb(), writer);
-        XmlUtil.writeDouble("rho", tcs.getRho(), writer);
+        XmlUtil.writeDouble("ratio", tcs.getRatio(), writer);
     }
 
     protected static void writeTapChanger(TapChanger<?, ?> tc, XMLStreamWriter writer) throws XMLStreamException {
@@ -92,18 +92,18 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                     double x = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "x"));
                     double g = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "g"));
                     double b = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "b"));
-                    double rho = XmlUtil.readDoubleAttribute(context.getReader(), "rho");
+                    double ratio = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "rho"));
                     adder.beginStep()
                             .setRdr(r)
                             .setRdx(x)
                             .setRdg(g)
                             .setRdb(b)
-                            .setRho(rho)
+                            .setRatio(ratio)
                             .endStep();
                     break;
 
                 default:
-                    throw new AssertionError();
+                    throw new AssertionError(context.getReader().getLocalName() + " is not a valide element in RatioTapChanger.");
             }
         });
         if (!hasTerminalRef[0]) {
@@ -113,6 +113,9 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
 
     private static String getVersionCompatibleAttribute(NetworkXmlReaderContext context, String attribute) {
         if (context.getVersion().equals("1_1")) {
+            if (attribute.equals("rho")) {
+                return "ratio";
+            }
             return "rd" + attribute;
         } else {
             return attribute;
@@ -179,20 +182,20 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                     double x = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "x"));
                     double g = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "g"));
                     double b = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "b"));
-                    double rho = XmlUtil.readDoubleAttribute(context.getReader(), "rho");
+                    double ratio = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "rho"));
                     double alpha = XmlUtil.readDoubleAttribute(context.getReader(), "alpha");
                     adder.beginStep()
                             .setRdr(r)
                             .setRdx(x)
                             .setRdg(g)
                             .setRdb(b)
-                            .setRho(rho)
+                            .setRatio(ratio)
                             .setAlpha(alpha)
                             .endStep();
                     break;
 
                 default:
-                    throw new AssertionError();
+                    throw new AssertionError(context.getReader().getLocalName() + " is not a valide element in PhaseTapChanger.");
             }
         });
         if (!hasTerminalRef[0]) {

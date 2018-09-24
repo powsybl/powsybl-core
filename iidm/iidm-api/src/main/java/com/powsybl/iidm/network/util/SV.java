@@ -23,7 +23,7 @@ public class SV {
     public static double getRatio(TwoWindingsTransformer twt) {
         double rho = twt.getRatedU2() / twt.getRatedU1();
         if (twt.getRatioTapChanger() != null) {
-            rho *= twt.getRatioTapChanger().getCurrentStep().getRho();
+            rho *= twt.getRatioTapChanger().getCurrentStep().getRatio();
         }
         return rho;
     }

@@ -520,7 +520,7 @@ class CIM1Converter implements CIM1Constants {
 
         for (int i = 0; i < alphaList.size(); i++) {
             double alpha = (double) alphaList.get(i);
-            double rho = (double) rhoList.get(i);
+            double ratio = (double) rhoList.get(i);
             double x;
             if (xStepRangeIsInconsistent || alphaMax == 0) {
                 x = transfo.getX();
@@ -540,7 +540,7 @@ class CIM1Converter implements CIM1Constants {
             }
             ptca.beginStep()
                     .setAlpha(Math.toDegrees(alpha))
-                    .setRho(rho)
+                    .setRatio(ratio)
                     .setRdr(0)
                     .setRdx((x - transfo.getX()) / transfo.getX() * 100)
                     .setRdg(0)
@@ -600,22 +600,22 @@ class CIM1Converter implements CIM1Constants {
         for (int step = lowStep; step <= highStep; step++) {
             int n = step - neutralStep;
             float du = rtc.getStepVoltageIncrement() / 100;
-            double rho = rtcSide1 ? 1 / (1 + n * du) : (1 + n * du);
+            double ratio = rtcSide1 ? 1 / (1 + n * du) : (1 + n * du);
 
             // Impedance/admittance deviation is required when ratio tap changer is defined at side 2
             double dz = 0;
             double dy = 0;
             if (!rtcSide1) {
-                double rho2 = rho * rho;
-                dz = (rho2 - 1) * 100;
-                dy = (1 / rho2 - 1) * 100;
+                double ratio2 = ratio * ratio;
+                dz = (ratio2 - 1) * 100;
+                dy = (1 / ratio2 - 1) * 100;
                 if (LOGGER.isDebugEnabled()) {
                     LOGGER.debug(String.format("RTC at side 2 deviation: %4d  %12.8f  %12.8f  %12.8f", step, n * du, dz, dy));
                 }
             }
 
             rtca.beginStep()
-                    .setRho(rho)
+                    .setRatio(ratio)
                     .setRdr(dz)
                     .setRdx(dz)
                     .setRdg(dy)

@@ -66,7 +66,7 @@ public class TapChangerTest {
                                                     .setRdg(3.0)
                                                     .setRdb(4.0)
                                                     .setAlpha(5.0)
-                                                    .setRho(6.0)
+                                                    .setRatio(6.0)
                                                 .endStep()
                                                 .beginStep()
                                                     .setRdr(1.0)
@@ -74,7 +74,7 @@ public class TapChangerTest {
                                                     .setRdg(3.0)
                                                     .setRdb(4.0)
                                                     .setAlpha(5.0)
-                                                    .setRho(6.0)
+                                                    .setRatio(6.0)
                                                 .endStep()
                                             .add();
         assertEquals(2, phaseTapChanger.getStepCount());
@@ -268,7 +268,7 @@ public class TapChangerTest {
                     .setRdg(3.0)
                     .setRdb(4.0)
                     .setAlpha(5.0)
-                    .setRho(6.0)
+                    .setRatio(6.0)
                 .endStep()
                 .beginStep()
                     .setRdr(1.0)
@@ -276,7 +276,7 @@ public class TapChangerTest {
                     .setRdg(3.0)
                     .setRdb(4.0)
                     .setAlpha(5.0)
-                    .setRho(6.0)
+                    .setRatio(6.0)
                 .endStep()
             .add();
     }
@@ -310,21 +310,21 @@ public class TapChangerTest {
                                                     .setRdx(39.784725)
                                                     .setRdg(0.0)
                                                     .setRdb(0.0)
-                                                    .setRho(1.0)
+                                                    .setRatio(1.0)
                                                 .endStep()
                                                 .beginStep()
                                                     .setRdr(39.78474)
                                                     .setRdx(39.784726)
                                                     .setRdg(0.0)
                                                     .setRdb(0.0)
-                                                    .setRho(1.0)
+                                                    .setRatio(1.0)
                                                 .endStep()
                                                 .beginStep()
                                                     .setRdr(39.78475)
                                                     .setRdx(39.784727)
                                                     .setRdg(0.0)
                                                     .setRdb(0.0)
-                                                    .setRho(1.0)
+                                                    .setRatio(1.0)
                                                 .endStep()
                                             .add();
         assertEquals(0, ratioTapChanger.getLowTapPosition());
@@ -360,8 +360,8 @@ public class TapChangerTest {
         assertEquals(stepG, step.getRdg(), 0.0);
         step.setRdb(stepB);
         assertEquals(stepB, step.getRdb(), 0.0);
-        step.setRho(stepRho);
-        assertEquals(stepRho, step.getRho(), 0.0);
+        step.setRatio(stepRho);
+        assertEquals(stepRho, step.getRatio(), 0.0);
 
         // remove
         ratioTapChanger.remove();
@@ -424,21 +424,21 @@ public class TapChangerTest {
                     .setRdx(39.784725)
                     .setRdg(0.0)
                     .setRdb(0.0)
-                    .setRho(1.0)
+                    .setRatio(1.0)
                 .endStep()
                 .beginStep()
                     .setRdr(39.78474)
                     .setRdx(39.784726)
                     .setRdg(0.0)
                     .setRdb(0.0)
-                    .setRho(1.0)
+                    .setRatio(1.0)
                 .endStep()
                 .beginStep()
                     .setRdr(39.78475)
                     .setRdx(39.784727)
                     .setRdg(0.0)
                     .setRdb(0.0)
-                    .setRho(1.0)
+                    .setRatio(1.0)
                 .endStep()
             .add();
     }
@@ -487,21 +487,21 @@ public class TapChangerTest {
                     .setRdx(39.784725)
                     .setRdg(0.0)
                     .setRdb(0.0)
-                    .setRho(1.0)
+                    .setRatio(1.0)
                 .endStep()
                 .beginStep()
                     .setRdr(39.78474)
                     .setRdx(39.784726)
                     .setRdg(0.0)
                     .setRdb(0.0)
-                    .setRho(1.0)
+                    .setRatio(1.0)
                 .endStep()
                 .beginStep()
                     .setRdr(39.78475)
                     .setRdx(39.784727)
                     .setRdg(0.0)
                     .setRdb(0.0)
-                    .setRho(1.0)
+                    .setRatio(1.0)
                 .endStep()
                 .add();
         leg3.newRatioTapChanger()
@@ -516,21 +516,21 @@ public class TapChangerTest {
                     .setRdx(39.784725)
                     .setRdg(0.0)
                     .setRdb(0.0)
-                    .setRho(1.0)
+                    .setRatio(1.0)
                 .endStep()
                 .beginStep()
                     .setRdr(39.78474)
                     .setRdx(39.784726)
                     .setRdg(0.0)
                     .setRdb(0.0)
-                    .setRho(1.0)
+                    .setRatio(1.0)
                 .endStep()
                 .beginStep()
                     .setRdr(39.78475)
                     .setRdx(39.784727)
                     .setRdg(0.0)
                     .setRdb(0.0)
-                    .setRho(1.0)
+                    .setRatio(1.0)
                 .endStep()
                 .add();
     }

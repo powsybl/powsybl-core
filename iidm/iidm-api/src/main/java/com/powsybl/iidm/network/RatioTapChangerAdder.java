@@ -14,7 +14,7 @@ public interface RatioTapChangerAdder {
 
     public interface StepAdder {
 
-        StepAdder setRho(double rho);
+        StepAdder setRatio(double rho);
 
         StepAdder setRdr(double rdr);
 

@@ -121,7 +121,7 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(step.getRdx()).thenReturn(0.0);
         Mockito.when(step.getRdg()).thenReturn(0.0);
         Mockito.when(step.getRdb()).thenReturn(0.0);
-        Mockito.when(step.getRho()).thenReturn(1.0);
+        Mockito.when(step.getRatio()).thenReturn(1.0);
 
         RatioTapChanger ratioTapChanger = Mockito.mock(RatioTapChanger.class);
         Mockito.when(ratioTapChanger.getCurrentStep()).thenReturn(step);

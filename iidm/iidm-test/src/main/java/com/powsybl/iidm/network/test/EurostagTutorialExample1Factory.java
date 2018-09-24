@@ -130,7 +130,7 @@ public final class EurostagTutorialExample1Factory {
         double a = (158.0 / 150.0) / (400.0 / 380.0);
         nhv2Nload.newRatioTapChanger()
                 .beginStep()
-                    .setRho(0.85f * a)
+                    .setRatio(0.85f * a)
                     .setRdr(0.0)
                     .setRdx(0.0)
                     .setRdg(0.0)
