@@ -24,14 +24,24 @@ DoubleTimeSeries a = TimeSeries.create("a", index, 1, 2);
 ```java
 DoubleArrayChunk chunk = ArrayChunk.create(1d, 1d, 1d, 3d);
 System.out.println(chunk.toJson());
-System.out.println(chunk.tryToCompress().toJson());
 ```
 
+Output:
 ```
 {
   "offset" : 0,
   "values" : [ 1.0, 1.0, 1.0, 3.0 ]
 }
+```
+
+To compress the chunk using RLE compression (https://fr.wikipedia.org/wiki/Run-length_encoding)
+```java
+DoubleArrayChunk compressedChunk = chunk.tryToCompress();
+System.out.println(compressedChunk);
+```
+
+Output:
+```
 {
   "offset" : 0,
   "uncompressedLength" : 4,
