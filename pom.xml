@@ -433,7 +433,7 @@
                                     <rules>
                                         <dependencyConvergence/>
                                         <requireMavenVersion>
-                                            <version>3.3.9</version>
+                                            <version>${maven.core.version}</version>
                                         </requireMavenVersion>
                                     </rules>
                                 </configuration>
