@@ -14,15 +14,15 @@ public interface RatioTapChangerAdder {
 
     public interface StepAdder {
 
-        StepAdder setRatio(double rho);
+        StepAdder setRatio(double ratio);
 
-        StepAdder setR(double r);
+        StepAdder setRdr(double rdr);
 
-        StepAdder setX(double x);
+        StepAdder setRdx(double rdx);
 
-        StepAdder setG(double g);
+        StepAdder setRdg(double rdg);
 
-        StepAdder setB(double b);
+        StepAdder setRdb(double rdb);
 
         RatioTapChangerAdder endStep();
     }

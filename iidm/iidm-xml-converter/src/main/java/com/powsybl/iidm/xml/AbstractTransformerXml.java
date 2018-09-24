@@ -28,10 +28,10 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
 
 
     protected static void writeTapChangerStep(TapChangerStep<?> tcs, XMLStreamWriter writer) throws XMLStreamException {
-        XmlUtil.writeDouble("rdr", tcs.getR(), writer);
-        XmlUtil.writeDouble("rdx", tcs.getX(), writer);
-        XmlUtil.writeDouble("rdg", tcs.getG(), writer);
-        XmlUtil.writeDouble("rdb", tcs.getB(), writer);
+        XmlUtil.writeDouble("rdr", tcs.getRdr(), writer);
+        XmlUtil.writeDouble("rdx", tcs.getRdx(), writer);
+        XmlUtil.writeDouble("rdg", tcs.getRdg(), writer);
+        XmlUtil.writeDouble("rdb", tcs.getRdb(), writer);
         XmlUtil.writeDouble("ratio", tcs.getRatio(), writer);
     }
 
@@ -94,10 +94,10 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                     double b = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "b"));
                     double rho = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "rho"));
                     adder.beginStep()
-                            .setR(r)
-                            .setX(x)
-                            .setG(g)
-                            .setB(b)
+                            .setRdr(r)
+                            .setRdx(x)
+                            .setRdg(g)
+                            .setRdb(b)
                             .setRatio(rho)
                             .endStep();
                     break;

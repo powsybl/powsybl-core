@@ -38,10 +38,10 @@ public class ThreeWindingsTransformerXmlTest extends AbstractConverterTest {
         Network read = NetworkXml.read(in);
         ThreeWindingsTransformer.Leg2or3 leg2 = read.getThreeWindingsTransformer("3WT").getLeg2();
         ThreeWindingsTransformer.Leg2or3 leg3 = read.getThreeWindingsTransformer("3WT").getLeg3();
-        assertEquals(0.9801, leg2.getRatioTapChanger().getStep(0).getR(), 0.0);
-        assertEquals(0.1089, leg2.getRatioTapChanger().getStep(1).getX(), 0.0);
-        assertEquals(0.8264462809917356, leg3.getRatioTapChanger().getStep(1).getG(), 0.0);
-        assertEquals(0.09090909090909093, leg3.getRatioTapChanger().getStep(2).getB(), 0.0);
+        assertEquals(0.9801, leg2.getRatioTapChanger().getStep(0).getRdr(), 0.0);
+        assertEquals(0.1089, leg2.getRatioTapChanger().getStep(1).getRdx(), 0.0);
+        assertEquals(0.8264462809917356, leg3.getRatioTapChanger().getStep(1).getRdg(), 0.0);
+        assertEquals(0.09090909090909093, leg3.getRatioTapChanger().getStep(2).getRdb(), 0.0);
         RatioTapChanger tapChanger = leg2.getRatioTapChanger();
         assertEquals(0.9, tapChanger.getStep(0).getRatio(), 0.0);
         assertEquals(1.0, tapChanger.getStep(1).getRatio(), 0.0);

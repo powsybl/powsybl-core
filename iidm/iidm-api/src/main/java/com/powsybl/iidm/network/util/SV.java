@@ -31,7 +31,7 @@ public class SV {
     public static double getR(TwoWindingsTransformer twt) {
         double r = twt.getR();
         if (twt.getRatioTapChanger() != null) {
-            r *= 1 + twt.getRatioTapChanger().getCurrentStep().getR() / 100;
+            r *= 1 + twt.getRatioTapChanger().getCurrentStep().getRdr() / 100;
         }
         return r;
     }
@@ -39,7 +39,7 @@ public class SV {
     public static double getX(TwoWindingsTransformer twt) {
         double x = twt.getX();
         if (twt.getRatioTapChanger() != null) {
-            x *= 1 + twt.getRatioTapChanger().getCurrentStep().getX() / 100;
+            x *= 1 + twt.getRatioTapChanger().getCurrentStep().getRdx() / 100;
         }
         return x;
     }
@@ -47,7 +47,7 @@ public class SV {
     public static double getG(TwoWindingsTransformer twt) {
         double g = twt.getG();
         if (twt.getRatioTapChanger() != null) {
-            g *= 1 + twt.getRatioTapChanger().getCurrentStep().getG() / 100;
+            g *= 1 + twt.getRatioTapChanger().getCurrentStep().getRdg() / 100;
         }
         return g;
     }
@@ -55,7 +55,7 @@ public class SV {
     public static double getB(TwoWindingsTransformer twt) {
         double b = twt.getB();
         if (twt.getRatioTapChanger() != null) {
-            b *= 1 + twt.getRatioTapChanger().getCurrentStep().getB() / 100;
+            b *= 1 + twt.getRatioTapChanger().getCurrentStep().getRdb() / 100;
         }
         return b;
     }

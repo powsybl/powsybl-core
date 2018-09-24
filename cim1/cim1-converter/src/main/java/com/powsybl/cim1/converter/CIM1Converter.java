@@ -616,10 +616,10 @@ class CIM1Converter implements CIM1Constants {
 
             rtca.beginStep()
                     .setRatio(rho)
-                    .setR(dz)
-                    .setX(dz)
-                    .setG(dy)
-                    .setB(dy)
+                    .setRdr(dz)
+                    .setRdx(dz)
+                    .setRdg(dy)
+                    .setRdb(dy)
                 .endStep();
         }
 

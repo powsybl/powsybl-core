@@ -19,18 +19,18 @@ package com.powsybl.iidm.network;
  * the following Java code supposing <code>transfo</code> is an instance of
  * <code>TwoWindingsTransformer</code>.
  *<pre>
- *r = transfo.getR()
- *    * (1 + (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentStep().getR() / 100 : 0)
- *       + (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getR() / 100 : 0));
- *x = transfo.getX()
- *    * (1 + (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentStep().getX() / 100 : 0)
- *       + (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getX() / 100 : 0));
- *g = transfo.getG()
- *    * (1 + (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentStep().getG() / 100 : 0)
- *       + (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getG() / 100 : 0));
- *b = transfo.getB()
- *    * (1 + (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentStep().getB() / 100 : 0)
- *       + (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getB() / 100 : 0));
+ *r = transfo.getRdr()
+ *    * (1 + (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentStep().getRdr() / 100 : 0)
+ *       + (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getRdr() / 100 : 0));
+ *x = transfo.getRdx()
+ *    * (1 + (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentStep().getRdx() / 100 : 0)
+ *       + (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getRdx() / 100 : 0));
+ *g = transfo.getRdg()
+ *    * (1 + (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentStep().getRdg() / 100 : 0)
+ *       + (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getRdg() / 100 : 0));
+ *b = transfo.getRdb()
+ *    * (1 + (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentStep().getRdb() / 100 : 0)
+ *       + (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getRdb() / 100 : 0));
  *rho = transfo.getRatedU2() / transfo.getRatedU1()
  *    * (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentStep().getRatio() : 1);
  *    * (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getRatio() : 1);

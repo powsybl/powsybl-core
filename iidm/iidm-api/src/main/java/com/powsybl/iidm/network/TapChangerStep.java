@@ -25,41 +25,41 @@ public interface TapChangerStep<S extends TapChangerStep> {
     /**
      * Get the resistance deviation in percent of nominal value.
      */
-    double getR();
+    double getRdr();
 
     /**
      * Set the resistance deviation in percent of nominal value.
      */
-    S setR(double r);
+    S setRdr(double rdr);
 
     /**
      * Get the reactance deviation in percent of nominal value.
      */
-    double getX();
+    double getRdx();
 
     /**
      * Set the reactance deviation in percent of nominal value.
      */
-    S setX(double x);
+    S setRdx(double rdx);
 
     /**
      * Get the susceptance deviation in percent of nominal value.
      */
-    double getB();
+    double getRdb();
 
     /**
      * Set the susceptance deviation in percent of nominal value.
      */
-    S setB(double b);
+    S setRdb(double rdb);
 
     /**
      * Get the conductance deviation in percent of nominal value.
      */
-    double getG();
+    double getRdg();
 
     /**
      * Set the conductance deviation in percent of nominal value.
      */
-    S setG(double g);
+    S setRdg(double rdg);
 
 }
