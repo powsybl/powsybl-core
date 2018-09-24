@@ -48,11 +48,15 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         Objects.requireNonNull(name);
         Objects.requireNonNull(index);
         Objects.requireNonNull(values);
-        if (index.getPointCount() != values.length) {
-            throw new IllegalArgumentException("Bad number of values " + values.length + ", expected " + index.getPointCount());
+        List<DoubleArrayChunk> chunks = new ArrayList<>();
+        if (values.length > 0) {
+            if (index.getPointCount() != values.length) {
+                throw new IllegalArgumentException("Bad number of values " + values.length + ", expected " + index.getPointCount());
+            }
+            chunks.add(new UncompressedDoubleArrayChunk(0, values));
         }
         return new StoredDoubleTimeSeries(new TimeSeriesMetadata(name, TimeSeriesDataType.DOUBLE, index),
-                                          new UncompressedDoubleArrayChunk(0, values));
+                                          chunks);
     }
 
     static <P extends AbstractPoint, T extends TimeSeries<P, T>> List<List<T>> split(List<T> timeSeriesList, int newChunkSize) {

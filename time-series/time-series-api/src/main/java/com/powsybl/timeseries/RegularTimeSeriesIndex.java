@@ -48,9 +48,16 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
         this.spacing = spacing;
     }
 
+    public static RegularTimeSeriesIndex create(Instant start, Instant end, Duration spacing) {
+        Objects.requireNonNull(start);
+        Objects.requireNonNull(end);
+        Objects.requireNonNull(spacing);
+        return new RegularTimeSeriesIndex(start.toEpochMilli(), end.toEpochMilli(), spacing.toMillis());
+    }
+
     public static RegularTimeSeriesIndex create(Interval interval, Duration spacing) {
-        return new RegularTimeSeriesIndex(interval.getStart().toEpochMilli(), interval.getEnd().toEpochMilli(),
-                                          spacing.toMillis());
+        Objects.requireNonNull(interval);
+        return create(interval.getStart(), interval.getEnd(), spacing);
     }
 
     public static RegularTimeSeriesIndex parseJson(JsonParser parser) {
