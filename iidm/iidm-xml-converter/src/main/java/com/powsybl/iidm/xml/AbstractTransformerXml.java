@@ -28,10 +28,10 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
 
 
     protected static void writeTapChangerStep(TapChangerStep<?> tcs, XMLStreamWriter writer) throws XMLStreamException {
-        XmlUtil.writeDouble("r", tcs.getR(), writer);
-        XmlUtil.writeDouble("x", tcs.getX(), writer);
-        XmlUtil.writeDouble("g", tcs.getG(), writer);
-        XmlUtil.writeDouble("b", tcs.getB(), writer);
+        XmlUtil.writeDouble("rdr", tcs.getR(), writer);
+        XmlUtil.writeDouble("rdx", tcs.getX(), writer);
+        XmlUtil.writeDouble("rdg", tcs.getG(), writer);
+        XmlUtil.writeDouble("rdb", tcs.getB(), writer);
         XmlUtil.writeDouble("rho", tcs.getRho(), writer);
     }
 
@@ -88,10 +88,10 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                     break;
 
                 case ELEM_STEP:
-                    double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
-                    double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
-                    double g = XmlUtil.readDoubleAttribute(context.getReader(), "g");
-                    double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
+                    double r = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "r"));
+                    double x = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "x"));
+                    double g = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "g"));
+                    double b = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "b"));
                     double rho = XmlUtil.readDoubleAttribute(context.getReader(), "rho");
                     adder.beginStep()
                             .setR(r)
@@ -108,6 +108,14 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         });
         if (!hasTerminalRef[0]) {
             adder.add();
+        }
+    }
+
+    private static String getVersionCompatibleAttribute(NetworkXmlReaderContext context, String attribute) {
+        if (context.getVersion().equals("1_1")) {
+            return "rd" + attribute;
+        } else {
+            return attribute;
         }
     }
 
@@ -167,10 +175,10 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                     break;
 
                 case ELEM_STEP:
-                    double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
-                    double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
-                    double g = XmlUtil.readDoubleAttribute(context.getReader(), "g");
-                    double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
+                    double r = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "r"));
+                    double x = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "x"));
+                    double g = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "g"));
+                    double b = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "b"));
                     double rho = XmlUtil.readDoubleAttribute(context.getReader(), "rho");
                     double alpha = XmlUtil.readDoubleAttribute(context.getReader(), "alpha");
                     adder.beginStep()

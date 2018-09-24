@@ -15,7 +15,7 @@ public final class IidmXmlConstants {
 
     public static final String INDENT = "    ";
 
-    private static final List<Integer> VERSION_ARRAY = ImmutableList.of(1, 0);
+    private static final List<Integer> VERSION_ARRAY = ImmutableList.of(1, 1);
 
     public static final String VERSION = VERSION_ARRAY.stream().map(Object::toString).collect(Collectors.joining("."));
 

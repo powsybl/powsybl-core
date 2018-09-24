@@ -19,11 +19,15 @@ import java.util.Objects;
 public class NetworkXmlReaderContext extends XmlContext implements XmlReaderContext {
 
     private final XMLStreamReader reader;
+
     private final List<Runnable> endTasks = new ArrayList<>();
 
-    public NetworkXmlReaderContext(Anonymizer anonymizer, XMLStreamReader reader) {
+    private final String version;
+
+    public NetworkXmlReaderContext(Anonymizer anonymizer, XMLStreamReader reader, String version) {
         super(anonymizer);
         this.reader = Objects.requireNonNull(reader);
+        this.version = Objects.requireNonNull(version);
     }
 
     @Override
@@ -35,4 +39,7 @@ public class NetworkXmlReaderContext extends XmlContext implements XmlReaderCont
         return endTasks;
     }
 
+    public String getVersion() {
+        return version;
+    }
 }
