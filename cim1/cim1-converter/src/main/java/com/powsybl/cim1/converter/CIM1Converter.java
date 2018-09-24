@@ -541,10 +541,10 @@ class CIM1Converter implements CIM1Constants {
             ptca.beginStep()
                     .setAlpha(Math.toDegrees(alpha))
                     .setRho(rho)
-                    .setR(0)
-                    .setX((x - transfo.getX()) / transfo.getX() * 100)
-                    .setG(0)
-                    .setB(0)
+                    .setRdr(0)
+                    .setRdx((x - transfo.getX()) / transfo.getX() * 100)
+                    .setRdg(0)
+                    .setRdb(0)
                 .endStep();
         }
 

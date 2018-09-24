@@ -40,13 +40,13 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
         private double rho = Double.NaN;
 
-        private double r = Double.NaN;
+        private double rdr = Double.NaN;
 
-        private double x = Double.NaN;
+        private double rdx = Double.NaN;
 
-        private double g = Double.NaN;
+        private double rdg = Double.NaN;
 
-        private double b = Double.NaN;
+        private double rdb = Double.NaN;
 
         @Override
         public StepAdder setAlpha(double alpha) {
@@ -61,26 +61,26 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         }
 
         @Override
-        public StepAdder setR(double r) {
-            this.r = r;
+        public StepAdder setRdr(double rdr) {
+            this.rdr = rdr;
             return this;
         }
 
         @Override
-        public StepAdder setX(double x) {
-            this.x = x;
+        public StepAdder setRdx(double rdx) {
+            this.rdx = rdx;
             return this;
         }
 
         @Override
-        public StepAdder setG(double g) {
-            this.g = g;
+        public StepAdder setRdg(double rdg) {
+            this.rdg = rdg;
             return this;
         }
 
         @Override
-        public StepAdder setB(double b) {
-            this.b = b;
+        public StepAdder setRdb(double rdb) {
+            this.rdb = rdb;
             return this;
         }
 
@@ -92,19 +92,19 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
             if (Double.isNaN(rho)) {
                 throw new ValidationException(transformer, "step rho is not set");
             }
-            if (Double.isNaN(r)) {
-                throw new ValidationException(transformer, "step r is not set");
+            if (Double.isNaN(rdr)) {
+                throw new ValidationException(transformer, "step rdr is not set");
             }
-            if (Double.isNaN(x)) {
-                throw new ValidationException(transformer, "step x is not set");
+            if (Double.isNaN(rdx)) {
+                throw new ValidationException(transformer, "step rdx is not set");
             }
-            if (Double.isNaN(g)) {
-                throw new ValidationException(transformer, "step g is not set");
+            if (Double.isNaN(rdg)) {
+                throw new ValidationException(transformer, "step rdg is not set");
             }
-            if (Double.isNaN(b)) {
-                throw new ValidationException(transformer, "step b is not set");
+            if (Double.isNaN(rdb)) {
+                throw new ValidationException(transformer, "step rdb is not set");
             }
-            PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(alpha, rho, r, x, g, b);
+            PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(alpha, rho, rdr, rdx, rdg, rdb);
             steps.add(step);
             return PhaseTapChangerAdderImpl.this;
         }

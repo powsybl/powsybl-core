@@ -182,10 +182,10 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                     double rho = XmlUtil.readDoubleAttribute(context.getReader(), "rho");
                     double alpha = XmlUtil.readDoubleAttribute(context.getReader(), "alpha");
                     adder.beginStep()
-                            .setR(r)
-                            .setX(x)
-                            .setG(g)
-                            .setB(b)
+                            .setRdr(r)
+                            .setRdx(x)
+                            .setRdg(g)
+                            .setRdb(b)
                             .setRho(rho)
                             .setAlpha(alpha)
                             .endStep();

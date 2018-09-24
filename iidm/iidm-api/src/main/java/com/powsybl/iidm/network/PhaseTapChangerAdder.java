@@ -18,13 +18,13 @@ public interface PhaseTapChangerAdder {
 
         StepAdder setRho(double rho);
 
-        StepAdder setR(double r);
+        StepAdder setRdr(double rdr);
 
-        StepAdder setX(double x);
+        StepAdder setRdx(double rdx);
 
-        StepAdder setG(double g);
+        StepAdder setRdg(double rdg);
 
-        StepAdder setB(double b);
+        StepAdder setRdb(double rdb);
 
         PhaseTapChangerAdder endStep();
     }

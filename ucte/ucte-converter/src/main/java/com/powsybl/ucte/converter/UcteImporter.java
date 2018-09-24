@@ -557,10 +557,10 @@ public class UcteImporter implements Importer {
             ptca.beginStep()
                     .setRho(rho)
                     .setAlpha(-alpha) // minus because in the UCT model PST is on side 2 and side1 on IIDM model
-                    .setR(0f)
-                    .setX(0f)
-                    .setG(0f)
-                    .setB(0f)
+                    .setRdr(0f)
+                    .setRdx(0f)
+                    .setRdg(0f)
+                    .setRdb(0f)
                     .endStep();
         }
         ptca.add();
