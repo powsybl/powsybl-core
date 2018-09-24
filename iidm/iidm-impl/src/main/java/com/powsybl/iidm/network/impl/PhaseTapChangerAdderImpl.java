@@ -55,8 +55,8 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         }
 
         @Override
-        public StepAdder setRho(double rho) {
-            this.rho = rho;
+        public StepAdder setRatio(double ratio) {
+            this.rho = ratio;
             return this;
         }
 

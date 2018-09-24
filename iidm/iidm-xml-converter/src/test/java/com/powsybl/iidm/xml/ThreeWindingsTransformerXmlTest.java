@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import org.junit.Test;
 
@@ -41,5 +42,9 @@ public class ThreeWindingsTransformerXmlTest extends AbstractConverterTest {
         assertEquals(0.1089, leg2.getRatioTapChanger().getStep(1).getX(), 0.0);
         assertEquals(0.8264462809917356, leg3.getRatioTapChanger().getStep(1).getG(), 0.0);
         assertEquals(0.09090909090909093, leg3.getRatioTapChanger().getStep(2).getB(), 0.0);
+        RatioTapChanger tapChanger = leg2.getRatioTapChanger();
+        assertEquals(0.9, tapChanger.getStep(0).getRatio(), 0.0);
+        assertEquals(1.0, tapChanger.getStep(1).getRatio(), 0.0);
+        assertEquals(1.1, tapChanger.getStep(2).getRatio(), 0.0);
     }
 }

@@ -15,12 +15,12 @@ public interface TapChangerStep<S extends TapChangerStep> {
     /**
      * Get the voltage ratio in per unit.
      */
-    double getRho();
+    double getRatio();
 
     /**
      * Set the voltage ratio in per unit.
      */
-    S setRho(double rho);
+    S setRatio(double rho);
 
     /**
      * Get the resistance deviation in percent of nominal value.

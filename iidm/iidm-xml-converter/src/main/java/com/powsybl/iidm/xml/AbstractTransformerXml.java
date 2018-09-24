@@ -32,7 +32,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         XmlUtil.writeDouble("rdx", tcs.getX(), writer);
         XmlUtil.writeDouble("rdg", tcs.getG(), writer);
         XmlUtil.writeDouble("rdb", tcs.getB(), writer);
-        XmlUtil.writeDouble("rho", tcs.getRho(), writer);
+        XmlUtil.writeDouble("ratio", tcs.getRatio(), writer);
     }
 
     protected static void writeTapChanger(TapChanger<?, ?> tc, XMLStreamWriter writer) throws XMLStreamException {
@@ -92,13 +92,13 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                     double x = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "x"));
                     double g = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "g"));
                     double b = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "b"));
-                    double rho = XmlUtil.readDoubleAttribute(context.getReader(), "rho");
+                    double rho = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "rho"));
                     adder.beginStep()
                             .setR(r)
                             .setX(x)
                             .setG(g)
                             .setB(b)
-                            .setRho(rho)
+                            .setRatio(rho)
                             .endStep();
                     break;
 
@@ -113,6 +113,9 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
 
     private static String getVersionCompatibleAttribute(NetworkXmlReaderContext context, String attribute) {
         if (context.getVersion().equals("1_1")) {
+            if (attribute.equals("rho")) {
+                return "ratio";
+            }
             return "rd" + attribute;
         } else {
             return attribute;
@@ -179,14 +182,14 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                     double x = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "x"));
                     double g = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "g"));
                     double b = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "b"));
-                    double rho = XmlUtil.readDoubleAttribute(context.getReader(), "rho");
+                    double rho = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "rho"));
                     double alpha = XmlUtil.readDoubleAttribute(context.getReader(), "alpha");
                     adder.beginStep()
                             .setRdr(r)
                             .setRdx(x)
                             .setRdg(g)
                             .setRdb(b)
-                            .setRho(rho)
+                            .setRatio(rho)
                             .setAlpha(alpha)
                             .endStep();
                     break;

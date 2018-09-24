@@ -224,10 +224,10 @@ public class BranchData {
     private double getRho1(TwoWindingsTransformer twt) {
         double rho = twt.getRatedU2() / twt.getRatedU1();
         if (twt.getRatioTapChanger() != null) {
-            rho *= twt.getRatioTapChanger().getCurrentStep().getRho();
+            rho *= twt.getRatioTapChanger().getCurrentStep().getRatio();
         }
         if (twt.getPhaseTapChanger() != null) {
-            rho *= twt.getPhaseTapChanger().getCurrentStep().getRho();
+            rho *= twt.getPhaseTapChanger().getCurrentStep().getRatio();
         }
         return rho;
     }

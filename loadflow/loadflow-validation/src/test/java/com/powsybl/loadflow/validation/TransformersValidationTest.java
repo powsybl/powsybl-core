@@ -63,11 +63,11 @@ public class TransformersValidationTest extends AbstractValidationTest {
         Mockito.when(terminal.getBusView()).thenReturn(busView);
 
         RatioTapChangerStep currentStep = Mockito.mock(RatioTapChangerStep.class);
-        Mockito.when(currentStep.getRho()).thenReturn(rho);
+        Mockito.when(currentStep.getRatio()).thenReturn(rho);
         RatioTapChangerStep previousStep = Mockito.mock(RatioTapChangerStep.class);
-        Mockito.when(previousStep.getRho()).thenReturn(rhoPreviousStep);
+        Mockito.when(previousStep.getRatio()).thenReturn(rhoPreviousStep);
         RatioTapChangerStep nextStep = Mockito.mock(RatioTapChangerStep.class);
-        Mockito.when(nextStep.getRho()).thenReturn(rhoNextStep);
+        Mockito.when(nextStep.getRatio()).thenReturn(rhoNextStep);
 
         RatioTapChanger ratioTapChanger = Mockito.mock(RatioTapChanger.class);
         Mockito.when(ratioTapChanger.isRegulating()).thenReturn(true);

@@ -540,7 +540,7 @@ class CIM1Converter implements CIM1Constants {
             }
             ptca.beginStep()
                     .setAlpha(Math.toDegrees(alpha))
-                    .setRho(rho)
+                    .setRatio(rho)
                     .setRdr(0)
                     .setRdx((x - transfo.getX()) / transfo.getX() * 100)
                     .setRdg(0)
@@ -615,7 +615,7 @@ class CIM1Converter implements CIM1Constants {
             }
 
             rtca.beginStep()
-                    .setRho(rho)
+                    .setRatio(rho)
                     .setR(dz)
                     .setX(dz)
                     .setG(dy)

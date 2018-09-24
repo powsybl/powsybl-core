@@ -12,7 +12,7 @@ package com.powsybl.iidm.network.impl;
  */
 class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
 
-    private double rho;
+    private double ratio;
 
     private double r;
 
@@ -22,20 +22,20 @@ class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
 
     private double b;
 
-    protected TapChangerStepImpl(double rho, double r, double x, double g, double b) {
-        this.rho = rho;
+    protected TapChangerStepImpl(double ratio, double r, double x, double g, double b) {
+        this.ratio = ratio;
         this.r = r;
         this.x = x;
         this.g = g;
         this.b = b;
     }
 
-    public double getRho() {
-        return rho;
+    public double getRatio() {
+        return ratio;
     }
 
-    public S setRho(double rho) {
-        this.rho = rho;
+    public S setRatio(double rho) {
+        this.ratio = rho;
         return (S) this;
     }
 
