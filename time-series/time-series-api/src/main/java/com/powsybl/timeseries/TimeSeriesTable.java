@@ -154,8 +154,8 @@ public class TimeSeriesTable {
     }
 
     public TimeSeriesTable(int fromVersion, int toVersion, TimeSeriesIndex tableIndex, IntFunction<ByteBuffer> byteBufferAllocator) {
-        TimeSeriesIndex.checkVersion(fromVersion);
-        TimeSeriesIndex.checkVersion(toVersion);
+        checkVersion(fromVersion);
+        checkVersion(toVersion);
         if (toVersion < fromVersion) {
             throw new TimeSeriesException("toVersion (" + toVersion + ") is expected to be greater than fromVersion (" + fromVersion + ")");
         }
@@ -262,7 +262,14 @@ public class TimeSeriesTable {
         return (version - fromVersion) * doubleTimeSeriesNames.size() + timeSeriesNum;
     }
 
-    private void checkVersion(int version) {
+    public static int checkVersion(int version) {
+        if (version < 0) {
+            throw new IllegalArgumentException("Bad version " + version);
+        }
+        return version;
+    }
+
+    private void checkVersionIsInRange(int version) {
         if (version < fromVersion || version > toVersion) {
             throw new IllegalArgumentException("Version is out of range [" + fromVersion + ", " + toVersion + "]");
         }
@@ -308,7 +315,7 @@ public class TimeSeriesTable {
     }
 
     public void load(int version, List<TimeSeries> timeSeriesList) {
-        checkVersion(version);
+        checkVersionIsInRange(version);
         Objects.requireNonNull(timeSeriesList);
 
         if (timeSeriesList.isEmpty()) {
@@ -350,7 +357,7 @@ public class TimeSeriesTable {
     }
 
     public double getDoubleValue(int version, int timeSeriesNum, int point) {
-        checkVersion(version);
+        checkVersionIsInRange(version);
         int doubleTimeSeriesNum = checkTimeSeriesNum(timeSeriesNum);
         checkPoint(point);
         int timeSeriesOffset = getTimeSeriesOffset(version, doubleTimeSeriesNum);
@@ -358,7 +365,7 @@ public class TimeSeriesTable {
     }
 
     public String getStringValue(int version, int timeSeriesNum, int point) {
-        checkVersion(version);
+        checkVersionIsInRange(version);
         int stringTimeSeriesNum = checkTimeSeriesNum(timeSeriesNum);
         checkPoint(point);
         int timeSeriesOffset = getTimeSeriesOffset(version, stringTimeSeriesNum);
@@ -422,7 +429,7 @@ public class TimeSeriesTable {
     }
 
     private double getStatistics(int version, int timeSeriesNum, double[] stats) {
-        checkVersion(version);
+        checkVersionIsInRange(version);
         int doubleTimeSeriesNum = checkTimeSeriesNum(timeSeriesNum);
         int statisticsIndex = getStatisticsIndex(version, doubleTimeSeriesNum);
 
@@ -499,7 +506,7 @@ public class TimeSeriesTable {
 
     public double[] computePpmcc(String timeSeriesName, int version) {
         int timeSeriesNum1 = doubleTimeSeriesNames.getIndex(timeSeriesName);
-        checkVersion(version);
+        checkVersionIsInRange(version);
 
         Stopwatch stopWatch = Stopwatch.createStarted();
 

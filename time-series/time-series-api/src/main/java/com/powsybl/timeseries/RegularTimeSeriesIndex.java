@@ -9,7 +9,6 @@ package com.powsybl.timeseries;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.powsybl.commons.json.JsonUtil;
 import org.threeten.extra.Interval;
 
 import java.io.IOException;
@@ -21,7 +20,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class RegularTimeSeriesIndex implements TimeSeriesIndex {
+public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     public static final String TYPE = "regularIndex";
 
@@ -145,11 +144,6 @@ public class RegularTimeSeriesIndex implements TimeSeriesIndex {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    @Override
-    public String toJson() {
-        return JsonUtil.toJson(this::writeJson);
     }
 
     @Override

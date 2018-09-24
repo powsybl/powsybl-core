@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TestTimeSeriesIndex implements TimeSeriesIndex {
+public class TestTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     private int pointCount;
 
@@ -39,11 +39,6 @@ public class TestTimeSeriesIndex implements TimeSeriesIndex {
 
     @Override
     public void writeJson(JsonGenerator generator) {
-        throw new AssertionError();
-    }
-
-    @Override
-    public String toJson() {
         throw new AssertionError();
     }
 }

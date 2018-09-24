@@ -15,20 +15,11 @@ import java.time.Instant;
  */
 public interface TimeSeriesIndex {
 
-    static int checkVersion(int version) {
-        if (version < 0) {
-            throw new IllegalArgumentException("Bad version " + version);
-        }
-        return version;
-    }
-
-    static Instant getInstantAt(TimeSeriesIndex index, int point) {
-        return Instant.ofEpochMilli(index.getTimeAt(point));
-    }
-
     int getPointCount();
 
     long getTimeAt(int point);
+
+    Instant getInstantAt(int point);
 
     String getType();
 

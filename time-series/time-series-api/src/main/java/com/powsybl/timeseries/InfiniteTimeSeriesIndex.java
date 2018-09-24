@@ -9,7 +9,6 @@ package com.powsybl.timeseries;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.powsybl.commons.json.JsonUtil;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -18,9 +17,9 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public enum InfiniteTimeSeriesIndex implements TimeSeriesIndex {
+public class InfiniteTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
-    INSTANCE;
+    public static final InfiniteTimeSeriesIndex INSTANCE = new InfiniteTimeSeriesIndex();
 
     public static final String TYPE = "infiniteIndex";
     public static final long START_TIME = 0L;
@@ -71,11 +70,6 @@ public enum InfiniteTimeSeriesIndex implements TimeSeriesIndex {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    @Override
-    public String toJson() {
-        return JsonUtil.toJson(this::writeJson);
     }
 
     @Override

@@ -37,7 +37,7 @@ public class IrregularTimeSeriesIndexTest {
 
         // test json
         String jsonRef = "[ 1420070400000, 1420074000000 ]";
-        String json = JsonUtil.toJson(index::writeJson);
+        String json = index.toJson();
         assertEquals(jsonRef, json);
         IrregularTimeSeriesIndex index2 = JsonUtil.parseJson(json, IrregularTimeSeriesIndex::parseJson);
         assertNotNull(index2);

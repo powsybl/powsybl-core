@@ -14,10 +14,7 @@ import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.commons.exceptions.UncheckedUnsupportedEncodingException;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.timeseries.DoubleArrayChunk;
-import com.powsybl.timeseries.StringArrayChunk;
-import com.powsybl.timeseries.TimeSeriesIndex;
-import com.powsybl.timeseries.TimeSeriesMetadata;
+import com.powsybl.timeseries.*;
 
 import java.io.*;
 import java.net.URLDecoder;
@@ -345,7 +342,7 @@ public class LocalAppStorage implements AppStorage {
     @Override
     public Map<String, List<DoubleArrayChunk>> getDoubleTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version) {
         Objects.requireNonNull(timeSeriesNames);
-        TimeSeriesIndex.checkVersion(version);
+        TimeSeriesTable.checkVersion(version);
         return getFile(nodeId).getDoubleTimeSeriesData(timeSeriesNames, version);
     }
 
@@ -357,7 +354,7 @@ public class LocalAppStorage implements AppStorage {
     @Override
     public Map<String, List<StringArrayChunk>> getStringTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version) {
         Objects.requireNonNull(timeSeriesNames);
-        TimeSeriesIndex.checkVersion(version);
+        TimeSeriesTable.checkVersion(version);
         return getFile(nodeId).getStringTimeSeriesData(timeSeriesNames, version);
     }
 
