@@ -774,7 +774,7 @@ public class RemoteAppStorage implements AppStorage {
     }
 
     @Override
-    public void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks) {
+    public void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleDataChunk> chunks) {
         Objects.requireNonNull(nodeId);
         TimeSeriesTable.checkVersion(version);
         Objects.requireNonNull(timeSeriesName);
@@ -789,7 +789,7 @@ public class RemoteAppStorage implements AppStorage {
     }
 
     @Override
-    public Map<String, List<DoubleArrayChunk>> getDoubleTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version) {
+    public Map<String, List<DoubleDataChunk>> getDoubleTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version) {
         Objects.requireNonNull(nodeId);
         Objects.requireNonNull(timeSeriesNames);
         TimeSeriesTable.checkVersion(version);
@@ -807,7 +807,7 @@ public class RemoteAppStorage implements AppStorage {
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .post(Entity.json(timeSeriesNames));
         try {
-            return readEntityIfOk(response, new GenericType<Map<String, List<DoubleArrayChunk>>>() {
+            return readEntityIfOk(response, new GenericType<Map<String, List<DoubleDataChunk>>>() {
             });
         } finally {
             response.close();
@@ -815,7 +815,7 @@ public class RemoteAppStorage implements AppStorage {
     }
 
     @Override
-    public void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks) {
+    public void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringDataChunk> chunks) {
         Objects.requireNonNull(nodeId);
         TimeSeriesTable.checkVersion(version);
         Objects.requireNonNull(timeSeriesName);
@@ -830,7 +830,7 @@ public class RemoteAppStorage implements AppStorage {
     }
 
     @Override
-    public Map<String, List<StringArrayChunk>> getStringTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version) {
+    public Map<String, List<StringDataChunk>> getStringTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version) {
         Objects.requireNonNull(nodeId);
         Objects.requireNonNull(timeSeriesNames);
         TimeSeriesTable.checkVersion(version);
@@ -848,7 +848,7 @@ public class RemoteAppStorage implements AppStorage {
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .post(Entity.json(timeSeriesNames));
         try {
-            return readEntityIfOk(response, new GenericType<Map<String, List<StringArrayChunk>>>() {
+            return readEntityIfOk(response, new GenericType<Map<String, List<StringDataChunk>>>() {
             });
         } finally {
             response.close();

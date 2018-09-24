@@ -6,9 +6,9 @@
  */
 package com.powsybl.afs.mapdb.storage;
 
-import com.powsybl.timeseries.CompressedDoubleArrayChunk;
-import com.powsybl.timeseries.DoubleArrayChunk;
-import com.powsybl.timeseries.UncompressedDoubleArrayChunk;
+import com.powsybl.timeseries.CompressedDoubleDataChunk;
+import com.powsybl.timeseries.DoubleDataChunk;
+import com.powsybl.timeseries.UncompressedDoubleDataChunk;
 import org.mapdb.DataInput2;
 import org.mapdb.DataOutput2;
 import org.mapdb.Serializer;
@@ -19,7 +19,7 @@ import java.io.Serializable;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public final class DoubleArrayChunkSerializer implements Serializer<DoubleArrayChunk>, Serializable {
+public final class DoubleArrayChunkSerializer implements Serializer<DoubleDataChunk>, Serializable {
 
     public static final DoubleArrayChunkSerializer INSTANCE = new DoubleArrayChunkSerializer();
 
@@ -27,17 +27,17 @@ public final class DoubleArrayChunkSerializer implements Serializer<DoubleArrayC
     }
 
     @Override
-    public void serialize(DataOutput2 out, DoubleArrayChunk chunk) throws IOException {
-        if (chunk instanceof UncompressedDoubleArrayChunk) {
-            UncompressedDoubleArrayChunk uncompressedChunk = (UncompressedDoubleArrayChunk) chunk;
+    public void serialize(DataOutput2 out, DoubleDataChunk chunk) throws IOException {
+        if (chunk instanceof UncompressedDoubleDataChunk) {
+            UncompressedDoubleDataChunk uncompressedChunk = (UncompressedDoubleDataChunk) chunk;
             out.writeUTF("uncompressed");
             out.writeInt(uncompressedChunk.getOffset());
             out.writeInt(uncompressedChunk.getLength());
             for (double value : uncompressedChunk.getValues()) {
                 out.writeDouble(value);
             }
-        } else if (chunk instanceof CompressedDoubleArrayChunk) {
-            CompressedDoubleArrayChunk compressedChunk = (CompressedDoubleArrayChunk) chunk;
+        } else if (chunk instanceof CompressedDoubleDataChunk) {
+            CompressedDoubleDataChunk compressedChunk = (CompressedDoubleDataChunk) chunk;
             out.writeUTF("compressed");
             out.writeInt(compressedChunk.getOffset());
             out.writeInt(compressedChunk.getUncompressedLength());
@@ -55,7 +55,7 @@ public final class DoubleArrayChunkSerializer implements Serializer<DoubleArrayC
     }
 
     @Override
-    public DoubleArrayChunk deserialize(DataInput2 input, int available) throws IOException {
+    public DoubleDataChunk deserialize(DataInput2 input, int available) throws IOException {
         String type = input.readUTF();
         if ("uncompressed".equals(type)) {
             int offset = input.readInt();
@@ -64,7 +64,7 @@ public final class DoubleArrayChunkSerializer implements Serializer<DoubleArrayC
             for (int i = 0; i < length; i++) {
                 values[i] = input.readDouble();
             }
-            return new UncompressedDoubleArrayChunk(offset, values);
+            return new UncompressedDoubleDataChunk(offset, values);
         } else if ("compressed".equals(type)) {
             int offset = input.readInt();
             int uncompressedLength = input.readInt();
@@ -78,7 +78,7 @@ public final class DoubleArrayChunkSerializer implements Serializer<DoubleArrayC
             for (int i = 0; i < stepValuesLength; i++) {
                 stepValues[i] = input.readDouble();
             }
-            return new CompressedDoubleArrayChunk(offset, uncompressedLength, stepValues, stepLengths);
+            return new CompressedDoubleDataChunk(offset, uncompressedLength, stepValues, stepLengths);
         } else {
             throw new AssertionError();
         }

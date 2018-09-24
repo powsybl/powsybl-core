@@ -38,8 +38,8 @@ public class StoredDoubleTimeSeriesTest {
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:45:00Z"),
                                                                      Duration.ofMinutes(15));
         TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
-        UncompressedDoubleArrayChunk chunk = new UncompressedDoubleArrayChunk(2, new double[] {1d, 2d});
-        CompressedDoubleArrayChunk chunk2 = new CompressedDoubleArrayChunk(5, 3, new double[] {3d, 4d}, new int[] {1, 2});
+        UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(2, new double[] {1d, 2d});
+        CompressedDoubleDataChunk chunk2 = new CompressedDoubleDataChunk(5, 3, new double[] {3d, 4d}, new int[] {1, 2});
         assertEquals(TimeSeriesDataType.DOUBLE, chunk.getDataType());
         StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk, chunk2);
         assertSame(metadata, timeSeries.getMetadata());
@@ -97,7 +97,7 @@ public class StoredDoubleTimeSeriesTest {
         TimeSeriesIndex index = Mockito.mock(TimeSeriesIndex.class);
         Mockito.when(index.getPointCount()).thenReturn(10);
         TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, Collections.emptyMap(), index);
-        UncompressedDoubleArrayChunk chunk = new UncompressedDoubleArrayChunk(3, new double[] {0d, 0d, 0d, 0d, 0d});
+        UncompressedDoubleDataChunk chunk = new UncompressedDoubleDataChunk(3, new double[] {0d, 0d, 0d, 0d, 0d});
         StoredDoubleTimeSeries timeSeries = new StoredDoubleTimeSeries(metadata, chunk);
         List<DoubleTimeSeries> split = timeSeries.split(2);
 
@@ -107,21 +107,21 @@ public class StoredDoubleTimeSeriesTest {
         // check first chunk
         assertTrue(split.get(0) instanceof StoredDoubleTimeSeries);
         assertEquals(1, ((StoredDoubleTimeSeries) split.get(0)).getChunks().size());
-        assertTrue(((StoredDoubleTimeSeries) split.get(0)).getChunks().get(0) instanceof UncompressedDoubleArrayChunk);
+        assertTrue(((StoredDoubleTimeSeries) split.get(0)).getChunks().get(0) instanceof UncompressedDoubleDataChunk);
         assertEquals(3, ((StoredDoubleTimeSeries) split.get(0)).getChunks().get(0).getOffset());
         assertEquals(1, ((StoredDoubleTimeSeries) split.get(0)).getChunks().get(0).getLength());
 
         // check second chunk
         assertTrue(split.get(1) instanceof StoredDoubleTimeSeries);
         assertEquals(1, ((StoredDoubleTimeSeries) split.get(1)).getChunks().size());
-        assertTrue(((StoredDoubleTimeSeries) split.get(1)).getChunks().get(0) instanceof UncompressedDoubleArrayChunk);
+        assertTrue(((StoredDoubleTimeSeries) split.get(1)).getChunks().get(0) instanceof UncompressedDoubleDataChunk);
         assertEquals(4, ((StoredDoubleTimeSeries) split.get(1)).getChunks().get(0).getOffset());
         assertEquals(2, ((StoredDoubleTimeSeries) split.get(1)).getChunks().get(0).getLength());
 
         // check third chunk
         assertTrue(split.get(2) instanceof StoredDoubleTimeSeries);
         assertEquals(1, ((StoredDoubleTimeSeries) split.get(2)).getChunks().size());
-        assertTrue(((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0) instanceof UncompressedDoubleArrayChunk);
+        assertTrue(((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0) instanceof UncompressedDoubleDataChunk);
         assertEquals(6, ((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0).getOffset());
         assertEquals(2, ((StoredDoubleTimeSeries) split.get(2)).getChunks().get(0).getLength());
     }

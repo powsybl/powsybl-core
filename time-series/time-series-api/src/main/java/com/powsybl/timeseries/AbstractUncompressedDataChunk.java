@@ -16,13 +16,13 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class AbstractUncompressedArrayChunk {
+public abstract class AbstractUncompressedDataChunk {
 
     private static final double COMPRESSION_FACTOR = 1d;
 
     protected final int offset;
 
-    public AbstractUncompressedArrayChunk(int offset) {
+    public AbstractUncompressedDataChunk(int offset) {
         if (offset < 0) {
             throw new IllegalArgumentException("Bad offset value " + offset);
         }

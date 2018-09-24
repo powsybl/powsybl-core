@@ -14,8 +14,8 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.common.io.ByteStreams;
 import com.powsybl.afs.storage.json.AppStorageJsonModule;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.timeseries.DoubleArrayChunk;
-import com.powsybl.timeseries.StringArrayChunk;
+import com.powsybl.timeseries.DoubleDataChunk;
+import com.powsybl.timeseries.StringDataChunk;
 import com.powsybl.timeseries.TimeSeriesMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -173,14 +173,14 @@ public class AppStorageArchive {
             for (int version : storage.getTimeSeriesDataVersions(nodeInfo.getId(), metadata.getName())) {
                 switch (metadata.getDataType()) {
                     case DOUBLE:
-                        List<DoubleArrayChunk> doubleChunks = storage.getDoubleTimeSeriesData(nodeInfo.getId(), Collections.singleton(metadata.getName()), version).get(metadata.getName());
+                        List<DoubleDataChunk> doubleChunks = storage.getDoubleTimeSeriesData(nodeInfo.getId(), Collections.singleton(metadata.getName()), version).get(metadata.getName());
                         try (Writer writer = new OutputStreamWriter(new GZIPOutputStream(Files.newOutputStream(timeSeriesNameDir.resolve("chunks-" + version + ".json.gz"))), StandardCharsets.UTF_8)) {
                             objectWriter.writeValue(writer, doubleChunks);
                         }
                         break;
 
                     case STRING:
-                        List<StringArrayChunk> stringChunks = storage.getStringTimeSeriesData(nodeInfo.getId(), Collections.singleton(metadata.getName()), version).get(metadata.getName());
+                        List<StringDataChunk> stringChunks = storage.getStringTimeSeriesData(nodeInfo.getId(), Collections.singleton(metadata.getName()), version).get(metadata.getName());
                         try (Writer writer = new OutputStreamWriter(new GZIPOutputStream(Files.newOutputStream(timeSeriesNameDir.resolve("chunks-" + version + ".json.gz"))), StandardCharsets.UTF_8)) {
                             objectWriter.writeValue(writer, stringChunks);
                         }
@@ -311,14 +311,14 @@ public class AppStorageArchive {
                                 try (Reader reader = new InputStreamReader(new GZIPInputStream(Files.newInputStream(chunksFile)), StandardCharsets.UTF_8)) {
                                     switch (metadata.getDataType()) {
                                         case DOUBLE:
-                                            List<DoubleArrayChunk> doubleChunks = mapper.readerFor(new TypeReference<List<DoubleArrayChunk>>() {
+                                            List<DoubleDataChunk> doubleChunks = mapper.readerFor(new TypeReference<List<DoubleDataChunk>>() {
                                             }).readValue(reader);
                                             chunkCount[0] += doubleChunks.size();
                                             storage.addDoubleTimeSeriesData(newNodeInfo.getId(), version, timeSeriesName, doubleChunks);
                                             break;
 
                                         case STRING:
-                                            List<StringArrayChunk> stringChunks = mapper.readerFor(new TypeReference<List<StringArrayChunk>>() {
+                                            List<StringDataChunk> stringChunks = mapper.readerFor(new TypeReference<List<StringDataChunk>>() {
                                             }).readValue(reader);
                                             chunkCount[0] += stringChunks.size();
                                             storage.addStringTimeSeriesData(newNodeInfo.getId(), version, timeSeriesName, stringChunks);

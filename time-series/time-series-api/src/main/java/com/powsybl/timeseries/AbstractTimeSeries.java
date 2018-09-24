@@ -21,7 +21,7 @@ import java.util.stream.Stream;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends ArrayChunk<P, C>, T extends TimeSeries<P, T>> {
+public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends DataChunk<P, C>, T extends TimeSeries<P, T>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTimeSeries.class);
 
@@ -122,7 +122,7 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Arra
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("   At index {}", newChunkLowIndex);
             }
-            ArrayChunk.Split<P, C> split = chunk.splitAt(newChunkLowIndex);
+            DataChunk.Split<P, C> split = chunk.splitAt(newChunkLowIndex);
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("   Adding chunk [{}, {}]", split.getChunk1().getOffset(), split.getChunk1().getOffset() + split.getChunk1().getLength() - 1);
             }
@@ -151,7 +151,7 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Arra
             generator.writeFieldName("metadata");
             metadata.writeJson(generator);
             generator.writeFieldName("chunks");
-            ArrayChunk.writeJson(generator, chunks);
+            DataChunk.writeJson(generator, chunks);
             generator.writeEndObject();
         } catch (IOException e) {
             throw new UncheckedIOException(e);

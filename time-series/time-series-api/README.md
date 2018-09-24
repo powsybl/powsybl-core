@@ -76,7 +76,7 @@ In order to add data to the time series, we need to create data chunks: double d
 To create an uncompress data chunk and print its json representation:
 
 ```java
-DoubleArrayChunk chunk = ArrayChunk.create(1d, 1d, 1d, 3d);
+DoubleDataChunk chunk = DataChunk.create(1d, 1d, 1d, 3d);
 System.out.println(chunk.toJson());
 ```
 
@@ -93,7 +93,7 @@ We can see that an uncompress data chunk is juste a double array and an offset. 
 To compress the chunk using RLE compression (https://fr.wikipedia.org/wiki/Run-length_encoding)
 
 ```java
-DoubleArrayChunk compressedChunk = chunk.tryToCompress();
+DoubleDataChunk compressedChunk = chunk.tryToCompress();
 System.out.println(compressedChunk);
 ```
 
@@ -126,7 +126,7 @@ So here size of compressed data chunk is 0.75 smaller than uncompressed one.
 ## Create a string array chunk
 
 ```java
-StringArrayChunk chunk2 = ArrayChunk.create("hello", "bye", "bye", "bye");
+StringDataChunk chunk2 = DataChunk.create("hello", "bye", "bye", "bye");
 System.out.println(chunk2.toJson());
 System.out.println(chunk2.tryToCompress().toJson());
 ```

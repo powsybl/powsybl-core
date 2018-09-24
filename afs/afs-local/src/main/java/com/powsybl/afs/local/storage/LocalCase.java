@@ -13,8 +13,8 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.Importers;
-import com.powsybl.timeseries.DoubleArrayChunk;
-import com.powsybl.timeseries.StringArrayChunk;
+import com.powsybl.timeseries.DoubleDataChunk;
+import com.powsybl.timeseries.StringDataChunk;
 import com.powsybl.timeseries.TimeSeriesMetadata;
 
 import java.io.IOException;
@@ -135,12 +135,12 @@ public class LocalCase implements LocalFile {
     }
 
     @Override
-    public Map<String, List<DoubleArrayChunk>> getDoubleTimeSeriesData(Set<String> timeSeriesNames, int version) {
+    public Map<String, List<DoubleDataChunk>> getDoubleTimeSeriesData(Set<String> timeSeriesNames, int version) {
         throw new AssertionError();
     }
 
     @Override
-    public Map<String, List<StringArrayChunk>> getStringTimeSeriesData(Set<String> timeSeriesNames, int version) {
+    public Map<String, List<StringDataChunk>> getStringTimeSeriesData(Set<String> timeSeriesNames, int version) {
         throw new AssertionError();
     }
 }

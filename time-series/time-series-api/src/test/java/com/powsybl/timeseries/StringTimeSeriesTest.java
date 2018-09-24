@@ -37,8 +37,8 @@ public class StringTimeSeriesTest {
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T01:45:00Z"),
                                                                      Duration.ofMinutes(15));
         TimeSeriesMetadata metadata = new TimeSeriesMetadata("ts1", TimeSeriesDataType.STRING, Collections.emptyMap(), index);
-        UncompressedStringArrayChunk chunk = new UncompressedStringArrayChunk(2, new String[] {"a", "b"});
-        CompressedStringArrayChunk chunk2 = new CompressedStringArrayChunk(5, 3, new String[] {"c", "d"}, new int[] {1, 2});
+        UncompressedStringDataChunk chunk = new UncompressedStringDataChunk(2, new String[] {"a", "b"});
+        CompressedStringDataChunk chunk2 = new CompressedStringDataChunk(5, 3, new String[] {"c", "d"}, new int[] {1, 2});
         assertEquals(TimeSeriesDataType.STRING, chunk.getDataType());
         StringTimeSeries timeSeries = new StringTimeSeries(metadata, chunk, chunk2);
         assertSame(metadata, timeSeries.getMetadata());

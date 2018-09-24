@@ -48,12 +48,12 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         Objects.requireNonNull(name);
         Objects.requireNonNull(index);
         Objects.requireNonNull(values);
-        List<DoubleArrayChunk> chunks = new ArrayList<>();
+        List<DoubleDataChunk> chunks = new ArrayList<>();
         if (values.length > 0) {
             if (index.getPointCount() != values.length) {
                 throw new IllegalArgumentException("Bad number of values " + values.length + ", expected " + index.getPointCount());
             }
-            chunks.add(new UncompressedDoubleArrayChunk(0, values));
+            chunks.add(new UncompressedDoubleDataChunk(0, values));
         }
         return new StoredDoubleTimeSeries(new TimeSeriesMetadata(name, TimeSeriesDataType.DOUBLE, index),
                                           chunks);
@@ -250,11 +250,11 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                 TimeSeriesMetadata metadata = new TimeSeriesMetadata(names.get(i), dataTypes[i], index);
                 if (dataTypes[i] == TimeSeriesDataType.DOUBLE) {
                     TDoubleArrayList doubleValues = (TDoubleArrayList) values[i];
-                    DoubleArrayChunk chunk = new UncompressedDoubleArrayChunk(0, doubleValues.toArray()).tryToCompress();
+                    DoubleDataChunk chunk = new UncompressedDoubleDataChunk(0, doubleValues.toArray()).tryToCompress();
                     timeSeriesList.add(new StoredDoubleTimeSeries(metadata, chunk));
                 } else if (dataTypes[i] == TimeSeriesDataType.STRING) {
                     List<String> stringValues = (List<String>) values[i];
-                    StringArrayChunk chunk = new UncompressedStringArrayChunk(0, stringValues.toArray(new String[0])).tryToCompress();
+                    StringDataChunk chunk = new UncompressedStringDataChunk(0, stringValues.toArray(new String[0])).tryToCompress();
                     timeSeriesList.add(new StringTimeSeries(metadata, chunk));
                 } else {
                     throw assertDataType(dataTypes[i - 2]);
@@ -365,9 +365,9 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     static void parseChunks(JsonParser parser, TimeSeriesMetadata metadata, List<TimeSeries> timeSeriesList) {
         Objects.requireNonNull(metadata);
-        List<DoubleArrayChunk> doubleChunks = new ArrayList<>();
-        List<StringArrayChunk> stringChunks = new ArrayList<>();
-        ArrayChunk.parseJson(parser, doubleChunks, stringChunks);
+        List<DoubleDataChunk> doubleChunks = new ArrayList<>();
+        List<StringDataChunk> stringChunks = new ArrayList<>();
+        DataChunk.parseJson(parser, doubleChunks, stringChunks);
         if (metadata.getDataType() == TimeSeriesDataType.DOUBLE) {
             if (!stringChunks.isEmpty()) {
                 throw new TimeSeriesException("String chunks found in a double time series");

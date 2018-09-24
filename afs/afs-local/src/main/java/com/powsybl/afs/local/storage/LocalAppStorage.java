@@ -340,26 +340,26 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
-    public Map<String, List<DoubleArrayChunk>> getDoubleTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version) {
+    public Map<String, List<DoubleDataChunk>> getDoubleTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version) {
         Objects.requireNonNull(timeSeriesNames);
         TimeSeriesTable.checkVersion(version);
         return getFile(nodeId).getDoubleTimeSeriesData(timeSeriesNames, version);
     }
 
     @Override
-    public void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks) {
+    public void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleDataChunk> chunks) {
         throw new AssertionError();
     }
 
     @Override
-    public Map<String, List<StringArrayChunk>> getStringTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version) {
+    public Map<String, List<StringDataChunk>> getStringTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version) {
         Objects.requireNonNull(timeSeriesNames);
         TimeSeriesTable.checkVersion(version);
         return getFile(nodeId).getStringTimeSeriesData(timeSeriesNames, version);
     }
 
     @Override
-    public void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks) {
+    public void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringDataChunk> chunks) {
         throw new AssertionError();
     }
 

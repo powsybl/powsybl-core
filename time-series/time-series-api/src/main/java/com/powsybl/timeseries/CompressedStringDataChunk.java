@@ -9,65 +9,86 @@ package com.powsybl.timeseries;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
-import java.nio.DoubleBuffer;
 import java.util.*;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
- * RLE (Run-Length encoding) compressed double data chunk.
+ * RLE (Run-Length encoding) compressed string data chunk.
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class CompressedDoubleArrayChunk extends AbstractCompressedArrayChunk implements DoubleArrayChunk {
+public class CompressedStringDataChunk extends AbstractCompressedDataChunk implements StringDataChunk {
 
-    private final double[] stepValues;
+    private final String[] stepValues;
 
-    public CompressedDoubleArrayChunk(int offset, int uncompressedLength, double[] stepValues, int[] stepLengths) {
+    private int estimatedSize;
+
+    private int uncompressedEstimatedSize;
+
+    public CompressedStringDataChunk(int offset, int uncompressedLength, String[] stepValues, int[] stepLengths) {
         super(offset, uncompressedLength, stepLengths);
         check(offset, uncompressedLength, stepValues.length, stepLengths.length);
         this.stepValues = Objects.requireNonNull(stepValues);
+        updateEstimatedSize();
     }
 
-    public double[] getStepValues() {
+    static int getStepEstimatedSize(String value) {
+        int estimatedSize = Integer.BYTES;
+        if (value != null) {
+            estimatedSize += value.length() * Character.BYTES;
+        }
+        return estimatedSize;
+    }
+
+    private void updateEstimatedSize() {
+        estimatedSize = 0;
+        uncompressedEstimatedSize = 0;
+        for (int i = 0; i < stepValues.length; i++) {
+            String stepValue = stepValues[i];
+            if (stepValue != null) {
+                int stepLength = stepLengths[i];
+                uncompressedEstimatedSize += stepValue.length() * Character.BYTES * stepLength;
+            }
+            estimatedSize += getStepEstimatedSize(stepValue);
+        }
+    }
+
+    public String[] getStepValues() {
         return stepValues;
-    }
-
-    static int getEstimatedSize(int stepValuesLength, int stepLengthsLength) {
-        return Double.BYTES * stepValuesLength + Integer.BYTES * stepLengthsLength;
     }
 
     @Override
     public int getEstimatedSize() {
-        return getEstimatedSize(stepValues.length, stepLengths.length);
+        return estimatedSize;
     }
 
     @Override
-    protected int getUncompressedEstimatedSize() {
-        return Double.BYTES * uncompressedLength;
+    public int getUncompressedEstimatedSize() {
+        return uncompressedEstimatedSize;
     }
 
     @Override
     public TimeSeriesDataType getDataType() {
-        return TimeSeriesDataType.DOUBLE;
+        return TimeSeriesDataType.STRING;
     }
 
     @Override
-    public void fillBuffer(DoubleBuffer buffer, int timeSeriesOffset) {
+    public void fillBuffer(CompactStringBuffer buffer, int timeSeriesOffset) {
         Objects.requireNonNull(buffer);
         int k = 0;
         for (int i = 0; i < stepValues.length; i++) {
-            double value = stepValues[i];
+            String value = stepValues[i];
             for (int j = 0; j < stepLengths[i]; j++) {
-                buffer.put(timeSeriesOffset + offset + k++, value);
+                buffer.putString(timeSeriesOffset + offset + k++, value);
             }
         }
     }
 
     @Override
-    public Iterator<DoublePoint> iterator(TimeSeriesIndex index) {
+    public Iterator<StringPoint> iterator(TimeSeriesIndex index) {
         Objects.requireNonNull(index);
-        return new Iterator<DoublePoint>() {
+        return new Iterator<StringPoint>() {
 
             private int i = offset;
             private int step = 0;
@@ -78,11 +99,11 @@ public class CompressedDoubleArrayChunk extends AbstractCompressedArrayChunk imp
             }
 
             @Override
-            public DoublePoint next() {
+            public StringPoint next() {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
-                DoublePoint point = new DoublePoint(i, index.getTimeAt(i), stepValues[step]);
+                StringPoint point = new StringPoint(i, index.getTimeAt(i), stepValues[step]);
                 i += stepLengths[step];
                 step++;
                 return point;
@@ -91,19 +112,19 @@ public class CompressedDoubleArrayChunk extends AbstractCompressedArrayChunk imp
     }
 
     @Override
-    public Stream<DoublePoint> stream(TimeSeriesIndex index) {
+    public Stream<StringPoint> stream(TimeSeriesIndex index) {
         return StreamSupport.stream(Spliterators.spliteratorUnknownSize(
                 iterator(index),
                 Spliterator.ORDERED | Spliterator.IMMUTABLE), false);
     }
 
     @Override
-    public DoubleArrayChunk tryToCompress() {
+    public StringDataChunk tryToCompress() {
         return this;
     }
 
     @Override
-    public Split<DoublePoint, DoubleArrayChunk> splitAt(int splitIndex) {
+    public Split<StringPoint, StringDataChunk> splitAt(int splitIndex) {
         // split at offset is not allowed because it will result to a null left chunk
         if (splitIndex <= offset || splitIndex > (offset + uncompressedLength - 1)) {
             throw new IllegalArgumentException("Split index " + splitIndex + " out of chunk range ]" + offset
@@ -114,19 +135,19 @@ public class CompressedDoubleArrayChunk extends AbstractCompressedArrayChunk imp
             if (index + stepLengths[step] > splitIndex) {
                 // first chunk
                 int[] stepLengths1 = new int[step + 1];
-                double[] stepValues1 = new double[stepLengths1.length];
+                String[] stepValues1 = new String[stepLengths1.length];
                 System.arraycopy(stepLengths, 0, stepLengths1, 0, stepLengths1.length);
                 System.arraycopy(stepValues, 0, stepValues1, 0, stepValues1.length);
                 stepLengths1[step] = splitIndex - index;
-                CompressedDoubleArrayChunk chunk1 = new CompressedDoubleArrayChunk(offset, splitIndex - offset, stepValues1, stepLengths1);
+                CompressedStringDataChunk chunk1 = new CompressedStringDataChunk(offset, splitIndex - offset, stepValues1, stepLengths1);
 
                 // second chunk
                 int[] stepLengths2 = new int[stepLengths.length - step];
-                double[] stepValues2 = new double[stepLengths2.length];
+                String[] stepValues2 = new String[stepLengths2.length];
                 System.arraycopy(stepLengths, step, stepLengths2, 0, stepLengths2.length);
                 System.arraycopy(stepValues, step, stepValues2, 0, stepValues2.length);
                 stepLengths2[0] = stepLengths[step] - stepLengths1[step];
-                CompressedDoubleArrayChunk chunk2 = new CompressedDoubleArrayChunk(splitIndex, uncompressedLength - chunk1.uncompressedLength, stepValues2, stepLengths2);
+                CompressedStringDataChunk chunk2 = new CompressedStringDataChunk(splitIndex, uncompressedLength - chunk1.uncompressedLength, stepValues2, stepLengths2);
 
                 return new Split<>(chunk1, chunk2);
             }
@@ -137,7 +158,11 @@ public class CompressedDoubleArrayChunk extends AbstractCompressedArrayChunk imp
 
     @Override
     protected void writeStepValuesJson(JsonGenerator generator) throws IOException {
-        generator.writeArray(stepValues, 0, stepValues.length);
+        generator.writeStartArray();
+        for (String stepValue : stepValues) {
+            generator.writeString(stepValue);
+        }
+        generator.writeEndArray();
     }
 
     @Override
@@ -147,8 +172,8 @@ public class CompressedDoubleArrayChunk extends AbstractCompressedArrayChunk imp
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof CompressedDoubleArrayChunk) {
-            CompressedDoubleArrayChunk other = (CompressedDoubleArrayChunk) obj;
+        if (obj instanceof CompressedStringDataChunk) {
+            CompressedStringDataChunk other = (CompressedStringDataChunk) obj;
             return offset == other.offset &&
                     uncompressedLength == other.uncompressedLength &&
                     Arrays.equals(stepLengths, other.stepLengths) &&

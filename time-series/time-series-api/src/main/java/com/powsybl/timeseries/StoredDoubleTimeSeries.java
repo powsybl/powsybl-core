@@ -12,24 +12,24 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, DoubleArrayChunk, DoubleTimeSeries> implements DoubleTimeSeries {
+public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, DoubleDataChunk, DoubleTimeSeries> implements DoubleTimeSeries {
 
     private static final double[] NAN_ARRAY = new double[] {Double.NaN};
 
-    public StoredDoubleTimeSeries(TimeSeriesMetadata metadata, DoubleArrayChunk... chunks) {
+    public StoredDoubleTimeSeries(TimeSeriesMetadata metadata, DoubleDataChunk... chunks) {
         super(metadata, chunks);
     }
 
-    public StoredDoubleTimeSeries(TimeSeriesMetadata metadata, List<DoubleArrayChunk> chunks) {
+    public StoredDoubleTimeSeries(TimeSeriesMetadata metadata, List<DoubleDataChunk> chunks) {
         super(metadata, chunks);
     }
 
-    protected CompressedDoubleArrayChunk createGapFillingChunk(int i, int length) {
-        return new CompressedDoubleArrayChunk(i, length, NAN_ARRAY, new int[] {length});
+    protected CompressedDoubleDataChunk createGapFillingChunk(int i, int length) {
+        return new CompressedDoubleDataChunk(i, length, NAN_ARRAY, new int[] {length});
     }
 
     @Override
-    protected DoubleTimeSeries createTimeSeries(DoubleArrayChunk chunk) {
+    protected DoubleTimeSeries createTimeSeries(DoubleDataChunk chunk) {
         return new StoredDoubleTimeSeries(metadata, chunk);
     }
 
