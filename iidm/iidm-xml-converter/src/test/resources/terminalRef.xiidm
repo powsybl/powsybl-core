@@ -32,16 +32,16 @@
         <iidm:twoWindingsTransformer id="VLY643" r="0.04724999999999999" x="4.049724365620455" g="0.0" b="0.0" ratedU1="400.0" ratedU2="158.0" bus1="VL41" connectableBus1="VL41" voltageLevelId1="VL4" bus2="VL61" connectableBus2="VL61" voltageLevelId2="VL6">
             <iidm:phaseTapChanger lowTapPosition="0" tapPosition="1" regulationMode="FIXED_TAP" regulationValue="200.0">
                 <iidm:terminalRef id="VLY643" side="TWO"/>
-                <iidm:step rdr="0.0" rdx="0.0" rdg="0.0" rdb="0.0" ratio="0.8505666905244191" alpha="-1.0"/>
-                <iidm:step rdr="0.0" rdx="0.0" rdg="0.0" rdb="0.0" ratio="1.0006666666666666" alpha="0.0"/>
-                <iidm:step rdr="0.0" rdx="0.0" rdg="0.0" rdb="0.0" ratio="1.150766642808914" alpha="1.0"/>
+                <iidm:step rdr="0.0" rdx="0.0" rdg="0.0" rdb="0.0" ratio="0.8505666905244191" phaseShift="-1.0"/>
+                <iidm:step rdr="0.0" rdx="0.0" rdg="0.0" rdb="0.0" ratio="1.0006666666666666" phaseShift="0.0"/>
+                <iidm:step rdr="0.0" rdx="0.0" rdg="0.0" rdb="0.0" ratio="1.150766642808914" phaseShift="1.0"/>
             </iidm:phaseTapChanger>
         </iidm:twoWindingsTransformer>
         <iidm:twoWindingsTransformer id="VLY644" r="0.04724999999999999" x="4.049724365620455" g="0.0" b="0.0" ratedU1="400.0" ratedU2="158.0" bus1="VL41" connectableBus1="VL41" voltageLevelId1="VL4" bus2="VL61" connectableBus2="VL61" voltageLevelId2="VL6">
             <iidm:phaseTapChanger lowTapPosition="0" tapPosition="1" regulationMode="FIXED_TAP" regulationValue="200.0">
-                <iidm:step rdr="0.0" rdx="0.0" rdg="0.0" rdb="0.0" ratio="0.8505666905244191" alpha="-1.0"/>
-                <iidm:step rdr="0.0" rdx="0.0" rdg="0.0" rdb="0.0" ratio="1.0006666666666666" alpha="0.0"/>
-                <iidm:step rdr="0.0" rdx="0.0" rdg="0.0" rdb="0.0" ratio="1.150766642808914" alpha="1.0"/>
+                <iidm:step rdr="0.0" rdx="0.0" rdg="0.0" rdb="0.0" ratio="0.8505666905244191" phaseShift="-1.0"/>
+                <iidm:step rdr="0.0" rdx="0.0" rdg="0.0" rdb="0.0" ratio="1.0006666666666666" phaseShift="0.0"/>
+                <iidm:step rdr="0.0" rdx="0.0" rdg="0.0" rdb="0.0" ratio="1.150766642808914" phaseShift="1.0"/>
             </iidm:phaseTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>

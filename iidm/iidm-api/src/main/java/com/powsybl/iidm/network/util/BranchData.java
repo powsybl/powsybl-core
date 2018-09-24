@@ -168,7 +168,7 @@ public class BranchData {
         u2 = bus2 != null ? bus2.getV() : Double.NaN;
         theta1 = bus1 != null ? Math.toRadians(bus1.getAngle()) : Double.NaN;
         theta2 = bus2 != null ? Math.toRadians(bus2.getAngle()) : Double.NaN;
-        alpha1 = twt.getPhaseTapChanger() != null ? Math.toRadians(twt.getPhaseTapChanger().getCurrentStep().getAlpha()) : 0f;
+        alpha1 = twt.getPhaseTapChanger() != null ? Math.toRadians(twt.getPhaseTapChanger().getCurrentStep().getPhaseShift()) : 0f;
         alpha2 = 0f;
         g1 = getG1(twt, specificCompatibility);
         g2 = specificCompatibility ? twt.getG() / 2 : 0f;

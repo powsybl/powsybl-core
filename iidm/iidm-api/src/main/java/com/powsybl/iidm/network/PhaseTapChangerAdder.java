@@ -14,7 +14,7 @@ public interface PhaseTapChangerAdder {
 
     interface StepAdder {
 
-        StepAdder setAlpha(double alpha);
+        StepAdder setPhaseShift(double phaseShift);
 
         StepAdder setRatio(double ratio);
 

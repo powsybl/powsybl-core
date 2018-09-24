@@ -15,11 +15,11 @@ public interface PhaseTapChangerStep extends TapChangerStep<PhaseTapChangerStep>
     /**
      * Get the angle difference in degree.
      */
-    double getAlpha();
+    double getPhaseShift();
 
     /**
      * Set the angle difference in degree.
      */
-    PhaseTapChangerStep setAlpha(double alpha);
+    PhaseTapChangerStep setPhaseShift(double phaseShift);
 
 }

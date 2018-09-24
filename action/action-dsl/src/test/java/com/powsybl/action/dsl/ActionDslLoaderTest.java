@@ -115,7 +115,7 @@ public class ActionDslLoaderTest {
                     .setRdx(2.0)
                     .setRdg(3.0)
                     .setRdb(4.0)
-                    .setAlpha(5.0)
+                    .setPhaseShift(5.0)
                     .setRatio(6.0)
                 .endStep()
                 .beginStep()
@@ -123,7 +123,7 @@ public class ActionDslLoaderTest {
                     .setRdx(2.0)
                     .setRdg(3.0)
                     .setRdb(4.0)
-                    .setAlpha(5.0)
+                    .setPhaseShift(5.0)
                     .setRatio(6.0)
                 .endStep()
                 .add();

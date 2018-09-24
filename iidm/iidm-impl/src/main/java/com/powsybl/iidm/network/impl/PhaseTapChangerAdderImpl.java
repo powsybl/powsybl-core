@@ -36,7 +36,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
     class StepAdderImpl implements StepAdder {
 
-        private double alpha = Double.NaN;
+        private double phaseShift = Double.NaN;
 
         private double rho = Double.NaN;
 
@@ -49,8 +49,8 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         private double rdb = Double.NaN;
 
         @Override
-        public StepAdder setAlpha(double alpha) {
-            this.alpha = alpha;
+        public StepAdder setPhaseShift(double phaseShift) {
+            this.phaseShift = phaseShift;
             return this;
         }
 
@@ -86,8 +86,8 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
         @Override
         public PhaseTapChangerAdder endStep() {
-            if (Double.isNaN(alpha)) {
-                throw new ValidationException(transformer, "step alpha is not set");
+            if (Double.isNaN(phaseShift)) {
+                throw new ValidationException(transformer, "step phaseShift is not set");
             }
             if (Double.isNaN(rho)) {
                 throw new ValidationException(transformer, "step rho is not set");
@@ -104,7 +104,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
             if (Double.isNaN(rdb)) {
                 throw new ValidationException(transformer, "step rdb is not set");
             }
-            PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(alpha, rho, rdr, rdx, rdg, rdb);
+            PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(phaseShift, rho, rdr, rdx, rdg, rdb);
             steps.add(step);
             return PhaseTapChangerAdderImpl.this;
         }

@@ -115,6 +115,8 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         if (context.getVersion().equals("1_1")) {
             if (attribute.equals("rho")) {
                 return "ratio";
+            } else if (attribute.equals("alpha")) {
+                return "phaseShift";
             }
             return "rd" + attribute;
         } else {
@@ -147,7 +149,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
             PhaseTapChangerStep ptcs = ptc.getStep(p);
             context.getWriter().writeEmptyElement(IIDM_URI, ELEM_STEP);
             writeTapChangerStep(ptcs, context.getWriter());
-            XmlUtil.writeDouble("alpha", ptcs.getAlpha(), context.getWriter());
+            XmlUtil.writeDouble("phaseShift", ptcs.getPhaseShift(), context.getWriter());
         }
         context.getWriter().writeEndElement();
     }
@@ -183,14 +185,14 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                     double g = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "g"));
                     double b = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "b"));
                     double rho = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "rho"));
-                    double alpha = XmlUtil.readDoubleAttribute(context.getReader(), "alpha");
+                    double phaseShift = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "alpha"));
                     adder.beginStep()
                             .setRdr(r)
                             .setRdx(x)
                             .setRdg(g)
                             .setRdb(b)
                             .setRatio(rho)
-                            .setAlpha(alpha)
+                            .setPhaseShift(phaseShift)
                             .endStep();
                     break;
 
