@@ -143,7 +143,7 @@ public class NetworkXmlTest extends AbstractConverterTest {
 
         //Re-import in bus breaker
         //Check that network is correctly imported, and busbar and its extension are not here any more
-        Network busBreakerNetwork = writeAndRead(network, new XMLExportOptions().setTopologyLevel(TopologyLevel.BUS_BREAKER));
+        Network busBreakerNetwork = writeAndRead(network, (XMLExportOptions) new XMLExportOptions().setTopologyLevel(TopologyLevel.BUS_BREAKER));
         assertNull(busBreakerNetwork.getBusbarSection("voltageLevel1BusbarSection1"));
     }
 

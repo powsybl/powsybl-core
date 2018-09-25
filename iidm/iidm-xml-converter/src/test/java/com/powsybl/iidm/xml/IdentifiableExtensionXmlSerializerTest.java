@@ -54,7 +54,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractConverterTes
 
     @Test
     public void testMultipleExtensions() throws IOException {
-        roundTripTest(MultipleExtensionsTestNetworkFactory.create(),
+        roundTripXmlTest(MultipleExtensionsTestNetworkFactory.create(),
             NetworkXml::writeAndValidate,
             NetworkXml::read,
             "/multiple-extensions.xml");

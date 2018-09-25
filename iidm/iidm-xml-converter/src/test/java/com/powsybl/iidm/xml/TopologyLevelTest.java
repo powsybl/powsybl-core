@@ -9,7 +9,6 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.iidm.import_.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
 import org.junit.Before;
@@ -58,21 +57,21 @@ public class TopologyLevelTest extends AbstractConverterTest {
     }
 
     private static void writeNodeBreaker(Network network, Path path) {
-        XMLExportOptions options = new XMLExportOptions()
+        XMLExportOptions options = (XMLExportOptions) new XMLExportOptions()
             .setTopologyLevel(TopologyLevel.NODE_BREAKER);
 
         NetworkXml.write(network, options, path);
     }
 
     private static void writeBusBreaker(Network network, Path path) {
-        XMLExportOptions options = new XMLExportOptions()
+        XMLExportOptions options = (XMLExportOptions) new XMLExportOptions()
             .setTopologyLevel(TopologyLevel.BUS_BREAKER);
 
         NetworkXml.write(network, options, path);
     }
 
     private static void writeBusBranch(Network network, Path path) {
-        XMLExportOptions options = new XMLExportOptions()
+        XMLExportOptions options = (XMLExportOptions) new XMLExportOptions()
             .setTopologyLevel(TopologyLevel.BUS_BRANCH);
 
         NetworkXml.write(network, options, path);

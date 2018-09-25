@@ -15,6 +15,8 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.export.BusFilter;
+import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.network.*;
 import javanet.staxutils.IndentingXMLStreamWriter;
 import org.joda.time.DateTime;
@@ -264,10 +266,10 @@ public final class NetworkXml {
     }
 
     public static Network read(InputStream is) {
-        return read(is, new XmlImportConfig(), null);
+        return read(is, new ImportOptions(), null);
     }
 
-    public static Network read(InputStream is, XmlImportConfig config, Anonymizer anonymizer) {
+    public static Network read(InputStream is, ImportOptions config, Anonymizer anonymizer) {
         try {
             XMLStreamReader reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
             int state = reader.next();
