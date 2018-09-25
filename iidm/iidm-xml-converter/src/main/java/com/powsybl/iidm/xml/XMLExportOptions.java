@@ -10,10 +10,8 @@ import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.TopologyLevel;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
- *
  */
 public class XMLExportOptions extends ExportOptions {
 

@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.TopologyLevel;
 import java.util.Objects;
 
 /**
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public class ExportOptions {
