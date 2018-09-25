@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- License Here -->
+<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" id="hvdctest" caseDate="2016-06-27T16:34:55.930+02:00" forecastDistance="0" sourceFormat="test">
+    <iidm:substation id="S1" country="FR">
+        <iidm:voltageLevel id="VL1" nominalV="400.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="B1"/>
+            </iidm:busBreakerTopology>
+            <iidm:shunt id="C1_Filter1" name="Filter 1" bPerSection="1.0E-5" maximumSectionCount="1" currentSectionCount="1" bus="B1" connectableBus="B1" q="25.0"/>
+            <iidm:shunt id="C1_Filter2" name="Filter 2" bPerSection="2.0E-5" maximumSectionCount="1" currentSectionCount="0" connectableBus="B1" q="25.0"/>
+            <iidm:lccConverterStation id="C1" name="Converter1" lossFactor="0.011" powerFactor="0.5" bus="B1" connectableBus="B1" p="100.0" q="50.0"/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="S2" country="FR">
+        <iidm:voltageLevel id="VL2" nominalV="400.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology nodeCount="7">
+                <iidm:busbarSection id="BBS1" name="BusbarSection" node="0"/>
+                <iidm:switch id="DISC_BBS1_BK1" name="Disconnector" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="1"/>
+                <iidm:switch id="BK1" name="Breaker" kind="BREAKER" retained="true" open="false" node1="1" node2="2"/>
+                <iidm:switch id="DISC_BBS1_BK2" name="Disconnector" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="3"/>
+                <iidm:switch id="BK2" name="Breaker" kind="BREAKER" retained="true" open="false" node1="3" node2="4"/>
+                <iidm:switch id="DISC_BBS1_BK3" name="Disconnector" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="5"/>
+                <iidm:switch id="BK3" name="Breaker" kind="BREAKER" retained="true" open="false" node1="5" node2="6"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:shunt id="C2_Filter1" name="Filter 3"  bPerSection="3.0E-5" maximumSectionCount="1" currentSectionCount="1" node="4" q="12.5"/>
+            <iidm:shunt id="C2_Filter2" name="Filter 4" bPerSection="4.0E-5" maximumSectionCount="1" currentSectionCount="1" node="6" q="12.5"/>
+            <iidm:lccConverterStation id="C2" name="Converter2" lossFactor="0.011" powerFactor="0.6" node="2" p="75.0" q="25.0"/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:hvdcLine id="L" name="HVDC" r="1.0" nominalV="400.0" convertersMode="SIDE_1_INVERTER_SIDE_2_RECTIFIER" activePowerSetpoint="280.0" maxP="300.0" converterStation1="C1" converterStation2="C2"/>
+</iidm:network>
