@@ -7,6 +7,8 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlReaderContext;
+import com.powsybl.iidm.anonymizer.Anonymizer;
+import com.powsybl.iidm.anonymizer.ConverterContext;
 
 import javax.xml.stream.XMLStreamReader;
 import java.util.ArrayList;
@@ -16,7 +18,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NetworkXmlReaderContext extends XmlContext implements XmlReaderContext {
+public class NetworkXmlReaderContext extends ConverterContext implements XmlReaderContext {
 
     private final XMLStreamReader reader;
     private final List<Runnable> endTasks = new ArrayList<>();

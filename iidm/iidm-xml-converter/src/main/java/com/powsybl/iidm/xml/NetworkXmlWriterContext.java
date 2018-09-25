@@ -7,6 +7,8 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.iidm.anonymizer.Anonymizer;
+import com.powsybl.iidm.anonymizer.ConverterContext;
 import com.powsybl.iidm.export.BusFilter;
 import com.powsybl.iidm.network.Identifiable;
 
@@ -18,7 +20,7 @@ import java.util.Set;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NetworkXmlWriterContext extends XmlContext implements XmlWriterContext {
+public class NetworkXmlWriterContext extends ConverterContext implements XmlWriterContext {
 
     private final XMLStreamWriter writer;
     private final XMLExportOptions options;
