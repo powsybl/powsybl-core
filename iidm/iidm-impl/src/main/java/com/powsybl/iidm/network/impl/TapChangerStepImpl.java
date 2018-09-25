@@ -14,20 +14,20 @@ class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
 
     private double rho;
 
-    private double r;
+    private double rdr;
 
-    private double x;
+    private double rdx;
 
-    private double g;
+    private double rdg;
 
-    private double b;
+    private double rdb;
 
-    protected TapChangerStepImpl(double rho, double r, double x, double g, double b) {
+    protected TapChangerStepImpl(double rho, double rdr, double rdx, double rdg, double rdb) {
         this.rho = rho;
-        this.r = r;
-        this.x = x;
-        this.g = g;
-        this.b = b;
+        this.rdr = rdr;
+        this.rdx = rdx;
+        this.rdg = rdg;
+        this.rdb = rdb;
     }
 
     public double getRho() {
@@ -39,39 +39,39 @@ class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
         return (S) this;
     }
 
-    public double getR() {
-        return r;
+    public double getRdr() {
+        return rdr;
     }
 
-    public S setR(double r) {
-        this.r = r;
+    public S setRdr(double rdr) {
+        this.rdr = rdr;
         return (S) this;
     }
 
-    public double getX() {
-        return x;
+    public double getRdx() {
+        return rdx;
     }
 
-    public S setX(double x) {
-        this.x = x;
+    public S setRdx(double rdx) {
+        this.rdx = rdx;
         return (S) this;
     }
 
-    public double getB() {
-        return b;
+    public double getRdb() {
+        return rdb;
     }
 
-    public S setB(double b) {
-        this.b = b;
+    public S setRdb(double rdb) {
+        this.rdb = rdb;
         return (S) this;
     }
 
-    public double getG() {
-        return g;
+    public double getRdg() {
+        return rdg;
     }
 
-    public S setG(double g) {
-        this.g = g;
+    public S setRdg(double rdg) {
+        this.rdg = rdg;
         return (S) this;
     }
 

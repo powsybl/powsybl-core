@@ -1008,7 +1008,7 @@ public class AmplNetworkWriter {
 
         for (int position = rtc.getLowTapPosition(); position <= rtc.getHighTapPosition(); position++) {
             RatioTapChangerStep step = rtc.getStep(position);
-            double x = reactance * (1 + step.getX() / 100) / zb2;
+            double x = reactance * (1 + step.getRdx() / 100) / zb2;
             formatter.writeCell(num)
                 .writeCell(position - rtc.getLowTapPosition() + 1)
                 .writeCell(step.getRho())
@@ -1024,7 +1024,7 @@ public class AmplNetworkWriter {
 
         for (int position = ptc.getLowTapPosition(); position <= ptc.getHighTapPosition(); position++) {
             PhaseTapChangerStep step = ptc.getStep(position);
-            double x = reactance * (1 + step.getX() / 100) / zb2;
+            double x = reactance * (1 + step.getRdx() / 100) / zb2;
             formatter.writeCell(num)
                 .writeCell(position - ptc.getLowTapPosition() + 1)
                 .writeCell(step.getRho())

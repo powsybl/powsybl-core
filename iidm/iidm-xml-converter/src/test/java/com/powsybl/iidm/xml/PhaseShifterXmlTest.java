@@ -7,10 +7,14 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.test.PhaseShifterTestCaseFactory;
 import org.junit.Test;
 
 import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -23,5 +27,15 @@ public class PhaseShifterXmlTest extends AbstractConverterTest {
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
                 "/phaseShifterRoundTripRef.xml");
+    }
+
+    @Test
+    public void testReadV10() {
+        Network network = NetworkXml.read(getClass().getResourceAsStream("/refsV1_0/phaseShifterRoundTripRef.xml"));
+        PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer("PS1").getPhaseTapChanger();
+        assertEquals(0.0, phaseTapChanger.getStep(0).getRdr(), 0.0);
+        assertEquals(0.0, phaseTapChanger.getStep(0).getRdx(), 0.0);
+        assertEquals(0.0, phaseTapChanger.getStep(0).getRdg(), 0.0);
+        assertEquals(0.0, phaseTapChanger.getStep(0).getRdb(), 0.0);
     }
 }

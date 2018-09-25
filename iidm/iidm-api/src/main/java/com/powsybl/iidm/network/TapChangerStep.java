@@ -25,41 +25,104 @@ public interface TapChangerStep<S extends TapChangerStep> {
     /**
      * Get the resistance deviation in percent of nominal value.
      */
-    double getR();
+    double getRdr();
 
     /**
      * Set the resistance deviation in percent of nominal value.
      */
-    S setR(double r);
+    S setRdr(double rdr);
 
     /**
      * Get the reactance deviation in percent of nominal value.
      */
-    double getX();
+    double getRdx();
 
     /**
      * Set the reactance deviation in percent of nominal value.
      */
-    S setX(double x);
+    S setRdx(double rdx);
 
     /**
      * Get the susceptance deviation in percent of nominal value.
      */
-    double getB();
+    double getRdb();
 
     /**
      * Set the susceptance deviation in percent of nominal value.
      */
-    S setB(double b);
+    S setRdb(double rdb);
 
     /**
      * Get the conductance deviation in percent of nominal value.
      */
-    double getG();
+    double getRdg();
 
     /**
      * Set the conductance deviation in percent of nominal value.
      */
-    S setG(double g);
+    S setRdg(double rdg);
 
+    @Deprecated
+    /**
+     * @deprecated Use {@link #getRdr()} instead.
+     */
+    default double getR() {
+        return getRdr();
+    }
+
+    @Deprecated
+    /**
+     * @deprecated Use {@link #setRdr(double)} instead.
+     */
+    default S setR(double r) {
+        return setRdr(r);
+    }
+
+    @Deprecated
+    /**
+     * @deprecated Use {@link #getRdx()} instead.
+     */
+    default double getX() {
+        return getRdx();
+    }
+
+    @Deprecated
+    /**
+     * @deprecated Use {@link #setRdx(double)} instead.
+     */
+    default S setX(double x) {
+        return setRdx(x);
+    }
+
+    @Deprecated
+    /**
+     * @deprecated Use {@link #getRdg()} instead.
+     */
+    default double getG() {
+        return getRdg();
+    }
+
+    @Deprecated
+    /**
+     * @deprecated Use {@link #setRdg(double)} instead.
+     */
+    default S setG(double g) {
+        return setRdg(g);
+    }
+
+    @Deprecated
+    /**
+     * @deprecated Use {@link #getRdb()} instead.
+     */
+    default double getB() {
+        return getRdb();
+    }
+
+    @Deprecated
+    /**
+     * @deprecated Use {@link #setRdb(double)} instead.
+     */
+    default S setB(double b) {
+        return setRdb(b);
+    }
 }

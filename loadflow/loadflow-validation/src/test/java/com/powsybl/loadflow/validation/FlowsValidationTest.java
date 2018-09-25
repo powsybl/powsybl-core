@@ -112,10 +112,10 @@ public class FlowsValidationTest extends AbstractValidationTest {
         Mockito.when(line1.getB2()).thenReturn(b2);
 
         RatioTapChangerStep step = Mockito.mock(RatioTapChangerStep.class);
-        Mockito.when(step.getR()).thenReturn(r);
-        Mockito.when(step.getX()).thenReturn(x);
-        Mockito.when(step.getG()).thenReturn(g1);
-        Mockito.when(step.getB()).thenReturn(b1);
+        Mockito.when(step.getRdr()).thenReturn(r);
+        Mockito.when(step.getRdx()).thenReturn(x);
+        Mockito.when(step.getRdg()).thenReturn(g1);
+        Mockito.when(step.getRdb()).thenReturn(b1);
         Mockito.when(step.getRho()).thenReturn(rho2);
 
         ratioTapChanger = Mockito.mock(RatioTapChanger.class);
