@@ -61,7 +61,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         context.getWriter().writeEndElement();
     }
 
-    protected static void readRatioTapChanger(String elementName, RatioTapChangerAdder adder, Terminal terminal, NetworkXmlReaderContext context) throws XMLStreamException {
+    protected static void readRatioTapChanger(String elementName, RatioTapChangerAdder adder, Terminal terminal, String transfoId, NetworkXmlReaderContext context) throws XMLStreamException {
         int lowTapPosition = XmlUtil.readIntAttribute(context.getReader(), ATTR_LOW_TAP_POSITION);
         int tapPosition = XmlUtil.readIntAttribute(context.getReader(), ATTR_TAP_POSITION);
         boolean regulating = XmlUtil.readOptionalBoolAttribute(context.getReader(), ATTR_REGULATING, false);
@@ -78,7 +78,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         XmlUtil.readUntilEndElement(elementName, context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
                 case ELEM_TERMINAL_REF:
-                    String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
+                    String id = getCompatibleTerminalRefId(context, transfoId);
                     String side = context.getReader().getAttributeValue(null, "side");
                     context.getEndTasks().add(() ->  {
                         adder.setRegulationTerminal(readTerminalRef(terminal.getVoltageLevel().getSubstation().getNetwork(), id, side));
@@ -126,12 +126,25 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         }
     }
 
-    protected static void readRatioTapChanger(TwoWindingsTransformer twt, NetworkXmlReaderContext context) throws XMLStreamException {
-        readRatioTapChanger("ratioTapChanger", twt.newRatioTapChanger(), twt.getTerminal1(), context);
+    private static String getCompatibleTerminalRefId(NetworkXmlReaderContext context, String transfoId) {
+        String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
+        if (context.getVersion().equals("1_1")) {
+            if (id == null) {
+                return transfoId;
+            } else {
+                return id;
+            }
+        } else {
+            return id;
+        }
     }
 
-    protected static void readRatioTapChanger(int leg, ThreeWindingsTransformer.Leg2or3 twl, NetworkXmlReaderContext context) throws XMLStreamException {
-        readRatioTapChanger("ratioTapChanger" + leg, twl.newRatioTapChanger(), twl.getTerminal(), context);
+    protected static void readRatioTapChanger(TwoWindingsTransformer twt, NetworkXmlReaderContext context) throws XMLStreamException {
+        readRatioTapChanger("ratioTapChanger", twt.newRatioTapChanger(), twt.getTerminal1(), twt.getId(), context);
+    }
+
+    protected static void readRatioTapChanger(int leg, ThreeWindingsTransformer.Leg2or3 twl, String transfoId, NetworkXmlReaderContext context) throws XMLStreamException {
+        readRatioTapChanger("ratioTapChanger" + leg, twl.newRatioTapChanger(), twl.getTerminal(), transfoId, context);
     }
 
     protected static void writePhaseTapChanger(String name, PhaseTapChanger ptc, NetworkXmlWriterContext context) throws XMLStreamException {
@@ -172,7 +185,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         XmlUtil.readUntilEndElement("phaseTapChanger", context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
                 case ELEM_TERMINAL_REF:
-                    String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
+                    String id = getCompatibleTerminalRefId(context, twt.getId());
                     String side = context.getReader().getAttributeValue(null, "side");
                     context.getEndTasks().add(() ->  {
                         adder.setRegulationTerminal(readTerminalRef(twt.getTerminal1().getVoltageLevel().getSubstation().getNetwork(), id, side));

@@ -196,16 +196,21 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
             throw new PowsyblException("Oups, terminal ref point to a filtered equipment " + c.getId());
         }
         context.getWriter().writeEmptyElement(IIDM_URI, elementName);
-        context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(c.getId()));
+        if (c instanceof Injection) {
+            context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(c.getId()));
+        }
+
         if (c.getTerminals().size() > 1) {
-            if (c instanceof Injection) {
-                // nothing to do
-            } else if (c instanceof Branch) {
-                Branch branch = (Branch) c;
-                context.getWriter().writeAttribute("side", branch.getSide(t).name());
+            if (c instanceof TwoWindingsTransformer) {
+                TwoWindingsTransformer twt = (TwoWindingsTransformer) c;
+                context.getWriter().writeAttribute("side", twt.getSide(t).name());
             } else if (c instanceof ThreeWindingsTransformer) {
                 ThreeWindingsTransformer twt = (ThreeWindingsTransformer) c;
                 context.getWriter().writeAttribute("side", twt.getSide(t).name());
+            } else if (c instanceof Branch) {
+                Branch branch = (Branch) c;
+                context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(c.getId()));
+                context.getWriter().writeAttribute("side", branch.getSide(t).name());
             } else {
                 throw new AssertionError("Unexpected Connectable instance: " + c.getClass());
             }

@@ -15,6 +15,7 @@ import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyLevel;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.BusbarSectionExt;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
@@ -46,6 +47,13 @@ public class NetworkXmlTest extends AbstractConverterTest {
                          NetworkXml::writeAndValidate,
                          NetworkXml::read,
                          "/eurostag-tutorial-example1.xml");
+    }
+
+    @Test
+    public void testReadV10() {
+        Network network = NetworkXml.read(getClass().getResourceAsStream("/refsV1_0/eurostag-tutorial-example1.xml"));
+        TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer("NHV2_NLOAD");
+        assertSame(twoWindingsTransformer, twoWindingsTransformer.getRatioTapChanger().getRegulationTerminal().getConnectable());
     }
 
     @Test
