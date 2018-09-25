@@ -16,36 +16,46 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static com.powsybl.iidm.xml.IidmXmlConstants.LATEST_XIIDM_VERSION;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class NetworkXmlReaderContext extends AbstractConverterContext<ImportOptions> implements XmlReaderContext {
 
     private final XMLStreamReader reader;
+
     private final List<Runnable> endTasks = new ArrayList<>();
     private final ImportOptions options;
 
-    public NetworkXmlReaderContext(Anonymizer anonymizer, XMLStreamReader reader, ImportOptions options) {
-        super(anonymizer);
-        this.reader = Objects.requireNonNull(reader);
-        this.options = Objects.requireNonNull(options);
-    }
+    private final String version;
 
     public NetworkXmlReaderContext(Anonymizer anonymizer, XMLStreamReader reader) {
-        this(anonymizer, reader, new ImportOptions());
+        this(anonymizer, reader, new ImportOptions(), LATEST_XIIDM_VERSION);
     }
 
-    @Override
-    public XMLStreamReader getReader() {
-        return reader;
-    }
+    public NetworkXmlReaderContext(Anonymizer anonymizer, XMLStreamReader reader, ImportOptions options, String version) {
+            super(anonymizer);
+            this.reader = Objects.requireNonNull(reader);
+            this.options = Objects.requireNonNull(options);
+            this.version = Objects.requireNonNull(version);
+        }
 
-    public List<Runnable> getEndTasks() {
-        return endTasks;
-    }
+        @Override
+        public XMLStreamReader getReader() {
+            return reader;
+        }
 
-    @Override
-    public ImportOptions getOptions() {
-        return options;
+        public List<Runnable> getEndTasks() {
+            return endTasks;
+        }
+
+        @Override
+        public ImportOptions getOptions() {
+            return options;
+        }
+
+        public String getVersion() {
+            return version;
+        }
     }
-}

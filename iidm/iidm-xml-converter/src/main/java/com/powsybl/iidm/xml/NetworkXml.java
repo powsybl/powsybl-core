@@ -70,6 +70,8 @@ public final class NetworkXml {
     private static final String SOURCE_FORMAT = "sourceFormat";
     private static final String ID = "id";
 
+    static final String LATEST_IIDM_XSD = "iidm1_1.xsd";
+
     // cache XMLOutputFactory to improve performance
     private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLOutputFactory::newFactory);
 
@@ -103,7 +105,7 @@ public final class NetworkXml {
     private static void validate(Source xml, List<Source> additionalSchemas) {
         SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
         Source[] sources = new Source[additionalSchemas.size() + 1];
-        sources[0] = new StreamSource(NetworkXml.class.getResourceAsStream("/xsd/" + IIDM_XSD));
+        sources[0] = new StreamSource(NetworkXml.class.getResourceAsStream("/xsd/" + LATEST_IIDM_XSD));
         for (int i = 0; i < additionalSchemas.size(); i++) {
             sources[i + 1] = additionalSchemas.get(i);
         }
@@ -472,6 +474,7 @@ public final class NetworkXml {
             while (state == XMLStreamReader.COMMENT) {
                 state = reader.next();
             }
+            String version = getVersion(reader);
             String id = reader.getAttributeValue(null, ID);
             DateTime date = DateTime.parse(reader.getAttributeValue(null, CASE_DATE));
             int forecastDistance = XmlUtil.readOptionalIntegerAttribute(reader, FORECAST_DISTANCE, 0);
@@ -481,7 +484,7 @@ public final class NetworkXml {
             network.setCaseDate(date);
             network.setForecastDistance(forecastDistance);
 
-            NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, config);
+            NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, config, version);
 
             Set<String> extensionNamesNotFound = new TreeSet<>();
 
@@ -680,7 +683,7 @@ public final class NetworkXml {
                 throw new PowsyblException("Extension file do not match with the base file !");
             }
 
-            NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, options);
+            NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, options, LATEST_XIIDM_VERSION);
             Set<String> extensionNamesNotFound = new TreeSet<>();
 
             XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {
@@ -872,5 +875,10 @@ public final class NetworkXml {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private static String getVersion(XMLStreamReader reader) {
+        String namespaceURI = reader.getNamespaceURI();
+        return namespaceURI.substring(namespaceURI.lastIndexOf('/') + 1);
     }
 }

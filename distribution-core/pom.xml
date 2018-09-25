@@ -482,6 +482,7 @@
                     <copyToEtc>
                         <files>
                             <file>${project.basedir}/../iidm/iidm-xml-converter/src/main/resources/xsd/iidm.xsd</file>
+                            <file>${project.basedir}/../iidm/iidm-xml-converter/src/main/resources/xsd/iidm1_1.xsd</file>
                         </files>
                     </copyToEtc>
                 </configuration>
