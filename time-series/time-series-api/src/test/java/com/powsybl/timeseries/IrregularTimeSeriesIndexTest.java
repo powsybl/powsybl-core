@@ -6,11 +6,15 @@
  */
 package com.powsybl.timeseries;
 
+import com.google.common.collect.Lists;
 import com.google.common.testing.EqualsTester;
 import com.powsybl.commons.json.JsonUtil;
 import org.junit.Test;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -22,14 +26,19 @@ public class IrregularTimeSeriesIndexTest {
 
     @Test
     public void test() {
-        IrregularTimeSeriesIndex index = IrregularTimeSeriesIndex.create(Instant.parse("2015-01-01T00:00:00Z"),
-                                                                         Instant.parse("2015-01-01T01:00:00Z"));
+        List<Instant> instants = Arrays.asList(Instant.parse("2015-01-01T00:00:00Z"),
+                                               Instant.parse("2015-01-01T01:00:00Z"));
+        IrregularTimeSeriesIndex index = IrregularTimeSeriesIndex.create(instants);
         assertEquals(IrregularTimeSeriesIndex.TYPE, index.getType());
 
         // test getters
         assertEquals("2015-01-01T00:00:00Z", Instant.ofEpochMilli(index.getTimeAt(0)).toString());
         assertEquals("2015-01-01T01:00:00Z", Instant.ofEpochMilli(index.getTimeAt(1)).toString());
         assertEquals(2, index.getPointCount());
+
+        // test iterator ans stream
+        assertEquals(instants, index.stream().collect(Collectors.toList()));
+        assertEquals(instants, Lists.newArrayList(index.iterator()));
 
         // test to string
         assertEquals("IrregularTimeSeriesIndex(times=[2015-01-01T00:00:00Z, 2015-01-01T01:00:00Z])",

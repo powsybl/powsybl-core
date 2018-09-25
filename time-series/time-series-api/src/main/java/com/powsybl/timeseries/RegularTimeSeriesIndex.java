@@ -15,7 +15,9 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -151,6 +153,36 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    @Override
+    public Iterator<Instant> iterator() {
+        return new Iterator<Instant>() {
+
+            long time = startTime;
+
+            @Override
+            public boolean hasNext() {
+                return time <= endTime;
+            }
+
+            @Override
+            public Instant next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                Instant instant = Instant.ofEpochMilli(time);
+                time += spacing;
+                return instant;
+            }
+        };
+    }
+
+    @Override
+    public Stream<Instant> stream() {
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator(),
+                                                                        Spliterator.ORDERED | Spliterator.IMMUTABLE),
+                                    false);
     }
 
     @Override

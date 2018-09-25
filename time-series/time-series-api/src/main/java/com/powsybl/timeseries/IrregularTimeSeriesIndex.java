@@ -15,9 +15,11 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.Instant;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -99,6 +101,16 @@ public class IrregularTimeSeriesIndex extends AbstractTimeSeriesIndex {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    @Override
+    public Iterator<Instant> iterator() {
+        return stream().iterator();
+    }
+
+    @Override
+    public Stream<Instant> stream() {
+        return Arrays.stream(times).mapToObj(Instant::ofEpochMilli);
     }
 
     @Override

@@ -31,8 +31,22 @@ To create an irregular time series index with 3 instants:
 Instant t1 = Instant.parse("2018-01-01T00:00:00Z");
 Instant t2 = t1.plusSeconds(1);
 Instant t3 = t2.plusSeconds(2);
-TimeSeriesIndex index = IrregularTimeSeriesIndex.create(t1, t2, t3);
+TimeSeriesIndex irregularIndex = IrregularTimeSeriesIndex.create(t1, t2, t3);
 ```
+To iterate over all instants of the time index:
+
+```java
+irregularIndex.stream().forEach(System.out::println);
+```
+
+Output:
+
+```
+2018-01-01T00:00:00Z
+2018-01-01T00:00:01Z
+2018-01-01T00:00:03Z
+```
+
 ### 2.  Regular
 
 To create a regular time series with 3 instants equally spaced of 1 second:
@@ -41,25 +55,42 @@ To create a regular time series with 3 instants equally spaced of 1 second:
 Instant start = Instant.parse("2018-01-01T00:00:00Z");
 Instant end = start.plusSeconds(2);
 Duration spacing = Duration.ofSeconds(1);
-TimeSeriesIndex index2 = RegularTimeSeriesIndex.create(start, end, spacing);
+TimeSeriesIndex regularIndex = RegularTimeSeriesIndex.create(start, end, spacing);
+```
+
+As for irregular time index we can iterate over all instants:
+
+```java
+regularIndex.stream().forEach(System.out::println);
+```
+
+Output:
+
+```
+2018-01-01T00:00:01Z
+2018-01-01T00:00:02Z
 ```
 
 ### 3.  Infinite
 
 TODO
 
-## Create a double time series
 
-To create a double format time series based on time index `index`:
 
-```java
-DoubleTimeSeries a = TimeSeries.create("a", index);
+## Time series
+
+### 1. Double data
+
+To create a double data time series based on time index `regularIndex`:
+
+```javascript
+DoubleTimeSeries timeSeries = TimeSeries.create("dts", regularIndex);
 ```
 
 We now have a time series with 3 instants but without any data.  By default the time series is filled with NaN values which means absent value.
 
 ```java
-double[] values = c.toArray();
+double[] values = timeSeries.toArray();
 System.out.println(Arrays.toString(values));
 ```
 
@@ -69,9 +100,34 @@ Output:
 [NaN, NaN, NaN]
 ```
 
+### 2. String data
+
+Similarly to double time series, to create a string data time series based on time index `regularIndex`:
+
+```java
+StringTimeSeries timeSeries = TimeSeries.create("sts", regularIndex);
+```
+
+For string time series null or empty string is used to model an absent value.
+
+```java
+String[] values = timeSeries.toArray();
+System.out.println(Arrays.toString(values));
+```
+
+Output:
+
+```
+[null, null, null]
+```
+
+
+
+## Data chunks
+
 In order to add data to the time series, we need to create data chunks: double data chunks for double time series and string data chunks for string time series.
 
-## Create a double array chunk
+### 1. Double data chunk
 
 To create an uncompress data chunk and print its json representation:
 
@@ -90,7 +146,7 @@ Output:
 
 We can see that an uncompress data chunk is juste a double array and an offset. It defines values associated to instant of the time index from offset to offset + values.length.
 
-To compress the chunk using RLE compression (https://fr.wikipedia.org/wiki/Run-length_encoding)
+To compress the chunk using [RLE](https://fr.wikipedia.org/wiki/Run-length_encoding) compression:
 
 ```java
 DoubleDataChunk compressedChunk = chunk.tryToCompress();
@@ -123,7 +179,7 @@ Output:
 
 So here size of compressed data chunk is 0.75 smaller than uncompressed one.
 
-## Create a string array chunk
+### 2. String data chunk
 
 ```java
 StringDataChunk chunk2 = DataChunk.create("hello", "bye", "bye", "bye");
@@ -148,18 +204,20 @@ Output:
 
 
 
-## Create a double calculated time series
+## Calculated time series
+
+Starting from double time series, it is possible to create calculated time series using [Groovy](http://groovy-lang.org/) script:
 
 ```java
 List<DoubleTimeSeries> result = DoubleTimeSeries.fromTimeSeries(a)
                                                 .build("ts['b'] = ts['a'] + 1",
                                                        "ts['c'] = ts['b'] * 2");
 System.out.println(TimeSeries.toJson(result));
-System.out.println(Arrays.toString(result.get(0).toArray()));
-System.out.println(Arrays.toString(result.get(1).toArray()));
 ```
 
-```
+Output:
+
+```json
 [ {
   "name" : "b",
   "expr" : {
@@ -183,9 +241,36 @@ System.out.println(Arrays.toString(result.get(1).toArray()));
     }
   }
 } ]
+```
+
+Calculated time series are evaluated on the fly during array conversion or iteration (through iterators or streams).
+
+```
+System.out.println(Arrays.toString(result.get(0).toArray()));
+System.out.println(Arrays.toString(result.get(1).toArray()));
+```
+
+Output:
+
+```json
 [2.0, 3.0]
 [4.0, 6.0]
 ```
 
+Here is the list of supported operations:
 
+| Operator | Purpose        | Example           |
+| -------- | -------------- | ----------------- |
+| +        | addition       | ts['a'] + ts['b'] |
+| -        | substraction   | ts['a'] - ts['b'] |
+| *        | multiplication | ts['a'] * ts['b'] |
+| /        | division       | ts['a'] / ts['b'] |
+
+# CSV
+
+Time series can be exported to CSV or imported from CSV.
+
+To write a CSV from a list of time series:
+
+TODO
 

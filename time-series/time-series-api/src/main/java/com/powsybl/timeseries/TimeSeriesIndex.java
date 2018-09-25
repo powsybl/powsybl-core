@@ -9,11 +9,13 @@ package com.powsybl.timeseries;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.time.Instant;
+import java.util.Iterator;
+import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface TimeSeriesIndex {
+public interface TimeSeriesIndex extends Iterable<Instant> {
 
     int getPointCount();
 
@@ -26,4 +28,8 @@ public interface TimeSeriesIndex {
     void writeJson(JsonGenerator generator);
 
     String toJson();
+
+    Stream<Instant> stream();
+
+    Iterator<Instant> iterator();
 }
