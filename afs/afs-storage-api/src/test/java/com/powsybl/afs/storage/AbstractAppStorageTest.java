@@ -482,5 +482,28 @@ public abstract class AbstractAppStorageTest {
 
         assertTrue(storage.getDependencies(folder3Info.getId(), "dep").isEmpty());
         assertTrue(storage.getDependencies(folder3Info.getId(), "dep2").isEmpty());
+
+        // 19) rename node test
+        NodeInfo folder5Info = storage.createNode(rootFolderInfo.getId(), "test5", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
+        storage.flush();
+        String newName = "newtest5";
+
+        folder5Info.setName(newName);
+        storage.flush();
+        assertEquals(newName, folder5Info.getName());
+
+        NodeInfo folder6Info = storage.createNode(rootFolderInfo.getId(), "test6", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
+        try {
+            folder6Info.setName(null);
+            fail();
+        } catch (NullPointerException ignored) {
+        }
+
+        NodeInfo folder7Info = storage.createNode(rootFolderInfo.getId(), "test7", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
+        try {
+            folder7Info.setName("");
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
     }
 }
