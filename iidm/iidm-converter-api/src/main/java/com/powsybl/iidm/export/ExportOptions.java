@@ -18,6 +18,8 @@ public class ExportOptions {
 
     private boolean withBranchSV = true;
 
+    private boolean indent = true;
+
     private boolean onlyMainCc = false;
 
     private boolean anonymized = false;
@@ -29,8 +31,9 @@ public class ExportOptions {
     public ExportOptions() {
     }
 
-    public ExportOptions(boolean withBranchSV, boolean onlyMainCc, TopologyLevel topologyLevel) {
+    public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel) {
         this.withBranchSV = withBranchSV;
+        this.indent = indent;
         this.onlyMainCc = onlyMainCc;
         this.topologyLevel = topologyLevel;
     }
@@ -41,6 +44,15 @@ public class ExportOptions {
 
     public ExportOptions setWithBranchSV(boolean withBranchSV) {
         this.withBranchSV = withBranchSV;
+        return this;
+    }
+
+    public boolean isIndent() {
+        return indent;
+    }
+
+    public ExportOptions setIndent(boolean indent) {
+        this.indent = indent;
         return this;
     }
 
