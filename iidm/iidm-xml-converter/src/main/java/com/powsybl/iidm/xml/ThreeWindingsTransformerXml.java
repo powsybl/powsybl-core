@@ -134,11 +134,11 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
                     break;
 
                 case "ratioTapChanger2":
-                    readRatioTapChanger(2, tx.getLeg2(), context);
+                    readRatioTapChanger(2, tx.getLeg2(), tx.getId(), context);
                     break;
 
                 case "ratioTapChanger3":
-                    readRatioTapChanger(3, tx.getLeg3(), context);
+                    readRatioTapChanger(3, tx.getLeg3(), tx.getId(), context);
                     break;
 
                 default:

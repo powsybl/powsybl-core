@@ -376,7 +376,7 @@
         </xs:restriction>
     </xs:simpleType>
     <xs:complexType name="TerminalRef">
-        <xs:attribute name="id" use="required" type="iidm:nonEmptyString"/>
+        <xs:attribute name="id" use="optional" type="iidm:nonEmptyString"/>
         <xs:attribute name="side" use="optional" type="iidm:Side"/>
     </xs:complexType>
     <xs:complexType name="RatioTapChangerStep">
