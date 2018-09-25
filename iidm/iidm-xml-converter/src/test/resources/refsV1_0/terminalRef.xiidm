@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" id="terminalRef" caseDate="2014-11-08T19:00:00.000+01:00" forecastDistance="0" sourceFormat="test">
+    <iidm:substation id="S1" country="FR" tso="RTE">
+        <iidm:voltageLevel id="VL4" nominalV="90.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="VL41" v="91.1261139" angle="-11.1787205"/>
+            </iidm:busBreakerTopology>
+            <iidm:shunt id="SHUNT_VL4.11" bPerSection="0.0035802468191832304" maximumSectionCount="1" currentSectionCount="1" connectableBus="VL41" q="9999.0"/>
+            <iidm:shunt id="SHUNT_VL4.21" bPerSection="0.003703703638166189" maximumSectionCount="1" currentSectionCount="1" connectableBus="VL41" q="9999.0"/>
+            <iidm:shunt id="SHUNT_VL4.31" bPerSection="0.003703703638166189" maximumSectionCount="1" currentSectionCount="1" connectableBus="VL41" q="9999.0"/>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="VL6" nominalV="225.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="VL61" v="237.973694" angle="-9.06182098"/>
+            </iidm:busBreakerTopology>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="VLY641" r="1.549974799156189" x="58.800025939941406" g="0.0" b="0.0" ratedU1="90.0" ratedU2="225.0" bus1="VL41" connectableBus1="VL41" voltageLevelId1="VL4" bus2="VL61" connectableBus2="VL61" voltageLevelId2="VL6" p1="-35.5088005065918" q1="-0.7908143401145935" p2="35.54349899291992" q2="2.1071410179138184">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="1" loadTapChangingCapabilities="true" regulating="false" targetV="91.1280288696289">
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.01900005"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.00800002"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.995999992"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="VL642" r="1.8199917078018188" x="62.60034942626953" g="0.0" b="0.0" ratedU1="90.0" ratedU2="225.0" bus1="VL41" connectableBus1="VL41" voltageLevelId1="VL4" bus2="VL61" connectableBus2="VL61" voltageLevelId2="VL6" p1="-33.33860397338867" q1="-2.3741626739501953" p2="33.37482452392578" q2="3.6199276447296143">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="1" loadTapChangingCapabilities="true" regulating="false" targetV="91.1280288696289">
+                <iidm:terminalRef id="VL642" side="ONE"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.01600003"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.00399995"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.991999984"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="VLY643" r="0.04724999999999999" x="4.049724365620455" g="0.0" b="0.0" ratedU1="400.0" ratedU2="158.0" bus1="VL41" connectableBus1="VL41" voltageLevelId1="VL4" bus2="VL61" connectableBus2="VL61" voltageLevelId2="VL6">
+            <iidm:phaseTapChanger lowTapPosition="0" tapPosition="1" regulationMode="FIXED_TAP" regulationValue="200.0">
+                <iidm:terminalRef id="VLY643" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8505666905244191" alpha="-1.0"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0006666666666666" alpha="0.0"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.150766642808914" alpha="1.0"/>
+            </iidm:phaseTapChanger>
+        </iidm:twoWindingsTransformer>
+        <iidm:twoWindingsTransformer id="VLY644" r="0.04724999999999999" x="4.049724365620455" g="0.0" b="0.0" ratedU1="400.0" ratedU2="158.0" bus1="VL41" connectableBus1="VL41" voltageLevelId1="VL4" bus2="VL61" connectableBus2="VL61" voltageLevelId2="VL6">
+            <iidm:phaseTapChanger lowTapPosition="0" tapPosition="1" regulationMode="FIXED_TAP" regulationValue="200.0">
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8505666905244191" alpha="-1.0"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0006666666666666" alpha="0.0"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.150766642808914" alpha="1.0"/>
+            </iidm:phaseTapChanger>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+</iidm:network>
