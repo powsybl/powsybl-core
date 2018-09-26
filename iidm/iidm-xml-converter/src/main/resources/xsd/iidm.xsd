@@ -7,10 +7,10 @@
     file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 -->
-<xs:schema version="1.0"
+<xs:schema version="1.1"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-           xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0"
-           targetNamespace="http://www.itesla_project.eu/schema/iidm/1_0"
+           xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_1"
+           targetNamespace="http://www.itesla_project.eu/schema/iidm/1_1"
            elementFormDefault="qualified">
     <xs:simpleType name='nonEmptyString'>
         <xs:restriction base='xs:string'>
