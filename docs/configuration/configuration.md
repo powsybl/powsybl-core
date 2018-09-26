@@ -1,107 +1,60 @@
-﻿# powsybl-core configuration file(s)
+﻿# Configuration - Module configuration
 
-powsybl-core configuration mechanism supports the following file formats: YAML, XML.
+The configuration mechanism supports YAML and XML file formats. The framework will look inside `$HOME/.itools` for the `config.yml`
+YAML configuration file. The `config.xml` XML file will be used only if the YAML configuration file has not been found.
 
-The platform will look inside `$HOME/.itools` for a YAML configuration file named `config.yml`; if not found it will try
-reading an XML file `config.xml`;
-To specify a different configuration directory (other than the default `$HOME/.itools`), and /or specify a different
-configuration file name (other than the default `config`), please ref. [this page](README.md).
-Platform configuration is divided in different sections, as shown here 
+The default configuration folder and the configuration file name can be [configured](itools.md) in the `POWSYBL_HOME/etc/itools.conf`.
 
-### YAML config file structure
-```yaml
-componentDefaultConfig:
-   ...
+## Modules and properties
+
+The configuration file contains a list of modules, some of them can be required or optional. Each module contains one or
+several properties. These properties can also be required or optional.
+
+### Example
+```yml
 module1:
-   ...
+    property1a: value1
+    property1b: value2
+    
 module2:
-   ...
-
-...
-
-moduleN:
-   ...   
+    property2a: value3
+    property2b: value4
+    property2c: value5
 ```
 
-### XML config file structure
 ```xml
-<?xml version="1.0" encoding="UTF-8"?>
 <config>
-    <componentDefaultConfig>
-     ... 
-    </componentDefaultConfig>
     <module1>
-    ...
+        <property1a>value1</property1a>
+        <property1b>value2</property1b>
     </module1>
-    <module2>
-    ...
-    </module2>
-    ...
-    <moduleN>
-    ...
-    </moduleN>
+    <module1>
+        <property2a>value3</property2a>
+        <property2b>value4</property2b>
+        <property2c>value5</property2c>
+    </module1>
 </config>
 ```
 
-Usually, each section lists all the properties for a specific module. 
-componentDefaultConfig differs from the other parts because it is very generic. 
-It lists the elementary functionalities (interfaces) needed to perform a computation and the implementation chosen or available.
-
-The generic syntax is:
-
-### YAML componentDefaultConfig section structure
-```yaml
-componentDefaultConfig:
-  firstInterfaceFactory: firstFactoryImplementation
-  secondInterfaceFactory: secondFactoryImplementation
-  ...
-  lastInterfaceFactory: lastFactoryImplementation
-```
-
-### XML componentDefaultConfig section structure
-```xml
-<componentDefaultConfig>
-  <firstInterfaceFactory>firstFactoryImplementation</firstInterfaceFactory>
-  <secondInterfaceFactory>secondFactoryImplementation</secondInterfaceFactory>
-  ...
-  <lastInterfaceFactory>lastFactoryImplementation</lastInterfaceFactory>
-</componentDefaultConfig>
-```
-
-**Important:** the other modules in the configuration are related to this first part of the configuration. 
-A specific implementation may and usually requires a dedicated module configuration section. 
-
-
-Example: In the configuration below, we define these functionalities:
- - A security analysis
- - A description of contingencies
- - A loadflow
-         
-The chosen implementations are:
- - "slow" security analysis (for a few contingencies), post-contingency LF based implementation
- - the contingencies expressed in Groovy DSL language
- - the 'mock' loadflow (a loadflow implementation that does nothing on the network: for demonstration purposes, only)
- 
-The same configuration expressed in the two file formats (note that here no specific modules configurations are defined):
-
-## YAML
-```yaml
-componentDefaultConfig:
-    ContingenciesProviderFactory: com.powsybl.action.dsl.GroovyDslContingenciesProviderFactory
-    SecurityAnalysisFactory: com.powsybl.security.SecurityAnalysisFactoryImpl
-    LoadFlowFactory: com.powsybl.loadflow.mock.LoadFlowFactoryMock
-
-```
-
-## XML
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<config>
-<componentDefaultConfig>
-<ContingenciesProviderFactory>com.powsybl.action.dsl.GroovyDslContingenciesProviderFactory</ContingenciesProviderFactory>
-    <SecurityAnalysisFactory>com.powsybl.security.SecurityAnalysisFactoryImpl</SecurityAnalysisFactory>
-    <LoadFlowFactory>com.powsybl.loadflow.mock.LoadFlowFactoryMock</LoadFlowFactory>
-  </componentDefaultConfig>
-</config>
-```
+## Modules list:
+- [componentDefaultConfig](modules/componentDefaultConfig.md)
+- [computation-local](modules/computation-local.md)
+- [default-computation-manager](modules/default-computation-manager.md)
+- [external-security-analysis-config](modules/external-security-analysis-config.md)
+- [groovy-dsl-contingencies](modules/groovy-dsl-contingencies.md)
+- [groovy-post-processor](modules/groovy-post-processor.md)
+- [import](modules/import.md)
+- [import-export-parameters-default-value](modules/import-export-parameters-default-value.md)
+- [javaScriptPostProcessor](modules/javaScriptPostProcessor.md)
+- [limit-violation-default-filter](modules/limit-violation-default-filter.md)
+- [load-flow-action-simulator](modules/load-flow-action-simulator.md)
+- [load-flow-based-phase-shifter-optimizer](modules/load-flow-based-phase-shifter-optimizer.md)
+- [load-flow-default-parameters](modules/load-flow-default-parameters.md)
+- [loadflow-results-completion-parameters](modules/loadflow-results-completion-parameters.md)
+- [loadflow-validation](modules/loadflow-validation.md)
+- [local-app-file-system](modules/local-app-file-system.md)
+- [mapdb-app-file-system](modules/mapdb-app-file-system.md)
+- [security](modules/security.md)
+- [simulation-parameters](modules/simulation-parameters.md)
+- [table-formatter](modules/table-formatter.md)
 
