@@ -4,17 +4,17 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.xml;
+package com.powsybl.iidm.export;
 
 import com.powsybl.iidm.network.TopologyLevel;
 
 import java.util.Objects;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class XMLExportOptions {
+public class ExportOptions {
 
     private boolean withBranchSV = true;
 
@@ -28,10 +28,10 @@ public class XMLExportOptions {
 
     private TopologyLevel topologyLevel = TopologyLevel.NODE_BREAKER;
 
-    public XMLExportOptions() {
+    public ExportOptions() {
     }
 
-    public XMLExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel) {
+    public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel) {
         this.withBranchSV = withBranchSV;
         this.indent = indent;
         this.onlyMainCc = onlyMainCc;
@@ -42,7 +42,7 @@ public class XMLExportOptions {
         return withBranchSV;
     }
 
-    public XMLExportOptions setWithBranchSV(boolean withBranchSV) {
+    public ExportOptions setWithBranchSV(boolean withBranchSV) {
         this.withBranchSV = withBranchSV;
         return this;
     }
@@ -51,7 +51,7 @@ public class XMLExportOptions {
         return indent;
     }
 
-    public XMLExportOptions setIndent(boolean indent) {
+    public ExportOptions setIndent(boolean indent) {
         this.indent = indent;
         return this;
     }
@@ -60,7 +60,7 @@ public class XMLExportOptions {
         return onlyMainCc;
     }
 
-    public XMLExportOptions setOnlyMainCc(boolean onlyMainCc) {
+    public ExportOptions setOnlyMainCc(boolean onlyMainCc) {
         this.onlyMainCc = onlyMainCc;
         return this;
     }
@@ -69,7 +69,7 @@ public class XMLExportOptions {
         return anonymized;
     }
 
-    public XMLExportOptions setAnonymized(boolean anonymized) {
+    public ExportOptions setAnonymized(boolean anonymized) {
         this.anonymized = anonymized;
         return this;
     }
@@ -78,7 +78,7 @@ public class XMLExportOptions {
         return skipExtensions;
     }
 
-    public XMLExportOptions setSkipExtensions(boolean skipExtensions) {
+    public ExportOptions setSkipExtensions(boolean skipExtensions) {
         this.skipExtensions = skipExtensions;
         return this;
     }
@@ -87,7 +87,7 @@ public class XMLExportOptions {
         return topologyLevel;
     }
 
-    public XMLExportOptions setTopologyLevel(TopologyLevel topologyLevel) {
+    public ExportOptions setTopologyLevel(TopologyLevel topologyLevel) {
         this.topologyLevel = Objects.requireNonNull(topologyLevel);
         return this;
     }
