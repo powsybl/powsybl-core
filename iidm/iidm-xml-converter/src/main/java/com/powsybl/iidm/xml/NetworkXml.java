@@ -59,7 +59,7 @@ public final class NetworkXml {
 
     static final String NETWORK_ROOT_ELEMENT_NAME = "network";
     private static final String EXTENSION_ELEMENT_NAME = "extension";
-    private static final String LATEST_IIDM_XSD = "iidm1_1.xsd";
+    private static final String LATEST_IIDM_XSD = "iidm.xsd";
 
     // cache XMLOutputFactory to improve performance
     private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLOutputFactory::newFactory);
@@ -279,7 +279,7 @@ public final class NetworkXml {
             while (state == XMLStreamReader.COMMENT) {
                 state = reader.next();
             }
-            String version = getVersion(reader);
+            String version = readVersion(reader);
             String id = reader.getAttributeValue(null, "id");
             DateTime date = DateTime.parse(reader.getAttributeValue(null, "caseDate"));
             int forecastDistance = XmlUtil.readOptionalIntegerAttribute(reader, "forecastDistance", 0);
@@ -525,7 +525,7 @@ public final class NetworkXml {
         }
     }
 
-    private static String getVersion(XMLStreamReader reader) {
+    private static String readVersion(XMLStreamReader reader) {
         String namespaceURI = reader.getNamespaceURI();
         return namespaceURI.substring(namespaceURI.lastIndexOf('/') + 1);
     }
