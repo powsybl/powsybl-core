@@ -58,7 +58,7 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
     @Override
     public LoadImpl add() {
         String id = checkAndGetUniqueId();
-        TerminalExt terminal = checkAndGetTerminal(id);
+        TerminalExt terminal = checkAndGetTerminal();
         ValidationUtil.checkLoadType(this, loadType);
         ValidationUtil.checkP0(this, p0);
         ValidationUtil.checkQ0(this, q0);

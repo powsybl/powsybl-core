@@ -10,7 +10,7 @@ package com.powsybl.math.graph;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface Traverser<E> {
+public interface Traverser {
 
     TraverseResult traverse(int v1, int e, int v2);
 }

@@ -181,6 +181,17 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
             return side;
         }
 
+        /**
+         * TODO: to move to IIDM
+         */
+        private static double getPermanentLimit(Branch branch, Branch.Side side) {
+            Objects.requireNonNull(branch);
+            Objects.requireNonNull(side);
+            double permanentLimit1 = branch.getCurrentLimits1() != null ? branch.getCurrentLimits1().getPermanentLimit() : Double.NaN;
+            double permanentLimit2 = branch.getCurrentLimits2() != null ? branch.getCurrentLimits2().getPermanentLimit() : Double.NaN;
+            return side == Branch.Side.ONE ? permanentLimit1 : permanentLimit2;
+        }
+
         private static int compare(double value1, double value2) {
             if (Double.isNaN(value1) && Double.isNaN(value2)) {
                 return 0;
@@ -247,17 +258,6 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
         public String toString() {
             return branch.getId() + "/" + side;
         }
-    }
-
-    /**
-     * TODO: to move to IIDM
-     */
-    private static double getPermanentLimit(Branch branch, Branch.Side side) {
-        Objects.requireNonNull(branch);
-        Objects.requireNonNull(side);
-        double permanentLimit1 = branch.getCurrentLimits1() != null ? branch.getCurrentLimits1().getPermanentLimit() : Double.NaN;
-        double permanentLimit2 = branch.getCurrentLimits2() != null ? branch.getCurrentLimits2().getPermanentLimit() : Double.NaN;
-        return side == Branch.Side.ONE ? permanentLimit1 : permanentLimit2;
     }
 
     private List<String> sortBranches(List<String> branchIds) {

@@ -163,10 +163,10 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
     @Override
     public TieLineImpl add() {
         String id = checkAndGetUniqueId();
-        VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1(id);
-        VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2(id);
-        TerminalExt terminal1 = checkAndGetTerminal1(id);
-        TerminalExt terminal2 = checkAndGetTerminal2(id);
+        VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
+        VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
+        TerminalExt terminal1 = checkAndGetTerminal1();
+        TerminalExt terminal2 = checkAndGetTerminal2();
 
         if (ucteXnodeCode == null) {
             throw new ValidationException(this, "ucteXnodeCode is not set");
