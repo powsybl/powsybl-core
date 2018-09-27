@@ -301,7 +301,7 @@ public class TapChangerTest {
         RatioTapChanger ratioTapChanger = twt.newRatioTapChanger()
                                                 .setLowTapPosition(0)
                                                 .setTapPosition(1)
-                                                .setLoadTapChangingCapabilities(false)
+                                                .setOnLoadTapChanger(false)
                                                 .setRegulating(true)
                                                 .setTargetV(220.0)
                                                 .setRegulationTerminal(twt.getTerminal1())
@@ -329,7 +329,7 @@ public class TapChangerTest {
                                             .add();
         assertEquals(0, ratioTapChanger.getLowTapPosition());
         assertEquals(1, ratioTapChanger.getTapPosition());
-        assertFalse(ratioTapChanger.hasLoadTapChangingCapabilities());
+        assertFalse(ratioTapChanger.onLoadTapChanger());
         ratioTapChanger.setRegulating(true);
         assertEquals(220.0, ratioTapChanger.getTargetV(), 0.0);
         assertSame(twt.getTerminal1(), ratioTapChanger.getRegulationTerminal());
@@ -375,7 +375,7 @@ public class TapChangerTest {
         twt.newRatioTapChanger()
                 .setLowTapPosition(0)
                 .setTapPosition(1)
-                .setLoadTapChangingCapabilities(false)
+                .setOnLoadTapChanger(false)
                 .setRegulating(true)
                 .setTargetV(220.0)
                 .setRegulationTerminal(twt.getTerminal1())
@@ -415,7 +415,7 @@ public class TapChangerTest {
         twt.newRatioTapChanger()
                 .setLowTapPosition(low)
                 .setTapPosition(tap)
-                .setLoadTapChangingCapabilities(load)
+                .setOnLoadTapChanger(load)
                 .setRegulating(regulating)
                 .setTargetV(targetV)
                 .setRegulationTerminal(terminal)
@@ -477,7 +477,7 @@ public class TapChangerTest {
         ThreeWindingsTransformer.Leg2or3 leg3 = threeWindingsTransformer.getLeg3();
         leg2.newRatioTapChanger()
                 .setTargetV(10.0)
-                .setLoadTapChangingCapabilities(false)
+                .setOnLoadTapChanger(false)
                 .setLowTapPosition(0)
                 .setTapPosition(1)
                 .setRegulating(true)
@@ -506,7 +506,7 @@ public class TapChangerTest {
                 .add();
         leg3.newRatioTapChanger()
                 .setTargetV(11.0)
-                .setLoadTapChangingCapabilities(false)
+                .setOnLoadTapChanger(false)
                 .setLowTapPosition(2)
                 .setTapPosition(3)
                 .setRegulating(true)

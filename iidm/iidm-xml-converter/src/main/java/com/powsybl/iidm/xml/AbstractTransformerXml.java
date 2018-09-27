@@ -43,11 +43,11 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
     protected static void writeRatioTapChanger(String name, RatioTapChanger rtc, NetworkXmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeStartElement(IIDM_URI, name);
         writeTapChanger(rtc, context.getWriter());
-        context.getWriter().writeAttribute("loadTapChangingCapabilities", Boolean.toString(rtc.hasLoadTapChangingCapabilities()));
-        if (rtc.hasLoadTapChangingCapabilities() || rtc.isRegulating()) {
+        context.getWriter().writeAttribute("onLoadTapChanger", Boolean.toString(rtc.onLoadTapChanger()));
+        if (rtc.onLoadTapChanger() || rtc.isRegulating()) {
             context.getWriter().writeAttribute(ATTR_REGULATING, Boolean.toString(rtc.isRegulating()));
         }
-        if (rtc.hasLoadTapChangingCapabilities() || !Double.isNaN(rtc.getTargetV())) {
+        if (rtc.onLoadTapChanger() || !Double.isNaN(rtc.getTargetV())) {
             XmlUtil.writeDouble("targetV", rtc.getTargetV(), context.getWriter());
         }
         if (rtc.getRegulationTerminal() != null) {
@@ -65,13 +65,13 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         int lowTapPosition = XmlUtil.readIntAttribute(context.getReader(), ATTR_LOW_TAP_POSITION);
         int tapPosition = XmlUtil.readIntAttribute(context.getReader(), ATTR_TAP_POSITION);
         boolean regulating = XmlUtil.readOptionalBoolAttribute(context.getReader(), ATTR_REGULATING, false);
-        boolean loadTapChangingCapabilities = XmlUtil.readBoolAttribute(context.getReader(), "loadTapChangingCapabilities");
+        boolean onLoadTapChanger = XmlUtil.readBoolAttribute(context.getReader(), getVersionCompatibleAttribute(context, "loadTapChangingCapabilities"));
         double targetV = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetV");
         adder.setLowTapPosition(lowTapPosition)
                 .setTapPosition(tapPosition)
-                .setLoadTapChangingCapabilities(loadTapChangingCapabilities)
+                .setOnLoadTapChanger(onLoadTapChanger)
                 .setTargetV(targetV);
-        if (loadTapChangingCapabilities) {
+        if (onLoadTapChanger) {
             adder.setRegulating(regulating);
         }
         boolean[] hasTerminalRef = new boolean[1];
@@ -117,6 +117,8 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                 return "ratio";
             } else if (attribute.equals("alpha")) {
                 return "phaseShift";
+            } else if (attribute.equals("loadTapChangingCapabilities")) {
+                return "onLoadTapChanger";
             }
             return "rd" + attribute;
         } else {

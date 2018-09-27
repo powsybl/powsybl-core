@@ -401,7 +401,7 @@
         </xs:sequence>
         <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
         <xs:attribute name="tapPosition" use="required" type="xs:int"/>
-        <xs:attribute name="loadTapChangingCapabilities" use="required" type="xs:boolean"/>
+        <xs:attribute name="onLoadTapChanger" use="required" type="xs:boolean"/>
         <xs:attribute name="regulating" use="optional" type="xs:boolean"/>
         <xs:attribute name="targetV" use="optional" type="xs:double"/>
     </xs:complexType>

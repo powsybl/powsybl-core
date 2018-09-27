@@ -31,7 +31,7 @@ public interface RatioTapChangerAdder {
 
     RatioTapChangerAdder setTapPosition(int tapPosition);
 
-    RatioTapChangerAdder setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities);
+    RatioTapChangerAdder setOnLoadTapChanger(boolean onLoadTapChanger);
 
     RatioTapChangerAdder setRegulating(boolean regulating);
 

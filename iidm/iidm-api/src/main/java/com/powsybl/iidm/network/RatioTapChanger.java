@@ -32,6 +32,14 @@ public interface RatioTapChanger extends TapChanger<RatioTapChanger, RatioTapCha
     /**
      * Get the load tap changing capabilities status.
      */
+    default boolean onLoadTapChanger() {
+        return hasLoadTapChangingCapabilities();
+    }
+
+    @Deprecated
+    /**
+     * @deprecated Use {@link #onLoadTapChanger()} instead.
+     */
     boolean hasLoadTapChangingCapabilities();
 
 }

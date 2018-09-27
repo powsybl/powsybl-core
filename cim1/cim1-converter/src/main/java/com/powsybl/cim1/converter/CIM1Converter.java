@@ -645,24 +645,24 @@ class CIM1Converter implements CIM1Constants {
                     if (regulationTerminal == null) {
                         regulationTerminal = getTerminalMapping(rc.getTerminal().getTopologicalNode());
                     }
-                    rtca.setLoadTapChangingCapabilities(true)
+                    rtca.setOnLoadTapChanger(true)
                             .setRegulating(regulating)
                             .setTargetV(targetV)
                             .setRegulationTerminal(regulationTerminal);
                     break;
 
                 case fixed:
-                    rtca.setLoadTapChangingCapabilities(false);
+                    rtca.setOnLoadTapChanger(false);
                     break;
 
                 default:
-                    rtca.setLoadTapChangingCapabilities(false);
+                    rtca.setOnLoadTapChanger(false);
                     LOGGER.warn("Ratio tap changer '{}' of power transformer '{}'" +
                                     " has an unsupported regulating mode: {}",
                             rtc.getId(), transfo.toString(), rc.getMode());
             }
         } else {
-            rtca.setLoadTapChangingCapabilities(false);
+            rtca.setOnLoadTapChanger(false);
         }
         rtca.add();
     }

@@ -1042,7 +1042,7 @@ public class AmplNetworkWriter {
         formatter.writeCell(rtcNum)
              .writeCell(rtc.getTapPosition() - rtc.getLowTapPosition() + 1)
              .writeCell(tcsNum)
-             .writeCell(rtc.hasLoadTapChangingCapabilities() && rtc.isRegulating());
+             .writeCell(rtc.onLoadTapChanger() && rtc.isRegulating());
         if (config.isExportRatioTapChangerVoltageTarget()) {
             formatter.writeCell(rtc.getTargetV());
         }

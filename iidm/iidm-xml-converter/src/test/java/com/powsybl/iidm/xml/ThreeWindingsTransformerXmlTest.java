@@ -18,6 +18,7 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Luma Zamarreno <zamarrenolm at aia.es>
@@ -47,5 +48,6 @@ public class ThreeWindingsTransformerXmlTest extends AbstractConverterTest {
         assertEquals(0.9, tapChanger.getStep(0).getRatio(), 0.0);
         assertEquals(1.0, tapChanger.getStep(1).getRatio(), 0.0);
         assertEquals(1.1, tapChanger.getStep(2).getRatio(), 0.0);
+        assertTrue(leg2.getRatioTapChanger().onLoadTapChanger());
     }
 }
