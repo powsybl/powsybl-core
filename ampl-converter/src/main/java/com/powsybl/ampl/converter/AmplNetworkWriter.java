@@ -1029,7 +1029,7 @@ public class AmplNetworkWriter {
                 .writeCell(position - ptc.getLowTapPosition() + 1)
                 .writeCell(step.getRatio())
                 .writeCell(x)
-                .writeCell(Math.toRadians(step.getAlpha()))
+                .writeCell(Math.toRadians(step.getPhaseShift()))
                 .writeCell(faultNum)
                 .writeCell(actionNum);
         }

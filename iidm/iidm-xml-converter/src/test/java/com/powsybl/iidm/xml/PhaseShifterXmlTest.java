@@ -37,5 +37,8 @@ public class PhaseShifterXmlTest extends AbstractConverterTest {
         assertEquals(0.0, phaseTapChanger.getStep(0).getRdx(), 0.0);
         assertEquals(0.0, phaseTapChanger.getStep(0).getRdg(), 0.0);
         assertEquals(0.0, phaseTapChanger.getStep(0).getRdb(), 0.0);
+        assertEquals(-20.0, phaseTapChanger.getStep(0).getPhaseShift(), 0.0);
+        assertEquals(0.0, phaseTapChanger.getStep(1).getPhaseShift(), 0.0);
+        assertEquals(20.0, phaseTapChanger.getStep(2).getPhaseShift(), 0.0);
     }
 }

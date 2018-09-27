@@ -31,10 +31,10 @@ package com.powsybl.iidm.network;
  *b = transfo.getRdb()
  *    * (1 + (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentStep().getRdb() / 100 : 0)
  *       + (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getRdb() / 100 : 0));
- *rho = transfo.getRatedU2() / transfo.getRatedU1()
+ *ratio = transfo.getRatedU2() / transfo.getRatedU1()
  *    * (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentStep().getRatio() : 1);
  *    * (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getRatio() : 1);
- *alpha = (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getAlpha() : 0);
+ *phaseShift = (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getPhaseShift() : 0);
  *
  *</pre>
  * A 2 windings transformer is connected to 2 voltage levels (side 1 and side 2)

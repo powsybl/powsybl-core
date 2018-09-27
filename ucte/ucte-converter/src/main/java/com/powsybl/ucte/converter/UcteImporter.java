@@ -556,7 +556,7 @@ public class UcteImporter implements Importer {
             }
             ptca.beginStep()
                     .setRatio(rho)
-                    .setAlpha(-alpha) // minus because in the UCT model PST is on side 2 and side1 on IIDM model
+                    .setPhaseShift(-alpha) // minus because in the UCT model PST is on side 2 and side1 on IIDM model
                     .setRdr(0f)
                     .setRdx(0f)
                     .setRdg(0f)
