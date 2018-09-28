@@ -42,7 +42,11 @@ public class ActionDb {
 
     public void addRule(Rule rule) {
         Objects.requireNonNull(rule);
-        rules.put(rule.getId(), rule);
+        String id = rule.getId();
+        if (rules.containsKey(id)) {
+            throw new PowsyblException("Rule '" + id + "' is defined several times");
+        }
+        rules.put(id, rule);
     }
 
     public Collection<Rule> getRules() {
@@ -51,7 +55,11 @@ public class ActionDb {
 
     public void addAction(Action action) {
         Objects.requireNonNull(action);
-        actions.put(action.getId(), action);
+        String id = action.getId();
+        if (actions.containsKey(id)) {
+            throw new PowsyblException("Action '" + id + "' is defined several times");
+        }
+        actions.put(id, action);
     }
 
     public Action getAction(String id) {
