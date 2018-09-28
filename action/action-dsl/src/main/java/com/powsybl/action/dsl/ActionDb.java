@@ -44,7 +44,7 @@ public class ActionDb {
         Objects.requireNonNull(rule);
         String id = rule.getId();
         if (rules.containsKey(id)) {
-            throw new PowsyblException("Rule '" + id + "' is defined several times");
+            throw new ActionDslException("Rule '" + id + "' is defined several times");
         }
         rules.put(id, rule);
     }
@@ -57,7 +57,7 @@ public class ActionDb {
         Objects.requireNonNull(action);
         String id = action.getId();
         if (actions.containsKey(id)) {
-            throw new PowsyblException("Action '" + id + "' is defined several times");
+            throw new ActionDslException("Action '" + id + "' is defined several times");
         }
         actions.put(id, action);
     }
