@@ -121,6 +121,8 @@ class ActionDslLoader extends DslLoader {
 
             Binding binding = new Binding()
 
+            List<String> actionsId = new ArrayList<>()
+
             // contingencies
             binding.contingency = { String id, Closure<Void> closure ->
                 def cloned = closure.clone()
@@ -193,6 +195,8 @@ class ActionDslLoader extends DslLoader {
                     type = RuleType.APPLY;
                 }
 
+                actionsId.addAll(actions)
+
                 Rule rule = new Rule(id, new ExpressionCondition(ruleSpec.when), ruleSpec.life, type,
                         actions)
                 if (ruleSpec.description) {
@@ -235,6 +239,8 @@ class ActionDslLoader extends DslLoader {
             def shell = createShell(binding)
 
             shell.evaluate(dslSrc)
+
+            actionsId.stream().forEach({ a -> rulesDb.getAction(a) })
 
             observer?.end()
         } catch (CompilationFailedException e) {
