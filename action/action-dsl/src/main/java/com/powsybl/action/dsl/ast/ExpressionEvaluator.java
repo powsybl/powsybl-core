@@ -67,6 +67,12 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
     public Object visitComparisonOperator(ComparisonOperatorNode node, Void arg) {
         Object result1 = node.getLeft().accept(this, arg);
         Object result2 = node.getRight().accept(this, arg);
+        if (result1 instanceof ArithmeticBinaryOperatorNode) {
+            result1 = ((ArithmeticBinaryOperatorNode) result1).accept(this, arg);
+        }
+        if (result2 instanceof ArithmeticBinaryOperatorNode) {
+            result2 = ((ArithmeticBinaryOperatorNode) result2).accept(this, arg);
+        }
         if (!(result1 instanceof Number)) {
             throw new PowsyblException("Left operand of comparison should return a number");
         }
@@ -128,6 +134,12 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
     public Object visitArithmeticOperator(ArithmeticBinaryOperatorNode node, Void arg) {
         Object result1 = node.getLeft().accept(this, arg);
         Object result2 = node.getRight().accept(this, arg);
+        if (result1 instanceof ArithmeticBinaryOperatorNode) {
+            result1 = ((ArithmeticBinaryOperatorNode) result1).accept(this, arg);
+        }
+        if (result2 instanceof ArithmeticBinaryOperatorNode) {
+            result2 = ((ArithmeticBinaryOperatorNode) result2).accept(this, arg);
+        }
         if (!(result1 instanceof Number)) {
             throw new PowsyblException("Left operand of arithmetic operation should return a number (" + result1.getClass() + ")");
         }
