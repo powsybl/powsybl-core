@@ -9,6 +9,7 @@ package com.powsybl.action.dsl
 import com.powsybl.action.dsl.ast.BooleanLiteralNode
 import com.powsybl.action.dsl.ast.ExpressionNode
 import com.powsybl.action.dsl.spi.DslTaskExtension
+import com.powsybl.commons.PowsyblException
 import com.powsybl.contingency.*
 import com.powsybl.contingency.tasks.ModificationTask
 import com.powsybl.iidm.network.*
@@ -109,6 +110,14 @@ class ActionDslLoader extends DslLoader {
         super(script)
     }
 
+    static void checkIfUndefinedActions(Set<String> actionsId, ActionDb rulesDb) {
+        try {
+            actionsId.forEach({ a -> rulesDb.getAction(a) })
+        } catch (PowsyblException e) {
+            throw new ActionDslException(e.getMessage())
+        }
+    }
+
     ActionDb load(Network network) {
         load(network, null)
     }
@@ -121,7 +130,7 @@ class ActionDslLoader extends DslLoader {
 
             Binding binding = new Binding()
 
-            List<String> actionsId = new ArrayList<>()
+            Set<String> actionsId = new ArrayList<>()
 
             // contingencies
             binding.contingency = { String id, Closure<Void> closure ->
@@ -240,7 +249,7 @@ class ActionDslLoader extends DslLoader {
 
             shell.evaluate(dslSrc)
 
-            actionsId.stream().forEach({ a -> rulesDb.getAction(a) })
+            checkIfUndefinedActions(actionsId, rulesDb)
 
             observer?.end()
         } catch (CompilationFailedException e) {
