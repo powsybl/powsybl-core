@@ -21,7 +21,7 @@ import org.junit.rules.ExpectedException;
 public class ThrowExceptionUndefinedActionTest {
 
     @Rule
-    public ExpectedException thrown = ExpectedException.none();
+    public final ExpectedException thrown = ExpectedException.none();
 
     private Network network;
 
