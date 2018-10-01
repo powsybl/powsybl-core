@@ -6,11 +6,12 @@
  */
 package com.powsybl.commons.config;
 
-import com.powsybl.commons.io.CacheManager;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.FileUtil;
 
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 import java.util.Optional;
@@ -23,107 +24,85 @@ public class PlatformConfig {
 
     private static PlatformConfig defaultConfig;
 
-    private static CacheManager defaultCacheManager;
-
-    protected final FileSystem fileSystem;
-
     protected final Path configDir;
 
-    protected final Path cacheDir;
+    protected final ModuleConfigRepository repository;
 
-    protected final ModuleConfigContainer container;
-
+    /**
+     * @deprecated Directly pass <code>PlatformConfig</code> instance to the code you want to test.
+     */
+    @Deprecated
     public static synchronized void setDefaultConfig(PlatformConfig defaultConfig) {
         PlatformConfig.defaultConfig = defaultConfig;
+    }
+
+    private static Path getDefaultConfigDir(FileSystem fileSystem) {
+        Objects.requireNonNull(fileSystem);
+        String directoryName = System.getProperty("itools.config.dir");
+        if (directoryName != null) {
+            return fileSystem.getPath(directoryName);
+        } else {
+            return fileSystem.getPath(System.getProperty("user.home"), ".itools");
+        }
     }
 
     public static synchronized PlatformConfig defaultConfig() {
         if (defaultConfig == null) {
             FileSystem fileSystem = FileSystems.getDefault();
             Path configDir = getDefaultConfigDir(fileSystem);
-            Path cacheDir = getDefaultCacheDir(fileSystem);
             String configName = System.getProperty("itools.config.name", "config");
 
-            defaultConfig = YamlPlatformConfig.create(fileSystem, configDir, cacheDir, configName)
-                    .orElseGet(() -> XmlPlatformConfig.create(fileSystem, configDir, cacheDir, configName)
-                            .orElseGet(() -> new PropertiesPlatformConfig(fileSystem, configDir, cacheDir)));
+            ModuleConfigRepository repository;
+            Path yamlConfigFile = configDir.resolve(configName + ".yml");
+            if (Files.exists(yamlConfigFile)) {
+                repository = new YamlModuleConfigRepository(yamlConfigFile);
+            } else {
+                Path xmlConfigFile = configDir.resolve(configName + ".xml");
+                if (Files.exists(xmlConfigFile)) {
+                    repository = new XmlModuleConfigRepository(xmlConfigFile);
+                } else {
+                    repository = new PropertiesModuleConfigRepository(configDir);
+                }
+            }
+            defaultConfig = new PlatformConfig(repository, configDir);
         }
         return defaultConfig;
     }
 
-    public static synchronized void setDefaultCacheManager(CacheManager defaultCacheManager) {
-        PlatformConfig.defaultCacheManager = defaultCacheManager;
+    public PlatformConfig(ModuleConfigRepository repository) {
+        this(repository, FileSystems.getDefault());
     }
 
-    public static synchronized CacheManager defaultCacheManager() {
-        if (defaultCacheManager == null) {
-            defaultCacheManager = new CacheManager(defaultConfig().cacheDir);
-        }
-        return defaultCacheManager;
+    public PlatformConfig(ModuleConfigRepository repository, FileSystem fileSystem) {
+        this(repository, getDefaultConfigDir(fileSystem));
     }
 
-    protected PlatformConfig(FileSystem fileSystem, ModuleConfigContainer container) {
-        this(fileSystem, getDefaultConfigDir(fileSystem), getDefaultCacheDir(fileSystem), container);
-    }
-
-    protected PlatformConfig(FileSystem fileSystem, Path configDir, Path cacheDir, ModuleConfigContainer container) {
-        this.fileSystem = Objects.requireNonNull(fileSystem);
+    protected PlatformConfig(ModuleConfigRepository repository, Path configDir) {
+        this.repository = Objects.requireNonNull(repository);
         this.configDir = FileUtil.createDirectory(configDir);
-        this.cacheDir = FileUtil.createDirectory(cacheDir);
-        this.container = Objects.requireNonNull(container);
-    }
-
-    public FileSystem getFileSystem() {
-        return fileSystem;
     }
 
     public Path getConfigDir() {
         return configDir;
     }
 
-    public Path getCacheDir() {
-        return cacheDir;
-    }
-
     public boolean moduleExists(String name) {
-        return container.moduleExists(name);
+        return repository.moduleExists(name);
     }
 
     public ModuleConfig getModuleConfig(String name) {
-        return container.getModuleConfig(name);
+        return repository.getModuleConfig(name).orElseThrow(() -> new PowsyblException("Module " + name + " not found"));
     }
 
+    /**
+     * @deprecated Use {{@link #getOptionalModuleConfig(String)}} instead.
+     */
+    @Deprecated
     public ModuleConfig getModuleConfigIfExists(String name) {
-        return container.getModuleConfigIfExists(name);
+        return repository.getModuleConfig(name).orElse(null);
     }
 
     public Optional<ModuleConfig> getOptionalModuleConfig(String name) {
-        return Optional.ofNullable(container.getModuleConfigIfExists(name));
-    }
-
-    static Path getDefaultConfigDir(FileSystem fileSystem) {
-        return getDirectory(fileSystem, "itools.config.dir", ".itools");
-    }
-
-    static Path getDefaultCacheDir(FileSystem fileSystem) {
-        return getDirectory(fileSystem, "itools.cache.dir", ".cache", "itools");
-    }
-
-    private static Path getDirectory(FileSystem fileSystem, String propertyName, String... folders) {
-        Objects.requireNonNull(fileSystem);
-        Objects.requireNonNull(propertyName);
-        Objects.requireNonNull(folders);
-
-        Path directory;
-
-        String directoryName = System.getProperty(propertyName);
-        if (directoryName != null) {
-            directory = fileSystem.getPath(directoryName);
-        } else {
-            directory = fileSystem.getPath(System.getProperty("user.home"), folders);
-        }
-
-        return directory;
-
+        return repository.getModuleConfig(name);
     }
 }
