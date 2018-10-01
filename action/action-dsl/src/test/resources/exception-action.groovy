@@ -14,7 +14,7 @@ contingency('contingency2') {
 
 rule('rule') {
     when generator('GEN').terminal.connected
-    apply 'action'
+    apply 'action1'
     life 2
 }
 
