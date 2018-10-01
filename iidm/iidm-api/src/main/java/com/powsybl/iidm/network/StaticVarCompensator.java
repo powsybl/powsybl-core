@@ -46,35 +46,35 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
     StaticVarCompensator setBmax(double bMax);
 
     /**
-     * <p>Get the voltage set point in Kv.</p>
+     * <p>Get the voltage setpoint in Kv.</p>
      * <p>Needed only when regulating mode is set to {@link RegulationMode#VOLTAGE}.</p>
      * <p>Depends on the working state.</p>
-     * @return the voltage set point
+     * @return the voltage setpoint
      */
     double getVoltageSetPoint();
 
     /**
-     * <p>Set the voltage set point in Kv.</p>
+     * <p>Set the voltage setpoint in Kv.</p>
      * <p>Needed only when regulating mode is set to {@link RegulationMode#VOLTAGE}.</p>
      * <p>Depends on the working state.</p>
-     * @param voltageSetPoint the voltage set point
+     * @param voltageSetPoint the voltage setpoint
      * @return this to allow method chaining
      */
     StaticVarCompensator setVoltageSetPoint(double voltageSetPoint);
 
     /**
-     * <p>Get the reactive power set point in KV.</p>
+     * <p>Get the reactive power setpoint in MVAR.</p>
      * <p>Needed only when regulating mode is set to {@link RegulationMode#REACTIVE_POWER}.</p>
      * <p>Depends on the working state.</p>
-     * @return the reactive power set point
+     * @return the reactive power setpoint
      */
     double getReactivePowerSetPoint();
 
     /**
-     * <p>Set the reactive power set point in KV.</p>
+     * <p>Set the reactive power setpoint in MVAR.</p>
      * <p>Needed only when regulating mode is set to {@link RegulationMode#REACTIVE_POWER}.</p>
      * <p>Depends on the working state.</p>
-     * @param reactivePowerSetPoint the reactive power set point
+     * @param reactivePowerSetPoint the reactive power setpoint
      * @return this to allow method chaining
      */
     StaticVarCompensator setReactivePowerSetPoint(double reactivePowerSetPoint);
