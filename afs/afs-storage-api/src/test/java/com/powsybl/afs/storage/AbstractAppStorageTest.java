@@ -19,12 +19,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.threeten.extra.Interval;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.UncheckedIOException;
-import java.io.Writer;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Arrays;
@@ -486,24 +481,26 @@ public abstract class AbstractAppStorageTest {
         // 19) rename node test
         NodeInfo folder5Info = storage.createNode(rootFolderInfo.getId(), "test5", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
         storage.flush();
+
         String newName = "newtest5";
 
-        folder5Info.setName(newName);
+        storage.renameNode(folder5Info.getId(), newName);
         storage.flush();
+        folder5Info = storage.getNodeInfo(folder5Info.getId());
         assertEquals(newName, folder5Info.getName());
 
         NodeInfo folder6Info = storage.createNode(rootFolderInfo.getId(), "test6", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
         try {
-            folder6Info.setName(null);
+            storage.renameNode(folder6Info.getId(), null);
             fail();
-        } catch (NullPointerException ignored) {
+        } catch (Exception ignored) {
         }
 
         NodeInfo folder7Info = storage.createNode(rootFolderInfo.getId(), "test7", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
         try {
-            folder7Info.setName("");
+            storage.renameNode(folder7Info.getId(), "");
             fail();
-        } catch (IllegalArgumentException ignored) {
+        } catch (Exception ignored) {
         }
     }
 }
