@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Before;
 import org.junit.Test;
@@ -117,6 +118,14 @@ public class ConditionDslLoaderTest {
 
     @Test
     public void testExpressionEvaluator() throws IOException {
+
+        Terminal terminal = network.getLoad("LOAD").getTerminal();
+        double old = terminal.getP();
+        terminal.setP(400);
+        evalAndAssert(100.0, "(load('LOAD').p0 - load('LOAD').terminal.p) / 2");
+        evalAndAssert(true, "(load('LOAD').p0 - load('LOAD').terminal.p) > 2");
+        terminal.setP(old);
+
         // visitComparisonOperator
         evalAndAssert(true, "load('LOAD').p0 == 600.0");
         evalAndAssert(true, "load('LOAD').p0 != 300.0");
