@@ -32,7 +32,7 @@ public class ThrowExceptionUndefinedActionTest {
     @Test
     public void test() {
         thrown.expect(ActionDslException.class);
-        thrown.expectMessage("Action 'action' not found");
+        thrown.expectMessage("Actions [action, action2] not found");
         new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/exception-undefined-action.groovy"))).load(network);
     }
 

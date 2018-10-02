@@ -109,10 +109,6 @@ class ActionDslLoader extends DslLoader {
         super(script)
     }
 
-    static void checkIfUndefinedActions(Set<String> actionsId, ActionDb rulesDb) {
-        actionsId.forEach({ a -> rulesDb.getAction(a) })
-    }
-
     ActionDb load(Network network) {
         load(network, null)
     }
@@ -244,7 +240,7 @@ class ActionDslLoader extends DslLoader {
 
             shell.evaluate(dslSrc)
 
-            checkIfUndefinedActions(actionsId, rulesDb)
+            rulesDb.checkUndefinedActions(actionsId)
 
             observer?.end()
         } catch (CompilationFailedException e) {

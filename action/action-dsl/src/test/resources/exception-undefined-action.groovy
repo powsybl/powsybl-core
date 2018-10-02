@@ -13,3 +13,7 @@ rule('rule') {
     apply 'action'
 }
 
+rule('rule2') {
+    when contingencyOccurred('contingency2')
+    apply 'action2'
+}
