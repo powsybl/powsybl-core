@@ -78,7 +78,7 @@ public class ActionDb {
                 .filter(id -> !actions.containsKey(id))
                 .collect(Collectors.joining(", "));
         if (!strActionIds.isEmpty()) {
-            throw new ActionDslException(("Actions [" + strActionIds + "] not found"));
+            throw new ActionDslException("Actions [" + strActionIds + "] not found");
         }
     }
 }
