@@ -47,14 +47,14 @@ public class LocalComputationConfigTest {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("computation-local");
         moduleConfig.setStringProperty("tmpDir", "/tmp");
         moduleConfig.setStringProperty("availableCore", "2");
-        LocalComputationConfig config = LocalComputationConfig.load(platformConfig);
+        LocalComputationConfig config = LocalComputationConfig.load(platformConfig, fileSystem);
         assertEquals(fileSystem.getPath("/tmp"), config.getLocalDir());
         assertEquals(2, config.getAvailableCore());
     }
 
     @Test
     public void testDefaultConfig() {
-        LocalComputationConfig config = LocalComputationConfig.load(platformConfig);
+        LocalComputationConfig config = LocalComputationConfig.load(platformConfig, fileSystem);
         assertEquals(fileSystem.getPath(LocalComputationConfig.DEFAULT_LOCAL_DIR), config.getLocalDir());
         assertEquals(1, config.getAvailableCore());
     }
@@ -63,7 +63,7 @@ public class LocalComputationConfigTest {
     public void testAvailableCoresNegative() {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("computation-local");
         moduleConfig.setStringProperty("availableCore", "-1");
-        LocalComputationConfig config = LocalComputationConfig.load(platformConfig);
+        LocalComputationConfig config = LocalComputationConfig.load(platformConfig, fileSystem);
         assertEquals(Runtime.getRuntime().availableProcessors(), config.getAvailableCore());
     }
 
@@ -72,7 +72,7 @@ public class LocalComputationConfigTest {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("computation-local");
         moduleConfig.setStringProperty("tmp-dir", "/tmp");
         moduleConfig.setStringProperty("available-core", "99");
-        LocalComputationConfig config = LocalComputationConfig.load(platformConfig);
+        LocalComputationConfig config = LocalComputationConfig.load(platformConfig, fileSystem);
         assertEquals(fileSystem.getPath("/tmp"), config.getLocalDir());
         assertEquals(99, config.getAvailableCore());
     }
@@ -82,11 +82,11 @@ public class LocalComputationConfigTest {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("computation-local");
         moduleConfig.setStringListProperty("tmp-dir", Arrays.asList("/first", "/second"));
         Files.createDirectories(fileSystem.getPath("/second"));
-        LocalComputationConfig config = LocalComputationConfig.load(platformConfig);
+        LocalComputationConfig config = LocalComputationConfig.load(platformConfig, fileSystem);
         // first does not exist second is used as tmp dir
         assertEquals(fileSystem.getPath("/second"), config.getLocalDir());
         Files.createDirectories(fileSystem.getPath("/first"));
-        config = LocalComputationConfig.load(platformConfig);
+        config = LocalComputationConfig.load(platformConfig, fileSystem);
         // now fist exist and is used in priority
         assertEquals(fileSystem.getPath("/first"), config.getLocalDir());
     }
