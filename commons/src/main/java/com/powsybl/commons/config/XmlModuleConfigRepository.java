@@ -8,8 +8,6 @@ package com.powsybl.commons.config;
 
 import com.powsybl.commons.exceptions.UncheckedParserConfigurationException;
 import com.powsybl.commons.exceptions.UncheckedSaxException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -34,12 +32,8 @@ import java.util.Objects;
  */
 public class XmlModuleConfigRepository extends AbstractModuleConfigRepository {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(XmlModuleConfigRepository.class);
-
     public XmlModuleConfigRepository(Path xmlConfigFile) {
         Objects.requireNonNull(xmlConfigFile);
-
-        LOGGER.info("Platform configuration defined by XML file {}", xmlConfigFile);
 
         try (InputStream is = Files.newInputStream(xmlConfigFile)) {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();

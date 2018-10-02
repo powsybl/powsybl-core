@@ -7,8 +7,6 @@
 package com.powsybl.commons.config;
 
 import com.powsybl.commons.PowsyblException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.IOException;
@@ -26,12 +24,8 @@ import java.util.Objects;
  */
 public class YamlModuleConfigRepository extends AbstractModuleConfigRepository {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(YamlModuleConfigRepository.class);
-
     public YamlModuleConfigRepository(Path yamlConfigFile) {
         Objects.requireNonNull(yamlConfigFile);
-
-        LOGGER.info("Platform configuration defined by XML file {}", yamlConfigFile);
 
         try (Reader reader = Files.newBufferedReader(yamlConfigFile, StandardCharsets.UTF_8)) {
             Yaml yaml = new Yaml();

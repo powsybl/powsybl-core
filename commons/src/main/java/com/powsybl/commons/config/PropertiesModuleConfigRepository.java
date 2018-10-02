@@ -33,8 +33,6 @@ public class PropertiesModuleConfigRepository implements ModuleConfigRepository 
 
     public PropertiesModuleConfigRepository(Path configDir) {
         this.configDir = Objects.requireNonNull(configDir);
-
-        LOGGER.info("Platform configuration defined by .properties files of directory {}", configDir);
     }
 
     private Path getModulePath(String name) {

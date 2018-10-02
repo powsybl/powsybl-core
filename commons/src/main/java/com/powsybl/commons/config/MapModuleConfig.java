@@ -51,16 +51,6 @@ public class MapModuleConfig extends AbstractMapModule {
                 .collect(Collectors.toSet());
     }
 
-    /*
-     * Environment variables substitution
-     */
-    private static String substitureEnvVar(String str) {
-        if (str == null) {
-            return null;
-        }
-        return str.replace("$HOME", System.getProperty("user.home"));
-    }
-
     private static PowsyblException createUnexpectedPropertyTypeException(String name, Class<?> type, Class<?>[] expectedTypes) {
         return new PowsyblException("Unexpected value type " + type.getName()
                 + " for property " + name + ", " + Arrays.toString(expectedTypes) + " is expected ");
@@ -80,7 +70,7 @@ public class MapModuleConfig extends AbstractMapModule {
         if (!(value instanceof String)) {
             throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[] {String.class});
         }
-        return Optional.of((String) value).map(MapModuleConfig::substitureEnvVar);
+        return Optional.of((String) value).map(PlatformEnv::substitute);
     }
 
     public void setStringProperty(String name, String value) {
@@ -99,10 +89,10 @@ public class MapModuleConfig extends AbstractMapModule {
                 if (trimmedString.isEmpty()) {
                     return Optional.of(Collections.emptyList());
                 } else {
-                    return Optional.of(Arrays.asList((substitureEnvVar(trimmedString)).split("[:,]")));
+                    return Optional.of(Arrays.asList((PlatformEnv.substitute(trimmedString)).split("[:,]")));
                 }
             } else if (value instanceof List) {
-                return Optional.of(((List<String>) value).stream().map(MapModuleConfig::substitureEnvVar).collect(Collectors.toList()));
+                return Optional.of(((List<String>) value).stream().map(PlatformEnv::substitute).collect(Collectors.toList()));
             } else {
                 throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[] {String.class, List.class});
             }
