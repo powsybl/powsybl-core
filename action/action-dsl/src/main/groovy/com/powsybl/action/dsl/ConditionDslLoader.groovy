@@ -198,6 +198,10 @@ class ConditionDslLoader extends DslLoader {
             BigDecimal.metaClass."$op0" = { ExpressionNode value ->
                 ExpressionHelper.newArithmeticBinaryOperator(ExpressionHelper.newBigDecimalLiteral(delegate), value, ArithmeticBinaryOperator."$op1")
             }
+
+            NetworkPropertyNode.metaClass."$op0" = { ExpressionNode value ->
+                ExpressionHelper.newArithmeticBinaryOperator(delegate, value, ArithmeticBinaryOperator."$op1")
+            }
         }
 
         // comparison
