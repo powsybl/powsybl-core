@@ -13,7 +13,7 @@ The `external-security-analysis-config` module is used in the `ExternalSecurityA
 
 It throws a `ConfigurationException` if itools-command is empty .
 
-To run the security analysis in external mode, you need to run the itools command: `security-analysis` --external arguments
+To run the security analysis in external mode, you need to run the itools command `security-analysis` with the --external argument
 
 ## Examples
 
