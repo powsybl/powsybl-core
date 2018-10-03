@@ -1,6 +1,6 @@
 # iTools afs command
 
-itools `afs` command performs some basic actions on a configured [AFS (Application File System)](../../afs/README.md) instance. In the specifics,
+itools `afs` command performs some basic actions on a configured [AFS (Application File System)](../tutorials/afs/howto-use-afs.md) instance. In the specifics,
 - it can list the contents of an AFS folder:
 - it can archive/restore an AFS content from/to a directory for backup purposes.
 
