@@ -46,35 +46,35 @@ CSPCH.TC1;v;238,307
 ### YAML
 ```yaml
 loadflow-validation:
-	threshold: 0.1
-	verbose: false
-	load-flow-factory: com.powsybl.loadflow.mock.LoadFlowFactoryMock
-	table-formatter-factory: com.powsybl.commons.io.table.CsvTableFormatterFactory
-	epsilon-x: 0.1
-	apply-reactance-correction: false
-	output-writer: CSV_MULTILINE
-	ok-missing-values: false
-	no-requirement-if-reactive-bound-inversion: false
-	compare-results: false
-	check-main-component-only: true
-	no-requirement-if-setpoint-outside-power-bounds: false
+    threshold: 0.1
+    verbose: false
+    load-flow-factory: com.powsybl.loadflow.mock.LoadFlowFactoryMock
+    table-formatter-factory: com.powsybl.commons.io.table.CsvTableFormatterFactory
+    epsilon-x: 0.1
+    apply-reactance-correction: false
+    output-writer: CSV_MULTILINE
+    ok-missing-values: false
+    no-requirement-if-reactive-bound-inversion: false
+    compare-results: false
+    check-main-component-only: true
+    no-requirement-if-setpoint-outside-power-bounds: false
 ```
 
 ### XML
 ```xml
 <loadflow-validation>
-	<threshold>0.1</threshold>
-	<verbose>false</verbose>
-	<load-flow-factory>com.powsybl.loadflow.mock.LoadFlowFactoryMock</load-flow-factory>
-	<table-formatter-factory>com.powsybl.commons.io.table.CsvTableFormatterFactory</table-formatter-factory>
-	<epsilon-x>0.1</epsilon-x>
-	<apply-reactance-correction>false</apply-reactance-correction>
-	<output-writer>CSV_MULTILINE</output-writer>
-	<ok-missing-values>false</ok-missing-values>
-	<no-requirement-if-reactive-bound-inversion>false</no-requirement-if-reactive-bound-inversion>
-	<compare-results>false</compare-results>
-	<check-main-component-only>true</check-main-component-only>
-	<no-requirement-if-setpoint-outside-power-bounds>false</no-requirement-if-setpoint-outside-power-bounds>
+    <threshold>0.1</threshold>
+    <verbose>false</verbose>
+    <load-flow-factory>com.powsybl.loadflow.mock.LoadFlowFactoryMock</load-flow-factory>
+    <table-formatter-factory>com.powsybl.commons.io.table.CsvTableFormatterFactory</table-formatter-factory>
+    <epsilon-x>0.1</epsilon-x>
+    <apply-reactance-correction>false</apply-reactance-correction>
+    <output-writer>CSV_MULTILINE</output-writer>
+    <ok-missing-values>false</ok-missing-values>
+    <no-requirement-if-reactive-bound-inversion>false</no-requirement-if-reactive-bound-inversion>
+    <compare-results>false</compare-results>
+    <check-main-component-only>true</check-main-component-only>
+    <no-requirement-if-setpoint-outside-power-bounds>false</no-requirement-if-setpoint-outside-power-bounds>
 </loadflow-validation>
 ```
 ## References
