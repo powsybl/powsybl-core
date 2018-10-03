@@ -6,10 +6,10 @@
  */
 package com.powsybl.action.dsl;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -35,14 +35,18 @@ public class ActionDb {
         Objects.requireNonNull(id);
         Contingency contingency = contingencies.get(id);
         if (contingency == null) {
-            throw new PowsyblException("Contingency '" + id + "' not found");
+            throw new ActionDslException("Contingency '" + id + "' not found");
         }
         return contingency;
     }
 
     public void addRule(Rule rule) {
         Objects.requireNonNull(rule);
-        rules.put(rule.getId(), rule);
+        String id = rule.getId();
+        if (rules.containsKey(id)) {
+            throw new ActionDslException("Rule '" + id + "' is defined several times");
+        }
+        rules.put(id, rule);
     }
 
     public Collection<Rule> getRules() {
@@ -51,15 +55,30 @@ public class ActionDb {
 
     public void addAction(Action action) {
         Objects.requireNonNull(action);
-        actions.put(action.getId(), action);
+        String id = action.getId();
+        if (actions.containsKey(id)) {
+            throw new ActionDslException("Action '" + id + "' is defined several times");
+        }
+        actions.put(id, action);
     }
 
     public Action getAction(String id) {
         Objects.requireNonNull(id);
         Action action = actions.get(id);
         if (action == null) {
-            throw new PowsyblException("Action '" + id + "' not found");
+            throw new ActionDslException("Action '" + id + "' not found");
         }
         return action;
+    }
+
+    void checkUndefinedActions(Set<String> actionIds) {
+        Objects.requireNonNull(actionIds);
+
+        String strActionIds = actionIds.stream()
+                .filter(id -> !actions.containsKey(id))
+                .collect(Collectors.joining(", "));
+        if (!strActionIds.isEmpty()) {
+            throw new ActionDslException("Actions [" + strActionIds + "] not found");
+        }
     }
 }

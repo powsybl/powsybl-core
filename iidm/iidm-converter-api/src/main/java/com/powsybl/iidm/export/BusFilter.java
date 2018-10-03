@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.xml;
+package com.powsybl.iidm.export;
 
 import com.powsybl.iidm.network.*;
 
@@ -14,14 +14,15 @@ import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public class BusFilter {
 
     private final Set<String> buses;
 
-    private final XMLExportOptions options;
+    private final ExportOptions options;
 
-    static BusFilter create(Network n, XMLExportOptions options) {
+    public static BusFilter create(Network n, ExportOptions options) {
         Set<String> buses = null;
         if (options.isOnlyMainCc()) {
             buses = new HashSet<>();
@@ -35,7 +36,7 @@ public class BusFilter {
         return new BusFilter(buses, options);
     }
 
-    static void addBusOfMainCC(Set<String> buses, Network n, XMLExportOptions options) {
+    static void addBusOfMainCC(Set<String> buses, Network n, ExportOptions options) {
         // keep bus of main cc
         if (options.getTopologyLevel() == TopologyLevel.BUS_BRANCH) {
             for (Bus b : n.getBusView().getBuses()) {
@@ -52,7 +53,7 @@ public class BusFilter {
         }
     }
 
-    static void addBusOfOtherSideOfOpenBranches(Set<String> buses, Network n, XMLExportOptions options) {
+    static void addBusOfOtherSideOfOpenBranches(Set<String> buses, Network n, ExportOptions options) {
         // and also bus at the other side of open branches
         n.getBranchStream().forEach(branch -> {
             Terminal t1 = branch.getTerminal1();
@@ -77,12 +78,12 @@ public class BusFilter {
         });
     }
 
-    BusFilter(Set<String> buses, XMLExportOptions options) {
+    BusFilter(Set<String> buses, ExportOptions options) {
         this.buses = buses;
         this.options = Objects.requireNonNull(options);
     }
 
-    BusFilter(XMLExportOptions options) {
+    BusFilter(ExportOptions options) {
         this(null, options);
     }
 
