@@ -6,7 +6,7 @@ for all the configured contingencies and re-calculate all the predefined securit
 ## Configuration for running run-impact-analysis command
 The impact analysis parameters are [defined](../configuration/modules/simulation-parameters.md) in the [configuration file](../configuration/configuration.md)
 
-NOTE: no impact-analysis implementations are available in powsybl-core. Ref. to project [iPST](https://github.com/itesla/ipst) provides to find one implementation: [pclfsim](https://github.com/itesla/ipst/tree/master/pclfsim-integration)
+NOTE: no impact-analysis implementations are available in powsybl-core. Ref. to project [iPST](https://github.com/itesla/ipst) to find one implementation: [pclfsim](https://github.com/itesla/ipst/tree/master/pclfsim-integration)
 
 ## Running run-impact-analysis command 
 Following is an example of how to use the `run-impact-analysis` command, and run it.  
