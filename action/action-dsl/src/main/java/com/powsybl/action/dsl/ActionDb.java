@@ -9,6 +9,7 @@ package com.powsybl.action.dsl;
 import com.powsybl.contingency.Contingency;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -68,5 +69,16 @@ public class ActionDb {
             throw new ActionDslException("Action '" + id + "' not found");
         }
         return action;
+    }
+
+    void checkUndefinedActions(Set<String> actionIds) {
+        Objects.requireNonNull(actionIds);
+
+        String strActionIds = actionIds.stream()
+                .filter(id -> !actions.containsKey(id))
+                .collect(Collectors.joining(", "));
+        if (!strActionIds.isEmpty()) {
+            throw new ActionDslException("Actions [" + strActionIds + "] not found");
+        }
     }
 }

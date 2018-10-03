@@ -41,7 +41,6 @@ public class YamlPlatformConfigTest {
     public void test() throws IOException {
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             Path cfgDir = Files.createDirectory(fileSystem.getPath("config"));
-            Path cacheDir = Files.createDirectory(fileSystem.getPath("cache"));
             try (Writer writer = Files.newBufferedWriter(cfgDir.resolve("config.yml"), StandardCharsets.UTF_8)) {
                 writer.write(String.join(System.lineSeparator(),
                         "module1:",
@@ -67,10 +66,7 @@ public class YamlPlatformConfigTest {
                         "    it: 2015-01-01T00:00:00Z/2015-01-01T01:45:00Z"));
             }
 
-            assertFalse(YamlPlatformConfig.create(fileSystem, cfgDir, cacheDir, "config2").isPresent());
-
-            PlatformConfig config = YamlPlatformConfig.create(fileSystem, cfgDir, cacheDir, "config")
-                    .orElseThrow(AssertionError::new);
+            PlatformConfig config = new PlatformConfig(new YamlModuleConfigRepository(cfgDir.resolve("config.yml")), cfgDir);
             assertNull(config.getModuleConfigIfExists("module2"));
             assertFalse(config.getOptionalModuleConfig("module2").isPresent());
             ModuleConfig module1 = config.getModuleConfig("module1");

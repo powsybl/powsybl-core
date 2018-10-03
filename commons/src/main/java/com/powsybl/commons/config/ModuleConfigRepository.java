@@ -6,14 +6,14 @@
  */
 package com.powsybl.commons.config;
 
+import java.util.Optional;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface ModuleConfigContainer {
+public interface ModuleConfigRepository {
 
     boolean moduleExists(String name);
 
-    ModuleConfig getModuleConfig(String name);
-
-    ModuleConfig getModuleConfigIfExists(String name);
+    Optional<ModuleConfig> getModuleConfig(String name);
 }
