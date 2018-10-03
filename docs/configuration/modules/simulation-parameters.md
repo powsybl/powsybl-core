@@ -25,10 +25,10 @@ The `simulation-parameters` module is used in the [run-impact-analysis](../../to
 ```yaml
 simulation-parameters:
     preFaultSimulationStopInstant: 0.1
-	faultEventInstant: 0.2
+    faultEventInstant: 0.2
     branchSideOneFaultShortCircuitDuration: 0.35
     branchSideTwoFaultShortCircuitDuration: 0.75
-	generatorFaultShortCircuitDuration: 0.3
+    generatorFaultShortCircuitDuration: 0.3
     postFaultSimulationStopInstant: 0.8   
 ```
 
@@ -40,6 +40,6 @@ simulation-parameters:
     <branchSideOneFaultShortCircuitDuration>0.35</branchSideOneFaultShortCircuitDuration>
     <branchSideTwoFaultShortCircuitDuration>0.75</branchSideTwoFaultShortCircuitDuration>
     <generatorFaultShortCircuitDuration>0.3</generatorFaultShortCircuitDuration>
-	<postFaultSimulationStopInstant>0.8</postFaultSimulationStopInstant>    
+    <postFaultSimulationStopInstant>0.8</postFaultSimulationStopInstant>    
 </simulation-parameters>
 ```
