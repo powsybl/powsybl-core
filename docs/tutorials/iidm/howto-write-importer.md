@@ -61,7 +61,7 @@ E.g. in our sample implementation we use `javacsv` library, so we have to add a 
 
 ## Implement the Importer interface
 
-You need to implement the `com.powsybl.iidm.import_.Importer` interface.  
+You have to implement the `com.powsybl.iidm.import_.Importer` interface.  
 Here is an empty class *template* where you will put all the `CSV` related reader code. 
  
 

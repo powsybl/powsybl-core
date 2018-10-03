@@ -3,9 +3,9 @@
 itools loadflow command allows you to run a [loadflow](../architecture/loadflow) on a IIDM network, imported from a case file.  
 
 ## Configuration for running loadflow command
-The configuration for the loadflow is defined in [powsybl configuration file](../configuration/configuration.md): 
+The parameters for the loadflow are [configured](../configuration/modules/load-flow-default-parameters.md) in the [configuration file](../configuration/configuration.md).  
 
-The loadflow implementation to use is read from the `LoadFlowFactory` tag of the `componentDefaultConfig` section. 
+The loadflow implementation to use is read from the `LoadFlowFactory` tag of the [`componentDefaultConfig` section](../configuration/modules/componentDefaultConfig.md). 
 
 Here is an example of a minimal configuration for a 'mock' loadflow (i.e. an implementation that does nothing on the network). If you want to execute a true computation, you should configure a 'real' loadflow implementation 
 (e.g. RTE's [Hades2LF](http://www.rte.itesla-pst.org/), is currently free to use for academic/non commercial purposes).
@@ -23,42 +23,6 @@ componentDefaultConfig:
 ```
 
 *Note*: different loadflow implementations might require specific configurations, in additional config file's sections.
-
-
-  
-The available generic loadflow computation parameters are:
-
-| Property | Type | Default value | Required | Comment |
-| -------- | ---- | ------------- | -------- | ------- |
-| voltageInitMode | [VoltageInitMode](../../loadflow/loadflow-api/src/main/java/com/powsybl/loadflow/LoadFlowParameters.java) | UNIFORM_VALUES | false | |
-| transformerVoltageControlOn | Boolean | false | false | |
-| noGeneratorReactiveLimits | Boolean | false | false | |
-| phaseShifterRegulationOn | Boolean | false | false | |
-| specificCompatibility | Boolean | false | false | |
-
-they can be defined in the configuration file's  ```load-flow-default-parameters``` section; examples:
-
-### YAML version
-```yaml
-load-flow-default-parameters:
-    voltageInitMode: UNIFORM_VALUES
-    transformerVoltageControlOn: false
-    noGeneratorReactiveLimits: false
-    phaseShifterRegulationOn: false
-    specificCompatibility: false
-```
-### XML version
-```xml
-<load-flow-default-parameters>
-    <voltageInitMode>UNIFORM_VALUES</voltageInitMode>
-    <transformerVoltageControlOn>false</transformerVoltageControlOn>
-    <noGeneratorReactiveLimits>false</noGeneratorReactiveLimits>
-    <phaseShifterRegulationOn>false</phaseShifterRegulationOn>
-    <specificCompatibility>false</specificCompatibility>
-</load-flow-default-parameters>
-```
-
-
 ## Running loadflow command 
 To show the `loadflow` command help, with its specific parameters and descriptions, enter: 
 

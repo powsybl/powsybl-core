@@ -1,6 +1,6 @@
 # Module load-flow-default-parameters
 
-The `load-flow-default-parameters` module is used everytime a load-flow is ran. It defines the default values for the
+The `load-flow-default-parameters` module is used everytime a load-flow is run. It defines the default values for the
 most common parameters a LoadFlow implementation should be able to handle. 
 
 ## Properties
@@ -9,7 +9,7 @@ most common parameters a LoadFlow implementation should be able to handle.
 | -------- | ---- | -------- | ------------- | ----------- |
 | noGeneratorReactiveLimits | Boolean | no | false | If true, the load-flow is allowed to find a setpoint outside the reactive limits |
 | phaseShifterRegulationOn | Boolean | no | false | If true, the load-flow is allowed to change taps of PhaseTapChanger |
-| specificCompatibility | Boolean | no | false | If true, the load-flow is run in a legagy mode (implementation specific) |
+| specificCompatibility | Boolean | no | false | If true, the load-flow is run in a legacy mode (implementation specific) |
 | transformerVoltageControlOn | Boolean | no | false | If true, the load-flow is allowed to change taps of RatioTapChanger |
 | voltageInitMode | List of VoltageInitMode | no | UNIFORM_VALUES | The policy used by the load-flow to initialize the voltage values |
 

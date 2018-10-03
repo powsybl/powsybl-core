@@ -7,7 +7,7 @@ The default configuration folder and the configuration file name can be [configu
 
 ## Modules and properties
 
-The configuration file contains a list of modules, some of them can be required or optional. Each module contains one or
+The configuration file contains a list of modules, that can be required or optional. Each module contains one or
 several properties. These properties can also be required or optional.
 
 ### Example

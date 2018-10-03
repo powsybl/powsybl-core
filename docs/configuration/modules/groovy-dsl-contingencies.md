@@ -1,6 +1,6 @@
 # Module groovy-dsl-contingencies
 
-The `groovy-dsl-contingencies` module is used by the `GroovyDslContingenciesProviderFactory` which is a implementation of
+The `groovy-dsl-contingencies` module is used by the `GroovyDslContingenciesProviderFactory`, which is a implementation of
 the `ContingenciesProviderFactory` used in [security-analysis](../../tools/security-analysis.md) computations.
 
 ## Properties

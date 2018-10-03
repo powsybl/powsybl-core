@@ -1,6 +1,6 @@
 # Module default-computation-manager
 
-The `default-computation-manager` module is an optional module loaded when an `iTools` command starts to determine which
+The `default-computation-manager` module is an optional module loaded when an `iTools` command starts, to determine which
 `ComputationManager` implementations should be used for short-time and long-time computations. If this module is not set,
 the `LocalComputationManager` implementation is used.
 

@@ -28,6 +28,10 @@
             <artifactId>auto-service</artifactId>
         </dependency>
         <dependency>
+        	 <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-loadflow-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-iidm-converter-api</artifactId>
         </dependency>

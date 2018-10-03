@@ -6,7 +6,7 @@ The `computation-local` module is used by the `LocalComputationManager` to run c
 
 | Property | Type | Required | Default value | Description |
 | -------- | ---- | -------- | ------------- | ----------- |
-| available-core | Integer | no | 1 | The maximal number of parallel computations |
+| available-core | Integer | no | 1 | The maximum number of parallel computations |
 | tmp-dir | List of paths | no | - | A list of paths where to store temporary files used during computations |
 
 **tmp-dir**: The `LocalComputationManager` uses the first existing path of the list. It throws a `ConfigurationException`

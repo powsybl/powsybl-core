@@ -10,9 +10,11 @@ In the following sections we refer to installation and sample directories as:
 
 
 ## Configuration for running security-analysis command
-The configuration is defined in [powsybl configuration file](../configuration/configuration.md).
+The parameters are [defined](../configuration/modules/load-flow-action-simulator.md) in [powsybl configuration file](../configuration/configuration.md).  
 
-Here is an example of a configuration to start a security analysis for 'mock' loadflow implementation(an implementation that does nothing on the network).  
+The factory implementations to use are read from the [`componentDefaultConfig` section](../configuration/modules/componentDefaultConfig.md).
+
+Here is an example of a configuration to start a security analysis for the 'mock' loadflow implementation (an implementation that does nothing on the network).  
 Contingencies are defined in a DSL Groovy format.
 
 Note that different loadflow implementations might require specific configurations in additional dedicated config file's sections.
@@ -23,28 +25,16 @@ componentDefaultConfig:
     ContingenciesProviderFactory: com.powsybl.action.dsl.GroovyDslContingenciesProviderFactory
     SecurityAnalysisFactory: com.powsybl.security.SecurityAnalysisFactoryImpl
     LoadFlowFactory: com.powsybl.loadflow.mock.LoadFlowFactoryMock
-    
-load-flow-action-simulator:
-    load-flow-factory: com.powsybl.loadflow.mock.LoadFlowFactoryMock
-    max-iterations: 4
-    ignore-pre-contingency-violations: false
-    
 ```
 
 ## XML version
 ```xml
-<?xml version="1.0" encoding="UTF-8"?>
 <config>
     <componentDefaultConfig>
         <ContingenciesProviderFactory>com.powsybl.action.dsl.GroovyDslContingenciesProviderFactory</ContingenciesProviderFactory>
         <SecurityAnalysisFactory>com.powsybl.security.SecurityAnalysisFactoryImpl</SecurityAnalysisFactory>
         <LoadFlowFactory>com.powsybl.loadflow.mock.LoadFlowFactoryMock</LoadFlowFactory>
     </componentDefaultConfig>
-    <load-flow-action-simulator>
-        <load-flow-factory>com.powsybl.loadflow.mock.LoadFlowFactoryMock</load-flow-factory>
-        <max-iterations>4</max-iterations>
-        <ignore-pre-contingency-violations>true</ignore-pre-contingency-violations>
-  </load-flow-action-simulator>
 </config>
 ```
 
@@ -66,11 +56,14 @@ Available options are:
 Available arguments are:
     --case-file <FILE>               the case path
     --contingencies-file <FILE>      the contingencies path
+    --external                       external execution
     --help                           display the help and quit
     --limit-types <LIMIT-TYPES>      limit type filter (all if not set)
     --output-file <FILE>             the output path
     --output-format <FORMAT>         the output format [JSON]
     --parameters-file <FILE>         loadflow parameters as JSON file
+    --task <TASKID>                  task identifier(task-index/task-count)
+    --task-count <NTASKS>            number of tasks used for parallelization
     --with-extensions <EXTENSIONS>   the extension list to enable
 
 Allowed LIMIT-TYPES values are [CURRENT, LOW_VOLTAGE, HIGH_VOLTAGE,

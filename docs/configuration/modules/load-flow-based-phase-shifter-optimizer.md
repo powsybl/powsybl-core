@@ -1,7 +1,7 @@
 # Module load-flow-based-phase-shifter-optimizer
 
-The `load-flow-based-phase-shifter-optimizer` module is used by the `LoadFlowBasedPhaseShifterOptimizer` class which is
-an implementation of the `PhaseShifterOptimizer` interface. The `LoadFlowBasedPhaseShifterOptimizer` try to solve a 
+The `load-flow-based-phase-shifter-optimizer` module is used by the `LoadFlowBasedPhaseShifterOptimizer` class, which is
+an implementation of the `PhaseShifterOptimizer` interface. The `LoadFlowBasedPhaseShifterOptimizer` tries to solve a 
 current violation on a phase tap changer.
 
 ## Properties

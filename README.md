@@ -29,19 +29,28 @@ to allow other projects to extend its features or to modify the default behaviou
 * Scripting (Groovy)
 * Tools: command line tools interface
 
-This guide explains how to build powsybl-core sources into a powsybl binary installation.
+More information about Powsybl-Core in the [documentation](docs/README.md)
 
-## Environment requirements
+
+## Installation
+Please refer to the [Getting Started](docs/getting-started.md) guide to learn howto create a binary distribution from pre-compiled binaries from a Maven repository (with some limitations, though: C/C++ modules binaries will not be included) 
+
+The instructions below explain how to build powsybl-core sources into a full powsybl binary installation.  
+
+
+### Environment requirements
 Linux is required, this guide covers these distributions  
  * CentOS v6.x / v7.x
  
 In order to build the project, you need:
-  * [Oracle JDK](http://www.oracle.com/technetwork/java/javase/downloads/index.html) *(1.8)*
+  * Java Development Kit (JDK): *(Java 8 or newer)*
   * [Maven](https://maven.apache.org/download.cgi) (>= 3.5.3) 
   * CMake *(>= 2.6)*
   * A recent C++ compiler (GNU g++ or Clang)
   * [OpenMPI](https://www.open-mpi.org/) *(tested with 1.8.3)*
   * Some development libraries (e.g. [zlib](http://www.zlib.net/) and [bzip](http://www.bzip.org/))
+  
+You might also need to configure your network proxy settings, as the installation procedure downloads files from external repositories, e.g. GitHub and Maven central.
 
 ### Build tools and libraries installation
 Root privileges are required to install these packages (used to build some external modules, e.g. Boost):  
@@ -94,7 +103,8 @@ $> ./install.sh
 By default, the install script will:
   * download and compile all external packages from the Internet
   * compile C++ and Java modules
-  * install the platform to $HOME/powsybl
+  * package a Powsybl platform distribution (using the [itools-packager](itools-packager/README.md) maven plugin)
+  * install the platform distribution to $HOME/powsybl
 
 
 #### Install.sh script options
@@ -142,69 +152,77 @@ each time you use the toolchain.
 
 At the end  of installation process, the log will list the installed packages, together with the result of each installation and time spent. For instance:
 
-    Reactor Summary:
-    powsybl 1.2.0-SNAPSHOT ............................. SUCCESS [  3.789 s]
-    Commons ............................................ SUCCESS [ 29.523 s]
-    Math ............................................... SUCCESS [ 16.762 s]
-    AFS ................................................ SUCCESS [  0.362 s]
-    AFS storage API .................................... SUCCESS [ 10.300 s]
-    Computation API .................................... SUCCESS [  7.258 s]
-    Tools .............................................. SUCCESS [  6.545 s]
-    Local computation .................................. SUCCESS [  4.372 s]
-    AFS MapDB storage implementation ................... SUCCESS [ 10.620 s]
-    IIDM ............................................... SUCCESS [  0.200 s]
-    IIDM network model ................................. SUCCESS [  9.838 s]
-    AFS core classes ................................... SUCCESS [ 11.774 s]
-    IIDM testing networks .............................. SUCCESS [  1.966 s]
-    IIDM network model implementation .................. SUCCESS [ 21.331 s]
-    Contingency API .................................... SUCCESS [  8.577 s]
-    Action ............................................. SUCCESS [  0.225 s]
-    Action DSL SPI ..................................... SUCCESS [  0.733 s]
-    IIDM converter API ................................. SUCCESS [  7.894 s]
-    IIDM XML converter ................................. SUCCESS [ 13.631 s]
-    AFS base extensions ................................ SUCCESS [ 10.622 s]
-    Scripting .......................................... SUCCESS [ 10.890 s]
-    Load-flow .......................................... SUCCESS [  0.255 s]
-    Load-flow API ...................................... SUCCESS [  8.885 s]
-    Action utilities ................................... SUCCESS [  4.533 s]
-    Action, contingency and rule DSL ................... SUCCESS [ 23.505 s]
-    Security analysis .................................. SUCCESS [  0.182 s]
-    Security analysis API .............................. SUCCESS [ 11.030 s]
-    Action simulator ................................... SUCCESS [ 15.715 s]
-    AFS local filesystem implementation ................ SUCCESS [  5.471 s]
-    AFS MapDB filesystem implementation ................ SUCCESS [  5.518 s]
-    AFS WS ............................................. SUCCESS [  0.165 s]
-    AFS WS client side utilities ....................... SUCCESS [  4.044 s]
-    AFS WS Utilities ................................... SUCCESS [  2.824 s]
-    Network cache AFS .................................. SUCCESS [  0.152 s]
-    Network cache AFS client ........................... SUCCESS [  1.835 s]
-    AFS WS server side utilities ....................... SUCCESS [  2.495 s]
-    Network cache AFS server ........................... SUCCESS [  1.197 s]
-    AFS WS storage ..................................... SUCCESS [  3.534 s]
-    AFS WS client ...................................... SUCCESS [  2.982 s]
-    AFS WS Server ...................................... SUCCESS [02:12 min]
-    AMPL converter implementation ...................... SUCCESS [  6.456 s]
-    CIM anonymizer ..................................... SUCCESS [  5.751 s]
-    CIM1 ............................................... SUCCESS [  0.172 s]
-    CIM1 network model ................................. SUCCESS [  7.145 s]
-    ENTSO-E utilities .................................. SUCCESS [  6.846 s]
-    Load-flow validation ............................... SUCCESS [ 10.114 s]
-    Loadflow Results Completion ........................ SUCCESS [  3.939 s]
-    CIM1 converter implementation ...................... SUCCESS [  6.223 s]
-    MPI computation .................................... SUCCESS [  9.192 s]
-    IIDM utilities ..................................... SUCCESS [  3.170 s]
-    Security analysis AFS .............................. SUCCESS [  6.284 s]
-    Security analysis local service .................... SUCCESS [  5.943 s]
-    Time domain simulation API ......................... SUCCESS [  5.885 s]
-    UCTE ............................................... SUCCESS [  0.152 s]
-    UCTE network model ................................. SUCCESS [  5.894 s]
-    UCTE converter implementation ...................... SUCCESS [  4.028 s]
-    Distribution 1.2.0-SNAPSHOT ........................ SUCCESS [ 17.275 s]
-    BUILD SUCCESS
-    Total time: 08:41 min
-    Finished at: 2018-07-02T15:51:15Z
-                
-
+```
+  [INFO] Reactor Summary:
+  [INFO] 
+  [INFO] powsybl 2.2.0-SNAPSHOT ............................. SUCCESS [  4.279 s]
+  [INFO] Commons ............................................ SUCCESS [ 13.805 s]
+  [INFO] Time series ........................................ SUCCESS [  0.409 s]
+  [INFO] Time series API .................................... SUCCESS [  4.648 s]
+  [INFO] AFS ................................................ SUCCESS [  0.394 s]
+  [INFO] AFS storage API .................................... SUCCESS [  4.214 s]
+  [INFO] Computation API .................................... SUCCESS [  2.892 s]
+  [INFO] Tools .............................................. SUCCESS [  3.756 s]
+  [INFO] Local computation .................................. SUCCESS [  2.866 s]
+  [INFO] AFS MapDB storage implementation ................... SUCCESS [  4.853 s]
+  [INFO] IIDM ............................................... SUCCESS [  0.412 s]
+  [INFO] IIDM network model ................................. SUCCESS [  5.701 s]
+  [INFO] AFS core classes ................................... SUCCESS [  6.028 s]
+  [INFO] Math ............................................... SUCCESS [  2.746 s]
+  [INFO] IIDM testing networks .............................. SUCCESS [  0.717 s]
+  [INFO] IIDM network model implementation .................. SUCCESS [  7.494 s]
+  [INFO] Contingency API .................................... SUCCESS [  5.241 s]
+  [INFO] Action ............................................. SUCCESS [  0.313 s]
+  [INFO] Action DSL SPI ..................................... SUCCESS [  0.503 s]
+  [INFO] IIDM converter API ................................. SUCCESS [  4.112 s]
+  [INFO] IIDM XML converter ................................. SUCCESS [  7.116 s]
+  [INFO] AFS base extensions ................................ SUCCESS [  4.651 s]
+  [INFO] Scripting .......................................... SUCCESS [  5.429 s]
+  [INFO] Load-flow .......................................... SUCCESS [  0.302 s]
+  [INFO] Load-flow API ...................................... SUCCESS [  4.291 s]
+  [INFO] Action utilities ................................... SUCCESS [  2.864 s]
+  [INFO] Action, contingency and rule DSL ................... SUCCESS [ 10.381 s]
+  [INFO] Security analysis .................................. SUCCESS [  0.304 s]
+  [INFO] Security analysis API .............................. SUCCESS [  4.329 s]
+  [INFO] Action simulator ................................... SUCCESS [  7.290 s]
+  [INFO] AFS local filesystem implementation ................ SUCCESS [  2.531 s]
+  [INFO] AFS MapDB filesystem implementation ................ SUCCESS [  2.944 s]
+  [INFO] AFS WS ............................................. SUCCESS [  0.292 s]
+  [INFO] AFS WS Utilities ................................... SUCCESS [  1.593 s]
+  [INFO] AFS WS client side utilities ....................... SUCCESS [  2.216 s]
+  [INFO] Network cache AFS .................................. SUCCESS [  0.355 s]
+  [INFO] Network cache AFS client ........................... SUCCESS [  0.711 s]
+  [INFO] AFS WS server side utilities ....................... SUCCESS [  1.752 s]
+  [INFO] Network cache AFS server ........................... SUCCESS [  0.617 s]
+  [INFO] AFS WS storage ..................................... SUCCESS [  2.159 s]
+  [INFO] AFS WS client ...................................... SUCCESS [  1.896 s]
+  [INFO] AFS WS Server ...................................... SUCCESS [01:04 min]
+  [INFO] AMPL converter implementation ...................... SUCCESS [  3.407 s]
+  [INFO] CIM anonymizer ..................................... SUCCESS [  5.271 s]
+  [INFO] CIM1 ............................................... SUCCESS [  0.328 s]
+  [INFO] CIM1 network model ................................. SUCCESS [  4.747 s]
+  [INFO] ENTSO-E utilities .................................. SUCCESS [  5.038 s]
+  [INFO] Load-flow validation ............................... SUCCESS [  7.706 s]
+  [INFO] Loadflow Results Completion ........................ SUCCESS [  2.909 s]
+  [INFO] CIM1 converter implementation ...................... SUCCESS [  3.759 s]
+  [INFO] MPI computation .................................... SUCCESS [  3.997 s]
+  [INFO] IIDM utilities ..................................... SUCCESS [  1.993 s]
+  [INFO] Security analysis AFS .............................. SUCCESS [  3.303 s]
+  [INFO] Security analysis local service .................... SUCCESS [  6.436 s]
+  [INFO] Sensitivity computation API ........................ SUCCESS [  3.475 s]
+  [INFO] Time domain simulation API ......................... SUCCESS [  3.188 s]
+  [INFO] UCTE ............................................... SUCCESS [  0.329 s]
+  [INFO] UCTE network model ................................. SUCCESS [  2.518 s]
+  [INFO] UCTE converter implementation ...................... SUCCESS [  2.215 s]
+  [INFO] iTools packager Maven plugin ....................... SUCCESS [  2.055 s]
+  [INFO] Distribution 2.2.0-SNAPSHOT ........................ SUCCESS [  3.806 s]
+  [INFO] ------------------------------------------------------------------------
+  [INFO] BUILD SUCCESS
+  [INFO] ------------------------------------------------------------------------
+  [INFO] Total time: 04:32 min
+  [INFO] Finished at: 2018-10-02T18:51:21+02:00
+  [INFO] ------------------------------------------------------------------------
+```
 
 ### Validate the installation
 To validate the powsybl-core installation, start a terminal and navigate to the powsybl-core installation ./bin directory.

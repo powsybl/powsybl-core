@@ -16,15 +16,8 @@ The list of post processors currently implemented and available in powsybl-core 
 - [javaScript](javaScriptPostProcessor.md)
 - [loadflowResultsCompletion](loadflowResultsCompletion.md)
 
-The powsybl-core platform reads from the configuration all the post processors to run, and, just after a network is imported (e.g. when you run an itools command that import a network), calls the post processors.    
-the import post processors to run are defined in powsybl's [configuration file](../../../configuration/configuration.md).  
+The powsybl-core platform reads from the configuration all the post processors to run, and, just after a network is imported (e.g. when you run an itools command that import a network), calls the post processors.  
+The import post processors to run are defined in [`import` section](../../../configuration/modules/import.md) of the in powsybl's [configuration file](../../../configuration/configuration.md). The post processors are run according to the order specified in the configuration.      
 
-```xml
-<import>
-    <postProcessors>groovyScript,javaScript</postProcessors>
-</import>
-```
 
-In the `import` section, the `postProcessors` tag contains the list of post processors to run. The post processors are run according to the order specified in the `postProcessors` tag.      
-  
 Some post processor may have or require a further configuration (e.g. [groovyScript](groovyScriptPostProcessor.md)).

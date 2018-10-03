@@ -208,14 +208,14 @@ Copy the generated jar (in your project's target folder) to `<POWSYBL_HOME>/shar
 
 ```bash
 $> cd <POWSYBL_HOME>/bin
-$>  ../itools convert-network --help
+$>  ./itools convert-network --help
 ```
   
 To test the new exporter with the above mentioned xiidm sample file, run this [convert-network](../../tools/convert-network.md) itools command: 
 
 ```bash
 $> cd <POWSYBL_HOME>/bin
-$>  ../itools convert-network --input-file <POWSYBL_SAMPLES>/resources/test_lines.xiidm --output-format CSV  --output-file /tmp/test_lines_exported.csv
+$>  ./itools convert-network --input-file <POWSYBL_SAMPLES>/resources/test_lines.xiidm --output-format CSV  --output-file /tmp/test_lines_exported.csv
 
 ```
 

@@ -1,6 +1,7 @@
 # iTools loadflow-validation command
 
-itools `loadflow-validation` command, allows you to validate load-flow results of a network imported from a case file.
+itools `loadflow-validation` command, allows you to validate load-flow results of a network imported from a case file.  
+The command, besides validating the results, also print them (print the data of the validated equipments) in output files.  
 
 In the following sections we refer to installation, sample and  sources directories as:
 
@@ -10,7 +11,7 @@ In the following sections we refer to installation, sample and  sources director
 
 
 ## Configuration for running loadflow-validation command
-The loadflow-validation implementation to use is defined in powsybl's configuration file, whose default location is `$HOME/.itools/config.xml`, ref. powsybl-core [powsybl configuration file](../configuration/configuration.md).
+The validation parameters to use are defined in [`loadflow-validation` section](../configuration/modules/loadflow-validation.md) of the [configuration file](../configuration/configuration.md).
 
 
 

@@ -6,7 +6,7 @@ parameters passed to configure the `Importer`. This module support 3 different t
 - String
 - List of String
 
-While the parameters are different from an `Importer` to another, it is impossible to give an exhaustive list of supported
+As the parameters are different from an `Importer` to another, it is impossible to give an exhaustive list of supported
 properties. Please refers to the documentation of each [importer](../../architecture/iidm/importer/README.md).
 
 ## Examples

@@ -28,12 +28,12 @@ Available arguments are:
 
 ```
 
-- `<FILE_SYSTEM_NAME>` is an AFS `drive-name`, as described in [AFS (Application File System)](../../afs/README.md) and configured in  [powsybl configuration file](../configuration/configuration.md)
+- `<FILE_SYSTEM_NAME>` is an AFS `drive-name`, as described in [AFS (Application File System)](../tutorials/afs/howto-use-afs.md) and configured in  [powsybl configuration file](../configuration/configuration.md)
 - `<PATH>` is an AFS filesystem path (*Note:* to refer a specific AFS, use a `drive-name:/` prefix in the path)
 - `<DIR>` is local filesystem path
 
 ## Examples
-Here below we assume that an afs named `my-first-fs` is configured and populated as described in [AFS (Application File System)](../../afs/README.md), section *Using AFS from groovy scripts*.
+Here below we assume that an afs named `my-first-fs` is configured and populated as described in [AFS (Application File System)](../tutorials/afs/howto-use-afs.md), section *Using AFS from groovy scripts*.
 
 ### Example 1: list an afs root folder contents
 ```shell

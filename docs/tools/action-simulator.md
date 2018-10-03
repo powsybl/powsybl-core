@@ -9,47 +9,9 @@ In the following sections we refer to installation and sample directories as:
 
 
 ## Configuration for running action-simulator command
-The configuration is defined in [powsybl configuration file](../configuration/configuration.md).
+The configuration is [defined](../configuration/modules/load-flow-action-simulator.md) in the [configuration file](../configuration/configuration.md).
 
 This module needs to be in the configuration if remedial actions defined in the DSL are to be simulated with load flows.
-
-Here is an example of configuration for a 'mock' loadflow implementation  (an implementation that does nothing on the network). 
-Note that different loadflow implementations might require specific configurations, in additional dedicated config file's sections.
-
-## YAML version
-```yaml
-componentDefaultConfig:
-    ContingenciesProviderFactory: com.powsybl.action.dsl.GroovyDslContingenciesProviderFactory
-    LoadFlowFactory: com.powsybl.loadflow.mock.LoadFlowFactoryMock
-    
-load-flow-action-simulator:
-    load-flow-factory: com.powsybl.loadflow.mock.LoadFlowFactoryMock
-    max-iterations: 4
-    ignore-pre-contingency-violations: false
-    
-```
-
-## XML version
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<config>
-  <componentDefaultConfig>
-    <ContingenciesProviderFactory>com.powsybl.action.dsl.GroovyDslContingenciesProviderFactory</ContingenciesProviderFactory>
-    <LoadFlowFactory>com.powsybl.loadflow.mock.LoadFlowFactoryMock</LoadFlowFactory>
-  </componentDefaultConfig>
-  <load-flow-action-simulator>
-    <load-flow-factory>com.powsybl.loadflow.mock.LoadFlowFactoryMock</load-flow-factory>
-    <max-iterations>4</max-iterations>
-    <ignore-pre-contingency-violations>false</ignore-pre-contingency-violations>
-  </load-flow-action-simulator>
-</config>
-```
-
- Property | Type | Default value | Required | Comment |
-| -------- | ---- | ------------- | -------- | ------- |
-| load-flow-factory | Class | | true | Implementation of the load flow |
-| max-iterations | Integer | | true | Maximum loadflow rounds (avoid infinite loops) |
-| ignore-pre-contingency-violations | Boolean | false | false | Proceed with N-k simulations even if there are pre-contingency violations |
 
 ## Running action-simulator command 
 Following is an example of how to use the `action-simulator` command.
@@ -76,10 +38,12 @@ Available arguments are:
     --case-file <FILE>                                 the case path
     --contingencies <CONTINGENCY1,CONTINGENCY2,...>    contingencies to test
     --dsl-file <FILE>                                  the Groovy DSL path
+    --export-after-each-round                          export case after each
+                                                       round
     --help                                             display the help and quit
     --output-case-folder <CASEFOLDER>                  output case folder path
-    --output-case-format <CASEFORMAT>                  output case format
-                                                       [XIIDM, ADN, AMPL]
+    --output-case-format <CASEFORMAT>                  output case format [CSV,
+                                                       AMPL, XIIDM]
     --output-compression-format <COMPRESSION_FORMAT>   output compression format
                                                        [GZIP, BZIP2, ZIP]
     --output-file <FILE>                               the output file path
@@ -90,7 +54,6 @@ Available arguments are:
     --task-count <NTASKS>                              number of tasks used for
                                                        parallelization
     --verbose                                          verbose mode
-
 ```
                                         
 In order to run the `action-simulator` command, you must provide at least two required arguments: 
