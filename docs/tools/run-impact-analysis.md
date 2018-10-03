@@ -9,7 +9,7 @@ The impact analysis parameters are [defined](../configuration/modules/simulation
 NOTE: no impact-analysis implementations are available in powsybl-core. Ref. to project [iPST](https://github.com/itesla/ipst) to find one implementation: [pclfsim](https://github.com/itesla/ipst/tree/master/pclfsim-integration)
 
 ## Running run-impact-analysis command 
-Following is an example of how to use the `run-impact-analysis` command, and run it.  
+Following is an example of how to use the `run-impact-analysis` command.  
 To show the command help, with its specific parameters and descriptions, enter: 
 
 ```
