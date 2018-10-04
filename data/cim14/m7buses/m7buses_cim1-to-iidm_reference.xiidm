@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" id="m7buses_EQ" caseDate="2017-11-09T16:25:26.619+01:00" forecastDistance="0" sourceFormat="CIM1">
+    <iidm:substation id="_FP.AND11_SS" name="FP.AND11_SS" country="AF" geographicalTags="_SGR_07">
+        <iidm:voltageLevel id="_FTDPRA11_VL" name="FTDPRA11_VL" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="_FTDPRA11_TN" v="406.444" angle="-0.03468"/>
+            </iidm:busBreakerTopology>
+            <iidm:load id="_FTDPRC11_EC" name="FTDPRC11" loadType="UNDEFINED" p0="480.0" q0="4.8" bus="_FTDPRA11_TN" connectableBus="_FTDPRA11_TN" p="480.0" q="4.8"/>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="_FP.AND11_VL" name="FP.AND11_VL" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="_FP.AND11_TN" v="406.446" angle="0.0"/>
+            </iidm:busBreakerTopology>
+            <iidm:load id="_FP.ANC12_EC" name="FP.ANC12" loadType="UNDEFINED" p0="240.0" q0="2.4" bus="_FP.AND11_TN" connectableBus="_FP.AND11_TN" p="240.0" q="2.4"/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="_FP.AND11-FTDPRA11-1_PT" name="FP.AND11-FTDPRA11-1" r="0.00999994" x="0.999999" g="0.0" b="0.0" ratedU1="380.0" ratedU2="380.0" bus1="_FP.AND11_TN" connectableBus1="_FP.AND11_TN" voltageLevelId1="_FP.AND11_VL" bus2="_FTDPRA11_TN" connectableBus2="_FTDPRA11_TN" voltageLevelId2="_FTDPRA11_VL">
+            <iidm:phaseTapChanger lowTapPosition="1" tapPosition="17" regulationMode="FIXED_TAP">
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-9.167216"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-8.594265"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-8.021315"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-7.4483633"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-6.875412"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-6.302461"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-5.7295103"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-5.156559"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-4.583608"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-4.0106573"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-3.437706"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-2.8647552"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-2.291804"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-1.718853"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-1.145902"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="-0.572951"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="0.0"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="0.572951"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="1.145902"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="1.718853"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="2.291804"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="2.8647552"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="3.437706"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="4.0106573"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="4.583608"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="5.156559"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="5.7295103"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="6.302461"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="6.875412"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="7.4483633"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="8.021315"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="8.594265"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0" alpha="9.167216"/>
+            </iidm:phaseTapChanger>
+            <iidm:currentLimits1 permanentLimit="1000.0"/>
+            <iidm:currentLimits2 permanentLimit="1000.0"/>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:substation id="_FS.BIS11_SS" name="FS.BIS11_SS" country="AF" geographicalTags="_SGR_07">
+        <iidm:voltageLevel id="_FS.BIS11_VL" name="FS.BIS11_VL" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="_FS.BIS11_TN" v="406.442" angle="-0.0208"/>
+            </iidm:busBreakerTopology>
+            <iidm:load id="_FS.BIC11_EC" name="FS.BIC11" loadType="UNDEFINED" p0="240.0" q0="2.4" bus="_FS.BIS11_TN" connectableBus="_FS.BIS11_TN" p="240.0" q="2.4"/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="_FSSV.O11_SS" name="FSSV.O11_SS" country="AF" geographicalTags="_SGR_07">
+        <iidm:voltageLevel id="_FSSV.O11_VL" name="FSSV.O11_VL" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="_FSSV.O11_TN" v="406.45" angle="0.076305"/>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="_FSSV.T11_SM" name="FSSV.T11" energySource="OTHER" minP="400.0" maxP="1200.0" voltageRegulatorOn="true" targetP="960.013" targetV="406.45" targetQ="2.3523" bus="_FSSV.O11_TN" connectableBus="_FSSV.O11_TN" p="-960.013" q="-2.3523">
+                <iidm:minMaxReactiveLimits minQ="-200.0" maxQ="200.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="_FTILL511_SS" name="FTILL511_SS" country="AF" geographicalTags="_SGR_07">
+        <iidm:voltageLevel id="_FTILL511_VL" name="FTILL511_VL" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="_FTILL511_TN" v="406.44" angle="-0.01386"/>
+            </iidm:busBreakerTopology>
+            <iidm:load id="_FTILLC51_EC" name="FTILLC51" loadType="UNDEFINED" p0="480.0" q0="4.8" bus="_FTILL511_TN" connectableBus="_FTILL511_TN" p="480.0" q="4.8"/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="_FVALDI11_SS" name="FVALDI11_SS" country="AF" geographicalTags="_SGR_07">
+        <iidm:voltageLevel id="_FVALDI11_VL" name="FVALDI11_VL" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="_FVALDI11_TN" v="406.45" angle="0.013869"/>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="_FVALDT11_SM" name="FVALDT11" energySource="OTHER" minP="400.0" maxP="1200.0" voltageRegulatorOn="true" targetP="480.006" targetV="406.45" targetQ="6.45498" bus="_FVALDI11_TN" connectableBus="_FVALDI11_TN" p="-480.006" q="-6.45498">
+                <iidm:minMaxReactiveLimits minQ="-200.0" maxQ="200.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="_FVERGE11_SS" name="FVERGE11_SS" country="AF" geographicalTags="_SGR_07">
+        <iidm:voltageLevel id="_FVERGE11_VL" name="FVERGE11_VL" nominalV="380.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="_FVERGE11_TN" v="406.45" angle="0.0"/>
+            </iidm:busBreakerTopology>
+            <iidm:generator id="_FVERGT11_SM" name="FVERGT11" energySource="OTHER" minP="-9999.0" maxP="9999.0" voltageRegulatorOn="true" targetP="0.0" targetV="406.45" targetQ="7.48158" bus="_FVERGE11_TN" connectableBus="_FVERGE11_TN" p="-0.0" q="-7.48158">
+                <iidm:minMaxReactiveLimits minQ="-9999.0" maxQ="9999.0"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:line id="_FP.AND11-FVERGE11-1_AC" name="FP.AND11-FVERGE11-1" r="0.008664" x="0.999248" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="_FP.AND11_TN" connectableBus1="_FP.AND11_TN" voltageLevelId1="_FP.AND11_VL" bus2="_FVERGE11_TN" connectableBus2="_FVERGE11_TN" voltageLevelId2="_FVERGE11_VL">
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
+    </iidm:line>
+    <iidm:line id="_FP.AND11-FVERGE11-2_AC" name="FP.AND11-FVERGE11-2" r="0.008664" x="0.999248" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="_FP.AND11_TN" connectableBus1="_FP.AND11_TN" voltageLevelId1="_FP.AND11_VL" bus2="_FVERGE11_TN" connectableBus2="_FVERGE11_TN" voltageLevelId2="_FVERGE11_VL">
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
+    </iidm:line>
+    <iidm:line id="_FS.BIS11-FVALDI11-1_AC" name="FS.BIS11-FVALDI11-1" r="0.008664" x="0.999248" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="_FS.BIS11_TN" connectableBus1="_FS.BIS11_TN" voltageLevelId1="_FS.BIS11_VL" bus2="_FVALDI11_TN" connectableBus2="_FVALDI11_TN" voltageLevelId2="_FVALDI11_VL">
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
+    </iidm:line>
+    <iidm:line id="_FS.BIS11-FVALDI11-2_AC" name="FS.BIS11-FVALDI11-2" r="0.008664" x="0.999248" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="_FS.BIS11_TN" connectableBus1="_FS.BIS11_TN" voltageLevelId1="_FS.BIS11_VL" bus2="_FVALDI11_TN" connectableBus2="_FVALDI11_TN" voltageLevelId2="_FVALDI11_VL">
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
+    </iidm:line>
+    <iidm:line id="_FSSV.O11-FP.AND11-1_AC" name="FSSV.O11-FP.AND11-1" r="0.008664" x="0.999248" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="_FSSV.O11_TN" connectableBus1="_FSSV.O11_TN" voltageLevelId1="_FSSV.O11_VL" bus2="_FP.AND11_TN" connectableBus2="_FP.AND11_TN" voltageLevelId2="_FP.AND11_VL">
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
+    </iidm:line>
+    <iidm:line id="_FSSV.O11-FP.AND11-2_AC" name="FSSV.O11-FP.AND11-2" r="0.008664" x="0.999248" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="_FSSV.O11_TN" connectableBus1="_FSSV.O11_TN" voltageLevelId1="_FSSV.O11_VL" bus2="_FP.AND11_TN" connectableBus2="_FP.AND11_TN" voltageLevelId2="_FP.AND11_VL">
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
+    </iidm:line>
+    <iidm:line id="_FSSV.O11-FTILL511-1_AC" name="FSSV.O11-FTILL511-1" r="0.008664" x="0.999248" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="_FSSV.O11_TN" connectableBus1="_FSSV.O11_TN" voltageLevelId1="_FSSV.O11_VL" bus2="_FTILL511_TN" connectableBus2="_FTILL511_TN" voltageLevelId2="_FTILL511_VL">
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
+    </iidm:line>
+    <iidm:line id="_FSSV.O11-FTILL511-2_AC" name="FSSV.O11-FTILL511-2" r="0.008664" x="0.999248" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="_FSSV.O11_TN" connectableBus1="_FSSV.O11_TN" voltageLevelId1="_FSSV.O11_VL" bus2="_FTILL511_TN" connectableBus2="_FTILL511_TN" voltageLevelId2="_FTILL511_VL">
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
+    </iidm:line>
+    <iidm:line id="_FTDPRA11-FVERGE11-1_AC" name="FTDPRA11-FVERGE11-1" r="0.008664" x="0.999248" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="_FTDPRA11_TN" connectableBus1="_FTDPRA11_TN" voltageLevelId1="_FTDPRA11_VL" bus2="_FVERGE11_TN" connectableBus2="_FVERGE11_TN" voltageLevelId2="_FVERGE11_VL">
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
+    </iidm:line>
+    <iidm:line id="_FTDPRA11-FVERGE11-2_AC" name="FTDPRA11-FVERGE11-2" r="0.008664" x="0.999248" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="_FTDPRA11_TN" connectableBus1="_FTDPRA11_TN" voltageLevelId1="_FTDPRA11_VL" bus2="_FVERGE11_TN" connectableBus2="_FVERGE11_TN" voltageLevelId2="_FVERGE11_VL">
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
+    </iidm:line>
+    <iidm:line id="_FTILL511-FS.BIS11-1_AC" name="FTILL511-FS.BIS11-1" r="0.008664" x="0.999248" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="_FTILL511_TN" connectableBus1="_FTILL511_TN" voltageLevelId1="_FTILL511_VL" bus2="_FS.BIS11_TN" connectableBus2="_FS.BIS11_TN" voltageLevelId2="_FS.BIS11_VL">
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
+    </iidm:line>
+    <iidm:line id="_FTILL511-FS.BIS11-2_AC" name="FTILL511-FS.BIS11-2" r="0.008664" x="0.999248" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="_FTILL511_TN" connectableBus1="_FTILL511_TN" voltageLevelId1="_FTILL511_VL" bus2="_FS.BIS11_TN" connectableBus2="_FS.BIS11_TN" voltageLevelId2="_FS.BIS11_VL">
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
+    </iidm:line>
+    <iidm:line id="_FVALDI11-FTDPRA11-1_AC" name="FVALDI11-FTDPRA11-1" r="0.008664" x="0.999248" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="_FVALDI11_TN" connectableBus1="_FVALDI11_TN" voltageLevelId1="_FVALDI11_VL" bus2="_FTDPRA11_TN" connectableBus2="_FTDPRA11_TN" voltageLevelId2="_FTDPRA11_VL">
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
+    </iidm:line>
+    <iidm:line id="_FVALDI11-FTDPRA11-2_AC" name="FVALDI11-FTDPRA11-2" r="0.008664" x="0.999248" g1="0.0" b1="0.0" g2="0.0" b2="0.0" bus1="_FVALDI11_TN" connectableBus1="_FVALDI11_TN" voltageLevelId1="_FVALDI11_VL" bus2="_FTDPRA11_TN" connectableBus2="_FTDPRA11_TN" voltageLevelId2="_FTDPRA11_VL">
+        <iidm:currentLimits1 permanentLimit="1000.0"/>
+    </iidm:line>
+</iidm:network>

@@ -53,6 +53,7 @@
         <module>action</module>
         <module>afs</module>
         <module>ampl-converter</module>
+		<module>cgmes</module>
         <module>cim-anonymiser</module>
         <module>cim1</module>
         <module>commons</module>
@@ -72,6 +73,7 @@
         <module>simulation-api</module>
         <module>time-series</module>
         <module>tools</module>
+		<module>triple-store</module>
         <module>ucte</module>
     </modules>
 

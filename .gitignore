@@ -22,6 +22,8 @@
 /afs/afs-ws/afs-ws-utils/target/
 /afs/afs-ws/target/
 /ampl-converter/target/
+/cgmes/target
+/cgmes/cgmes-model/target/
 /cim-anonymiser/target/
 /cim1/cim1-converter/target/
 /cim1/cim1-model/target/
@@ -41,6 +43,7 @@
 /iidm/iidm-test/target/
 /iidm/iidm-util/target/
 /iidm/iidm-xml-converter/target/
+/itools-packager/target/
 /loadflow/loadflow-api/target/
 /loadflow/loadflow-results-completion/target/
 /loadflow/loadflow-validation/target/
@@ -53,14 +56,15 @@
 /sensitivity-api/target/
 /simulation-api/target/
 /scripting/target/
+/time-series/target/
+/time-series/time-series-api/target/
 /tools/target/
+/triple-store/target/
+/triple-store/triple-store-api/target/
 /target/
 /ucte/ucte-converter/target/
 /ucte/ucte-network/target/
 /ucte/target/
-/itools-packager/target/
-/time-series/time-series-api/target/
-/time-series/target/
 
 # CMake projects
 /build/
