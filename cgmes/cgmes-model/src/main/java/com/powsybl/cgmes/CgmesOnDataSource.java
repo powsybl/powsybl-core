@@ -56,7 +56,7 @@ public class CgmesOnDataSource {
         }
         if (names.isEmpty()) {
             throw new CgmesModelException(
-                    String.format("Data source %s does not contain CGMES data", dataSource));
+                    String.format("Data source %s does not contain CGMES data", dataSource.getBaseName()));
         }
         return names;
     }

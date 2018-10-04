@@ -22,13 +22,13 @@
     <description>CGMES aggregator module</description>
 
     <modules>
-        <!--
 		<module>cgmes-conformity</module>
+        <!--
         <module>cgmes-conversion</module>
 			-->
         <module>cgmes-model</module>
-		<!--
         <module>cgmes-model-alternatives</module>
+		<!--
         <module>cgmes-validation</module>
 			-->
     </modules>

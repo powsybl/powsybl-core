@@ -23,7 +23,9 @@
 /afs/afs-ws/target/
 /ampl-converter/target/
 /cgmes/target
+/cgmes/cgmes-conformity/target/
 /cgmes/cgmes-model/target/
+/cgmes/cgmes-model-alternatives/target/
 /cim-anonymiser/target/
 /cim1/cim1-converter/target/
 /cim1/cim1-model/target/

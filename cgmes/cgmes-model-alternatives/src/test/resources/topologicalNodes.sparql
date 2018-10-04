@@ -1,0 +1,66 @@
+# query: topoNodes
+SELECT *
+WHERE {
+    ?TopologicalNode
+        rdf:type cim:TopologicalNode ;
+        cim:IdentifiedObject.name ?name ;
+        cim:TopologicalNode.ConnectivityNodeContainer ?VoltageLevel .
+    ?VoltageLevel rdf:type cim:VoltageLevel
+}
+
+# query: topoNodesSvVoltages
+SELECT *
+WHERE {
+    ?TopologicalNode
+        rdf:type cim:TopologicalNode ;
+        cim:IdentifiedObject.name ?name ;
+        cim:TopologicalNode.ConnectivityNodeContainer ?VoltageLevel .
+    ?VoltageLevel rdf:type cim:VoltageLevel .
+    ?SvVoltage
+        rdf:type cim:SvVoltage ;
+        cim:SvVoltage.TopologicalNode ?TopologicalNode ;
+        cim:SvVoltage.angle ?angle ;
+        cim:SvVoltage.v ?v
+}
+
+# query: SvVoltagesForTopoNodes
+SELECT *
+WHERE {
+    ?SvVoltage
+        rdf:type cim:SvVoltage ;
+        cim:SvVoltage.TopologicalNode ?TopologicalNode ;
+        cim:SvVoltage.angle ?angle ;
+        cim:SvVoltage.v ?v
+}
+
+# query: SvVoltagesForTopoNodesWithoutVoltageLevel
+SELECT *
+WHERE {
+{ GRAPH ?graphSV {
+    ?SvVoltage
+        rdf:type cim:SvVoltage ;
+        cim:SvVoltage.TopologicalNode ?TopologicalNode ;
+        cim:SvVoltage.angle ?angle ;
+        cim:SvVoltage.v ?v
+}}
+{ GRAPH ?graphTP {
+     ?TopologicalNode a cim:TopologicalNode ;
+}}
+FILTER NOT EXISTS {
+     ?TopologicalNode cim:TopologicalNode.ConnectivityNodeContainer ?VoltageLevel
+}
+}
+
+
+# query: SvVoltagesWithoutTopoNodes
+SELECT *
+WHERE {
+    ?SvVoltage
+        rdf:type cim:SvVoltage ;
+        cim:SvVoltage.TopologicalNode ?TopologicalNode ;
+        cim:SvVoltage.angle ?angle ;
+        cim:SvVoltage.v ?v .
+    FILTER NOT EXISTS {
+        ?TopologicalNode a cim:TopologicalNode
+    }
+}

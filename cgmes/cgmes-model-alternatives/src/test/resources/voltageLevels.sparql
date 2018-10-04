@@ -1,0 +1,40 @@
+# query: usingGraphClauses
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?VoltageLevel
+        rdf:type cim:VoltageLevel ;
+        cim:VoltageLevel.Substation ?Substation ;
+        cim:IdentifiedObject.name ?name ;
+        cim:VoltageLevel.BaseVoltage ?BaseVoltage .
+    OPTIONAL { ?VoltageLevel cim:VoltageLevel.lowVoltageLimit ?lowVoltageLimit }
+    OPTIONAL { ?VoltageLevel cim:VoltageLevel.highVoltageLimit ?highVoltageLimit }
+}}
+OPTIONAL { GRAPH ?graph2 {
+    ?BaseVoltage cim:BaseVoltage.nominalVoltage ?nominalVoltage .
+}}
+}
+
+# query: noGraphClauses
+SELECT *
+WHERE {
+    ?VoltageLevel
+        rdf:type cim:VoltageLevel ;
+        cim:VoltageLevel.Substation ?Substation ;
+        cim:IdentifiedObject.name ?name ;
+        cim:VoltageLevel.BaseVoltage ?BaseVoltage .
+    OPTIONAL { ?VoltageLevel cim:VoltageLevel.lowVoltageLimit ?lowVoltageLimit }
+    OPTIONAL { ?VoltageLevel cim:VoltageLevel.highVoltageLimit ?highVoltageLimit }
+    OPTIONAL {
+        ?BaseVoltage cim:BaseVoltage.nominalVoltage ?nominalVoltage .
+    }
+}
+
+# query: baseVoltages
+SELECT *
+WHERE {
+    ?BaseVoltage
+        a cim:BaseVoltage ;
+        cim:BaseVoltage.nominalVoltage ?nominalVoltage .
+}
+

@@ -1,0 +1,85 @@
+# query: optionals
+SELECT *
+WHERE {
+GRAPH ?graph {
+    ?Switch
+        a cim:Breaker ;
+        cim:IdentifiedObject.name ?name ;
+        cim:Equipment.EquipmentContainer ?EquipmentContainer .
+    ?Terminal
+        cim:Terminal.ConductingEquipment ?Switch .
+    OPTIONAL {
+        ?EquipmentContainer
+            a cim:Bay ;
+            cim:Bay.VoltageLevel ?VoltageLevel
+    }
+    OPTIONAL {
+        ?EquipmentContainer
+            a cim:VoltageLevel ;
+            BIND ( ?EquipmentContainer AS ?VoltageLevel )
+        }
+}}
+
+# query: subSelectUnion
+SELECT *
+WHERE {
+GRAPH ?graph {
+    ?Switch
+        a cim:Breaker ;
+        cim:IdentifiedObject.name ?name ;
+        cim:Equipment.EquipmentContainer ?EquipmentContainer .
+    ?Terminal
+        cim:Terminal.ConductingEquipment ?Switch .
+    { SELECT ?EquipmentContainer ?VoltageLevel WHERE {
+            {
+                ?EquipmentContainer
+                    a cim:VoltageLevel ;
+                    BIND ( ?EquipmentContainer AS ?VoltageLevel )
+            }
+            UNION
+            {
+                ?EquipmentContainer
+                    a cim:Bay ;
+                    cim:Bay.VoltageLevel ?VoltageLevel
+            }
+    }}
+}}
+
+# query: groupUnion
+SELECT *
+WHERE {
+GRAPH ?graph {
+    ?Switch
+        a cim:Breaker ;
+        cim:IdentifiedObject.name ?name ;
+        cim:Equipment.EquipmentContainer ?EquipmentContainer .
+    ?Terminal
+        cim:Terminal.ConductingEquipment ?Switch .
+    {{
+        ?EquipmentContainer
+            a cim:VoltageLevel ;
+            BIND ( ?EquipmentContainer AS ?VoltageLevel )
+    }
+    UNION
+    {
+        ?EquipmentContainer
+            a cim:Bay ;
+            cim:Bay.VoltageLevel ?VoltageLevel
+    }}
+}}
+
+# query: assumingOnlyBays
+SELECT *
+WHERE {
+GRAPH ?graph {
+    ?Switch
+        a cim:Breaker ;
+        cim:IdentifiedObject.name ?name ;
+        cim:Equipment.EquipmentContainer ?EquipmentContainer .
+    ?EquipmentContainer
+        a cim:Bay ;
+        cim:Bay.VoltageLevel ?VoltageLevel .
+    ?Terminal
+        cim:Terminal.ConductingEquipment ?Switch .
+}}
+
