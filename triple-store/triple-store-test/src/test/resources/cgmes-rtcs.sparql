@@ -1,0 +1,46 @@
+# query: tapChangerControls
+prefix cim: <http://iec.ch/TC57/2013/CIM-schema-cim16#>
+SELECT * {
+    ?TapChangerControl
+        a cim:TapChangerControl ;
+        cim:RegulatingControl.mode ?regulatingControlMode ;
+}
+
+#query: tapChangerControlsOptionalSSH
+prefix cim: <http://iec.ch/TC57/2013/CIM-schema-cim16#>
+SELECT * {
+    ?TapChangerControl
+        a cim:TapChangerControl ;
+        cim:RegulatingControl.mode ?regulatingControlMode .
+    OPTIONAL {
+        ?TapChangerControl
+            cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;
+    }
+}
+
+#query: tapChangerControlsOnlySSHData
+prefix cim: <http://iec.ch/TC57/2013/CIM-schema-cim16#>
+SELECT * {
+    ?TapChangerControl
+        a cim:TapChangerControl ;
+        cim:RegulatingControl.targetValue ?regulatingControlTargetValue
+}
+
+#query: tapChangerOptionalControlOptionalSSH
+prefix cim: <http://iec.ch/TC57/2013/CIM-schema-cim16#>
+SELECT * {
+    ?RatioTapChanger
+        a cim:RatioTapChanger ;
+        cim:RatioTapChanger.stepVoltageIncrement ?stepVoltageIncrement .
+    OPTIONAL {
+        ?RatioTapChanger
+            cim:TapChanger.TapChangerControl ?TapChangerControl .
+        ?TapChangerControl
+            a cim:TapChangerControl ;
+            cim:RegulatingControl.mode ?regulatingControlMode .
+        OPTIONAL {
+            ?TapChangerControl
+              cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;
+        }
+    }
+}

@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:cim="http://iec.ch/TC57/2009/CIM-schema-cim14#">
+        <cim:SvVoltage rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_SV_0">
+                <cim:SvVoltage.v>21</cim:SvVoltage.v>
+                <cim:SvVoltage.TopologicalNode rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN______TN"/>
+                <cim:SvVoltage.angle>0</cim:SvVoltage.angle>
+        </cim:SvVoltage>
+        <cim:SvVoltage rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_SV_1">
+                <cim:SvVoltage.v>419</cim:SvVoltage.v>
+                <cim:SvVoltage.TopologicalNode rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GRID_____TN"/>
+                <cim:SvVoltage.angle>0</cim:SvVoltage.angle>
+        </cim:SvVoltage>
+        <cim:SvVoltage rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_SV_2">
+                <cim:SvVoltage.v>419</cim:SvVoltage.v>
+                <cim:SvVoltage.TopologicalNode rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_INF______TN"/>
+                <cim:SvVoltage.angle>0</cim:SvVoltage.angle>
+        </cim:SvVoltage>
+        <cim:SvPowerFlow rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_SVPF_0">
+                <cim:SvPowerFlow.q>-0</cim:SvPowerFlow.q>
+                <cim:SvPowerFlow.p>-0</cim:SvPowerFlow.p>
+                <cim:SvPowerFlow.Terminal rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN______SM_TE"/>
+        </cim:SvPowerFlow>
+        <cim:SvPowerFlow rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_SVPF_1">
+                <cim:SvPowerFlow.q>-0</cim:SvPowerFlow.q>
+                <cim:SvPowerFlow.p>-0</cim:SvPowerFlow.p>
+                <cim:SvPowerFlow.Terminal rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_INF______SM_TE"/>
+        </cim:SvPowerFlow>
+</rdf:RDF>

@@ -52,7 +52,6 @@
 			<scope>test</scope>
 		</dependency>
         <!-- Test dependencies include all considered triple store engines -->
-		<!--
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-triple-store-impl-blazegraph</artifactId>
@@ -71,7 +70,6 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-			-->
 	</dependencies>
 	
 	<build>

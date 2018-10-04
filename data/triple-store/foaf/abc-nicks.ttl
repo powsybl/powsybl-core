@@ -1,0 +1,12 @@
+@prefix : <http://example/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+:alice foaf:mailbox <mailto:alice@example> .
+:alice foaf:name    "Alice" .
+:alice foaf:nick    "Wonderland" .
+
+:bob foaf:mailbox <mailto:bob@example> .
+:bob foaf:name    "Bob" .
+
+:carol foaf:mailbox <mailto:carol@example> .
+:carol foaf:nick    "SweetCaroline" .

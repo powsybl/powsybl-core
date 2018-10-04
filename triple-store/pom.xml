@@ -19,14 +19,19 @@
     <name>Triple store abstraction</name>
     <description>Triple store API and implementations</description>
 
+	<properties>
+		<!-- Triple store engine verions -->
+		<rdf4j.version>2.2.2</rdf4j.version>
+		<jena.version>3.0.0</jena.version>
+		<blazegraph.version>2.1.4</blazegraph.version>
+	</properties>
+		
     <modules>
         <module>triple-store-api</module>
-		<!--
         <module>triple-store-impl-blazegraph</module>
         <module>triple-store-impl-jena</module>
         <module>triple-store-impl-rdf4j</module>
         <module>triple-store-test</module>
-			-->
     </modules>
 
 </project>

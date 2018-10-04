@@ -1,0 +1,26 @@
+# query: lastNames
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT * {
+    ?x
+        foaf:mailbox ?mbox ;
+        foaf:lastName ?lastName
+}
+
+# query: lastNamesGraphs
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT * {
+    { GRAPH ?graphPersons { ?x foaf:mailbox ?mbox } }
+    { GRAPH ?graphLastnames { ?x foaf:lastName ?lastName } }
+}
+
+# query: lastNameOnlyIfNick
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT * {
+    { GRAPH ?graphPersons {
+        ?x foaf:mailbox ?mbox
+        OPTIONAL {
+            ?x foaf:nick ?nick .
+            { GRAPH ?graphLastnames { ?x foaf:lastName ?lastName } }
+        }
+    } }
+}

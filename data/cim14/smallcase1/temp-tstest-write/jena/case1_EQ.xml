@@ -1,0 +1,264 @@
+<?xml version="1.0"?>
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:cim="http://iec.ch/TC57/2009/CIM-schema-cim14#">
+        <cim:ACLineSegment rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GRID____-INF_____-1_AC">
+                <cim:IdentifiedObject.name>GRID    -INF     -1</cim:IdentifiedObject.name>
+                <cim:ConductingEquipment.BaseVoltage>
+                        <cim:BaseVoltage rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_BV_2"/>
+                </cim:ConductingEquipment.BaseVoltage>
+                <cim:Conductor.r>0</cim:Conductor.r>
+                <cim:Conductor.bch>0</cim:Conductor.bch>
+                <cim:Conductor.x>86.64</cim:Conductor.x>
+                <cim:Conductor.gch>0</cim:Conductor.gch>
+        </cim:ACLineSegment>
+        <cim:BaseVoltage rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_BV_1">
+                <cim:IdentifiedObject.name>1</cim:IdentifiedObject.name>
+                <cim:BaseVoltage.nominalVoltage>380</cim:BaseVoltage.nominalVoltage>
+                <cim:BaseVoltage.isDC>false</cim:BaseVoltage.isDC>
+        </cim:BaseVoltage>
+        <cim:BaseVoltage rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_BV_0">
+                <cim:IdentifiedObject.name>0</cim:IdentifiedObject.name>
+                <cim:BaseVoltage.nominalVoltage>21</cim:BaseVoltage.nominalVoltage>
+                <cim:BaseVoltage.isDC>false</cim:BaseVoltage.isDC>
+        </cim:BaseVoltage>
+        <cim:BaseVoltage rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_BV_2">
+                <cim:IdentifiedObject.name>2</cim:IdentifiedObject.name>
+                <cim:BaseVoltage.nominalVoltage>380</cim:BaseVoltage.nominalVoltage>
+                <cim:BaseVoltage.isDC>false</cim:BaseVoltage.isDC>
+        </cim:BaseVoltage>
+        <cim:IEC61970CIMVersion rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#version">
+                <cim:IEC61970CIMVersion.date>2009-05-10</cim:IEC61970CIMVersion.date>
+                <cim:IEC61970CIMVersion.version>IEC61970CIM14v02</cim:IEC61970CIMVersion.version>
+        </cim:IEC61970CIMVersion>
+        <cim:PowerTransformer rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN_____-GRID____-1_PT">
+                <cim:IdentifiedObject.name>GEN     -GRID    -1</cim:IdentifiedObject.name>
+                <cim:Equipment.MemberOf_EquipmentContainer>
+                        <cim:Substation rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN______SS"/>
+                </cim:Equipment.MemberOf_EquipmentContainer>
+        </cim:PowerTransformer>
+        <cim:GeneratingUnit rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_INF______GU">
+                <cim:IdentifiedObject.name>INF     </cim:IdentifiedObject.name>
+                <cim:Equipment.MemberOf_EquipmentContainer>
+                        <cim:VoltageLevel rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_INF______VL"/>
+                </cim:Equipment.MemberOf_EquipmentContainer>
+                <cim:GeneratingUnit.maxOperatingP>999999</cim:GeneratingUnit.maxOperatingP>
+                <cim:GeneratingUnit.minOperatingP>-999999</cim:GeneratingUnit.minOperatingP>
+                <cim:GeneratingUnit.nominalP>0</cim:GeneratingUnit.nominalP>
+        </cim:GeneratingUnit>
+        <cim:GeneratingUnit rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN______GU">
+                <cim:IdentifiedObject.name>GEN     </cim:IdentifiedObject.name>
+                <cim:Equipment.MemberOf_EquipmentContainer>
+                        <cim:VoltageLevel rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN______VL"/>
+                </cim:Equipment.MemberOf_EquipmentContainer>
+                <cim:GeneratingUnit.maxOperatingP>999</cim:GeneratingUnit.maxOperatingP>
+                <cim:GeneratingUnit.minOperatingP>-999</cim:GeneratingUnit.minOperatingP>
+                <cim:GeneratingUnit.nominalP>0</cim:GeneratingUnit.nominalP>
+        </cim:GeneratingUnit>
+        <cim:CurrentLimit rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN_____-GRID____-1_TW_EX_CL">
+                <cim:IdentifiedObject.name>GEN     -GRID    -1_TW_EX_CL</cim:IdentifiedObject.name>
+                <cim:OperationalLimit.OperationalLimitType>
+                        <cim:OperationalLimitType rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_TW_PATL_OLT"/>
+                </cim:OperationalLimit.OperationalLimitType>
+                <cim:OperationalLimit.OperationalLimitSet>
+                        <cim:OperationalLimitSet rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN_____-GRID____-1_TW_EX_OLS"/>
+                </cim:OperationalLimit.OperationalLimitSet>
+                <cim:CurrentLimit.value>759.671</cim:CurrentLimit.value>
+        </cim:CurrentLimit>
+        <cim:CurrentLimit rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN_____-GRID____-1_TW_OR_CL">
+                <cim:IdentifiedObject.name>GEN     -GRID    -1_TW_OR_CL</cim:IdentifiedObject.name>
+                <cim:OperationalLimit.OperationalLimitType>
+                        <cim:OperationalLimitType rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_TW_PATL_OLT"/>
+                </cim:OperationalLimit.OperationalLimitType>
+                <cim:OperationalLimit.OperationalLimitSet>
+                        <cim:OperationalLimitSet rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN_____-GRID____-1_TW_OR_OLS"/>
+                </cim:OperationalLimit.OperationalLimitSet>
+                <cim:CurrentLimit.value>13746.4</cim:CurrentLimit.value>
+        </cim:CurrentLimit>
+        <cim:CurrentLimit rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GRID____-INF_____-1_AC_CL">
+                <cim:IdentifiedObject.name>GRID    -INF     -1_AC_CL</cim:IdentifiedObject.name>
+                <cim:OperationalLimit.OperationalLimitType>
+                        <cim:OperationalLimitType rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_AC_PATL_OLT"/>
+                </cim:OperationalLimit.OperationalLimitType>
+                <cim:OperationalLimit.OperationalLimitSet>
+                        <cim:OperationalLimitSet rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GRID____-INF_____-1_AC_OLS"/>
+                </cim:OperationalLimit.OperationalLimitSet>
+                <cim:CurrentLimit.value>9116.06</cim:CurrentLimit.value>
+        </cim:CurrentLimit>
+        <cim:OperationalLimitType rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_TW_PATL_OLT">
+                <cim:IdentifiedObject.name>PATL</cim:IdentifiedObject.name>
+                <cim:OperationalLimitType.acceptableDuration>45000</cim:OperationalLimitType.acceptableDuration>
+                <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#OperationalLimitDirectionKind.absoluteValue"/>
+        </cim:OperationalLimitType>
+        <cim:OperationalLimitType rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_AC_PATL_OLT">
+                <cim:IdentifiedObject.name>PATL</cim:IdentifiedObject.name>
+                <cim:OperationalLimitType.acceptableDuration>45000</cim:OperationalLimitType.acceptableDuration>
+                <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#OperationalLimitDirectionKind.absoluteValue"/>
+        </cim:OperationalLimitType>
+        <cim:OperationalLimitType rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_T3_PATL_OLT">
+                <cim:IdentifiedObject.name>PATL</cim:IdentifiedObject.name>
+                <cim:OperationalLimitType.acceptableDuration>45000</cim:OperationalLimitType.acceptableDuration>
+                <cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#OperationalLimitDirectionKind.absoluteValue"/>
+        </cim:OperationalLimitType>
+        <cim:Terminal rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN_____-GRID____-1_TW_OR_TE">
+                <cim:IdentifiedObject.name>GEN     -GRID    -1_TW_OR_TE</cim:IdentifiedObject.name>
+                <cim:Terminal.ConductingEquipment>
+                        <cim:TransformerWinding rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN_____-GRID____-1_TW_OR"/>
+                </cim:Terminal.ConductingEquipment>
+                <cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+        </cim:Terminal>
+        <cim:Terminal rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GRID____-INF_____-1_AC_TE_EX">
+                <cim:IdentifiedObject.name>GRID    -INF     -1_AC_TE_EX</cim:IdentifiedObject.name>
+                <cim:Terminal.ConductingEquipment rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GRID____-INF_____-1_AC"/>
+                <cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+        </cim:Terminal>
+        <cim:Terminal rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GRID____-INF_____-1_AC_TE_OR">
+                <cim:IdentifiedObject.name>GRID    -INF     -1_AC_TE_OR</cim:IdentifiedObject.name>
+                <cim:Terminal.ConductingEquipment rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GRID____-INF_____-1_AC"/>
+                <cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+        </cim:Terminal>
+        <cim:Terminal rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN______SM_TE">
+                <cim:IdentifiedObject.name>GEN     </cim:IdentifiedObject.name>
+                <cim:Terminal.ConductingEquipment>
+                        <cim:SynchronousMachine rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN______SM"/>
+                </cim:Terminal.ConductingEquipment>
+                <cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+        </cim:Terminal>
+        <cim:Terminal rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_INF______SM_TE">
+                <cim:IdentifiedObject.name>INF     </cim:IdentifiedObject.name>
+                <cim:Terminal.ConductingEquipment>
+                        <cim:SynchronousMachine rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_INF______SM"/>
+                </cim:Terminal.ConductingEquipment>
+                <cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+        </cim:Terminal>
+        <cim:Terminal rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN_____-GRID____-1_TW_EX_TE">
+                <cim:IdentifiedObject.name>GEN     -GRID    -1_TW_EX_TE</cim:IdentifiedObject.name>
+                <cim:Terminal.ConductingEquipment>
+                        <cim:TransformerWinding rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN_____-GRID____-1_TW_EX"/>
+                </cim:Terminal.ConductingEquipment>
+                <cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+        </cim:Terminal>
+        <cim:ControlArea rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_CA_1">
+                <cim:IdentifiedObject.name>_CA_1</cim:IdentifiedObject.name>
+                <cim:ControlArea.pTolerance>0</cim:ControlArea.pTolerance>
+                <cim:ControlArea.netInterchange>0</cim:ControlArea.netInterchange>
+        </cim:ControlArea>
+        <cim:GeographicalRegion rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GR_1_">
+                <cim:IdentifiedObject.name>1 </cim:IdentifiedObject.name>
+        </cim:GeographicalRegion>
+        <cim:RegulatingControl rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN______SM_RC">
+                <cim:RegulatingControl.Terminal rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN______SM_TE"/>
+                <cim:RegulatingControl.targetValue>21</cim:RegulatingControl.targetValue>
+                <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#RegulatingControlModeKind.voltage"/>
+                <cim:RegulatingControl.targetRange>0</cim:RegulatingControl.targetRange>
+                <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+        </cim:RegulatingControl>
+        <cim:RegulatingControl rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_INF______SM_RC">
+                <cim:RegulatingControl.Terminal rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_INF______SM_TE"/>
+                <cim:RegulatingControl.targetValue>419</cim:RegulatingControl.targetValue>
+                <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#RegulatingControlModeKind.voltage"/>
+                <cim:RegulatingControl.targetRange>0</cim:RegulatingControl.targetRange>
+                <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+        </cim:RegulatingControl>
+        <cim:OperationalLimitSet rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN_____-GRID____-1_TW_OR_OLS">
+                <cim:IdentifiedObject.name>GEN     -GRID    -1_TW_OR_OLS</cim:IdentifiedObject.name>
+                <cim:OperationalLimitSet.Terminal rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN_____-GRID____-1_TW_OR_TE"/>
+        </cim:OperationalLimitSet>
+        <cim:OperationalLimitSet rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN_____-GRID____-1_TW_EX_OLS">
+                <cim:IdentifiedObject.name>GEN     -GRID    -1_TW_EX_OLS</cim:IdentifiedObject.name>
+                <cim:OperationalLimitSet.Terminal rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN_____-GRID____-1_TW_EX_TE"/>
+        </cim:OperationalLimitSet>
+        <cim:OperationalLimitSet rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GRID____-INF_____-1_AC_OLS">
+                <cim:IdentifiedObject.name>GRID    -INF     -1_AC_OLS</cim:IdentifiedObject.name>
+                <cim:OperationalLimitSet.Terminal rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GRID____-INF_____-1_AC_TE_OR"/>
+        </cim:OperationalLimitSet>
+        <cim:TransformerWinding rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN_____-GRID____-1_TW_EX">
+                <cim:ConductingEquipment.BaseVoltage rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_BV_1"/>
+                <cim:TransformerWinding.connectionType rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#WindingConnection.Y"/>
+                <cim:TransformerWinding.windingType rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#WindingType.secondary"/>
+                <cim:TransformerWinding.r>0</cim:TransformerWinding.r>
+                <cim:TransformerWinding.MemberOf_PowerTransformer rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN_____-GRID____-1_PT"/>
+                <cim:TransformerWinding.g>0</cim:TransformerWinding.g>
+                <cim:TransformerWinding.x>0</cim:TransformerWinding.x>
+                <cim:TransformerWinding.ratedS>500</cim:TransformerWinding.ratedS>
+                <cim:TransformerWinding.b>0</cim:TransformerWinding.b>
+                <cim:TransformerWinding.ratedU>419</cim:TransformerWinding.ratedU>
+        </cim:TransformerWinding>
+        <cim:TransformerWinding rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN_____-GRID____-1_TW_OR">
+                <cim:TransformerWinding.ratedS>500</cim:TransformerWinding.ratedS>
+                <cim:TransformerWinding.windingType rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#WindingType.primary"/>
+                <cim:TransformerWinding.MemberOf_PowerTransformer rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN_____-GRID____-1_PT"/>
+                <cim:TransformerWinding.connectionType rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#WindingConnection.Y"/>
+                <cim:TransformerWinding.g>0</cim:TransformerWinding.g>
+                <cim:TransformerWinding.r>0.001323</cim:TransformerWinding.r>
+                <cim:TransformerWinding.x>0.141114</cim:TransformerWinding.x>
+                <cim:TransformerWinding.ratedU>21</cim:TransformerWinding.ratedU>
+                <cim:TransformerWinding.b>-0</cim:TransformerWinding.b>
+                <cim:ConductingEquipment.BaseVoltage rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_BV_0"/>
+        </cim:TransformerWinding>
+        <cim:SynchronousMachine rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN______SM">
+                <cim:SynchronousMachine.x>0</cim:SynchronousMachine.x>
+                <cim:SynchronousMachine.operatingMode rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#SynchronousMachineOperatingMode.generator"/>
+                <cim:SynchronousMachine.ratedS>0</cim:SynchronousMachine.ratedS>
+                <cim:Equipment.MemberOf_EquipmentContainer>
+                        <cim:VoltageLevel rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN______VL"/>
+                </cim:Equipment.MemberOf_EquipmentContainer>
+                <cim:SynchronousMachine.qPercent>1</cim:SynchronousMachine.qPercent>
+                <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#SynchronousMachineType.generator"/>
+                <cim:IdentifiedObject.name>GEN     </cim:IdentifiedObject.name>
+                <cim:SynchronousMachine.minQ>-999</cim:SynchronousMachine.minQ>
+                <cim:SynchronousMachine.maxQ>999</cim:SynchronousMachine.maxQ>
+                <cim:SynchronousMachine.MemberOf_GeneratingUnit rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN______GU"/>
+                <cim:SynchronousMachine.r>0</cim:SynchronousMachine.r>
+                <cim:RegulatingCondEq.RegulatingControl rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN______SM_RC"/>
+        </cim:SynchronousMachine>
+        <cim:SynchronousMachine rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_INF______SM">
+                <cim:SynchronousMachine.qPercent>1</cim:SynchronousMachine.qPercent>
+                <cim:SynchronousMachine.ratedS>0</cim:SynchronousMachine.ratedS>
+                <cim:RegulatingCondEq.RegulatingControl rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_INF______SM_RC"/>
+                <cim:IdentifiedObject.name>INF     </cim:IdentifiedObject.name>
+                <cim:SynchronousMachine.x>0</cim:SynchronousMachine.x>
+                <cim:SynchronousMachine.maxQ>999999</cim:SynchronousMachine.maxQ>
+                <cim:SynchronousMachine.MemberOf_GeneratingUnit rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_INF______GU"/>
+                <cim:SynchronousMachine.operatingMode rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#SynchronousMachineOperatingMode.generator"/>
+                <cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#SynchronousMachineType.generator"/>
+                <cim:Equipment.MemberOf_EquipmentContainer>
+                        <cim:VoltageLevel rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_INF______VL"/>
+                </cim:Equipment.MemberOf_EquipmentContainer>
+                <cim:SynchronousMachine.r>0</cim:SynchronousMachine.r>
+                <cim:SynchronousMachine.minQ>-999999</cim:SynchronousMachine.minQ>
+        </cim:SynchronousMachine>
+        <cim:SubGeographicalRegion rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_SGR_1_">
+                <cim:IdentifiedObject.name>1 </cim:IdentifiedObject.name>
+                <cim:SubGeographicalRegion.Region rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GR_1_"/>
+        </cim:SubGeographicalRegion>
+        <cim:VoltageLevel rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_INF______VL">
+                <cim:IdentifiedObject.name>INF     _VL</cim:IdentifiedObject.name>
+                <cim:VoltageLevel.MemberOf_Substation>
+                        <cim:Substation rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_INF______SS"/>
+                </cim:VoltageLevel.MemberOf_Substation>
+                <cim:VoltageLevel.BaseVoltage rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_BV_2"/>
+        </cim:VoltageLevel>
+        <cim:VoltageLevel rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GRID_____VL">
+                <cim:IdentifiedObject.name>GRID    _VL</cim:IdentifiedObject.name>
+                <cim:VoltageLevel.MemberOf_Substation>
+                        <cim:Substation rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN______SS"/>
+                </cim:VoltageLevel.MemberOf_Substation>
+                <cim:VoltageLevel.BaseVoltage rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_BV_1"/>
+        </cim:VoltageLevel>
+        <cim:VoltageLevel rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN______VL">
+                <cim:IdentifiedObject.name>GEN     _VL</cim:IdentifiedObject.name>
+                <cim:VoltageLevel.MemberOf_Substation>
+                        <cim:Substation rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN______SS"/>
+                </cim:VoltageLevel.MemberOf_Substation>
+                <cim:VoltageLevel.BaseVoltage rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_BV_0"/>
+        </cim:VoltageLevel>
+        <cim:Substation rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_INF______SS">
+                <cim:IdentifiedObject.name>INF     _SS</cim:IdentifiedObject.name>
+                <cim:Substation.Region rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_SGR_1_"/>
+        </cim:Substation>
+        <cim:Substation rdf:about="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_GEN______SS">
+                <cim:IdentifiedObject.name>GEN     _SS</cim:IdentifiedObject.name>
+                <cim:Substation.Region rdf:resource="file:///Users/zamarrenolm/works/RTE/cgmes_2017_2018/code/powsybl/powsybl-core/data/cim14/smallcase1/#_SGR_1_"/>
+        </cim:Substation>
+</rdf:RDF>

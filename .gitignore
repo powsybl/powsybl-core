@@ -61,7 +61,10 @@
 /tools/target/
 /triple-store/target/
 /triple-store/triple-store-api/target/
-/target/
+/triple-store/triple-store-impl-blazegraph/target/
+/triple-store/triple-store-impl-jena/target/
+/triple-store/triple-store-impl-rdf4j/target/
+/triple-store/triple-store-test/target/
 /ucte/ucte-converter/target/
 /ucte/ucte-network/target/
 /ucte/target/
