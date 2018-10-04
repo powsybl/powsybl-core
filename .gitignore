@@ -58,6 +58,9 @@
 /ucte/ucte-converter/target/
 /ucte/ucte-network/target/
 /ucte/target/
+/itools-packager/target/
+/time-series/time-series-api/target/
+/time-series/target/
 
 # CMake projects
 /build/
@@ -76,3 +79,4 @@ install.cfg
 org.eclipse.core.resources.prefs
 org.eclipse.jdt.core.prefs
 org.eclipse.m2e.core.prefs
+org.eclipse.jdt.groovy.core.prefs
