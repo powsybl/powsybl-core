@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.security.afs;
+package com.powsybl.security.afs.local;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.afs.ServiceExtension;
@@ -13,6 +13,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.*;
+import com.powsybl.security.afs.SecurityAnalysisRunnerTest;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
 import java.util.Collections;

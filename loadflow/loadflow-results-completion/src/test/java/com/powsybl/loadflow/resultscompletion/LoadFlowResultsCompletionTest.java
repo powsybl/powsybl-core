@@ -4,10 +4,11 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.loadflow;
+package com.powsybl.loadflow.resultscompletion;
 
 import static org.junit.Assert.assertEquals;
 
+import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.Test;
 
 import com.powsybl.loadflow.validation.CandidateComputation;
