@@ -63,9 +63,11 @@ public class PropertyBagTest {
     public void testTabulateLocals() {
         StringBuffer s = new StringBuffer(100);
         s.append("locals");
-        s.append("\n");
-        s.append("    id   : _id0-id1-id2\n");
-        s.append("    name : name0\n");
+        s.append(System.lineSeparator());
+        s.append("    id   : _id0-id1-id2");
+        s.append(System.lineSeparator());
+        s.append("    name : name0");
+        s.append(System.lineSeparator());
         s.append("    enum : enumValue0");
         String expected = s.toString();
         assertEquals(expected, locals.tabulateLocals("locals"));
@@ -75,9 +77,11 @@ public class PropertyBagTest {
     public void testTabulate() {
         StringBuffer s = new StringBuffer(100);
         s.append("locals");
-        s.append("\n");
-        s.append("    id   : http://example.com/#_id0-id1-id2\n");
-        s.append("    name : name0\n");
+        s.append(System.lineSeparator());
+        s.append("    id   : http://example.com/#_id0-id1-id2");
+        s.append(System.lineSeparator());
+        s.append("    name : name0");
+        s.append(System.lineSeparator());
         s.append("    enum : http://example.com/DataTypeEnum#enumValue0");
         String expected = s.toString();
         assertEquals(expected, locals.tabulate("locals"));

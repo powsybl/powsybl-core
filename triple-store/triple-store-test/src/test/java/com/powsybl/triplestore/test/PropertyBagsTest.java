@@ -53,9 +53,9 @@ public class PropertyBagsTest {
     public void testTabulateLocals() {
         StringBuffer s = new StringBuffer(100);
         s.append("key0 \t key1");
-        s.append("\n");
+        s.append(System.lineSeparator());
         s.append("key0-value0 \t key1-value0");
-        s.append("\n");
+        s.append(System.lineSeparator());
         s.append("key0-value1 \t key1-value1");
         String expected = s.toString();
         assertEquals(expected, bags.tabulateLocals());
@@ -65,9 +65,9 @@ public class PropertyBagsTest {
     public void testTabulate() {
         StringBuffer s = new StringBuffer(100);
         s.append("key0 \t key1");
-        s.append("\n");
+        s.append(System.lineSeparator());
         s.append("http://example.com/#key0-value0 \t http://example.com/#key1-value0");
-        s.append("\n");
+        s.append(System.lineSeparator());
         s.append("http://example.com/#key0-value1 \t http://example.com/#key1-value1");
         String expected = s.toString();
         assertEquals(expected, bags.tabulate());
