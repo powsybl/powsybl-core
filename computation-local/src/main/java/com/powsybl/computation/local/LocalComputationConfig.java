@@ -11,6 +11,7 @@ import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -37,6 +38,10 @@ public class LocalComputationConfig {
         return load(PlatformConfig.defaultConfig());
     }
 
+    public static LocalComputationConfig load(PlatformConfig platformConfig) {
+        return load(platformConfig, FileSystems.getDefault());
+    }
+
     private static Path getDefaultLocalDir(FileSystem fileSystem) {
         return fileSystem.getPath(DEFAULT_LOCAL_DIR);
     }
@@ -55,18 +60,18 @@ public class LocalComputationConfig {
                 });
     }
 
-    public static LocalComputationConfig load(PlatformConfig platformConfig) {
+    public static LocalComputationConfig load(PlatformConfig platformConfig, FileSystem fileSystem) {
         Objects.requireNonNull(platformConfig);
 
-        Path localDir = getDefaultLocalDir(platformConfig.getFileSystem());
+        Path localDir = getDefaultLocalDir(fileSystem);
         int availableCore = DEFAULT_AVAILABLE_CORE;
         if (platformConfig.moduleExists(CONFIG_MODULE_NAME)) {
             ModuleConfig config = platformConfig.getModuleConfig(CONFIG_MODULE_NAME);
             localDir = getTmpDir(config, "tmpDir")
                            .orElseGet(() -> getTmpDir(config, "tmp-dir")
-                                                .orElseGet(() -> getDefaultLocalDir(platformConfig.getFileSystem())));
-            availableCore = config.getOptionalIntegerProperty("availableCore")
-                                  .orElseGet(() -> config.getOptionalIntegerProperty("available-core")
+                                                .orElseGet(() -> getDefaultLocalDir(fileSystem)));
+            availableCore = config.getOptionalIntProperty("availableCore")
+                                  .orElseGet(() -> config.getOptionalIntProperty("available-core")
                                                          .orElse(DEFAULT_AVAILABLE_CORE));
         }
         if (availableCore <= 0) {

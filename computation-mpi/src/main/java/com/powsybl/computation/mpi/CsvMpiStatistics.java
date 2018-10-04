@@ -134,6 +134,8 @@ public class CsvMpiStatistics implements MpiStatistics {
             Splitter blankSplitter = Splitter.on(' ');
             MapSplitter mapSplitter = blankSplitter.withKeyValueSeparator('=');
             String line;
+            int jobId;
+            int taskId;
             while ((line = reader.readLine()) != null) {
                 if (line.trim().isEmpty()) {
                     continue;
@@ -144,17 +146,17 @@ public class CsvMpiStatistics implements MpiStatistics {
                 }
                 String key = tokens[0];
                 switch (key) {
-                    case COMMON_FILE_TRANSFER_KEY: {
+                    case COMMON_FILE_TRANSFER_KEY:
                         checkTokenSize(4, tokens.length, line, key);
                         String fileName = tokens[1];
                         long size = Long.parseLong(tokens[2]);
                         long duration = Long.parseLong(tokens[3]);
                         handler.onCommonFileTransfer(new CommonFileTransfer(fileName, size, duration));
                         break;
-                    }
-                    case JOB_START_KEY: {
+
+                    case JOB_START_KEY:
                         checkTokenSize(3, 4, tokens.length, line, key);
-                        int jobId = Integer.parseInt(tokens[1]);
+                        jobId = Integer.parseInt(tokens[1]);
                         String commandId = tokens[2];
                         Map<String, String> tags = null;
                         if (tokens.length == 4) {
@@ -162,17 +164,17 @@ public class CsvMpiStatistics implements MpiStatistics {
                         }
                         jobs.put(jobId, new JobExecution(jobId, commandId, tags));
                         break;
-                    }
-                    case JOB_END_KEY: {
+
+                    case JOB_END_KEY:
                         checkTokenSize(2, tokens.length, line, key);
-                        int jobId = Integer.parseInt(tokens[1]);
+                        jobId = Integer.parseInt(tokens[1]);
                         jobs.remove(jobId);
                         break;
-                    }
-                    case TASK_START_KEY: {
+
+                    case TASK_START_KEY:
                         checkTokenSize(8, tokens.length, line, key);
-                        int taskId = Integer.parseInt(tokens[1]);
-                        int jobId = Integer.parseInt(tokens[2]);
+                        taskId = Integer.parseInt(tokens[1]);
+                        jobId = Integer.parseInt(tokens[2]);
                         int taskIndex = Integer.parseInt(tokens[3]);
                         DateTime startTime = DateTime.parse(tokens[4]);
                         int slaveRank = Integer.parseInt(tokens[5]);
@@ -180,10 +182,10 @@ public class CsvMpiStatistics implements MpiStatistics {
                         long inputMessageSize = Long.parseLong(tokens[7]);
                         tasks.put(taskId, new TaskExecution(taskId, jobId, taskIndex, startTime, slaveRank, slaveThread, inputMessageSize));
                         break;
-                    }
-                    case TASK_END_KEY: {
+
+                    case TASK_END_KEY:
                         checkTokenSize(8, tokens.length, line, key);
-                        int taskId = Integer.parseInt(tokens[1]);
+                        taskId = Integer.parseInt(tokens[1]);
                         TaskExecution task = tasks.get(taskId);
                         task.taskDuration = Long.parseLong(tokens[2]);
                         task.commandsDuration = new ArrayList<>();
@@ -201,7 +203,7 @@ public class CsvMpiStatistics implements MpiStatistics {
 
                         tasks.remove(taskId);
                         break;
-                    }
+
                     default:
                         throw new PowsyblException("Unknown key " + key);
                 }
@@ -214,13 +216,13 @@ public class CsvMpiStatistics implements MpiStatistics {
 
         private static void checkTokenSize(int expected, int actual, String line, String key) {
             if (actual != expected) {
-                createIncorrectLineException(key, line);
+                throw createIncorrectLineException(key, line);
             }
         }
 
         private static void checkTokenSize(int expected1, int expected2, int actual, String line, String key) {
             if (actual != expected1 && actual != expected2) {
-                createIncorrectLineException(key, line);
+                throw createIncorrectLineException(key, line);
             }
         }
 

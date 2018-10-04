@@ -141,6 +141,22 @@ public class NodeEventTest {
     }
 
     @Test
+    public void nodeNameUpdatedTest() throws IOException {
+        NodeNameUpdated updated = new NodeNameUpdated("a", "b");
+        assertEquals("a", updated.getId());
+        assertEquals(NodeEventType.NODE_NAME_UPDATED, updated.getType());
+        assertEquals("b", updated.getName());
+
+        NodeNameUpdated updated2 = objectMapper.readValue(objectMapper.writeValueAsString(updated), NodeNameUpdated.class);
+        assertEquals(updated, updated2);
+
+        new EqualsTester()
+                .addEqualityGroup(new NodeNameUpdated("a", "b"), new NodeNameUpdated("a", "b"))
+                .addEqualityGroup(new NodeNameUpdated("c", "d"), new NodeNameUpdated("c", "d"))
+                .testEquals();
+    }
+
+    @Test
     public void nodeRemovedTest() throws IOException {
         NodeRemoved removed = new NodeRemoved("a", "b");
         assertEquals("a", removed.getId());

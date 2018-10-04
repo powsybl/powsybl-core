@@ -15,6 +15,9 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.iidm.anonymizer.Anonymizer;
+import com.powsybl.iidm.anonymizer.SimpleAnonymizer;
+import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
@@ -174,7 +177,7 @@ public class XMLImporter implements Importer {
                 }
             }
             try (InputStream is = dataSource.newInputStream(null, ext)) {
-                network = NetworkXml.read(is, new XmlImportConfig(throwExceptionIfExtensionNotFound), anonymizer);
+                network = NetworkXml.read(is, new ImportOptions(throwExceptionIfExtensionNotFound), anonymizer);
             }
             LOGGER.debug("XIIDM import done in {} ms", System.currentTimeMillis() - startTime);
         } catch (IOException e) {

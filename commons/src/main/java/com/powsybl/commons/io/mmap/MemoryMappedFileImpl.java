@@ -23,7 +23,7 @@ public class MemoryMappedFileImpl implements MemoryMappedFile {
 
     private RandomAccessFile raf;
 
-    public MemoryMappedFileImpl(File file) throws IOException {
+    public MemoryMappedFileImpl(File file) {
         this.file = Objects.requireNonNull(file);
     }
 
