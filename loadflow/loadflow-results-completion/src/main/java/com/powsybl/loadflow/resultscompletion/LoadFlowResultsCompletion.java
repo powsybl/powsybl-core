@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.loadflow;
+package com.powsybl.loadflow.resultscompletion;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.util.BranchData;
+import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.CandidateComputation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
