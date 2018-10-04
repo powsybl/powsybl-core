@@ -21,6 +21,22 @@
     <name>AMPL converter implementation</name>
     <description>A converter implementation based on CSV-like files</description>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Automatic-Module-Name>com.powsybl.ampl.converter</Automatic-Module-Name>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <!-- Compilation dependencies -->
         <dependency>

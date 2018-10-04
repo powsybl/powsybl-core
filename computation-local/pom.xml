@@ -21,7 +21,23 @@
     <artifactId>powsybl-computation-local</artifactId>
     <name>Local computation</name>
     <description>A computation implementation to run computations locally</description>
-    
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Automatic-Module-Name>com.powsybl.computation.local</Automatic-Module-Name>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <!-- Compilation dependencies -->
         <dependency>
