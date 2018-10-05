@@ -20,9 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import org.junit.BeforeClass;
-import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
