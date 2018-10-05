@@ -36,6 +36,11 @@ public abstract class AbstractConverterTest {
     protected FileSystem fileSystem;
     protected Path tmpDir;
 
+    protected interface RoundTripUtil<T> {
+        T roundTrip(T data, String ref) throws IOException;
+    }
+
+
     @Before
     public void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
