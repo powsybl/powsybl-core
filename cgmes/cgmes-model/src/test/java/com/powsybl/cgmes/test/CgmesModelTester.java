@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import com.powsybl.cgmes.CgmesModel;
 import com.powsybl.cgmes.CgmesModelFactory;
 import com.powsybl.cgmes.CgmesOnDataSource;
-import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.triplestore.PropertyBags;
 import com.powsybl.triplestore.TripleStoreFactory;
@@ -38,11 +37,7 @@ public class CgmesModelTester {
     }
 
     public void test() {
-        ReadOnlyDataSource ds = DataSourceUtil.createDataSource(
-                gridModel.path(),
-                gridModel.basename(),
-                gridModel.getCompressionExtension(),
-                null);
+        ReadOnlyDataSource ds = gridModel.dataSource();
 
         // Check that the case exists
         // even if we do not have any available triple store implementation

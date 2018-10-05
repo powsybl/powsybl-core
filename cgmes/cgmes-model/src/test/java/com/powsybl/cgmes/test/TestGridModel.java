@@ -16,6 +16,8 @@ import java.nio.file.Path;
 
 import com.powsybl.cgmes.CgmesModel;
 import com.powsybl.commons.datasource.CompressionFormat;
+import com.powsybl.commons.datasource.DataSourceUtil;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -63,6 +65,14 @@ public class TestGridModel {
         return compressionExtension;
     }
 
+    public ReadOnlyDataSource dataSource() {
+        return DataSourceUtil.createDataSource(
+                path(),
+                basename(),
+                getCompressionExtension(),
+                null);
+    }
+
     public boolean containsBays() {
         return containsBays;
     }
@@ -75,11 +85,11 @@ public class TestGridModel {
         return expected;
     }
 
-    private final String            id;
-    private final Path              path;
-    private final String            basename;
+    private final String id;
+    private final Path path;
+    private final String basename;
     private final CompressionFormat compressionExtension;
-    private final CgmesModel        expected;
-    private final boolean           containsBays;
-    private final boolean           solved;
+    private final CgmesModel expected;
+    private final boolean containsBays;
+    private final boolean solved;
 }

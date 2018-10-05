@@ -28,7 +28,6 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.test.TestGridModel;
-import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
@@ -63,8 +62,7 @@ public class ConversionTester {
             String impl = TripleStoreFactory.defaultImplementation();
             CgmesImport i = new CgmesImport();
             params.put("powsyblTripleStore", impl);
-            ReadOnlyDataSource ds = DataSourceUtil.createDataSource(gm.path(), gm.basename(),
-                    gm.getCompressionExtension(), null);
+            ReadOnlyDataSource ds = gm.dataSource();
             try {
                 LOG.info("Importer.exists() == {}", i.exists(ds));
                 Network n = i.importData(ds, params);
@@ -79,8 +77,7 @@ public class ConversionTester {
             for (String impl : tripleStoreImplementations) {
                 LOG.info("testConversion. TS implementation {}, grid model {}", impl, gm.id());
                 CgmesImport i = new CgmesImport();
-                ReadOnlyDataSource ds = DataSourceUtil.createDataSource(gm.path(), gm.basename(),
-                        gm.getCompressionExtension(), null);
+                ReadOnlyDataSource ds = gm.dataSource();
                 params.put("powsyblTripleStore", impl);
                 try {
                     Network network = i.importData(ds, params);

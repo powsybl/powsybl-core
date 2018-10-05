@@ -32,7 +32,6 @@ import com.powsybl.cgmes.test.TestGridModel;
 import com.powsybl.cgmes.test.cim14.Cim14SmallCasesCatalog;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
@@ -62,14 +61,13 @@ public class MeasureImportExportTest {
         int size = implementations.size();
         long[] startTimes = new long[size];
         long[] endTimes = new long[size];
-        Path input = gm.path();
         for (int k = 0; k < size; k++) {
             String impl = implementations.get(k);
             LOG.info("measureImportExport TS implementation {}, model {}", impl, gm.id());
             startTimes[k] = System.currentTimeMillis();
 
             Path output1 = output.resolve(impl);
-            importExport(impl, gm, input, output1);
+            importExport(impl, gm,  output1);
 
             endTimes[k] = System.currentTimeMillis();
         }
@@ -79,10 +77,9 @@ public class MeasureImportExportTest {
         }
     }
 
-    private void importExport(String ts, TestGridModel gm, Path input, Path output) {
+    private void importExport(String ts, TestGridModel gm, Path output) {
         CgmesImport i = new CgmesImport();
-        ReadOnlyDataSource importDataSource = DataSourceUtil.createDataSource(input, gm.basename(),
-                gm.getCompressionExtension(), null);
+        ReadOnlyDataSource importDataSource = gm.dataSource();
         Properties importParameters = new Properties();
         importParameters.put("powsyblTripleStore", ts);
         importParameters.put("storeCgmesModelAsNetworkProperty", "true");

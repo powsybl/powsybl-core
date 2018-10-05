@@ -15,7 +15,6 @@ package com.powsybl.cgmes.conversion.test.cim14;
 import com.powsybl.cgmes.test.TestGridModel;
 import com.powsybl.cgmes.test.cim14.Cim14SmallCasesCatalog;
 import com.powsybl.cim1.converter.CIM1Importer;
-import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Generator;
@@ -200,10 +199,7 @@ public class Cim14SmallCasesNetworkCatalog {
     }
 
     private Network cimImport(TestGridModel gm) {
-        return new CIM1Importer().importData(
-                DataSourceUtil.createDataSource(gm.path(), gm.basename(),
-                        gm.getCompressionExtension(), null),
-                null);
+        return new CIM1Importer().importData(gm.dataSource(), null);
     }
 
     private final Cim14SmallCasesCatalog catalog = new Cim14SmallCasesCatalog();
