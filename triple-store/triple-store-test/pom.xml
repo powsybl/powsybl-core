@@ -56,7 +56,12 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-		<!-- FIXME LUMA is this required ???
+        <dependency>
+            <groupId>com.google.jimfs</groupId>
+            <artifactId>jimfs</artifactId>
+            <scope>test</scope>
+        </dependency>
+		<!-- FIXME LUMA is this required ??? yes to avoid too much output from big.data
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>

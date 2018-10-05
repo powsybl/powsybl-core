@@ -28,7 +28,6 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.triplestore.PropertyBags;
 import com.powsybl.triplestore.TripleStore;
 import com.powsybl.triplestore.TripleStoreException;
@@ -39,12 +38,9 @@ import com.powsybl.triplestore.TripleStoreFactory;
  */
 public class TripleStoreTester {
 
-    public TripleStoreTester(boolean doAsserts, List<String> implementations, String base, Path workingDir,
-            Path... files) {
-        this.doAsserts = doAsserts;
+    public TripleStoreTester(List<String> implementations, String base, Path... files) {
         this.implementations = implementations;
         this.base = base;
-        this.workingDir = workingDir;
         this.files = files;
         this.tripleStores = new HashMap<>(implementations.size());
     }
@@ -65,34 +61,15 @@ public class TripleStoreTester {
         }
     }
 
-    public void testWrite() throws Exception {
-        for (String impl : implementations) {
-            Path output = workingDir.resolve("temp-tstest-write").resolve(impl);
-            ensureFolder(output);
-            String baseName = "";
-            tripleStores.get(impl).write(new FileDataSource(output, baseName));
-        }
-    }
-
-    private void ensureFolder(Path p) {
-        try {
-            Files.createDirectories(p);
-        } catch (IOException x) {
-            throw new TripleStoreException(String.format("testWrite. Creating directories %s", p), x);
-        }
-    }
-
     public void testQuery(String queryText, Expected expected) throws Exception {
         for (String impl : implementations) {
             PropertyBags results = tripleStores.get(impl).query(queryText);
             logResults(impl, results, expected);
-            if (doAsserts) {
-                assertTrue(results.size() > 0);
-                int size = expected.values().iterator().next().size();
-                assertEquals(size, results.size());
-                expected.keySet().stream()
-                        .forEach(property -> assertEquals(expected.get(property), results.pluckLocals(property)));
-            }
+            assertTrue(results.size() > 0);
+            int size = expected.values().iterator().next().size();
+            assertEquals(size, results.size());
+            expected.keySet().stream()
+                    .forEach(property -> assertEquals(expected.get(property), results.pluckLocals(property)));
         }
     }
 
@@ -121,10 +98,8 @@ public class TripleStoreTester {
         }
     }
 
-    private final boolean doAsserts;
     private final List<String> implementations;
     private final String base;
-    private final Path workingDir;
     private final Path[] files;
     private final Map<String, TripleStore> tripleStores;
 

@@ -1,5 +1,10 @@
 package com.powsybl.triplestore.test;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+
 /*
  * #%L
  * Triple stores for CGMES models
@@ -18,6 +23,8 @@ import java.nio.file.Paths;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import com.powsybl.triplestore.QueryCatalog;
 import com.powsybl.triplestore.TripleStoreException;
 import com.powsybl.triplestore.TripleStoreFactory;
@@ -28,22 +35,27 @@ import com.powsybl.triplestore.test.TripleStoreTester.Expected;
  */
 public class FoafOptionalsTest {
 
+    private static InputStream resourceStream(String resource) {
+        return ClassLoader.getSystemResourceAsStream(resource);
+    }
+
     @BeforeClass
-    public static void setUp() throws TripleStoreException {
-        Path folder = Paths.get("../../data/triple-store/foaf");
-        Path input = folder.resolve("abc-nicks.ttl");
-        String base = input.toUri().normalize().toString();
-        Path workingDir = folder;
-        boolean doAsserts = true;
-        tester = new TripleStoreTester(
-                doAsserts,
-                TripleStoreFactory.allImplementations(),
-                base,
-                workingDir,
-                input);
-        tester.load();
-        queries = new QueryCatalog("foaf-optionals.sparql");
+    public static void setUp() throws TripleStoreException, IOException {
+        queries = new QueryCatalog("foaf/foaf-optionals.sparql");
         queries.load(ClassLoader.getSystemResourceAsStream(queries.resource()));
+
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            Path data = fileSystem.getPath("foaf");
+            Path folder = Files.createDirectories(data);
+            Path input = folder.resolve("abc-nicks.ttl");
+            String base = folder.toUri().normalize().toString();
+            Files.copy(resourceStream("foaf/abc-nicks.ttl"), input);
+            tester = new TripleStoreTester(
+                    TripleStoreFactory.allImplementations(),
+                    base,
+                    input);
+            tester.load();
+        }
     }
 
     @Test
@@ -130,11 +142,12 @@ public class FoafOptionalsTest {
 
     @Test
     public void testMinus() throws Exception {
-        // Similar to filter not exists, subtract friends with name from friends with mailbox
+        // Similar to filter not exists, subtract friends with name from friends with
+        // mailbox
         Expected expected = new Expected().expect("mbox", "mailto:carol@example");
         tester.testQuery(queries.get("minus"), expected);
     }
 
     private static TripleStoreTester tester;
-    private static QueryCatalog      queries;
+    private static QueryCatalog queries;
 }
