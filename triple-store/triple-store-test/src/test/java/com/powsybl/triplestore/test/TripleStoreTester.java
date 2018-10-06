@@ -15,11 +15,8 @@ package com.powsybl.triplestore.test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -38,10 +35,10 @@ import com.powsybl.triplestore.TripleStoreFactory;
  */
 public class TripleStoreTester {
 
-    public TripleStoreTester(List<String> implementations, String base, Path... files) {
+    public TripleStoreTester(List<String> implementations, String base, String... inputResourceNames) {
         this.implementations = implementations;
         this.base = base;
-        this.files = files;
+        this.inputResourceNames = inputResourceNames;
         this.tripleStores = new HashMap<>(implementations.size());
     }
 
@@ -49,11 +46,11 @@ public class TripleStoreTester {
         // Load the model for every triple store implementation
         for (String impl : implementations) {
             TripleStore ts = TripleStoreFactory.create(impl);
-            for (Path f : files) {
-                try (InputStream is = new BufferedInputStream(Files.newInputStream(f))) {
-                    ts.read(base, f.getFileName().toString(), is);
+            for (String r : inputResourceNames) {
+                try (InputStream is = resourceStream(r)) {
+                    ts.read(base, r, is);
                 } catch (IOException e) {
-                    throw new TripleStoreException(String.format("Reading %s %s", base, f.getFileName().toString()), e);
+                    throw new TripleStoreException(String.format("Reading %s %s", base, r), e);
                 }
             }
             ts.dump(line -> LOG.info(line));
@@ -71,6 +68,10 @@ public class TripleStoreTester {
             expected.keySet().stream()
                     .forEach(property -> assertEquals(expected.get(property), results.pluckLocals(property)));
         }
+    }
+
+    private InputStream resourceStream(String resource) {
+        return ClassLoader.getSystemResourceAsStream(resource);
     }
 
     private void logResults(String impl, PropertyBags results, Expected expected) {
@@ -100,7 +101,7 @@ public class TripleStoreTester {
 
     private final List<String> implementations;
     private final String base;
-    private final Path[] files;
+    private final String[] inputResourceNames;
     private final Map<String, TripleStore> tripleStores;
 
     private static final Logger LOG = LoggerFactory.getLogger(TripleStoreTester.class);

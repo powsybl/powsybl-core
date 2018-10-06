@@ -1,10 +1,5 @@
 package com.powsybl.triplestore.test;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-
 /*
  * #%L
  * Triple stores for CGMES models
@@ -17,13 +12,12 @@ import java.nio.file.Files;
  * #L%
  */
 
-import java.nio.file.Path;
+import java.io.IOException;
+import java.io.InputStream;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
 import com.powsybl.triplestore.QueryCatalog;
 import com.powsybl.triplestore.TripleStoreException;
 import com.powsybl.triplestore.TripleStoreFactory;
@@ -42,32 +36,17 @@ public class FoafGraphsTest {
     public static void setUp() throws TripleStoreException, IOException {
         queries = new QueryCatalog("foaf/foaf-graphs.sparql");
         queries.load(resourceStream(queries.resource()));
-
-        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
-            Path data = fileSystem.getPath("foaf");
-            Path folder = Files.createDirectories(data);
-            Path input1 = folder.resolve("abc-nicks.ttl");
-            Path input2 = folder.resolve("abc-lastNames.ttl");
-            String base = folder.toUri().normalize().toString();
-            Files.copy(resourceStream("foaf/abc-nicks.ttl"), input1);
-            Files.copy(resourceStream("foaf/abc-lastNames.ttl"), input2);
-
-            tester = new TripleStoreTester(
-                    TripleStoreFactory.allImplementations(),
-                    base,
-                    input1, input2);
-            testerOnlyImplAllowingNestedGraphs = new TripleStoreTester(
-                    TripleStoreFactory.implementationsWorkingWithNestedGraphClauses(),
-                    base,
-                    input1, input2);
-            testerOnlyImplBadNestedGraphs = new TripleStoreTester(
-                    TripleStoreFactory.implementationsBadNestedGraphClauses(),
-                    base,
-                    input1, input2);
-            tester.load();
-            testerOnlyImplAllowingNestedGraphs.load();
-            testerOnlyImplBadNestedGraphs.load();
-        }
+        String base = "foo:foaf";
+        String[] inputs = {"foaf/abc-nicks.ttl", "foaf/abc-lastNames.ttl"};
+        tester = new TripleStoreTester(
+                TripleStoreFactory.allImplementations(), base, inputs);
+        testerOnlyImplAllowingNestedGraphs = new TripleStoreTester(
+                TripleStoreFactory.implementationsWorkingWithNestedGraphClauses(), base, inputs);
+        testerOnlyImplBadNestedGraphs = new TripleStoreTester(
+                TripleStoreFactory.implementationsBadNestedGraphClauses(), base, inputs);
+        tester.load();
+        testerOnlyImplAllowingNestedGraphs.load();
+        testerOnlyImplBadNestedGraphs.load();
     }
 
     @Test
@@ -81,13 +60,13 @@ public class FoafGraphsTest {
         Expected expected = new Expected()
                 .expect("lastName", "Channing", "Liddell", "Marley")
                 .expect("graphLastnames",
-                        "files:abc-lastNames.ttl",
-                        "files:abc-lastNames.ttl",
-                        "files:abc-lastNames.ttl")
+                        "contexts:foaf/abc-lastNames.ttl",
+                        "contexts:foaf/abc-lastNames.ttl",
+                        "contexts:foaf/abc-lastNames.ttl")
                 .expect("graphPersons",
-                        "files:abc-nicks.ttl",
-                        "files:abc-nicks.ttl",
-                        "files:abc-nicks.ttl");
+                        "contexts:foaf/abc-nicks.ttl",
+                        "contexts:foaf/abc-nicks.ttl",
+                        "contexts:foaf/abc-nicks.ttl");
         tester.testQuery(queries.get("lastNamesGraphs"), expected);
     }
 
@@ -96,13 +75,13 @@ public class FoafGraphsTest {
         Expected expected = new Expected()
                 .expect("lastName", "Channing", "Liddell", null)
                 .expect("graphLastnames",
-                        "files:abc-lastNames.ttl",
-                        "files:abc-lastNames.ttl",
+                        "contexts:foaf/abc-lastNames.ttl",
+                        "contexts:foaf/abc-lastNames.ttl",
                         null)
                 .expect("graphPersons",
-                        "files:abc-nicks.ttl",
-                        "files:abc-nicks.ttl",
-                        "files:abc-nicks.ttl");
+                        "contexts:foaf/abc-nicks.ttl",
+                        "contexts:foaf/abc-nicks.ttl",
+                        "contexts:foaf/abc-nicks.ttl");
         testerOnlyImplAllowingNestedGraphs.testQuery(queries.get("lastNameOnlyIfNick"), expected);
     }
 
@@ -112,9 +91,9 @@ public class FoafGraphsTest {
                 .expect("lastName", null, null, null)
                 .expect("graphLastnames", null, null, null)
                 .expect("graphPersons",
-                        "files:abc-nicks.ttl",
-                        "files:abc-nicks.ttl",
-                        "files:abc-nicks.ttl");
+                        "contexts:foaf/abc-nicks.ttl",
+                        "contexts:foaf/abc-nicks.ttl",
+                        "contexts:foaf/abc-nicks.ttl");
         testerOnlyImplBadNestedGraphs.testQuery(queries.get("lastNameOnlyIfNick"), expected);
     }
 

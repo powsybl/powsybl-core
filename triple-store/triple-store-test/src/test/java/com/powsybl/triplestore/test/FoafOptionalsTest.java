@@ -1,10 +1,5 @@
 package com.powsybl.triplestore.test;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-
 /*
  * #%L
  * Triple stores for CGMES models
@@ -17,13 +12,12 @@ import java.nio.file.Files;
  * #L%
  */
 
-import java.nio.file.Path;
+import java.io.IOException;
+import java.io.InputStream;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
 import com.powsybl.triplestore.QueryCatalog;
 import com.powsybl.triplestore.TripleStoreException;
 import com.powsybl.triplestore.TripleStoreFactory;
@@ -41,20 +35,10 @@ public class FoafOptionalsTest {
     @BeforeClass
     public static void setUp() throws TripleStoreException, IOException {
         queries = new QueryCatalog("foaf/foaf-optionals.sparql");
-        queries.load(ClassLoader.getSystemResourceAsStream(queries.resource()));
-
-        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
-            Path data = fileSystem.getPath("foaf");
-            Path folder = Files.createDirectories(data);
-            Path input = folder.resolve("abc-nicks.ttl");
-            String base = folder.toUri().normalize().toString();
-            Files.copy(resourceStream("foaf/abc-nicks.ttl"), input);
-            tester = new TripleStoreTester(
-                    TripleStoreFactory.allImplementations(),
-                    base,
-                    input);
-            tester.load();
-        }
+        queries.load(resourceStream(queries.resource()));
+        String base = "foaf";
+        tester = new TripleStoreTester(TripleStoreFactory.allImplementations(), base, "foaf/abc-nicks.ttl");
+        tester.load();
     }
 
     @Test

@@ -136,6 +136,6 @@ public abstract class AbstractPowsyblTripleStore implements TripleStore {
     private Map<String, String> queryPrefixes;
     private String cachedQueryPrefixes;
 
-    private static final String NAMESPACE_FOR_CONTEXTS = "files:";
+    private static final String NAMESPACE_FOR_CONTEXTS = "contexts:";
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPowsyblTripleStore.class);
 }
