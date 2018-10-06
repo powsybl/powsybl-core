@@ -70,6 +70,9 @@
 # Compilation settings
 install.cfg
 
+# Log files
+powsybl.log
+
 # Eclipse projects
 .classpath
 .project
