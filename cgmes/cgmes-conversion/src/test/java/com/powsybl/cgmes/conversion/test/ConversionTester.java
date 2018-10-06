@@ -14,6 +14,7 @@ package com.powsybl.cgmes.conversion.test;
 
 import static org.junit.Assert.fail;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -59,8 +60,8 @@ public class ConversionTester {
     }
 
     public void testConversion(Network expected, TestGridModel gm, ComparisonConfig config) {
-        if (!Files.exists(gm.path())) {
-            LOG.error("Input path does not exist {}", gm.path().toString());
+        if (!gm.exists()) {
+            LOG.error("Test grid model does not exist {}", gm.name());
             return;
         }
         Properties params = new Properties();
@@ -69,7 +70,7 @@ public class ConversionTester {
             testConversionOnlyDiagnostics(gm);
         } else {
             for (String impl : tripleStoreImplementations) {
-                LOG.info("testConversion. TS implementation {}, grid model {}", impl, gm.id());
+                LOG.info("testConversion. TS implementation {}, grid model {}", impl, gm.name());
                 testConversion(expected, gm, config, impl);
             }
         }
@@ -90,7 +91,7 @@ public class ConversionTester {
             if (!new TopologyTester(cgmes, network).test(strictTopologyTest)) {
                 fail("Topology test failed");
             }
-            exportXiidm(expected, network, gm.path(), impl);
+            exportXiidm(gm.name(), impl, expected, network);
             if (expected != null) {
                 new Comparison(expected, network, config).compare();
             }
@@ -120,16 +121,16 @@ public class ConversionTester {
         }
     }
 
-    private void exportXiidm(Network expected, Network actual, Path path, String impl) {
+    private void exportXiidm(String name, String impl, Network expected, Network actual) throws IOException {
+        String name1 = name.replace('/', '-');
+        Path path = Files.createTempDirectory("temp-conversion-" + name1 + "-" + impl);
         XMLExporter xmlExporter = new XMLExporter();
         // Last component of the path is the name for the exported XML
-        String name = path.getName(path.getNameCount() - 1).toString();
-        String filename = "temp-conversion-" + name + "-" + impl;
         if (expected != null) {
-            xmlExporter.export(expected, null, new FileDataSource(path, filename + "-expected"));
+            xmlExporter.export(expected, null, new FileDataSource(path, "expected"));
         }
         if (actual != null) {
-            xmlExporter.export(actual, null, new FileDataSource(path, filename + "-actual"));
+            xmlExporter.export(actual, null, new FileDataSource(path, "actual"));
         }
     }
 

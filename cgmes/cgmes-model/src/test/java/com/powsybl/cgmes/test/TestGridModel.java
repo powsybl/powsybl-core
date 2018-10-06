@@ -1,5 +1,8 @@
 package com.powsybl.cgmes.test;
 
+import java.io.InputStream;
+import java.nio.file.Files;
+
 /*
  * #%L
  * CGMES data model
@@ -25,6 +28,17 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 public class TestGridModel {
 
     public TestGridModel(
+            String resourceName,
+            CgmesModel expected) {
+        this.name = resourceName;
+        this.path = null;
+        this.basename = null;
+        this.compressionExtension = null;
+        this.expected = expected;
+        this.resourceName = resourceName;
+    }
+
+    public TestGridModel(
             Path path,
             String basename,
             CgmesModel expected) {
@@ -36,19 +50,24 @@ public class TestGridModel {
             String basename,
             CompressionFormat compressionExtension,
             CgmesModel expected) {
-        this.id = path.getName(path.getNameCount() - 1).toString();
+        this.name = path.getName(path.getNameCount() - 1).toString();
         this.path = path;
         this.basename = basename;
         this.compressionExtension = compressionExtension;
         this.expected = expected;
+        this.resourceName = null;
     }
 
-    public String id() {
-        return id;
+    public String name() {
+        return name;
     }
 
-    public Path path() {
-        return path;
+    public boolean exists() {
+        if (path != null) {
+            return Files.exists(path);
+        } else {
+            return resourceStream(resourceName) != null;
+        }
     }
 
     public String basename() {
@@ -60,20 +79,36 @@ public class TestGridModel {
     }
 
     public ReadOnlyDataSource dataSource() {
-        return DataSourceUtil.createDataSource(
-                path(),
-                basename(),
-                getCompressionExtension(),
-                null);
+        if (isResource()) {
+            return DataSourceUtil.createReadOnlyMemDataSource(
+                    resourceName,
+                    resourceStream(resourceName));
+        } else {
+            return DataSourceUtil.createDataSource(
+                    path,
+                    basename(),
+                    getCompressionExtension(),
+                    null);
+        }
     }
 
     public CgmesModel expected() {
         return expected;
     }
 
-    private final String id;
+    private boolean isResource() {
+        return resourceName != null;
+    }
+
+    private InputStream resourceStream(String resource) {
+        return ClassLoader.getSystemResourceAsStream(resource);
+    }
+
+    private final String name;
     private final Path path;
     private final String basename;
     private final CompressionFormat compressionExtension;
     private final CgmesModel expected;
+
+    private final String resourceName;
 }

@@ -31,9 +31,7 @@ public class Cim14SmallCasesCatalog {
     }
 
     public final TestGridModel small1() {
-        return new TestGridModel(
-                Paths.get("../../data/cim14/smallcase1"), "case1",
-                expectedSmall1());
+        return new TestGridModel("cim14/smallcase1.zip", expectedSmall1());
     }
 
     public final TestGridModel m7buses() {

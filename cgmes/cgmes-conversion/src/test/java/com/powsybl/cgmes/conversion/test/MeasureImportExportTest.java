@@ -63,7 +63,7 @@ public class MeasureImportExportTest {
         long[] endTimes = new long[size];
         for (int k = 0; k < size; k++) {
             String impl = implementations.get(k);
-            LOG.info("measureImportExport TS implementation {}, model {}", impl, gm.id());
+            LOG.info("measureImportExport TS implementation {}, model {}", impl, gm.name());
             startTimes[k] = System.currentTimeMillis();
 
             Path output1 = output.resolve(impl);
