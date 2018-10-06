@@ -27,26 +27,20 @@ public class TestGridModel {
     public TestGridModel(
             Path path,
             String basename,
-            CgmesModel expected,
-            boolean containsBays,
-            boolean solved) {
-        this(path, basename, null, expected, containsBays, solved);
+            CgmesModel expected) {
+        this(path, basename, null, expected);
     }
 
     public TestGridModel(
             Path path,
             String basename,
             CompressionFormat compressionExtension,
-            CgmesModel expected,
-            boolean containsBays,
-            boolean solved) {
+            CgmesModel expected) {
         this.id = path.getName(path.getNameCount() - 1).toString();
         this.path = path;
         this.basename = basename;
         this.compressionExtension = compressionExtension;
         this.expected = expected;
-        this.containsBays = containsBays;
-        this.solved = solved;
     }
 
     public String id() {
@@ -73,14 +67,6 @@ public class TestGridModel {
                 null);
     }
 
-    public boolean containsBays() {
-        return containsBays;
-    }
-
-    public boolean solved() {
-        return solved;
-    }
-
     public CgmesModel expected() {
         return expected;
     }
@@ -90,6 +76,4 @@ public class TestGridModel {
     private final String basename;
     private final CompressionFormat compressionExtension;
     private final CgmesModel expected;
-    private final boolean containsBays;
-    private final boolean solved;
 }

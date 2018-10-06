@@ -46,58 +46,77 @@ public class ConversionTester {
         this.strictTopologyTest = false;
     }
 
+    public void setOnlyDiagnostics(boolean onlyDiagnostics) {
+        this.onlyDiagnostics = onlyDiagnostics;
+    }
+
+    public void setStrictTopologyTest(boolean strictTopologyTest) {
+        this.strictTopologyTest = strictTopologyTest;
+    }
+
     public void testConversion(Network expected, TestGridModel gm) {
         testConversion(expected, gm, this.networkComparison);
     }
 
     public void testConversion(Network expected, TestGridModel gm, ComparisonConfig config) {
-        Path path = gm.path();
-        if (!Files.exists(path)) {
-            LOG.error("Input path does not exist {}", path.toString());
+        if (!Files.exists(gm.path())) {
+            LOG.error("Input path does not exist {}", gm.path().toString());
             return;
         }
         Properties params = new Properties();
         params.put("storeCgmesModelAsNetworkProperty", "true");
         if (onlyDiagnostics) {
-            String impl = TripleStoreFactory.defaultImplementation();
-            CgmesImport i = new CgmesImport();
-            params.put("powsyblTripleStore", impl);
-            ReadOnlyDataSource ds = gm.dataSource();
-            try {
-                LOG.info("Importer.exists() == {}", i.exists(ds));
-                Network n = i.importData(ds, params);
-                CgmesModel m = (CgmesModel) n.getProperties().get(CgmesImport.NETWORK_PS_CGMES_MODEL);
-                new Conversion(m).diagnose();
-            } catch (Exception x) {
-                LOG.error(x.getMessage());
-                x.printStackTrace();
-                fail();
-            }
+            testConversionOnlyDiagnostics(gm);
         } else {
             for (String impl : tripleStoreImplementations) {
                 LOG.info("testConversion. TS implementation {}, grid model {}", impl, gm.id());
-                CgmesImport i = new CgmesImport();
-                ReadOnlyDataSource ds = gm.dataSource();
-                params.put("powsyblTripleStore", impl);
-                try {
-                    Network network = i.importData(ds, params);
-                    if (network.getSubstationCount() == 0) {
-                        fail("Model is empty");
-                    }
-                    CgmesModel cgmes = (CgmesModel) network.getProperties().get(CgmesImport.NETWORK_PS_CGMES_MODEL);
-                    if (!new TopologyTester(cgmes, network).test(strictTopologyTest)) {
-                        fail("Topology test failed");
-                    }
-                    exportXiidm(expected, network, path, impl);
-                    if (expected != null) {
-                        new Comparison(expected, network, config).compare();
-                    }
-                } catch (Exception x) {
-                    LOG.error(x.getMessage());
-                    x.printStackTrace();
-                    fail();
-                }
+                testConversion(expected, gm, config, impl);
             }
+        }
+    }
+
+    private void testConversion(Network expected, TestGridModel gm, ComparisonConfig config, String impl) {
+        Properties params = new Properties();
+        params.put("storeCgmesModelAsNetworkProperty", "true");
+        CgmesImport i = new CgmesImport();
+        ReadOnlyDataSource ds = gm.dataSource();
+        params.put("powsyblTripleStore", impl);
+        try {
+            Network network = i.importData(ds, params);
+            if (network.getSubstationCount() == 0) {
+                fail("Model is empty");
+            }
+            CgmesModel cgmes = (CgmesModel) network.getProperties().get(CgmesImport.NETWORK_PS_CGMES_MODEL);
+            if (!new TopologyTester(cgmes, network).test(strictTopologyTest)) {
+                fail("Topology test failed");
+            }
+            exportXiidm(expected, network, gm.path(), impl);
+            if (expected != null) {
+                new Comparison(expected, network, config).compare();
+            }
+        } catch (Exception x) {
+            LOG.error(x.getMessage());
+            x.printStackTrace();
+            fail();
+        }
+    }
+
+    private void testConversionOnlyDiagnostics(TestGridModel gm) {
+        Properties params = new Properties();
+        params.put("storeCgmesModelAsNetworkProperty", "true");
+        String impl = TripleStoreFactory.defaultImplementation();
+        CgmesImport i = new CgmesImport();
+        params.put("powsyblTripleStore", impl);
+        ReadOnlyDataSource ds = gm.dataSource();
+        try {
+            LOG.info("Importer.exists() == {}", i.exists(ds));
+            Network n = i.importData(ds, params);
+            CgmesModel m = (CgmesModel) n.getProperties().get(CgmesImport.NETWORK_PS_CGMES_MODEL);
+            new Conversion(m).diagnose();
+        } catch (Exception x) {
+            LOG.error(x.getMessage());
+            x.printStackTrace();
+            fail();
         }
     }
 
@@ -116,8 +135,8 @@ public class ConversionTester {
 
     private final List<String> tripleStoreImplementations;
     private final ComparisonConfig networkComparison;
-    private final boolean onlyDiagnostics;
-    private final boolean strictTopologyTest;
+    private boolean onlyDiagnostics;
+    private boolean strictTopologyTest;
 
     private static final Logger LOG = LoggerFactory.getLogger(ConversionTester.class);
 }

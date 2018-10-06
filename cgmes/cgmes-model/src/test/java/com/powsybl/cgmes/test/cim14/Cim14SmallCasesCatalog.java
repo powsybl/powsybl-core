@@ -27,50 +27,38 @@ public class Cim14SmallCasesCatalog {
         return new TestGridModel(
                 Paths.get("../../data/cim14/tx-from-microBE-adapted"),
                 "tx-from-microBE-adapted",
-                null,
-                false,
-                true);
+                null);
     }
 
     public final TestGridModel small1() {
         return new TestGridModel(
                 Paths.get("../../data/cim14/smallcase1"), "case1",
-                expectedSmall1(),
-                false,
-                true);
+                expectedSmall1());
     }
 
     public final TestGridModel m7buses() {
         return new TestGridModel(
                 Paths.get("../../data/cim14/m7buses"), "m7buses",
-                expectedM7Buses(),
-                false,
-                true);
+                expectedM7Buses());
     }
 
     public TestGridModel m7busesBiggerZ() {
         return new TestGridModel(
                 Paths.get("../../data/cim14/m7buses_bigger_z"), "m7buses",
-                expectedM7Buses(),
-                false,
-                true);
+                expectedM7Buses());
     }
 
     public final TestGridModel m7busesNoSwitches() {
         return new TestGridModel(
                 Paths.get("../../data/cim14/m7busesNoSwitches"), "m7buses",
-                expectedM7Buses(),
-                false,
-                true);
+                expectedM7Buses());
     }
 
     public final TestGridModel ieee14() {
         return new TestGridModel(
                 Paths.get("../../data/cim14/ieee14"),
                 "ieee14bus",
-                expectedIeee14(),
-                false,
-                true);
+                expectedIeee14());
     }
 
     public final TestGridModel ieee14zipped() {
@@ -78,18 +66,14 @@ public class Cim14SmallCasesCatalog {
                 Paths.get("../../data/cim14"),
                 "ieee14",
                 CompressionFormat.ZIP,
-                expectedIeee14(),
-                false,
-                true);
+                expectedIeee14());
     }
 
     public final TestGridModel nordic32() {
         return new TestGridModel(
                 Paths.get("../../data/cim14/Nordic32"),
                 "Nordic32",
-                expectedNordic32(),
-                false,
-                true);
+                expectedNordic32());
     }
 
     private CgmesModel expectedSmall1() {

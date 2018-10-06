@@ -23,13 +23,11 @@ import com.powsybl.cgmes.CgmesModelException;
  */
 public class MissingCaseTest {
     @Test(expected = CgmesModelException.class)
-    public void missing()  {
+    public void missing() {
         TestGridModel missing = new TestGridModel(
                 Paths.get("./thisTestCaseDoesNotExist"),
                 "",
-                null,
-                false,
-                false);
+                null);
         new CgmesModelTester(missing).test();
     }
 }

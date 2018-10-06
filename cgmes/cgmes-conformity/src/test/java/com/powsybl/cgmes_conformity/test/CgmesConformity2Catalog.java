@@ -31,9 +31,7 @@ public class CgmesConformity2Catalog {
                 // so we have set it to zero in the fixed test configuration
                 "fixed-ENTSOE_CGMES_v2.4_ExplicitLoadFlowCalculation",
                 CompressionFormat.ZIP,
-                null,
-                false,
-                true);
+                null);
     }
 
     public TestGridModel transformerLineTest() {
@@ -41,9 +39,7 @@ public class CgmesConformity2Catalog {
                 ENTSOE_CONFORMITY_2.resolve("TransformerLineTest"),
                 "TransformerLineTest",
                 CompressionFormat.ZIP,
-                null,
-                false,
-                true);
+                null);
     }
 
     public final TestGridModel microBaseCaseBE() {
@@ -51,9 +47,7 @@ public class CgmesConformity2Catalog {
                 ENTSOE_CONFORMITY_2.resolve("MicroGrid/BaseCase_BC"),
                 "CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2",
                 CompressionFormat.ZIP,
-                null,
-                false,
-                true);
+                null);
     }
 
     public final TestGridModel microBaseCaseNL() {
@@ -61,9 +55,7 @@ public class CgmesConformity2Catalog {
                 ENTSOE_CONFORMITY_2.resolve("MicroGrid/BaseCase_BC"),
                 "CGMES_v2.4.15_MicroGridTestConfiguration_BC_NL_v2",
                 CompressionFormat.ZIP,
-                null,
-                false,
-                true);
+                null);
     }
 
     public final TestGridModel microBaseCaseAssembled() {
@@ -71,9 +63,7 @@ public class CgmesConformity2Catalog {
                 ENTSOE_CONFORMITY_2.resolve("MicroGrid/BaseCase_BC"),
                 "CGMES_v2.4.15_MicroGridTestConfiguration_BC_Assembled_v2",
                 CompressionFormat.ZIP,
-                null,
-                false,
-                true);
+                null);
     }
 
     private static final Path ENTSOE_CONFORMITY_2 = Paths.get("../../data/conformity/cas-2.0");

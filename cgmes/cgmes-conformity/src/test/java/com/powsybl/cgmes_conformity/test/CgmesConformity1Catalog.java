@@ -29,9 +29,7 @@ public class CgmesConformity1Catalog {
                 ENTSOE_CONFORMITY_1.resolve("MicroGrid").resolve("BaseCase"),
                 "CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2",
                 CompressionFormat.ZIP,
-                expectedMicroGridBaseCaseBE(),
-                false,
-                true);
+                expectedMicroGridBaseCaseBE());
     }
 
     public final TestGridModel microGridBaseCaseNL() {
@@ -41,9 +39,7 @@ public class CgmesConformity1Catalog {
                         .resolve("BaseCase")
                         .resolve("CGMES_v2.4.15_MicroGridTestConfiguration_BC_NL_v2"),
                 "",
-                null,
-                false,
-                true);
+                null);
     }
 
     public final TestGridModel microGridBaseCaseAssembled() {
@@ -53,9 +49,7 @@ public class CgmesConformity1Catalog {
                         .resolve("BaseCase")
                         .resolve("CGMES_v2.4.15_MicroGridTestConfiguration_BC_Assembled_v2"),
                 "",
-                null,
-                false,
-                true);
+                null);
     }
 
     public TestGridModel microGridBaseCaseBEModifiedNotAllTapChangersHaveControl() {
@@ -64,9 +58,7 @@ public class CgmesConformity1Catalog {
                         .resolve("not-all-tapchangers-have-control")
                         .resolve("CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2"),
                 "",
-                null,
-                false,
-                true);
+                null);
     }
 
     public final TestGridModel miniBusBranch() {
@@ -74,9 +66,7 @@ public class CgmesConformity1Catalog {
                 ENTSOE_CONFORMITY_1.resolve(
                         "CGMES_v2.4.15_MiniGridTestConfiguration_BusBranch_BaseCase_Complete_v3"),
                 "",
-                null,
-                false,
-                true);
+                null);
     }
 
     public final TestGridModel miniNodeBreaker() {
@@ -84,9 +74,7 @@ public class CgmesConformity1Catalog {
                 ENTSOE_CONFORMITY_1.resolve("MiniGrid").resolve("NodeBreaker"),
                 "CGMES_v2.4.15_MiniGridTestConfiguration_BaseCase_Complete_v3",
                 CompressionFormat.ZIP,
-                expectedMiniNodeBreaker(),
-                true,
-                true);
+                expectedMiniNodeBreaker());
     }
 
     public final TestGridModel smallBusBranch() {
@@ -94,9 +82,7 @@ public class CgmesConformity1Catalog {
                 ENTSOE_CONFORMITY_1
                         .resolve("CGMES_v2.4.15_SmallGridTestConfiguration_BusBranch_v3.0.0"),
                 "",
-                null,
-                false,
-                true);
+                null);
     }
 
     public final TestGridModel smallNodeBreaker() {
@@ -104,9 +90,7 @@ public class CgmesConformity1Catalog {
                 ENTSOE_CONFORMITY_1.resolve("SmallGrid").resolve("NodeBreaker"),
                 "CGMES_v2.4.15_SmallGridTestConfiguration_BaseCase_Complete_v3.0.0",
                 CompressionFormat.ZIP,
-                null,
-                true,
-                true);
+                null);
     }
 
     public final TestGridModel real() {
@@ -114,9 +98,7 @@ public class CgmesConformity1Catalog {
                 ENTSOE_CONFORMITY_1.resolve("RealGrid"),
                 "CGMES_v2.4.15_RealGridTestConfiguration_v2",
                 CompressionFormat.ZIP,
-                null,
-                false,
-                true);
+                null);
     }
 
     public CgmesModel expectedMicroGridBaseCaseBE() {
