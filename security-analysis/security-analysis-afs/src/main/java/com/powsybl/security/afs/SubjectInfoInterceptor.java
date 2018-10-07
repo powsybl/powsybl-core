@@ -17,7 +17,6 @@ import com.powsybl.security.interceptors.DefaultSecurityAnalysisInterceptor;
 import com.powsybl.security.interceptors.RunningContext;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 

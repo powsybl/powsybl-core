@@ -7,7 +7,6 @@
 package com.powsybl.security.afs;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptorExtension;
 
 /**
