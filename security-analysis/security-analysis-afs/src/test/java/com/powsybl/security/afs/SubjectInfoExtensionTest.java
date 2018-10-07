@@ -16,6 +16,8 @@ import com.powsybl.security.json.SecurityAnalysisJsonModule;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.TreeSet;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -28,8 +30,8 @@ public class SubjectInfoExtensionTest {
 
     @Test
     public void test() throws IOException {
-        SubjectInfoExtension extension = new SubjectInfoExtension(Sets.newHashSet(225d, 400d),
-                                                                  Sets.newHashSet(Country.FR, Country.BE));
+        SubjectInfoExtension extension = new SubjectInfoExtension(new TreeSet<>(Arrays.asList(225d, 400d)),
+                                                                  new TreeSet<>(Arrays.asList(Country.FR, Country.BE)));
         assertEquals(Sets.newHashSet(225d, 400d), extension.getNominalVoltages());
         assertEquals(Sets.newHashSet(Country.FR, Country.BE), extension.getCountries());
 
@@ -49,7 +51,7 @@ public class SubjectInfoExtensionTest {
                 "  \"extensions\" : {",
                 "    \"SubjectInfo\" : {",
                 "      \"nominalVoltages\" : [ 225.0, 400.0 ],",
-                "      \"countries\" : [ \"FR\", \"BE\" ]",
+                "      \"countries\" : [ \"BE\", \"FR\" ]",
                 "    }",
                 "  }",
                 "}");
