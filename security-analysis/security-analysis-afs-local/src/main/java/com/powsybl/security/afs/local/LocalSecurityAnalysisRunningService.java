@@ -20,6 +20,7 @@ import com.powsybl.security.SecurityAnalysisFactory;
 import com.powsybl.security.SecurityAnalysisParameters;
 import com.powsybl.security.afs.SecurityAnalysisRunner;
 import com.powsybl.security.afs.SecurityAnalysisRunningService;
+import com.powsybl.security.interceptors.SecurityAnalysisInterceptors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,8 +56,14 @@ public class LocalSecurityAnalysisRunningService implements SecurityAnalysisRunn
             logger.log("Loading network...");
             Network network = aCase.getNetwork();
 
-            logger.log("Running security analysis...");
             SecurityAnalysis securityAnalysis = factorySupplier.get().create(network, computationManager, 0);
+
+            // add all interceptors
+            for (String interceptorName : SecurityAnalysisInterceptors.getExtensionNames()) {
+                securityAnalysis.addInterceptor(SecurityAnalysisInterceptors.createInterceptor(interceptorName));
+            }
+
+            logger.log("Running security analysis...");
             securityAnalysis.run(network.getStateManager().getWorkingStateId(), parameters, contingencyListProvider)
                     .handleAsync((result, throwable) -> {
                         if (throwable == null) {
