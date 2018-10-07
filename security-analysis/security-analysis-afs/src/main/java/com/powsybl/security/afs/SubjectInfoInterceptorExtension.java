@@ -22,7 +22,7 @@ public class SubjectInfoInterceptorExtension implements SecurityAnalysisIntercep
     }
 
     @Override
-    public SecurityAnalysisInterceptor createInterceptor() {
+    public SubjectInfoInterceptor createInterceptor() {
         return new SubjectInfoInterceptor();
     }
 }

@@ -19,6 +19,7 @@ import com.powsybl.security.interceptors.RunningContext;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -30,11 +31,11 @@ public class SubjectInfoInterceptor extends DefaultSecurityAnalysisInterceptor {
             if (violation.getLimitType() == LimitViolationType.CURRENT) {
                 Branch branch = context.getNetwork().getBranch(violation.getSubjectId());
 
-                Set<Double> nominalVoltages = new HashSet<>();
+                Set<Double> nominalVoltages = new TreeSet<>();
                 nominalVoltages.add(branch.getTerminal1().getVoltageLevel().getNominalV());
                 nominalVoltages.add(branch.getTerminal2().getVoltageLevel().getNominalV());
 
-                Set<Country> countries = new HashSet<>();
+                Set<Country> countries = new TreeSet<>();
                 countries.add(branch.getTerminal1().getVoltageLevel().getSubstation().getCountry());
                 countries.add(branch.getTerminal2().getVoltageLevel().getSubstation().getCountry());
 

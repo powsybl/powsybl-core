@@ -17,8 +17,8 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.security.LimitViolation;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -64,8 +64,8 @@ public class SubjectInfoExtensionSerializer implements ExtensionJsonSerializer<L
 
     @Override
     public SubjectInfoExtension deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        Set<Double> nominalVoltages = new HashSet<>();
-        Set<Country> countries = new HashSet<>();
+        Set<Double> nominalVoltages = new TreeSet<>();
+        Set<Country> countries = new TreeSet<>();
 
         JsonToken token;
         while ((token = parser.nextToken()) != JsonToken.END_OBJECT) {
