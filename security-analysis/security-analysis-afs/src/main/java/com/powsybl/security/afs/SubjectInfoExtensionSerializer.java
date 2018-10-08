@@ -9,6 +9,7 @@ package com.powsybl.security.afs;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
@@ -45,17 +46,17 @@ public class SubjectInfoExtensionSerializer implements ExtensionJsonSerializer<L
     public void serialize(SubjectInfoExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
         jsonGenerator.writeStartObject();
 
-        jsonGenerator.writeFieldName("nominalVoltages");
-        jsonGenerator.writeStartArray();
-        for (double nominalVoltage : extension.getNominalVoltages()) {
-            jsonGenerator.writeNumber(nominalVoltage);
-        }
-        jsonGenerator.writeEndArray();
-
         jsonGenerator.writeFieldName("countries");
         jsonGenerator.writeStartArray();
         for (Country country : extension.getCountries()) {
             jsonGenerator.writeString(country.name());
+        }
+        jsonGenerator.writeEndArray();
+
+        jsonGenerator.writeFieldName("nominalVoltages");
+        jsonGenerator.writeStartArray();
+        for (double nominalVoltage : extension.getNominalVoltages()) {
+            jsonGenerator.writeNumber(nominalVoltage);
         }
         jsonGenerator.writeEndArray();
 
@@ -64,19 +65,26 @@ public class SubjectInfoExtensionSerializer implements ExtensionJsonSerializer<L
 
     @Override
     public SubjectInfoExtension deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
-        Set<Double> nominalVoltages = new TreeSet<>();
-        Set<Country> countries = new TreeSet<>();
+        Set<Country> countries = null;
+        Set<Double> nominalVoltages = null;
 
-        JsonToken token;
-        while ((token = parser.nextToken()) != JsonToken.END_OBJECT) {
-            if (token == JsonToken.VALUE_STRING) {
-                countries.add(Country.valueOf(parser.getValueAsString()));
-            } else if (token == JsonToken.VALUE_NUMBER_FLOAT ||
-                    token == JsonToken.VALUE_NUMBER_INT) {
-                nominalVoltages.add(parser.getDoubleValue());
+        while (parser.nextToken() != JsonToken.END_OBJECT) {
+            switch (parser.getCurrentName()) {
+                case "countries":
+                    parser.nextToken();
+                    countries = parser.readValueAs(new TypeReference<TreeSet<Country>>() { });
+                    break;
+
+                case "nominalVoltages":
+                    parser.nextToken();
+                    nominalVoltages = parser.readValueAs(new TypeReference<TreeSet<Double>>() { });
+                    break;
+
+                default:
+                    throw new AssertionError("Unexpected field: " + parser.getCurrentName());
             }
         }
 
-        return new SubjectInfoExtension(nominalVoltages, countries);
+        return new SubjectInfoExtension(countries, nominalVoltages);
     }
 }

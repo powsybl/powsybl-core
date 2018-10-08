@@ -6,27 +6,30 @@
  */
 package com.powsybl.security.afs;
 
-import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.security.LimitViolation;
 
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SubjectInfoExtension implements Extension<LimitViolation> {
-
-    private LimitViolation limitViolation;
-
-    private final Set<Double> nominalVoltages;
+public class SubjectInfoExtension extends AbstractExtension<LimitViolation> {
 
     private final Set<Country> countries;
 
-    public SubjectInfoExtension(Set<Double> nominalVoltages, Set<Country> countries) {
-        this.nominalVoltages = Objects.requireNonNull(nominalVoltages);
+    private final Set<Double> nominalVoltages;
+
+    public SubjectInfoExtension(Country country, double nominalVoltage) {
+        this(Collections.singleton(Objects.requireNonNull(country)), Collections.singleton(nominalVoltage));
+    }
+
+    public SubjectInfoExtension(Set<Country> countries, Set<Double> nominalVoltages) {
         this.countries = Objects.requireNonNull(countries);
+        this.nominalVoltages = Objects.requireNonNull(nominalVoltages);
     }
 
     @Override
@@ -34,21 +37,11 @@ public class SubjectInfoExtension implements Extension<LimitViolation> {
         return "SubjectInfo";
     }
 
-    @Override
-    public LimitViolation getExtendable() {
-        return limitViolation;
-    }
-
-    @Override
-    public void setExtendable(LimitViolation limitViolation) {
-        this.limitViolation = limitViolation;
+    public Set<Country> getCountries() {
+        return countries;
     }
 
     public Set<Double> getNominalVoltages() {
         return nominalVoltages;
-    }
-
-    public Set<Country> getCountries() {
-        return countries;
     }
 }

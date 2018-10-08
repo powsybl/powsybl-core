@@ -6,17 +6,13 @@
  */
 package com.powsybl.security.afs;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.security.LimitViolation;
-import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.PostContingencyResult;
 import com.powsybl.security.interceptors.DefaultSecurityAnalysisInterceptor;
 import com.powsybl.security.interceptors.RunningContext;
 
-import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -27,24 +23,22 @@ public class SubjectInfoInterceptor extends DefaultSecurityAnalysisInterceptor {
 
     private void addSubjectInfo(RunningContext context, LimitViolationsResult result) {
         for (LimitViolation violation : result.getLimitViolations()) {
-            if (violation.getLimitType() == LimitViolationType.CURRENT) {
-                Branch branch = context.getNetwork().getBranch(violation.getSubjectId());
-
-                Set<Double> nominalVoltages = new TreeSet<>();
-                nominalVoltages.add(branch.getTerminal1().getVoltageLevel().getNominalV());
-                nominalVoltages.add(branch.getTerminal2().getVoltageLevel().getNominalV());
+            Identifiable identifiable = context.getNetwork().getIdentifiable(violation.getSubjectId());
+            if (identifiable instanceof Branch) {
+                Branch branch = (Branch) identifiable;
 
                 Set<Country> countries = new TreeSet<>();
                 countries.add(branch.getTerminal1().getVoltageLevel().getSubstation().getCountry());
                 countries.add(branch.getTerminal2().getVoltageLevel().getSubstation().getCountry());
 
-                violation.addExtension(SubjectInfoExtension.class, new SubjectInfoExtension(nominalVoltages, countries));
-            } else if (violation.getLimitType() == LimitViolationType.LOW_VOLTAGE ||
-                    violation.getLimitType() == LimitViolationType.HIGH_VOLTAGE) {
-                VoltageLevel vl = context.getNetwork().getVoltageLevel(violation.getSubjectId());
+                Set<Double> nominalVoltages = new TreeSet<>();
+                nominalVoltages.add(branch.getTerminal1().getVoltageLevel().getNominalV());
+                nominalVoltages.add(branch.getTerminal2().getVoltageLevel().getNominalV());
 
-                violation.addExtension(SubjectInfoExtension.class, new SubjectInfoExtension(Collections.singleton(vl.getNominalV()),
-                                                                                            Collections.singleton(vl.getSubstation().getCountry())));
+                violation.addExtension(SubjectInfoExtension.class, new SubjectInfoExtension(countries, nominalVoltages));
+            } else if (identifiable instanceof VoltageLevel) {
+                VoltageLevel vl = (VoltageLevel) identifiable;
+                violation.addExtension(SubjectInfoExtension.class, new SubjectInfoExtension(vl.getSubstation().getCountry(), vl.getNominalV()));
             }
         }
     }
