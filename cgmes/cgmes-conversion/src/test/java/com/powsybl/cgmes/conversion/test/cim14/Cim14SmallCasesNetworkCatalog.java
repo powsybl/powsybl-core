@@ -211,10 +211,6 @@ public class Cim14SmallCasesNetworkCatalog {
         return cimImport(catalog.m7buses());
     }
 
-    public Network m7busesBiggerZ() {
-        return cimImport(catalog.m7busesBiggerZ());
-    }
-
     public Network txMicroBEAdapted() {
         return cimImport(catalog.txMicroBEAdapted());
     }
@@ -231,7 +227,6 @@ public class Cim14SmallCasesNetworkCatalog {
         try (FileSystem fileSystem = Jimfs.newFileSystem()) {
 
             Path folder = Files.createDirectory(fileSystem.getPath("cim14"));
-            String cim1BaseName = "ieee14bus";
 
             ReadOnlyDataSource gmds = gm.dataSource();
             Set<String> names = gmds.listNames("(?i)^.*\\.XML$");

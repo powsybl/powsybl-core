@@ -12,11 +12,8 @@ package com.powsybl.cgmes.test.cim14;
  * #L%
  */
 
-import java.nio.file.Paths;
-
 import com.powsybl.cgmes.CgmesModel;
 import com.powsybl.cgmes.test.TestGridModel;
-import com.powsybl.commons.datasource.CompressionFormat;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -24,10 +21,7 @@ import com.powsybl.commons.datasource.CompressionFormat;
 public class Cim14SmallCasesCatalog {
 
     public TestGridModel txMicroBEAdapted() {
-        return new TestGridModel(
-                Paths.get("../../data/cim14/tx-from-microBE-adapted"),
-                "tx-from-microBE-adapted",
-                null);
+        return new TestGridModel("cim14/tx-from-microBE-adapted.zip", null);
     }
 
     public final TestGridModel small1() {
@@ -35,21 +29,7 @@ public class Cim14SmallCasesCatalog {
     }
 
     public final TestGridModel m7buses() {
-        return new TestGridModel(
-                Paths.get("../../data/cim14/m7buses"), "m7buses",
-                expectedM7Buses());
-    }
-
-    public TestGridModel m7busesBiggerZ() {
-        return new TestGridModel(
-                Paths.get("../../data/cim14/m7buses_bigger_z"), "m7buses",
-                expectedM7Buses());
-    }
-
-    public final TestGridModel m7busesNoSwitches() {
-        return new TestGridModel(
-                Paths.get("../../data/cim14/m7busesNoSwitches"), "m7buses",
-                expectedM7Buses());
+        return new TestGridModel("cim14/m7buses.zip", expectedM7Buses());
     }
 
     public final TestGridModel ieee14() {
@@ -57,10 +37,7 @@ public class Cim14SmallCasesCatalog {
     }
 
     public final TestGridModel nordic32() {
-        return new TestGridModel(
-                Paths.get("../../data/cim14/Nordic32"),
-                "Nordic32",
-                expectedNordic32());
+        return new TestGridModel("cim14/Nordic32.zip", expectedNordic32());
     }
 
     private CgmesModel expectedSmall1() {
