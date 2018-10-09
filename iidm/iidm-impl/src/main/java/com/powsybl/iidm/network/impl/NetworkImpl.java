@@ -287,6 +287,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
     }
 
     @Override
+    @Deprecated
     public TieLineAdderImpl newTieLine() {
         return new TieLineAdderImpl(this);
     }

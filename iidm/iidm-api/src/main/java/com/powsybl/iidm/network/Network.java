@@ -255,6 +255,7 @@ public interface Network extends Container<Network> {
     /**
      * Get a builder to create a new AC tie line.
      */
+    @Deprecated
     TieLineAdder newTieLine();
 
     /**

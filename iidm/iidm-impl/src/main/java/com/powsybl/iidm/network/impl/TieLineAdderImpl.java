@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.TieLineAdder;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@Deprecated
 class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements TieLineAdder {
 
     private final NetworkImpl network;
@@ -134,28 +135,28 @@ class TieLineAdderImpl extends AbstractBranchAdder<TieLineAdderImpl> implements 
         if (half.id == null) {
             throw new ValidationException(this, "id is not set for half line " + num);
         }
-        if (Double.isNaN(half.r)) {
+        if (Double.isNaN(half.getR())) {
             throw new ValidationException(this, "r is not set for half line " + num);
         }
-        if (Double.isNaN(half.x)) {
+        if (Double.isNaN(half.getX())) {
             throw new ValidationException(this, "x is not set for half line " + num);
         }
-        if (Double.isNaN(half.g1)) {
+        if (Double.isNaN(half.getG1())) {
             throw new ValidationException(this, "g1 is not set for half line " + num);
         }
-        if (Double.isNaN(half.b1)) {
+        if (Double.isNaN(half.getB1())) {
             throw new ValidationException(this, "b1 is not set for half line " + num);
         }
-        if (Double.isNaN(half.g2)) {
+        if (Double.isNaN(half.getG2())) {
             throw new ValidationException(this, "g2 is not set for half line " + num);
         }
-        if (Double.isNaN(half.b2)) {
+        if (Double.isNaN(half.getB2())) {
             throw new ValidationException(this, "b2 is not set for half line " + num);
         }
-        if (Double.isNaN(half.xnodeP)) {
+        if (Double.isNaN(half.getXnodeP())) {
             throw new ValidationException(this, "xnodeP is not set for half line " + num);
         }
-        if (Double.isNaN(half.xnodeQ)) {
+        if (Double.isNaN(half.getXnodeQ())) {
             throw new ValidationException(this, "xnodeQ is not set for half line " + num);
         }
     }

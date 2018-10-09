@@ -9,6 +9,7 @@ package com.powsybl.iidm.network;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@Deprecated
 public interface TieLine extends Line {
 
     interface HalfLine extends LineCharacteristics<HalfLine> {

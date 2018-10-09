@@ -35,7 +35,8 @@
 /distribution-core/target/
 /entsoe-util/target/
 /iidm/target/
-/iidm/iidm-api/target
+/iidm/iidm-api/target/
+/iidm/iidm-ext/target/
 /iidm/iidm-converter-api/target/
 /iidm/iidm-impl/target/
 /iidm/iidm-test/target/

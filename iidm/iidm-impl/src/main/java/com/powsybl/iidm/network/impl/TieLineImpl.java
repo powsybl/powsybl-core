@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.TieLine;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@Deprecated
 class TieLineImpl extends LineImpl implements TieLine {
 
     static class HalfLineImpl implements HalfLine {

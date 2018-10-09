@@ -23,7 +23,6 @@
                  <xs:element name="substation" type="iidm:Substation" minOccurs="0" maxOccurs="unbounded"/>
                  <xs:choice minOccurs="0" maxOccurs="unbounded">
                      <xs:element name="line" type="iidm:Line"/>
-                     <xs:element name="tieLine" type="iidm:TieLine"/>
                      <xs:element name="hvdcLine" type="iidm:HvdcLine"/>
                  </xs:choice>
                  <xs:element name="extension" minOccurs="0" maxOccurs="unbounded">
@@ -436,37 +435,6 @@
                 <xs:attribute name="g2" use="required" type="xs:double"/>
                 <xs:attribute name="b1" use="required" type="xs:double"/>
                 <xs:attribute name="b2" use="required" type="xs:double"/>
-            </xs:extension>
-        </xs:complexContent>
-    </xs:complexType>
-    <xs:complexType name="TieLine">
-        <xs:complexContent>
-            <xs:extension base="iidm:Branch">
-                <xs:sequence>
-                    <xs:element name="currentLimits1" type="iidm:CurrentLimit" minOccurs="0"/>
-                    <xs:element name="currentLimits2" type="iidm:CurrentLimit" minOccurs="0"/>
-                </xs:sequence>
-                <xs:attribute name="ucteXnodeCode" use="optional" type="iidm:nonEmptyString"/>
-                <xs:attribute name="id_1" use="required" type="iidm:nonEmptyString"/>
-                <xs:attribute name="name_1" use="optional" type="xs:string"/>
-                <xs:attribute name="r_1" use="required" type="xs:double"/>
-                <xs:attribute name="x_1" use="required" type="xs:double"/>
-                <xs:attribute name="g1_1" use="required" type="xs:double"/>
-                <xs:attribute name="g2_1" use="required" type="xs:double"/>
-                <xs:attribute name="b1_1" use="required" type="xs:double"/>
-                <xs:attribute name="b2_1" use="required" type="xs:double"/>
-                <xs:attribute name="xnodeP_1" use="required" type="xs:double"/>
-                <xs:attribute name="xnodeQ_1" use="required" type="xs:double"/>
-                <xs:attribute name="id_2" use="required" type="iidm:nonEmptyString"/>
-                <xs:attribute name="name_2" use="optional" type="xs:string"/>
-                <xs:attribute name="r_2" use="required" type="xs:double"/>
-                <xs:attribute name="x_2" use="required" type="xs:double"/>
-                <xs:attribute name="g1_2" use="required" type="xs:double"/>
-                <xs:attribute name="g2_2" use="required" type="xs:double"/>
-                <xs:attribute name="b1_2" use="required" type="xs:double"/>
-                <xs:attribute name="b2_2" use="required" type="xs:double"/>
-                <xs:attribute name="xnodeP_2" use="required" type="xs:double"/>
-                <xs:attribute name="xnodeQ_2" use="required" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

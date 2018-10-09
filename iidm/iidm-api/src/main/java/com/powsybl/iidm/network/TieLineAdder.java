@@ -9,6 +9,7 @@ package com.powsybl.iidm.network;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@Deprecated
 public interface TieLineAdder extends BranchAdder<TieLineAdder> {
 
     TieLineAdder setR(double r);

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_1"
+           targetNamespace="http://www.itesla_project.eu/schema/iidm/ext/tieLine/1_0"
+           elementFormDefault="qualified">
+    <xs:import namespace="http://www.itesla_project.eu/schema/iidm/1_1" schemaLocation="iidm.xsd"/>
+    <xs:element name="tieLine">
+        <xs:complexType>
+            <xs:attribute name="ucteXnodeCode" use="optional" type="iidm:nonEmptyString"/>
+            <xs:attribute name="id_1" use="required" type="iidm:nonEmptyString"/>
+            <xs:attribute name="name_1" use="optional" type="xs:string"/>
+            <xs:attribute name="r_1" use="required" type="xs:double"/>
+            <xs:attribute name="x_1" use="required" type="xs:double"/>
+            <xs:attribute name="g1_1" use="required" type="xs:double"/>
+            <xs:attribute name="g2_1" use="required" type="xs:double"/>
+            <xs:attribute name="b1_1" use="required" type="xs:double"/>
+            <xs:attribute name="b2_1" use="required" type="xs:double"/>
+            <xs:attribute name="xnodeP_1" use="required" type="xs:double"/>
+            <xs:attribute name="xnodeQ_1" use="required" type="xs:double"/>
+            <xs:attribute name="id_2" use="required" type="iidm:nonEmptyString"/>
+            <xs:attribute name="name_2" use="optional" type="xs:string"/>
+            <xs:attribute name="r_2" use="required" type="xs:double"/>
+            <xs:attribute name="x_2" use="required" type="xs:double"/>
+            <xs:attribute name="g1_2" use="required" type="xs:double"/>
+            <xs:attribute name="g2_2" use="required" type="xs:double"/>
+            <xs:attribute name="b1_2" use="required" type="xs:double"/>
+            <xs:attribute name="b2_2" use="required" type="xs:double"/>
+            <xs:attribute name="xnodeP_2" use="required" type="xs:double"/>
+            <xs:attribute name="xnodeQ_2" use="required" type="xs:double"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

@@ -24,6 +24,7 @@ import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.script.SimpleScriptContext;
 
+import com.powsybl.iidm.network.*;
 import org.nocrala.tools.texttablefmt.BorderStyle;
 import org.nocrala.tools.texttablefmt.CellStyle;
 import org.nocrala.tools.texttablefmt.Table;
@@ -32,13 +33,6 @@ import org.slf4j.Logger;
 import com.google.common.collect.ImmutableMap;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.Terminal;
 
 /**
  *
@@ -339,6 +333,35 @@ public final class Networks {
                         g.getTerminal().getP(), g.getTerminal().getQ(), g.getTerminal().getBusBreakerView().getConnectableBus().getV());
             }
         }
+    }
+
+    // TODO move
+    public static void replaceTieLineByLine(Network network) {
+        network.getLineStream()
+                .filter(Line::isTieLine)
+                .forEach(tieline -> {
+                    String vl1 = tieline.getTerminal1().getVoltageLevel().getId();
+                    String vl2 = tieline.getTerminal2().getVoltageLevel().getId();
+                    String bus1 = tieline.getTerminal1().getBusBreakerView().getBus().getId();
+                    String bus2 = tieline.getTerminal2().getBusBreakerView().getBus().getId();
+                    tieline.remove();
+                    network.newLine()
+                            .setId(tieline.getId())
+                            .setName(tieline.getName())
+                                .setR(tieline.getR())
+                                .setX(tieline.getX())
+                                .setG1(tieline.getG1())
+                                .setB1(tieline.getB1())
+                                .setG2(tieline.getG2())
+                                .setB2(tieline.getB2())
+                                .setVoltageLevel1(vl1)
+                                .setVoltageLevel2(vl2)
+                                .setConnectableBus1(bus1)
+                                .setConnectableBus2(bus2)
+                                .setBus1(bus1)
+                                .setBus2(bus2)
+                            .add();
+                });
     }
 
 }
