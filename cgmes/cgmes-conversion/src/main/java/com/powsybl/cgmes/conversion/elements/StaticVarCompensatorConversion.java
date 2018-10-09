@@ -52,7 +52,7 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
                 .setEnsureIdUnicity(false)
                 .setBus(terminalConnected() ? busId() : null)
                 .setConnectableBus(busId())
-                // FIXME in IIDM Bmin and Bmax a susceptance,
+                // TODO in IIDM Bmin and Bmax a susceptance,
                 // while CGMES defines the limits as reactances
                 .setBmin(inductiveRating)
                 .setBmax(capacitiveRating)

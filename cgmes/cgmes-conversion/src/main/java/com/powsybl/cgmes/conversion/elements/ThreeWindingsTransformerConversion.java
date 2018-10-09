@@ -81,8 +81,8 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
         String ptc2 = winding2.getId(ptc);
         String ptc3 = winding3.getId(ptc);
 
-        double rho2Square = (double) Math.pow(ratedU2 / ratedU1, 2);
-        double rho3Square = (double) Math.pow(ratedU3 / ratedU1, 2);
+        double rho2Square = Math.pow(ratedU2 / ratedU1, 2);
+        double rho3Square = Math.pow(ratedU3 / ratedU1, 2);
 
         // IIDM model impedances for each leg, computed from winding impedances
         double ir1 = r1;

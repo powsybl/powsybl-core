@@ -13,7 +13,6 @@ package com.powsybl.triplestore;
  */
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.HashMap;
@@ -41,21 +40,9 @@ public abstract class AbstractPowsyblTripleStore implements TripleStore {
         cacheQueryPrefixes();
     }
 
-    public abstract void read(String base, String name, InputStream is);
-
-    public abstract void write(DataSource ds);
-
-    public abstract void dump(PrintStream out);
-
-    public abstract void clear(String context);
-
     public void dump(Consumer<String> liner) {
         dump(new PrintStream(new LinesOutputStream(liner)));
     }
-
-    public abstract PropertyBags query(String query);
-
-    public abstract void add(String graph, String type, PropertyBags objects);
 
     // fileFromContext and contextFromFile should be at this level ...
     // But some triple stores use named graphs and other use implementation specific
@@ -138,4 +125,6 @@ public abstract class AbstractPowsyblTripleStore implements TripleStore {
 
     private static final String NAMESPACE_FOR_CONTEXTS = "contexts:";
     private static final Logger LOG = LoggerFactory.getLogger(AbstractPowsyblTripleStore.class);
+
+    private static final String RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 }

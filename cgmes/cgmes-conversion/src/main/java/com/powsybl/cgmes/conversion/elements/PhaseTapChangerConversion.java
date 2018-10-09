@@ -19,6 +19,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.powsybl.cgmes.CgmesNames;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
@@ -86,7 +87,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                 return false;
             }
         }
-        if (!presentMandatoryProperty("transformerWindingRatedU")) {
+        if (!presentMandatoryProperty(CgmesNames.TRANSFORMER_WINDING_RATED_U)) {
             return false;
         }
         if (!inRange("defaultStep", defaultStep, lowStep, highStep)) {
@@ -146,7 +147,8 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             double g = point.asDouble("g", 0);
             double b = point.asDouble("b", 0);
             int step = point.asInt("step");
-            // Impedance/admittance deviation is required when tap changer is defined at side 2
+            // Impedance/admittance deviation is required when tap changer is defined at
+            // side 2
             // (In IIDM model the ideal ratio is always at side 1, left of impedance)
             double dz = 0;
             double dy = 0;
@@ -174,7 +176,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
 
     private double du0() {
         double neutralU = p.asDouble("neutralU");
-        double transformerWindingRatedU = p.asDouble("transformerWindingRatedU");
+        double transformerWindingRatedU = p.asDouble(CgmesNames.TRANSFORMER_WINDING_RATED_U);
         double du0 = neutralU / transformerWindingRatedU;
         if (Math.abs(du0) > 0.5) {
             du0 = 0;
@@ -184,7 +186,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
 
     private double du() {
         double du;
-        double transformerWindingRatedU = p.asDouble("transformerWindingRatedU");
+        double transformerWindingRatedU = p.asDouble(CgmesNames.TRANSFORMER_WINDING_RATED_U);
         double voltageStepIncrementOutOfPhase = p.asDouble("voltageStepIncrementOutOfPhase");
         boolean voltageStepIncrementOutOfPhaseIsSet = p
                 .containsKey("voltageStepIncrementOutOfPhase");
@@ -358,7 +360,8 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         // X(0) is defined as xMin.
         // X(alphaMax) is defined as xMax.
 
-        // So the xMin, xMax values of CGMES are equivalent to xStepMax, xStepMin of CIM1
+        // So the xMin, xMax values of CGMES are equivalent to xStepMax, xStepMin of
+        // CIM1
 
         double xStepMin = 0;
         double xStepMax = 0;
@@ -384,7 +387,8 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
     }
 
     double adjustx(double x, double rho0square) {
-        // TODO Review this adjustment taking into account the way we build x of transformer
+        // TODO Review this adjustment taking into account the way we build x of
+        // transformer
         // from x1, x2 of transformerEnds:
         // x = x1 * rho0square + x2
         // Check if in the case conformity/microBE (tap changer 6ebbef67)
@@ -443,15 +447,15 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
     }
 
     private final TwoWindingsTransformer tx;
-    private final String                 ptcType;
-    private final int                    lowStep;
-    private final int                    highStep;
-    private final int                    neutralStep;
-    private final int                    defaultStep;
-    private final int                    side;
+    private final String ptcType;
+    private final int lowStep;
+    private final int highStep;
+    private final int neutralStep;
+    private final int defaultStep;
+    private final int side;
 
-    private boolean                      configIsInvertVoltageStepIncrementOutOfPhase;
+    private boolean configIsInvertVoltageStepIncrementOutOfPhase;
 
-    private static final Logger          LOG = LoggerFactory
+    private static final Logger LOG = LoggerFactory
             .getLogger(PhaseTapChangerConversion.class);
 }

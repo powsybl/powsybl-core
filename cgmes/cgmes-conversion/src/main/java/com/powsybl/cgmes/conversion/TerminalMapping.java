@@ -15,6 +15,7 @@ package com.powsybl.cgmes.conversion;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.powsybl.cgmes.CgmesModelException;
 import com.powsybl.iidm.network.Terminal;
 
 /**
@@ -28,7 +29,9 @@ public class TerminalMapping {
     }
 
     public void add(String cgmesTerminal, Terminal iidmTerminal, int terminalNumber) {
-        assert !terminals.containsKey(cgmesTerminal);
+        if (terminals.containsKey(cgmesTerminal)) {
+            throw new CgmesModelException("Terminal already added, CGMES id : " + cgmesTerminal);
+        }
         terminals.put(cgmesTerminal, iidmTerminal);
         terminalNumbers.put(cgmesTerminal, terminalNumber);
     }

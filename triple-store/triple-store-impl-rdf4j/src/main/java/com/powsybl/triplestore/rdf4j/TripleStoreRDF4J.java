@@ -220,13 +220,13 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     }
 
     private void setNamespaces(Model m, RepositoryConnection conn) {
-        // FIXME we should not set here this namespace
+        // TODO we should not set here this namespace
         m.setNamespace("cim", conn.getNamespace("cim"));
         m.setNamespace("data", conn.getNamespace("data"));
     }
 
     private void setNamespaces(RepositoryConnection cnx, String base) {
-        // FIXME we should not set here this namespace
+        // TODO we should not set here this namespace
         cnx.setNamespace("cim", "http://iec.ch/TC57/2009/CIM-schema-cim14#");
         cnx.setNamespace("data", base + "#");
     }

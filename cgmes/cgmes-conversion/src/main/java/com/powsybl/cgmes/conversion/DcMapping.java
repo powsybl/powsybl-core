@@ -15,6 +15,7 @@ package com.powsybl.cgmes.conversion;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.powsybl.cgmes.CgmesNames;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.triplestore.PropertyBag;
 
@@ -31,12 +32,13 @@ public class DcMapping {
     }
 
     public void initialize() {
-        // TODO This is similar to what we do in the AbstractCgmesModel with terminal data
+        // TODO This is similar to what we do in the AbstractCgmesModel with terminal
+        // data
         // Consider moving this part to AbstractCgmesModel
         // Initialize terminal data, for each terminal store the DC topological node
         context.cgmes().dcTerminals().stream().forEach(t -> {
             DcTerminal td = new DcTerminal(
-                    t.getId("DCTerminal"),
+                    t.getId(CgmesNames.DC_TERMINAL),
                     t.getId("DCConductingEquipment"),
                     t.getLocal("dcConductingEquipmentType"),
                     t.asBoolean("connected", false));
@@ -45,14 +47,14 @@ public class DcMapping {
         context.cgmes().dcTerminalsTP().stream().forEach(t -> {
             DcTerminal td = terminals.get(t.getId("DCTerminal"));
             assert td != null;
-            td.tp(t.getId("DCTopologicalNode"), t.getId("Substation"), context);
+            td.tp(t.getId("DCTopologicalNode"), t.getId(CgmesNames.SUBSTATION), context);
         });
     }
 
     public void map(PropertyBag ccgmes, HvdcConverterStation ciidm) {
         // Store we have found this converted HVDC Converter station at
         // the corresponding DCTopologicalNode for the given CGMES DCTerminal
-        String terminalId = ccgmes.getId("DCTerminal");
+        String terminalId = ccgmes.getId(CgmesNames.DC_TERMINAL);
         String dcTopologicalNode = terminals.get(terminalId).topologicalNode();
         addConverterAt(dcTopologicalNode, ciidm, ccgmes);
     }
@@ -88,12 +90,12 @@ public class DcMapping {
     }
 
     public static class DcTerminal {
-        private final String  id;
-        private final String  conductingEquipment;
-        private final String  conductingEquipmentType;
+        private final String id;
+        private final String conductingEquipment;
+        private final String conductingEquipmentType;
         private final boolean connected;
-        private String        topologicalNode;
-        private String        substation;
+        private String topologicalNode;
+        private String substation;
 
         public DcTerminal(
                 String id,
@@ -154,8 +156,8 @@ public class DcMapping {
         }
     }
 
-    private final Conversion.Context                     context;
-    private final Map<String, DcTerminal>                terminals;
-    private final Map<String, HvdcConverterStation>      converters;
+    private final Conversion.Context context;
+    private final Map<String, DcTerminal> terminals;
+    private final Map<String, HvdcConverterStation> converters;
     private final Map<HvdcConverterStation, PropertyBag> cgmesConverters;
 }

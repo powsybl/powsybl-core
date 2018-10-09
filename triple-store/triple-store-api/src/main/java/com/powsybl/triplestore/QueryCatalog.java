@@ -62,7 +62,7 @@ public class QueryCatalog extends HashMap<String, String> {
         if (queryDefinition(line)) {
             context.enterQuery(line);
         } else if (comment(line)) {
-            return;
+            // Ignore the line
         } else {
             context.appendText(line);
         }

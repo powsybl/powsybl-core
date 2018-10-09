@@ -51,7 +51,7 @@ public class PropertyBag extends HashMap<String, String> {
         if (value == null) {
             return null;
         }
-        // The rdf:ID is the mRID plus an underscore added in the beginning of the string
+        // rdf:ID is the mRID plus an underscore added at the beginning of the string
         // We may decide if we want to preserve or not the underscore
         if (removeInitialUnderscoreForIdentifiers) {
             return value.replaceAll("^.*#_?", "");
@@ -159,18 +159,18 @@ public class PropertyBag extends HashMap<String, String> {
     }
 
     public boolean isResource(String name) {
-        // FIXME do not rely on property name, use metadata or answer based on value?
+        // TODO do not rely on property name, use metadata or answer based on value?
         return name.equals("TopologicalNode") || name.equals("Terminal")
                 || name.equals("ShuntCompensator") || name.equals("TapChanger");
     }
 
     public String namespacePrefix(String name) {
-        // FIXME this is a hardcoded namespace
-        return "data";
+        return NAMESPACE_PREFIX;
     }
 
-    private final List<String>  propertyNames;
-    private final boolean       removeInitialUnderscoreForIdentifiers;
+    private final List<String> propertyNames;
+    private final boolean removeInitialUnderscoreForIdentifiers;
 
+    private static final String NAMESPACE_PREFIX = "data";
     private static final String INDENTATION = "    ";
 }

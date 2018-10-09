@@ -148,8 +148,8 @@ public class PowsyblWriter extends RDFXMLWriter {
         boolean isXMLLiteral = false;
 
         // language attribute
-        if (Literals.isLanguageLiteral(objLit) && objLit.getLanguage().isPresent()) {
-            writeAttribute("xml:lang", objLit.getLanguage().get());
+        if (Literals.isLanguageLiteral(objLit)) {
+            writeAttribute("xml:lang", objLit.getLanguage().orElse(""));
         } else {
             IRI datatype = objLit.getDatatype();
             // Check if datatype is rdf:XMLLiteral

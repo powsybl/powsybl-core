@@ -17,6 +17,7 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.powsybl.cgmes.CgmesNames;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -55,7 +56,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
     @Override
     public boolean valid() {
         if (voltageLevel() == null) {
-            missing(String.format("VoltageLevel %s", p.getId("VoltageLevel")));
+            missing(String.format("VoltageLevel %s", p.getId(CgmesNames.VOLTAGE_LEVEL)));
             return false;
         }
         return true;
@@ -69,8 +70,8 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
     }
 
     private VoltageLevel voltageLevel() {
-        String cgmesId = p.getId("VoltageLevel");
-        String iidmId = context.namingStrategy().getId("VoltageLevel", cgmesId);
+        String cgmesId = p.getId(CgmesNames.VOLTAGE_LEVEL);
+        String iidmId = context.namingStrategy().getId(CgmesNames.VOLTAGE_LEVEL, cgmesId);
         return iidmId != null ? context.network().getVoltageLevel(iidmId) : null;
     }
 
@@ -99,7 +100,8 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         // TTG data for DACF has some 380 kV buses connected with v=0 and bad angle
 
         // LITGRID data for DACF contains some buses with v=0, angle=0
-        // They are connected through a closed switch to a node with correct values for v,angle.
+        // They are connected through a closed switch to a node
+        // with correct values for v,angle.
         // If we ignore the SV values (v=0, angle=0),
         // then the IIDM configured bus will be left with (v=NaN, angle=NaN).
         // When using LoadFlow validation to check the initial state,

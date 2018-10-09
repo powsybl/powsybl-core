@@ -14,6 +14,7 @@ package com.powsybl.cgmes.conversion.elements;
 
 import java.util.Objects;
 
+import com.powsybl.cgmes.CgmesNames;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
@@ -77,11 +78,11 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
     }
 
     private double ratedUdc() {
-        double ratedUdc1 = cconverter1.asDouble("ratedUdc");
-        double ratedUdc2 = cconverter2.asDouble("ratedUdc");
+        double ratedUdc1 = cconverter1.asDouble(CgmesNames.RATED_UDC);
+        double ratedUdc2 = cconverter2.asDouble(CgmesNames.RATED_UDC);
         double ratedUdc = ratedUdc1;
         if (ratedUdc2 != ratedUdc1) {
-            invalid("ratedUdc",
+            invalid(CgmesNames.RATED_UDC,
                     String.format("different ratedUdc1, ratedUdc2; use ratedUdc1 by default: %f %f",
                             ratedUdc1,
                             ratedUdc2),
@@ -134,6 +135,6 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
 
     HvdcConverterStation iconverter1;
     HvdcConverterStation iconverter2;
-    PropertyBag          cconverter1;
-    PropertyBag          cconverter2;
+    PropertyBag cconverter1;
+    PropertyBag cconverter2;
 }

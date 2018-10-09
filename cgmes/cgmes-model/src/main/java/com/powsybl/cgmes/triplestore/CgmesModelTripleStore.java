@@ -358,7 +358,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     @Override
     public void svPowerFlows(PropertyBags svPowerFlows) {
         try {
-            // FIXME define to which graph should we add the data
+            // TODO define to which graph should we add the data
             String graph = "SV2";
             String type = cimNamespace + "SvPowerFlow";
             tripleStore.add(graph, type, svPowerFlows);

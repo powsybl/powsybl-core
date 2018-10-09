@@ -26,6 +26,4 @@ public interface TripleStore {
     PropertyBags query(String query);
 
     void add(String graph, String type, PropertyBags objects);
-
-    static final String RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 }

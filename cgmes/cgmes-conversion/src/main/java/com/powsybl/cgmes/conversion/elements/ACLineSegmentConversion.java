@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.apache.commons.math3.complex.Complex;
 
+import com.powsybl.cgmes.CgmesNames;
 import com.powsybl.cgmes.PowerFlow;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.DanglingLine;
@@ -29,7 +30,7 @@ import com.powsybl.triplestore.PropertyBag;
 public class ACLineSegmentConversion extends AbstractConductingEquipmentConversion {
 
     public ACLineSegmentConversion(PropertyBag line, Conversion.Context context) {
-        super("ACLineSegment", line, context, 2);
+        super(CgmesNames.AC_LINE_SEGMENT, line, context, 2);
     }
 
     @Override
@@ -79,7 +80,7 @@ public class ACLineSegmentConversion extends AbstractConductingEquipmentConversi
             convertLine();
             if (lines.size() == 2) {
                 // Convert the other line
-                PropertyBag other = lines.get(0).getId("ACLineSegment").equals(id)
+                PropertyBag other = lines.get(0).getId(CgmesNames.AC_LINE_SEGMENT).equals(id)
                         ? lines.get(1)
                         : lines.get(0);
                 new ACLineSegmentConversion(other, context).convertLine();
@@ -193,7 +194,7 @@ public class ACLineSegmentConversion extends AbstractConductingEquipmentConversi
     private String findUcteXnodeCode(String tn) {
         // the xnode name is contained in the description field, starting
         // from the letter X until ; character
-        // FIXME Obtain description from tn
+        // TODO Obtain description from tn
         String tnDescription = tn;
         int pos1 = tnDescription.indexOf('X');
         int pos2 = tnDescription.indexOf(';');
@@ -206,10 +207,10 @@ public class ACLineSegmentConversion extends AbstractConductingEquipmentConversi
     }
 
     private void convertMergedLinesAtNode(List<PropertyBag> lines, String boundaryNode) {
-        PropertyBag other = lines.get(0).getId("ACLineSegment").equals(id)
+        PropertyBag other = lines.get(0).getId(CgmesNames.AC_LINE_SEGMENT).equals(id)
                 ? lines.get(1)
                 : lines.get(0);
-        String otherId = other.getId("ACLineSegment");
+        String otherId = other.getId(CgmesNames.AC_LINE_SEGMENT);
         String otherName = other.getId("name");
         ACLineSegmentConversion otherc = new ACLineSegmentConversion(other, context);
 

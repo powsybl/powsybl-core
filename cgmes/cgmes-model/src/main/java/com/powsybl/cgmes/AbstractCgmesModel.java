@@ -75,7 +75,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         Map<String, CgmesTerminal> ts = new HashMap<>();
         terminals().stream().forEach(t -> {
             CgmesTerminal td = new CgmesTerminal(
-                    t.getId("Terminal"),
+                    t.getId(CgmesNames.TERMINAL),
                     t.getId("ConductingEquipment"),
                     t.getLocal("conductingEquipmentType"),
                     t.asBoolean("connected", false),
@@ -83,12 +83,12 @@ public abstract class AbstractCgmesModel implements CgmesModel {
             ts.put(td.id(), td);
         });
         terminalsTP().stream().forEach(t -> {
-            CgmesTerminal td = ts.get(t.getId("Terminal"));
+            CgmesTerminal td = ts.get(t.getId(CgmesNames.TERMINAL));
             assert td != null;
             td.assignTP(t.getId("TopologicalNode"), t.getId("VoltageLevel"), t.getId("Substation"));
         });
         terminalsCN().stream().forEach(t -> {
-            CgmesTerminal td = ts.get(t.getId("Terminal"));
+            CgmesTerminal td = ts.get(t.getId(CgmesNames.TERMINAL));
             assert td != null;
             td.assignCN(t.getId("ConnectivityNode"), t.getId("TopologicalNode"), t.getId("VoltageLevel"),
                     t.getId("Substation"));

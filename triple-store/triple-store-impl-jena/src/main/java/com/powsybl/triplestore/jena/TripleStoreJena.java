@@ -112,14 +112,14 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     public PropertyBags query(String query) {
         String query1 = adjustedQuery(query);
         PropertyBags results = new PropertyBags();
-        // Because Jena in-memory does not support default graph as union of named
-        // graphs
-        // We use the dataset for maintaining separate graphs, but query in general
-        // against union
+        // Because Jena in-memory does not support default graph
+        // as the union of named graphs
+        // We use the dataset for maintaining separate graphs,
+        // but query in general against union
         // Only query against dataset if we found a GRAPH clause in the query text
         try (QueryExecution q = queryExecutionFromQueryText(query1)) {
-            // Uncomment to analyze the algebra of the query
-            // q.getContext().set(ARQ.symLogExec,true) ;
+            // If we want to analyze the algebra of the query,
+            // set ARQ.symLogExec to true in the query context
             ResultSet r = q.execSelect();
             List<String> names = r.getResultVars();
             while (r.hasNext()) {

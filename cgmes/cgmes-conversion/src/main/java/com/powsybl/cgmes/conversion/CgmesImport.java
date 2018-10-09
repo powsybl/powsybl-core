@@ -14,9 +14,6 @@ package com.powsybl.cgmes.conversion;
 
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.auto.service.AutoService;
 import com.powsybl.cgmes.CgmesModel;
 import com.powsybl.cgmes.CgmesModelFactory;
@@ -95,11 +92,9 @@ public class CgmesImport implements Importer {
     private static final String FORMAT                 = "CGMES";
     public static final String  NETWORK_PS_CGMES_MODEL = "CGMESModel";
 
-    // FIXME Allow this property to be configurable
+    // TODO Allow this property to be configurable
     // Parameters of importers are only passed to importData method,
     // but to decide if we are importers also for CIM 14 files
     // we must implement the exists method, that has not access to parameters
     private boolean             importCim14            = false;
-
-    private static final Logger LOG                    = LoggerFactory.getLogger(CgmesImport.class);
 }

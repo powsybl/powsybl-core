@@ -13,6 +13,7 @@ package com.powsybl.cgmes.conversion.elements;
  */
 
 import com.powsybl.cgmes.CgmesModel.CgmesTerminal;
+import com.powsybl.cgmes.CgmesNames;
 import com.powsybl.cgmes.PowerFlow;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.Substation;
@@ -37,7 +38,7 @@ public abstract class AbstractConductingEquipmentConversion
         super(type, p, context);
         numTerminals = 1;
         terminals = new TerminalData[] {null, null, null};
-        terminals[0] = new TerminalData("Terminal", p, context);
+        terminals[0] = new TerminalData(CgmesNames.TERMINAL, p, context);
         equipmentPowerFlow = new PowerFlow(p, "p", "q");
     }
 
@@ -48,12 +49,14 @@ public abstract class AbstractConductingEquipmentConversion
             int numTerminals) {
         super(type, p, context);
         // Information about each terminal is in properties of the unique property bag
-        assert numTerminals <= 3;
+        if (numTerminals > 3) {
+            throw new IllegalArgumentException("Invalid number of terminals at " + id + ": " + numTerminals);
+        }
         terminals = new TerminalData[] {null, null, null};
         this.numTerminals = numTerminals;
         for (int k = 1; k <= numTerminals; k++) {
             int k0 = k - 1;
-            terminals[k0] = new TerminalData("Terminal" + k, p, context);
+            terminals[k0] = new TerminalData(CgmesNames.TERMINAL + k, p, context);
         }
         equipmentPowerFlow = PowerFlow.UNDEFINED;
     }
@@ -70,7 +73,7 @@ public abstract class AbstractConductingEquipmentConversion
         assert numTerminals <= 3;
         for (int k = 1; k <= numTerminals; k++) {
             int k0 = k - 1;
-            terminals[k0] = new TerminalData("Terminal", ps.get(k0), context);
+            terminals[k0] = new TerminalData(CgmesNames.TERMINAL, ps.get(k0), context);
         }
         equipmentPowerFlow = PowerFlow.UNDEFINED;
     }

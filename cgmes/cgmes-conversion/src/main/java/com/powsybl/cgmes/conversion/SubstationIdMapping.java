@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.CgmesModel.CgmesTerminal;
+import com.powsybl.cgmes.CgmesNames;
 import com.powsybl.triplestore.PropertyBag;
 import com.powsybl.triplestore.PropertyBags;
 
@@ -39,12 +40,12 @@ public class SubstationIdMapping {
     }
 
     public boolean isMapped(String cgmesIdentifier) {
-        String sid = context.namingStrategy().getId("Substation", cgmesIdentifier);
+        String sid = context.namingStrategy().getId(CgmesNames.SUBSTATION, cgmesIdentifier);
         return mapping.containsKey(sid);
     }
 
     public String iidm(String cgmesIdentifier) {
-        String sid = context.namingStrategy().getId("Substation", cgmesIdentifier);
+        String sid = context.namingStrategy().getId(CgmesNames.SUBSTATION, cgmesIdentifier);
         if (mapping.containsKey(sid)) {
             return mapping.get(sid);
         }
@@ -91,8 +92,8 @@ public class SubstationIdMapping {
     private UndirectedGraph<String, Object> graphSubstationsTransformers() {
         UndirectedGraph<String, Object> graph = new Pseudograph<>(Object.class);
         for (PropertyBag s : context.cgmes().substations()) {
-            String id = s.getId("Substation");
-            graph.addVertex(context.namingStrategy().getId("Substation", id));
+            String id = s.getId(CgmesNames.SUBSTATION);
+            graph.addVertex(context.namingStrategy().getId(CgmesNames.SUBSTATION, id));
         }
         for (PropertyBags tends : context.cgmes().groupedTransformerEnds().values()) {
             List<String> substationsIds = substationsIds(tends);
@@ -108,11 +109,11 @@ public class SubstationIdMapping {
     private List<String> substationsIds(PropertyBags tends) {
         List<String> substationsIds = new ArrayList<>();
         for (PropertyBag end : tends) {
-            CgmesTerminal t = context.cgmes().terminal(end.getId("Terminal"));
+            CgmesTerminal t = context.cgmes().terminal(end.getId(CgmesNames.TERMINAL));
             String node = context.nodeBreaker() ? t.connectivityNode() : t.topologicalNode();
             if (node != null && !context.boundary().containsNode(node)) {
                 String sid = t.substation();
-                substationsIds.add(context.namingStrategy().getId("Substation", sid));
+                substationsIds.add(context.namingStrategy().getId(CgmesNames.SUBSTATION, sid));
             }
         }
         return substationsIds;

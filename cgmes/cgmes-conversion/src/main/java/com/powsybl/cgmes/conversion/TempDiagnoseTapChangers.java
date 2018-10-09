@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.powsybl.cgmes.CgmesModel;
+import com.powsybl.cgmes.CgmesNames;
 import com.powsybl.triplestore.PropertyBag;
 
 /**
@@ -72,8 +73,8 @@ public class TempDiagnoseTapChangers {
         for (int k = 0; k < 6; k++) {
             d.col("tapChangerId");
             d.col("end");
-            d.col("lowStep");
-            d.col("highStep");
+            d.col(CgmesNames.LOW_STEP);
+            d.col(CgmesNames.HIGH_STEP);
             d.col("neutralStep");
             d.col("step");
             d.col("atNeutral");
@@ -102,7 +103,7 @@ public class TempDiagnoseTapChangers {
         String txId = end.getId("PowerTransformer");
         List<PropertyBag> ends = txEnds.computeIfAbsent(txId, t -> new ArrayList<>());
         ends.add(end);
-        String endId = end.getId("TransformerEnd");
+        String endId = end.getId(CgmesNames.TRANSFORMER_END);
         endTx.put(endId, txId);
     }
 
@@ -164,8 +165,8 @@ public class TempDiagnoseTapChangers {
                 d.col(ptc3);
                 tcs.stream().forEach(tc -> {
                     String tcId = tcId(tc);
-                    int lowStep = tc.asInt("lowStep");
-                    int highStep = tc.asInt("highStep");
+                    int lowStep = tc.asInt(CgmesNames.LOW_STEP);
+                    int highStep = tc.asInt(CgmesNames.HIGH_STEP);
                     int neutralStep = tc.asInt("neutralStep");
                     int step = (int) tc.asDouble("SVtapStep", neutralStep);
                     boolean atNeutral = neutralStep == step;
@@ -185,16 +186,16 @@ public class TempDiagnoseTapChangers {
     }
 
     private String transformerId(PropertyBag tc) {
-        String endId = tc.getId("TransformerEnd");
+        String endId = tc.getId(CgmesNames.TRANSFORMER_END);
         return endTx.get(endId);
     }
 
     private int end(PropertyBag tc) {
-        String endId = tc.getId("TransformerEnd");
+        String endId = tc.getId(CgmesNames.TRANSFORMER_END);
         String txId = endTx.get(endId);
         List<PropertyBag> txe = txEnds.get(txId);
         PropertyBag end = txe.stream()
-                .filter(e -> e.getId("TransformerEnd").equals(endId))
+                .filter(e -> e.getId(CgmesNames.TRANSFORMER_END).equals(endId))
                 .reduce((a, b) -> {
                     throw new ConversionException("Multiple transformerEnds with id: " + endId);
                 })
@@ -217,8 +218,8 @@ public class TempDiagnoseTapChangers {
     }
 
     private int steps(PropertyBag tc) {
-        int lowStep = tc.asInt("lowStep");
-        int highStep = tc.asInt("highStep");
+        int lowStep = tc.asInt(CgmesNames.LOW_STEP);
+        int highStep = tc.asInt(CgmesNames.HIGH_STEP);
         return highStep - lowStep + 1;
     }
 
@@ -230,11 +231,11 @@ public class TempDiagnoseTapChangers {
         return isRatio(tc) ? tc.getId("RatioTapChanger") : tc.getId("PhaseTapChanger");
     }
 
-    private final CgmesModel                     cgmes;
-    private final String                         dataSource;
-    private final String                         modelId;
+    private final CgmesModel cgmes;
+    private final String dataSource;
+    private final String modelId;
 
     private final Map<String, List<PropertyBag>> txTapChangers;
     private final Map<String, List<PropertyBag>> txEnds;
-    private final Map<String, String>            endTx;
+    private final Map<String, String> endTx;
 }
