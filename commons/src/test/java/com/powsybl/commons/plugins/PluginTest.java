@@ -6,6 +6,7 @@
  */
 package com.powsybl.commons.plugins;
 
+import com.powsybl.commons.util.ServiceLoaderCache;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -35,6 +36,14 @@ public class PluginTest {
     @Test
     public void testPluginExist() {
         assertNotNull(plugin);
+        assertNotNull(plugin.getPluginInfo().toString());
+    }
+
+    @Test
+    public void testPluginDetails() {
+        new ServiceLoaderCache<>(A.class).getServices().stream().forEach(a ->
+                assertNotNull(plugin.getPluginInfo().getId(a))
+        );
     }
 
     @Test

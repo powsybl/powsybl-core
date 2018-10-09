@@ -34,10 +34,10 @@ public interface Plugin<T> {
         }
 
         /**
-         * identifies the specific plugin with an ID
+         * identifies a plugin object with an ID (default is its class name)
          */
-        public String getId(T plugin) {
-            return plugin.getClass().getName();
+        public String getId(T pluginObject) {
+            return pluginObject.getClass().getName();
         }
 
         @Override

@@ -84,7 +84,7 @@ public class PluginsInfoTool implements Tool {
             plugins.stream().forEach(p -> {
                 try {
                     formatter.writeCell(p.getPluginInfo().getPluginName());
-                    formatter.writeCell(Plugins.getPluginImplementationsIds(p).stream().collect(Collectors.joining(", ")).toString());
+                    formatter.writeCell(Plugins.getPluginImplementationsIds(p).stream().collect(Collectors.joining(", ")));
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
                 }
