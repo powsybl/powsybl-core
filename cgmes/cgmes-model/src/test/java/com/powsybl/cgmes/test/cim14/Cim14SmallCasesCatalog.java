@@ -53,18 +53,7 @@ public class Cim14SmallCasesCatalog {
     }
 
     public final TestGridModel ieee14() {
-        return new TestGridModel(
-                Paths.get("../../data/cim14/ieee14"),
-                "ieee14bus",
-                expectedIeee14());
-    }
-
-    public final TestGridModel ieee14zipped() {
-        return new TestGridModel(
-                Paths.get("../../data/cim14"),
-                "ieee14",
-                CompressionFormat.ZIP,
-                expectedIeee14());
+        return new TestGridModel("cim14/ieee14.zip", expectedIeee14());
     }
 
     public final TestGridModel nordic32() {
