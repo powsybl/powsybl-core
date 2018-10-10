@@ -17,7 +17,7 @@ import java.util.Map;
 
 import com.powsybl.cgmes.CgmesNames;
 import com.powsybl.iidm.network.HvdcConverterStation;
-import com.powsybl.triplestore.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBag;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

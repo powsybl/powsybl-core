@@ -26,7 +26,7 @@ import com.powsybl.cgmes.CgmesModel;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.triplestore.PropertyBags;
+import com.powsybl.triplestore.api.PropertyBags;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

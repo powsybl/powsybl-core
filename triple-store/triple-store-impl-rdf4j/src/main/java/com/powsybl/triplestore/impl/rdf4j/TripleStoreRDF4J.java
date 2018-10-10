@@ -1,4 +1,4 @@
-package com.powsybl.triplestore.rdf4j;
+package com.powsybl.triplestore.impl.rdf4j;
 
 /*
  * #%L
@@ -43,10 +43,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.triplestore.AbstractPowsyblTripleStore;
-import com.powsybl.triplestore.PropertyBag;
-import com.powsybl.triplestore.PropertyBags;
-import com.powsybl.triplestore.TripleStoreException;
+import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
+import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
+import com.powsybl.triplestore.api.TripleStoreException;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

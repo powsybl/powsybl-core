@@ -54,8 +54,8 @@ import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.triplestore.PropertyBag;
-import com.powsybl.triplestore.PropertyBags;
+import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

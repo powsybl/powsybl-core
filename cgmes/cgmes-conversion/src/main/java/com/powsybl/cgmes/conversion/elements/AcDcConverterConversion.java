@@ -17,7 +17,7 @@ import java.util.Objects;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
-import com.powsybl.triplestore.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBag;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

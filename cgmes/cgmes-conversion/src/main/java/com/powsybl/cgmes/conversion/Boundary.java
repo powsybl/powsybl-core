@@ -25,8 +25,8 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.CgmesModel;
 import com.powsybl.cgmes.PowerFlow;
-import com.powsybl.triplestore.PropertyBag;
-import com.powsybl.triplestore.PropertyBags;
+import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

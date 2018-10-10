@@ -1,4 +1,4 @@
-package com.powsybl.triplestore;
+package com.powsybl.triplestore.api;
 
 import java.io.InputStream;
 import java.io.PrintStream;

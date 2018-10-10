@@ -1,4 +1,4 @@
-package com.powsybl.triplestore;
+package com.powsybl.triplestore.api;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

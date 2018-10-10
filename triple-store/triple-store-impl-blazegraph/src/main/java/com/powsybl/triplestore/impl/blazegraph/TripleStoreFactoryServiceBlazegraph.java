@@ -1,8 +1,8 @@
-package com.powsybl.triplestore.blazegraph;
+package com.powsybl.triplestore.impl.blazegraph;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.triplestore.TripleStore;
-import com.powsybl.triplestore.TripleStoreFactoryService;
+import com.powsybl.triplestore.api.TripleStore;
+import com.powsybl.triplestore.api.TripleStoreFactoryService;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

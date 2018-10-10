@@ -1,4 +1,4 @@
-package com.powsybl.cgmes_conformity.test;
+package com.powsybl.cgmes.conformity.test;
 
 import java.util.ArrayList;
 import java.util.List;

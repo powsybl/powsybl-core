@@ -25,10 +25,10 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.triplestore.PropertyBags;
-import com.powsybl.triplestore.TripleStore;
-import com.powsybl.triplestore.TripleStoreException;
-import com.powsybl.triplestore.TripleStoreFactory;
+import com.powsybl.triplestore.api.PropertyBags;
+import com.powsybl.triplestore.api.TripleStore;
+import com.powsybl.triplestore.api.TripleStoreException;
+import com.powsybl.triplestore.api.TripleStoreFactory;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

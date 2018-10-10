@@ -18,7 +18,7 @@
 
 	<artifactId>powsybl-cgmes-conformity</artifactId>
 	<name>CGMES conformity</name>
-	<description>CGMES conformity test configurations</description>
+	<description>Test module using ENTSO-E CGMES conformity configurations</description>
 
 	<dependencies>
 		<!-- Compilation dependencies -->

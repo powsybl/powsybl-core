@@ -15,7 +15,7 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.PowerFlow;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.triplestore.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBag;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

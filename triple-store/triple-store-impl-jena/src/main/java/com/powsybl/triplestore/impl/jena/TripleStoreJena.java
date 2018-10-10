@@ -1,4 +1,4 @@
-package com.powsybl.triplestore.jena;
+package com.powsybl.triplestore.impl.jena;
 
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -28,10 +28,10 @@ import org.apache.jena.shared.uuid.JenaUUID;
 import org.apache.jena.vocabulary.RDF;
 
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.triplestore.AbstractPowsyblTripleStore;
-import com.powsybl.triplestore.PropertyBag;
-import com.powsybl.triplestore.PropertyBags;
-import com.powsybl.triplestore.TripleStoreException;
+import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
+import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
+import com.powsybl.triplestore.api.TripleStoreException;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

@@ -8,9 +8,9 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.triplestore.CgmesModelTripleStore;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.triplestore.TripleStore;
-import com.powsybl.triplestore.TripleStoreException;
-import com.powsybl.triplestore.TripleStoreFactory;
+import com.powsybl.triplestore.api.TripleStore;
+import com.powsybl.triplestore.api.TripleStoreException;
+import com.powsybl.triplestore.api.TripleStoreFactory;
 
 public final class CgmesModelFactory {
 

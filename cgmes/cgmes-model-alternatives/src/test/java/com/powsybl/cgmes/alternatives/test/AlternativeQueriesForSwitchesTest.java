@@ -16,10 +16,10 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.powsybl.cgmes.alternatives.test.AlternativeQueriesTester.Expected;
+import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.test.TestGridModel;
-import com.powsybl.cgmes_conformity.test.CgmesConformity1Catalog;
-import com.powsybl.triplestore.QueryCatalog;
-import com.powsybl.triplestore.TripleStoreFactory;
+import com.powsybl.triplestore.api.QueryCatalog;
+import com.powsybl.triplestore.api.TripleStoreFactory;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

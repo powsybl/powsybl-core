@@ -29,8 +29,8 @@ import com.powsybl.cgmes.CgmesModelFactory;
 import com.powsybl.cgmes.test.TestGridModel;
 import com.powsybl.cgmes.triplestore.CgmesModelTripleStore;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.triplestore.PropertyBags;
-import com.powsybl.triplestore.QueryCatalog;
+import com.powsybl.triplestore.api.PropertyBags;
+import com.powsybl.triplestore.api.QueryCatalog;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

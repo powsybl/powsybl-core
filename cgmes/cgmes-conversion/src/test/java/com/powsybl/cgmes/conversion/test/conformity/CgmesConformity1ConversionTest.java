@@ -15,11 +15,11 @@ package com.powsybl.cgmes.conversion.test.conformity;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
+import com.powsybl.cgmes.conformity.test.CgmesConformity1NetworkCatalog;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
-import com.powsybl.cgmes_conformity.test.CgmesConformity1Catalog;
-import com.powsybl.cgmes_conformity.test.CgmesConformity1NetworkCatalog;
-import com.powsybl.triplestore.TripleStoreFactory;
+import com.powsybl.triplestore.api.TripleStoreFactory;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

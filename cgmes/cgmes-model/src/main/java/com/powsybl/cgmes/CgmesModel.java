@@ -22,8 +22,8 @@ import java.util.function.Consumer;
 import org.joda.time.DateTime;
 
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.triplestore.PropertyBag;
-import com.powsybl.triplestore.PropertyBags;
+import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

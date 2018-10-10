@@ -18,7 +18,7 @@
 
 	<artifactId>powsybl-cgmes-model-alternatives</artifactId>
 	<name>CGMES model alternatives</name>
-	<description>Explore performance of alternative queries and consider all potential modeling alternatives</description>
+	<description>Test module to explore performance of alternative queries</description>
 
 	<dependencies>
 		<!-- Compilation dependencies -->

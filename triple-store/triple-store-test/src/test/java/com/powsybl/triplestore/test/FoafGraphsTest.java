@@ -18,9 +18,9 @@ import java.io.InputStream;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.powsybl.triplestore.QueryCatalog;
-import com.powsybl.triplestore.TripleStoreException;
-import com.powsybl.triplestore.TripleStoreFactory;
+import com.powsybl.triplestore.api.QueryCatalog;
+import com.powsybl.triplestore.api.TripleStoreException;
+import com.powsybl.triplestore.api.TripleStoreFactory;
 import com.powsybl.triplestore.test.TripleStoreTester.Expected;
 
 /**

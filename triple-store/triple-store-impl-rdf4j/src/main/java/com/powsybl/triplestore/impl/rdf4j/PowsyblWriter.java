@@ -1,4 +1,4 @@
-package com.powsybl.triplestore.rdf4j;
+package com.powsybl.triplestore.impl.rdf4j;
 
 /*
  * #%L

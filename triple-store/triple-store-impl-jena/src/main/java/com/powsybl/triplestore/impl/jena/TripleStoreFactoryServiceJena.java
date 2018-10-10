@@ -1,23 +1,23 @@
-package com.powsybl.triplestore.rdf4j;
+package com.powsybl.triplestore.impl.jena;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.triplestore.TripleStore;
-import com.powsybl.triplestore.TripleStoreFactoryService;
+import com.powsybl.triplestore.api.TripleStore;
+import com.powsybl.triplestore.api.TripleStoreFactoryService;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 @AutoService(TripleStoreFactoryService.class)
-public class TripleStoreFactoryServiceRDF4J implements TripleStoreFactoryService {
+public class TripleStoreFactoryServiceJena implements TripleStoreFactoryService {
 
     @Override
     public TripleStore create() {
-        return new TripleStoreRDF4J();
+        return new TripleStoreJena();
     }
 
     @Override
     public String implementation() {
-        return "rdf4j";
+        return "jena";
     }
 
     @Override

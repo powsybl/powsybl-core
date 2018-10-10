@@ -16,7 +16,7 @@ import com.powsybl.cgmes.PowerFlow;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadType;
-import com.powsybl.triplestore.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBag;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
