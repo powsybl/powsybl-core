@@ -80,7 +80,7 @@ public class PluginsInfoTool implements Tool {
         AsciiTableFormatterFactory asciiTableFormatterFactory = new AsciiTableFormatterFactory();
 
         try (TableFormatter formatter = asciiTableFormatterFactory.create(writer, "Plugins", new TableFormatterConfig(),
-                new Column("plugin type name"), new Column("available plugins IDs"))) {
+                new Column("Plugin type name"), new Column("Available plugins IDs"))) {
             plugins.stream().forEach(p -> {
                 try {
                     formatter.writeCell(p.getPluginInfo().getPluginName());
