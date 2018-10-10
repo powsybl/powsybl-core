@@ -12,12 +12,8 @@ package com.powsybl.cgmes.conformity.test;
  * #L%
  */
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.test.TestGridModel;
-import com.powsybl.commons.datasource.CompressionFormat;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -26,78 +22,61 @@ public class CgmesConformity1Catalog {
 
     public final TestGridModel microGridBaseCaseBE() {
         return new TestGridModel(
-                ENTSOE_CONFORMITY_1.resolve("MicroGrid").resolve("BaseCase"),
-                "CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2",
-                CompressionFormat.ZIP,
+                ENTSOE_CONFORMITY_1 + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2.zip",
                 expectedMicroGridBaseCaseBE());
     }
 
     public final TestGridModel microGridBaseCaseNL() {
         return new TestGridModel(
-                ENTSOE_CONFORMITY_1
-                        .resolve("MicroGrid")
-                        .resolve("BaseCase")
-                        .resolve("CGMES_v2.4.15_MicroGridTestConfiguration_BC_NL_v2"),
-                "",
+                ENTSOE_CONFORMITY_1 + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_NL_v2.zip",
                 null);
     }
 
     public final TestGridModel microGridBaseCaseAssembled() {
         return new TestGridModel(
                 ENTSOE_CONFORMITY_1
-                        .resolve("MicroGrid")
-                        .resolve("BaseCase")
-                        .resolve("CGMES_v2.4.15_MicroGridTestConfiguration_BC_Assembled_v2"),
-                "",
+                        + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_Assembled_v2.zip",
                 null);
     }
 
     public TestGridModel microGridBaseCaseBEModifiedNotAllTapChangersHaveControl() {
         return new TestGridModel(
                 ENTSOE_CONFORMITY_1
-                        .resolve("not-all-tapchangers-have-control")
-                        .resolve("CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2"),
-                "",
+                        + "/not-all-tapchangers-have-control/CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2.zip",
                 null);
     }
 
     public final TestGridModel miniBusBranch() {
         return new TestGridModel(
-                ENTSOE_CONFORMITY_1.resolve(
-                        "CGMES_v2.4.15_MiniGridTestConfiguration_BusBranch_BaseCase_Complete_v3"),
-                "",
+                ENTSOE_CONFORMITY_1
+                        + "/MiniGrid/BusBranch/CGMES_v2.4.15_MiniGridTestConfiguration_BusBranch_BaseCase_Complete_v3.zip",
                 null);
     }
 
     public final TestGridModel miniNodeBreaker() {
         return new TestGridModel(
-                ENTSOE_CONFORMITY_1.resolve("MiniGrid").resolve("NodeBreaker"),
-                "CGMES_v2.4.15_MiniGridTestConfiguration_BaseCase_Complete_v3",
-                CompressionFormat.ZIP,
+                ENTSOE_CONFORMITY_1
+                        + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_BaseCase_Complete_v3.zip",
                 expectedMiniNodeBreaker());
     }
 
     public final TestGridModel smallBusBranch() {
         return new TestGridModel(
                 ENTSOE_CONFORMITY_1
-                        .resolve("CGMES_v2.4.15_SmallGridTestConfiguration_BusBranch_v3.0.0"),
-                "",
+                        + "/SmallGrid/BusBranch/CGMES_v2.4.15_SmallGridTestConfiguration_BusBranch_v3.0.0.zip",
                 null);
     }
 
     public final TestGridModel smallNodeBreaker() {
         return new TestGridModel(
-                ENTSOE_CONFORMITY_1.resolve("SmallGrid").resolve("NodeBreaker"),
-                "CGMES_v2.4.15_SmallGridTestConfiguration_BaseCase_Complete_v3.0.0",
-                CompressionFormat.ZIP,
+                ENTSOE_CONFORMITY_1
+                        + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_BaseCase_Complete_v3.0.0.zip",
                 null);
     }
 
     public final TestGridModel real() {
         return new TestGridModel(
-                ENTSOE_CONFORMITY_1.resolve("RealGrid"),
-                "CGMES_v2.4.15_RealGridTestConfiguration_v2",
-                CompressionFormat.ZIP,
+                ENTSOE_CONFORMITY_1 + "/RealGrid/CGMES_v2.4.15_RealGridTestConfiguration_v2.zip",
                 null);
     }
 
@@ -796,6 +775,5 @@ public class CgmesConformity1Catalog {
                         "_f184d87b-5565-45ee-89b4-29e8a42d3ad1");
     }
 
-    private static final Path ENTSOE_CONFORMITY_1 = Paths
-            .get("../../data/conformity/cas-1.1.3-data-4.0.3");
+    private static final String ENTSOE_CONFORMITY_1 = "conformity/cas-1.1.3-data-4.0.3";
 }

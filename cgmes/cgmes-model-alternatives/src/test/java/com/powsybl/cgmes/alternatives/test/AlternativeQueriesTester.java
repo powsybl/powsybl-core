@@ -76,8 +76,6 @@ public class AlternativeQueriesTester {
     }
 
     public void load() {
-        queries.load(this.getClass().getClassLoader().getResourceAsStream(queries.resource()));
-
         if (cacheModels) {
             // Load the model for every triple store implementation
             for (String impl : implementations) {

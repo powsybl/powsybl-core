@@ -27,15 +27,20 @@ import org.slf4j.LoggerFactory;
  */
 public class QueryCatalog extends HashMap<String, String> {
 
+    private InputStream resourceStream(String resource) {
+        return getClass().getClassLoader().getResourceAsStream(resource);
+    }
+
     public QueryCatalog(String resource) {
         this.resource = resource;
+        load(resourceStream(resource));
     }
 
     public String resource() {
         return resource;
     }
 
-    public void load(InputStream ir) {
+    private void load(InputStream ir) {
         ParsingContext context = new ParsingContext();
         try (Stream<String> stream = new BufferedReader(
                 new InputStreamReader(ir)).lines()) {

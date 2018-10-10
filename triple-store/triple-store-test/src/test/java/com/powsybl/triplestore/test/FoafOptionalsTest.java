@@ -13,7 +13,6 @@ package com.powsybl.triplestore.test;
  */
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -28,14 +27,9 @@ import com.powsybl.triplestore.test.TripleStoreTester.Expected;
  */
 public class FoafOptionalsTest {
 
-    private static InputStream resourceStream(String resource) {
-        return ClassLoader.getSystemResourceAsStream(resource);
-    }
-
     @BeforeClass
     public static void setUp() throws TripleStoreException, IOException {
         queries = new QueryCatalog("foaf/foaf-optionals.sparql");
-        queries.load(resourceStream(queries.resource()));
         String base = "foaf";
         tester = new TripleStoreTester(TripleStoreFactory.allImplementations(), base, "foaf/abc-nicks.ttl");
         tester.load();

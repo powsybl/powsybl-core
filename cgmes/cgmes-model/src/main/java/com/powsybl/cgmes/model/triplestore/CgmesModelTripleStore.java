@@ -401,9 +401,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
             resourceName = "CIM16.sparql";
         }
         if (resourceName != null) {
-            InputStream i = this.getClass().getClassLoader().getResourceAsStream(resourceName);
             qc = new QueryCatalog(resourceName);
-            qc.load(i);
         }
         return qc;
     }

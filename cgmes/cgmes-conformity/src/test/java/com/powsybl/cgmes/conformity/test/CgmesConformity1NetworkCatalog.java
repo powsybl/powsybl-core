@@ -1,8 +1,5 @@
 package com.powsybl.cgmes.conformity.test;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /*
  * #%L
  * CGMES conformity
@@ -14,6 +11,9 @@ import java.util.List;
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  * #L%
  */
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -31,10 +31,41 @@ public class CgmesConformity1Test {
     public void microGridBaseCaseBE() {
         new CgmesModelTester(catalog.microGridBaseCaseBE()).test();
     }
+/*
+    @Test
+    public void microGridBaseCaseNL() {
+        new CgmesModelTester(catalog.microGridBaseCaseNL()).test();
+    }
+
+    @Test
+    public void microGridBaseCaseAssembled() {
+        new CgmesModelTester(catalog.microGridBaseCaseAssembled()).test();
+    }
+
+    @Test
+    public void miniBusBranch() {
+        new CgmesModelTester(catalog.miniBusBranch()).test();
+    }
+*/
 
     @Test
     public void miniNodeBreaker() {
         new CgmesModelTester(catalog.miniNodeBreaker()).test();
+    }
+/*
+    @Test
+    public void smallBusBranch() {
+        new CgmesModelTester(catalog.smallBusBranch()).test();
+    }
+*/
+    @Test
+    public void smallNodeBreaker() {
+        new CgmesModelTester(catalog.smallNodeBreaker()).test();
+    }
+
+    @Test
+    public void real() {
+        new CgmesModelTester(catalog.real()).test();
     }
 
     private static CgmesConformity1Catalog catalog;
