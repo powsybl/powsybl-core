@@ -7,10 +7,14 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
 import org.junit.Test;
 
 import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -23,5 +27,15 @@ public class StaticVarCompensatorXmlTest extends AbstractConverterTest {
                          NetworkXml::writeAndValidate,
                          NetworkXml::read,
                          "/staticVarCompensatorRoundTripRef.xml");
+    }
+
+    @Test
+    public void testReadV10() {
+        Network n1 = SvcTestCaseFactory.create();
+        Network n2 = NetworkXml.read(getClass().getResourceAsStream("/refs_V1_0/staticVarCompensatorRoundTripRef.xml"));
+        StaticVarCompensator expected = n1.getStaticVarCompensator("SVC2");
+        StaticVarCompensator actual = n2.getStaticVarCompensator("SVC2");
+        assertEquals(expected.getVoltageSetpoint(), actual.getVoltageSetpoint(), 0.0);
+        assertEquals(expected.getReactivePowerSetpoint(), actual.getReactivePowerSetpoint(), 0.0);
     }
 }

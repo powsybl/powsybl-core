@@ -1342,7 +1342,7 @@ public class AmplNetworkWriter {
 
                 int conBusNum = AmplUtil.getConnectableBusNum(mapper, t);
 
-                double vlSet = svc.getVoltageSetPoint();
+                double vlSet = svc.getVoltageSetpoint();
                 double vb = t.getVoltageLevel().getNominalV();
                 double zb = vb * vb / AmplConstants.SB; //Base impedance
 

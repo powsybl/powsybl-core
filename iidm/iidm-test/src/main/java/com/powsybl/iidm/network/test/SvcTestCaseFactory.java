@@ -78,7 +78,7 @@ public final class SvcTestCaseFactory {
                 .setBmin(0.0002)
                 .setBmax(0.0008)
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setVoltageSetPoint(390)
+                .setVoltageSetpoint(390)
                 .add();
         network.newLine()
                 .setId("L1")

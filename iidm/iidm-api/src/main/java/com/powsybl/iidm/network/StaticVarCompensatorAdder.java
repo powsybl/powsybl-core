@@ -15,9 +15,9 @@ public interface StaticVarCompensatorAdder extends InjectionAdder<StaticVarCompe
 
     StaticVarCompensatorAdder setBmax(double bMax);
 
-    StaticVarCompensatorAdder setVoltageSetPoint(double voltageSetPoint);
+    StaticVarCompensatorAdder setVoltageSetpoint(double voltageSetpoint);
 
-    StaticVarCompensatorAdder setReactivePowerSetPoint(double reactivePowerSetPoint);
+    StaticVarCompensatorAdder setReactivePowerSetpoint(double reactivePowerSetpoint);
 
     StaticVarCompensatorAdder setRegulationMode(StaticVarCompensator.RegulationMode regulationMode);
 

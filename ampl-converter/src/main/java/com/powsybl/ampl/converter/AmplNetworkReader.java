@@ -383,7 +383,7 @@ public class AmplNetworkReader {
             if (q == 0) {
                 svc.setRegulationMode(RegulationMode.OFF);
             } else {
-                svc.setReactivePowerSetPoint(-q);
+                svc.setReactivePowerSetpoint(-q);
                 svc.setRegulationMode(RegulationMode.REACTIVE_POWER);
             }
         }
@@ -392,7 +392,7 @@ public class AmplNetworkReader {
         Terminal t = svc.getTerminal();
         t.setQ(q);
         double nominalV = t.getVoltageLevel().getNominalV();
-        svc.setVoltageSetPoint(targetV * nominalV);
+        svc.setVoltageSetpoint(targetV * nominalV);
 
         busConnection(t, busNum);
 

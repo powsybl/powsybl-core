@@ -36,8 +36,8 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
     protected void writeRootElementAttributes(StaticVarCompensator svc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeDouble("bMin", svc.getBmin(), context.getWriter());
         XmlUtil.writeDouble("bMax", svc.getBmax(), context.getWriter());
-        XmlUtil.writeDouble("voltageSetPoint", svc.getVoltageSetPoint(), context.getWriter());
-        XmlUtil.writeDouble("reactivePowerSetPoint", svc.getReactivePowerSetPoint(), context.getWriter());
+        XmlUtil.writeDouble("voltageSetpoint", svc.getVoltageSetpoint(), context.getWriter());
+        XmlUtil.writeDouble("reactivePowerSetpoint", svc.getReactivePowerSetpoint(), context.getWriter());
         context.getWriter().writeAttribute("regulationMode", svc.getRegulationMode().name());
         writeNodeOrBus(null, svc.getTerminal(), context);
         writePQ(null, svc.getTerminal(), context.getWriter());
@@ -52,18 +52,26 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
     protected StaticVarCompensator readRootElementAttributes(StaticVarCompensatorAdder adder, NetworkXmlReaderContext context) {
         double bMin = XmlUtil.readDoubleAttribute(context.getReader(), "bMin");
         double bMax = XmlUtil.readDoubleAttribute(context.getReader(), "bMax");
-        double voltageSetPoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "voltageSetPoint");
-        double reactivePowerSetPoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "reactivePowerSetPoint");
+        double voltageSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), getVersionCompatibleSetpoint(context, "voltage"));
+        double reactivePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(context.getReader(), getVersionCompatibleSetpoint(context, "reactivePower"));
         StaticVarCompensator.RegulationMode regulationMode = StaticVarCompensator.RegulationMode.valueOf(context.getReader().getAttributeValue(null, "regulationMode"));
         adder.setBmin(bMin)
                 .setBmax(bMax)
-                .setVoltageSetPoint(voltageSetPoint)
-                .setReactivePowerSetPoint(reactivePowerSetPoint)
+                .setVoltageSetpoint(voltageSetpoint)
+                .setReactivePowerSetpoint(reactivePowerSetpoint)
                 .setRegulationMode(regulationMode);
         readNodeOrBus(adder, context);
         StaticVarCompensator svc = adder.add();
         readPQ(null, svc.getTerminal(), context.getReader());
         return svc;
+    }
+
+    private static String getVersionCompatibleSetpoint(NetworkXmlReaderContext context, String attribute) {
+        if (context.getVersion().equals("1_1")) {
+            return attribute + "Setpoint";
+        } else {
+            return attribute + "SetPoint";
+        }
     }
 
     @Override

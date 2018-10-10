@@ -26,24 +26,24 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
 
     // attributes depending on the state
 
-    private final TDoubleArrayList voltageSetPoint;
+    private final TDoubleArrayList voltageSetpoint;
 
-    private final TDoubleArrayList reactivePowerSetPoint;
+    private final TDoubleArrayList reactivePowerSetpoint;
 
     private final TIntArrayList regulationMode;
 
-    StaticVarCompensatorImpl(String id, String name, double bMin, double bMax, double voltageSetPoint, double reactivePowerSetPoint,
+    StaticVarCompensatorImpl(String id, String name, double bMin, double bMax, double voltageSetpoint, double reactivePowerSetpoint,
                              RegulationMode regulationMode, Ref<? extends MultiStateObject> ref) {
         super(id, name);
         this.bMin = bMin;
         this.bMax = bMax;
         int stateArraySize = ref.get().getStateManager().getStateArraySize();
-        this.voltageSetPoint = new TDoubleArrayList(stateArraySize);
-        this.reactivePowerSetPoint = new TDoubleArrayList(stateArraySize);
+        this.voltageSetpoint = new TDoubleArrayList(stateArraySize);
+        this.reactivePowerSetpoint = new TDoubleArrayList(stateArraySize);
         this.regulationMode = new TIntArrayList(stateArraySize);
         for (int i = 0; i < stateArraySize; i++) {
-            this.voltageSetPoint.add(voltageSetPoint);
-            this.reactivePowerSetPoint.add(reactivePowerSetPoint);
+            this.voltageSetpoint.add(voltageSetpoint);
+            this.reactivePowerSetpoint.add(reactivePowerSetpoint);
             this.regulationMode.add(regulationMode.ordinal());
         }
     }
@@ -88,28 +88,28 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     }
 
     @Override
-    public double getVoltageSetPoint() {
-        return voltageSetPoint.get(getNetwork().getStateIndex());
+    public double getVoltageSetpoint() {
+        return voltageSetpoint.get(getNetwork().getStateIndex());
     }
 
     @Override
-    public StaticVarCompensatorImpl setVoltageSetPoint(double voltageSetPoint) {
-        ValidationUtil.checkSvcRegulator(this, voltageSetPoint, getReactivePowerSetPoint(), getRegulationMode());
-        double oldValue = this.voltageSetPoint.set(getNetwork().getStateIndex(), voltageSetPoint);
-        notifyUpdate("voltageSetPoint", oldValue, voltageSetPoint);
+    public StaticVarCompensatorImpl setVoltageSetpoint(double voltageSetpoint) {
+        ValidationUtil.checkSvcRegulator(this, voltageSetpoint, getReactivePowerSetpoint(), getRegulationMode());
+        double oldValue = this.voltageSetpoint.set(getNetwork().getStateIndex(), voltageSetpoint);
+        notifyUpdate("voltageSetpoint", oldValue, voltageSetpoint);
         return this;
     }
 
     @Override
-    public double getReactivePowerSetPoint() {
-        return reactivePowerSetPoint.get(getNetwork().getStateIndex());
+    public double getReactivePowerSetpoint() {
+        return reactivePowerSetpoint.get(getNetwork().getStateIndex());
     }
 
     @Override
-    public StaticVarCompensatorImpl setReactivePowerSetPoint(double reactivePowerSetPoint) {
-        ValidationUtil.checkSvcRegulator(this, getVoltageSetPoint(), reactivePowerSetPoint, getRegulationMode());
-        double oldValue = this.reactivePowerSetPoint.set(getNetwork().getStateIndex(), reactivePowerSetPoint);
-        notifyUpdate("reactivePowerSetPoint", oldValue, reactivePowerSetPoint);
+    public StaticVarCompensatorImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
+        ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), reactivePowerSetpoint, getRegulationMode());
+        double oldValue = this.reactivePowerSetpoint.set(getNetwork().getStateIndex(), reactivePowerSetpoint);
+        notifyUpdate("reactivePowerSetpoint", oldValue, reactivePowerSetpoint);
         return this;
     }
 
@@ -120,7 +120,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
 
     @Override
     public StaticVarCompensatorImpl setRegulationMode(RegulationMode regulationMode) {
-        ValidationUtil.checkSvcRegulator(this, getVoltageSetPoint(), getReactivePowerSetPoint(), regulationMode);
+        ValidationUtil.checkSvcRegulator(this, getVoltageSetpoint(), getReactivePowerSetpoint(), regulationMode);
         RegulationMode oldValue = RegulationMode.values()[this.regulationMode.set(getNetwork().getStateIndex(), regulationMode.ordinal())];
         notifyUpdate("regulationMode", oldValue, regulationMode);
         return this;
@@ -129,12 +129,12 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     @Override
     public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
         super.extendStateArraySize(initStateArraySize, number, sourceIndex);
-        voltageSetPoint.ensureCapacity(voltageSetPoint.size() + number);
-        reactivePowerSetPoint.ensureCapacity(reactivePowerSetPoint.size() + number);
+        voltageSetpoint.ensureCapacity(voltageSetpoint.size() + number);
+        reactivePowerSetpoint.ensureCapacity(reactivePowerSetpoint.size() + number);
         regulationMode.ensureCapacity(regulationMode.size() + number);
         for (int i = 0; i < number; i++) {
-            voltageSetPoint.add(voltageSetPoint.get(sourceIndex));
-            reactivePowerSetPoint.add(reactivePowerSetPoint.get(sourceIndex));
+            voltageSetpoint.add(voltageSetpoint.get(sourceIndex));
+            reactivePowerSetpoint.add(reactivePowerSetpoint.get(sourceIndex));
             regulationMode.add(regulationMode.get(sourceIndex));
         }
     }
@@ -142,8 +142,8 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     @Override
     public void reduceStateArraySize(int number) {
         super.reduceStateArraySize(number);
-        voltageSetPoint.remove(voltageSetPoint.size() - number, number);
-        reactivePowerSetPoint.remove(reactivePowerSetPoint.size() - number, number);
+        voltageSetpoint.remove(voltageSetpoint.size() - number, number);
+        reactivePowerSetpoint.remove(reactivePowerSetpoint.size() - number, number);
         regulationMode.remove(regulationMode.size() - number, number);
     }
 
@@ -157,8 +157,8 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     public void allocateStateArrayElement(int[] indexes, int sourceIndex) {
         super.allocateStateArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
-            voltageSetPoint.set(index, voltageSetPoint.get(sourceIndex));
-            reactivePowerSetPoint.set(index, reactivePowerSetPoint.get(sourceIndex));
+            voltageSetpoint.set(index, voltageSetpoint.get(sourceIndex));
+            reactivePowerSetpoint.set(index, reactivePowerSetpoint.get(sourceIndex));
             regulationMode.set(index, regulationMode.get(sourceIndex));
         }
     }

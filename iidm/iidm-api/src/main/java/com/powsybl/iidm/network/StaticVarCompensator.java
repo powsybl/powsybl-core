@@ -51,16 +51,16 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * <p>Depends on the working state.</p>
      * @return the voltage setpoint
      */
-    double getVoltageSetPoint();
+    double getVoltageSetpoint();
 
     /**
      * <p>Set the voltage setpoint in Kv.</p>
      * <p>Needed only when regulating mode is set to {@link RegulationMode#VOLTAGE}.</p>
      * <p>Depends on the working state.</p>
-     * @param voltageSetPoint the voltage setpoint
+     * @param voltageSetpoint the voltage setpoint
      * @return this to allow method chaining
      */
-    StaticVarCompensator setVoltageSetPoint(double voltageSetPoint);
+    StaticVarCompensator setVoltageSetpoint(double voltageSetpoint);
 
     /**
      * <p>Get the reactive power setpoint in MVAR.</p>
@@ -68,16 +68,16 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
      * <p>Depends on the working state.</p>
      * @return the reactive power setpoint
      */
-    double getReactivePowerSetPoint();
+    double getReactivePowerSetpoint();
 
     /**
      * <p>Set the reactive power setpoint in MVAR.</p>
      * <p>Needed only when regulating mode is set to {@link RegulationMode#REACTIVE_POWER}.</p>
      * <p>Depends on the working state.</p>
-     * @param reactivePowerSetPoint the reactive power setpoint
+     * @param reactivePowerSetpoint the reactive power setpoint
      * @return this to allow method chaining
      */
-    StaticVarCompensator setReactivePowerSetPoint(double reactivePowerSetPoint);
+    StaticVarCompensator setReactivePowerSetpoint(double reactivePowerSetpoint);
 
     /**
      * <p>Get the regulating mode.</p>

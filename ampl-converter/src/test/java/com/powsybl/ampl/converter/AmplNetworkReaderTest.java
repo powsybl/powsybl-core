@@ -345,15 +345,15 @@ public class AmplNetworkReaderTest {
         StaticVarCompensator sv = network.getStaticVarCompensator("SVC2");
 
         assertEquals(RegulationMode.VOLTAGE, sv.getRegulationMode());
-        assertEquals(390.0, sv.getVoltageSetPoint(), 0.0);
+        assertEquals(390.0, sv.getVoltageSetpoint(), 0.0);
         assertTrue(Double.isNaN(sv.getTerminal().getQ()));
 
         reader.readStaticVarcompensator();
 
         StaticVarCompensator sv2 = network.getStaticVarCompensator("SVC2");
         assertEquals(RegulationMode.REACTIVE_POWER, sv2.getRegulationMode());
-        assertEquals(1.080000 * sv.getTerminal().getVoltageLevel().getNominalV(), sv2.getVoltageSetPoint(), 0.0);
-        assertEquals(-30.0, sv2.getReactivePowerSetPoint(), 0.0);
+        assertEquals(1.080000 * sv.getTerminal().getVoltageLevel().getNominalV(), sv2.getVoltageSetpoint(), 0.0);
+        assertEquals(-30.0, sv2.getReactivePowerSetpoint(), 0.0);
         assertEquals(30.0, sv2.getTerminal().getQ(), 0.0);
     }
 
