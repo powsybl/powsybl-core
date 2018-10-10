@@ -10,6 +10,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
+import com.powsybl.iidm.network.PhaseTapChangerStep;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import groovy.lang.GroovyCodeSource;
 import groovy.lang.MissingMethodException;
@@ -127,5 +128,16 @@ public class ActionDslLoaderTest {
                     .setRatio(6.0)
                 .endStep()
                 .add();
+    }
+
+    @Test
+    public void testCompatible() {
+        ActionDb actionDb = new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions2.groovy"))).load(network);
+        Action someAction = actionDb.getAction("compatible");
+        addPhaseShifter();
+        someAction.run(network, null);
+        PhaseTapChangerStep phaseTapChangerStep = network.getTwoWindingsTransformer("NGEN_NHV1").getPhaseTapChanger().getCurrentStep();
+        assertEquals(13.0, phaseTapChangerStep.getRdr(), 0.0);
+        assertEquals(14.0, phaseTapChangerStep.getPhaseShift(), 0.0);
     }
 }

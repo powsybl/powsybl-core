@@ -14,6 +14,7 @@ class TapExtension {
     static Set<String> stepAttributesV10 = ["r", "x", "g", "b"];
     static Set<String> settersV10 = stepAttributesV10.collect {"set" + it.toUpperCase()}
 
+    // no need to override propertyMissing/propertyMissing
     static Object propertyMissing(TapChangerStep self, String name) {
         println "hi"
         if (stepAttributesV10.contains(name))
@@ -74,4 +75,11 @@ class TapExtension {
         return self.getRatio()
     }
 
+    static void setAlpha(PhaseTapChangerStep self, double value) {
+        self.setPhaseShift(value)
+    }
+
+    static double getAlpha(PhaseTapChangerStep self) {
+        return self.getPhaseShift()
+    }
 }

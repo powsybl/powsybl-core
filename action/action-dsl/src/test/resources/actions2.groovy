@@ -40,3 +40,13 @@ action ('fixedTap') {
         phaseShifterFixedTap('NGEN_NHV1', 1)
     }
 }
+
+action ('compatible') {
+    tasks {
+        script {
+            step = transformer('NGEN_NHV1').phaseTapChanger.getCurrentStep()
+            step.r = 13
+            step.alpha = step.r + 1
+        }
+    }
+}

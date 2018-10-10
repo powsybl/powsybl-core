@@ -22,20 +22,4 @@ public interface PhaseTapChangerStep extends TapChangerStep<PhaseTapChangerStep>
      */
     PhaseTapChangerStep setPhaseShift(double phaseShift);
 
-    @Deprecated
-    /**
-     * @deprecated Use {@link #getPhaseShift()} instead.
-     */
-    default double getAlpha() {
-        return getPhaseShift();
-    }
-
-    @Deprecated
-    /**
-     * @deprecated Use {@link #setPhaseShift(double)} instead.
-     */
-    default PhaseTapChangerStep setAlpha(double alpha) {
-        return setPhaseShift(alpha);
-    }
-
 }
