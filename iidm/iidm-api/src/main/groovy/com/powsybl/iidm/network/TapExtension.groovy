@@ -18,6 +18,8 @@ class TapExtension {
         println "hi"
         if (stepAttributesV10.contains(name))
             return self.properties["rd" + name]
+        if (name.equals("rho"))
+            return self.properties["ratio"]
     }
 
     static void propertyMissing(TapChangerStep self, String name, Object value) {
@@ -25,6 +27,8 @@ class TapExtension {
             println "before set:" + self.properties["rd" + name]
             self.invokeMethod("setRd" + name, value)
             println "after set:" + self.properties["rd" + name]
+        } else if(name.equals("rho")) {
+            self.invokeMethod("setRatio", value)
         } else {
             self.properties[name] = value
         }
@@ -60,6 +64,14 @@ class TapExtension {
 
     static double getB(TapChangerStep self) {
         return self.getRdb()
+    }
+
+    static void setRho(TapChangerStep self, double value) {
+        self.setRatio(value)
+    }
+
+    static double getRho(TapChangerStep self) {
+        return self.getRatio()
     }
 
 }

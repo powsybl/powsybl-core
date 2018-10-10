@@ -40,5 +40,6 @@ public class SimpleDslTest extends AbstractLoadFlowRulesEngineTest {
         assertEquals(4.4, step.getRdx(), 0.0);
         assertEquals(5.5, step.getRdg(), 0.0);
         assertEquals(6.6, step.getRdb(), 0.0);
+        assertEquals(5.0, step.getRatio(), 0.0);
     }
 }

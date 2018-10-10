@@ -20,6 +20,10 @@ action('action1') {
             step.rdx = 1.1 + step.r
             step.setG(2.2 + step.getR())
             step.setRdb(1.1 + step.getG())
+            step.rho = 1.0
+            step.setRho(step.rho + step.getRho())
+            step.ratio = step.getRatio() + step.ratio
+            step.setRatio(step.ratio + 1.0)
         }
     }
 }
