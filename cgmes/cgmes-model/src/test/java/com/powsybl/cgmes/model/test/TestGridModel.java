@@ -1,4 +1,4 @@
-package com.powsybl.cgmes.test;
+package com.powsybl.cgmes.model.test;
 
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -17,7 +17,7 @@ import java.nio.file.Files;
 
 import java.nio.file.Path;
 
-import com.powsybl.cgmes.CgmesModel;
+import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;

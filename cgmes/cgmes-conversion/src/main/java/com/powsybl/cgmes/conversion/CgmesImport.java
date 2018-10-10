@@ -15,9 +15,9 @@ package com.powsybl.cgmes.conversion;
 import java.util.Properties;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.cgmes.CgmesModel;
-import com.powsybl.cgmes.CgmesModelFactory;
-import com.powsybl.cgmes.CgmesOnDataSource;
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesModelFactory;
+import com.powsybl.cgmes.model.CgmesOnDataSource;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.import_.Importer;

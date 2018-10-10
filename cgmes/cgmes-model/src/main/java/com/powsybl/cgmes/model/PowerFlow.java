@@ -1,4 +1,4 @@
-package com.powsybl.cgmes;
+package com.powsybl.cgmes.model;
 
 import com.powsybl.triplestore.api.PropertyBag;
 

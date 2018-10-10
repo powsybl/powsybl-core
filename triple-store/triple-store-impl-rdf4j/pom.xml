@@ -18,6 +18,22 @@
     <name>RDF4J triple store implementation</name>
     <description>Triple store implementation using RDF4J</description>
 
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Automatic-Module-Name>com.powsybl.triplestore.impl.rdf4j</Automatic-Module-Name>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+			</plugin>
+		</plugins>
+	</build>
+
     <dependencies>
         <dependency>
             <groupId>com.powsybl</groupId>
@@ -47,12 +63,10 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-		<!-- FIXME LUMA is this required ???
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <scope>test</scope>
         </dependency>
-		-->
     </dependencies>
 </project>

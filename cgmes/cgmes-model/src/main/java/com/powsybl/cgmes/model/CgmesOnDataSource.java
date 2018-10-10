@@ -1,4 +1,4 @@
-package com.powsybl.cgmes;
+package com.powsybl.cgmes.model;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;

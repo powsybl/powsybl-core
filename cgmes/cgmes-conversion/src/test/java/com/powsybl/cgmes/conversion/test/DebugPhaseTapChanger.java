@@ -2,7 +2,7 @@ package com.powsybl.cgmes.conversion.test;
 
 import java.util.function.Consumer;
 
-import com.powsybl.cgmes.PowerFlow;
+import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.util.BranchData;

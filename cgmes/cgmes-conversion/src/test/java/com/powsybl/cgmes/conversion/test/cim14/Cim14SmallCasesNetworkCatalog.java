@@ -16,21 +16,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.jimfs.Jimfs;
-
-/*
- * #%L
- * CGMES conversion
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
- */
-
-import com.powsybl.cgmes.test.TestGridModel;
-import com.powsybl.cgmes.test.cim14.Cim14SmallCasesCatalog;
+import com.powsybl.cgmes.model.test.TestGridModel;
+import com.powsybl.cgmes.model.test.cim14.Cim14SmallCasesCatalog;
 import com.powsybl.cim1.converter.CIM1Importer;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;

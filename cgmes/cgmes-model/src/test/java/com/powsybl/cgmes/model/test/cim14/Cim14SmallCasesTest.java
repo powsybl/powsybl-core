@@ -1,4 +1,4 @@
-package com.powsybl.cgmes.test.cim14;
+package com.powsybl.cgmes.model.test.cim14;
 
 /*
  * #%L
@@ -15,7 +15,7 @@ package com.powsybl.cgmes.test.cim14;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.powsybl.cgmes.test.CgmesModelTester;
+import com.powsybl.cgmes.model.test.CgmesModelTester;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

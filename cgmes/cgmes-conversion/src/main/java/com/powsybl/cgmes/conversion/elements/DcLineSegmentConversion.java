@@ -14,8 +14,8 @@ package com.powsybl.cgmes.conversion.elements;
 
 import java.util.Objects;
 
-import com.powsybl.cgmes.CgmesNames;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.triplestore.api.PropertyBag;

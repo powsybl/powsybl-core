@@ -1,4 +1,4 @@
-package com.powsybl.cgmes.test;
+package com.powsybl.cgmes.model.test;
 
 /*
  * #%L
@@ -16,7 +16,7 @@ import java.nio.file.Paths;
 
 import org.junit.Test;
 
-import com.powsybl.cgmes.CgmesModelException;
+import com.powsybl.cgmes.model.CgmesModelException;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

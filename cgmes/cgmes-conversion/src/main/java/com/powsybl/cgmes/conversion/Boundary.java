@@ -23,8 +23,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.CgmesModel;
-import com.powsybl.cgmes.PowerFlow;
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 

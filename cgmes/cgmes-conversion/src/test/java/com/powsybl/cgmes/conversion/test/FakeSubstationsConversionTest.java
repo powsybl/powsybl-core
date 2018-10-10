@@ -19,8 +19,8 @@ import java.util.stream.Collectors;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.powsybl.cgmes.CgmesModel;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.iidm.network.Network;
 
 /**

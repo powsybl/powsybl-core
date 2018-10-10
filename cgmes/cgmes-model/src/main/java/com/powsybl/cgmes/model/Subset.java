@@ -1,4 +1,4 @@
-package com.powsybl.cgmes;
+package com.powsybl.cgmes.model;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

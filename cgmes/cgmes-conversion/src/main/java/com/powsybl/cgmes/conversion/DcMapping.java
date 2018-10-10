@@ -15,7 +15,7 @@ package com.powsybl.cgmes.conversion;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.powsybl.cgmes.CgmesNames;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.triplestore.api.PropertyBag;
 

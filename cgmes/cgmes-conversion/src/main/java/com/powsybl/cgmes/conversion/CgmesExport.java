@@ -18,9 +18,9 @@ import java.util.List;
 import java.util.Properties;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.cgmes.CgmesModel;
-import com.powsybl.cgmes.CgmesModelException;
-import com.powsybl.cgmes.CgmesNames;
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesModelException;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Bus;

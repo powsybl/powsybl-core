@@ -19,6 +19,22 @@
 	<name>Triple store implementations test</name>
 	<description>Test for triple store implementations</description>
 
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Automatic-Module-Name>com.powsybl.triplestore.test</Automatic-Module-Name>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+			</plugin>
+		</plugins>
+	</build>
+
 	<dependencies>
 		<dependency>
 			<groupId>com.powsybl</groupId>

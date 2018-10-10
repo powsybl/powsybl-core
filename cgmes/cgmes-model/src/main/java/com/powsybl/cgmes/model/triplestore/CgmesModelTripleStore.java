@@ -1,4 +1,4 @@
-package com.powsybl.cgmes.triplestore;
+package com.powsybl.cgmes.model.triplestore;
 
 import java.io.InputStream;
 
@@ -23,8 +23,8 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.AbstractCgmesModel;
-import com.powsybl.cgmes.CgmesModelException;
+import com.powsybl.cgmes.model.AbstractCgmesModel;
+import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;

@@ -17,7 +17,7 @@ import org.junit.Test;
 
 import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
-import com.powsybl.cgmes.test.cim14.Cim14SmallCasesCatalog;
+import com.powsybl.cgmes.model.test.cim14.Cim14SmallCasesCatalog;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
 /**

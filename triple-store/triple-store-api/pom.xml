@@ -19,6 +19,22 @@
     <artifactId>powsybl-triple-store-api</artifactId>
     <name>Triple store abstraction API</name>
     <description>Triple store API</description>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-jar-plugin</artifactId>
+                <configuration>
+                    <archive>
+                        <manifestEntries>
+                            <Automatic-Module-Name>com.powsybl.triplestore.api</Automatic-Module-Name>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+			</plugin>
+		</plugins>
+	</build>
 
     <dependencies>
         <dependency>

@@ -15,7 +15,7 @@ package com.powsybl.cgmes.conversion;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.powsybl.cgmes.CgmesModelException;
+import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Terminal;
 
 /**

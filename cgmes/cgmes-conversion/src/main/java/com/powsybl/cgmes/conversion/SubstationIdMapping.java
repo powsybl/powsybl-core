@@ -24,10 +24,10 @@ import org.jgrapht.graph.Pseudograph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.CgmesModel.CgmesTerminal;
+import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesModel.CgmesTerminal;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
-import com.powsybl.cgmes.CgmesNames;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

@@ -25,11 +25,11 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.CgmesModel;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.test.TestGridModel;
-import com.powsybl.cgmes.test.cim14.Cim14SmallCasesCatalog;
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.test.TestGridModel;
+import com.powsybl.cgmes.model.test.cim14.Cim14SmallCasesCatalog;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;

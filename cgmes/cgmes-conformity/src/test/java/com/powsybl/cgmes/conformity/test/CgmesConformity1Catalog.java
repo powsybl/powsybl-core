@@ -15,8 +15,8 @@ package com.powsybl.cgmes.conformity.test;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import com.powsybl.cgmes.CgmesModel;
-import com.powsybl.cgmes.test.TestGridModel;
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.datasource.CompressionFormat;
 
 /**

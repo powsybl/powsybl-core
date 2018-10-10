@@ -1,4 +1,4 @@
-package com.powsybl.cgmes.test;
+package com.powsybl.cgmes.model.test;
 
 /*
  * #%L
@@ -20,9 +20,9 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.CgmesModel;
-import com.powsybl.cgmes.CgmesModelFactory;
-import com.powsybl.cgmes.CgmesOnDataSource;
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesModelFactory;
+import com.powsybl.cgmes.model.CgmesOnDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStoreFactory;

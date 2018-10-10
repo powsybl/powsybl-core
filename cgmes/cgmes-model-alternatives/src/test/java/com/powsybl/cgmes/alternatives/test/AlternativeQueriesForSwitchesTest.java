@@ -17,7 +17,7 @@ import org.junit.Test;
 
 import com.powsybl.cgmes.alternatives.test.AlternativeQueriesTester.Expected;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
-import com.powsybl.cgmes.test.TestGridModel;
+import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 

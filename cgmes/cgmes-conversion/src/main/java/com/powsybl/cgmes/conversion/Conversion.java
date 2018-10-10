@@ -24,7 +24,6 @@ import org.joda.time.Duration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.CgmesModel;
 import com.powsybl.cgmes.conversion.elements.ACLineSegmentConversion;
 import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion;
 import com.powsybl.cgmes.conversion.elements.AbstractObjectConversion;
@@ -48,6 +47,7 @@ import com.powsybl.cgmes.conversion.elements.TerminalLimitConversion;
 import com.powsybl.cgmes.conversion.elements.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.TwoWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.VoltageLevelConversion;
+import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
