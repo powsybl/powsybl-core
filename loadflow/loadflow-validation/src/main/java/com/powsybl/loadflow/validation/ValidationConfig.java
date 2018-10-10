@@ -8,6 +8,7 @@ package com.powsybl.loadflow.validation;
 
 import java.util.Objects;
 
+import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
@@ -20,7 +21,9 @@ import com.powsybl.loadflow.LoadFlowParameters;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.it>
  */
-public class ValidationConfig {
+public class ValidationConfig implements Versionable {
+
+    private static final String CONFIG_MODULE_NAME = "loadflow-validation";
 
     public static final double THRESHOLD_DEFAULT = 0.0;
     public static final boolean VERBOSE_DEFAULT = false;
@@ -67,8 +70,8 @@ public class ValidationConfig {
         boolean checkMainComponentOnly = CHECK_MAIN_COMPONENT_ONLY_DEFAULT;
         boolean noRequirementIfSetpointOutsidePowerBounds = NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS;
         LoadFlowParameters loadFlowParameter = LoadFlowParameters.load(platformConfig);
-        if (platformConfig.moduleExists("loadflow-validation")) {
-            ModuleConfig config = platformConfig.getModuleConfig("loadflow-validation");
+        if (platformConfig.moduleExists(CONFIG_MODULE_NAME)) {
+            ModuleConfig config = platformConfig.getModuleConfig(CONFIG_MODULE_NAME);
             threshold = config.getDoubleProperty("threshold", THRESHOLD_DEFAULT);
             verbose = config.getBooleanProperty("verbose", VERBOSE_DEFAULT);
             if (config.hasProperty("load-flow-factory")) {
@@ -237,4 +240,13 @@ public class ValidationConfig {
                 "]";
     }
 
+    @Override
+    public String getName() {
+        return CONFIG_MODULE_NAME;
+    }
+
+    @Override
+    public String getVersion() {
+        return "1.0";
+    }
 }

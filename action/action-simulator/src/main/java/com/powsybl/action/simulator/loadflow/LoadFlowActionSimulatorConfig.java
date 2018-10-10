@@ -6,6 +6,7 @@
  */
 package com.powsybl.action.simulator.loadflow;
 
+import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.loadflow.LoadFlowFactory;
@@ -15,7 +16,9 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LoadFlowActionSimulatorConfig {
+public class LoadFlowActionSimulatorConfig implements Versionable {
+
+    private static final String CONFIG_MODULE_NAME = "load-flow-action-simulator";
 
     public static LoadFlowActionSimulatorConfig load() {
         return load(PlatformConfig.defaultConfig());
@@ -24,7 +27,7 @@ public class LoadFlowActionSimulatorConfig {
     public static LoadFlowActionSimulatorConfig load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
 
-        ModuleConfig config = platformConfig.getModuleConfig("load-flow-action-simulator");
+        ModuleConfig config = platformConfig.getModuleConfig(CONFIG_MODULE_NAME);
         Class<? extends LoadFlowFactory> loadFlowFactoryClass = config.getClassProperty("load-flow-factory", LoadFlowFactory.class);
         int maxIterations = config.getIntProperty("max-iterations");
         boolean ignorePreContingencyViolations = config.getBooleanProperty("ignore-pre-contingency-violations", false);
@@ -78,5 +81,15 @@ public class LoadFlowActionSimulatorConfig {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    @Override
+    public String getName() {
+        return CONFIG_MODULE_NAME;
+    }
+
+    @Override
+    public String getVersion() {
+        return "1.0";
     }
 }

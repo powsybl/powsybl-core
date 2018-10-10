@@ -39,7 +39,7 @@ public class ComponentDefaultConfigTest {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
         moduleConfig = platformConfig.createModuleConfig("componentDefaultConfig");
-        config = new ComponentDefaultConfig.Impl(moduleConfig);
+        config = new ComponentDefaultConfig.Impl(new VersionConfig("1.0"), moduleConfig);
     }
 
     @After

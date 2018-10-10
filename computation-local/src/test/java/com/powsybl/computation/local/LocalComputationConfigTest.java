@@ -70,6 +70,7 @@ public class LocalComputationConfigTest {
     @Test
     public void testSnakeCase() {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("computation-local");
+        moduleConfig.setStringProperty("version", "1.1");
         moduleConfig.setStringProperty("tmp-dir", "/tmp");
         moduleConfig.setStringProperty("available-core", "99");
         LocalComputationConfig config = LocalComputationConfig.load(platformConfig, fileSystem);
@@ -80,6 +81,7 @@ public class LocalComputationConfigTest {
     @Test
     public void testTmpDirAlternatives() throws IOException  {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("computation-local");
+        moduleConfig.setStringProperty("version", "1.1");
         moduleConfig.setStringListProperty("tmp-dir", Arrays.asList("/first", "/second"));
         Files.createDirectories(fileSystem.getPath("/second"));
         LocalComputationConfig config = LocalComputationConfig.load(platformConfig, fileSystem);

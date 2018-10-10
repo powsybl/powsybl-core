@@ -6,6 +6,7 @@
  */
 package com.powsybl.commons.io.table;
 
+import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 
@@ -15,7 +16,7 @@ import java.util.Objects;
 /**
  * @author c.biasuzzi@techrain.it
  */
-public class TableFormatterConfig {
+public class TableFormatterConfig implements Versionable {
 
     private static final String CONFIG_MODULE_NAME = "table-formatter";
     private static final Locale DEFAULT_LOCALE = Locale.getDefault();
@@ -104,5 +105,15 @@ public class TableFormatterConfig {
                 ", printHeader=" + printHeader +
                 ", printTitle=" + printTitle +
                 "]";
+    }
+
+    @Override
+    public String getName() {
+        return CONFIG_MODULE_NAME;
+    }
+
+    @Override
+    public String getVersion() {
+        return "1.0";
     }
 }

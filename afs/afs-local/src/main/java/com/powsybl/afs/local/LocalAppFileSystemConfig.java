@@ -8,6 +8,7 @@ package com.powsybl.afs.local;
 
 import com.powsybl.afs.AfsException;
 import com.powsybl.afs.storage.AbstractAppFileSystemConfig;
+import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 
@@ -22,7 +23,9 @@ import java.util.OptionalInt;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LocalAppFileSystemConfig extends AbstractAppFileSystemConfig<LocalAppFileSystemConfig> {
+public class LocalAppFileSystemConfig extends AbstractAppFileSystemConfig<LocalAppFileSystemConfig> implements Versionable {
+
+    private static final String CONFIG_MODULE_NAME = "local-app-file-system";
 
     private Path rootDir;
 
@@ -49,22 +52,25 @@ public class LocalAppFileSystemConfig extends AbstractAppFileSystemConfig<LocalA
     }
 
     public static List<LocalAppFileSystemConfig> load(PlatformConfig platformConfig) {
-        List<LocalAppFileSystemConfig> configs = new ArrayList<>();
-        ModuleConfig moduleConfig = platformConfig.getModuleConfigIfExists("local-app-file-system");
-        if (moduleConfig != null) {
-            load(moduleConfig, OptionalInt.empty(), configs);
-            int maxAdditionalDriveCount = moduleConfig.getIntProperty("max-additional-drive-count", 0);
-            for (int i = 0; i < maxAdditionalDriveCount; i++) {
-                load(moduleConfig, OptionalInt.of(i), configs);
-            }
-        } else {
-            for (Path rootDir : FileSystems.getDefault().getRootDirectories()) {
-                if (Files.isDirectory(rootDir)) {
-                    configs.add(new LocalAppFileSystemConfig(rootDir.toString(), false, rootDir));
-                }
-            }
-        }
-        return configs;
+
+        return platformConfig.getOptionalModuleConfig(CONFIG_MODULE_NAME)
+                .map(moduleConfig -> {
+                    List<LocalAppFileSystemConfig> configs = new ArrayList<>();
+                    load(moduleConfig, OptionalInt.empty(), configs);
+                    int maxAdditionalDriveCount = moduleConfig.getIntProperty("max-additional-drive-count", 0);
+                    for (int i = 0; i < maxAdditionalDriveCount; i++) {
+                        load(moduleConfig, OptionalInt.of(i), configs);
+                    }
+                    return configs;
+                }).orElseGet(() -> {
+                    List<LocalAppFileSystemConfig> configs = new ArrayList<>();
+                    for (Path rootDir : FileSystems.getDefault().getRootDirectories()) {
+                        if (Files.isDirectory(rootDir)) {
+                            configs.add(new LocalAppFileSystemConfig(rootDir.toString(), false, rootDir));
+                        }
+                    }
+                    return configs;
+                });
     }
 
     private static Path checkRootDir(Path rootDir) {
@@ -87,5 +93,15 @@ public class LocalAppFileSystemConfig extends AbstractAppFileSystemConfig<LocalA
     public LocalAppFileSystemConfig setRootDir(Path rootDir) {
         this.rootDir = checkRootDir(rootDir);
         return this;
+    }
+
+    @Override
+    public String getName() {
+        return CONFIG_MODULE_NAME;
+    }
+
+    @Override
+    public String getVersion() {
+        return "1.0";
     }
 }

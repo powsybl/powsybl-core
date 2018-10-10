@@ -6,6 +6,7 @@
  */
 package com.powsybl.afs.ws.client.utils;
 
+import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.exceptions.UncheckedUriSyntaxException;
 
@@ -17,7 +18,9 @@ import java.util.Optional;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class RemoteServiceConfig {
+public class RemoteServiceConfig implements Versionable {
+
+    private static final String CONFIG_MODULE_NAME = "remote-service";
 
     private String hostName;
 
@@ -40,7 +43,7 @@ public class RemoteServiceConfig {
 
     public static Optional<RemoteServiceConfig> load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        return platformConfig.getOptionalModuleConfig("remote-service").map(moduleConfig -> {
+        return platformConfig.getOptionalModuleConfig(CONFIG_MODULE_NAME).map(moduleConfig -> {
             String hostName = moduleConfig.getStringProperty("host-name");
             String appName = moduleConfig.getStringProperty("app-name");
             boolean secure = moduleConfig.getBooleanProperty("secure", true);
@@ -111,5 +114,15 @@ public class RemoteServiceConfig {
     @Override
     public String toString() {
         return getClass().getSimpleName() + "(hostName=" + hostName + ", appName=" + appName + ", port=" + port + ", secure=" + secure + ")";
+    }
+
+    @Override
+    public String getName() {
+        return CONFIG_MODULE_NAME;
+    }
+
+    @Override
+    public String getVersion() {
+        return "1.0";
     }
 }

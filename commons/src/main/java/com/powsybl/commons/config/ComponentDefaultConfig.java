@@ -7,6 +7,7 @@
 package com.powsybl.commons.config;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.Versionable;
 import com.powsybl.commons.exceptions.UncheckedIllegalAccessException;
 import com.powsybl.commons.exceptions.UncheckedInstantiationException;
 
@@ -23,15 +24,26 @@ public interface ComponentDefaultConfig {
     }
 
     static ComponentDefaultConfig load(PlatformConfig platformConfig) {
-        return new Impl(platformConfig.getModuleConfigIfExists("componentDefaultConfig"));
+        return platformConfig.getOptionalModuleConfig(Impl.CONFIG_MODULE_NAME_V_1_1)
+                .map(moduleConfig -> new Impl(new VersionConfig("1.1"), moduleConfig))
+                .orElseGet(() -> platformConfig.getOptionalModuleConfig(Impl.CONFIG_MODULE_NAME_V_1_0)
+                        .map(moduleConfig -> new Impl(new VersionConfig("1.0"), moduleConfig))
+                        .orElse(null));
+
     }
 
-    class Impl implements ComponentDefaultConfig {
+    class Impl implements ComponentDefaultConfig, Versionable {
+
+        private static final String CONFIG_MODULE_NAME_V_1_0 = "componentDefaultConfig";
+
+        private static final String CONFIG_MODULE_NAME_V_1_1 = "component-default-config";
 
         /**
          * Lazily intialized config from the default platform config.
          */
         private static ComponentDefaultConfig defaultConfig;
+
+        private final VersionConfig version;
 
         private static synchronized ComponentDefaultConfig getDefaultConfig() {
             if (defaultConfig == null) {
@@ -42,7 +54,8 @@ public interface ComponentDefaultConfig {
 
         private final ModuleConfig config;
 
-        public Impl(ModuleConfig config) {
+        public Impl(VersionConfig version, ModuleConfig config) {
+            this.version = version;
             this.config = config;
         }
 
@@ -85,6 +98,19 @@ public interface ComponentDefaultConfig {
             } catch (InstantiationException e) {
                 throw new UncheckedInstantiationException(e);
             }
+        }
+
+        @Override
+        public String getName() {
+            if (version.equalsOrIsNewerThan("1.1")) {
+                return CONFIG_MODULE_NAME_V_1_1;
+            }
+            return CONFIG_MODULE_NAME_V_1_0;
+        }
+
+        @Override
+        public String getVersion() {
+            return this.version.toString();
         }
     }
 

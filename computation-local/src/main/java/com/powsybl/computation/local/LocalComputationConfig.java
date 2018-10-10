@@ -6,9 +6,11 @@
  */
 package com.powsybl.computation.local;
 
+import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.ConfigurationException;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.VersionConfig;
 
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -22,13 +24,17 @@ import java.util.stream.Collectors;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LocalComputationConfig {
+public class LocalComputationConfig implements Versionable {
 
     private static final String CONFIG_MODULE_NAME = "computation-local";
 
     static final String DEFAULT_LOCAL_DIR = System.getProperty("java.io.tmpdir");
 
     private static final int DEFAULT_AVAILABLE_CORE = 1;
+
+    private static final String DEFAULT_CONFIG_VERSION = "1.0";
+
+    private final VersionConfig version;
 
     private final Path localDir;
 
@@ -62,29 +68,40 @@ public class LocalComputationConfig {
 
     public static LocalComputationConfig load(PlatformConfig platformConfig, FileSystem fileSystem) {
         Objects.requireNonNull(platformConfig);
-
+        VersionConfig version = new VersionConfig(DEFAULT_CONFIG_VERSION);
         Path localDir = getDefaultLocalDir(fileSystem);
         int availableCore = DEFAULT_AVAILABLE_CORE;
         if (platformConfig.moduleExists(CONFIG_MODULE_NAME)) {
             ModuleConfig config = platformConfig.getModuleConfig(CONFIG_MODULE_NAME);
-            localDir = getTmpDir(config, "tmpDir")
-                           .orElseGet(() -> getTmpDir(config, "tmp-dir")
-                                                .orElseGet(() -> getDefaultLocalDir(fileSystem)));
-            availableCore = config.getOptionalIntProperty("availableCore")
-                                  .orElseGet(() -> config.getOptionalIntProperty("available-core")
-                                                         .orElse(DEFAULT_AVAILABLE_CORE));
+            version = config.hasProperty("version") ? new VersionConfig(config.getStringProperty("version")) : version;
+            if (version.equalsOrIsNewerThan("1.1")) {
+                localDir = getTmpDir(config, "tmp-dir")
+                        .orElse(localDir);
+                availableCore = config.getOptionalIntProperty("available-core")
+                        .orElse(availableCore);
+            } else {
+                localDir = getTmpDir(config, "tmpDir")
+                        .orElse(localDir);
+                availableCore = config.getOptionalIntProperty("availableCore")
+                        .orElse(availableCore);
+            }
         }
         if (availableCore <= 0) {
             availableCore = Runtime.getRuntime().availableProcessors();
         }
-        return new LocalComputationConfig(localDir, availableCore);
+        return new LocalComputationConfig(version, localDir, availableCore);
     }
 
     public LocalComputationConfig(Path localDir) {
-        this(localDir, DEFAULT_AVAILABLE_CORE);
+        this(new VersionConfig(DEFAULT_CONFIG_VERSION), localDir, DEFAULT_AVAILABLE_CORE);
     }
 
     public LocalComputationConfig(Path localDir, int availableCore) {
+        this(new VersionConfig(DEFAULT_CONFIG_VERSION), localDir, availableCore);
+    }
+
+    public LocalComputationConfig(VersionConfig version, Path localDir, int availableCore) {
+        this.version = version;
         this.localDir = localDir;
         this.availableCore = availableCore;
     }
@@ -102,5 +119,15 @@ public class LocalComputationConfig {
         return getClass().getSimpleName() + " [localDir=" + localDir +
                 ", availableCore=" + availableCore +
                 "]";
+    }
+
+    @Override
+    public String getName() {
+        return CONFIG_MODULE_NAME;
+    }
+
+    @Override
+    public String getVersion() {
+        return this.version.toString();
     }
 }

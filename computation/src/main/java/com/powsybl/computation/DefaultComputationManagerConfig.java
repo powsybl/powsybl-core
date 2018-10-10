@@ -6,7 +6,7 @@
  */
 package com.powsybl.computation;
 
-import com.powsybl.commons.config.ModuleConfig;
+import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.exceptions.UncheckedClassNotFoundException;
 import com.powsybl.commons.exceptions.UncheckedIllegalAccessException;
@@ -19,9 +19,11 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class DefaultComputationManagerConfig {
+public class DefaultComputationManagerConfig implements Versionable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultComputationManagerConfig.class);
+
+    private static final String CONFIG_MODULE_NAME = "default-computation-manager";
 
     /**
      * A String is used here for default computation manager factory to avoid a direct dependency to local computation
@@ -46,25 +48,28 @@ public class DefaultComputationManagerConfig {
 
     public static DefaultComputationManagerConfig load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        Class<? extends ComputationManagerFactory> shortTimeExecutionComputationManagerFactoryClass;
-        Class<? extends ComputationManagerFactory> longTimeExecutionComputationManagerFactoryClass;
-        ModuleConfig moduleConfig = platformConfig.getModuleConfigIfExists("default-computation-manager");
-        if (moduleConfig != null) {
-            shortTimeExecutionComputationManagerFactoryClass = moduleConfig.getClassProperty("short-time-execution-computation-manager-factory", ComputationManagerFactory.class);
-            longTimeExecutionComputationManagerFactoryClass = moduleConfig.getClassProperty("long-time-execution-computation-manager-factory", ComputationManagerFactory.class, null);
-        } else {
-            try {
-                shortTimeExecutionComputationManagerFactoryClass = (Class<? extends ComputationManagerFactory>) Class.forName(DEFAULT_SHORT_TIME_EXECUTION_COMPUTATION_MANAGER_FACTORY_CLASS);
-            } catch (ClassNotFoundException e) {
-                throw new UncheckedClassNotFoundException(e);
-            }
-            longTimeExecutionComputationManagerFactoryClass = null;
-        }
-        DefaultComputationManagerConfig config = new DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass, longTimeExecutionComputationManagerFactoryClass);
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info(config.toString());
-        }
-        return config;
+
+        return platformConfig.getOptionalModuleConfig(CONFIG_MODULE_NAME)
+                .map(moduleConfig -> {
+                    DefaultComputationManagerConfig config = new DefaultComputationManagerConfig(moduleConfig.getClassProperty("short-time-execution-computation-manager-factory", ComputationManagerFactory.class),
+                            moduleConfig.getClassProperty("long-time-execution-computation-manager-factory", ComputationManagerFactory.class, null));
+                    if (LOGGER.isInfoEnabled()) {
+                        LOGGER.info(config.toString());
+                    }
+                    return config;
+                }).orElseGet(() -> {
+                    Class<? extends ComputationManagerFactory> shortTimeExecutionComputationManagerFactoryClass;
+                    try {
+                        shortTimeExecutionComputationManagerFactoryClass = (Class<? extends ComputationManagerFactory>) Class.forName(DEFAULT_SHORT_TIME_EXECUTION_COMPUTATION_MANAGER_FACTORY_CLASS);
+                    } catch (ClassNotFoundException e) {
+                        throw new UncheckedClassNotFoundException(e);
+                    }
+                    DefaultComputationManagerConfig config = new DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass, null);
+                    if (LOGGER.isInfoEnabled()) {
+                        LOGGER.info(config.toString());
+                    }
+                    return config;
+                });
     }
 
     public ComputationManager createShortTimeExecutionComputationManager() {
@@ -98,5 +103,15 @@ public class DefaultComputationManagerConfig {
         }
         str += ")";
         return str;
+    }
+
+    @Override
+    public String getName() {
+        return CONFIG_MODULE_NAME;
+    }
+
+    @Override
+    public String getVersion() {
+        return "1.0";
     }
 }

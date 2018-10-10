@@ -6,7 +6,7 @@
  */
 package com.powsybl.afs.ws.server.utils;
 
-import com.powsybl.commons.config.ModuleConfig;
+import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Objects;
@@ -14,7 +14,9 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SecurityConfig {
+public class SecurityConfig implements Versionable {
+
+    private static final String CONFIG_MODULE_NAME = "security";
 
     private static final long DEFAULT_TOKEN_VALIDITY = 3600L; // minutes
     private static final boolean DEFAULT_SKIP_TOKEN_VALIDITY_CHECK = true;
@@ -32,14 +34,12 @@ public class SecurityConfig {
 
     public static SecurityConfig load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        long tokenValidity = DEFAULT_TOKEN_VALIDITY;
-        boolean skipTokenValidityCheck = DEFAULT_SKIP_TOKEN_VALIDITY_CHECK;
-        ModuleConfig securityConfig = platformConfig.getModuleConfigIfExists("security");
-        if (securityConfig != null) {
-            tokenValidity = securityConfig.getOptionalLongProperty("token-validity").orElse(DEFAULT_TOKEN_VALIDITY);
-            skipTokenValidityCheck = securityConfig.getOptionalBooleanProperty("skip-token-validity-check").orElse(DEFAULT_SKIP_TOKEN_VALIDITY_CHECK);
-        }
-        return new SecurityConfig(tokenValidity, skipTokenValidityCheck);
+        return platformConfig.getOptionalModuleConfig(CONFIG_MODULE_NAME)
+                .map(config -> new SecurityConfig(config.getOptionalLongProperty("token-validity")
+                        .orElse(DEFAULT_TOKEN_VALIDITY),
+                        config.getOptionalBooleanProperty("skip-token-validity-check")
+                                .orElse(DEFAULT_SKIP_TOKEN_VALIDITY_CHECK)))
+                .orElseGet(() -> new SecurityConfig(DEFAULT_TOKEN_VALIDITY, DEFAULT_SKIP_TOKEN_VALIDITY_CHECK));
     }
 
     public SecurityConfig(long tokenValidity, boolean skipTokenValidityCheck) {
@@ -61,5 +61,15 @@ public class SecurityConfig {
 
     public void setSkipTokenValidityCheck(boolean skipTokenValidityCheck) {
         this.skipTokenValidityCheck = skipTokenValidityCheck;
+    }
+
+    @Override
+    public String getName() {
+        return CONFIG_MODULE_NAME;
+    }
+
+    @Override
+    public String getVersion() {
+        return "1.0";
     }
 }
