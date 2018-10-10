@@ -24,26 +24,6 @@ public interface RatioTapChangerAdder {
 
         StepAdder setRdb(double rdb);
 
-        @Deprecated
-        default StepAdder setR(double r) {
-            return setRdr(r);
-        }
-
-        @Deprecated
-        default StepAdder setX(double x) {
-            return setRdx(x);
-        }
-
-        @Deprecated
-        default StepAdder setG(double g) {
-            return setRdg(g);
-        }
-
-        @Deprecated
-        default StepAdder setB(double b) {
-            return setRdb(b);
-        }
-
         RatioTapChangerAdder endStep();
     }
 
