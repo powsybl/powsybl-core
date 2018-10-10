@@ -74,6 +74,11 @@
 			<artifactId>logback-classic</artifactId>
 			<scope>test</scope>
 		</dependency>
+        <dependency>
+            <groupId>com.google.jimfs</groupId>
+            <artifactId>jimfs</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- Test dependencies include all considered triple store engines -->
         <dependency>
             <groupId>com.powsybl</groupId>

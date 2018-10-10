@@ -225,6 +225,7 @@ public class Cim14SmallCasesNetworkCatalog {
                     ByteStreams.copy(is, os);
                 }
             }
+            // Make always available the files for the boundaries
             resourceToDataSource("ENTSO-E_Boundary_Set_EU_EQ.xml", cim1ds);
             resourceToDataSource("ENTSO-E_Boundary_Set_EU_TP.xml", cim1ds);
 

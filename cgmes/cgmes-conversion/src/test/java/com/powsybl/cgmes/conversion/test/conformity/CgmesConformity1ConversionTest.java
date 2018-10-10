@@ -39,7 +39,7 @@ public class CgmesConformity1ConversionTest {
         tester.testConversion(expecteds.microBE(), actuals.microGridBaseCaseBE());
     }
 
-    private static CgmesConformity1Catalog        actuals;
+    private static CgmesConformity1Catalog actuals;
     private static CgmesConformity1NetworkCatalog expecteds;
-    private static ConversionTester              tester;
+    private static ConversionTester tester;
 }

@@ -13,6 +13,7 @@ package com.powsybl.cgmes.model.test;
  */
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.List;
@@ -45,9 +46,20 @@ public class CgmesModelTester {
         CgmesOnDataSource cds = new CgmesOnDataSource(ds);
         cds.cimNamespace();
 
-        for (String impl : TripleStoreFactory.allImplementations()) {
+        List<String> implementations = TripleStoreFactory.allImplementations();
+        assertFalse(implementations.isEmpty());
+
+        for (String impl : implementations) {
             CgmesModel actual = load(ds, impl);
-            test(gridModel.expected(), actual);
+            CgmesModel expected = gridModel.expected();
+            if (expected != null) {
+                testCompare(gridModel.expected(), actual);
+            } else {
+                // TODO check that the loaded model is not empty
+                // Or check that the number of elements for each type is correct
+                // If complete expected model is not available, at least check
+                // summary of elements of each type
+            }
         }
     }
 
@@ -57,7 +69,7 @@ public class CgmesModelTester {
         return actual;
     }
 
-    private void test(CgmesModel expected, CgmesModel actual) {
+    private void testCompare(CgmesModel expected, CgmesModel actual) {
         PropertyBags ots = actual.numObjectsByType();
         LOG.info(ots.tabulateLocals());
 
