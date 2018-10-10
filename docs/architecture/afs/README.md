@@ -37,6 +37,10 @@ where each "project file" may represent a business object, for instance a networ
 
 
 In the [Tutorials](../../tutorials/README.md) section you will learn howto
- - howto [use](../../tutorials/afs/howto-use-afs.md) the AFS API in your application.
- - howto [extend](../../tutorials/afs/howto-extend-afs.md) and customize AFS, for your needs.
+ - [use](../../tutorials/afs/howto-use-afs.md) the AFS API in your application.
+ - [extend](../../tutorials/afs/howto-extend-afs.md) and customize AFS, for your needs.
 
+# TODO:
+- explain the concepts of Node, File, Folder, ProjectFile and ProjectFolder
+- explain the storage / business layers
+- explain each different storage implementation

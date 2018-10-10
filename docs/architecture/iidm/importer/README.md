@@ -1,15 +1,14 @@
 # IIDM - Importers
 
-**TO BE COMPLETED**
-
+The `com.powsybl.iidm.import_.Importer` class is used to create a IIDM network instance from a case. Powsybl support
+natively several importers:
 - [IIDM](iidm.md)
 - [CGMES](cgmes.md)
 - [CIM](cim.md)
 - [UCTE-DEF](ucte.md)
 
-Explain what is an IIDM importer
+The available implementation of the `Importer`
 
-Add links to all powsybl-core importers
-    - create a dedicated page in configuration folder to detail how to configure the importers
-
-Add link to [howto write an Importer](../../../tutorials/iidm/howto-extend-importer.md)
+## References
+See also:
+- [how to write an Importer](../../../tutorials/iidm/howto-extend-importer.md)
