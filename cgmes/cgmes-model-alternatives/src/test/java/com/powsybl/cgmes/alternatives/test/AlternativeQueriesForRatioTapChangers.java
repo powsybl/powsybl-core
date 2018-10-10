@@ -38,8 +38,9 @@ public class AlternativeQueriesForRatioTapChangers {
         Expected expected = new Expected()
                 .resultSize(3)
                 .propertyCount("regulatingControlTargetValue", 2);
-        int experiments = 10;
+        int experiments = 1;
         boolean doAssert = true;
+        boolean cacheModels = false;
         Consumer<PropertyBags> consumer = rs -> {
             rs.stream()
                     .forEach(r -> LOG.info("    {} {} {} {} {} {} {} {}",
@@ -60,7 +61,8 @@ public class AlternativeQueriesForRatioTapChangers {
                 expected,
                 experiments,
                 doAssert,
-                consumer);
+                consumer,
+                cacheModels);
         tester.load();
         testerNestedGraph = new AlternativeQueriesTester(
                 TripleStoreFactory.implementationsWorkingWithNestedGraphClauses(),
@@ -69,7 +71,8 @@ public class AlternativeQueriesForRatioTapChangers {
                 expected,
                 experiments,
                 doAssert,
-                consumer);
+                consumer,
+                cacheModels);
         testerNestedGraph.load();
     }
 
@@ -106,6 +109,6 @@ public class AlternativeQueriesForRatioTapChangers {
     private static AlternativeQueriesTester tester;
     private static AlternativeQueriesTester testerNestedGraph;
 
-    private static final Logger             LOG = LoggerFactory
+    private static final Logger LOG = LoggerFactory
             .getLogger(AlternativeQueriesForRatioTapChangers.class);
 }

@@ -37,14 +37,29 @@ import com.powsybl.triplestore.QueryCatalog;
  */
 public class AlternativeQueriesTester {
 
-    public AlternativeQueriesTester(List<String> tripleStoreImplementations, QueryCatalog queries,
-            TestGridModel gridModel, Expected expected) {
-        this(tripleStoreImplementations, queries, gridModel, expected, 5, true, null);
+    public AlternativeQueriesTester(List<String> tripleStoreImplementations,
+            QueryCatalog queries,
+            TestGridModel gridModel,
+            Expected expected) {
+        // By default, execute the tests without caching the models
+        this(tripleStoreImplementations, queries, gridModel, expected, 1, true, null, false);
     }
 
-    public AlternativeQueriesTester(List<String> tripleStoreImplementations, QueryCatalog queries,
-            TestGridModel gridModel, Expected expected, int experiments, boolean doAssert,
-            Consumer<PropertyBags> consumer) {
+    public AlternativeQueriesTester(List<String> tripleStoreImplementations,
+            QueryCatalog queries,
+            TestGridModel gridModel,
+            Expected expected,
+            boolean cacheModels) {
+        this(tripleStoreImplementations, queries, gridModel, expected, 1, true, null, cacheModels);
+    }
+
+    public AlternativeQueriesTester(List<String> tripleStoreImplementations,
+            QueryCatalog queries,
+            TestGridModel gridModel,
+            Expected expected, int experiments,
+            boolean doAssert,
+            Consumer<PropertyBags> consumer,
+            boolean cacheModels) {
         this.implementations = tripleStoreImplementations;
         this.queries = queries;
         this.gridModel = gridModel;
@@ -52,7 +67,8 @@ public class AlternativeQueriesTester {
         this.experiments = experiments;
         this.doAssert = doAssert;
         this.consumer = consumer;
-        models = new HashMap<>(implementations.size());
+        this.cacheModels = cacheModels;
+        this.cachedModels = cacheModels ? new HashMap<>(implementations.size()) : null;
     }
 
     public Expected expected() {
@@ -62,11 +78,13 @@ public class AlternativeQueriesTester {
     public void load() {
         queries.load(this.getClass().getClassLoader().getResourceAsStream(queries.resource()));
 
-        // Load the model for every triple store implementation
-        for (String impl : implementations) {
-            ReadOnlyDataSource dataSource = gridModel.dataSource();
-            CgmesModelTripleStore cgmes = CgmesModelFactory.create(dataSource, impl);
-            models.put(impl, cgmes);
+        if (cacheModels) {
+            // Load the model for every triple store implementation
+            for (String impl : implementations) {
+                ReadOnlyDataSource dataSource = gridModel.dataSource();
+                CgmesModelTripleStore cgmes = CgmesModelFactory.create(dataSource, impl);
+                cachedModels.put(impl, cgmes);
+            }
         }
     }
 
@@ -113,22 +131,30 @@ public class AlternativeQueriesTester {
         private final Map<String, Long> propertyCount;
     }
 
-    private void testWithExperiments(String alternative, String impl, String queryText, Expected expected,
+    private void testWithExperiments(String alternative,
+            String impl,
+            String queryText,
+            Expected expected,
             Consumer<PropertyBags> consumer) {
 
-        // Initial run to compare against potential "caching" considerations
-        // All engines have the opportunity to "activate" caching mechanisms
-        final long t00 = System.currentTimeMillis();
-        models.get(impl).query(queryText);
-        final long t10 = System.currentTimeMillis();
-        final long dt0 = t10 - t00;
+        CgmesModelTripleStore model = modelFor(impl);
+
+        long dt0 = 0;
+        if (experiments > 1) {
+            // Initial run to compare against potential "caching" considerations
+            // All engines have the opportunity to "activate" caching mechanisms
+            final long t00 = System.currentTimeMillis();
+            model.query(queryText);
+            final long t10 = System.currentTimeMillis();
+            dt0 = t10 - t00;
+        }
 
         long dt = 0;
         long[] dts = new long[experiments];
         for (int k = 0; k < experiments; k++) {
 
             final long t0 = System.currentTimeMillis();
-            PropertyBags result = models.get(impl).query(queryText);
+            PropertyBags result = model.query(queryText);
             final long t1 = System.currentTimeMillis();
             dts[k] = t1 - t0;
             dt += dts[k];
@@ -140,8 +166,11 @@ public class AlternativeQueriesTester {
 
             test(alternative, impl, result, expected);
         }
-        LOG.info("{} {} dt avg {} ms {} experiments, dts: {} {}", alternative, impl, dt / experiments, experiments, dt0,
-                Arrays.toString(dts));
+        if (experiments > 1) {
+            LOG.info("{} {} dt avg {} ms {} experiments, dts: {} {}", alternative, impl, dt / experiments, experiments,
+                    dt0,
+                    Arrays.toString(dts));
+        }
     }
 
     private void test(String alternative, String impl, PropertyBags result, Expected expected) {
@@ -163,8 +192,18 @@ public class AlternativeQueriesTester {
         }
     }
 
+    private CgmesModelTripleStore modelFor(String implementation) {
+        if (cacheModels) {
+            return cachedModels.get(implementation);
+        } else {
+            ReadOnlyDataSource dataSource = gridModel.dataSource();
+            return CgmesModelFactory.create(dataSource, implementation);
+        }
+    }
+
     private final List<String> implementations;
-    private final Map<String, CgmesModelTripleStore> models;
+    private final boolean cacheModels;
+    private final Map<String, CgmesModelTripleStore> cachedModels;
     private final QueryCatalog queries;
     private final TestGridModel gridModel;
     private final Expected expected;

@@ -37,9 +37,10 @@ public class AlternativeQueriesForGeneratorsTest {
                 .propertyCount("regulatingControlTargetValue", 1347)
                 .propertyCount("regulatingControlTerminalConnected", 1347);
 
-        int experiments = 10;
+        int experiments = 1;
         boolean doAssert = false;
         Consumer<PropertyBags> consumer = null;
+        boolean cacheModels = false;
 
         tester = new AlternativeQueriesTester(
                 TripleStoreFactory.allImplementations(),
@@ -48,7 +49,8 @@ public class AlternativeQueriesForGeneratorsTest {
                 expected,
                 experiments,
                 doAssert,
-                consumer);
+                consumer,
+                cacheModels);
         tester.load();
         testerWorkingWithNestedGraphClauses = new AlternativeQueriesTester(
                 TripleStoreFactory.implementationsWorkingWithNestedGraphClauses(),
@@ -57,7 +59,8 @@ public class AlternativeQueriesForGeneratorsTest {
                 expected,
                 experiments,
                 doAssert,
-                consumer);
+                consumer,
+                cacheModels);
         testerWorkingWithNestedGraphClauses.load();
     }
 
