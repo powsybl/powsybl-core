@@ -98,7 +98,7 @@ You have to:
 
 
 # Java script (for the  JavaScript post processor)
-The 'JavaScript' code can be found here  [here](../../samples/javascriptScriptPostProcessor/increaseActivePowerPostProcessor.js).
+The 'JavaScript' code can be found [here](../../samples/javascriptScriptPostProcessor/increaseActivePowerPostProcessor.js).
 
 
 1 Write a `JavaScript` code that implements the processor's business logic. 
