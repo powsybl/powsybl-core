@@ -257,11 +257,11 @@ public class Conversion {
         }
 
         public double lowImpedanceLineR() {
-            return 0.05;
+            return lowImpedanceLineR;
         }
 
         public double lowImpedanceLineX() {
-            return 0.05;
+            return lowImpedanceLineX;
         }
 
         public boolean convertBoundary() {
@@ -285,6 +285,8 @@ public class Conversion {
         }
 
         private boolean changeSignForShuntReactivePowerFlowInitialState;
+        private double lowImpedanceLineR = 0.05;
+        private double lowImpedanceLineX = 0.05;
     }
 
     public static class Context {
