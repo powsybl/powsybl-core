@@ -15,6 +15,11 @@ action('action1') {
     tasks {
         script {
             load('LOAD').p0 += 1
+            step = transformer('NHV2_NLOAD').ratioTapChanger.getCurrentStep()
+            step.r = 3.3
+            step.rdx = 1.1 + step.r
+            step.setG(2.2 + step.getR())
+            step.setRdb(1.1 + step.getG())
         }
     }
 }
