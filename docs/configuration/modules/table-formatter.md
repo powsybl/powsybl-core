@@ -1,6 +1,6 @@
 # Module table-formatter
 
-The `table-formatter` module is used to configure the format to display in the console simulation results as tables.
+The `table-formatter` module is used to configure the format to display in the console results as tables.
 It is also used to export data in CSV files.
 
 ## Properties

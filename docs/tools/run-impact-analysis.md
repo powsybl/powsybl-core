@@ -31,3 +31,10 @@ Available arguments are:
                                output if not specified)
 ```
 
+Here below, an example of a CSV output from the command's execution (using [pclfsim](https://github.com/itesla/ipst/tree/master/pclfsim-integration))
+
+```csv
+Contingency;OVERLOAD;OVERUNDERVOLTAGE;SMALLSIGNAL;TRANSIENT;TSO_OVERLOAD;TSO_OVERVOLTAGE;TSO_UNDERVOLTAGE;TSO_SYNCHROLOSS;TSO_FREQUENCY;TSO_GENERATOR_VOLTAGE_AUTOMATON;TSO_GENERATOR_SPEED_AUTOMATON;TSO_DISCONNECTED_GENERATOR;MULTI_CRITERIA_VOLTAGE_STABILITY;MULTI_CRITERIA_VOLTAGE_STABILITY2
+N-1_line1;NA;NA;NA;NA;OK;OK;OK;NA;NA;NA;NA;NA;NA;NA
+N-1_line2;NA;NA;NA;NA;OK;OK;OK;NA;NA;NA;NA;NA;NA;NA
+```
