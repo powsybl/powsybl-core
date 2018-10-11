@@ -22,6 +22,7 @@ import java.util.Properties;
 
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
+import org.openrdf.model.Namespace;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
@@ -91,7 +92,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
             Resource context = contextFromName(cnx, name);
             read(base, name, is, cnx, context);
             cnx.commit();
-            setNamespaces(cnx, base);
+            addNamespaceForBase(cnx, base);
         } catch (RepositoryException x) {
             throw new TripleStoreException(String.format("Reading. Repo problem %s %s", name, base), x);
         } finally {
@@ -138,7 +139,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
                 RepositoryResult<Statement> statements = conn.getStatements(null, null, null, true, context);
                 Model model = new LinkedHashModel();
                 QueryResults.addAll(statements, model);
-                setNamespaces(model, conn);
+                copyNamespacesToModel(conn, model);
 
                 String outname = context.toString();
                 write(model, outputStream(ds, outname));
@@ -354,15 +355,14 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         }
     }
 
-    private void setNamespaces(Model m, RepositoryConnection cnx) throws RepositoryException {
-        // TODO we should not set here this namespace
-        m.setNamespace("cim", cnx.getNamespace("cim"));
-        m.setNamespace("data", cnx.getNamespace("data"));
+    private void copyNamespacesToModel(RepositoryConnection conn, Model m) throws RepositoryException {
+        RepositoryResult<Namespace> ns = conn.getNamespaces();
+        while (ns.hasNext()) {
+            m.setNamespace(ns.next());
+        }
     }
 
-    private void setNamespaces(RepositoryConnection cnx, String base) throws RepositoryException {
-        // TODO we should not set here this namespace
-        cnx.setNamespace("cim", "http://iec.ch/TC57/2009/CIM-schema-cim14#");
+    private void addNamespaceForBase(RepositoryConnection cnx, String base) throws RepositoryException {
         cnx.setNamespace("data", base + "#");
     }
 
