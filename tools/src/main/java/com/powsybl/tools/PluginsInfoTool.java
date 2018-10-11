@@ -7,7 +7,6 @@
 package com.powsybl.tools;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
@@ -22,7 +21,6 @@ import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.util.Collection;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -57,16 +55,6 @@ public class PluginsInfoTool implements Tool {
             return null;
         }
     };
-
-    private final PlatformConfig platformConfig;
-
-    public PluginsInfoTool() {
-        this(PlatformConfig.defaultConfig());
-    }
-
-    public PluginsInfoTool(PlatformConfig platformConfig) {
-        this.platformConfig = Objects.requireNonNull(platformConfig);
-    }
 
     @Override
     public Command getCommand() {
