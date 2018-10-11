@@ -83,7 +83,7 @@ public class CsvLinesExporter implements Exporter {
                     String substationId1 = (vhl1 != null) ? vhl1.getSubstation().getId() : "";
                     Bus bus2 = line.getTerminal2().getBusBreakerView().getBus();
                     String bus2Id = (bus2 != null) ? bus2.getId() : "";
-                    VoltageLevel vhl2 = (bus2 != null) ? bus2.getVoltageLevel() : null;					
+                    VoltageLevel vhl2 = (bus2 != null) ? bus2.getVoltageLevel() : null;
                     String vhl2Id = (vhl2 != null) ? vhl2.getId() : "";
                     String substationId2 = (vhl2 != null) ? vhl2.getSubstation().getId() : "";
                     double r = line.getR();

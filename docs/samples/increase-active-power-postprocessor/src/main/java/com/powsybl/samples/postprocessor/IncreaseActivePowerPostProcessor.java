@@ -24,8 +24,9 @@ import com.powsybl.loadflow.LoadFlowResult;
 
 @AutoService(ImportPostProcessor.class)
 public class IncreaseActivePowerPostProcessor implements ImportPostProcessor {
-	
+
     public static final String NAME = "increaseActivePower";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(IncreaseActivePowerPostProcessor.class);
 
     @Override
@@ -34,27 +35,25 @@ public class IncreaseActivePowerPostProcessor implements ImportPostProcessor {
     }
 
     @Override
-    public void process(Network network, ComputationManager computationManager)  {
-    	Objects.requireNonNull(network);
+    public void process(Network network, ComputationManager computationManager) {
+        Objects.requireNonNull(network);
         LOGGER.info("Execute {} post processor on network {}", getName(), network.getId());
         double percent = 1.01;
-        LOGGER.info(" Dump LOADS ");
-        LOGGER.info(" id | p | p+1%");
+        LOGGER.info("Dump loads:");
+        LOGGER.info("id | p | p+1%");
         network.getLoadStream().forEach(load -> {
-        	if ( load.getTerminal() != null) {
-        		double p = load.getTerminal().getP();
-        		load.getTerminal().setP(p * percent);
-        		LOGGER.info(" {} | {} |  {}", load.getId(), p, load.getTerminal().getP());
-        	}
+            if (load.getTerminal() != null) {
+                double p = load.getTerminal().getP();
+                load.getTerminal().setP(p * percent);
+                LOGGER.info("{} | {} | {}", load.getId(), p, load.getTerminal().getP());
+            }
         });
-        
+
         LOGGER.info("Execute loadFlow");
         ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
         LoadFlowParameters loadFlowParameters = new LoadFlowParameters(LoadFlowParameters.VoltageInitMode.UNIFORM_VALUES);
         LoadFlow loadFlow = defaultConfig.newFactoryImpl(LoadFlowFactory.class).create(network, computationManager, 0);
-        LoadFlowResult results = loadFlow.run(network.getStateManager().getWorkingStateId(), loadFlowParameters).join();        
+        LoadFlowResult results = loadFlow.run(network.getStateManager().getWorkingStateId(), loadFlowParameters).join();
         LOGGER.info("LoadFlow results {}, Metrics {} ", results.isOk(), results.getMetrics().toString());
-        
     }
-
 }

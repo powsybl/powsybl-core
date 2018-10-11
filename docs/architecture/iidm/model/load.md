@@ -1,7 +1,7 @@
 # IIDM - Load
 
-The `com.powsybl.iidm.network.Load` class is used to model a constant power load. The active and reactive power setpoints
-are fixed.
+The `com.powsybl.iidm.network.Load` interface is used to model a constant power load. The active and reactive power
+setpoints are fixed.
 
 ## Characteristics
 | Attribute | Type | Required | Default value | Description |
