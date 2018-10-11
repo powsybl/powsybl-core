@@ -31,14 +31,14 @@ public class AlternativeQueriesForGeneratorsTest {
 
     @BeforeClass
     public static void setUp()  {
-        TestGridModel model = new CgmesConformity1Catalog().real();
+        TestGridModel model = new CgmesConformity1Catalog().smallBusBranch();
         Expected expected = new Expected()
-                .resultSize(1347)
-                .propertyCount("regulatingControlTargetValue", 1347)
-                .propertyCount("regulatingControlTerminalConnected", 1347);
+                .resultSize(19)
+                .propertyCount("regulatingControlTargetValue", 19)
+                .propertyCount("regulatingControlTerminalConnected", 19);
 
         int experiments = 1;
-        boolean doAssert = false;
+        boolean doAssert = true;
         Consumer<PropertyBags> consumer = null;
         boolean cacheModels = false;
 
