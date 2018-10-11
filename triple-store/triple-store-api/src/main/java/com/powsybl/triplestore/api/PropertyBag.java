@@ -19,6 +19,9 @@ import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
@@ -165,6 +168,7 @@ public class PropertyBag extends HashMap<String, String> {
     }
 
     public String namespacePrefix(String name) {
+        LOG.trace("namespacePrefix for property name {}", name);
         return NAMESPACE_PREFIX;
     }
 
@@ -173,4 +177,6 @@ public class PropertyBag extends HashMap<String, String> {
 
     private static final String NAMESPACE_PREFIX = "data";
     private static final String INDENTATION = "    ";
+    
+    private static final Logger LOG = LoggerFactory.getLogger(PropertyBag.class);
 }
