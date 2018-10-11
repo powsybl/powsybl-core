@@ -77,7 +77,6 @@ public final class CountryConversion {
     }
 
     public static Country defaultCountry() {
-        // TODO Use configuration ?
         return Country.values()[0];
     }
 }

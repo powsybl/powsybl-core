@@ -32,8 +32,8 @@ public class DcMapping {
     }
 
     public void initialize() {
-        // TODO This is similar to what we do in the AbstractCgmesModel with terminal
-        // data
+        // TODO This is similar to what we do in the AbstractCgmesModel
+        // with terminal data
         // Consider moving this part to AbstractCgmesModel
         // Initialize terminal data, for each terminal store the DC topological node
         context.cgmes().dcTerminals().stream().forEach(t -> {

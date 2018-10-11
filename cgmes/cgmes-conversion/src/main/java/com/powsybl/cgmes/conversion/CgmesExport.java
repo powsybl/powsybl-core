@@ -126,12 +126,10 @@ public class CgmesExport implements Exporter {
     }
 
     private String fs(double value) {
-        // TODO A double formatted as a valid CGMES string
         return "" + value;
     }
 
     private String is(int value) {
-        // TODO A integer formatted as a valid CGMES string
         return "" + value;
     }
 

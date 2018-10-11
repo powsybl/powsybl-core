@@ -398,7 +398,6 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
     }
 
     private void addRegulatingControl(PhaseTapChangerAdder ptca) {
-
         // TODO How to obtain terminal of corresponding winding ?
         // Only one transformer end is available for the tap changer
         String terminal1 = p.getId("Terminal1");

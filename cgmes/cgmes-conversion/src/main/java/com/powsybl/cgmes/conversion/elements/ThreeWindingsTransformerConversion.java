@@ -41,7 +41,8 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
             return false;
         }
         // This should not happen,
-        // The substationIdMapping should ensure all three ends are in the same IIDM substation
+        // The substationIdMapping should ensure all three ends
+        // are in the same IIDM substation
         if (voltageLevel(1).getSubstation() != voltageLevel(2).getSubstation() ||
                 voltageLevel(1).getSubstation() != voltageLevel(3).getSubstation()) {
             String name1 = voltageLevel(1).getSubstation().getName();
@@ -131,7 +132,7 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
                 tx.getLeg2().getTerminal(),
                 tx.getLeg3().getTerminal());
 
-        // TODO we do not follow here the same schema of two-windings,
+        // We do not follow here the same schema of two-windings,
         // we are saving for later all possible tap changers
         context.tapChangerTransformers().add(rtc1, tx, 1);
         context.tapChangerTransformers().add(rtc2, tx, 2);

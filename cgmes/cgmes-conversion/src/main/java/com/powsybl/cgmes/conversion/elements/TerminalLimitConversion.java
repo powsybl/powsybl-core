@@ -50,7 +50,7 @@ public class TerminalLimitConversion extends AbstractIdentifiedObjectConversion 
             if (value <= 0) {
                 context.ignored("Operational limit", "value is <= 0");
             } else {
-                // TODO we should be able to use a CurrentLimitsAdder (an owner)
+                // Enhancement: we should be able to use a CurrentLimitsAdder (an owner)
                 // to avoid checking the class of the equipment
                 // In terminal mapping insert a CurrentLimitsAdder instead of a Branch.side
                 if (eq instanceof Branch) {

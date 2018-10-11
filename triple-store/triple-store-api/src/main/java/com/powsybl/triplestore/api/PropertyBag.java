@@ -177,6 +177,6 @@ public class PropertyBag extends HashMap<String, String> {
 
     private static final String NAMESPACE_PREFIX = "data";
     private static final String INDENTATION = "    ";
-    
+
     private static final Logger LOG = LoggerFactory.getLogger(PropertyBag.class);
 }

@@ -72,7 +72,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
 
     @Override
     public boolean isNodeBreaker() {
-        // TODO consider caching
+        // Optimization hint: consider caching the results of the query for model
+        // profiles
         if (queryCatalog.containsKey("modelProfiles")) {
             PropertyBags r = namedQuery("modelProfiles");
             if (r == null) {
@@ -322,8 +323,9 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
             LOG.warn("Query [{}] not found in catalog", name);
             return new PropertyBags();
         }
-        // TODO Potential optimization here. We do the parameter injection by ourselves,
-        // to maintain independence of the triple store engine
+        // Optimization hint: Now we do the parameter injection by ourselves,
+        // to maintain independence of the triple store engine,
+        // instead of using native query parameters
         queryText = injectParams(queryText, params);
         final long t0 = System.currentTimeMillis();
         PropertyBags r = query(queryText);
@@ -358,7 +360,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     @Override
     public void svPowerFlows(PropertyBags svPowerFlows) {
         try {
-            // TODO define to which graph should we add the data
+            // TODO replace data in an existing "SV" graph
+            // instead of creating a different one
             String graph = "SV2";
             String type = cimNamespace + "SvPowerFlow";
             tripleStore.add(graph, type, svPowerFlows);
