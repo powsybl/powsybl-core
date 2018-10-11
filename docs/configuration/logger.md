@@ -1,7 +1,7 @@
 # Configuration - iTools logging
 
 Powsybl's `iTools` command uses [logback](https://logback.qos.ch/) for logging. There are two different ways to configure
-the different logging levels :
+the different logging levels:
 - a system-wide configuration
 - an user-wide configuration
 
