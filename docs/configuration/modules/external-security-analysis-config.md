@@ -21,14 +21,14 @@ To run the security analysis in external mode, you need to run the itools comman
 ```yaml
 external-security-analysis-config:
     debug: false
-    itools-command: tools
+    itools-command: itools
 ```
 
 ### XML
 ```xml
 <external-security-analysis-config>
     <debug>false</debug>
-    <itools-command>tools</itools-command>
+    <itools-command>itools</itools-command>
 </external-security-analysis-config>
 ```
 
