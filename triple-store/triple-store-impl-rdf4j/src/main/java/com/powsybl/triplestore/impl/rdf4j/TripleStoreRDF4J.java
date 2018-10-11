@@ -22,6 +22,7 @@ import org.eclipse.rdf4j.IsolationLevels;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
+import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
@@ -66,7 +67,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
             // We add data with a context (graph) to keep the source of information
             // When we write we want to keep data split by graph
             conn.add(is, base, formatFromFile(name), context);
-            setNamespaces(conn, base);
+            addNamespaceForBase(conn, base);
         } catch (IOException x) {
             throw new TripleStoreException(String.format("Reading %s %s", base, name), x);
         }
@@ -92,7 +93,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
                 RepositoryResult<Statement> statements;
                 statements = conn.getStatements(null, null, null, context);
                 Model model = QueryResults.asModel(statements);
-                setNamespaces(model, conn);
+                copyNamespacesToModel(conn, model);
 
                 String outname = context.toString();
                 write(model, outputStream(ds, outname));
@@ -219,15 +220,14 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         return counter;
     }
 
-    private void setNamespaces(Model m, RepositoryConnection conn) {
-        // TODO we should not set here this namespace
-        m.setNamespace("cim", conn.getNamespace("cim"));
-        m.setNamespace("data", conn.getNamespace("data"));
+    private void copyNamespacesToModel(RepositoryConnection conn, Model m) {
+        RepositoryResult<Namespace> ns = conn.getNamespaces();
+        while (ns.hasNext()) {
+            m.setNamespace(ns.next());
+        }
     }
 
-    private void setNamespaces(RepositoryConnection cnx, String base) {
-        // TODO we should not set here this namespace
-        cnx.setNamespace("cim", "http://iec.ch/TC57/2009/CIM-schema-cim14#");
+    private void addNamespaceForBase(RepositoryConnection cnx, String base) {
         cnx.setNamespace("data", base + "#");
     }
 
