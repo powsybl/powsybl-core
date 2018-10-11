@@ -1,6 +1,6 @@
 # Module loadflow-validation
 
-The `loadflow-validation` module is used by the [loadflow-validation](../../tools/loadflow-validation.md) tool. It defines the parameters used during the validation of the loadflow results.
+The `loadflow-validation` module is used by the [loadflow-validation](../../tools/loadflow-validation.md) tool. It defines the parameters used during the [validation of loadflow results](../../architecture/loadflow-validation/README.md).
 
 
 ## Properties
@@ -9,19 +9,20 @@ The `loadflow-validation` module is used by the [loadflow-validation](../../tool
 | -------- | ---- | -------- | ------------- | ----------- |
 |threshold | double | no | 0 | margin used for values comparison|
 |verbose | boolean | no | false | verbose output |
-|load-flow-factory | String | no | `LoadFlowFactory` implementation set in `ComponentDefaultConfig` module| the `LoadFlowFactory` implementation to use for the loadFLowValidation |
+|load-flow-factory | String | no | `LoadFlowFactory` implementation set in `ComponentDefaultConfig` module| the `LoadFlowFactory` implementation to use for running the loadflow |
 |table-formatter-factory| String | no | `com.powsybl.commons.io.table.CsvTableFormatterFactory`| the `TableFormatterFactory` implementation to use for writing the output files |
 |epsilon-x| double | no | 0.1 | value used to correct the reactance in flows validation, used only if `apply-reactance-correction` is true |
 |apply-reactance-correction| boolean | no | false | apply reactance correction in flows validation |
 |output-writer| String | no | `CSV_MULTILINE` | output format, possible values: [`CSV`, `CSV_MULTILINE`] |
-|ok-missing-values| boolean | no | false | perform validation check even if some parameters of connected components have NaN values, i.e. if false, validation check fails if some parameters of connected components have NaN Values
+|ok-missing-values| boolean | no | false | perform validation check even if some parameters of connected components have NaN values, i.e. if false, validation check fails if some parameters of connected components are NaN |
 |no-requirement-if-reactive-bound-inversion | boolean | no | false | return validation success if there is a reactive bounds inversion (maxQ < minQ) |
-|compare-results| boolean | no | false | compare results of two validations, printing output files with results of both ones |
+|compare-results| boolean | no | false | compare the results of 2 validations, i.e. print output files with data of both ones |
 |check-main-component-only | boolean | no | true | validate only the equipment in the main connected component |
 |no-requirement-if-setpoint-outside-power-bounds | boolean | no | false| return validation success if the set point is outside the active power bounds (targetP < minP or targetP > maxP) |
 
 **verbose**: if this property is set to true, the output files contain all the data of the validated equipments, if false they contain only the main data of the validated equipments.  
-**table-formatter-factory**: the properties of the table formatter are read from the [table-formatter](table-formatter.md) configuration.  
+**table-formatter-factory**: possible values are `com.powsybl.commons.io.table.CsvTableFormatterFactory` and `com.powsybl.commons.io.table.AsciiTableFormatterFactory`; the properties of the table formatter are read from the [table-formatter](table-formatter.md) configuration.  
+**compare-results**: please refer to the [loadflow-validation tool](../../tools/loadflow-validation.md) for more datails about the 2 validation results printed in the output files.  
 **output-writer**: if this property is set to `CSV`, in the output files a line contains all values of a validated equipment, if the property is set to `CSV_MULTILINE`, in the output files the values of an equipment are split in multiple lines, one value for each line, see examples below.  
 
 ### CSV

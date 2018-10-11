@@ -14,7 +14,7 @@ However, you will probably want to extend that list with your own type of data o
 
 Each project file type in AFS relies on the definition of 3 classes:
  - The actual new type, which must extends ProjectFile
- - A builder class for the new type, which must extends ProjectFile
+ - A builder class for the new type, which must extends ProjectFileBuilder
  - An extension class, in charge of registering the new type and its builder to AFS. It must implement the ProjectFileExtension interface, and be registered through the use of `@AutoService` annotation.
 
 First define you new type :

@@ -4,8 +4,8 @@
 powsyble-core includes [some implementations](../../docs/architecture/iidm/post-processor/README.md) of this interface and allows to create new ones.   
   
 In this tutorial you will see how to write a new post processor, for increasing the loads' active power of a network by a fixed percentage: 
-- through a `Groovy` script, using the [groovyScript](../../docs/architecture/iidm/post-processor/groovyScript.md) post processor
-- through a `JavaScript` script, using the  [javaScript](../../docs/architecture/iidm/post-processor/javaScript.md) post processor
+- through a `Groovy` script, using the [groovyScript](../../docs/architecture/iidm/post-processor/groovyScriptPostProcessor.md) post processor
+- through a `JavaScript` script, using the  [javaScript](../../docs/architecture/iidm/post-processor/javaScriptPostProcessor.md) post processor
 - implementing a new import post processor, in a dedicated java module
 
 Groovy script and java module post processor, will execute also a loadflow. 
@@ -56,25 +56,42 @@ You have to:
     }
     ```
     
-    This script uses the `network` variable, that is binded by the [groovyScript](../../docs/architecture/iidm/post-processor/groovyScript.md) post processor.
+    This script uses the `network` variable, that is binded by the [groovyScript](../../docs/architecture/iidm/post-processor/groovyScriptPostProcessor.md) post processor.
     
-    ComponenteDefaultConfig load configuration from [powsybl configuration file](../configuration/configuration.md). It provide access to loadFlow implemantation.
+    ComponenteDefaultConfig load configuration from [powsybl configuration file](../configuration/modules/componentDefaultConfig.md). It provide access to loadFlow implemantation.
 
-2.  Declare the `groovyScript` post processor  (for more details refer to         [import](../../configuration/importConfig.md)) in the configuration file:
+2.  Declare the `groovyScript` post processor  (for more details refer to  [import](../../configuration/importConfig.md)) in the configuration file:
 
-    ```xml
+### YAML version
+```yaml
+    import:
+        postProcessors: groovyScript
+```
+    
+### XML version
+```xml
         <import>
             <postProcessors>groovyScript</postProcessors>
         </import>
-    ```
+```
     
-    and configure the groovy script's path to use in the [groovy-post-processor](../../configuration/groovyScriptPostProcessor/groovyScriptPostProcessor.md) module section, also in the configuration file:
+   and configure the groovy script's path to use in the [groovy-post-processor](../../configuration/modules/groovy-post-processor.md) module section, also in the configuration file:
     
-    ```xml
+
+### YAML version
+```yaml
+    groovy-post-processor
+        script: <POWSYBL_SAMPLES>/groovyScriptPostProcessor/increase-active-power-postprocessor.groovy
+```
+    
+### XML version
+```xml
     <groovy-post-processor>
           <script><POWSYBL_SAMPLES>/groovyScriptPostProcessor/increase-active-power-postprocessor.groovy</script>
     </groovy-post-processor>
-    ```
+```
+   
+    
 3. Configure the `loadFlow` 
 
     The configuration for the loadflow is defined in [powsybl configuration file](../configuration/configuration.md).
@@ -98,7 +115,7 @@ You have to:
 
 
 # Java script (for the  JavaScript post processor)
-The 'JavaScript' code can be found here  [here](../../samples/javascriptScriptPostProcessor/increaseActivePowerPostProcessor.js).
+The 'JavaScript' code can be found [here](../../samples/javascriptScriptPostProcessor/increaseActivePowerPostProcessor.js).
 
 
 1 Write a `JavaScript` code that implements the processor's business logic. 
@@ -126,10 +143,17 @@ for each (load in network.getLoads()) {
     increaseLoadActivePower(load , percent);    
 }
 ```
-This script uses the `network` variable, that is binded by the [javaScript](../../docs/architecture/iidm/post-processor/javaScript.md) post processor.
+This script uses the `network` variable, that is binded by the [javaScript](../../docs/architecture/iidm/post-processor/javaScriptPostProcessor.md) post processor.
 
 2 Declare the `javaScript` post processor  (for more details refer to [import](../../configuration/importConfig.md)) in the configuration file:
 
+### YAML version
+```yaml
+import:
+    postProcessors: javaScript
+```
+    
+### XML version
 ```xml
 <import>
     <postProcessors>javaScript</postProcessors>
@@ -223,7 +247,7 @@ The rest of the code in our sample class, increases of 1% the active power of ea
 
 JavaPostProcessor requires the following dependencies:
 
-- `com.google.auto.service`: provider configuration file for ServiceLoader.
+- `com.google.auto.service`: configuration/metadata generator for java.util.ServiceLoader-style service providers
 - `powsybl-iidm-converter-api`: API to import and export IIDM network.
 - `powsybl-loadflow-api` : API to run loadflow.
 
