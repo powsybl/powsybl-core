@@ -1,9 +1,9 @@
 # Tutorials
 
-## using Powsybl APIs
+## Using Powsybl APIs
 - [Howto use AFS](afs/howto-use-afs.md)
 
-## extending Powsybl APIs- 
+## Extending Powsybl APIs
 - [Howto extend AFS](afs/howto-extend-afs.md)
 - [Howto write an IIDM exporter](iidm/howto-write-exporter.md)
 - [Howto write an IIDM importer](iidm/howto-write-importer.md)
