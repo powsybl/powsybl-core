@@ -35,7 +35,7 @@ public class DifferencesReport implements Differences {
         logDetails = true;
         maxDetailDiffs = 3;
         // Pad size for each category of differences
-        padSizes = new int[] {25, 25, 25, 50};
+        padSizes = new int[] { 25, 25, 25, 50 };
     }
 
     @Override
@@ -157,10 +157,13 @@ public class DifferencesReport implements Differences {
     private void report(Summary s) {
         for (Category cat : Category.values()) {
             LOG.info("{}", cat);
-            s.data.get(cat).keySet().stream().sorted().forEach(c -> {
-                int padSize = padSizes[cat.ordinal()];
-                LOG.info("    {} : {}", padr(c, padSize), s.data.get(cat).get(c));
-            });
+            Map<String, Integer> dataCat = s.data.get(cat);
+            if (dataCat != null) {
+                dataCat.keySet().stream().sorted().forEach(c -> {
+                    int padSize = padSizes[cat.ordinal()];
+                    LOG.info("    {} : {}", padr(c, padSize), s.data.get(cat).get(c));
+                });
+            }
         }
     }
 
@@ -237,15 +240,15 @@ public class DifferencesReport implements Differences {
         return s;
     }
 
-    private Identifiable                                        current;
-    private final Map<String, Set<Identifiable>>                unexpecteds;
-    private final Map<String, Set<Identifiable>>                missings;
-    private final Map<String, Set<Identifiable>>                matches;
+    private Identifiable current;
+    private final Map<String, Set<Identifiable>> unexpecteds;
+    private final Map<String, Set<Identifiable>> missings;
+    private final Map<String, Set<Identifiable>> matches;
     private final Map<String, Map<Identifiable, HashSet<Diff>>> diffs;
-    private final boolean                                       logDetails;
-    private final long                                          maxDetailDiffs;
-    private final int[]                                         padSizes;
+    private final boolean logDetails;
+    private final long maxDetailDiffs;
+    private final int[] padSizes;
 
-    private static final Logger                                 LOG = LoggerFactory
+    private static final Logger LOG = LoggerFactory
             .getLogger(DifferencesReport.class);
 }

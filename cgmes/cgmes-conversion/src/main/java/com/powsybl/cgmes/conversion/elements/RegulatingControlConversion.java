@@ -55,9 +55,9 @@ public final class RegulatingControlConversion {
             // TODO A better way to identify regulating control modes
             if (regulatingMode != null && regulatingMode.toLowerCase().endsWith("voltage")) {
                 control.targetV = regulatingTargetValue;
-                if (control.targetV == 0) {
+                if (control.targetV == 0 || Double.isNaN(control.targetV)) {
                     String reg = p.getId("RegulatingControl");
-                    context.fixed(reg, "Target value can not be zero",
+                    context.fixed(reg, "Invalid value for regulating target value",
                             control.targetV, vl.getNominalV());
                     control.targetV = vl.getNominalV();
                 }
