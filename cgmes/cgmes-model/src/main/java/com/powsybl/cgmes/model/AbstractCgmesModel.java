@@ -50,7 +50,9 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     private Map<String, PropertyBags> computeGroupedTransformerEnds() {
-        // TODO Instead of sorting after building each list, use a sorted collection when inserting
+        // Alternative implementation:
+        // instead of sorting after building each list,
+        // use a sorted collection when inserting
         Map<String, PropertyBags> gends = new HashMap<>();
         transformerEnds().stream()
                 .forEach(end -> {
@@ -83,20 +85,34 @@ public abstract class AbstractCgmesModel implements CgmesModel {
             ts.put(td.id(), td);
         });
         terminalsTP().stream().forEach(t -> {
-            CgmesTerminal td = ts.get(t.getId(CgmesNames.TERMINAL));
-            assert td != null;
+            String tid = t.getId(CgmesNames.TERMINAL);
+            CgmesTerminal td = ts.get(tid);
+            if (td == null) {
+                // Terminal from TopologicalNode is not found in the list of
+                // Terminals linked to a ConductingEquipment
+                String message = "The corresponding object of Terminal from TopologicalNode does not exist in the base model "
+                        + tid;
+                throw new CgmesModelException(message);
+            }
             td.assignTP(t.getId("TopologicalNode"), t.getId("VoltageLevel"), t.getId("Substation"));
         });
         terminalsCN().stream().forEach(t -> {
-            CgmesTerminal td = ts.get(t.getId(CgmesNames.TERMINAL));
-            assert td != null;
+            String tid = t.getId(CgmesNames.TERMINAL);
+            CgmesTerminal td = ts.get(tid);
+            if (td == null) {
+                // Terminal from ConnectivityNode is not found in the list of
+                // Terminals linked to a ConductingEquipment
+                String message = "The corresponding object of Terminal from ConnectivityNode does not exist in the base model "
+                        + tid;
+                throw new CgmesModelException(message);
+            }
             td.assignCN(t.getId("ConnectivityNode"), t.getId("TopologicalNode"), t.getId("VoltageLevel"),
                     t.getId("Substation"));
         });
         return ts;
     }
 
-    private final Properties           properties;
-    private Map<String, PropertyBags>  cachedGroupedTransformerEnds;
+    private final Properties properties;
+    private Map<String, PropertyBags> cachedGroupedTransformerEnds;
     private Map<String, CgmesTerminal> cachedTerminals;
 }
