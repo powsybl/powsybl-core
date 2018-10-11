@@ -35,7 +35,7 @@ public class DifferencesReport implements Differences {
         logDetails = true;
         maxDetailDiffs = 3;
         // Pad size for each category of differences
-        padSizes = new int[] { 25, 25, 25, 50 };
+        padSizes = new int[] {25, 25, 25, 50};
     }
 
     @Override
