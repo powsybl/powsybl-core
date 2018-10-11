@@ -16,7 +16,7 @@ of a class which implements this interface.
 
 ## Example
 
-Example: In the configuration below, we define these functionalities:
+In the configuration below, we define these functionalities:
  - A security analysis
  - A description of contingencies
  - A loadflow
@@ -26,7 +26,7 @@ The chosen implementations are:
  - the contingencies expressed in Groovy DSL language
  - the 'mock' loadflow (a loadflow implementation that does nothing on the network: for demonstration purposes, only)
 
-## YAML
+### YAML
 ```yaml
 componentDefaultConfig:
     ContingenciesProviderFactory: com.powsybl.action.dsl.GroovyDslContingenciesProviderFactory
@@ -34,7 +34,7 @@ componentDefaultConfig:
     LoadFlowFactory: com.powsybl.loadflow.mock.LoadFlowFactoryMock
 ```
 
-## XML
+### XML
 ```xml
 <componentDefaultConfig>
     <ContingenciesProviderFactory>com.powsybl.action.dsl.GroovyDslContingenciesProviderFactory</ContingenciesProviderFactory>
