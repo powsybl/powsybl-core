@@ -56,7 +56,8 @@ public class CgmesConformity1Catalog {
 
     public final TestGridModel miniNodeBreaker() {
         return new TestGridModel(
-                ENTSOE_CONFORMITY_1 + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_BaseCase_Complete_v3.zip",
+                ENTSOE_CONFORMITY_1
+                        + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_BaseCase_Complete_v3.zip",
                 ENTSOE_CONFORMITY_1 + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_Boundary_v3.zip",
                 expectedMiniNodeBreaker());
     }
@@ -65,6 +66,8 @@ public class CgmesConformity1Catalog {
         return new TestGridModel(
                 ENTSOE_CONFORMITY_1
                         + "/SmallGrid/BusBranch/CGMES_v2.4.15_SmallGridTestConfiguration_BaseCase_Complete_v3.0.0.zip",
+                ENTSOE_CONFORMITY_1
+                        + "/SmallGrid/BusBranch/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0.zip",
                 null);
     }
 
@@ -72,6 +75,8 @@ public class CgmesConformity1Catalog {
         return new TestGridModel(
                 ENTSOE_CONFORMITY_1
                         + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_BaseCase_Complete_v3.0.0.zip",
+                ENTSOE_CONFORMITY_1
+                        + "/SmallGrid/NodeBreaker/CGMES_v2.4.15_SmallGridTestConfiguration_Boundary_v3.0.0.zip",
                 null);
     }
 

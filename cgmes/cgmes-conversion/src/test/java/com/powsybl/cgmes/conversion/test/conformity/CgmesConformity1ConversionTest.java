@@ -39,6 +39,36 @@ public class CgmesConformity1ConversionTest {
         tester.testConversion(expecteds.microBE(), actuals.microGridBaseCaseBE());
     }
 
+    @Test
+    public void microGridBaseCaseNL() {
+        tester.testConversion(null, actuals.microGridBaseCaseNL());
+    }
+
+    @Test
+    public void microGridBaseCaseAssembled() {
+        tester.testConversion(null, actuals.microGridBaseCaseAssembled());
+    }
+
+    @Test
+    public void miniBusBranch() {
+        tester.testConversion(null, actuals.miniBusBranch());
+    }
+
+    @Test
+    public void miniNodeBreaker() {
+        tester.testConversion(null, actuals.miniNodeBreaker());
+    }
+
+    @Test
+    public void smallBusBranch() {
+        tester.testConversion(null, actuals.smallBusBranch());
+    }
+
+    @Test
+    public void smallNodeBreaker() {
+        tester.testConversion(null, actuals.smallNodeBreaker());
+    }
+
     private static CgmesConformity1Catalog actuals;
     private static CgmesConformity1NetworkCatalog expecteds;
     private static ConversionTester tester;

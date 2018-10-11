@@ -80,7 +80,11 @@
 			<type>test-jar</type>
 			<scope>test</scope>
 		</dependency>
-		
+		<dependency>
+            <groupId>com.google.jimfs</groupId>
+            <artifactId>jimfs</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- Test with all known triple store engines -->
         <dependency>
             <groupId>com.powsybl</groupId>
