@@ -44,39 +44,39 @@
         <iidm:twoWindingsTransformer id="CI" r="2.0" x="14.745" g="0.0" b="3.2E-5" ratedU1="225.0" ratedU2="225.0" bus1="C_1" connectableBus1="C_1" voltageLevelId1="C" bus2="N_22" connectableBus2="N_22" voltageLevelId2="N">
             <iidm:phaseTapChanger lowTapPosition="0" tapPosition="22" regulationMode="CURRENT_LIMITER" regulationValue="930.6667" regulating="false">
                 <iidm:terminalRef side="ONE"/>
-                <iidm:step rdr="39.78473" rdx="39.784725" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="-42.8"/>
-                <iidm:step rdr="31.720245" rdx="31.720242" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="-40.18"/>
-                <iidm:step rdr="23.655737" rdx="23.655735" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="-37.54"/>
-                <iidm:step rdr="16.263271" rdx="16.263268" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="-34.9"/>
-                <iidm:step rdr="9.542847" rdx="9.542842" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="-32.26"/>
-                <iidm:step rdr="3.4944773" rdx="3.4944773" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="-29.6"/>
-                <iidm:step rdr="-1.8818557" rdx="-1.8818527" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="-26.94"/>
-                <iidm:step rdr="-7.258195" rdx="-7.2581954" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="-24.26"/>
-                <iidm:step rdr="-11.962485" rdx="-11.962484" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="-21.58"/>
-                <iidm:step rdr="-15.994745" rdx="-15.994745" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="-18.9"/>
-                <iidm:step rdr="-19.354952" rdx="-19.354952" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="-16.22"/>
-                <iidm:step rdr="-22.043127" rdx="-22.043129" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="-13.52"/>
-                <iidm:step rdr="-24.73129" rdx="-24.731287" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="-10.82"/>
-                <iidm:step rdr="-26.747417" rdx="-26.747417" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="-8.12"/>
-                <iidm:step rdr="-28.091503" rdx="-28.091503" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="-5.42"/>
-                <iidm:step rdr="-28.763538" rdx="-28.763536" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="-2.7"/>
-                <iidm:step rdr="-28.763538" rdx="-28.763536" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="0.0"/>
-                <iidm:step rdr="-28.763538" rdx="-28.763536" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="2.7"/>
-                <iidm:step rdr="-28.091503" rdx="-28.091503" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="5.42"/>
-                <iidm:step rdr="-26.747417" rdx="-26.747417" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="8.12"/>
-                <iidm:step rdr="-24.73129" rdx="-24.731287" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="10.82"/>
-                <iidm:step rdr="-22.043127" rdx="-22.043129" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="13.52"/>
-                <iidm:step rdr="-19.354952" rdx="-19.354952" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="16.22"/>
-                <iidm:step rdr="-15.994745" rdx="-15.994745" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="18.9"/>
-                <iidm:step rdr="-11.962485" rdx="-11.962484" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="21.58"/>
-                <iidm:step rdr="-7.258195" rdx="-7.2581954" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="24.26"/>
-                <iidm:step rdr="-1.8818557" rdx="-1.8818527" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="26.94"/>
-                <iidm:step rdr="3.4944773" rdx="3.4944773" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="29.6"/>
-                <iidm:step rdr="9.542847" rdx="9.542842" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="32.26"/>
-                <iidm:step rdr="16.263271" rdx="16.263268" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="34.9"/>
-                <iidm:step rdr="23.655737" rdx="23.655735" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="37.54"/>
-                <iidm:step rdr="31.720245" rdx="31.720242" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="40.18"/>
-                <iidm:step rdr="39.78473" rdx="39.784725" rdg="0.0" rdb="0.0" ratio="1.0" phaseShift="42.8"/>
+                <iidm:step rdr="39.78473" rdx="39.784725" phaseShift="-42.8"/>
+                <iidm:step rdr="31.720245" rdx="31.720242" phaseShift="-40.18"/>
+                <iidm:step rdr="23.655737" rdx="23.655735" phaseShift="-37.54"/>
+                <iidm:step rdr="16.263271" rdx="16.263268" phaseShift="-34.9"/>
+                <iidm:step rdr="9.542847" rdx="9.542842" phaseShift="-32.26"/>
+                <iidm:step rdr="3.4944773" rdx="3.4944773" phaseShift="-29.6"/>
+                <iidm:step rdr="-1.8818557" rdx="-1.8818527" phaseShift="-26.94"/>
+                <iidm:step rdr="-7.258195" rdx="-7.2581954" phaseShift="-24.26"/>
+                <iidm:step rdr="-11.962485" rdx="-11.962484" phaseShift="-21.58"/>
+                <iidm:step rdr="-15.994745" rdx="-15.994745" phaseShift="-18.9"/>
+                <iidm:step rdr="-19.354952" rdx="-19.354952" phaseShift="-16.22"/>
+                <iidm:step rdr="-22.043127" rdx="-22.043129" phaseShift="-13.52"/>
+                <iidm:step rdr="-24.73129" rdx="-24.731287" phaseShift="-10.82"/>
+                <iidm:step rdr="-26.747417" rdx="-26.747417" phaseShift="-8.12"/>
+                <iidm:step rdr="-28.091503" rdx="-28.091503" phaseShift="-5.42"/>
+                <iidm:step rdr="-28.763538" rdx="-28.763536" phaseShift="-2.7"/>
+                <iidm:step rdr="-28.763538" rdx="-28.763536"/>
+                <iidm:step rdr="-28.763538" rdx="-28.763536" phaseShift="2.7"/>
+                <iidm:step rdr="-28.091503" rdx="-28.091503" phaseShift="5.42"/>
+                <iidm:step rdr="-26.747417" rdx="-26.747417" phaseShift="8.12"/>
+                <iidm:step rdr="-24.73129" rdx="-24.731287" phaseShift="10.82"/>
+                <iidm:step rdr="-22.043127" rdx="-22.043129" phaseShift="13.52"/>
+                <iidm:step rdr="-19.354952" rdx="-19.354952" phaseShift="16.22"/>
+                <iidm:step rdr="-15.994745" rdx="-15.994745" phaseShift="18.9"/>
+                <iidm:step rdr="-11.962485" rdx="-11.962484" phaseShift="21.58"/>
+                <iidm:step rdr="-7.258195" rdx="-7.2581954" phaseShift="24.26"/>
+                <iidm:step rdr="-1.8818557" rdx="-1.8818527" phaseShift="26.94"/>
+                <iidm:step rdr="3.4944773" rdx="3.4944773" phaseShift="29.6"/>
+                <iidm:step rdr="9.542847" rdx="9.542842" phaseShift="32.26"/>
+                <iidm:step rdr="16.263271" rdx="16.263268" phaseShift="34.9"/>
+                <iidm:step rdr="23.655737" rdx="23.655735" phaseShift="37.54"/>
+                <iidm:step rdr="31.720245" rdx="31.720242" phaseShift="40.18"/>
+                <iidm:step rdr="39.78473" rdx="39.784725" phaseShift="42.8"/>
             </iidm:phaseTapChanger>
             <iidm:currentLimits1 permanentLimit="931.0"/>
             <iidm:currentLimits2 permanentLimit="931.0"/>

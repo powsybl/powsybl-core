@@ -28,11 +28,11 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
 
 
     protected static void writeTapChangerStep(TapChangerStep<?> tcs, XMLStreamWriter writer) throws XMLStreamException {
-        XmlUtil.writeDouble("rdr", tcs.getRdr(), writer);
-        XmlUtil.writeDouble("rdx", tcs.getRdx(), writer);
-        XmlUtil.writeDouble("rdg", tcs.getRdg(), writer);
-        XmlUtil.writeDouble("rdb", tcs.getRdb(), writer);
-        XmlUtil.writeDouble("ratio", tcs.getRatio(), writer);
+        XmlUtil.writeOptionalDouble("rdr", tcs.getRdr(), 0.0, writer);
+        XmlUtil.writeOptionalDouble("rdx", tcs.getRdx(), 0.0, writer);
+        XmlUtil.writeOptionalDouble("rdg", tcs.getRdg(), 0.0, writer);
+        XmlUtil.writeOptionalDouble("rdb", tcs.getRdb(), 0.0, writer);
+        XmlUtil.writeOptionalDouble("ratio", tcs.getRatio(), 1.0, writer);
     }
 
     protected static void writeTapChanger(TapChanger<?, ?> tc, XMLStreamWriter writer) throws XMLStreamException {
@@ -88,11 +88,11 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                     break;
 
                 case ELEM_STEP:
-                    double r = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "r"));
-                    double x = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "x"));
-                    double g = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "g"));
-                    double b = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "b"));
-                    double ratio = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "rho"));
+                    double r = XmlUtil.readOptionalDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "r"), 0.0);
+                    double x = XmlUtil.readOptionalDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "x"), 0.0);
+                    double g = XmlUtil.readOptionalDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "g"), 0.0);
+                    double b = XmlUtil.readOptionalDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "b"), 0.0);
+                    double ratio = XmlUtil.readOptionalDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "rho"), 1.0);
                     adder.beginStep()
                             .setRdr(r)
                             .setRdx(x)
@@ -164,7 +164,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
             PhaseTapChangerStep ptcs = ptc.getStep(p);
             context.getWriter().writeEmptyElement(IIDM_URI, ELEM_STEP);
             writeTapChangerStep(ptcs, context.getWriter());
-            XmlUtil.writeDouble("phaseShift", ptcs.getPhaseShift(), context.getWriter());
+            XmlUtil.writeOptionalDouble("phaseShift", ptcs.getPhaseShift(), 0.0, context.getWriter());
         }
         context.getWriter().writeEndElement();
     }
@@ -195,12 +195,13 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                     break;
 
                 case ELEM_STEP:
-                    double r = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "r"));
-                    double x = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "x"));
-                    double g = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "g"));
-                    double b = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "b"));
-                    double ratio = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "rho"));
-                    double phaseShift = XmlUtil.readDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "alpha"));
+                    // TODO check v1.0 missing attributes???
+                    double r = XmlUtil.readOptionalDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "r"), 0.0);
+                    double x = XmlUtil.readOptionalDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "x"), 0.0);
+                    double g = XmlUtil.readOptionalDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "g"), 0.0);
+                    double b = XmlUtil.readOptionalDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "b"), 0.0);
+                    double ratio = XmlUtil.readOptionalDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "rho"), 1.0);
+                    double phaseShift = XmlUtil.readOptionalDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "alpha"), 0.0);
                     adder.beginStep()
                             .setRdr(r)
                             .setRdx(x)

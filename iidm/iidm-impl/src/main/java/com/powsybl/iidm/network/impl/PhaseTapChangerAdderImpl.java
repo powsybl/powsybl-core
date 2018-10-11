@@ -36,17 +36,17 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
     class StepAdderImpl implements StepAdder {
 
-        private double phaseShift = Double.NaN;
+        private double phaseShift = 0.0;
 
-        private double ratio = Double.NaN;
+        private double ratio = 1.0;
 
-        private double rdr = Double.NaN;
+        private double rdr = 0.0;
 
-        private double rdx = Double.NaN;
+        private double rdx = 0.0;
 
-        private double rdg = Double.NaN;
+        private double rdg = 0.0;
 
-        private double rdb = Double.NaN;
+        private double rdb = 0.0;
 
         @Override
         public StepAdder setPhaseShift(double phaseShift) {

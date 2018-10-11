@@ -23,13 +23,13 @@
             <iidm:ratioTapChanger2 lowTapPosition="0" tapPosition="2" onLoadTapChanger="true" regulating="true" targetV="33.0">
                 <iidm:terminalRef id="LOAD_33"/>
                 <iidm:step rdr="0.9801" rdx="0.09801" rdg="0.08264462809917356" rdb="0.008264462809917356" ratio="0.9"/>
-                <iidm:step rdr="1.089" rdx="0.1089" rdg="0.09182736455463728" rdb="0.009182736455463728" ratio="1.0"/>
+                <iidm:step rdr="1.089" rdx="0.1089" rdg="0.09182736455463728" rdb="0.009182736455463728"/>
                 <iidm:step rdr="1.1979" rdx="0.11979" rdg="0.10101010101010101" rdb="0.0101010101010101" ratio="1.1"/>
             </iidm:ratioTapChanger2>
             <iidm:ratioTapChanger3 lowTapPosition="0" tapPosition="0" onLoadTapChanger="true" regulating="true" targetV="11.0">
                 <iidm:terminalRef id="LOAD_11"/>
                 <iidm:step rdr="0.1089" rdx="0.01089" rdg="0.8264462809917356" rdb="0.08264462809917356" ratio="0.9"/>
-                <iidm:step rdr="0.121" rdx="0.0121" rdg="0.8264462809917356" rdb="0.08264462809917356" ratio="1.0"/>
+                <iidm:step rdr="0.121" rdx="0.0121" rdg="0.8264462809917356" rdb="0.08264462809917356"/>
                 <iidm:step rdr="0.1331" rdx="0.01331" rdg="0.9090909090909092" rdb="0.09090909090909093" ratio="1.1"/>
             </iidm:ratioTapChanger3>
             <iidm:currentLimits1 permanentLimit="1000.0">

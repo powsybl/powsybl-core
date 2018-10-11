@@ -31,9 +31,9 @@
         <iidm:twoWindingsTransformer id="NHV2_NLOAD" r="0.04724999999999999" x="4.049724365620455" g="0.0" b="0.0" ratedU1="400.0" ratedU2="158.0" bus1="NHV2" connectableBus1="NHV2" voltageLevelId1="VLHV2" bus2="NLOAD" connectableBus2="NLOAD" voltageLevelId2="VLLOAD">
             <iidm:ratioTapChanger lowTapPosition="0" tapPosition="1" regulating="true" onLoadTapChanger="true" targetV="158.0">
                 <iidm:terminalRef side="TWO"/>
-                <iidm:step rdr="0.0" rdx="0.0" rdg="0.0" rdb="0.0" ratio="0.8505666905244191"/>
-                <iidm:step rdr="0.0" rdx="0.0" rdg="0.0" rdb="0.0" ratio="1.0006666666666666"/>
-                <iidm:step rdr="0.0" rdx="0.0" rdg="0.0" rdb="0.0" ratio="1.150766642808914"/>
+                <iidm:step ratio="0.8505666905244191"/>
+                <iidm:step ratio="1.0006666666666666"/>
+                <iidm:step ratio="1.150766642808914"/>
             </iidm:ratioTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>

@@ -379,19 +379,19 @@
         <xs:attribute name="side" use="optional" type="iidm:Side"/>
     </xs:complexType>
     <xs:complexType name="RatioTapChangerStep">
-        <xs:attribute name="ratio" use="required" type="xs:double"/>
-        <xs:attribute name="rdr" use="required" type="xs:double"/>
-        <xs:attribute name="rdx" use="required" type="xs:double"/>
-        <xs:attribute name="rdg" use="required" type="xs:double"/>
-        <xs:attribute name="rdb" use="required" type="xs:double"/>
+        <xs:attribute name="ratio" use="optional" type="xs:double" default="1.0"/>
+        <xs:attribute name="rdr" use="optional" type="xs:double" default="0.0"/>
+        <xs:attribute name="rdx" use="optional" type="xs:double" default="0.0"/>
+        <xs:attribute name="rdg" use="optional" type="xs:double" default="0.0"/>
+        <xs:attribute name="rdb" use="optional" type="xs:double" default="0.0"/>
     </xs:complexType>
     <xs:complexType name="PhaseTapChangerStep">
-        <xs:attribute name="ratio" use="required" type="xs:double"/>
-        <xs:attribute name="phaseShift" use="required" type="xs:double"/>
-        <xs:attribute name="rdr" use="required" type="xs:double"/>
-        <xs:attribute name="rdx" use="required" type="xs:double"/>
-        <xs:attribute name="rdg" use="required" type="xs:double"/>
-        <xs:attribute name="rdb" use="required" type="xs:double"/>
+        <xs:attribute name="ratio" use="optional" type="xs:double" default="1.0"/>
+        <xs:attribute name="phaseShift" use="optional" type="xs:double" default="0.0"/>
+        <xs:attribute name="rdr" use="optional" type="xs:double" default="0.0"/>
+        <xs:attribute name="rdx" use="optional" type="xs:double" default="0.0"/>
+        <xs:attribute name="rdg" use="optional" type="xs:double" default="0.0"/>
+        <xs:attribute name="rdb" use="optional" type="xs:double" default="0.0"/>
     </xs:complexType>
     <xs:complexType name="RatioTapChanger">
         <xs:sequence>
