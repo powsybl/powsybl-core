@@ -11,6 +11,8 @@ The configuration file contains a list of modules, that can be required or optio
 several properties. These properties can also be required or optional.
 
 ### Example
+
+#### YAML
 ```yml
 module1:
     property1a: value1
@@ -22,6 +24,7 @@ module2:
     property2c: value5
 ```
 
+#### XML
 ```xml
 <config>
     <module1>
