@@ -78,4 +78,30 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      */
     double getCurrentB();
 
+    /**
+     * Get the conductance per section in S.
+     */
+    double getgPerSection();
+
+    /**
+     * Set the conductance per section in S.
+     *
+     * @param bPerSection the conductance per section
+     * @return the shunt compensator to chain method calls.
+     */
+    ShuntCompensator setgPerSection(double gPerSection);
+
+    /**
+     * Get the conductance for the maximum section count.
+     */
+    double getMaximumG();
+
+    /**
+     * Get the conductance for the current section counts.
+     * <p>
+     * Depends on the working state.
+     * @see StateManager
+     */
+    double getCurrentG();
+
 }

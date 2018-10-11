@@ -22,7 +22,7 @@
                 <iidm:switch id="DISC_BBS1_BK3" name="Disconnector" kind="DISCONNECTOR" retained="false" open="false" node1="0" node2="5"/>
                 <iidm:switch id="BK3" name="Breaker" kind="BREAKER" retained="true" open="false" node1="5" node2="6"/>
             </iidm:nodeBreakerTopology>
-            <iidm:shunt id="C2_Filter1" name="Filter 3" bPerSection="3.0E-5" maximumSectionCount="1" currentSectionCount="1" node="4" q="12.5"/>
+            <iidm:shunt id="C2_Filter1" name="Filter 3" bPerSection="3.0E-5" gPerSection="0.002" maximumSectionCount="1" currentSectionCount="1" node="4" q="12.5"/>
             <iidm:shunt id="C2_Filter2" name="Filter 4" bPerSection="4.0E-5" maximumSectionCount="1" currentSectionCount="1" node="6" q="12.5"/>
             <iidm:lccConverterStation id="C2" name="Converter2" lossFactor="0.011" powerFactor="0.6" node="2" p="75.0" q="25.0"/>
         </iidm:voltageLevel>

@@ -203,6 +203,12 @@ public final class ValidationUtil {
         }
     }
 
+    static void checkgPerSection(Validable validable, double gPerSection) {
+        if (Double.isNaN(gPerSection)) {
+            throw new ValidationException(validable, "conductance per section is invalid");
+        }
+    }
+
     static void checkSections(Validable validable, int currentSectionCount, int maximumSectionCount) {
         if (currentSectionCount < 0) {
             throw new ValidationException(validable,

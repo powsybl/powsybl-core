@@ -18,6 +18,8 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
 
     private double bPerSection;
 
+    private double gPerSection = 0.0;
+
     private int maximumSectionCount;
 
     private int currentSectionCount;
@@ -43,6 +45,12 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     }
 
     @Override
+    public ShuntCompensatorAdder setgPerSection(double gPerSection) {
+        this.gPerSection = gPerSection;
+        return this;
+    }
+
+    @Override
     public ShuntCompensatorAdder setMaximumSectionCount(int maximumSectionCount) {
         this.maximumSectionCount = maximumSectionCount;
         return this;
@@ -59,10 +67,11 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
         String id = checkAndGetUniqueId();
         TerminalExt terminal = checkAndGetTerminal();
         ValidationUtil.checkbPerSection(this, bPerSection);
+        ValidationUtil.checkgPerSection(this, gPerSection);
         ValidationUtil.checkSections(this, currentSectionCount, maximumSectionCount);
         ShuntCompensatorImpl shunt
                 = new ShuntCompensatorImpl(getNetwork().getRef(),
-                                           id, getName(), bPerSection, maximumSectionCount,
+                                           id, getName(), bPerSection, gPerSection, maximumSectionCount,
                                            currentSectionCount);
         shunt.addTerminal(terminal);
         voltageLevel.attach(terminal, false);

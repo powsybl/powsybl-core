@@ -41,6 +41,7 @@ public class ShuntCompensatorTest {
                                             .setName("shuntName")
                                             .setConnectableBus("busA")
                                             .setbPerSection(5.0)
+                                            .setgPerSection(0.001)
                                             .setCurrentSectionCount(6)
                                             .setMaximumSectionCount(10)
                                         .add();
@@ -48,6 +49,9 @@ public class ShuntCompensatorTest {
         assertEquals("shuntName", shuntCompensator.getName());
         assertEquals("shunt", shuntCompensator.getId());
         assertEquals(5.0, shuntCompensator.getbPerSection(), 0.0);
+        assertEquals(0.001, shuntCompensator.getgPerSection(), 0.0);
+        assertEquals(0.006, shuntCompensator.getCurrentG(), 0.0);
+        assertEquals(0.010, shuntCompensator.getMaximumG(), 0.0);
         assertEquals(6, shuntCompensator.getCurrentSectionCount());
         assertEquals(10, shuntCompensator.getMaximumSectionCount());
 
@@ -59,6 +63,12 @@ public class ShuntCompensatorTest {
         }
         shuntCompensator.setbPerSection(1.0);
         assertEquals(1.0, shuntCompensator.getbPerSection(), 0.0);
+
+        try {
+            shuntCompensator.setgPerSection(Double.NaN);
+            fail();
+        } catch (ValidationException ignored) {
+        }
 
         try {
             shuntCompensator.setCurrentSectionCount(-1);

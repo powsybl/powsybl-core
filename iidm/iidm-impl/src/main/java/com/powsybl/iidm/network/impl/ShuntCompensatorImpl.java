@@ -22,6 +22,8 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     /* susceptance per section */
     private double bPerSection;
 
+    private double gPerSection;
+
     /* the maximum number of section */
     private int maximumSectionCount;
 
@@ -31,11 +33,12 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     private final TIntArrayList currentSectionCount;
 
     ShuntCompensatorImpl(Ref<? extends MultiStateObject> network,
-                         String id, String name, double bPerSection, int maximumSectionCount,
+                         String id, String name, double bPerSection, double gPerSection, int maximumSectionCount,
                          int currentSectionCount) {
         super(id, name);
         this.network = network;
         this.bPerSection = bPerSection;
+        this.gPerSection = gPerSection;
         this.maximumSectionCount = maximumSectionCount;
         int stateArraySize = network.get().getStateManager().getStateArraySize();
         this.currentSectionCount = new TIntArrayList(stateArraySize);
@@ -60,11 +63,25 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
+    public double getgPerSection() {
+        return gPerSection;
+    }
+
+    @Override
     public ShuntCompensatorImpl setbPerSection(double bPerSection) {
         ValidationUtil.checkbPerSection(this, bPerSection);
         double oldValue = this.bPerSection;
         this.bPerSection = bPerSection;
         notifyUpdate("bPerSection", oldValue, bPerSection);
+        return this;
+    }
+
+    @Override
+    public ShuntCompensator setgPerSection(double gPerSection) {
+        ValidationUtil.checkgPerSection(this, gPerSection);
+        double oldValue = this.gPerSection;
+        this.gPerSection = gPerSection;
+        notifyUpdate("gPerSection", oldValue, gPerSection);
         return this;
     }
 
@@ -101,8 +118,18 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
+    public double getCurrentG() {
+        return gPerSection * getCurrentSectionCount();
+    }
+
+    @Override
     public double getMaximumB() {
         return bPerSection * maximumSectionCount;
+    }
+
+    @Override
+    public double getMaximumG() {
+        return gPerSection * maximumSectionCount;
     }
 
     @Override

@@ -28,6 +28,8 @@ public interface ShuntCompensatorAdder extends InjectionAdder<ShuntCompensatorAd
 
     ShuntCompensatorAdder setbPerSection(double bPerSection);
 
+    ShuntCompensatorAdder setgPerSection(double gPerSection);
+
     ShuntCompensatorAdder setMaximumSectionCount(int maximumSectionCount);
 
     ShuntCompensatorAdder setCurrentSectionCount(int currentSectionCount);

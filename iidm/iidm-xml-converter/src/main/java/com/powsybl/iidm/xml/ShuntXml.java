@@ -36,6 +36,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
     @Override
     protected void writeRootElementAttributes(ShuntCompensator sc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeDouble("bPerSection", sc.getbPerSection(), context.getWriter());
+        XmlUtil.writeOptionalDouble("gPerSection", sc.getgPerSection(), 0.0, context.getWriter());
         context.getWriter().writeAttribute("maximumSectionCount", Integer.toString(sc.getMaximumSectionCount()));
         context.getWriter().writeAttribute("currentSectionCount", Integer.toString(sc.getCurrentSectionCount()));
         writeNodeOrBus(null, sc.getTerminal(), context);
@@ -50,9 +51,11 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
     @Override
     protected ShuntCompensator readRootElementAttributes(ShuntCompensatorAdder adder, NetworkXmlReaderContext context) {
         double bPerSection = XmlUtil.readDoubleAttribute(context.getReader(), "bPerSection");
+        double gPerSection = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "gPerSection", 0.0);
         int maximumSectionCount = XmlUtil.readIntAttribute(context.getReader(), "maximumSectionCount");
         int currentSectionCount = XmlUtil.readIntAttribute(context.getReader(), "currentSectionCount");
         adder.setbPerSection(bPerSection)
+                .setgPerSection(gPerSection)
                 .setMaximumSectionCount(maximumSectionCount)
                 .setCurrentSectionCount(currentSectionCount);
         readNodeOrBus(adder, context);

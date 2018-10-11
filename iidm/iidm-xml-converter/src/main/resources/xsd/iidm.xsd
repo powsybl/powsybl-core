@@ -237,6 +237,7 @@
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
                 <xs:attribute name="bPerSection" use="required" type="xs:double"/>
+                <xs:attribute name="gPerSection" use="optional" type="xs:double" default="0.0"/>
                 <xs:attribute name="maximumSectionCount" use="required" type="xs:int"/>
                 <xs:attribute name="currentSectionCount" use="required" type="xs:int"/>
             </xs:extension>

@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import org.junit.Test;
 
@@ -23,6 +24,16 @@ public class HvdcXmlTest extends AbstractConverterTest {
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
                 "/LccRoundTripRef.xml");
+    }
+
+    @Test
+    public void roundTripShuntWithGPerSection() throws IOException {
+        Network network = HvdcTestNetwork.createLcc();
+        network.getShunt("C2_Filter1").setgPerSection(0.002);
+        roundTripXmlTest(network,
+                NetworkXml::writeAndValidate,
+                NetworkXml::read,
+                "/LccRoundTripRef2.xml");
     }
 
     @Test
