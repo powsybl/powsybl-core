@@ -1,3 +1,3 @@
-# Stabilization
+# Dynamic simulation - Stabilization
 
-TO BE COMPLETED
+*TO BE COMPLETED*

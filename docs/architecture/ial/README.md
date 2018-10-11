@@ -7,8 +7,7 @@ It was designed to be more flexible and scalable than existing software and easi
 ## What are iAL's key concepts?
 
 The three iAL's concepts are:
-
-- the [contingency list](contingencies.md)
+- the [contingency list](../contingencies/README.md) and its [syntax](../contingencies/groovyDslContingenciesProvider.md#syntax)
 - the definition of [actions](actions.md)
 - the definition of [rules](rules.md)
 
