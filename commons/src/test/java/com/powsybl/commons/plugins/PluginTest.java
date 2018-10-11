@@ -58,4 +58,26 @@ public class PluginTest {
         assertTrue(testPluginsIds.stream().allMatch(t -> pluginImplementationsIds.contains(t)));
     }
 
+    @Test
+    public void testGetPluginInfoId() {
+        A1 a1 = new A1();
+        A2 a2 = new A2();
+        assertEquals("A1", plugin.getPluginInfo().getId(a1));
+        assertEquals("A2", plugin.getPluginInfo().getId(a2));
+    }
+
+    @Test
+    public void testGetPluginInfoIdDefault() {
+        Plugin pluginB = Plugins.getPluginByName(PluginB.PLUGIN_NAME);
+        B b1 = new B() {
+            @Override
+            public String getName() {
+                return "B1";
+            }
+        };
+        String bPluginID = pluginB.getPluginInfo().getId(b1);
+        assertNotEquals("B1", bPluginID);
+        assertEquals(b1.getClass().getName(), bPluginID);
+    }
+
 }
