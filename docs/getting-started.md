@@ -2,7 +2,7 @@
 
 ## "How to run Powsybl without compiling anything" scenario
 
-In this scenario compilation is not necessary, all the jars for a specific Powsybl release will be downloaded from maven central and will be packed into a distribution archive file.
+In this scenario compilation is not necessary, all the jars for a specific Powsybl release will be downloaded from maven central and will be packed into a binaries-only distribution archive file.
 
 ### Requirements:
 
@@ -13,7 +13,7 @@ JDK and maven tools commands are expected to be available in the PATH
 
 
 ### Package a Powsybl distribution
-Download this [script](package_powsybl_distribution.sh) 
+Copy/paste this code below to a new `package_powsybl_distribution.sh` file  
 
 ```bash
 #!/bin/bash
@@ -60,4 +60,7 @@ This command converts a network model, encoded in one of supported file formats,
 ```bash
 $> ./itools convert-network --input-file NETWORKFILE  --output-format XIIDM --output-file ./network.xiidm 
 ```
- 
+
+
+## Note
+If you want to learn how to build a binary distribution from the project sources, please refer to the [installation guide](../README.md).   
