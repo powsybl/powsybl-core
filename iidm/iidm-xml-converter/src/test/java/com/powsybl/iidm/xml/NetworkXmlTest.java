@@ -11,6 +11,7 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
+import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyLevel;
@@ -115,7 +116,7 @@ public class NetworkXmlTest extends AbstractConverterTest {
         }
     }
 
-    private static Network writeAndRead(Network network, XMLExportOptions options) throws IOException {
+    private static Network writeAndRead(Network network, ExportOptions options) throws IOException {
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
             NetworkXml.write(network, options, os);
 
@@ -132,7 +133,7 @@ public class NetworkXmlTest extends AbstractConverterTest {
         bb.addExtension(BusbarSectionExt.class, new BusbarSectionExt(bb));
 
         //Re-import in node breaker
-        Network nodeBreakerNetwork = writeAndRead(network, new XMLExportOptions());
+        Network nodeBreakerNetwork = writeAndRead(network, new ExportOptions());
 
         assertNotSame(network, nodeBreakerNetwork);
 
@@ -143,7 +144,7 @@ public class NetworkXmlTest extends AbstractConverterTest {
 
         //Re-import in bus breaker
         //Check that network is correctly imported, and busbar and its extension are not here any more
-        Network busBreakerNetwork = writeAndRead(network, new XMLExportOptions().setTopologyLevel(TopologyLevel.BUS_BREAKER));
+        Network busBreakerNetwork = writeAndRead(network, new ExportOptions().setTopologyLevel(TopologyLevel.BUS_BREAKER));
         assertNull(busBreakerNetwork.getBusbarSection("voltageLevel1BusbarSection1"));
     }
 

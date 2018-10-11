@@ -209,6 +209,31 @@ public class RemoteAppStorage implements AppStorage {
     }
 
     @Override
+    public void renameNode(String nodeId, String name) {
+        Objects.requireNonNull(nodeId);
+        Objects.requireNonNull(name);
+
+        // flush buffer to keep change order
+        changeBuffer.flush();
+
+        LOGGER.debug("renameNode(fileSystemName={}, nodeId={}, name={})", fileSystemName, nodeId, name);
+
+        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/name")
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, token)
+                .header(HttpHeaders.CONTENT_ENCODING, "gzip")
+                .acceptEncoding("gzip")
+                .put(Entity.text(name));
+        try {
+            checkOk(response);
+        } finally {
+            response.close();
+        }
+    }
+
+    @Override
     public void updateModificationTime(String nodeId) {
         Objects.requireNonNull(nodeId);
 

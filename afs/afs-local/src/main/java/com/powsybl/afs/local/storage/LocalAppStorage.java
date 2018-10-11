@@ -194,6 +194,11 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
+    public void renameNode(String nodeId, String name) {
+        throw new AssertionError();
+    }
+
+    @Override
     public void updateModificationTime(String nodeId) {
         throw new AssertionError();
     }

@@ -34,7 +34,6 @@ public class XmlPlatformConfigTest {
     public void properties2XmlConvertionTest() throws IOException, XMLStreamException {
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             Path cfgDir = Files.createDirectory(fileSystem.getPath("config"));
-            Path cacheDir = Files.createDirectory(fileSystem.getPath("cache"));
             Properties prop1 = new Properties();
             prop1.setProperty("a", "hello");
             prop1.setProperty("b", "bye");
@@ -46,14 +45,14 @@ public class XmlPlatformConfigTest {
             try (Writer w = Files.newBufferedWriter(cfgDir.resolve("mod2.properties"), StandardCharsets.UTF_8)) {
                 prop2.store(w, null);
             }
-            PropertiesPlatformConfig propsConfig = new PropertiesPlatformConfig(fileSystem, cfgDir, cacheDir);
+            PlatformConfig propsConfig = new PlatformConfig(new PropertiesModuleConfigRepository(cfgDir), cfgDir);
             assertEquals("hello", propsConfig.getModuleConfig("mod1").getStringProperty("a"));
             assertEquals("bye", propsConfig.getModuleConfig("mod1").getStringProperty("b"));
             assertEquals("thanks", propsConfig.getModuleConfig("mod2").getStringProperty("c"));
-            String xmlConfigName = "config";
-            PropertiesPlatformConfig.writeXml(cfgDir, cfgDir.resolve(xmlConfigName + ".xml"));
+            Path xmlConfigFile = cfgDir.resolve("config.xml");
+            PropertiesModuleConfigRepository.writeXml(cfgDir, xmlConfigFile);
 
-            PlatformConfig xmlConfig = XmlPlatformConfig.create(fileSystem, cfgDir, cacheDir, xmlConfigName).orElseThrow(AssertionError::new);
+            PlatformConfig xmlConfig = new PlatformConfig(new XmlModuleConfigRepository(xmlConfigFile), cfgDir);
             assertEquals("hello", xmlConfig.getModuleConfig("mod1").getStringProperty("a"));
             assertEquals("bye", xmlConfig.getModuleConfig("mod1").getStringProperty("b"));
             assertEquals("thanks", xmlConfig.getModuleConfig("mod2").getStringProperty("c"));

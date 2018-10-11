@@ -12,13 +12,15 @@ import com.powsybl.contingency.ContingencyElement;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public class ContingencyJsonModule extends SimpleModule {
 
     public ContingencyJsonModule() {
+        addSerializer(Contingency.class, new ContingencySerializer());
         addSerializer(ContingencyElement.class, new ContingencyElementSerializer());
 
-        addDeserializer(ContingencyElement.class, new ContingencyElementDeserializer());
         addDeserializer(Contingency.class, new ContingencyDeserializer());
+        addDeserializer(ContingencyElement.class, new ContingencyElementDeserializer());
     }
 }

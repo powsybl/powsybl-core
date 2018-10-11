@@ -192,6 +192,19 @@ public class AppStorageServer {
     }
 
     @PUT
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Path("fileSystems/{fileSystemName}/nodes/{nodeId}/name")
+    @ApiOperation (value = "")
+    @ApiResponses (value = {@ApiResponse(code = 200, message = ""), @ApiResponse(code = 500, message = "Error")})
+    public Response renameNode(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
+                                   @ApiParam(value = "File system name") @PathParam("nodeId") String nodeId,
+                                   @ApiParam(value = "Name") String name) {
+        AppStorage storage = appDataBean.getStorage(fileSystemName);
+        storage.renameNode(nodeId, name);
+        return Response.ok().build();
+    }
+
+    @PUT
     @Path("fileSystems/{fileSystemName}/nodes/{nodeId}/modificationTime")
     @ApiOperation (value = "")
     @ApiResponses (value = {@ApiResponse(code = 200, message = ""), @ApiResponse(code = 500, message = "Error")})

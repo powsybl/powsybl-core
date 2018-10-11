@@ -44,7 +44,7 @@ Linux is required, this guide covers these distributions
  
 In order to build the project, you need:
   * Java Development Kit (JDK): *(Java 8 or newer)*
-  * [Maven](https://maven.apache.org/download.cgi) (>= 3.5.3) 
+  * [Maven](https://maven.apache.org) (>= 3.5.3) 
   * CMake *(>= 2.6)*
   * A recent C++ compiler (GNU g++ or Clang)
   * [OpenMPI](https://www.open-mpi.org/) *(tested with 1.8.3)*
