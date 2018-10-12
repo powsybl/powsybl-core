@@ -57,8 +57,12 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
 
     public void moveTo(ProjectFolder folder) {
         Objects.requireNonNull(folder);
-        storage.setParentNode(info.getId(), folder.getId());
-        storage.flush();
+        storage.getParentNode(folder.getId()).ifPresent(parentNode -> {
+            if (!parentNode.getId().equals(info.getId())) {
+                storage.setParentNode(info.getId(), folder.getId());
+                storage.flush();
+            }
+        });
     }
 
     public void delete() {
