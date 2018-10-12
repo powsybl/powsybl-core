@@ -39,19 +39,10 @@
     </build>
 
     <dependencies>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-triple-store-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
+        <!-- Compilation dependencies -->
         <dependency>
             <groupId>com.blazegraph</groupId>
             <artifactId>bigdata-core</artifactId>
-            <version>${blazegraph.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -63,11 +54,14 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!-- Bridge legacy log4j to sl4j -->
         <dependency>
             <groupId>org.slf4j</groupId>
-            <artifactId>log4j-over-slf4j</artifactId>
-            <version>1.7.25</version>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-triple-store-api</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 </project>

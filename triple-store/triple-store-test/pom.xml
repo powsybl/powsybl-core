@@ -40,17 +40,22 @@
     </build>
 
     <dependencies>
+        <!-- Test dependencies -->
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-commons</artifactId>
-            <version>${project.version}</version>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-triple-store-api</artifactId>
-            <version>${project.version}</version>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
-
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- Known triple store engines -->
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -68,19 +73,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-triple-store-impl-rdf4j</artifactId>
             <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <!-- This is required to use a log where we can configure log level for
-            big.data package and avoid its verbose output -->
-        <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
