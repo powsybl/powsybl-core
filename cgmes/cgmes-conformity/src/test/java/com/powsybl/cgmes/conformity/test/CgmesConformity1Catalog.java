@@ -1,16 +1,12 @@
-package com.powsybl.cgmes.conformity.test;
-
-/*
- * #%L
- * CGMES conformity
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+
+package com.powsybl.cgmes.conformity.test;
 
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.test.TestGridModel;
@@ -292,7 +288,7 @@ public class CgmesConformity1Catalog {
                         "_550ebe0d-f2b2-48c1-991f-cebea43a21aa");
     }
 
-    public CgmesModel expectedMiniNodeBreaker() {
+    private CgmesModel expectedMiniNodeBreaker() {
         return new CgmesModel.Fake()
                 .modelId("MiniNodeBreakerBaseCaseComplete")
                 .version("unknown")
