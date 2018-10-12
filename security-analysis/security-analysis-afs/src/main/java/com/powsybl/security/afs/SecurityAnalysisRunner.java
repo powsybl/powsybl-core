@@ -6,6 +6,7 @@
  */
 package com.powsybl.security.afs;
 
+import com.powsybl.afs.AfsException;
 import com.powsybl.afs.DependencyCache;
 import com.powsybl.afs.ProjectFile;
 import com.powsybl.afs.ProjectFileCreationContext;
@@ -13,6 +14,7 @@ import com.powsybl.afs.ext.base.ProjectCase;
 import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.contingency.afs.ContingencyStore;
 import com.powsybl.security.SecurityAnalysisParameters;
 import com.powsybl.security.SecurityAnalysisResult;
 import com.powsybl.security.json.JsonSecurityAnalysisParameters;
@@ -21,6 +23,7 @@ import com.powsybl.security.json.SecurityAnalysisResultSerializer;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -33,25 +36,46 @@ public class SecurityAnalysisRunner extends ProjectFile {
 
     static final int VERSION = 0;
     static final String CASE_DEPENDENCY_NAME = "case";
-    static final String CONTINGENCY_PROVIDER_DEPENDENCY_NAME = "contingencyListProvider";
+    static final String CONTINGENCY_STORE_DEPENDENCY_NAME = "contingencyListProvider"; // keep old key for backward compat
 
     private static final String PARAMETERS_JSON_NAME = "parametersJson";
     private static final String RESULT_JSON_NAME = "resultJson";
 
-    private final DependencyCache<ProjectCase> caseDependency = new DependencyCache<>(this, CASE_DEPENDENCY_NAME, ProjectCase.class);
+    private final DependencyCache<ProjectFile> caseDependency = new DependencyCache<>(this, CASE_DEPENDENCY_NAME, ProjectFile.class);
 
-    private final DependencyCache<ContingenciesProvider> contingencyListProviderDependency = new DependencyCache<>(this, CONTINGENCY_PROVIDER_DEPENDENCY_NAME, ContingenciesProvider.class);
+    private final DependencyCache<ContingencyStore> contingencyStoreDependency = new DependencyCache<>(this, CONTINGENCY_STORE_DEPENDENCY_NAME, ContingencyStore.class);
 
     public SecurityAnalysisRunner(ProjectFileCreationContext context) {
         super(context, VERSION);
     }
 
-    public Optional<ProjectCase> getCase() {
+    public Optional<ProjectFile> getCase() {
         return caseDependency.getFirst();
     }
 
-    public Optional<ContingenciesProvider> getContingencyListProvider() {
-        return contingencyListProviderDependency.getFirst();
+    public void setCase(ProjectFile aCase) {
+        Objects.requireNonNull(aCase);
+        if (!(aCase instanceof ProjectCase)) {
+            throw new AfsException("Bad project case " + aCase.getClass());
+        }
+        setDependencies(CASE_DEPENDENCY_NAME, Collections.singletonList(aCase));
+        caseDependency.invalidate();
+    }
+
+    public Optional<ContingencyStore> getContingencyStore() {
+        return contingencyStoreDependency.getFirst();
+    }
+
+    public void setContingencyStore(ProjectFile contingencyStore) {
+        if (contingencyStore == null) {
+            removeDependencies(CONTINGENCY_STORE_DEPENDENCY_NAME);
+        } else {
+            if (!(contingencyStore instanceof ContingenciesProvider)) {
+                throw new AfsException("Bad contingency store " + contingencyStore.getClass());
+            }
+            setDependencies(CONTINGENCY_STORE_DEPENDENCY_NAME, Collections.singletonList(contingencyStore));
+        }
+        contingencyStoreDependency.invalidate();
     }
 
     public void run() {
