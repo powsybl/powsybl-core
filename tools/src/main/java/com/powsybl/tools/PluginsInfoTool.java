@@ -7,11 +7,12 @@
 package com.powsybl.tools;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
-import com.powsybl.commons.plugins.Plugin;
+import com.powsybl.commons.plugins.PluginInfo;
 import com.powsybl.commons.plugins.Plugins;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Options;
@@ -21,7 +22,7 @@ import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.util.Collection;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
@@ -42,7 +43,7 @@ public class PluginsInfoTool implements Tool {
 
         @Override
         public String getDescription() {
-            return "list the available plugins";
+            return "List the available plugins";
         }
 
         @Override
@@ -56,6 +57,16 @@ public class PluginsInfoTool implements Tool {
         }
     };
 
+    private final PlatformConfig platformConfig;
+
+    PluginsInfoTool() {
+        this(PlatformConfig.defaultConfig());
+    }
+
+    PluginsInfoTool(PlatformConfig platformConfig) {
+        this.platformConfig = Objects.requireNonNull(platformConfig);
+    }
+
     @Override
     public Command getCommand() {
         return COMMAND;
@@ -63,24 +74,21 @@ public class PluginsInfoTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        Collection<Plugin> plugins = Plugins.getPlugins();
+        Collection<PluginInfo> pluginInfos = Plugins.getPluginInfos();
         Writer writer = new OutputStreamWriter(context.getOutputStream());
         AsciiTableFormatterFactory asciiTableFormatterFactory = new AsciiTableFormatterFactory();
 
-        try (TableFormatter formatter = asciiTableFormatterFactory.create(writer, "Plugins", new TableFormatterConfig(),
-                new Column("Plugin type name"), new Column("Available plugins IDs"))) {
-            plugins.stream().forEach(p -> {
+        try (TableFormatter formatter = asciiTableFormatterFactory.create(writer, "Plugins", TableFormatterConfig.load(platformConfig),
+                new Column("Plugin type name"),
+                new Column("Available plugin IDs"))) {
+            pluginInfos.forEach(p -> {
                 try {
-                    formatter.writeCell(p.getPluginInfo().getPluginName());
-                    formatter.writeCell(Plugins.getPluginImplementationsIds(p).stream().collect(Collectors.joining(", ")));
+                    formatter.writeCell(p.getPluginName());
+                    formatter.writeCell(String.join(", ", Plugins.getPluginImplementationsIds(p)));
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
                 }
             });
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
-
     }
-
 }

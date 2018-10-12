@@ -4,19 +4,18 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.commons.plugins;
+package com.powsybl.tools.plugins;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.plugins.PluginInfo;
 
 /**
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-@AutoService(A.class)
-public class A2 implements A {
+@AutoService(PluginInfo.class)
+public class DummyPluginInfo extends PluginInfo<Dummy> {
 
-    @Override
-    public String getName() {
-        return "A2";
+    public DummyPluginInfo() {
+        super(Dummy.class, "dummy");
     }
-
 }

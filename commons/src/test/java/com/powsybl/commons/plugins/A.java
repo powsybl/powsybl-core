@@ -10,5 +10,7 @@ package com.powsybl.commons.plugins;
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
  */
 public interface A {
+
     String getName();
+
 }

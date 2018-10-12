@@ -13,9 +13,10 @@ import com.google.auto.service.AutoService;
  */
 @AutoService(A.class)
 public class A1 implements A {
+
     @Override
     public String getName() {
         return "A1";
     }
-}
 
+}

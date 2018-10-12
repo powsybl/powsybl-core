@@ -11,20 +11,18 @@ import com.google.auto.service.AutoService;
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
  */
-@AutoService(Plugin.class)
-public class PluginA implements Plugin<A> {
-    public  static final String PLUGIN_NAME = "PLUGIN_A";
+@AutoService(PluginInfo.class)
+public class PluginInfoA extends PluginInfo<A> {
 
-    public PluginA() {   }
+    static final String PLUGIN_NAME = "PLUGIN_A";
+
+    public PluginInfoA() {
+        super(A.class, PLUGIN_NAME);
+    }
 
     @Override
-    public PluginInfo<A> getPluginInfo() {
-        return new Plugin.PluginInfo<A>(A.class, PLUGIN_NAME) {
-            @Override
-            public String getId(A a) {
-                return a.getName();
-            }
-        };
+    public String getId(A a) {
+        return a.getName();
     }
 }
 

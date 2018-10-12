@@ -4,13 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.commons.plugins;
+package com.powsybl.tools.plugins;
 
 /**
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public interface B {
-
-    String getName();
-
+public interface Dummy {
 }

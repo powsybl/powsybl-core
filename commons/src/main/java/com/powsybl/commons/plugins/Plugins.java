@@ -19,20 +19,25 @@ public final class Plugins {
     private Plugins() {
     }
 
-    public static Collection<Plugin> getPlugins() {
-        return new ArrayList<>(new ServiceLoaderCache<>(Plugin.class).getServices()).stream()
-                .sorted(Comparator.comparing((Plugin p) -> p.getPluginInfo().getPluginName())).collect(Collectors.toList());
+    public static Collection<PluginInfo> getPluginInfos() {
+        return new ServiceLoaderCache<>(PluginInfo.class).getServices().stream()
+                .sorted(Comparator.comparing(PluginInfo::getPluginName))
+                .collect(Collectors.toList());
     }
 
-    public static Plugin getPluginByName(String name) {
+    public static <T> PluginInfo<T> getPluginInfoByName(String name) {
         Objects.requireNonNull(name);
-        return new ServiceLoaderCache<>(Plugin.class).getServices().stream()
-                .filter(p -> p.getPluginInfo().getPluginName().equals(name)).findFirst().orElse(null);
+        return new ServiceLoaderCache<>(PluginInfo.class).getServices().stream()
+                .filter(p -> p.getPluginName().equals(name))
+                .findFirst().orElse(null);
     }
 
-    public static Collection<String> getPluginImplementationsIds(Plugin plugin) {
-        Objects.requireNonNull(plugin);
-        List<?> pluginImpls = new ServiceLoaderCache<>(plugin.getPluginInfo().getPluginClass()).getServices();
-        return pluginImpls.stream().map(pluginImpl -> plugin.getPluginInfo().getId(pluginImpl)).sorted().collect(Collectors.toList());
+    public static <T> Collection<String> getPluginImplementationsIds(PluginInfo<T> pluginInfo) {
+        Objects.requireNonNull(pluginInfo);
+        List<T> pluginImpls = new ServiceLoaderCache<>(pluginInfo.getPluginClass()).getServices();
+        return pluginImpls.stream()
+                .map(pluginInfo::getId)
+                .sorted()
+                .collect(Collectors.toList());
     }
 }

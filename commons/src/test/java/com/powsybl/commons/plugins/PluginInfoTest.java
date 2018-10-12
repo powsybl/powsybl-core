@@ -19,63 +19,59 @@ import static org.junit.Assert.*;
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
  */
-public class PluginTest {
+public class PluginInfoTest {
 
-    Plugin plugin;
+    private PluginInfo<A> pluginInfo;
 
     @Before
     public void setUp() {
-        plugin = Plugins.getPluginByName(PluginA.PLUGIN_NAME);
+        pluginInfo = Plugins.getPluginInfoByName(PluginInfoA.PLUGIN_NAME);
     }
 
     @Test
     public void testPlugins() {
-        assertEquals(1, Plugins.getPlugins().stream().map(p -> p.getPluginInfo().getPluginName()).filter(pName -> PluginA.PLUGIN_NAME.equals(pName)).count());
+        assertEquals(1, Plugins.getPluginInfos().stream().map(PluginInfo::getPluginName).filter(PluginInfoA.PLUGIN_NAME::equals).count());
     }
 
     @Test
     public void testPluginExist() {
-        assertNotNull(plugin);
-        assertNotNull(plugin.getPluginInfo().toString());
+        assertNotNull(pluginInfo);
+        assertNotNull(pluginInfo.toString());
     }
 
     @Test
     public void testPluginDetails() {
-        new ServiceLoaderCache<>(A.class).getServices().stream().forEach(a ->
-                assertNotNull(plugin.getPluginInfo().getId(a))
+        new ServiceLoaderCache<>(A.class).getServices().forEach(a ->
+                assertNotNull(pluginInfo.getId(a))
         );
     }
 
     @Test
     public void testPluginNotExist() {
-        assertNull(Plugins.getPluginByName("DOES_NOT_EXIST"));
+        assertNull(Plugins.getPluginInfoByName("DOES_NOT_EXIST"));
     }
 
     @Test
     public void testGetPluginImplementationsIds() {
         List<String> testPluginsIds = Arrays.asList("A1", "A2");
-        Collection<String> pluginImplementationsIds = Plugins.getPluginImplementationsIds(plugin);
-        assertTrue(testPluginsIds.stream().allMatch(t -> pluginImplementationsIds.contains(t)));
+        Collection<String> pluginImplementationsIds = Plugins.getPluginImplementationsIds(pluginInfo);
+        assertEquals(testPluginsIds.size(), pluginImplementationsIds.size());
+        assertTrue(pluginImplementationsIds.containsAll(testPluginsIds));
     }
 
     @Test
     public void testGetPluginInfoId() {
         A1 a1 = new A1();
         A2 a2 = new A2();
-        assertEquals("A1", plugin.getPluginInfo().getId(a1));
-        assertEquals("A2", plugin.getPluginInfo().getId(a2));
+        assertEquals("A1", pluginInfo.getId(a1));
+        assertEquals("A2", pluginInfo.getId(a2));
     }
 
     @Test
     public void testGetPluginInfoIdDefault() {
-        Plugin pluginB = Plugins.getPluginByName(PluginB.PLUGIN_NAME);
-        B b1 = new B() {
-            @Override
-            public String getName() {
-                return "B1";
-            }
-        };
-        String bPluginID = pluginB.getPluginInfo().getId(b1);
+        PluginInfo<B> pluginInfoB = Plugins.getPluginInfoByName(PluginInfoB.PLUGIN_NAME);
+        B b1 = () -> "B1";
+        String bPluginID = pluginInfoB.getId(b1);
         assertNotEquals("B1", bPluginID);
         assertEquals(b1.getClass().getName(), bPluginID);
     }
