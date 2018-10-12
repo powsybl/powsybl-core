@@ -6,6 +6,8 @@ a network after its loading.
 - [JavaScriptPostProcessor](../../architecture/iidm/post-processor/javaScriptPostProcessor.md) to run a javascript script
 - [LoadFlowResultsCompletion](../../architecture/iidm/post-processor/loadflowResultsCompletion.md) to complete missing P, Q, V and angle values
 
+Other post-processors might be available in the platform: the [plugins-info](../../tools/plugins-info.md) itool command can be used to list the usable implementations. 
+
 ## Properties
 
 | Property | Type | Required | Default value | Description |

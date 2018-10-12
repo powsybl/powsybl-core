@@ -48,6 +48,7 @@ The list of commands currently implemented and available in powsybl-core is:
 | Data conversion | [convert-network](convert-network.md) | Convert a network from one format to another |
 | MPI statistics | [export-tasks-statistics](export-tasks-statistics.md) | Export tasks statistics to CSV |
 | Script | [run-script](run-script.md) | Run a script (only Groovy is supported, so far) |
+| Misc | [plugins-info](plugins-info.md) | displays the platform's currently available plugins |
 
 Commands in the list are classified in *themes*, to help identifying their purpose.  
 *Note:* If your powsybl installation includes new and different implementations of itools commands, the list shown by itools will be updated accordingly. 
