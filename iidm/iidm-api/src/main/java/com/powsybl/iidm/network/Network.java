@@ -346,26 +346,51 @@ public interface Network extends Container<Network> {
     Load getLoad(String id);
 
     /**
-     * Get all compensator shunts.
+     * @deprecated Use {@link #getShuntCompensators)} instead.
      */
+    @Deprecated
     Iterable<ShuntCompensator> getShunts();
+
+    /**
+     * @deprecated Use {@link #getShuntCompensatorStream()} instead.
+     */
+    @Deprecated
+    Stream<ShuntCompensator> getShuntStream();
+
+    /**
+     * @deprecated Use {@link #getShuntCompensatorCount()} instead.
+     */
+    @Deprecated
+    int getShuntCount();
+
+    /**
+     * @deprecated Use {@link #getShuntCompensator(String)} instead.
+     */
+    @Deprecated
+    ShuntCompensator getShunt(String id);
 
     /**
      * Get all compensator shunts.
      */
-    Stream<ShuntCompensator> getShuntStream();
+    Iterable<ShuntCompensator> getShuntCompensators();
+
+
+    /**
+     * Get all compensator shunts.
+     */
+    Stream<ShuntCompensator> getShuntCompensatorStream();
 
     /**
      * Get the shunt count.
      */
-    int getShuntCount();
+    int getShuntCompensatorCount();
 
     /**
      * Get a compensator shunt.
      *
      * @param id the id of the compensator shunt
      */
-    ShuntCompensator getShunt(String id);
+    ShuntCompensator getShuntCompensator(String id);
 
     /**
      * Get all dangling lines.

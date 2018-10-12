@@ -815,25 +815,49 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     int getLoadCount();
 
     /**
-     * Get a builder to create a new compensator shunt.
+     * @deprecated @deprecated Use {@link #newShuntCompensator()} instead.
      */
+    @Deprecated
     ShuntCompensatorAdder newShunt();
 
     /**
-     * Get compensator shunts.
+     * @deprecated @deprecated Use {@link #getShuntCompensators()} instead.
      */
+    @Deprecated
     Iterable<ShuntCompensator> getShunts();
 
+    /**
+     * @deprecated @deprecated Use {@link #getShuntCompensatorStream()} instead.
+     */
+    @Deprecated
+    Stream<ShuntCompensator> getShuntStream();
+
+    /**
+     * @deprecated @deprecated Use {@link #getShuntCompensatorCount()} instead.
+     */
+    @Deprecated
+    int getShuntCount();
+
+    /**
+     * Get a builder to create a new compensator shunt.
+     */
+    ShuntCompensatorAdder newShuntCompensator();
 
     /**
      * Get compensator shunts.
      */
-    Stream<ShuntCompensator> getShuntStream();
+    Iterable<ShuntCompensator> getShuntCompensators();
+
+    /**
+     * Get compensator shunts.
+     */
+    Stream<ShuntCompensator> getShuntCompensatorStream();
+
 
     /**
      * Get shunt count.
      */
-    int getShuntCount();
+    int getShuntCompensatorCount();
 
     /**
      * Get a builder to create a new dangling line.

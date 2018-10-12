@@ -373,21 +373,41 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
 
     @Override
     public Iterable<ShuntCompensator> getShunts() {
-        return Collections.unmodifiableCollection(objectStore.getAll(ShuntCompensatorImpl.class));
+        return getShuntCompensators();
     }
 
     @Override
     public Stream<ShuntCompensator> getShuntStream() {
-        return objectStore.getAll(ShuntCompensatorImpl.class).stream().map(Function.identity());
+        return getShuntCompensatorStream();
     }
 
     @Override
     public int getShuntCount() {
-        return objectStore.getAll(ShuntCompensatorImpl.class).size();
+        return getShuntCompensatorCount();
     }
 
     @Override
     public ShuntCompensatorImpl getShunt(String id) {
+        return getShuntCompensator(id);
+    }
+
+    @Override
+    public Iterable<ShuntCompensator> getShuntCompensators() {
+        return Collections.unmodifiableCollection(objectStore.getAll(ShuntCompensatorImpl.class));
+    }
+
+    @Override
+    public Stream<ShuntCompensator> getShuntCompensatorStream() {
+        return objectStore.getAll(ShuntCompensatorImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getShuntCompensatorCount() {
+        return objectStore.getAll(ShuntCompensatorImpl.class).size();
+    }
+
+    @Override
+    public ShuntCompensatorImpl getShuntCompensator(String id) {
         return objectStore.get(id, ShuntCompensatorImpl.class);
     }
 

@@ -275,18 +275,28 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
 
     @Override
     public Iterable<ShuntCompensator> getShunts() {
+        return getShuntCompensators();
+    }
+
+    @Override
+    public Stream<ShuntCompensator> getShuntStream() {
+        return getShuntCompensatorStream();
+    }
+
+    @Override
+    public Iterable<ShuntCompensator> getShuntCompensators() {
         checkValidity();
         List<Iterable<ShuntCompensator>> iterables = new ArrayList<>(buses.size());
         for (ConfiguredBus bus : buses) {
-            iterables.add(bus.getShunts());
+            iterables.add(bus.getShuntCompensators());
         }
         return Iterables.concat(iterables);
     }
 
     @Override
-    public Stream<ShuntCompensator> getShuntStream() {
+    public Stream<ShuntCompensator> getShuntCompensatorStream() {
         checkValidity();
-        return buses.stream().flatMap(ConfiguredBus::getShuntStream);
+        return buses.stream().flatMap(ConfiguredBus::getShuntCompensatorStream);
     }
 
     @Override

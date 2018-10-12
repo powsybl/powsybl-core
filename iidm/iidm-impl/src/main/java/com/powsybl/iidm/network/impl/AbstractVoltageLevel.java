@@ -201,21 +201,41 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     @Override
     public ShuntCompensatorAdder newShunt() {
-        return new ShuntCompensatorAdderImpl(this);
+        return newShuntCompensator();
     }
 
     @Override
     public int getShuntCount() {
-        return getConnectableCount(ShuntCompensator.class);
+        return getShuntCompensatorCount();
     }
 
     @Override
     public Iterable<ShuntCompensator> getShunts() {
-        return getConnectables(ShuntCompensator.class);
+        return getShuntCompensators();
     }
 
     @Override
     public Stream<ShuntCompensator> getShuntStream() {
+        return getShuntCompensatorStream();
+    }
+
+    @Override
+    public ShuntCompensatorAdder newShuntCompensator() {
+        return new ShuntCompensatorAdderImpl(this);
+    }
+
+    @Override
+    public int getShuntCompensatorCount() {
+        return getConnectableCount(ShuntCompensator.class);
+    }
+
+    @Override
+    public Iterable<ShuntCompensator> getShuntCompensators() {
+        return getConnectables(ShuntCompensator.class);
+    }
+
+    @Override
+    public Stream<ShuntCompensator> getShuntCompensatorStream() {
         return getConnectableStream(ShuntCompensator.class);
     }
 

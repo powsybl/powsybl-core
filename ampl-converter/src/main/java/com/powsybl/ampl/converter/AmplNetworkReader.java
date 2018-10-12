@@ -223,7 +223,7 @@ public class AmplNetworkReader {
         int sections = Integer.parseInt(tokens[4]);
 
         String id = mapper.getId(AmplSubset.SHUNT, num);
-        ShuntCompensator sc = network.getShunt(id);
+        ShuntCompensator sc = network.getShuntCompensator(id);
         if (sc == null) {
             throw new AmplException("Invalid shunt compensator id '" + id + "'");
         }
