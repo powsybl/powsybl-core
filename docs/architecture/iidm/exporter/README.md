@@ -1,9 +1,12 @@
 # IIDM - Exporters
 
-Explain what is an IIDM exporter
+The `com.powsybl.iidm.export.Exporter` class is used to generate a text file in a given format describing a network
+from an IIDM network instance. Powsybl supports natively several exporters:
+- [IIDM] (iidm.md)
+- [AMPL] (iidm.md)
 
-Add links to all powsybl-core exporters
-    - create a dedicated page for all of them
-    - create a dedicated page in configuration folder to detail how to configure the exporters
+*TO BE COMPLETED*
 
-Add link to [howto write an Exporter](../../../tutorials/iidm/howto-extend-exporter.md)
+## References
+See also:
+- [how to write an Exporter](../../../tutorials/iidm/howto-extend-exporter.md)

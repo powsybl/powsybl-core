@@ -21,6 +21,9 @@ The `com.powsybl.iidm.network.LoadType` enum contains these three values:
 This example shows how to create a new Load in the network:
 ```java
 Load load = network.getVoltageLevel('VL').newLoad()
+    .setId('LOAD')
+    .setBus('BUS1')
+    .setConnectableBus('BUS1')
     .setLoadType(LoadType.UNDEFINED)
     .setP0(100.0)
     .setQ0(60.0)
