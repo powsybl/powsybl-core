@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.triplestore.impl.jena;
 
 import java.io.InputStream;
@@ -63,7 +70,7 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
         union = union.union(m);
     }
 
-    private String formatFromName(String filename) {
+    private static String formatFromName(String filename) {
         if (filename.endsWith(".ttl")) {
             return "TURTLE";
         } else if (filename.endsWith(".xml")) {
@@ -125,12 +132,12 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
             while (r.hasNext()) {
                 QuerySolution s = r.next();
                 PropertyBag result = new PropertyBag(names);
-                names.stream().forEach(name -> {
+                names.forEach(name -> {
                     if (s.contains(name)) {
                         result.put(name, stringValue(s.get(name)));
                     }
                 });
-                if (result.size() > 0) {
+                if (!result.isEmpty()) {
                     results.add(result);
                 }
             }
@@ -157,9 +164,7 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
             m.setNsPrefixes(union.getNsPrefixMap());
         }
 
-        Iterator<PropertyBag> itStatements = statements.iterator();
-        while (itStatements.hasNext()) {
-            PropertyBag statement = itStatements.next();
+        for (PropertyBag statement : statements) {
             createStatements(m, objType, statement);
         }
         dataset.addNamedModel(context, m);
@@ -175,7 +180,7 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
         m.add(parentSt);
 
         List<String> names = statement.propertyNames();
-        names.stream().forEach(name -> {
+        names.forEach(name -> {
             Property predicate = m.createProperty(objType + "." + name);
             Statement st;
             if (statement.isResource(name)) {
@@ -198,11 +203,11 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
         }
     }
 
-    private boolean containsGraphClause(String query) {
-        return query.indexOf("GRAPH ") >= 0;
+    private static boolean containsGraphClause(String query) {
+        return query.contains("GRAPH ");
     }
 
-    private String stringValue(RDFNode n) {
+    private static String stringValue(RDFNode n) {
         if (n.isResource()) {
             return n.asResource().getURI();
         } else if (n.isLiteral()) {
@@ -211,7 +216,7 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
         return n.toString();
     }
 
-    public Resource[] subjectsTypes(Model model) {
+    private static Resource[] subjectsTypes(Model model) {
         Set<Resource> types = new HashSet<>();
         ResIterator rs = model.listSubjects();
         while (rs.hasNext()) {
@@ -221,10 +226,10 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
                 types.add(s.getObject().asResource());
             }
         }
-        return types.toArray(new Resource[types.size()]);
+        return types.toArray(new Resource[0]);
     }
 
-    private Statement type(Resource r) {
+    private static Statement type(Resource r) {
         Statement rslt;
         try {
             if (r instanceof Statement) {
@@ -247,11 +252,11 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
         return rslt;
     }
 
-    private boolean validType(RDFNode n) {
+    private static boolean validType(RDFNode n) {
         if (!(n instanceof Resource)) {
             return false;
         }
-        if (((Resource) n).isAnon()) {
+        if (n.isAnon()) {
             return false;
         }
         // Only allow resources with namespace and fragment ID

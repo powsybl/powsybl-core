@@ -1,16 +1,11 @@
-package com.powsybl.triplestore.api.test;
-
-/*
- * #%L
- * Triple stores for CGMES models
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.triplestore.api.test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -57,25 +52,19 @@ public class PropertyBagsTest {
 
     @Test
     public void testTabulateLocals() {
-        StringBuffer s = new StringBuffer(100);
-        s.append("key0 \t key1");
-        s.append(System.lineSeparator());
-        s.append("key0-value0 \t key1-value0");
-        s.append(System.lineSeparator());
-        s.append("key0-value1 \t key1-value1");
-        String expected = s.toString();
+        String expected = String.join(System.lineSeparator(),
+                "key0 \t key1",
+                "key0-value0 \t key1-value0",
+                "key0-value1 \t key1-value1");
         assertEquals(expected, bags.tabulateLocals());
     }
 
     @Test
     public void testTabulate() {
-        StringBuffer s = new StringBuffer(100);
-        s.append("key0 \t key1");
-        s.append(System.lineSeparator());
-        s.append("http://example.com/#key0-value0 \t http://example.com/#key1-value0");
-        s.append(System.lineSeparator());
-        s.append("http://example.com/#key0-value1 \t http://example.com/#key1-value1");
-        String expected = s.toString();
+        String expected = String.join(System.lineSeparator(),
+                "key0 \t key1",
+                "http://example.com/#key0-value0 \t http://example.com/#key1-value0",
+                "http://example.com/#key0-value1 \t http://example.com/#key1-value1");
         assertEquals(expected, bags.tabulate());
     }
 

@@ -1,16 +1,11 @@
-package com.powsybl.triplestore.impl.rdf4j;
-
-/*
- * #%L
- * Triple stores for CGMES models
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.triplestore.impl.rdf4j;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -34,8 +29,8 @@ import org.eclipse.rdf4j.rio.rdfxml.RDFXMLWriter;
  */
 public class PowsyblWriter extends RDFXMLWriter {
 
-    protected String lastObjNamespace;
-    protected String lastObjLocalName;
+    private String lastObjNamespace;
+    private String lastObjLocalName;
 
     public PowsyblWriter(OutputStream out) {
         super(out);

@@ -1,22 +1,16 @@
-package com.powsybl.triplestore.impl.blazegraph;
-
-/*
- * #%L
- * Triple store abstraction
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.triplestore.impl.blazegraph;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
@@ -73,7 +67,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         System.getProperties().setProperty("com.bigdata.Banner.quiet", "true");
         System.getProperties().setProperty("com.bigdata.util.config.LogUtil.quiet", "true");
 
-        sail = new BigdataSail(props); // instantiate a sail
+        BigdataSail sail = new BigdataSail(props); // instantiate a sail
         repo = new BigdataSailRepository(sail); // create a Sesame repository
 
         try {
@@ -106,7 +100,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         }
     }
 
-    private void read(String base, String name, InputStream is, RepositoryConnection cnx, Resource context)
+    private static void read(String base, String name, InputStream is, RepositoryConnection cnx, Resource context)
             throws RepositoryException {
         try {
             cnx.add(is, base, formatFromName(name), context);
@@ -117,7 +111,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         }
     }
 
-    RDFFormat formatFromName(String name) {
+    private static RDFFormat formatFromName(String name) {
         if (name.endsWith(".ttl")) {
             return RDFFormat.TURTLE;
         } else if (name.endsWith(".xml")) {
@@ -262,17 +256,14 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         }
 
         Resource context = cnx.getValueFactory().createURI(name);
-        Iterator<PropertyBag> itStatements = statements.iterator();
-        while (itStatements.hasNext()) {
-            PropertyBag statement = itStatements.next();
+        for (PropertyBag statement : statements) {
             createStatements(cnx, objType, statement, context);
         }
 
         cnx.commit();
     }
 
-    private void createStatements(RepositoryConnection cnx, String objType, PropertyBag statement, Resource context) {
-
+    private static void createStatements(RepositoryConnection cnx, String objType, PropertyBag statement, Resource context) {
         try {
             UUID uuid = new UUID();
             URI resource = uuid.evaluate(cnx.getValueFactory());
@@ -281,10 +272,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
             Statement parentSt = cnx.getValueFactory().createStatement(resource, parentPredicate, parentObject);
             cnx.add(parentSt, context);
 
-            List<String> names = statement.propertyNames();
-            Iterator<String> it = names.iterator();
-            while (it.hasNext()) {
-                String name = it.next();
+            for (String name : statement.propertyNames()) {
                 URI predicate = cnx.getValueFactory().createURI(objType + "." + name);
                 Statement st;
                 if (statement.isResource(name)) {
@@ -302,7 +290,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         }
     }
 
-    private PropertyBags query(RepositoryConnection cnx, String query) throws RepositoryException {
+    private static PropertyBags query(RepositoryConnection cnx, String query) throws RepositoryException {
         PropertyBags results = new PropertyBags();
         try {
             final TupleQuery tupleQuery = cnx.prepareTupleQuery(QueryLanguage.SPARQL, query);
@@ -313,7 +301,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
                 while (r.hasNext()) {
                     BindingSet s = r.next();
                     PropertyBag result = new PropertyBag(names);
-                    names.stream().forEach(name -> {
+                    names.forEach(name -> {
                         if (s.hasBinding(name)) {
                             String value = s.getBinding(name).getValue().stringValue();
                             result.put(name, value);
@@ -332,7 +320,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         return results;
     }
 
-    private int statementsCount(RepositoryConnection conn, Resource ctx) {
+    private static int statementsCount(RepositoryConnection conn, Resource ctx) {
         int counter = 0;
         try {
             RepositoryResult<Statement> statements = conn.getStatements(null, null, null, true, ctx);
@@ -346,7 +334,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         return counter;
     }
 
-    private void write(Model statements, OutputStream out) {
+    private static void write(Model statements, OutputStream out) {
         try (PrintStream pout = new PrintStream(out)) {
             RDFWriter w = new RDFXMLPrettyWriter(pout);
             Rio.write(statements, w);
@@ -355,14 +343,14 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         }
     }
 
-    private void copyNamespacesToModel(RepositoryConnection conn, Model m) throws RepositoryException {
+    private static void copyNamespacesToModel(RepositoryConnection conn, Model m) throws RepositoryException {
         RepositoryResult<Namespace> ns = conn.getNamespaces();
         while (ns.hasNext()) {
             m.setNamespace(ns.next());
         }
     }
 
-    private void addNamespaceForBase(RepositoryConnection cnx, String base) throws RepositoryException {
+    private static void addNamespaceForBase(RepositoryConnection cnx, String base) throws RepositoryException {
         cnx.setNamespace("data", base + "#");
     }
 
@@ -371,7 +359,6 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     }
 
     private final Repository repo;
-    private final BigdataSail sail;
 
     private static final Logger LOG = LoggerFactory.getLogger(TripleStoreBlazegraph.class);
 

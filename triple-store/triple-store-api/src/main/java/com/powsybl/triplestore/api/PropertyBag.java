@@ -1,16 +1,11 @@
-package com.powsybl.triplestore.api;
-
-/*
- * #%L
- * Triple stores for CGMES models
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.triplestore.api;
 
 import java.util.HashMap;
 import java.util.List;
@@ -106,19 +101,19 @@ public class PropertyBag extends HashMap<String, String> {
     }
 
     public String tabulateLocals() {
-        return tabulate("", (bag, property) -> bag.getLocal(property));
+        return tabulate("", PropertyBag::getLocal);
     }
 
     public String tabulate() {
-        return tabulate("", (bag, property) -> bag.get(property));
+        return tabulate("", PropertyBag::get);
     }
 
     public String tabulateLocals(String title) {
-        return tabulate(title, (bag, property) -> bag.getLocal(property));
+        return tabulate(title, PropertyBag::getLocal);
     }
 
     public String tabulate(String title) {
-        return tabulate(title, (bag, property) -> bag.get(property));
+        return tabulate(title, HashMap::get);
     }
 
     private String tabulate(String title, BiFunction<PropertyBag, String, String> getValue) {
@@ -139,13 +134,14 @@ public class PropertyBag extends HashMap<String, String> {
         return "";
     }
 
-    private String padr(String s, int size) {
+    private static String padr(String s, int size) {
         String format = String.format("%%-%ds", size);
         return String.format(format, s);
     }
 
     @Override
     public int hashCode() {
+        // FIXME(Luma): This method recurses infinitely
         return Objects.hash(this.hashCode(), propertyNames, removeInitialUnderscoreForIdentifiers);
     }
 

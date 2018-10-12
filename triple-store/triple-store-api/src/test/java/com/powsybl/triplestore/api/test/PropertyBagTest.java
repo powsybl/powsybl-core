@@ -13,8 +13,11 @@ package com.powsybl.triplestore.api.test;
  */
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -25,23 +28,22 @@ import com.powsybl.triplestore.api.PropertyBag;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class PropertyBagTest {
+
     @BeforeClass
     public static void setUp() {
-        locals_ = new PropertyBag(Arrays.asList("id", "name", "enum"));
-        boolean removeUnderscoreFromIdentifiers = true;
-        locals = new PropertyBag(Arrays.asList("id", "name", "enum"),
-                removeUnderscoreFromIdentifiers);
-        numbers = new PropertyBag(Arrays.asList("value"));
-        booleans = new PropertyBag(Arrays.asList("value"));
-        ints = new PropertyBag(Arrays.asList("value"));
+        localsWithUnderscore = new PropertyBag(Arrays.asList("id", "name", "enum"));
+        locals = new PropertyBag(Arrays.asList("id", "name", "enum"), true);
+        numbers = new PropertyBag(Collections.singletonList("value"));
+        booleans = new PropertyBag(Collections.singletonList("value"));
+        ints = new PropertyBag(Collections.singletonList("value"));
 
         locals.put("id", "http://example.com/#_id0-id1-id2");
         locals.put("name", "name0");
         locals.put("enum", "http://example.com/DataTypeEnum#enumValue0");
 
-        locals_.put("id", "http://example.com/#_id0-id1-id2");
-        locals_.put("name", "name0");
-        locals_.put("enum", "http://example.com/DataTypeEnum#enumValue0");
+        localsWithUnderscore.put("id", "http://example.com/#_id0-id1-id2");
+        localsWithUnderscore.put("name", "name0");
+        localsWithUnderscore.put("enum", "http://example.com/DataTypeEnum#enumValue0");
     }
 
     @Test
@@ -52,50 +54,40 @@ public class PropertyBagTest {
         assertEquals("name0", locals.getLocal("name"));
         assertEquals("enumValue0", locals.getLocal("enum"));
 
-        assertEquals("_id0-id1-id2", locals_.getId("id"));
-        assertEquals("_id0", locals_.getId0("id"));
-        assertEquals("_id0-id1-id2", locals_.getLocal("id"));
-        assertEquals("name0", locals_.getLocal("name"));
-        assertEquals("enumValue0", locals_.getLocal("enum"));
+        assertEquals("_id0-id1-id2", localsWithUnderscore.getId("id"));
+        assertEquals("_id0", localsWithUnderscore.getId0("id"));
+        assertEquals("_id0-id1-id2", localsWithUnderscore.getLocal("id"));
+        assertEquals("name0", localsWithUnderscore.getLocal("name"));
+        assertEquals("enumValue0", localsWithUnderscore.getLocal("enum"));
     }
 
     @Test
     public void testTabulateLocals() {
-        StringBuffer s = new StringBuffer(100);
-        s.append(System.lineSeparator());
-        s.append("    id   : _id0-id1-id2");
-        s.append(System.lineSeparator());
-        s.append("    name : name0");
-        s.append(System.lineSeparator());
-        s.append("    enum : enumValue0");
-        String expected = s.toString();
+        String expected = String.join(System.lineSeparator(),
+                "",
+                "    id   : _id0-id1-id2",
+                "    name : name0",
+                "    enum : enumValue0");
         assertEquals("locals" + expected, locals.tabulateLocals("locals"));
         assertEquals(expected, locals.tabulateLocals());
 
         String base = "http://example.com/#";
         String baseEnum = "http://example.com/DataTypeEnum#";
-        s = new StringBuffer(100);
-        s.append(System.lineSeparator());
-        s.append("    id   : " + base + "_id0-id1-id2");
-        s.append(System.lineSeparator());
-        s.append("    name : name0");
-        s.append(System.lineSeparator());
-        s.append("    enum : " + baseEnum + "enumValue0");
-        expected = s.toString();
+        expected = String.join(System.lineSeparator(),
+                "",
+                "    id   : " + base + "_id0-id1-id2",
+                "    name : name0",
+                "    enum : " + baseEnum + "enumValue0");
         assertEquals(expected, locals.tabulate());
     }
 
     @Test
     public void testTabulate() {
-        StringBuffer s = new StringBuffer(100);
-        s.append("locals");
-        s.append(System.lineSeparator());
-        s.append("    id   : http://example.com/#_id0-id1-id2");
-        s.append(System.lineSeparator());
-        s.append("    name : name0");
-        s.append(System.lineSeparator());
-        s.append("    enum : http://example.com/DataTypeEnum#enumValue0");
-        String expected = s.toString();
+        String expected = String.join(System.lineSeparator(),
+                "locals",
+                "    id   : http://example.com/#_id0-id1-id2",
+                "    name : name0",
+                "    enum : http://example.com/DataTypeEnum#enumValue0");
         assertEquals(expected, locals.tabulate("locals"));
     }
 
@@ -168,29 +160,29 @@ public class PropertyBagTest {
     @Test
     public void testBooleans() {
         booleans.put("value", "true");
-        assertEquals(true, booleans.asBoolean("value", false));
+        assertTrue(booleans.asBoolean("value", false));
 
         booleans.put("value", "false");
-        assertEquals(false, booleans.asBoolean("value", true));
+        assertFalse(booleans.asBoolean("value", true));
 
         booleans.put("value", "TRUE");
-        assertEquals(true, booleans.asBoolean("value", false));
+        assertTrue(booleans.asBoolean("value", false));
 
         booleans.put("value", "tRuE");
-        assertEquals(true, booleans.asBoolean("value", false));
+        assertTrue(booleans.asBoolean("value", false));
 
         booleans.put("value", "FALSE");
-        assertEquals(false, booleans.asBoolean("value", true));
+        assertFalse(booleans.asBoolean("value", true));
 
         booleans.put("value", "FaLsE");
-        assertEquals(false, booleans.asBoolean("value", true));
+        assertFalse(booleans.asBoolean("value", true));
 
         // No spaces allowed
         booleans.put("value", " true ");
-        assertEquals(false, booleans.asBoolean("value", true));
+        assertFalse(booleans.asBoolean("value", true));
     }
 
-    private static PropertyBag locals_;
+    private static PropertyBag localsWithUnderscore;
     private static PropertyBag locals;
     private static PropertyBag numbers;
     private static PropertyBag booleans;

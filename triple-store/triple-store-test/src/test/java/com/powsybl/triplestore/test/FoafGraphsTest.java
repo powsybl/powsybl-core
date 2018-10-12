@@ -1,24 +1,16 @@
-package com.powsybl.triplestore.test;
-
-/*
- * #%L
- * Triple stores for CGMES models
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
 
-import java.io.IOException;
+package com.powsybl.triplestore.test;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.powsybl.triplestore.api.QueryCatalog;
-import com.powsybl.triplestore.api.TripleStoreException;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import com.powsybl.triplestore.test.TripleStoreTester.Expected;
 
@@ -28,7 +20,7 @@ import com.powsybl.triplestore.test.TripleStoreTester.Expected;
 public class FoafGraphsTest {
 
     @BeforeClass
-    public static void setUp() throws TripleStoreException, IOException {
+    public static void setUp() {
         queries = new QueryCatalog("foaf/foaf-graphs.sparql");
         String base = "foo:foaf";
         String[] inputs = {"foaf/abc-nicks.ttl", "foaf/abc-lastNames.ttl"};
@@ -44,13 +36,13 @@ public class FoafGraphsTest {
     }
 
     @Test
-    public void testLastNames() throws Exception {
+    public void testLastNames() {
         Expected expected = new Expected().expect("lastName", "Channing", "Liddell", "Marley");
         tester.testQuery(queries.get("lastNames"), expected);
     }
 
     @Test
-    public void testLastNamesGraph() throws Exception {
+    public void testLastNamesGraph() {
         Expected expected = new Expected()
                 .expect("lastName", "Channing", "Liddell", "Marley")
                 .expect("graphLastnames",
@@ -65,7 +57,7 @@ public class FoafGraphsTest {
     }
 
     @Test
-    public void testLastNameOnlyIfNick() throws Exception {
+    public void testLastNameOnlyIfNick() {
         Expected expected = new Expected()
                 .expect("lastName", "Channing", "Liddell", null)
                 .expect("graphLastnames",
@@ -80,7 +72,7 @@ public class FoafGraphsTest {
     }
 
     @Test
-    public void testLastNameOnlyIfNickFailsForBlazegraph() throws Exception {
+    public void testLastNameOnlyIfNickFailsForBlazegraph() {
         Expected expected = new Expected()
                 .expect("lastName", null, null, null)
                 .expect("graphLastnames", null, null, null)

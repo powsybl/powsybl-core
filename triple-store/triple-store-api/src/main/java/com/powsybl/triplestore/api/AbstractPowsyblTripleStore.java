@@ -1,16 +1,11 @@
-package com.powsybl.triplestore.api;
-
-/*
- * #%L
- * Triple stores for CGMES models
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.triplestore.api;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -76,18 +71,18 @@ public abstract class AbstractPowsyblTripleStore implements TripleStore {
         return q1;
     }
 
-    protected void cacheQueryPrefixes() {
+    private void cacheQueryPrefixes() {
         cachedQueryPrefixes = queryPrefixes.entrySet().stream()
                 .map(e -> String.format("prefix %s: <%s>", e.getKey(), e.getValue())).collect(Collectors.joining(" "));
     }
 
-    static class LinesOutputStream extends OutputStream {
+    private static class LinesOutputStream extends OutputStream {
         LinesOutputStream(Consumer<String> liner) {
             this.liner = liner;
         }
 
         @Override
-        public void write(int b) throws IOException {
+        public void write(int b) {
             byte[] bytes = new byte[1];
             bytes[0] = (byte) (b & 0xff);
             line = line + new String(bytes);
@@ -98,7 +93,7 @@ public abstract class AbstractPowsyblTripleStore implements TripleStore {
         }
 
         @Override
-        public void write(byte[] b, int off, int len) throws IOException {
+        public void write(byte[] b, int off, int len) {
             // We don't implement an optimal function,
             // we only call the function byte to byte.
             if ((off | len | (b.length - (len + off)) | (off + len)) < 0) {

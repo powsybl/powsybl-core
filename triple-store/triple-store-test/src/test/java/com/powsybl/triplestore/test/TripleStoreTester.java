@@ -1,17 +1,13 @@
-package com.powsybl.triplestore.test;
-
-/*
- * #%L
- * Triple stores for CGMES models
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
 
+package com.powsybl.triplestore.test;
+
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -42,10 +38,11 @@ public class TripleStoreTester {
         this.tripleStores = new HashMap<>(implementations.size());
     }
 
-    public void load() {
+    void load() {
         // Load the model for every triple store implementation
         for (String impl : implementations) {
             TripleStore ts = TripleStoreFactory.create(impl);
+            assertNotNull(ts);
             for (String r : inputResourceNames) {
                 try (InputStream is = resourceStream(r)) {
                     ts.read(base, r, is);
@@ -53,19 +50,19 @@ public class TripleStoreTester {
                     throw new TripleStoreException(String.format("Reading %s %s", base, r), e);
                 }
             }
-            ts.dump(line -> LOG.info(line));
+            ts.dump(LOG::info);
             tripleStores.put(impl, ts);
         }
     }
 
-    public void testQuery(String queryText, Expected expected) throws Exception {
+    void testQuery(String queryText, Expected expected) {
         for (String impl : implementations) {
             PropertyBags results = tripleStores.get(impl).query(queryText);
             logResults(impl, results, expected);
-            assertTrue(results.size() > 0);
+            assertTrue(!results.isEmpty());
             int size = expected.values().iterator().next().size();
             assertEquals(size, results.size());
-            expected.keySet().stream()
+            expected.keySet()
                     .forEach(property -> assertEquals(expected.get(property), results.pluckLocals(property)));
         }
     }
@@ -76,15 +73,15 @@ public class TripleStoreTester {
 
     private void logResults(String impl, PropertyBags results, Expected expected) {
         LOG.info("{} query result size     : {}", impl, results.size());
-        if (results.size() == 0) {
+        if (results.isEmpty()) {
             return;
         }
-        LOG.info("{} query result names[0] : {}", impl, results.get(0).keySet().toString());
+        LOG.info("{} query result names[0] : {}", impl, results.get(0).keySet());
         LOG.info("{} tabulated results", impl);
         LOG.info(results.tabulate());
         LOG.info("{} tabulated results as localValues", impl);
         LOG.info(results.tabulateLocals());
-        expected.keySet().stream().forEach(property -> {
+        expected.keySet().forEach(property -> {
             List<String> expectedValues = expected.get(property);
             List<String> actualValues = results.pluckLocals(property);
             LOG.info("{} expected values for property {} : {}", impl, property, String.join(",", expectedValues));
@@ -92,8 +89,8 @@ public class TripleStoreTester {
         });
     }
 
-    public static class Expected extends HashMap<String, List<String>> {
-        public Expected expect(String property, String... values) {
+    static class Expected extends HashMap<String, List<String>> {
+        Expected expect(String property, String... values) {
             put(property, Arrays.asList(values));
             return this;
         }

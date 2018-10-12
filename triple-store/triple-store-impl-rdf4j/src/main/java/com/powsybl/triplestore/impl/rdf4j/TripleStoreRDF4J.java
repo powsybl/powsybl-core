@@ -1,16 +1,11 @@
-package com.powsybl.triplestore.impl.rdf4j;
-
-/*
- * #%L
- * Triple store abstraction
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.triplestore.impl.rdf4j;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -73,7 +68,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         }
     }
 
-    RDFFormat formatFromFile(String filename) {
+    private static RDFFormat formatFromFile(String filename) {
         if (filename.endsWith(".ttl")) {
             return RDFFormat.TURTLE;
         } else if (filename.endsWith(".xml")) {
@@ -141,7 +136,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
                     BindingSet s = r.next();
                     PropertyBag result = new PropertyBag(names);
 
-                    names.stream().forEach(name -> {
+                    names.forEach(name -> {
                         if (s.hasBinding(name)) {
                             String value = s.getBinding(name).getValue().stringValue();
                             result.put(name, value);
@@ -177,8 +172,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         }
     }
 
-    private void createStatements(RepositoryConnection cnx, String objType, PropertyBag statement, Resource context) {
-
+    private static void createStatements(RepositoryConnection cnx, String objType, PropertyBag statement, Resource context) {
         UUID uuid = new UUID();
         IRI resource = uuid.evaluate(cnx.getValueFactory());
         IRI parentPredicate = RDF.TYPE;
@@ -187,7 +181,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         cnx.add(parentSt, context);
 
         List<String> names = statement.propertyNames();
-        names.stream().forEach(name -> {
+        names.forEach(name -> {
             IRI predicate = cnx.getValueFactory().createIRI(objType + "." + name);
             Statement st;
             if (statement.isResource(name)) {
@@ -202,15 +196,15 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         });
     }
 
-    private void write(Model m, OutputStream out) {
+    private static void write(Model m, OutputStream out) {
         try (PrintStream pout = new PrintStream(out)) {
-            RDFWriter w = new PowsyblWriter(out);
+            RDFWriter w = new PowsyblWriter(pout);
             w.getWriterConfig().set(BasicWriterSettings.PRETTY_PRINT, true);
             Rio.write(m, w);
         }
     }
 
-    private int statementsCount(RepositoryConnection conn, Resource ctx) {
+    private static int statementsCount(RepositoryConnection conn, Resource ctx) {
         RepositoryResult<Statement> statements = conn.getStatements(null, null, null, ctx);
         int counter = 0;
         while (statements.hasNext()) {
@@ -220,14 +214,14 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         return counter;
     }
 
-    private void copyNamespacesToModel(RepositoryConnection conn, Model m) {
+    private static void copyNamespacesToModel(RepositoryConnection conn, Model m) {
         RepositoryResult<Namespace> ns = conn.getNamespaces();
         while (ns.hasNext()) {
             m.setNamespace(ns.next());
         }
     }
 
-    private void addNamespaceForBase(RepositoryConnection cnx, String base) {
+    private static void addNamespaceForBase(RepositoryConnection cnx, String base) {
         cnx.setNamespace("data", base + "#");
     }
 

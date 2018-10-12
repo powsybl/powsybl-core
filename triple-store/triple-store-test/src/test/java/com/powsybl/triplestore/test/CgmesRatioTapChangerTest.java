@@ -1,24 +1,16 @@
-package com.powsybl.triplestore.test;
-
-/*
- * #%L
- * Triple stores for CGMES models
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
 
-import java.io.IOException;
+package com.powsybl.triplestore.test;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.powsybl.triplestore.api.QueryCatalog;
-import com.powsybl.triplestore.api.TripleStoreException;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 import com.powsybl.triplestore.test.TripleStoreTester.Expected;
 
@@ -28,7 +20,7 @@ import com.powsybl.triplestore.test.TripleStoreTester.Expected;
 public class CgmesRatioTapChangerTest {
 
     @BeforeClass
-    public static void setUp() throws TripleStoreException, IOException {
+    public static void setUp() {
         queries = new QueryCatalog("cgmes-rtcs/cgmes-rtcs.sparql");
         String base = "foo:cgmes-rtcs";
         String[] inputs = {"cgmes-rtcs/rtc-EQ.xml", "cgmes-rtcs/rtc-SSH.xml"};
@@ -37,28 +29,28 @@ public class CgmesRatioTapChangerTest {
     }
 
     @Test
-    public void testTapChangerControls() throws Exception {
+    public void testTapChangerControls() {
         Expected expected = new Expected().expect("TapChangerControl",
                 "_97110e84-7da6-479c-846c-696fdaa83d56", "_ee42c6c2-39e7-43c2-9bdd-d397c5dc980b");
         tester.testQuery(queries.get("tapChangerControls"), expected);
     }
 
     @Test
-    public void testTapChangerControlsOptionalSsh() throws Exception {
+    public void testTapChangerControlsOptionalSsh() {
         Expected expected = new Expected().expect("TapChangerControl",
                 "_97110e84-7da6-479c-846c-696fdaa83d56", "_ee42c6c2-39e7-43c2-9bdd-d397c5dc980b");
         tester.testQuery(queries.get("tapChangerControlsOptionalSSH"), expected);
     }
 
     @Test
-    public void testTapChangerControlsOnlySshData() throws Exception {
+    public void testTapChangerControlsOnlySshData() {
         Expected expected = new Expected().expect("TapChangerControl",
                 "_38f972bc-b7fd-4e75-8c24-379a86fbb506", "_ee42c6c2-39e7-43c2-9bdd-d397c5dc980b");
         tester.testQuery(queries.get("tapChangerControlsOnlySSHData"), expected);
     }
 
     @Test
-    public void testTapChangerOptionalControlOptionalSsh() throws Exception {
+    public void testTapChangerOptionalControlOptionalSsh() {
         Expected expected = new Expected().expect(
                 "RatioTapChanger",
                 "_11111111-4a10-4031-b008-60c0dc340a07",
