@@ -420,6 +420,10 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             return graph.getEdgeObjectStream().filter(Objects::nonNull).filter(Switch::isRetained).map(Function.identity());
         }
 
+        int getSwitchCount() {
+            return (int) graph.getEdgeObjectStream().filter(Objects::nonNull).filter(SwitchImpl::isRetained).count();
+        }
+
         SwitchImpl getSwitch(String switchId, boolean throwException) {
             Integer edge = getEdge(switchId, false);
             if (edge != null) {
@@ -697,7 +701,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             return getNetwork().getObjectStore().get(id, BusbarSection.class);
         }
 
-        private com.powsybl.math.graph.Traverser<SwitchImpl> adapt(Traverser t) {
+        private com.powsybl.math.graph.Traverser adapt(Traverser t) {
             return (v1, e, v2) -> t.traverse(v1, graph.getEdgeObject(e), v2) ? TraverseResult.CONTINUE : TraverseResult.TERMINATE;
         }
 
@@ -785,6 +789,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
+        public int getSwitchCount() {
+            return states.get().calculatedBusBreakerTopology.getSwitchCount();
+        }
+
+        @Override
         public void removeSwitch(String switchId) {
             throw createNotSupportedNodeBreakerTopologyException();
         }
@@ -824,6 +833,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     @Override
     public Iterable<Switch> getSwitches() {
         return getNodeBreakerView().getSwitches();
+    }
+
+    @Override
+    public int getSwitchCount() {
+        return getNodeBreakerView().getSwitchCount();
     }
 
     @Override

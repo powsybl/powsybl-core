@@ -8,10 +8,7 @@ package com.powsybl.computation;
 
 import com.powsybl.commons.PowsyblException;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -48,6 +45,56 @@ public class SimpleCommandBuilder extends AbstractCommandBuilder<SimpleCommandBu
     public SimpleCommandBuilder args(String... args) {
         Objects.requireNonNull(args);
         args(Arrays.asList(args));
+        return this;
+    }
+
+    public SimpleCommandBuilder arg(String arg) {
+        Objects.requireNonNull(args);
+        arg(i -> arg);
+        return this;
+    }
+
+    public SimpleCommandBuilder arg(Function<Integer, String> arg) {
+        Objects.requireNonNull(arg);
+        Function<Integer, List<String> > previous = args;
+        args = i -> {
+            List<String> r = new ArrayList<>(previous.apply(i));
+            r.add(arg.apply(i));
+            return r;
+        };
+        return this;
+    }
+
+    /**
+     * Adds a flag if {@param flagValue} is true.
+     */
+    public SimpleCommandBuilder flag(String flagName, boolean flagValue) {
+        Objects.requireNonNull(flagName);
+
+        if (flagValue) {
+            arg("--" + flagName);
+        }
+        return this;
+    }
+
+    /**
+     * Adds an option "--opt=value".
+     */
+    public SimpleCommandBuilder option(String opt, String value) {
+        Objects.requireNonNull(opt);
+        Objects.requireNonNull(value);
+
+        arg("--" + opt + "=" + value);
+        return this;
+    }
+
+    /**
+     * Adds an option dependent on the execution count.
+     */
+    public SimpleCommandBuilder option(String opt, Function<Integer, String> fn) {
+        Objects.requireNonNull(opt);
+        Objects.requireNonNull(fn);
+        arg(i -> "--" + opt + "=" + fn.apply(i));
         return this;
     }
 

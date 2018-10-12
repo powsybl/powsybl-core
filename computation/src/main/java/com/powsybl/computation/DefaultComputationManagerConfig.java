@@ -8,7 +8,6 @@ package com.powsybl.computation;
 
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.config.PropertiesPlatformConfig;
 import com.powsybl.commons.exceptions.UncheckedClassNotFoundException;
 import com.powsybl.commons.exceptions.UncheckedIllegalAccessException;
 import com.powsybl.commons.exceptions.UncheckedInstantiationException;
@@ -42,7 +41,7 @@ public class DefaultComputationManagerConfig {
     }
 
     public static DefaultComputationManagerConfig load() {
-        return load(PropertiesPlatformConfig.defaultConfig());
+        return load(PlatformConfig.defaultConfig());
     }
 
     public static DefaultComputationManagerConfig load(PlatformConfig platformConfig) {
@@ -70,7 +69,7 @@ public class DefaultComputationManagerConfig {
 
     public ComputationManager createShortTimeExecutionComputationManager() {
         try {
-            return shortTimeExecutionComputationManagerFactoryClass.newInstance().create();
+            return new LazyCreatedComputationManager(shortTimeExecutionComputationManagerFactoryClass.newInstance());
         } catch (InstantiationException e) {
             throw new UncheckedInstantiationException(e);
         } catch (IllegalAccessException e) {
@@ -81,7 +80,7 @@ public class DefaultComputationManagerConfig {
     public ComputationManager createLongTimeExecutionComputationManager() {
         if (longTimeExecutionComputationManagerFactoryClass != null) {
             try {
-                return longTimeExecutionComputationManagerFactoryClass.newInstance().create();
+                return new LazyCreatedComputationManager(longTimeExecutionComputationManagerFactoryClass.newInstance());
             } catch (InstantiationException e) {
                 throw new UncheckedInstantiationException(e);
             } catch (IllegalAccessException e) {

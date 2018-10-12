@@ -17,13 +17,13 @@ import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.afs.storage.buffer.*;
 import com.powsybl.afs.ws.server.utils.JwtTokenNeeded;
-import com.powsybl.math.timeseries.*;
+import com.powsybl.timeseries.*;
 import com.powsybl.afs.ws.server.utils.AppDataBean;
 import com.powsybl.afs.ws.utils.AfsRestApi;
 import com.powsybl.afs.ws.utils.gzip.Compress;
-import com.powsybl.math.timeseries.DoubleArrayChunk;
-import com.powsybl.math.timeseries.StringArrayChunk;
-import com.powsybl.math.timeseries.TimeSeriesMetadata;
+import com.powsybl.timeseries.DoubleArrayChunk;
+import com.powsybl.timeseries.StringArrayChunk;
+import com.powsybl.timeseries.TimeSeriesMetadata;
 import io.swagger.annotations.*;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -188,6 +188,19 @@ public class AppStorageServer {
                                    @ApiParam(value = "Description") String description) {
         AppStorage storage = appDataBean.getStorage(fileSystemName);
         storage.setDescription(nodeId, description);
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Path("fileSystems/{fileSystemName}/nodes/{nodeId}/name")
+    @ApiOperation (value = "")
+    @ApiResponses (value = {@ApiResponse(code = 200, message = ""), @ApiResponse(code = 500, message = "Error")})
+    public Response renameNode(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
+                                   @ApiParam(value = "File system name") @PathParam("nodeId") String nodeId,
+                                   @ApiParam(value = "Name") String name) {
+        AppStorage storage = appDataBean.getStorage(fileSystemName);
+        storage.renameNode(nodeId, name);
         return Response.ok().build();
     }
 

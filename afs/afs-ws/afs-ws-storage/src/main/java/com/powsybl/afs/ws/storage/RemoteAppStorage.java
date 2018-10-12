@@ -21,10 +21,10 @@ import com.powsybl.afs.ws.utils.gzip.WriterInterceptorGzipCli;
 import com.powsybl.commons.exceptions.UncheckedInterruptedException;
 import com.powsybl.commons.io.ForwardingInputStream;
 import com.powsybl.commons.io.ForwardingOutputStream;
-import com.powsybl.math.timeseries.DoubleArrayChunk;
-import com.powsybl.math.timeseries.StringArrayChunk;
-import com.powsybl.math.timeseries.TimeSeriesIndex;
-import com.powsybl.math.timeseries.TimeSeriesMetadata;
+import com.powsybl.timeseries.DoubleArrayChunk;
+import com.powsybl.timeseries.StringArrayChunk;
+import com.powsybl.timeseries.TimeSeriesIndex;
+import com.powsybl.timeseries.TimeSeriesMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -201,6 +201,31 @@ public class RemoteAppStorage implements AppStorage {
                 .header(HttpHeaders.CONTENT_ENCODING, "gzip")
                 .acceptEncoding("gzip")
                 .put(Entity.text(description));
+        try {
+            checkOk(response);
+        } finally {
+            response.close();
+        }
+    }
+
+    @Override
+    public void renameNode(String nodeId, String name) {
+        Objects.requireNonNull(nodeId);
+        Objects.requireNonNull(name);
+
+        // flush buffer to keep change order
+        changeBuffer.flush();
+
+        LOGGER.debug("renameNode(fileSystemName={}, nodeId={}, name={})", fileSystemName, nodeId, name);
+
+        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/name")
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, token)
+                .header(HttpHeaders.CONTENT_ENCODING, "gzip")
+                .acceptEncoding("gzip")
+                .put(Entity.text(name));
         try {
             checkOk(response);
         } finally {

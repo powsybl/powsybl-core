@@ -11,7 +11,6 @@ import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.Objects;
 
 /**
@@ -88,12 +87,7 @@ public final class GraphUtil {
             components[i] = comp;
             orderedComponents[i] = comp;
         }
-        Arrays.sort(orderedComponents, new Comparator<ConnectedComponent>() {
-            @Override
-            public int compare(ConnectedComponent o1, ConnectedComponent o2) {
-                return o2.size - o1.size;
-            }
-        });
+        Arrays.sort(orderedComponents, (o1, o2) -> o2.size - o1.size);
         for (int i = 0; i < orderedComponents.length; i++) {
             orderedComponents[i].orderedNumber = i;
         }

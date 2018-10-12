@@ -20,5 +20,8 @@
   }, {
     "id" : "BBS1",
     "type" : "BUSBAR_SECTION"
-  } ]
+  } ],
+  "extensions" : {
+    "dummy-extension" : { }
+  }
 }

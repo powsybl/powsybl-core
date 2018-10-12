@@ -8,9 +8,9 @@ package com.powsybl.afs.storage;
 
 import com.powsybl.afs.storage.events.*;
 import com.powsybl.commons.util.WeakListenerList;
-import com.powsybl.math.timeseries.DoubleArrayChunk;
-import com.powsybl.math.timeseries.StringArrayChunk;
-import com.powsybl.math.timeseries.TimeSeriesMetadata;
+import com.powsybl.timeseries.DoubleArrayChunk;
+import com.powsybl.timeseries.StringArrayChunk;
+import com.powsybl.timeseries.TimeSeriesMetadata;
 
 import java.io.OutputStream;
 import java.util.List;
@@ -61,6 +61,12 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
     public void setDescription(String nodeId, String description) {
         super.setDescription(nodeId, description);
         addEvent(new NodeDescriptionUpdated(nodeId, description));
+    }
+
+    @Override
+    public void renameNode(String nodeId, String name) {
+        super.renameNode(nodeId, name);
+        addEvent(new NodeNameUpdated(nodeId, name));
     }
 
     @Override

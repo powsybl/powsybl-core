@@ -10,17 +10,27 @@ import com.powsybl.action.simulator.tools.AbstractSecurityAnalysisResultBuilder;
 import com.powsybl.security.SecurityAnalysisResult;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Consumer;
 
 /**
  * Observer which executes a list of handlers of {@link SecurityAnalysisResult} once the simulation is finished.
  *
- * @author Sylvain Leclerc <sylvain.leclerc@rte-france.com>
+ * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
 public class SecurityAnalysisResultHandler extends AbstractSecurityAnalysisResultBuilder {
 
     private final List<Consumer<SecurityAnalysisResult>> handlers = new ArrayList<>();
+
+    public SecurityAnalysisResultHandler() {
+    }
+
+    public SecurityAnalysisResultHandler(Collection<Consumer<SecurityAnalysisResult>> handlers) {
+        Objects.requireNonNull(handlers);
+        this.handlers.addAll(handlers);
+    }
 
     public SecurityAnalysisResultHandler add(Consumer<SecurityAnalysisResult> handler) {
         handlers.add(handler);

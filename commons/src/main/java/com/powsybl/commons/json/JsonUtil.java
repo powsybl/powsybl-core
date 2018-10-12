@@ -23,9 +23,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -35,7 +33,7 @@ import java.util.function.Function;
 public final class JsonUtil {
 
     private static final Supplier<ExtensionProviders<ExtensionJsonSerializer>> SUPPLIER =
-        Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class));
+            Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionJsonSerializer.class));
 
     private JsonUtil() {
     }
@@ -129,11 +127,38 @@ public final class JsonUtil {
         }
     }
 
+    public static void writeOptionalBooleanField(JsonGenerator jsonGenerator, String fieldName, boolean value, boolean defaultValue) throws IOException {
+        Objects.requireNonNull(jsonGenerator);
+        Objects.requireNonNull(fieldName);
+
+        if (value != defaultValue) {
+            jsonGenerator.writeBooleanField(fieldName, value);
+        }
+    }
+
     public static void writeOptionalFloatField(JsonGenerator jsonGenerator, String fieldName, float value) throws IOException {
         Objects.requireNonNull(jsonGenerator);
         Objects.requireNonNull(fieldName);
 
         if (!Float.isNaN(value)) {
+            jsonGenerator.writeNumberField(fieldName, value);
+        }
+    }
+
+    public static void writeOptionalDoubleField(JsonGenerator jsonGenerator, String fieldName, double value) throws IOException {
+        Objects.requireNonNull(jsonGenerator);
+        Objects.requireNonNull(fieldName);
+
+        if (!Double.isNaN(value)) {
+            jsonGenerator.writeNumberField(fieldName, value);
+        }
+    }
+
+    public static void writeOptionalDoubleField(JsonGenerator jsonGenerator, String fieldName, double value, double defaultValue) throws IOException {
+        Objects.requireNonNull(jsonGenerator);
+        Objects.requireNonNull(fieldName);
+
+        if (!Double.isNaN(value) && value != defaultValue) {
             jsonGenerator.writeNumberField(fieldName, value);
         }
     }
@@ -155,6 +180,12 @@ public final class JsonUtil {
     public static <T> void writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
                                            SerializerProvider serializerProvider,
                                            ExtensionProviders<? extends ExtensionJsonSerializer> supplier) throws IOException {
+        writeExtensions(extendable, jsonGenerator, true, serializerProvider, supplier);
+    }
+
+    public static <T> void writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
+                                           boolean headerWanted, SerializerProvider serializerProvider,
+                                           ExtensionProviders<? extends ExtensionJsonSerializer> supplier) throws IOException {
         Objects.requireNonNull(extendable);
         Objects.requireNonNull(jsonGenerator);
         Objects.requireNonNull(serializerProvider);
@@ -166,7 +197,7 @@ public final class JsonUtil {
             for (Extension<T> extension : extendable.getExtensions()) {
                 ExtensionJsonSerializer serializer = supplier.findProvider(extension.getName());
                 if (serializer != null) {
-                    if (!headerDone) {
+                    if (!headerDone && headerWanted) {
                         jsonGenerator.writeFieldName("extensions");
                         jsonGenerator.writeStartObject();
                         headerDone = true;
@@ -187,6 +218,11 @@ public final class JsonUtil {
 
     public static <T> List<Extension<T>> readExtensions(JsonParser parser, DeserializationContext context,
                                                         ExtensionProviders<? extends ExtensionJsonSerializer> supplier) throws IOException {
+        return readExtensions(parser, context, supplier, null);
+    }
+
+    public static <T> List<Extension<T>> readExtensions(JsonParser parser, DeserializationContext context,
+                                                        ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound) throws IOException {
         Objects.requireNonNull(parser);
         Objects.requireNonNull(context);
         Objects.requireNonNull(supplier);
@@ -194,18 +230,29 @@ public final class JsonUtil {
         List<Extension<T>> extensions = new ArrayList<>();
 
         while (parser.nextToken() != JsonToken.END_OBJECT) {
-            String extensionName = parser.getCurrentName();
-            ExtensionJsonSerializer extensionJsonSerializer = supplier.findProvider(extensionName);
-            if (extensionJsonSerializer != null) {
-                parser.nextToken();
-                Extension<T> extension = extensionJsonSerializer.deserialize(parser, context);
+            Extension<T> extension = readExtension(parser, context, supplier, extensionsNotFound);
+            if (extension != null) {
                 extensions.add(extension);
-            } else {
-                skip(parser);
             }
         }
 
         return extensions;
+    }
+
+    public static <T> Extension<T> readExtension(JsonParser parser, DeserializationContext context,
+                                                 ExtensionProviders<? extends ExtensionJsonSerializer> supplier, Set<String> extensionsNotFound) throws IOException {
+        String extensionName = parser.getCurrentName();
+        ExtensionJsonSerializer extensionJsonSerializer = supplier.findProvider(extensionName);
+        if (extensionJsonSerializer != null) {
+            parser.nextToken();
+            return extensionJsonSerializer.deserialize(parser, context);
+        } else {
+            if (extensionsNotFound != null) {
+                extensionsNotFound.add(extensionName);
+            }
+            skip(parser);
+            return null;
+        }
     }
 
     /**

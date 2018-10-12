@@ -26,7 +26,7 @@ import java.util.Objects;
 public class GroovyDslContingenciesProvider implements ContingenciesProvider {
 
 
-    private final ActionDslLoader dslLoader;
+    private final GroovyCodeSource script;
 
     /**
      * Creates a provider by reading the DSL from a UTF-8 encoded file.
@@ -34,7 +34,7 @@ public class GroovyDslContingenciesProvider implements ContingenciesProvider {
     public GroovyDslContingenciesProvider(final Path path) {
         Objects.requireNonNull(path);
         try (Reader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
-            this.dslLoader = createLoader(reader);
+            this.script = new GroovyCodeSource(reader, "script", GroovyShell.DEFAULT_CODE_BASE);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -45,18 +45,19 @@ public class GroovyDslContingenciesProvider implements ContingenciesProvider {
      */
     public  GroovyDslContingenciesProvider(final InputStream input) {
         Objects.requireNonNull(input);
-        this.dslLoader = createLoader(new InputStreamReader(input, StandardCharsets.UTF_8));
-    }
-
-    private static ActionDslLoader createLoader(final Reader reader) {
-        GroovyCodeSource src = new GroovyCodeSource(reader, "script", GroovyShell.DEFAULT_CODE_BASE);
-        return new ActionDslLoader(src);
+        this.script = new GroovyCodeSource(new InputStreamReader(input, StandardCharsets.UTF_8), "script", GroovyShell.DEFAULT_CODE_BASE);
     }
 
     @Override
     public List<Contingency> getContingencies(Network network) {
-        ActionDb actionDb = dslLoader.load(network);
+
+        ActionDb actionDb = new ActionDslLoader(script).load(network);
         return ImmutableList.copyOf(actionDb.getContingencies());
+    }
+
+    @Override
+    public String asScript() {
+        return script.getScriptText();
     }
 
 }

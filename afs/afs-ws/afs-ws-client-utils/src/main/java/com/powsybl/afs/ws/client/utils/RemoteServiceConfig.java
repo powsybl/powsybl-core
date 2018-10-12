@@ -6,22 +6,18 @@
  */
 package com.powsybl.afs.ws.client.utils;
 
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
-import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.exceptions.UncheckedUriSyntaxException;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class RemoteServiceConfig {
-
-    public static final Supplier<RemoteServiceConfig> INSTANCE = Suppliers.memoize(RemoteServiceConfig::load);
 
     private String hostName;
 
@@ -38,18 +34,19 @@ public class RemoteServiceConfig {
         this.secure = secure;
     }
 
-    public static RemoteServiceConfig load() {
+    public static Optional<RemoteServiceConfig> load() {
         return load(PlatformConfig.defaultConfig());
     }
 
-    public static RemoteServiceConfig load(PlatformConfig platformConfig) {
+    public static Optional<RemoteServiceConfig> load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        ModuleConfig moduleConfig = platformConfig.getModuleConfig("remote-service");
-        String hostName = moduleConfig.getStringProperty("host-name");
-        String appName = moduleConfig.getStringProperty("app-name");
-        boolean secure = moduleConfig.getBooleanProperty("secure", true);
-        int port = moduleConfig.getIntProperty("port", secure ? 443 : 80);
-        return new RemoteServiceConfig(hostName, appName, port, secure);
+        return platformConfig.getOptionalModuleConfig("remote-service").map(moduleConfig -> {
+            String hostName = moduleConfig.getStringProperty("host-name");
+            String appName = moduleConfig.getStringProperty("app-name");
+            boolean secure = moduleConfig.getBooleanProperty("secure", true);
+            int port = moduleConfig.getIntProperty("port", secure ? 443 : 80);
+            return new RemoteServiceConfig(hostName, appName, port, secure);
+        });
     }
 
     private static int checkPort(int port) {

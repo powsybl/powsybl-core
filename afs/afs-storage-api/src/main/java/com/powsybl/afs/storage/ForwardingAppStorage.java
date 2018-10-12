@@ -6,9 +6,9 @@
  */
 package com.powsybl.afs.storage;
 
-import com.powsybl.math.timeseries.DoubleArrayChunk;
-import com.powsybl.math.timeseries.StringArrayChunk;
-import com.powsybl.math.timeseries.TimeSeriesMetadata;
+import com.powsybl.timeseries.DoubleArrayChunk;
+import com.powsybl.timeseries.StringArrayChunk;
+import com.powsybl.timeseries.TimeSeriesMetadata;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -96,6 +96,7 @@ public class ForwardingAppStorage implements AppStorage {
     public void renameNode(String nodeId, String name) {
         storage.renameNode(nodeId, name);
     }
+
     @Override
     public Optional<InputStream> readBinaryData(String nodeId, String name) {
         return storage.readBinaryData(nodeId, name);

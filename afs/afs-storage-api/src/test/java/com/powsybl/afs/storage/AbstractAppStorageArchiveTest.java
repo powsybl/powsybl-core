@@ -11,7 +11,7 @@ import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.math.timeseries.*;
+import com.powsybl.timeseries.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

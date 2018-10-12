@@ -185,12 +185,6 @@ class NodeTerminal extends AbstractTerminal {
     }
 
     @Override
-    public void deleteStateArrayElement(int index) {
-        super.deleteStateArrayElement(index);
-        // nothing to do
-    }
-
-    @Override
     public void allocateStateArrayElement(int[] indexes, int sourceIndex) {
         super.allocateStateArrayElement(indexes, sourceIndex);
         for (int index : indexes) {

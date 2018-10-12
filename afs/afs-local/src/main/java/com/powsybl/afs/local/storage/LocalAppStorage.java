@@ -14,10 +14,10 @@ import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.commons.exceptions.UncheckedUnsupportedEncodingException;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.math.timeseries.DoubleArrayChunk;
-import com.powsybl.math.timeseries.StringArrayChunk;
-import com.powsybl.math.timeseries.TimeSeriesIndex;
-import com.powsybl.math.timeseries.TimeSeriesMetadata;
+import com.powsybl.timeseries.DoubleArrayChunk;
+import com.powsybl.timeseries.StringArrayChunk;
+import com.powsybl.timeseries.TimeSeriesIndex;
+import com.powsybl.timeseries.TimeSeriesMetadata;
 
 import java.io.*;
 import java.net.URLDecoder;
@@ -190,6 +190,11 @@ public class LocalAppStorage implements AppStorage {
 
     @Override
     public void setDescription(String nodeId, String description) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public void renameNode(String nodeId, String name) {
         throw new AssertionError();
     }
 

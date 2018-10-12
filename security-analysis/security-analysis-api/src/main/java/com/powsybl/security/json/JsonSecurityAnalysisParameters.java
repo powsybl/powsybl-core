@@ -32,7 +32,7 @@ import java.util.Objects;
 /**
  * Provides methods to read and write SecurityAnalysisParameters from and to JSON.
  *
- * @author Sylvain Leclerc <sylvain.leclerc@rte-france.com>
+ * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
 public final class JsonSecurityAnalysisParameters {
 

@@ -109,7 +109,14 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
 
     @Override
     public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
-        return voltageLevels.stream().flatMap(vl -> vl.getConnectableStream(TwoWindingsTransformer.class));
+        return voltageLevels.stream().flatMap(vl -> vl.getConnectableStream(TwoWindingsTransformer.class)).distinct();
+    }
+
+    @Override
+    public int getTwoWindingsTransformerCount() {
+        return voltageLevels.stream()
+                .mapToInt(vl -> vl.getConnectableCount(TwoWindingsTransformer.class))
+                .sum();
     }
 
     @Override
@@ -126,7 +133,14 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
 
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
-        return voltageLevels.stream().flatMap(vl -> vl.getConnectableStream(ThreeWindingsTransformer.class));
+        return voltageLevels.stream().flatMap(vl -> vl.getConnectableStream(ThreeWindingsTransformer.class)).distinct();
+    }
+
+    @Override
+    public int getThreeWindingsTransformerCount() {
+        return voltageLevels.stream()
+                .mapToInt(vl -> vl.getConnectableCount(ThreeWindingsTransformer.class))
+                .sum();
     }
 
     @Override

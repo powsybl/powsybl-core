@@ -57,7 +57,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
     @Override
     public ShuntCompensatorImpl add() {
         String id = checkAndGetUniqueId();
-        TerminalExt terminal = checkAndGetTerminal(id);
+        TerminalExt terminal = checkAndGetTerminal();
         ValidationUtil.checkbPerSection(this, bPerSection);
         ValidationUtil.checkSections(this, currentSectionCount, maximumSectionCount);
         ShuntCompensatorImpl shunt

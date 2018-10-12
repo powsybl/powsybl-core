@@ -10,7 +10,7 @@ import com.google.common.base.Supplier;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.powsybl.afs.storage.*;
-import com.powsybl.math.timeseries.*;
+import com.powsybl.timeseries.*;
 import org.apache.commons.lang3.SystemUtils;
 import org.mapdb.Atomic;
 import org.mapdb.DB;
@@ -386,6 +386,11 @@ public class MapDbAppStorage implements AppStorage {
         NodeInfo nodeInfo = getNodeInfo(nodeId);
         nodeInfo.setName(name);
         nodeInfoMap.put(nodeUuid, nodeInfo);
+        getParentNode(nodeId).ifPresent(parentNode -> {
+            UUID parentNodeUuid = checkNodeId(parentNode.getId());
+            childNodeMap.remove(new NamedLink(parentNodeUuid, nodeInfo.getName()));
+            childNodeMap.put(new NamedLink(parentNodeUuid, name), nodeUuid);
+        });
     }
 
     @Override

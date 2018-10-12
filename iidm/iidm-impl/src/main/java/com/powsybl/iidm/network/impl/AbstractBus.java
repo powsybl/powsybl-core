@@ -248,28 +248,26 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> {
                     visitor.visitShuntCompensator((ShuntCompensatorImpl) connectable);
                     break;
 
-                case TWO_WINDINGS_TRANSFORMER: {
-                    TwoWindingsTransformer transformer = (TwoWindingsTransformer) connectable;
-                    visitor.visitTwoWindingsTransformer(transformer,
-                            transformer.getTerminal1() == terminal
+                case TWO_WINDINGS_TRANSFORMER:
+                    TwoWindingsTransformer twt = (TwoWindingsTransformer) connectable;
+                    visitor.visitTwoWindingsTransformer(twt,
+                            twt.getTerminal1() == terminal
                             ? Branch.Side.ONE
                             : Branch.Side.TWO);
                     break;
-                }
 
-                case THREE_WINDINGS_TRANSFORMER: {
-                    ThreeWindingsTransformer transformer = (ThreeWindingsTransformer) connectable;
+                case THREE_WINDINGS_TRANSFORMER:
+                    ThreeWindingsTransformer thwt = (ThreeWindingsTransformer) connectable;
                     ThreeWindingsTransformer.Side side;
-                    if (transformer.getLeg1().getTerminal() == terminal) {
+                    if (thwt.getLeg1().getTerminal() == terminal) {
                         side = ThreeWindingsTransformer.Side.ONE;
-                    } else if (transformer.getLeg2().getTerminal() == terminal) {
+                    } else if (thwt.getLeg2().getTerminal() == terminal) {
                         side = ThreeWindingsTransformer.Side.TWO;
                     } else {
                         side = ThreeWindingsTransformer.Side.THREE;
                     }
-                    visitor.visitThreeWindingsTransformer(transformer, side);
+                    visitor.visitThreeWindingsTransformer(thwt, side);
                     break;
-                }
 
                 case LOAD:
                     visitor.visitLoad((LoadImpl) connectable);

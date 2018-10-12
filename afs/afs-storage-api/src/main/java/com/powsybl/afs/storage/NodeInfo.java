@@ -34,7 +34,7 @@ public class NodeInfo {
     public NodeInfo(String id, String name, String pseudoClass, String description, long creationTime, long modificationTime,
                     int version, NodeGenericMetadata genericMetadata) {
         this.id = Objects.requireNonNull(id);
-        this.name = Objects.requireNonNull(name);
+        this.name = checkName(name);
         this.pseudoClass = Objects.requireNonNull(pseudoClass);
         this.description = Objects.requireNonNull(description);
         this.creationTime = creationTime;
@@ -55,7 +55,15 @@ public class NodeInfo {
     }
 
     public void setName(String name) {
-        this.name = name;
+        this.name = checkName(name);
+    }
+
+    private static String checkName(String name) {
+        Objects.requireNonNull(name);
+        if (name.isEmpty()) {
+            throw new IllegalArgumentException("name should not be empty");
+        }
+        return name;
     }
 
     public String getPseudoClass() {

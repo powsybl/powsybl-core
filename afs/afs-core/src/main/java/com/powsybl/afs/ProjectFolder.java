@@ -69,7 +69,7 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
         return storage.getChildNodes(info.getId())
                 .stream()
                 .map(project::createProjectNode)
-                .sorted(Comparator.comparing(ProjectNode::getName))
+                .sorted(Comparator.comparing(ProjectNode::getName, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
     }
 
