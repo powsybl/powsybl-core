@@ -20,12 +20,12 @@ public class PluginsInfoToolTest extends AbstractToolTest {
 
     @Override
     protected Iterable<Tool> getTools() {
-        return Collections.singleton(new PluginsInfoTool(platformConfig));
+        return Collections.singleton(new PluginsInfoTool());
     }
 
     @Override
     public void assertCommand() {
-        PluginsInfoTool tool = new PluginsInfoTool(platformConfig);
+        PluginsInfoTool tool = new PluginsInfoTool();
         assertEquals("plugins-info", tool.getCommand().getName());
         assertEquals("Misc", tool.getCommand().getTheme());
         assertEquals("List the available plugins", tool.getCommand().getDescription());
