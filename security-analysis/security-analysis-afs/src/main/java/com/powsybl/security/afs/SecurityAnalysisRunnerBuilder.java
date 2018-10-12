@@ -87,7 +87,7 @@ public class SecurityAnalysisRunnerBuilder implements ProjectFileBuilder<Securit
 
         // create contingency store link
         if (contingencyStore != null) {
-            context.getStorage().addDependency(info.getId(), SecurityAnalysisRunner.CONTINGENCY_PROVIDER_DEPENDENCY_NAME, contingencyStore.getId());
+            context.getStorage().addDependency(info.getId(), SecurityAnalysisRunner.CONTINGENCY_STORE_DEPENDENCY_NAME, contingencyStore.getId());
         }
 
         // write parameters using default one
