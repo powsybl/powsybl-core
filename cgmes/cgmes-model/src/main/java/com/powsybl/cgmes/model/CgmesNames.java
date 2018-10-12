@@ -1,8 +1,13 @@
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.cgmes.model;
 
 public final class CgmesNames {
-    private CgmesNames() {
-    }
 
     public static final String SUBSTATION = "Substation";
     public static final String VOLTAGE_LEVEL = "VoltageLevel";
@@ -18,4 +23,7 @@ public final class CgmesNames {
 
     public static final String DC_TERMINAL = "DCTerminal";
     public static final String RATED_UDC = "ratedUdc";
+
+    private CgmesNames() {
+    }
 }

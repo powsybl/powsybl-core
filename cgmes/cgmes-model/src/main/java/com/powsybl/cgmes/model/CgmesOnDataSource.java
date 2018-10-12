@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.cgmes.model;
 
 import java.io.IOException;
@@ -63,7 +70,7 @@ public class CgmesOnDataSource {
 
     public Set<String> namespaces() {
         Set<String> ns = new HashSet<>();
-        names().stream().forEach(n -> {
+        names().forEach(n -> {
             try {
                 ns.addAll(NamespaceReader.namespaces(dataSource.newInputStream(n)));
             } catch (IOException x) {
@@ -78,18 +85,18 @@ public class CgmesOnDataSource {
         // If no namespace is found, return CIM16 namespace
         Set<String> foundNamespaces = namespaces();
         return foundNamespaces.stream()
-                .filter(ns -> ns.indexOf("CIM-schema-cim") >= 0)
+                .filter(ns -> ns.contains("CIM-schema-cim"))
                 .findFirst().orElse(CIM_16_NAMESPACE);
     }
 
     private final ReadOnlyDataSource dataSource;
 
-    private static final String      REGEX_VALID_NAME_IDS = Stream.of(
+    private static final String REGEX_VALID_NAME_IDS = Stream.of(
             Stream.of("ME"),
-            Arrays.stream(Subset.values()).map(s -> s.getIdentifier()))
+            Arrays.stream(Subset.values()).map(Subset::getIdentifier))
             .flatMap(s -> s)
             .collect(Collectors.joining("|", "(", ")"));
-    private static final String      REGEX_VALID_NAME     = ""
+    private static final String REGEX_VALID_NAME = ""
             // Ignore case
             + "(?i)"
             // From beginning of name, any number of characters
@@ -103,7 +110,7 @@ public class CgmesOnDataSource {
     // It is used in this project to explore how to support future CGMES versions
     // We have sample models in cim14 and we use a different set of queries to obtain data
 
-    private static final String      CIM_16_NAMESPACE     = "http://iec.ch/TC57/2013/CIM-schema-cim16#";
-    private static final String      CIM_14_NAMESPACE     = "http://iec.ch/TC57/2009/CIM-schema-cim14#";
-    private static final String      RDF_NAMESPACE        = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
+    private static final String CIM_16_NAMESPACE = "http://iec.ch/TC57/2013/CIM-schema-cim16#";
+    private static final String CIM_14_NAMESPACE = "http://iec.ch/TC57/2009/CIM-schema-cim14#";
+    private static final String RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 }

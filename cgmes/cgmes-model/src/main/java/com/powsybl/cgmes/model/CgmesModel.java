@@ -1,16 +1,11 @@
-package com.powsybl.cgmes.model;
-
-/*
- * #%L
- * CGMES data model
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.cgmes.model;
 
 import java.io.PrintStream;
 import java.util.Arrays;
@@ -125,7 +120,7 @@ public interface CgmesModel {
 
     void write(DataSource ds);
 
-    public static class CgmesTerminal {
+    class CgmesTerminal {
         private final String id;
         private final String conductingEquipment;
         private final String conductingEquipmentType;
@@ -215,7 +210,8 @@ public interface CgmesModel {
         }
     }
 
-    static final class Fake implements CgmesModel {
+    // FIXME(Luma): extract this class to its own file
+    final class Fake implements CgmesModel {
         private final Properties properties;
         private String modelId;
         private String version;
@@ -304,7 +300,7 @@ public interface CgmesModel {
         public Fake substations(String... ids) {
             fakeObjectsFromIdentifiers("Substation", ids, substations);
             // Add a default SubRegion to every substation
-            substations.stream().forEach(s -> s.put("SubRegion", "SubRegion0"));
+            substations.forEach(s -> s.put("SubRegion", "SubRegion0"));
             return this;
         }
 

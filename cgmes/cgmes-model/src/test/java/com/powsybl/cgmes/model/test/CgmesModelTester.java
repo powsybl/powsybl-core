@@ -1,16 +1,11 @@
-package com.powsybl.cgmes.model.test;
-
-/*
- * #%L
- * CGMES data model
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.cgmes.model.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -65,20 +60,24 @@ public class CgmesModelTester {
 
     private CgmesModel load(ReadOnlyDataSource ds, String impl) {
         CgmesModel actual = CgmesModelFactory.create(ds, impl);
-        actual.dump(line -> LOG.info(line));
+        actual.dump(LOG::info);
         return actual;
     }
 
     private void testCompare(CgmesModel expected, CgmesModel actual) {
         PropertyBags ots = actual.numObjectsByType();
-        LOG.info(ots.tabulateLocals());
+        if (LOG.isInfoEnabled()) {
+            LOG.info(ots.tabulateLocals());
+        }
 
         assertEquals(gridModel.expected().version(), actual.version());
         assertEquals(gridModel.expected().isNodeBreaker(), actual.isNodeBreaker());
         // Model id is not checked
-        LOG.info("ignoring model identifiers expected {}, actual {}",
-                expected.modelId(),
-                actual.modelId());
+        if (LOG.isInfoEnabled()) {
+            LOG.info("ignoring model identifiers expected {}, actual {}",
+                    expected.modelId(),
+                    actual.modelId());
+        }
         testPropertyBags(expected.substations(), actual.substations());
         testPropertyBags(expected.voltageLevels(), actual.voltageLevels());
         testPropertyBags(expected.terminals(), actual.terminals());
@@ -97,10 +96,10 @@ public class CgmesModelTester {
     }
 
     private void testPropertyBags(PropertyBags expecteds, PropertyBags actuals) {
-        if (actuals.size() > 0) {
+        if (!actuals.isEmpty()) {
             // Assume the first property name in expected is the main property (id)
             // that we want to extract from actuals to debug current set of actuals
-            if (expecteds.size() > 0) {
+            if (!expecteds.isEmpty()) {
                 if (LOG.isDebugEnabled()) {
                     String debugPropertyName = expecteds.get(0).propertyNames().get(0);
                     List<String> debugValues = actuals.pluckLocals(debugPropertyName);
@@ -117,11 +116,11 @@ public class CgmesModelTester {
         // the same value
         assertNotNull(actuals);
         assertEquals(expecteds.size(), actuals.size());
-        if (expecteds.size() == 0) {
+        if (expecteds.isEmpty()) {
             return;
         }
         List<String> expectedPropertyNames = expecteds.get(0).propertyNames();
-        expectedPropertyNames.stream().forEach(p -> {
+        expectedPropertyNames.forEach(p -> {
             assertEquals(expecteds.pluckLocals(p), actuals.pluckLocals(p));
         });
     }

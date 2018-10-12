@@ -14,7 +14,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.apache.commons.io.IOUtils;

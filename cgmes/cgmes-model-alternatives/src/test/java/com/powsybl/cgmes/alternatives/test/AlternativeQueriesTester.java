@@ -1,16 +1,11 @@
-package com.powsybl.cgmes.alternatives.test;
-
-/*
- * #%L
- * CGMES Model Alternatives
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.cgmes.alternatives.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -164,7 +159,7 @@ public class AlternativeQueriesTester {
 
             test(alternative, impl, result, expected);
         }
-        if (experiments > 1) {
+        if (experiments > 1 && LOG.isInfoEnabled()) {
             LOG.info("{} {} dt avg {} ms {} experiments, dts: {} {}", alternative, impl, dt / experiments, experiments,
                     dt0,
                     Arrays.toString(dts));
@@ -174,16 +169,16 @@ public class AlternativeQueriesTester {
     private void test(String alternative, String impl, PropertyBags result, Expected expected) {
         if (doAssert) {
             assertEquals(expected.resultSize, result.size());
-        } else {
+        } else if (LOG.isInfoEnabled()) {
             LOG.info("{} {} results {} {} {}", alternative, impl, expected, result.size(),
                     expected.resultSize == result.size() ? "OK" : "FAIL");
         }
         for (String p : expected.propertyCount.keySet()) {
-            long expectedPropertyCount = expected.propertyCount.get(p).longValue();
+            long expectedPropertyCount = expected.propertyCount.get(p);
             long actualPropertyCount = result.stream().filter(r -> r.containsKey(p)).count();
             if (doAssert) {
                 assertEquals(expectedPropertyCount, actualPropertyCount);
-            } else {
+            } else if (LOG.isInfoEnabled()) {
                 LOG.info("{} {} {} {} {} {}", alternative, impl, p, expectedPropertyCount, actualPropertyCount,
                         expectedPropertyCount == actualPropertyCount ? "OK" : "FAIL");
             }

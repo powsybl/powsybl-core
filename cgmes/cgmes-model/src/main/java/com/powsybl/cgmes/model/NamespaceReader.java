@@ -1,16 +1,11 @@
-package com.powsybl.cgmes.model;
-
-/*
- * #%L
- * CGMES data model
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.cgmes.model;
 
 import java.io.InputStream;
 import java.util.HashSet;
@@ -59,6 +54,5 @@ public final class NamespaceReader {
         return found;
     }
 
-    private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers
-            .memoize(XMLInputFactory::newInstance);
+    private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 }

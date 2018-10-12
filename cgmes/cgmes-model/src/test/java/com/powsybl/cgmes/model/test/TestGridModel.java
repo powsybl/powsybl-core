@@ -1,16 +1,11 @@
-package com.powsybl.cgmes.model.test;
-
-/*
- * #%L
- * CGMES data model
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.cgmes.model.test;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -19,7 +14,6 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -142,6 +136,7 @@ public class TestGridModel {
         // we combine them in a single data source
         // An alternative would be to allow configure the location of boundaries
         // TODO the temporal file system created for the merge is not closed explicitly
+        // FIXME(Luma): Don't forget to close this filesystem
         FileSystem fileSystem = Jimfs.newFileSystem();
         Path folder = Files.createDirectory(fileSystem.getPath("data"));
 
@@ -150,10 +145,9 @@ public class TestGridModel {
                 resourceStream(resourceName));
         Set<String> names = gmds.listNames("(?i)^.*\\.XML$");
         DataSource mergedds = new FileDataSource(folder, baseNameFromNames(names));
-        for (Iterator<String> k = names.iterator(); k.hasNext();) {
-            String name = k.next();
+        for (String name : names) {
             try (InputStream is = gmds.newInputStream(name);
-                    OutputStream os = mergedds.newOutputStream(name, false)) {
+                 OutputStream os = mergedds.newOutputStream(name, false)) {
                 ByteStreams.copy(is, os);
             }
         }
@@ -161,16 +155,17 @@ public class TestGridModel {
                 boundaryResourceName,
                 resourceStream(boundaryResourceName));
         Set<String> bnames = bds.listNames("(?i)^.*\\.XML$");
-        for (Iterator<String> k = bnames.iterator(); k.hasNext();) {
-            String name = k.next();
+        for (String name : bnames) {
             try (InputStream is = bds.newInputStream(name);
-                    OutputStream os = mergedds.newOutputStream(name, false)) {
+                 OutputStream os = mergedds.newOutputStream(name, false)) {
                 ByteStreams.copy(is, os);
             }
         }
 
         Set<String> names1 = mergedds.listNames(".*");
-        LOG.info("List of names in data source for ... = {}", Arrays.toString(names1.toArray()));
+        if (LOG.isInfoEnabled()) {
+            LOG.info("List of names in data source for ... = {}", Arrays.toString(names1.toArray()));
+        }
         return mergedds;
     }
 

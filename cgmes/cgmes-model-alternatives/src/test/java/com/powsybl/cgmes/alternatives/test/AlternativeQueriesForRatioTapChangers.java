@@ -1,16 +1,11 @@
-package com.powsybl.cgmes.alternatives.test;
-
-/*
- * #%L
- * CGMES Model Alternatives
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.cgmes.alternatives.test;
 
 import java.util.function.Consumer;
 
@@ -42,8 +37,7 @@ public class AlternativeQueriesForRatioTapChangers {
         boolean doAssert = true;
         boolean cacheModels = false;
         Consumer<PropertyBags> consumer = rs -> {
-            rs.stream()
-                    .forEach(r -> LOG.info("    {} {} {} {} {} {} {} {}",
+            rs.forEach(r -> LOG.info("    {} {} {} {} {} {} {} {}",
                             r.getId0("RatioTapChanger"),
                             r.getId0("TapChangerControl"),
                             r.getId0("TapChangerControlSSH"),
@@ -52,7 +46,9 @@ public class AlternativeQueriesForRatioTapChangers {
                             r.asDouble("regulatingControlTargetDeadband"),
                             r.asBoolean("regulatingControlEnabled", false),
                             r.get("RatioTapChanger")));
-            LOG.info(rs.tabulateLocals());
+            if (LOG.isInfoEnabled()) {
+                LOG.info(rs.tabulateLocals());
+            }
         };
         tester = new AlternativeQueriesTester(
                 TripleStoreFactory.allImplementations(),
@@ -109,6 +105,5 @@ public class AlternativeQueriesForRatioTapChangers {
     private static AlternativeQueriesTester tester;
     private static AlternativeQueriesTester testerNestedGraph;
 
-    private static final Logger LOG = LoggerFactory
-            .getLogger(AlternativeQueriesForRatioTapChangers.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AlternativeQueriesForRatioTapChangers.class);
 }

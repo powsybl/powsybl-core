@@ -1,16 +1,11 @@
-package com.powsybl.cgmes.model;
-
-/*
- * #%L
- * CGMES data model
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.cgmes.model;
 
 import java.util.Comparator;
 import java.util.HashMap;
@@ -54,13 +49,13 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         // instead of sorting after building each list,
         // use a sorted collection when inserting
         Map<String, PropertyBags> gends = new HashMap<>();
-        transformerEnds().stream()
+        transformerEnds()
                 .forEach(end -> {
                     String id = end.getId("PowerTransformer");
                     PropertyBags ends = gends.computeIfAbsent(id, x -> new PropertyBags());
                     ends.add(end);
                 });
-        gends.entrySet().stream()
+        gends.entrySet()
                 .forEach(tends -> {
                     PropertyBags tends1 = new PropertyBags(
                             tends.getValue().stream()
@@ -75,7 +70,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
 
     private Map<String, CgmesTerminal> computeTerminals() {
         Map<String, CgmesTerminal> ts = new HashMap<>();
-        terminals().stream().forEach(t -> {
+        terminals().forEach(t -> {
             CgmesTerminal td = new CgmesTerminal(
                     t.getId(CgmesNames.TERMINAL),
                     t.getId("ConductingEquipment"),
@@ -84,7 +79,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
                     new PowerFlow(t, "p", "q"));
             ts.put(td.id(), td);
         });
-        terminalsTP().stream().forEach(t -> {
+        terminalsTP().forEach(t -> {
             String tid = t.getId(CgmesNames.TERMINAL);
             CgmesTerminal td = ts.get(tid);
             if (td == null) {
@@ -96,7 +91,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
             }
             td.assignTP(t.getId("TopologicalNode"), t.getId("VoltageLevel"), t.getId("Substation"));
         });
-        terminalsCN().stream().forEach(t -> {
+        terminalsCN().forEach(t -> {
             String tid = t.getId(CgmesNames.TERMINAL);
             CgmesTerminal td = ts.get(tid);
             if (td == null) {
