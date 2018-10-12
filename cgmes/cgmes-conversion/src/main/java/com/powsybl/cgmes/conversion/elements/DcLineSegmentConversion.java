@@ -1,16 +1,11 @@
-package com.powsybl.cgmes.conversion.elements;
-
-/*
- * #%L
- * CGMES conversion
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.cgmes.conversion.elements;
 
 import java.util.Objects;
 
@@ -27,6 +22,7 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
 
     public DcLineSegmentConversion(PropertyBag l, Conversion.Context context) {
         super("DCLineSegment", l, context);
+
         iconverter1 = context.dc().converterAt(l.getId("DCTerminal1"));
         iconverter2 = context.dc().converterAt(l.getId("DCTerminal2"));
         cconverter1 = context.dc().cgmesConverterFor(iconverter1);
@@ -133,8 +129,8 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
         return operatingMode.toLowerCase().endsWith("rectifier");
     }
 
-    HvdcConverterStation iconverter1;
-    HvdcConverterStation iconverter2;
-    PropertyBag cconverter1;
-    PropertyBag cconverter2;
+    private HvdcConverterStation iconverter1;
+    private HvdcConverterStation iconverter2;
+    private PropertyBag cconverter1;
+    private PropertyBag cconverter2;
 }

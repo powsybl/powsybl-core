@@ -1,16 +1,11 @@
-package com.powsybl.cgmes.conversion.elements;
-
-/*
- * #%L
- * CGMES conversion
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.cgmes.conversion.elements;
 
 import java.util.Objects;
 
@@ -73,7 +68,7 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
         convertedTerminals(c.getTerminal());
     }
 
-    private static final HvdcType decodeType(String stype) {
+    private static HvdcType decodeType(String stype) {
         if (stype.equals("VsConverter")) {
             return HvdcType.VSC;
         } else if (stype.equals("CsConverter")) {

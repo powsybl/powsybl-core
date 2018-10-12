@@ -38,6 +38,7 @@ public class DebugPhaseTapChanger {
             String option,
             Consumer<TwoWindingsTransformer> pre,
             Consumer<TwoWindingsTransformer> post) {
+        // FIXME(Luma): use a logger here
         System.err.printf("current = %d%n", tx.getPhaseTapChanger().getTapPosition());
         System.err.printf("ratedU1 = %10.4f%n", tx.getRatedU1());
         System.err.printf("ratedU2 = %10.4f%n", tx.getRatedU2());
@@ -66,6 +67,7 @@ public class DebugPhaseTapChanger {
         double alpha = tx.getPhaseTapChanger().getCurrentStep().getAlpha();
         double rho = tx.getPhaseTapChanger().getCurrentStep().getRho();
         boolean header = tap == tx.getPhaseTapChanger().getLowTapPosition();
+        // FIXME(Luma): use a logger here
         if (header) {
             System.err.printf(
                     "    option tap    alpha         rho           p%d            q%d          d%d%n",
@@ -88,6 +90,6 @@ public class DebugPhaseTapChanger {
     }
 
     private final TwoWindingsTransformer tx;
-    private final int                    side;
-    private final PowerFlow              expected;
+    private final int side;
+    private final PowerFlow expected;
 }

@@ -1,16 +1,11 @@
-package com.powsybl.cgmes.conversion.elements;
-
-/*
- * #%L
- * CGMES conversion
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.cgmes.conversion.elements;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -133,11 +128,9 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         String tableId = p.getId("PhaseTapChangerTable");
         LOG.debug("PhaseTapChanger {} table {}", id, tableId);
         PropertyBags table = context.cgmes().phaseTapChangerTable(tableId);
-        Comparator<PropertyBag> byStep = (PropertyBag p1, PropertyBag p2) -> Integer
-                .compare(p1.asInt("step"), p2.asInt("step"));
+        Comparator<PropertyBag> byStep = Comparator.comparingInt((PropertyBag p) -> p.asInt("step"));
         table.sort(byStep);
-        for (int i = 0; i < table.size(); i++) {
-            PropertyBag point = table.get(i);
+        for (PropertyBag point : table) {
             double alpha = point.asDouble("angle");
             double rho = point.asDouble("ratio");
             // When given in PhaseTapChangerTablePoint
@@ -288,7 +281,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         double alphaMax = alphas.stream()
                 .mapToDouble(Double::doubleValue)
                 .max()
-                .getAsDouble();
+                .orElse(Double.NaN);
         LOG.debug("ACTUAL    alphaMax {}", alphaMax);
         LOG.debug("ACTUAL    xStepMin, xStepMax {}, {}", xStepMin, xStepMax);
 
@@ -455,6 +448,5 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
 
     private boolean configIsInvertVoltageStepIncrementOutOfPhase;
 
-    private static final Logger LOG = LoggerFactory
-            .getLogger(PhaseTapChangerConversion.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PhaseTapChangerConversion.class);
 }

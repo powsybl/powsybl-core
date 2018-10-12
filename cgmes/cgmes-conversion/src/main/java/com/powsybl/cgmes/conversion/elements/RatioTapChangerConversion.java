@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.cgmes.conversion.elements;
 
 import org.slf4j.Logger;
@@ -86,7 +93,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         rtca.add();
     }
 
-    RatioTapChangerAdder adder() {
+    private RatioTapChangerAdder adder() {
         if (tx2 != null) {
             return tx2.newRatioTapChanger();
         } else if (tx3 != null) {
@@ -207,13 +214,12 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         return null;
     }
 
-    private final TwoWindingsTransformer   tx2;
+    private final TwoWindingsTransformer tx2;
     private final ThreeWindingsTransformer tx3;
-    private final int                      lowStep;
-    private final int                      highStep;
-    private final int                      neutralStep;
-    private final int                      position;
+    private final int lowStep;
+    private final int highStep;
+    private final int neutralStep;
+    private final int position;
 
-    private static final Logger            LOG = LoggerFactory
-            .getLogger(RatioTapChangerConversion.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RatioTapChangerConversion.class);
 }

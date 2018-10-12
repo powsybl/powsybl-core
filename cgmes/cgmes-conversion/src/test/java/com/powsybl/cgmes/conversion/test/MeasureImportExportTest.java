@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.cgmes.conversion.test;
 
 import java.io.IOException;
@@ -73,7 +80,7 @@ public class MeasureImportExportTest {
         }
         for (int k = 0; k < size; k++) {
             String impl = implementations.get(k);
-            LOG.info("testImportExport " + impl + " took " + (endTimes[k] - startTimes[k]) + " milliseconds");
+            LOG.info("testImportExport {} tool {} milliseconds", impl, endTimes[k] - startTimes[k]);
         }
     }
 
@@ -87,7 +94,7 @@ public class MeasureImportExportTest {
         Object c = n.getProperties().get("CGMESModel");
         assert c instanceof CgmesModel;
         CgmesModel cgmes = (CgmesModel) c;
-        cgmes.dump(l -> LOG.info(l));
+        cgmes.dump(LOG::info);
         CgmesExport e = new CgmesExport();
         ensureFolder(output);
         DataSource exportDataSource = new FileDataSource(output, "");

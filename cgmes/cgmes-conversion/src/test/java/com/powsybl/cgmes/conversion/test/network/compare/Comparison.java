@@ -1,16 +1,11 @@
-package com.powsybl.cgmes.conversion.test.network.compare;
-
-/*
- * #%L
- * CGMES conversion
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.cgmes.conversion.test.network.compare;
 
 import java.util.Comparator;
 import java.util.List;
@@ -146,7 +141,7 @@ public class Comparison {
     private void compareSubstations(Substation expected, Substation actual) {
         compare("country", expected.getCountry(), actual.getCountry());
         Set<String> mappedActualGeoTags = actual.getGeographicalTags().stream()
-                .map(g -> networkMapping.applyPrefixToActual(g))
+                .map(networkMapping::applyPrefixToActual)
                 .collect(Collectors.toSet());
         compare("geographicalTags",
                 expected.getGeographicalTags(),
@@ -253,7 +248,7 @@ public class Comparison {
                 actual.isVoltageRegulatorOn());
         if (config.checkGeneratorRegulatingTerminal
                 && (expected.getRegulatingTerminal() != null
-                        || actual.getRegulatingTerminal() != null)) {
+                || actual.getRegulatingTerminal() != null)) {
             equivalent("RegulatingTerminalBus",
                     expected.getRegulatingTerminal().getBusBreakerView().getBus(),
                     actual.getRegulatingTerminal().getBusBreakerView().getBus());
@@ -268,22 +263,21 @@ public class Comparison {
     private void compareGeneratorReactiveLimits(ReactiveLimits expected, ReactiveLimits actual) {
         switch (expected.getKind()) {
             case MIN_MAX:
-            {
                 compareGeneratorMinMaxReactiveLimits(
                         (MinMaxReactiveLimits) expected,
                         (MinMaxReactiveLimits) actual);
                 break;
-            }
+
             case CURVE:
-            {
                 if (config.checkGeneratorReactiveCapabilityCurve) {
                     compareGeneratorReactiveCapabilityCurve(
                             (ReactiveCapabilityCurve) expected,
                             (ReactiveCapabilityCurve) actual);
                 }
                 break;
-            }
+
             default:
+                throw new AssertionError("Unexpected ReactiveLimitsKing value: " + expected.getKind());
         }
     }
 
@@ -307,7 +301,7 @@ public class Comparison {
         compare("reactiveCapabilityCurve.size", e.size(), a.size());
         for (int k = 0; k < e.size(); k++) {
             Point pe = e.get(k);
-            Point pa = e.get(k);
+            Point pa = a.get(k);
             compare("reactiveCapabilityCurvePoint.p", pe.getP(), pa.getP());
             compare("reactiveCapabilityCurvePoint.minQ", pe.getMinQ(), pa.getMinQ());
             compare("reactiveCapabilityCurvePoint.maxQ", pe.getMaxQ(), pa.getMaxQ());
@@ -361,7 +355,7 @@ public class Comparison {
     }
 
     private void compareTwoWindingTransformers(TwoWindingsTransformer expected,
-            TwoWindingsTransformer actual) {
+                                               TwoWindingsTransformer actual) {
         equivalent("VoltageLevel1",
                 expected.getTerminal1().getVoltageLevel(),
                 actual.getTerminal1().getVoltageLevel());
@@ -472,15 +466,11 @@ public class Comparison {
         }
     }
 
-    private void compareRatioTapChangerStep(
-            RatioTapChangerStep expected,
-            RatioTapChangerStep actual) {
+    private void compareRatioTapChangerStep(RatioTapChangerStep expected, RatioTapChangerStep actual) {
         // No additional attributes to test
     }
 
-    private void comparePhaseTapChangerStep(
-            PhaseTapChangerStep expected,
-            PhaseTapChangerStep actual) {
+    private void comparePhaseTapChangerStep(PhaseTapChangerStep expected, PhaseTapChangerStep actual) {
         compare("phaseTapChangerStep.alpha", expected.getAlpha(), actual.getAlpha());
     }
 
@@ -528,9 +518,9 @@ public class Comparison {
         return s;
     }
 
-    private final Network          expected;
-    private final Network          actual;
-    private final NetworkMapping   networkMapping;
-    private final Differences      diff;
+    private final Network expected;
+    private final Network actual;
+    private final NetworkMapping networkMapping;
+    private final Differences diff;
     private final ComparisonConfig config;
 }

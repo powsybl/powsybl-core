@@ -1,16 +1,11 @@
-package com.powsybl.cgmes.conversion;
-
-/*
- * #%L
- * CGMES conversion
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.cgmes.conversion;
 
 import java.util.Properties;
 
@@ -58,8 +53,7 @@ public class CgmesImport implements Importer {
         Conversion.Config config = new Conversion.Config();
         if (p != null && p.containsKey("changeSignForShuntReactivePowerFlowInitialState")) {
             String s = p.getProperty("changeSignForShuntReactivePowerFlowInitialState");
-            Boolean b = Boolean.parseBoolean(s);
-            config.setChangeSignForShuntReactivePowerFlowInitialState(b);
+            config.setChangeSignForShuntReactivePowerFlowInitialState(Boolean.parseBoolean(s));
         }
         Network network = new Conversion(cgmes, config).convertedNetwork();
 
@@ -82,19 +76,20 @@ public class CgmesImport implements Importer {
         throw new UnsupportedOperationException("Pending implementation");
     }
 
-    private String tripleStoreImpl(Properties p) {
+    private static String tripleStoreImpl(Properties p) {
         if (p == null) {
             return TripleStoreFactory.defaultImplementation();
         }
         return p.getProperty("powsyblTripleStore", TripleStoreFactory.defaultImplementation());
     }
 
-    private static final String FORMAT                 = "CGMES";
-    public static final String  NETWORK_PS_CGMES_MODEL = "CGMESModel";
+    private static final String FORMAT = "CGMES";
+
+    public static final String NETWORK_PS_CGMES_MODEL = "CGMESModel";
 
     // TODO Allow this property to be configurable
     // Parameters of importers are only passed to importData method,
     // but to decide if we are importers also for CIM 14 files
     // we must implement the exists method, that has not access to parameters
-    private boolean             importCim14            = false;
+    private boolean importCim14 = false;
 }

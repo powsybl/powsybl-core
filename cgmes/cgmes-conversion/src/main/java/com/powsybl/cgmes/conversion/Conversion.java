@@ -1,16 +1,11 @@
-package com.powsybl.cgmes.conversion;
-
-/*
- * #%L
- * CGMES conversion
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.cgmes.conversion;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -61,6 +56,7 @@ import com.powsybl.triplestore.api.PropertyBags;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class Conversion {
+
     public Conversion(CgmesModel cgmes) {
         this(cgmes, new Config());
     }
@@ -205,7 +201,7 @@ public class Conversion {
                 }
             }
         }
-        delayedBoundaryNodes.stream().forEach(node -> {
+        delayedBoundaryNodes.forEach(node -> {
             // At least each delayed boundary node should have one line
             PropertyBag line = context.boundary.linesAtNode(node).get(0);
             if (LOG.isDebugEnabled()) {
@@ -218,7 +214,7 @@ public class Conversion {
     }
 
     private void convertTransformers() {
-        cgmes.groupedTransformerEnds().entrySet().stream()
+        cgmes.groupedTransformerEnds().entrySet()
                 .forEach(tends -> {
                     String t = tends.getKey();
                     PropertyBags ends = tends.getValue();
@@ -445,28 +441,28 @@ public class Conversion {
             LOG.info("Missing {}. Used default value {}", what, defaultValue);
         }
 
-        private final CgmesModel             cgmes;
-        private final Network                network;
-        private final Config                 config;
-        private final boolean                nodeBreaker;
-        private final NamingStrategy         namingStrategy;
-        private final SubstationIdMapping    substationIdMapping;
-        private final Boundary               boundary;
-        private final TerminalMapping        terminalMapping;
+        private final CgmesModel cgmes;
+        private final Network network;
+        private final Config config;
+        private final boolean nodeBreaker;
+        private final NamingStrategy namingStrategy;
+        private final SubstationIdMapping substationIdMapping;
+        private final Boundary boundary;
+        private final TerminalMapping terminalMapping;
         private final TapChangerTransformers tapChangerTransformers;
-        private final DcMapping              dcMapping;
+        private final DcMapping dcMapping;
 
-        private int                          countLines;
-        private int                          countLinesWithSvPowerFlowsAtEnds;
+        private int countLines;
+        private int countLinesWithSvPowerFlowsAtEnds;
     }
 
-    private final CgmesModel    cgmes;
-    private final Network       network;
-    private final Context       context;
+    private final CgmesModel cgmes;
+    private final Network network;
+    private final Context context;
 
-    private static final Logger LOG                                        = LoggerFactory
-            .getLogger(Conversion.class);
-    public static final String  NETWORK_PS_CGMES_MODEL_DETAIL              = "CGMESModelDetail";
-    public static final String  NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH   = "bus-branch";
-    public static final String  NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER = "node-breaker";
+    private static final Logger LOG = LoggerFactory.getLogger(Conversion.class);
+
+    public static final String NETWORK_PS_CGMES_MODEL_DETAIL = "CGMESModelDetail";
+    public static final String NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH = "bus-branch";
+    public static final String NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER = "node-breaker";
 }

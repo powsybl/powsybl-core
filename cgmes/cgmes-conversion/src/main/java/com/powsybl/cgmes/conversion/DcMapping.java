@@ -1,16 +1,11 @@
-package com.powsybl.cgmes.conversion;
-
-/*
- * #%L
- * CGMES conversion
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.cgmes.conversion;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,7 +31,7 @@ public class DcMapping {
         // with terminal data
         // Consider moving this part to AbstractCgmesModel
         // Initialize terminal data, for each terminal store the DC topological node
-        context.cgmes().dcTerminals().stream().forEach(t -> {
+        context.cgmes().dcTerminals().forEach(t -> {
             DcTerminal td = new DcTerminal(
                     t.getId(CgmesNames.DC_TERMINAL),
                     t.getId("DCConductingEquipment"),
@@ -44,7 +39,7 @@ public class DcMapping {
                     t.asBoolean("connected", false));
             terminals.put(td.id(), td);
         });
-        context.cgmes().dcTerminalsTP().stream().forEach(t -> {
+        context.cgmes().dcTerminalsTP().forEach(t -> {
             DcTerminal td = terminals.get(t.getId("DCTerminal"));
             assert td != null;
             td.tp(t.getId("DCTopologicalNode"), t.getId(CgmesNames.SUBSTATION), context);

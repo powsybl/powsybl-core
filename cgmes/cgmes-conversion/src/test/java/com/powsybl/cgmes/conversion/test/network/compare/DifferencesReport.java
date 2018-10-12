@@ -1,21 +1,13 @@
-package com.powsybl.cgmes.conversion.test.network.compare;
-
-/*
- * #%L
- * CGMES conversion
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+package com.powsybl.cgmes.conversion.test.network.compare;
+
+import java.util.*;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,7 +27,7 @@ public class DifferencesReport implements Differences {
         logDetails = true;
         maxDetailDiffs = 3;
         // Pad size for each category of differences
-        padSizes = new int[] {25, 25, 25, 50};
+        padSizes = new int[]{25, 25, 25, 50};
     }
 
     @Override
@@ -135,7 +127,7 @@ public class DifferencesReport implements Differences {
 
     private enum Category {
         UNEXPECTED, MISSING, MATCHES, DIFFS
-    };
+    }
 
     private static class Summary {
         void inc(Category cat, String context, int size) {
@@ -151,7 +143,7 @@ public class DifferencesReport implements Differences {
             s.put(context, value + size);
         }
 
-        private final Map<Category, Map<String, Integer>> data = new HashMap<>();
+        private final Map<Category, Map<String, Integer>> data = new EnumMap<>(Category.class);
     }
 
     private void report(Summary s) {
@@ -173,12 +165,12 @@ public class DifferencesReport implements Differences {
         summary(Category.MISSING, missings, summary);
         summary(Category.MATCHES, matches, summary);
         if (!diffs.isEmpty()) {
-            diffs.keySet().stream().forEach(category -> {
+            diffs.keySet().forEach(category -> {
                 if (logDetails) {
                     LOG.warn("Differences for {} ({})", category, diffs.get(category).size());
                 }
                 diffs.get(category).keySet().stream()
-                        .sorted((i1, i2) -> i1.getId().compareTo(i2.getId()))
+                        .sorted(Comparator.comparing(Identifiable::getId))
                         .limit(maxDetailDiffs)
                         .forEach(id -> {
                             Set<Diff> ds = diffs.get(category).get(id);
@@ -211,7 +203,7 @@ public class DifferencesReport implements Differences {
         if (iByContext.isEmpty()) {
             return;
         }
-        iByContext.keySet().stream()
+        iByContext.keySet()
                 .forEach(context -> {
                     int size = iByContext.get(context).size();
                     s.inc(category, context, size);
@@ -249,6 +241,5 @@ public class DifferencesReport implements Differences {
     private final long maxDetailDiffs;
     private final int[] padSizes;
 
-    private static final Logger LOG = LoggerFactory
-            .getLogger(DifferencesReport.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DifferencesReport.class);
 }

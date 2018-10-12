@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Conversion;
@@ -24,8 +31,7 @@ public class SynchronousMachineConversion extends AbstractConductingEquipmentCon
         String generatingUnitType = p.getLocal("generatingUnitType");
         PowerFlow f = powerFlow();
 
-        double initialP = p.asDouble("initialP", 0);
-        double targetP = initialP;
+        double targetP = p.asDouble("initialP", 0);
         double targetQ = 0;
         if (f.defined()) {
             targetP = -f.p();

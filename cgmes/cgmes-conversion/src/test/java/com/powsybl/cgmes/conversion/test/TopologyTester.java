@@ -1,16 +1,11 @@
-package com.powsybl.cgmes.conversion.test;
-
-/*
- * #%L
- * CGMES conversion
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.cgmes.conversion.test;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -57,7 +52,7 @@ public class TopologyTester {
         LOG.info("    preparing connectivityNodes - topologicalNodes ...");
         PropertyBags cgmescn = cgmes.connectivityNodes();
         LOG.info("    query for connectivityNodes completed");
-        cgmescn.stream().forEach(cnp -> {
+        cgmescn.forEach(cnp -> {
             String cn = cnp.getId("ConnectivityNode");
             String tp = cnp.getId("TopologicalNode");
             tpcns.computeIfAbsent(tp, x -> new HashSet<>()).add(cn);
@@ -133,7 +128,7 @@ public class TopologyTester {
         }
         if (!badTPs.isEmpty()) {
             LOG.warn("    Bad topologicalNodes : {} / {}", badTPs.size(), tpcns.keySet().size());
-            badTPs.stream().forEach(tp -> LOG.warn("        {}", tp));
+            badTPs.forEach(tp -> LOG.warn("        {}", tp));
         }
         LOG.info("testTopology completed");
         return true;
@@ -155,8 +150,7 @@ public class TopologyTester {
         }
     }
 
-    private void reportTopologyError(String cn,
-            Set<String> cns, Set<String> cbs, Set<String> cbs1) {
+    private void reportTopologyError(String cn, Set<String> cns, Set<String> cbs, Set<String> cbs1) {
         LOG.error("    Fail after removing invalid connectivityNodes, connectivityNode {}", cn);
         if (LOG.isDebugEnabled()) {
             LOG.error("        cns  : {}", cns);
@@ -165,8 +159,8 @@ public class TopologyTester {
         }
     }
 
-    private final CgmesModel    cgmes;
-    private final Network       network;
+    private final CgmesModel cgmes;
+    private final Network network;
 
     private static final Logger LOG = LoggerFactory.getLogger(TopologyTester.class);
 }

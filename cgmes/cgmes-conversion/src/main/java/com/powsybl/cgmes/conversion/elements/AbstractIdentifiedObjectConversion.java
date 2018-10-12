@@ -1,16 +1,11 @@
-package com.powsybl.cgmes.conversion.elements;
-
-/*
- * #%L
- * CGMES conversion
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -21,25 +16,17 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectConversion {
 
-    public AbstractIdentifiedObjectConversion(
-            String type,
-            PropertyBag properties,
-            Conversion.Context context) {
+    public AbstractIdentifiedObjectConversion(String type, PropertyBag properties, Conversion.Context context) {
         super(type, properties, context);
 
-        String idPropertyName = type;
-        this.id = properties.getId(idPropertyName);
+        this.id = properties.getId(type);
         this.name = p.get("name");
     }
 
-    public AbstractIdentifiedObjectConversion(
-            String type,
-            PropertyBags propertiess,
-            Conversion.Context context) {
+    public AbstractIdentifiedObjectConversion(String type, PropertyBags propertiess, Conversion.Context context) {
         super(type, propertiess, context);
 
-        String idPropertyName = type;
-        this.id = ps.get(0).getId(idPropertyName);
+        this.id = ps.get(0).getId(type);
         this.name = ps.get(0).get("name");
     }
 

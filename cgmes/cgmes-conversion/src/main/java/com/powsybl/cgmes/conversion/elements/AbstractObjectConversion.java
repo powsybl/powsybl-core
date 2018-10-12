@@ -1,16 +1,11 @@
-package com.powsybl.cgmes.conversion.elements;
-
-/*
- * #%L
- * CGMES conversion
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
@@ -22,20 +17,14 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public abstract class AbstractObjectConversion {
 
-    public AbstractObjectConversion(
-            String type,
-            PropertyBag properties,
-            Conversion.Context context) {
+    public AbstractObjectConversion(String type, PropertyBag properties, Conversion.Context context) {
         this.type = type;
         this.p = properties;
         this.ps = null;
         this.context = context;
     }
 
-    public AbstractObjectConversion(
-            String type,
-            PropertyBags propertiess,
-            Conversion.Context context) {
+    public AbstractObjectConversion(String type, PropertyBags propertiess, Conversion.Context context) {
         this.type = type;
         this.p = null;
         this.ps = propertiess;
@@ -121,8 +110,8 @@ public abstract class AbstractObjectConversion {
         context.missing(complete(what), defaultValue);
     }
 
-    protected final String             type;
-    protected final PropertyBag        p;
-    protected final PropertyBags       ps;
+    protected final String type;
+    protected final PropertyBag p;
+    protected final PropertyBags ps;
     protected final Conversion.Context context;
 }

@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.cgmes.conversion.test.cim14;
 
 import java.io.IOException;
@@ -218,10 +225,9 @@ public class Cim14SmallCasesNetworkCatalog {
             ReadOnlyDataSource gmds = gm.dataSource();
             Set<String> names = gmds.listNames("(?i)^.*\\.XML$");
             DataSource cim1ds = new FileDataSource(folder, baseNameFromNames(names));
-            for (Iterator<String> k = names.iterator(); k.hasNext();) {
-                String name = k.next();
+            for (String name : names) {
                 try (InputStream is = gmds.newInputStream(name);
-                        OutputStream os = cim1ds.newOutputStream(name, false)) {
+                     OutputStream os = cim1ds.newOutputStream(name, false)) {
                     ByteStreams.copy(is, os);
                 }
             }
@@ -230,7 +236,9 @@ public class Cim14SmallCasesNetworkCatalog {
             resourceToDataSource("ENTSO-E_Boundary_Set_EU_TP.xml", cim1ds);
 
             Set<String> names1 = cim1ds.listNames(".*");
-            LOG.info("List of names in data source for CIM1Importer = {}", Arrays.toString(names1.toArray()));
+            if (LOG.isInfoEnabled()) {
+                LOG.info("List of names in data source for CIM1Importer = {}", Arrays.toString(names1.toArray()));
+            }
             return new CIM1Importer().importData(cim1ds, null);
         }
     }

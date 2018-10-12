@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.cgmes.conversion;
 
 import java.util.Arrays;
@@ -23,12 +30,7 @@ import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.export.Exporter;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -78,24 +80,15 @@ public class CgmesExport implements Exporter {
 
         PropertyBags powerFlows = new PropertyBags();
         for (Load l : n.getLoads()) {
-            PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
-            p.put("p", fs(l.getTerminal().getP()));
-            p.put("q", fs(l.getTerminal().getQ()));
-            p.put(CgmesNames.TERMINAL, terminalFromTerminalId(l.getId()));
+            PropertyBag p = createPowerFlowProperties(l.getTerminal());
             powerFlows.add(p);
         }
         for (Generator g : n.getGenerators()) {
-            PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
-            p.put("p", fs(g.getTerminal().getP()));
-            p.put("q", fs(g.getTerminal().getQ()));
-            p.put(CgmesNames.TERMINAL, terminalFromTerminalId(g.getId()));
+            PropertyBag p = createPowerFlowProperties(g.getTerminal());
             powerFlows.add(p);
         }
         for (ShuntCompensator s : n.getShunts()) {
-            PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
-            p.put("p", fs(s.getTerminal().getP()));
-            p.put("q", fs(s.getTerminal().getQ()));
-            p.put(CgmesNames.TERMINAL, terminalFromTerminalId(s.getId()));
+            PropertyBag p = createPowerFlowProperties(s.getTerminal());
             powerFlows.add(p);
         }
         cgmes.svPowerFlows(powerFlows);
@@ -125,6 +118,15 @@ public class CgmesExport implements Exporter {
         cgmes.svTapSteps(tapSteps);
     }
 
+    private PropertyBag createPowerFlowProperties(Terminal terminal) {
+        PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
+        p.put("p", fs(terminal.getP()));
+        p.put("q", fs(terminal.getQ()));
+        p.put(CgmesNames.TERMINAL, terminalFromTerminalId(terminal.getConnectable().getId()));
+
+        return p;
+    }
+
     private String fs(double value) {
         return "" + value;
     }
@@ -143,13 +145,8 @@ public class CgmesExport implements Exporter {
         return iidmTerminalId;
     }
 
-    private static final List<String> SV_VOLTAGE_PROPERTIES = Arrays.asList(
-            "angle", "v", "TopologicalNode");
-    private static final List<String> SV_POWERFLOW_PROPERTIES = Arrays.asList(
-            "p", "q", CgmesNames.TERMINAL);
-    private static final List<String> SV_SHUNTCOMPENSATORSECTIONS_PROPERTIES = Arrays.asList(
-            "ShuntCompensator", "continuousSections");
-    private static final List<String> SV_TAPSTEP_PROPERTIES = Arrays.asList(
-            CgmesNames.CONTINUOUS_POSITION,
-            CgmesNames.TAP_CHANGER);
+    private static final List<String> SV_VOLTAGE_PROPERTIES = Arrays.asList("angle", "v", "TopologicalNode");
+    private static final List<String> SV_POWERFLOW_PROPERTIES = Arrays.asList("p", "q", CgmesNames.TERMINAL);
+    private static final List<String> SV_SHUNTCOMPENSATORSECTIONS_PROPERTIES = Arrays.asList("ShuntCompensator", "continuousSections");
+    private static final List<String> SV_TAPSTEP_PROPERTIES = Arrays.asList(CgmesNames.CONTINUOUS_POSITION, CgmesNames.TAP_CHANGER);
 }

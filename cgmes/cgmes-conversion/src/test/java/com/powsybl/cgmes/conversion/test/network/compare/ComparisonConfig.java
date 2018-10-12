@@ -1,18 +1,11 @@
-package com.powsybl.cgmes.conversion.test.network.compare;
-
-/*
- * #%L
- * CGMES conversion
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
 
-import com.powsybl.iidm.network.Network;
+package com.powsybl.cgmes.conversion.test.network.compare;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -22,12 +15,7 @@ public final class ComparisonConfig {
     public ComparisonConfig() {
         checkNetworkId = true;
         differences = new DifferencesFail();
-        networkMappingFactory = new NetworkMappingFactory() {
-            @Override
-            public NetworkMapping create(Network expected, Network actual) {
-                return new NetworkMapping(expected, actual);
-            }
-        };
+        networkMappingFactory = NetworkMapping::new;
         checkVoltageLevelLimits = true;
         checkGeneratorReactiveCapabilityCurve = true;
         checkGeneratorRegulatingTerminal = true;
@@ -77,12 +65,12 @@ public final class ComparisonConfig {
         return this;
     }
 
-    boolean               checkNetworkId;
-    Differences           differences;
+    boolean checkNetworkId;
+    Differences differences;
     NetworkMappingFactory networkMappingFactory;
-    boolean               checkVoltageLevelLimits;
-    boolean               checkGeneratorReactiveCapabilityCurve;
-    boolean               checkGeneratorRegulatingTerminal;
-    boolean               compareNamesAllowSuffixes;
-    double                tolerance;
+    boolean checkVoltageLevelLimits;
+    boolean checkGeneratorReactiveCapabilityCurve;
+    boolean checkGeneratorRegulatingTerminal;
+    boolean compareNamesAllowSuffixes;
+    double tolerance;
 }

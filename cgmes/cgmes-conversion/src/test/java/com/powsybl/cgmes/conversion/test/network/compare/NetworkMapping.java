@@ -1,16 +1,11 @@
-package com.powsybl.cgmes.conversion.test.network.compare;
-
-/*
- * #%L
- * CGMES conversion
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.cgmes.conversion.test.network.compare;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -88,16 +83,15 @@ public class NetworkMapping {
             return id.substring(1);
         }
         if (!sourcePrefixed && targetPrefixed) {
-            return prefix + id;
+            return "_" + id;
         }
         return id;
     }
 
-    protected final Network     expected;
-    protected final Network     actual;
-    protected String            prefix = "_";
-    protected boolean           expectedPrefixed;
-    protected boolean           actualPrefixed;
+    private final Network expected;
+    private final Network actual;
+    private boolean expectedPrefixed;
+    private boolean actualPrefixed;
     private Map<String, String> explicitExpecteds;
     private Map<String, String> explicitActuals;
 }

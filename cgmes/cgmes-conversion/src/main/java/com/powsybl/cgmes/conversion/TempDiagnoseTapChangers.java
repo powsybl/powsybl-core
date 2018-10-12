@@ -1,16 +1,11 @@
-package com.powsybl.cgmes.conversion;
-
-/*
- * #%L
- * CGMES conversion
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.cgmes.conversion;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -107,14 +102,14 @@ public class TempDiagnoseTapChangers {
         endTx.put(endId, txId);
     }
 
-    public void diagnose() {
+    void diagnose() {
 
         // For every transformer, add all its ends and tap changers
-        cgmes.transformerEnds().stream().forEach(this::addEnd);
-        cgmes.ratioTapChangers().stream().forEach(this::addTapChanger);
-        cgmes.phaseTapChangers().stream().forEach(this::addTapChanger);
+        cgmes.transformerEnds().forEach(this::addEnd);
+        cgmes.ratioTapChangers().forEach(this::addTapChanger);
+        cgmes.phaseTapChangers().forEach(this::addTapChanger);
 
-        txEnds.keySet().stream().forEach(txId -> {
+        txEnds.keySet().forEach(txId -> {
             List<PropertyBag> ends = txEnds.get(txId);
             List<PropertyBag> tcs = txTapChangers.get(txId);
 
@@ -163,7 +158,7 @@ public class TempDiagnoseTapChangers {
                 d.col(ptc2);
                 d.col(rtc3);
                 d.col(ptc3);
-                tcs.stream().forEach(tc -> {
+                tcs.forEach(tc -> {
                     String tcId = tcId(tc);
                     int lowStep = tc.asInt(CgmesNames.LOW_STEP);
                     int highStep = tc.asInt(CgmesNames.HIGH_STEP);

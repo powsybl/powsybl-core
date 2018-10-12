@@ -1,16 +1,11 @@
-package com.powsybl.cgmes.conversion;
-
-/*
- * #%L
- * CGMES conversion
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.cgmes.conversion;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,11 +37,10 @@ public class Boundary {
                         bns.tabulateLocals());
             }
             nodes = new HashSet<>(bns.size());
-            bns.stream()
-                    .forEach(node -> {
-                        String id = node.getId("Node");
-                        nodes.add(id);
-                    });
+            bns.forEach(node -> {
+                String id = node.getId("Node");
+                nodes.add(id);
+            });
         } else {
             nodes = Collections.emptySet();
         }
@@ -105,10 +99,10 @@ public class Boundary {
         double angle;
     }
 
-    private final Set<String>                    nodes;
+    private final Set<String> nodes;
     private final Map<String, List<PropertyBag>> nodesLines;
-    private final Map<String, PowerFlow>         nodesPowerFlow;
-    private final Map<String, Voltage>           nodesVoltage;
+    private final Map<String, PowerFlow> nodesPowerFlow;
+    private final Map<String, Voltage> nodesVoltage;
 
-    private static final Logger                  LOG = LoggerFactory.getLogger(Boundary.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Boundary.class);
 }

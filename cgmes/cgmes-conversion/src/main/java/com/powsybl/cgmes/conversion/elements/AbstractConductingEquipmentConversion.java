@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Conversion;
@@ -12,12 +19,11 @@ import com.powsybl.triplestore.api.PropertyBags;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
- *
- *         A ConductingEquipment has at least one Terminal. From the Terminal we get either its
- *         ConnectivityNode or its TopologicalNode, depending of the conversion context
+ * <p>
+ * A ConductingEquipment has at least one Terminal. From the Terminal we get either its
+ * ConnectivityNode or its TopologicalNode, depending of the conversion context
  */
-public abstract class AbstractConductingEquipmentConversion
-        extends AbstractIdentifiedObjectConversion {
+public abstract class AbstractConductingEquipmentConversion extends AbstractIdentifiedObjectConversion {
 
     public AbstractConductingEquipmentConversion(
             String type,
@@ -25,7 +31,7 @@ public abstract class AbstractConductingEquipmentConversion
             Conversion.Context context) {
         super(type, p, context);
         numTerminals = 1;
-        terminals = new TerminalData[] {null, null, null};
+        terminals = new TerminalData[]{null, null, null};
         terminals[0] = new TerminalData(CgmesNames.TERMINAL, p, context);
         equipmentPowerFlow = new PowerFlow(p, "p", "q");
     }
@@ -40,7 +46,7 @@ public abstract class AbstractConductingEquipmentConversion
         if (numTerminals > 3) {
             throw new IllegalArgumentException("Invalid number of terminals at " + id + ": " + numTerminals);
         }
-        terminals = new TerminalData[] {null, null, null};
+        terminals = new TerminalData[]{null, null, null};
         this.numTerminals = numTerminals;
         for (int k = 1; k <= numTerminals; k++) {
             int k0 = k - 1;
@@ -57,7 +63,7 @@ public abstract class AbstractConductingEquipmentConversion
         // Information about each terminal is in each separate property bags
         // It is assumed the property bags are already sorted
         this.numTerminals = ps.size();
-        terminals = new TerminalData[] {null, null, null};
+        terminals = new TerminalData[]{null, null, null};
         assert numTerminals <= 3;
         for (int k = 1; k <= numTerminals; k++) {
             int k0 = k - 1;
@@ -231,10 +237,10 @@ public abstract class AbstractConductingEquipmentConversion
 
     static class TerminalData {
         private final CgmesTerminal t;
-        private final String        busId;
-        private final String        cgmesVoltageLevelId;
-        private final String        iidmVoltageLevelId;
-        private final VoltageLevel  voltageLevel;
+        private final String busId;
+        private final String cgmesVoltageLevelId;
+        private final String iidmVoltageLevelId;
+        private final VoltageLevel voltageLevel;
 
         TerminalData(String terminalPropertyName, PropertyBag p, Conversion.Context context) {
             t = context.cgmes().terminal(p.getId(terminalPropertyName));
@@ -260,6 +266,6 @@ public abstract class AbstractConductingEquipmentConversion
 
     }
 
-    protected final TerminalData[] terminals;
-    protected final PowerFlow      equipmentPowerFlow;
+    private final TerminalData[] terminals;
+    private final PowerFlow equipmentPowerFlow;
 }

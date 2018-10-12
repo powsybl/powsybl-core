@@ -1,16 +1,11 @@
-package com.powsybl.cgmes.conversion.test;
-
-/*
- * #%L
- * CGMES conversion
- * %%
- * Copyright (C) 2017 - 2018 RTE (http://rte-france.com)
- * %%
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- * #L%
  */
+
+package com.powsybl.cgmes.conversion.test;
 
 import static org.junit.Assert.fail;
 
@@ -96,8 +91,7 @@ public class ConversionTester {
                 new Comparison(expected, network, config).compare();
             }
         } catch (Exception x) {
-            LOG.error(x.getMessage());
-            x.printStackTrace();
+            LOG.error(x.getMessage(), x);
             fail();
         }
     }
@@ -115,8 +109,7 @@ public class ConversionTester {
             CgmesModel m = (CgmesModel) n.getProperties().get(CgmesImport.NETWORK_PS_CGMES_MODEL);
             new Conversion(m).diagnose();
         } catch (Exception x) {
-            LOG.error(x.getMessage());
-            x.printStackTrace();
+            LOG.error(x.getMessage(), x);
             fail();
         }
     }
