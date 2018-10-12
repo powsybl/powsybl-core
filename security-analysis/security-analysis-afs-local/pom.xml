@@ -41,7 +41,7 @@
     <dependencies>
         <!-- Compile dependencies -->
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-security-analysis-afs</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -76,7 +76,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-security-analysis-afs</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
