@@ -1,4 +1,4 @@
-# IIDM - Shunt
+# IIDM - Shunt Compensator
 
 The `com.powsybl.iidm.network.ShuntCompensator` interface is used to model a shunt compensator.
 

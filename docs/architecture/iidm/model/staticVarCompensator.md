@@ -1,5 +1,7 @@
 # IIDM - Static VAR compensator
 
+The `com.powsybl.iidm.network.StaticVarCompensator` interface is used to model a static VAR compensator.
+
 ## Characteristics
 | Attribute | Type | Required | Default value | Description |
 | --------- | ---- | -------- | ------------- | ----------- |

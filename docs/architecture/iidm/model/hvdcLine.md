@@ -34,3 +34,8 @@ HvdcLine hvdcLine = network.newHvdcLine()
     .setConverterStationId2("C2")
     .add();
 ```
+
+## References
+See also:
+- [HVDC Converter Station] (hvdcConverterStation.md)
+- [Network] (network.md)

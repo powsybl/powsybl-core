@@ -9,8 +9,8 @@ A substation is located in a single country and belongs to one TSO.
 ## Characteristics
 | Attribute | Type | Required | Default value | Description |
 | --------- | ---- | -------- | ------------- | ----------- |
-| id | String | yes | - | The ID of the network |
-| name | String | no | - | The name of the network |
+| id | String | yes | - | The ID of the substation |
+| name | String | no | - | The name of the substation |
 | country | `Country` | yes | - | The country where this substation is located |
 | tso | String | no | - | The TSO this substations belongs to |
 | geographicalTags | List of String | no | - | A list of geographical tags |

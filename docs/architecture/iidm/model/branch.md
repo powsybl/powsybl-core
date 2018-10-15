@@ -4,6 +4,11 @@ The `com.powsybl.iidm.network.Branch` interface is used to model an equipment co
 - [Line](line.md) to model an AC line
 - [TwoWindingsTransformer](twoWindingsTransformer.md)
 
+## Creation
+Before creating a subclass of Branch, its two terminal must be set by the methods `setVoltageLevel1(String)`, `setVoltageLevel2(String)` and
+- either `setNode1(int)` and `setNode2(int)`
+- or `setConnectableBus1(String)` and `setConnectableBus2(String)` and eventually `setBus1(String)` and `setBus2(String)` if the connectable buses are connected
+
 ## References
 See also:
 - [Connectable](connectable.md)
