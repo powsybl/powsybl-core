@@ -133,9 +133,14 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
     public void setup() throws IOException {
         super.setup();
 
-        // create network.net
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
+
+        // create network.net
         storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "", Case.VERSION,
+                new NodeGenericMetadata().setString(Case.FORMAT, ImporterMock.FORMAT));
+
+        // create network2.net
+        storage.createNode(rootFolderInfo.getId(), "network2", Case.PSEUDO_CLASS, "", Case.VERSION,
                 new NodeGenericMetadata().setString(Case.FORMAT, ImporterMock.FORMAT));
     }
 
@@ -165,6 +170,11 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
                 .withContingencyStore(contingencyStore)
                 .build();
 
+        assertTrue(runner.getCase().isPresent());
+        assertEquals(importedCase.getId(), runner.getCase().get().getId());
+        assertTrue(runner.getContingencyStore().isPresent());
+        assertEquals(contingencyStore.getId(), runner.getContingencyStore().get().getId());
+
         // check there is no results
         assertNull(runner.readResult());
 
@@ -184,5 +194,21 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
         assertNotNull(result);
         assertNotNull(result.getPreContingencyResult());
         assertEquals(1, result.getPreContingencyResult().getLimitViolations().size());
+
+        // update dependencies
+        Case aCase2 = afs.getRootFolder().getChild(Case.class, "network2")
+                .orElseThrow(AssertionError::new);
+        ImportedCase importedCase2 = project.getRootFolder().fileBuilder(ImportedCaseBuilder.class)
+                .withCase(aCase2)
+                .build();
+        ContingencyStore contingencyStore2 = project.getRootFolder().fileBuilder(ContingencyStoreBuilder.class)
+                .withName("contingencies2")
+                .build();
+        runner.setCase(importedCase2);
+        runner.setContingencyStore(contingencyStore2);
+        assertTrue(runner.getCase().isPresent());
+        assertEquals(importedCase2.getId(), runner.getCase().get().getId());
+        assertTrue(runner.getContingencyStore().isPresent());
+        assertEquals(contingencyStore2.getId(), runner.getContingencyStore().get().getId());
     }
 }
