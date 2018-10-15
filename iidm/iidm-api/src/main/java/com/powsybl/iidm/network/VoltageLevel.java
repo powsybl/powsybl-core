@@ -815,49 +815,64 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     int getLoadCount();
 
     /**
-     * @deprecated @deprecated Use {@link #newShuntCompensator()} instead.
+     * @deprecated Use {@link #newShuntCompensator()} instead.
      */
     @Deprecated
-    ShuntCompensatorAdder newShunt();
+    default ShuntCompensatorAdder newShunt() {
+        throw new UnsupportedOperationException("deprecated");
+    }
 
     /**
-     * @deprecated @deprecated Use {@link #getShuntCompensators()} instead.
+     * @deprecated Use {@link #getShuntCompensators()} instead.
      */
     @Deprecated
-    Iterable<ShuntCompensator> getShunts();
+    default Iterable<ShuntCompensator> getShunts() {
+        throw new UnsupportedOperationException("deprecated");
+    }
 
     /**
-     * @deprecated @deprecated Use {@link #getShuntCompensatorStream()} instead.
+     * @deprecated Use {@link #getShuntCompensatorStream()} instead.
      */
     @Deprecated
-    Stream<ShuntCompensator> getShuntStream();
+    default Stream<ShuntCompensator> getShuntStream() {
+        throw new UnsupportedOperationException("deprecated");
+    }
 
     /**
-     * @deprecated @deprecated Use {@link #getShuntCompensatorCount()} instead.
+     * @deprecated Use {@link #getShuntCompensatorCount()} instead.
      */
     @Deprecated
-    int getShuntCount();
+    default int getShuntCount() {
+        throw new UnsupportedOperationException("deprecated");
+    }
 
     /**
      * Get a builder to create a new compensator shunt.
      */
-    ShuntCompensatorAdder newShuntCompensator();
+    default ShuntCompensatorAdder newShuntCompensator() {
+        throw new UnsupportedOperationException("Not Implemented");
+    }
 
     /**
      * Get compensator shunts.
      */
-    Iterable<ShuntCompensator> getShuntCompensators();
+    default Iterable<ShuntCompensator> getShuntCompensators() {
+        throw new UnsupportedOperationException("Not Implemented");
+    }
 
     /**
      * Get compensator shunts.
      */
-    Stream<ShuntCompensator> getShuntCompensatorStream();
-
+    default Stream<ShuntCompensator> getShuntCompensatorStream() {
+        throw new UnsupportedOperationException("Not Implemented");
+    }
 
     /**
      * Get shunt count.
      */
-    int getShuntCompensatorCount();
+    default int getShuntCompensatorCount() {
+        throw new UnsupportedOperationException("Not Implemented");
+    }
 
     /**
      * Get a builder to create a new dangling line.

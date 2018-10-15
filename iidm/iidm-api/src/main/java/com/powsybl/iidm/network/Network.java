@@ -349,48 +349,64 @@ public interface Network extends Container<Network> {
      * @deprecated Use {@link #getShuntCompensators)} instead.
      */
     @Deprecated
-    Iterable<ShuntCompensator> getShunts();
+    default Iterable<ShuntCompensator> getShunts() {
+        throw new UnsupportedOperationException("deprecated");
+    }
 
     /**
      * @deprecated Use {@link #getShuntCompensatorStream()} instead.
      */
     @Deprecated
-    Stream<ShuntCompensator> getShuntStream();
+    default Stream<ShuntCompensator> getShuntStream() {
+        throw new UnsupportedOperationException("deprecated");
+    }
 
     /**
      * @deprecated Use {@link #getShuntCompensatorCount()} instead.
      */
     @Deprecated
-    int getShuntCount();
+    default int getShuntCount() {
+        throw new UnsupportedOperationException("deprecated");
+    }
 
     /**
      * @deprecated Use {@link #getShuntCompensator(String)} instead.
      */
     @Deprecated
-    ShuntCompensator getShunt(String id);
+    default ShuntCompensator getShunt(String id) {
+        throw new UnsupportedOperationException("deprecated");
+    }
 
     /**
      * Get all compensator shunts.
      */
-    Iterable<ShuntCompensator> getShuntCompensators();
+    default Iterable<ShuntCompensator> getShuntCompensators() {
+        throw new UnsupportedOperationException("Not Implemented");
+    }
 
 
     /**
      * Get all compensator shunts.
      */
-    Stream<ShuntCompensator> getShuntCompensatorStream();
+    default Stream<ShuntCompensator> getShuntCompensatorStream() {
+        throw new UnsupportedOperationException("Not Implemented");
+    }
 
     /**
      * Get the shunt count.
      */
-    int getShuntCompensatorCount();
+    default int getShuntCompensatorCount() {
+        throw new UnsupportedOperationException("Not Implemented");
+    }
 
     /**
      * Get a compensator shunt.
      *
      * @param id the id of the compensator shunt
      */
-    ShuntCompensator getShuntCompensator(String id);
+    default ShuntCompensator getShuntCompensator(String id) {
+        throw new UnsupportedOperationException("Not Implemented");
+    }
 
     /**
      * Get all dangling lines.
