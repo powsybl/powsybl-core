@@ -49,6 +49,7 @@ public class NetworkTest {
         Country country1 = network.getCountries().iterator().next();
 
         assertEquals(1, Iterables.size(network.getSubstations()));
+        assertEquals(1, Iterables.size(network.getSubstations(Country.FR, "TSO1", "region1")));
         assertEquals(1, network.getSubstationCount());
 
         Substation substation1 = network.getSubstation("substation1");
