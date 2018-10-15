@@ -199,22 +199,38 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         return getConnectableCount(Load.class);
     }
 
+    /**
+     * @deprecated Use {@link #newShuntCompensator()} instead.
+     */
     @Override
+    @Deprecated
     public ShuntCompensatorAdder newShunt() {
         return newShuntCompensator();
     }
 
+    /**
+     * @deprecated Use {@link #getShuntCompensatorCount()} instead.
+     */
     @Override
+    @Deprecated
     public int getShuntCount() {
         return getShuntCompensatorCount();
     }
 
+    /**
+     * @deprecated Use {@link #getShuntCompensators()} instead.
+     */
     @Override
+    @Deprecated
     public Iterable<ShuntCompensator> getShunts() {
         return getShuntCompensators();
     }
 
+    /**
+     * @deprecated Use {@link #getShuntCompensatorStream()} instead.
+     */
     @Override
+    @Deprecated
     public Stream<ShuntCompensator> getShuntStream() {
         return getShuntCompensatorStream();
     }

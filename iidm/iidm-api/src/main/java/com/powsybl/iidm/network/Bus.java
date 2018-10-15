@@ -134,23 +134,31 @@ public interface Bus extends Identifiable<Bus> {
      * @deprecated Use {@link #getShuntCompensators()} instead.
      */
     @Deprecated
-    Iterable<ShuntCompensator> getShunts();
+    default Iterable<ShuntCompensator> getShunts() {
+        throw new UnsupportedOperationException("deprecated");
+    }
 
     /**
      * @deprecated Use {@link #getShuntCompensatorStream()} instead.
      */
     @Deprecated
-    Stream<ShuntCompensator> getShuntStream();
+    default Stream<ShuntCompensator> getShuntStream() {
+        throw new UnsupportedOperationException("deprecated");
+    }
 
     /**
      * Get shunt compensators connected to the bus.
      */
-    Iterable<ShuntCompensator> getShuntCompensators();
+    default Iterable<ShuntCompensator> getShuntCompensators() {
+        throw new UnsupportedOperationException("Not Implemented");
+    }
 
     /**
      * Get shunt compensators connected to the bus.
      */
-    Stream<ShuntCompensator> getShuntCompensatorStream();
+    default Stream<ShuntCompensator> getShuntCompensatorStream() {
+        throw new UnsupportedOperationException("Not Implemented");
+    }
 
     /**
      * Get dangling lines connected to the bus.

@@ -273,12 +273,20 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
         return buses.stream().flatMap(ConfiguredBus::getLoadStream);
     }
 
+    /**
+     * @deprecated Use {@link #getShuntCompensators()} instead.
+     */
     @Override
+    @Deprecated
     public Iterable<ShuntCompensator> getShunts() {
         return getShuntCompensators();
     }
 
+    /**
+     * @deprecated Use {@link #getShuntCompensatorStream()} instead.
+     */
     @Override
+    @Deprecated
     public Stream<ShuntCompensator> getShuntStream() {
         return getShuntCompensatorStream();
     }
