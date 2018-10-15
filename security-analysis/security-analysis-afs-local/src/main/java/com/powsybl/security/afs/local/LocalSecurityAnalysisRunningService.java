@@ -44,8 +44,10 @@ public class LocalSecurityAnalysisRunningService implements SecurityAnalysisRunn
     public void run(SecurityAnalysisRunner runner) {
         Objects.requireNonNull(runner);
 
-        ProjectCase aCase = runner.getCase().orElseThrow(() -> new AfsException("Invalid case link"));
-        ContingenciesProvider contingencyListProvider = runner.getContingencyListProvider().orElse(new EmptyContingencyListProvider());
+        ProjectCase aCase = (ProjectCase) runner.getCase().orElseThrow(() -> new AfsException("Invalid case link"));
+        ContingenciesProvider contingencyListProvider = runner.getContingencyStore()
+                .map(store -> (ContingenciesProvider) store)
+                .orElse(new EmptyContingencyListProvider());
         SecurityAnalysisParameters parameters = runner.readParameters();
         ComputationManager computationManager = runner.getFileSystem().getData().getLongTimeExecutionComputationManager();
 
