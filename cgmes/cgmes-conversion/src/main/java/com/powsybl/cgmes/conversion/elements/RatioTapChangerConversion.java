@@ -68,9 +68,12 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
 
     @Override
     public void convert() {
-        RatioTapChangerAdder rtca = adder()
-                .setLowTapPosition(lowStep)
-                .setTapPosition(position);
+        RatioTapChangerAdder rtca = adder();
+        if (rtca == null) {
+            invalid("Could not create ratio tap changer adder");
+            return;
+        }
+        rtca.setLowTapPosition(lowStep).setTapPosition(position);
         addSteps(rtca);
         String tapChangerControl = p.getId("TapChangerControl");
         if (tapChangerControl != null) {
@@ -111,8 +114,8 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
             int n = step - neutralStep;
             double rho = rtcAtSide1 ? 1 / (1 + n * du) : (1 + n * du);
 
-            // Impedance/admittance deviation is required when ratio tap changer is defined at side
-            // 2
+            // Impedance/admittance deviation is required when ratio tap changer
+            // is defined at side 2
             // (In IIDM model the ideal ratio is always at side 1)
             double dz = 0;
             double dy = 0;
