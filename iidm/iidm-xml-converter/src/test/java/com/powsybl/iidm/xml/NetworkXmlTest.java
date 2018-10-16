@@ -54,6 +54,7 @@ public class NetworkXmlTest extends AbstractConverterTest {
     @Test
     public void testReadV10() {
         Network network = NetworkXml.read(getClass().getResourceAsStream("/refs_V1_0/eurostag-tutorial-example1.xml"));
+        assertTrue(network.getSubstation("P1").getGeographicalTags().contains("A"));
         TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer("NHV2_NLOAD");
         assertSame(twoWindingsTransformer, twoWindingsTransformer.getRatioTapChanger().getRegulationTerminal().getConnectable());
     }

@@ -6,10 +6,13 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.google.common.base.Strings;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.Identifiable;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -61,6 +64,25 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
     @Override
     public String toString() {
         return id;
+    }
+
+    protected void addPropertiesValue(String key, String value) {
+        Objects.requireNonNull(key);
+        if (value.contains(",")) {
+            throw new PowsyblException("Value '" + value + "' contains forbidden char ',' which is already used as seperator.");
+        }
+        getProperties().computeIfPresent(key, (k, v) -> v + "," + value);
+        getProperties().computeIfAbsent(key, k -> getProperties().setProperty(key, value));
+
+    }
+
+    protected Set<String> getPropertiesValue(String key) {
+        Objects.requireNonNull(key);
+        String values = getProperties().getProperty(key);
+        if (Strings.isNullOrEmpty(values)) {
+            return Collections.emptySet();
+        }
+        return Arrays.stream(values.split(",")).collect(Collectors.toSet());
     }
 
 }

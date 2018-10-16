@@ -13,7 +13,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class SubstationTest {
 
@@ -49,6 +50,11 @@ public class SubstationTest {
         assertEquals(Country.AF, substation.getCountry());
         substation.setTso("new tso");
         assertEquals("new tso", substation.getTso());
+
+        substation.addGeographicalTag("geoTag3");
+        assertTrue(substation.getGeographicalTags().contains("geoTag1"));
+        assertTrue(substation.getGeographicalTags().contains("geoTag2"));
+        assertTrue(substation.getGeographicalTags().contains("geoTag3"));
     }
 
     @Test

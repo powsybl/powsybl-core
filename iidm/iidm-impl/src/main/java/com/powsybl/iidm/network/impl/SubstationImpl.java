@@ -28,8 +28,6 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
 
     private final Ref<NetworkImpl> networkRef;
 
-    private final Set<String> geographicalTags = new LinkedHashSet<>();
-
     private final Set<VoltageLevelExt> voltageLevels = new LinkedHashSet<>();
 
     SubstationImpl(String id, String name, Country country, String tso, Ref<NetworkImpl> networkRef) {
@@ -145,7 +143,7 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
 
     @Override
     public Set<String> getGeographicalTags() {
-        return Collections.unmodifiableSet(geographicalTags);
+        return getPropertiesValue(GEOGRAPHICAL_TAGS_KEY);
     }
 
     @Override
@@ -153,7 +151,7 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
         if (tag == null) {
             throw new ValidationException(this, "geographical tag is null");
         }
-        geographicalTags.add(tag);
+        addPropertiesValue(GEOGRAPHICAL_TAGS_KEY, tag);
         return this;
     }
 

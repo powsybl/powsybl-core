@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_1" id="sim1" caseDate="2013-01-15T18:45:00.000+01:00" forecastDistance="0" sourceFormat="test">
-    <iidm:substation id="P1" country="FR" tso="RTE" geographicalTags="A">
+    <iidm:substation id="P1" country="FR" tso="RTE">
+        <iidm:property name="geographicalTags" value="A"/>
         <iidm:voltageLevel id="VLGEN" nominalV="24.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="NGEN"/>
@@ -16,7 +17,8 @@
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="NGEN_NHV1" r="0.26658461538461536" x="11.104492831516762" g="0.0" b="0.0" ratedU1="24.0" ratedU2="400.0" bus1="NGEN" connectableBus1="NGEN" voltageLevelId1="VLGEN" bus2="NHV1" connectableBus2="NHV1" voltageLevelId2="VLHV1"/>
     </iidm:substation>
-    <iidm:substation id="P2" country="FR" tso="RTE" geographicalTags="B">
+    <iidm:substation id="P2" country="FR" tso="RTE">
+        <iidm:property name="geographicalTags" value="B"/>
         <iidm:voltageLevel id="VLHV2" nominalV="380.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>
                 <iidm:bus id="NHV2"/>

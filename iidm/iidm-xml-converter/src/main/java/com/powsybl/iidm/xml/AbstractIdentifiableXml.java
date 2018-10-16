@@ -49,7 +49,11 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
                 String value = props.getProperty(name);
                 context.getWriter().writeEmptyElement(IIDM_URI, "property");
                 context.getWriter().writeAttribute("name", name);
-                context.getWriter().writeAttribute("value", value);
+                if (isAnonymizedProperty(name)) {
+                    context.getWriter().writeAttribute("value", anonymize(context, value));
+                } else {
+                    context.getWriter().writeAttribute("value", value);
+                }
             }
         }
         writeSubElements(identifiable, parent, context);
@@ -58,6 +62,14 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
         }
 
         context.addExportedEquipment(identifiable);
+    }
+
+    protected boolean isAnonymizedProperty(String name) {
+        return false;
+    }
+
+    protected String anonymize(NetworkXmlWriterContext context, String value) {
+        return context.getAnonymizer().anonymizeString(value);
     }
 
     protected void readUntilEndRootElement(XMLStreamReader reader, XmlUtil.XmlEventHandler eventHandler) throws XMLStreamException {
@@ -72,6 +84,9 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
         if (context.getReader().getLocalName().equals("property")) {
             String name = context.getReader().getAttributeValue(null, "name");
             String value = context.getReader().getAttributeValue(null, "value");
+            if (isAnonymizedProperty(name)) {
+                value = context.getAnonymizer().deanonymizeString(value);
+            }
             identifiable.getProperties().put(name, value);
         } else {
             throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <" + identifiable.getId() + ">");

@@ -38,11 +38,24 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
         if (s.getTso() != null) {
             context.getWriter().writeAttribute("tso", context.getAnonymizer().anonymizeString(s.getTso()));
         }
-        if (!s.getGeographicalTags().isEmpty()) {
-            context.getWriter().writeAttribute("geographicalTags", s.getGeographicalTags().stream()
-                    .map(tag -> context.getAnonymizer().anonymizeString(tag))
-                    .collect(Collectors.joining(",")));
-        }
+//        if (!s.getGeographicalTags().isEmpty()) {
+//            context.getWriter().writeAttribute("geographicalTags", s.getGeographicalTags().stream()
+//                    .map(tag -> context.getAnonymizer().anonymizeString(tag))
+//                    .collect(Collectors.joining(",")));
+//        }
+    }
+
+    @Override
+    protected boolean isAnonymizedProperty(String name) {
+        return name.equals(Substation.GEOGRAPHICAL_TAGS_KEY);
+    }
+
+    @Override
+    protected String anonymize(NetworkXmlWriterContext context, String value) {
+        return Arrays.asList(value.split(",")).stream()
+                .map(v -> context.getAnonymizer()
+                        .anonymizeString(value))
+                .collect(Collectors.joining(","));
     }
 
     @Override
@@ -75,15 +88,21 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
     protected Substation readRootElementAttributes(SubstationAdder adder, NetworkXmlReaderContext context) {
         Country country = context.getAnonymizer().deanonymizeCountry(Country.valueOf(context.getReader().getAttributeValue(null, "country")));
         String tso = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "tso"));
+        if (context.getVersion().equals("1_0")) {
+            readGeographicalTags(adder, context);
+        }
+        return adder.setCountry(country)
+                .setTso(tso)
+                .add();
+    }
+
+    private static void readGeographicalTags(SubstationAdder adder, NetworkXmlReaderContext context) {
         String geographicalTags = context.getReader().getAttributeValue(null, "geographicalTags");
         if (geographicalTags != null) {
             adder.setGeographicalTags(Arrays.stream(geographicalTags.split(","))
                     .map(tag -> context.getAnonymizer().deanonymizeString(tag))
                     .toArray(size -> new String[size]));
         }
-        return adder.setCountry(country)
-                .setTso(tso)
-                .add();
     }
 
     @Override
