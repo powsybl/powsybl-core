@@ -4,7 +4,7 @@
            xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_1"
            targetNamespace="http://www.itesla_project.eu/schema/iidm/ext/tieLine/1_0"
            elementFormDefault="qualified">
-    <xs:import namespace="http://www.itesla_project.eu/schema/iidm/1_1" schemaLocation="iidm.xsd"/>
+    <xs:import namespace="http://www.itesla_project.eu/schema/iidm/1_1" schemaLocation="../../../../../iidm-xml-converter/src/main/resources/xsd/iidm.xsd"/>
     <xs:element name="tieLine">
         <xs:complexType>
             <xs:attribute name="ucteXnodeCode" use="optional" type="iidm:nonEmptyString"/>

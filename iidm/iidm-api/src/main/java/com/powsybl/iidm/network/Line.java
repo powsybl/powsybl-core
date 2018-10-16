@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.iidm.network.ext.TieLineExt;
+
 /**
  * An AC line.
  * <p>
@@ -20,6 +22,8 @@ package com.powsybl.iidm.network;
  */
 public interface Line extends Branch<Line>, LineCharacteristics<Line> {
 
-    boolean isTieLine();
+    default boolean isTieLine() {
+        return getExtension(TieLineExt.class) != null;
+    }
 
 }

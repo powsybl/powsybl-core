@@ -12,5 +12,5 @@
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:tieLine id="testTie" name="testNameTie" ucteXnodeCode="ucte" bus1="busA" connectableBus1="busA" voltageLevelId1="vl1" bus2="busB" connectableBus2="busB" voltageLevelId2="vl2" id_1="hl1" name_1="half1_name" r_1="10.0" x_1="20.0" g1_1="30.0" b1_1="40.0" g2_1="35.0" b2_1="45.0" xnodeP_1="50.0" xnodeQ_1="60.0" id_2="hl2" name_2="hl2" r_2="1.0" x_2="2.0" g1_2="130.0" b1_2="140.0" g2_2="135.0" b2_2="145.0" xnodeP_2="50.0" xnodeQ_2="60.0"/>
+    <iidm:tieLine id="tieline" name="tieline" ucteXnodeCode="ucte" bus1="busA" connectableBus1="busA" voltageLevelId1="vl1" bus2="busB" connectableBus2="busB" voltageLevelId2="vl2" id_1="hl1" name_1="half1_name" r_1="10.0" x_1="20.0" g1_1="30.0" b1_1="40.0" g2_1="35.0" b2_1="45.0" xnodeP_1="50.0" xnodeQ_1="60.0" id_2="hl2" name_2="hl2" r_2="1.0" x_2="2.0" g1_2="130.0" b1_2="140.0" g2_2="135.0" b2_2="145.0" xnodeP_2="50.0" xnodeQ_2="60.0"/>
 </iidm:network>

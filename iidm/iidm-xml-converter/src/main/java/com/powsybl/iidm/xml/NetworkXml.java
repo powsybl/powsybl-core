@@ -334,7 +334,7 @@ public final class NetworkXml {
             }
 
             if (context.getVersion().equals("1_0") && network.getLineStream().anyMatch(Line::isTieLine)) {
-                Networks.replaceTieLineByLine(network);
+                Networks.replaceTieLineByExtension(network);
             }
 
             return network;

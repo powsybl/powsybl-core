@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.ext;
+package com.powsybl.iidm.network.ext;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
@@ -30,6 +30,25 @@ public class TieLineExt extends AbstractExtension<Line> {
         this.ucteXnodeCode = ucteXnodeCode;
         this.half1 = checkHalfLine(half1, 1);
         this.half2 = checkHalfLine(half2, 2);
+    }
+
+    public TieLineExt(Line line, String ucteXnodeCode, TieLine.HalfLine half1, TieLine.HalfLine half2) {
+        this(line, ucteXnodeCode, convert(half1), convert(half2));
+    }
+
+    private static TieLineExt.HalfLineImpl convert(TieLine.HalfLine half) {
+        HalfLineImpl halfLine = new HalfLineImpl();
+        halfLine.setId(half.getId())
+                .setName(half.getName())
+                .setR(half.getR())
+                .setX(half.getX())
+                .setG1(half.getG1())
+                .setB1(half.getB1())
+                .setG2(half.getG2())
+                .setB2(half.getB2())
+                .setXnodeP(half.getXnodeP())
+                .setXnodeQ(half.getXnodeQ());
+        return halfLine;
     }
 
     private HalfLine checkHalfLine(HalfLine halfLine, int side) {
@@ -77,21 +96,21 @@ public class TieLineExt extends AbstractExtension<Line> {
      * Get the UCTE Xnode code corresponding to this line in the case where the
      * line is a boundary, return null otherwise.
      */
-    String getUcteXnodeCode() {
+    public String getUcteXnodeCode() {
         return ucteXnodeCode;
     }
 
     /**
      * Get first half of the line characteristics
      */
-    HalfLine getHalf1() {
+    public HalfLine getHalf1() {
         return half1;
     }
 
     /**
      * Get second half of the line characteristics
      */
-    HalfLine getHalf2() {
+    public HalfLine getHalf2() {
         return half2;
     }
 
@@ -123,7 +142,7 @@ public class TieLineExt extends AbstractExtension<Line> {
         return half1.getB2() + half2.getB2();
     }
 
-    interface HalfLine extends LineCharacteristics<HalfLine> {
+    public interface HalfLine extends LineCharacteristics<HalfLine> {
 
         String getId();
 
