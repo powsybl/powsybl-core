@@ -21,7 +21,7 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.RatioTapChangerStep;
+import com.powsybl.iidm.network.RatioTapChangerTap;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Terminal.BusView;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -111,7 +111,7 @@ public class FlowsValidationTest extends AbstractValidationTest {
         Mockito.when(line1.getB1()).thenReturn(b1);
         Mockito.when(line1.getB2()).thenReturn(b2);
 
-        RatioTapChangerStep step = Mockito.mock(RatioTapChangerStep.class);
+        RatioTapChangerTap step = Mockito.mock(RatioTapChangerTap.class);
         Mockito.when(step.getRdr()).thenReturn(r);
         Mockito.when(step.getRdx()).thenReturn(x);
         Mockito.when(step.getRdg()).thenReturn(g1);
@@ -119,7 +119,7 @@ public class FlowsValidationTest extends AbstractValidationTest {
         Mockito.when(step.getRatio()).thenReturn(rho2);
 
         ratioTapChanger = Mockito.mock(RatioTapChanger.class);
-        Mockito.when(ratioTapChanger.getCurrentStep()).thenReturn(step);
+        Mockito.when(ratioTapChanger.getCurrentTap()).thenReturn(step);
 
         transformer1 = Mockito.mock(TwoWindingsTransformer.class);
         Mockito.when(transformer1.getId()).thenReturn("transformer1");

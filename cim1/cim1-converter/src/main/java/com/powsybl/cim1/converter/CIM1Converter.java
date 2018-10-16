@@ -538,14 +538,14 @@ class CIM1Converter implements CIM1Constants {
                         throw new AssertionError("Unexpected PhaseTapChangerKind value: " + ptc.getPhaseTapChangerType());
                 }
             }
-            ptca.beginStep()
+            ptca.endTap()
                     .setPhaseShift(Math.toDegrees(alpha))
                     .setRatio(ratio)
                     .setRdr(0)
                     .setRdx((x - transfo.getX()) / transfo.getX() * 100)
                     .setRdg(0)
                     .setRdb(0)
-                .endStep();
+                .endTap();
         }
 
         if (ptc.regulatingControlIsSet()) {
@@ -614,13 +614,13 @@ class CIM1Converter implements CIM1Constants {
                 }
             }
 
-            rtca.beginStep()
+            rtca.beginTap()
                     .setRatio(ratio)
                     .setRdr(dz)
                     .setRdx(dz)
                     .setRdg(dy)
                     .setRdb(dy)
-                .endStep();
+                .endTap();
         }
 
         if (rtc.regulatingControlIsSet()) {

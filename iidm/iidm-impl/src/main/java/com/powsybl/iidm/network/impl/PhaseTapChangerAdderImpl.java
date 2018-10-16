@@ -24,7 +24,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
     private Integer tapPosition;
 
-    private final List<PhaseTapChangerStepImpl> steps = new ArrayList<>();
+    private final List<PhaseTapChangerTapImpl> taps = new ArrayList<>();
 
     private PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.FIXED_TAP;
 
@@ -34,7 +34,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
     private TerminalExt regulationTerminal;
 
-    class StepAdderImpl implements StepAdder {
+    class TapAdderImpl implements TapAdder {
 
         private double phaseShift = 0.0;
 
@@ -49,63 +49,63 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         private double rdb = 0.0;
 
         @Override
-        public StepAdder setPhaseShift(double phaseShift) {
+        public TapAdder setPhaseShift(double phaseShift) {
             this.phaseShift = phaseShift;
             return this;
         }
 
         @Override
-        public StepAdder setRatio(double ratio) {
+        public TapAdder setRatio(double ratio) {
             this.ratio = ratio;
             return this;
         }
 
         @Override
-        public StepAdder setRdr(double rdr) {
+        public TapAdder setRdr(double rdr) {
             this.rdr = rdr;
             return this;
         }
 
         @Override
-        public StepAdder setRdx(double rdx) {
+        public TapAdder setRdx(double rdx) {
             this.rdx = rdx;
             return this;
         }
 
         @Override
-        public StepAdder setRdg(double rdg) {
+        public TapAdder setRdg(double rdg) {
             this.rdg = rdg;
             return this;
         }
 
         @Override
-        public StepAdder setRdb(double rdb) {
+        public TapAdder setRdb(double rdb) {
             this.rdb = rdb;
             return this;
         }
 
         @Override
-        public PhaseTapChangerAdder endStep() {
+        public PhaseTapChangerAdder endTap() {
             if (Double.isNaN(phaseShift)) {
-                throw new ValidationException(transformer, "step phaseShift is not set");
+                throw new ValidationException(transformer, "tap phaseShift is not set");
             }
             if (Double.isNaN(ratio)) {
-                throw new ValidationException(transformer, "step ratio is not set");
+                throw new ValidationException(transformer, "tap ratio is not set");
             }
             if (Double.isNaN(rdr)) {
-                throw new ValidationException(transformer, "step rdr is not set");
+                throw new ValidationException(transformer, "tap rdr is not set");
             }
             if (Double.isNaN(rdx)) {
-                throw new ValidationException(transformer, "step rdx is not set");
+                throw new ValidationException(transformer, "tap rdx is not set");
             }
             if (Double.isNaN(rdg)) {
-                throw new ValidationException(transformer, "step rdg is not set");
+                throw new ValidationException(transformer, "tap rdg is not set");
             }
             if (Double.isNaN(rdb)) {
-                throw new ValidationException(transformer, "step rdb is not set");
+                throw new ValidationException(transformer, "tap rdb is not set");
             }
-            PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(phaseShift, ratio, rdr, rdx, rdg, rdb);
-            steps.add(step);
+            PhaseTapChangerTapImpl tap = new PhaseTapChangerTapImpl(phaseShift, ratio, rdr, rdx, rdg, rdb);
+            taps.add(tap);
             return PhaseTapChangerAdderImpl.this;
         }
 
@@ -156,8 +156,8 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
     }
 
     @Override
-    public StepAdder beginStep() {
-        return new StepAdderImpl();
+    public TapAdder endTap() {
+        return new TapAdderImpl();
     }
 
     @Override
@@ -165,10 +165,10 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         if (tapPosition == null) {
             throw new ValidationException(transformer, "tap position is not set");
         }
-        if (steps.isEmpty()) {
-            throw new ValidationException(transformer, "a phase tap changer shall have at least one step");
+        if (taps.isEmpty()) {
+            throw new ValidationException(transformer, "a phase tap changer shall have at least one tap");
         }
-        int highTapPosition = lowTapPosition + steps.size() - 1;
+        int highTapPosition = lowTapPosition + taps.size() - 1;
         if (tapPosition < lowTapPosition || tapPosition > highTapPosition) {
             throw new ValidationException(transformer, "incorrect tap position "
                     + tapPosition + " [" + lowTapPosition + ", "
@@ -176,7 +176,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
         }
         ValidationUtil.checkPhaseTapChangerRegulation(transformer, regulationMode, regulationValue, regulating, regulationTerminal, getNetwork());
         PhaseTapChangerImpl tapChanger
-                = new PhaseTapChangerImpl(transformer, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, regulationMode, regulationValue);
+                = new PhaseTapChangerImpl(transformer, lowTapPosition, taps, regulationTerminal, tapPosition, regulating, regulationMode, regulationValue);
         transformer.setPhaseTapChanger(tapChanger);
         return tapChanger;
     }

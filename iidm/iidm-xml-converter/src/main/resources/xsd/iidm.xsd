@@ -379,14 +379,14 @@
         <xs:attribute name="id" use="optional" type="iidm:nonEmptyString"/>
         <xs:attribute name="side" use="optional" type="iidm:Side"/>
     </xs:complexType>
-    <xs:complexType name="RatioTapChangerStep">
+    <xs:complexType name="RatioTapChangerTap">
         <xs:attribute name="ratio" use="optional" type="xs:double" default="1.0"/>
         <xs:attribute name="rdr" use="optional" type="xs:double" default="0.0"/>
         <xs:attribute name="rdx" use="optional" type="xs:double" default="0.0"/>
         <xs:attribute name="rdg" use="optional" type="xs:double" default="0.0"/>
         <xs:attribute name="rdb" use="optional" type="xs:double" default="0.0"/>
     </xs:complexType>
-    <xs:complexType name="PhaseTapChangerStep">
+    <xs:complexType name="PhaseTapChangerTap">
         <xs:attribute name="ratio" use="optional" type="xs:double" default="1.0"/>
         <xs:attribute name="phaseShift" use="optional" type="xs:double" default="0.0"/>
         <xs:attribute name="rdr" use="optional" type="xs:double" default="0.0"/>
@@ -397,7 +397,7 @@
     <xs:complexType name="RatioTapChanger">
         <xs:sequence>
             <xs:element name="terminalRef" minOccurs="0" type="iidm:TerminalRef"/>
-            <xs:element name="step" minOccurs="1" maxOccurs="unbounded" type="iidm:RatioTapChangerStep"/>
+            <xs:element name="tap" minOccurs="1" maxOccurs="unbounded" type="iidm:RatioTapChangerTap"/>
         </xs:sequence>
         <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
         <xs:attribute name="tapPosition" use="required" type="xs:int"/>
@@ -415,7 +415,7 @@
     <xs:complexType name="PhaseTapChanger">
         <xs:sequence>
             <xs:element name="terminalRef" minOccurs="0" type="iidm:TerminalRef"/>
-            <xs:element name="step" minOccurs="1" maxOccurs="unbounded" type="iidm:PhaseTapChangerStep"/>
+            <xs:element name="tap" minOccurs="1" maxOccurs="unbounded" type="iidm:PhaseTapChangerTap"/>
         </xs:sequence>
         <xs:attribute name="lowTapPosition" use="required" type="xs:int"/>
         <xs:attribute name="tapPosition" use="required" type="xs:int"/>

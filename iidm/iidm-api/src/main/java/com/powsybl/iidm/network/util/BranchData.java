@@ -168,7 +168,7 @@ public class BranchData {
         u2 = bus2 != null ? bus2.getV() : Double.NaN;
         theta1 = bus1 != null ? Math.toRadians(bus1.getAngle()) : Double.NaN;
         theta2 = bus2 != null ? Math.toRadians(bus2.getAngle()) : Double.NaN;
-        alpha1 = twt.getPhaseTapChanger() != null ? Math.toRadians(twt.getPhaseTapChanger().getCurrentStep().getPhaseShift()) : 0f;
+        alpha1 = twt.getPhaseTapChanger() != null ? Math.toRadians(twt.getPhaseTapChanger().getCurrentTap().getPhaseShift()) : 0f;
         alpha2 = 0f;
         g1 = getG1(twt, specificCompatibility);
         g2 = specificCompatibility ? twt.getG() / 2 : 0f;
@@ -199,35 +199,35 @@ public class BranchData {
 
     private double getR(TwoWindingsTransformer twt) {
         return getValue(twt.getR(),
-                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getRdr() : 0,
-                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getRdr() : 0);
+                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentTap().getRdr() : 0,
+                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentTap().getRdr() : 0);
     }
 
     private double getX(TwoWindingsTransformer twt) {
         return getValue(twt.getX(),
-                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getRdx() : 0,
-                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getRdx() : 0);
+                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentTap().getRdx() : 0,
+                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentTap().getRdx() : 0);
     }
 
     private double getG1(TwoWindingsTransformer twt, boolean specificCompatibility) {
         return getValue(specificCompatibility ? twt.getG() / 2 : twt.getG(),
-                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getRdg() : 0,
-                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getRdg() : 0);
+                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentTap().getRdg() : 0,
+                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentTap().getRdg() : 0);
     }
 
     private double getB1(TwoWindingsTransformer twt, boolean specificCompatibility) {
         return getValue(specificCompatibility ? twt.getB() / 2 : twt.getB(),
-                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getRdb() : 0,
-                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getRdb() : 0);
+                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentTap().getRdb() : 0,
+                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentTap().getRdb() : 0);
     }
 
     private double getRho1(TwoWindingsTransformer twt) {
         double rho = twt.getRatedU2() / twt.getRatedU1();
         if (twt.getRatioTapChanger() != null) {
-            rho *= twt.getRatioTapChanger().getCurrentStep().getRatio();
+            rho *= twt.getRatioTapChanger().getCurrentTap().getRatio();
         }
         if (twt.getPhaseTapChanger() != null) {
-            rho *= twt.getPhaseTapChanger().getCurrentStep().getRatio();
+            rho *= twt.getPhaseTapChanger().getCurrentTap().getRatio();
         }
         return rho;
     }

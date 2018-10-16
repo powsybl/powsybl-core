@@ -9,13 +9,14 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.Terminal;
 import gnu.trove.list.array.TDoubleArrayList;
+
 import java.util.List;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, RatioTapChangerImpl, RatioTapChangerStepImpl> implements RatioTapChanger {
+class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, RatioTapChangerImpl, RatioTapChangerTapImpl> implements RatioTapChanger {
 
     private boolean onLoadTapChanger;
 
@@ -24,9 +25,9 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     private final TDoubleArrayList targetV;
 
     RatioTapChangerImpl(RatioTapChangerParent parent, int lowTapPosition,
-                        List<RatioTapChangerStepImpl> steps, TerminalExt regulationTerminal, boolean onLoadTapChanger,
+                        List<RatioTapChangerTapImpl> taps, TerminalExt regulationTerminal, boolean onLoadTapChanger,
                         int tapPosition, boolean regulating, double targetV) {
-        super(parent.getNetwork().getRef(), parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating);
+        super(parent.getNetwork().getRef(), parent, lowTapPosition, taps, regulationTerminal, tapPosition, regulating);
         this.onLoadTapChanger = onLoadTapChanger;
         int stateArraySize = network.get().getStateManager().getStateArraySize();
         this.targetV = new TDoubleArrayList(stateArraySize);

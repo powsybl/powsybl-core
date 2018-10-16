@@ -16,7 +16,7 @@ import java.util.List;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl, PhaseTapChangerImpl, PhaseTapChangerStepImpl>
+class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl, PhaseTapChangerImpl, PhaseTapChangerTapImpl>
                           implements PhaseTapChanger {
 
     private RegulationMode regulationMode;
@@ -26,9 +26,9 @@ class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl,
     private final TDoubleArrayList regulationValue;
 
     PhaseTapChangerImpl(TwoWindingsTransformerImpl parent, int lowTapPosition,
-                        List<PhaseTapChangerStepImpl> steps, TerminalExt regulationTerminal,
+                        List<PhaseTapChangerTapImpl> taps, TerminalExt regulationTerminal,
                         int tapPosition, boolean regulating, RegulationMode regulationMode, double regulationValue) {
-        super(parent.getNetwork().getRef(), parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating);
+        super(parent.getNetwork().getRef(), parent, lowTapPosition, taps, regulationTerminal, tapPosition, regulating);
         int stateArraySize = network.get().getStateManager().getStateArraySize();
         this.regulationMode = regulationMode;
         this.regulationValue = new TDoubleArrayList(stateArraySize);

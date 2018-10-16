@@ -9,8 +9,8 @@ package com.powsybl.action.dsl;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.PhaseTapChangerTap;
 import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.PhaseTapChangerStep;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import groovy.lang.GroovyCodeSource;
 import groovy.lang.MissingMethodException;
@@ -111,22 +111,22 @@ public class ActionDslLoaderTest {
                 .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulationTerminal(network.getTwoWindingsTransformer("NGEN_NHV1").getTerminal2())
                 .setRegulationValue(1.0)
-                .beginStep()
+                .endTap()
                     .setRdr(1.0)
                     .setRdx(2.0)
                     .setRdg(3.0)
                     .setRdb(4.0)
                     .setPhaseShift(5.0)
                     .setRatio(6.0)
-                .endStep()
-                .beginStep()
+                .endTap()
+                .endTap()
                     .setRdr(1.0)
                     .setRdx(2.0)
                     .setRdg(3.0)
                     .setRdb(4.0)
                     .setPhaseShift(5.0)
                     .setRatio(6.0)
-                .endStep()
+                .endTap()
                 .add();
     }
 
@@ -136,8 +136,8 @@ public class ActionDslLoaderTest {
         Action someAction = actionDb.getAction("compatible");
         addPhaseShifter();
         someAction.run(network, null);
-        PhaseTapChangerStep phaseTapChangerStep = network.getTwoWindingsTransformer("NGEN_NHV1").getPhaseTapChanger().getCurrentStep();
-        assertEquals(13.0, phaseTapChangerStep.getRdr(), 0.0);
-        assertEquals(14.0, phaseTapChangerStep.getPhaseShift(), 0.0);
+        PhaseTapChangerTap phaseTapChangerTapChangerStep = network.getTwoWindingsTransformer("NGEN_NHV1").getPhaseTapChanger().getCurrentTap();
+        assertEquals(13.0, phaseTapChangerTapChangerStep.getRdr(), 0.0);
+        assertEquals(14.0, phaseTapChangerTapChangerStep.getPhaseShift(), 0.0);
     }
 }

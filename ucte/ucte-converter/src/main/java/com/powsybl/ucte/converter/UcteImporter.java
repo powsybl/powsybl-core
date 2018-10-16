@@ -515,13 +515,13 @@ public class UcteImporter implements Importer {
         }
         for (int i = -uctePhaseRegulation.getN(); i <= uctePhaseRegulation.getN(); i++) {
             float ratio = 1 / (1 + i * uctePhaseRegulation.getDu() / 100f);
-            rtca.beginStep()
+            rtca.beginTap()
                     .setRatio(ratio)
                     .setRdr(0f)
                     .setRdx(0f)
                     .setRdg(0f)
                     .setRdb(0f)
-                    .endStep();
+                    .endTap();
         }
         rtca.add();
     }
@@ -554,14 +554,14 @@ public class UcteImporter implements Importer {
                 default:
                     throw new AssertionError("Unexpected UcteAngleRegulationType value: " + ucteAngleRegulation.getType());
             }
-            ptca.beginStep()
+            ptca.endTap()
                     .setRatio(rho)
                     .setPhaseShift(-alpha) // minus because in the UCT model PST is on side 2 and side1 on IIDM model
                     .setRdr(0f)
                     .setRdx(0f)
                     .setRdg(0f)
                     .setRdb(0f)
-                    .endStep();
+                    .endTap();
         }
         ptca.add();
     }

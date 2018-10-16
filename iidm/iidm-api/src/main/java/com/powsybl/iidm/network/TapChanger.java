@@ -10,15 +10,15 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep<S>> {
+public interface TapChanger<C extends TapChanger<C, S>, S extends TapChanger.Tap<S>> {
 
     /**
-     * Get the lowest tap position corresponding to the first step of the tap changer.
+     * Get the lowest tap position corresponding to the first tap of the tap changer.
      */
     int getLowTapPosition();
 
     /**
-     * Get the highest tap position corresponding to the last step of the tap changer.
+     * Get the highest tap position corresponding to the last tap of the tap changer.
      */
     int getHighTapPosition();
 
@@ -43,25 +43,25 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
     C setTapPosition(int tapPosition);
 
     /**
-     * Get the number of steps.
+     * Get the number of taps.
      */
-    int getStepCount();
+    int getTapCount();
 
     /**
-     * Get a step.
+     * Get a tap.
      *
      * @param tapPosition position of the tap
-     * @return the step
+     * @return the tap
      */
-    S getStep(int tapPosition);
+    S getTap(int tapPosition);
 
     /**
-     * Get the current step.
+     * Get the current tap.
      * <p>
      * Depends on the working state.
      * @see StateManager
      */
-    S getCurrentStep();
+    S getCurrentTap();
 
     /**
      * Get the regulating status.
@@ -94,4 +94,57 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
      */
     void remove();
 
+    public interface Tap<S extends Tap> {
+
+        /**
+         * Get the voltage ratio in per unit.
+         */
+        double getRatio();
+
+        /**
+         * Set the voltage ratio in per unit.
+         */
+        S setRatio(double ratio);
+
+        /**
+         * Get the resistance deviation in percent of nominal value.
+         */
+        double getRdr();
+
+        /**
+         * Set the resistance deviation in percent of nominal value.
+         */
+        S setRdr(double rdr);
+
+        /**
+         * Get the reactance deviation in percent of nominal value.
+         */
+        double getRdx();
+
+        /**
+         * Set the reactance deviation in percent of nominal value.
+         */
+        S setRdx(double rdx);
+
+        /**
+         * Get the susceptance deviation in percent of nominal value.
+         */
+        double getRdb();
+
+        /**
+         * Set the susceptance deviation in percent of nominal value.
+         */
+        S setRdb(double rdb);
+
+        /**
+         * Get the conductance deviation in percent of nominal value.
+         */
+        double getRdg();
+
+        /**
+         * Set the conductance deviation in percent of nominal value.
+         */
+        S setRdg(double rdg);
+
+    }
 }

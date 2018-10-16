@@ -116,7 +116,7 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(twtTerminal2.getQ()).thenReturn(twtQ2);
         Mockito.when(twtTerminal2.getBusView()).thenReturn(twtBusView2);
 
-        RatioTapChangerStep step = Mockito.mock(RatioTapChangerStep.class);
+        RatioTapChangerTap step = Mockito.mock(RatioTapChangerTap.class);
         Mockito.when(step.getRdr()).thenReturn(0.0);
         Mockito.when(step.getRdx()).thenReturn(0.0);
         Mockito.when(step.getRdg()).thenReturn(0.0);
@@ -124,7 +124,7 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(step.getRatio()).thenReturn(1.0);
 
         RatioTapChanger ratioTapChanger = Mockito.mock(RatioTapChanger.class);
-        Mockito.when(ratioTapChanger.getCurrentStep()).thenReturn(step);
+        Mockito.when(ratioTapChanger.getCurrentTap()).thenReturn(step);
 
         transformer = Mockito.mock(TwoWindingsTransformer.class);
         Mockito.when(transformer.getId()).thenReturn(twtId);

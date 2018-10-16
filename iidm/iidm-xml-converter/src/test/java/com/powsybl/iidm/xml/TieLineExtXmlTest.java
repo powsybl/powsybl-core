@@ -11,8 +11,6 @@ import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ext.TieLineExt;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
-import com.powsybl.iidm.xml.NetworkXml;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -24,21 +22,21 @@ public class TieLineExtXmlTest extends AbstractConverterTest {
 
     private static final String TIELINE_REF = "/tieLineRef.xml";
 
-    private static final String id = "tieline";
-    private static final double r1 = 10.0;
-    private static final double r2 = 1.0;
-    private static final double x1 = 20.0;
-    private static final double x2 = 2.0;
-    private static final double hl1g1 = 30.0;
-    private static final double hl1g2 = 35.0;
-    private static final double hl1b1 = 40.0;
-    private static final double hl1b2 = 45.0;
-    private static final double hl2g1 = 130.0;
-    private static final double hl2g2 = 135.0;
-    private static final double hl2b1 = 140.0;
-    private static final double hl2b2 = 145.0;
-    private static final double xnodeP = 50.0;
-    private static final double xnodeQ = 60.0;
+    private final String id = "tieline";
+    private final double r1 = 10.0;
+    private final double r2 = 1.0;
+    private final double x1 = 20.0;
+    private final double x2 = 2.0;
+    private final double hl1g1 = 30.0;
+    private final double hl1g2 = 35.0;
+    private final double hl1b1 = 40.0;
+    private final double hl1b2 = 45.0;
+    private final double hl2g1 = 130.0;
+    private final double hl2g2 = 135.0;
+    private final double hl2b1 = 140.0;
+    private final double hl2b2 = 145.0;
+    private final double xnodeP = 50.0;
+    private final double xnodeQ = 60.0;
 
     @Test
     public void testRoundTripV11() throws IOException {
@@ -78,7 +76,7 @@ public class TieLineExtXmlTest extends AbstractConverterTest {
         assertEquals(xnodeQ, hl2.getXnodeQ(), 0.0);
     }
 
-    private static void addTieLineExt(Network network) {
+    private void addTieLineExt(Network network) {
         Line line = network.newLine().setId(id)
                 .setR(r1 + r2)
                 .setX(x1 + x2)

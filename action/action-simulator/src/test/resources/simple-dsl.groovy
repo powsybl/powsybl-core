@@ -1,3 +1,5 @@
+import com.powsybl.iidm.network.RatioTapChangerStep
+
 /**
  * Copyright (c) 2017, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
@@ -24,6 +26,15 @@ action('action1') {
             step.setRho(step.rho + step.getRho())
             step.ratio = step.getRatio() + step.ratio
             step.setRatio(step.ratio + 1.0)
+            RatioTapChangerStep step0 = transformer('NHV2_NLOAD').ratioTapChanger.getStep(0)
+            step0.r = 13.3
+            step0.rdx = 11.1 + step0.r
+            step0.setG(12.2 + step0.getR())
+            step0.setRdb(11.1 + step0.getG())
+            step0.rho = 11.0
+            step0.setRho(step0.rho + step0.getRho())
+            step0.ratio = step0.getRatio() + step0.ratio
+            step0.setRatio(step0.ratio + 11.0)
         }
     }
 }

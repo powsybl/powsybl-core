@@ -101,9 +101,9 @@ public final class TransformersValidation {
         int tapPosition = ratioTapChanger.getTapPosition();
         int lowTapPosition = ratioTapChanger.getLowTapPosition();
         int highTapPosition = ratioTapChanger.getHighTapPosition();
-        double rho = ratioTapChanger.getCurrentStep().getRatio();
-        double rhoPreviousStep = tapPosition == lowTapPosition ? Double.NaN : ratioTapChanger.getStep(tapPosition - 1).getRatio();
-        double rhoNextStep = tapPosition == highTapPosition ? Double.NaN : ratioTapChanger.getStep(tapPosition + 1).getRatio();
+        double rho = ratioTapChanger.getCurrentTap().getRatio();
+        double rhoPreviousStep = tapPosition == lowTapPosition ? Double.NaN : ratioTapChanger.getTap(tapPosition - 1).getRatio();
+        double rhoNextStep = tapPosition == highTapPosition ? Double.NaN : ratioTapChanger.getTap(tapPosition + 1).getRatio();
         double targetV = ratioTapChanger.getTargetV();
         Side regulatedSide;
         if (twt.getTerminal1().equals(ratioTapChanger.getRegulationTerminal())) {

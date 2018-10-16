@@ -25,9 +25,10 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
     private static final String ATTR_REGULATING = "regulating";
     private static final String ELEM_TERMINAL_REF = "terminalRef";
     private static final String ELEM_STEP = "step";
+    private static final String ELEM_TAP = "tap";
 
 
-    protected static void writeTapChangerStep(TapChangerStep<?> tcs, XMLStreamWriter writer) throws XMLStreamException {
+    protected static void writeTapChangerTap(TapChanger.Tap<?> tcs, XMLStreamWriter writer) throws XMLStreamException {
         XmlUtil.writeOptionalDouble("rdr", tcs.getRdr(), 0.0, writer);
         XmlUtil.writeOptionalDouble("rdx", tcs.getRdx(), 0.0, writer);
         XmlUtil.writeOptionalDouble("rdg", tcs.getRdg(), 0.0, writer);
@@ -54,9 +55,9 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
             writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }
         for (int p = rtc.getLowTapPosition(); p <= rtc.getHighTapPosition(); p++) {
-            RatioTapChangerStep rtcs = rtc.getStep(p);
-            context.getWriter().writeEmptyElement(IIDM_URI, ELEM_STEP);
-            writeTapChangerStep(rtcs, context.getWriter());
+            RatioTapChangerTap rtcs = rtc.getTap(p);
+            context.getWriter().writeEmptyElement(IIDM_URI, ELEM_TAP);
+            writeTapChangerTap(rtcs, context.getWriter());
         }
         context.getWriter().writeEndElement();
     }
@@ -87,19 +88,20 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                     hasTerminalRef[0] = true;
                     break;
 
+                case ELEM_TAP:
                 case ELEM_STEP:
                     double r = XmlUtil.readOptionalDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "r"), 0.0);
                     double x = XmlUtil.readOptionalDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "x"), 0.0);
                     double g = XmlUtil.readOptionalDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "g"), 0.0);
                     double b = XmlUtil.readOptionalDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "b"), 0.0);
                     double ratio = XmlUtil.readOptionalDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "rho"), 1.0);
-                    adder.beginStep()
+                    adder.beginTap()
                             .setRdr(r)
                             .setRdx(x)
                             .setRdg(g)
                             .setRdb(b)
                             .setRatio(ratio)
-                            .endStep();
+                            .endTap();
                     break;
 
                 default:
@@ -161,9 +163,9 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
             writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }
         for (int p = ptc.getLowTapPosition(); p <= ptc.getHighTapPosition(); p++) {
-            PhaseTapChangerStep ptcs = ptc.getStep(p);
-            context.getWriter().writeEmptyElement(IIDM_URI, ELEM_STEP);
-            writeTapChangerStep(ptcs, context.getWriter());
+            PhaseTapChangerTap ptcs = ptc.getTap(p);
+            context.getWriter().writeEmptyElement(IIDM_URI, ELEM_TAP);
+            writeTapChangerTap(ptcs, context.getWriter());
             XmlUtil.writeOptionalDouble("phaseShift", ptcs.getPhaseShift(), 0.0, context.getWriter());
         }
         context.getWriter().writeEndElement();
@@ -194,6 +196,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                     hasTerminalRef[0] = true;
                     break;
 
+                case ELEM_TAP:
                 case ELEM_STEP:
                     // TODO check v1.0 missing attributes???
                     double r = XmlUtil.readOptionalDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "r"), 0.0);
@@ -202,14 +205,14 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                     double b = XmlUtil.readOptionalDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "b"), 0.0);
                     double ratio = XmlUtil.readOptionalDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "rho"), 1.0);
                     double phaseShift = XmlUtil.readOptionalDoubleAttribute(context.getReader(), getVersionCompatibleAttribute(context, "alpha"), 0.0);
-                    adder.beginStep()
+                    adder.endTap()
                             .setRdr(r)
                             .setRdx(x)
                             .setRdg(g)
                             .setRdb(b)
                             .setRatio(ratio)
                             .setPhaseShift(phaseShift)
-                            .endStep();
+                            .endTap();
                     break;
 
                 default:

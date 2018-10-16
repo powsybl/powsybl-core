@@ -7,17 +7,18 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.PhaseTapChangerStep;
+import com.powsybl.iidm.network.PhaseTapChangerTap;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class PhaseTapChangerStepImpl extends TapChangerStepImpl<PhaseTapChangerStepImpl>
-                              implements PhaseTapChangerStep {
+class PhaseTapChangerTapImpl extends TapChangerTapImpl<PhaseTapChangerTapImpl>
+                              implements PhaseTapChangerTap, PhaseTapChangerStep {
 
     private double phaseShift;
 
-    PhaseTapChangerStepImpl(double phaseShift, double ratio, double rdr, double rdx, double rdg, double rdb) {
+    PhaseTapChangerTapImpl(double phaseShift, double ratio, double rdr, double rdx, double rdg, double rdb) {
         super(ratio, rdr, rdx, rdg, rdb);
         this.phaseShift = phaseShift;
     }
@@ -28,7 +29,7 @@ class PhaseTapChangerStepImpl extends TapChangerStepImpl<PhaseTapChangerStepImpl
     }
 
     @Override
-    public PhaseTapChangerStep setPhaseShift(double phaseShift) {
+    public PhaseTapChangerTapImpl setPhaseShift(double phaseShift) {
         this.phaseShift = phaseShift;
         return this;
     }

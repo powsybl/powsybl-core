@@ -17,9 +17,9 @@
         <iidm:twoWindingsTransformer id="PS1" r="2.0" x="100.0" g="0.0" b="0.0" ratedU1="380.0" ratedU2="380.0" bus1="B1" connectableBus1="B1" voltageLevelId1="VL1" bus2="B3" connectableBus2="B3" voltageLevelId2="VL3" p1="50.08403" q1="29.201416" p2="-50.042015" q2="-27.100708">
             <iidm:phaseTapChanger lowTapPosition="0" tapPosition="1" regulationMode="FIXED_TAP" regulationValue="200.0">
                 <iidm:terminalRef side="TWO"/>
-                <iidm:step phaseShift="-20.0"/>
-                <iidm:step />
-                <iidm:step phaseShift="20.0"/>
+                <iidm:tap phaseShift="-20.0"/>
+                <iidm:tap />
+                <iidm:tap phaseShift="20.0"/>
             </iidm:phaseTapChanger>
         </iidm:twoWindingsTransformer>
     </iidm:substation>

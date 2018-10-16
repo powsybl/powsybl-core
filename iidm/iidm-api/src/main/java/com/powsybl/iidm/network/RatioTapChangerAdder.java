@@ -12,19 +12,19 @@ package com.powsybl.iidm.network;
  */
 public interface RatioTapChangerAdder {
 
-    public interface StepAdder {
+    public interface TapAdder {
 
-        StepAdder setRatio(double rho);
+        TapAdder setRatio(double rho);
 
-        StepAdder setRdr(double rdr);
+        TapAdder setRdr(double rdr);
 
-        StepAdder setRdx(double rdx);
+        TapAdder setRdx(double rdx);
 
-        StepAdder setRdg(double rdg);
+        TapAdder setRdg(double rdg);
 
-        StepAdder setRdb(double rdb);
+        TapAdder setRdb(double rdb);
 
-        RatioTapChangerAdder endStep();
+        RatioTapChangerAdder endTap();
     }
 
     RatioTapChangerAdder setLowTapPosition(int lowTapPosition);
@@ -39,7 +39,7 @@ public interface RatioTapChangerAdder {
 
     RatioTapChangerAdder setRegulationTerminal(Terminal regulationTerminal);
 
-    StepAdder beginStep();
+    TapAdder beginTap();
 
     RatioTapChanger add();
 

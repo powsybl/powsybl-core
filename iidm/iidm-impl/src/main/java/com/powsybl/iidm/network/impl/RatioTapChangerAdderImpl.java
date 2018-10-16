@@ -24,7 +24,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
     private Integer tapPosition;
 
-    private final List<RatioTapChangerStepImpl> steps = new ArrayList<>();
+    private final List<RatioTapChangerTapImpl> taps = new ArrayList<>();
 
     private boolean onLoadTapChanger = false;
 
@@ -34,7 +34,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
     private TerminalExt regulationTerminal;
 
-    class StepAdderImpl implements StepAdder {
+    class TapAdderImpl implements TapAdder {
 
         private double ratio = 1.0;
 
@@ -47,54 +47,54 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
         private double rdb = 0.0;
 
         @Override
-        public StepAdder setRatio(double ratio) {
+        public TapAdder setRatio(double ratio) {
             this.ratio = ratio;
             return this;
         }
 
         @Override
-        public StepAdder setRdr(double rdr) {
+        public TapAdder setRdr(double rdr) {
             this.rdr = rdr;
             return this;
         }
 
         @Override
-        public StepAdder setRdx(double rdx) {
+        public TapAdder setRdx(double rdx) {
             this.rdx = rdx;
             return this;
         }
 
         @Override
-        public StepAdder setRdg(double rdg) {
+        public TapAdder setRdg(double rdg) {
             this.rdg = rdg;
             return this;
         }
 
         @Override
-        public StepAdder setRdb(double rdb) {
+        public TapAdder setRdb(double rdb) {
             this.rdb = rdb;
             return this;
         }
 
         @Override
-        public RatioTapChangerAdder endStep() {
+        public RatioTapChangerAdder endTap() {
             if (Double.isNaN(ratio)) {
-                throw new ValidationException(parent, "step ratio is not set");
+                throw new ValidationException(parent, "tap ratio is not set");
             }
             if (Double.isNaN(rdr)) {
-                throw new ValidationException(parent, "step rdr is not set");
+                throw new ValidationException(parent, "tap rdr is not set");
             }
             if (Double.isNaN(rdx)) {
-                throw new ValidationException(parent, "step rdx is not set");
+                throw new ValidationException(parent, "tap rdx is not set");
             }
             if (Double.isNaN(rdg)) {
-                throw new ValidationException(parent, "step rdg is not set");
+                throw new ValidationException(parent, "tap rdg is not set");
             }
             if (Double.isNaN(rdb)) {
-                throw new ValidationException(parent, "step rdb is not set");
+                throw new ValidationException(parent, "tap rdb is not set");
             }
-            RatioTapChangerStepImpl step = new RatioTapChangerStepImpl(ratio, rdr, rdx, rdg, rdb);
-            steps.add(step);
+            RatioTapChangerTapImpl tap = new RatioTapChangerTapImpl(ratio, rdr, rdx, rdg, rdb);
+            taps.add(tap);
             return RatioTapChangerAdderImpl.this;
         }
 
@@ -145,8 +145,8 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
     }
 
     @Override
-    public StepAdder beginStep() {
-        return new StepAdderImpl();
+    public TapAdder beginTap() {
+        return new TapAdderImpl();
     }
 
     @Override
@@ -154,10 +154,10 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
         if (tapPosition == null) {
             throw new ValidationException(parent, "tap position is not set");
         }
-        if (steps.isEmpty()) {
-            throw new ValidationException(parent, "ratio tap changer should have at least one step");
+        if (taps.isEmpty()) {
+            throw new ValidationException(parent, "ratio tap changer should have at least one tap");
         }
-        int highTapPosition = lowTapPosition + steps.size() - 1;
+        int highTapPosition = lowTapPosition + taps.size() - 1;
         if (tapPosition < lowTapPosition || tapPosition > highTapPosition) {
             throw new ValidationException(parent, "incorrect tap position "
                     + tapPosition + " [" + lowTapPosition + ", "
@@ -165,7 +165,7 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
         }
         ValidationUtil.checkRatioTapChangerRegulation(parent, onLoadTapChanger, regulating, regulationTerminal, targetV, getNetwork());
         RatioTapChangerImpl tapChanger
-                = new RatioTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, onLoadTapChanger,
+                = new RatioTapChangerImpl(parent, lowTapPosition, taps, regulationTerminal, onLoadTapChanger,
                                           tapPosition, regulating, targetV);
         parent.setRatioTapChanger(tapChanger);
         return tapChanger;

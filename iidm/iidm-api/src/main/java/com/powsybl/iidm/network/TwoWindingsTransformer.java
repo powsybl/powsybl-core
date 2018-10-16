@@ -20,21 +20,21 @@ package com.powsybl.iidm.network;
  * <code>TwoWindingsTransformer</code>.
  *<pre>
  *r = transfo.getRdr()
- *    * (1 + (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentStep().getRdr() / 100 : 0)
- *       + (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getRdr() / 100 : 0));
+ *    * (1 + (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentTap().getRdr() / 100 : 0)
+ *       + (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentTap().getRdr() / 100 : 0));
  *x = transfo.getRdx()
- *    * (1 + (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentStep().getRdx() / 100 : 0)
- *       + (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getRdx() / 100 : 0));
+ *    * (1 + (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentTap().getRdx() / 100 : 0)
+ *       + (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentTap().getRdx() / 100 : 0));
  *g = transfo.getRdg()
- *    * (1 + (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentStep().getRdg() / 100 : 0)
- *       + (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getRdg() / 100 : 0));
+ *    * (1 + (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentTap().getRdg() / 100 : 0)
+ *       + (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentTap().getRdg() / 100 : 0));
  *b = transfo.getRdb()
- *    * (1 + (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentStep().getRdb() / 100 : 0)
- *       + (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getRdb() / 100 : 0));
+ *    * (1 + (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentTap().getRdb() / 100 : 0)
+ *       + (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentTap().getRdb() / 100 : 0));
  *ratio = transfo.getRatedU2() / transfo.getRatedU1()
- *    * (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentStep().getRatio() : 1);
- *    * (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getRatio() : 1);
- *phaseShift = (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentStep().getPhaseShift() : 0);
+ *    * (transfo.getRatioTapChanger() != null ? transfo.getRatioTapChanger().getCurrentTap().getRatio() : 1);
+ *    * (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentTap().getRatio() : 1);
+ *phaseShift = (transfo.getPhaseTapChanger() != null ? transfo.getPhaseTapChanger().getCurrentTap().getPhaseShift() : 0);
  *
  *</pre>
  * A 2 windings transformer is connected to 2 voltage levels (side 1 and side 2)

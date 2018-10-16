@@ -7,10 +7,9 @@
 package com.powsybl.iidm.network;
 
 /**
- * @deprecated Use {@link PhaseTapChangerTap} instead.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-@Deprecated
-public interface PhaseTapChangerStep extends TapChangerStep {
+public interface RatioTapChangerTap extends TapChanger.Tap<RatioTapChangerTap>, RatioTapChangerStep {
 
 }

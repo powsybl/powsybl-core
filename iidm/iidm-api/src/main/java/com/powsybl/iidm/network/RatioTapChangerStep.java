@@ -7,9 +7,10 @@
 package com.powsybl.iidm.network;
 
 /**
- *
+ * @deprecated Use {@link RatioTapChangerTap} instead.
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface RatioTapChangerStep extends TapChangerStep<RatioTapChangerStep> {
+@Deprecated
+public interface RatioTapChangerStep extends TapChangerStep {
 
 }

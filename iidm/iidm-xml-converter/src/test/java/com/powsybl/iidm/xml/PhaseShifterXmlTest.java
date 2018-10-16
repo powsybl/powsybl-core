@@ -33,12 +33,12 @@ public class PhaseShifterXmlTest extends AbstractConverterTest {
     public void testReadV10() {
         Network network = NetworkXml.read(getClass().getResourceAsStream("/refs_V1_0/phaseShifterRoundTripRef.xml"));
         PhaseTapChanger phaseTapChanger = network.getTwoWindingsTransformer("PS1").getPhaseTapChanger();
-        assertEquals(0.0, phaseTapChanger.getStep(0).getRdr(), 0.0);
-        assertEquals(0.0, phaseTapChanger.getStep(0).getRdx(), 0.0);
-        assertEquals(0.0, phaseTapChanger.getStep(0).getRdg(), 0.0);
-        assertEquals(0.0, phaseTapChanger.getStep(0).getRdb(), 0.0);
-        assertEquals(-20.0, phaseTapChanger.getStep(0).getPhaseShift(), 0.0);
-        assertEquals(0.0, phaseTapChanger.getStep(1).getPhaseShift(), 0.0);
-        assertEquals(20.0, phaseTapChanger.getStep(2).getPhaseShift(), 0.0);
+        assertEquals(0.0, phaseTapChanger.getTap(0).getRdr(), 0.0);
+        assertEquals(0.0, phaseTapChanger.getTap(0).getRdx(), 0.0);
+        assertEquals(0.0, phaseTapChanger.getTap(0).getRdg(), 0.0);
+        assertEquals(0.0, phaseTapChanger.getTap(0).getRdb(), 0.0);
+        assertEquals(-20.0, phaseTapChanger.getTap(0).getPhaseShift(), 0.0);
+        assertEquals(0.0, phaseTapChanger.getTap(1).getPhaseShift(), 0.0);
+        assertEquals(20.0, phaseTapChanger.getTap(2).getPhaseShift(), 0.0);
     }
 }

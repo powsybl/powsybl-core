@@ -10,7 +10,7 @@ package com.powsybl.iidm.network.impl;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
+class TapChangerTapImpl<S extends TapChangerTapImpl<S>> {
 
     private double ratio;
 
@@ -22,7 +22,7 @@ class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
 
     private double rdb;
 
-    protected TapChangerStepImpl(double ratio, double rdr, double rdx, double rdg, double rdb) {
+    protected TapChangerTapImpl(double ratio, double rdr, double rdx, double rdg, double rdb) {
         this.ratio = ratio;
         this.rdr = rdr;
         this.rdx = rdx;

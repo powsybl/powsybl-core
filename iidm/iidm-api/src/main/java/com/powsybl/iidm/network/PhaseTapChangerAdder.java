@@ -12,21 +12,21 @@ package com.powsybl.iidm.network;
  */
 public interface PhaseTapChangerAdder {
 
-    interface StepAdder {
+    interface TapAdder {
 
-        StepAdder setPhaseShift(double phaseShift);
+        TapAdder setPhaseShift(double phaseShift);
 
-        StepAdder setRatio(double ratio);
+        TapAdder setRatio(double ratio);
 
-        StepAdder setRdr(double rdr);
+        TapAdder setRdr(double rdr);
 
-        StepAdder setRdx(double rdx);
+        TapAdder setRdx(double rdx);
 
-        StepAdder setRdg(double rdg);
+        TapAdder setRdg(double rdg);
 
-        StepAdder setRdb(double rdb);
+        TapAdder setRdb(double rdb);
 
-        PhaseTapChangerAdder endStep();
+        PhaseTapChangerAdder endTap();
     }
 
     PhaseTapChangerAdder setLowTapPosition(int lowTapPosition);
@@ -41,7 +41,7 @@ public interface PhaseTapChangerAdder {
 
     PhaseTapChangerAdder setRegulationTerminal(Terminal regulationTerminal);
 
-    StepAdder beginStep();
+    TapAdder endTap();
 
     PhaseTapChanger add();
 }

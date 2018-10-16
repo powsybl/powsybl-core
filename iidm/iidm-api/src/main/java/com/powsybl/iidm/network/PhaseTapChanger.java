@@ -11,7 +11,7 @@ package com.powsybl.iidm.network;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface PhaseTapChanger extends TapChanger<PhaseTapChanger, PhaseTapChangerStep> {
+public interface PhaseTapChanger extends TapChanger<PhaseTapChanger, PhaseTapChangerTap> {
 
     enum RegulationMode {
         CURRENT_LIMITER,

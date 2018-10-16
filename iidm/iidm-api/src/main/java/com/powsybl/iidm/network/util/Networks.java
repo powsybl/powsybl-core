@@ -7,6 +7,16 @@
  */
 package com.powsybl.iidm.network.util;
 
+import com.google.common.collect.ImmutableMap;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.ext.TieLineExt;
+import org.nocrala.tools.texttablefmt.BorderStyle;
+import org.nocrala.tools.texttablefmt.CellStyle;
+import org.nocrala.tools.texttablefmt.Table;
+import org.slf4j.Logger;
+
+import javax.script.*;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Reader;
@@ -17,24 +27,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import javax.rmi.CORBA.Tie;
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-import javax.script.SimpleScriptContext;
-
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.ext.TieLineExt;
-import org.nocrala.tools.texttablefmt.BorderStyle;
-import org.nocrala.tools.texttablefmt.CellStyle;
-import org.nocrala.tools.texttablefmt.Table;
-import org.slf4j.Logger;
-
-import com.google.common.collect.ImmutableMap;
-
-import com.powsybl.commons.PowsyblException;
 
 /**
  *
@@ -302,7 +294,7 @@ public final class Networks {
 
     private static void logOtherCC(Logger logger, String title, Table table, ConnectedPower balanceOtherCC) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Active balance at step '{}':\n{}", title, table.render());
+            logger.debug("Active balance at tap '{}':\n{}", title, table.render());
         }
 
         if (!balanceOtherCC.connectedLoads.isEmpty()) {

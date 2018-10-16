@@ -16,7 +16,7 @@ import java.util.List;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, S>, S extends TapChangerStepImpl<S>> implements Stateful {
+abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, S>, S extends TapChangerTapImpl<S>> implements Stateful {
 
     protected final Ref<? extends MultiStateObject> network;
 
@@ -24,7 +24,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected int lowTapPosition;
 
-    protected final List<S> steps;
+    protected final List<S> taps;
 
     protected TerminalExt regulationTerminal;
 
@@ -35,12 +35,12 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     protected final BitSet regulating;
 
     protected AbstractTapChanger(Ref<? extends MultiStateObject> network, H parent,
-                                 int lowTapPosition, List<S> steps, TerminalExt regulationTerminal,
+                                 int lowTapPosition, List<S> taps, TerminalExt regulationTerminal,
                                  int tapPosition, boolean regulating) {
         this.network = network;
         this.parent = parent;
         this.lowTapPosition = lowTapPosition;
-        this.steps = steps;
+        this.taps = taps;
         this.regulationTerminal = regulationTerminal;
         int stateArraySize = network.get().getStateManager().getStateArraySize();
         this.tapPosition = new TIntArrayList(stateArraySize);
@@ -53,8 +53,8 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected abstract NetworkImpl getNetwork();
 
-    public int getStepCount() {
-        return steps.size();
+    public int getTapCount() {
+        return taps.size();
     }
 
     public int getLowTapPosition() {
@@ -62,7 +62,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     }
 
     public int getHighTapPosition() {
-        return lowTapPosition + steps.size() - 1;
+        return lowTapPosition + taps.size() - 1;
     }
 
     public int getTapPosition() {
@@ -83,17 +83,17 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         return (C) this;
     }
 
-    public S getStep(int tapPosition) {
+    public S getTap(int tapPosition) {
         if (tapPosition < lowTapPosition || tapPosition > getHighTapPosition()) {
             throw new ValidationException(parent, "incorrect tap position "
                     + tapPosition + " [" + lowTapPosition + ", " + getHighTapPosition()
                     + "]");
         }
-        return steps.get(tapPosition - lowTapPosition);
+        return taps.get(tapPosition - lowTapPosition);
     }
 
-    public S getCurrentStep() {
-        return getStep(getTapPosition());
+    public S getCurrentTap() {
+        return getTap(getTapPosition());
     }
 
     public boolean isRegulating() {

@@ -20,7 +20,7 @@ import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.RatioTapChangerStep;
+import com.powsybl.iidm.network.RatioTapChangerTap;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Terminal.BusView;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
@@ -62,11 +62,11 @@ public class TransformersValidationTest extends AbstractValidationTest {
         Terminal terminal = Mockito.mock(Terminal.class);
         Mockito.when(terminal.getBusView()).thenReturn(busView);
 
-        RatioTapChangerStep currentStep = Mockito.mock(RatioTapChangerStep.class);
+        RatioTapChangerTap currentStep = Mockito.mock(RatioTapChangerTap.class);
         Mockito.when(currentStep.getRatio()).thenReturn(rho);
-        RatioTapChangerStep previousStep = Mockito.mock(RatioTapChangerStep.class);
+        RatioTapChangerTap previousStep = Mockito.mock(RatioTapChangerTap.class);
         Mockito.when(previousStep.getRatio()).thenReturn(rhoPreviousStep);
-        RatioTapChangerStep nextStep = Mockito.mock(RatioTapChangerStep.class);
+        RatioTapChangerTap nextStep = Mockito.mock(RatioTapChangerTap.class);
         Mockito.when(nextStep.getRatio()).thenReturn(rhoNextStep);
 
         RatioTapChanger ratioTapChanger = Mockito.mock(RatioTapChanger.class);
@@ -75,9 +75,9 @@ public class TransformersValidationTest extends AbstractValidationTest {
         Mockito.when(ratioTapChanger.getTapPosition()).thenReturn(tapPosition);
         Mockito.when(ratioTapChanger.getLowTapPosition()).thenReturn(lowTapPosition);
         Mockito.when(ratioTapChanger.getHighTapPosition()).thenReturn(highTapPosition);
-        Mockito.when(ratioTapChanger.getCurrentStep()).thenReturn(currentStep);
-        Mockito.when(ratioTapChanger.getStep(tapPosition - 1)).thenReturn(previousStep);
-        Mockito.when(ratioTapChanger.getStep(tapPosition + 1)).thenReturn(nextStep);
+        Mockito.when(ratioTapChanger.getCurrentTap()).thenReturn(currentStep);
+        Mockito.when(ratioTapChanger.getTap(tapPosition - 1)).thenReturn(previousStep);
+        Mockito.when(ratioTapChanger.getTap(tapPosition + 1)).thenReturn(nextStep);
         Mockito.when(ratioTapChanger.getTargetV()).thenReturn(targetV);
 
         transformer = Mockito.mock(TwoWindingsTransformer.class);

@@ -60,24 +60,24 @@ public class TapChangerTest {
                                                 .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
                                                 .setRegulationValue(10.0)
                                                 .setRegulationTerminal(terminal)
-                                                .beginStep()
+                                                .endTap()
                                                     .setRdr(1.0)
                                                     .setRdx(2.0)
                                                     .setRdg(3.0)
                                                     .setRdb(4.0)
                                                     .setPhaseShift(5.0)
                                                     .setRatio(6.0)
-                                                .endStep()
-                                                .beginStep()
+                                                .endTap()
+                                                .endTap()
                                                     .setRdr(1.0)
                                                     .setRdx(2.0)
                                                     .setRdg(3.0)
                                                     .setRdb(4.0)
                                                     .setPhaseShift(5.0)
                                                     .setRatio(6.0)
-                                                .endStep()
+                                                .endTap()
                                             .add();
-        assertEquals(2, phaseTapChanger.getStepCount());
+        assertEquals(2, phaseTapChanger.getTapCount());
         assertEquals(0, phaseTapChanger.getLowTapPosition());
         assertEquals(1, phaseTapChanger.getHighTapPosition());
         assertTrue(phaseTapChanger.isRegulating());
@@ -88,7 +88,7 @@ public class TapChangerTest {
         // setter getter
         phaseTapChanger.setTapPosition(0);
         assertEquals(0, phaseTapChanger.getTapPosition());
-        assertSame(phaseTapChanger.getCurrentStep(), phaseTapChanger.getStep(0));
+        assertSame(phaseTapChanger.getCurrentTap(), phaseTapChanger.getTap(0));
         phaseTapChanger.setRegulationValue(5.0);
         assertEquals(5.0, phaseTapChanger.getRegulationValue(), 0.0);
         phaseTapChanger.setRegulating(false);
@@ -105,7 +105,7 @@ public class TapChangerTest {
         } catch (Exception ignored) {
         }
         try {
-            phaseTapChanger.getStep(5);
+            phaseTapChanger.getTap(5);
             fail();
         } catch (Exception ignored) {
         }
@@ -262,29 +262,29 @@ public class TapChangerTest {
                 .setRegulationMode(mode)
                 .setRegulationValue(value)
                 .setRegulationTerminal(terminal)
-                .beginStep()
+                .endTap()
                     .setRdr(1.0)
                     .setRdx(2.0)
                     .setRdg(3.0)
                     .setRdb(4.0)
                     .setPhaseShift(5.0)
                     .setRatio(6.0)
-                .endStep()
-                .beginStep()
+                .endTap()
+                .endTap()
                     .setRdr(1.0)
                     .setRdx(2.0)
                     .setRdg(3.0)
                     .setRdb(4.0)
                     .setPhaseShift(5.0)
                     .setRatio(6.0)
-                .endStep()
+                .endTap()
             .add();
     }
 
     @Test
     public void invalidPhaseTapChangerWithoutSteps() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("phase tap changer shall have at least one step");
+        thrown.expectMessage("phase tap changer shall have at least one tap");
         twt.newPhaseTapChanger()
                 .setTapPosition(1)
                 .setLowTapPosition(0)
@@ -305,27 +305,27 @@ public class TapChangerTest {
                                                 .setRegulating(true)
                                                 .setTargetV(220.0)
                                                 .setRegulationTerminal(twt.getTerminal1())
-                                                .beginStep()
+                                                .beginTap()
                                                     .setRdr(39.78473)
                                                     .setRdx(39.784725)
                                                     .setRdg(0.0)
                                                     .setRdb(0.0)
                                                     .setRatio(1.0)
-                                                .endStep()
-                                                .beginStep()
+                                                .endTap()
+                                                .beginTap()
                                                     .setRdr(39.78474)
                                                     .setRdx(39.784726)
                                                     .setRdg(0.0)
                                                     .setRdb(0.0)
                                                     .setRatio(1.0)
-                                                .endStep()
-                                                .beginStep()
+                                                .endTap()
+                                                .beginTap()
                                                     .setRdr(39.78475)
                                                     .setRdx(39.784727)
                                                     .setRdg(0.0)
                                                     .setRdb(0.0)
                                                     .setRatio(1.0)
-                                                .endStep()
+                                                .endTap()
                                             .add();
         assertEquals(0, ratioTapChanger.getLowTapPosition());
         assertEquals(1, ratioTapChanger.getTapPosition());
@@ -333,7 +333,7 @@ public class TapChangerTest {
         ratioTapChanger.setRegulating(true);
         assertEquals(220.0, ratioTapChanger.getTargetV(), 0.0);
         assertSame(twt.getTerminal1(), ratioTapChanger.getRegulationTerminal());
-        assertEquals(3, ratioTapChanger.getStepCount());
+        assertEquals(3, ratioTapChanger.getTapCount());
 
         // setter getter
         ratioTapChanger.setTapPosition(2);
@@ -345,23 +345,23 @@ public class TapChangerTest {
         ratioTapChanger.setRegulationTerminal(twt.getTerminal2());
         assertSame(twt.getTerminal2(), ratioTapChanger.getRegulationTerminal());
 
-        // ratio tap changer step setter/getter
-        RatioTapChangerStep step = ratioTapChanger.getStep(0);
-        double stepR = 10.0;
-        double stepX = 20.0;
-        double stepG = 30.0;
-        double stepB = 40.0;
-        double stepRho = 50.0;
-        step.setRdr(stepR);
-        assertEquals(stepR, step.getRdr(), 0.0);
-        step.setRdx(stepX);
-        assertEquals(stepX, step.getRdx(), 0.0);
-        step.setRdg(stepG);
-        assertEquals(stepG, step.getRdg(), 0.0);
-        step.setRdb(stepB);
-        assertEquals(stepB, step.getRdb(), 0.0);
-        step.setRatio(stepRho);
-        assertEquals(stepRho, step.getRatio(), 0.0);
+        // ratio tap changer tap setter/getter
+        RatioTapChangerTap tap = ratioTapChanger.getTap(0);
+        double tapRdr = 10.0;
+        double tapRdx = 20.0;
+        double tapRdg = 30.0;
+        double tapRdb = 40.0;
+        double tapRatio = 50.0;
+        tap.setRdr(tapRdr);
+        assertEquals(tapRdr, tap.getRdr(), 0.0);
+        tap.setRdx(tapRdx);
+        assertEquals(tapRdx, tap.getRdx(), 0.0);
+        tap.setRdg(tapRdg);
+        assertEquals(tapRdg, tap.getRdg(), 0.0);
+        tap.setRdb(tapRdb);
+        assertEquals(tapRdb, tap.getRdb(), 0.0);
+        tap.setRatio(tapRatio);
+        assertEquals(tapRatio, tap.getRatio(), 0.0);
 
         // remove
         ratioTapChanger.remove();
@@ -371,7 +371,7 @@ public class TapChangerTest {
     @Test
     public void invalidRatioTapChangerWithoutSteps() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("ratio tap changer should have at least one step");
+        thrown.expectMessage("ratio tap changer should have at least one tap");
         twt.newRatioTapChanger()
                 .setLowTapPosition(0)
                 .setTapPosition(1)
@@ -419,27 +419,27 @@ public class TapChangerTest {
                 .setRegulating(regulating)
                 .setTargetV(targetV)
                 .setRegulationTerminal(terminal)
-                .beginStep()
+                .beginTap()
                     .setRdr(39.78473)
                     .setRdx(39.784725)
                     .setRdg(0.0)
                     .setRdb(0.0)
                     .setRatio(1.0)
-                .endStep()
-                .beginStep()
+                .endTap()
+                .beginTap()
                     .setRdr(39.78474)
                     .setRdx(39.784726)
                     .setRdg(0.0)
                     .setRdb(0.0)
                     .setRatio(1.0)
-                .endStep()
-                .beginStep()
+                .endTap()
+                .beginTap()
                     .setRdr(39.78475)
                     .setRdx(39.784727)
                     .setRdg(0.0)
                     .setRdb(0.0)
                     .setRatio(1.0)
-                .endStep()
+                .endTap()
             .add();
     }
 
@@ -482,27 +482,27 @@ public class TapChangerTest {
                 .setTapPosition(1)
                 .setRegulating(true)
                 .setRegulationTerminal(threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.TWO))
-                .beginStep()
+                .beginTap()
                     .setRdr(39.78473)
                     .setRdx(39.784725)
                     .setRdg(0.0)
                     .setRdb(0.0)
                     .setRatio(1.0)
-                .endStep()
-                .beginStep()
+                .endTap()
+                .beginTap()
                     .setRdr(39.78474)
                     .setRdx(39.784726)
                     .setRdg(0.0)
                     .setRdb(0.0)
                     .setRatio(1.0)
-                .endStep()
-                .beginStep()
+                .endTap()
+                .beginTap()
                     .setRdr(39.78475)
                     .setRdx(39.784727)
                     .setRdg(0.0)
                     .setRdb(0.0)
                     .setRatio(1.0)
-                .endStep()
+                .endTap()
                 .add();
         leg3.newRatioTapChanger()
                 .setTargetV(11.0)
@@ -511,27 +511,27 @@ public class TapChangerTest {
                 .setTapPosition(3)
                 .setRegulating(true)
                 .setRegulationTerminal(threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.TWO))
-                .beginStep()
+                .beginTap()
                     .setRdr(39.78473)
                     .setRdx(39.784725)
                     .setRdg(0.0)
                     .setRdb(0.0)
                     .setRatio(1.0)
-                .endStep()
-                .beginStep()
+                .endTap()
+                .beginTap()
                     .setRdr(39.78474)
                     .setRdx(39.784726)
                     .setRdg(0.0)
                     .setRdb(0.0)
                     .setRatio(1.0)
-                .endStep()
-                .beginStep()
+                .endTap()
+                .beginTap()
                     .setRdr(39.78475)
                     .setRdx(39.784727)
                     .setRdg(0.0)
                     .setRdb(0.0)
                     .setRatio(1.0)
-                .endStep()
+                .endTap()
                 .add();
     }
 

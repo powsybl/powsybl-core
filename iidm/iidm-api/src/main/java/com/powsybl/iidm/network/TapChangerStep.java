@@ -11,56 +11,6 @@ package com.powsybl.iidm.network;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Yichen Tang <yichen.tang at rte-france.com>
  */
-public interface TapChangerStep<S extends TapChangerStep> {
-
-    /**
-     * Get the voltage ratio in per unit.
-     */
-    double getRatio();
-
-    /**
-     * Set the voltage ratio in per unit.
-     */
-    S setRatio(double ratio);
-
-    /**
-     * Get the resistance deviation in percent of nominal value.
-     */
-    double getRdr();
-
-    /**
-     * Set the resistance deviation in percent of nominal value.
-     */
-    S setRdr(double rdr);
-
-    /**
-     * Get the reactance deviation in percent of nominal value.
-     */
-    double getRdx();
-
-    /**
-     * Set the reactance deviation in percent of nominal value.
-     */
-    S setRdx(double rdx);
-
-    /**
-     * Get the susceptance deviation in percent of nominal value.
-     */
-    double getRdb();
-
-    /**
-     * Set the susceptance deviation in percent of nominal value.
-     */
-    S setRdb(double rdb);
-
-    /**
-     * Get the conductance deviation in percent of nominal value.
-     */
-    double getRdg();
-
-    /**
-     * Set the conductance deviation in percent of nominal value.
-     */
-    S setRdg(double rdg);
-
+@Deprecated
+public interface TapChangerStep {
 }
