@@ -8,31 +8,46 @@
 package com.powsybl.cgmes.model.test.cim14;
 
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.test.TestGridModel;
+import com.powsybl.cgmes.model.test.TestGridModelResources;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class Cim14SmallCasesCatalog {
 
-    public TestGridModel txMicroBEAdapted() {
-        return new TestGridModel("cim14/tx-from-microBE-adapted.zip", null);
+    public TestGridModelResources txMicroBEAdapted() {
+        return new TestGridModelResources("tx-from-microBE-adapted", null,
+                "cim14/tx-from-microBE-adapted/tx-from-microBE-adapted_EQ.xml",
+                "cim14/tx-from-microBE-adapted/tx-from-microBE-adapted_SV.xml",
+                "cim14/tx-from-microBE-adapted/tx-from-microBE-adapted_TP.xml");
     }
 
-    public final TestGridModel small1() {
-        return new TestGridModel("cim14/smallcase1.zip", expectedSmall1());
+    public final TestGridModelResources small1() {
+        return new TestGridModelResources("smallcase1", expectedSmall1(),
+                "cim14/smallcase1/case1_EQ.xml",
+                "cim14/smallcase1/case1_SV.xml",
+                "cim14/smallcase1/case1_TP.xml");
     }
 
-    public final TestGridModel m7buses() {
-        return new TestGridModel("cim14/m7buses.zip", expectedM7Buses());
+    public final TestGridModelResources m7buses() {
+        return new TestGridModelResources("7buses", expectedM7Buses(),
+                "cim14/m7buses/m7buses_EQ.xml",
+                "cim14/m7buses/m7buses_SV.xml",
+                "cim14/m7buses/m7buses_TP.xml");
     }
 
-    public final TestGridModel ieee14() {
-        return new TestGridModel("cim14/ieee14.zip", expectedIeee14());
+    public final TestGridModelResources ieee14() {
+        return new TestGridModelResources("ieee14", expectedIeee14(),
+                "cim14/ieee14/ieee14bus_EQ.xml",
+                "cim14/ieee14/ieee14bus_SV.xml",
+                "cim14/ieee14/ieee14bus_TP.xml");
     }
 
-    public final TestGridModel nordic32() {
-        return new TestGridModel("cim14/Nordic32.zip", expectedNordic32());
+    public final TestGridModelResources nordic32() {
+        return new TestGridModelResources("nordic32", expectedNordic32(),
+                "cim14/nordic32/Nordic32_EQ.xml",
+                "cim14/nordic32/Nordic32_SV.xml",
+                "cim14/nordic32/Nordic32_TP.xml");
     }
 
     private CgmesModel expectedSmall1() {

@@ -7,6 +7,8 @@
 
 package com.powsybl.cgmes.conformity.test;
 
+import java.io.IOException;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -23,45 +25,38 @@ public class CgmesConformity1Test {
     }
 
     @Test
-    public void microGridBaseCaseBE() {
+    public void microGridBaseCaseBE() throws IOException {
         new CgmesModelTester(catalog.microGridBaseCaseBE()).test();
     }
 
     @Test
-    public void microGridBaseCaseNL() {
+    public void microGridBaseCaseNL() throws IOException {
         new CgmesModelTester(catalog.microGridBaseCaseNL()).test();
     }
 
     @Test
-    public void microGridBaseCaseAssembled() {
+    public void microGridBaseCaseAssembled() throws IOException {
         new CgmesModelTester(catalog.microGridBaseCaseAssembled()).test();
     }
 
     @Test
-    public void miniBusBranch() {
+    public void miniBusBranch() throws IOException {
         new CgmesModelTester(catalog.miniBusBranch()).test();
     }
 
     @Test
-    public void miniNodeBreaker() {
+    public void miniNodeBreaker() throws IOException {
         new CgmesModelTester(catalog.miniNodeBreaker()).test();
     }
 
     @Test
-    public void smallBusBranch() {
+    public void smallBusBranch() throws IOException {
         new CgmesModelTester(catalog.smallBusBranch()).test();
     }
 
     @Test
-    public void smallNodeBreaker() {
+    public void smallNodeBreaker() throws IOException {
         new CgmesModelTester(catalog.smallNodeBreaker()).test();
-    }
-
-    // This tests fails in Appveyor with an OutOfMemory error
-    // Temporal solution is comment it
-    // @Test
-    public void real() {
-        new CgmesModelTester(catalog.real()).test();
     }
 
     private static CgmesConformity1Catalog catalog;

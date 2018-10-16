@@ -7,6 +7,8 @@
 
 package com.powsybl.cgmes.conversion.test.conformity;
 
+import java.io.IOException;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -30,37 +32,37 @@ public class CgmesConformity1ConversionTest {
     }
 
     @Test
-    public void microGridBaseCaseBE() {
+    public void microGridBaseCaseBE() throws IOException {
         tester.testConversion(expecteds.microBE(), actuals.microGridBaseCaseBE());
     }
 
     @Test
-    public void microGridBaseCaseNL() {
+    public void microGridBaseCaseNL() throws IOException {
         tester.testConversion(null, actuals.microGridBaseCaseNL());
     }
 
     @Test
-    public void microGridBaseCaseAssembled() {
+    public void microGridBaseCaseAssembled() throws IOException {
         tester.testConversion(null, actuals.microGridBaseCaseAssembled());
     }
 
     @Test
-    public void miniBusBranch() {
+    public void miniBusBranch() throws IOException {
         tester.testConversion(null, actuals.miniBusBranch());
     }
 
     @Test
-    public void miniNodeBreaker() {
+    public void miniNodeBreaker() throws IOException {
         tester.testConversion(null, actuals.miniNodeBreaker());
     }
 
     @Test
-    public void smallBusBranch() {
+    public void smallBusBranch() throws IOException {
         tester.testConversion(null, actuals.smallBusBranch());
     }
 
     @Test
-    public void smallNodeBreaker() {
+    public void smallNodeBreaker() throws IOException {
         tester.testConversion(null, actuals.smallNodeBreaker());
     }
 

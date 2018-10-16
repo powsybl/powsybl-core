@@ -11,6 +11,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -20,6 +22,7 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
@@ -81,7 +84,7 @@ public class AlternativeQueriesTester {
         }
     }
 
-    public void test(String alternative, Expected expected, Consumer<PropertyBags> consumer) {
+    public void test(String alternative, Expected expected, Consumer<PropertyBags> consumer) throws IOException {
         String queryText = queries.get(alternative);
         assertNotNull(queryText);
         assertFalse(queryText.isEmpty());
@@ -90,13 +93,13 @@ public class AlternativeQueriesTester {
         }
     }
 
-    public void test(String alternative) {
+    public void test(String alternative) throws IOException {
         // If no explicit expected result, use the default expected result for the
         // tester
         test(alternative, this.expected);
     }
 
-    public void test(String alternative, Expected expected) {
+    public void test(String alternative, Expected expected) throws IOException {
         test(alternative, expected, this.consumer);
     }
 
@@ -128,41 +131,44 @@ public class AlternativeQueriesTester {
             String impl,
             String queryText,
             Expected expected,
-            Consumer<PropertyBags> consumer) {
+            Consumer<PropertyBags> consumer) throws IOException {
 
-        CgmesModelTripleStore model = modelFor(impl);
+        try (FileSystem fs = Jimfs.newFileSystem()) {
+            CgmesModelTripleStore model = modelFor(impl, fs);
 
-        long dt0 = 0;
-        if (experiments > 1) {
-            // Initial run to compare against potential "caching" considerations
-            // All engines have the opportunity to "activate" caching mechanisms
-            final long t00 = System.currentTimeMillis();
-            model.query(queryText);
-            final long t10 = System.currentTimeMillis();
-            dt0 = t10 - t00;
-        }
-
-        long dt = 0;
-        long[] dts = new long[experiments];
-        for (int k = 0; k < experiments; k++) {
-
-            final long t0 = System.currentTimeMillis();
-            PropertyBags result = model.query(queryText);
-            final long t1 = System.currentTimeMillis();
-            dts[k] = t1 - t0;
-            dt += dts[k];
-
-            if (consumer != null) {
-                LOG.info("{} {} consume result:", alternative, impl);
-                consumer.accept(result);
+            long dt0 = 0;
+            if (experiments > 1) {
+                // Initial run to compare against potential "caching" considerations
+                // All engines have the opportunity to "activate" caching mechanisms
+                final long t00 = System.currentTimeMillis();
+                model.query(queryText);
+                final long t10 = System.currentTimeMillis();
+                dt0 = t10 - t00;
             }
 
-            test(alternative, impl, result, expected);
-        }
-        if (experiments > 1 && LOG.isInfoEnabled()) {
-            LOG.info("{} {} dt avg {} ms {} experiments, dts: {} {}", alternative, impl, dt / experiments, experiments,
-                    dt0,
-                    Arrays.toString(dts));
+            long dt = 0;
+            long[] dts = new long[experiments];
+            for (int k = 0; k < experiments; k++) {
+
+                final long t0 = System.currentTimeMillis();
+                PropertyBags result = model.query(queryText);
+                final long t1 = System.currentTimeMillis();
+                dts[k] = t1 - t0;
+                dt += dts[k];
+
+                if (consumer != null) {
+                    LOG.info("{} {} consume result:", alternative, impl);
+                    consumer.accept(result);
+                }
+
+                test(alternative, impl, result, expected);
+            }
+            if (experiments > 1 && LOG.isInfoEnabled()) {
+                LOG.info("{} {} dt avg {} ms {} experiments, dts: {} {}", alternative, impl, dt / experiments,
+                        experiments,
+                        dt0,
+                        Arrays.toString(dts));
+            }
         }
     }
 
@@ -185,11 +191,11 @@ public class AlternativeQueriesTester {
         }
     }
 
-    private CgmesModelTripleStore modelFor(String implementation) {
+    private CgmesModelTripleStore modelFor(String implementation, FileSystem fs) throws IOException {
         if (cacheModels) {
             return cachedModels.get(implementation);
         } else {
-            ReadOnlyDataSource dataSource = gridModel.dataSource();
+            ReadOnlyDataSource dataSource = gridModel.dataSourceBasedOn(fs);
             return CgmesModelFactory.create(dataSource, implementation);
         }
     }

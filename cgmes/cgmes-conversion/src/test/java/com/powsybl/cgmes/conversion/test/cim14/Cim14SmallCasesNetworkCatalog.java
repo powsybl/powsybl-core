@@ -8,11 +8,8 @@
 package com.powsybl.cgmes.conversion.test.cim14;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Set;
 
@@ -20,15 +17,12 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.ByteStreams;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.cgmes.model.test.cim14.Cim14SmallCasesCatalog;
 import com.powsybl.cim1.converter.CIM1Importer;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.FileDataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Generator;
@@ -217,36 +211,19 @@ public class Cim14SmallCasesNetworkCatalog {
     }
 
     private Network cimImport1(TestGridModel gm) throws IOException {
-        try (FileSystem fileSystem = Jimfs.newFileSystem()) {
+        try (FileSystem fs = Jimfs.newFileSystem()) {
 
-            Path folder = Files.createDirectory(fileSystem.getPath("cim14"));
+            DataSource ds = gm.dataSourceBasedOn(fs);
+            // Always include in the data source the required boundaries
+            resourceToDataSource("ENTSO-E_Boundary_Set_EU_EQ.xml", ds);
+            resourceToDataSource("ENTSO-E_Boundary_Set_EU_TP.xml", ds);
 
-            ReadOnlyDataSource gmds = gm.dataSource();
-            Set<String> names = gmds.listNames("(?i)^.*\\.XML$");
-            DataSource cim1ds = new FileDataSource(folder, baseNameFromNames(names));
-            for (String name : names) {
-                try (InputStream is = gmds.newInputStream(name);
-                     OutputStream os = cim1ds.newOutputStream(name, false)) {
-                    ByteStreams.copy(is, os);
-                }
-            }
-            // Make always available the files for the boundaries
-            resourceToDataSource("ENTSO-E_Boundary_Set_EU_EQ.xml", cim1ds);
-            resourceToDataSource("ENTSO-E_Boundary_Set_EU_TP.xml", cim1ds);
-
-            Set<String> names1 = cim1ds.listNames(".*");
+            Set<String> names1 = ds.listNames(".*");
             if (LOG.isInfoEnabled()) {
                 LOG.info("List of names in data source for CIM1Importer = {}", Arrays.toString(names1.toArray()));
             }
-            return new CIM1Importer().importData(cim1ds, null);
+            return new CIM1Importer().importData(ds, null);
         }
-    }
-
-    private String baseNameFromNames(Set<String> names) {
-        return names.iterator().next()
-                .replaceAll("(?i)_EQ.*XML", "")
-                .replaceAll("(?i)_TP.*XML", "")
-                .replaceAll("(?i)_SV.*XML", "");
     }
 
     private void resourceToDataSource(String name, DataSource dataSource) throws IOException {

@@ -7,6 +7,7 @@
 
 package com.powsybl.cgmes.alternatives.test;
 
+import java.io.IOException;
 import java.util.function.Consumer;
 
 import org.junit.BeforeClass;
@@ -15,8 +16,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.alternatives.test.AlternativeQueriesTester.Expected;
-import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.model.test.TestGridModel;
+import com.powsybl.cgmes.model.test.TestGridModelResources;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStoreFactory;
@@ -28,8 +29,11 @@ public class AlternativeQueriesForRatioTapChangers {
 
     @BeforeClass
     public static void setUp() {
-        TestGridModel model = new CgmesConformity1Catalog()
-                .microGridBaseCaseBEModifiedNotAllTapChangersHaveControl();
+        TestGridModel model = new TestGridModelResources(
+                "not_all_tap_changers_have_control",
+                null,
+                "sample_not_all_tap_changers_have_control/MicroGridTestConfiguration_BC_BE_EQ_V2.xml",
+                "sample_not_all_tap_changers_have_control/MicroGridTestConfiguration_BC_BE_SSH_V2.xml");
         Expected expected = new Expected()
                 .resultSize(3)
                 .propertyCount("regulatingControlTargetValue", 2);
@@ -38,42 +42,31 @@ public class AlternativeQueriesForRatioTapChangers {
         boolean cacheModels = false;
         Consumer<PropertyBags> consumer = rs -> {
             rs.forEach(r -> LOG.info("    {} {} {} {} {} {} {} {}",
-                            r.getId0("RatioTapChanger"),
-                            r.getId0("TapChangerControl"),
-                            r.getId0("TapChangerControlSSH"),
-                            r.containsKey("regulatingControlTargetValue"),
-                            r.asDouble("regulatingControlTargetValue"),
-                            r.asDouble("regulatingControlTargetDeadband"),
-                            r.asBoolean("regulatingControlEnabled", false),
-                            r.get("RatioTapChanger")));
+                    r.getId0("RatioTapChanger"),
+                    r.getId0("TapChangerControl"),
+                    r.getId0("TapChangerControlSSH"),
+                    r.containsKey("regulatingControlTargetValue"),
+                    r.asDouble("regulatingControlTargetValue"),
+                    r.asDouble("regulatingControlTargetDeadband"),
+                    r.asBoolean("regulatingControlEnabled", false),
+                    r.get("RatioTapChanger")));
             if (LOG.isInfoEnabled()) {
                 LOG.info(rs.tabulateLocals());
             }
         };
-        tester = new AlternativeQueriesTester(
-                TripleStoreFactory.allImplementations(),
-                new QueryCatalog("ratioTapChangers.sparql"),
-                model,
-                expected,
-                experiments,
-                doAssert,
-                consumer,
+        tester = new AlternativeQueriesTester(TripleStoreFactory.allImplementations(),
+                new QueryCatalog("ratioTapChangers.sparql"), model, expected, experiments, doAssert, consumer,
                 cacheModels);
         tester.load();
         testerNestedGraph = new AlternativeQueriesTester(
                 TripleStoreFactory.implementationsWorkingWithNestedGraphClauses(),
-                new QueryCatalog("ratioTapChangers.sparql"),
-                model,
-                expected,
-                experiments,
-                doAssert,
-                consumer,
+                new QueryCatalog("ratioTapChangers.sparql"), model, expected, experiments, doAssert, consumer,
                 cacheModels);
         testerNestedGraph.load();
     }
 
     @Test
-    public void simple() {
+    public void simple() throws IOException {
         // All ratio tap changers should have the property lowStep
         long s = tester.expected().resultSize();
         Expected expected = new Expected()
@@ -83,22 +76,22 @@ public class AlternativeQueriesForRatioTapChangers {
     }
 
     @Test
-    public void noGraphClauses() {
+    public void noGraphClauses() throws IOException {
         tester.test("noGraphClauses");
     }
 
     @Test
-    public void nestedGraph() {
+    public void nestedGraph() throws IOException {
         testerNestedGraph.test("nestedGraph");
     }
 
     @Test
-    public void optionalFilteredEquals() {
+    public void optionalFilteredEquals() throws IOException {
         tester.test("optionalFilteredEquals");
     }
 
     @Test
-    public void optionalFilteredSameTerm() {
+    public void optionalFilteredSameTerm() throws IOException {
         tester.test("optionalFilteredSameTerm");
     }
 

@@ -11,11 +11,14 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 
+import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesOnDataSource;
@@ -32,28 +35,30 @@ public class CgmesModelTester {
         this.gridModel = gm;
     }
 
-    public void test() {
-        ReadOnlyDataSource ds = gridModel.dataSource();
+    public void test() throws IOException {
+        try (FileSystem fs = Jimfs.newFileSystem()) {
+            ReadOnlyDataSource ds = gridModel.dataSourceBasedOn(fs);
 
-        // Check that the case exists
-        // even if we do not have any available triple store implementation
-        // cimNamespace() will throw an exception if no CGMES data is found
-        CgmesOnDataSource cds = new CgmesOnDataSource(ds);
-        cds.cimNamespace();
+            // Check that the case exists
+            // even if we do not have any available triple store implementation
+            // cimNamespace() will throw an exception if no CGMES data is found
+            CgmesOnDataSource cds = new CgmesOnDataSource(ds);
+            cds.cimNamespace();
 
-        List<String> implementations = TripleStoreFactory.allImplementations();
-        assertFalse(implementations.isEmpty());
+            List<String> implementations = TripleStoreFactory.allImplementations();
+            assertFalse(implementations.isEmpty());
 
-        for (String impl : implementations) {
-            CgmesModel actual = load(ds, impl);
-            CgmesModel expected = gridModel.expected();
-            if (expected != null) {
-                testCompare(gridModel.expected(), actual);
-            } else {
-                // TODO check that the loaded model is not empty
-                // Or check that the number of elements for each type is correct
-                // If complete expected model is not available, at least check
-                // summary of elements of each type
+            for (String impl : implementations) {
+                CgmesModel actual = load(ds, impl);
+                CgmesModel expected = gridModel.expected();
+                if (expected != null) {
+                    testCompare(gridModel.expected(), actual);
+                } else {
+                    // TODO check that the loaded model is not empty
+                    // Or check that the number of elements for each type is correct
+                    // If complete expected model is not available, at least check
+                    // summary of elements of each type
+                }
             }
         }
     }

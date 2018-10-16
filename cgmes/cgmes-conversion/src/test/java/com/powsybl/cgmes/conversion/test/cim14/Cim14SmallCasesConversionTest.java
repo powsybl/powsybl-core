@@ -7,6 +7,8 @@
 
 package com.powsybl.cgmes.conversion.test.cim14;
 
+import java.io.IOException;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -33,27 +35,27 @@ public class Cim14SmallCasesConversionTest {
     }
 
     @Test
-    public void txMicroBEAdapted() {
+    public void txMicroBEAdapted() throws IOException {
         tester.testConversion(expected.txMicroBEAdapted(), actuals.txMicroBEAdapted());
     }
 
     @Test
-    public void smallcase1() {
+    public void smallcase1() throws IOException {
         tester.testConversion(expected.smallcase1(), actuals.small1());
     }
 
     @Test
-    public void ieee14() {
+    public void ieee14() throws IOException {
         tester.testConversion(expected.ieee14(), actuals.ieee14());
     }
 
     @Test
-    public void nordic32() {
+    public void nordic32() throws IOException {
         tester.testConversion(expected.nordic32(), actuals.nordic32());
     }
 
     @Test
-    public void m7buses() {
+    public void m7buses() throws IOException {
         tester.testConversion(expected.m7buses(), actuals.m7buses());
     }
 

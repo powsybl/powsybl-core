@@ -7,6 +7,8 @@
 
 package com.powsybl.cgmes.alternatives.test;
 
+import java.io.IOException;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -36,22 +38,22 @@ public class AlternativeQueriesForSwitchesTest {
     }
 
     @Test
-    public void optionals() {
+    public void optionals() throws IOException {
         tester.test("optionals");
     }
 
     @Test
-    public void subSelectUnion() {
+    public void subSelectUnion() throws IOException {
         tester.test("subSelectUnion");
     }
 
     @Test
-    public void groupUnion() {
+    public void groupUnion() throws IOException {
         tester.test("groupUnion");
     }
 
     @Test
-    public void assumeOnlyBays() {
+    public void assumeOnlyBays() throws IOException {
         tester.test("assumingOnlyBays");
     }
 

@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.test;
 import static org.junit.Assert.fail;
 
 import java.io.IOException;
+import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -18,6 +19,8 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
@@ -50,11 +53,12 @@ public class ConversionTester {
         this.strictTopologyTest = strictTopologyTest;
     }
 
-    public void testConversion(Network expected, TestGridModel gm) {
+    public void testConversion(Network expected, TestGridModel gm) throws IOException {
         testConversion(expected, gm, this.networkComparison);
     }
 
-    public void testConversion(Network expected, TestGridModel gm, ComparisonConfig config) {
+    public void testConversion(Network expected, TestGridModel gm, ComparisonConfig config)
+            throws IOException {
         if (!gm.exists()) {
             LOG.error("Test grid model does not exist {}", gm.name());
             return;
@@ -71,13 +75,13 @@ public class ConversionTester {
         }
     }
 
-    private void testConversion(Network expected, TestGridModel gm, ComparisonConfig config, String impl) {
+    private void testConversion(Network expected, TestGridModel gm, ComparisonConfig config, String impl) throws IOException {
         Properties params = new Properties();
         params.put("storeCgmesModelAsNetworkProperty", "true");
-        CgmesImport i = new CgmesImport();
-        ReadOnlyDataSource ds = gm.dataSource();
         params.put("powsyblTripleStore", impl);
-        try {
+        CgmesImport i = new CgmesImport();
+        try (FileSystem fs = Jimfs.newFileSystem()) {
+            ReadOnlyDataSource ds = gm.dataSourceBasedOn(fs);
             Network network = i.importData(ds, params);
             if (network.getSubstationCount() == 0) {
                 fail("Model is empty");
@@ -87,12 +91,10 @@ public class ConversionTester {
                 fail("Topology test failed");
             }
             exportXiidm(gm.name(), impl, expected, network);
+            exportCgmes(gm.name(), impl, network);
             if (expected != null) {
                 new Comparison(expected, network, config).compare();
             }
-        } catch (Exception x) {
-            LOG.error(x.getMessage(), x);
-            fail();
         }
     }
 
@@ -125,6 +127,12 @@ public class ConversionTester {
         if (actual != null) {
             xmlExporter.export(actual, null, new FileDataSource(path, "actual"));
         }
+    }
+
+    private void exportCgmes(String name, String impl, Network network) throws IOException {
+        String name1 = name.replace('/', '-');
+        Path path = Files.createTempDirectory("temp-export-cgmes-" + name1 + "-" + impl);
+        new CgmesExport().export(network, null, new FileDataSource(path, "foo"));
     }
 
     private final List<String> tripleStoreImplementations;

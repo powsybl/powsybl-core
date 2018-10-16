@@ -7,6 +7,8 @@
 
 package com.powsybl.cgmes.model.test.cim14;
 
+import java.io.IOException;
+
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -22,22 +24,22 @@ public class Cim14SmallCasesTest {
     }
 
     @Test
-    public void small1() {
+    public void small1() throws IOException {
         new CgmesModelTester(catalog.small1()).test();
     };
 
     @Test
-    public void m7Buses() {
+    public void m7Buses() throws IOException {
         new CgmesModelTester(catalog.m7buses()).test();
     }
 
     @Test
-    public void ieee14() {
+    public void ieee14() throws IOException {
         new CgmesModelTester(catalog.ieee14()).test();
     }
 
     @Test
-    public void nordic32() {
+    public void nordic32() throws IOException {
         new CgmesModelTester(catalog.nordic32()).test();
     }
 

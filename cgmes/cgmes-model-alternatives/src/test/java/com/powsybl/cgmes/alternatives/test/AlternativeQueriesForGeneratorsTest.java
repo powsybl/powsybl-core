@@ -7,6 +7,7 @@
 
 package com.powsybl.cgmes.alternatives.test;
 
+import java.io.IOException;
 import java.util.function.Consumer;
 
 import org.junit.BeforeClass;
@@ -60,12 +61,12 @@ public class AlternativeQueriesForGeneratorsTest {
     }
 
     @Test
-    public void usingGraphClauses() {
+    public void usingGraphClauses() throws IOException {
         testerWorkingWithNestedGraphClauses.test("usingGraphClauses");
     }
 
     @Test
-    public void noGraphClauses() {
+    public void noGraphClauses() throws IOException {
         tester.test("noGraphClauses");
     }
 

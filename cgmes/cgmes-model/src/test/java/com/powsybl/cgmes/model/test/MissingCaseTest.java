@@ -7,6 +7,7 @@
 
 package com.powsybl.cgmes.model.test;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 
 import org.junit.Test;
@@ -18,8 +19,8 @@ import com.powsybl.cgmes.model.CgmesModelException;
  */
 public class MissingCaseTest {
     @Test(expected = CgmesModelException.class)
-    public void missing() {
-        TestGridModel missing = new TestGridModel(
+    public void missing() throws IOException {
+        TestGridModel missing = new TestGridModelPath(
                 Paths.get("./thisTestCaseDoesNotExist"),
                 "",
                 null);
