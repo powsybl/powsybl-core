@@ -26,7 +26,7 @@ public class ReadOnlyMemDataSource implements ReadOnlyDataSource {
 
     private final Map<String, byte[]> data = new HashMap<>();
 
-    private final String baseName;
+    private final String mainFileName;
 
     public ReadOnlyMemDataSource() {
         this("");
@@ -34,10 +34,6 @@ public class ReadOnlyMemDataSource implements ReadOnlyDataSource {
 
     public ReadOnlyMemDataSource(String baseName) {
         this.baseName = Objects.requireNonNull(baseName);
-    }
-
-    public byte[] getData(String suffix, String ext) {
-        return getData(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 
     public byte[] getData(String fileName) {
@@ -57,38 +53,23 @@ public class ReadOnlyMemDataSource implements ReadOnlyDataSource {
     }
 
     @Override
-    public String getBaseName() {
-        return baseName;
-    }
-
-    @Override
-    public boolean exists(String suffix, String ext) throws IOException {
-        return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
-    }
-
-    @Override
-    public boolean exists(String fileName) throws IOException {
+    public boolean fileExists(String fileName) {
         Objects.requireNonNull(fileName);
         return data.containsKey(fileName);
     }
 
     @Override
-    public InputStream newInputStream(String suffix, String ext) throws IOException {
-        return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext));
-    }
-
-    @Override
-    public InputStream newInputStream(String fileName) throws IOException {
+    public InputStream newInputStream(String fileName) {
         Objects.requireNonNull(fileName);
         byte[] ba = data.get(fileName);
         if (ba == null) {
-            throw new IOException(fileName + " does not exist");
+            throw new UncheckedIOException(new IOException(fileName + " does not exist"));
         }
         return new ByteArrayInputStream(ba);
     }
 
     @Override
-    public Set<String> listNames(String regex) throws IOException {
+    public Set<String> getFileNames(String regex) {
         Pattern p = Pattern.compile(regex);
         return data.keySet().stream()
                 .filter(name -> p.matcher(name).matches())

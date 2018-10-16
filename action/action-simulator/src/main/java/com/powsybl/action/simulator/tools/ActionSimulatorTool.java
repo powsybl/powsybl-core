@@ -12,7 +12,7 @@ import com.powsybl.action.dsl.ActionDslLoader;
 import com.powsybl.action.dsl.DefaultActionDslLoaderObserver;
 import com.powsybl.action.simulator.ActionSimulator;
 import com.powsybl.action.simulator.loadflow.*;
-import com.powsybl.commons.datasource.CompressionFormat;
+import com.powsybl.commons.datasource.compressor.CompressionFormat;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;

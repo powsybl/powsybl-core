@@ -6,6 +6,11 @@
  */
 package com.powsybl.commons.datasource;
 
+import com.powsybl.commons.datasource.compressor.Bzip2DataSourceCompressor;
+import com.powsybl.commons.datasource.compressor.CompressionFormat;
+import com.powsybl.commons.datasource.compressor.GzipDataSourceCompressor;
+import com.powsybl.commons.datasource.compressor.NoOpDataSourceCompressor;
+
 import java.io.InputStream;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
@@ -17,26 +22,11 @@ import java.util.Objects;
  */
 public interface DataSourceUtil {
 
-    static String getFileName(String baseName, String suffix, String ext) {
-        Objects.requireNonNull(baseName);
-        return baseName + (suffix != null ? suffix : "") + (ext != null ? "." + ext : "");
-    }
-
     static OpenOption[] getOpenOptions(boolean append) {
         OpenOption[] defaultOpenOptions = {StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING};
         OpenOption[] appendOpenOptions = {StandardOpenOption.APPEND};
 
         return append ? appendOpenOptions : defaultOpenOptions;
-    }
-
-    static String getBaseName(Path file) {
-        return getBaseName(file.getFileName().toString());
-    }
-
-    static String getBaseName(String fileName) {
-        Objects.requireNonNull(fileName);
-        int pos = fileName.indexOf('.'); // find first dot in case of double extension (.xml.gz)
-        return pos == -1 ? fileName : fileName.substring(0, pos);
     }
 
     static DataSource createDataSource(Path directory, String basename, CompressionFormat compressionExtension, DataSourceObserver observer) {
@@ -59,18 +49,18 @@ public interface DataSourceUtil {
         }
     }
 
-    static DataSource createDataSource(Path directory, String fileNameOrBaseName, DataSourceObserver observer) {
+    static DataSource createDataSource(Path directory, String fileName, DataSourceObserver observer) {
         Objects.requireNonNull(directory);
-        Objects.requireNonNull(fileNameOrBaseName);
+        Objects.requireNonNull(fileName);
 
-        if (fileNameOrBaseName.endsWith(".zip")) {
-            return new ZipFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
-        } else if (fileNameOrBaseName.endsWith(".gz")) {
-            return new GzFileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 3)), observer);
-        } else if (fileNameOrBaseName.endsWith(".bz2")) {
-            return new Bzip2FileDataSource(directory, getBaseName(fileNameOrBaseName.substring(0, fileNameOrBaseName.length() - 4)), observer);
+        if (fileName.endsWith(".zip")) {
+            return new ZipFileDataSource(directory, fileName, observer);
+        } else if (fileName.endsWith(".gz")) {
+            return new FileDataSource(directory, fileName, new GzipDataSourceCompressor(), observer);
+        } else if (fileName.endsWith(".bz2")) {
+            return new FileDataSource(directory, fileName, new Bzip2DataSourceCompressor(), observer);
         } else {
-            return new FileDataSource(directory, getBaseName(fileNameOrBaseName), observer);
+            return new FileDataSource(directory, fileName, new NoOpDataSourceCompressor(), observer);
         }
     }
 

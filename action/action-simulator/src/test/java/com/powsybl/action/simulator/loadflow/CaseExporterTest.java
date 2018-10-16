@@ -8,7 +8,7 @@ package com.powsybl.action.simulator.loadflow;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.datasource.CompressionFormat;
+import com.powsybl.commons.datasource.compressor.CompressionFormat;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;

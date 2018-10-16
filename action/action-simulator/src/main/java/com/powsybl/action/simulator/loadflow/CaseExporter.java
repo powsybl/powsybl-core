@@ -6,7 +6,7 @@
  */
 package com.powsybl.action.simulator.loadflow;
 
-import com.powsybl.commons.datasource.CompressionFormat;
+import com.powsybl.commons.datasource.compressor.CompressionFormat;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.contingency.Contingency;

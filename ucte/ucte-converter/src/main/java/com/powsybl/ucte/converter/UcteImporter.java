@@ -8,7 +8,6 @@ package com.powsybl.ucte.converter;
 
 import com.google.auto.service.AutoService;
 import com.google.common.base.Enums;
-import com.google.common.base.Joiner;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
@@ -746,29 +745,25 @@ public class UcteImporter implements Importer {
 
     }
 
-    private String findExtension(ReadOnlyDataSource dataSource, boolean throwException) throws IOException {
+    private String findExtension(ReadOnlyDataSource dataSource) {
         for (String ext : EXTENSIONS) {
-            if (dataSource.exists(null, ext)) {
+            if (dataSource.getMainFileName().endsWith('.' + ext)) {
                 return ext;
             }
-        }
-        if (throwException) {
-            throw new UcteException("File " + dataSource.getBaseName()
-                    + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
         }
         return null;
     }
 
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
-        try {
-            String ext = findExtension(dataSource, false);
-            if (ext != null) {
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
-                    return new UcteReader().checkHeader(reader);
-                }
-            }
-            return false;
+        return dataSource.fileExists(dataSource.getMainFileName())
+                && findExtension(dataSource) != null
+                && checkHeader(dataSource);
+    }
+
+    private boolean checkHeader(ReadOnlyDataSource dataSource) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(dataSource.getMainFileName())))) {
+            return new UcteReader().checkHeader(reader);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -905,9 +900,8 @@ public class UcteImporter implements Importer {
         Objects.requireNonNull(fromDataSource);
         Objects.requireNonNull(toDataSource);
         try {
-            String ext = findExtension(fromDataSource, true);
-            try (InputStream is = fromDataSource.newInputStream(null, ext);
-                 OutputStream os = toDataSource.newOutputStream(null, ext, false)) {
+            try (InputStream is = fromDataSource.newInputStream(fromDataSource.getMainFileName());
+                 OutputStream os = toDataSource.newOutputStream(fromDataSource.getMainFileName(), false)) {
                 ByteStreams.copy(is, os);
             }
         } catch (IOException e) {
@@ -918,13 +912,12 @@ public class UcteImporter implements Importer {
     @Override
     public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
         try {
-            String ext = findExtension(dataSource, true);
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(dataSource.getMainFileName())))) {
 
                 Stopwatch stopwatch = Stopwatch.createStarted();
 
                 UcteNetworkExt ucteNetwork = new UcteNetworkExt(new UcteReader().read(reader), LINE_MIN_Z);
-                String fileName = dataSource.getBaseName();
+                String fileName = dataSource.getMainFileName().substring(0, dataSource.getMainFileName().length() - 4);
 
                 EntsoeFileName ucteFileName = EntsoeFileName.parse(fileName);
 

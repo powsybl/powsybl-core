@@ -13,6 +13,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.io.ByteStreams;
 import com.google.gdata.util.io.base.UnicodeReader;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
@@ -24,6 +25,7 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterType;
+import org.apache.commons.math3.analysis.function.Pow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -89,6 +91,32 @@ public class CIM1Importer implements Importer, CIM1Constants {
     @Override
     public String getComment() {
         return "CIM ENTSOE profile V1";
+    }
+
+    private String getBaseName(ReadOnlyDataSource dataSource) {
+        String eqFileName = null;
+        if (dataSource.getMainFileName() != null && dataSource.getMainFileName().isEmpty()) {
+            if (!dataSource.getMainFileName().endsWith("_EQ.xml")) {
+                throw new PowsyblException("Main file is not an EQ file");
+            }
+        } else {
+            Set<String> eqFileNames = dataSource.getFileNames(".*_EQ.xml");
+            if (eqFileNames.isEmpty()) {
+                throw new PowsyblException("No EQ file found");
+            }
+            if (eqFileNames.size() > 1) {
+                throw new PowsyblException("Several EQ file found");
+            }
+            eqFileName = eqFileNames.iterator().next();
+        }
+
+        return eqFileName.substring(0, eqFileName.length() - 7);
+        String basename = dataSource.getBaseName();
+        if (basename.endsWith("_ME") || basename.endsWith("_EQ") || basename.endsWith("_TP") || basename.endsWith("_SV")) {
+            basename = basename.substring(0, basename.length() - 3);
+        }
+
+        return basename;
     }
 
     private Packaging detectPackaging(ReadOnlyDataSource dataSource) throws IOException {
@@ -221,7 +249,7 @@ public class CIM1Importer implements Importer, CIM1Constants {
     }
 
     private InputStream getEqBoundaryFile(ReadOnlyDataSource dataSource) throws IOException {
-        if (dataSource.exists(EQ_BOUNDARY_FILE_NAME)) {
+        if (dataSource.fileExists(EQ_BOUNDARY_FILE_NAME)) {
             LOGGER.debug("Using custom EQ boundary file");
             return dataSource.newInputStream(EQ_BOUNDARY_FILE_NAME);
         } else {
@@ -235,7 +263,7 @@ public class CIM1Importer implements Importer, CIM1Constants {
     }
 
     private InputStream getTpBoundaryFile(ReadOnlyDataSource dataSource) throws IOException {
-        if (dataSource.exists(TP_BOUNDARY_FILE_NAME)) {
+        if (dataSource.fileExists(TP_BOUNDARY_FILE_NAME)) {
             LOGGER.debug("Using custom TP boundary file");
             return dataSource.newInputStream(TP_BOUNDARY_FILE_NAME);
         } else {
@@ -328,26 +356,5 @@ public class CIM1Importer implements Importer, CIM1Constants {
         LOGGER.debug("CIM import done in " + (System.currentTimeMillis() - startTime) + " ms");
 
         return network;
-    }
-
-    private String getBaseName(ReadOnlyDataSource dataSource) {
-        String basename = dataSource.getBaseName();
-        if (basename.endsWith("_ME") || basename.endsWith("_EQ") || basename.endsWith("_TP") || basename.endsWith("_SV")) {
-            basename = basename.substring(0, basename.length() - 3);
-        }
-
-        return basename;
-    }
-
-    private InputStream newInputStream(ReadOnlyDataSource dataSource, String suffix, String ext) throws IOException {
-        String baseName = getBaseName(dataSource);
-        String fileName = DataSourceUtil.getFileName(baseName, suffix, ext);
-        return dataSource.newInputStream(fileName);
-    }
-
-    private boolean exists(ReadOnlyDataSource dataSource, String suffix, String ext) throws IOException {
-        String baseName = getBaseName(dataSource);
-        String fileName = DataSourceUtil.getFileName(baseName, suffix, ext);
-        return dataSource.exists(fileName);
     }
 }

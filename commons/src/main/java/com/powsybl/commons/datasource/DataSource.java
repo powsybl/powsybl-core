@@ -6,7 +6,6 @@
  */
 package com.powsybl.commons.datasource;
 
-import java.io.IOException;
 import java.io.OutputStream;
 
 /**
@@ -14,8 +13,5 @@ import java.io.OutputStream;
  */
 public interface DataSource extends ReadOnlyDataSource {
 
-    OutputStream newOutputStream(String fileName, boolean append) throws IOException;
-
-    OutputStream newOutputStream(String suffix, String ext, boolean append) throws IOException;
-
+    OutputStream newOutputStream(String fileName, boolean append);
 }

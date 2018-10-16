@@ -7,7 +7,6 @@
 package com.powsybl.iidm.xml;
 
 import com.google.auto.service.AutoService;
-import com.google.common.base.Joiner;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.io.ByteStreams;
@@ -49,8 +48,6 @@ public class XMLImporter implements Importer {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(XMLImporter.class);
 
-    private static final String[] EXTENSIONS = {"xiidm", "iidm", "xml"};
-
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND
@@ -83,46 +80,36 @@ public class XMLImporter implements Importer {
         return "IIDM XML v " + VERSION + " importer";
     }
 
-    private String findExtension(ReadOnlyDataSource dataSource) throws IOException {
-        for (String ext : EXTENSIONS) {
-            if (dataSource.exists(null, ext)) {
-                return ext;
-            }
-        }
-        return null;
-    }
-
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
         try {
-            String ext = findExtension(dataSource);
-            return exists(dataSource, ext);
+            return dataSource.fileExists(dataSource.getMainFileName())
+                    && XmlConverterUtil.findExtension(dataSource) != null
+                    && checkXmlNs(dataSource);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private boolean exists(ReadOnlyDataSource dataSource, String ext) throws IOException {
+    private boolean checkXmlNs(ReadOnlyDataSource dataSource) throws IOException {
         try {
-            if (ext != null) {
-                try (InputStream is = dataSource.newInputStream(null, ext)) {
-                    // check the first root element is network and namespace is IIDM
-                    XMLStreamReader xmlsr = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
+            try (InputStream is = dataSource.newInputStream(dataSource.getMainFileName())) {
+                // check the first root element is network and namespace is IIDM
+                XMLStreamReader xmlsr = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
+                try {
+                    while (xmlsr.hasNext()) {
+                        int eventType = xmlsr.next();
+                        if (eventType == XMLEvent.START_ELEMENT) {
+                            String name = xmlsr.getLocalName();
+                            String ns = xmlsr.getNamespaceURI();
+                            return NetworkXml.NETWORK_ROOT_ELEMENT_NAME.equals(name) && IIDM_URI.equals(ns);
+                        }
+                    }
+                } finally {
                     try {
-                        while (xmlsr.hasNext()) {
-                            int eventType = xmlsr.next();
-                            if (eventType == XMLEvent.START_ELEMENT) {
-                                String name = xmlsr.getLocalName();
-                                String ns = xmlsr.getNamespaceURI();
-                                return NetworkXml.NETWORK_ROOT_ELEMENT_NAME.equals(name) && IIDM_URI.equals(ns);
-                            }
-                        }
-                    } finally {
-                        try {
-                            xmlsr.close();
-                        } catch (XMLStreamException e) {
-                            LOGGER.error(e.toString(), e);
-                        }
+                        xmlsr.close();
+                    } catch (XMLStreamException e) {
+                        LOGGER.error(e.toString(), e);
                     }
                 }
             }
@@ -136,19 +123,16 @@ public class XMLImporter implements Importer {
     @Override
     public void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
         try {
-            String ext = findExtension(fromDataSource);
-            if (!exists(fromDataSource, ext)) {
-                throw new PowsyblException("From data source is not importable");
-            }
             // copy iidm file
-            try (InputStream is = fromDataSource.newInputStream(null, ext);
-                 OutputStream os = toDataSource.newOutputStream(null, ext, false)) {
+            try (InputStream is = fromDataSource.newInputStream(fromDataSource.getMainFileName());
+                 OutputStream os = toDataSource.newOutputStream(fromDataSource.getMainFileName(), false)) {
                 ByteStreams.copy(is, os);
             }
+            String baseName = XmlConverterUtil.getBaseName(fromDataSource);
             // and also anonymization file if exists
-            if (fromDataSource.exists(SUFFIX_MAPPING, "csv")) {
-                try (InputStream is = fromDataSource.newInputStream(SUFFIX_MAPPING, "csv");
-                     OutputStream os = toDataSource.newOutputStream(SUFFIX_MAPPING, "csv", false)) {
+            if (fromDataSource.fileExists(baseName + ".csv")) {
+                try (InputStream is = fromDataSource.newInputStream(baseName + ".csv");
+                     OutputStream os = toDataSource.newOutputStream(baseName + "csv", false)) {
                     ByteStreams.copy(is, os);
                 }
             }
@@ -163,20 +147,16 @@ public class XMLImporter implements Importer {
         Network network;
         long startTime = System.currentTimeMillis();
         try {
-            String ext = findExtension(dataSource);
-            if (ext == null) {
-                throw new PowsyblException("File " + dataSource.getBaseName()
-                        + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
-            }
             boolean throwExceptionIfExtensionNotFound = (Boolean) Importers.readParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, defaultValueConfig);
             Anonymizer anonymizer = null;
-            if (dataSource.exists(SUFFIX_MAPPING, "csv")) {
+            String baseName = XmlConverterUtil.getBaseName(dataSource);
+            if (dataSource.fileExists(baseName + ".csv")) {
                 anonymizer = new SimpleAnonymizer();
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(SUFFIX_MAPPING, "csv"), StandardCharsets.UTF_8))) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(baseName + ".csv"), StandardCharsets.UTF_8))) {
                     anonymizer.read(reader);
                 }
             }
-            try (InputStream is = dataSource.newInputStream(null, ext)) {
+            try (InputStream is = dataSource.newInputStream(dataSource.getMainFileName())) {
                 network = NetworkXml.read(is, new ImportOptions(throwExceptionIfExtensionNotFound), anonymizer);
             }
             LOGGER.debug("XIIDM import done in {} ms", System.currentTimeMillis() - startTime);

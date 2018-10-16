@@ -13,7 +13,6 @@ import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyLevel;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,7 +20,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
-import static com.powsybl.iidm.xml.IidmXmlConstants.*;
+import static com.powsybl.iidm.xml.IidmXmlConstants.VERSION;
 
 /**
  * XML export of an IIDM model.<p>
@@ -100,11 +99,12 @@ public class XMLExporter implements Exporter {
         try {
             long startTime = System.currentTimeMillis();
 
-            try (OutputStream os = dataSource.newOutputStream(null, "xiidm", false);
+            try (OutputStream os = dataSource.newOutputStream(dataSource.getMainFileName(), false);
                  BufferedOutputStream bos = new BufferedOutputStream(os)) {
                 Anonymizer anonymizer = NetworkXml.write(network, options, bos);
                 if (anonymizer != null) {
-                    try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dataSource.newOutputStream("_mapping", "csv", false), StandardCharsets.UTF_8))) {
+                    String baseName = XmlConverterUtil.getBaseName(dataSource);
+                    try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dataSource.newOutputStream(baseName + "_mapping.csv", false), StandardCharsets.UTF_8))) {
                         anonymizer.write(writer);
                     }
                 }

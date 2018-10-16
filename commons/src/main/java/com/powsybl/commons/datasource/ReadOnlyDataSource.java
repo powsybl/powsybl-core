@@ -6,7 +6,6 @@
  */
 package com.powsybl.commons.datasource;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Set;
 
@@ -15,15 +14,13 @@ import java.util.Set;
  */
 public interface ReadOnlyDataSource {
 
-    String getBaseName();
+    boolean isContainer();
 
-    boolean exists(String suffix, String ext) throws IOException;
+    String getMainFileName();
 
-    boolean exists(String fileName) throws IOException;
+    Set<String> getFileNames(String regex);
 
-    InputStream newInputStream(String suffix, String ext) throws IOException;
+    boolean fileExists(String fileName);
 
-    InputStream newInputStream(String fileName) throws IOException;
-
-    Set<String> listNames(String regex) throws IOException;
+    InputStream newInputStream(String fileName);
 }

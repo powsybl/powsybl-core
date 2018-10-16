@@ -6,9 +6,17 @@
  */
 package com.powsybl.commons.datasource;
 
+import com.google.common.io.ByteStreams;
+import com.powsybl.commons.io.ForwardingInputStream;
+import com.powsybl.commons.io.ForwardingOutputStream;
+import net.java.truevfs.comp.zip.ZipEntry;
+import net.java.truevfs.comp.zip.ZipFile;
+import net.java.truevfs.comp.zip.ZipOutputStream;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
@@ -17,14 +25,6 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
-
-import com.google.common.io.ByteStreams;
-import com.powsybl.commons.io.ForwardingInputStream;
-import com.powsybl.commons.io.ForwardingOutputStream;
-
-import net.java.truevfs.comp.zip.ZipEntry;
-import net.java.truevfs.comp.zip.ZipFile;
-import net.java.truevfs.comp.zip.ZipOutputStream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -35,45 +35,30 @@ public class ZipFileDataSource implements DataSource {
 
     private final String zipFileName;
 
-    private final String baseName;
-
     private final DataSourceObserver observer;
 
-    public ZipFileDataSource(Path directory, String zipFileName, String baseName, DataSourceObserver observer) {
+    public ZipFileDataSource(Path directory, String zipFileName, DataSourceObserver observer) {
         this.directory = Objects.requireNonNull(directory);
         this.zipFileName = Objects.requireNonNull(zipFileName);
-        this.baseName = Objects.requireNonNull(baseName);
         this.observer = observer;
     }
 
-    public ZipFileDataSource(Path directory, String zipFileName, String baseName) {
-        this(directory, zipFileName, baseName, null);
-    }
-
-    public ZipFileDataSource(Path directory, String baseName) {
-        this(directory, baseName + ".zip", baseName, null);
-    }
-
-    public ZipFileDataSource(Path directory, String baseName, DataSourceObserver observer) {
-        this(directory, baseName + ".zip", baseName, observer);
-    }
-
     public ZipFileDataSource(Path zipFile) {
-        this(zipFile.getParent(), com.google.common.io.Files.getNameWithoutExtension(zipFile.getFileName().toString()));
+        this(zipFile.getParent(), com.google.common.io.Files.getNameWithoutExtension(zipFile.getFileName().toString()), null);
     }
 
     @Override
-    public String getBaseName() {
-        return baseName;
+    public boolean isContainer() {
+        return true;
+    }
+
+    @Override
+    public String getMainFileName() {
+        return "";
     }
 
     private Path getZipFilePath() {
         return directory.resolve(zipFileName);
-    }
-
-    @Override
-    public boolean exists(String suffix, String ext) throws IOException {
-        return exists(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 
     private static boolean entryExists(Path zipFilePath, String fileName) {
@@ -88,15 +73,10 @@ public class ZipFileDataSource implements DataSource {
     }
 
     @Override
-    public boolean exists(String fileName) {
+    public boolean fileExists(String fileName) {
         Objects.requireNonNull(fileName);
         Path zipFilePath = getZipFilePath();
         return entryExists(zipFilePath, fileName);
-    }
-
-    @Override
-    public InputStream newInputStream(String suffix, String ext) throws IOException {
-        return newInputStream(DataSourceUtil.getFileName(baseName, suffix, ext));
     }
 
     private static final class ZipEntryInputStream extends ForwardingInputStream<InputStream> {
@@ -117,15 +97,33 @@ public class ZipFileDataSource implements DataSource {
     }
 
     @Override
-    public InputStream newInputStream(String fileName) throws IOException {
+    public InputStream newInputStream(String fileName) {
         Objects.requireNonNull(fileName);
         Path zipFilePath = getZipFilePath();
-        if (entryExists(zipFilePath, fileName)) {
-            InputStream is = new ZipEntryInputStream(new ZipFile(zipFilePath), fileName);
-            return observer != null ? new ObservableInputStream(is, zipFilePath + ":" + fileName, observer) : is;
-        }
-        return null;
+        InputStream is = new ZipEntryInputStream(new ZipFile(zipFilePath), fileName);
+        return observer != null ? new ObservableInputStream(is, zipFilePath + ":" + fileName, observer) : is;
     }
+
+    @Override
+    public Set<String> getFileNames(String regex) {
+        // Consider only files in the given folder, do not go into folders
+        Pattern p = Pattern.compile(regex);
+        Set<String> names = new HashSet<>();
+        Path zipFilePath = getZipFilePath();
+        try (ZipFile zipFile = new ZipFile(zipFilePath)) {
+            Enumeration<? extends ZipEntry> e = zipFile.entries();
+            while (e.hasMoreElements()) {
+                ZipEntry zipEntry = e.nextElement();
+                if (!zipEntry.isDirectory() && p.matcher(zipEntry.getName()).matches()) {
+                    names.add(zipEntry.getName());
+                }
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return names;
+    }
+
 
     private static final class ZipEntryOutputStream extends ForwardingOutputStream<ZipOutputStream> {
 
@@ -185,7 +183,7 @@ public class ZipFileDataSource implements DataSource {
     }
 
     @Override
-    public OutputStream newOutputStream(String fileName, boolean append) throws IOException {
+    public OutputStream newOutputStream(String fileName, boolean append) {
         Objects.requireNonNull(fileName);
         if (append) {
             throw new UnsupportedOperationException("append not supported in zip file data source");
@@ -193,28 +191,5 @@ public class ZipFileDataSource implements DataSource {
         Path zipFilePath = getZipFilePath();
         OutputStream os = new ZipEntryOutputStream(zipFilePath, fileName);
         return observer != null ? new ObservableOutputStream(os, zipFilePath + ":" + fileName, observer) : os;
-    }
-
-    @Override
-    public OutputStream newOutputStream(String suffix, String ext, boolean append) throws IOException {
-        return newOutputStream(DataSourceUtil.getFileName(baseName, suffix, ext), append);
-    }
-
-    @Override
-    public Set<String> listNames(String regex) throws IOException {
-        // Consider only files in the given folder, do not go into folders
-        Pattern p = Pattern.compile(regex);
-        Set<String> names = new HashSet<>();
-        Path zipFilePath = getZipFilePath();
-        try (ZipFile zipFile = new ZipFile(zipFilePath)) {
-            Enumeration<? extends ZipEntry> e = zipFile.entries();
-            while (e.hasMoreElements()) {
-                ZipEntry zipEntry = e.nextElement();
-                if (!zipEntry.isDirectory() && p.matcher(zipEntry.getName()).matches()) {
-                    names.add(zipEntry.getName());
-                }
-            }
-        }
-        return names;
     }
 }
