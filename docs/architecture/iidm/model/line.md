@@ -14,7 +14,6 @@ A line can also be a [Tie Line](tieLine.md).
 | B2 | double | yes | - | The second side shunt susceptance |
 
 ## Examples
-
 This example shows how to create a new Line in the network:
 ```java
 Line line = network.newLine()
@@ -29,7 +28,7 @@ Line line = network.newLine()
     .setB1(0.0)
     .setG2(0.0)
     .setB2(0.0)
-    add();
+    .add();
 ```
 
 ## References
