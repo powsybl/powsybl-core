@@ -46,8 +46,7 @@ public class QueryCatalog extends HashMap<String, String> {
 
     @Override
     public int hashCode() {
-        // FIXME(Luma): this methods recurses infinitely
-        return Objects.hash(this.hashCode(), resource);
+        return Objects.hash(super.hashCode(), resource);
     }
 
     @Override

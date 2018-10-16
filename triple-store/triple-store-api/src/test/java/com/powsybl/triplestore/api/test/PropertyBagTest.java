@@ -9,6 +9,7 @@ package com.powsybl.triplestore.api.test;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
@@ -39,6 +40,25 @@ public class PropertyBagTest {
         localsWithUnderscore.put("id", "http://example.com/#_id0-id1-id2");
         localsWithUnderscore.put("name", "name0");
         localsWithUnderscore.put("enum", "http://example.com/DataTypeEnum#enumValue0");
+    }
+
+    @Test
+    public void testHashCodeEquals() {
+        // Same property names and different values
+        assertNotEquals(locals.hashCode(), localsWithUnderscore.hashCode());
+        assertFalse(locals.equals(localsWithUnderscore));
+
+        // Same property names and same elements
+        PropertyBag locals1 = new PropertyBag(Arrays.asList("id", "name", "enum"), true);
+        locals.entrySet().forEach(r -> locals1.put(r.getKey(), r.getValue()));
+        assertEquals(locals.hashCode(), locals1.hashCode());
+        assertTrue(locals.equals(locals1));
+
+        // Same elements but different property names
+        PropertyBag locals2 = new PropertyBag(Arrays.asList("identifier", "name", "enum"), true);
+        locals.entrySet().forEach(r -> locals2.put(r.getKey(), r.getValue()));
+        assertNotEquals(locals.hashCode(), locals2.hashCode());
+        assertFalse(locals.equals(locals2));
     }
 
     @Test

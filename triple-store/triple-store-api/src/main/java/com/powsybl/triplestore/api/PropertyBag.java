@@ -141,8 +141,7 @@ public class PropertyBag extends HashMap<String, String> {
 
     @Override
     public int hashCode() {
-        // FIXME(Luma): This method recurses infinitely
-        return Objects.hash(this.hashCode(), propertyNames, removeInitialUnderscoreForIdentifiers);
+        return Objects.hash(super.hashCode(), propertyNames, removeInitialUnderscoreForIdentifiers);
     }
 
     @Override
