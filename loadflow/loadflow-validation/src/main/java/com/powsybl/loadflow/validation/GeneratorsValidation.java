@@ -59,9 +59,10 @@ public final class GeneratorsValidation {
         Objects.requireNonNull(config);
         Objects.requireNonNull(generatorsWriter);
         LOGGER.info("Checking generators of network {}", network.getId());
+        BalanceTypeGuesser guesser = new BalanceTypeGuesser(network, config.getThreshold());
         return network.getGeneratorStream()
                       .sorted(Comparator.comparing(Generator::getId))
-                      .map(gen -> checkGenerators(gen, config, generatorsWriter))
+                      .map(gen -> checkGenerators(gen, config, generatorsWriter, guesser))
                       .reduce(Boolean::logicalAnd)
                       .orElse(true);
     }
@@ -72,13 +73,13 @@ public final class GeneratorsValidation {
         Objects.requireNonNull(writer);
 
         try (ValidationWriter generatorsWriter = ValidationUtils.createValidationWriter(gen.getId(), config, writer, ValidationType.GENERATORS)) {
-            return checkGenerators(gen, config, generatorsWriter);
+            return checkGenerators(gen, config, generatorsWriter, new BalanceTypeGuesser());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    public static boolean checkGenerators(Generator gen, ValidationConfig config, ValidationWriter generatorsWriter) {
+    public static boolean checkGenerators(Generator gen, ValidationConfig config, ValidationWriter generatorsWriter, BalanceTypeGuesser guesser) {
         Objects.requireNonNull(gen);
         Objects.requireNonNull(config);
         Objects.requireNonNull(generatorsWriter);
@@ -98,7 +99,8 @@ public final class GeneratorsValidation {
         Bus connectableBus = gen.getTerminal().getBusView().getConnectableBus();
         boolean connectableMainComponent = connectableBus != null && connectableBus.isInMainConnectedComponent();
         boolean mainComponent = bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
-        return checkGenerators(gen.getId(), p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minP, maxP, minQ, maxQ, connected, mainComponent, config, generatorsWriter);
+        return checkGenerators(gen.getId(), p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minP, maxP, minQ, maxQ, connected,
+                               mainComponent, config, generatorsWriter, guesser);
     }
 
     public static boolean checkGenerators(String id, double p, double q, double v, double targetP, double targetQ, double targetV,
@@ -109,7 +111,8 @@ public final class GeneratorsValidation {
         Objects.requireNonNull(writer);
 
         try (ValidationWriter generatorsWriter = ValidationUtils.createValidationWriter(id, config, writer, ValidationType.GENERATORS)) {
-            return checkGenerators(id, p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minP, maxP, minQ, maxQ, connected, mainComponent, config, generatorsWriter);
+            return checkGenerators(id, p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minP, maxP, minQ, maxQ, connected, mainComponent, config,
+                                   generatorsWriter, new BalanceTypeGuesser());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -117,12 +120,13 @@ public final class GeneratorsValidation {
 
     public static boolean checkGenerators(String id, double p, double q, double v, double targetP, double targetQ, double targetV,
                                           boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean connected,
-                                          boolean mainComponent, ValidationConfig config, ValidationWriter generatorsWriter) {
+                                          boolean mainComponent, ValidationConfig config, ValidationWriter generatorsWriter, BalanceTypeGuesser guesser) {
         Objects.requireNonNull(id);
         Objects.requireNonNull(config);
         Objects.requireNonNull(generatorsWriter);
         boolean validated = true;
 
+        double expectedP = getExpectedP(guesser, id, p, targetP, minP, maxP, config.getThreshold());
         if (connected && ValidationUtils.isMainComponent(config, mainComponent)) {
             if (Double.isNaN(p) || Double.isNaN(q)) {
                 validated = checkGeneratorsNaNValues(id, p, q, targetP, targetQ);
@@ -131,15 +135,34 @@ public final class GeneratorsValidation {
             } else if (checkSetpointOutsidePowerBounds(targetP, minP, maxP, config)) { // when targetP < minP or targetP > maxP if noRequirementIfSetpointOutsidePowerBounds return true
                 validated = true;
             } else {
-                validated = checkGeneratorsValues(id, p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, config);
+                validated = checkGeneratorsValues(id, p, q, v, expectedP, targetQ, targetV, voltageRegulatorOn, minQ, maxQ, config);
             }
         }
         try {
-            generatorsWriter.write(id, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
+            generatorsWriter.write(id, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
         return validated;
+    }
+
+    private static double getExpectedP(BalanceTypeGuesser guesser, String id, double p, double targetP, double minP, double maxP, double threshold) {
+        if (BalanceType.NONE.equals(guesser.getBalanceType())) {
+            return Math.abs(p + targetP) > threshold && id.equals(guesser.getSlack()) ? p : targetP;
+        }
+        if (Math.abs(p + targetP) <= threshold) {
+            return targetP;
+        }
+        switch (guesser.getBalanceType()) {
+            case PROPORTIONAL_TO_GENERATION_P_MAX:
+                return Math.max(Math.max(0, minP), Math.min(maxP, targetP + maxP * guesser.getKMax()));
+            case PROPORTIONAL_TO_GENERATION_P:
+                return Math.max(Math.max(0, minP), Math.min(maxP, targetP + targetP * guesser.getKTarget()));
+            case PROPORTIONAL_TO_GENERATION_HEADROOM:
+                return Math.max(Math.max(0, minP), Math.min(maxP, targetP + (maxP - targetP) * guesser.getKHeadroom()));
+            default:
+                throw new AssertionError("Unhandled Balance Type: " + guesser.getBalanceType());
+        }
     }
 
     private static boolean checkGeneratorsNaNValues(String id, double p, double q, double targetP, double targetQ) {
@@ -152,12 +175,12 @@ public final class GeneratorsValidation {
         return true;
     }
 
-    private static boolean checkGeneratorsValues(String id, double p, double q, double v, double targetP, double targetQ, double targetV,
+    private static boolean checkGeneratorsValues(String id, double p, double q, double v, double expectedP, double targetQ, double targetV,
                                                  boolean voltageRegulatorOn, double minQ, double maxQ, ValidationConfig config) {
         boolean validated = true;
         // active power should be equal to setpoint
-        if (ValidationUtils.areNaN(config, targetP) || Math.abs(p + targetP) > config.getThreshold()) {
-            LOGGER.warn("{} {}: {}: P={} targetP={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, p, targetP);
+        if (ValidationUtils.areNaN(config, expectedP) || Math.abs(p + expectedP) > config.getThreshold()) {
+            LOGGER.warn("{} {}: {}: P={} expectedP={}", ValidationType.GENERATORS, ValidationUtils.VALIDATION_ERROR, id, p, expectedP);
             validated = false;
         }
         // if voltageRegulatorOn="false" then reactive power should be equal to setpoint
