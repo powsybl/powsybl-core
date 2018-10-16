@@ -17,6 +17,7 @@ import org.junit.Test;
 
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.test.FakeCgmesModel;
 import com.powsybl.iidm.network.Network;
 
 /**
@@ -25,7 +26,7 @@ import com.powsybl.iidm.network.Network;
 public class FakeSubstationsConversionTest {
     @Test
     public void fakeSubstations() {
-        CgmesModel cgmes = new CgmesModel.Fake()
+        CgmesModel cgmes = new FakeCgmesModel()
                 .substations("Sub1", "Sub2", "Sub3");
         Network n = new Conversion(cgmes).convertedNetwork();
         List<String> actuals = n.getSubstationStream()

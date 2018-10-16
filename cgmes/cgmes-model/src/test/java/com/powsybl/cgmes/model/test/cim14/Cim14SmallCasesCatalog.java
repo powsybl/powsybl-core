@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.model.test.cim14;
 
 import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.test.FakeCgmesModel;
 import com.powsybl.cgmes.model.test.TestGridModelResources;
 
 /**
@@ -51,7 +52,7 @@ public class Cim14SmallCasesCatalog {
     }
 
     private CgmesModel expectedSmall1() {
-        return new CgmesModel.Fake()
+        return new FakeCgmesModel()
                 .modelId("Small1")
                 .version("IEC61970CIM14v02")
                 .substations("_GEN______SS", "_INF______SS")
@@ -70,7 +71,7 @@ public class Cim14SmallCasesCatalog {
     }
 
     private CgmesModel expectedM7Buses() {
-        return new CgmesModel.Fake()
+        return new FakeCgmesModel()
                 .modelId("M7Buses")
                 .version("IEC61970CIM14v02")
                 .substations("_FP.AND11_SS", "_FS.BIS11_SS", "_FSSV.O11_SS", "_FTILL511_SS",
@@ -144,7 +145,7 @@ public class Cim14SmallCasesCatalog {
     }
 
     private CgmesModel expectedIeee14() {
-        return new CgmesModel.Fake()
+        return new FakeCgmesModel()
                 .modelId("IEEE14")
                 .version("IEC61970CIM14v02")
                 .substations(
@@ -230,7 +231,7 @@ public class Cim14SmallCasesCatalog {
     }
 
     private CgmesModel expectedNordic32() {
-        return new CgmesModel.Fake()
+        return new FakeCgmesModel()
                 .modelId("Nordic32")
                 .version("IEC61970CIM14v02")
                 .substations(

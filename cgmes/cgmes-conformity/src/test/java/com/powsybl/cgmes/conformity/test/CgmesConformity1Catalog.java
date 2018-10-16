@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conformity.test;
 
 import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.test.FakeCgmesModel;
 import com.powsybl.cgmes.model.test.TestGridModelResources;
 
 /**
@@ -141,7 +142,7 @@ public class CgmesConformity1Catalog {
     }
 
     public CgmesModel expectedMicroGridBaseCaseBE() {
-        return new CgmesModel.Fake()
+        return new FakeCgmesModel()
                 .modelId("MicroBaseCaseBE")
                 .version("unknown")
                 .substations("_37e14a0f-5e34-4647-a062-8bfd9305fa9d",
@@ -347,7 +348,7 @@ public class CgmesConformity1Catalog {
     }
 
     private CgmesModel expectedMiniNodeBreaker() {
-        return new CgmesModel.Fake()
+        return new FakeCgmesModel()
                 .modelId("MiniNodeBreakerBaseCaseComplete")
                 .version("unknown")
                 .nodeBreaker(true)
