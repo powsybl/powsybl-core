@@ -176,6 +176,7 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
         assertEquals(contingencyStore.getId(), runner.getContingencyStore().get().getId());
 
         // check there is no results
+        assertFalse(runner.hasResult());
         assertNull(runner.readResult());
 
         // check default parameters can be changed
@@ -190,6 +191,7 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
         runner.run();
 
         // check results
+        assertTrue(runner.hasResult());
         SecurityAnalysisResult result = runner.readResult();
         assertNotNull(result);
         assertNotNull(result.getPreContingencyResult());
