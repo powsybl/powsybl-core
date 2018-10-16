@@ -111,9 +111,9 @@ public interface CgmesModel {
 
     void svTapSteps(PropertyBags svTapSteps);
 
-    void dump(PrintStream out);
+    void print(PrintStream out);
 
-    void dump(Consumer<String> liner);
+    void print(Consumer<String> liner);
 
     void write(DataSource ds);
 

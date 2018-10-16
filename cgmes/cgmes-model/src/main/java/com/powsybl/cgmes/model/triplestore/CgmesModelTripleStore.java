@@ -44,13 +44,13 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public void dump(PrintStream out) {
-        tripleStore.dump(out);
+    public void print(PrintStream out) {
+        tripleStore.print(out);
     }
 
     @Override
-    public void dump(Consumer<String> liner) {
-        tripleStore.dump(liner);
+    public void print(Consumer<String> liner) {
+        tripleStore.print(liner);
     }
 
     @Override

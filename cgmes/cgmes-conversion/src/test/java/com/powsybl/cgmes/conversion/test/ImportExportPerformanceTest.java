@@ -79,7 +79,7 @@ public class ImportExportPerformanceTest {
         Network n = i.importData(ds, importParameters);
         Object c = n.getProperties().get("CGMESModel");
         CgmesModel cgmes = (CgmesModel) c;
-        cgmes.dump(LOG::info);
+        cgmes.print(LOG::info);
 
         CgmesExport e = new CgmesExport();
         Path exportFolder = fs.getPath("impl-" + ts);

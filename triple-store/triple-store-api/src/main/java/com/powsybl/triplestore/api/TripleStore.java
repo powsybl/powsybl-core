@@ -22,9 +22,9 @@ public interface TripleStore {
 
     void write(DataSource ds);
 
-    void dump(PrintStream out);
+    void print(PrintStream out);
 
-    void dump(Consumer<String> liner);
+    void print(Consumer<String> liner);
 
     void clear(String context);
 

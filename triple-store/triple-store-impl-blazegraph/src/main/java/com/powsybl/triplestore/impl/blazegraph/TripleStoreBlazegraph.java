@@ -152,8 +152,8 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void dump(PrintStream out) {
-        out.println("dump CGMES Blazegraph model.");
+    public void print(PrintStream out) {
+        out.println("TripleStore based on Blazegraph");
         RepositoryConnection conn;
         try {
             conn = repo.getConnection();
@@ -162,12 +162,12 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
                 while (ctxs.hasNext()) {
                     Resource ctx = ctxs.next();
                     int size = statementsCount(conn, ctx);
-                    out.println("DUMP    " + ctx + " : " + size);
-                    if (DUMP_ALL_STATEMENTS) {
+                    out.println("    " + ctx + " : " + size);
+                    if (PRINT_ALL_STATEMENTS) {
                         RepositoryResult<Statement> statements = conn.getStatements(null, null, null, true, ctx);
                         while (statements.hasNext()) {
                             Statement statement = statements.next();
-                            out.println("DUMP        " + statement.getSubject() + " " + statement.getPredicate() + " "
+                            out.println("        " + statement.getSubject() + " " + statement.getPredicate() + " "
                                     + statement.getObject());
                         }
                     }
@@ -362,5 +362,5 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
 
     private static final Logger LOG = LoggerFactory.getLogger(TripleStoreBlazegraph.class);
 
-    private static final boolean DUMP_ALL_STATEMENTS = false;
+    private static final boolean PRINT_ALL_STATEMENTS = false;
 }

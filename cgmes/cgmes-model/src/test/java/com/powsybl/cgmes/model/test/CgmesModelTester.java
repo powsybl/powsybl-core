@@ -65,7 +65,7 @@ public class CgmesModelTester {
 
     private CgmesModel load(ReadOnlyDataSource ds, String impl) {
         CgmesModel actual = CgmesModelFactory.create(ds, impl);
-        actual.dump(LOG::info);
+        actual.print(LOG::info);
         return actual;
     }
 

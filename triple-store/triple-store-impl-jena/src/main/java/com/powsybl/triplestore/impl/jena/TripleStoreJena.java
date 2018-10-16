@@ -91,8 +91,8 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void dump(PrintStream out) {
-        out.println("dump CGMES Jena model. Graph names and sizes with subjects types");
+    public void print(PrintStream out) {
+        out.println("TripleStore based on Jena. Graph names and sizes with subjects types");
         Iterator<String> k = dataset.listNames();
         while (k.hasNext()) {
             String n = k.next();

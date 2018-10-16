@@ -35,8 +35,8 @@ public abstract class AbstractPowsyblTripleStore implements TripleStore {
         cacheQueryPrefixes();
     }
 
-    public void dump(Consumer<String> liner) {
-        dump(new PrintStream(new LinesOutputStream(liner)));
+    public void print(Consumer<String> liner) {
+        print(new PrintStream(new LinesOutputStream(liner)));
     }
 
     // fileFromContext and contextFromFile should be at this level ...

@@ -401,12 +401,12 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
-    public void dump(PrintStream out) {
+    public void print(PrintStream out) {
         // FakeCgmesModel, no need to implement dump
     }
 
     @Override
-    public void dump(Consumer<String> liner) {
+    public void print(Consumer<String> liner) {
         // FakeCgmesModel, no need to implement dump
     }
 

@@ -97,8 +97,8 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void dump(PrintStream out) {
-        out.println("dump CGMES RDF4J model. Graph names and sizes");
+    public void print(PrintStream out) {
+        out.println("TripleStore based on RDF4J. Graph names and sizes");
         try (RepositoryConnection conn = repo.getConnection()) {
             RepositoryResult<Resource> ctxs = conn.getContextIDs();
             while (ctxs.hasNext()) {

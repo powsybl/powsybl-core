@@ -50,7 +50,7 @@ public class TripleStoreTester {
                     throw new TripleStoreException(String.format("Reading %s %s", base, r), e);
                 }
             }
-            ts.dump(LOG::info);
+            ts.print(LOG::info);
             tripleStores.put(impl, ts);
         }
     }
