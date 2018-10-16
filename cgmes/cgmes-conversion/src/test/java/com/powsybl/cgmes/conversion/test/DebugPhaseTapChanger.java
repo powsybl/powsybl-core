@@ -2,6 +2,9 @@ package com.powsybl.cgmes.conversion.test;
 
 import java.util.function.Consumer;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -38,16 +41,17 @@ public class DebugPhaseTapChanger {
             String option,
             Consumer<TwoWindingsTransformer> pre,
             Consumer<TwoWindingsTransformer> post) {
-        // FIXME(Luma): use a logger here
-        System.err.printf("current = %d%n", tx.getPhaseTapChanger().getTapPosition());
-        System.err.printf("ratedU1 = %10.4f%n", tx.getRatedU1());
-        System.err.printf("ratedU2 = %10.4f%n", tx.getRatedU2());
-        System.err.printf("v,a1    = %10.4f %10.4f%n",
-                tx.getTerminal1().getBusView().getBus().getV(),
-                tx.getTerminal1().getBusView().getBus().getAngle());
-        System.err.printf("v,a2    = %10.4f %10.4f%n",
-                tx.getTerminal2().getBusView().getBus().getV(),
-                tx.getTerminal2().getBusView().getBus().getAngle());
+        if (LOG.isInfoEnabled()) {
+            LOG.info(String.format("current = %d", tx.getPhaseTapChanger().getTapPosition()));
+            LOG.info(String.format("ratedU1 = %10.4f", tx.getRatedU1()));
+            LOG.info(String.format("ratedU2 = %10.4f", tx.getRatedU2()));
+            LOG.info(String.format("v,a1    = %10.4f %10.4f",
+                    tx.getTerminal1().getBusView().getBus().getV(),
+                    tx.getTerminal1().getBusView().getBus().getAngle()));
+            LOG.info(String.format("v,a2    = %10.4f %10.4f",
+                    tx.getTerminal2().getBusView().getBus().getV(),
+                    tx.getTerminal2().getBusView().getBus().getAngle()));
+        }
         int backup = tx.getPhaseTapChanger().getTapPosition();
         for (int k = tx.getPhaseTapChanger().getLowTapPosition(); k <= tx.getPhaseTapChanger()
                 .getHighTapPosition(); k++) {
@@ -67,29 +71,30 @@ public class DebugPhaseTapChanger {
         double alpha = tx.getPhaseTapChanger().getCurrentStep().getAlpha();
         double rho = tx.getPhaseTapChanger().getCurrentStep().getRho();
         boolean header = tap == tx.getPhaseTapChanger().getLowTapPosition();
-        // FIXME(Luma): use a logger here
-        if (header) {
-            System.err.printf(
-                    "    option tap    alpha         rho           p%d            q%d          d%d%n",
-                    side, side, side);
-            System.err.printf(
-                    "    ------ ---    ----------    ----------    ----------    ----------    ----------%n");
+        if (header && LOG.isInfoEnabled()) {
+            LOG.info(String.format("    option tap    alpha         rho           p%d            q%d          d%d",
+                    side, side, side));
+            LOG.info("    ------ ---    ----------    ----------    ----------    ----------    ----------");
         }
-        System.err.printf(
-                "    %6s %3d    %10.4f    %10.4f    %10.4f    %10.4f    %10.4f%n",
-                option,
-                tap,
-                alpha,
-                rho,
-                actual.p(),
-                actual.q(),
-                d);
-        if (d < 20.0) {
-            System.err.println("GOOD CANDIDATE");
+        if (LOG.isInfoEnabled()) {
+            LOG.info(String.format(
+                    "    %6s %3d    %10.4f    %10.4f    %10.4f    %10.4f    %10.4f%n",
+                    option,
+                    tap,
+                    alpha,
+                    rho,
+                    actual.p(),
+                    actual.q(),
+                    d));
+        }
+        if (d < 20.0 && LOG.isInfoEnabled()) {
+            LOG.info("GOOD CANDIDATE");
         }
     }
 
     private final TwoWindingsTransformer tx;
     private final int side;
     private final PowerFlow expected;
+
+    private static final Logger LOG = LoggerFactory.getLogger(DebugPhaseTapChanger.class);
 }
