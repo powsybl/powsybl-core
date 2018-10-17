@@ -14,9 +14,9 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Line;
@@ -101,6 +101,10 @@ public class Comparison {
                 expected.getTwoWindingsTransformerStream(),
                 actual.getTwoWindingsTransformerStream(),
                 this::compareTwoWindingTransformers);
+        compare(
+                expected.getDanglingLineStream(),
+                actual.getDanglingLineStream(),
+                this::compareDanglingLines);
         diff.end();
     }
 
@@ -334,9 +338,28 @@ public class Comparison {
                 actual.getCurrentLimits2());
     }
 
+    private void compareDanglingLines(DanglingLine expected, DanglingLine actual) {
+        equivalent("VoltageLevel",
+                expected.getTerminal().getVoltageLevel(),
+                actual.getTerminal().getVoltageLevel());
+        compare("r", expected.getR(), actual.getR());
+        compare("x", expected.getX(), actual.getX());
+        compare("g", expected.getG(), actual.getG());
+        compare("b", expected.getB(), actual.getB());
+        compare("p0", expected.getP0(), actual.getP0());
+        compare("q0", expected.getQ0(), actual.getQ0());
+        compare("UcteXnodeCode", expected.getUcteXnodeCode(), actual.getUcteXnodeCode());
+        compareCurrentLimits(expected, actual,
+                expected.getCurrentLimits(),
+                actual.getCurrentLimits());
+        compareCurrentLimits(expected, actual,
+                expected.getCurrentLimits(),
+                actual.getCurrentLimits());
+    }
+
     private void compareCurrentLimits(
-            Branch bexpected,
-            Branch bactual,
+            Identifiable bexpected,
+            Identifiable bactual,
             CurrentLimits expected,
             CurrentLimits actual) {
         if (expected == null) {

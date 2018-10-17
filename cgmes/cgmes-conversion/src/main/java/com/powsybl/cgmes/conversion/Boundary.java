@@ -29,6 +29,7 @@ import com.powsybl.triplestore.api.PropertyBags;
 public class Boundary {
     public Boundary(CgmesModel cgmes) {
         PropertyBags bns = cgmes.boundaryNodes();
+        nodesName = new HashMap<>();
         if (bns != null) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug("{}{}{}",
@@ -40,6 +41,7 @@ public class Boundary {
             bns.forEach(node -> {
                 String id = node.getId("Node");
                 nodes.add(id);
+                nodesName.put(id, node.get("Name"));
             });
         } else {
             nodes = Collections.emptySet();
@@ -94,6 +96,11 @@ public class Boundary {
         return nodesLines.getOrDefault(node, Collections.emptyList());
     }
 
+
+    public String nameAtBoundary(String node) {
+        return nodesName.containsKey(node) ? nodesName.get(node) : "XnodeCode-unknown";
+    }
+
     private static class Voltage {
         double v;
         double angle;
@@ -103,6 +110,7 @@ public class Boundary {
     private final Map<String, List<PropertyBag>> nodesLines;
     private final Map<String, PowerFlow> nodesPowerFlow;
     private final Map<String, Voltage> nodesVoltage;
+    private final Map<String, String> nodesName;
 
     private static final Logger LOG = LoggerFactory.getLogger(Boundary.class);
 }

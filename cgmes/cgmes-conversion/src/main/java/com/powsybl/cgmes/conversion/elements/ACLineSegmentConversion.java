@@ -186,19 +186,8 @@ public class ACLineSegmentConversion extends AbstractConductingEquipmentConversi
         }
     }
 
-    private String findUcteXnodeCode(String tn) {
-        // the xnode name is contained in the description field, starting
-        // from the letter X until ; character
-        // TODO Obtain description from tn
-        String tnDescription = tn;
-        int pos1 = tnDescription.indexOf('X');
-        int pos2 = tnDescription.indexOf(';');
-        if (pos1 == -1 || pos2 == -1) {
-            missing(String.format("Boundary Xnode name from topological node description %s",
-                    tnDescription));
-            return "XnodeCode-unknown";
-        }
-        return tnDescription.substring(pos1, pos2);
+    private String findUcteXnodeCode(String boundaryNode) {
+        return context.boundary().nameAtBoundary(boundaryNode);
     }
 
     private void convertMergedLinesAtNode(List<PropertyBag> lines, String boundaryNode) {
