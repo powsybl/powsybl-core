@@ -384,13 +384,13 @@ public class MapDbAppStorage implements AppStorage {
         UUID nodeUuid = checkNodeId(nodeId);
         Objects.requireNonNull(name);
         NodeInfo nodeInfo = getNodeInfo(nodeId);
-        nodeInfo.setName(name);
-        nodeInfoMap.put(nodeUuid, nodeInfo);
         getParentNode(nodeId).ifPresent(parentNode -> {
             UUID parentNodeUuid = checkNodeId(parentNode.getId());
             childNodeMap.remove(new NamedLink(parentNodeUuid, nodeInfo.getName()));
             childNodeMap.put(new NamedLink(parentNodeUuid, name), nodeUuid);
         });
+        nodeInfo.setName(name);
+        nodeInfoMap.put(nodeUuid, nodeInfo);
     }
 
     @Override
