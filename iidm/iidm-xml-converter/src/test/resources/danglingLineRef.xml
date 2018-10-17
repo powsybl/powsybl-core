@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_1" id="test" caseDate="2016-10-18T10:06:00.000+02:00" forecastDistance="0" sourceFormat="test">
+    <iidm:substation id="sub" country="FR" tso="RTE">
+        <iidm:voltageLevel id="vl1" nominalV="440.0" lowVoltageLimit="200.0" highVoltageLimit="400.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="busA"/>
+            </iidm:busBreakerTopology>
+            <iidm:danglingLine id="DL" p0="3.0" q0="4.0" r="6.0" x="5.0" g="2.0" b="1.0" ucteXnodeCode="ucte" connectableBus="busA"/>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="vl2" nominalV="200.0" lowVoltageLimit="200.0" highVoltageLimit="400.0" topologyKind="BUS_BREAKER">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="busB"/>
+            </iidm:busBreakerTopology>
+        </iidm:voltageLevel>
+    </iidm:substation>
+</iidm:network>

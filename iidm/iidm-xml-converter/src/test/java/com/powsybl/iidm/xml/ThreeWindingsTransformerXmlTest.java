@@ -36,7 +36,7 @@ public class ThreeWindingsTransformerXmlTest extends AbstractConverterTest {
 
     @Test
     public void testReadV10() {
-        InputStream in = getClass().getResourceAsStream("/refsV1_0/threeWindingsTransformerRoundTripRef.xml");
+        InputStream in = getClass().getResourceAsStream("/refs_V1_0/threeWindingsTransformerRoundTripRef.xml");
         Network read = NetworkXml.read(in);
         ThreeWindingsTransformer.Leg2or3 leg2 = read.getThreeWindingsTransformer("3WT").getLeg2();
         ThreeWindingsTransformer.Leg2or3 leg3 = read.getThreeWindingsTransformer("3WT").getLeg3();
