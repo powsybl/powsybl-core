@@ -5,8 +5,7 @@ The project powsybl-core provides the framework's core functionalities as a set 
 
 This documentation includes the information needed to get started using and extending powsybl-core.
 
-- [Getting started](getting-started.md)
-- [Installation](../README.md)
+- [Installation](docs/installation/README.md)
 - [Architecture](architecture/README.md)
 - [Configuration](configuration/README.md)
 - [Command line interface](tools/README.md)

@@ -1,8 +1,9 @@
-# Getting started
+# Install Powsybl-Core from a Maven repository
 
 ## "How to run Powsybl without compiling anything" scenario
 
 In this scenario compilation is not necessary, all the jars for a specific Powsybl release will be downloaded from maven central and will be packed into a binaries-only distribution archive file.
+However, there may be some limitations comparing to [an installation from the projects sources](install-from-sources) e.g. C/C++ modules binaries will not be included.
 
 ### Requirements:
 
@@ -63,4 +64,4 @@ $> ./itools convert-network --input-file NETWORKFILE  --output-format XIIDM --ou
 
 
 ## Note
-If you want to learn how to build a binary distribution from the project sources, please refer to the [installation guide](../README.md).   
+If you want to learn how to build a binary distribution from the project sources, please refer to the [installation guide](install-from-sources.md).
