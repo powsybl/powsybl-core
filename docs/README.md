@@ -5,12 +5,15 @@ The project powsybl-core provides the framework's core functionalities as a set 
 
 This documentation includes the information needed to get started using and extending powsybl-core.
 
-- [Installation](docs/installation/README.md)
+- [Installation](installation/README.md)
 - [Architecture](architecture/README.md)
 - [Configuration](configuration/README.md)
 - [Command line interface](tools/README.md)
 - [Tutorials](tutorials/README.md)
- 
-# TODO:
-- add information about LinuxFoundation
-- add a link to the website
+
+## About the Project
+
+*TO BE COMPLETED : add information about LF Energy and the Linux Foundation*
+
+## References
+More information on [PowSyBl](powsybl.com).
