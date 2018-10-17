@@ -7,15 +7,17 @@
 
 package com.powsybl.cgmes.conversion;
 
+import java.util.function.Consumer;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class TempDiagnosticRow {
+public class ReportRow {
 
-    public TempDiagnosticRow(String prefix) {
+    public ReportRow(String prefix) {
         s = new StringBuilder();
         s.append(prefix);
         s.append("\t");
@@ -25,13 +27,16 @@ public class TempDiagnosticRow {
         s.append(o).append("\t");
     }
 
-    public void end() {
-        if (LOG.isInfoEnabled()) {
-            LOG.info(s.toString());
+    public void end(Consumer<String> out) {
+        if (out != null) {
+            out.accept(s.toString());
+        }
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("REPORT {}", s);
         }
     }
 
     private final StringBuilder s;
 
-    private static final Logger LOG = LoggerFactory.getLogger(TempDiagnosticRow.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ReportRow.class);
 }

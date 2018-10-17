@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 
 import org.joda.time.DateTime;
@@ -70,8 +71,8 @@ public class Conversion {
         context = new Context(cgmes, network, config);
     }
 
-    public void diagnose() {
-        new TempDiagnoseTapChangers(cgmes).diagnose();
+    public void report(Consumer<String> out) {
+        new ReportTapChangers(cgmes, out).report();
     }
 
     public Network convertedNetwork() {

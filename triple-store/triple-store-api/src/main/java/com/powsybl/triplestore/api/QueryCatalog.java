@@ -51,7 +51,10 @@ public class QueryCatalog extends HashMap<String, String> {
 
     @Override
     public boolean equals(Object obj) {
-        if (!super.equals(obj)) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof QueryCatalog)) {
             return false;
         }
         QueryCatalog q = (QueryCatalog) obj;

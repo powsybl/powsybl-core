@@ -145,8 +145,11 @@ public class PropertyBag extends HashMap<String, String> {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (!super.equals(obj)) {
+    public final boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof PropertyBag)) {
             return false;
         }
         PropertyBag p = (PropertyBag) obj;

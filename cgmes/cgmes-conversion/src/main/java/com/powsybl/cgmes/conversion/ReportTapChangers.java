@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.powsybl.cgmes.model.CgmesModel;
@@ -21,10 +22,11 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class TempDiagnoseTapChangers {
+public class ReportTapChangers {
 
-    public TempDiagnoseTapChangers(CgmesModel cgmes) {
+    public ReportTapChangers(CgmesModel cgmes, Consumer<String> output) {
         this.cgmes = cgmes;
+        this.output = output;
         Path p = (Path) cgmes.getProperties().get("dataSource");
         String ps = "";
         if (p != null) {
@@ -36,7 +38,7 @@ public class TempDiagnoseTapChangers {
         this.txEnds = new HashMap<>();
         this.endTx = new HashMap<>();
 
-        TempDiagnosticRow d = new TempDiagnosticRow("TEMP Header TapChangerDiagnostic");
+        ReportRow d = new ReportRow("TapChangerHeader");
         d.col("dataSource");
         d.col("modelId");
         d.col("txId");
@@ -75,19 +77,19 @@ public class TempDiagnoseTapChangers {
             d.col("atNeutral");
             d.col("regulating");
         }
-        d.end();
+        d.end(output);
     }
 
     private void addTapChanger(PropertyBag tc) {
         String txId = transformerId(tc);
         if (txId == null) {
-            TempDiagnosticRow d = new TempDiagnosticRow("TEMP TapChangerError");
+            ReportRow d = new ReportRow("TapChangerError");
             d.col(dataSource);
             d.col(modelId);
             d.col(tcId(tc));
             d.col(txId);
             d.col("Missing Transformer");
-            d.end();
+            d.end(output);
             return;
         }
         List<PropertyBag> tcs = txTapChangers.computeIfAbsent(txId, t -> new ArrayList<>());
@@ -102,7 +104,7 @@ public class TempDiagnoseTapChangers {
         endTx.put(endId, txId);
     }
 
-    void diagnose() {
+    void report() {
 
         // For every transformer, add all its ends and tap changers
         cgmes.transformerEnds().forEach(this::addEnd);
@@ -113,7 +115,7 @@ public class TempDiagnoseTapChangers {
             List<PropertyBag> ends = txEnds.get(txId);
             List<PropertyBag> tcs = txTapChangers.get(txId);
 
-            TempDiagnosticRow d = new TempDiagnosticRow("TEMP TapChangerDiagnostic");
+            ReportRow d = new ReportRow("TapChanger");
             d.col(dataSource);
             d.col(modelId);
             d.col(txId);
@@ -176,7 +178,7 @@ public class TempDiagnoseTapChangers {
                     d.col(regulating);
                 });
             }
-            d.end();
+            d.end(output);
         });
     }
 
@@ -227,6 +229,7 @@ public class TempDiagnoseTapChangers {
     }
 
     private final CgmesModel cgmes;
+    private final Consumer<String> output;
     private final String dataSource;
     private final String modelId;
 

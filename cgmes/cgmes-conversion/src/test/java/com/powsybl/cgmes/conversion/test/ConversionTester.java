@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Properties;
+import java.util.function.Consumer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,12 +42,16 @@ public class ConversionTester {
     public ConversionTester(List<String> tripleStoreImplementations, ComparisonConfig networkComparison) {
         this.tripleStoreImplementations = tripleStoreImplementations;
         this.networkComparison = networkComparison;
-        this.onlyDiagnostics = false;
+        this.onlyReport = false;
         this.strictTopologyTest = false;
     }
 
-    public void setOnlyDiagnostics(boolean onlyDiagnostics) {
-        this.onlyDiagnostics = onlyDiagnostics;
+    public void setOnlyReport(boolean onlyReport) {
+        this.onlyReport = onlyReport;
+    }
+
+    public void setReportConsumer(Consumer<String> reportConsumer) {
+        this.reportConsumer = reportConsumer;
     }
 
     public void setStrictTopologyTest(boolean strictTopologyTest) {
@@ -65,8 +70,8 @@ public class ConversionTester {
         }
         Properties params = new Properties();
         params.put("storeCgmesModelAsNetworkProperty", "true");
-        if (onlyDiagnostics) {
-            testConversionOnlyDiagnostics(gm);
+        if (onlyReport) {
+            testConversionOnlyReport(gm);
         } else {
             for (String impl : tripleStoreImplementations) {
                 LOG.info("testConversion. TS implementation {}, grid model {}", impl, gm.name());
@@ -75,7 +80,8 @@ public class ConversionTester {
         }
     }
 
-    private void testConversion(Network expected, TestGridModel gm, ComparisonConfig config, String impl) throws IOException {
+    private void testConversion(Network expected, TestGridModel gm, ComparisonConfig config, String impl)
+            throws IOException {
         Properties params = new Properties();
         params.put("storeCgmesModelAsNetworkProperty", "true");
         params.put("powsyblTripleStore", impl);
@@ -98,21 +104,18 @@ public class ConversionTester {
         }
     }
 
-    private void testConversionOnlyDiagnostics(TestGridModel gm) {
-        Properties params = new Properties();
-        params.put("storeCgmesModelAsNetworkProperty", "true");
+    private void testConversionOnlyReport(TestGridModel gm) throws IOException {
         String impl = TripleStoreFactory.defaultImplementation();
         CgmesImport i = new CgmesImport();
+        Properties params = new Properties();
+        params.put("storeCgmesModelAsNetworkProperty", "true");
         params.put("powsyblTripleStore", impl);
-        ReadOnlyDataSource ds = gm.dataSource();
-        try {
+        try (FileSystem fs = Jimfs.newFileSystem()) {
+            ReadOnlyDataSource ds = gm.dataSourceBasedOn(fs);
             LOG.info("Importer.exists() == {}", i.exists(ds));
             Network n = i.importData(ds, params);
             CgmesModel m = (CgmesModel) n.getProperties().get(CgmesImport.NETWORK_PS_CGMES_MODEL);
-            new Conversion(m).diagnose();
-        } catch (Exception x) {
-            LOG.error(x.getMessage(), x);
-            fail();
+            new Conversion(m).report(reportConsumer);
         }
     }
 
@@ -137,7 +140,8 @@ public class ConversionTester {
 
     private final List<String> tripleStoreImplementations;
     private final ComparisonConfig networkComparison;
-    private boolean onlyDiagnostics;
+    private boolean onlyReport;
+    private Consumer<String> reportConsumer;
     private boolean strictTopologyTest;
 
     private static final Logger LOG = LoggerFactory.getLogger(ConversionTester.class);
