@@ -51,9 +51,7 @@ public class BalanceTypeGuesser {
     }
 
     private void guess(Network network, double threshold) {
-        network.getGeneratorStream().forEach(generator -> {
-            computeSums(generator, threshold);
-        });
+        network.getGeneratorStream().forEach(generator -> computeSums(generator, threshold));
         if (sumChanged > 0) {
             kMax = (sumP - sumTargetP) / sumMaxP;
             kTarget = (sumP - sumTargetP) / sumTargetP;
