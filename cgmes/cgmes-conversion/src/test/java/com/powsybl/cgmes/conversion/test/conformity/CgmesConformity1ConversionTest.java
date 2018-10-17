@@ -96,7 +96,7 @@ public class CgmesConformity1ConversionTest {
         tester.testConversion(null, actuals.smallNodeBreaker());
     }
 
-    static private class TxData {
+    private static class TxData {
         TxData(int numEnds, int rtc1, int ptc1, int rtc2, int ptc2) {
             this.numEnds = numEnds;
             this.rtc1 = rtc1;

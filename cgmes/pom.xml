@@ -16,8 +16,8 @@
         <version>2.2.0-SNAPSHOT</version>
     </parent>
 
-    <packaging>pom</packaging>
     <artifactId>powsybl-cgmes</artifactId>
+    <packaging>pom</packaging>
     <name>CGMES</name>
     <description>CGMES aggregator module</description>
 
