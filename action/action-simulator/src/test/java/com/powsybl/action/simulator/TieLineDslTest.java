@@ -9,13 +9,10 @@ package com.powsybl.action.simulator;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.ext.TieLineExt;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Yichen Tang <yichen.tang at rte-france.com>
