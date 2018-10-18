@@ -6,9 +6,11 @@
  */
 package com.powsybl.action.simulator;
 
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.ext.TieLineExt;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.Test;
@@ -46,7 +48,7 @@ public class TieLineDslTest extends AbstractLoadFlowRulesEngineTest {
         double xnodeQ = 60.0;
 
         // adder
-        TieLine tieLine = network.newTieLine().setId("tie")
+        Line tieLine = network.newLine().setId("tie")
                 .setName("testNameTie")
                 .setVoltageLevel1("VLHV1")
                 .setBus1("NHV1")
@@ -54,9 +56,15 @@ public class TieLineDslTest extends AbstractLoadFlowRulesEngineTest {
                 .setVoltageLevel2("VLHV2")
                 .setBus2("NHV2")
                 .setConnectableBus2("NHV2")
-                .setUcteXnodeCode("ucte")
-                .line1()
-                .setId("hl1")
+                .setR(r + r2)
+                .setX(x + x2)
+                .setG1(hl1g1 + hl2g1)
+                .setG2(hl1g2 + hl2g2)
+                .setB1(hl1b1 + hl2b1)
+                .setB2(hl1b2 + hl2b2)
+                .add();
+        TieLineExt.HalfLineImpl h1 = new TieLineExt.HalfLineImpl();
+        h1.setId("hl1")
                 .setName("half1_name")
                 .setR(r)
                 .setX(x)
@@ -65,8 +73,9 @@ public class TieLineDslTest extends AbstractLoadFlowRulesEngineTest {
                 .setG1(hl1g1)
                 .setG2(hl1g2)
                 .setXnodeQ(xnodeQ)
-                .setXnodeP(xnodeP)
-                .line2()
+                .setXnodeP(xnodeP);
+        TieLineExt.HalfLineImpl h2 = new TieLineExt.HalfLineImpl();
+        h2.setId("hl2")
                 .setId("hl2")
                 .setR(r2)
                 .setX(x2)
@@ -75,8 +84,9 @@ public class TieLineDslTest extends AbstractLoadFlowRulesEngineTest {
                 .setG1(hl2g1)
                 .setG2(hl2g2)
                 .setXnodeP(xnodeP)
-                .setXnodeQ(xnodeQ)
-                .add();
+                .setXnodeQ(xnodeQ);
+        TieLineExt ext = new TieLineExt(tieLine, "ucte", h1, h2);
+        tieLine.addExtension(TieLineExt.class, ext);
     }
 
     @Override
@@ -86,9 +96,7 @@ public class TieLineDslTest extends AbstractLoadFlowRulesEngineTest {
 
     @Test
     public void test() {
-        TieLine tieLine = (TieLine) network.getLine("tie");
         engine.start(actionDb);
-
         Load load = network.getLoad("LOAD");
         assertEquals(20.0, load.getP0(), 0.0);
         assertEquals(11.0, load.getQ0(), 0.0);

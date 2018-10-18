@@ -8,6 +8,7 @@ package com.powsybl.action.dsl
 
 import com.powsybl.action.dsl.ast.*
 import com.powsybl.iidm.network.*
+import com.powsybl.iidm.network.ext.TieLineExt
 import org.codehaus.groovy.control.CompilationFailedException
 
 import static com.powsybl.action.dsl.GroovyDslConstants.SCRIPT_IS_RUNNING
@@ -80,14 +81,18 @@ class ConditionDslLoader extends DslLoader {
     private static void bindNetwork(Binding binding) {
         binding.line = { id ->
             Network network = binding.getVariable("network")
-            Line l = getLine(network, id)
+            Object l = getLine(network, id)
+            println l.class
+            println l.isTieLine()
+            if (l.isTieLine())
+                l = l.getExtension(TieLineExt.class)
             binding.hasVariable(SCRIPT_IS_RUNNING) ? l : ExpressionHelper.newNetworkComponent(id, NetworkComponentNode.ComponentType.LINE)
         }
 
         binding.branch = { id ->
             Network network = binding.getVariable("network")
             Branch b = getBranch(network, id)
-            binding.hasVariable(SCRIPT_IS_RUNNING) ? l : ExpressionHelper.newNetworkComponent(id, NetworkComponentNode.ComponentType.BRANCH)
+            binding.hasVariable(SCRIPT_IS_RUNNING) ? b : ExpressionHelper.newNetworkComponent(id, NetworkComponentNode.ComponentType.BRANCH)
         }
 
         binding.transformer = { id ->
