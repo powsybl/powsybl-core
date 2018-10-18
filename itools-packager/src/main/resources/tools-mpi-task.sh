@@ -30,10 +30,10 @@ if [ $rank = 0 ]; then
     export LD_PRELOAD=libmpi.so
     export LD_LIBRARY_PATH=${installDir}/lib:$LD_LIBRARY_PATH
     [ -n "$itools_cache_dir" ] && options+="-Ditools.cache.dir=$itools_cache_dir"
-    [ -n "$itools_config_dir" ] && options+=" -Ditools.config.dir=$itools_config_dir"
-    [ -n "$itools_config_name" ] && options+=" -Ditools.config.name=$itools_config_name"
+    [ -n "$powsybl_config_dirs" ] && options+=" -Dpowsybl.config.dirs=$powsybl_config_dirs"
+    [ -n "$powsybl_config_name" ] && options+=" -Dpowsybl.config.name=$powsybl_config_name"
     options+=" -Dlogback.configurationFile="
-    [ -f "$itools_config_dir/logback-itools.xml" ] && options+="$itools_config_dir" || options+="$installDir/etc"
+    [ -f "$powsybl_config_dirs/logback-itools.xml" ] && options+="$powsybl_config_dirs" || options+="$installDir/etc"
     options+="/logback-itools.xml"
     [ -z "$java_xmx" ] && java_xmx=8G
     $JAVA_HOME/bin/java \

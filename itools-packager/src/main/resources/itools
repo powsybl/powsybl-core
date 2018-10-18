@@ -29,7 +29,7 @@ for ((i=0; i<${#args[@]}; i++)); do
     next=${args[$((i+1))]}
     case $current in
         --config-name)
-           itools_config_name=$next
+           powsybl_config_name=$next
            unset args[i]
            unset args[$((i+1))]
            ;;
@@ -41,11 +41,11 @@ for ((i=0; i<${#args[@]}; i++)); do
 done
 
 [ -n "$itools_cache_dir" ] && options+="-Ditools.cache.dir=$itools_cache_dir"
-[ -n "$itools_config_dir" ] || itools_config_dir="${HOME}/.itools"
-options+=" -Ditools.config.dir=$itools_config_dir"
-[ -n "$itools_config_name" ] && options+=" -Ditools.config.name=$itools_config_name"
+[ -n "$powsybl_config_dirs" ] || powsybl_config_dirs="${HOME}/.itools"
+options+=" -Dpowsybl.config.dirs=$powsybl_config_dirs"
+[ -n "$powsybl_config_name" ] && options+=" -Dpowsybl.config.name=$powsybl_config_name"
 options+=" -Dlogback.configurationFile="
-[ -f "$itools_config_dir/logback-itools.xml" ] && options+="$itools_config_dir" || options+="$installDir/etc"
+[ -f "$powsybl_config_dirs/logback-itools.xml" ] && options+="$powsybl_config_dirs" || options+="$installDir/etc"
 options+="/logback-itools.xml"
 [ -z "$java_xmx" ] && java_xmx=8G
 
