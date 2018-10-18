@@ -29,7 +29,7 @@ Available arguments are:
 ```
 
 - `<FILE_SYSTEM_NAME>` is an AFS `drive-name`, as described in [AFS (Application File System)](../tutorials/afs/howto-use-afs.md) and configured in  [powsybl configuration file](../configuration/configuration.md)
-- `<PATH>` is an AFS filesystem path (*Note:* to refer a specific AFS, use a `drive-name:/` prefix in the path)
+- `<PATH>` is an AFS path (*Note:* to refer a specific AFS, use a `<drive-name>:/` prefix in the path)
 - `<DIR>` is local filesystem path
 
 ## Examples
@@ -54,7 +54,7 @@ The target directory, e.g. `/tmp/archive_my_first_fs` must exist
 
 ```shell 
 $> cd <POWSYBL_HOME>/bin
-$> mkdir /tmp/archive_demo
+$> mkdir /tmp/archive_demo <!-- MRA: I don't really understand what use is this line -->
 $> ./itools afs --archive my-first-fs --dir ./archive_my_first_fs
 ```
 *Note*: The `archive` command exports both the afs' contents and its structure. 

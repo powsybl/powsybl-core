@@ -190,4 +190,5 @@ Post-contingency limit violations:
 |             |          |               | NHV1_NHV2_2   | VLHV2 | FR      |          380 | CURRENT        | Permanent limit | 566.1081 | 500.0000 |          66.1081 |         113.22 |
 +-------------+----------+---------------+---------------+-------+---------+--------------+----------------+-----------------+----------+----------+------------------+----------------+
 ```
-        
+
+<!-- MRA: Great but some explication about what is done or shown in the examples might help even more -->

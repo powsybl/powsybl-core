@@ -1,6 +1,6 @@
 # iTools loadflow-validation command
 
-itools `loadflow-validation` command allows you to [validate load-flow results](../docs/architecture/loadflow-validation/README.md) of a network imported from a case file.  
+The itools `loadflow-validation` command allows you to [validate load-flow results](../docs/architecture/loadflow-validation/README.md) of a network imported from a case file.
 The command, besides validating the results, also print them (print the data of the validated equipments) in output files.  
 
 In the following sections we refer to installation, sample and  sources directories as:
@@ -195,6 +195,8 @@ Validate load-flow results of network 20170322_1844_SN3_FR2.uct - validation typ
 ```
 
 Eventually, you will find in your output-folder one csv file for each validation type, containing the data pre and post computation (loadflow).
+
+<!-- MRA: OK for me -->
 
 
 

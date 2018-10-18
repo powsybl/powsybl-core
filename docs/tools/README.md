@@ -2,14 +2,14 @@
 
 The **itools** script mechanism provides a common way to interact with powsybl, using the command line.
 
-Here below it is described how to use **itools** and what are the framework's functionalities currently exposed through it (e.g. *convert-network*, *loadflow*, *run-script*, etc. )  
+Here below is a description of how to use **itools** and what the framework's functionalities are currently available through it (e.g. *convert-network*, *loadflow*, *run-script*, etc. )
 
 ## How to use itools
 
 `itools` commands are structured as shown below:
 
 ```
-itools command-name [--argument1-name argument1-value --argument2-name argument2-value ...]
+itools command-name [--<argument1-name> <argument1-value> --<argument2-name> <argument2-value> ...]
 ```
 
 Not all commands have arguments. The arguments can be mandatory or optional.
@@ -53,7 +53,7 @@ The list of commands currently implemented and available in powsybl-core is:
 Commands in the list are classified in *themes*, to help identifying their purpose.  
 *Note:* If your powsybl installation includes new and different implementations of itools commands, the list shown by itools will be updated accordingly. 
 
-Executing `itools command-name --help` will list all the arguments available for the specific command-name. 
+Executing `itools <command-name> --help` will list all the arguments available for the specific command-name.
 
 
 ## How to add new itools commands

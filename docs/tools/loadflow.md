@@ -1,6 +1,6 @@
 # iTools loadflow command
 
-itools loadflow command allows you to run a [loadflow](../architecture/loadflow) on a IIDM network, imported from a case file.  
+The itools loadflow command allows you to run a [loadflow](../architecture/loadflow) on a IIDM network, imported from a case file.
 
 ## Configuration for running loadflow command
 The parameters for the loadflow are [configured](../configuration/modules/load-flow-default-parameters.md) in the [configuration file](../configuration/configuration.md).  
