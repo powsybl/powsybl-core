@@ -17,6 +17,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +66,29 @@ public class TripleStoreTester {
             assertEquals(size, results.size());
             expected.keySet()
                     .forEach(property -> assertEquals(expected.get(property), results.pluckLocals(property)));
+        }
+    }
+
+    public void testClear(String contextName, String namespace) {
+        for (String impl : implementations) {
+            TripleStore ts = tripleStores.get(impl);
+            Set<String> before = ts.contextNames();
+            ts.clear(contextName);
+            Set<String> after = ts.contextNames();
+
+            LOG.info("{} before", impl);
+            before.forEach(c -> LOG.info("    {}", c));
+            LOG.info("{} after", impl);
+            after.forEach(c -> LOG.info("    {}", c));
+
+            // Check names gathered from triple store against fully qualified contextName
+            String qcontextName = namespace + contextName;
+            assertTrue(before.contains(qcontextName));
+            assertFalse(after.contains(qcontextName));
+            Set<String> expected = before.stream().collect(Collectors.toSet());
+            expected.remove(qcontextName);
+            Set<String> actual = after;
+            assertEquals(expected, actual);
         }
     }
 

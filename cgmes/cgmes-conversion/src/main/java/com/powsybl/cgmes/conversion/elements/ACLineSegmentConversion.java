@@ -171,9 +171,9 @@ public class ACLineSegmentConversion extends AbstractConductingEquipmentConversi
                 && context.boundary().hasVoltage(boundaryNode)) {
             double v = context.boundary().vAtBoundary(boundaryNode);
             double angle = context.boundary().angleAtBoundary(boundaryNode);
-            // The net sum of power flow "entering" at boundary is "exiting" through the line,
-            // we have to change the sign of the sum of flows at the node when we consider flow
-            // at line end
+            // The net sum of power flow "entering" at boundary is "exiting"
+            // through the line, we have to change the sign of the sum of flows
+            // at the node when we consider flow at line end
             SV svboundary = new SV(-f.p(), -f.q(), v, angle);
             // The other side power flow must be computed taking into account
             // the same criteria used for ACLineSegment: total shunt admittance

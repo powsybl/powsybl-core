@@ -12,8 +12,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.eclipse.rdf4j.IsolationLevels;
+import org.eclipse.rdf4j.common.iteration.Iterations;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
@@ -55,23 +58,23 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void read(String base, String name, InputStream is) {
+    public void read(String base, String contextName, InputStream is) {
         try (RepositoryConnection conn = repo.getConnection()) {
             conn.setIsolationLevel(IsolationLevels.NONE);
-            Resource context = contextFromFile(conn, name);
+            Resource context = context(conn, contextName);
             // We add data with a context (graph) to keep the source of information
             // When we write we want to keep data split by graph
-            conn.add(is, base, formatFromFile(name), context);
+            conn.add(is, base, formatFromName(contextName), context);
             addNamespaceForBase(conn, base);
         } catch (IOException x) {
-            throw new TripleStoreException(String.format("Reading %s %s", base, name), x);
+            throw new TripleStoreException(String.format("Reading %s %s", base, contextName), x);
         }
     }
 
-    private static RDFFormat formatFromFile(String filename) {
-        if (filename.endsWith(".ttl")) {
+    private static RDFFormat formatFromName(String name) {
+        if (name.endsWith(".ttl")) {
             return RDFFormat.TURTLE;
-        } else if (filename.endsWith(".xml")) {
+        } else if (name.endsWith(".xml")) {
             return RDFFormat.RDFXML;
         }
         return RDFFormat.RDFXML;
@@ -110,9 +113,16 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void clear(String name) {
+    public Set<String> contextNames() {
         try (RepositoryConnection conn = repo.getConnection()) {
-            Resource context = conn.getValueFactory().createIRI(name);
+            return Iterations.stream(conn.getContextIDs()).map(Resource::stringValue).collect(Collectors.toSet());
+        }
+    }
+
+    @Override
+    public void clear(String contextName) {
+        try (RepositoryConnection conn = repo.getConnection()) {
+            Resource context = context(conn, contextName);
             conn.clear(context);
         }
     }
@@ -172,7 +182,8 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         }
     }
 
-    private static void createStatements(RepositoryConnection cnx, String objType, PropertyBag statement, Resource context) {
+    private static void createStatements(RepositoryConnection cnx, String objType, PropertyBag statement,
+            Resource context) {
         UUID uuid = new UUID();
         IRI resource = uuid.evaluate(cnx.getValueFactory());
         IRI parentPredicate = RDF.TYPE;
@@ -225,8 +236,10 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         cnx.setNamespace("data", base + "#");
     }
 
-    private Resource contextFromFile(RepositoryConnection conn, String filename) {
-        return conn.getValueFactory().createIRI(namespaceForContexts(), filename);
+    private Resource context(RepositoryConnection conn, String contextName) {
+        // Remove the namespaceForContexts from contextName if it already starts with it
+        String name1 = contextName.replace(namespaceForContexts(), "");
+        return conn.getValueFactory().createIRI(namespaceForContexts(), name1);
     }
 
     private final Repository repo;

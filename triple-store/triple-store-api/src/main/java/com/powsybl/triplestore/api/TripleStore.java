@@ -9,6 +9,7 @@ package com.powsybl.triplestore.api;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import com.powsybl.commons.datasource.DataSource;
@@ -18,7 +19,7 @@ import com.powsybl.commons.datasource.DataSource;
  */
 public interface TripleStore {
 
-    void read(String base, String name, InputStream is);
+    void read(String base, String contextName, InputStream is);
 
     void write(DataSource ds);
 
@@ -26,11 +27,13 @@ public interface TripleStore {
 
     void print(Consumer<String> liner);
 
-    void clear(String context);
+    void clear(String contextName);
 
-    void defineQueryPrefix(String prefix, String cimNamespace);
+    void defineQueryPrefix(String prefix, String namespace);
 
     PropertyBags query(String query);
 
-    void add(String graph, String type, PropertyBags objects);
+    void add(String contextName, String type, PropertyBags objects);
+
+    Set<String> contextNames();
 }

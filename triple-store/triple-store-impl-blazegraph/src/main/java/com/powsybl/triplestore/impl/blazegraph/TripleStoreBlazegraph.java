@@ -11,8 +11,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
+import java.util.Set;
 
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
@@ -83,7 +85,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         try {
             cnx = repo.getConnection();
             cnx.begin();
-            Resource context = contextFromName(cnx, name);
+            Resource context = context(cnx, name);
             read(base, name, is, cnx, context);
             cnx.commit();
             addNamespaceForBase(cnx, base);
@@ -181,14 +183,38 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void clear(String name) {
+    public Set<String> contextNames() {
+        HashSet<String> names = new HashSet<>();
+        RepositoryConnection conn = null;
+        try {
+            conn = repo.getConnection();
+            RepositoryResult<Resource> rs = conn.getContextIDs();
+            while (rs.hasNext()) {
+                names.add(rs.next().stringValue());
+            }
+            return names;
+        } catch (RepositoryException x) {
+            LOG.error("getting context names : {}", x.getMessage());
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (RepositoryException x) {
+                    LOG.error("closing when getting context names : {}", x.getMessage());
+                }
+            }
+        }
+        return names;
+    }
+
+    @Override
+    public void clear(String contextName) {
         RepositoryConnection cnx = null;
         try {
             cnx = repo.getConnection();
-            Resource context = cnx.getValueFactory().createURI(name);
-            cnx.clear(context);
+            cnx.clear(context(cnx, contextName));
         } catch (RepositoryException x) {
-            LOG.error(x.getMessage());
+            LOG.error("clearing context {} : {}", contextName, x.getMessage());
         } finally {
             if (cnx != null) {
                 try {
@@ -263,7 +289,8 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         cnx.commit();
     }
 
-    private static void createStatements(RepositoryConnection cnx, String objType, PropertyBag statement, Resource context) {
+    private static void createStatements(RepositoryConnection cnx, String objType, PropertyBag statement,
+            Resource context) {
         try {
             UUID uuid = new UUID();
             URI resource = uuid.evaluate(cnx.getValueFactory());
@@ -354,8 +381,9 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         cnx.setNamespace("data", base + "#");
     }
 
-    private Resource contextFromName(RepositoryConnection conn, String filename) {
-        return conn.getValueFactory().createURI(namespaceForContexts(), filename);
+    private Resource context(RepositoryConnection conn, String contextName) {
+        String name1 = contextName.replace(namespaceForContexts(), "");
+        return conn.getValueFactory().createURI(namespaceForContexts(), name1);
     }
 
     private final Repository repo;

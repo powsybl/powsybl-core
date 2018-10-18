@@ -379,7 +379,7 @@ public class CgmesConformity1NetworkCatalog {
             rtca.setLoadTapChangingCapabilities(true)
                     .setRegulating(true)
                     .setTargetV(10.815)
-                    // FIXME Set the right regulation terminal
+                    // TODO Set the right regulation terminal
                     .setRegulationTerminal(tx.getTerminal(side));
             rtca.add();
         }
@@ -441,7 +441,7 @@ public class CgmesConformity1NetworkCatalog {
             rtca.setLoadTapChangingCapabilities(true)
                     .setRegulating(false)
                     .setTargetV(Float.NaN)
-                    // FIXME Set the right regulation terminal
+                    // TODO Set the right regulation terminal
                     .setRegulationTerminal(txBE22.getTerminal(side));
             rtca.add();
         }

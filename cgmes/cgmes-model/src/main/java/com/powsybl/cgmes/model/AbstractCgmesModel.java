@@ -44,16 +44,41 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         return cachedTerminals.get(terminalId);
     }
 
+    @Override
+    public String terminalForEquipment(String conduntingEquipmentId) {
+        // TODO Not all conducting equipment have a single terminal
+        // For the current purposes of this mapping (export State Variables)
+        // this is enough
+        return conductingEquipmentTerminal.get(conduntingEquipmentId);
+    }
+
+    @Override
+    public String ratioTapChangerForPowerTransformer(String powerTransformerId) {
+        return powerTransformerRatioTapChanger.get(powerTransformerId);
+    }
+
+    @Override
+    public String phaseTapChangerForPowerTransformer(String powerTransformerId) {
+        return powerTransformerPhaseTapChanger.get(powerTransformerId);
+    }
+
     private Map<String, PropertyBags> computeGroupedTransformerEnds() {
         // Alternative implementation:
         // instead of sorting after building each list,
         // use a sorted collection when inserting
         Map<String, PropertyBags> gends = new HashMap<>();
+        powerTransformerRatioTapChanger = new HashMap<>();
+        powerTransformerPhaseTapChanger = new HashMap<>();
         transformerEnds()
                 .forEach(end -> {
                     String id = end.getId("PowerTransformer");
                     PropertyBags ends = gends.computeIfAbsent(id, x -> new PropertyBags());
                     ends.add(end);
+                    if (end.getId("PhaseTapChanger") != null) {
+                        powerTransformerPhaseTapChanger.put(id, end.getId("PhaseTapChanger"));
+                    } else if (end.getId("RatioTapChanger") != null) {
+                        powerTransformerRatioTapChanger.put(id, end.getId("RatioTapChanger"));
+                    }
                 });
         gends.entrySet()
                 .forEach(tends -> {
@@ -70,6 +95,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
 
     private Map<String, CgmesTerminal> computeTerminals() {
         Map<String, CgmesTerminal> ts = new HashMap<>();
+        conductingEquipmentTerminal = new HashMap<>();
         terminals().forEach(t -> {
             CgmesTerminal td = new CgmesTerminal(
                     t.getId(CgmesNames.TERMINAL),
@@ -78,6 +104,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
                     t.asBoolean("connected", false),
                     new PowerFlow(t, "p", "q"));
             ts.put(td.id(), td);
+            conductingEquipmentTerminal.put(t.getId("ConductingEquipment"), t.getId(CgmesNames.TERMINAL));
         });
         terminalsTP().forEach(t -> {
             String tid = t.getId(CgmesNames.TERMINAL);
@@ -110,4 +137,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     private final Properties properties;
     private Map<String, PropertyBags> cachedGroupedTransformerEnds;
     private Map<String, CgmesTerminal> cachedTerminals;
+    private Map<String, String> conductingEquipmentTerminal;
+    private Map<String, String> powerTransformerRatioTapChanger;
+    private Map<String, String> powerTransformerPhaseTapChanger;
 }

@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import org.joda.time.DateTime;
 
 import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.Subset;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -416,24 +417,13 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
-    public void svVoltages(PropertyBags svVoltages) {
-        // FakeCgmesModel, no need to implement storage of SV voltages
+    public void clear(Subset subset) {
+        // FakeCgmesModel, no need to implement clear
     }
 
     @Override
-    public void svPowerFlows(PropertyBags svPowerFlows) {
-        // FakeCgmesModel, no need to implement storage of SV powerflows
-    }
-
-    @Override
-    public void svShuntCompensatorSections(PropertyBags svShuntCompensatorSections) {
-        // FakeCgmesModel, no need to implement storage of SV
-        // shuntCompensatorSections
-    }
-
-    @Override
-    public void svTapSteps(PropertyBags svTapSteps) {
-        // FakeCgmesModel, no need to implement storage of SV tapstep
+    public void add(String contextName, String type, PropertyBags objects) {
+        // FakeCgmesModel, no need to implement storage of objects
     }
 
     @Override
@@ -444,6 +434,21 @@ public final class FakeCgmesModel implements CgmesModel {
     @Override
     public CgmesTerminal terminal(String terminalId) {
         // FakeCgmesModel does not provide info on terminals
+        return null;
+    }
+
+    @Override
+    public String terminalForEquipment(String conductingEquipmentId) {
+        return null;
+    }
+
+    @Override
+    public String ratioTapChangerForPowerTransformer(String powerTransformerId) {
+        return null;
+    }
+
+    @Override
+    public String phaseTapChangerForPowerTransformer(String powerTransformerId) {
         return null;
     }
 }

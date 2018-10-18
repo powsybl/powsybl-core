@@ -16,6 +16,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.Subset;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.*;
@@ -39,8 +40,11 @@ public class CgmesExport implements Exporter {
             throw new CgmesModelException("No original CGMES model available in network");
         }
 
+        // Clear the previous SV data
+        cgmes.clear(Subset.STATE_VARIABLES);
+
         // Fill the SV data of the CgmesModel with the network current state
-        sv(network, cgmes);
+        addStateVariables(network, cgmes);
 
         cgmes.write(ds);
     }
@@ -55,7 +59,11 @@ public class CgmesExport implements Exporter {
         return "CGMES";
     }
 
-    private void sv(Network n, CgmesModel cgmes) {
+    private void addStateVariables(Network n, CgmesModel cgmes) {
+        String contextName = "SV";
+
+        // TODO Add full model data with proper profile (StateVariables)
+
         PropertyBags voltages = new PropertyBags();
         for (Bus b : n.getBusBreakerView().getBuses()) {
             PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
@@ -64,54 +72,54 @@ public class CgmesExport implements Exporter {
             p.put("TopologicalNode", topologicalNodeFromBusId(b.getId()));
             voltages.add(p);
         }
-        cgmes.svVoltages(voltages);
+        cgmes.add(contextName, "SvVoltage", voltages);
 
         PropertyBags powerFlows = new PropertyBags();
         for (Load l : n.getLoads()) {
-            PropertyBag p = createPowerFlowProperties(l.getTerminal());
-            powerFlows.add(p);
+            powerFlows.add(createPowerFlowProperties(cgmes, l.getTerminal()));
         }
         for (Generator g : n.getGenerators()) {
-            PropertyBag p = createPowerFlowProperties(g.getTerminal());
-            powerFlows.add(p);
+            powerFlows.add(createPowerFlowProperties(cgmes, g.getTerminal()));
         }
         for (ShuntCompensator s : n.getShunts()) {
-            PropertyBag p = createPowerFlowProperties(s.getTerminal());
-            powerFlows.add(p);
+            powerFlows.add(createPowerFlowProperties(cgmes, s.getTerminal()));
         }
-        cgmes.svPowerFlows(powerFlows);
+        cgmes.add(contextName, "SvPowerFlow", powerFlows);
 
         PropertyBags shuntCompensatorSections = new PropertyBags();
         for (ShuntCompensator s : n.getShunts()) {
             PropertyBag p = new PropertyBag(SV_SHUNTCOMPENSATORSECTIONS_PROPERTIES);
             p.put("continuousSections", is(s.getCurrentSectionCount()));
-            p.put("ShuntCompensator", terminalFromTerminalId(s.getId()));
+            p.put("ShuntCompensator", s.getId());
             shuntCompensatorSections.add(p);
         }
-        cgmes.svShuntCompensatorSections(shuntCompensatorSections);
+        cgmes.add(contextName, "SvShuntCompensatorSections", shuntCompensatorSections);
 
         PropertyBags tapSteps = new PropertyBags();
         for (TwoWindingsTransformer t : n.getTwoWindingsTransformers()) {
             PropertyBag p = new PropertyBag(SV_TAPSTEP_PROPERTIES);
+            // TODO If we could store an identifier for the tap changer in IIDM
+            // then we would not need to query the CGMES model
             if (t.getPhaseTapChanger() != null) {
-                p.put(CgmesNames.CONTINUOUS_POSITION, is(t.getPhaseTapChanger().getTapPosition()));
-                p.put(CgmesNames.TAP_CHANGER, terminalFromTerminalId(t.getId()));
+                p.put(CgmesNames.POSITION, is(t.getPhaseTapChanger().getTapPosition()));
+                p.put(CgmesNames.TAP_CHANGER, cgmes.phaseTapChangerForPowerTransformer(t.getId()));
                 tapSteps.add(p);
             } else if (t.getRatioTapChanger() != null) {
-                p.put(CgmesNames.CONTINUOUS_POSITION, is(t.getRatioTapChanger().getTapPosition()));
-                p.put(CgmesNames.TAP_CHANGER, terminalFromTerminalId(t.getId()));
+                p.put(CgmesNames.POSITION, is(t.getRatioTapChanger().getTapPosition()));
+                p.put(CgmesNames.TAP_CHANGER, cgmes.ratioTapChangerForPowerTransformer(t.getId()));
                 tapSteps.add(p);
             }
         }
-        cgmes.svTapSteps(tapSteps);
+        cgmes.add(contextName, "SvTapStep", tapSteps);
     }
 
-    private PropertyBag createPowerFlowProperties(Terminal terminal) {
+    private PropertyBag createPowerFlowProperties(CgmesModel cgmes, Terminal terminal) {
         PropertyBag p = new PropertyBag(SV_POWERFLOW_PROPERTIES);
         p.put("p", fs(terminal.getP()));
         p.put("q", fs(terminal.getQ()));
-        p.put(CgmesNames.TERMINAL, terminalFromTerminalId(terminal.getConnectable().getId()));
-
+        // TODO If we could store a terminal identifier in IIDM
+        // we would not need to obtain it querying CGMES for the related equipment
+        p.put(CgmesNames.TERMINAL, cgmes.terminalForEquipment(terminal.getConnectable().getId()));
         return p;
     }
 
@@ -128,13 +136,10 @@ public class CgmesExport implements Exporter {
         return iidmBusId;
     }
 
-    private String terminalFromTerminalId(String iidmTerminalId) {
-        // TODO Consider potential namingStrategy transformations
-        return iidmTerminalId;
-    }
-
     private static final List<String> SV_VOLTAGE_PROPERTIES = Arrays.asList("angle", "v", "TopologicalNode");
     private static final List<String> SV_POWERFLOW_PROPERTIES = Arrays.asList("p", "q", CgmesNames.TERMINAL);
-    private static final List<String> SV_SHUNTCOMPENSATORSECTIONS_PROPERTIES = Arrays.asList("ShuntCompensator", "continuousSections");
-    private static final List<String> SV_TAPSTEP_PROPERTIES = Arrays.asList(CgmesNames.CONTINUOUS_POSITION, CgmesNames.TAP_CHANGER);
+    private static final List<String> SV_SHUNTCOMPENSATORSECTIONS_PROPERTIES = Arrays.asList("ShuntCompensator",
+            "continuousSections");
+    private static final List<String> SV_TAPSTEP_PROPERTIES = Arrays.asList(CgmesNames.POSITION,
+            CgmesNames.TAP_CHANGER);
 }

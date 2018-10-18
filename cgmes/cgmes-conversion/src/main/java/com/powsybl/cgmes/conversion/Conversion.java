@@ -131,7 +131,7 @@ public class Conversion {
         convert(cgmes.asynchronousMachines(), convf);
 
         // In CIM1 synchronous machines are added AFTER transmission lines and transformers
-        // I there a strong reason to wait for these equipment to be added to the network ?
+        // Is there a strong reason to wait for these equipment to be added to the network ?
         convert(cgmes.synchronousMachines(), sm -> new SynchronousMachineConversion(sm, context));
 
         // DC
@@ -262,7 +262,11 @@ public class Conversion {
         }
 
         public boolean convertBoundary() {
-            return false;
+            return convertBoundary;
+        }
+
+        public void setConvertBoundary(boolean convertBoundary) {
+            this.convertBoundary = convertBoundary;
         }
 
         public boolean mergeLinesUsingQuadripole() {
@@ -281,6 +285,7 @@ public class Conversion {
             return true;
         }
 
+        private boolean convertBoundary = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState;
         private double lowImpedanceLineR = 0.05;
         private double lowImpedanceLineX = 0.05;

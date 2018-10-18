@@ -11,6 +11,7 @@ import java.io.InputStream;
 
 import java.io.PrintStream;
 import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import org.joda.time.DateTime;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.model.AbstractCgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
+import com.powsybl.cgmes.model.Subset;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -39,8 +41,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         Objects.requireNonNull(queryCatalog);
     }
 
-    public void read(String base, String name, InputStream is) {
-        tripleStore.read(base, name, is);
+    public void read(String base, String contextName, InputStream is) {
+        tripleStore.read(base, contextName, is);
     }
 
     @Override
@@ -339,48 +341,26 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     // Updates
 
     @Override
-    public void svVoltages(PropertyBags svVoltages) {
-        try {
-            String graph = "SV2";
-            String type = cimNamespace + "SvVoltage";
-            tripleStore.add(graph, type, svVoltages);
-        } catch (TripleStoreException x) {
-            throw new CgmesModelException("Adding SV voltage data", x);
+    public void clear(Subset subset) {
+        // TODO Remove all contexts that are related to the profile of the subset
+        // For example for state variables:
+        // <md:Model.profile>http://entsoe.eu/CIM/StateVariables/4/1</md:Model.profile>
+        // For CIM14 data files we do not have the profile,
+        Set<String> contextNames = tripleStore.contextNames();
+        for (String contextName : contextNames) {
+            if (subset.isValidName(contextName)) {
+                tripleStore.clear(contextName);
+            }
         }
     }
 
     @Override
-    public void svPowerFlows(PropertyBags svPowerFlows) {
+    public void add(String contextName, String type, PropertyBags objects) {
         try {
-            // TODO replace data in an existing "SV" graph
-            // instead of creating a different one
-            String graph = "SV2";
-            String type = cimNamespace + "SvPowerFlow";
-            tripleStore.add(graph, type, svPowerFlows);
+            tripleStore.add(contextName, cimNamespace + type, objects);
         } catch (TripleStoreException x) {
-            throw new CgmesModelException("Adding SV power flow data", x);
-        }
-    }
-
-    @Override
-    public void svShuntCompensatorSections(PropertyBags svShuntCompensatorSections) {
-        try {
-            String graph = "SV2";
-            String type = cimNamespace + "SvShuntCompensatorSections";
-            tripleStore.add(graph, type, svShuntCompensatorSections);
-        } catch (TripleStoreException x) {
-            throw new CgmesModelException("Adding SV shunt data", x);
-        }
-    }
-
-    @Override
-    public void svTapSteps(PropertyBags svTapSteps) {
-        try {
-            String graph = "SV2";
-            String type = cimNamespace + "SvTapSteps";
-            tripleStore.add(graph, type, svTapSteps);
-        } catch (TripleStoreException x) {
-            throw new CgmesModelException("Adding SV tap changer data to triple store", x);
+            String msg = String.format("Adding objects of type %s to context %s", type, contextName);
+            throw new CgmesModelException(msg, x);
         }
     }
 

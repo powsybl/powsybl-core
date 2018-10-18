@@ -465,7 +465,7 @@ public class Comparison {
                     actual.isRegulating());
             if (expected.getRegulationTerminal() == null
                     || actual.getRegulationTerminal() == null) {
-                // FIXME We are not checking regulation terminals if one of them is null
+                // TODO We are not checking regulation terminals if one of them is null
             } else {
                 equivalent(
                         "tapChanger.RegulationTerminalConnectable",

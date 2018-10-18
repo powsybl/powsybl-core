@@ -33,7 +33,7 @@ public class TopologyTester {
         this.network = n;
     }
 
-    // FIXME a topologicalNode contains connectivity nodes linked by non-retained closed switches
+    // TODO a topologicalNode contains connectivity nodes linked by non-retained closed switches
     // For current validation we are not taking into account the retained flag
     // When we create the voltage-level connectivity at node-breaker level we will be able to
     // set the retained flag for each switch and this problem will be avoided

@@ -103,19 +103,28 @@ public interface CgmesModel {
 
     PropertyBags dcTerminalsTP();
 
-    void svVoltages(PropertyBags svVoltages);
+    void clear(Subset subset);
 
-    void svPowerFlows(PropertyBags svPowerFlows);
-
-    void svShuntCompensatorSections(PropertyBags svShuntCompensatorSections);
-
-    void svTapSteps(PropertyBags svTapSteps);
+    void add(String contextName, String type, PropertyBags objects);
 
     void print(PrintStream out);
 
     void print(Consumer<String> liner);
 
     void write(DataSource ds);
+
+    // Helper mappings
+
+    // TODO If we could store identifiers for tap changers and terminals in IIDM
+    // then we would not need to query back the CGMES model for these mappings
+
+    String terminalForEquipment(String conductingEquipmentId);
+
+    String ratioTapChangerForPowerTransformer(String powerTransformerId);
+
+    String phaseTapChangerForPowerTransformer(String powerTransformerId);
+
+    // Terminals
 
     class CgmesTerminal {
         private final String id;

@@ -50,13 +50,11 @@ public class PowsyblWriter extends RDFXMLWriter {
         IRI pred = st.getPredicate();
         Value obj = st.getObject();
 
-        // Verify that an XML namespace-qualified name can be created for the
-        // predicate
+        // Verify that an XML namespace-qualified name can be created for the predicate
         String predString = pred.toString();
         int predSplitIdx = XMLUtil.findURISplitIndex(predString);
         if (predSplitIdx == -1) {
-            throw new RDFHandlerException(
-                    "Unable to create XML namespace-qualified name for predicate: " + predString);
+            throw new RDFHandlerException("Unable to create XML namespace-qualified name for predicate: " + predString);
         }
 
         String predNamespace = predString.substring(0, predSplitIdx);
@@ -69,7 +67,7 @@ public class PowsyblWriter extends RDFXMLWriter {
 
             // SUBJECT
             if (!subj.equals(lastWrittenSubject)) {
-                writeNewSubject(subj, obj);
+                writeNewSubject(subj, obj, st.getContext().stringValue());
             } else {
                 writeLastSubject(obj, predNamespace, predLocalName);
             }
@@ -81,15 +79,13 @@ public class PowsyblWriter extends RDFXMLWriter {
         }
     }
 
-    private void writeNewSubject(Resource subj, Value obj) throws IOException {
+    private void writeNewSubject(Resource subj, Value obj, String ctxt) throws IOException {
         flushPendingStatements();
 
         String objString = obj.toString();
         int objSplitIdx = XMLUtil.findURISplitIndex(objString);
         if (objSplitIdx == -1) {
-            throw new RDFHandlerException(
-                    "Unable to create XML namespace-qualified name for predicate: "
-                            + objString);
+            throw new RDFHandlerException("Unable to create XML namespace-qualified name for predicate: " + objString);
         }
         String objNamespace = objString.substring(0, objSplitIdx);
         String objLocalName = objString.substring(objSplitIdx);
@@ -97,11 +93,32 @@ public class PowsyblWriter extends RDFXMLWriter {
         // Write new subject:
         writeNewLine();
         writeStartOfStartTag(objNamespace, objLocalName);
+
+        // TODO This is hard-coded logic for processing CGMES data
         IRI uri = (IRI) subj;
-        writeAttribute(RDF.NAMESPACE, "ID", uri.toString());
+        String attName = "ID";
+        String value = uri.toString();
+        String prefix = namespaceTable.get(uri.getNamespace());
+        if (uri.getNamespace().equals("urn:uuid:")) {
+            if (objLocalName.equals("FullModel")) {
+                attName = "about";
+            } else {
+                value = "_" + uri.getLocalName();
+            }
+        }
+        if (prefix != null && prefix.equals("data")) {
+            if (ctxt.contains("_SSH_") || (ctxt.contains("_DY_") && objLocalName.equals("EnergyConsumer"))
+                    || (ctxt.contains("_TP_") && !objLocalName.equals("TopologicalNode"))) {
+                attName = "about";
+                value = "#" + uri.getLocalName();
+            } else {
+                value = uri.getLocalName();
+            }
+        }
+
+        writeAttribute(RDF.NAMESPACE, attName, value);
         writeEndOfStartTag();
         writeNewLine();
-
         lastWrittenSubject = subj;
         lastObjNamespace = objNamespace;
         lastObjLocalName = objLocalName;
@@ -131,7 +148,13 @@ public class PowsyblWriter extends RDFXMLWriter {
             writeAttribute(RDF.NAMESPACE, "nodeID", getValidNodeId(bNode));
         } else {
             IRI uri = (IRI) objRes;
-            writeAttribute(RDF.NAMESPACE, "resource", uri.toString());
+            String value = uri.toString();
+            String prefix = namespaceTable.get(uri.getNamespace());
+            // TODO review the use of hard-coded literal "data" for CGMES
+            if (prefix != null && prefix.equals("data")) {
+                value = "#" + uri.getLocalName();
+            }
+            writeAttribute(RDF.NAMESPACE, "resource", value);
         }
 
         writeEndOfEmptyTag();

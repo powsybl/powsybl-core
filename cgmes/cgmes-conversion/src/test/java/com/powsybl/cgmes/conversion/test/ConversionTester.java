@@ -39,11 +39,26 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
  */
 public class ConversionTester {
 
-    public ConversionTester(List<String> tripleStoreImplementations, ComparisonConfig networkComparison) {
+    public ConversionTester(Properties importParams, List<String> tripleStoreImplementations, ComparisonConfig networkComparison) {
+        this.importParams = importParams;
         this.tripleStoreImplementations = tripleStoreImplementations;
         this.networkComparison = networkComparison;
         this.onlyReport = false;
         this.strictTopologyTest = false;
+        this.exportXiidm = false;
+        this.exportCgmes = false;
+        this.testExportImportCgmes = false;
+    }
+
+    public ConversionTester(List<String> tripleStoreImplementations, ComparisonConfig networkComparison) {
+        this.importParams = null;
+        this.tripleStoreImplementations = tripleStoreImplementations;
+        this.networkComparison = networkComparison;
+        this.onlyReport = false;
+        this.strictTopologyTest = false;
+        this.exportXiidm = false;
+        this.exportCgmes = false;
+        this.testExportImportCgmes = false;
     }
 
     public void setOnlyReport(boolean onlyReport) {
@@ -58,6 +73,18 @@ public class ConversionTester {
         this.strictTopologyTest = strictTopologyTest;
     }
 
+    public void setExportXiidm(boolean exportXiidm) {
+        this.exportXiidm = exportXiidm;
+    }
+
+    public void setExportCgmes(boolean exportCgmes) {
+        this.exportCgmes = exportCgmes;
+    }
+
+    public void setTestExportImportCgmes(boolean testExportImportCgmes) {
+        this.testExportImportCgmes = testExportImportCgmes;
+    }
+
     public void testConversion(Network expected, TestGridModel gm) throws IOException {
         testConversion(expected, gm, this.networkComparison);
     }
@@ -68,8 +95,6 @@ public class ConversionTester {
             LOG.error("Test grid model does not exist {}", gm.name());
             return;
         }
-        Properties params = new Properties();
-        params.put("storeCgmesModelAsNetworkProperty", "true");
         if (onlyReport) {
             testConversionOnlyReport(gm);
         } else {
@@ -80,15 +105,15 @@ public class ConversionTester {
         }
     }
 
-    private void testConversion(Network expected, TestGridModel gm, ComparisonConfig config, String impl)
+    private void testConversion(Network expected, TestGridModel gm, ComparisonConfig cconfig, String impl)
             throws IOException {
-        Properties params = new Properties();
-        params.put("storeCgmesModelAsNetworkProperty", "true");
-        params.put("powsyblTripleStore", impl);
+        Properties iparams = importParams == null ? new Properties() : importParams;
+        iparams.put("storeCgmesModelAsNetworkProperty", "true");
+        iparams.put("powsyblTripleStore", impl);
         CgmesImport i = new CgmesImport();
         try (FileSystem fs = Jimfs.newFileSystem()) {
             ReadOnlyDataSource ds = gm.dataSourceBasedOn(fs);
-            Network network = i.importData(ds, params);
+            Network network = i.importData(ds, iparams);
             if (network.getSubstationCount() == 0) {
                 fail("Model is empty");
             }
@@ -96,10 +121,17 @@ public class ConversionTester {
             if (!new TopologyTester(cgmes, network).test(strictTopologyTest)) {
                 fail("Topology test failed");
             }
-            exportXiidm(gm.name(), impl, expected, network);
-            exportCgmes(gm.name(), impl, network);
             if (expected != null) {
-                new Comparison(expected, network, config).compare();
+                new Comparison(expected, network, cconfig).compare();
+            }
+            if (exportXiidm) {
+                exportXiidm(gm.name(), impl, expected, network);
+            }
+            if (exportCgmes) {
+                exportCgmes(gm.name(), impl, network);
+            }
+            if (testExportImportCgmes) {
+                testExportImportCgmes(network, fs, i, iparams, cconfig);
             }
         }
     }
@@ -121,7 +153,7 @@ public class ConversionTester {
 
     private void exportXiidm(String name, String impl, Network expected, Network actual) throws IOException {
         String name1 = name.replace('/', '-');
-        Path path = Files.createTempDirectory("temp-conversion-" + name1 + "-" + impl);
+        Path path = Files.createTempDirectory("temp-conversion-" + name1 + "-" + impl + "-");
         XMLExporter xmlExporter = new XMLExporter();
         // Last component of the path is the name for the exported XML
         if (expected != null) {
@@ -134,13 +166,30 @@ public class ConversionTester {
 
     private void exportCgmes(String name, String impl, Network network) throws IOException {
         String name1 = name.replace('/', '-');
-        Path path = Files.createTempDirectory("temp-export-cgmes-" + name1 + "-" + impl);
+        Path path = Files.createTempDirectory("temp-export-cgmes-" + name1 + "-" + impl + "-");
         new CgmesExport().export(network, null, new FileDataSource(path, "foo"));
     }
 
+    private void testExportImportCgmes(Network network, FileSystem fs, CgmesImport i, Properties iparams,
+            ComparisonConfig config) throws IOException {
+
+        Path path = fs.getPath("temp-export-cgmes");
+        Files.createDirectories(path);
+        new CgmesExport().export(network, null, new FileDataSource(path, "bar"));
+
+        ReadOnlyDataSource ds = new FileDataSource(path, "bar");
+        Network actual = i.importData(ds, iparams);
+        Network expected = network;
+        new Comparison(expected, actual, config).compare();
+    }
+
+    private final Properties importParams;
     private final List<String> tripleStoreImplementations;
     private final ComparisonConfig networkComparison;
     private boolean onlyReport;
+    private boolean exportXiidm;
+    private boolean exportCgmes;
+    private boolean testExportImportCgmes;
     private Consumer<String> reportConsumer;
     private boolean strictTopologyTest;
 

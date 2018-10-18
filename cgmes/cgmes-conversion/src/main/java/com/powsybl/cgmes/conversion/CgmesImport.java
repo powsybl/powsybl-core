@@ -51,9 +51,15 @@ public class CgmesImport implements Importer {
         CgmesModel cgmes = CgmesModelFactory.create(ds, tripleStoreImpl(p));
 
         Conversion.Config config = new Conversion.Config();
-        if (p != null && p.containsKey("changeSignForShuntReactivePowerFlowInitialState")) {
-            String s = p.getProperty("changeSignForShuntReactivePowerFlowInitialState");
-            config.setChangeSignForShuntReactivePowerFlowInitialState(Boolean.parseBoolean(s));
+        if (p != null) {
+            if (p.containsKey("changeSignForShuntReactivePowerFlowInitialState")) {
+                String s = p.getProperty("changeSignForShuntReactivePowerFlowInitialState");
+                config.setChangeSignForShuntReactivePowerFlowInitialState(Boolean.parseBoolean(s));
+            }
+            if (p.containsKey("convertBoundary")) {
+                String s = p.getProperty("convertBoundary");
+                config.setConvertBoundary(Boolean.parseBoolean(s));
+            }
         }
         Network network = new Conversion(cgmes, config).convertedNetwork();
 

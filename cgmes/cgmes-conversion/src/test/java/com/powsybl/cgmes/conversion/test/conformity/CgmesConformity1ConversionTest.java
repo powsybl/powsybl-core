@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -21,6 +22,7 @@ import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1NetworkCatalog;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
 /**
@@ -59,6 +61,30 @@ public class CgmesConformity1ConversionTest {
         expected.put("_b94318f6-6d24-4f56-96b9-df2531ad6543", new TxData(2, 1, 0, 0, 0));
         expected.put("_e482b89a-fa84-4ea9-8e70-a83d44790957", new TxData(2, 0, 0, 1, 0));
         actual.keySet().forEach(tx -> assertEquals(expected.get(tx), actual.get(tx)));
+    }
+
+    @Test
+    public void microGridBaseCaseBERoundtripBoundary() throws IOException {
+        Properties importParams = new Properties();
+        importParams.put("convertBoundary", "true");
+        ConversionTester t = new ConversionTester(
+                importParams,
+                TripleStoreFactory.onlyDefaultImplementation(),
+                new ComparisonConfig());
+        t.setTestExportImportCgmes(true);
+        Network expected = null;
+        t.testConversion(expected, actuals.microGridBaseCaseBE());
+    }
+
+    @Test
+    public void microGridBaseCaseBERoundtrip() throws IOException {
+        // TODO When we convert boundaries values for P0, Q0 at dangling lines
+        // are recalculated and we need to increase the tolerance
+        ConversionTester t = new ConversionTester(
+                TripleStoreFactory.onlyDefaultImplementation(),
+                new ComparisonConfig().tolerance(1e-5));
+        t.setTestExportImportCgmes(true);
+        t.testConversion(expecteds.microBE(), actuals.microGridBaseCaseBE());
     }
 
     @Test

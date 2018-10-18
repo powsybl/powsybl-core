@@ -14,6 +14,8 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
@@ -63,17 +65,17 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void read(String base, String name, InputStream is) {
+    public void read(String base, String contextName, InputStream is) {
         Model m = ModelFactory.createDefaultModel();
-        m.read(is, base, formatFromName(name));
-        dataset.addNamedModel(namedModelFromName(name), m);
+        m.read(is, base, formatFromName(contextName));
+        dataset.addNamedModel(namedModelFromName(contextName), m);
         union = union.union(m);
     }
 
-    private static String formatFromName(String filename) {
-        if (filename.endsWith(".ttl")) {
+    private static String formatFromName(String name) {
+        if (name.endsWith(".ttl")) {
             return "TURTLE";
-        } else if (filename.endsWith(".xml")) {
+        } else if (name.endsWith(".xml")) {
             return "RDF/XML";
         }
         return "RDF/XML";
@@ -103,16 +105,18 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void clear(String name) {
-        Iterator<String> k = dataset.listNames();
-        while (k.hasNext()) {
-            String n = k.next();
-            if (n.contains(name)) {
-                Model m = dataset.getNamedModel(n);
-                union.remove(m);
-                m.removeAll();
-            }
-        }
+    public Set<String> contextNames() {
+        Iterable<String> it = dataset::listNames;
+        return StreamSupport.stream(it.spliterator(), false).collect(Collectors.toSet());
+    }
+
+    @Override
+    public void clear(String contextName) {
+        String mname = namedModelFromName(contextName);
+        Model m = dataset.getNamedModel(mname);
+        union.remove(m);
+        dataset.removeNamedModel(mname);
+        m.removeAll();
     }
 
     @Override
@@ -265,8 +269,11 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
         return !(split == 0 || split == uri.length());
     }
 
-    private String namedModelFromName(String filename) {
-        return namespaceForContexts() + filename;
+    private String namedModelFromName(String contextName) {
+        if (contextName.startsWith(namespaceForContexts())) {
+            return contextName;
+        }
+        return namespaceForContexts() + contextName;
     }
 
     private final Dataset dataset;

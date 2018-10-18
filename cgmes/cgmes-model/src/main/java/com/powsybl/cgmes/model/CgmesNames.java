@@ -18,6 +18,7 @@ public final class CgmesNames {
     public static final String TRANSFORMER_END = "TransformerEnd";
     public static final String TAP_CHANGER = "TapChanger";
     public static final String CONTINUOUS_POSITION = "continuousPosition";
+    public static final String POSITION = "position";
     public static final String LOW_STEP = "lowStep";
     public static final String HIGH_STEP = "highStep";
 
