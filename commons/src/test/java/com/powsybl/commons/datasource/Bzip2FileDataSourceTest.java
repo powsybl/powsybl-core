@@ -6,10 +6,17 @@
  */
 package com.powsybl.commons.datasource;
 
+import com.powsybl.commons.datasource.compressor.Bzip2DataSourceCompressor;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class Bzip2FileDataSourceTest extends AbstractDataSourceTest {
+
+    @Override
+    protected String getMainFileName() {
+        return "foo.txt";
+    }
 
     @Override
     protected boolean appendTest() {
@@ -18,6 +25,6 @@ public class Bzip2FileDataSourceTest extends AbstractDataSourceTest {
 
     @Override
     protected DataSource createDataSource() {
-        return new Bzip2FileDataSource(testDir, getBaseName());
+        return new FileDataSource(testDir, "foo.txt", Bzip2DataSourceCompressor.INSTANCE);
     }
 }

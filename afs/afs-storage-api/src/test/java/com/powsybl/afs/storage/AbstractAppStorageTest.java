@@ -212,7 +212,7 @@ public abstract class AbstractAppStorageTest {
         assertEquals(ImmutableSet.of("testData2", "testData1", "dataTest3"), storage.getDataNames(testFolderInfo.getId()));
 
         // check data names seen from data source
-        assertEquals(ImmutableSet.of("testData2", "testData1"), ds1.listNames("^testD.*"));
+        assertEquals(ImmutableSet.of("testData2", "testData1"), ds1.getFileNames("^testD.*"));
 
         // check children names (not data names)
         List<String> expectedChildrenNames = ImmutableList.of("data", "data2", "data3");
@@ -306,26 +306,9 @@ public abstract class AbstractAppStorageTest {
 
         // 11) check data source using pattern api
         DataSource ds = new AppStorageDataSource(storage, testData2Info.getId(), testData2Info.getName());
-        assertEquals(testData2Info.getName(), ds.getBaseName());
-        assertFalse(ds.exists(null, "ext"));
-        try (OutputStream os = ds.newOutputStream(null, "ext", false)) {
-            os.write("word1".getBytes(StandardCharsets.UTF_8));
-        }
-        storage.flush();
+        assertEquals(testData2Info.getName(), ds.getMainFileName());
 
-        // check event
-        assertEventStack(new NodeDataUpdated(testData2Info.getId(), "DATA_SOURCE_SUFFIX_EXT____ext"));
-
-        assertTrue(ds.exists(null, "ext"));
-        try (InputStream ignored = ds.newInputStream(null, "ext2")) {
-            fail();
-        } catch (Exception ignored) {
-        }
-        try (InputStream is = ds.newInputStream(null, "ext")) {
-            assertEquals("word1", new String(ByteStreams.toByteArray(is), StandardCharsets.UTF_8));
-        }
-
-        assertFalse(ds.exists("file1"));
+        assertFalse(ds.fileExists("file1"));
 
         // 12) check data source using file name api
         try (OutputStream os = ds.newOutputStream("file1", false)) {
@@ -336,7 +319,7 @@ public abstract class AbstractAppStorageTest {
         // check event
         assertEventStack(new NodeDataUpdated(testData2Info.getId(), "DATA_SOURCE_FILE_NAME__file1"));
 
-        assertTrue(ds.exists("file1"));
+        assertTrue(ds.fileExists("file1"));
         try (InputStream ignored = ds.newInputStream("file2")) {
             fail();
         } catch (Exception ignored) {

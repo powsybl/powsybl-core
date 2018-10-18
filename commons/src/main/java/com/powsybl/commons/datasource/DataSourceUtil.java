@@ -7,11 +7,9 @@
 package com.powsybl.commons.datasource;
 
 import com.powsybl.commons.datasource.compressor.Bzip2DataSourceCompressor;
-import com.powsybl.commons.datasource.compressor.CompressionFormat;
 import com.powsybl.commons.datasource.compressor.GzipDataSourceCompressor;
 import com.powsybl.commons.datasource.compressor.NoOpDataSourceCompressor;
 
-import java.io.InputStream;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
@@ -29,26 +27,6 @@ public interface DataSourceUtil {
         return append ? appendOpenOptions : defaultOpenOptions;
     }
 
-    static DataSource createDataSource(Path directory, String basename, CompressionFormat compressionExtension, DataSourceObserver observer) {
-        Objects.requireNonNull(directory);
-        Objects.requireNonNull(basename);
-
-        if (compressionExtension == null) {
-            return new FileDataSource(directory, basename, observer);
-        } else {
-            switch (compressionExtension) {
-                case GZIP:
-                    return new GzFileDataSource(directory, basename, observer);
-                case BZIP2:
-                    return new Bzip2FileDataSource(directory, basename, observer);
-                case ZIP:
-                    return new ZipFileDataSource(directory, basename, observer);
-                default:
-                    throw new AssertionError("Unexpected CompressionFormat value: " + compressionExtension);
-            }
-        }
-    }
-
     static DataSource createDataSource(Path directory, String fileName, DataSourceObserver observer) {
         Objects.requireNonNull(directory);
         Objects.requireNonNull(fileName);
@@ -56,30 +34,11 @@ public interface DataSourceUtil {
         if (fileName.endsWith(".zip")) {
             return new ZipFileDataSource(directory, fileName, observer);
         } else if (fileName.endsWith(".gz")) {
-            return new FileDataSource(directory, fileName, new GzipDataSourceCompressor(), observer);
+            return new FileDataSource(directory, fileName, GzipDataSourceCompressor.INSTANCE, observer);
         } else if (fileName.endsWith(".bz2")) {
-            return new FileDataSource(directory, fileName, new Bzip2DataSourceCompressor(), observer);
+            return new FileDataSource(directory, fileName, Bzip2DataSourceCompressor.INSTANCE, observer);
         } else {
-            return new FileDataSource(directory, fileName, new NoOpDataSourceCompressor(), observer);
+            return new FileDataSource(directory, fileName, NoOpDataSourceCompressor.INSTANCE, observer);
         }
-    }
-
-    static ReadOnlyMemDataSource createReadOnlyMemDataSource(String fileName, InputStream content) {
-        Objects.requireNonNull(fileName);
-        Objects.requireNonNull(content);
-
-        ReadOnlyMemDataSource dataSource;
-        if (fileName.endsWith(".zip")) {
-            dataSource = new ZipMemDataSource(fileName, content);
-        } else if (fileName.endsWith(".gz")) {
-            dataSource =  new GzMemDataSource(fileName, content);
-        } else if (fileName.endsWith(".bz2")) {
-            dataSource =  new Bzip2MemDataSource(fileName, content);
-        } else {
-            dataSource = new ReadOnlyMemDataSource(getBaseName(fileName));
-            dataSource.putData(fileName, content);
-        }
-
-        return dataSource;
     }
 }

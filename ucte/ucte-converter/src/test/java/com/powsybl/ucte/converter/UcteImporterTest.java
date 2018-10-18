@@ -7,7 +7,6 @@
 package com.powsybl.ucte.converter;
 
 import com.powsybl.commons.datasource.DataSourceUtil;
-import com.powsybl.commons.datasource.ReadOnlyMemDataSource;
 import com.powsybl.entsoe.util.EntsoeArea;
 import com.powsybl.entsoe.util.EntsoeGeographicalCode;
 import com.powsybl.entsoe.util.MergedXnode;

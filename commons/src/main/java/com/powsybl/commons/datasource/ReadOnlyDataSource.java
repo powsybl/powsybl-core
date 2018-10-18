@@ -14,8 +14,6 @@ import java.util.Set;
  */
 public interface ReadOnlyDataSource {
 
-    boolean isContainer();
-
     String getMainFileName();
 
     Set<String> getFileNames(String regex);

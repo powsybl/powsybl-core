@@ -8,6 +8,7 @@ package com.powsybl.commons.datasource;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.datasource.compressor.NoOpDataSourceCompressor;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -58,16 +59,16 @@ public class DataSourceObserverTest {
             }
         };
 
-        DataSource dataSource = new FileDataSource(testDir, "test", observer);
+        DataSource dataSource = new FileDataSource(testDir, "test.txt", NoOpDataSourceCompressor.INSTANCE, observer);
 
-        try (OutputStream os = dataSource.newOutputStream(null, "txt", false)) {
+        try (OutputStream os = dataSource.newOutputStream("test.txt", false)) {
         }
         assertEquals("/tmp/test.txt", openedStream[0]);
         assertEquals("/tmp/test.txt", closedStream[0]);
 
         openedStream[0] = null;
         closedStream[0] = null;
-        try (InputStream is = dataSource.newInputStream(null, "txt")) {
+        try (InputStream is = dataSource.newInputStream("test.txt")) {
         }
         assertEquals("/tmp/test.txt", openedStream[0]);
         assertEquals("/tmp/test.txt", closedStream[0]);

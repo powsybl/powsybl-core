@@ -19,18 +19,23 @@ import static org.junit.Assert.assertFalse;
 public class ZipFileDataSourceTest extends AbstractDataSourceTest {
 
     @Override
+    protected String getMainFileName() {
+        return "";
+    }
+
+    @Override
     protected boolean appendTest() {
         return false;
     }
 
     @Override
     protected DataSource createDataSource() {
-        return new ZipFileDataSource(testDir, getBaseName());
+        return new ZipFileDataSource(testDir, "foo.zip");
     }
 
     @Test
     public void fakeZipTest() throws IOException {
         Files.createFile(testDir.resolve("fake.zip"));
-        assertFalse(new ZipFileDataSource(testDir, "fake").exists("e"));
+        assertFalse(new ZipFileDataSource(testDir, "fake").fileExists("e"));
     }
 }

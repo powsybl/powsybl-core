@@ -125,14 +125,15 @@ public class XMLImporter implements Importer {
         try {
             // copy iidm file
             try (InputStream is = fromDataSource.newInputStream(fromDataSource.getMainFileName());
-                 OutputStream os = toDataSource.newOutputStream(fromDataSource.getMainFileName(), false)) {
+                 OutputStream os = toDataSource.newOutputStream(toDataSource.getMainFileName(), false)) {
                 ByteStreams.copy(is, os);
             }
-            String baseName = XmlConverterUtil.getBaseName(fromDataSource);
+            String fromBaseName = XmlConverterUtil.getBaseName(fromDataSource);
+            String toBaseName = XmlConverterUtil.getBaseName(toDataSource);
             // and also anonymization file if exists
-            if (fromDataSource.fileExists(baseName + ".csv")) {
-                try (InputStream is = fromDataSource.newInputStream(baseName + ".csv");
-                     OutputStream os = toDataSource.newOutputStream(baseName + "csv", false)) {
+            if (fromDataSource.fileExists(fromBaseName + "_mapping.csv")) {
+                try (InputStream is = fromDataSource.newInputStream(fromBaseName + "_mapping.csv");
+                     OutputStream os = toDataSource.newOutputStream(toBaseName + "_mapping.csv", false)) {
                     ByteStreams.copy(is, os);
                 }
             }
@@ -150,9 +151,9 @@ public class XMLImporter implements Importer {
             boolean throwExceptionIfExtensionNotFound = (Boolean) Importers.readParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, defaultValueConfig);
             Anonymizer anonymizer = null;
             String baseName = XmlConverterUtil.getBaseName(dataSource);
-            if (dataSource.fileExists(baseName + ".csv")) {
+            if (dataSource.fileExists(baseName + "_mapping.csv")) {
                 anonymizer = new SimpleAnonymizer();
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(baseName + ".csv"), StandardCharsets.UTF_8))) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(baseName + "_mapping.csv"), StandardCharsets.UTF_8))) {
                     anonymizer.read(reader);
                 }
             }

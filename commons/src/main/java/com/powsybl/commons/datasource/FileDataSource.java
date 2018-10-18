@@ -7,6 +7,7 @@
 package com.powsybl.commons.datasource;
 
 import com.powsybl.commons.datasource.compressor.DataSourceCompressor;
+import com.powsybl.commons.datasource.compressor.NoOpDataSourceCompressor;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,8 +26,6 @@ import java.util.stream.Stream;
  */
 public class FileDataSource implements DataSource {
 
-    private static final String COMPRESSION_EXT = "";
-
     private static final int MAX_DEPTH = 1;
 
     private final Path dir;
@@ -37,10 +36,6 @@ public class FileDataSource implements DataSource {
 
     private final DataSourceObserver observer;
 
-    public FileDataSource(Path file, DataSourceCompressor compressor) {
-        this(file.getParent(), file.getFileName().toString(), compressor, null);
-    }
-
     public FileDataSource(Path dir, String fileName, DataSourceCompressor compressor, DataSourceObserver observer) {
         this.dir = Objects.requireNonNull(dir);
         this.fileName = Objects.requireNonNull(fileName);
@@ -48,16 +43,32 @@ public class FileDataSource implements DataSource {
         this.observer = observer;
     }
 
-    @Override
-    public boolean isContainer() {
-        return false;
+    public FileDataSource(Path dir, String fileName, DataSourceCompressor compressor) {
+        this(dir, fileName, compressor, null);
+    }
+
+    public FileDataSource(Path dir, String fileName) {
+        this(dir, fileName, NoOpDataSourceCompressor.INSTANCE);
+    }
+
+    public FileDataSource(Path file, DataSourceCompressor compressor) {
+        this(file.getParent(), file.getFileName().toString(), compressor);
+    }
+
+    public FileDataSource(Path file) {
+        this(file, NoOpDataSourceCompressor.INSTANCE);
+    }
+
+    private Path getFile(String fileName) {
+        return dir.resolve(fileName + compressor.getExtension());
     }
 
     @Override
     public OutputStream newOutputStream(String fileName, boolean append) {
         try {
-            OutputStream os = compressor.compress(Files.newOutputStream(dir.resolve(fileName), DataSourceUtil.getOpenOptions(append)));
-            return observer != null ? new ObservableOutputStream(os, fileName, observer) : os;
+            Path file = getFile(fileName);
+            OutputStream os = compressor.compress(Files.newOutputStream(file, DataSourceUtil.getOpenOptions(append)));
+            return observer != null ? new ObservableOutputStream(os, file.toString(), observer) : os;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -65,19 +76,20 @@ public class FileDataSource implements DataSource {
 
     @Override
     public String getMainFileName() {
-        return fileName.replace(compressor.getExtension(), "");
+        return fileName;
     }
 
     @Override
     public boolean fileExists(String fileName) {
-        return Files.exists(dir.resolve(fileName));
+        return Files.exists(getFile(fileName));
     }
 
     @Override
     public InputStream newInputStream(String fileName) {
         try {
-            InputStream is = compressor.uncompress(Files.newInputStream(dir.resolve(fileName)));
-            return observer != null ? new ObservableInputStream(is, fileName, observer) : is;
+            Path file = getFile(fileName);
+            InputStream is = compressor.uncompress(Files.newInputStream(file));
+            return observer != null ? new ObservableInputStream(is, file.toString(), observer) : is;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -92,8 +104,9 @@ public class FileDataSource implements DataSource {
                     .filter(Files::isRegularFile)
                     .map(Path::getFileName)
                     .map(Path::toString)
+                    .filter(name -> name.endsWith(compressor.getExtension()))
                     // Return names after removing the compression extension
-                    .map(name -> name.replace(compressor.getExtension(),  ""))
+                    .map(name -> name.replace(compressor.getExtension(), ""))
                     .filter(s -> p.matcher(s).matches())
                     .collect(Collectors.toSet());
         } catch (IOException e) {

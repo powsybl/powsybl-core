@@ -114,10 +114,10 @@ public final class Exporters {
      * @param network the model
      * @param parameters some properties to configure the export
      * @param directory the output directory where files are generated
-     * @param baseName a base name for all generated files
+     * @param fileName a base name for all generated files
      */
-    public static void export(String format, Network network, Properties parameters, String directory, String baseName) {
-        export(format, network, parameters, new FileDataSource(Paths.get(directory), baseName));
+    public static void export(String format, Network network, Properties parameters, String directory, String fileName) {
+        export(format, network, parameters, new FileDataSource(Paths.get(directory), fileName));
     }
 
 }

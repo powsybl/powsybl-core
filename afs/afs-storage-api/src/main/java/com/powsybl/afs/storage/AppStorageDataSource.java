@@ -6,6 +6,8 @@
  */
 package com.powsybl.afs.storage;
 
+import com.powsybl.commons.datasource.DataSource;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,8 +16,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import com.powsybl.commons.datasource.DataSource;
 
 /**
  * A datasource corresponding to a data blob stored in the file system.
@@ -135,16 +135,8 @@ public class AppStorageDataSource implements DataSource {
     }
 
     @Override
-    public String getBaseName() {
+    public String getMainFileName() {
         return nodeName;
-    }
-
-    @Override
-    public OutputStream newOutputStream(final String suffix, final String ext, boolean append) {
-        if (append) {
-            throw new UnsupportedOperationException("Append mode not supported");
-        }
-        return storage.writeBinaryData(nodeId, new SuffixAndExtension(suffix, ext).toString());
     }
 
     @Override
@@ -157,29 +149,18 @@ public class AppStorageDataSource implements DataSource {
     }
 
     @Override
-    public boolean exists(String suffix, String ext) {
-        return storage.dataExists(nodeId, new SuffixAndExtension(suffix, ext).toString());
-    }
-
-    @Override
-    public boolean exists(String fileName) {
+    public boolean fileExists(String fileName) {
         return storage.dataExists(nodeId, new FileName(fileName).toString());
     }
 
     @Override
-    public InputStream newInputStream(String suffix, String ext) throws IOException {
-        return storage.readBinaryData(nodeId, new SuffixAndExtension(suffix, ext).toString())
-                .orElseThrow(() -> new IOException("*" + Objects.toString(suffix, "") + "." + Objects.toString(ext, "") + " does not exist"));
-    }
-
-    @Override
-    public InputStream newInputStream(String fileName) throws IOException {
+    public InputStream newInputStream(String fileName) {
         return storage.readBinaryData(nodeId, new FileName(fileName).toString())
-                .orElseThrow(() -> new IOException(fileName + " does not exist"));
+                .orElseThrow(() -> new UncheckedIOException(new IOException(fileName + " does not exist")));
     }
 
     @Override
-    public Set<String> listNames(String regex) throws IOException {
+    public Set<String> getFileNames(String regex) {
         Pattern p = Pattern.compile(regex);
         return storage.getDataNames(nodeId).stream()
                 .filter(name -> p.matcher(name).matches())

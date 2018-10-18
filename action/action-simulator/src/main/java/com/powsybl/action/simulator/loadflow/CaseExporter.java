@@ -56,17 +56,17 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
     }
 
     private void exportNetwork(RunningContext context) {
-        DataSource dataSource = DataSourceUtil.createDataSource(outputCaseFolder, getBasename(context.getContingency(), context.getRound()), compressionFormat, null);
+        DataSource dataSource = DataSourceUtil.createDataSource(outputCaseFolder, getFileName(context.getContingency(), context.getRound()), null);
         Exporters.export(outputCaseFormat, context.getNetwork(), new Properties(), dataSource);
     }
 
     /**
      * Return the basename of the case file based on the initial basename, the contingency Id and the round
      */
-    private String getBasename(Contingency contingency, int round) {
+    private String getFileName(Contingency contingency, int round) {
         String stateId = (contingency == null) ? "N" : contingency.getId();
 
-        return basename + "-" + stateId + "-R" + round;
+        return basename + "-" + stateId + "-R" + round + "." + compressionFormat.getExtension();
     }
 
     @Override

@@ -40,7 +40,7 @@ public class ImportersTest {
     @Test
     public void createReadOnlyWithRelativePath() throws IOException {
         ReadOnlyDataSource dataSource = Importers.createDataSource(fileSystem.getPath("foo.txt"));
-        assertTrue(dataSource.exists("foo.txt"));
+        assertTrue(dataSource.fileExists("foo.txt"));
     }
 
 }

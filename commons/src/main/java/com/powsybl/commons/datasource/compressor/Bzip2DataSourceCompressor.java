@@ -14,11 +14,13 @@ import java.io.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class Bzip2DataSourceCompressor implements DataSourceCompressor {
+public enum Bzip2DataSourceCompressor implements DataSourceCompressor {
+
+    INSTANCE;
 
     @Override
     public String getExtension() {
-        return ".bz2";
+        return '.' + CompressionFormat.BZIP2.getExtension();
     }
 
     @Override

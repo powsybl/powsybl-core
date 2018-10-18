@@ -13,7 +13,6 @@ import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -27,14 +26,14 @@ public class SimpleAnonymizerTest extends AbstractConverterTest {
         // export with anonymisation on
         Properties properties = new Properties();
         properties.put(XMLExporter.ANONYMISED_PROPERTIES, "true");
-        MemDataSource dataSource = new MemDataSource();
+        MemDataSource dataSource = new MemDataSource("test.xiidm");
         new XMLExporter().export(network, properties, dataSource);
 
         // check we have 2 files, the anonymized IIDM XML and a CSV mapping file and compare to anonymized reference files
-        try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
+        try (InputStream is = dataSource.newInputStream("test.xiidm")) {
             compareXml(getClass().getResourceAsStream(anonymizedXiidmRef), is);
         }
-        try (InputStream is = new ByteArrayInputStream(dataSource.getData("_mapping", "csv"))) {
+        try (InputStream is = dataSource.newInputStream("test_mapping.csv")) {
             compareTxt(getClass().getResourceAsStream(anonymizedCsvRef), is);
         }
 
@@ -42,7 +41,7 @@ public class SimpleAnonymizerTest extends AbstractConverterTest {
 
         // re-import the IIDM XML using the CSV mapping file
         Network network2 = new XMLImporter(platformConfig).importData(dataSource, null);
-        MemDataSource dataSource2 = new MemDataSource();
+        MemDataSource dataSource2 = new MemDataSource("test.xiidm");
         new XMLExporter().export(network2, null, dataSource2);
 
         // check that re-imported IIDM XML has been deanonymized and is equals to reference file

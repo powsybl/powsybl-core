@@ -43,13 +43,12 @@ public class ZipFileDataSource implements DataSource {
         this.observer = observer;
     }
 
-    public ZipFileDataSource(Path zipFile) {
-        this(zipFile.getParent(), com.google.common.io.Files.getNameWithoutExtension(zipFile.getFileName().toString()), null);
+    public ZipFileDataSource(Path directory, String zipFileName) {
+        this(directory, zipFileName, null);
     }
 
-    @Override
-    public boolean isContainer() {
-        return true;
+    public ZipFileDataSource(Path zipFile) {
+        this(zipFile.getParent(), zipFile.getFileName().toString());
     }
 
     @Override
@@ -83,9 +82,17 @@ public class ZipFileDataSource implements DataSource {
 
         private final ZipFile zipFile;
 
-        public ZipEntryInputStream(ZipFile zipFile, String fileName) throws IOException {
+        private ZipEntryInputStream(ZipFile zipFile, String fileName) throws IOException {
             super(zipFile.getInputStream(fileName));
             this.zipFile = zipFile;
+        }
+
+        private static ZipEntryInputStream create(Path zipFilePath, String fileName) {
+            try {
+                return new ZipEntryInputStream(new ZipFile(zipFilePath), fileName);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
         }
 
         @Override
@@ -100,7 +107,7 @@ public class ZipFileDataSource implements DataSource {
     public InputStream newInputStream(String fileName) {
         Objects.requireNonNull(fileName);
         Path zipFilePath = getZipFilePath();
-        InputStream is = new ZipEntryInputStream(new ZipFile(zipFilePath), fileName);
+        InputStream is = ZipEntryInputStream.create(zipFilePath, fileName);
         return observer != null ? new ObservableInputStream(is, zipFilePath + ":" + fileName, observer) : is;
     }
 
@@ -141,6 +148,14 @@ public class ZipFileDataSource implements DataSource {
 
             // create new entry
             os.putNextEntry(new ZipEntry(fileName));
+        }
+
+        private static ZipEntryOutputStream create(Path zipFilePath, String fileName) {
+            try {
+                return new ZipEntryOutputStream(zipFilePath, fileName);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
         }
 
         private static Path getTmpZipFilePath(Path zipFilePath) {
@@ -189,7 +204,7 @@ public class ZipFileDataSource implements DataSource {
             throw new UnsupportedOperationException("append not supported in zip file data source");
         }
         Path zipFilePath = getZipFilePath();
-        OutputStream os = new ZipEntryOutputStream(zipFilePath, fileName);
+        OutputStream os = ZipEntryOutputStream.create(zipFilePath, fileName);
         return observer != null ? new ObservableOutputStream(os, zipFilePath + ":" + fileName, observer) : os;
     }
 }

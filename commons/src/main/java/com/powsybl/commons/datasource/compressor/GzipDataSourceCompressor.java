@@ -15,11 +15,13 @@ import java.util.zip.GZIPOutputStream;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class GzipDataSourceCompressor implements DataSourceCompressor {
+public enum GzipDataSourceCompressor implements DataSourceCompressor {
+
+    INSTANCE;
 
     @Override
     public String getExtension() {
-        return ".gz";
+        return '.' + CompressionFormat.GZIP.getExtension();
     }
 
     @Override

@@ -6,23 +6,80 @@
  */
 package com.powsybl.commons.datasource;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import com.google.common.io.ByteStreams;
+
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class MemDataSource extends ReadOnlyMemDataSource implements DataSource {
+public class MemDataSource implements DataSource, ReadOnlyDataSource {
 
-    @Override
-    public OutputStream newOutputStream(final String suffix, final String ext, boolean append) throws IOException {
-        return newOutputStream(DataSourceUtil.getFileName("", suffix, ext), append);
+    private final Map<String, byte[]> data = new HashMap<>();
+
+    private String mainFileName;
+
+    public MemDataSource(String mainFileName) {
+        this.mainFileName = mainFileName;
+    }
+
+    public byte[] getData(String fileName) {
+        return data.get(fileName);
+    }
+
+    public void putData(String fileName, InputStream data) {
+        try {
+            putData(fileName, ByteStreams.toByteArray(data));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void putData(String fileName, byte[] data) {
+        this.data.put(fileName, data);
     }
 
     @Override
-    public OutputStream newOutputStream(String fileName, boolean append) throws IOException {
+    public String getMainFileName() {
+        return mainFileName;
+    }
+
+    public void setMainFileName(String mainFileName) {
+        this.mainFileName = mainFileName;
+    }
+
+    @Override
+    public boolean fileExists(String fileName) {
+        Objects.requireNonNull(fileName);
+        return data.containsKey(fileName);
+    }
+
+    @Override
+    public InputStream newInputStream(String fileName) {
+        Objects.requireNonNull(fileName);
+        byte[] ba = data.get(fileName);
+        if (ba == null) {
+            throw new UncheckedIOException(new IOException(fileName + " does not exist"));
+        }
+        return new ByteArrayInputStream(ba);
+    }
+
+    @Override
+    public Set<String> getFileNames(String regex) {
+        Pattern p = Pattern.compile(regex);
+        return data.keySet().stream()
+                .filter(name -> p.matcher(name).matches())
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public OutputStream newOutputStream(String fileName, boolean append) {
         Objects.requireNonNull(fileName);
         final ByteArrayOutputStream os = new ByteArrayOutputStream();
         if (append) {
@@ -38,6 +95,4 @@ public class MemDataSource extends ReadOnlyMemDataSource implements DataSource {
             }
         });
     }
-
-
 }

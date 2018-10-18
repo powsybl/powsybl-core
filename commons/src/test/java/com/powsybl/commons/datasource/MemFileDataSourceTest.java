@@ -12,12 +12,12 @@ package com.powsybl.commons.datasource;
 public class MemFileDataSourceTest extends AbstractDataSourceTest {
 
     @Override
-    protected String getBaseName() {
-        return ""; // because undefined in a memory impl datasource
+    protected String getMainFileName() {
+        return "foo.txt";
     }
 
     @Override
     protected DataSource createDataSource() {
-        return new MemDataSource();
+        return new MemDataSource("foo.txt");
     }
 }

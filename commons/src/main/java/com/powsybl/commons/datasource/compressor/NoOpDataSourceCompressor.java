@@ -12,7 +12,9 @@ import java.io.OutputStream;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NoOpDataSourceCompressor implements DataSourceCompressor {
+public enum NoOpDataSourceCompressor implements DataSourceCompressor {
+
+    INSTANCE;
 
     @Override
     public String getExtension() {

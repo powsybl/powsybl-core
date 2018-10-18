@@ -116,22 +116,22 @@ public class XMLImporterTest {
 
     @Test
     public void exists() throws Exception {
-        assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test0")));
-        assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test1")));
-        assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test2")));
-        assertFalse(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test3"))); // wrong extension
-        assertFalse(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test4"))); // does not exist
+        assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test0.xiidm")));
+        assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test1.iidm")));
+        assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test2.xml")));
+        assertFalse(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test3.txt"))); // wrong extension
+        assertFalse(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test4.xiidm"))); // does not exist
     }
 
     @Test
     public void copy() throws Exception {
-        importer.copy(new FileDataSource(fileSystem.getPath("/"), "test0"), new FileDataSource(fileSystem.getPath("/"), "test0_copy"));
+        importer.copy(new FileDataSource(fileSystem.getPath("/"), "test0.xiidm"), new FileDataSource(fileSystem.getPath("/"), "test0_copy.xiidm"));
         assertTrue(Files.exists(fileSystem.getPath("/test0_copy.xiidm")));
         assertEquals(Files.readAllLines(fileSystem.getPath("/test0.xiidm"), StandardCharsets.UTF_8),
                      Files.readAllLines(fileSystem.getPath("/test0_copy.xiidm"), StandardCharsets.UTF_8));
 
         // test copy with id mapping file
-        importer.copy(new FileDataSource(fileSystem.getPath("/"), "test6"), new FileDataSource(fileSystem.getPath("/"), "test6_copy"));
+        importer.copy(new FileDataSource(fileSystem.getPath("/"), "test6.xiidm"), new FileDataSource(fileSystem.getPath("/"), "test6_copy.xiidm"));
         assertTrue(Files.exists(fileSystem.getPath("/test6_copy.xiidm")));
         assertTrue(Files.exists(fileSystem.getPath("/test6_copy_mapping.csv")));
         assertEquals(Files.readAllLines(fileSystem.getPath("/test6.xiidm"), StandardCharsets.UTF_8),
@@ -143,32 +143,32 @@ public class XMLImporterTest {
     @Test
     public void importData() throws Exception {
         // should be ok
-        assertNotNull(importer.importData(new FileDataSource(fileSystem.getPath("/"), "test0"), null));
+        assertNotNull(importer.importData(new FileDataSource(fileSystem.getPath("/"), "test0.xiidm"), null));
 
         // should fail because file that does not exist
         try {
-            importer.importData(new FileDataSource(fileSystem.getPath("/"), "test4"), null);
+            importer.importData(new FileDataSource(fileSystem.getPath("/"), "test4.xiidm"), null);
             fail();
         } catch (RuntimeException ignored) {
         }
 
         // extension plugin will be not found but default option just warn
-        assertNotNull(importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5"), null));
+        assertNotNull(importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5.xiidm"), null));
 
         // extension plugin will be not found but option is set to throw an exception
         Properties params = new Properties();
         params.put("throwExceptionIfExtensionNotFound", "true");
         try {
-            importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5"), params);
+            importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5.xiidm"), params);
             fail();
         } catch (RuntimeException ignored) {
         }
 
         // read file with id mapping
-        Network network = importer.importData(new FileDataSource(fileSystem.getPath("/"), "test6"), params);
+        Network network = importer.importData(new FileDataSource(fileSystem.getPath("/"), "test6.xiidm"), params);
         assertNotNull(network.getSubstation("X1")); // and not P1 !!!!!
 
-        Network network2 = importer.importData(new FileDataSource(fileSystem.getPath("/"), "test7"), null);
+        Network network2 = importer.importData(new FileDataSource(fileSystem.getPath("/"), "test7.xiidm"), null);
         assertNotNull(network2.getSubstation("P1"));
     }
 }

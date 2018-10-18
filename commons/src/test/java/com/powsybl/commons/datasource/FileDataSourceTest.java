@@ -6,13 +6,20 @@
  */
 package com.powsybl.commons.datasource;
 
+import com.powsybl.commons.datasource.compressor.NoOpDataSourceCompressor;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class FileDataSourceTest extends AbstractDataSourceTest {
 
     @Override
+    protected String getMainFileName() {
+        return "foo.txt";
+    }
+
+    @Override
     protected DataSource createDataSource() {
-        return new FileDataSource(testDir, getBaseName());
+        return new FileDataSource(testDir, "foo.txt", NoOpDataSourceCompressor.INSTANCE);
     }
 }

@@ -289,9 +289,8 @@ public final class Importers {
         }
     }
 
-    private static void addDataSource(Path dir, Path file, Importer importer, List<ReadOnlyDataSource> dataSources) {
-        String caseBaseName = DataSourceUtil.getBaseName(file);
-        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(dir, caseBaseName);
+    private static void addDataSource(Path file, Importer importer, List<ReadOnlyDataSource> dataSources) {
+        ReadOnlyDataSource ds = createDataSource(file);
         if (importer.exists(ds)) {
             dataSources.add(ds);
         }
@@ -308,13 +307,13 @@ public final class Importers {
                             throw new UncheckedIOException(e);
                         }
                     } else {
-                        addDataSource(parent, child, importer, dataSources);
+                        addDataSource(child, importer, dataSources);
                     }
                 });
             }
         } else {
             if (parent.getParent() != null) {
-                addDataSource(parent.getParent(), parent, importer, dataSources);
+                addDataSource(parent, importer, dataSources);
             }
         }
     }
@@ -428,7 +427,8 @@ public final class Importers {
     }
 
     public static Network loadNetwork(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader) {
-        ReadOnlyMemDataSource dataSource = DataSourceUtil.createReadOnlyMemDataSource(filename, data);
+        MemDataSource dataSource = new MemDataSource(filename);
+        dataSource.putData(filename, data);
         Importer importer = findImporter(dataSource, loader, computationManager, config);
         if (importer != null) {
             return importer.importData(dataSource, parameters);
