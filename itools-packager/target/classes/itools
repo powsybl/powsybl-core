@@ -1,0 +1,63 @@
+#!/bin/bash
+#
+# Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+if [ -z $JAVA_HOME ]; then
+    JAVA_BIN=`which java 2> /dev/null`
+    if [ $? -ne 0 ]; then
+        echo "Unable to find java" >&2
+        exit -1
+    fi
+else
+    JAVA_BIN=$JAVA_HOME/bin/java
+fi
+
+installBinDir=$(dirname $(readlink -f $0))
+installDir=${installBinDir%/*}
+
+. $installDir/etc/itools.conf
+
+parallel=false
+
+args=("$@")
+for ((i=0; i<${#args[@]}; i++)); do
+    current=${args[i]}
+    next=${args[$((i+1))]}
+    case $current in
+        --config-name)
+           itools_config_name=$next
+           unset args[i]
+           unset args[$((i+1))]
+           ;;
+        --parallel)
+           parallel=true
+           unset args[i]
+           ;;
+    esac
+done
+
+[ -n "$itools_cache_dir" ] && options+="-Ditools.cache.dir=$itools_cache_dir"
+[ -n "$itools_config_dir" ] || itools_config_dir="${HOME}/.itools"
+options+=" -Ditools.config.dir=$itools_config_dir"
+[ -n "$itools_config_name" ] && options+=" -Ditools.config.name=$itools_config_name"
+options+=" -Dlogback.configurationFile="
+[ -f "$itools_config_dir/logback-itools.xml" ] && options+="$itools_config_dir" || options+="$installDir/etc"
+options+="/logback-itools.xml"
+[ -z "$java_xmx" ] && java_xmx=8G
+
+if $parallel ; then
+    # check mpirun is in the path
+    [[ $(type -P mpirun) ]] ||  { echo "mpirun is not in the path" 1>&2; exit 1; }
+    echo "running itools in parallel mode using $mpi_tasks tasks on hosts $mpi_hosts"
+    mpirun -np $mpi_tasks -map-by node -host $mpi_hosts $mpirun_options -oversubscribe tools-mpi-task.sh "${args[@]}"
+else
+    $JAVA_BIN \
+-Xmx$java_xmx \
+-cp "$installDir/share/java/*" \
+$options \
+com.powsybl.tools.Main "${args[@]}"
+fi

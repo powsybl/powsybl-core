@@ -7,8 +7,11 @@
 package com.powsybl.afs;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Objects;
 import java.util.Optional;
+
+import com.powsybl.afs.storage.NodeInfo;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -31,14 +34,38 @@ public class Node extends AbstractNodeBase<Folder> {
     }
 
     public void rename(String name) {
+        Objects.requireNonNull(name);
         storage.renameNode(info.getId(), name);
         storage.flush();
     }
 
     public void moveTo(Folder folder) {
         Objects.requireNonNull(folder);
-        storage.setParentNode(info.getId(), folder.getId());
-        storage.flush();
+        boolean ancestorDetected = false;
+        for (NodeInfo nodeInfo : findNodeAncesters(folder)) {
+            if (info.getId().equals(nodeInfo.getId())) {
+                ancestorDetected = true;
+            }
+        }
+        if (!ancestorDetected) {
+            storage.setParentNode(info.getId(), folder.getId());
+            storage.flush();
+        }
+    }
+
+    private List<NodeInfo> findNodeAncesters(Folder folder) {
+        List<NodeInfo> ancesterNodes = new ArrayList<>();
+        storage.getParentNode(folder.getId()).ifPresent(nodeParent -> {
+            while (nodeParent != null) {
+                ancesterNodes.add(nodeParent);
+                if (storage.getParentNode(nodeParent.getId()).isPresent()) {
+                    nodeParent = storage.getParentNode(nodeParent.getId()).get();
+                } else {
+                    break;
+                }
+            }
+        });
+        return ancesterNodes;
     }
 
     @Override
