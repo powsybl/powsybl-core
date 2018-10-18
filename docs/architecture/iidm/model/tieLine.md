@@ -1,6 +1,6 @@
 # IIDM - Tie lines
 
-The `com.powsybl.iidm.network.TieLine` interface is used to model a Tie Line. In IIDM, it is a sub class of [Line](line.md).
+The `com.powsybl.iidm.network.TieLine` interface is used to model a Tie Line. In IIDM, it is a sub interface of [Line](line.md).
 A Tie Line is an AC line sharing power between two neighbouring regional grids.
 
 ## Characteristics

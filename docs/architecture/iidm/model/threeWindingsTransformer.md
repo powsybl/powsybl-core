@@ -74,3 +74,4 @@ ThreeWindingsTransformer threeWindingsTransformer = substation.newThreeWindingsT
 ## References
 See also:
 - [Substation](substation.md)
+- [Terminal](terminal.md)

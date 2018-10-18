@@ -46,6 +46,9 @@ VoltageLevel voltageLevel = substation.newVoltageLevel()
 
 ## References
 See also:
+- [Busbar Sections](busbarSection.md)
+- [Bus](bus.md)
+- [Switch](switch.md)
 - [Substation](substation.md)
 - [Generator] (generator.md)
 - [Load] (load.md)
