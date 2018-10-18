@@ -12,13 +12,15 @@ import com.powsybl.action.dsl.ActionDslLoader;
 import com.powsybl.action.dsl.DefaultActionDslLoaderObserver;
 import com.powsybl.action.simulator.ActionSimulator;
 import com.powsybl.action.simulator.loadflow.*;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.compressor.CompressionFormat;
-import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.Partition;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.export.Exporters;
+import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.Security;
@@ -232,17 +234,23 @@ public class ActionSimulatorTool implements Tool {
             checkOptionsInParallel(line);
         }
 
+        ReadOnlyDataSource dataSource = Importers.createDataSource(caseFile);
+        Importer importer = Importers.findImporter(dataSource, context.getShortTimeExecutionComputationManager());
+        if (importer == null) {
+            throw new PowsyblException("No importer found  for case file "  + caseFile);
+        }
+
         //Create observers
         List<LoadFlowActionSimulatorObserver> observers = new ArrayList<>();
         if (!isSubTask) {
-            optionalCaseExporter(line, context.getFileSystem(), DataSourceUtil.getBaseName(caseFile))
+            optionalCaseExporter(line, context.getFileSystem(), importer.getPrettyName(dataSource))
                     .ifPresent(observers::add);
         }
         observers.add(createLogPrinter(context, verbose));
 
         // load network
         context.getOutputStream().println("Loading network '" + caseFile + "'");
-        Network network = Importers.loadNetwork(caseFile);
+        Network network = importer.importData(dataSource, null);
 
         try {
             // load actions from Groovy DSL

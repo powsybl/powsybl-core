@@ -65,8 +65,7 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
      */
     private String getFileName(Contingency contingency, int round) {
         String stateId = (contingency == null) ? "N" : contingency.getId();
-
-        return basename + "-" + stateId + "-R" + round + "." + compressionFormat.getExtension();
+        return basename + "-" + stateId + "-R" + round;
     }
 
     @Override

@@ -756,9 +756,16 @@ public class UcteImporter implements Importer {
 
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
-        return dataSource.fileExists(dataSource.getMainFileName())
+        return dataSource.getMainFileName() != null
+                && dataSource.fileExists(dataSource.getMainFileName())
                 && findExtension(dataSource) != null
                 && checkHeader(dataSource);
+    }
+
+    @Override
+    public String getPrettyName(ReadOnlyDataSource dataSource) {
+        String extension = findExtension(dataSource);
+        return dataSource.getMainFileName().substring(0, dataSource.getMainFileName().length() - extension.length());
     }
 
     private boolean checkHeader(ReadOnlyDataSource dataSource) {

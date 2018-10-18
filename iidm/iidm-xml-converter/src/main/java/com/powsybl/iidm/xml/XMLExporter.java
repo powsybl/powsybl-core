@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.anonymizer.Anonymizer;
 import com.powsybl.iidm.export.ExportOptions;
@@ -84,6 +85,11 @@ public class XMLExporter implements Exporter {
     public void export(Network network, Properties parameters, DataSource dataSource) {
         if (network == null) {
             throw new IllegalArgumentException("network is null");
+        }
+
+        String extension = XmlConverterUtil.findExtension(dataSource);
+        if (extension == null) {
+            throw new PowsyblException("No valid IIDM XML extension " + dataSource.getMainFileName());
         }
 
         ExportOptions options = new ExportOptions();

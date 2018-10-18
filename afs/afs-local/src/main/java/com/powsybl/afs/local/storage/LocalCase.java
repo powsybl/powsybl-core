@@ -7,17 +7,14 @@
 package com.powsybl.afs.local.storage;
 
 import com.powsybl.afs.ext.base.Case;
-import com.powsybl.afs.storage.AppStorageDataSource;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.timeseries.DoubleArrayChunk;
 import com.powsybl.timeseries.StringArrayChunk;
 import com.powsybl.timeseries.TimeSeriesMetadata;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.*;
@@ -39,7 +36,8 @@ public class LocalCase implements LocalFile {
 
     @Override
     public String getName() {
-        return DataSourceUtil.getBaseName(file);
+        DataSource dataSource = Importers.createDataSource(file);
+        return importer.getPrettyName(dataSource);
     }
 
     @Override
@@ -65,43 +63,13 @@ public class LocalCase implements LocalFile {
     @Override
     public Optional<InputStream> readBinaryData(String name) {
         DataSource dataSource = Importers.createDataSource(file);
-        return AppStorageDataSource.Name.parse(name, new AppStorageDataSource.NameHandler<Optional<InputStream>>() {
-            @Override
-            public Optional<InputStream> onSuffixAndExtension(AppStorageDataSource.SuffixAndExtension suffixAndExtension) throws IOException {
-                return Optional.of(dataSource.newInputStream(suffixAndExtension.getSuffix(), suffixAndExtension.getExt()));
-            }
-
-            @Override
-            public Optional<InputStream> onFileName(AppStorageDataSource.FileName fileName) throws IOException {
-                return Optional.of(dataSource.newInputStream(fileName.getName()));
-            }
-
-            @Override
-            public Optional<InputStream> onOther(AppStorageDataSource.Name name) {
-                throw new AssertionError("Unknown data source name " + name);
-            }
-        });
+        return Optional.of(dataSource.newInputStream(name));
     }
 
     @Override
     public boolean dataExists(String name) {
         DataSource dataSource = Importers.createDataSource(file);
-        return AppStorageDataSource.Name.parse(name, new AppStorageDataSource.NameHandler<Boolean>() {
-            @Override
-            public Boolean onSuffixAndExtension(AppStorageDataSource.SuffixAndExtension suffixAndExtension) throws IOException {
-                return dataSource.exists(suffixAndExtension.getSuffix(), suffixAndExtension.getExt());
-            }
-
-            @Override
-            public Boolean onFileName(AppStorageDataSource.FileName fileName) throws IOException {
-                return dataSource.exists(fileName.getName());
-            }
-
-            @Override
-            public Boolean onOther(AppStorageDataSource.Name name) {
-                throw new AssertionError("Unknown data source name " + name);
-            }
-        });
+        return dataSource.fileExists(name);
     }
 
     @Override

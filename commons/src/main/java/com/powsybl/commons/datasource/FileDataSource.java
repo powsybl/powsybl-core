@@ -60,7 +60,7 @@ public class FileDataSource implements DataSource {
     }
 
     private Path getFile(String fileName) {
-        return dir.resolve(fileName + compressor.getExtension());
+        return dir.resolve(fileName.endsWith(compressor.getExtension()) ? fileName : fileName + compressor.getExtension());
     }
 
     @Override

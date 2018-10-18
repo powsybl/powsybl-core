@@ -13,7 +13,6 @@ import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.storage.AppStorageDataSource;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
-import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importer;
@@ -75,7 +74,7 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
     public ImportedCaseBuilder withFile(Path file) {
         withDatasource(Importers.createDataSource(file));
         if (name == null) {
-            name = DataSourceUtil.getBaseName(file);
+            name = importer.getPrettyName(dataSource);
         }
         return this;
     }

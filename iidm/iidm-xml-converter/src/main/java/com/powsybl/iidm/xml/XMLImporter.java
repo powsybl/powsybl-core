@@ -83,12 +83,19 @@ public class XMLImporter implements Importer {
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
         try {
-            return dataSource.fileExists(dataSource.getMainFileName())
+            return dataSource.getMainFileName() != null
+                    && dataSource.fileExists(dataSource.getMainFileName())
                     && XmlConverterUtil.findExtension(dataSource) != null
                     && checkXmlNs(dataSource);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    @Override
+    public String getPrettyName(ReadOnlyDataSource dataSource) {
+        String extension = XmlConverterUtil.findExtension(dataSource);
+        return dataSource.getMainFileName().substring(0, dataSource.getMainFileName().length() - extension.length());
     }
 
     private boolean checkXmlNs(ReadOnlyDataSource dataSource) throws IOException {

@@ -11,7 +11,6 @@ import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.ParseException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -70,16 +69,6 @@ public class ActionSimulatorToolTest extends AbstractToolTest {
         commandLine = mock(CommandLine.class);
         when(commandLine.getOptionValue("case-file")).thenReturn("/path-case-file");
         when(commandLine.getOptionValue("dsl-file")).thenReturn("/path-dsl-file");
-    }
-
-    @Test
-    public void failedOutputCaseOptions() throws Exception {
-        when(commandLine.hasOption("output-case-folder")).thenReturn(true);
-        when(commandLine.getOptionValue("output-case-folder")).thenReturn("/outcasefolder");
-        when(commandLine.hasOption("output-case-format")).thenReturn(false);
-        thrown.expect(ParseException.class);
-        thrown.expectMessage("Missing required option: output-case-format");
-        tool.run(commandLine, runningContext);
     }
 
     @Test

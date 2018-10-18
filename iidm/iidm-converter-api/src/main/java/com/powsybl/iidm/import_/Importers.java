@@ -160,6 +160,11 @@ public final class Importers {
             return importer.exists(dataSource);
         }
 
+        @Override
+        public String getPrettyName(ReadOnlyDataSource dataSource) {
+            return importer.getPrettyName(dataSource);
+        }
+
         private static ImportPostProcessor getPostProcessor(ImportersLoader loader, String name) {
             for (ImportPostProcessor ipp : loader.loadPostProcessors()) {
                 if (ipp.getName().equals(name)) {

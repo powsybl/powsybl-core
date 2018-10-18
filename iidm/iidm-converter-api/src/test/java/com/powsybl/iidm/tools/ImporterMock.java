@@ -48,6 +48,11 @@ public class ImporterMock implements Importer {
     }
 
     @Override
+    public String getPrettyName(ReadOnlyDataSource dataSource) {
+        return "";
+    }
+
+    @Override
     public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
         assertEquals(2, parameters.size());
         assertEquals("value1", parameters.getProperty("param1"));

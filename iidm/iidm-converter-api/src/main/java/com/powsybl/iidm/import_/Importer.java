@@ -56,6 +56,13 @@ public interface Importer {
     boolean exists(ReadOnlyDataSource dataSource);
 
     /**
+     * Get data source pretty name
+     * @param dataSource the data source
+     * @return data source pretty name
+     */
+    String getPrettyName(ReadOnlyDataSource dataSource);
+
+    /**
      * Create a model.
      *
      * @param dataSource data source
@@ -69,7 +76,5 @@ public interface Importer {
      * @param fromDataSource from data source
      * @param toDataSource destination data source
      */
-    default void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
-        throw new UnsupportedOperationException("Copy not implemented");
-    }
+    void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource);
 }
