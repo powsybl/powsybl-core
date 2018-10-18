@@ -1254,7 +1254,7 @@ public class AmplNetworkWriter {
                                                                   new Column(REACTIVE_POWER),
                                                                   new Column("sections count"))) {
             List<String> skipped = new ArrayList<>();
-            for (ShuntCompensator sc : network.getShunts()) {
+            for (ShuntCompensator sc : network.getShuntCompensators()) {
                 Terminal t = sc.getTerminal();
                 Bus bus = AmplUtil.getBus(t);
                 String busId = null;
