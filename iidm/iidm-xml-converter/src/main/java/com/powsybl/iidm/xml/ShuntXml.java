@@ -44,7 +44,7 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
 
     @Override
     protected ShuntCompensatorAdder createAdder(VoltageLevel vl) {
-        return vl.newShunt();
+        return vl.newShuntCompensator();
     }
 
     @Override

@@ -346,26 +346,67 @@ public interface Network extends Container<Network> {
     Load getLoad(String id);
 
     /**
-     * Get all compensator shunts.
+     * @deprecated Use {@link #getShuntCompensators)} instead.
      */
-    Iterable<ShuntCompensator> getShunts();
+    @Deprecated
+    default Iterable<ShuntCompensator> getShunts() {
+        throw new UnsupportedOperationException("deprecated");
+    }
+
+    /**
+     * @deprecated Use {@link #getShuntCompensatorStream()} instead.
+     */
+    @Deprecated
+    default Stream<ShuntCompensator> getShuntStream() {
+        throw new UnsupportedOperationException("deprecated");
+    }
+
+    /**
+     * @deprecated Use {@link #getShuntCompensatorCount()} instead.
+     */
+    @Deprecated
+    default int getShuntCount() {
+        throw new UnsupportedOperationException("deprecated");
+    }
+
+    /**
+     * @deprecated Use {@link #getShuntCompensator(String)} instead.
+     */
+    @Deprecated
+    default ShuntCompensator getShunt(String id) {
+        throw new UnsupportedOperationException("deprecated");
+    }
 
     /**
      * Get all compensator shunts.
      */
-    Stream<ShuntCompensator> getShuntStream();
+    default Iterable<ShuntCompensator> getShuntCompensators() {
+        throw new UnsupportedOperationException("Not Implemented");
+    }
+
+
+    /**
+     * Get all compensator shunts.
+     */
+    default Stream<ShuntCompensator> getShuntCompensatorStream() {
+        throw new UnsupportedOperationException("Not Implemented");
+    }
 
     /**
      * Get the shunt count.
      */
-    int getShuntCount();
+    default int getShuntCompensatorCount() {
+        throw new UnsupportedOperationException("Not Implemented");
+    }
 
     /**
      * Get a compensator shunt.
      *
      * @param id the id of the compensator shunt
      */
-    ShuntCompensator getShunt(String id);
+    default ShuntCompensator getShuntCompensator(String id) {
+        throw new UnsupportedOperationException("Not Implemented");
+    }
 
     /**
      * Get all dangling lines.

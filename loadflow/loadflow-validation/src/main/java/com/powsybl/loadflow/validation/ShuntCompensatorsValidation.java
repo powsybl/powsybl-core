@@ -59,7 +59,7 @@ public final class ShuntCompensatorsValidation {
         Objects.requireNonNull(config);
         Objects.requireNonNull(shuntsWriter);
         LOGGER.info("Checking shunt compensators of network {}", network.getId());
-        return network.getShuntStream()
+        return network.getShuntCompensatorStream()
                       .sorted(Comparator.comparing(ShuntCompensator::getId))
                       .map(shunt -> checkShunts(shunt, config, shuntsWriter))
                       .reduce(Boolean::logicalAnd)
