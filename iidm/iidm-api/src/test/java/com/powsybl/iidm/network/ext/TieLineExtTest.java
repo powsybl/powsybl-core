@@ -11,6 +11,8 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Yichen Tang <yichen.tang at rte-france.com>
@@ -20,6 +22,13 @@ public class TieLineExtTest {
     @Test
     public void test() {
         Line line = Mockito.mock(Line.class);
+        when(line.getR()).thenReturn(20.0);
+        when(line.getX()).thenReturn(22.0);
+        when(line.getG1()).thenReturn(16.0);
+        when(line.getB1()).thenReturn(12.0);
+        when(line.getG2()).thenReturn(18.0);
+        when(line.getB2()).thenReturn(14.0);
+
         TieLineExt.HalfLineImpl hl1 = new TieLineExt.HalfLineImpl();
         hl1.setId("hl1")
                 .setB1(1.0)
@@ -50,5 +59,14 @@ public class TieLineExtTest {
         assertEquals(14.0, tieLine.getB2(), 0.0);
         assertEquals("ucte", tieLine.getUcteXnodeCode());
         Assert.assertSame(line, tieLine.getExtendable());
+
+
+        when(line.getR()).thenReturn(9876.0);
+        try {
+            TieLineExt failExt = new TieLineExt(line, "ucte", hl1, hl2);
+            fail();
+        } catch (Exception e) {
+            // do nothing
+        }
     }
 }

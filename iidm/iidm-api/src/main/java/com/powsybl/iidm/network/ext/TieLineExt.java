@@ -8,7 +8,9 @@ package com.powsybl.iidm.network.ext;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.LineCharacteristics;
+import com.powsybl.iidm.network.TieLine;
 
 import java.util.Objects;
 
@@ -30,10 +32,32 @@ public class TieLineExt extends AbstractExtension<Line> {
         this.ucteXnodeCode = ucteXnodeCode;
         this.half1 = checkHalfLine(half1, 1);
         this.half2 = checkHalfLine(half2, 2);
+        check();
     }
 
     public TieLineExt(Line line, String ucteXnodeCode, TieLine.HalfLine half1, TieLine.HalfLine half2) {
         this(line, ucteXnodeCode, convert(half1), convert(half2));
+    }
+
+    private void check() {
+        if (line.getR() != half1.getR() + half2.getR()) {
+            throwCharacteristicsConflcitException("r", line.getR(), half1.getR() + half2.getR());
+        }
+        if (line.getX() != half1.getX() + half2.getX()) {
+            throwCharacteristicsConflcitException("x", line.getX(), half1.getX() + half2.getX());
+        }
+        if (line.getG1() != half1.getG1() + half2.getG1()) {
+            throwCharacteristicsConflcitException("g1", line.getG1(), half1.getG1() + half2.getG1());
+        }
+        if (line.getG2() != half1.getG2() + half2.getG2()) {
+            throwCharacteristicsConflcitException("g2", line.getG2(), half1.getG2() + half2.getG2());
+        }
+        if (line.getB1() != half1.getB1() + half2.getB1()) {
+            throwCharacteristicsConflcitException("b1", line.getB1(), half1.getB1() + half2.getB1());
+        }
+        if (line.getB2() != half1.getB2() + half2.getB2()) {
+            throwCharacteristicsConflcitException("b2", line.getB2(), half1.getB2() + half2.getB2());
+        }
     }
 
     private static TieLineExt.HalfLineImpl convert(TieLine.HalfLine half) {
@@ -53,33 +77,41 @@ public class TieLineExt extends AbstractExtension<Line> {
 
     private HalfLine checkHalfLine(HalfLine halfLine, int side) {
         if (halfLine.getId() == null) {
-            throw new PowsyblException("id is not set for half line " + side);
+            throwAttributeNotSetException("id", side);
         }
         if (Double.isNaN(halfLine.getR())) {
-            throw new PowsyblException("r is not set for half line " + side);
+            throwAttributeNotSetException("r", side);
         }
         if (Double.isNaN(halfLine.getX())) {
-            throw new PowsyblException("x is not set for half line " + side);
+            throwAttributeNotSetException("x", side);
         }
         if (Double.isNaN(halfLine.getG1())) {
-            throw new PowsyblException("g1 is not set for half line " + side);
+            throwAttributeNotSetException("g1", side);
         }
         if (Double.isNaN(halfLine.getB1())) {
-            throw new PowsyblException("b1 is not set for half line " + side);
+            throwAttributeNotSetException("b1", side);
         }
         if (Double.isNaN(halfLine.getG2())) {
-            throw new PowsyblException("g2 is not set for half line " + side);
+            throwAttributeNotSetException("g2", side);
         }
         if (Double.isNaN(halfLine.getB2())) {
-            throw new PowsyblException("b2 is not set for half line " + side);
+            throwAttributeNotSetException("b2", side);
         }
         if (Double.isNaN(halfLine.getXnodeP())) {
-            throw new PowsyblException("xnodeP is not set for half line " + side);
+            throwAttributeNotSetException("xnodeP", side);
         }
         if (Double.isNaN(halfLine.getXnodeQ())) {
-            throw new PowsyblException("xnodeQ is not set for half line " + side);
+            throwAttributeNotSetException("xnodeQ", side);
         }
         return halfLine;
+    }
+
+    private void throwAttributeNotSetException(String attribute, int side) {
+        throw new PowsyblException(attribute + " is not set for half line " + side);
+    }
+
+    private void throwCharacteristicsConflcitException(String attribute, double v1, double v2) {
+        throw new PowsyblException("Characteristics " + attribute + " value has conflict: " + v1 + " for whole line, but " + v2 + " for two half lines.");
     }
 
     @Override
