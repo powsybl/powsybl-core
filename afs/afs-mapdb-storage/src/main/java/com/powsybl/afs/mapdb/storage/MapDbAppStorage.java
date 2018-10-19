@@ -588,7 +588,7 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     private <P extends AbstractPoint, C extends ArrayChunk<P, C>>
-    Map<String, List<C>> getTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version, ConcurrentMap<TimeSeriesChunkKey, C> map) {
+        Map<String, List<C>> getTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version, ConcurrentMap<TimeSeriesChunkKey, C> map) {
         UUID nodeUuid = checkNodeId(nodeId);
         Objects.requireNonNull(timeSeriesNames);
         TimeSeriesIndex.checkVersion(version);
