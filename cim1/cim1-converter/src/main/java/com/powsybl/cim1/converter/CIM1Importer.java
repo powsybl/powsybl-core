@@ -25,7 +25,6 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterType;
-import org.apache.commons.math3.analysis.function.Pow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

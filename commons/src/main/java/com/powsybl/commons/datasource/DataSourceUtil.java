@@ -7,6 +7,7 @@
 package com.powsybl.commons.datasource;
 
 import com.powsybl.commons.datasource.compressor.Bzip2DataSourceCompressor;
+import com.powsybl.commons.datasource.compressor.CompressionFormat;
 import com.powsybl.commons.datasource.compressor.GzipDataSourceCompressor;
 import com.powsybl.commons.datasource.compressor.NoOpDataSourceCompressor;
 
@@ -25,6 +26,26 @@ public interface DataSourceUtil {
         OpenOption[] appendOpenOptions = {StandardOpenOption.APPEND};
 
         return append ? appendOpenOptions : defaultOpenOptions;
+    }
+
+    static DataSource createDataSource(Path directory, String fileName, CompressionFormat compressionExtension, DataSourceObserver observer) {
+        Objects.requireNonNull(directory);
+        Objects.requireNonNull(fileName);
+
+        if (compressionExtension == null) {
+            return new FileDataSource(directory, fileName, NoOpDataSourceCompressor.INSTANCE, observer);
+        } else {
+            switch (compressionExtension) {
+                case GZIP:
+                    return new FileDataSource(directory, fileName, GzipDataSourceCompressor.INSTANCE, observer);
+                case BZIP2:
+                    return new FileDataSource(directory, fileName, Bzip2DataSourceCompressor.INSTANCE, observer);
+                case ZIP:
+                    return new ZipFileDataSource(directory, fileName, observer);
+                default:
+                    throw new AssertionError("Unexpected CompressionFormat value: " + compressionExtension);
+            }
+        }
     }
 
     static DataSource createDataSource(Path directory, String fileName, DataSourceObserver observer) {

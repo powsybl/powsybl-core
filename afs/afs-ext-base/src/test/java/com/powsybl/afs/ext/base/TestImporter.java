@@ -24,7 +24,7 @@ import java.util.Properties;
 public class TestImporter implements Importer {
 
     public static final String FORMAT = "TEST";
-    public static final String FILE_NAME = "network.tst";
+    public static final String EXT = "tst";
 
     private final Network network;
 
@@ -50,7 +50,9 @@ public class TestImporter implements Importer {
 
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
-        return dataSource.fileExists(FILE_NAME);
+        return dataSource.getMainFileName() != null
+                && dataSource.getMainFileName().endsWith(EXT)
+                && dataSource.fileExists(dataSource.getMainFileName());
     }
 
     @Override

@@ -11,7 +11,6 @@ import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.HvdcLine.ConvertersMode;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,7 +56,7 @@ public class AmplNetworkReader {
     }
 
     private void read(String suffix, int expectedTokenCount, Function<String[], Void> handler) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(suffix, "txt"), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(dataSource.getMainFileName() + suffix), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String trimedLine = line.trim();
@@ -84,7 +83,7 @@ public class AmplNetworkReader {
             g.setTargetV(g.getTerminal().getVoltageLevel().getNominalV());
         }
 
-        read("_generators", 8, this::readGenerator);
+        read("_network_generators.txt", 8, this::readGenerator);
 
         return this;
     }
@@ -121,7 +120,7 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readLoads() throws IOException {
-        read("_loads", 6, this::readLoad);
+        read("_network_loads.txt", 6, this::readLoad);
 
         return this;
     }
@@ -154,7 +153,7 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readRatioTapChangers() throws IOException {
-        read("_rtc", 2, this::readRatioTapChanger);
+        read("_network_rtc.txt", 2, this::readRatioTapChanger);
 
         return this;
     }
@@ -190,7 +189,7 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readPhaseTapChangers() throws IOException {
-        read("_ptc", 2, this::readPhaseTapChanger);
+        read("_network_ptc.txt", 2, this::readPhaseTapChanger);
 
         return this;
     }
@@ -210,7 +209,7 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readShunts() throws IOException {
-        read("_shunts", 5, this::readShunt);
+        read("_network_shunts.txt", 5, this::readShunt);
 
         return this;
     }
@@ -238,7 +237,7 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readBuses() throws IOException {
-        read("_buses", 3, this::readBus);
+        read("_network_buses.txt", 3, this::readBus);
 
         return this;
     }
@@ -262,7 +261,7 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readBranches() throws IOException {
-        read("_branches", 7, this::readBranch);
+        read("_network_branches.txt", 7, this::readBranch);
 
         return this;
     }
@@ -334,7 +333,7 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readHvdcLines() throws IOException {
-        read("_hvdc", 3, this::readHvdcLine);
+        read("_network_hvdc.txt", 3, this::readHvdcLine);
 
         return this;
     }
@@ -359,7 +358,7 @@ public class AmplNetworkReader {
 
 
     public AmplNetworkReader readStaticVarcompensator() throws IOException {
-        read("_static_var_compensators", 5, this::readSvc);
+        read("_network_static_var_compensators.txt", 5, this::readSvc);
 
         return this;
     }
@@ -400,7 +399,7 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readLccConverterStations() throws IOException {
-        read("_lcc_converter_stations", 4, this::readLcc);
+        read("_network_lcc_converter_stations.txt", 4, this::readLcc);
 
         return this;
     }
@@ -420,7 +419,7 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readVscConverterStations() throws IOException {
-        read("_vsc_converter_stations", 7, this::readVsc);
+        read("_network_vsc_converter_stations.txt", 7, this::readVsc);
 
         return this;
     }
@@ -453,7 +452,7 @@ public class AmplNetworkReader {
 
     public AmplNetworkReader readMetrics(Map<String, String> metrics) throws IOException {
         Objects.requireNonNull(metrics);
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream("_indic", "txt"), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(dataSource.getMainFileName() + "_indic.txt"), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String trimedLine = line.trim();
