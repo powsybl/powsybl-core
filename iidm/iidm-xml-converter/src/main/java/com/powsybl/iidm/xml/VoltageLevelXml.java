@@ -137,7 +137,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void writeShuntCompensators(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        for (ShuntCompensator sc : vl.getShunts()) {
+        for (ShuntCompensator sc : vl.getShuntCompensators()) {
             if (!context.getFilter().test(sc)) {
                 continue;
             }
