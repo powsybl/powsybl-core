@@ -125,8 +125,6 @@ public class ItoolsPackagerMojo extends AbstractMojo {
     }
 
     private void writeItoolsConf(BufferedWriter writer) throws IOException {
-        writer.write("#itools_cache_dir=");
-        writer.newLine();
         writer.write("#powsybl_config_dirs=");
         writer.newLine();
         writer.write("powsybl_config_name=");

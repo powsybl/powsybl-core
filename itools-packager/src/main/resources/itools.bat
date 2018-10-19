@@ -49,8 +49,7 @@ if "%1"=="" ( goto done ) else (
 :done
 
 set options=
-if not "%itools_cache_dir%" == "" ( set options=-Ditools.cache.dir="%itools_cache_dir%" )
-if "%powsybl_config_dirs%" == "" ( set powsybl_config_dirs=%HOMEDRIVE%%HOMEPATH%\.itools)
+if "%powsybl_config_dirs%" == "" ( set powsybl_config_dirs=%installDir%\etc:%HOMEDRIVE%%HOMEPATH%\.itools)
 set options=%options% -Dpowsybl.config.dirs="%powsybl_config_dirs%"
 if not "%powsybl_config_name%" == "" ( set options=%options% -Dpowsybl.config.name=%powsybl_config_name%)
 

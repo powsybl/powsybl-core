@@ -29,7 +29,6 @@ if [ $rank = 0 ]; then
     fi
     export LD_PRELOAD=libmpi.so
     export LD_LIBRARY_PATH=${installDir}/lib:$LD_LIBRARY_PATH
-    [ -n "$itools_cache_dir" ] && options+="-Ditools.cache.dir=$itools_cache_dir"
     [ -n "$powsybl_config_dirs" ] && options+=" -Dpowsybl.config.dirs=$powsybl_config_dirs"
     [ -n "$powsybl_config_name" ] && options+=" -Dpowsybl.config.name=$powsybl_config_name"
     options+=" -Dlogback.configurationFile="
