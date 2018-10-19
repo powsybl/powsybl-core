@@ -8,12 +8,13 @@ package com.powsybl.iidm.network.impl;
 
 import com.google.common.collect.*;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.math.graph.GraphUtil;
-import com.powsybl.math.graph.GraphUtil.ConnectedComponentsComputationResult;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.ext.TieLineExt;
 import com.powsybl.iidm.network.impl.util.RefChain;
 import com.powsybl.iidm.network.impl.util.RefObj;
+import com.powsybl.math.graph.GraphUtil;
+import com.powsybl.math.graph.GraphUtil.ConnectedComponentsComputationResult;
 import gnu.trove.list.array.TIntArrayList;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -955,21 +956,31 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         for (MergedLine mergedLine : lines) {
             LOGGER.debug("Replacing dangling line couple '{}' (xnode={}, country1={}, country2={}) by a line",
                     mergedLine.id, mergedLine.xnode, mergedLine.country1, mergedLine.country2);
-            TieLineAdderImpl la = newTieLine()
-                    .setId(mergedLine.id)
+            LineAdderImpl la = newLine();
+
+            la.setId(mergedLine.id)
                     .setVoltageLevel1(mergedLine.voltageLevel1)
                     .setVoltageLevel2(mergedLine.voltageLevel2)
-                    .line1().setId(mergedLine.half1.id)
-                            .setName(mergedLine.half1.name)
-                            .setR(mergedLine.half1.r)
-                            .setX(mergedLine.half1.x)
-                            .setG1(mergedLine.half1.g1)
-                            .setG2(mergedLine.half1.g2)
-                            .setB1(mergedLine.half1.b1)
-                            .setB2(mergedLine.half1.b2)
-                            .setXnodeP(mergedLine.half1.xnodeP)
-                            .setXnodeQ(mergedLine.half1.xnodeQ)
-                    .line2().setId(mergedLine.half2.id)
+                    .setR(mergedLine.half1.r + mergedLine.half2.r)
+                    .setX(mergedLine.half1.x + mergedLine.half2.x)
+                    .setG1(mergedLine.half1.g1 + mergedLine.half2.g1)
+                    .setG2(mergedLine.half1.g2 + mergedLine.half2.g2)
+                    .setB1(mergedLine.half1.b1 + mergedLine.half2.b1)
+                    .setB2(mergedLine.half1.b2 + mergedLine.half2.b2);
+
+            TieLineExt.HalfLineImpl line1 = new TieLineExt.HalfLineImpl();
+                    line1.setId(mergedLine.half1.id)
+                    .setName(mergedLine.half1.name)
+                    .setR(mergedLine.half1.r)
+                    .setX(mergedLine.half1.x)
+                    .setG1(mergedLine.half1.g1)
+                    .setG2(mergedLine.half1.g2)
+                    .setB1(mergedLine.half1.b1)
+                    .setB2(mergedLine.half1.b2)
+                    .setXnodeP(mergedLine.half1.xnodeP)
+                    .setXnodeQ(mergedLine.half1.xnodeQ);
+                    TieLineExt.HalfLineImpl line2 = new TieLineExt.HalfLineImpl();
+                    line2.setId(mergedLine.half2.id)
                             .setName(mergedLine.half2.name)
                             .setR(mergedLine.half2.r)
                             .setX(mergedLine.half2.x)
@@ -978,8 +989,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
                             .setB1(mergedLine.half2.b1)
                             .setB2(mergedLine.half2.b2)
                             .setXnodeP(mergedLine.half2.xnodeP)
-                            .setXnodeQ(mergedLine.half2.xnodeQ)
-                    .setUcteXnodeCode(mergedLine.xnode);
+                            .setXnodeQ(mergedLine.half2.xnodeQ);
             if (mergedLine.bus1 != null) {
                 la.setBus1(mergedLine.bus1);
             }
@@ -994,7 +1004,10 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
             if (mergedLine.node2 != null) {
                 la.setNode2(mergedLine.node2);
             }
-            TieLineImpl l = la.add();
+            LineImpl l = la.add();
+            TieLineExt tieLineExt = new TieLineExt(l, mergedLine.xnode, line1, line2);
+            l.addExtension(TieLineExt.class, tieLineExt);
+
             l.setCurrentLimits(Side.ONE, (CurrentLimitsImpl) mergedLine.limits1);
             l.setCurrentLimits(Side.TWO, (CurrentLimitsImpl) mergedLine.limits2);
             l.getTerminal1().setP(mergedLine.p1).setQ(mergedLine.q1);

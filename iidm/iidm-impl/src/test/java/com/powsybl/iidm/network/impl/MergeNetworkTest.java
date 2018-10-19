@@ -61,7 +61,14 @@ public class MergeNetworkTest {
         addSubstationAndVoltageLevel();
         addDanglingLine("dl1", "code", "dl2", "code");
         n1.merge(n2);
-        assertNotNull(n1.getLine("dl1 + dl2"));
+        Line line = n1.getLine("dl1 + dl2");
+        assertNotNull(line);
+        assertEquals(11.0, line.getR(), 0.0);
+        assertEquals(22.0, line.getX(), 0.0);
+        assertEquals(34.0, line.getG1(), 0.0);
+        assertEquals(45.0, line.getB1(), 0.0);
+        assertEquals(0.0, line.getG2(), 0.0);
+        assertEquals(0.0, line.getB2(), 0.0);
     }
 
     private void addSubstation(Network network, String substationId) {
