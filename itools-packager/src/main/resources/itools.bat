@@ -31,7 +31,7 @@ set parallel=false
 :continue
 if "%1"=="" ( goto done ) else (
   if "%1" == "--config-name" (
-    set itools_config_name=%2
+    set powsybl_config_name=%2
     shift
   ) else (
     if "%1" == "--parallel" (
@@ -49,14 +49,13 @@ if "%1"=="" ( goto done ) else (
 :done
 
 set options=
-if not "%itools_cache_dir%" == "" ( set options=-Ditools.cache.dir="%itools_cache_dir%" )
-if "%itools_config_dir%" == "" ( set itools_config_dir=%HOMEDRIVE%%HOMEPATH%\.itools)
-set options=%options% -Ditools.config.dir="%itools_config_dir%"
-if not "%itools_config_name%" == "" ( set options=%options% -Ditools.config.name=%itools_config_name%)
+if "%powsybl_config_dirs%" == "" ( set powsybl_config_dirs=%installDir%\etc:%HOMEDRIVE%%HOMEPATH%\.itools)
+set options=%options% -Dpowsybl.config.dirs="%powsybl_config_dirs%"
+if not "%powsybl_config_name%" == "" ( set options=%options% -Dpowsybl.config.name=%powsybl_config_name%)
 
 set options=%options% -Dlogback.configurationFile="
-if exist %itools_config_dir%\logback-itools.xml (
-  set options=%options%%itools_config_dir%
+if exist %powsybl_config_dirs%\logback-itools.xml (
+  set options=%options%%powsybl_config_dirs%
 ) else (
   set options=%options%%installDir%\etc
 )
