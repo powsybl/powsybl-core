@@ -27,9 +27,9 @@ public class ImportConfig implements Versionable {
 
     private static final String DEFAULT_CONFIG_VERSION = "1.0";
 
-    private final List<String> postProcessors;
+    private VersionConfig version = new VersionConfig(DEFAULT_CONFIG_VERSION);
 
-    private final VersionConfig version;
+    private final List<String> postProcessors;
 
     public static ImportConfig load() {
         return load(PlatformConfig.defaultConfig());
@@ -56,20 +56,16 @@ public class ImportConfig implements Versionable {
     }
 
     public ImportConfig(String... postProcessors) {
-        this(new VersionConfig(DEFAULT_CONFIG_VERSION), postProcessors);
-    }
-
-    public ImportConfig(VersionConfig version, String... postProcessors) {
-        this(version, Arrays.asList(postProcessors));
+        this(Arrays.asList(postProcessors));
     }
 
     public ImportConfig(List<String> postProcessors) {
-        this(new VersionConfig(DEFAULT_CONFIG_VERSION), postProcessors);
+        this.postProcessors = Objects.requireNonNull(postProcessors);
     }
 
     public ImportConfig(VersionConfig version, List<String> postProcessors) {
+        this(postProcessors);
         this.version = version;
-        this.postProcessors = Objects.requireNonNull(postProcessors);
     }
 
     public List<String> getPostProcessors() {

@@ -8,6 +8,7 @@ package com.powsybl.afs.ws.server.utils;
 
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.VersionConfig;
 
 import java.util.Objects;
 
@@ -20,6 +21,10 @@ public class SecurityConfig implements Versionable {
 
     private static final long DEFAULT_TOKEN_VALIDITY = 3600L; // minutes
     private static final boolean DEFAULT_SKIP_TOKEN_VALIDITY_CHECK = true;
+
+    private static final String DEFAULT_CONFIG_VERSION = "1.0";
+
+    private VersionConfig version = new VersionConfig(DEFAULT_CONFIG_VERSION);
 
     private long tokenValidity;
 
@@ -35,16 +40,27 @@ public class SecurityConfig implements Versionable {
     public static SecurityConfig load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         return platformConfig.getOptionalModuleConfig(CONFIG_MODULE_NAME)
-                .map(config -> new SecurityConfig(config.getOptionalLongProperty("token-validity")
-                        .orElse(DEFAULT_TOKEN_VALIDITY),
-                        config.getOptionalBooleanProperty("skip-token-validity-check")
-                                .orElse(DEFAULT_SKIP_TOKEN_VALIDITY_CHECK)))
+                .map(config ->
+                        config.getOptionalStringProperty("version")
+                                .map(v -> new SecurityConfig(new VersionConfig(v), config.getOptionalLongProperty("token-validity")
+                                        .orElse(DEFAULT_TOKEN_VALIDITY),
+                                        config.getOptionalBooleanProperty("skip-token-validity-check")
+                                                .orElse(DEFAULT_SKIP_TOKEN_VALIDITY_CHECK)))
+                                .orElseGet(() -> new SecurityConfig(config.getOptionalLongProperty("token-validity")
+                                        .orElse(DEFAULT_TOKEN_VALIDITY),
+                                        config.getOptionalBooleanProperty("skip-token-validity-check")
+                                                .orElse(DEFAULT_SKIP_TOKEN_VALIDITY_CHECK))))
                 .orElseGet(() -> new SecurityConfig(DEFAULT_TOKEN_VALIDITY, DEFAULT_SKIP_TOKEN_VALIDITY_CHECK));
     }
 
     public SecurityConfig(long tokenValidity, boolean skipTokenValidityCheck) {
         this.tokenValidity = checkTokenValidity(tokenValidity);
         this.skipTokenValidityCheck = skipTokenValidityCheck;
+    }
+
+    public SecurityConfig(VersionConfig version, long tokenValidity, boolean skipTokenValidityCheck) {
+        this(tokenValidity, skipTokenValidityCheck);
+        this.version = version;
     }
 
     public long getTokenValidity() {
@@ -70,6 +86,6 @@ public class SecurityConfig implements Versionable {
 
     @Override
     public String getVersion() {
-        return "1.0";
+        return this.version.toString();
     }
 }

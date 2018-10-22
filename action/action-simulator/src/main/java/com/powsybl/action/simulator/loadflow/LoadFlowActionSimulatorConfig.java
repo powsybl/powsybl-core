@@ -9,6 +9,7 @@ package com.powsybl.action.simulator.loadflow;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.VersionConfig;
 import com.powsybl.loadflow.LoadFlowFactory;
 
 import java.util.Objects;
@@ -32,8 +33,14 @@ public class LoadFlowActionSimulatorConfig implements Versionable {
         int maxIterations = config.getIntProperty("max-iterations");
         boolean ignorePreContingencyViolations = config.getBooleanProperty("ignore-pre-contingency-violations", false);
         boolean debug = config.getBooleanProperty("debug", false);
-        return new LoadFlowActionSimulatorConfig(loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations, debug);
+        return config.getOptionalStringProperty("version")
+                .map(v -> new LoadFlowActionSimulatorConfig(new VersionConfig(v), loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations, debug))
+                .orElseGet(() -> new LoadFlowActionSimulatorConfig(loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations, debug));
     }
+
+    private static final String DEFAULT_CONFIG_VERSION = "1.0";
+
+    private VersionConfig version = new VersionConfig(DEFAULT_CONFIG_VERSION);
 
     private Class<? extends LoadFlowFactory> loadFlowFactoryClass;
 
@@ -49,6 +56,12 @@ public class LoadFlowActionSimulatorConfig implements Versionable {
         this.maxIterations = maxIterations;
         this.ignorePreContingencyViolations = ignorePreContingencyViolations;
         this.debug = debug;
+    }
+
+    public LoadFlowActionSimulatorConfig(VersionConfig version, Class<? extends LoadFlowFactory> loadFlowFactoryClass, int maxIterations,
+                                         boolean ignorePreContingencyViolations, boolean debug) {
+        this(loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations, debug);
+        this.version = version;
     }
 
     public Class<? extends LoadFlowFactory> getLoadFlowFactoryClass() {
@@ -90,6 +103,6 @@ public class LoadFlowActionSimulatorConfig implements Versionable {
 
     @Override
     public String getVersion() {
-        return "1.0";
+        return this.version.toString();
     }
 }

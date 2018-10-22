@@ -43,7 +43,7 @@ public interface ComponentDefaultConfig {
          */
         private static ComponentDefaultConfig defaultConfig;
 
-        private final VersionConfig version;
+        private VersionConfig version = new VersionConfig(CONFIG_MODULE_NAME_V_1_0);
 
         private static synchronized ComponentDefaultConfig getDefaultConfig() {
             if (defaultConfig == null) {
@@ -54,9 +54,13 @@ public interface ComponentDefaultConfig {
 
         private final ModuleConfig config;
 
-        public Impl(VersionConfig version, ModuleConfig config) {
-            this.version = version;
+        public Impl(ModuleConfig config) {
             this.config = config;
+        }
+
+        public Impl(VersionConfig version, ModuleConfig config) {
+            this(config);
+            this.version = version;
         }
 
         @Override

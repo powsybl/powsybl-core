@@ -34,7 +34,7 @@ public class LocalComputationConfig implements Versionable {
 
     private static final String DEFAULT_CONFIG_VERSION = "1.0";
 
-    private final VersionConfig version;
+    private VersionConfig version = new VersionConfig(DEFAULT_CONFIG_VERSION);
 
     private final Path localDir;
 
@@ -93,17 +93,17 @@ public class LocalComputationConfig implements Versionable {
     }
 
     public LocalComputationConfig(Path localDir) {
-        this(new VersionConfig(DEFAULT_CONFIG_VERSION), localDir, DEFAULT_AVAILABLE_CORE);
+        this(localDir, DEFAULT_AVAILABLE_CORE);
     }
 
     public LocalComputationConfig(Path localDir, int availableCore) {
-        this(new VersionConfig(DEFAULT_CONFIG_VERSION), localDir, availableCore);
+        this.localDir = localDir;
+        this.availableCore = availableCore;
     }
 
     public LocalComputationConfig(VersionConfig version, Path localDir, int availableCore) {
+        this(localDir, availableCore);
         this.version = version;
-        this.localDir = localDir;
-        this.availableCore = availableCore;
     }
 
     public Path getLocalDir() {

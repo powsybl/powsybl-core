@@ -11,6 +11,7 @@ import com.powsybl.afs.storage.AbstractAppFileSystemConfig;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.VersionConfig;
 
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -26,6 +27,10 @@ import java.util.OptionalInt;
 public class LocalAppFileSystemConfig extends AbstractAppFileSystemConfig<LocalAppFileSystemConfig> implements Versionable {
 
     private static final String CONFIG_MODULE_NAME = "local-app-file-system";
+
+    private static final String DEFAULT_CONFIG_VERSION = "1.0";
+
+    private VersionConfig version = new VersionConfig(DEFAULT_CONFIG_VERSION);
 
     private Path rootDir;
 
@@ -47,7 +52,9 @@ public class LocalAppFileSystemConfig extends AbstractAppFileSystemConfig<LocalA
             String driveName = moduleConfig.getStringProperty(driveNameTag.toString());
             boolean remotelyAccessible = moduleConfig.getBooleanProperty(remotelyAccessibleTag.toString(), DEFAULT_REMOTELY_ACCESSIBLE);
             Path rootDir = moduleConfig.getPathProperty(rootDirTag.toString());
-            configs.add(new LocalAppFileSystemConfig(driveName, remotelyAccessible, rootDir));
+            configs.add(moduleConfig.getOptionalStringProperty("version")
+                    .map(v -> new LocalAppFileSystemConfig(new VersionConfig(v), driveName, remotelyAccessible, rootDir))
+                    .orElseGet(() -> new LocalAppFileSystemConfig(driveName, remotelyAccessible, rootDir)));
         }
     }
 
@@ -86,6 +93,11 @@ public class LocalAppFileSystemConfig extends AbstractAppFileSystemConfig<LocalA
         this.rootDir = checkRootDir(rootDir).toAbsolutePath();
     }
 
+    public LocalAppFileSystemConfig(VersionConfig version, String driveName, boolean remotelyAccessible, Path rootDir) {
+        this(driveName, remotelyAccessible, rootDir);
+        this.version = version;
+    }
+
     public Path getRootDir() {
         return rootDir;
     }
@@ -102,6 +114,6 @@ public class LocalAppFileSystemConfig extends AbstractAppFileSystemConfig<LocalA
 
     @Override
     public String getVersion() {
-        return "1.0";
+        return this.version.toString();
     }
 }

@@ -8,6 +8,7 @@ package com.powsybl.computation;
 
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.VersionConfig;
 import com.powsybl.commons.exceptions.UncheckedClassNotFoundException;
 import com.powsybl.commons.exceptions.UncheckedIllegalAccessException;
 import com.powsybl.commons.exceptions.UncheckedInstantiationException;
@@ -32,6 +33,10 @@ public class DefaultComputationManagerConfig implements Versionable {
     private static final String DEFAULT_SHORT_TIME_EXECUTION_COMPUTATION_MANAGER_FACTORY_CLASS
             = "com.powsybl.computation.local.LocalComputationManagerFactory";
 
+    private static final String DEFAULT_CONFIG_VERSION = "1.0";
+
+    private VersionConfig version = new VersionConfig(DEFAULT_CONFIG_VERSION);
+
     private final Class<? extends ComputationManagerFactory> shortTimeExecutionComputationManagerFactoryClass;
 
     private final Class<? extends ComputationManagerFactory> longTimeExecutionComputationManagerFactoryClass;
@@ -40,6 +45,12 @@ public class DefaultComputationManagerConfig implements Versionable {
                                            Class<? extends ComputationManagerFactory> longTimeExecutionComputationManagerFactoryClass) {
         this.shortTimeExecutionComputationManagerFactoryClass = Objects.requireNonNull(shortTimeExecutionComputationManagerFactoryClass);
         this.longTimeExecutionComputationManagerFactoryClass = longTimeExecutionComputationManagerFactoryClass;
+    }
+
+    public DefaultComputationManagerConfig(VersionConfig version, Class<? extends ComputationManagerFactory> shortTimeExecutionComputationManagerFactoryClass,
+                                           Class<? extends ComputationManagerFactory> longTimeExecutionComputationManagerFactoryClass) {
+        this(shortTimeExecutionComputationManagerFactoryClass, longTimeExecutionComputationManagerFactoryClass);
+        this.version = version;
     }
 
     public static DefaultComputationManagerConfig load() {
@@ -51,8 +62,11 @@ public class DefaultComputationManagerConfig implements Versionable {
 
         return platformConfig.getOptionalModuleConfig(CONFIG_MODULE_NAME)
                 .map(moduleConfig -> {
-                    DefaultComputationManagerConfig config = new DefaultComputationManagerConfig(moduleConfig.getClassProperty("short-time-execution-computation-manager-factory", ComputationManagerFactory.class),
-                            moduleConfig.getClassProperty("long-time-execution-computation-manager-factory", ComputationManagerFactory.class, null));
+                    Class<? extends ComputationManagerFactory> shortTimeExecutionComputationManagerFactoryClass = moduleConfig.getClassProperty("short-time-execution-computation-manager-factory", ComputationManagerFactory.class);
+                    Class<? extends ComputationManagerFactory> longTimeExecutionComputationManagerFactoryClass = moduleConfig.getClassProperty("long-time-execution-computation-manager-factory", ComputationManagerFactory.class, null);
+                    DefaultComputationManagerConfig config = moduleConfig.getOptionalStringProperty("version")
+                            .map(v -> new DefaultComputationManagerConfig(new VersionConfig(v), shortTimeExecutionComputationManagerFactoryClass, longTimeExecutionComputationManagerFactoryClass))
+                            .orElseGet(() -> new DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass, longTimeExecutionComputationManagerFactoryClass));
                     if (LOGGER.isInfoEnabled()) {
                         LOGGER.info(config.toString());
                     }
@@ -112,6 +126,6 @@ public class DefaultComputationManagerConfig implements Versionable {
 
     @Override
     public String getVersion() {
-        return "1.0";
+        return this.version.toString();
     }
 }

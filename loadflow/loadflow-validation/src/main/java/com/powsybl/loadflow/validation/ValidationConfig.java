@@ -10,8 +10,8 @@ import java.util.Objects;
 
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.ComponentDefaultConfig;
-import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.VersionConfig;
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterFactory;
 import com.powsybl.loadflow.LoadFlowFactory;
@@ -24,6 +24,7 @@ import com.powsybl.loadflow.LoadFlowParameters;
 public class ValidationConfig implements Versionable {
 
     private static final String CONFIG_MODULE_NAME = "loadflow-validation";
+    private static final String DEFAULT_CONFIG_VERSION = "1.0";
 
     public static final double THRESHOLD_DEFAULT = 0.0;
     public static final boolean VERBOSE_DEFAULT = false;
@@ -37,6 +38,7 @@ public class ValidationConfig implements Versionable {
     public static final boolean CHECK_MAIN_COMPONENT_ONLY_DEFAULT = true;
     public static final boolean NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS = false;
 
+    private VersionConfig version = new VersionConfig(DEFAULT_CONFIG_VERSION);
     private double threshold;
     private boolean verbose;
     private Class<? extends LoadFlowFactory> loadFlowFactory;
@@ -56,39 +58,34 @@ public class ValidationConfig implements Versionable {
     }
 
     public static ValidationConfig load(PlatformConfig platformConfig) {
-        double threshold = THRESHOLD_DEFAULT;
-        boolean verbose = VERBOSE_DEFAULT;
         ComponentDefaultConfig componentDefaultConfig = ComponentDefaultConfig.load(platformConfig);
-        Class<? extends LoadFlowFactory> loadFlowFactory = componentDefaultConfig.findFactoryImplClass(LoadFlowFactory.class);
-        Class<? extends TableFormatterFactory> tableFormatterFactory = TABLE_FORMATTER_FACTORY_DEFAULT;
-        double epsilonX = EPSILON_X_DEFAULT;
-        boolean applyReactanceCorrection = APPLY_REACTANCE_CORRECTION_DEFAULT;
-        ValidationOutputWriter validationOutputWriter = VALIDATION_OUTPUT_WRITER_DEFAULT;
-        boolean okMissingValues = OK_MISSING_VALUES_DEFAULT;
-        boolean noRequirementIfReactiveBoundInversion = NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT;
-        boolean compareResults = COMPARE_RESULTS_DEFAULT;
-        boolean checkMainComponentOnly = CHECK_MAIN_COMPONENT_ONLY_DEFAULT;
-        boolean noRequirementIfSetpointOutsidePowerBounds = NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS;
         LoadFlowParameters loadFlowParameter = LoadFlowParameters.load(platformConfig);
-        if (platformConfig.moduleExists(CONFIG_MODULE_NAME)) {
-            ModuleConfig config = platformConfig.getModuleConfig(CONFIG_MODULE_NAME);
-            threshold = config.getDoubleProperty("threshold", THRESHOLD_DEFAULT);
-            verbose = config.getBooleanProperty("verbose", VERBOSE_DEFAULT);
-            if (config.hasProperty("load-flow-factory")) {
-                loadFlowFactory = config.getClassProperty("load-flow-factory", LoadFlowFactory.class, componentDefaultConfig.findFactoryImplClass(LoadFlowFactory.class));
-            }
-            tableFormatterFactory = config.getClassProperty("table-formatter-factory", TableFormatterFactory.class, TABLE_FORMATTER_FACTORY_DEFAULT);
-            epsilonX = config.getDoubleProperty("epsilon-x", EPSILON_X_DEFAULT);
-            applyReactanceCorrection = config.getBooleanProperty("apply-reactance-correction", APPLY_REACTANCE_CORRECTION_DEFAULT);
-            validationOutputWriter = config.getEnumProperty("output-writer", ValidationOutputWriter.class, VALIDATION_OUTPUT_WRITER_DEFAULT);
-            okMissingValues = config.getBooleanProperty("ok-missing-values", OK_MISSING_VALUES_DEFAULT);
-            noRequirementIfReactiveBoundInversion = config.getBooleanProperty("no-requirement-if-reactive-bound-inversion", NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT);
-            compareResults = config.getBooleanProperty("compare-results", COMPARE_RESULTS_DEFAULT);
-            checkMainComponentOnly = config.getBooleanProperty("check-main-component-only", CHECK_MAIN_COMPONENT_ONLY_DEFAULT);
-            noRequirementIfSetpointOutsidePowerBounds = config.getBooleanProperty("no-requirement-if-setpoint-outside-power-bounds", NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
-        }
-        return new ValidationConfig(threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, loadFlowParameter,
-                                    okMissingValues, noRequirementIfReactiveBoundInversion, compareResults, checkMainComponentOnly, noRequirementIfSetpointOutsidePowerBounds);
+        return platformConfig.getOptionalModuleConfig(CONFIG_MODULE_NAME)
+                .map(config -> {
+                    double threshold = config.getDoubleProperty("threshold", THRESHOLD_DEFAULT);
+                    boolean verbose = config.getBooleanProperty("verbose", VERBOSE_DEFAULT);
+                    Class<? extends LoadFlowFactory> loadFlowFactory = config.getClassProperty("load-flow-factory", LoadFlowFactory.class, componentDefaultConfig.findFactoryImplClass(LoadFlowFactory.class));
+                    Class<? extends TableFormatterFactory> tableFormatterFactory = config.getClassProperty("table-formatter-factory", TableFormatterFactory.class, TABLE_FORMATTER_FACTORY_DEFAULT);
+                    double epsilonX = config.getDoubleProperty("epsilon-x", EPSILON_X_DEFAULT);
+                    boolean applyReactanceCorrection = config.getBooleanProperty("apply-reactance-correction", APPLY_REACTANCE_CORRECTION_DEFAULT);
+                    ValidationOutputWriter validationOutputWriter = config.getEnumProperty("output-writer", ValidationOutputWriter.class, VALIDATION_OUTPUT_WRITER_DEFAULT);
+                    boolean okMissingValues = config.getBooleanProperty("ok-missing-values", OK_MISSING_VALUES_DEFAULT);
+                    boolean noRequirementIfReactiveBoundInversion = config.getBooleanProperty("no-requirement-if-reactive-bound-inversion", NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT);
+                    boolean compareResults = config.getBooleanProperty("compare-results", COMPARE_RESULTS_DEFAULT);
+                    boolean checkMainComponentOnly = config.getBooleanProperty("check-main-component-only", CHECK_MAIN_COMPONENT_ONLY_DEFAULT);
+                    boolean noRequirementIfSetpointOutsidePowerBounds = config.getBooleanProperty("no-requirement-if-setpoint-outside-power-bounds", NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
+
+                    return config.getOptionalStringProperty("version")
+                            .map(v -> new ValidationConfig(new VersionConfig(v), threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection,
+                                    validationOutputWriter, loadFlowParameter, okMissingValues, noRequirementIfReactiveBoundInversion, compareResults, checkMainComponentOnly, noRequirementIfSetpointOutsidePowerBounds))
+                            .orElseGet(() -> new ValidationConfig(threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection,
+                                    validationOutputWriter, loadFlowParameter, okMissingValues, noRequirementIfReactiveBoundInversion, compareResults, checkMainComponentOnly, noRequirementIfSetpointOutsidePowerBounds));
+                })
+                .orElseGet(() -> new ValidationConfig(THRESHOLD_DEFAULT, VERBOSE_DEFAULT, componentDefaultConfig.findFactoryImplClass(LoadFlowFactory.class),
+                        TABLE_FORMATTER_FACTORY_DEFAULT, EPSILON_X_DEFAULT, APPLY_REACTANCE_CORRECTION_DEFAULT, VALIDATION_OUTPUT_WRITER_DEFAULT, loadFlowParameter,
+                        OK_MISSING_VALUES_DEFAULT, NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT, COMPARE_RESULTS_DEFAULT, CHECK_MAIN_COMPONENT_ONLY_DEFAULT, NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS));
+
+
     }
 
     public ValidationConfig(double threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory,
@@ -115,6 +112,16 @@ public class ValidationConfig implements Versionable {
         this.compareResults = compareResults;
         this.checkMainComponentOnly = checkMainComponentOnly;
         this.noRequirementIfSetpointOutsidePowerBounds = noRequirementIfSetpointOutsidePowerBounds;
+    }
+
+    public ValidationConfig(VersionConfig version, double threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory,
+                            Class<? extends TableFormatterFactory> tableFormatterFactory, double epsilonX,
+                            boolean applyReactanceCorrection, ValidationOutputWriter validationOutputWriter, LoadFlowParameters loadFlowParameters,
+                            boolean okMissingValues, boolean noRequirementIfReactiveBoundInversion, boolean compareResults, boolean checkMainComponentOnly,
+                            boolean noRequirementIfSetpointOutsidePowerBounds) {
+        this(threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, loadFlowParameters,
+                okMissingValues, noRequirementIfReactiveBoundInversion, compareResults, checkMainComponentOnly, noRequirementIfSetpointOutsidePowerBounds);
+        this.version = version;
     }
 
     public double getThreshold() {
@@ -247,6 +254,6 @@ public class ValidationConfig implements Versionable {
 
     @Override
     public String getVersion() {
-        return "1.0";
+        return this.version.toString();
     }
 }

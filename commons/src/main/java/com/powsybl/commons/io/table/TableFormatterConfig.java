@@ -7,8 +7,8 @@
 package com.powsybl.commons.io.table;
 
 import com.powsybl.commons.Versionable;
-import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.VersionConfig;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -26,6 +26,10 @@ public class TableFormatterConfig implements Versionable {
     private static final boolean DEFAULT_PRINT_HEADER = true;
     private static final boolean DEFAULT_PRINT_TITLE = true;
 
+    private static final String DEFAULT_CONFIG_VERSION = "1.0";
+
+    private VersionConfig version = new VersionConfig(DEFAULT_CONFIG_VERSION);
+
     private final Locale locale;
     private final char csvSeparator;
     private final String invalidString;
@@ -37,23 +41,21 @@ public class TableFormatterConfig implements Versionable {
     }
 
     public static TableFormatterConfig load(PlatformConfig platformConfig) {
-        String language = DEFAULT_LANGUAGE;
-        String separator = Character.toString(DEFAULT_CSV_SEPARATOR);
-        String invalidString = DEFAULT_INVALID_STRING;
-        boolean printHeader = DEFAULT_PRINT_HEADER;
-        boolean printTitle = DEFAULT_PRINT_TITLE;
+        return platformConfig.getOptionalModuleConfig(CONFIG_MODULE_NAME)
+                .map(config -> {
+                    String language = config.getStringProperty("language", DEFAULT_LANGUAGE);
+                    Locale locale = Locale.forLanguageTag(language);
+                    String separator = config.getStringProperty("separator", Character.toString(DEFAULT_CSV_SEPARATOR));
+                    String invalidString = config.getStringProperty("invalid-string", DEFAULT_INVALID_STRING);
+                    boolean printHeader = config.getBooleanProperty("print-header", DEFAULT_PRINT_HEADER);
+                    boolean printTitle = config.getBooleanProperty("print-title", DEFAULT_PRINT_TITLE);
+                    return config.getOptionalStringProperty("version")
+                            .map(v -> new TableFormatterConfig(new VersionConfig(v), locale, separator.charAt(0), invalidString, printHeader, printTitle))
+                            .orElseGet(() -> new TableFormatterConfig(locale, separator.charAt(0), invalidString, printHeader, printTitle));
+                })
+                .orElseGet(() -> new TableFormatterConfig(Locale.forLanguageTag(DEFAULT_LANGUAGE), Character.toString(DEFAULT_CSV_SEPARATOR).charAt(0),
+                        DEFAULT_INVALID_STRING, DEFAULT_PRINT_HEADER, DEFAULT_PRINT_TITLE));
 
-        if (platformConfig.moduleExists(CONFIG_MODULE_NAME)) {
-            ModuleConfig config = platformConfig.getModuleConfig(CONFIG_MODULE_NAME);
-            language = config.getStringProperty("language", DEFAULT_LANGUAGE);
-            separator = config.getStringProperty("separator", Character.toString(DEFAULT_CSV_SEPARATOR));
-            invalidString = config.getStringProperty("invalid-string", DEFAULT_INVALID_STRING);
-            printHeader = config.getBooleanProperty("print-header", DEFAULT_PRINT_HEADER);
-            printTitle = config.getBooleanProperty("print-title", DEFAULT_PRINT_TITLE);
-        }
-
-        Locale locale = Locale.forLanguageTag(language);
-        return new TableFormatterConfig(locale, separator.charAt(0), invalidString, printHeader, printTitle);
     }
 
     public TableFormatterConfig(Locale locale, char csvSeparator, String invalidString, boolean printHeader, boolean printTitle) {
@@ -75,6 +77,11 @@ public class TableFormatterConfig implements Versionable {
 
     public TableFormatterConfig() {
         this(DEFAULT_LOCALE, DEFAULT_INVALID_STRING);
+    }
+
+    public TableFormatterConfig(VersionConfig version, Locale locale, char csvSeparator, String invalidString, boolean printHeader, boolean printTitle) {
+        this(locale, csvSeparator, invalidString, printHeader, printTitle);
+        this.version = version;
     }
 
     public Locale getLocale() {
@@ -114,6 +121,6 @@ public class TableFormatterConfig implements Versionable {
 
     @Override
     public String getVersion() {
-        return "1.0";
+        return this.version.toString();
     }
 }

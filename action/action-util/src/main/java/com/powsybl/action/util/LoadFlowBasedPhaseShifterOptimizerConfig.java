@@ -9,6 +9,7 @@ package com.powsybl.action.util;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.VersionConfig;
 import com.powsybl.loadflow.LoadFlowFactory;
 
 import java.util.Objects;
@@ -28,14 +29,24 @@ public class LoadFlowBasedPhaseShifterOptimizerConfig implements Versionable {
         Objects.requireNonNull(platformConfig);
         ModuleConfig config = platformConfig.getModuleConfig(CONFIG_MODULE_NAME);
         Class<? extends LoadFlowFactory> loadFlowFactoryClass = config.getClassProperty("load-flow-factory", LoadFlowFactory.class);
-        return new LoadFlowBasedPhaseShifterOptimizerConfig(loadFlowFactoryClass);
-
+        return config.getOptionalStringProperty("version")
+                .map(v -> new LoadFlowBasedPhaseShifterOptimizerConfig(new VersionConfig(v), loadFlowFactoryClass))
+                .orElseGet(() -> new LoadFlowBasedPhaseShifterOptimizerConfig(loadFlowFactoryClass));
     }
+
+    private static final String DEFAULT_CONFIG_VERSION = "1.0";
+
+    private VersionConfig version = new VersionConfig(DEFAULT_CONFIG_VERSION);
 
     private Class<? extends LoadFlowFactory> loadFlowFactoryClass;
 
     public LoadFlowBasedPhaseShifterOptimizerConfig(Class<? extends LoadFlowFactory> loadFlowFactoryClass) {
         this.loadFlowFactoryClass = Objects.requireNonNull(loadFlowFactoryClass);
+    }
+
+    public LoadFlowBasedPhaseShifterOptimizerConfig(VersionConfig version, Class<? extends LoadFlowFactory> loadFlowFactoryClass) {
+        this(loadFlowFactoryClass);
+        this.version = version;
     }
 
     public Class<? extends LoadFlowFactory> getLoadFlowFactoryClass() {
@@ -53,6 +64,6 @@ public class LoadFlowBasedPhaseShifterOptimizerConfig implements Versionable {
 
     @Override
     public String getVersion() {
-        return "1.0";
+        return this.version.toString();
     }
 }

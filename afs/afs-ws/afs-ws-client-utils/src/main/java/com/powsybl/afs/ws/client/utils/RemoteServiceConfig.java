@@ -8,6 +8,7 @@ package com.powsybl.afs.ws.client.utils;
 
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.VersionConfig;
 import com.powsybl.commons.exceptions.UncheckedUriSyntaxException;
 
 import java.net.URI;
@@ -21,6 +22,10 @@ import java.util.Optional;
 public class RemoteServiceConfig implements Versionable {
 
     private static final String CONFIG_MODULE_NAME = "remote-service";
+
+    private static final String DEFAULT_CONFIG_VERSION = "1.0";
+
+    private VersionConfig version = new VersionConfig(DEFAULT_CONFIG_VERSION);
 
     private String hostName;
 
@@ -37,6 +42,11 @@ public class RemoteServiceConfig implements Versionable {
         this.secure = secure;
     }
 
+    public RemoteServiceConfig(VersionConfig version, String hostName, String appName, int port, boolean secure) {
+        this(hostName, appName, port, secure);
+        this.version = version;
+    }
+
     public static Optional<RemoteServiceConfig> load() {
         return load(PlatformConfig.defaultConfig());
     }
@@ -48,7 +58,9 @@ public class RemoteServiceConfig implements Versionable {
             String appName = moduleConfig.getStringProperty("app-name");
             boolean secure = moduleConfig.getBooleanProperty("secure", true);
             int port = moduleConfig.getIntProperty("port", secure ? 443 : 80);
-            return new RemoteServiceConfig(hostName, appName, port, secure);
+            return moduleConfig.getOptionalStringProperty("version")
+                    .map(v -> new RemoteServiceConfig(new VersionConfig(v), hostName, appName, port, secure))
+                    .orElseGet(() -> new RemoteServiceConfig(hostName, appName, port, secure));
         });
     }
 
@@ -123,6 +135,6 @@ public class RemoteServiceConfig implements Versionable {
 
     @Override
     public String getVersion() {
-        return "1.0";
+        return this.version.toString();
     }
 }
