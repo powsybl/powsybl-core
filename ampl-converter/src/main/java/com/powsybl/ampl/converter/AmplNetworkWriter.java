@@ -21,6 +21,7 @@ import java.util.Objects;
 import java.util.Set;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.ext.TieLineExt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -166,9 +167,9 @@ public class AmplNetworkWriter {
         return middleCcNum;
     }
 
-    private static int getTieLineMiddleBusComponentNum(AmplExportContext context, TieLine tieLine) {
-        Terminal t1 = tieLine.getTerminal1();
-        Terminal t2 = tieLine.getTerminal2();
+    private static int getTieLineMiddleBusComponentNum(AmplExportContext context, TieLineExt tieLine) {
+        Terminal t1 = tieLine.getExtendable().getTerminal1();
+        Terminal t2 = tieLine.getExtendable().getTerminal2();
         Bus b1 = AmplUtil.getBus(t1);
         Bus b2 = AmplUtil.getBus(t2);
         int xNodeCcNum;
@@ -264,7 +265,7 @@ public class AmplNetworkWriter {
                     if (!l.isTieLine()) {
                         continue;
                     }
-                    TieLine tieLine = (TieLine) l;
+                    TieLineExt tieLine = l.getExtension(TieLineExt.class);
                     String vlId = AmplUtil.getXnodeVoltageLevelId(tieLine);
                     int num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vlId);
                     formatter.writeCell(num)
@@ -278,7 +279,7 @@ public class AmplNetworkWriter {
                             .writeCell(XNODE_COUNTRY_NAME)
                             .writeCell(AmplUtil.getXnodeBusId(tieLine) + "_voltageLevel")
                             .writeCell("");
-                    addExtensions(num, tieLine);
+                    addExtensions(num, tieLine.getExtendable());
                 }
             }
         }
@@ -437,7 +438,7 @@ public class AmplNetworkWriter {
             if (!l.isTieLine()) {
                 continue;
             }
-            TieLine tieLine = (TieLine) l;
+            TieLineExt tieLine = l.getExtension(TieLineExt.class);
 
             int xNodeCcNum = getTieLineMiddleBusComponentNum(context, tieLine);
             if (connectedComponentToExport(xNodeCcNum)) {
@@ -544,7 +545,7 @@ public class AmplNetworkWriter {
 
             boolean merged = !config.isExportXNodes() && l.isTieLine();
             if (config.isExportXNodes() && l.isTieLine()) {
-                TieLine tl = (TieLine) l;
+                TieLineExt tl = l.getExtension(TieLineExt.class);
                 String half1Id = tl.getHalf1().getId();
                 String half2Id = tl.getHalf2().getId();
                 int half1Num = mapper.getInt(AmplSubset.BRANCH, half1Id);

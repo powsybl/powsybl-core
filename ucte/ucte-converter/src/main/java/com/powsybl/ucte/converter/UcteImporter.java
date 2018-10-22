@@ -19,6 +19,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.ext.TieLineExt;
 import com.powsybl.ucte.network.*;
 import com.powsybl.ucte.network.ext.UcteNetworkExt;
 import com.powsybl.ucte.network.ext.UcteSubstation;
@@ -824,7 +825,7 @@ public class UcteImporter implements Importer {
                 double xnodeQ2 = dl2.getQ0();
                 String xnodeCode = dl1.getExtension(Xnode.class).getCode();
 
-                TieLine mergeLine = network.newTieLine()
+                Line mergeLine = network.newLine()
                         .setId(mergeLineId)
                         .setVoltageLevel1(dl1.getTerminal().getVoltageLevel().getId())
                         .setConnectableBus1(getBusId(dl1.getTerminal().getBusBreakerView().getConnectableBus()))
@@ -832,8 +833,15 @@ public class UcteImporter implements Importer {
                         .setVoltageLevel2(dl2.getTerminal().getVoltageLevel().getId())
                         .setConnectableBus2(getBusId(dl2.getTerminal().getBusBreakerView().getConnectableBus()))
                         .setBus2(getBusId(dl2.getTerminal().getBusBreakerView().getBus()))
-                        .line1()
-                        .setId(dl1.getId())
+                        .setR(dl1.getR() + dl2.getR())
+                        .setX(dl1.getX() + dl2.getX())
+                        .setG1(dl1.getG())
+                        .setB1(dl1.getB())
+                        .setG2(dl2.getG())
+                        .setB2(dl2.getB())
+                        .add();
+                TieLineExt.HalfLineImpl hl1 = new TieLineExt.HalfLineImpl();
+                hl1.setId(dl1.getId())
                         .setR(dl1.getR())
                         .setX(dl1.getX())
                         .setG1(dl1.getG())
@@ -841,9 +849,9 @@ public class UcteImporter implements Importer {
                         .setB1(dl1.getB())
                         .setB2(0.0)
                         .setXnodeP(xnodeP1)
-                        .setXnodeQ(xnodeQ1)
-                        .line2()
-                        .setId(dl2.getId())
+                        .setXnodeQ(xnodeQ1);
+                TieLineExt.HalfLineImpl hl2 = new TieLineExt.HalfLineImpl();
+                hl2.setId(dl2.getId())
                         .setR(dl2.getR())
                         .setX(dl2.getX())
                         .setG1(0.0)
@@ -851,11 +859,11 @@ public class UcteImporter implements Importer {
                         .setB1(0.0)
                         .setB2(dl2.getB())
                         .setXnodeP(xnodeP2)
-                        .setXnodeQ(xnodeQ2)
-                        .setUcteXnodeCode(xnodeCode)
-                        .add();
+                        .setXnodeQ(xnodeQ2);
+                TieLineExt tieLineExt = new TieLineExt(mergeLine, xnodeCode, hl1, hl2);
+                mergeLine.addExtension(TieLineExt.class, tieLineExt);
 
-                addElementNameProperty(mergeLine, dl1, dl2);
+                addElementNameProperty(tieLineExt, dl1, dl2);
 
 
                 if (dl1.getCurrentLimits() != null) {
@@ -878,13 +886,13 @@ public class UcteImporter implements Importer {
         }
     }
 
-    private static void addElementNameProperty(TieLine tieLine, DanglingLine dl1, DanglingLine dl2) {
+    private static void addElementNameProperty(TieLineExt tieLine, DanglingLine dl1, DanglingLine dl2) {
         if (dl1.getProperties().containsKey(ELEMENT_NAME_PROPERTY_KEY)) {
-            tieLine.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", dl1.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY));
+            tieLine.getExtendable().getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", dl1.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY));
         }
 
         if (dl2.getProperties().containsKey(ELEMENT_NAME_PROPERTY_KEY)) {
-            tieLine.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", dl2.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY));
+            tieLine.getExtendable().getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", dl2.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY));
         }
     }
 

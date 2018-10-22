@@ -969,7 +969,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
                     .setB2(mergedLine.half1.b2 + mergedLine.half2.b2);
 
             TieLineExt.HalfLineImpl line1 = new TieLineExt.HalfLineImpl();
-                    line1.setId(mergedLine.half1.id)
+            line1.setId(mergedLine.half1.id)
                     .setName(mergedLine.half1.name)
                     .setR(mergedLine.half1.r)
                     .setX(mergedLine.half1.x)
@@ -979,17 +979,17 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
                     .setB2(mergedLine.half1.b2)
                     .setXnodeP(mergedLine.half1.xnodeP)
                     .setXnodeQ(mergedLine.half1.xnodeQ);
-                    TieLineExt.HalfLineImpl line2 = new TieLineExt.HalfLineImpl();
-                    line2.setId(mergedLine.half2.id)
-                            .setName(mergedLine.half2.name)
-                            .setR(mergedLine.half2.r)
-                            .setX(mergedLine.half2.x)
-                            .setG1(mergedLine.half2.g1)
-                            .setG2(mergedLine.half2.g2)
-                            .setB1(mergedLine.half2.b1)
-                            .setB2(mergedLine.half2.b2)
-                            .setXnodeP(mergedLine.half2.xnodeP)
-                            .setXnodeQ(mergedLine.half2.xnodeQ);
+            TieLineExt.HalfLineImpl line2 = new TieLineExt.HalfLineImpl();
+            line2.setId(mergedLine.half2.id)
+                    .setName(mergedLine.half2.name)
+                    .setR(mergedLine.half2.r)
+                    .setX(mergedLine.half2.x)
+                    .setG1(mergedLine.half2.g1)
+                    .setG2(mergedLine.half2.g2)
+                    .setB1(mergedLine.half2.b1)
+                    .setB2(mergedLine.half2.b2)
+                    .setXnodeP(mergedLine.half2.xnodeP)
+                    .setXnodeQ(mergedLine.half2.xnodeQ);
             if (mergedLine.bus1 != null) {
                 la.setBus1(mergedLine.bus1);
             }

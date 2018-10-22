@@ -14,7 +14,7 @@ import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.ext.TieLineExt;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -82,25 +82,25 @@ public class UcteImporterTest {
         // Test tie line
         // cannot refer to side of tieline directly cause order of half lines may change
         // at import : due to HashSet iterator on dangling lines ?
-        TieLine tieLine1 = (TieLine) network.getLineStream().filter(Line::isTieLine)
-                .filter(line -> {
-                    TieLine tl = (TieLine) line;
-                    return tl.getHalf1().getId().equals("XB__F_11 B_SU1_11 1") || tl.getHalf2().getId().equals("XB__F_11 B_SU1_11 1");
+        TieLineExt tieLine1 = network.getLineStream().filter(Line::isTieLine)
+                .map(l -> l.getExtension(TieLineExt.class))
+                .filter(ext -> {
+                    return ext.getHalf1().getId().equals("XB__F_11 B_SU1_11 1") || ext.getHalf2().getId().equals("XB__F_11 B_SU1_11 1");
                 }).findAny().get();
         String expectedElementName1 = tieLine1.getHalf1().getId().equals("XB__F_11 B_SU1_11 1") ? "Test TL 1/2" : "Test TL 1/1";
         String expectedElementName2 = tieLine1.getHalf2().getId().equals("XB__F_11 B_SU1_11 1") ? "Test TL 1/2" : "Test TL 1/1";
-        assertEquals(expectedElementName1, tieLine1.getProperties().getProperty("elementName_1"));
-        assertEquals(expectedElementName2, tieLine1.getProperties().getProperty("elementName_2"));
+        assertEquals(expectedElementName1, tieLine1.getExtendable().getProperties().getProperty("elementName_1"));
+        assertEquals(expectedElementName2, tieLine1.getExtendable().getProperties().getProperty("elementName_2"));
 
-        TieLine tieLine2 = (TieLine) network.getLineStream().filter(Line::isTieLine)
-                .filter(line -> {
-                    TieLine tl = (TieLine) line;
-                    return tl.getHalf1().getId().equals("XB__F_21 B_SU1_21 1") || tl.getHalf2().getId().equals("XB__F_21 B_SU1_21 1");
+        TieLineExt tieLine2 = network.getLineStream().filter(Line::isTieLine)
+                .map(l -> l.getExtension(TieLineExt.class))
+                .filter(ext -> {
+                    return ext.getHalf1().getId().equals("XB__F_21 B_SU1_21 1") || ext.getHalf2().getId().equals("XB__F_21 B_SU1_21 1");
                 }).findAny().get();
         expectedElementName1 = tieLine2.getHalf1().getId().equals("XB__F_21 B_SU1_21 1") ? "Test TL 2/2" : "Test TL 2/1";
         expectedElementName2 = tieLine2.getHalf2().getId().equals("XB__F_21 B_SU1_21 1") ? "Test TL 2/2" : "Test TL 2/1";
-        assertEquals(expectedElementName1, tieLine2.getProperties().getProperty("elementName_1"));
-        assertEquals(expectedElementName2, tieLine2.getProperties().getProperty("elementName_2"));
+        assertEquals(expectedElementName1, tieLine2.getExtendable().getProperties().getProperty("elementName_1"));
+        assertEquals(expectedElementName2, tieLine2.getExtendable().getProperties().getProperty("elementName_2"));
     }
 
     @Test

@@ -10,6 +10,7 @@ package com.powsybl.ampl.converter;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
+import com.powsybl.iidm.network.ext.TieLineExt;
 
 /**
  *
@@ -55,11 +56,11 @@ public final class AmplUtil {
         return mapper;
     }
 
-    static String getXnodeBusId(TieLine tieLine) {
+    static String getXnodeBusId(TieLineExt tieLine) {
         return tieLine.getUcteXnodeCode();
     }
 
-    static String getXnodeVoltageLevelId(TieLine tieLine) {
+    static String getXnodeVoltageLevelId(TieLineExt tieLine) {
         return tieLine.getUcteXnodeCode();
     }
 
@@ -107,7 +108,7 @@ public final class AmplUtil {
         for (Line l : network.getLines()) {
             mapper.newInt(AmplSubset.BRANCH, l.getId());
             if (l.isTieLine()) {
-                TieLine tl = (TieLine) l;
+                TieLineExt tl = l.getExtension(TieLineExt.class);
                 mapper.newInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getXnodeVoltageLevelId(tl));
                 mapper.newInt(AmplSubset.BUS, AmplUtil.getXnodeBusId(tl));
                 mapper.newInt(AmplSubset.BRANCH, tl.getHalf1().getId());

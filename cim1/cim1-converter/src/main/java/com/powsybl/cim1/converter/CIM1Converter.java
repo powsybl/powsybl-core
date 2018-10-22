@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import com.powsybl.entsoe.util.EntsoeFileName;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.ext.TieLineExt;
 import org.jgrapht.UndirectedGraph;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
@@ -321,7 +322,20 @@ class CIM1Converter implements CIM1Constants {
             LOGGER.trace("Create merged line {} between bus {} and bus {}",
                     namingStrategy.getId(l1), namingStrategy.getId(tn1), namingStrategy.getId(xn));
         }
-        Line line = network.newTieLine()
+
+        double hl1r = l1.getR();
+        double hl1x = l1.getX();
+        double hl1g1 = l1.getGch() / 2;
+        double hl1g2 = l1.getGch() / 2;
+        double hl1b1 = l1.getBch() / 2;
+        double hl1b2 = l1.getBch() / 2;
+        double hl2r = l2.getR();
+        double hl2x = l2.getX();
+        double hl2g1 = l2.getGch() / 2;
+        double hl2g2 = l2.getGch() / 2;
+        double hl2b1 = l2.getBch() / 2;
+        double hl2b2 = l2.getBch() / 2;
+        Line line = network.newLine()
                 .setId(namingStrategy.getId(l1) + " + " + namingStrategy.getId(l2))
                 .setName(namingStrategy.getName(l1) + " + " + namingStrategy.getName(l2))
                 .setEnsureIdUnicity(false)
@@ -331,28 +345,37 @@ class CIM1Converter implements CIM1Constants {
                 .setConnectableBus2(namingStrategy.getId(tn2))
                 .setVoltageLevel1(voltageLevelId1)
                 .setVoltageLevel2(voltageLevelId2)
-                .line1().setId(namingStrategy.getId(l1))
-                        .setName(namingStrategy.getName(l1))
-                        .setR(l1.getR())
-                        .setX(l1.getX())
-                        .setG1(l1.getGch() / 2)
-                        .setG2(l1.getGch() / 2)
-                        .setB1(l1.getBch() / 2)
-                        .setB2(l1.getBch() / 2)
-                        .setXnodeP(0)
-                        .setXnodeQ(0)
-                .line2().setId(namingStrategy.getId(l2))
-                        .setName(namingStrategy.getName(l2))
-                        .setR(l2.getR())
-                        .setX(l2.getX())
-                        .setG1(l2.getGch() / 2)
-                        .setG2(l2.getGch() / 2)
-                        .setB1(l2.getBch() / 2)
-                        .setB2(l2.getBch() / 2)
-                        .setXnodeP(0)
-                        .setXnodeQ(0)
-                .setUcteXnodeCode(findUcteXnodeCode(xn))
-            .add();
+                .setR(hl1r + hl2r)
+                .setX(hl1x + hl2x)
+                .setG1(hl1g1 + hl2g1)
+                .setB1(hl1b1 + hl2b1)
+                .setG2(hl1g2 + hl2g2)
+                .setB2(hl1b2 + hl2b2)
+                .add();
+        TieLineExt.HalfLineImpl hl1 = new TieLineExt.HalfLineImpl();
+        hl1.setId(namingStrategy.getId(l1))
+                .setName(namingStrategy.getName(l1))
+                .setR(hl1r)
+                .setX(hl1x)
+                .setG1(hl1g1)
+                .setG2(hl1g2)
+                .setB1(hl1b1)
+                .setB2(hl1b2)
+                .setXnodeP(0)
+                .setXnodeQ(0);
+        TieLineExt.HalfLineImpl hl2 = new TieLineExt.HalfLineImpl();
+        hl2.setId(namingStrategy.getId(l2))
+                .setName(namingStrategy.getName(l2))
+                .setR(l2.getR())
+                .setX(l2.getX())
+                .setG1(hl2g1)
+                .setG2(hl2g2)
+                .setB1(hl2b1)
+                .setB2(hl2b2)
+                .setXnodeP(0)
+                .setXnodeQ(0);
+        TieLineExt tieLineExt = new TieLineExt(line, findUcteXnodeCode(xn), hl1, hl2);
+        line.addExtension(TieLineExt.class, tieLineExt);
         addTerminalMapping(tn1, line.getTerminal1());
         addTerminalMapping(tn2, line.getTerminal2());
 
