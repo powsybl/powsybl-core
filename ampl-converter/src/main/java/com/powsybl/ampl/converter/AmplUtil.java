@@ -86,7 +86,7 @@ public final class AmplUtil {
         network.getLoadStream().forEach(l -> mapper.newInt(AmplSubset.LOAD, l.getId()));
 
         // shunts
-        network.getShuntStream().forEach(sc -> mapper.newInt(AmplSubset.SHUNT, sc.getId()));
+        network.getShuntCompensatorStream().forEach(sc -> mapper.newInt(AmplSubset.SHUNT, sc.getId()));
 
         // generators
         network.getGeneratorStream().forEach(g -> mapper.newInt(AmplSubset.GENERATOR, g.getId()));
