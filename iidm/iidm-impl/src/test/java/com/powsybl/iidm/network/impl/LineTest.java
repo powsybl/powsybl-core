@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.ext.TieLineExt;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.Before;
 import org.junit.Rule;
@@ -200,7 +201,7 @@ public class LineTest {
     }
 
     @Test
-    public void testTieLineAdder() {
+    public void testTieLineExt() {
         double r = 10.0;
         double r2 = 1.0;
         double x = 20.0;
@@ -217,42 +218,52 @@ public class LineTest {
         double xnodeQ = 60.0;
 
         // adder
-        TieLine tieLine = network.newTieLine().setId("testTie")
-            .setName("testNameTie")
-            .setVoltageLevel1("vl1")
-            .setBus1("busA")
-            .setConnectableBus1("busA")
-            .setVoltageLevel2("vl2")
-            .setBus2("busB")
-            .setConnectableBus2("busB")
-            .setUcteXnodeCode("ucte")
-            .line1()
-            .setId("hl1")
-            .setName("half1_name")
-            .setR(r)
-            .setX(x)
-            .setB1(hl1b1)
-            .setB2(hl1b2)
-            .setG1(hl1g1)
-            .setG2(hl1g2)
-            .setXnodeQ(xnodeQ)
-            .setXnodeP(xnodeP)
-            .line2()
-            .setId("hl2")
-            .setR(r2)
-            .setX(x2)
-            .setB1(hl2b1)
-            .setB2(hl2b2)
-            .setG1(hl2g1)
-            .setG2(hl2g2)
-            .setXnodeP(xnodeP)
-            .setXnodeQ(xnodeQ)
-            .add();
+        Line tieLine = network.newLine().setId("testTie")
+                .setName("testNameTie")
+                .setVoltageLevel1("vl1")
+                .setBus1("busA")
+                .setConnectableBus1("busA")
+                .setVoltageLevel2("vl2")
+                .setBus2("busB")
+                .setConnectableBus2("busB")
+                .setR(r + r2)
+                .setX(x + x2)
+                .setB1(hl1b1 + hl2b1)
+                .setB2(hl1b2 + hl2b2)
+                .setG1(hl1g1 + hl2g1)
+                .setG2(hl1g2 + hl2g2)
+                .add();
+
+        TieLineExt.HalfLineImpl hl1 = new TieLineExt.HalfLineImpl();
+        hl1.setId("hl1")
+                .setName("half1_name")
+                .setR(r)
+                .setX(x)
+                .setB1(hl1b1)
+                .setB2(hl1b2)
+                .setG1(hl1g1)
+                .setG2(hl1g2)
+                .setXnodeQ(xnodeQ)
+                .setXnodeP(xnodeP);
+        TieLineExt.HalfLineImpl hl2 = new TieLineExt.HalfLineImpl();
+        hl2.setId("hl2")
+                .setR(r2)
+                .setX(x2)
+                .setB1(hl2b1)
+                .setB2(hl2b2)
+                .setG1(hl2g1)
+                .setG2(hl2g2)
+                .setXnodeP(xnodeP)
+                .setXnodeQ(xnodeQ);
+
+        TieLineExt tieLineExt = new TieLineExt(tieLine, "ucte", hl1, hl2);
+        tieLine.addExtension(TieLineExt.class, tieLineExt);
+
         assertTrue(tieLine.isTieLine());
         assertEquals(ConnectableType.LINE, tieLine.getType());
-        assertEquals("ucte", tieLine.getUcteXnodeCode());
-        assertEquals("half1_name", tieLine.getHalf1().getName());
-        assertEquals("hl2", tieLine.getHalf2().getId());
+        assertEquals("ucte", tieLineExt.getUcteXnodeCode());
+        assertEquals("half1_name", tieLineExt.getHalf1().getName());
+        assertEquals("hl2", tieLineExt.getHalf2().getId());
         assertEquals(r + r2, tieLine.getR(), 0.0);
         assertEquals(x + x2, tieLine.getX(), 0.0);
         assertEquals(hl1g1 + hl2g1, tieLine.getG1(), 0.0);
@@ -260,44 +271,7 @@ public class LineTest {
         assertEquals(hl1b1 + hl2b1, tieLine.getB1(), 0.0);
         assertEquals(hl1b2 + hl2b2, tieLine.getB2(), 0.0);
 
-        // invalid set line characteristics on tieLine
-        try {
-            tieLine.setR(1.0);
-            fail();
-        } catch (ValidationException ignored) {
-        }
-
-        try {
-            tieLine.setX(1.0);
-            fail();
-        } catch (ValidationException ignored) {
-        }
-
-        try {
-            tieLine.setB1(1.0);
-            fail();
-        } catch (ValidationException ignored) {
-        }
-
-        try {
-            tieLine.setB2(1.0);
-            fail();
-        } catch (ValidationException ignored) {
-        }
-
-        try {
-            tieLine.setG1(1.0);
-            fail();
-        } catch (ValidationException ignored) {
-        }
-
-        try {
-            tieLine.setG2(1.0);
-            fail();
-        } catch (ValidationException ignored) {
-        }
-
-        TieLineImpl.HalfLine half1 = tieLine.getHalf1();
+        TieLineExt.HalfLine half1 = tieLineExt.getHalf1();
         assertEquals(xnodeP, half1.getXnodeP(), 0.0);
         assertEquals(xnodeQ, half1.getXnodeQ(), 0.0);
     }
@@ -305,7 +279,7 @@ public class LineTest {
     @Test
     public void invalidHalfLineCharacteristicsR() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("r is not set for half line");
+        thrown.expectMessage("AC Line 'invalid': r is invalid");
         createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", Double.NaN, 2.0,
             3.0, 3.5, 4.0, 4.5, 5.0, 6.0, "code");
     }
@@ -313,7 +287,7 @@ public class LineTest {
     @Test
     public void invalidHalfLineCharacteristicsX() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("x is not set for half line");
+        thrown.expectMessage("AC Line 'invalid': x is invalid");
         createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0, Double.NaN,
             3.0, 3.5, 4.0, 4.5, 5.0, 6.0, "code");
     }
@@ -321,7 +295,7 @@ public class LineTest {
     @Test
     public void invalidHalfLineCharacteristicsG1() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("g1 is not set for half line");
+        thrown.expectMessage("AC Line 'invalid': g1 is invalid");
         createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0, 2.0,
             Double.NaN, 3.5, 4.0, 4.5, 5.0, 6.0, "code");
     }
@@ -329,7 +303,7 @@ public class LineTest {
     @Test
     public void invalidHalfLineCharacteristicsG2() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("g2 is not set for half line");
+        thrown.expectMessage("AC Line 'invalid': g2 is invalid");
         createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0, 2.0,
             3.0, Double.NaN, 4.0, 4.5, 5.0, 6.0, "code");
     }
@@ -337,7 +311,7 @@ public class LineTest {
     @Test
     public void invalidHalfLineCharacteristicsB1() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("b1 is not set for half line");
+        thrown.expectMessage("AC Line 'invalid': b1 is invalid");
         createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0, 2.0,
             3.0, 3.5, Double.NaN, 4.5, 5.0, 6.0, "code");
     }
@@ -345,14 +319,14 @@ public class LineTest {
     @Test
     public void invalidHalfLineCharacteristicsB2() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("b2 is not set for half line");
+        thrown.expectMessage("AC Line 'invalid': b2 is invalid");
         createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0, 2.0,
             3.0, 3.5, 4.0, Double.NaN, 5.0, 6.0, "code");
     }
 
     @Test
     public void invalidHalfLineCharacteristicsP() {
-        thrown.expect(ValidationException.class);
+        thrown.expect(PowsyblException.class);
         thrown.expectMessage("xnodeP is not set for half line");
         createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0, 2.0,
             3.0, 3.5, 4.0, 4.5, Double.NaN, 6.0, "code");
@@ -360,26 +334,10 @@ public class LineTest {
 
     @Test
     public void invalidHalfLineCharacteristicsQ() {
-        thrown.expect(ValidationException.class);
+        thrown.expect(PowsyblException.class);
         thrown.expectMessage("xnodeQ is not set for half line");
         createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0, 2.0,
             3.0, 3.5, 4.0, 4.5, 5.0, Double.NaN, "code");
-    }
-
-    @Test
-    public void halfLineIdNull() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("id is not set for half line");
-        createTieLineWithHalfline2ByDefault("invalid", "invalid", null, 1.0, 2.0,
-            3.0, 3.5, 4.0, 4.5, 5.0, 6.0, "code");
-    }
-
-    @Test
-    public void uctecodeNull() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("ucteXnodeCode is not set");
-        createTieLineWithHalfline2ByDefault("invalid", "invalid", "invalid", 1.0, 2.0,
-            3.0, 3.5, 4.0, 4.5, 5.0, 6.0, null);
     }
 
     @Test
@@ -428,38 +386,45 @@ public class LineTest {
     private void createTieLineWithHalfline2ByDefault(String id, String name, String halfLineId, double r, double x,
                                                      double g1, double g2, double b1, double b2,
                                                      double xnodeP, double xnodeQ, String code) {
-        network.newTieLine()
-            .setId(id)
-            .setName(name)
-            .line1()
-            .setId(halfLineId)
-            .setName("half1_name")
-            .setR(r)
-            .setX(x)
-            .setB1(b1)
-            .setB2(b2)
-            .setG1(g1)
-            .setG2(g2)
-            .setXnodeQ(xnodeQ)
-            .setXnodeP(xnodeP)
-            .line2()
-            .setId("hl2")
-            .setName("half2_name")
-            .setR(1.0)
-            .setX(2.0)
-            .setB1(3.0)
-            .setB2(3.5)
-            .setG1(4.0)
-            .setG2(4.5)
-            .setXnodeP(5.0)
-            .setXnodeQ(6.0)
-            .setVoltageLevel1("vl1")
-            .setBus1("busA")
-            .setConnectableBus1("busA")
-            .setVoltageLevel2("vl2")
-            .setBus2("busB")
-            .setConnectableBus2("busB")
-            .setUcteXnodeCode(code)
-            .add();
+        Line line = network.newLine()
+                .setId(id)
+                .setName(name)
+                .setVoltageLevel1("vl1")
+                .setBus1("busA")
+                .setConnectableBus1("busA")
+                .setVoltageLevel2("vl2")
+                .setBus2("busB")
+                .setConnectableBus2("busB")
+                .setR(1.0 + r)
+                .setX(2.0 + x)
+                .setG1(4.0 + g1)
+                .setB1(3.0 + b1)
+                .setG2(4.5 + g2)
+                .setB2(3.5 + b2)
+                .add();
+        TieLineExt.HalfLineImpl hl1 = new TieLineExt.HalfLineImpl();
+        hl1.setId(halfLineId)
+                .setName("half1_name")
+                .setR(r)
+                .setX(x)
+                .setB1(b1)
+                .setB2(b2)
+                .setG1(g1)
+                .setG2(g2)
+                .setXnodeQ(xnodeQ)
+                .setXnodeP(xnodeP);
+        TieLineExt.HalfLineImpl hl2 = new TieLineExt.HalfLineImpl();
+        hl2.setId("hl2")
+                .setName("half2_name")
+                .setR(1.0)
+                .setX(2.0)
+                .setB1(3.0)
+                .setB2(3.5)
+                .setG1(4.0)
+                .setG2(4.5)
+                .setXnodeP(5.0)
+                .setXnodeQ(6.0);
+        TieLineExt tieLineExt = new TieLineExt(line, code, hl1, hl2);
+        line.addExtension(TieLineExt.class, tieLineExt);
     }
 }

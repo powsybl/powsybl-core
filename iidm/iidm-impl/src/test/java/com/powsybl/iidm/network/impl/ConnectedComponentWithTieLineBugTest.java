@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.ext.TieLineExt;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -60,7 +61,7 @@ public class ConnectedComponentWithTieLineBugTest {
                 .setP0(0.0)
                 .setQ0(0.0)
                 .add();
-        n.newTieLine()
+        Line line = n.newLine()
                 .setId("l1 + l2")
                 .setVoltageLevel1("vl1")
                 .setConnectableBus1("b1")
@@ -68,28 +69,35 @@ public class ConnectedComponentWithTieLineBugTest {
                 .setVoltageLevel2("vl2")
                 .setConnectableBus2("b2")
                 .setBus2("b2")
-                .line1()
-                .setId("l1")
-                .setR(1.0)
-                .setX(1.0)
+                .setR(2.0)
+                .setX(2.0)
                 .setG1(0.0)
-                .setG2(0.0)
                 .setB1(0.0)
-                .setB2(0.0)
-                .setXnodeP(0.0)
-                .setXnodeQ(0.0)
-                .line2()
-                .setId("l2")
-                .setR(1.0)
-                .setX(1.0)
-                .setG1(0.0)
                 .setG2(0.0)
-                .setB1(0.0)
                 .setB2(0.0)
-                .setXnodeP(0.0)
-                .setXnodeQ(0.0)
-                .setUcteXnodeCode("XNODE")
                 .add();
+        TieLineExt.HalfLineImpl hl1 = new TieLineExt.HalfLineImpl();
+        hl1.setId("l1")
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setG2(0.0)
+                .setB1(0.0)
+                .setB2(0.0)
+                .setXnodeP(0.0)
+                .setXnodeQ(0.0);
+        TieLineExt.HalfLineImpl hl2 = new TieLineExt.HalfLineImpl();
+        hl2.setId("l2")
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setG2(0.0)
+                .setB1(0.0)
+                .setB2(0.0)
+                .setXnodeP(0.0)
+                .setXnodeQ(0.0);
+        TieLineExt tieLineExt = new TieLineExt(line, "XNODE", hl1, hl2);
+        line.addExtension(TieLineExt.class, tieLineExt);
         assertEquals(0, b1.getConnectedComponent().getNum());
         assertEquals(0, b2.getConnectedComponent().getNum());
     }

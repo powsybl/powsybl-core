@@ -80,7 +80,7 @@ public class TieLineExtXmlTest extends AbstractConverterTest {
         Line line = network.newLine().setId(id)
                 .setR(r1 + r2)
                 .setX(x1 + x2)
-                .setG1(hl1g1 + hl2g2)
+                .setG1(hl1g1 + hl2g1)
                 .setG2(hl1g2 + hl2g2)
                 .setB1(hl1b1 + hl2b1)
                 .setB2(hl1b2 + hl2b2)
