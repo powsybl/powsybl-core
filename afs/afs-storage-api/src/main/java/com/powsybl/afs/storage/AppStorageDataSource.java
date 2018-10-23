@@ -190,7 +190,7 @@ public class AppStorageDataSource implements DataSource {
 
                     @Override
                     public String onSuffixAndExtension(SuffixAndExtension suffixAndExtension) throws IOException {
-                        throw new AssertionError("Unknown suffix-and-extension data source name " + name);
+                        throw new AssertionError("Don't know how to unmap suffix-and-extension to a data source name " + name);
                     }
 
                     @Override
@@ -199,8 +199,9 @@ public class AppStorageDataSource implements DataSource {
                     }
 
                     @Override
-                    public String onOther(Name name) {
-                        throw new AssertionError("Unknown data source name " + name);
+                    public String onOther(Name otherName) {
+                        // Return the original name
+                        return name;
                     }
                 }))
                 .collect(Collectors.toSet());
