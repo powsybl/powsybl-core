@@ -31,7 +31,7 @@ public class NullPointerWhenRemovingMergedLineBugTest {
         vl1.getBusBreakerView().newBus()
                 .setId("b1")
                 .add();
-        vl1.newDanglingLine()
+        vl1.newBoundaryLine()
                 .setId("dl1")
                 .setConnectableBus("b1")
                 .setBus("b1")
@@ -56,7 +56,7 @@ public class NullPointerWhenRemovingMergedLineBugTest {
         vl2.getBusBreakerView().newBus()
                 .setId("b2")
                 .add();
-        vl2.newDanglingLine()
+        vl2.newBoundaryLine()
                 .setId("dl2")
                 .setConnectableBus("b2")
                 .setBus("b2")
@@ -69,12 +69,12 @@ public class NullPointerWhenRemovingMergedLineBugTest {
                 .setUcteXnodeCode("XNODE")
                 .add();
         assertEquals(0, n1.getLineCount());
-        assertEquals(1, n1.getDanglingLineCount());
+        assertEquals(1, n1.getBoundaryLineCount());
         assertEquals(0, n2.getLineCount());
-        assertEquals(1, n2.getDanglingLineCount());
+        assertEquals(1, n2.getBoundaryLineCount());
         n1.merge(n2);
         assertEquals(1, n1.getLineCount());
-        assertEquals(0, n1.getDanglingLineCount());
+        assertEquals(0, n1.getBoundaryLineCount());
         n1.getLine("dl1 + dl2").remove();
         for (Bus b : n1.getBusBreakerView().getBuses()) {
             // throws an exception if bug already present

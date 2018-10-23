@@ -8,7 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.CurrentLimitsAdder;
 import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 
@@ -16,7 +16,7 @@ import gnu.trove.list.array.TDoubleArrayList;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements DanglingLine, CurrentLimitsOwner<Void> {
+class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements BoundaryLine, CurrentLimitsOwner<Void> {
 
     private final Ref<? extends MultiStateObject> network;
 
@@ -38,7 +38,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private final TDoubleArrayList q0;
 
-    DanglingLineImpl(Ref<? extends MultiStateObject> network, String id, String name, double p0, double q0, double r, double x, double g, double b, String ucteXnodeCode) {
+    BoundaryLineImpl(Ref<? extends MultiStateObject> network, String id, String name, double p0, double q0, double r, double x, double g, double b, String ucteXnodeCode) {
         super(id, name);
         this.network = network;
         int stateArraySize = network.get().getStateManager().getStateArraySize();
@@ -76,7 +76,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public DanglingLineImpl setP0(double p0) {
+    public BoundaryLineImpl setP0(double p0) {
         ValidationUtil.checkP0(this, p0);
         double oldValue = this.p0.set(network.get().getStateIndex(), p0);
         notifyUpdate("p0", oldValue, p0);
@@ -89,7 +89,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public DanglingLineImpl setQ0(double q0) {
+    public BoundaryLineImpl setQ0(double q0) {
         ValidationUtil.checkQ0(this, q0);
         double oldValue = this.q0.set(network.get().getStateIndex(), q0);
         notifyUpdate("q0", oldValue, q0);
@@ -102,7 +102,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public DanglingLineImpl setR(double r) {
+    public BoundaryLineImpl setR(double r) {
         ValidationUtil.checkR(this, r);
         double oldValue = this.r;
         this.r = r;
@@ -116,7 +116,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public DanglingLineImpl setX(double x) {
+    public BoundaryLineImpl setX(double x) {
         ValidationUtil.checkX(this, x);
         double oldValue = this.x;
         this.x = x;
@@ -130,7 +130,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public DanglingLineImpl setG(double g) {
+    public BoundaryLineImpl setG(double g) {
         ValidationUtil.checkG(this, g);
         double oldValue = this.g;
         this.g = g;
@@ -144,7 +144,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public DanglingLineImpl setB(double b) {
+    public BoundaryLineImpl setB(double b) {
         ValidationUtil.checkB(this, b);
         double oldValue = this.b;
         this.b = b;

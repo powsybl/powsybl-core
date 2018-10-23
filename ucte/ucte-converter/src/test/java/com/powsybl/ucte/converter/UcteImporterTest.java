@@ -73,7 +73,7 @@ public class UcteImporterTest {
         // Test Element name Line
         assertEquals("Test Line", network.getLine("F_SU1_12 F_SU2_11 1").getProperties().getProperty("elementName"));
         // Test Dangling Line element name
-        assertEquals("Test DL", network.getDanglingLine("XG__F_21 F_SU1_21 1").getProperties().getProperty("elementName"));
+        assertEquals("Test DL", network.getBoundaryLine("XG__F_21 F_SU1_21 1").getProperties().getProperty("elementName"));
         // Test Switch element name
         assertEquals("Test Coupler", network.getSwitch("F_SU1_12 F_SU1_11 1").getProperties().getProperty("elementName"));
         // Test 2WT element name
@@ -81,7 +81,7 @@ public class UcteImporterTest {
         assertEquals("Test 2WT 2", network.getBranch("B_SU1_11 B_SU1_21 1").getProperties().getProperty("elementName"));
         // Test tie line
         // cannot refer to side of tieline directly cause order of half lines may change
-        // at import : due to HashSet iterator on dangling lines ?
+        // at import : due to HashSet iterator on boundary lines ?
         TieLineExt tieLine1 = network.getLineStream().filter(Line::isTieLine)
                 .map(l -> l.getExtension(TieLineExt.class))
                 .filter(ext -> {
@@ -109,7 +109,7 @@ public class UcteImporterTest {
         Network network = new UcteImporter().importData(dataSource, null);
 
         assertEquals(2, network.getVoltageLevelCount());
-        assertEquals(1, network.getDanglingLineCount());
+        assertEquals(1, network.getBoundaryLineCount());
         assertEquals(1, network.getLineCount());
         Line l = network.getLineStream().findFirst().orElseThrow(AssertionError::new);
         assertEquals("ESNODE11 XXNODE11 1 + FRNODE11 XXNODE11 1", l.getId());

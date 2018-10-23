@@ -10,7 +10,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
@@ -19,7 +19,7 @@ import java.io.InputStream;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ExtensionXmlSerializer.class)
-public class XnodeXmlSerializer implements ExtensionXmlSerializer<DanglingLine, Xnode> {
+public class XnodeXmlSerializer implements ExtensionXmlSerializer<BoundaryLine, Xnode> {
 
     @Override
     public String getExtensionName() {
@@ -62,7 +62,7 @@ public class XnodeXmlSerializer implements ExtensionXmlSerializer<DanglingLine, 
     }
 
     @Override
-    public Xnode read(DanglingLine dl, XmlReaderContext context) {
+    public Xnode read(BoundaryLine dl, XmlReaderContext context) {
         String code = context.getReader().getAttributeValue(null, "code");
         return new Xnode(dl, code);
     }

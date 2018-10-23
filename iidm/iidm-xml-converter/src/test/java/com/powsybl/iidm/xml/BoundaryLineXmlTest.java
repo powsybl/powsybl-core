@@ -7,7 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.Test;
@@ -25,14 +25,14 @@ public class BoundaryLineXmlTest extends AbstractConverterTest {
     @Test
     public void testReadV10() throws IOException {
         Network network = NetworkXml.read(getClass().getResourceAsStream("/refs_V1_0/danglingLineRef.xml"));
-        DanglingLine dl = network.getDanglingLine("DL");
+        BoundaryLine dl = network.getBoundaryLine("DL");
         assertNotNull(dl);
         assertEquals(6.0, dl.getR(), 0.0);
     }
 
     @Test
-    public void danglingLine() throws IOException {
-        roundTripXmlTest(NoEquipmentNetworkFactory.createWithDanglingLine(),
+    public void boundaryLine() throws IOException {
+        roundTripXmlTest(NoEquipmentNetworkFactory.createWithBoundaryLine(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read, "/boundaryLineRef.xml");
     }

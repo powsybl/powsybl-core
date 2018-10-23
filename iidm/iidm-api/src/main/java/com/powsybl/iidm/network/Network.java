@@ -369,26 +369,26 @@ public interface Network extends Container<Network> {
     ShuntCompensator getShunt(String id);
 
     /**
-     * Get all dangling lines.
+     * Get all boundary lines.
      */
-    Iterable<DanglingLine> getDanglingLines();
+    Iterable<BoundaryLine> getBoundaryLines();
 
     /**
-     * Get all dangling lines.
+     * Get all boundary lines.
      */
-    Stream<DanglingLine> getDanglingLineStream();
+    Stream<BoundaryLine> getBoundaryLineStream();
 
     /**
-     * Get the dangling line count.
+     * Get the boundary line count.
      */
-    int getDanglingLineCount();
+    int getBoundaryLineCount();
 
     /**
-     * Get a dangling line.
+     * Get a boundary line.
      *
-     * @param id the id of the dangling line
+     * @param id the id of the boundary line
      */
-    DanglingLine getDanglingLine(String id);
+    BoundaryLine getBoundaryLine(String id);
 
     /**
      * Get all static var compensators.

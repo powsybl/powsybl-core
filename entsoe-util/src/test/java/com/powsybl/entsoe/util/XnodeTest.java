@@ -6,7 +6,7 @@
  */
 package com.powsybl.entsoe.util;
 
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -19,7 +19,7 @@ public class XnodeTest {
 
     @Test
     public void test() {
-        DanglingLine dl = Mockito.mock(DanglingLine.class);
+        BoundaryLine dl = Mockito.mock(BoundaryLine.class);
         Xnode xnode = new Xnode(dl, "XXXXXX11");
 
         assertEquals("xnode", xnode.getName());

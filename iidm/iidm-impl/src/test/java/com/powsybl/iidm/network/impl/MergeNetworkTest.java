@@ -109,7 +109,7 @@ public class MergeNetworkTest {
     }
 
     private void addDanglingLine(String dl1, String code1, String dl2, String code2) {
-        n1.getVoltageLevel("vl1").newDanglingLine()
+        n1.getVoltageLevel("vl1").newBoundaryLine()
                 .setId(dl1)
                 .setConnectableBus("b1")
                 .setBus("b1")
@@ -121,7 +121,7 @@ public class MergeNetworkTest {
                 .setB(5.0)
                 .setUcteXnodeCode(code1)
                 .add();
-        n2.getVoltageLevel("vl2").newDanglingLine()
+        n2.getVoltageLevel("vl2").newBoundaryLine()
                 .setId(dl2)
                 .setConnectableBus("b2")
                 .setBus("b2")

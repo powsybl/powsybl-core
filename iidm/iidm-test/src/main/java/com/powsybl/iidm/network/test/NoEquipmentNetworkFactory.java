@@ -51,9 +51,9 @@ public final class NoEquipmentNetworkFactory {
         return network;
     }
 
-    public static Network createWithDanglingLine() {
+    public static Network createWithBoundaryLine() {
         Network network = create();
-        network.getVoltageLevel("vl1").newDanglingLine()
+        network.getVoltageLevel("vl1").newBoundaryLine()
                 .setId("DL")
                 .setUcteXnodeCode("ucte")
                 .setConnectableBus("busA")

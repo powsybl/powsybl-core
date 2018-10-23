@@ -43,7 +43,7 @@ public final class DanglingLineNetworkFactory {
             .setTargetQ(30.0)
             .setBus("BUS")
             .add();
-        DanglingLine danglingLine = voltageLevel.newDanglingLine()
+        BoundaryLine boundaryLine = voltageLevel.newBoundaryLine()
             .setId("DL")
             .setBus("BUS")
             .setR(10.0)
@@ -53,7 +53,7 @@ public final class DanglingLineNetworkFactory {
             .setP0(50.0)
             .setQ0(30.0)
             .add();
-        danglingLine.newCurrentLimits()
+        boundaryLine.newCurrentLimits()
             .setPermanentLimit(100.0)
             .beginTemporaryLimit()
                 .setName("20'")

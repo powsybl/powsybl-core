@@ -251,7 +251,7 @@ public class UcteImporter implements Importer {
 
         UcteNode ucteXnode = ucteNetwork.getNode(ucteXnodeCode);
 
-        LOGGER.warn("Create small impedance dangling line '{}{}' (coupler connected to XNODE '{}')",
+        LOGGER.warn("Create small impedance boundary line '{}{}' (coupler connected to XNODE '{}')",
                 xNodeName, yNodeName, ucteXnode.getCode());
 
         float p0 = 0;
@@ -269,8 +269,8 @@ public class UcteImporter implements Importer {
             q0 += ucteXnode.getReactivePowerGeneration();
         }
 
-        // create small impedance dangling line connected to the YNODE
-        DanglingLine xNodeDanglingLine = xNodeVoltageLevel.newDanglingLine()
+        // create small impedance boundary line connected to the YNODE
+        BoundaryLine xNodeBoundaryLine = xNodeVoltageLevel.newBoundaryLine()
                 .setId(xNodeName + yNodeName)
                 .setBus(yNodeName)
                 .setConnectableBus(yNodeName)
@@ -283,9 +283,9 @@ public class UcteImporter implements Importer {
                 .setUcteXnodeCode(ucteXnode.getCode().toString())
                 .add();
 
-        addElementNameProperty(ucteLine, xNodeDanglingLine);
+        addElementNameProperty(ucteLine, xNodeBoundaryLine);
 
-        xNodeDanglingLine.addExtension(Xnode.class, new Xnode(xNodeDanglingLine, ucteXnode.getCode().toString()));
+        xNodeBoundaryLine.addExtension(Xnode.class, new Xnode(xNodeBoundaryLine, ucteXnode.getCode().toString()));
 
         // create coupler between YNODE and other node
         xNodeVoltageLevel.getBusBreakerView().newSwitch()
@@ -301,7 +301,7 @@ public class UcteImporter implements Importer {
                                            UcteNode xnode, UcteNodeCode nodeCode, UcteVoltageLevel ucteVoltageLevel,
                                            Network network) {
 
-        LOGGER.trace("Create dangling line '{}' (Xnode='{}')", ucteLine.getId(), xnode.getCode());
+        LOGGER.trace("Create boundary line '{}' (Xnode='{}')", ucteLine.getId(), xnode.getCode());
 
         float p0 = 0;
         if (isValueValid(xnode.getActiveLoad())) {
@@ -319,7 +319,7 @@ public class UcteImporter implements Importer {
         }
 
         VoltageLevel voltageLevel = network.getVoltageLevel(ucteVoltageLevel.getName());
-        DanglingLine dl = voltageLevel.newDanglingLine()
+        BoundaryLine dl = voltageLevel.newBoundaryLine()
                 .setId(ucteLine.getId().toString())
                 .setBus(connected ? nodeCode.toString() : null)
                 .setConnectableBus(nodeCode.toString())
@@ -587,7 +587,7 @@ public class UcteImporter implements Importer {
 
         UcteNode ucteXnode = ucteNetwork.getNode(xNodeCode);
 
-        LOGGER.warn("Create small impedance dangling line '{}{}' (transformer connected to XNODE '{}')",
+        LOGGER.warn("Create small impedance boundary line '{}{}' (transformer connected to XNODE '{}')",
                 xNodeName, yNodeName, ucteXnode.getCode());
 
         float p0 = 0;
@@ -605,8 +605,8 @@ public class UcteImporter implements Importer {
             q0 += ucteXnode.getReactivePowerGeneration();
         }
 
-        // create a small impedance dangling line connected to the YNODE
-        DanglingLine yDanglingLine = yVoltageLevel.newDanglingLine()
+        // create a small impedance boundary line connected to the YNODE
+        BoundaryLine yBoundaryLine = yVoltageLevel.newBoundaryLine()
                 .setId(xNodeName + " " + yNodeName)
                 .setBus(yNodeName)
                 .setConnectableBus(yNodeName)
@@ -618,7 +618,7 @@ public class UcteImporter implements Importer {
                 .setQ0(q0)
                 .setUcteXnodeCode(ucteXnode.getCode().toString())
                 .add();
-        yDanglingLine.addExtension(Xnode.class, new Xnode(yDanglingLine, ucteXnode.getCode().toString()));
+        yBoundaryLine.addExtension(Xnode.class, new Xnode(yBoundaryLine, ucteXnode.getCode().toString()));
 
         String voltageLevelId1;
         String voltageLevelId2;
@@ -779,13 +779,13 @@ public class UcteImporter implements Importer {
         return bus != null ? bus.getId() : null;
     }
 
-    private static DanglingLine getMatchingDanglingLine(DanglingLine dl1, Multimap<String, DanglingLine> danglingLinesByXnodeCode) {
-        DanglingLine dl2 = null;
+    private static BoundaryLine getMatchingBoundaryLine(BoundaryLine dl1, Multimap<String, BoundaryLine> boundaryLinesByXnodeCode) {
+        BoundaryLine dl2 = null;
         String otherXnodeCode = dl1.getExtension(Xnode.class).getCode();
-        Iterator<DanglingLine> it = danglingLinesByXnodeCode.get(otherXnodeCode).iterator();
-        DanglingLine first = it.next();
+        Iterator<BoundaryLine> it = boundaryLinesByXnodeCode.get(otherXnodeCode).iterator();
+        BoundaryLine first = it.next();
         if (it.hasNext()) {
-            DanglingLine second = it.next();
+            BoundaryLine second = it.next();
             if (dl1 == first) {
                 dl2 = second;
             } else if (dl1 == second) {
@@ -794,22 +794,22 @@ public class UcteImporter implements Importer {
                 throw new AssertionError("Inconsistent XNODE index");
             }
             if (it.hasNext()) {
-                throw new UcteException("More that 2 dangling lines have the same XNODE " + dl1.getUcteXnodeCode());
+                throw new UcteException("More that 2 boundary lines have the same XNODE " + dl1.getUcteXnodeCode());
             }
         }
         return dl2;
     }
 
     private void mergeXnodeDanglingLines(Network network) {
-        Multimap<String, DanglingLine> danglingLinesByXnodeCode = HashMultimap.create();
-        for (DanglingLine dl : network.getDanglingLines()) {
-            danglingLinesByXnodeCode.put(dl.getExtension(Xnode.class).getCode(), dl);
+        Multimap<String, BoundaryLine> boundaryLinesByXnodeCode = HashMultimap.create();
+        for (BoundaryLine dl : network.getBoundaryLines()) {
+            boundaryLinesByXnodeCode.put(dl.getExtension(Xnode.class).getCode(), dl);
         }
 
-        Set<DanglingLine> danglingLinesToProcess = Sets.newHashSet(network.getDanglingLines());
-        while (!danglingLinesToProcess.isEmpty()) {
-            DanglingLine dl1 = danglingLinesToProcess.iterator().next();
-            DanglingLine dl2 = getMatchingDanglingLine(dl1, danglingLinesByXnodeCode);
+        Set<BoundaryLine> boundaryLinesToProcesses = Sets.newHashSet(network.getBoundaryLines());
+        while (!boundaryLinesToProcesses.isEmpty()) {
+            BoundaryLine dl1 = boundaryLinesToProcesses.iterator().next();
+            BoundaryLine dl2 = getMatchingBoundaryLine(dl1, boundaryLinesByXnodeCode);
 
             if (dl2 != null) {
                 // lexical sort to always end up with same merge line id
@@ -880,13 +880,13 @@ public class UcteImporter implements Importer {
                 dl1.remove();
                 dl2.remove();
 
-                danglingLinesToProcess.remove(dl2);
+                boundaryLinesToProcesses.remove(dl2);
             }
-            danglingLinesToProcess.remove(dl1);
+            boundaryLinesToProcesses.remove(dl1);
         }
     }
 
-    private static void addElementNameProperty(TieLineExt tieLine, DanglingLine dl1, DanglingLine dl2) {
+    private static void addElementNameProperty(TieLineExt tieLine, BoundaryLine dl1, BoundaryLine dl2) {
         if (dl1.getProperties().containsKey(ELEMENT_NAME_PROPERTY_KEY)) {
             tieLine.getExtendable().getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", dl1.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY));
         }

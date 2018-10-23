@@ -140,7 +140,7 @@ public class AmplNetworkReader {
             l.getTerminal().setP(p).setQ(q);
             busConnection(l.getTerminal(), busNum);
         } else {
-            DanglingLine dl = network.getDanglingLine(id);
+            BoundaryLine dl = network.getBoundaryLine(id);
             if (dl != null) {
                 dl.setP0(p0).setQ0(q0);
                 dl.getTerminal().setP(p).setQ(q);
@@ -291,7 +291,7 @@ public class AmplNetworkReader {
             return null;
         }
 
-        DanglingLine dl = network.getDanglingLine(id);
+        BoundaryLine dl = network.getBoundaryLine(id);
         if (dl != null) {
             dl.getTerminal().setP(p1).setQ(q1);
             busConnection(dl.getTerminal(), busNum);

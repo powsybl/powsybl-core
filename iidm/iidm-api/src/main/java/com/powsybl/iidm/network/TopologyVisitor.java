@@ -26,7 +26,7 @@ public interface TopologyVisitor {
 
     void visitShuntCompensator(ShuntCompensator sc);
 
-    void visitDanglingLine(DanglingLine danglingLine);
+    void visitDanglingLine(BoundaryLine boundaryLine);
 
     void visitStaticVarCompensator(StaticVarCompensator staticVarCompensator);
 

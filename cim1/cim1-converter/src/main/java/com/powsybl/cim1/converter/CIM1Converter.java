@@ -258,10 +258,10 @@ class CIM1Converter implements CIM1Constants {
         float b = l.getBch();
         float g = l.getGch();
         if (LOGGER.isTraceEnabled()) {
-            LOGGER.trace("Create dangling line {} connected to bus {}", namingStrategy.getId(l), namingStrategy.getId(tn1));
+            LOGGER.trace("Create boundary line {} connected to bus {}", namingStrategy.getId(l), namingStrategy.getId(tn1));
         }
         boolean connected = t1.isConnected() && t2.isConnected() && ect2isConnected;
-        DanglingLine dl = voltageLevel1.newDanglingLine()
+        BoundaryLine dl = voltageLevel1.newBoundaryLine()
                 .setId(namingStrategy.getId(l))
                 .setName(namingStrategy.getName(l))
                 .setEnsureIdUnicity(false)
@@ -400,7 +400,7 @@ class CIM1Converter implements CIM1Constants {
                 if (boundaryXNodes.containsKey(tn1)) {
                     // side 1 of the line is connected to a XNODE. Only one load
                     // is connected to the XNODE => replace the line, the XNODE
-                    // and the load by an IIDM dangling line
+                    // and the load by an IIDM boundary line
                     cim1.model.EnergyConsumer ec1 = boundaryXNodes.get(tn1);
                     createDanglingLine(network, l, t2, t1, tn2, tn1, ec1, noOperationalLimitInOperationalLimitSet);
                 }
@@ -410,7 +410,7 @@ class CIM1Converter implements CIM1Constants {
                 if (boundaryXNodes.containsKey(tn2)) {
                     // side 2 of the line is connected to a XNODE. Only one load
                     // is connected to the XNODE => replace the line, the XNODE
-                    // and the load by an IIDM dangling line
+                    // and the load by an IIDM boundary line
                     cim1.model.EnergyConsumer ec2 = boundaryXNodes.get(tn2);
                     createDanglingLine(network, l, t1, t2, tn1, tn2, ec2, noOperationalLimitInOperationalLimitSet);
                 } else {

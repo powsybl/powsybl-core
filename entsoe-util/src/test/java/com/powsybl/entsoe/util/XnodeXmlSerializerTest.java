@@ -31,7 +31,7 @@ public class XnodeXmlSerializerTest extends AbstractConverterTest {
         vl.getBusBreakerView().newBus()
                 .setId("B")
                 .add();
-        vl.newDanglingLine()
+        vl.newBoundaryLine()
                 .setId("DL")
                 .setBus("B")
                 .setR(1.0)
@@ -49,7 +49,7 @@ public class XnodeXmlSerializerTest extends AbstractConverterTest {
         Network network = createTestNetwork();
 
         // extends dangling line
-        DanglingLine dl = network.getDanglingLine("DL");
+        BoundaryLine dl = network.getBoundaryLine("DL");
         Xnode xnode = new Xnode(dl, "XXXXXX11");
         dl.addExtension(Xnode.class, xnode);
 
@@ -58,7 +58,7 @@ public class XnodeXmlSerializerTest extends AbstractConverterTest {
                 NetworkXml::read,
                 "/xnodeRef.xml");
 
-        DanglingLine dl2 = network2.getDanglingLine("DL");
+        BoundaryLine dl2 = network2.getBoundaryLine("DL");
         Xnode xnode2 = dl2.getExtension(Xnode.class);
         assertNotNull(xnode2);
         assertEquals(xnode.getCode(), xnode2.getCode());

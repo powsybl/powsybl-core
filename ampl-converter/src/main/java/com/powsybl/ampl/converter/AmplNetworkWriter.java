@@ -145,15 +145,15 @@ public class AmplNetworkWriter {
         return middleCcNum;
     }
 
-    private static String getDanglingLineMiddleBusId(DanglingLine dl) {
+    private static String getDanglingLineMiddleBusId(BoundaryLine dl) {
         return dl.getId(); // same id as the dangling line
     }
 
-    private static String getDanglingLineMiddleVoltageLevelId(DanglingLine dl) {
+    private static String getDanglingLineMiddleVoltageLevelId(BoundaryLine dl) {
         return dl.getId(); // same id as the dangling line
     }
 
-    private static int getDanglingLineMiddleBusComponentNum(AmplExportContext context, DanglingLine dl) {
+    private static int getDanglingLineMiddleBusComponentNum(AmplExportContext context, BoundaryLine dl) {
         Bus b = AmplUtil.getBus(dl.getTerminal());
         int middleCcNum;
         // if the connection bus of the dangling line is null or not in the main cc, the middle bus is
@@ -240,7 +240,7 @@ public class AmplNetworkWriter {
                 addExtensions(num, twt);
             }
             // voltage level associated to dangling lines middle bus
-            for (DanglingLine dl : network.getDanglingLines()) {
+            for (BoundaryLine dl : network.getBoundaryLines()) {
                 String vlId = getDanglingLineMiddleVoltageLevelId(dl);
                 int num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vlId);
                 VoltageLevel vl = dl.getTerminal().getVoltageLevel();
@@ -404,7 +404,7 @@ public class AmplNetworkWriter {
     }
 
     private void writeDanglingLineMiddleBuses(AmplExportContext context, TableFormatter formatter) throws IOException {
-        for (DanglingLine dl : network.getDanglingLines()) {
+        for (BoundaryLine dl : network.getBoundaryLines()) {
             Terminal t = dl.getTerminal();
             Bus b = AmplUtil.getBus(dl.getTerminal());
 
@@ -872,7 +872,7 @@ public class AmplNetworkWriter {
     }
 
     private void writeDanglingLines(AmplExportContext context, TableFormatter formatter) throws IOException {
-        for (DanglingLine dl : network.getDanglingLines()) {
+        for (BoundaryLine dl : network.getBoundaryLines()) {
             Terminal t = dl.getTerminal();
             Bus bus1 = AmplUtil.getBus(t);
             String bus1Id = getBusId(bus1);
@@ -1189,7 +1189,7 @@ public class AmplNetworkWriter {
                          .writeCell(t.getQ());
                 addExtensions(num, l);
             }
-            for (DanglingLine dl : network.getDanglingLines()) {
+            for (BoundaryLine dl : network.getBoundaryLines()) {
                 String middleBusId = getDanglingLineMiddleBusId(dl);
                 String id = dl.getId();
                 int num = mapper.getInt(AmplSubset.LOAD, id);
@@ -1522,7 +1522,7 @@ public class AmplNetworkWriter {
     }
 
     private void writeDanglingLineCurrentLimits(TableFormatter formatter) throws IOException {
-        for (DanglingLine dl : network.getDanglingLines()) {
+        for (BoundaryLine dl : network.getBoundaryLines()) {
             String branchId = dl.getId();
             if (dl.getCurrentLimits() != null) {
                 writeTemporaryCurrentLimits(dl.getCurrentLimits(), formatter, branchId, true, "");

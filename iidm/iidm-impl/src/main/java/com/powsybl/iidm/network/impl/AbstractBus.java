@@ -183,12 +183,12 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> {
         return getConnectableStream(Generator.class);
     }
 
-    public Iterable<DanglingLine> getDanglingLines() {
-        return getConnectables(DanglingLine.class);
+    public Iterable<BoundaryLine> getBoundaryLines() {
+        return getConnectables(BoundaryLine.class);
     }
 
-    public Stream<DanglingLine> getDanglingLineStream() {
-        return getConnectableStream(DanglingLine.class);
+    public Stream<BoundaryLine> getBoundaryLineStream() {
+        return getConnectableStream(BoundaryLine.class);
     }
 
     public Iterable<StaticVarCompensator> getStaticVarCompensators() {
@@ -274,7 +274,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> {
                     break;
 
                 case DANGLING_LINE:
-                    visitor.visitDanglingLine((DanglingLineImpl) connectable);
+                    visitor.visitDanglingLine((BoundaryLineImpl) connectable);
                     break;
 
                 case STATIC_VAR_COMPENSATOR:

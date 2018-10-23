@@ -836,24 +836,24 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     int getShuntCount();
 
     /**
-     * Get a builder to create a new dangling line.
+     * Get a builder to create a new boundary line.
      */
-    DanglingLineAdder newDanglingLine();
+    BoundaryLineAdder newBoundaryLine();
 
     /**
-     * Get dangling lines.
+     * Get boundary lines.
      */
-    Iterable<DanglingLine> getDanglingLines();
+    Iterable<BoundaryLine> getDanglingLines();
 
     /**
-     * Get dangling lines.
+     * Get boundary lines.
      */
-    Stream<DanglingLine> getDanglingLineStream();
+    Stream<BoundaryLine> getDanglingLineStream();
 
     /**
-     * Get dangling line count.
+     * Get boundary line count.
      */
-    int getDanglingLineCount();
+    int getBoundaryLineCount();
 
     /**
      * Get a builder to create a new static var compensator.

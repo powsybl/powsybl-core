@@ -8,38 +8,38 @@ package com.powsybl.iidm.network;
 
 /**
  * To create a dangling line, from a <code>VoltageLevel</code> instance call
- * the {@link VoltageLevel#newDanglingLine()} method to get a dangling line
+ * the {@link VoltageLevel#newBoundaryLine()} method to get a dangling line
  * builder instance.
  * <p>
  * Example:
  *<pre>
  *    VoltageLevel vl = ...
- *    DanglingLine dl = vl.newDanglingLine()
+ *    BoundaryLine dl = vl.newBoundaryLine()
  *            .setId("dl1")
  *            ...
  *        .add();
  *</pre>
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @see DanglingLine
+ * @see BoundaryLine
  * @see VoltageLevel
  */
-public interface DanglingLineAdder extends InjectionAdder<DanglingLineAdder> {
+public interface BoundaryLineAdder extends InjectionAdder<BoundaryLineAdder> {
 
-    DanglingLineAdder setP0(double p0);
+    BoundaryLineAdder setP0(double p0);
 
-    DanglingLineAdder setQ0(double q0);
+    BoundaryLineAdder setQ0(double q0);
 
-    DanglingLineAdder setR(double r);
+    BoundaryLineAdder setR(double r);
 
-    DanglingLineAdder setX(double x);
+    BoundaryLineAdder setX(double x);
 
-    DanglingLineAdder setG(double g);
+    BoundaryLineAdder setG(double g);
 
-    DanglingLineAdder setB(double b);
+    BoundaryLineAdder setB(double b);
 
-    DanglingLineAdder setUcteXnodeCode(String ucteXnodeCode);
+    BoundaryLineAdder setUcteXnodeCode(String ucteXnodeCode);
 
-    DanglingLine add();
+    BoundaryLine add();
 
 }

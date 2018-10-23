@@ -146,11 +146,11 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void writeDanglingLines(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        for (DanglingLine dl : vl.getDanglingLines()) {
+        for (BoundaryLine dl : vl.getDanglingLines()) {
             if (!context.getFilter().test(dl)) {
                 continue;
             }
-            DanglingLineXml.INSTANCE.write(dl, vl, context);
+            BoundaryLineXml.INSTANCE.write(dl, vl, context);
         }
     }
 
@@ -252,9 +252,9 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                     ShuntXml.INSTANCE.read(vl, context);
                     break;
 
-                case DanglingLineXml.ROOT_ELEMENT_NAME_V10:
-                case DanglingLineXml.ROOT_ELEMENT_NAME:
-                    DanglingLineXml.INSTANCE.read(vl, context);
+                case BoundaryLineXml.ROOT_ELEMENT_NAME_V10:
+                case BoundaryLineXml.ROOT_ELEMENT_NAME:
+                    BoundaryLineXml.INSTANCE.read(vl, context);
                     break;
 
                 case StaticVarCompensatorXml.ROOT_ELEMENT_NAME:

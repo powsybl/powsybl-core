@@ -28,7 +28,7 @@ public interface ValidationWriter extends AutoCloseable {
 
     void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
                double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
-               double danglingLineP, double danglingLineQ, double twtP, double twtQ, double tltP, double tltQ, boolean mainComponent,
+               double boundaryLineP, double boundaryLineQ, double twtP, double twtQ, double tltP, double tltQ, boolean mainComponent,
                boolean validated) throws IOException;
 
     void write(String svcId, double p, double q, double v, double nominalV, double reactivePowerSetpoint, double voltageSetpoint,

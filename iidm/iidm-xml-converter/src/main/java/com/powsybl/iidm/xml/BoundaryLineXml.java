@@ -7,8 +7,8 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.DanglingLineAdder;
+import com.powsybl.iidm.network.BoundaryLine;
+import com.powsybl.iidm.network.BoundaryLineAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
@@ -17,9 +17,9 @@ import javax.xml.stream.XMLStreamException;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineAdder, VoltageLevel> {
+class BoundaryLineXml extends AbstractConnectableXml<BoundaryLine, BoundaryLineAdder, VoltageLevel> {
 
-    static final DanglingLineXml INSTANCE = new DanglingLineXml();
+    static final BoundaryLineXml INSTANCE = new BoundaryLineXml();
 
     static final String ROOT_ELEMENT_NAME = "boundaryLine";
 
@@ -33,12 +33,12 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
     }
 
     @Override
-    protected boolean hasSubElements(DanglingLine dl) {
+    protected boolean hasSubElements(BoundaryLine dl) {
         return dl.getCurrentLimits() != null;
     }
 
     @Override
-    protected void writeRootElementAttributes(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeRootElementAttributes(BoundaryLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeDouble("p0", dl.getP0(), context.getWriter());
         XmlUtil.writeDouble("q0", dl.getQ0(), context.getWriter());
         XmlUtil.writeDouble("r", dl.getR(), context.getWriter());
@@ -53,19 +53,19 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
     }
 
     @Override
-    protected void writeSubElements(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+    protected void writeSubElements(BoundaryLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (dl.getCurrentLimits() != null) {
             writeCurrentLimits(null, dl.getCurrentLimits(), context.getWriter());
         }
     }
 
     @Override
-    protected DanglingLineAdder createAdder(VoltageLevel vl) {
-        return vl.newDanglingLine();
+    protected BoundaryLineAdder createAdder(VoltageLevel vl) {
+        return vl.newBoundaryLine();
     }
 
     @Override
-    protected DanglingLine readRootElementAttributes(DanglingLineAdder adder, NetworkXmlReaderContext context) {
+    protected BoundaryLine readRootElementAttributes(BoundaryLineAdder adder, NetworkXmlReaderContext context) {
         double p0 = XmlUtil.readDoubleAttribute(context.getReader(), "p0");
         double q0 = XmlUtil.readDoubleAttribute(context.getReader(), "q0");
         double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
@@ -74,7 +74,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
         double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
         String ucteXnodeCode = context.getReader().getAttributeValue(null, "ucteXnodeCode");
         readNodeOrBus(adder, context);
-        DanglingLine dl = adder.setP0(p0)
+        BoundaryLine dl = adder.setP0(p0)
                 .setQ0(q0)
                 .setR(r)
                 .setX(x)
@@ -87,7 +87,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
     }
 
     @Override
-    protected void readSubElements(DanglingLine dl, NetworkXmlReaderContext context) throws XMLStreamException {
+    protected void readSubElements(BoundaryLine dl, NetworkXmlReaderContext context) throws XMLStreamException {
         if (context.getVersion().equals("1_0")) {
             currentRootElementName = ROOT_ELEMENT_NAME_V10;
         }

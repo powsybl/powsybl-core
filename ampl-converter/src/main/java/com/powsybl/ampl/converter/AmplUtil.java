@@ -178,7 +178,7 @@ public final class AmplUtil {
     }
 
     private static void fillDanglingLines(StringToIntMapper<AmplSubset> mapper, Network network) {
-        for (DanglingLine dl : network.getDanglingLines()) {
+        for (BoundaryLine dl : network.getBoundaryLines()) {
             mapper.newInt(AmplSubset.VOLTAGE_LEVEL, dl.getId());
             mapper.newInt(AmplSubset.BUS, dl.getId());
             mapper.newInt(AmplSubset.BRANCH, dl.getId());

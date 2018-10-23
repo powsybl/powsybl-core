@@ -17,12 +17,12 @@ package com.powsybl.iidm.network;
  * orginal line.
  * <p>r, x, g, b have to be consistent with the declared length of the dangling
  * line.
- * <p>To create a dangling line, see {@link DanglingLineAdder}
+ * <p>To create a dangling line, see {@link BoundaryLineAdder}
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @see DanglingLineAdder
+ * @see BoundaryLineAdder
  */
-public interface DanglingLine extends Injection<DanglingLine> {
+public interface BoundaryLine extends Injection<BoundaryLine> {
 
     /**
      * Get the constant active power in MW.
@@ -36,7 +36,7 @@ public interface DanglingLine extends Injection<DanglingLine> {
      * <p>Depends on the working state.
      * @see StateManager
      */
-    DanglingLine setP0(double p0);
+    BoundaryLine setP0(double p0);
 
     /**
      * Get the constant reactive power in MW.
@@ -50,7 +50,7 @@ public interface DanglingLine extends Injection<DanglingLine> {
      * <p>Depends on the working state.
      * @see StateManager
      */
-    DanglingLine setQ0(double q0);
+    BoundaryLine setQ0(double q0);
 
     /**
      * Get the series resistance in &#937;.
@@ -60,7 +60,7 @@ public interface DanglingLine extends Injection<DanglingLine> {
     /**
      * Set the series resistance in &#937;.
      */
-    DanglingLine setR(double r);
+    BoundaryLine setR(double r);
 
     /**
      * Get the series reactance in &#937;.
@@ -70,7 +70,7 @@ public interface DanglingLine extends Injection<DanglingLine> {
     /**
      * Set the series reactance in &#937;.
      */
-    DanglingLine setX(double x);
+    BoundaryLine setX(double x);
 
     /**
      * Get the shunt conductance in S.
@@ -80,7 +80,7 @@ public interface DanglingLine extends Injection<DanglingLine> {
     /**
      * Set the shunt conductance in S.
      */
-    DanglingLine setG(double g);
+    BoundaryLine setG(double g);
 
     /**
      * Get the shunt susceptance in S.
@@ -90,7 +90,7 @@ public interface DanglingLine extends Injection<DanglingLine> {
     /**
      * Set the shunt susceptance in S.
      */
-    DanglingLine setB(double b);
+    BoundaryLine setB(double b);
 
     /**
      * Get the UCTE Xnode code corresponding to this dangling line in the case

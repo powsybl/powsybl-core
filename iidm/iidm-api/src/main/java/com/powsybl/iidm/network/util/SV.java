@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.network.util;
 
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import org.apache.commons.math3.complex.Complex;
@@ -141,7 +141,7 @@ public class SV {
         return otherSide(l.getR(), l.getX(), l.getG1(), l.getB1(), l.getG2(), l.getB2(), 1);
     }
 
-    public SV otherSide(DanglingLine dl) {
+    public SV otherSide(BoundaryLine dl) {
         return otherSide(dl.getR(), dl.getX(), dl.getG(), dl.getB(), 1);
     }
 

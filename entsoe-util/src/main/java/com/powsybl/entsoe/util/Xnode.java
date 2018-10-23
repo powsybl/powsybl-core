@@ -7,20 +7,20 @@
 package com.powsybl.entsoe.util;
 
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.BoundaryLine;
 
 import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class Xnode extends AbstractExtension<DanglingLine> {
+public class Xnode extends AbstractExtension<BoundaryLine> {
 
-    private final DanglingLine dl;
+    private final BoundaryLine dl;
 
     private String code;
 
-    public Xnode(DanglingLine dl, String code) {
+    public Xnode(BoundaryLine dl, String code) {
         this.dl = Objects.requireNonNull(dl);
         this.code = Objects.requireNonNull(code);
     }
@@ -31,7 +31,7 @@ public class Xnode extends AbstractExtension<DanglingLine> {
     }
 
     @Override
-    public DanglingLine getExtendable() {
+    public BoundaryLine getExtendable() {
         return dl;
     }
 

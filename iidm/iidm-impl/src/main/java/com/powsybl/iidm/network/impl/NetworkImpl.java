@@ -394,23 +394,23 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
     }
 
     @Override
-    public Iterable<DanglingLine> getDanglingLines() {
-        return Collections.unmodifiableCollection(objectStore.getAll(DanglingLineImpl.class));
+    public Iterable<BoundaryLine> getBoundaryLines() {
+        return Collections.unmodifiableCollection(objectStore.getAll(BoundaryLineImpl.class));
     }
 
     @Override
-    public Stream<DanglingLine> getDanglingLineStream() {
-        return objectStore.getAll(DanglingLineImpl.class).stream().map(Function.identity());
+    public Stream<BoundaryLine> getBoundaryLineStream() {
+        return objectStore.getAll(BoundaryLineImpl.class).stream().map(Function.identity());
     }
 
     @Override
-    public int getDanglingLineCount() {
-        return objectStore.getAll(DanglingLineImpl.class).size();
+    public int getBoundaryLineCount() {
+        return objectStore.getAll(BoundaryLineImpl.class).size();
     }
 
     @Override
-    public DanglingLineImpl getDanglingLine(String id) {
-        return objectStore.get(id, DanglingLineImpl.class);
+    public BoundaryLineImpl getBoundaryLine(String id) {
+        return objectStore.get(id, BoundaryLineImpl.class);
     }
 
     @Override
@@ -816,7 +816,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         Multimap<Class<? extends Identifiable>, String> intersection = objectStore.intersection(otherNetwork.objectStore);
         for (Map.Entry<Class<? extends Identifiable>, Collection<String>> entry : intersection.asMap().entrySet()) {
             Class<? extends Identifiable> clazz = entry.getKey();
-            if (clazz == DanglingLineImpl.class) { // fine for dangling lines
+            if (clazz == BoundaryLineImpl.class) { // fine for boundary lines
                 continue;
             }
             Collection<String> objs = entry.getValue();
@@ -827,16 +827,16 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
             }
         }
 
-        // try to find dangling lines couples
-        Map<String, DanglingLine> dl1byXnodeCode = new HashMap<>();
-        for (DanglingLine dl1 : getDanglingLines()) {
+        // try to find boundary lines couples
+        Map<String, BoundaryLine> dl1byXnodeCode = new HashMap<>();
+        for (BoundaryLine dl1 : getBoundaryLines()) {
             if (dl1.getUcteXnodeCode() != null) {
                 dl1byXnodeCode.put(dl1.getUcteXnodeCode(), dl1);
             }
         }
         List<MergedLine> lines = new ArrayList<>();
-        for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines())) {
-            DanglingLine dl1 = getDanglingLineByTheOther(dl2, dl1byXnodeCode);
+        for (BoundaryLine dl2 : Lists.newArrayList(other.getBoundaryLines())) {
+            BoundaryLine dl1 = getDanglingLineByTheOther(dl2, dl1byXnodeCode);
             mergeDanglingLines(lines, dl1, dl2);
         }
 
@@ -853,7 +853,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         replaceDanglingLineByLine(lines, mergedLineByBoundary);
 
         if (!lines.isEmpty()) {
-            LOGGER.info("{} dangling line couples have been replaced by a line: {}", lines.size(),
+            LOGGER.info("{} boundary line couples have been replaced by a line: {}", lines.size(),
                     mergedLineByBoundary.asMap().entrySet().stream().map(e -> e.getKey() + ": " + e.getValue().size()).collect(Collectors.toList()));
         }
 
@@ -868,8 +868,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         LOGGER.info("Merging of {} done in {} ms", id, System.currentTimeMillis() - start);
     }
 
-    private DanglingLine getDanglingLineByTheOther(DanglingLine dl2, Map<String, DanglingLine> dl1byXnodeCode) {
-        DanglingLine dl1 = getDanglingLine(dl2.getId());
+    private BoundaryLine getDanglingLineByTheOther(BoundaryLine dl2, Map<String, BoundaryLine> dl1byXnodeCode) {
+        BoundaryLine dl1 = getBoundaryLine(dl2.getId());
         if (dl1 == null) {
             // mapping by ucte xnode code
             if (dl2.getUcteXnodeCode() != null) {
@@ -887,7 +887,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         return dl1;
     }
 
-    private void mergeDanglingLines(List<MergedLine> lines, DanglingLine dl1, DanglingLine dl2) {
+    private void mergeDanglingLines(List<MergedLine> lines, BoundaryLine dl1, BoundaryLine dl2) {
         if (dl1 != null) {
             MergedLine l = new MergedLine();
             l.id = dl1.getId().compareTo(dl2.getId()) < 0 ? dl1.getId() + " + " + dl2.getId() : dl2.getId() + " + " + dl1.getId();
@@ -946,7 +946,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
             l.country2 = vl2.getSubstation().getCountry();
             lines.add(l);
 
-            // remove the 2 dangling lines
+            // remove the 2 boundary lines
             dl1.remove();
             dl2.remove();
         }
@@ -954,7 +954,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
 
     private void replaceDanglingLineByLine(List<MergedLine> lines, Multimap<Boundary, MergedLine> mergedLineByBoundary) {
         for (MergedLine mergedLine : lines) {
-            LOGGER.debug("Replacing dangling line couple '{}' (xnode={}, country1={}, country2={}) by a line",
+            LOGGER.debug("Replacing boundary line couple '{}' (xnode={}, country1={}, country2={}) by a line",
                     mergedLine.id, mergedLine.xnode, mergedLine.country1, mergedLine.country2);
             LineAdderImpl la = newLine();
 

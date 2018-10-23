@@ -141,14 +141,14 @@ public interface Bus extends Identifiable<Bus> {
     Stream<ShuntCompensator> getShuntStream();
 
     /**
-     * Get dangling lines connected to the bus.
+     * Get boundary lines connected to the bus.
      */
-    Iterable<DanglingLine> getDanglingLines();
+    Iterable<BoundaryLine> getBoundaryLines();
 
     /**
-     * Get dangling lines connected to the bus.
+     * Get boundary lines connected to the bus.
      */
-    Stream<DanglingLine> getDanglingLineStream();
+    Stream<BoundaryLine> getBoundaryLineStream();
 
     /**
      * Get static VAR compensators connected to the bus.
