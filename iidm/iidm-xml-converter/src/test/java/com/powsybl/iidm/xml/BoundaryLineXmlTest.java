@@ -7,20 +7,33 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
 import org.junit.Test;
 
 import java.io.IOException;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 /**
  * @author Yichen Tang <yichen.tang at rte-france.com>
  */
-public class LineXmlTest extends AbstractConverterTest {
+public class BoundaryLineXmlTest extends AbstractConverterTest {
+
+    @Test
+    public void testReadV10() throws IOException {
+        Network network = NetworkXml.read(getClass().getResourceAsStream("/refs_V1_0/danglingLineRef.xml"));
+        DanglingLine dl = network.getDanglingLine("DL");
+        assertNotNull(dl);
+        assertEquals(6.0, dl.getR(), 0.0);
+    }
 
     @Test
     public void danglingLine() throws IOException {
         roundTripXmlTest(NoEquipmentNetworkFactory.createWithDanglingLine(),
                 NetworkXml::writeAndValidate,
-                NetworkXml::read, "/danglingLineRef.xml");
+                NetworkXml::read, "/boundaryLineRef.xml");
     }
 }

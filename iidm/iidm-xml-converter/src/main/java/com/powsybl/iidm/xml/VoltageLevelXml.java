@@ -252,6 +252,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                     ShuntXml.INSTANCE.read(vl, context);
                     break;
 
+                case DanglingLineXml.ROOT_ELEMENT_NAME_V10:
                 case DanglingLineXml.ROOT_ELEMENT_NAME:
                     DanglingLineXml.INSTANCE.read(vl, context);
                     break;

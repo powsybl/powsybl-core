@@ -21,11 +21,15 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
 
     static final DanglingLineXml INSTANCE = new DanglingLineXml();
 
-    static final String ROOT_ELEMENT_NAME = "danglingLine";
+    static final String ROOT_ELEMENT_NAME = "boundaryLine";
+
+    static final String ROOT_ELEMENT_NAME_V10 = "danglingLine";
+
+    private String currentRootElementName = ROOT_ELEMENT_NAME;
 
     @Override
     protected String getRootElementName() {
-        return ROOT_ELEMENT_NAME;
+        return currentRootElementName;
     }
 
     @Override
@@ -84,6 +88,9 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
 
     @Override
     protected void readSubElements(DanglingLine dl, NetworkXmlReaderContext context) throws XMLStreamException {
+        if (context.getVersion().equals("1_0")) {
+            currentRootElementName = ROOT_ELEMENT_NAME_V10;
+        }
         readUntilEndRootElement(context.getReader(), () -> {
             if ("currentLimits".equals(context.getReader().getLocalName())) {
                 readCurrentLimits(null, dl::newCurrentLimits, context.getReader());
@@ -91,5 +98,8 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
                 super.readSubElements(dl, context);
             }
         });
+        if (context.getVersion().equals("1_0")) {
+            currentRootElementName = ROOT_ELEMENT_NAME;
+        }
     }
 }

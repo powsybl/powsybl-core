@@ -24,6 +24,10 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
 
     protected abstract String getRootElementName();
 
+    protected String getCurrentRootElementName() {
+        return getRootElementName();
+    }
+
     protected abstract boolean hasSubElements(T identifiable);
 
     protected abstract void writeRootElementAttributes(T identifiable, P parent, NetworkXmlWriterContext context) throws XMLStreamException;
@@ -73,7 +77,7 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
     }
 
     protected void readUntilEndRootElement(XMLStreamReader reader, XmlUtil.XmlEventHandler eventHandler) throws XMLStreamException {
-        XmlUtil.readUntilEndElement(getRootElementName(), reader, eventHandler);
+        XmlUtil.readUntilEndElement(getCurrentRootElementName(), reader, eventHandler);
     }
 
     protected abstract A createAdder(P parent);
