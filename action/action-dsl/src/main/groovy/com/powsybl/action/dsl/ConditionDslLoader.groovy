@@ -7,6 +7,7 @@
 package com.powsybl.action.dsl
 
 import com.powsybl.action.dsl.ast.*
+import com.powsybl.contingency.Contingency
 import com.powsybl.iidm.network.*
 import org.codehaus.groovy.control.CompilationFailedException
 
@@ -144,6 +145,29 @@ class ConditionDslLoader extends DslLoader {
 
         binding.isOverloaded = {branchIds, limitReduction = 1 as float ->
             ExpressionHelper.newIsOverloadedNode(branchIds, limitReduction)
+        }
+
+        // Binds generic script node to "isTrue" keyword
+        binding.isTrue = { Closure<Boolean> closure ->
+            ExpressionHelper.newScript({ Network network, Contingency contingency ->
+
+                //Bind network and contingency arguments to the script variables
+                Network oldNetwork = binding.getVariable("network")
+                Object oldContingency = binding.hasVariable("contingency") ?
+                        binding.getVariable("contingency") : null;
+                binding.setVariable("network", network)
+                binding.setVariable("contingency", contingency)
+                binding.setVariable(SCRIPT_IS_RUNNING, true)
+                try {
+                    closure.resolveStrategy = OWNER_ONLY
+                    closure.call()
+                } finally {
+                    //Restore previously bound variables
+                    binding.setVariable(SCRIPT_IS_RUNNING, null)
+                    binding.setVariable("network", oldNetwork)
+                    binding.setVariable("contingency", oldContingency)
+                }
+            })
         }
 
         NetworkNode.metaClass.propertyMissing = { String name ->

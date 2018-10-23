@@ -10,6 +10,7 @@ import com.powsybl.action.dsl.GroovyUtil;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Identifiable;
+import groovy.lang.Closure;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -314,5 +315,15 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
             throw new PowsyblException("Branch '" + branchId + "' not found");
         }
         return branch;
+    }
+
+    /**
+     * Evaluates the script to true or false, binding the context network and contingency
+     * as script variables.
+     */
+    @Override
+    public Object visitScript(ScriptNode node, Void arg) {
+        Closure<Boolean> script = node.getScript();
+        return script.call(context.getNetwork(), context.getContingency());
     }
 }

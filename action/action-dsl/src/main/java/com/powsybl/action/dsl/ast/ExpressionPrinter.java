@@ -246,4 +246,11 @@ public class ExpressionPrinter extends DefaultExpressionVisitor<Void, Void> {
         return null;
     }
 
+    @Override
+    public Void visitScript(ScriptNode node, Void arg) {
+        //Cannot retrieve script source code: prints a placeholder text
+        out.print("isTrue(<unknown script source code>)");
+        return null;
+    }
+
 }

@@ -6,6 +6,8 @@
  */
 package com.powsybl.action.dsl.ast;
 
+import groovy.lang.Closure;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -91,5 +93,9 @@ public final class ExpressionHelper {
 
     public static ExpressionNode newStringLiteral(String value) {
         return new StringLiteralNode(value);
+    }
+
+    public static ScriptNode newScript(Closure<Boolean> script) {
+        return new ScriptNode(script);
     }
 }

@@ -432,4 +432,19 @@ public class ConditionDslLoaderTest {
         assertTrue(actions.contains("action1"));
         assertTrue(actions.contains("action2"));
     }
+
+    @Test
+    public void testScript() throws IOException {
+        evalAndAssert(true, "isTrue({ true })");
+        evalAndAssert(false, "isTrue({ false })");
+        evalAndAssert(true, "isTrue({ network.getLine('NHV1_NHV2_1').terminal1.p > 0 })");
+
+        //more complex script with intermediate voltage variable
+        String scriptCondition = "v = network.getVoltageLevel('VLHV1')" +
+                ".getBusView().getBusStream().findFirst().orElseThrow()" +
+                ".getV()\n" +
+                "v > 350 && v < 400";
+
+        evalAndAssert(true, "isTrue({ " + scriptCondition + " })");
+    }
 }
