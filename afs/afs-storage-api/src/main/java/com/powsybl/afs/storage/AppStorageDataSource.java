@@ -15,6 +15,9 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.powsybl.commons.datasource.DataSource;
 
 /**
@@ -181,8 +184,30 @@ public class AppStorageDataSource implements DataSource {
     @Override
     public Set<String> listNames(String regex) throws IOException {
         Pattern p = Pattern.compile(regex);
-        return storage.getDataNames(nodeId).stream()
+        Set<String> names = storage.getDataNames(nodeId).stream()
                 .filter(name -> p.matcher(name).matches())
+                .map(name -> Name.parse(name, new NameHandler<String>() {
+
+                    @Override
+                    public String onSuffixAndExtension(SuffixAndExtension suffixAndExtension) throws IOException {
+                        throw new AssertionError("Unknown suffix-and-extension data source name " + name);
+                    }
+
+                    @Override
+                    public String onFileName(FileName fileName) throws IOException {
+                        return fileName.getName();
+                    }
+
+                    @Override
+                    public String onOther(Name name) {
+                        throw new AssertionError("Unknown data source name " + name);
+                    }
+                }))
                 .collect(Collectors.toSet());
+        LOG.info("AppStorageDataSource::listNames()");
+        names.forEach(n -> LOG.info("    {}", n));
+        return names;
     }
+
+    private static final Logger LOG = LoggerFactory.getLogger(AppStorageDataSource.class);
 }

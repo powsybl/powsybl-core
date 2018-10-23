@@ -54,18 +54,12 @@ public class CgmesOnDataSource {
     }
 
     public Set<String> names() {
-        Set<String> names;
         try {
-            names = dataSource.listNames(REGEX_VALID_NAME);
+            // the set of names may be empty if the data source does not contain CGMES data
+            return dataSource.listNames(REGEX_VALID_NAME);
         } catch (IOException x) {
-            throw new CgmesModelException(
-                    String.format("Listing CGMES names in data source %s", dataSource), x);
+            throw new CgmesModelException(String.format("Listing CGMES names in data source %s", dataSource), x);
         }
-        if (names.isEmpty()) {
-            throw new CgmesModelException(
-                    String.format("Data source %s does not contain CGMES data", dataSource.getBaseName()));
-        }
-        return names;
     }
 
     public Set<String> namespaces() {

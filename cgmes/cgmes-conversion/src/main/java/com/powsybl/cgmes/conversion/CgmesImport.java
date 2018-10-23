@@ -7,9 +7,15 @@
 
 package com.powsybl.cgmes.conversion;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
+import java.util.Objects;
 import java.util.Properties;
 
 import com.google.auto.service.AutoService;
+import com.google.common.io.ByteStreams;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesOnDataSource;
@@ -78,8 +84,28 @@ public class CgmesImport implements Importer {
     }
 
     @Override
-    public void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
-        throw new UnsupportedOperationException("Pending implementation");
+    public void copy(ReadOnlyDataSource from, DataSource to) {
+        Objects.requireNonNull(from);
+        Objects.requireNonNull(to);
+        try {
+            CgmesOnDataSource fromCgmes = new CgmesOnDataSource(from);
+            // TODO map "from names" to "to names" using base names of data sources
+            for (String fromName : fromCgmes.names()) {
+                String toName = fromName;
+                copyStream(from, to, fromName, toName);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private void copyStream(ReadOnlyDataSource from, DataSource to, String fromName, String toName) throws IOException {
+        if (from.exists(fromName)) {
+            try (InputStream is = from.newInputStream(fromName);
+                    OutputStream os = to.newOutputStream(toName, false)) {
+                ByteStreams.copy(is, os);
+            }
+        }
     }
 
     private static String tripleStoreImpl(Properties p) {
