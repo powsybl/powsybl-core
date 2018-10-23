@@ -6,9 +6,6 @@
  */
 package com.powsybl.commons.datasource;
 
-import com.powsybl.commons.datasource.compressor.DataSourceCompressor;
-import com.powsybl.commons.datasource.compressor.NoOpDataSourceCompressor;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

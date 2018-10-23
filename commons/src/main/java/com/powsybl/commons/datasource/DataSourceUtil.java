@@ -6,11 +6,6 @@
  */
 package com.powsybl.commons.datasource;
 
-import com.powsybl.commons.datasource.compressor.Bzip2DataSourceCompressor;
-import com.powsybl.commons.datasource.compressor.CompressionFormat;
-import com.powsybl.commons.datasource.compressor.GzipDataSourceCompressor;
-import com.powsybl.commons.datasource.compressor.NoOpDataSourceCompressor;
-
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;

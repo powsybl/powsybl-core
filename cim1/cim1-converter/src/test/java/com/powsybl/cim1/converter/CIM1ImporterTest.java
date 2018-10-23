@@ -35,9 +35,7 @@ public class CIM1ImporterTest {
     private DataSource zdsMerged;
     private DataSource zdsSplit;
     private DataSource fdsMerged;
-    private DataSource fdsUnzippedMerged;
     private DataSource fdsSplit;
-    private DataSource fdsUnzippedSplit;
 
     private CIM1Importer importer;
 
@@ -52,8 +50,7 @@ public class CIM1ImporterTest {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
 
         Path test1 = Files.createDirectory(fileSystem.getPath("test1"));
-        fdsMerged = new FileDataSource(test1, "ieee14bus");
-        fdsUnzippedMerged = new FileDataSource(test1, "ieee14bus_ME");
+        fdsMerged = new FileDataSource(test1, "ieee14bus_ME.xml");
         copyFile(fdsMerged, "ieee14bus_ME.xml");
         copyFile(fdsMerged, "ENTSO-E_Boundary_Set_EU_EQ.xml");
         copyFile(fdsMerged, "ENTSO-E_Boundary_Set_EU_TP.xml");
@@ -65,8 +62,7 @@ public class CIM1ImporterTest {
         copyFile(fdsMerged, "ENTSO-E_Boundary_Set_EU_TP.xml");
 
         Path test3 = Files.createDirectory(fileSystem.getPath("test3"));
-        fdsSplit = new FileDataSource(test3, "ieee14bus");
-        fdsUnzippedSplit = new FileDataSource(test3, "ieee14bus_EQ");
+        fdsSplit = new FileDataSource(test3, "ieee14bus_EQ.xml");
         copyFile(fdsSplit, "ieee14bus_EQ.xml");
         copyFile(fdsSplit, "ieee14bus_TP.xml");
         copyFile(fdsSplit, "ieee14bus_SV.xml");
@@ -92,19 +88,15 @@ public class CIM1ImporterTest {
     @Test
     public void exists() {
         assertTrue(importer.exists(fdsMerged));
-        assertTrue(importer.exists(fdsUnzippedMerged));
         assertTrue(importer.exists(zdsMerged));
         assertTrue(importer.exists(fdsSplit));
-        assertTrue(importer.exists(fdsUnzippedSplit));
         assertTrue(importer.exists(zdsSplit));
     }
 
     @Test
     public void testImport() {
         testImport(fdsMerged);
-        testImport(fdsUnzippedMerged);
         testImport(fdsSplit);
-        testImport(fdsUnzippedSplit);
     }
 
     private void testImport(ReadOnlyDataSource dataSource) {
@@ -118,7 +110,7 @@ public class CIM1ImporterTest {
     @Test
     public void copy() throws Exception {
         Path testCopyDir = Files.createDirectory(fileSystem.getPath("test_copy"));
-        importer.copy(zdsSplit, new FileDataSource(testCopyDir, "newbasename"));
+        importer.copy(zdsSplit, new FileDataSource(testCopyDir, "newbasename_EQ.xml"));
         assertTrue(Files.exists(testCopyDir.resolve("newbasename_EQ.xml")));
         assertTrue(Files.exists(testCopyDir.resolve("newbasename_TP.xml")));
         assertTrue(Files.exists(testCopyDir.resolve("newbasename_SV.xml")));

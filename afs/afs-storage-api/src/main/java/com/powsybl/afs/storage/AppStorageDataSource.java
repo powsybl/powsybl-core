@@ -46,33 +46,6 @@ public class AppStorageDataSource implements DataSource {
                 return null;
             }
         }
-
-        static <T> T parse(String text, NameHandler<T> handler) {
-            Objects.requireNonNull(handler);
-            T result;
-            AppStorageDataSource.Name dataSrcName = parse(text);
-            try {
-                if (dataSrcName instanceof AppStorageDataSource.SuffixAndExtension) {
-                    result = handler.onSuffixAndExtension((AppStorageDataSource.SuffixAndExtension) dataSrcName);
-                } else if (dataSrcName instanceof AppStorageDataSource.FileName) {
-                    result = handler.onFileName((AppStorageDataSource.FileName) dataSrcName);
-                } else {
-                    result = handler.onOther(dataSrcName);
-                }
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
-            return result;
-        }
-    }
-
-    public interface NameHandler<T> {
-
-        T onSuffixAndExtension(AppStorageDataSource.SuffixAndExtension suffixAndExtension) throws IOException;
-
-        T onFileName(AppStorageDataSource.FileName fileName) throws IOException;
-
-        T onOther(AppStorageDataSource.Name name);
     }
 
     public static class SuffixAndExtension implements Name {
@@ -150,7 +123,17 @@ public class AppStorageDataSource implements DataSource {
 
     @Override
     public boolean fileExists(String fileName) {
-        return storage.dataExists(nodeId, new FileName(fileName).toString());
+        if (storage.dataExists(nodeId, fileName)) {
+            return true;
+        }
+        // backward compatibility
+        if (storage.dataExists(nodeId, new FileName(fileName).toString())) {
+            return true;
+        }
+        if (fileName.startsWith(nodeName)) {
+
+        }
+        return false;
     }
 
     @Override

@@ -51,7 +51,7 @@ public class CIM1ConverterRatioTapChangerSide2FixTest {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
 
         Path test = Files.createDirectory(fileSystem.getPath("test"));
-        dataSource = new FileDataSource(test, "tx-from-microBE-adapted");
+        dataSource = new FileDataSource(test, "tx-from-microBE-adapted_EQ.xml");
         resourceToDataSource("tx-from-microBE-adapted_EQ.xml", dataSource);
         resourceToDataSource("tx-from-microBE-adapted_TP.xml", dataSource);
         resourceToDataSource("tx-from-microBE-adapted_SV.xml", dataSource);

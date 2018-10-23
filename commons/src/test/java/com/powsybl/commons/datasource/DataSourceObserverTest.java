@@ -8,7 +8,6 @@ package com.powsybl.commons.datasource;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.datasource.compressor.NoOpDataSourceCompressor;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

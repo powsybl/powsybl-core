@@ -6,8 +6,6 @@
  */
 package com.powsybl.commons.datasource;
 
-import com.powsybl.commons.datasource.compressor.NoOpDataSourceCompressor;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */

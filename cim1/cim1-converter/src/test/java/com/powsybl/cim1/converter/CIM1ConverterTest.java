@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Country;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -37,6 +38,6 @@ public class CIM1ConverterTest {
                 .build()
                 .forEach((name, country) ->
                         assertEquals(country, CIM1Converter.getCountryFromSubregionName(name)));
-        assertEquals(null, CIM1Converter.getCountryFromSubregionName("XYZ"));
+        assertNull(CIM1Converter.getCountryFromSubregionName("XYZ"));
     }
 }

@@ -6,7 +6,6 @@
  */
 package com.powsybl.commons.datasource;
 
-import com.powsybl.commons.datasource.compressor.CompressionFormat;
 import org.junit.Test;
 
 import java.util.Arrays;

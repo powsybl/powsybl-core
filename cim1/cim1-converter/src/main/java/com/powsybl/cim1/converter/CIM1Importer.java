@@ -13,10 +13,8 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.io.ByteStreams;
 import com.google.gdata.util.io.base.UnicodeReader;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.import_.Importer;
@@ -72,11 +70,6 @@ public class CIM1Importer implements Importer, CIM1Constants {
             USE_PSSE_NAMING_STRATEGY_PARAMETER,
             SUBSTATION_ID_EXCLUDED_FROM_MAPPING);
 
-    private enum Packaging {
-        MERGED,
-        SPLIT
-    }
-
     @Override
     public String getFormat() {
         return FORMAT;
@@ -92,40 +85,30 @@ public class CIM1Importer implements Importer, CIM1Constants {
         return "CIM ENTSOE profile V1";
     }
 
-    private String getBaseName(ReadOnlyDataSource dataSource) {
-        String eqFileName = null;
-        if (dataSource.getMainFileName() != null && dataSource.getMainFileName().isEmpty()) {
-            if (!dataSource.getMainFileName().endsWith("_EQ.xml")) {
-                throw new PowsyblException("Main file is not an EQ file");
+    private static String getMainFileName(ReadOnlyDataSource dataSource) {
+        String mainFileName = null;
+        if (dataSource.getMainFileName() != null && !dataSource.getMainFileName().isEmpty()) {
+            if (dataSource.getMainFileName().endsWith("_EQ.xml") ||
+                    dataSource.getMainFileName().endsWith("_ME.xml")) {
+                mainFileName = dataSource.getMainFileName();
             }
         } else {
             Set<String> eqFileNames = dataSource.getFileNames(".*_EQ.xml");
-            if (eqFileNames.isEmpty()) {
-                throw new PowsyblException("No EQ file found");
+            Set<String> meFileNames = dataSource.getFileNames(".*_ME.xml");
+            if (eqFileNames.size() + meFileNames.size() == 1) {
+                if (!eqFileNames.isEmpty()) {
+                    mainFileName = eqFileNames.iterator().next();
+                }
+                if (!meFileNames.isEmpty()) {
+                    mainFileName = meFileNames.iterator().next();
+                }
             }
-            if (eqFileNames.size() > 1) {
-                throw new PowsyblException("Several EQ file found");
-            }
-            eqFileName = eqFileNames.iterator().next();
         }
-
-        return eqFileName.substring(0, eqFileName.length() - 7);
-        String basename = dataSource.getBaseName();
-        if (basename.endsWith("_ME") || basename.endsWith("_EQ") || basename.endsWith("_TP") || basename.endsWith("_SV")) {
-            basename = basename.substring(0, basename.length() - 3);
-        }
-
-        return basename;
+        return mainFileName;
     }
 
-    private Packaging detectPackaging(ReadOnlyDataSource dataSource) throws IOException {
-        if (exists(dataSource, "_ME", "xml")) {
-            return Packaging.MERGED;
-        }
-        if (exists(dataSource, "_EQ", "xml") && exists(dataSource, "_TP", "xml") && exists(dataSource, "_SV", "xml")) {
-            return Packaging.SPLIT;
-        }
-        return null;
+    private static String getBaseName(String mainFileName) {
+        return mainFileName.substring(0, mainFileName.length() - 7);
     }
 
     private static boolean isCim14(InputStream is) throws XMLStreamException {
@@ -155,6 +138,16 @@ public class CIM1Importer implements Importer, CIM1Constants {
         return false;
     }
 
+    private static boolean isCim14(ReadOnlyDataSource dataSource, String fileName) {
+        try (InputStream eqIs = dataSource.newInputStream(fileName)) { // just test main file to save time
+            return isCim14(eqIs);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
+        }
+    }
+
     private static boolean isPtiCim14(InputStream is) throws XMLStreamException {
         // check the first root element is RDF and the second one belongs to CIM 14 namespace
         XMLStreamReader xmlsr = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
@@ -173,33 +166,30 @@ public class CIM1Importer implements Importer, CIM1Constants {
 
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
-        try {
-            Packaging packaging = detectPackaging(dataSource);
-            if (packaging != null) {
-                switch (packaging) {
-                    case MERGED:
-                        try (InputStream is = newInputStream(dataSource, "_ME", "xml")) {
-                            return isCim14(is);
-                        }
-                    case SPLIT:
-                        try (InputStream eqIs = newInputStream(dataSource, "_EQ", "xml")) { // just test eq file to save time
-                            return isCim14(eqIs);
-                        }
-                    default:
-                        throw new AssertionError();
-                }
+        String mainFileName = getMainFileName(dataSource);
+        if (mainFileName != null) {
+            if (mainFileName.endsWith("_ME.xml")) {
+                return dataSource.fileExists(mainFileName)
+                        && isCim14(dataSource, mainFileName);
+            } else if (mainFileName.endsWith("_EQ.xml")) {
+                String baseName = getBaseName(mainFileName);
+                return dataSource.fileExists(mainFileName)
+                        && dataSource.fileExists(baseName + "_TP.xml")
+                        && dataSource.fileExists(baseName + "_SV.xml")
+                        && isCim14(dataSource, mainFileName); // just test eq file to save time
             }
-            return false;
-        } catch (XMLStreamException e) {
-            return false;
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
         }
+        return false;
     }
 
-    private CIMModel loadMergedModel(ReadOnlyDataSource dataSource, Reader bseqr, Reader bstpr) throws Exception {
+    @Override
+    public String getPrettyName(ReadOnlyDataSource dataSource) {
+        return getBaseName(Objects.requireNonNull(getMainFileName(dataSource)));
+    }
+
+    private CIMModel loadMergedModel(ReadOnlyDataSource dataSource, String meFileName, Reader bseqr, Reader bstpr) {
         CIMModel model = new CIMModel();
-        try (Reader mer = new UnicodeReader(newInputStream(dataSource, "_ME", "xml"), null)) {
+        try (Reader mer = new UnicodeReader(dataSource.newInputStream(meFileName), null)) {
 
             long startTime2 = System.currentTimeMillis();
 
@@ -207,17 +197,22 @@ public class CIM1Importer implements Importer, CIM1Constants {
                     bseqr, "Boundary EQ", bstpr, "Boundary TP",
                     model, new CIMModel(), true);
 
-            LOGGER.debug("CIM model (ME) loaded in "
-                    + (System.currentTimeMillis() - startTime2) + " ms");
+            LOGGER.debug("CIM model (ME) loaded in {} ms", System.currentTimeMillis() - startTime2);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } catch (Exception e) {
+            throw new CIM1Exception(e);
         }
         return model;
     }
 
-    private CIMModel loadSplitModel(ReadOnlyDataSource dataSource, Reader bseqr, Reader bstpr) throws Exception {
+    private CIMModel loadSplitModel(ReadOnlyDataSource dataSource, String eqFileName, Reader bseqr, Reader bstpr) {
+        String baseName = getBaseName(eqFileName);
+
         CIMModel model = new CIMModel();
-        try (Reader eqr = new UnicodeReader(newInputStream(dataSource, "_EQ", "xml"), null);
-             Reader tpr = new UnicodeReader(newInputStream(dataSource, "_TP", "xml"), null);
-             Reader svr = new UnicodeReader(newInputStream(dataSource, "_SV", "xml"), null)) {
+        try (Reader eqr = new UnicodeReader(dataSource.newInputStream(baseName + "_EQ.xml"), null);
+             Reader tpr = new UnicodeReader(dataSource.newInputStream(baseName + "_TP.xml"), null);
+             Reader svr = new UnicodeReader(dataSource.newInputStream(baseName + "_SV.xml"), null)) {
 
             long startTime2 = System.currentTimeMillis();
 
@@ -225,26 +220,13 @@ public class CIM1Importer implements Importer, CIM1Constants {
                     bseqr, "Boundary EQ", bstpr, "Boundary TP",
                     model, new CIMModel(), true);
 
-            LOGGER.debug("CIM model ({EQ, TP, SV}) loaded in "
-                    + (System.currentTimeMillis() - startTime2) + " ms");
+            LOGGER.debug("CIM model ({EQ, TP, SV}) loaded in {} ms", System.currentTimeMillis() - startTime2);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        } catch (Exception e) {
+            throw new CIM1Exception(e);
         }
         return model;
-    }
-
-    private CIMModel loadModel(ReadOnlyDataSource dataSource, Reader bseqr, Reader bstpr) throws Exception {
-        Packaging packaging = detectPackaging(dataSource);
-        if (packaging != null) {
-            switch (packaging) {
-                case MERGED:
-                    return loadMergedModel(dataSource, bseqr, bstpr);
-                case SPLIT:
-                    return loadSplitModel(dataSource, bseqr, bstpr);
-                default:
-                    throw new AssertionError();
-            }
-        } else {
-            throw new CIM1Exception("ME file and {EQ,TP,SV} file set not found");
-        }
     }
 
     private InputStream getEqBoundaryFile(ReadOnlyDataSource dataSource) throws IOException {
@@ -276,7 +258,7 @@ public class CIM1Importer implements Importer, CIM1Constants {
     }
 
     private void copyFile(ReadOnlyDataSource fromDataSource, DataSource toDataSource, String fromFileName, String toFileName) throws IOException {
-        if (fromDataSource.exists(fromFileName)) {
+        if (fromDataSource.fileExists(fromFileName)) {
             try (InputStream is = fromDataSource.newInputStream(fromFileName);
                  OutputStream os = toDataSource.newOutputStream(toFileName, false)) {
                 ByteStreams.copy(is, os);
@@ -289,11 +271,13 @@ public class CIM1Importer implements Importer, CIM1Constants {
         Objects.requireNonNull(fromDataSource);
         Objects.requireNonNull(toDataSource);
         try {
-            String fromBaseName = getBaseName(fromDataSource);
-            String toBaseName = getBaseName(toDataSource);
+            String fromMainFileName = Objects.requireNonNull(getMainFileName(fromDataSource));
+            String toMainFileName = Objects.requireNonNull(getMainFileName(toDataSource));
+            String fromBaseName = getBaseName(fromMainFileName);
+            String toBaseName = getBaseName(toMainFileName);
             for (String suffix : new String[] {"_ME", "_EQ", "_TP", "_SV"}) {
-                String fromFileName = DataSourceUtil.getFileName(fromBaseName, suffix, "xml");
-                String toFileName = DataSourceUtil.getFileName(toBaseName, suffix, "xml");
+                String fromFileName = fromBaseName + suffix + ".xml";
+                String toFileName = toBaseName + suffix + ".xml";
                 copyFile(fromDataSource, toDataSource, fromFileName, toFileName);
             }
             for (String fileName : new String[] {EQ_BOUNDARY_FILE_NAME, TP_BOUNDARY_FILE_NAME}) {
@@ -315,11 +299,15 @@ public class CIM1Importer implements Importer, CIM1Constants {
             try (Reader bseqr = new UnicodeReader(getEqBoundaryFile(dataSource), null);
                  Reader bstpr = new UnicodeReader(getTpBoundaryFile(dataSource), null)) {
 
+                String mainFileName = getMainFileName(dataSource);
+
                 CIMModel model;
-                try {
-                    model = loadModel(dataSource, bseqr, bstpr);
-                } catch (Exception e) {
-                    throw new CIM1Exception(e);
+                if (mainFileName != null && mainFileName.endsWith("_EQ.xml")) {
+                    model = loadSplitModel(dataSource, mainFileName, bseqr, bstpr);
+                } else if (mainFileName != null && mainFileName.endsWith("_ME.xml")) {
+                    model = loadMergedModel(dataSource, mainFileName, bseqr, bstpr);
+                } else {
+                    throw new CIM1Exception("ME file and {EQ,TP,SV} file set not found");
                 }
 
                 boolean invertVoltageStepIncrementOutOfPhase = (Boolean) Importers.readParameter(FORMAT, parameters, INVERT_VOLTAGE_STEP_INCREMENT_OUT_OF_PHASE_PARAMETER);
@@ -332,7 +320,7 @@ public class CIM1Importer implements Importer, CIM1Constants {
                 }
 
                 CIM1NamingStrategyFactory namingStrategyFactory;
-                try (InputStream eqIs = newInputStream(dataSource, "_EQ", "xml")) { // just test eq file to save time
+                try (InputStream eqIs = dataSource.newInputStream(mainFileName)) { // just test main file to save time
                     namingStrategyFactory = usePsseNamingStrategy && isPtiCim14(eqIs) ? new CIM1PsseNamingStrategyFactory()
                                                                                       : new CIM1DefaultNamingStrategyFactory();
                 }
@@ -343,7 +331,7 @@ public class CIM1Importer implements Importer, CIM1Constants {
                                                                      namingStrategyFactory);
 
                 // CIM model to IIDM model
-                network = new CIM1Converter(model, dataSource.getBaseName(), config)
+                network = new CIM1Converter(model, mainFileName, config)
                         .convert();
             }
         } catch (IOException e) {
@@ -352,7 +340,7 @@ public class CIM1Importer implements Importer, CIM1Constants {
             throw new UncheckedXmlStreamException(e);
         }
 
-        LOGGER.debug("CIM import done in " + (System.currentTimeMillis() - startTime) + " ms");
+        LOGGER.debug("CIM import done in {} ms", System.currentTimeMillis() - startTime);
 
         return network;
     }
