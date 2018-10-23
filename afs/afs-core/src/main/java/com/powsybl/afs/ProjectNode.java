@@ -20,6 +20,8 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
 
     protected final boolean folder;
 
+    private boolean ancestor;
+
     protected ProjectNode(ProjectFileCreationContext context, int codeVersion, boolean folder) {
         super(context.getInfo(), context.getStorage(), codeVersion);
         this.project = Objects.requireNonNull(context.getProject());
@@ -57,8 +59,29 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
 
     public void moveTo(ProjectFolder folder) {
         Objects.requireNonNull(folder);
-        storage.setParentNode(info.getId(), folder.getId());
-        storage.flush();
+        if (!isSourceAncestorOf(folder)) {
+            storage.setParentNode(info.getId(), folder.getId());
+            storage.flush();
+        }
+    }
+
+    private boolean isSourceAncestorOf(ProjectFolder folder) {
+        storage.getParentNode(folder.getId()).ifPresent(nodeParent -> {
+            ancestor = false;
+            while (nodeParent != null) {
+                if (info.getId().equals(nodeParent.getId())) {
+                    ancestor = true;
+                    return;
+                } else {
+                    if (storage.getParentNode(nodeParent.getId()).isPresent()) {
+                        nodeParent = storage.getParentNode(nodeParent.getId()).get();
+                    } else {
+                        return;
+                    }
+                }
+            }
+        });
+        return ancestor;
     }
 
     public void delete() {

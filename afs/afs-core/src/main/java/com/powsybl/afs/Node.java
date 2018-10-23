@@ -19,6 +19,8 @@ public class Node extends AbstractNodeBase<Folder> {
 
     protected final boolean folder;
 
+    private boolean ancestor;
+
     protected Node(FileCreationContext context, int codeVersion, boolean folder) {
         super(context.getInfo(), context.getStorage(), codeVersion);
         this.fileSystem = Objects.requireNonNull(context.getFileSystem());
@@ -38,8 +40,29 @@ public class Node extends AbstractNodeBase<Folder> {
 
     public void moveTo(Folder folder) {
         Objects.requireNonNull(folder);
-        storage.setParentNode(info.getId(), folder.getId());
-        storage.flush();
+        if (!isSourceAncestorOf(folder)) {
+            storage.setParentNode(info.getId(), folder.getId());
+            storage.flush();
+        }
+    }
+
+    private boolean isSourceAncestorOf(Folder folder) {
+        storage.getParentNode(folder.getId()).ifPresent(nodeParent -> {
+            ancestor = false;
+            while (nodeParent != null) {
+                if (info.getId().equals(nodeParent.getId())) {
+                    ancestor = true;
+                    return;
+                } else {
+                    if (storage.getParentNode(nodeParent.getId()).isPresent()) {
+                        nodeParent = storage.getParentNode(nodeParent.getId()).get();
+                    } else {
+                        return;
+                    }
+                }
+            }
+        });
+        return ancestor;
     }
 
     @Override
