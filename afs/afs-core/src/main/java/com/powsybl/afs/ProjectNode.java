@@ -70,6 +70,7 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
     }
 
     public void rename(String name) {
+        Objects.requireNonNull(name);
         storage.renameNode(info.getId(), name);
         storage.flush();
     }

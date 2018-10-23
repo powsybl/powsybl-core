@@ -31,6 +31,7 @@ public class Node extends AbstractNodeBase<Folder> {
     }
 
     public void rename(String name) {
+        Objects.requireNonNull(name);
         storage.renameNode(info.getId(), name);
         storage.flush();
     }
