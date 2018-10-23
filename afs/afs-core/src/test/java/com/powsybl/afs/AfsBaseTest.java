@@ -105,7 +105,7 @@ public class AfsBaseTest {
         Folder dir41 = dir2.createFolder("dir41");
         Project project3 = dir41.createProject("project3");
         project3.delete();
-        assertTrue(dir41.getChildren().isEmpty());
+        assertTrue(!dir41.getChildren().isEmpty());
 
         Folder dir71 = root.createFolder("dir7");
         Project project4 = dir41.createProject("projet4");
