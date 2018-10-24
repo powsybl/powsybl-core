@@ -124,10 +124,9 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
 
     @Override
     public void delete() {
-        if(getChildren().isEmpty()){
+        if (getChildren().isEmpty()) {
             super.delete();
-        }
-        else {
+        } else {
             throw new AfsException("non-empty folders can not be deleted");
         }
     }
