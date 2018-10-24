@@ -253,12 +253,6 @@ public interface Network extends Container<Network> {
     Line getLine(String id);
 
     /**
-     * Get a builder to create a new AC tie line.
-     */
-    @Deprecated
-    TieLineAdder newTieLine();
-
-    /**
      * Get all two windings transformers.
      */
     Iterable<TwoWindingsTransformer> getTwoWindingsTransformers();

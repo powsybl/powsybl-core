@@ -240,7 +240,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
 
     @Override
     public Iterable<Line> getLines() {
-        return Iterables.concat(objectStore.getAll(LineImpl.class), objectStore.getAll(TieLineImpl.class));
+        return Collections.unmodifiableCollection(objectStore.getAll(LineImpl.class));
     }
 
     @Override
@@ -270,27 +270,18 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
 
     @Override
     public Stream<Line> getLineStream() {
-        return Stream.concat(objectStore.getAll(LineImpl.class).stream(), objectStore.getAll(TieLineImpl.class).stream());
+        return objectStore.getAll(LineImpl.class).stream().map(Function.identity());
     }
 
     @Override
     public int getLineCount() {
-        return objectStore.getAll(LineImpl.class).size() + objectStore.getAll(TieLineImpl.class).size();
+        return objectStore.getAll(LineImpl.class).size();
     }
 
     @Override
     public LineImpl getLine(String id) {
         LineImpl line = objectStore.get(id, LineImpl.class);
-        if (line == null) {
-            line = objectStore.get(id, TieLineImpl.class);
-        }
         return line;
-    }
-
-    @Override
-    @Deprecated
-    public TieLineAdderImpl newTieLine() {
-        return new TieLineAdderImpl(this);
     }
 
     @Override
@@ -606,7 +597,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         }
 
         protected void fillAdjacencyList(Map<String, Integer> id2num, TIntArrayList[] adjacencyList) {
-            for (LineImpl line : Sets.union(network.objectStore.getAll(LineImpl.class), network.objectStore.getAll(TieLineImpl.class))) {
+            for (LineImpl line : network.objectStore.getAll(LineImpl.class)) {
                 BusExt bus1 = line.getTerminal1().getBusView().getBus();
                 BusExt bus2 = line.getTerminal2().getBusView().getBus();
                 addToAdjacencyList(bus1, bus2, id2num, adjacencyList);

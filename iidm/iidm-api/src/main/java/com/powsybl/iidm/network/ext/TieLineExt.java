@@ -10,7 +10,6 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineCharacteristics;
-import com.powsybl.iidm.network.TieLine;
 
 import java.util.Objects;
 
@@ -35,10 +34,6 @@ public class TieLineExt extends AbstractExtension<Line> {
         check();
     }
 
-    public TieLineExt(Line line, String ucteXnodeCode, TieLine.HalfLine half1, TieLine.HalfLine half2) {
-        this(line, ucteXnodeCode, convert(half1), convert(half2));
-    }
-
     private void check() {
         if (line.getR() != half1.getR() + half2.getR()) {
             throwCharacteristicsConflcitException("r", line.getR(), half1.getR() + half2.getR());
@@ -58,21 +53,6 @@ public class TieLineExt extends AbstractExtension<Line> {
         if (line.getB2() != half1.getB2() + half2.getB2()) {
             throwCharacteristicsConflcitException("b2", line.getB2(), half1.getB2() + half2.getB2());
         }
-    }
-
-    private static TieLineExt.HalfLineImpl convert(TieLine.HalfLine half) {
-        HalfLineImpl halfLine = new HalfLineImpl();
-        halfLine.setId(half.getId())
-                .setName(half.getName())
-                .setR(half.getR())
-                .setX(half.getX())
-                .setG1(half.getG1())
-                .setB1(half.getB1())
-                .setG2(half.getG2())
-                .setB2(half.getB2())
-                .setXnodeP(half.getXnodeP())
-                .setXnodeQ(half.getXnodeQ());
-        return halfLine;
     }
 
     private HalfLine checkHalfLine(HalfLine halfLine, int side) {
