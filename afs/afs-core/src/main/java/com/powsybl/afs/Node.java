@@ -30,10 +30,9 @@ public class Node extends AbstractNodeBase<Folder> {
             Folder folderToDelete = (Folder) this;
             if (folderToDelete.getChildren().isEmpty()) {
                 storage.deleteNode(info.getId());
-                storage.flush();
             }
         }
-
+        storage.flush();
     }
 
     public void rename(String name) {
