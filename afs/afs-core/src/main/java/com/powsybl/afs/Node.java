@@ -26,12 +26,7 @@ public class Node extends AbstractNodeBase<Folder> {
     }
 
     public void delete() {
-        if (isFolder()) {
-            Folder folderToDelete = (Folder) this;
-            if (folderToDelete.getChildren().isEmpty()) {
-                storage.deleteNode(info.getId());
-            }
-        }
+        storage.deleteNode(info.getId());
         storage.flush();
     }
 
