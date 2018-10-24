@@ -131,7 +131,7 @@ public final class HvdcTestNetwork {
     public static Network createLcc() {
         Network network = createBase();
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
-        ShuntCompensator shunt1 = vl1.newShunt()
+        ShuntCompensator shunt1 = vl1.newShuntCompensator()
                 .setId("C1_Filter1")
                 .setName("Filter 1")
                 .setConnectableBus("B1")
@@ -142,7 +142,7 @@ public final class HvdcTestNetwork {
                 .add();
         shunt1.getTerminal()
                 .setQ(25.0);
-        ShuntCompensator shunt2 = vl1.newShunt()
+        ShuntCompensator shunt2 = vl1.newShuntCompensator()
                 .setId("C1_Filter2")
                 .setName("Filter 2")
                 .setConnectableBus("B1")
@@ -197,7 +197,7 @@ public final class HvdcTestNetwork {
                 .setOpen(false)
                 .setRetained(true)
                 .add();
-        ShuntCompensator shunt3 = vl2.newShunt()
+        ShuntCompensator shunt3 = vl2.newShuntCompensator()
                 .setId("C2_Filter1")
                 .setName("Filter 3")
                 .setNode(4)
@@ -207,7 +207,7 @@ public final class HvdcTestNetwork {
                 .add();
         shunt3.getTerminal()
                 .setQ(12.5);
-        ShuntCompensator shunt4 = vl2.newShunt()
+        ShuntCompensator shunt4 = vl2.newShuntCompensator()
                 .setId("C2_Filter2")
                 .setName("Filter 4")
                 .setNode(6)

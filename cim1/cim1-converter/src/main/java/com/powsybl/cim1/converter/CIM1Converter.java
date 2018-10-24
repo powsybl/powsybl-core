@@ -968,7 +968,7 @@ class CIM1Converter implements CIM1Constants {
             LOGGER.warn("Fix {} susceptance per section: 0 -> {}", sc.getId(), bPerSection);
         }
 
-        ShuntCompensator shunt = voltageLevel.newShunt()
+        ShuntCompensator shunt = voltageLevel.newShuntCompensator()
                 .setId(namingStrategy.getId(sc))
                 .setName(namingStrategy.getName(sc))
                 .setEnsureIdUnicity(false)

@@ -321,13 +321,13 @@ public class AmplNetworkReaderTest {
     }
 
     private void testShunts(Network network, AmplNetworkReader reader) throws IOException {
-        ShuntCompensator sc = network.getShunt("C1_Filter1");
+        ShuntCompensator sc = network.getShuntCompensator("C1_Filter1");
 
         assertEquals(25.0, sc.getTerminal().getQ(), 0.0);
 
         reader.readShunts();
 
-        ShuntCompensator sc2 = network.getShunt("C1_Filter1");
+        ShuntCompensator sc2 = network.getShuntCompensator("C1_Filter1");
 
         assertEquals(30.0, sc2.getTerminal().getQ(), 0.0);
     }

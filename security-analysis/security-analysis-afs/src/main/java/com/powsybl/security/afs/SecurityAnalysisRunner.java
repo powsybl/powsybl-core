@@ -105,6 +105,10 @@ public class SecurityAnalysisRunner extends ProjectFile {
         writeParameters(storage, info, parameters);
     }
 
+    public boolean hasResult() {
+        return storage.dataExists(info.getId(), RESULT_JSON_NAME);
+    }
+
     public SecurityAnalysisResult readResult() {
         try (InputStream is = storage.readBinaryData(info.getId(), RESULT_JSON_NAME).orElse(null)) {
             if (is != null) {

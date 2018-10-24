@@ -371,23 +371,59 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         return objectStore.get(id, LoadImpl.class);
     }
 
+    /**
+     * @deprecated Use {@link #getShuntCompensators)} instead.
+     */
     @Override
+    @Deprecated
     public Iterable<ShuntCompensator> getShunts() {
+        return getShuntCompensators();
+    }
+
+    /**
+     * @deprecated Use {@link #getShuntCompensatorStream()} instead.
+     */
+    @Override
+    @Deprecated
+    public Stream<ShuntCompensator> getShuntStream() {
+        return getShuntCompensatorStream();
+    }
+
+    /**
+     * @deprecated Use {@link #getShuntCompensatorCount()} instead.
+     */
+    @Override
+    @Deprecated
+    public int getShuntCount() {
+        return getShuntCompensatorCount();
+    }
+
+    /**
+     * @deprecated Use {@link #getShuntCompensator(String)} instead.
+     */
+    @Override
+    @Deprecated
+    public ShuntCompensatorImpl getShunt(String id) {
+        return getShuntCompensator(id);
+    }
+
+    @Override
+    public Iterable<ShuntCompensator> getShuntCompensators() {
         return Collections.unmodifiableCollection(objectStore.getAll(ShuntCompensatorImpl.class));
     }
 
     @Override
-    public Stream<ShuntCompensator> getShuntStream() {
+    public Stream<ShuntCompensator> getShuntCompensatorStream() {
         return objectStore.getAll(ShuntCompensatorImpl.class).stream().map(Function.identity());
     }
 
     @Override
-    public int getShuntCount() {
+    public int getShuntCompensatorCount() {
         return objectStore.getAll(ShuntCompensatorImpl.class).size();
     }
 
     @Override
-    public ShuntCompensatorImpl getShunt(String id) {
+    public ShuntCompensatorImpl getShuntCompensator(String id) {
         return objectStore.get(id, ShuntCompensatorImpl.class);
     }
 
