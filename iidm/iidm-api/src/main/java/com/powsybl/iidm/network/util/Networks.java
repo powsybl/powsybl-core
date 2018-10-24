@@ -10,7 +10,6 @@ package com.powsybl.iidm.network.util;
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.ext.TieLineExt;
 import org.nocrala.tools.texttablefmt.BorderStyle;
 import org.nocrala.tools.texttablefmt.CellStyle;
 import org.nocrala.tools.texttablefmt.Table;
@@ -327,38 +326,6 @@ public final class Networks {
                         g.getTerminal().getP(), g.getTerminal().getQ(), g.getTerminal().getBusBreakerView().getConnectableBus().getV());
             }
         }
-    }
-
-    public static void replaceTieLineByExtension(Network network) {
-        network.getLineStream()
-                .filter(Line::isTieLine)
-                .forEach(l -> {
-                    TieLine tieLine = (TieLine) l;
-                    String vl1 = l.getTerminal1().getVoltageLevel().getId();
-                    String vl2 = l.getTerminal2().getVoltageLevel().getId();
-                    String bus1 = l.getTerminal1().getBusBreakerView().getBus().getId();
-                    String bus2 = l.getTerminal2().getBusBreakerView().getBus().getId();
-                    l.remove();
-                    Line line = network.newLine()
-                            .setId(l.getId())
-                            .setName(l.getName())
-                                .setR(l.getR())
-                                .setX(l.getX())
-                                .setG1(l.getG1())
-                                .setB1(l.getB1())
-                                .setG2(l.getG2())
-                                .setB2(l.getB2())
-                                .setVoltageLevel1(vl1)
-                                .setVoltageLevel2(vl2)
-                                .setConnectableBus1(bus1)
-                                .setConnectableBus2(bus2)
-                                .setBus1(bus1)
-                                .setBus2(bus2)
-                            .add();
-                    TieLine.HalfLine half1 = tieLine.getHalf1();
-                    TieLineExt tieLineExt = new TieLineExt(l, tieLine.getUcteXnodeCode(), tieLine.getHalf1(), tieLine.getHalf2());
-                    line.addExtension(TieLineExt.class, tieLineExt);
-                });
     }
 
 }

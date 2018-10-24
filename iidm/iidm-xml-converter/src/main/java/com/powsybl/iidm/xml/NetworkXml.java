@@ -21,7 +21,6 @@ import com.powsybl.iidm.export.BusFilter;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.Networks;
 import javanet.staxutils.IndentingXMLStreamWriter;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -296,12 +295,9 @@ public final class NetworkXml {
                         SubstationXml.INSTANCE.read(network, context);
                         break;
 
+                    case LineXml.ROOT_ELEMENT_NAME_TIELINE:
                     case LineXml.ROOT_ELEMENT_NAME:
                         LineXml.INSTANCE.read(network, context);
-                        break;
-
-                    case TieLineXml.ROOT_ELEMENT_NAME:
-                        TieLineXml.INSTANCE.read(network, context);
                         break;
 
                     case HvdcLineXml.ROOT_ELEMENT_NAME:
@@ -331,10 +327,6 @@ public final class NetworkXml {
                 } else {
                     LOGGER.error("Extensions {} not found", extensionNamesNotFound);
                 }
-            }
-
-            if (context.getVersion().equals("1_0") && network.getLineStream().anyMatch(Line::isTieLine)) {
-                Networks.replaceTieLineByExtension(network);
             }
 
             return network;
