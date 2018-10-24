@@ -6,7 +6,8 @@
  */
 package com.powsybl.ucte.converter;
 
-import com.powsybl.commons.datasource.DataSourceUtil;
+import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.entsoe.util.EntsoeArea;
 import com.powsybl.entsoe.util.EntsoeGeographicalCode;
 import com.powsybl.entsoe.util.MergedXnode;
@@ -22,16 +23,24 @@ import static org.junit.Assert.*;
  * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
 public class UcteImporterTest {
+
+    private ReadOnlyDataSource createDataSource(String fileName) {
+        MemDataSource dataSource = new MemDataSource(fileName);
+        dataSource.putData(fileName, getClass().getResourceAsStream("/" + fileName));
+        return dataSource;
+    }
+
     @Test
     public void trimIssueTest() {
         // Import network that could fail because of id conflicts due to trim mechanism
-        ReadOnlyMemDataSource dataSource = DataSourceUtil.createReadOnlyMemDataSource("importIssue.uct", getClass().getResourceAsStream("/importIssue.uct"));
+        ReadOnlyDataSource dataSource = createDataSource("importIssue.uct");
         new UcteImporter().importData(dataSource, null);
     }
 
     @Test
     public void countryAssociationIssueTest() {
-        ReadOnlyMemDataSource dataSource = DataSourceUtil.createReadOnlyMemDataSource("countryIssue.uct", getClass().getResourceAsStream("/countryIssue.uct"));
+        ReadOnlyDataSource dataSource = createDataSource("countryIssue.uct");
+
         Network network = new UcteImporter().importData(dataSource, null);
 
         assertEquals(Country.ES, network.getSubstation("EHORTA").getCountry());
@@ -43,7 +52,8 @@ public class UcteImporterTest {
 
     @Test
     public void germanTsosImport() throws Exception {
-        ReadOnlyMemDataSource dataSource = DataSourceUtil.createReadOnlyMemDataSource("germanTsos.uct", getClass().getResourceAsStream("/germanTsos.uct"));
+        ReadOnlyDataSource dataSource = createDataSource("germanTsos.uct");
+
         Network network = new UcteImporter().importData(dataSource, null);
 
         //Check D4 is correctly parsed
@@ -67,7 +77,8 @@ public class UcteImporterTest {
 
     @Test
     public void elementNameTest() {
-        ReadOnlyMemDataSource dataSource = DataSourceUtil.createReadOnlyMemDataSource("elementName.uct", getClass().getResourceAsStream("/elementName.uct"));
+        ReadOnlyDataSource dataSource = createDataSource("elementName.uct");
+
         Network network = new UcteImporter().importData(dataSource, null);
         // Test Element name Line
         assertEquals("Test Line", network.getLine("F_SU1_12 F_SU2_11 1").getProperties().getProperty("elementName"));
@@ -104,7 +115,8 @@ public class UcteImporterTest {
 
     @Test
     public void xnodeMergingIssueTest() {
-        ReadOnlyMemDataSource dataSource = DataSourceUtil.createReadOnlyMemDataSource("mergedXnodeIssue.uct", getClass().getResourceAsStream("/mergedXnodeIssue.uct"));
+        ReadOnlyDataSource dataSource = createDataSource("mergedXnodeIssue.uct");
+
         Network network = new UcteImporter().importData(dataSource, null);
 
         assertEquals(2, network.getVoltageLevelCount());
@@ -118,7 +130,8 @@ public class UcteImporterTest {
 
     @Test
     public void lineAndTransformerSameId() {
-        ReadOnlyMemDataSource dataSource = DataSourceUtil.createReadOnlyMemDataSource("sameId.uct", getClass().getResourceAsStream("/sameId.uct"));
+        ReadOnlyDataSource dataSource = createDataSource("sameId.uct");
+
         Network network = new UcteImporter().importData(dataSource, null);
 
         assertEquals(0, network.getLineCount());

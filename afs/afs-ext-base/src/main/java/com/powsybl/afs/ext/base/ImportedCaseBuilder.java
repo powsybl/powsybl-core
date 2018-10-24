@@ -98,7 +98,7 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
         if (name == null) {
             name = network.getId();
         }
-        DataSource memDataSource = new MemDataSource();
+        DataSource memDataSource = new MemDataSource("mem.xiidm");
         Exporters.export("XIIDM", network, null, memDataSource);
         return withDatasource(memDataSource);
     }

@@ -93,7 +93,7 @@ public class CIM1Importer implements Importer, CIM1Constants {
                 mainFileName = dataSource.getMainFileName();
             }
         } else {
-            Set<String> eqFileNames = dataSource.getFileNames(".*_EQ.xml");
+            Set<String> eqFileNames = dataSource.getFileNames("^(?!ENTSO-E_Boundary_Set_EU).*_EQ.xml");
             Set<String> meFileNames = dataSource.getFileNames(".*_ME.xml");
             if (eqFileNames.size() + meFileNames.size() == 1) {
                 if (!eqFileNames.isEmpty()) {

@@ -12,9 +12,6 @@ import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ComponentDefaultConfig;
-import com.powsybl.tools.Command;
-import com.powsybl.tools.Tool;
-import com.powsybl.tools.ToolRunningContext;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.ContingenciesProviderFactory;
@@ -23,6 +20,9 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.simulation.securityindexes.SecurityIndex;
 import com.powsybl.simulation.securityindexes.SecurityIndexId;
 import com.powsybl.simulation.securityindexes.SecurityIndexType;
+import com.powsybl.tools.Command;
+import com.powsybl.tools.Tool;
+import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -296,7 +296,7 @@ public class ImpactAnalysisTool implements Tool {
             } catch (Exception e) {
                 LOGGER.error(e.toString(), e);
             }
-        }, dataSource -> context.getOutputStream().println("loading case " + dataSource.getBaseName() + "..."));
+        }, dataSource -> context.getOutputStream().println("loading case " + dataSource.getMainFileName() + "..."));
 
         writeCsv(securityIndexesPerCase, outputCsvFile);
     }

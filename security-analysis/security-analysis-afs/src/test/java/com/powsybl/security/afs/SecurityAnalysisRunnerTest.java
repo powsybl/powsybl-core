@@ -91,6 +91,11 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
         }
 
         @Override
+        public String getPrettyName(ReadOnlyDataSource dataSource) {
+            return "";
+        }
+
+        @Override
         public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
             Network network = Mockito.mock(Network.class);
             StateManager stateManager = Mockito.mock(StateManager.class);
