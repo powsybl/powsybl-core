@@ -72,7 +72,7 @@ public class UcteImporterTest {
         Network network = new UcteImporter().importData(dataSource, null);
         // Test Element name Line
         assertEquals("Test Line", network.getLine("F_SU1_12 F_SU2_11 1").getProperties().getProperty("elementName"));
-        // Test Dangling Line element name
+        // Test Boundary Line element name
         assertEquals("Test DL", network.getBoundaryLine("XG__F_21 F_SU1_21 1").getProperties().getProperty("elementName"));
         // Test Switch element name
         assertEquals("Test Coupler", network.getSwitch("F_SU1_12 F_SU1_11 1").getProperties().getProperty("elementName"));

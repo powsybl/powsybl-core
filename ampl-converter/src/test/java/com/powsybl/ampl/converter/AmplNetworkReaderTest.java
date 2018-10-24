@@ -11,7 +11,7 @@ import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
-import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import com.powsybl.iidm.network.test.BoundaryLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import com.powsybl.iidm.network.test.PhaseShifterTestCaseFactory;
@@ -77,8 +77,8 @@ public class AmplNetworkReaderTest {
     }
 
     @Test
-    public void readDanglingLines() throws IOException {
-        Network network = DanglingLineNetworkFactory.create();
+    public void readBoundaryLines() throws IOException {
+        Network network = BoundaryLineNetworkFactory.create();
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
         MemDataSource memDataSource = new MemDataSource();

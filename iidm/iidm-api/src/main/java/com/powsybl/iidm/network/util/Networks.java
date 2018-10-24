@@ -101,7 +101,7 @@ public final class Networks {
 
         addBuses(network, balanceMainCC, balanceOtherCC);
         addLoads(network, balanceMainCC, balanceOtherCC);
-        addDanglingLines(network, balanceMainCC, balanceOtherCC);
+        addBoundaryLines(network, balanceMainCC, balanceOtherCC);
         addGenerators(network, balanceMainCC, balanceOtherCC);
         addShuntCompensators(network, balanceMainCC, balanceOtherCC);
 
@@ -143,7 +143,7 @@ public final class Networks {
         }
     }
 
-    private static void addDanglingLines(Network network, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
+    private static void addBoundaryLines(Network network, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
         for (BoundaryLine dl : network.getBoundaryLines()) {
             Terminal.BusBreakerView view = dl.getTerminal().getBusBreakerView();
             if (view.getBus() != null) {

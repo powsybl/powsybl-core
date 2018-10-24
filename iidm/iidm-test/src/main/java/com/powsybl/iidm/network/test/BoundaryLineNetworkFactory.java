@@ -11,13 +11,13 @@ import com.powsybl.iidm.network.*;
 /**
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
-public final class DanglingLineNetworkFactory {
+public final class BoundaryLineNetworkFactory {
 
-    private DanglingLineNetworkFactory() {
+    private BoundaryLineNetworkFactory() {
     }
 
     public static Network create() {
-        Network network = NetworkFactory.create("dangling-line", "test");
+        Network network = NetworkFactory.create("boundary-line", "test");
 
         Substation substation = network.newSubstation()
             .setId("S")

@@ -145,15 +145,15 @@ public class AmplNetworkWriter {
         return middleCcNum;
     }
 
-    private static String getDanglingLineMiddleBusId(BoundaryLine dl) {
+    private static String getBoundaryLineMiddleBusId(BoundaryLine dl) {
         return dl.getId(); // same id as the dangling line
     }
 
-    private static String getDanglingLineMiddleVoltageLevelId(BoundaryLine dl) {
+    private static String getBoundaryLineMiddleVoltageLevelId(BoundaryLine dl) {
         return dl.getId(); // same id as the dangling line
     }
 
-    private static int getDanglingLineMiddleBusComponentNum(AmplExportContext context, BoundaryLine dl) {
+    private static int getBoundaryLineMiddleBusComponentNum(AmplExportContext context, BoundaryLine dl) {
         Bus b = AmplUtil.getBus(dl.getTerminal());
         int middleCcNum;
         // if the connection bus of the dangling line is null or not in the main cc, the middle bus is
@@ -241,7 +241,7 @@ public class AmplNetworkWriter {
             }
             // voltage level associated to dangling lines middle bus
             for (BoundaryLine dl : network.getBoundaryLines()) {
-                String vlId = getDanglingLineMiddleVoltageLevelId(dl);
+                String vlId = getBoundaryLineMiddleVoltageLevelId(dl);
                 int num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vlId);
                 VoltageLevel vl = dl.getTerminal().getVoltageLevel();
                 double nomV = vl.getNominalV();
@@ -326,7 +326,7 @@ public class AmplNetworkWriter {
 
             writeThreeWindingsTransformerMiddleBuses(context, formatter);
 
-            writeDanglingLineMiddleBuses(context, formatter);
+            writeBoundaryLineMiddleBuses(context, formatter);
 
             if (config.isExportXNodes()) {
                 writeTieLineMiddleBuses(context, formatter);
@@ -403,15 +403,15 @@ public class AmplNetworkWriter {
         }
     }
 
-    private void writeDanglingLineMiddleBuses(AmplExportContext context, TableFormatter formatter) throws IOException {
+    private void writeBoundaryLineMiddleBuses(AmplExportContext context, TableFormatter formatter) throws IOException {
         for (BoundaryLine dl : network.getBoundaryLines()) {
             Terminal t = dl.getTerminal();
             Bus b = AmplUtil.getBus(dl.getTerminal());
 
-            int middleCcNum = getDanglingLineMiddleBusComponentNum(context, dl);
+            int middleCcNum = getBoundaryLineMiddleBusComponentNum(context, dl);
             if (connectedComponentToExport(middleCcNum)) {
-                String middleBusId = getDanglingLineMiddleBusId(dl);
-                String middleVlId = getDanglingLineMiddleVoltageLevelId(dl);
+                String middleBusId = getBoundaryLineMiddleBusId(dl);
+                String middleVlId = getBoundaryLineMiddleVoltageLevelId(dl);
                 context.busIdsToExport.add(middleBusId);
                 int middleBusNum = mapper.getInt(AmplSubset.BUS, middleBusId);
                 int middleVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, middleVlId);
@@ -510,7 +510,7 @@ public class AmplNetworkWriter {
 
             writeThreeWindingsTransformers(context, formatter);
 
-            writeDanglingLines(context, formatter);
+            writeBoundaryLines(context, formatter);
         }
     }
 
@@ -871,19 +871,19 @@ public class AmplNetworkWriter {
         }
     }
 
-    private void writeDanglingLines(AmplExportContext context, TableFormatter formatter) throws IOException {
+    private void writeBoundaryLines(AmplExportContext context, TableFormatter formatter) throws IOException {
         for (BoundaryLine dl : network.getBoundaryLines()) {
             Terminal t = dl.getTerminal();
             Bus bus1 = AmplUtil.getBus(t);
             String bus1Id = getBusId(bus1);
             int bus1Num = getBusNum(bus1);
-            String middleBusId = getDanglingLineMiddleBusId(dl);
+            String middleBusId = getBoundaryLineMiddleBusId(dl);
             int middleBusNum = mapper.getInt(AmplSubset.BUS, middleBusId);
             if (isOnlyMainCc() && !(isBusExported(context, bus1Id) || isBusExported(context, middleBusId))) {
                 continue;
             }
             VoltageLevel vl = t.getVoltageLevel();
-            String middleVlId = getDanglingLineMiddleVoltageLevelId(dl);
+            String middleVlId = getBoundaryLineMiddleVoltageLevelId(dl);
             context.voltageLevelIdsToExport.add(vl.getId());
             context.voltageLevelIdsToExport.add(middleVlId);
             String id = dl.getId();
@@ -1190,7 +1190,7 @@ public class AmplNetworkWriter {
                 addExtensions(num, l);
             }
             for (BoundaryLine dl : network.getBoundaryLines()) {
-                String middleBusId = getDanglingLineMiddleBusId(dl);
+                String middleBusId = getBoundaryLineMiddleBusId(dl);
                 String id = dl.getId();
                 int num = mapper.getInt(AmplSubset.LOAD, id);
                 int busNum = mapper.getInt(AmplSubset.BUS, middleBusId);
@@ -1198,7 +1198,7 @@ public class AmplNetworkWriter {
                     skipped.add(dl.getId());
                     continue;
                 }
-                String middleVlId = getDanglingLineMiddleVoltageLevelId(dl);
+                String middleVlId = getBoundaryLineMiddleVoltageLevelId(dl);
                 int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, middleVlId);
                 formatter.writeCell(num)
                          .writeCell(busNum)
@@ -1488,7 +1488,7 @@ public class AmplNetworkWriter {
 
             writeThreeWindingsTransformerCurrentLimits(formatter);
 
-            writeDanglingLineCurrentLimits(formatter);
+            writeBoundaryLineCurrentLimits(formatter);
         }
     }
 
@@ -1521,7 +1521,7 @@ public class AmplNetworkWriter {
         }
     }
 
-    private void writeDanglingLineCurrentLimits(TableFormatter formatter) throws IOException {
+    private void writeBoundaryLineCurrentLimits(TableFormatter formatter) throws IOException {
         for (BoundaryLine dl : network.getBoundaryLines()) {
             String branchId = dl.getId();
             if (dl.getCurrentLimits() != null) {

@@ -225,12 +225,12 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
-    public Iterable<BoundaryLine> getDanglingLines() {
+    public Iterable<BoundaryLine> getBoundaryLines() {
         return getConnectables(BoundaryLine.class);
     }
 
     @Override
-    public Stream<BoundaryLine> getDanglingLineStream() {
+    public Stream<BoundaryLine> getBoundaryLineStream() {
         return getConnectableStream(BoundaryLine.class);
     }
 

@@ -74,7 +74,7 @@ public class BoundaryLineTest {
                     .add();
         BoundaryLine boundaryLine = network.getBoundaryLine(id);
         // adder
-        assertEquals(ConnectableType.DANGLING_LINE, boundaryLine.getType());
+        assertEquals(ConnectableType.BOUNDARY_LINE, boundaryLine.getType());
         assertEquals(r, boundaryLine.getR(), 0.0);
         assertEquals(x, boundaryLine.getX(), 0.0);
         assertEquals(g, boundaryLine.getG(), 0.0);
@@ -119,55 +119,55 @@ public class BoundaryLineTest {
     public void testInvalidR() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("r is invalid");
-        createDanglingLine("invalid", "invalid", Double.NaN, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
+        createBoundaryLine("invalid", "invalid", Double.NaN, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
     }
 
     @Test
     public void testInvalidX() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("x is invalid");
-        createDanglingLine("invalid", "invalid", 1.0, Double.NaN, 1.0, 1.0, 1.0, 1.0, "code");
+        createBoundaryLine("invalid", "invalid", 1.0, Double.NaN, 1.0, 1.0, 1.0, 1.0, "code");
     }
 
     @Test
     public void testInvalidG() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("g is invalid");
-        createDanglingLine("invalid", "invalid", 1.0, 1.0, Double.NaN, 1.0, 1.0, 1.0, "code");
+        createBoundaryLine("invalid", "invalid", 1.0, 1.0, Double.NaN, 1.0, 1.0, 1.0, "code");
     }
 
     @Test
     public void testInvalidB() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("b is invalid");
-        createDanglingLine("invalid", "invalid", 1.0, 1.0, 1.0, Double.NaN, 1.0, 1.0, "code");
+        createBoundaryLine("invalid", "invalid", 1.0, 1.0, 1.0, Double.NaN, 1.0, 1.0, "code");
     }
 
     @Test
     public void testInvalidP0() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("p0 is invalid");
-        createDanglingLine("invalid", "invalid", 1.0, 1.0, 1.0, 1.0, Double.NaN, 1.0, "code");
+        createBoundaryLine("invalid", "invalid", 1.0, 1.0, 1.0, 1.0, Double.NaN, 1.0, "code");
     }
 
     @Test
     public void testInvalidQ0() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("q0 is invalid");
-        createDanglingLine("invalid", "invalid", 1.0, 1.0, 1.0, 1.0, 1.0, Double.NaN, "code");
+        createBoundaryLine("invalid", "invalid", 1.0, 1.0, 1.0, 1.0, 1.0, Double.NaN, "code");
     }
 
     @Test
-    public void duplicateDanglingLine() {
-        createDanglingLine("duplicate", "duplicate", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
+    public void duplicateBoundaryLine() {
+        createBoundaryLine("duplicate", "duplicate", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
         assertNotNull(network.getBoundaryLine("duplicate"));
         thrown.expect(PowsyblException.class);
-        createDanglingLine("duplicate", "duplicate", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
+        createBoundaryLine("duplicate", "duplicate", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
     }
 
     @Test
     public void testRemove() {
-        createDanglingLine("toRemove", "toRemove", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
+        createBoundaryLine("toRemove", "toRemove", 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, "code");
         BoundaryLine boundaryLine = network.getBoundaryLine("toRemove");
         int count = network.getBoundaryLineCount();
         assertNotNull(boundaryLine);
@@ -180,7 +180,7 @@ public class BoundaryLineTest {
     @Test
     public void testSetterGetterInMultiStates() {
         StateManager stateManager = network.getStateManager();
-        createDanglingLine("testMultiState", "testMultiState", 1.0, 1.1, 2.2, 1.0, 1.0, 1.2, "code");
+        createBoundaryLine("testMultiState", "testMultiState", 1.0, 1.1, 2.2, 1.0, 1.0, 1.2, "code");
         BoundaryLine boundaryLine = network.getBoundaryLine("testMultiState");
         List<String> statesToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         stateManager.cloneState(StateManagerConstants.INITIAL_STATE_ID, statesToAdd);
@@ -216,7 +216,7 @@ public class BoundaryLineTest {
         }
     }
 
-    private void createDanglingLine(String id, String name, double r, double x, double g, double b,
+    private void createBoundaryLine(String id, String name, double r, double x, double g, double b,
                                     double p0, double q0, String ucteCode) {
         voltageLevel.newBoundaryLine()
                         .setId(id)

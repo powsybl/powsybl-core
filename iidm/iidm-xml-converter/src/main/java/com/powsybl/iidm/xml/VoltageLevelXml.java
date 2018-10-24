@@ -70,7 +70,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         writeGenerators(vl, context);
         writeLoads(vl, context);
         writeShuntCompensators(vl, context);
-        writeDanglingLines(vl, context);
+        writeBoundaryLines(vl, context);
         writeStaticVarCompensators(vl, context);
         writeVscConverterStations(vl, context);
         writeLccConverterStations(vl, context);
@@ -145,8 +145,8 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         }
     }
 
-    private void writeDanglingLines(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        for (BoundaryLine dl : vl.getDanglingLines()) {
+    private void writeBoundaryLines(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+        for (BoundaryLine dl : vl.getBoundaryLines()) {
             if (!context.getFilter().test(dl)) {
                 continue;
             }

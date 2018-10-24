@@ -101,7 +101,7 @@ public class BusesValidationTest extends AbstractValidationTest {
         Mockito.when(bus.getStaticVarCompensatorStream()).thenAnswer(dummyShunts -> Stream.empty());
         Mockito.when(bus.getVscConverterStationStream()).thenAnswer(dummyShunts -> Stream.empty());
         Mockito.when(bus.getLineStream()).thenAnswer(dummyLines -> Stream.of(line));
-        Mockito.when(bus.getBoundaryLineStream()).thenAnswer(dummyDanglingLines -> Stream.of(boundaryLine));
+        Mockito.when(bus.getBoundaryLineStream()).thenAnswer(dummyBoundaryLines -> Stream.of(boundaryLine));
         Mockito.when(bus.getTwoWindingTransformerStream()).thenAnswer(dummyShunts -> Stream.empty());
         Mockito.when(bus.getThreeWindingTransformerStream()).thenAnswer(dummyShunts -> Stream.empty());
         Mockito.when(bus.isInMainConnectedComponent()).thenReturn(mainComponent);

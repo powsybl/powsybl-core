@@ -66,7 +66,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> {
                 case LINE:
                 case TWO_WINDINGS_TRANSFORMER:
                 case THREE_WINDINGS_TRANSFORMER:
-                case DANGLING_LINE:
+                case BOUNDARY_LINE:
                     // skip
                     break;
                 case GENERATOR:
@@ -95,7 +95,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> {
                 case LINE:
                 case TWO_WINDINGS_TRANSFORMER:
                 case THREE_WINDINGS_TRANSFORMER:
-                case DANGLING_LINE:
+                case BOUNDARY_LINE:
                     // skip
                     break;
                 case GENERATOR:
@@ -273,8 +273,8 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> {
                     visitor.visitLoad((LoadImpl) connectable);
                     break;
 
-                case DANGLING_LINE:
-                    visitor.visitDanglingLine((BoundaryLineImpl) connectable);
+                case BOUNDARY_LINE:
+                    visitor.visitBoundaryLine((BoundaryLineImpl) connectable);
                     break;
 
                 case STATIC_VAR_COMPENSATOR:

@@ -233,7 +233,7 @@ class CIM1Converter implements CIM1Constants {
     }
 
     /* xnode is on side 2 */
-    private void createDanglingLine(Network network, cim1.model.ACLineSegment l,
+    private void createBoundaryLine(Network network, cim1.model.ACLineSegment l,
                                     cim1.model.Terminal t1, cim1.model.Terminal t2,
                                     cim1.model.TopologicalNode tn1, cim1.model.TopologicalNode tn2,
                                     cim1.model.EnergyConsumer ec2,
@@ -402,7 +402,7 @@ class CIM1Converter implements CIM1Constants {
                     // is connected to the XNODE => replace the line, the XNODE
                     // and the load by an IIDM boundary line
                     cim1.model.EnergyConsumer ec1 = boundaryXNodes.get(tn1);
-                    createDanglingLine(network, l, t2, t1, tn2, tn1, ec1, noOperationalLimitInOperationalLimitSet);
+                    createBoundaryLine(network, l, t2, t1, tn2, tn1, ec1, noOperationalLimitInOperationalLimitSet);
                 }
                     // nothing to do because merged line has already been created
                     // by test on tn2
@@ -412,7 +412,7 @@ class CIM1Converter implements CIM1Constants {
                     // is connected to the XNODE => replace the line, the XNODE
                     // and the load by an IIDM boundary line
                     cim1.model.EnergyConsumer ec2 = boundaryXNodes.get(tn2);
-                    createDanglingLine(network, l, t1, t2, tn1, tn2, ec2, noOperationalLimitInOperationalLimitSet);
+                    createBoundaryLine(network, l, t1, t2, tn1, tn2, ec2, noOperationalLimitInOperationalLimitSet);
                 } else {
                     // side 2 of the line is connected to a XNODE. Another line
                     // is connected to the XNODE and no non null injection is

@@ -80,8 +80,8 @@ public final class AmplUtil {
         // Three windings transformers
         fillThreeWindingsTransformers(mapper, network);
 
-        // Dangling lines
-        fillDanglingLines(mapper, network);
+        // Boundary lines
+        fillBoundaryLines(mapper, network);
 
         // loads
         network.getLoadStream().forEach(l -> mapper.newInt(AmplSubset.LOAD, l.getId()));
@@ -177,7 +177,7 @@ public final class AmplUtil {
         }
     }
 
-    private static void fillDanglingLines(StringToIntMapper<AmplSubset> mapper, Network network) {
+    private static void fillBoundaryLines(StringToIntMapper<AmplSubset> mapper, Network network) {
         for (BoundaryLine dl : network.getBoundaryLines()) {
             mapper.newInt(AmplSubset.VOLTAGE_LEVEL, dl.getId());
             mapper.newInt(AmplSubset.BUS, dl.getId());

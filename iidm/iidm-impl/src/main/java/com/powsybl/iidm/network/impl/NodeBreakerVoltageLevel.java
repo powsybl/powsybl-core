@@ -468,7 +468,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                         case LOAD:
                         case GENERATOR:
                         case SHUNT_COMPENSATOR:
-                        case DANGLING_LINE:
+                        case BOUNDARY_LINE:
                         case STATIC_VAR_COMPENSATOR:
                             feederCount++;
                             break;

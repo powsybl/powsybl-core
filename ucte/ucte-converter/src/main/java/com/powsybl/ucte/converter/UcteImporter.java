@@ -297,7 +297,7 @@ public class UcteImporter implements Importer {
                 .add();
     }
 
-    private static void createDanglingLine(UcteLine ucteLine, boolean connected,
+    private static void createBoundaryLine(UcteLine ucteLine, boolean connected,
                                            UcteNode xnode, UcteNodeCode nodeCode, UcteVoltageLevel ucteVoltageLevel,
                                            Network network) {
 
@@ -459,14 +459,14 @@ public class UcteImporter implements Importer {
 
                 UcteNode xnode = ucteNetwork.getNode(nodeCode1);
 
-                createDanglingLine(ucteLine, connected, xnode, nodeCode2, ucteVoltageLevel2, network);
+                createBoundaryLine(ucteLine, connected, xnode, nodeCode2, ucteVoltageLevel2, network);
 
             } else if (nodeCode1.getUcteCountryCode() != UcteCountryCode.XX
                     && nodeCode2.getUcteCountryCode() == UcteCountryCode.XX) {
 
                 UcteNode xnode = ucteNetwork.getNode(nodeCode2);
 
-                createDanglingLine(ucteLine, connected, xnode, nodeCode1, ucteVoltageLevel1, network);
+                createBoundaryLine(ucteLine, connected, xnode, nodeCode1, ucteVoltageLevel1, network);
 
             } else {
                 throw new UcteException("Line between 2 Xnodes");
@@ -800,7 +800,7 @@ public class UcteImporter implements Importer {
         return dl2;
     }
 
-    private void mergeXnodeDanglingLines(Network network) {
+    private void mergeXnodeBoundaryLines(Network network) {
         Multimap<String, BoundaryLine> boundaryLinesByXnodeCode = HashMultimap.create();
         for (BoundaryLine dl : network.getBoundaryLines()) {
             boundaryLinesByXnodeCode.put(dl.getExtension(Xnode.class).getCode(), dl);
@@ -944,7 +944,7 @@ public class UcteImporter implements Importer {
                 createLines(ucteNetwork, network);
                 createTransformers(ucteNetwork, network, ucteFileName);
 
-                mergeXnodeDanglingLines(network);
+                mergeXnodeBoundaryLines(network);
 
                 stopwatch.stop();
                 LOGGER.debug("UCTE import done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));

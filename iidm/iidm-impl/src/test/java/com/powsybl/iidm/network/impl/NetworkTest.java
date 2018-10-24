@@ -184,7 +184,7 @@ public class NetworkTest {
         assertEquals(Collections.emptyList(), mapper.apply(network.getSubstation("P2").getThreeWindingsTransformerStream()));
 
         assertEquals(Collections.emptyList(), mapper.apply(network.getBoundaryLineStream()));
-        assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel("VLHV1").getDanglingLineStream()));
+        assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel("VLHV1").getBoundaryLineStream()));
         assertEquals(network.getBoundaryLineCount(), network.getBoundaryLineStream().count());
         assertEquals(Collections.emptyList(), mapper.apply(network.getShuntStream()));
         assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel("VLHV2").getShuntStream()));

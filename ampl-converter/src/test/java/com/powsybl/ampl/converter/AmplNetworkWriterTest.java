@@ -127,17 +127,17 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
     }
 
     @Test
-    public void writeDanglingLines() throws IOException {
-        Network network = DanglingLineNetworkFactory.create();
+    public void writeBoundaryLines() throws IOException {
+        Network network = BoundaryLineNetworkFactory.create();
 
         MemDataSource dataSource = new MemDataSource();
         export(network, dataSource);
 
-        assertEqualsToRef(dataSource, "_network_branches", "inputs/dangling-line-branches.txt");
-        assertEqualsToRef(dataSource, "_network_buses", "inputs/dangling-line-buses.txt");
-        assertEqualsToRef(dataSource, "_network_limits", "inputs/dangling-line-limits.txt");
-        assertEqualsToRef(dataSource, "_network_loads", "inputs/dangling-line-loads.txt");
-        assertEqualsToRef(dataSource, "_network_substations", "inputs/dangling-line-substations.txt");
+        assertEqualsToRef(dataSource, "_network_branches", "inputs/boundary-line-branches.txt");
+        assertEqualsToRef(dataSource, "_network_buses", "inputs/boundary-line-buses.txt");
+        assertEqualsToRef(dataSource, "_network_limits", "inputs/boundary-line-limits.txt");
+        assertEqualsToRef(dataSource, "_network_loads", "inputs/boundary-line-loads.txt");
+        assertEqualsToRef(dataSource, "_network_substations", "inputs/boundary-line-substations.txt");
     }
 
     @Test

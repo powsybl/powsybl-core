@@ -22,7 +22,7 @@ public class BranchDataTest {
     // Some tests for a transmission line disconnected at one end
 
     @Test
-    public void testDanglingLine() {
+    public void testBoundaryLine() {
         BranchTestCase t = lineEnd2Disconnected();
 
         // The expected values at the other end will be the same when we disconnect end 1 or end 2
@@ -52,9 +52,9 @@ public class BranchDataTest {
     }
 
     @Test
-    public void testDanglingLineDifferentY() {
+    public void testBoundaryLineDifferentY() {
         BranchTestCase t = lineEnd2Disconnected();
-        t.branch.id = "Dangling-Y1-Y2-different";
+        t.branch.id = "Boundary-Y1-Y2-different";
         // End 1 admittance to ground has different value of End 2
         t.branch.end1.b = t.branch.end2.b * 2;
         double expectedU;
@@ -95,7 +95,7 @@ public class BranchDataTest {
         BranchTestCase t = new BranchTestCase();
         t.config.asTransformer = false;
 
-        t.branch.id = "Dangling";
+        t.branch.id = "Boundary";
         t.branch.end1.ratedU = 380;
         t.branch.end2.ratedU = 380;
         t.branch.end1.r = 5;

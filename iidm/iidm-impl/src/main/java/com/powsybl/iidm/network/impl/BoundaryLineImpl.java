@@ -57,7 +57,7 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
     @Override
     public ConnectableType getType() {
-        return ConnectableType.DANGLING_LINE;
+        return ConnectableType.BOUNDARY_LINE;
     }
 
     @Override
@@ -67,7 +67,7 @@ class BoundaryLineImpl extends AbstractConnectable<BoundaryLine> implements Boun
 
     @Override
     protected String getTypeDescription() {
-        return "Dangling line";
+        return "Boundary line";
     }
 
     @Override

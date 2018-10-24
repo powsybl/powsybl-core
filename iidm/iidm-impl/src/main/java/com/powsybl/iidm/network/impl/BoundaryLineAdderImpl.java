@@ -41,7 +41,7 @@ class BoundaryLineAdderImpl extends AbstractInjectionAdder<BoundaryLineAdderImpl
 
     @Override
     protected String getTypeDescription() {
-        return "Dangling line";
+        return "Boundary line";
     }
 
     @Override

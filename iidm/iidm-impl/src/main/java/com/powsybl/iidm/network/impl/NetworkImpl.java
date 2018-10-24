@@ -836,8 +836,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         }
         List<MergedLine> lines = new ArrayList<>();
         for (BoundaryLine dl2 : Lists.newArrayList(other.getBoundaryLines())) {
-            BoundaryLine dl1 = getDanglingLineByTheOther(dl2, dl1byXnodeCode);
-            mergeDanglingLines(lines, dl1, dl2);
+            BoundaryLine dl1 = getBoundaryLineByTheOther(dl2, dl1byXnodeCode);
+            mergeBoundaryLines(lines, dl1, dl2);
         }
 
         // do not forget to remove the other network from its store!!!
@@ -850,7 +850,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         otherNetwork.ref.setRef(ref);
 
         Multimap<Boundary, MergedLine> mergedLineByBoundary = HashMultimap.create();
-        replaceDanglingLineByLine(lines, mergedLineByBoundary);
+        replaceBoundaryLineByLine(lines, mergedLineByBoundary);
 
         if (!lines.isEmpty()) {
             LOGGER.info("{} boundary line couples have been replaced by a line: {}", lines.size(),
@@ -868,7 +868,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         LOGGER.info("Merging of {} done in {} ms", id, System.currentTimeMillis() - start);
     }
 
-    private BoundaryLine getDanglingLineByTheOther(BoundaryLine dl2, Map<String, BoundaryLine> dl1byXnodeCode) {
+    private BoundaryLine getBoundaryLineByTheOther(BoundaryLine dl2, Map<String, BoundaryLine> dl1byXnodeCode) {
         BoundaryLine dl1 = getBoundaryLine(dl2.getId());
         if (dl1 == null) {
             // mapping by ucte xnode code
@@ -879,7 +879,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
             // mapping by id
             if (dl1.getUcteXnodeCode() != null && dl2.getUcteXnodeCode() != null
                     && !dl1.getUcteXnodeCode().equals(dl2.getUcteXnodeCode())) {
-                throw new PowsyblException("Dangling line couple " + dl1.getId()
+                throw new PowsyblException("Boundary line couple " + dl1.getId()
                         + " have inconsistent Xnodes (" + dl1.getUcteXnodeCode()
                         + "!=" + dl2.getUcteXnodeCode() + ")");
             }
@@ -887,7 +887,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         return dl1;
     }
 
-    private void mergeDanglingLines(List<MergedLine> lines, BoundaryLine dl1, BoundaryLine dl2) {
+    private void mergeBoundaryLines(List<MergedLine> lines, BoundaryLine dl1, BoundaryLine dl2) {
         if (dl1 != null) {
             MergedLine l = new MergedLine();
             l.id = dl1.getId().compareTo(dl2.getId()) < 0 ? dl1.getId() + " + " + dl2.getId() : dl2.getId() + " + " + dl1.getId();
@@ -952,7 +952,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         }
     }
 
-    private void replaceDanglingLineByLine(List<MergedLine> lines, Multimap<Boundary, MergedLine> mergedLineByBoundary) {
+    private void replaceBoundaryLineByLine(List<MergedLine> lines, Multimap<Boundary, MergedLine> mergedLineByBoundary) {
         for (MergedLine mergedLine : lines) {
             LOGGER.debug("Replacing boundary line couple '{}' (xnode={}, country1={}, country2={}) by a line",
                     mergedLine.id, mergedLine.xnode, mergedLine.country1, mergedLine.country2);

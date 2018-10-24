@@ -843,12 +843,12 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     /**
      * Get boundary lines.
      */
-    Iterable<BoundaryLine> getDanglingLines();
+    Iterable<BoundaryLine> getBoundaryLines();
 
     /**
      * Get boundary lines.
      */
-    Stream<BoundaryLine> getDanglingLineStream();
+    Stream<BoundaryLine> getBoundaryLineStream();
 
     /**
      * Get boundary line count.

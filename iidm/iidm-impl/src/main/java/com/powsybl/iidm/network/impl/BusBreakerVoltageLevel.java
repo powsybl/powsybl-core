@@ -195,7 +195,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                         feederCount++;
                         break;
 
-                    case DANGLING_LINE:
+                    case BOUNDARY_LINE:
                     case LOAD:
                     case GENERATOR:
                     case SHUNT_COMPENSATOR:

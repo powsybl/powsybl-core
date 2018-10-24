@@ -50,16 +50,16 @@ public class MergeNetworkTest {
     @Test
     public void xnodeNonCompatible() {
         addSubstationAndVoltageLevel();
-        addDanglingLine("dl", "code", "dl", "deco");
+        addBoundaryLine("dl", "code", "dl", "deco");
         thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Dangling line couple dl have inconsistent Xnodes (code!=deco)");
+        thrown.expectMessage("Boundary line couple dl have inconsistent Xnodes (code!=deco)");
         n1.merge(n2);
     }
 
     @Test
     public void testMerge() {
         addSubstationAndVoltageLevel();
-        addDanglingLine("dl1", "code", "dl2", "code");
+        addBoundaryLine("dl1", "code", "dl2", "code");
         n1.merge(n2);
         Line line = n1.getLine("dl1 + dl2");
         assertNotNull(line);
@@ -108,7 +108,7 @@ public class MergeNetworkTest {
                 .add();
     }
 
-    private void addDanglingLine(String dl1, String code1, String dl2, String code2) {
+    private void addBoundaryLine(String dl1, String code1, String dl2, String code2) {
         n1.getVoltageLevel("vl1").newBoundaryLine()
                 .setId(dl1)
                 .setConnectableBus("b1")
