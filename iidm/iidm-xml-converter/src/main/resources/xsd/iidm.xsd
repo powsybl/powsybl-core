@@ -189,7 +189,7 @@
             <xs:extension base="iidm:Identifiable">
                 <xs:attribute name="node" use="optional" type="xs:int"/>
                 <xs:attribute name="bus" use="optional" type="iidm:nonEmptyString"/>
-                <xs:attribute name="connectableBus" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connect" use="optional" type="xs:boolean"/>
                 <xs:attribute name="p" use="optional" type="xs:double"/>
                 <xs:attribute name="q" use="optional" type="xs:double"/>
             </xs:extension>
@@ -294,11 +294,11 @@
             <xs:extension base="iidm:Identifiable">
                 <xs:attribute name="node1" use="optional" type="xs:int"/>
                 <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
-                <xs:attribute name="connectableBus1" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connect1" use="optional" type="xs:boolean"/>
                 <xs:attribute name="voltageLevelId1" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="node2" use="optional" type="xs:int"/>
                 <xs:attribute name="bus2" use="optional" type="iidm:nonEmptyString"/>
-                <xs:attribute name="connectableBus2" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connect2" use="optional" type="xs:boolean"/>
                 <xs:attribute name="voltageLevelId2" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="p1" use="optional" type="xs:double"/>
                 <xs:attribute name="q1" use="optional" type="xs:double"/>
@@ -349,14 +349,14 @@
                 <xs:attribute name="node1" use="optional" type="xs:int"/>
                 <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="voltageLevelId1" use="required" type="iidm:nonEmptyString"/>
-                <xs:attribute name="connectableBus1" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connect1" use="optional" type="xs:boolean"/>
                 <xs:attribute name="node2" use="optional" type="xs:int"/>
                 <xs:attribute name="bus2" use="optional" type="iidm:nonEmptyString"/>
-                <xs:attribute name="connectableBus2" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connect2" use="optional" type="xs:boolean"/>
                 <xs:attribute name="voltageLevelId2" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="node3" use="optional" type="xs:int"/>
                 <xs:attribute name="bus3" use="optional" type="iidm:nonEmptyString"/>
-                <xs:attribute name="connectableBus3" use="optional" type="iidm:nonEmptyString"/>
+                <xs:attribute name="connect3" use="optional" type="xs:boolean"/>
                 <xs:attribute name="voltageLevelId3" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="p1" use="optional" type="xs:double"/>
                 <xs:attribute name="q1" use="optional" type="xs:double"/>

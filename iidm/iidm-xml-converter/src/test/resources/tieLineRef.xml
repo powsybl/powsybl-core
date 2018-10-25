@@ -12,7 +12,7 @@
             </iidm:busBreakerTopology>
         </iidm:voltageLevel>
     </iidm:substation>
-    <iidm:line id="tieline" r="11.0" x="22.0" g1="160.0" b1="180.0" g2="170.0" b2="190.0" connectableBus1="busA" voltageLevelId1="vl1" connectableBus2="busB" voltageLevelId2="vl2"/>
+    <iidm:line id="tieline" r="11.0" x="22.0" g1="160.0" b1="180.0" g2="170.0" b2="190.0" bus1="busA" connect1="false" voltageLevelId1="vl1" bus2="busB" connect2="false" voltageLevelId2="vl2"/>
     <iidm:extension id="tieline">
         <tl:tieLine id_1="hl1" name_1="hl1" r_1="10.0" x_1="20.0" g1_1="30.0" b1_1="40.0" g2_1="35.0" b2_1="45.0" xnodeP_1="50.0" xnodeQ_1="60.0" id_2="hl2" name_2="hl2" r_2="1.0" x_2="2.0" g1_2="130.0" b1_2="140.0" g2_2="135.0" b2_2="145.0" xnodeP_2="50.0" xnodeQ_2="60.0"/>
     </iidm:extension>

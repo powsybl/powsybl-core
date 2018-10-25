@@ -5,7 +5,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="BUS"/>
             </iidm:busBreakerTopology>
-            <iidm:load id="LOAD" loadType="UNDEFINED" p0="0.0" q0="0.0" bus="BUS" connectableBus="BUS"/>
+            <iidm:load id="LOAD" loadType="UNDEFINED" p0="0.0" q0="0.0" bus="BUS" connect="true"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:extension id="LOAD">

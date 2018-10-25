@@ -25,9 +25,12 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
 
     private static final String BUS = "bus";
     private static final String CONNECTABLE_BUS = "connectableBus";
+    private static final String CONNECT = "connect";
     private static final String NODE = "node";
+    private static final String VOLTAGE_LEVEL_ID = "voltageLevelId";
 
     private static final String CURRENT_LIMITS = "currentLimits";
+
 
     private static String indexToString(Integer index) {
         return index != null ? index.toString() : "";
@@ -40,17 +43,17 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
                 writeNode(index, t, context);
                 break;
             case BUS_BREAKER:
-                writeBus(index, t.getBusBreakerView().getBus(), t.getBusBreakerView().getConnectableBus(), context);
+                writeBus(index, t.getBusBreakerView().getConnectableBus().getId(), t.getBusBreakerView().getBus() != null, context);
                 break;
             case BUS_BRANCH:
-                writeBus(index, t.getBusView().getBus(), t.getBusView().getConnectableBus(), context);
+                writeBus(index, t.getBusView().getConnectableBus().getId(), t.getBusView().getBus() != null, context);
                 break;
             default:
                 throw new AssertionError("Unexpected TopologyLevel value: " + topologyLevel);
         }
 
         if (index != null) {
-            context.getWriter().writeAttribute("voltageLevelId" + index, context.getAnonymizer().anonymizeString(t.getVoltageLevel().getId()));
+            context.getWriter().writeAttribute(VOLTAGE_LEVEL_ID + index, context.getAnonymizer().anonymizeString(t.getVoltageLevel().getId()));
         }
     }
 
@@ -59,75 +62,126 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
             Integer.toString(t.getNodeBreakerView().getNode()));
     }
 
-    private static void writeBus(Integer index, Bus bus, Bus connectableBus, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (bus != null) {
-            context.getWriter().writeAttribute(BUS + indexToString(index), context.getAnonymizer().anonymizeString(bus.getId()));
-        }
-        if (connectableBus != null) {
-            context.getWriter().writeAttribute(CONNECTABLE_BUS + indexToString(index), context.getAnonymizer().anonymizeString(connectableBus.getId()));
-        }
+    private static void writeBus(Integer index, String busId, Boolean isConnected, NetworkXmlWriterContext context) throws XMLStreamException {
+        context.getWriter().writeAttribute(BUS + indexToString(index), context.getAnonymizer().anonymizeString(busId));
+        context.getWriter().writeAttribute(CONNECT + indexToString(index), Boolean.toString(isConnected));
     }
 
     protected static void readNodeOrBus(InjectionAdder adder, NetworkXmlReaderContext context) {
-        String bus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, BUS));
-        String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, CONNECTABLE_BUS));
-        Integer node = XmlUtil.readOptionalIntegerAttribute(context.getReader(), NODE);
-        if (bus != null) {
-            adder.setBus(bus);
-        }
-        if (connectableBus != null) {
+        if (context.getVersion().equals("1_0")) {
+            String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, CONNECTABLE_BUS));
+            String bus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, BUS));
+            if (bus != null) {
+                adder.setBus(bus);
+            }
+            if (connectableBus != null) {
+                adder.setConnectableBus(connectableBus);
+            }
+        } else {
+            String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, BUS));
+            boolean isConnected = XmlUtil.readBoolAttribute(context.getReader(), CONNECT);
             adder.setConnectableBus(connectableBus);
+            if (isConnected) {
+                adder.setBus(connectableBus);
+            }
         }
+
+        Integer node = XmlUtil.readOptionalIntegerAttribute(context.getReader(), NODE);
         if (node != null) {
             adder.setNode(node);
         }
     }
 
     protected static void readNodeOrBus(BranchAdder adder, NetworkXmlReaderContext context) {
+        if (context.getVersion().equals("1_0")) {
+            readVersion10Buses(adder, context);
+        } else {
+            String connectableBus1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, BUS + "1"));
+            boolean isConnected1 = XmlUtil.readBoolAttribute(context.getReader(), CONNECT + "1");
+            adder.setConnectableBus1(connectableBus1);
+            if (isConnected1) {
+                adder.setBus1(connectableBus1);
+            }
+            String connectableBus2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, BUS + "2"));
+            boolean isConnected2 = XmlUtil.readBoolAttribute(context.getReader(), CONNECT + "2");
+            adder.setConnectableBus2(connectableBus2);
+            if (isConnected2) {
+                adder.setBus2(connectableBus2);
+            }
+        }
+
+        readNodesAndVoltageLevels(adder, context);
+    }
+
+    private static void readVersion10Buses(BranchAdder adder, NetworkXmlReaderContext context) {
         String bus1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus1"));
         String connectableBus1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "connectableBus1"));
-        Integer node1 = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "node1");
-        String voltageLevelId1 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "voltageLevelId1"));
         String bus2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "bus2"));
         String connectableBus2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "connectableBus2"));
-        Integer node2 = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "node2");
-        String voltageLevelId2 = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "voltageLevelId2"));
         if (bus1 != null) {
             adder.setBus1(bus1);
         }
         if (connectableBus1 != null) {
             adder.setConnectableBus1(connectableBus1);
         }
-        if (node1 != null) {
-            adder.setNode1(node1);
-        }
-        adder.setVoltageLevel1(voltageLevelId1);
         if (bus2 != null) {
             adder.setBus2(bus2);
         }
         if (connectableBus2 != null) {
             adder.setConnectableBus2(connectableBus2);
         }
-        if (node2 != null) {
-            adder.setNode2(node2);
-        }
-        adder.setVoltageLevel2(voltageLevelId2);
     }
 
+    private static void readNodesAndVoltageLevels(BranchAdder adder, NetworkXmlReaderContext context) {
+        readNodeAndVoltageLevel(adder, context, 1);
+        readNodeAndVoltageLevel(adder, context, 2);
+    }
+
+    private static void readNodeAndVoltageLevel(BranchAdder adder, NetworkXmlReaderContext context, int side) {
+        if (side != 1 && side != 2) {
+            throw new AssertionError("Unexcepted side '" + side + "' found in voltage level or node.");
+        } else {
+            String voltageLevelId = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, VOLTAGE_LEVEL_ID + side));
+            Integer node = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "node" + side);
+            if (side == 1) {
+                adder.setVoltageLevel1(voltageLevelId);
+                if (node != null) {
+                    adder.setNode1(node);
+                }
+            } else {
+                adder.setVoltageLevel2(voltageLevelId);
+                if (node != null) {
+                    adder.setNode2(node);
+                }
+            }
+        }
+    }
+
+
     protected static void readNodeOrBus(int index, LegAdder adder, NetworkXmlReaderContext context) {
-        String bus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, BUS + index));
-        String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, CONNECTABLE_BUS + index));
-        Integer node = XmlUtil.readOptionalIntegerAttribute(context.getReader(), NODE + index);
-        String voltageLevelId = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "voltageLevelId" + index));
-        if (bus != null) {
-            adder.setBus(bus);
-        }
-        if (connectableBus != null) {
+        if (context.getVersion().equals("1_0")) {
+            String bus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, BUS + index));
+            String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, CONNECTABLE_BUS + index));
+            if (bus != null) {
+                adder.setBus(bus);
+            }
+            if (connectableBus != null) {
+                adder.setConnectableBus(connectableBus);
+            }
+        } else {
+            String connectableBus = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, BUS + index));
+            boolean isConnected = XmlUtil.readBoolAttribute(context.getReader(), CONNECT + index);
             adder.setConnectableBus(connectableBus);
+            if (isConnected) {
+                adder.setBus(connectableBus);
+            }
         }
+
+        Integer node = XmlUtil.readOptionalIntegerAttribute(context.getReader(), NODE + index);
         if (node != null) {
             adder.setNode(node);
         }
+        String voltageLevelId = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, VOLTAGE_LEVEL_ID + index));
         adder.setVoltageLevel(voltageLevelId);
     }
 

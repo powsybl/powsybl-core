@@ -7,7 +7,7 @@
             <iidm:busBreakerTopology>
                 <iidm:bus id="B1"/>
             </iidm:busBreakerTopology>
-            <iidm:vscConverterStation id="C1" name="Converter1" lossFactor="0.011" voltageRegulatorOn="true" voltageSetpoint="405.0" bus="B1" connectableBus="B1" p="100.0" q="50.0">
+            <iidm:vscConverterStation id="C1" name="Converter1" lossFactor="0.011" voltageRegulatorOn="true" voltageSetpoint="405.0" bus="B1" connect="true" p="100.0" q="50.0">
                 <iidm:reactiveCapabilityCurve>
                     <iidm:point p="5.0" minQ="0.0" maxQ="10.0"/>
                     <iidm:point p="10.0" minQ="0.0" maxQ="10.0"/>
