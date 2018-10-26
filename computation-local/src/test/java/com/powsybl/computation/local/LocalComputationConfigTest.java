@@ -78,6 +78,20 @@ public class LocalComputationConfigTest {
     }
 
     @Test
+    public void testSnakeOverCamelCase() throws IOException {
+        Files.createDirectories(fileSystem.getPath("/deprecated"));
+        Files.createDirectories(fileSystem.getPath("/new"));
+        MapModuleConfig moduleConfig = platformConfig.createModuleConfig("computation-local");
+        moduleConfig.setStringProperty("tmpDir", "/deprecated");
+        moduleConfig.setStringProperty("availableCore", "1");
+        moduleConfig.setStringProperty("tmp-dir", "/new");
+        moduleConfig.setStringProperty("available-core", "2");
+        LocalComputationConfig config = LocalComputationConfig.load(platformConfig, fileSystem);
+        assertEquals(fileSystem.getPath("/new"), config.getLocalDir());
+        assertEquals(2, config.getAvailableCore());
+    }
+
+    @Test
     public void testTmpDirAlternatives() throws IOException  {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("computation-local");
         moduleConfig.setStringListProperty("tmp-dir", Arrays.asList("/first", "/second"));
