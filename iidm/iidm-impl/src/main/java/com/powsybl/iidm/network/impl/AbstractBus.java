@@ -167,11 +167,27 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> {
         return getConnectableStream(Load.class);
     }
 
+    /**
+     * @deprecated Use {@link #getShuntCompensators()} instead.
+     */
+    @Deprecated
     public Iterable<ShuntCompensator> getShunts() {
+        return getShuntCompensators();
+    }
+
+    /**
+     * @deprecated Use {@link #getShuntCompensatorStream()} instead.
+     */
+    @Deprecated
+    public Stream<ShuntCompensator> getShuntStream() {
+        return getShuntCompensatorStream();
+    }
+
+    public Iterable<ShuntCompensator> getShuntCompensators() {
         return getConnectables(ShuntCompensator.class);
     }
 
-    public Stream<ShuntCompensator> getShuntStream() {
+    public Stream<ShuntCompensator> getShuntCompensatorStream() {
         return getConnectableStream(ShuntCompensator.class);
     }
 

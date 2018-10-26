@@ -206,7 +206,7 @@ public final class Networks {
     }
 
     private static void addShuntCompensators(Network network, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
-        for (ShuntCompensator sc : network.getShunts()) {
+        for (ShuntCompensator sc : network.getShuntCompensators()) {
             Terminal.BusBreakerView view = sc.getTerminal().getBusBreakerView();
             double q = sc.getCurrentB() * Math.pow(sc.getTerminal().getVoltageLevel().getNominalV(), 2);
             if (view.getBus() != null) {
