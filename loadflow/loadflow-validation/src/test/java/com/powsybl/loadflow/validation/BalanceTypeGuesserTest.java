@@ -57,7 +57,7 @@ public class BalanceTypeGuesserTest {
         Generator generator3 =  Mockito.mock(Generator.class);
         Mockito.when(generator3.getId()).thenReturn("gen3");
         Mockito.when(generator3.getTerminal()).thenReturn(genTerminal3);
-        Mockito.when(generator3.getTargetP()).thenReturn(155.107);
+        Mockito.when(generator3.getTargetP()).thenReturn(195.107);
         Mockito.when(generator3.getMaxP()).thenReturn(227.5);
         Mockito.when(generator3.getMinP()).thenReturn(-227.5);
 

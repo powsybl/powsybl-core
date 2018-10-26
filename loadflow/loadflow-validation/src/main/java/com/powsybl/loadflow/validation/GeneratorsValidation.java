@@ -60,6 +60,7 @@ public final class GeneratorsValidation {
         Objects.requireNonNull(generatorsWriter);
         LOGGER.info("Checking generators of network {}", network.getId());
         BalanceTypeGuesser guesser = new BalanceTypeGuesser(network, config.getThreshold());
+        LOGGER.info("Usinng {} balance type", guesser.getBalanceType());
         return network.getGeneratorStream()
                       .sorted(Comparator.comparing(Generator::getId))
                       .map(gen -> checkGenerators(gen, config, generatorsWriter, guesser))

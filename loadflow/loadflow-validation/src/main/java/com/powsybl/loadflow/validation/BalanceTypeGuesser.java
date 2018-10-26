@@ -21,8 +21,6 @@ import com.powsybl.iidm.network.Network;
  */
 public class BalanceTypeGuesser {
 
-    private static final String NON_EXISTENT_SLACK_ID = "NonExistentSlackBusId";
-
     private String maxChangeId = "";
     private double maxChange = 0;
     private double sumMaxP = 0;
@@ -42,7 +40,6 @@ public class BalanceTypeGuesser {
 
     public BalanceTypeGuesser() {
         this.balanceType = BalanceType.NONE;
-        this.slack = NON_EXISTENT_SLACK_ID;
     }
 
     public BalanceTypeGuesser(Network network, double threshold) {
@@ -56,14 +53,18 @@ public class BalanceTypeGuesser {
             kMax = (sumP - sumTargetP) / sumMaxP;
             kTarget = (sumP - sumTargetP) / sumTargetP;
             kHeadroom = (sumP - sumTargetP) / (sumMaxP - sumTargetP);
-            double varKMax = (cumSumVarKMax / sumMaxP) / (Math.max(1E-12, kMax * kMax) - 1);
-            double varKTarget = (cumSumVarKTarget / sumTargetP) / (Math.max(1E-12, kTarget * kTarget) - 1);
-            double varKHeadroom = (cumSumVarKHeadroom / (sumMaxP - sumTargetP)) / (Math.max(1E-12, kHeadroom * kHeadroom) - 1);
+            double varKMax = computeVarK(cumSumVarKMax, sumMaxP, kMax);
+            double varKTarget = computeVarK(cumSumVarKTarget, sumTargetP, kTarget);
+            double varKHeadroom = computeVarK(cumSumVarKHeadroom, sumMaxP - sumTargetP, kHeadroom);
             this.balanceType = getBalanceType(varKMax, varKTarget, varKHeadroom);
         } else {
             this.balanceType = BalanceType.NONE;
             this.slack = maxChangeId;
         }
+    }
+
+    private double computeVarK(double cumSumVarK, double sum, double k) {
+        return (cumSumVarK / sum) / Math.max(1E-12, k * k) - 1;
     }
 
     private BalanceType getBalanceType(double varKMax, double varKTarget, double varKHeadroom) {
@@ -93,7 +94,7 @@ public class BalanceTypeGuesser {
             sumP +=  p;
             cumSumVarKMax += Math.pow(p - targetP, 2) / maxP;
             cumSumVarKTarget += Math.pow(p - targetP, 2) / targetP;
-            cumSumVarKHeadroom += Math.pow(p - targetP, 2) / (maxP + targetP);
+            cumSumVarKHeadroom += Math.pow(p - targetP, 2) / (maxP - targetP);
             sumChanged++;
         }
     }
