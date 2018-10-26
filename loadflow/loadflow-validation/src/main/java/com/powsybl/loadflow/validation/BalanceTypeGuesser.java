@@ -23,20 +23,13 @@ public class BalanceTypeGuesser {
 
     private String maxChangeId = "";
     private double maxChange = 0;
-    private double sumMaxP = 0;
-    private double sumTargetP = 0;
-    private double sumP = 0;
-    private double cumSumVarKMax = 0;
-    private double cumSumVarKTarget = 0;
-    private double cumSumVarKHeadroom = 0;
+    private KComputation kMaxComputation = new KComputation();
+    private KComputation kTargetComputation = new KComputation();
+    private KComputation kHeadroomComputation = new KComputation();
     private int sumChanged = 0;
 
     private BalanceType balanceType;
     private String slack;
-
-    private double kMax = 0;
-    private double kTarget = 0;
-    private double kHeadroom = 0;
 
     public BalanceTypeGuesser() {
         this.balanceType = BalanceType.NONE;
@@ -50,21 +43,11 @@ public class BalanceTypeGuesser {
     private void guess(Network network, double threshold) {
         network.getGeneratorStream().forEach(generator -> computeSums(generator, threshold));
         if (sumChanged > 0) {
-            kMax = (sumP - sumTargetP) / sumMaxP;
-            kTarget = (sumP - sumTargetP) / sumTargetP;
-            kHeadroom = (sumP - sumTargetP) / (sumMaxP - sumTargetP);
-            double varKMax = computeVarK(cumSumVarKMax, sumMaxP, kMax);
-            double varKTarget = computeVarK(cumSumVarKTarget, sumTargetP, kTarget);
-            double varKHeadroom = computeVarK(cumSumVarKHeadroom, sumMaxP - sumTargetP, kHeadroom);
-            this.balanceType = getBalanceType(varKMax, varKTarget, varKHeadroom);
+            this.balanceType = getBalanceType(kMaxComputation.getVarK(), kTargetComputation.getVarK(), kHeadroomComputation.getVarK());
         } else {
             this.balanceType = BalanceType.NONE;
             this.slack = maxChangeId;
         }
-    }
-
-    private double computeVarK(double cumSumVarK, double sum, double k) {
-        return (cumSumVarK / sum) / Math.max(1E-12, k * k) - 1;
     }
 
     private BalanceType getBalanceType(double varKMax, double varKTarget, double varKHeadroom) {
@@ -89,12 +72,9 @@ public class BalanceTypeGuesser {
                 && ValidationUtils.boundedWithin(Math.max(0, minP), maxP, p, -threshold)
                 && maxP >= threshold
                 && Math.abs(p - targetP) >= threshold) {
-            sumMaxP += maxP;
-            sumTargetP += targetP;
-            sumP +=  p;
-            cumSumVarKMax += Math.pow(p - targetP, 2) / maxP;
-            cumSumVarKTarget += Math.pow(p - targetP, 2) / targetP;
-            cumSumVarKHeadroom += Math.pow(p - targetP, 2) / (maxP - targetP);
+            kMaxComputation.addGeneratorValues(p, targetP, maxP);
+            kTargetComputation.addGeneratorValues(p, targetP, targetP);
+            kHeadroomComputation.addGeneratorValues(p, targetP, maxP - targetP);
             sumChanged++;
         }
     }
@@ -108,15 +88,15 @@ public class BalanceTypeGuesser {
     }
 
     public double getKMax() {
-        return kMax;
+        return kMaxComputation.getK();
     }
 
     public double getKTarget() {
-        return kTarget;
+        return kTargetComputation.getK();
     }
 
     public double getKHeadroom() {
-        return kHeadroom;
+        return kHeadroomComputation.getK();
     }
 
 }
