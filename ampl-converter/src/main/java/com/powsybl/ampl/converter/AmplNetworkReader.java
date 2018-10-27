@@ -6,11 +6,12 @@
  */
 package com.powsybl.ampl.converter;
 
-import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.HvdcLine.ConvertersMode;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,14 +38,14 @@ public class AmplNetworkReader {
 
     private static final Pattern PATTERN = Pattern.compile("([^']\\S*|'.+?')\\s*");
 
-    private final DataSource dataSource;
+    private final ReadOnlyDataSource dataSource;
 
     private final Network network;
 
     private final StringToIntMapper<AmplSubset> mapper;
     private final Map<String, Bus> buses;
 
-    public AmplNetworkReader(DataSource dataSource, Network network, StringToIntMapper<AmplSubset> mapper) {
+    public AmplNetworkReader(ReadOnlyDataSource dataSource, Network network, StringToIntMapper<AmplSubset> mapper) {
         this.dataSource = dataSource;
         this.network = network;
         this.mapper = mapper;
@@ -83,7 +84,7 @@ public class AmplNetworkReader {
             g.setTargetV(g.getTerminal().getVoltageLevel().getNominalV());
         }
 
-        read("_network_generators.txt", 8, this::readGenerator);
+        read("_generators.txt", 8, this::readGenerator);
 
         return this;
     }
@@ -120,7 +121,7 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readLoads() throws IOException {
-        read("_network_loads.txt", 6, this::readLoad);
+        read("_loads.txt", 6, this::readLoad);
 
         return this;
     }
@@ -153,7 +154,7 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readRatioTapChangers() throws IOException {
-        read("_network_rtc.txt", 2, this::readRatioTapChanger);
+        read("_rtc.txt", 2, this::readRatioTapChanger);
 
         return this;
     }
@@ -189,7 +190,7 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readPhaseTapChangers() throws IOException {
-        read("_network_ptc.txt", 2, this::readPhaseTapChanger);
+        read("_ptc.txt", 2, this::readPhaseTapChanger);
 
         return this;
     }
@@ -209,7 +210,7 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readShunts() throws IOException {
-        read("_network_shunts.txt", 5, this::readShunt);
+        read("_shunts.txt", 5, this::readShunt);
 
         return this;
     }
@@ -237,7 +238,7 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readBuses() throws IOException {
-        read("_network_buses.txt", 3, this::readBus);
+        read("_buses.txt", 3, this::readBus);
 
         return this;
     }
@@ -261,7 +262,7 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readBranches() throws IOException {
-        read("_network_branches.txt", 7, this::readBranch);
+        read("_branches.txt", 7, this::readBranch);
 
         return this;
     }
@@ -333,7 +334,7 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readHvdcLines() throws IOException {
-        read("_network_hvdc.txt", 3, this::readHvdcLine);
+        read("_hvdc.txt", 3, this::readHvdcLine);
 
         return this;
     }
@@ -358,7 +359,7 @@ public class AmplNetworkReader {
 
 
     public AmplNetworkReader readStaticVarcompensator() throws IOException {
-        read("_network_static_var_compensators.txt", 5, this::readSvc);
+        read("_static_var_compensators.txt", 5, this::readSvc);
 
         return this;
     }
@@ -399,7 +400,7 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readLccConverterStations() throws IOException {
-        read("_network_lcc_converter_stations.txt", 4, this::readLcc);
+        read("_lcc_converter_stations.txt", 4, this::readLcc);
 
         return this;
     }
@@ -419,7 +420,7 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readVscConverterStations() throws IOException {
-        read("_network_vsc_converter_stations.txt", 7, this::readVsc);
+        read("_vsc_converter_stations.txt", 7, this::readVsc);
 
         return this;
     }
