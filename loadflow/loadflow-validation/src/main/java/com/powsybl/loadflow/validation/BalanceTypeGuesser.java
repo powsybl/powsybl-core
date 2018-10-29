@@ -17,15 +17,35 @@ import com.powsybl.iidm.network.Network;
 
 /**
  *
+ * On creation, tries to guess the balancing method used by the computation, from the differences between
+ * the computed power outputs and initial target power.
+ * This is necessary since the balancing method actually used is not known.
+ *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
 public class BalanceTypeGuesser {
 
     private String maxChangeId = "";
     private double maxChange = 0;
+
+    /**
+     * Compute balancing ratio assuming balancing proportional to P max.
+     */
     private KComputation kMaxComputation = new KComputation();
+
+    /**
+     * Compute balancing ratio assuming balancing proportional to target P.
+     */
     private KComputation kTargetComputation = new KComputation();
+
+    /**
+     * Compute balancing ratio assuming balancing proportional to headroom.
+     */
     private KComputation kHeadroomComputation = new KComputation();
+
+    /**
+     * Number of generators that significantly moved.
+     */
     private int sumChanged = 0;
 
     private BalanceType balanceType;
@@ -35,6 +55,11 @@ public class BalanceTypeGuesser {
         this.balanceType = BalanceType.NONE;
     }
 
+    /**
+     * Tries to guess the balancing method for the provided network.
+     *
+     * @param threshold: Under this threshold, a power deviation will not be seen as significant (not taken into account in the ratio computation).
+     */
     public BalanceTypeGuesser(Network network, double threshold) {
         Objects.requireNonNull(network);
         guess(network, threshold);
@@ -79,22 +104,37 @@ public class BalanceTypeGuesser {
         }
     }
 
+    /**
+     * The balance type identified as most likely (leading to the smallest variance around theoretical values).
+     */
     public BalanceType getBalanceType() {
         return balanceType;
     }
 
+    /**
+     * The identified slack generator, if any.
+     */
     public String getSlack() {
         return slack;
     }
 
+    /**
+     * The balancing ratio value, assuming balancing proportional to P max.
+     */
     public double getKMax() {
         return kMaxComputation.getK();
     }
 
+    /**
+     * The balancing ratio value, assuming balancing proportional to target P.
+     */
     public double getKTarget() {
         return kTargetComputation.getK();
     }
 
+    /**
+     * The balancing ratio value, assuming balancing proportional to P headroom.
+     */
     public double getKHeadroom() {
         return kHeadroomComputation.getK();
     }
