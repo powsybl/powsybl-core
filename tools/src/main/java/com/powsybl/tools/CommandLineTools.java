@@ -96,7 +96,7 @@ public class CommandLineTools {
 
     private static Options getOptionsWithHelp(Options options) {
         Options optionsWithHelp = new Options();
-        options.getOptions().forEach(optionsWithHelp::addOption);
+        options.getOptions().stream().filter(o -> !o.getLongOpt().equals("task") && !o.getLongOpt().equals("task-count")).forEach(optionsWithHelp::addOption);
         optionsWithHelp.addOption(Option.builder()
                 .longOpt("help")
                 .desc("display the help and quit")
