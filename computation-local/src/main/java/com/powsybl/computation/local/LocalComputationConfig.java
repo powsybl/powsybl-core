@@ -67,11 +67,11 @@ public class LocalComputationConfig {
         int availableCore = DEFAULT_AVAILABLE_CORE;
         if (platformConfig.moduleExists(CONFIG_MODULE_NAME)) {
             ModuleConfig config = platformConfig.getModuleConfig(CONFIG_MODULE_NAME);
-            localDir = getTmpDir(config, "tmpDir")
-                           .orElseGet(() -> getTmpDir(config, "tmp-dir")
+            localDir = getTmpDir(config, "tmp-dir")
+                           .orElseGet(() -> getTmpDir(config, "tmpDir")
                                                 .orElseGet(() -> getDefaultLocalDir(fileSystem)));
-            availableCore = config.getOptionalIntProperty("availableCore")
-                                  .orElseGet(() -> config.getOptionalIntProperty("available-core")
+            availableCore = config.getOptionalIntProperty("available-core")
+                                  .orElseGet(() -> config.getOptionalIntProperty("availableCore")
                                                          .orElse(DEFAULT_AVAILABLE_CORE));
         }
         if (availableCore <= 0) {
