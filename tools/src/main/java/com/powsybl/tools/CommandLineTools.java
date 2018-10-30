@@ -16,6 +16,9 @@ import java.io.PrintWriter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.tools.ToolConstants.TASK;
+import static com.powsybl.tools.ToolConstants.TASK_COUNT;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -94,9 +97,21 @@ public class CommandLineTools {
         return options;
     }
 
+    private static Options hideOptions(Options originalOptions, String... hiddenOptions) {
+        Options filteredOptions = new Options();
+        originalOptions.getOptions().stream().filter(o -> {
+            for (String hiddenOption : hiddenOptions) {
+                if (o.getLongOpt().equals(hiddenOption)) {
+                    return false;
+                }
+            }
+            return true;
+        }).forEach(filteredOptions::addOption);
+        return filteredOptions;
+    }
+
     private static Options getOptionsWithHelp(Options options) {
-        Options optionsWithHelp = new Options();
-        options.getOptions().stream().filter(o -> !o.getLongOpt().equals("task") && !o.getLongOpt().equals("task-count")).forEach(optionsWithHelp::addOption);
+        Options optionsWithHelp = hideOptions(options, TASK, TASK_COUNT);
         optionsWithHelp.addOption(Option.builder()
                 .longOpt("help")
                 .desc("display the help and quit")
