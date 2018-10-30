@@ -37,7 +37,7 @@ public class JsonSensitivityFactorsProvider implements SensitivityFactorsProvide
     /**
      * Creates a provider by reading the sensitivity factors from a JSON UTF-8 encoded input stream.
      */
-    public  JsonSensitivityFactorsProvider(final InputStream input) {
+    public JsonSensitivityFactorsProvider(final InputStream input) {
         Objects.requireNonNull(input);
         try {
             sensitivityFactors = SensitivityFactorsJsonSerializer.read(new InputStreamReader(input, StandardCharsets.UTF_8));
