@@ -81,13 +81,13 @@ public class CgmesExport implements Exporter {
         for (Generator g : n.getGenerators()) {
             powerFlows.add(createPowerFlowProperties(cgmes, g.getTerminal()));
         }
-        for (ShuntCompensator s : n.getShunts()) {
+        for (ShuntCompensator s : n.getShuntCompensators()) {
             powerFlows.add(createPowerFlowProperties(cgmes, s.getTerminal()));
         }
         cgmes.add(contextName, "SvPowerFlow", powerFlows);
 
         PropertyBags shuntCompensatorSections = new PropertyBags();
-        for (ShuntCompensator s : n.getShunts()) {
+        for (ShuntCompensator s : n.getShuntCompensators()) {
             PropertyBag p = new PropertyBag(SV_SHUNTCOMPENSATORSECTIONS_PROPERTIES);
             p.put("continuousSections", is(s.getCurrentSectionCount()));
             p.put("ShuntCompensator", s.getId());

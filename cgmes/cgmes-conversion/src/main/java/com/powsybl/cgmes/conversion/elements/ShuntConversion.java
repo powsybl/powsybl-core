@@ -38,7 +38,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
             bPerSection = bPerSectionFixed;
         }
 
-        ShuntCompensator shunt = voltageLevel().newShunt()
+        ShuntCompensator shunt = voltageLevel().newShuntCompensator()
                 .setId(iidmId())
                 .setName(iidmName())
                 .setEnsureIdUnicity(false)
