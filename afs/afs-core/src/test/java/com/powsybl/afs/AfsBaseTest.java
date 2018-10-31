@@ -102,6 +102,15 @@ public class AfsBaseTest {
         project2.rename("project22");
         assertEquals("project22", project2.getName());
 
+        Project project5 = dir2.createProject("project5");
+        Project project6 = dir2.createProject("project6");
+        try {
+            project6.rename("project5");
+            fail();
+        } catch (AfsException ignored) {
+
+        }
+
         Folder dir41 = dir2.createFolder("dir41");
         Project project3 = dir41.createProject("project3");
         project3.delete();

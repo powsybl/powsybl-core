@@ -69,11 +69,6 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
         storage.flush();
     }
 
-    public void rename(String name) {
-        storage.renameNode(info.getId(), name);
-        storage.flush();
-    }
-
     public List<ProjectFile> getBackwardDependencies() {
         return storage.getBackwardDependencies(info.getId())
                 .stream()

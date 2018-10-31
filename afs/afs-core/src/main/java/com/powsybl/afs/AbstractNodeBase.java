@@ -12,8 +12,11 @@ import com.powsybl.afs.storage.NodeInfo;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Base class for all node objects stored in an AFS tree.
@@ -109,5 +112,32 @@ public abstract class AbstractNodeBase<F> {
     @Override
     public String toString() {
         return getName();
+    }
+
+    public void rename(String name) {
+        Objects.requireNonNull(name);
+        if (!checkSameLevelNodesNames(this, name)) {
+            storage.renameNode(info.getId(), name);
+        } else {
+            throw new AfsException("name already exists");
+        }
+        storage.flush();
+    }
+
+    protected boolean checkSameLevelNodesNames(AbstractNodeBase abstractNodeBase, String name) {
+        Objects.requireNonNull(abstractNodeBase);
+        Objects.requireNonNull(name);
+        Optional<NodeInfo> parentNode = storage.getParentNode(abstractNodeBase.getId());
+        List<NodeInfo> childNodes = new ArrayList<>();
+        if (parentNode.isPresent()) {
+            childNodes = storage.getChildNodes(parentNode.get().getId());
+        }
+        List<NodeInfo> nodeInfoList = childNodes.stream().filter(nodeInfo -> !nodeInfo.getId().equals(abstractNodeBase.getId())).collect(Collectors.toList());
+        for (NodeInfo nodeInfo : nodeInfoList) {
+            if (nodeInfo.getName().equals(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
