@@ -211,6 +211,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags busBarSections() {
+        return namedQuery("busbarSections");
+    }
+
+    @Override
     public PropertyBags switches() {
         return namedQuery("switches");
     }

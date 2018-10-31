@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.LoadAdder;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -26,18 +27,13 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
     public void convert() {
         LoadType loadType = id.contains("fict") ? LoadType.FICTITIOUS : LoadType.UNDEFINED;
         PowerFlow f = powerFlow();
-
-        Load load = voltageLevel().newLoad()
-                .setId(iidmId())
-                .setName(iidmName())
-                .setEnsureIdUnicity(false)
-                .setBus(terminalConnected() ? busId() : null)
-                .setConnectableBus(busId())
+        LoadAdder adder = voltageLevel().newLoad()
                 .setP0(f.p())
                 .setQ0(f.q())
-                .setLoadType(loadType)
-                .add();
-
+                .setLoadType(loadType);
+        identify(adder);
+        connect(adder);
+        Load load = adder.add();
         convertedTerminals(load.getTerminal());
     }
 }

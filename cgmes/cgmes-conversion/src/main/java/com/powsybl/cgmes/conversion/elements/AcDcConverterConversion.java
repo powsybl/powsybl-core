@@ -12,6 +12,8 @@ import java.util.Objects;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
+import com.powsybl.iidm.network.LccConverterStationAdder;
+import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -41,27 +43,30 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
         Objects.requireNonNull(converterType);
         double lossFactor = p.asDouble("lossFactor", 0);
 
-        HvdcConverterStation c = null;
+        HvdcConverterStation<?> c = null;
         if (converterType.equals(HvdcType.VSC)) {
-            boolean xxxvoltageRegulatorOn = p.asBoolean("voltageRegulatorOn", false);
-
-            c = voltageLevel().newVscConverterStation()
+            boolean voltageRegulatorOn = p.asBoolean("voltageRegulatorOn", false);
+            VscConverterStationAdder adder = voltageLevel().newVscConverterStation()
                     .setId(iidmId())
                     .setName(iidmName())
                     .setEnsureIdUnicity(false)
                     .setLossFactor((float) lossFactor)
-                    .setVoltageRegulatorOn(xxxvoltageRegulatorOn)
-                    .add();
+                    .setVoltageRegulatorOn(voltageRegulatorOn);
+            identify(adder);
+            connect(adder);
+            c = adder.add();
         } else if (converterType.equals(HvdcType.LCC)) {
-            c = voltageLevel().newLccConverterStation()
+            LccConverterStationAdder adder = voltageLevel().newLccConverterStation()
                     .setId(iidmId())
                     .setName(iidmName())
                     .setEnsureIdUnicity(false)
                     .setBus(terminalConnected() ? busId() : null)
                     .setConnectableBus(busId())
                     .setLossFactor((float) lossFactor)
-                    .setPowerFactor((float) 0.8)
-                    .add();
+                    .setPowerFactor((float) 0.8);
+            identify(adder);
+            connect(adder);
+            c = adder.add();
         }
         Objects.requireNonNull(c);
         context.dc().map(p, c);

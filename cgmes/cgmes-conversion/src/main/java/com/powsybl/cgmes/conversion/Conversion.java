@@ -25,6 +25,7 @@ import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversi
 import com.powsybl.cgmes.conversion.elements.AbstractObjectConversion;
 import com.powsybl.cgmes.conversion.elements.AcDcConverterConversion;
 import com.powsybl.cgmes.conversion.elements.AsynchronousMachineConversion;
+import com.powsybl.cgmes.conversion.elements.BusbarSectionConversion;
 import com.powsybl.cgmes.conversion.elements.DcLineSegmentConversion;
 import com.powsybl.cgmes.conversion.elements.EnergyConsumerConversion;
 import com.powsybl.cgmes.conversion.elements.EnergySourceConversion;
@@ -106,6 +107,9 @@ public class Conversion {
                 : "TopologicalNode";
         convert(nodes, n -> new NodeConversion(nodeTypeName, n, context));
 
+        if (!context.config().createBusbarSectionForEveryConnectivityNode()) {
+            convert(cgmes.busBarSections(), bbs -> new BusbarSectionConversion(bbs, context));
+        }
         convert(cgmes.energyConsumers(), ec -> new EnergyConsumerConversion(ec, context));
         convert(cgmes.energySources(), es -> new EnergySourceConversion(es, context));
 
@@ -130,8 +134,10 @@ public class Conversion {
         convf = asm -> new AsynchronousMachineConversion(asm, context);
         convert(cgmes.asynchronousMachines(), convf);
 
-        // In CIM1 synchronous machines are added AFTER transmission lines and transformers
-        // Is there a strong reason to wait for these equipment to be added to the network ?
+        // In CIM1 synchronous machines are added AFTER transmission lines and
+        // transformers
+        // Is there a strong reason to wait for these equipment to be added to the
+        // network ?
         convert(cgmes.synchronousMachines(), sm -> new SynchronousMachineConversion(sm, context));
 
         // DC
@@ -285,10 +291,20 @@ public class Conversion {
             return true;
         }
 
+        public boolean createBusbarSectionForEveryConnectivityNode() {
+            return xxxCreateBusbarSectionForEveryConnectivityNode;
+        }
+
+        public void xxxSetCreateBusbarSectionForEveryConnectivityNode(boolean b) {
+            xxxCreateBusbarSectionForEveryConnectivityNode = b;
+        }
+
         private boolean convertBoundary = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState;
         private double lowImpedanceLineR = 0.05;
         private double lowImpedanceLineX = 0.05;
+
+        private boolean xxxCreateBusbarSectionForEveryConnectivityNode = false;
     }
 
     public static class Context {
@@ -310,6 +326,7 @@ public class Conversion {
             terminalMapping = new TerminalMapping();
             tapChangerTransformers = new TapChangerTransformers();
             dcMapping = new DcMapping(this);
+            nodeMapping = new NodeMapping();
         }
 
         public CgmesModel cgmes() {
@@ -339,6 +356,10 @@ public class Conversion {
 
         public TerminalMapping terminalMapping() {
             return terminalMapping;
+        }
+
+        public NodeMapping nodeMapping() {
+            return nodeMapping;
         }
 
         public TapChangerTransformers tapChangerTransformers() {
@@ -455,6 +476,7 @@ public class Conversion {
         private final SubstationIdMapping substationIdMapping;
         private final Boundary boundary;
         private final TerminalMapping terminalMapping;
+        private final NodeMapping nodeMapping;
         private final TapChangerTransformers tapChangerTransformers;
         private final DcMapping dcMapping;
 

@@ -11,6 +11,7 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.VoltageLevelAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -51,18 +52,18 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
             missing(String.format("BaseVoltage %s", baseVoltage), nominalVoltage);
         }
 
-        String voltageLevelId = context.namingStrategy().getId("VoltageLevel", id);
-        VoltageLevel voltageLevel = context.network().getVoltageLevel(voltageLevelId);
+        VoltageLevel voltageLevel = context.network().getVoltageLevel(iidmId());
         if (voltageLevel == null) {
-            substation.newVoltageLevel()
-                    .setId(voltageLevelId)
-                    .setName(name)
-                    .setEnsureIdUnicity(false)
+            VoltageLevelAdder adder = substation.newVoltageLevel()
                     .setNominalV(nominalVoltage)
-                    .setTopologyKind(TopologyKind.BUS_BREAKER)
+                    .setTopologyKind(
+                            context.nodeBreaker()
+                                    ? TopologyKind.NODE_BREAKER
+                                    : TopologyKind.BUS_BREAKER)
                     .setLowVoltageLimit(lowVoltageLimit)
-                    .setHighVoltageLimit(highVoltageLimit)
-                    .add();
+                    .setHighVoltageLimit(highVoltageLimit);
+            identify(adder);
+            adder.add();
         }
     }
 

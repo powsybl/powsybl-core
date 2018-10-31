@@ -28,6 +28,7 @@ public final class FakeCgmesModel implements CgmesModel {
     private PropertyBags terminalLimits;
     private PropertyBags connectivityNodes;
     private PropertyBags topologicalNodes;
+    private PropertyBags busbarSections;
     private PropertyBags switches;
     private PropertyBags acLineSegments;
     private PropertyBags equivalentBranches;
@@ -61,6 +62,7 @@ public final class FakeCgmesModel implements CgmesModel {
         terminalLimits = new PropertyBags();
         connectivityNodes = new PropertyBags();
         topologicalNodes = new PropertyBags();
+        busbarSections = new PropertyBags();
         switches = new PropertyBags();
         acLineSegments = new PropertyBags();
         equivalentBranches = new PropertyBags();
@@ -125,6 +127,11 @@ public final class FakeCgmesModel implements CgmesModel {
 
     public FakeCgmesModel topologicalNodes(String... ids) {
         fakeObjectsFromIdentifiers("TopologicalNode", ids, topologicalNodes);
+        return this;
+    }
+
+    public FakeCgmesModel busbarSections(String... ids) {
+        fakeObjectsFromIdentifiers("BusbarSection", ids, busbarSections);
         return this;
     }
 
@@ -297,6 +304,11 @@ public final class FakeCgmesModel implements CgmesModel {
     @Override
     public PropertyBags topologicalNodes() {
         return topologicalNodes;
+    }
+
+    @Override
+    public PropertyBags busBarSections() {
+        return busbarSections;
     }
 
     @Override

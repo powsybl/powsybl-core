@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -45,24 +46,16 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
         double g0 = g1 / rho0Square + g2;
         double b0 = b1 / rho0Square + b2;
 
-        TwoWindingsTransformer tx = substation().newTwoWindingsTransformer()
-                .setId(iidmId())
-                .setName(iidmName())
-                .setEnsureIdUnicity(false)
+        TwoWindingsTransformerAdder adder = substation().newTwoWindingsTransformer()
                 .setR(r0)
                 .setX(x0)
                 .setG(g0)
                 .setB(b0)
                 .setRatedU1(ratedU1)
-                .setBus1(terminalConnected(1) ? busId(1) : null)
-                .setConnectableBus1(busId(1))
-                .setVoltageLevel1(iidmVoltageLevelId(1))
-                .setRatedU2(ratedU2)
-                .setBus2(terminalConnected(2) ? busId(2) : null)
-                .setConnectableBus2(busId(2))
-                .setVoltageLevel2(iidmVoltageLevelId(2))
-                .add();
-
+                .setRatedU2(ratedU2);
+        identify(adder);
+        connect(adder);
+        TwoWindingsTransformer tx = adder.add();
         convertedTerminals(tx.getTerminal1(), tx.getTerminal2());
 
         addTapChangers(tx);

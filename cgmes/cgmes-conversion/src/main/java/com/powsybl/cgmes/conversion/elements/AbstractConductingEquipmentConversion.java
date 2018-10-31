@@ -8,20 +8,25 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.ConversionException;
+import com.powsybl.cgmes.model.CgmesModel.CgmesTerminal;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.cgmes.model.CgmesModel.CgmesTerminal;
+import com.powsybl.iidm.network.BranchAdder;
+import com.powsybl.iidm.network.InjectionAdder;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
- * <p>
- * A ConductingEquipment has at least one Terminal. From the Terminal we get either its
- * ConnectivityNode or its TopologicalNode, depending of the conversion context
+ *         <p>
+ *         A ConductingEquipment has at least one Terminal. From the Terminal we
+ *         get either its ConnectivityNode or its TopologicalNode, depending of
+ *         the conversion context
  */
 public abstract class AbstractConductingEquipmentConversion extends AbstractIdentifiedObjectConversion {
 
@@ -31,7 +36,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             Conversion.Context context) {
         super(type, p, context);
         numTerminals = 1;
-        terminals = new TerminalData[]{null, null, null};
+        terminals = new TerminalData[] {null, null, null};
         terminals[0] = new TerminalData(CgmesNames.TERMINAL, p, context);
         equipmentPowerFlow = new PowerFlow(p, "p", "q");
     }
@@ -46,7 +51,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         if (numTerminals > 3) {
             throw new IllegalArgumentException("Invalid number of terminals at " + id + ": " + numTerminals);
         }
-        terminals = new TerminalData[]{null, null, null};
+        terminals = new TerminalData[] {null, null, null};
         this.numTerminals = numTerminals;
         for (int k = 1; k <= numTerminals; k++) {
             int k0 = k - 1;
@@ -63,7 +68,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         // Information about each terminal is in each separate property bags
         // It is assumed the property bags are already sorted
         this.numTerminals = ps.size();
-        terminals = new TerminalData[]{null, null, null};
+        terminals = new TerminalData[] {null, null, null};
         assert numTerminals <= 3;
         for (int k = 1; k <= numTerminals; k++) {
             int k0 = k - 1;
@@ -147,6 +152,19 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return voltageLevel(n) == null || context.boundary().containsNode(nodeId(n));
     }
 
+    int iidmNode() {
+        return iidmNode(1);
+    }
+
+    int iidmNode(int n) {
+        if (!context.nodeBreaker()) {
+            throw new ConversionException("Can't request an iidmNode if conversion context is not node-breaker");
+        }
+        VoltageLevel vl = terminals[n - 1].voltageLevel;
+        CgmesTerminal t = terminals[n - 1].t;
+        return context.nodeMapping().iidmNodeForTerminal(t, vl);
+    }
+
     String busId() {
         return terminals[0].busId;
     }
@@ -214,6 +232,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return terminalPowerFlow(n).defined() ? terminalPowerFlow(n) : equipmentPowerFlow();
     }
 
+    // Terminals
+
     void convertedTerminal(String terminalId, Terminal t, int n, PowerFlow f) {
         // Record the mapping between CGMES and IIDM terminals
         context.terminalMapping().add(terminalId, t, n);
@@ -263,7 +283,111 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                 voltageLevel = null;
             }
         }
+    }
 
+    // Connections
+
+    public void connect(InjectionAdder<?> adder) {
+        if (context.nodeBreaker()) {
+            adder.setNode(iidmNode());
+        } else {
+            adder.setBus(terminalConnected() ? busId() : null).setConnectableBus(busId());
+        }
+    }
+
+    public void connect(InjectionAdder<?> adder, int terminal) {
+        if (context.nodeBreaker()) {
+            adder.setNode(iidmNode(terminal));
+        } else {
+            adder.setBus(terminalConnected(terminal) ? busId(terminal) : null).setConnectableBus(busId(terminal));
+        }
+    }
+
+    public void connect(BranchAdder<?> adder) {
+        if (context.nodeBreaker()) {
+            adder
+                    .setVoltageLevel1(iidmVoltageLevelId(1))
+                    .setVoltageLevel2(iidmVoltageLevelId(2))
+                    .setNode1(iidmNode(1))
+                    .setNode2(iidmNode(2));
+        } else {
+            String busId1 = busId(1);
+            String busId2 = busId(2);
+            adder
+                    .setVoltageLevel1(iidmVoltageLevelId(1))
+                    .setVoltageLevel2(iidmVoltageLevelId(2))
+                    .setBus1(terminalConnected(1) ? busId1 : null)
+                    .setBus2(terminalConnected(2) ? busId2 : null)
+                    .setConnectableBus1(busId1)
+                    .setConnectableBus2(busId2);
+        }
+    }
+
+    public void connect(BranchAdder<?> adder,
+            String iidmVoltageLevelId1, String busId1, boolean t1Connected, int node1,
+            String iidmVoltageLevelId2, String busId2, boolean t2Connected, int node2) {
+        if (context.nodeBreaker()) {
+            adder
+                    .setVoltageLevel1(iidmVoltageLevelId1)
+                    .setVoltageLevel2(iidmVoltageLevelId2)
+                    .setNode1(node1)
+                    .setNode2(node2);
+        } else {
+            adder
+                    .setVoltageLevel1(iidmVoltageLevelId1)
+                    .setVoltageLevel2(iidmVoltageLevelId2)
+                    .setBus1(t1Connected ? busId1 : null)
+                    .setBus2(t2Connected ? busId2 : null)
+                    .setConnectableBus1(busId1)
+                    .setConnectableBus2(busId2);
+        }
+    }
+
+    public void connect(BranchAdder<?> adder, boolean t1Connected, boolean t2Connected) {
+        if (context.nodeBreaker()) {
+            adder
+                    .setVoltageLevel1(iidmVoltageLevelId(1))
+                    .setVoltageLevel2(iidmVoltageLevelId(2))
+                    .setNode1(iidmNode(1))
+                    .setNode2(iidmNode(2));
+        } else {
+            String busId1 = busId(1);
+            String busId2 = busId(2);
+            adder
+                    .setVoltageLevel1(iidmVoltageLevelId(1))
+                    .setVoltageLevel2(iidmVoltageLevelId(2))
+                    .setBus1(t1Connected ? busId1 : null)
+                    .setBus2(t2Connected ? busId2 : null)
+                    .setConnectableBus1(busId1)
+                    .setConnectableBus2(busId2);
+        }
+    }
+
+    public void connect(VoltageLevel.NodeBreakerView.SwitchAdder adder, boolean open) {
+        if (!context.nodeBreaker()) {
+            throw new ConversionException("Not in node breaker context");
+        }
+        adder.setNode1(iidmNode(1)).setNode2(iidmNode(2)).setOpen(open);
+    }
+
+    public void connect(VoltageLevel.BusBreakerView.SwitchAdder adder, boolean open) {
+        adder
+                .setBus1(busId(1))
+                .setBus2(busId(2))
+                .setOpen(open || !terminalConnected(1) || !terminalConnected(2));
+    }
+
+    public void connect(LegAdder<?> adder, int terminal) {
+        if (context.nodeBreaker()) {
+            adder
+                    .setVoltageLevel(iidmVoltageLevelId(terminal))
+                    .setNode(iidmNode(terminal));
+        } else {
+            adder
+                    .setVoltageLevel(iidmVoltageLevelId(terminal))
+                    .setBus(terminalConnected(terminal) ? busId(terminal) : null)
+                    .setConnectableBus(busId(terminal));
+        }
     }
 
     private final TerminalData[] terminals;

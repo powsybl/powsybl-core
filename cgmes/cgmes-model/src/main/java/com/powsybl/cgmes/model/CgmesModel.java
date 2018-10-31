@@ -60,6 +60,8 @@ public interface CgmesModel {
 
     PropertyBags topologicalNodes();
 
+    PropertyBags busBarSections();
+
     PropertyBags switches();
 
     PropertyBags acLineSegments();

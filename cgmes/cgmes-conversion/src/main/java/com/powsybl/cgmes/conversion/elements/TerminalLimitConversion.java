@@ -39,7 +39,7 @@ public class TerminalLimitConversion extends AbstractIdentifiedObjectConversion 
         String type = p.getLocal("operationalLimitTypeName");
         double value = p.asDouble("value");
         int terminalNumber = context.terminalMapping().number(terminalId);
-        Connectable eq = terminal.getConnectable();
+        Connectable<?> eq = terminal.getConnectable();
         boolean assigned = false;
         if (type.equals("PATL")) {
             if (value <= 0) {
@@ -49,7 +49,7 @@ public class TerminalLimitConversion extends AbstractIdentifiedObjectConversion 
                 // to avoid checking the class of the equipment
                 // In terminal mapping insert a CurrentLimitsAdder instead of a Branch.side
                 if (eq instanceof Branch) {
-                    Branch b = (Branch) eq;
+                    Branch<?> b = (Branch<?>) eq;
                     if (terminalNumber == 1) {
                         b.newCurrentLimits1().setPermanentLimit(value).add();
                         assigned = true;
@@ -72,7 +72,7 @@ public class TerminalLimitConversion extends AbstractIdentifiedObjectConversion 
         }
     }
 
-    private static String className(Identifiable o) {
+    private static String className(Identifiable<?> o) {
         String s = o.getClass().getName();
         int dot = s.lastIndexOf('.');
         if (dot >= 0) {

@@ -5,12 +5,12 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
-
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.ShuntCompensatorAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -38,16 +38,13 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
             bPerSection = bPerSectionFixed;
         }
 
-        ShuntCompensator shunt = voltageLevel().newShuntCompensator()
-                .setId(iidmId())
-                .setName(iidmName())
-                .setEnsureIdUnicity(false)
-                .setBus(terminalConnected() ? busId() : null)
-                .setConnectableBus(busId())
+        ShuntCompensatorAdder adder = voltageLevel().newShuntCompensator()
                 .setCurrentSectionCount(sections)
                 .setbPerSection(bPerSection)
-                .setMaximumSectionCount(maximumSections)
-                .add();
+                .setMaximumSectionCount(maximumSections);
+        identify(adder);
+        connect(adder);
+        ShuntCompensator shunt = adder.add();
 
         // At a shunt terminal, only Q can be set
         PowerFlow f = powerFlow();

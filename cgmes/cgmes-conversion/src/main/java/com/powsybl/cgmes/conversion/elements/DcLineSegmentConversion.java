@@ -13,6 +13,7 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.HvdcLineAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -49,18 +50,16 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
         double maxP = p * 1.2;
         missing("maxP", maxP);
 
-        context.network().newHvdcLine()
-                .setId(iidmId())
-                .setName(iidmName())
-                .setEnsureIdUnicity(false)
+        HvdcLineAdder adder = context.network().newHvdcLine()
                 .setR(r())
                 .setNominalV(ratedUdc())
                 .setActivePowerSetpoint(p)
                 .setMaxP(maxP)
                 .setConvertersMode(decodeMode())
                 .setConverterStationId1(iconverter1.getId())
-                .setConverterStationId2(iconverter2.getId())
-                .add();
+                .setConverterStationId2(iconverter2.getId());
+        identify(adder);
+        adder.add();
     }
 
     private double r() {
@@ -129,8 +128,8 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
         return operatingMode.toLowerCase().endsWith("rectifier");
     }
 
-    private HvdcConverterStation iconverter1;
-    private HvdcConverterStation iconverter2;
+    private HvdcConverterStation<?> iconverter1;
+    private HvdcConverterStation<?> iconverter2;
     private PropertyBag cconverter1;
     private PropertyBag cconverter2;
 }

@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.iidm.network.IdentifiableAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -44,6 +45,22 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
 
     public String iidmName() {
         return context.namingStrategy().getName(type, name);
+    }
+
+    // Identification
+
+    public void identify(IdentifiableAdder<?> adder) {
+        adder
+                .setId(iidmId())
+                .setName(iidmName())
+                .setEnsureIdUnicity(true);
+    }
+
+    public void identify(IdentifiableAdder<?> adder, String id, String name) {
+        adder
+                .setId(id)
+                .setName(name)
+                .setEnsureIdUnicity(true);
     }
 
     @Override

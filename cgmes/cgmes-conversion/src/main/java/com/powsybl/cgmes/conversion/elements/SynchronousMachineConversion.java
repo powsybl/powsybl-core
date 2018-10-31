@@ -11,6 +11,7 @@ import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.GeneratorAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -42,12 +43,7 @@ public class SynchronousMachineConversion extends AbstractConductingEquipmentCon
                 p,
                 voltageLevel(),
                 context);
-        Generator g = voltageLevel().newGenerator()
-                .setId(iidmId())
-                .setName(iidmName())
-                .setEnsureIdUnicity(false)
-                .setBus(terminalConnected() ? busId() : null)
-                .setConnectableBus(busId())
+        GeneratorAdder adder = voltageLevel().newGenerator()
                 .setMinP(minP)
                 .setMaxP(maxP)
                 .setVoltageRegulatorOn(control.on())
@@ -56,9 +52,10 @@ public class SynchronousMachineConversion extends AbstractConductingEquipmentCon
                 .setTargetQ(targetQ)
                 .setTargetV(control.targetV())
                 .setEnergySource(fromGeneratingUnitType(generatingUnitType))
-                .setRatedS(ratedS)
-                .add();
-
+                .setRatedS(ratedS);
+        identify(adder);
+        connect(adder);
+        Generator g = adder.add();
         convertedTerminals(g.getTerminal());
         ReactiveLimitsConversion.convert(p, g);
     }

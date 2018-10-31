@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -61,13 +62,36 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
     public void convert() {
         VoltageLevel vl = voltageLevel();
         Objects.requireNonNull(vl);
-        createBus(vl);
+        if (context.nodeBreaker()) {
+            addNode(vl);
+        } else {
+            createBus(vl);
+        }
     }
 
     private VoltageLevel voltageLevel() {
         String cgmesId = p.getId(CgmesNames.VOLTAGE_LEVEL);
         String iidmId = context.namingStrategy().getId(CgmesNames.VOLTAGE_LEVEL, cgmesId);
         return iidmId != null ? context.network().getVoltageLevel(iidmId) : null;
+    }
+
+    private void addNode(VoltageLevel vl) {
+        // FIXME(Luma): Where do we put the voltage ???
+        VoltageLevel.NodeBreakerView nbv = vl.getNodeBreakerView();
+        String connectivityNode = id;
+        int iidmNode = context.nodeMapping().iidmNodeForConnectivityNode(connectivityNode, vl);
+
+        // Busbar sections are created for every connectivity node to be
+        // able to easily check the topology calculated by IIDM
+        // against the topology present in the CGMES model
+        if (context.config().createBusbarSectionForEveryConnectivityNode()) {
+            BusbarSection bus = nbv.newBusbarSection()
+                    .setId(context.namingStrategy().getId("Bus", id))
+                    .setName(context.namingStrategy().getName("Bus", name))
+                    .setNode(iidmNode)
+                    .add();
+            LOG.info("    BusbarSection added at node {} : {} {} : {}", iidmNode, id, name, bus);
+        }
     }
 
     private void createBus(VoltageLevel voltageLevel) {

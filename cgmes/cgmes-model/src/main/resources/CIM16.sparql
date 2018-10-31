@@ -298,6 +298,17 @@ SELECT *
     OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.acceptableDuration ?acceptableDuration }
 }}
 
+# query: busbarSections
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?BusbarSection
+        a cim:BusbarSection ;
+        cim:IdentifiedObject.name ?name .
+    ?Terminal cim:Terminal.ConductingEquipment ?BusbarSection
+}}
+}
+
 # query: switches
 SELECT *
 WHERE {
