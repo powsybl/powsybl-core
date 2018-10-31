@@ -7,7 +7,6 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -20,7 +19,6 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBags;
