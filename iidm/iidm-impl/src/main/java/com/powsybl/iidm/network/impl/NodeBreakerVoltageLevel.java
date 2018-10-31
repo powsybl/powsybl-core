@@ -1062,11 +1062,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 TerminalExt terminal = graph.getVertexObject(n);
                 if (terminal != null) {
                     AbstractConnectable connectable = terminal.getConnectable();
-                    
+
                     String id = connectable.getId();
                     id = id.substring(0, id.indexOf('-'));
                     String name = connectable.getName();
-                    
+
                     String label = n + "\\n" + connectable.getType().toString() + "\\n" + name;
                     node.attr(LABEL_ATTRIBUTE, label);
                     g.node(node);
@@ -1090,11 +1090,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 TerminalExt terminal = graph.getVertexObject(nodeInt);
                 if (terminal != null) {
                     AbstractConnectable connectable = terminal.getConnectable();
-                    
+
                     String id = connectable.getId();
                     id = id.substring(0, id.indexOf('-'));
                     String name = connectable.getName();
-                    
+
                     String label = nodeInt + "\\n" + connectable.getType().toString() + "\\n" + name;
                     node.attr(LABEL_ATTRIBUTE, label);
                 }
