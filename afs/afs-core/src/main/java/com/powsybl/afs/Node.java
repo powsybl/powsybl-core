@@ -10,8 +10,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-import com.powsybl.afs.storage.NodeInfo;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -20,8 +18,6 @@ public class Node extends AbstractNodeBase<Folder> {
     protected final AppFileSystem fileSystem;
 
     protected final boolean folder;
-
-    private boolean ancestor;
 
     protected Node(FileCreationContext context, int codeVersion, boolean folder) {
         super(context.getInfo(), context.getStorage(), codeVersion);
@@ -41,32 +37,13 @@ public class Node extends AbstractNodeBase<Folder> {
     }
 
     public void moveTo(Folder folder) {
-        System.out.println("Node.moveTo");
         Objects.requireNonNull(folder);
         if (!isSourceAncestorOf(folder)) {
             storage.setParentNode(info.getId(), folder.getId());
         } else {
             throw new AfsException("Dragging a node to his child is not authorized");
         }
-    }
-
-    private boolean isSourceAncestorOf(Folder folder) {
-        Objects.requireNonNull(folder);
-        Optional<NodeInfo> parentNode = storage.getParentNode(folder.getId());
-        if (parentNode.isPresent()) {
-            while (parentNode.get() != null) {
-                if (info.getId().equals(parentNode.get().getId())) {
-                    return true;
-                } else {
-                    if (storage.getParentNode(parentNode.get().getId()).isPresent()) {
-                        parentNode = storage.getParentNode(parentNode.get().getId());
-                    } else {
-                        break;
-                    }
-                }
-            }
-        }
-        return false;
+        storage.flush();
     }
 
     @Override

@@ -110,4 +110,21 @@ public abstract class AbstractNodeBase<F> {
     public String toString() {
         return getName();
     }
+    public boolean isSourceAncestorOf(AbstractNodeBase abstractNodeBase) {
+        Optional<NodeInfo> parentNode = storage.getParentNode(abstractNodeBase.getId());
+        if (parentNode.isPresent()) {
+            while (parentNode.get() != null) {
+                if (info.getId().equals(parentNode.get().getId())) {
+                    return true;
+                } else {
+                    if (storage.getParentNode(parentNode.get().getId()).isPresent()) {
+                        parentNode = storage.getParentNode(parentNode.get().getId());
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+        return false;
+    }
 }
