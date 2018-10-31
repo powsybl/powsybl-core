@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.powsybl.afs.storage.NodeInfo;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -39,30 +41,32 @@ public class Node extends AbstractNodeBase<Folder> {
     }
 
     public void moveTo(Folder folder) {
+        System.out.println("Node.moveTo");
         Objects.requireNonNull(folder);
         if (!isSourceAncestorOf(folder)) {
             storage.setParentNode(info.getId(), folder.getId());
-            storage.flush();
+        } else {
+            throw new AfsException("Dragging a node to his child is not authorized");
         }
     }
 
     private boolean isSourceAncestorOf(Folder folder) {
-        storage.getParentNode(folder.getId()).ifPresent(nodeParent -> {
-            ancestor = false;
-            while (nodeParent != null) {
-                if (info.getId().equals(nodeParent.getId())) {
-                    ancestor = true;
-                    return;
+        Objects.requireNonNull(folder);
+        Optional<NodeInfo> parentNode = storage.getParentNode(folder.getId());
+        if (parentNode.isPresent()) {
+            while (parentNode.get() != null) {
+                if (info.getId().equals(parentNode.get().getId())) {
+                    return true;
                 } else {
-                    if (storage.getParentNode(nodeParent.getId()).isPresent()) {
-                        nodeParent = storage.getParentNode(nodeParent.getId()).get();
+                    if (storage.getParentNode(parentNode.get().getId()).isPresent()) {
+                        parentNode = storage.getParentNode(parentNode.get().getId());
                     } else {
-                        return;
+                        break;
                     }
                 }
             }
-        });
-        return ancestor;
+        }
+        return false;
     }
 
     @Override
