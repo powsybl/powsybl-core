@@ -259,16 +259,16 @@ OPTIONAL {
     }
     # The only way to get a nominal voltage from a connectivity node on the boundary,
     # contained in a Line, seems to be through its topological node
-    GRAPH ?graphEQ4 {
+    OPTIONAL { GRAPH ?graphEQ4 {
         ?BaseVoltage cim:BaseVoltage.nominalVoltage ?nominalVoltage
-    }
-    GRAPH ?graphSV {
+    }}
+    OPTIONAL { GRAPH ?graphSV {
         ?SvVoltage
             a cim:SvVoltage ;
             cim:SvVoltage.TopologicalNode ?TopologicalNode ;
             cim:SvVoltage.angle ?angle ;
             cim:SvVoltage.v ?v
-    }
+    }}
 }
 }
 
