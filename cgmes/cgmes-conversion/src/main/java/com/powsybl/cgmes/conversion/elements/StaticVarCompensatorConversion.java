@@ -49,7 +49,8 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
                 .setBmax(capacitiveRating)
                 .setVoltageSetPoint(voltageSetPoint)
                 .setRegulationMode(regulationMode);
-
+        identify(adder);
+        connect(adder);
         StaticVarCompensator svc = adder.add();
         convertedTerminals(svc.getTerminal());
     }
