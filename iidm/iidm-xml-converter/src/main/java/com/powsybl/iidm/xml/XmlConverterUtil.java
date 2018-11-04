@@ -7,7 +7,8 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
+
+import java.util.Objects;
 
 /**
  *
@@ -20,21 +21,21 @@ public final class XmlConverterUtil {
 
     static final String[] EXTENSIONS = {"xiidm", "iidm", "xml"};
 
-    static String findExtension(ReadOnlyDataSource dataSource) {
+    static String findExtension(String mainFileName) {
+        Objects.requireNonNull(mainFileName);
         for (String ext : XmlConverterUtil.EXTENSIONS) {
-            if (dataSource.getMainFileName().endsWith('.' + ext)) {
+            if (mainFileName.endsWith('.' + ext)) {
                 return ext;
             }
         }
         return null;
     }
 
-    static String getBaseName(ReadOnlyDataSource dataSource) {
-        String ext = findExtension(dataSource);
+    static String getBaseName(String mainFileName) {
+        String ext = findExtension(mainFileName);
         if (ext == null) {
             throw new PowsyblException("IIDM extension not found, impossible de find a base name");
         }
-        String mainFileName = dataSource.getMainFileName();
         return mainFileName.substring(0, mainFileName.length() - ext.length() - 1);
     }
 }

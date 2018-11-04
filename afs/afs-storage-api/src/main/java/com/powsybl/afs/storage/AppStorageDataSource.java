@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * A datasource corresponding to a data blob stored in the file system.
@@ -109,7 +110,7 @@ public class AppStorageDataSource implements DataSource {
 
     @Override
     public String getMainFileName() {
-        return nodeName;
+        return null;
     }
 
     @Override
@@ -118,34 +119,61 @@ public class AppStorageDataSource implements DataSource {
         if (append) {
             throw new UnsupportedOperationException("Append mode not supported");
         }
-        return storage.writeBinaryData(nodeId, new FileName(fileName).toString());
+        return storage.writeBinaryData(nodeId, fileName);
     }
 
     @Override
     public boolean fileExists(String fileName) {
+        Objects.requireNonNull(fileName);
         if (storage.dataExists(nodeId, fileName)) {
             return true;
         }
         // backward compatibility
-        if (storage.dataExists(nodeId, new FileName(fileName).toString())) {
-            return true;
-        }
-        if (fileName.startsWith(nodeName)) {
-
-        }
-        return false;
+        return getFileNameStream().anyMatch(fileName2 -> fileName2.equals(fileName));
     }
 
     @Override
     public InputStream newInputStream(String fileName) {
-        return storage.readBinaryData(nodeId, new FileName(fileName).toString())
-                .orElseThrow(() -> new UncheckedIOException(new IOException(fileName + " does not exist")));
+        Objects.requireNonNull(fileName);
+        return storage.readBinaryData(nodeId, fileName)
+                .orElseGet(() -> {
+                    // for backward compatibility
+                    for (String dataName : storage.getDataNames(nodeId)) {
+                        String fileName2 = migrateDataName(dataName);
+                        if (fileName.equals(fileName2)) {
+                            return storage.readBinaryData(nodeId, dataName).orElseThrow(AssertionError::new);
+                        }
+                    }
+                    throw new UncheckedIOException(new IOException(fileName + " does not exist"));
+                });
+    }
+
+    private String migrateDataName(String dataName) {
+        Name name = Name.parse(dataName);
+        if (name == null) {
+            return dataName;
+        }
+        // for backward compatibility
+        if (name instanceof FileName) {
+            return ((FileName) name).getName();
+        } else if (name instanceof SuffixAndExtension) {
+            SuffixAndExtension suffixAndExtension = (SuffixAndExtension) name;
+            return nodeName + Objects.toString(suffixAndExtension.getSuffix(), "") + "." + Objects.toString(suffixAndExtension.getExt(), "");
+        } else {
+            throw new AssertionError("Unknown name impl");
+        }
+    }
+
+    private Stream<String> getFileNameStream() {
+        return storage.getDataNames(nodeId).stream()
+                .map(this::migrateDataName);
     }
 
     @Override
     public Set<String> getFileNames(String regex) {
+        Objects.requireNonNull(regex);
         Pattern p = Pattern.compile(regex);
-        return storage.getDataNames(nodeId).stream()
+        return getFileNameStream()
                 .filter(name -> p.matcher(name).matches())
                 .collect(Collectors.toSet());
     }

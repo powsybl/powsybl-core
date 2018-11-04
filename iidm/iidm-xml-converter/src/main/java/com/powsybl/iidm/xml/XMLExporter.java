@@ -86,7 +86,7 @@ public class XMLExporter implements Exporter {
             throw new IllegalArgumentException("network is null");
         }
 
-        String extension = XmlConverterUtil.findExtension(dataSource);
+        String extension = XmlConverterUtil.findExtension(dataSource.getMainFileName());
         String mainFileName = dataSource.getMainFileName();
         if (extension == null) {
             mainFileName += ".xiidm";
@@ -109,7 +109,7 @@ public class XMLExporter implements Exporter {
                  BufferedOutputStream bos = new BufferedOutputStream(os)) {
                 Anonymizer anonymizer = NetworkXml.write(network, options, bos);
                 if (anonymizer != null) {
-                    String baseName = XmlConverterUtil.getBaseName(dataSource);
+                    String baseName = XmlConverterUtil.getBaseName(dataSource.getMainFileName());
                     try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dataSource.newOutputStream(baseName + "_mapping.csv", false), StandardCharsets.UTF_8))) {
                         anonymizer.write(writer);
                     }
