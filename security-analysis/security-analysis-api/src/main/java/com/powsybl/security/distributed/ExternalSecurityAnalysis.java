@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static com.powsybl.tools.ToolConstants.TASK_COUNT;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -160,7 +161,7 @@ public class ExternalSecurityAnalysis implements SecurityAnalysis {
                     .option("output-format", "JSON")
                     .option("output-file", OUTPUT_FILE);
             if (taskCount != null) {
-                builder.option("task-count", Integer.toString(taskCount));
+                builder.option(TASK_COUNT, Integer.toString(taskCount));
             }
             SimpleCommand cmd = builder.build();
             return Collections.singletonList(new CommandExecution(cmd, 1, 1));
