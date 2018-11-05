@@ -99,14 +99,10 @@ public class CommandLineTools {
 
     private static Options hideOptions(Options originalOptions, String... hiddenOptions) {
         Options filteredOptions = new Options();
-        originalOptions.getOptions().stream().filter(o -> {
-            for (String hiddenOption : hiddenOptions) {
-                if (o.getLongOpt().equals(hiddenOption)) {
-                    return false;
-                }
-            }
-            return true;
-        }).forEach(filteredOptions::addOption);
+        Set<String> hiddenOptionsSet = new HashSet<>(Arrays.asList(hiddenOptions));
+        originalOptions.getOptions().stream()
+                .filter(o -> !hiddenOptionsSet.contains(o.getLongOpt()))
+                .forEach(filteredOptions::addOption);
         return filteredOptions;
     }
 
