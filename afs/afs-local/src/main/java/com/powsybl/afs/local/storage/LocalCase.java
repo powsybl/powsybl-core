@@ -7,6 +7,7 @@
 package com.powsybl.afs.local.storage;
 
 import com.powsybl.afs.ext.base.Case;
+import com.powsybl.afs.storage.AppStorageDataSource;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.import_.Importer;
@@ -57,7 +58,9 @@ public class LocalCase implements LocalFile {
 
     @Override
     public NodeGenericMetadata getGenericMetadata() {
-        return new NodeGenericMetadata().setString("format", importer.getFormat());
+        return new NodeGenericMetadata()
+                .setString("format", importer.getFormat())
+                .setString(AppStorageDataSource.MAIN_FILE_NAME, file.getFileName().toString());
     }
 
     @Override
@@ -74,7 +77,7 @@ public class LocalCase implements LocalFile {
 
     @Override
     public Set<String> getDataNames() {
-        throw new AssertionError("TODO"); // TODO
+        return Collections.singleton(file.getFileName().toString());
     }
 
     @Override

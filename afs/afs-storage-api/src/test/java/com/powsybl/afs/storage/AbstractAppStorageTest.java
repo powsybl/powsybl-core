@@ -185,7 +185,7 @@ public abstract class AbstractAppStorageTest {
         assertTrue(storage.getBackwardDependencies(testData2Info.getId()).isEmpty());
 
         // 5b) create named data items in test folder
-        DataSource ds1 = new AppStorageDataSource(storage, testFolderInfo.getId(), testFolderInfo.getName());
+        DataSource ds1 = new AppStorageDataSource(storage, testFolderInfo);
         try (Writer writer = new OutputStreamWriter(storage.writeBinaryData(testFolderInfo.getId(), "testData1"), StandardCharsets.UTF_8)) {
             writer.write("Content for testData1");
         } catch (IOException e) {
@@ -305,8 +305,8 @@ public abstract class AbstractAppStorageTest {
         assertFalse(storage.readBinaryData(testData2Info.getId(), "blob").isPresent());
 
         // 11) check data source using pattern api
-        DataSource ds = new AppStorageDataSource(storage, testData2Info.getId(), testData2Info.getName());
-        assertEquals(testData2Info.getName(), ds.getMainFileName());
+        DataSource ds = new AppStorageDataSource(storage, testData2Info);
+        assertNull(ds.getMainFileName());
 
         assertFalse(ds.fileExists("file1"));
 
@@ -317,7 +317,7 @@ public abstract class AbstractAppStorageTest {
         storage.flush();
 
         // check event
-        assertEventStack(new NodeDataUpdated(testData2Info.getId(), "DATA_SOURCE_FILE_NAME__file1"));
+        assertEventStack(new NodeDataUpdated(testData2Info.getId(), "file1"));
 
         assertTrue(ds.fileExists("file1"));
         try (InputStream ignored = ds.newInputStream("file2")) {

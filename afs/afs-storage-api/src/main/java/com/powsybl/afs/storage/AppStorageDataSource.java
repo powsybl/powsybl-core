@@ -26,6 +26,8 @@ import java.util.stream.Stream;
  */
 public class AppStorageDataSource implements DataSource {
 
+    public static final String MAIN_FILE_NAME = "mainFileName";
+
     private static final String SEPARATOR = "__";
 
     public interface Name {
@@ -98,19 +100,18 @@ public class AppStorageDataSource implements DataSource {
 
     private final AppStorage storage;
 
-    private final String nodeId;
+    private final NodeInfo nodeInfo;
 
-    private final String nodeName;
-
-    public AppStorageDataSource(AppStorage storage, String nodeId, String nodeName) {
+    public AppStorageDataSource(AppStorage storage, NodeInfo nodeInfo) {
         this.storage = Objects.requireNonNull(storage);
-        this.nodeId = Objects.requireNonNull(nodeId);
-        this.nodeName = Objects.requireNonNull(nodeName);
+        this.nodeInfo = Objects.requireNonNull(nodeInfo);
     }
 
     @Override
     public String getMainFileName() {
-        return null;
+        return nodeInfo.getGenericMetadata().stringExists(MAIN_FILE_NAME)
+                ? nodeInfo.getGenericMetadata().getString(MAIN_FILE_NAME)
+                : null;
     }
 
     @Override
@@ -119,13 +120,13 @@ public class AppStorageDataSource implements DataSource {
         if (append) {
             throw new UnsupportedOperationException("Append mode not supported");
         }
-        return storage.writeBinaryData(nodeId, fileName);
+        return storage.writeBinaryData(nodeInfo.getId(), fileName);
     }
 
     @Override
     public boolean fileExists(String fileName) {
         Objects.requireNonNull(fileName);
-        if (storage.dataExists(nodeId, fileName)) {
+        if (storage.dataExists(nodeInfo.getId(), fileName)) {
             return true;
         }
         // backward compatibility
@@ -135,13 +136,13 @@ public class AppStorageDataSource implements DataSource {
     @Override
     public InputStream newInputStream(String fileName) {
         Objects.requireNonNull(fileName);
-        return storage.readBinaryData(nodeId, fileName)
+        return storage.readBinaryData(nodeInfo.getId(), fileName)
                 .orElseGet(() -> {
                     // for backward compatibility
-                    for (String dataName : storage.getDataNames(nodeId)) {
+                    for (String dataName : storage.getDataNames(nodeInfo.getId())) {
                         String fileName2 = migrateDataName(dataName);
                         if (fileName.equals(fileName2)) {
-                            return storage.readBinaryData(nodeId, dataName).orElseThrow(AssertionError::new);
+                            return storage.readBinaryData(nodeInfo.getId(), dataName).orElseThrow(AssertionError::new);
                         }
                     }
                     throw new UncheckedIOException(new IOException(fileName + " does not exist"));
@@ -158,14 +159,14 @@ public class AppStorageDataSource implements DataSource {
             return ((FileName) name).getName();
         } else if (name instanceof SuffixAndExtension) {
             SuffixAndExtension suffixAndExtension = (SuffixAndExtension) name;
-            return nodeName + Objects.toString(suffixAndExtension.getSuffix(), "") + "." + Objects.toString(suffixAndExtension.getExt(), "");
+            return nodeInfo.getName() + Objects.toString(suffixAndExtension.getSuffix(), "") + "." + Objects.toString(suffixAndExtension.getExt(), "");
         } else {
             throw new AssertionError("Unknown name impl");
         }
     }
 
     private Stream<String> getFileNameStream() {
-        return storage.getDataNames(nodeId).stream()
+        return storage.getDataNames(nodeInfo.getId()).stream()
                 .map(this::migrateDataName);
     }
 

@@ -45,7 +45,7 @@ public class ImportedCase extends ProjectFile implements ProjectCase {
     }
 
     public ReadOnlyDataSource getDataSource() {
-        return new AppStorageDataSource(storage, info.getId(), info.getName());
+        return new AppStorageDataSource(storage, info);
     }
 
     public Properties getParameters() {

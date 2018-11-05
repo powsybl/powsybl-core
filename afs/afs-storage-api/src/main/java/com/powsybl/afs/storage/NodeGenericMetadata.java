@@ -38,6 +38,11 @@ public class NodeGenericMetadata {
         this.booleanMetadata = Objects.requireNonNull(booleanMetadata);
     }
 
+    public boolean stringExists(String name) {
+        Objects.requireNonNull(name);
+        return stringMetadata.containsKey(name);
+    }
+
     public NodeGenericMetadata setString(String name, String value) {
         Objects.requireNonNull(name);
         Objects.requireNonNull(value);
@@ -64,6 +69,11 @@ public class NodeGenericMetadata {
         return getValue(stringMetadata, name, "String");
     }
 
+    public boolean doubleExists(String name) {
+        Objects.requireNonNull(name);
+        return doubleMetadata.containsKey(name);
+    }
+
     public NodeGenericMetadata setDouble(String name, double value) {
         Objects.requireNonNull(name);
         doubleMetadata.put(name, value);
@@ -78,6 +88,11 @@ public class NodeGenericMetadata {
         return doubleMetadata;
     }
 
+    public boolean intExists(String name) {
+        Objects.requireNonNull(name);
+        return intMetadata.containsKey(name);
+    }
+
     public NodeGenericMetadata setInt(String name, int value) {
         Objects.requireNonNull(name);
         intMetadata.put(name, value);
@@ -90,6 +105,11 @@ public class NodeGenericMetadata {
 
     public Map<String, Integer> getInts() {
         return intMetadata;
+    }
+
+    public boolean booleanExists(String name) {
+        Objects.requireNonNull(name);
+        return booleanMetadata.containsKey(name);
     }
 
     public NodeGenericMetadata setBoolean(String name, boolean value) {

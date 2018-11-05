@@ -52,7 +52,7 @@ public class XMLImporter implements Importer {
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
-    private static final String SUFFIX_MAPPING = "_mapping";
+    private static final String SUFFIX_MAPPING = "_mapping.csv";
 
     public XMLImporter() {
         this(PlatformConfig.defaultConfig());
