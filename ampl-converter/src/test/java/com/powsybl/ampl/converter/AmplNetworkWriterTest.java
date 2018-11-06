@@ -24,8 +24,8 @@ import java.util.Properties;
  */
 public class AmplNetworkWriterTest extends AbstractConverterTest {
 
-    private void assertEqualsToRef(MemDataSource dataSource, String suffixe, String resource) throws IOException {
-        try (InputStream actual = dataSource.newInputStream(dataSource.getMainFileName() + suffixe)) {
+    private void assertEqualsToRef(MemDataSource dataSource, String suffix, String resource) throws IOException {
+        try (InputStream actual = dataSource.newInputStream(dataSource.getMainFileName() + suffix)) {
             compareTxt(getClass().getResourceAsStream("/" + resource), actual);
         }
     }

@@ -34,7 +34,7 @@ public final class XmlConverterUtil {
     static String getBaseName(String mainFileName) {
         String ext = findExtension(mainFileName);
         if (ext == null) {
-            throw new PowsyblException("IIDM extension not found, impossible de find a base name");
+            throw new PowsyblException("IIDM extension not found, impossible to find a base name");
         }
         return mainFileName.substring(0, mainFileName.length() - ext.length() - 1);
     }

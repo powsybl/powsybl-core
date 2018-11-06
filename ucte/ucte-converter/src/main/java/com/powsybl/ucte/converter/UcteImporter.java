@@ -785,8 +785,8 @@ public class UcteImporter implements Importer {
     @Override
     public String getPrettyName(ReadOnlyDataSource dataSource) {
         checkDataSourceExists(dataSource);
-        String mainFileName = getMainFileName(dataSource);
-        String extension = findExtension(Objects.requireNonNull(mainFileName));
+        String mainFileName = Objects.requireNonNull(getMainFileName(dataSource));
+        String extension = Objects.requireNonNull(findExtension(mainFileName));
         return mainFileName.substring(0, mainFileName.length() - extension.length());
     }
 
@@ -950,7 +950,7 @@ public class UcteImporter implements Importer {
     @Override
     public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
         checkDataSourceExists(dataSource);
-        String fromMainFileName = getMainFileName(dataSource);
+        String fromMainFileName = Objects.requireNonNull(getMainFileName(dataSource));
         try {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(fromMainFileName)))) {
 
