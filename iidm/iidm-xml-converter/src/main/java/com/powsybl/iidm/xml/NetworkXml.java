@@ -504,20 +504,20 @@ public final class NetworkXml {
         Objects.requireNonNull(network);
         Objects.requireNonNull(executor);
         PipedOutputStream pos = new PipedOutputStream();
-        executor.execute(() -> {
-            try {
-                write(network, pos);
-            } catch (Exception t) {
-                LOGGER.error(t.toString(), t);
-            } finally {
-                try {
-                    pos.close();
-                } catch (IOException e) {
-                    LOGGER.error(e.toString(), e);
-                }
-            }
-        });
         try (InputStream is = new PipedInputStream(pos)) {
+            executor.execute(() -> {
+                try {
+                    write(network, pos);
+                } catch (Exception t) {
+                    LOGGER.error(t.toString(), t);
+                } finally {
+                    try {
+                        pos.close();
+                    } catch (IOException e) {
+                        LOGGER.error(e.toString(), e);
+                    }
+                }
+            });
             return read(is);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
