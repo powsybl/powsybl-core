@@ -10,6 +10,7 @@ import java.util.function.Consumer;
 import org.joda.time.DateTime;
 
 import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.Subset;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.PropertyBag;

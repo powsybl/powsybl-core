@@ -9,8 +9,8 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.ConversionException;
-import com.powsybl.cgmes.model.CgmesModel.CgmesTerminal;
 import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.BranchAdder;
 import com.powsybl.iidm.network.InjectionAdder;

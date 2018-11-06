@@ -3,7 +3,7 @@ package com.powsybl.cgmes.conversion;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.powsybl.cgmes.model.CgmesModel.CgmesTerminal;
+import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.iidm.network.VoltageLevel;
 
 public class NodeMapping {
