@@ -115,6 +115,11 @@ public class AppStorageDataSource implements DataSource {
     }
 
     @Override
+    public void setMainFileName(String mainFileName) {
+        nodeInfo.getGenericMetadata().setString(MAIN_FILE_NAME, mainFileName);
+    }
+
+    @Override
     public OutputStream newOutputStream(String fileName, boolean append) {
         Objects.requireNonNull(fileName);
         if (append) {

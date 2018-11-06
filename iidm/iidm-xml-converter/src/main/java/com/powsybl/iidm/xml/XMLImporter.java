@@ -153,14 +153,21 @@ public class XMLImporter implements Importer {
     public void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
         checkDataSourceExists(fromDataSource);
         String fromMainFileName = getMainFileName(fromDataSource);
+        String toMainFileName;
+        if (toDataSource.getMainFileName() != null) {
+            toMainFileName = toDataSource.getMainFileName();
+        } else {
+            toMainFileName = fromMainFileName;
+            toDataSource.setMainFileName(fromMainFileName);
+        }
         try {
             // copy iidm file
             try (InputStream is = fromDataSource.newInputStream(fromMainFileName);
-                 OutputStream os = toDataSource.newOutputStream(toDataSource.getMainFileName(), false)) {
+                 OutputStream os = toDataSource.newOutputStream(toMainFileName, false)) {
                 ByteStreams.copy(is, os);
             }
             String fromBaseName = XmlConverterUtil.getBaseName(fromMainFileName);
-            String toBaseName = XmlConverterUtil.getBaseName(toDataSource.getMainFileName());
+            String toBaseName = XmlConverterUtil.getBaseName(toMainFileName);
             // and also anonymization file if exists
             if (fromDataSource.fileExists(fromBaseName + SUFFIX_MAPPING)) {
                 try (InputStream is = fromDataSource.newInputStream(fromBaseName + SUFFIX_MAPPING);

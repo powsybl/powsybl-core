@@ -13,5 +13,7 @@ import java.io.OutputStream;
  */
 public interface DataSource extends ReadOnlyDataSource {
 
+    void setMainFileName(String mainFileName);
+
     OutputStream newOutputStream(String fileName, boolean append);
 }

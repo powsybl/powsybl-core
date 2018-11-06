@@ -746,9 +746,9 @@ public class UcteImporter implements Importer {
 
     }
 
-    private String findExtension(ReadOnlyDataSource dataSource) {
+    private String findExtension(String mainFileName) {
         for (String ext : EXTENSIONS) {
-            if (dataSource.getMainFileName().endsWith('.' + ext)) {
+            if (mainFileName.endsWith('.' + ext)) {
                 return ext;
             }
         }
@@ -771,7 +771,7 @@ public class UcteImporter implements Importer {
         String mainFileName = getMainFileName(dataSource);
         return mainFileName != null
                 && dataSource.fileExists(mainFileName)
-                && findExtension(dataSource) != null
+                && findExtension(mainFileName) != null
                 && checkHeader(dataSource);
     }
 
@@ -785,12 +785,14 @@ public class UcteImporter implements Importer {
     @Override
     public String getPrettyName(ReadOnlyDataSource dataSource) {
         checkDataSourceExists(dataSource);
-        String extension = Objects.requireNonNull(findExtension(dataSource));
-        return dataSource.getMainFileName().substring(0, dataSource.getMainFileName().length() - extension.length());
+        String mainFileName = getMainFileName(dataSource);
+        String extension = findExtension(Objects.requireNonNull(mainFileName));
+        return mainFileName.substring(0, mainFileName.length() - extension.length());
     }
 
     private boolean checkHeader(ReadOnlyDataSource dataSource) {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(dataSource.getMainFileName())))) {
+        String mainFileName = getMainFileName(dataSource);
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(mainFileName)))) {
             return new UcteReader().checkHeader(reader);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -928,9 +930,16 @@ public class UcteImporter implements Importer {
         checkDataSourceExists(fromDataSource);
         Objects.requireNonNull(toDataSource);
         String fromMainFileName = getMainFileName(fromDataSource);
+        String toMainFileName;
+        if (toDataSource.getMainFileName() != null) {
+            toMainFileName = toDataSource.getMainFileName();
+        } else {
+            toMainFileName = fromMainFileName;
+            toDataSource.setMainFileName(fromMainFileName);
+        }
         try {
             try (InputStream is = fromDataSource.newInputStream(fromMainFileName);
-                 OutputStream os = toDataSource.newOutputStream(toDataSource.getMainFileName(), false)) {
+                 OutputStream os = toDataSource.newOutputStream(toMainFileName, false)) {
                 ByteStreams.copy(is, os);
             }
         } catch (IOException e) {
@@ -941,13 +950,14 @@ public class UcteImporter implements Importer {
     @Override
     public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
         checkDataSourceExists(dataSource);
+        String fromMainFileName = getMainFileName(dataSource);
         try {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(dataSource.getMainFileName())))) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(fromMainFileName)))) {
 
                 Stopwatch stopwatch = Stopwatch.createStarted();
 
                 UcteNetworkExt ucteNetwork = new UcteNetworkExt(new UcteReader().read(reader), LINE_MIN_Z);
-                String fileName = dataSource.getMainFileName().substring(0, dataSource.getMainFileName().length() - 4);
+                String fileName = fromMainFileName.substring(0, fromMainFileName.length() - 4);
 
                 EntsoeFileName ucteFileName = EntsoeFileName.parse(fileName);
 

@@ -56,6 +56,11 @@ public class ZipFileDataSource implements DataSource {
         return null;
     }
 
+    @Override
+    public void setMainFileName(String mainFileName) {
+        // nothing to do
+    }
+
     private Path getZipFilePath() {
         return directory.resolve(zipFileName);
     }

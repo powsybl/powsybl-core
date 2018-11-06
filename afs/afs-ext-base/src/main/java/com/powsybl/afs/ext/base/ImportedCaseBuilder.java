@@ -127,12 +127,8 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
         }
 
         // create project file
-        NodeGenericMetadata metadata = new NodeGenericMetadata()
-                .setString(ImportedCase.FORMAT, importer.getFormat());
-        if (dataSource.getMainFileName() != null) {
-            metadata.setString(AppStorageDataSource.MAIN_FILE_NAME, dataSource.getMainFileName());
-        }
-        NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, ImportedCase.PSEUDO_CLASS, "", ImportedCase.VERSION, metadata);
+        NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, ImportedCase.PSEUDO_CLASS, "", ImportedCase.VERSION,
+                new NodeGenericMetadata().setString(ImportedCase.FORMAT, importer.getFormat()));
 
         // store case data
         importer.copy(dataSource, new AppStorageDataSource(context.getStorage(), info));

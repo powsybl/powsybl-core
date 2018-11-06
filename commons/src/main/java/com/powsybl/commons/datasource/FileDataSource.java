@@ -27,7 +27,7 @@ public class FileDataSource implements DataSource {
 
     private final Path dir;
 
-    private final String fileName;
+    private String fileName;
 
     private final DataSourceCompressor compressor;
 
@@ -69,6 +69,11 @@ public class FileDataSource implements DataSource {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    @Override
+    public void setMainFileName(String fileName) {
+        this.fileName = fileName;
     }
 
     @Override
