@@ -134,21 +134,24 @@ public class XMLImporter implements Importer {
         }
     }
 
-    @Override
-    public String getPrettyName(ReadOnlyDataSource dataSource) {
+    private void checkDataSourceExists(ReadOnlyDataSource dataSource) {
+        Objects.requireNonNull(dataSource);
         if (!exists(dataSource)) {
             throw new PowsyblException("Data source is not importable");
         }
-        String mainFileName = getMainFileName(dataSource);
+    }
+
+    @Override
+    public String getPrettyName(ReadOnlyDataSource dataSource) {
+        checkDataSourceExists(dataSource);
+        String mainFileName = Objects.requireNonNull(getMainFileName(dataSource));
         String extension = XmlConverterUtil.findExtension(mainFileName);
         return mainFileName.substring(0, mainFileName.length() - extension.length() - 1);
     }
 
     @Override
     public void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
-        if (!exists(fromDataSource)) {
-            throw new PowsyblException("Data source is not importable");
-        }
+        checkDataSourceExists(fromDataSource);
         String fromMainFileName = getMainFileName(fromDataSource);
         try {
             // copy iidm file
@@ -172,10 +175,7 @@ public class XMLImporter implements Importer {
 
     @Override
     public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
-        Objects.requireNonNull(dataSource);
-        if (!exists(dataSource)) {
-            throw new PowsyblException("Data source is not importable");
-        }
+        checkDataSourceExists(dataSource);
         Network network;
         long startTime = System.currentTimeMillis();
         try {

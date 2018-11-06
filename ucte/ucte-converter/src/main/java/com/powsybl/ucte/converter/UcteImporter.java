@@ -775,12 +775,17 @@ public class UcteImporter implements Importer {
                 && checkHeader(dataSource);
     }
 
-    @Override
-    public String getPrettyName(ReadOnlyDataSource dataSource) {
+    private void checkDataSourceExists(ReadOnlyDataSource dataSource) {
+        Objects.requireNonNull(dataSource);
         if (!exists(dataSource)) {
             throw new PowsyblException("Data source is not importable");
         }
-        String extension = findExtension(dataSource);
+    }
+
+    @Override
+    public String getPrettyName(ReadOnlyDataSource dataSource) {
+        checkDataSourceExists(dataSource);
+        String extension = Objects.requireNonNull(findExtension(dataSource));
         return dataSource.getMainFileName().substring(0, dataSource.getMainFileName().length() - extension.length());
     }
 
@@ -920,11 +925,8 @@ public class UcteImporter implements Importer {
 
     @Override
     public void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
-        Objects.requireNonNull(fromDataSource);
+        checkDataSourceExists(fromDataSource);
         Objects.requireNonNull(toDataSource);
-        if (!exists(fromDataSource)) {
-            throw new PowsyblException("Data source is not importable");
-        }
         String fromMainFileName = getMainFileName(fromDataSource);
         try {
             try (InputStream is = fromDataSource.newInputStream(fromMainFileName);
@@ -938,9 +940,7 @@ public class UcteImporter implements Importer {
 
     @Override
     public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
-        if (!exists(dataSource)) {
-            throw new PowsyblException("Data source is not importable");
-        }
+        checkDataSourceExists(dataSource);
         try {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(dataSource.getMainFileName())))) {
 
