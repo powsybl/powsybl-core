@@ -184,19 +184,19 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
         ProjectFolder folder = project.getRootFolder().createFolder("folder");
         assertTrue(folder.getChildren().isEmpty());
 
-        Network network = NetworkFactory.create("NetworkID.xiidm", "scripting");
+        Network network = NetworkFactory.create("NetworkID", "scripting");
         ImportedCase importedCase1 = folder.fileBuilder(ImportedCaseBuilder.class)
-                .withName("test.xiidm")
+                .withName("test")
                 .withNetwork(network)
                 .build();
         assertNotNull(importedCase1);
-        assertEquals("test.xiidm", importedCase1.getName());
+        assertEquals("test", importedCase1.getName());
 
         ImportedCase importedCase2 = folder.fileBuilder(ImportedCaseBuilder.class)
                 .withNetwork(network)
                 .build();
         assertNotNull(importedCase2);
-        assertEquals("NetworkID.xiidm", importedCase2.getName());
+        assertEquals("NetworkID", importedCase2.getName());
 
     }
 }
