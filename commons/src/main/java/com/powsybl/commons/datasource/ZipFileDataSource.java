@@ -53,7 +53,7 @@ public class ZipFileDataSource implements DataSource {
 
     @Override
     public String getMainFileName() {
-        return "";
+        return null;
     }
 
     private Path getZipFilePath() {

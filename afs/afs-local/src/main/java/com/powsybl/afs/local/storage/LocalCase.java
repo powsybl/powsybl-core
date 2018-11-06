@@ -58,9 +58,14 @@ public class LocalCase implements LocalFile {
 
     @Override
     public NodeGenericMetadata getGenericMetadata() {
-        return new NodeGenericMetadata()
-                .setString("format", importer.getFormat())
-                .setString(AppStorageDataSource.MAIN_FILE_NAME, file.getFileName().toString());
+        DataSource dataSource = Importers.createDataSource(file);
+        String mainFileName = dataSource.getMainFileName();
+        NodeGenericMetadata metadata = new NodeGenericMetadata()
+                .setString("format", importer.getFormat());
+        if (mainFileName != null) {
+            metadata.setString(AppStorageDataSource.MAIN_FILE_NAME, mainFileName);
+        }
+        return metadata;
     }
 
     @Override
@@ -77,7 +82,8 @@ public class LocalCase implements LocalFile {
 
     @Override
     public Set<String> getDataNames() {
-        return Collections.singleton(file.getFileName().toString());
+        DataSource dataSource = Importers.createDataSource(file);
+        return dataSource.getFileNames(".*");
     }
 
     @Override

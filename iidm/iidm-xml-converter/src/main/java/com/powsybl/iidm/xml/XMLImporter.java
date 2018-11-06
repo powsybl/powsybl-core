@@ -81,7 +81,7 @@ public class XMLImporter implements Importer {
         if (dataSource.getMainFileName() != null) {
             return dataSource.getMainFileName();
         }
-        Set<String> fileNames = dataSource.getFileNames(".*.xiidm");
+        Set<String> fileNames = dataSource.getFileNames(".*.(xiidm|iidm|xml)");
         if (fileNames.size() == 1) {
             return fileNames.iterator().next();
         }

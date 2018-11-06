@@ -272,9 +272,9 @@ public class CIM1Importer implements Importer, CIM1Constants {
         Objects.requireNonNull(toDataSource);
         try {
             String fromMainFileName = Objects.requireNonNull(getMainFileName(fromDataSource));
-            String toMainFileName = Objects.requireNonNull(getMainFileName(toDataSource));
+            String toMainFileName = getMainFileName(toDataSource);
             String fromBaseName = getBaseName(fromMainFileName);
-            String toBaseName = getBaseName(toMainFileName);
+            String toBaseName = toMainFileName != null ? getBaseName(toMainFileName) : fromBaseName;
             for (String suffix : new String[] {"_ME", "_EQ", "_TP", "_SV"}) {
                 String fromFileName = fromBaseName + suffix + ".xml";
                 String toFileName = toBaseName + suffix + ".xml";

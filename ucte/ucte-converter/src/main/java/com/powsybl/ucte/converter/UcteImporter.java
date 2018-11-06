@@ -13,6 +13,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import com.google.common.io.ByteStreams;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.entsoe.util.*;
@@ -754,16 +755,31 @@ public class UcteImporter implements Importer {
         return null;
     }
 
+    private String getMainFileName(ReadOnlyDataSource dataSource) {
+        if (dataSource.getMainFileName() != null) {
+            return dataSource.getMainFileName();
+        }
+        Set<String> fileNames = dataSource.getFileNames(".*.(uct|UCT)");
+        if (fileNames.size() == 1) {
+            return fileNames.iterator().next();
+        }
+        return null;
+    }
+
     @Override
     public boolean exists(ReadOnlyDataSource dataSource) {
-        return dataSource.getMainFileName() != null
-                && dataSource.fileExists(dataSource.getMainFileName())
+        String mainFileName = getMainFileName(dataSource);
+        return mainFileName != null
+                && dataSource.fileExists(mainFileName)
                 && findExtension(dataSource) != null
                 && checkHeader(dataSource);
     }
 
     @Override
     public String getPrettyName(ReadOnlyDataSource dataSource) {
+        if (!exists(dataSource)) {
+            throw new PowsyblException("Data source is not importable");
+        }
         String extension = findExtension(dataSource);
         return dataSource.getMainFileName().substring(0, dataSource.getMainFileName().length() - extension.length());
     }
@@ -906,9 +922,13 @@ public class UcteImporter implements Importer {
     public void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
         Objects.requireNonNull(fromDataSource);
         Objects.requireNonNull(toDataSource);
+        if (!exists(fromDataSource)) {
+            throw new PowsyblException("Data source is not importable");
+        }
+        String fromMainFileName = getMainFileName(fromDataSource);
         try {
-            try (InputStream is = fromDataSource.newInputStream(fromDataSource.getMainFileName());
-                 OutputStream os = toDataSource.newOutputStream(fromDataSource.getMainFileName(), false)) {
+            try (InputStream is = fromDataSource.newInputStream(fromMainFileName);
+                 OutputStream os = toDataSource.newOutputStream(toDataSource.getMainFileName(), false)) {
                 ByteStreams.copy(is, os);
             }
         } catch (IOException e) {
@@ -918,6 +938,9 @@ public class UcteImporter implements Importer {
 
     @Override
     public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
+        if (!exists(dataSource)) {
+            throw new PowsyblException("Data source is not importable");
+        }
         try {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(dataSource.getMainFileName())))) {
 

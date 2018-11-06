@@ -20,7 +20,7 @@ public class ZipFileDataSourceTest extends AbstractDataSourceTest {
 
     @Override
     protected String getMainFileName() {
-        return "";
+        return null;
     }
 
     @Override
