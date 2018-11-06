@@ -17,14 +17,28 @@ import java.util.Objects;
  */
 public class BranchContingency extends AbstractSidedContingency {
 
-    private ContingencyElementType type = ContingencyElementType.BRANCH;
+    private static final ContingencyElementType DEFAULT_BRANCH_TYPE = ContingencyElementType.BRANCH;
+
+    private final ContingencyElementType type;
 
     public BranchContingency(String id) {
-        super(id);
+        this(id, DEFAULT_BRANCH_TYPE);
     }
 
     public BranchContingency(String id, String voltageLevelId) {
+        this(id, voltageLevelId, DEFAULT_BRANCH_TYPE);
+    }
+
+    public BranchContingency(String id, ContingencyElementType type) {
+        super(id);
+        checkType(type);
+        this.type = type;
+    }
+
+    public BranchContingency(String id, String voltageLevelId, ContingencyElementType type) {
         super(id, voltageLevelId);
+        checkType(type);
+        this.type = type;
     }
 
     @Override
@@ -57,11 +71,5 @@ public class BranchContingency extends AbstractSidedContingency {
                 !type.equals(ContingencyElementType.TWO_WINDINGS_TRANSFORMER)) {
             throw new IllegalArgumentException("Type must be BRANCH, LINE or TWO_WINDINGS_TRANSFORMER");
         }
-    }
-
-    public BranchContingency setType(ContingencyElementType type) {
-        checkType(type);
-        this.type = type;
-        return this;
     }
 }
