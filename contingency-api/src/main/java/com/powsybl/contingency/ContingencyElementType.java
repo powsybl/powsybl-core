@@ -10,8 +10,10 @@ package com.powsybl.contingency;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public enum ContingencyElementType {
-    GENERATOR,
     BRANCH,
+    BUSBAR_SECTION,
+    GENERATOR,
     HVDC_LINE,
-    BUSBAR_SECTION
+    LINE,
+    TWO_WINDINGS_TRANSFORMER
 }
