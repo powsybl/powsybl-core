@@ -1,5 +1,8 @@
 package com.powsybl.cgmes.model;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class CgmesTerminal {
     public CgmesTerminal(
             String id,
@@ -79,8 +82,11 @@ public class CgmesTerminal {
                 topologicalNode,
                 connectivityNode,
                 attribute, value0, value1);
-        System.out.println(msg);
-        // throw new CgmesModelException(msg);
+        if (THROW_EXCEPTION_IF_INCONSISTENT_VALUES) {
+            throw new CgmesModelException(msg);
+        } else {
+            LOG.warn(msg);
+        }
     }
 
     private final String id;
@@ -93,4 +99,7 @@ public class CgmesTerminal {
     private String topologicalNode;
     private String voltageLevel;
     private String substation;
+
+    private static final boolean THROW_EXCEPTION_IF_INCONSISTENT_VALUES = false;
+    private static final Logger LOG = LoggerFactory.getLogger(CgmesTerminal.class);
 }
