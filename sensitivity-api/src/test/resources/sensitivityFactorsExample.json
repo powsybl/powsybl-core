@@ -1,0 +1,43 @@
+[ {
+  "@c" : ".factors.BranchFlowPerInjectionIncrease",
+  "function" : {
+    "@c" : ".BranchFlow",
+    "id" : "BBE1AA1  BBE2AA1  1",
+    "name" : "BBE1AA1  BBE2AA1  1",
+    "branchId" : "BBE1AA1  BBE2AA1  1"
+  },
+  "variable" : {
+    "@c" : ".InjectionIncrease",
+    "id" : "FFR1AA1 _generator",
+    "name" : "FFR1AA1 _generator",
+    "injectionId" : "FFR1AA1 _generator"
+  }
+}, {
+  "@c" : ".factors.BranchFlowPerInjectionIncrease",
+  "function" : {
+    "@c" : ".BranchFlow",
+    "id" : "BBE1AA1  BBE2AA1  1",
+    "name" : "BBE1AA1  BBE2AA1  1",
+    "branchId" : "BBE1AA1  BBE2AA1  1"
+  },
+  "variable" : {
+    "@c" : ".InjectionIncrease",
+    "id" : "FFR2AA1 _generator",
+    "name" : "FFR2AA1 _generator",
+    "injectionId" : "FFR2AA1 _generator"
+  }
+}, {
+  "@c" : ".factors.BranchFlowPerInjectionIncrease",
+  "function" : {
+    "@c" : ".BranchFlow",
+    "id" : "BBE1AA1  BBE2AA1  1",
+    "name" : "BBE1AA1  BBE2AA1  1",
+    "branchId" : "BBE1AA1  BBE2AA1  1"
+  },
+  "variable" : {
+    "@c" : ".InjectionIncrease",
+    "id" : "FFR3AA1 _generator",
+    "name" : "FFR3AA1 _generator",
+    "injectionId" : "FFR3AA1 _generator"
+  }
+} ]

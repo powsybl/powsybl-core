@@ -22,6 +22,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static com.powsybl.tools.ToolConstants.TASK;
+
 /**
  * Security analysis implementation which distributes the work through X
  * executions of the "itools security-analysis" command.
@@ -86,7 +88,7 @@ public class DistributedSecurityAnalysis extends ExternalSecurityAnalysis {
         @Override
         protected List<CommandExecution> buildCommandExecution() {
             SimpleCommand cmd = baseCommand("security-analysis-task")
-                    .option("task", i -> new Partition(i + 1, actualTaskCount).toString())
+                    .option(TASK, i -> new Partition(i + 1, actualTaskCount).toString())
                     .option("output-file", this::getOutputFileName)
                     .option("output-format", "JSON")
                     .build();
