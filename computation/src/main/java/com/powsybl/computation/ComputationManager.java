@@ -6,6 +6,9 @@
  */
 package com.powsybl.computation;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.computation.statistic.ComputationDetailListener;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Path;
@@ -23,6 +26,10 @@ public interface ComputationManager extends AutoCloseable {
     OutputStream newCommonFile(String fileName) throws IOException;
 
     <R> CompletableFuture<R> execute(ExecutionEnvironment environment, ExecutionHandler<R> handler);
+
+    default <R> CompletableFuture<R> execute(ExecutionEnvironment environment, ExecutionHandler<R> handler, ComputationDetailListener listener) {
+        throw new PowsyblException("Not implements yet.");
+    }
 
     ComputationResourcesStatus getResourcesStatus();
 
