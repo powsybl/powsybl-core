@@ -43,7 +43,7 @@ public class BranchContingency extends AbstractSidedContingency {
 
     @Override
     public ContingencyElementType getType() {
-        return this.type;
+        return type;
     }
 
     @Override
