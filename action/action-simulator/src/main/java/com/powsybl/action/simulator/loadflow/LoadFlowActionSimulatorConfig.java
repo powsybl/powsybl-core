@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -14,6 +14,7 @@ import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public class LoadFlowActionSimulatorConfig {
 
@@ -29,7 +30,8 @@ public class LoadFlowActionSimulatorConfig {
         int maxIterations = config.getIntProperty("max-iterations");
         boolean ignorePreContingencyViolations = config.getBooleanProperty("ignore-pre-contingency-violations", false);
         boolean debug = config.getBooleanProperty("debug", false);
-        return new LoadFlowActionSimulatorConfig(loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations, debug);
+        CopyStrategy copyStrategy = config.getEnumProperty("copy-strategy", CopyStrategy.class, CopyStrategy.DEEP);
+        return new LoadFlowActionSimulatorConfig(loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations, debug, copyStrategy);
     }
 
     private Class<? extends LoadFlowFactory> loadFlowFactoryClass;
@@ -40,12 +42,20 @@ public class LoadFlowActionSimulatorConfig {
 
     private boolean debug;
 
+    private CopyStrategy copyStrategy;
+
     public LoadFlowActionSimulatorConfig(Class<? extends LoadFlowFactory> loadFlowFactoryClass, int maxIterations, boolean ignorePreContingencyViolations,
                                          boolean debug) {
+        this(loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations, debug, CopyStrategy.DEEP);
+    }
+
+    public LoadFlowActionSimulatorConfig(Class<? extends LoadFlowFactory> loadFlowFactoryClass, int maxIterations, boolean ignorePreContingencyViolations,
+                                         boolean debug, CopyStrategy copyStrategy) {
         this.loadFlowFactoryClass = Objects.requireNonNull(loadFlowFactoryClass);
         this.maxIterations = maxIterations;
         this.ignorePreContingencyViolations = ignorePreContingencyViolations;
         this.debug = debug;
+        this.copyStrategy = copyStrategy;
     }
 
     public Class<? extends LoadFlowFactory> getLoadFlowFactoryClass() {
@@ -78,5 +88,13 @@ public class LoadFlowActionSimulatorConfig {
 
     public void setDebug(boolean debug) {
         this.debug = debug;
+    }
+
+    public CopyStrategy getCopyStrategy() {
+        return copyStrategy;
+    }
+
+    public void setCopyStrategy(CopyStrategy copyStrategy) {
+        this.copyStrategy = copyStrategy;
     }
 }
