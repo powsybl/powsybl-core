@@ -36,16 +36,6 @@ public class Node extends AbstractNodeBase<Folder> {
         storage.flush();
     }
 
-    public void moveTo(Folder folder) {
-        Objects.requireNonNull(folder);
-        if (!isSourceAncestorOf(folder)) {
-            storage.setParentNode(info.getId(), folder.getId());
-        } else {
-            throw new AfsException("Dragging a node to his child is not authorized");
-        }
-        storage.flush();
-    }
-
     @Override
     public boolean isFolder() {
         return folder;

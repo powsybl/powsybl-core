@@ -110,15 +110,32 @@ public abstract class AbstractNodeBase<F> {
     public String toString() {
         return getName();
     }
-    public boolean isSourceAncestorOf(AbstractNodeBase abstractNodeBase) {
+
+    private boolean isMovable(AbstractNodeBase folder) {
+        return (folder instanceof ProjectFolder || folder instanceof Folder) && !isSourceAncestorOf(folder) && !targetIsParent(folder);
+    }
+
+    public void moveTo(AbstractNodeBase folder) {
+        Objects.requireNonNull(folder);
+        if (isMovable(folder)) {
+            storage.setParentNode(info.getId(), folder.getId());
+        } else {
+            throw new AfsException("The source node is a relative of the target");
+        }
+        storage.flush();
+    }
+
+    private boolean isSourceAncestorOf(AbstractNodeBase abstractNodeBase) {
         Optional<NodeInfo> parentNode = storage.getParentNode(abstractNodeBase.getId());
         if (parentNode.isPresent()) {
-            while (parentNode.get() != null) {
-                if (info.getId().equals(parentNode.get().getId())) {
+            NodeInfo nodeInfo = parentNode.get();
+            while (nodeInfo != null) {
+                if (info.getId().equals(nodeInfo.getId())) {
                     return true;
                 } else {
-                    if (storage.getParentNode(parentNode.get().getId()).isPresent()) {
-                        parentNode = storage.getParentNode(parentNode.get().getId());
+                    parentNode = storage.getParentNode(nodeInfo.getId());
+                    if (parentNode.isPresent()) {
+                        nodeInfo = parentNode.get();
                     } else {
                         break;
                     }
@@ -126,5 +143,14 @@ public abstract class AbstractNodeBase<F> {
             }
         }
         return false;
+    }
+
+    private boolean targetIsParent(AbstractNodeBase abstractNodeBase) {
+        Optional<NodeInfo> parentNode = storage.getParentNode(info.getId());
+        if (parentNode.isPresent()) {
+            return parentNode.get().getId().equals(abstractNodeBase.getId());
+        } else {
+            throw new AfsException("the source node parent doesn't exists");
+        }
     }
 }

@@ -120,6 +120,13 @@ public class AfsBaseTest {
         } catch (AfsException ignored) {
         }
 
+        try {
+            dir82.moveTo(dir81);
+            fail();
+        } catch (AfsException ignored) {
+        }
+
+
         List<String> added = new ArrayList<>();
         List<String> removed = new ArrayList<>();
         ProjectFolderListener l = new ProjectFolderListener() {

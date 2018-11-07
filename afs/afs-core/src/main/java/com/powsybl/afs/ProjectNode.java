@@ -55,16 +55,6 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
         return project;
     }
 
-    public void moveTo(ProjectFolder folder) {
-        Objects.requireNonNull(folder);
-        if (!isSourceAncestorOf(folder)) {
-            storage.setParentNode(info.getId(), folder.getId());
-        } else {
-            throw new AfsException("Dragging a node to his child is not authorized");
-        }
-        storage.flush();
-    }
-
     public void delete() {
         // has to be done before delete!!!
         invalidate();
