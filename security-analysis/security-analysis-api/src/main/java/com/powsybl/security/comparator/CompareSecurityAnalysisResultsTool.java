@@ -96,10 +96,7 @@ public class CompareSecurityAnalysisResultsTool implements Tool {
         Path results1File = context.getFileSystem().getPath(line.getOptionValue(RESULT1_FILE_OPTION));
         Path results2File = context.getFileSystem().getPath(line.getOptionValue(RESULT2_FILE_OPTION));
         Path outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE_OPTION));
-        double threshold = THRESHOLD_DEFAULT;
-        if (line.hasOption(THRESHOLD_OPTION)) {
-            threshold = Double.parseDouble(line.getOptionValue(THRESHOLD_OPTION));
-        }
+        double threshold = line.hasOption(THRESHOLD_OPTION) ? Double.parseDouble(line.getOptionValue(THRESHOLD_OPTION)) : THRESHOLD_DEFAULT;
         try (Writer outputWriter = Files.newBufferedWriter(outputFile)) {
             SecurityAnalysisResult result1 = SecurityAnalysisResultDeserializer.read(results1File);
             SecurityAnalysisResult result2 = SecurityAnalysisResultDeserializer.read(results2File);
