@@ -119,10 +119,10 @@ public abstract class AbstractNodeBase<F> {
         Objects.requireNonNull(folder);
         if (isMovable(folder)) {
             storage.setParentNode(info.getId(), folder.getId());
+            storage.flush();
         } else {
             throw new AfsException("The source node is a relative of the target");
         }
-        storage.flush();
     }
 
     private boolean isSourceAncestorOf(AbstractNodeBase abstractNodeBase) {
