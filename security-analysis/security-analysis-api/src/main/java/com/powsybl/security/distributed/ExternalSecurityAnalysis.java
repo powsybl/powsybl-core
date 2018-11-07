@@ -151,7 +151,7 @@ public class ExternalSecurityAnalysis implements SecurityAnalysis {
                     .option("contingencies-file", CONTINGENCIES_FILE)
                     .option("parameters-file", PARAMETERS_FILE);
             if (!extensions.isEmpty()) {
-                cmdBuilder.option("with-extensions", String.join(", ", extensions));
+                cmdBuilder.option("with-extensions", String.join(",", extensions));
             }
             return cmdBuilder;
         }
