@@ -42,6 +42,11 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
     protected Terminal twtTerminal2;
     protected TwoWindingsTransformer transformer;
 
+    protected String shuntId = "shunt";
+    protected double shuntQ = -21.2566;
+    protected Terminal shuntTerminal;
+    protected ShuntCompensator shunt;
+
     protected Network network;
 
     @Before
@@ -140,6 +145,25 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(transformer.getRatedU1()).thenReturn(380.0);
         Mockito.when(transformer.getRatedU2()).thenReturn(380.0);
 
+        Bus shuntBus = Mockito.mock(Bus.class);
+        Mockito.when(shuntBus.getV()).thenReturn(14.5965);
+        Mockito.when(shuntBus.getAngle()).thenReturn(Math.toDegrees(0));
+        Mockito.when(shuntBus.isInMainConnectedComponent()).thenReturn(true);
+
+        BusView shuntBusView = Mockito.mock(BusView.class);
+        Mockito.when(shuntBusView.getBus()).thenReturn(shuntBus);
+
+        shuntTerminal = Mockito.mock(Terminal.class);
+        Mockito.when(shuntTerminal.isConnected()).thenReturn(true);
+        Mockito.when(shuntTerminal.getP()).thenReturn(0.0);
+        Mockito.when(shuntTerminal.getQ()).thenReturn(shuntQ);
+        Mockito.when(shuntTerminal.getBusView()).thenReturn(shuntBusView);
+
+        shunt = Mockito.mock(ShuntCompensator.class);
+        Mockito.when(shunt.getId()).thenReturn(shuntId);
+        Mockito.when(shunt.getTerminal()).thenReturn(shuntTerminal);
+        Mockito.when(shunt.getCurrentB()).thenReturn(0.099769);
+
         StateManager stateManager = Mockito.mock(StateManager.class);
         Mockito.when(stateManager.getWorkingStateId()).thenReturn(StateManagerConstants.INITIAL_STATE_ID);
 
@@ -148,6 +172,7 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(network.getStateManager()).thenReturn(stateManager);
         Mockito.when(network.getLineStream()).thenAnswer(dummy -> Stream.of(line));
         Mockito.when(network.getTwoWindingsTransformerStream()).thenAnswer(dummy -> Stream.of(transformer));
+        Mockito.when(network.getShuntCompensatorStream()).thenAnswer(dummy -> Stream.of(shunt));
     }
 
     protected void setNanValues() {
@@ -155,6 +180,7 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(lineTerminal1.getQ()).thenReturn(Double.NaN);
         Mockito.when(twtTerminal1.getP()).thenReturn(Double.NaN);
         Mockito.when(twtTerminal1.getQ()).thenReturn(Double.NaN);
+        Mockito.when(shuntTerminal.getQ()).thenReturn(Double.NaN);
     }
 
     protected void checkResultsCompletion() {
@@ -171,5 +197,7 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         assertEquals(twtQ1, setterCaptor.getValue(), 0.0001);
         Mockito.verify(twtTerminal2, Mockito.times(0)).setP(Matchers.anyDouble());
         Mockito.verify(twtTerminal2, Mockito.times(0)).setQ(Matchers.anyDouble());
+        Mockito.verify(shuntTerminal, Mockito.times(1)).setQ(setterCaptor.capture());
+        assertEquals(shuntQ, setterCaptor.getValue(), 0.0001);
     }
 }
