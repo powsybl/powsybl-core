@@ -121,4 +121,13 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
     public void unarchive(Path dir) {
         new AppStorageArchive(storage).unarchiveChildren(info, dir);
     }
+
+    @Override
+    public void delete() {
+        if (getChildren().isEmpty()) {
+            super.delete();
+        } else {
+            throw new AfsException("non-empty folders can not be deleted");
+        }
+    }
 }
