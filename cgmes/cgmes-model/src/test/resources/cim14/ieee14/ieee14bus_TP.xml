@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"	xmlns:cim="http://iec.ch/TC57/2009/CIM-schema-cim14#">
+<cim:Terminal rdf:about="#_BANK___9_SC_TE">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____9_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS___10-BUS___11-1_AC_TE_EX">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS___11_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS___10-BUS___11-1_AC_TE_OR">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS___10_TN"/>
+</cim:Terminal>
+<cim:TopologicalNode rdf:ID="_BUS___10_TN">
+	<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_BUS___10_VL"/>
+	<cim:TopologicalNode.TopologicalIsland rdf:resource="#_TI_1"/>
+	<cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_9"/>
+	<cim:TopologicalNode.ControlArea rdf:resource="#_CA_1"/>
+	<cim:IdentifiedObject.name>BUS   10</cim:IdentifiedObject.name>
+</cim:TopologicalNode>
+<cim:TopologicalNode rdf:ID="_BUS___11_TN">
+	<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_BUS___11_VL"/>
+	<cim:TopologicalNode.TopologicalIsland rdf:resource="#_TI_1"/>
+	<cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_10"/>
+	<cim:TopologicalNode.ControlArea rdf:resource="#_CA_1"/>
+	<cim:IdentifiedObject.name>BUS   11</cim:IdentifiedObject.name>
+</cim:TopologicalNode>
+<cim:Terminal rdf:about="#_BUS___12-BUS___13-1_AC_TE_EX">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS___13_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS___12-BUS___13-1_AC_TE_OR">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS___12_TN"/>
+</cim:Terminal>
+<cim:TopologicalNode rdf:ID="_BUS___12_TN">
+	<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_BUS___12_VL"/>
+	<cim:TopologicalNode.TopologicalIsland rdf:resource="#_TI_1"/>
+	<cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_11"/>
+	<cim:TopologicalNode.ControlArea rdf:resource="#_CA_1"/>
+	<cim:IdentifiedObject.name>BUS   12</cim:IdentifiedObject.name>
+</cim:TopologicalNode>
+<cim:Terminal rdf:about="#_BUS___13-BUS___14-1_AC_TE_EX">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS___14_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS___13-BUS___14-1_AC_TE_OR">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS___13_TN"/>
+</cim:Terminal>
+<cim:TopologicalNode rdf:ID="_BUS___13_TN">
+	<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_BUS___13_VL"/>
+	<cim:TopologicalNode.TopologicalIsland rdf:resource="#_TI_1"/>
+	<cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_12"/>
+	<cim:TopologicalNode.ControlArea rdf:resource="#_CA_1"/>
+	<cim:IdentifiedObject.name>BUS   13</cim:IdentifiedObject.name>
+</cim:TopologicalNode>
+<cim:TopologicalNode rdf:ID="_BUS___14_TN">
+	<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_BUS___14_VL"/>
+	<cim:TopologicalNode.TopologicalIsland rdf:resource="#_TI_1"/>
+	<cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_13"/>
+	<cim:TopologicalNode.ControlArea rdf:resource="#_CA_1"/>
+	<cim:IdentifiedObject.name>BUS   14</cim:IdentifiedObject.name>
+</cim:TopologicalNode>
+<cim:Terminal rdf:about="#_BUS____1-BUS____2-1_AC_TE_EX">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____2_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____1-BUS____2-1_AC_TE_OR">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____1_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____1-BUS____5-1_AC_TE_EX">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____5_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____1-BUS____5-1_AC_TE_OR">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____1_TN"/>
+</cim:Terminal>
+<cim:TopologicalNode rdf:ID="_BUS____1_TN">
+	<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_BUS____1_VL"/>
+	<cim:TopologicalNode.TopologicalIsland rdf:resource="#_TI_1"/>
+	<cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_0"/>
+	<cim:TopologicalNode.ControlArea rdf:resource="#_CA_1"/>
+	<cim:IdentifiedObject.name>BUS    1</cim:IdentifiedObject.name>
+</cim:TopologicalNode>
+<cim:Terminal rdf:about="#_BUS____2-BUS____3-1_AC_TE_EX">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____3_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____2-BUS____3-1_AC_TE_OR">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____2_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____2-BUS____4-1_AC_TE_EX">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____4_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____2-BUS____4-1_AC_TE_OR">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____2_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____2-BUS____5-1_AC_TE_EX">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____5_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____2-BUS____5-1_AC_TE_OR">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____2_TN"/>
+</cim:Terminal>
+<cim:TopologicalNode rdf:ID="_BUS____2_TN">
+	<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_BUS____2_VL"/>
+	<cim:TopologicalNode.TopologicalIsland rdf:resource="#_TI_1"/>
+	<cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_1"/>
+	<cim:TopologicalNode.ControlArea rdf:resource="#_CA_1"/>
+	<cim:IdentifiedObject.name>BUS    2</cim:IdentifiedObject.name>
+</cim:TopologicalNode>
+<cim:Terminal rdf:about="#_BUS____3-BUS____4-1_AC_TE_EX">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____4_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____3-BUS____4-1_AC_TE_OR">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____3_TN"/>
+</cim:Terminal>
+<cim:TopologicalNode rdf:ID="_BUS____3_TN">
+	<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_BUS____3_VL"/>
+	<cim:TopologicalNode.TopologicalIsland rdf:resource="#_TI_1"/>
+	<cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_2"/>
+	<cim:TopologicalNode.ControlArea rdf:resource="#_CA_1"/>
+	<cim:IdentifiedObject.name>BUS    3</cim:IdentifiedObject.name>
+</cim:TopologicalNode>
+<cim:Terminal rdf:about="#_BUS____4-BUS____5-1_AC_TE_EX">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____5_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____4-BUS____5-1_AC_TE_OR">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____4_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____4-BUS____7-1_TW_EX_TE">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____7_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____4-BUS____7-1_TW_OR_TE">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____4_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____4-BUS____9-1_TW_EX_TE">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____9_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____4-BUS____9-1_TW_OR_TE">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____4_TN"/>
+</cim:Terminal>
+<cim:TopologicalNode rdf:ID="_BUS____4_TN">
+	<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_BUS____4_VL"/>
+	<cim:TopologicalNode.TopologicalIsland rdf:resource="#_TI_1"/>
+	<cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_3"/>
+	<cim:TopologicalNode.ControlArea rdf:resource="#_CA_1"/>
+	<cim:IdentifiedObject.name>BUS    4</cim:IdentifiedObject.name>
+</cim:TopologicalNode>
+<cim:Terminal rdf:about="#_BUS____5-BUS____6-1_TW_EX_TE">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____6_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____5-BUS____6-1_TW_OR_TE">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____5_TN"/>
+</cim:Terminal>
+<cim:TopologicalNode rdf:ID="_BUS____5_TN">
+	<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_BUS____5_VL"/>
+	<cim:TopologicalNode.TopologicalIsland rdf:resource="#_TI_1"/>
+	<cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_4"/>
+	<cim:TopologicalNode.ControlArea rdf:resource="#_CA_1"/>
+	<cim:IdentifiedObject.name>BUS    5</cim:IdentifiedObject.name>
+</cim:TopologicalNode>
+<cim:Terminal rdf:about="#_BUS____6-BUS___11-1_AC_TE_EX">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS___11_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____6-BUS___11-1_AC_TE_OR">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____6_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____6-BUS___12-1_AC_TE_EX">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS___12_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____6-BUS___12-1_AC_TE_OR">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____6_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____6-BUS___13-1_AC_TE_EX">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS___13_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____6-BUS___13-1_AC_TE_OR">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____6_TN"/>
+</cim:Terminal>
+<cim:TopologicalNode rdf:ID="_BUS____6_TN">
+	<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_BUS____6_VL"/>
+	<cim:TopologicalNode.TopologicalIsland rdf:resource="#_TI_1"/>
+	<cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_5"/>
+	<cim:TopologicalNode.ControlArea rdf:resource="#_CA_1"/>
+	<cim:IdentifiedObject.name>BUS    6</cim:IdentifiedObject.name>
+</cim:TopologicalNode>
+<cim:Terminal rdf:about="#_BUS____7-BUS____8-1_AC_TE_EX">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____8_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____7-BUS____8-1_AC_TE_OR">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____7_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____7-BUS____9-1_AC_TE_EX">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____9_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____7-BUS____9-1_AC_TE_OR">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____7_TN"/>
+</cim:Terminal>
+<cim:TopologicalNode rdf:ID="_BUS____7_TN">
+	<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_BUS____7_VL"/>
+	<cim:TopologicalNode.TopologicalIsland rdf:resource="#_TI_1"/>
+	<cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_6"/>
+	<cim:TopologicalNode.ControlArea rdf:resource="#_CA_1"/>
+	<cim:IdentifiedObject.name>BUS    7</cim:IdentifiedObject.name>
+</cim:TopologicalNode>
+<cim:TopologicalNode rdf:ID="_BUS____8_TN">
+	<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_BUS____8_VL"/>
+	<cim:TopologicalNode.TopologicalIsland rdf:resource="#_TI_1"/>
+	<cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_7"/>
+	<cim:TopologicalNode.ControlArea rdf:resource="#_CA_1"/>
+	<cim:IdentifiedObject.name>BUS    8</cim:IdentifiedObject.name>
+</cim:TopologicalNode>
+<cim:Terminal rdf:about="#_BUS____9-BUS___10-1_AC_TE_EX">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS___10_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____9-BUS___10-1_AC_TE_OR">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____9_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____9-BUS___14-1_AC_TE_EX">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS___14_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BUS____9-BUS___14-1_AC_TE_OR">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____9_TN"/>
+</cim:Terminal>
+<cim:TopologicalNode rdf:ID="_BUS____9_TN">
+	<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_BUS____9_VL"/>
+	<cim:TopologicalNode.TopologicalIsland rdf:resource="#_TI_1"/>
+	<cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_8"/>
+	<cim:TopologicalNode.ControlArea rdf:resource="#_CA_1"/>
+	<cim:IdentifiedObject.name>BUS    9</cim:IdentifiedObject.name>
+</cim:TopologicalNode>
+<cim:Terminal rdf:about="#_GEN____1_SM_TE">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____1_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_GEN____2_SM_TE">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____2_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_GEN____3_SM_TE">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____3_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_GEN____6_SM_TE">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____6_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_GEN____8_SM_TE">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____8_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_LOAD__10_EC_TE">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS___10_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_LOAD__11_EC_TE">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS___11_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_LOAD__12_EC_TE">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS___12_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_LOAD__13_EC_TE">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS___13_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_LOAD__14_EC_TE">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS___14_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_LOAD___2_EC_TE">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____2_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_LOAD___3_EC_TE">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____3_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_LOAD___4_EC_TE">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____4_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_LOAD___5_EC_TE">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____5_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_LOAD___6_EC_TE">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____6_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_LOAD___9_EC_TE">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_BUS____9_TN"/>
+</cim:Terminal>
+<cim:TopologicalIsland rdf:ID="_TI_1">
+	<cim:TopologicalIsland.AngleRef_TopologicalNode rdf:resource="#_BUS____1_TN"/>
+</cim:TopologicalIsland>
+</rdf:RDF>

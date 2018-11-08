@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"	xmlns:cim="http://iec.ch/TC57/2009/CIM-schema-cim14#">
+<cim:Terminal rdf:about="#_BE-TR2_3_TW1_T">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_GRID_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BE-TR2_3_TW2_T">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_GEN_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_BE-G1_SM_T">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_GEN_TN"/>
+</cim:Terminal>
+<cim:TopologicalNode rdf:ID="_GEN_TN">
+	<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_GEN_VL"/>
+	<cim:TopologicalNode.TopologicalIsland rdf:resource="#_TI_1"/>
+	<cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_10p5"/>
+	<cim:TopologicalNode.ControlArea rdf:resource="#_CA_1"/>
+	<cim:IdentifiedObject.name>GEN</cim:IdentifiedObject.name>
+</cim:TopologicalNode>
+<!--
+<cim:Terminal rdf:about="#_GRID-SLACK_AC_T2">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_SLACK_TN"/>
+</cim:Terminal>
+<cim:Terminal rdf:about="#_GRID-SLACK_AC_T1">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_GRID_TN"/>
+</cim:Terminal>
+-->
+<cim:TopologicalNode rdf:ID="_GRID_TN">
+	<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_GRID_VL"/>
+	<cim:TopologicalNode.TopologicalIsland rdf:resource="#_TI_1"/>
+	<cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_110"/>
+	<cim:TopologicalNode.ControlArea rdf:resource="#_CA_1"/>
+	<cim:IdentifiedObject.name>GRID</cim:IdentifiedObject.name>
+</cim:TopologicalNode>
+<!--
+<cim:Terminal rdf:about="#_SLACK_SM_T">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_SLACK_TN"/>
+</cim:Terminal>
+<cim:TopologicalNode rdf:ID="_SLACK_TN">
+	<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_SLACK_VL"/>
+	<cim:TopologicalNode.TopologicalIsland rdf:resource="#_TI_1"/>
+	<cim:TopologicalNode.BaseVoltage rdf:resource="#_BV_110"/>
+	<cim:TopologicalNode.ControlArea rdf:resource="#_CA_1"/>
+	<cim:IdentifiedObject.name>SLACK</cim:IdentifiedObject.name>
+</cim:TopologicalNode>
+-->
+<cim:Terminal rdf:about="#_LOAD_T">
+	<cim:Terminal.connected>true</cim:Terminal.connected>
+	<cim:Terminal.TopologicalNode rdf:resource="#_GRID_TN"/>
+</cim:Terminal>
+<cim:TopologicalIsland rdf:ID="_TI_1">
+<!--	<cim:TopologicalIsland.AngleRef_TopologicalNode rdf:resource="#_SLACK_TN"/>-->
+	<cim:TopologicalIsland.AngleRef_TopologicalNode rdf:resource="#_GEN_TN"/>
+</cim:TopologicalIsland>
+</rdf:RDF>
