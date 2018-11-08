@@ -1,0 +1,32 @@
+#
+# Copyright (c) 2017, RTE (http://www.rte-france.com)
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+# query: lastNames
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT * {
+    ?x
+        foaf:mailbox ?mbox ;
+        foaf:lastName ?lastName
+}
+
+# query: lastNamesGraphs
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT * {
+    { GRAPH ?graphPersons { ?x foaf:mailbox ?mbox } }
+    { GRAPH ?graphLastnames { ?x foaf:lastName ?lastName } }
+}
+
+# query: lastNameOnlyIfNick
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT * {
+    { GRAPH ?graphPersons {
+        ?x foaf:mailbox ?mbox
+        OPTIONAL {
+            ?x foaf:nick ?nick .
+            { GRAPH ?graphLastnames { ?x foaf:lastName ?lastName } }
+        }
+    } }
+}
