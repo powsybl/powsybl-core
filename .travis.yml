@@ -13,4 +13,4 @@ addons:
             secure: ${SONAR_TOKEN}
 
 script:
-- mvn clean install -Pjacoco,checks coveralls:report sonar:sonar
+- mvn --batch-mode clean verify -Pjacoco coveralls:report sonar:sonar
