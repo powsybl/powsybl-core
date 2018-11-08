@@ -102,10 +102,10 @@ public class AfsBaseTest {
         project2.rename("project22");
         assertEquals("project22", project2.getName());
 
-        Project project5 = dir2.createProject("project5");
-        Project project6 = dir2.createProject("project6");
+        Project projet101 = dir2.createProject("project5");
+        Project project102 = dir2.createProject("project6");
         try {
-            project6.rename("project5");
+            project102.rename("project5");
             fail();
         } catch (AfsException ignored) {
 
