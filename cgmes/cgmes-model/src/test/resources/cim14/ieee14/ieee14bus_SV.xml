@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"	xmlns:cim="http://iec.ch/TC57/2009/CIM-schema-cim14#">
+<cim:SvShuntCompensatorSections rdf:ID="_BANK___9_SCS">
+	<cim:SvShuntCompensatorSections.ShuntCompensator rdf:resource="#_BANK___9_SC"/>
+	<cim:SvShuntCompensatorSections.continuousSections>1</cim:SvShuntCompensatorSections.continuousSections>
+</cim:SvShuntCompensatorSections>
+<cim:SvTapStep rdf:ID="_BUS____4-BUS____7-1_SVTS_OR">
+	<cim:SvTapStep.continuousPosition>5</cim:SvTapStep.continuousPosition>
+	<cim:SvTapStep.TapChanger rdf:resource="#_BUS____4-BUS____7-1_RTC_OR"/>
+</cim:SvTapStep>
+<cim:SvTapStep rdf:ID="_BUS____4-BUS____9-1_SVTS_OR">
+	<cim:SvTapStep.continuousPosition>4</cim:SvTapStep.continuousPosition>
+	<cim:SvTapStep.TapChanger rdf:resource="#_BUS____4-BUS____9-1_RTC_OR"/>
+</cim:SvTapStep>
+<cim:SvTapStep rdf:ID="_BUS____5-BUS____6-1_SVTS_OR">
+	<cim:SvTapStep.continuousPosition>3</cim:SvTapStep.continuousPosition>
+	<cim:SvTapStep.TapChanger rdf:resource="#_BUS____5-BUS____6-1_RTC_OR"/>
+</cim:SvTapStep>
+<cim:SvVoltage rdf:ID="_SV_0">
+	<cim:SvVoltage.angle>-15.113294</cim:SvVoltage.angle>
+	<cim:SvVoltage.TopologicalNode rdf:resource="#_BUS___10_TN"/>
+	<cim:SvVoltage.v>14.5241</cim:SvVoltage.v>
+</cim:SvVoltage>
+<cim:SvVoltage rdf:ID="_SV_1">
+	<cim:SvVoltage.angle>0.000000</cim:SvVoltage.angle>
+	<cim:SvVoltage.TopologicalNode rdf:resource="#_BUS____1_TN"/>
+	<cim:SvVoltage.v>73.14</cim:SvVoltage.v>
+</cim:SvVoltage>
+<cim:SvVoltage rdf:ID="_SV_2">
+	<cim:SvVoltage.angle>-4.979507</cim:SvVoltage.angle>
+	<cim:SvVoltage.TopologicalNode rdf:resource="#_BUS____2_TN"/>
+	<cim:SvVoltage.v>72.105</cim:SvVoltage.v>
+</cim:SvVoltage>
+<cim:SvVoltage rdf:ID="_SV_3">
+	<cim:SvVoltage.angle>-12.716756</cim:SvVoltage.angle>
+	<cim:SvVoltage.TopologicalNode rdf:resource="#_BUS____3_TN"/>
+	<cim:SvVoltage.v>69.69</cim:SvVoltage.v>
+</cim:SvVoltage>
+<cim:SvVoltage rdf:ID="_SV_4">
+	<cim:SvVoltage.angle>-10.319840</cim:SvVoltage.angle>
+	<cim:SvVoltage.TopologicalNode rdf:resource="#_BUS____4_TN"/>
+	<cim:SvVoltage.v>70.2756</cim:SvVoltage.v>
+</cim:SvVoltage>
+<cim:SvVoltage rdf:ID="_SV_5">
+	<cim:SvVoltage.angle>-8.789778</cim:SvVoltage.angle>
+	<cim:SvVoltage.TopologicalNode rdf:resource="#_BUS____5_TN"/>
+	<cim:SvVoltage.v>70.4552</cim:SvVoltage.v>
+</cim:SvVoltage>
+<cim:SvVoltage rdf:ID="_SV_6">
+	<cim:SvVoltage.angle>-14.239948</cim:SvVoltage.angle>
+	<cim:SvVoltage.TopologicalNode rdf:resource="#_BUS____6_TN"/>
+	<cim:SvVoltage.v>14.766</cim:SvVoltage.v>
+</cim:SvVoltage>
+<cim:SvVoltage rdf:ID="_SV_7">
+	<cim:SvVoltage.angle>-13.374936</cim:SvVoltage.angle>
+	<cim:SvVoltage.TopologicalNode rdf:resource="#_BUS____7_TN"/>
+	<cim:SvVoltage.v>14.6561</cim:SvVoltage.v>
+</cim:SvVoltage>
+<cim:SvVoltage rdf:ID="_SV_8">
+	<cim:SvVoltage.angle>-13.374936</cim:SvVoltage.angle>
+	<cim:SvVoltage.TopologicalNode rdf:resource="#_BUS____8_TN"/>
+	<cim:SvVoltage.v>15.042</cim:SvVoltage.v>
+</cim:SvVoltage>
+<cim:SvVoltage rdf:ID="_SV_9">
+	<cim:SvVoltage.angle>-14.953523</cim:SvVoltage.angle>
+	<cim:SvVoltage.TopologicalNode rdf:resource="#_BUS____9_TN"/>
+	<cim:SvVoltage.v>14.5965</cim:SvVoltage.v>
+</cim:SvVoltage>
+<cim:SvVoltage rdf:ID="_SV_10">
+	<cim:SvVoltage.angle>-14.809061</cim:SvVoltage.angle>
+	<cim:SvVoltage.TopologicalNode rdf:resource="#_BUS___11_TN"/>
+	<cim:SvVoltage.v>14.5959</cim:SvVoltage.v>
+</cim:SvVoltage>
+<cim:SvVoltage rdf:ID="_SV_11">
+	<cim:SvVoltage.angle>-15.092976</cim:SvVoltage.angle>
+	<cim:SvVoltage.TopologicalNode rdf:resource="#_BUS___12_TN"/>
+	<cim:SvVoltage.v>14.5634</cim:SvVoltage.v>
+</cim:SvVoltage>
+<cim:SvVoltage rdf:ID="_SV_12">
+	<cim:SvVoltage.angle>-15.174945</cim:SvVoltage.angle>
+	<cim:SvVoltage.TopologicalNode rdf:resource="#_BUS___13_TN"/>
+	<cim:SvVoltage.v>14.499</cim:SvVoltage.v>
+</cim:SvVoltage>
+<cim:SvVoltage rdf:ID="_SV_13">
+	<cim:SvVoltage.angle>-16.048330</cim:SvVoltage.angle>
+	<cim:SvVoltage.TopologicalNode rdf:resource="#_BUS___14_TN"/>
+	<cim:SvVoltage.v>14.3062</cim:SvVoltage.v>
+</cim:SvVoltage>
+<cim:SvPowerFlow rdf:ID="_SV_14">
+	<cim:SvPowerFlow.p>-232.37</cim:SvPowerFlow.p>
+	<cim:SvPowerFlow.q>17.2645</cim:SvPowerFlow.q>
+	<cim:SvPowerFlow.Terminal rdf:resource="#_GEN____1_SM_TE"/>
+</cim:SvPowerFlow>
+<cim:SvPowerFlow rdf:ID="_SV_15">
+	<cim:SvPowerFlow.p>-40</cim:SvPowerFlow.p>
+	<cim:SvPowerFlow.q>-42.1344</cim:SvPowerFlow.q>
+	<cim:SvPowerFlow.Terminal rdf:resource="#_GEN____2_SM_TE"/>
+</cim:SvPowerFlow>
+<cim:SvPowerFlow rdf:ID="_SV_16">
+	<cim:SvPowerFlow.p>0</cim:SvPowerFlow.p>
+	<cim:SvPowerFlow.q>-24.5874</cim:SvPowerFlow.q>
+	<cim:SvPowerFlow.Terminal rdf:resource="#_GEN____3_SM_TE"/>
+</cim:SvPowerFlow>
+<cim:SvPowerFlow rdf:ID="_SV_17">
+	<cim:SvPowerFlow.p>0</cim:SvPowerFlow.p>
+	<cim:SvPowerFlow.q>-15.4082</cim:SvPowerFlow.q>
+	<cim:SvPowerFlow.Terminal rdf:resource="#_GEN____6_SM_TE"/>
+</cim:SvPowerFlow>
+<cim:SvPowerFlow rdf:ID="_SV_18">
+	<cim:SvPowerFlow.p>0</cim:SvPowerFlow.p>
+	<cim:SvPowerFlow.q>-17.305</cim:SvPowerFlow.q>
+	<cim:SvPowerFlow.Terminal rdf:resource="#_GEN____8_SM_TE"/>
+</cim:SvPowerFlow>
+<cim:SvPowerFlow rdf:ID="_SV_19">
+	<cim:SvPowerFlow.p>9.000000</cim:SvPowerFlow.p>
+	<cim:SvPowerFlow.q>5.800000</cim:SvPowerFlow.q>
+	<cim:SvPowerFlow.Terminal rdf:resource="#_LOAD__10_EC_TE"/>
+</cim:SvPowerFlow>
+<cim:SvPowerFlow rdf:ID="_SV_20">
+	<cim:SvPowerFlow.p>21.700001</cim:SvPowerFlow.p>
+	<cim:SvPowerFlow.q>12.700000</cim:SvPowerFlow.q>
+	<cim:SvPowerFlow.Terminal rdf:resource="#_LOAD___2_EC_TE"/>
+</cim:SvPowerFlow>
+<cim:SvPowerFlow rdf:ID="_SV_21">
+	<cim:SvPowerFlow.p>94.199997</cim:SvPowerFlow.p>
+	<cim:SvPowerFlow.q>19.000000</cim:SvPowerFlow.q>
+	<cim:SvPowerFlow.Terminal rdf:resource="#_LOAD___3_EC_TE"/>
+</cim:SvPowerFlow>
+<cim:SvPowerFlow rdf:ID="_SV_22">
+	<cim:SvPowerFlow.p>47.799999</cim:SvPowerFlow.p>
+	<cim:SvPowerFlow.q>-3.900000</cim:SvPowerFlow.q>
+	<cim:SvPowerFlow.Terminal rdf:resource="#_LOAD___4_EC_TE"/>
+</cim:SvPowerFlow>
+<cim:SvPowerFlow rdf:ID="_SV_23">
+	<cim:SvPowerFlow.p>7.600000</cim:SvPowerFlow.p>
+	<cim:SvPowerFlow.q>1.600000</cim:SvPowerFlow.q>
+	<cim:SvPowerFlow.Terminal rdf:resource="#_LOAD___5_EC_TE"/>
+</cim:SvPowerFlow>
+<cim:SvPowerFlow rdf:ID="_SV_24">
+	<cim:SvPowerFlow.p>11.200000</cim:SvPowerFlow.p>
+	<cim:SvPowerFlow.q>7.500000</cim:SvPowerFlow.q>
+	<cim:SvPowerFlow.Terminal rdf:resource="#_LOAD___6_EC_TE"/>
+</cim:SvPowerFlow>
+<cim:SvPowerFlow rdf:ID="_SV_25">
+	<cim:SvPowerFlow.p>29.500000</cim:SvPowerFlow.p>
+	<cim:SvPowerFlow.q>16.600000</cim:SvPowerFlow.q>
+	<cim:SvPowerFlow.Terminal rdf:resource="#_LOAD___9_EC_TE"/>
+</cim:SvPowerFlow>
+<cim:SvPowerFlow rdf:ID="_SV_26">
+	<cim:SvPowerFlow.p>3.500000</cim:SvPowerFlow.p>
+	<cim:SvPowerFlow.q>1.800000</cim:SvPowerFlow.q>
+	<cim:SvPowerFlow.Terminal rdf:resource="#_LOAD__11_EC_TE"/>
+</cim:SvPowerFlow>
+<cim:SvPowerFlow rdf:ID="_SV_27">
+	<cim:SvPowerFlow.p>6.100000</cim:SvPowerFlow.p>
+	<cim:SvPowerFlow.q>1.600000</cim:SvPowerFlow.q>
+	<cim:SvPowerFlow.Terminal rdf:resource="#_LOAD__12_EC_TE"/>
+</cim:SvPowerFlow>
+<cim:SvPowerFlow rdf:ID="_SV_28">
+	<cim:SvPowerFlow.p>13.500000</cim:SvPowerFlow.p>
+	<cim:SvPowerFlow.q>5.800000</cim:SvPowerFlow.q>
+	<cim:SvPowerFlow.Terminal rdf:resource="#_LOAD__13_EC_TE"/>
+</cim:SvPowerFlow>
+<cim:SvPowerFlow rdf:ID="_SV_29">
+	<cim:SvPowerFlow.p>14.900000</cim:SvPowerFlow.p>
+	<cim:SvPowerFlow.q>5.000000</cim:SvPowerFlow.q>
+	<cim:SvPowerFlow.Terminal rdf:resource="#_LOAD__14_EC_TE"/>
+</cim:SvPowerFlow>
+</rdf:RDF>
