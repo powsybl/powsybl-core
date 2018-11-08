@@ -39,7 +39,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
             double v = p.asDouble("nominalVoltage");
             LOG.info("Boundary node will be converted {}, nominalVoltage {}", id, v);
             VoltageLevel voltageLevel = context.createSubstationVoltageLevel(id, v);
-            createBus(voltageLevel);
+            newBus(voltageLevel);
         } else {
             double v = p.asDouble("v");
             double angle = p.asDouble("angle");
@@ -63,10 +63,22 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         VoltageLevel vl = voltageLevel();
         Objects.requireNonNull(vl);
         if (context.nodeBreaker()) {
-            addNode(vl);
+            newNode(vl);
         } else {
-            createBus(vl);
+            newBus(vl);
         }
+    }
+
+    public void setVoltageAngleNodeBreaker() {
+        if (!context.nodeBreaker()) {
+            return;
+        }
+        VoltageLevel vl = voltageLevel();
+        Objects.requireNonNull(vl);
+        VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
+        String connectivityNode = id;
+        int iidmNode = context.nodeMapping().iidmNodeForConnectivityNode(connectivityNode, vl);
+        setVoltageAngle(topo.getTerminal(iidmNode).getBusView().getBus());
     }
 
     private VoltageLevel voltageLevel() {
@@ -75,8 +87,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         return iidmId != null ? context.network().getVoltageLevel(iidmId) : null;
     }
 
-    private void addNode(VoltageLevel vl) {
-        // FIXME(Luma): Where do we put the voltage ???
+    private void newNode(VoltageLevel vl) {
         VoltageLevel.NodeBreakerView nbv = vl.getNodeBreakerView();
         String connectivityNode = id;
         int iidmNode = context.nodeMapping().iidmNodeForConnectivityNode(connectivityNode, vl);
@@ -94,11 +105,15 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         }
     }
 
-    private void createBus(VoltageLevel voltageLevel) {
+    private void newBus(VoltageLevel voltageLevel) {
         Bus bus = voltageLevel.getBusBreakerView().newBus()
                 .setId(context.namingStrategy().getId("Bus", id))
                 .setName(context.namingStrategy().getName("Bus", name))
                 .add();
+        setVoltageAngle(bus);
+    }
+
+    private void setVoltageAngle(Bus bus) {
         double v = p.asDouble("v");
         double angle = p.asDouble("angle");
         if (valid(v, angle)) {
@@ -109,8 +124,8 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
                     "v = %f, angle = %f. Substation, Voltage level = %s %s",
                     v,
                     angle,
-                    voltageLevel.getSubstation().getName(),
-                    voltageLevel.getName());
+                    bus.getVoltageLevel().getSubstation().getName(),
+                    bus.getVoltageLevel().getName());
             context.invalid("SvVoltage", reason);
         }
     }

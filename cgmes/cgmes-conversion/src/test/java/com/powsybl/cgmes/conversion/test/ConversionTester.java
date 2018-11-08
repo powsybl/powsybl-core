@@ -110,7 +110,7 @@ public class ConversionTester {
         Properties iparams = importParams == null ? new Properties() : importParams;
         iparams.put("storeCgmesModelAsNetworkProperty", "true");
         iparams.put("powsyblTripleStore", impl);
-        // This is to be able to easily compare the topology computed by powsybl
+        // FIXME(Luma) This is to be able to easily compare the topology computed by powsybl
         // against the topology present in the CGMES model
         iparams.put("createBusbarSectionForEveryConnectivityNode", "true");
         CgmesImport i = new CgmesImport();

@@ -99,10 +99,10 @@ public class Conversion {
 
         convert(cgmes.substations(), s -> new SubstationConversion(s, context));
         convert(cgmes.voltageLevels(), vl -> new VoltageLevelConversion(vl, context));
-        PropertyBags nodes = context.nodeBreaker
+        PropertyBags nodes = context.nodeBreaker()
                 ? cgmes.connectivityNodes()
                 : cgmes.topologicalNodes();
-        String nodeTypeName = context.nodeBreaker
+        String nodeTypeName = context.nodeBreaker()
                 ? "ConnectivityNode"
                 : "TopologicalNode";
         convert(nodes, n -> new NodeConversion(nodeTypeName, n, context));
@@ -146,6 +146,17 @@ public class Conversion {
         convert(cgmes.dcLineSegments(), l -> new DcLineSegmentConversion(l, context));
 
         convert(cgmes.terminalLimits(), l -> new TerminalLimitConversion(l, context));
+
+        if (context.nodeBreaker()) {
+            // In node-breaker conversion,
+            // set (voltage, angle) values after all nodes have been created and connected
+            for (PropertyBag n : nodes) {
+                NodeConversion nc = new NodeConversion("ConnectivityNode", n, context);
+                if (!nc.insideBoundary()) {
+                    nc.setVoltageAngleNodeBreaker();
+                }
+            }
+        }
 
         return network;
     }
