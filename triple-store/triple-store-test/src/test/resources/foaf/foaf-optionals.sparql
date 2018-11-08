@@ -1,0 +1,110 @@
+#
+# Copyright (c) 2017, RTE (http://www.rte-france.com)
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+# query: optional
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT ?x ?mbox ?name {
+    ?x foaf:mailbox ?mbox .
+    OPTIONAL { ?x foaf:name ?name }
+}
+
+# query: multipleOptionals
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT ?x ?mbox ?name ?nick {
+    ?x foaf:mailbox ?mbox .
+    OPTIONAL { ?x foaf:name ?name } .
+    OPTIONAL { ?x foaf:nick ?nick }
+}
+
+# query: multipleOptionalsSameVariable
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT ?x ?mbox ?label {
+    ?x foaf:mailbox ?mbox .
+    OPTIONAL { ?x foaf:name ?label } .
+    OPTIONAL { ?x foaf:nick ?label }
+}
+# query: optionalWithUnion
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT ?x ?mbox ?label {
+    ?x foaf:mailbox ?mbox .
+    OPTIONAL {
+        { ?x foaf:name ?label }
+        UNION
+        { ?x foaf:nick ?label }
+    }
+}
+
+# query: nestedOptionals
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT ?x ?mbox ?name ?nick {
+    ?x foaf:mailbox ?mbox .
+    OPTIONAL {
+        ?x foaf:nick ?nick
+        OPTIONAL {
+            ?x foaf:name ?name
+        }
+    }
+}
+
+# query: optionalAnd
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT ?x ?mbox ?name ?nick {
+    ?x foaf:mailbox ?mbox .
+    OPTIONAL {
+        ?x foaf:name ?name .
+        ?x foaf:nick ?nick
+    }
+}
+
+# query: optionalNestedFilter
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT ?x ?mbox ?name {
+    ?x foaf:mailbox ?mbox .
+    OPTIONAL {
+        ?x foaf:name ?name .
+        FILTER ( ?name = "Bob" )
+    }
+}
+
+# query: optionalThenFilter
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT ?x ?mbox ?name {
+    ?x foaf:mailbox ?mbox .
+    OPTIONAL {
+        ?x foaf:name ?name .
+    }
+    FILTER ( ?name = "Bob" )
+}
+
+# query: optionalNotBound
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT ?x ?mbox {
+    ?x foaf:mailbox ?mbox .
+    OPTIONAL {
+        ?x foaf:name ?name .
+    }
+    FILTER (! bound ( ?name ) )
+}
+
+# query: filterNotExists
+# Equivalent to optional not bound, the syntax is allowed since SPARQL 1.1
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT ?x ?mbox {
+    ?x foaf:mailbox ?mbox .
+    FILTER NOT EXISTS {
+        ?x foaf:name ?name .
+    }
+}
+
+# query: minus
+# Similar to filter not exists, subtract friends with name from friends with mailbox
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT ?x ?mbox {
+    ?x foaf:mailbox ?mbox .
+    MINUS {
+        ?x foaf:name ?name .
+    }
+}

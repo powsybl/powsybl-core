@@ -1,0 +1,104 @@
+#
+# Copyright (c) 2017, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+# query: usingGraphClauses
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?SynchronousMachine
+        rdf:type cim:SynchronousMachine ;
+        cim:RotatingMachine.GeneratingUnit ?GeneratingUnit ;
+        cim:RotatingMachine.ratedS ?ratedS ;
+        cim:Equipment.EquipmentContainer ?VoltageLevel .
+    ?GeneratingUnit
+        rdf:type ?generatingUnitType ;
+        cim:GeneratingUnit.minOperatingP ?minP ;
+        cim:GeneratingUnit.maxOperatingP ?maxP ;
+        cim:GeneratingUnit.initialP ?initialP ;
+        cim:IdentifiedObject.name ?name .
+    ?Terminal cim:Terminal.ConductingEquipment ?SynchronousMachine .
+    OPTIONAL { GRAPH ?graphSSH1 {
+        ?Terminal cim:ACDCTerminal.connected ?terminalConnected
+    }}
+    OPTIONAL {
+        ?SynchronousMachine
+            cim:SynchronousMachine.minQ ?minQ ;
+            cim:SynchronousMachine.maxQ ?maxQ .
+    }
+    OPTIONAL {
+        ?SynchronousMachine cim:RegulatingCondEq.RegulatingControl ?RegulatingControl .
+        ?RegulatingControl
+            cim:RegulatingControl.Terminal ?regulatingControlTerminal ;
+            cim:RegulatingControl.mode ?regulatingControlMode .
+        OPTIONAL { GRAPH ?graphSSH2 {
+            ?RegulatingControl
+                cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;
+                cim:RegulatingControl.enabled ?regulatingControlEnabled .
+        }}
+        OPTIONAL { GRAPH ?graphSSH3 {
+            ?regulatingControlTerminal cim:ACDCTerminal.connected ?regulatingControlTerminalConnected
+        }}
+    }
+}}
+OPTIONAL { GRAPH ?graphTP  {
+    ?Terminal cim:Terminal.TopologicalNode ?TopologicalNode .
+    ?TopologicalNode cim:IdentifiedObject.name ?topologicalNodeName
+}}
+OPTIONAL { GRAPH ?graphSV  {
+    ?SvPowerFlow
+        cim:SvPowerFlow.Terminal ?Terminal ;
+        cim:SvPowerFlow.p ?SVp ;
+        cim:SvPowerFlow.q ?SVq .
+}}
+}
+
+# query: noGraphClauses
+SELECT *
+WHERE {
+    ?SynchronousMachine
+        rdf:type cim:SynchronousMachine ;
+        cim:RotatingMachine.GeneratingUnit ?GeneratingUnit ;
+        cim:RotatingMachine.ratedS ?ratedS ;
+        cim:Equipment.EquipmentContainer ?VoltageLevel .
+    ?GeneratingUnit
+        rdf:type ?generatingUnitType ;
+        cim:GeneratingUnit.minOperatingP ?minP ;
+        cim:GeneratingUnit.maxOperatingP ?maxP ;
+        cim:GeneratingUnit.initialP ?initialP ;
+        cim:IdentifiedObject.name ?name .
+    ?Terminal cim:Terminal.ConductingEquipment ?SynchronousMachine .
+    OPTIONAL {
+        ?Terminal cim:ACDCTerminal.connected ?terminalConnected
+    }
+    OPTIONAL {
+        ?SynchronousMachine
+            cim:SynchronousMachine.minQ ?minQ ;
+            cim:SynchronousMachine.maxQ ?maxQ
+    }
+    OPTIONAL {
+        ?SynchronousMachine cim:RegulatingCondEq.RegulatingControl ?RegulatingControl .
+        ?RegulatingControl
+            cim:RegulatingControl.Terminal ?regulatingControlTerminal ;
+            cim:RegulatingControl.mode ?regulatingControlMode .
+        OPTIONAL {
+            ?RegulatingControl
+                cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;
+                cim:RegulatingControl.enabled ?regulatingControlEnabled .
+            ?regulatingControlTerminal cim:ACDCTerminal.connected ?regulatingControlTerminalConnected
+        }
+    }
+    OPTIONAL {
+        ?Terminal cim:Terminal.TopologicalNode ?TopologicalNode .
+        ?TopologicalNode cim:IdentifiedObject.name ?topologicalNodeName
+    }
+    OPTIONAL {
+        ?SvPowerFlow
+            cim:SvPowerFlow.Terminal ?Terminal ;
+            cim:SvPowerFlow.p ?SVp ;
+            cim:SvPowerFlow.q ?SVq .
+    }
+}

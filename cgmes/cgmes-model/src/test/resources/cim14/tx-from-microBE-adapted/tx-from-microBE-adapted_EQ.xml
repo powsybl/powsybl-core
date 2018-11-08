@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"	xmlns:cim="http://iec.ch/TC57/2009/CIM-schema-cim14#">
+<cim:OperationalLimitType rdf:ID="_AC_PATL_OLT">
+	<cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#OperationalLimitDirectionKind.absoluteValue"/>
+	<cim:OperationalLimitType.acceptableDuration>45000</cim:OperationalLimitType.acceptableDuration>
+	<cim:IdentifiedObject.name>PATL</cim:IdentifiedObject.name>
+</cim:OperationalLimitType>
+<cim:GeographicalRegion rdf:ID="_GR_1">
+	<cim:IdentifiedObject.name>Region 1</cim:IdentifiedObject.name>
+</cim:GeographicalRegion>
+<cim:BaseVoltage rdf:ID="_BV_10p5">
+	<cim:BaseVoltage.isDC>false</cim:BaseVoltage.isDC>
+	<cim:BaseVoltage.nominalVoltage>10.5</cim:BaseVoltage.nominalVoltage>
+	<cim:IdentifiedObject.name>10.5 kV</cim:IdentifiedObject.name>
+</cim:BaseVoltage>
+<cim:BaseVoltage rdf:ID="_BV_110">
+	<cim:BaseVoltage.isDC>false</cim:BaseVoltage.isDC>
+	<cim:BaseVoltage.nominalVoltage>110</cim:BaseVoltage.nominalVoltage>
+	<cim:IdentifiedObject.name>110 kV</cim:IdentifiedObject.name>
+</cim:BaseVoltage>
+<cim:ControlArea rdf:ID="_CA_1">
+	<cim:ControlArea.netInterchange>0</cim:ControlArea.netInterchange>
+	<cim:ControlArea.pTolerance>0</cim:ControlArea.pTolerance>
+	<cim:IdentifiedObject.name>_CA_1</cim:IdentifiedObject.name>
+</cim:ControlArea>
+<cim:SubGeographicalRegion rdf:ID="_c1d5bfc88f8011e08e4d00247eb1f55e">
+	<cim:SubGeographicalRegion.Region rdf:resource="#_GR_1"/>
+	<cim:IdentifiedObject.name>ELIA-Brussels</cim:IdentifiedObject.name>
+</cim:SubGeographicalRegion>
+<cim:PowerTransformer rdf:ID="_e482b89a-fa84-4ea9-8e70-a83d44790957">
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_37e14a0f-5e34-4647-a062-8bfd9305fa9d"/>
+	<cim:IdentifiedObject.name>BE-TR2_3</cim:IdentifiedObject.name>
+</cim:PowerTransformer>
+<cim:TransformerWinding rdf:ID="_BE-TR2_3_TW2">
+	<cim:TransformerWinding.windingType rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#WindingType.secondary"/>
+	<cim:TransformerWinding.connectionType rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#WindingConnection.Y"/>
+	<cim:TransformerWinding.g>0</cim:TransformerWinding.g>
+	<cim:TransformerWinding.b>0</cim:TransformerWinding.b>
+	<cim:TransformerWinding.MemberOf_PowerTransformer rdf:resource="#_e482b89a-fa84-4ea9-8e70-a83d44790957"/>
+	<cim:TransformerWinding.r>0</cim:TransformerWinding.r>
+	<cim:TransformerWinding.ratedS>250</cim:TransformerWinding.ratedS>
+	<cim:TransformerWinding.ratedU>10.5</cim:TransformerWinding.ratedU>
+	<cim:TransformerWinding.x>0</cim:TransformerWinding.x>
+	<cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV_10p5"/>
+</cim:TransformerWinding>
+<cim:Terminal rdf:ID="_BE-TR2_3_TW2_T">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_BE-TR2_3_TW2"/>
+	<cim:IdentifiedObject.name>BE-TR2_3_TW2_T</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:RatioTapChanger rdf:ID="_BE-TR2_3_RTC">
+	<cim:RatioTapChanger.TransformerWinding rdf:resource="#_BE-TR2_3_TW2"/>
+	<cim:TapChanger.lowStep>1</cim:TapChanger.lowStep>
+	<cim:TapChanger.highStep>33</cim:TapChanger.highStep>
+	<cim:TapChanger.neutralStep>17</cim:TapChanger.neutralStep>
+	<cim:TapChanger.neutralU>10.5</cim:TapChanger.neutralU>
+	<cim:TapChanger.stepVoltageIncrement>0.8</cim:TapChanger.stepVoltageIncrement>
+</cim:RatioTapChanger>
+<cim:TransformerWinding rdf:ID="_BE-TR2_3_TW1">
+	<cim:TransformerWinding.windingType rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#WindingType.primary"/>
+	<cim:TransformerWinding.connectionType rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#WindingConnection.Y"/>
+	<cim:TransformerWinding.g>0.0000173295</cim:TransformerWinding.g>
+	<cim:TransformerWinding.b>-0.0000830339</cim:TransformerWinding.b>
+	<cim:TransformerWinding.MemberOf_PowerTransformer rdf:resource="#_e482b89a-fa84-4ea9-8e70-a83d44790957"/>
+	<cim:TransformerWinding.r>0.104711</cim:TransformerWinding.r>
+	<cim:TransformerWinding.ratedS>250</cim:TransformerWinding.ratedS>
+	<cim:TransformerWinding.ratedU>110.343750</cim:TransformerWinding.ratedU>
+	<cim:TransformerWinding.x>5.843419</cim:TransformerWinding.x>
+	<cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV_110"/>
+</cim:TransformerWinding>
+<cim:Terminal rdf:ID="_BE-TR2_3_TW1_T">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_BE-TR2_3_TW1"/>
+	<cim:IdentifiedObject.name>BE-TR2_3_TW1_T</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:GeneratingUnit rdf:ID="_BE-G1">
+	<cim:GeneratingUnit.nominalP>0</cim:GeneratingUnit.nominalP>
+	<cim:GeneratingUnit.minOperatingP>0</cim:GeneratingUnit.minOperatingP>
+	<cim:GeneratingUnit.maxOperatingP>100</cim:GeneratingUnit.maxOperatingP>
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_GEN_VL"/>
+	<cim:IdentifiedObject.name>BE-G1</cim:IdentifiedObject.name>
+</cim:GeneratingUnit>
+<cim:SynchronousMachine rdf:ID="_BE-G1_SM">
+	<cim:SynchronousMachine.ratedS>0</cim:SynchronousMachine.ratedS>
+	<cim:SynchronousMachine.minQ>-999</cim:SynchronousMachine.minQ>
+	<cim:SynchronousMachine.r>0</cim:SynchronousMachine.r>
+	<cim:SynchronousMachine.qPercent>1</cim:SynchronousMachine.qPercent>
+	<cim:SynchronousMachine.MemberOf_GeneratingUnit rdf:resource="#_BE-G1"/>
+	<cim:SynchronousMachine.operatingMode rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#SynchronousMachineOperatingMode.generator"/>
+	<cim:SynchronousMachine.x>0</cim:SynchronousMachine.x>
+	<cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#SynchronousMachineType.generator"/>
+	<cim:SynchronousMachine.maxQ>999</cim:SynchronousMachine.maxQ>
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_GEN_VL"/>
+	<cim:IdentifiedObject.name>BE-G1 SM</cim:IdentifiedObject.name>
+</cim:SynchronousMachine>
+<cim:Terminal rdf:ID="_BE-G1_SM_T">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_BE-G1_SM"/>
+	<cim:IdentifiedObject.name>BE-G1_T</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Substation rdf:ID="_37e14a0f-5e34-4647-a062-8bfd9305fa9d">
+	<cim:Substation.Region rdf:resource="#_c1d5bfc88f8011e08e4d00247eb1f55e"/>
+	<cim:IdentifiedObject.name>PP_Brussels</cim:IdentifiedObject.name>
+</cim:Substation>
+<!--
+<cim:Substation rdf:ID="_SLACK_S">
+	<cim:Substation.Region rdf:resource="#_c1d5bfc88f8011e08e4d00247eb1f55e"/>
+	<cim:IdentifiedObject.name>SLACK Substation</cim:IdentifiedObject.name>
+</cim:Substation>
+-->
+<cim:VoltageLevel rdf:ID="_GEN_VL">
+	<cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_10p5"/>
+	<cim:VoltageLevel.MemberOf_Substation rdf:resource="#_37e14a0f-5e34-4647-a062-8bfd9305fa9d"/>
+	<cim:IdentifiedObject.name>GEN_VL</cim:IdentifiedObject.name>
+</cim:VoltageLevel>
+<cim:VoltageLevel rdf:ID="_GRID_VL">
+	<cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_110"/>
+	<cim:VoltageLevel.MemberOf_Substation rdf:resource="#_37e14a0f-5e34-4647-a062-8bfd9305fa9d"/>
+	<cim:IdentifiedObject.name>GRID_VL</cim:IdentifiedObject.name>
+</cim:VoltageLevel>
+<!--
+<cim:ACLineSegment rdf:ID="_GRID-SLACK_AC">
+	<cim:Conductor.gch>0</cim:Conductor.gch>
+	<cim:Conductor.x>1</cim:Conductor.x>
+	<cim:Conductor.bch>0</cim:Conductor.bch>
+	<cim:Conductor.r>0</cim:Conductor.r>
+	<cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV_110"/>
+	<cim:IdentifiedObject.name>GRID-SLACK</cim:IdentifiedObject.name>
+</cim:ACLineSegment>
+<cim:Terminal rdf:ID="_GRID-SLACK_AC_T2">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_GRID-SLACK_AC"/>
+	<cim:IdentifiedObject.name>GRID-SLACK_AC_T2</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_GRID-SLACK_AC_T1">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_GRID-SLACK_AC"/>
+	<cim:IdentifiedObject.name>GRID-SLACK_AC_T1</cim:IdentifiedObject.name>
+</cim:Terminal>
+-->
+<!--
+<cim:VoltageLevel rdf:ID="_SLACK_VL">
+	<cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_110"/>
+	<cim:VoltageLevel.MemberOf_Substation rdf:resource="#_SLACK_S"/>
+	<cim:IdentifiedObject.name>SLACK_VL</cim:IdentifiedObject.name>
+</cim:VoltageLevel>
+<cim:GeneratingUnit rdf:ID="_SLACK_GU">
+	<cim:GeneratingUnit.nominalP>0</cim:GeneratingUnit.nominalP>
+	<cim:GeneratingUnit.minOperatingP>-999999</cim:GeneratingUnit.minOperatingP>
+	<cim:GeneratingUnit.maxOperatingP>999999</cim:GeneratingUnit.maxOperatingP>
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_SLACK_VL"/>
+	<cim:IdentifiedObject.name>SLACK</cim:IdentifiedObject.name>
+</cim:GeneratingUnit>
+<cim:SynchronousMachine rdf:ID="_SLACK_SM">
+	<cim:SynchronousMachine.ratedS>0</cim:SynchronousMachine.ratedS>
+	<cim:SynchronousMachine.minQ>-999999</cim:SynchronousMachine.minQ>
+	<cim:SynchronousMachine.r>0</cim:SynchronousMachine.r>
+	<cim:SynchronousMachine.qPercent>1</cim:SynchronousMachine.qPercent>
+	<cim:SynchronousMachine.MemberOf_GeneratingUnit rdf:resource="#_SLACK_GU"/>
+	<cim:SynchronousMachine.operatingMode rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#SynchronousMachineOperatingMode.generator"/>
+	<cim:SynchronousMachine.x>0</cim:SynchronousMachine.x>
+	<cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#SynchronousMachineType.generator"/>
+	<cim:SynchronousMachine.maxQ>999999</cim:SynchronousMachine.maxQ>
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_SLACK_VL"/>
+	<cim:IdentifiedObject.name>SLACK</cim:IdentifiedObject.name>
+</cim:SynchronousMachine>
+<cim:Terminal rdf:ID="_SLACK_SM_T">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_SLACK_SM"/>
+	<cim:IdentifiedObject.name>SLACK</cim:IdentifiedObject.name>
+</cim:Terminal>
+-->
+<cim:EnergyConsumer rdf:ID="_LOAD">
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_GRID_VL"/>
+	<cim:IdentifiedObject.name>LOAD</cim:IdentifiedObject.name>
+</cim:EnergyConsumer>
+<cim:Terminal rdf:ID="_LOAD_T">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_LOAD"/>
+	<cim:IdentifiedObject.name>LOAD_T</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:IEC61970CIMVersion rdf:ID="version">
+	<cim:IEC61970CIMVersion.version>IEC61970CIM14v02</cim:IEC61970CIMVersion.version>
+	<cim:IEC61970CIMVersion.date>2009-05-10</cim:IEC61970CIMVersion.date>
+</cim:IEC61970CIMVersion>
+</rdf:RDF>

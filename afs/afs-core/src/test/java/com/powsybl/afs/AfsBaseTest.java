@@ -116,6 +116,16 @@ public class AfsBaseTest {
         project3.delete();
         assertTrue(dir41.getChildren().isEmpty());
 
+        Folder dir51 = dir2.createFolder("dir51");
+        Project project5 = dir51.createProject("project5");
+        try {
+            dir51.delete();
+            fail();
+        } catch (AfsException ignored) {
+
+        }
+
+
         Folder dir71 = root.createFolder("dir7");
         Project project4 = dir41.createProject("projet4");
         project4.moveTo(dir71);
