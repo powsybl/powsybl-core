@@ -24,7 +24,7 @@ import java.util.Objects;
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
 @AutoService(CandidateComputation.class)
-public class LoadFlowResultsCompletion  implements CandidateComputation {
+public class LoadFlowResultsCompletion implements CandidateComputation {
 
     public static final String NAME = "loadflowResultsCompletion";
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadFlowResultsCompletion.class);
@@ -68,6 +68,18 @@ public class LoadFlowResultsCompletion  implements CandidateComputation {
                                                 lfParameters.isSpecificCompatibility());
             completeTerminalData(twt.getTerminal(Side.ONE), Side.ONE, twtData);
             completeTerminalData(twt.getTerminal(Side.TWO), Side.TWO, twtData);
+        });
+
+        network.getShuntCompensators().forEach(sh -> {
+            Terminal terminal = sh.getTerminal();
+            if (terminal.isConnected()
+                    && Double.isNaN(terminal.getQ())
+                    && terminal.getBusView().getBus().isInMainConnectedComponent()) {
+                double v = terminal.getBusView().getBus().getV();
+                double q = -sh.getCurrentB() * v * v;
+                LOGGER.debug("Shunt {}, setting q = {}", sh, q);
+                terminal.setQ(q);
+            }
         });
 
     }
