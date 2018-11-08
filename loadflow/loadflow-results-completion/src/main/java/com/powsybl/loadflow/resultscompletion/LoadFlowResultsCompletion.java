@@ -70,7 +70,7 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
             completeTerminalData(twt.getTerminal(Side.TWO), Side.TWO, twtData);
         });
 
-        network.getShuntCompensators().forEach(sh -> {
+        network.getShuntCompensatorStream().forEach(sh -> {
             Terminal terminal = sh.getTerminal();
             if (terminal.isConnected()
                     && Double.isNaN(terminal.getQ())
