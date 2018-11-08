@@ -37,6 +37,9 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.tools.ToolConstants.TASK;
+import static com.powsybl.tools.ToolConstants.TASK_COUNT;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -50,8 +53,6 @@ public class SecurityAnalysisTool implements Tool {
     private static final String OUTPUT_FORMAT_OPTION = "output-format";
     private static final String CONTINGENCIES_FILE_OPTION = "contingencies-file";
     private static final String WITH_EXTENSIONS_OPTION = "with-extensions";
-    private static final String TASK = "task";
-    private static final String TASK_COUNT = "task-count";
     private static final String EXTERNAL = "external";
 
     @Override
