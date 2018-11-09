@@ -8,6 +8,8 @@ package com.powsybl.security.distributed;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.computation.CommandExecution;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.ExecutionHandler;
@@ -36,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.*;
 
 /**
@@ -149,5 +152,33 @@ public class DistributedSecurityAnalysisTest {
         assertEquals("/path/to/itools", config.getItoolsCommand());
 
         assertThatNullPointerException().isThrownBy(() -> new ExternalSecurityAnalysisConfig(true, null));
+
+        try {
+            new ExternalSecurityAnalysisConfig(true, "");
+            fail();
+        } catch (Exception ignored) {
+        }
     }
+
+    /**
+     * Checks config class read from config file.
+     */
+    @Test
+    public void testConfigFromFile() throws IOException {
+        try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
+            InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+
+            ExternalSecurityAnalysisConfig config = ExternalSecurityAnalysisConfig.load(platformConfig);
+            assertFalse(config.isDebug());
+            assertEquals("itools", config.getItoolsCommand());
+
+            MapModuleConfig moduleConfig = platformConfig.createModuleConfig("external-security-analysis-config");
+            moduleConfig.setStringProperty("debug", "true");
+            moduleConfig.setStringProperty("itools-command", "/path/to/itools");
+            config = ExternalSecurityAnalysisConfig.load(platformConfig);
+            assertTrue(config.isDebug());
+            assertEquals("/path/to/itools", config.getItoolsCommand());
+        }
+    }
+
 }

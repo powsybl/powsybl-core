@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"	xmlns:cim="http://iec.ch/TC57/2009/CIM-schema-cim14#">
+<cim:SvPowerFlow rdf:ID="_BE-G1_SM_T_PF">
+	<cim:SvPowerFlow.Terminal rdf:resource="#_BE-G1_SM_T"/>
+	<cim:SvPowerFlow.p>-90</cim:SvPowerFlow.p>
+	<cim:SvPowerFlow.q>51.116</cim:SvPowerFlow.q>
+</cim:SvPowerFlow>
+<cim:SvPowerFlow rdf:ID="_LOAD_T_PF">
+	<cim:SvPowerFlow.Terminal rdf:resource="#_LOAD_T"/>
+	<cim:SvPowerFlow.p>89.686</cim:SvPowerFlow.p>
+	<cim:SvPowerFlow.q>-57.132</cim:SvPowerFlow.q>
+</cim:SvPowerFlow>
+<!--
+<cim:SvPowerFlow rdf:ID="_SLACK_SM_T_PF">
+	<cim:SvPowerFlow.Terminal rdf:resource="#_SLACK_SM_T"/>
+	<cim:SvPowerFlow.p>0</cim:SvPowerFlow.p>
+	<cim:SvPowerFlow.q>0</cim:SvPowerFlow.q>
+</cim:SvPowerFlow>
+-->
+<cim:SvVoltage rdf:ID="_SV_0">
+	<cim:SvVoltage.angle>-7.05718</cim:SvVoltage.angle>
+	<cim:SvVoltage.TopologicalNode rdf:resource="#_GEN_TN"/>
+	<cim:SvVoltage.v>10.820805</cim:SvVoltage.v>
+</cim:SvVoltage>
+<cim:SvVoltage rdf:ID="_SV_1">
+	<cim:SvVoltage.angle>-9.39133</cim:SvVoltage.angle>
+	<cim:SvVoltage.TopologicalNode rdf:resource="#_GRID_TN"/>
+	<cim:SvVoltage.v>115.5</cim:SvVoltage.v>
+</cim:SvVoltage>
+<!--
+<cim:SvVoltage rdf:ID="_SV_2">
+	<cim:SvVoltage.angle>-9.39133</cim:SvVoltage.angle>
+	<cim:SvVoltage.TopologicalNode rdf:resource="#_SLACK_TN"/>
+	<cim:SvVoltage.v>115.5</cim:SvVoltage.v>
+</cim:SvVoltage>
+-->
+<cim:SvTapStep rdf:ID="_BE-TR2_3_RTC_STEP">
+	<cim:SvTapStep.continuousPosition>18</cim:SvTapStep.continuousPosition>
+	<cim:SvTapStep.TapChanger rdf:resource="#_BE-TR2_3_RTC"/>
+</cim:SvTapStep>
+</rdf:RDF>

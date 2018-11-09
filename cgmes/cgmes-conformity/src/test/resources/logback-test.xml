@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<configuration>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- <pattern>%-5p %d{HH:mm:ss.SSS} %-20C{1} | %m%n</pattern> -->
+            <pattern>%-5p %-20C{1} | %m%n</pattern>
+        </encoder>
+    </appender>
+    <root level="info">
+        <appender-ref ref="STDOUT" />
+    </root>
+    <logger name="com.bigdata" level="warn" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+    <!-- To see the query text in the log, set level to debug -->
+    <logger name="com.powsybl.triplestore.TripleStore" level="info" />
+    <!-- To see how much time each query costs, set level to debug -->
+    <logger name="com.powsybl.cgmes.triplestore.CgmesModelTripleStore"
+        level="info" />
+    <!-- To watch the properties of every object converted, level to debug -->
+    <logger name="com.powsybl.cgmes.conversion.Conversion" level="info" />
+</configuration>

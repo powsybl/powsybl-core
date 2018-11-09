@@ -25,7 +25,7 @@ public class Contingency extends AbstractExtendable<Contingency> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Contingency.class);
 
-    private final String id;
+    private String id;
 
     private final List<ContingencyElement> elements;
 
@@ -35,7 +35,7 @@ public class Contingency extends AbstractExtendable<Contingency> {
 
     public Contingency(String id, List<ContingencyElement> elements) {
         this.id = Objects.requireNonNull(id);
-        this.elements = Objects.requireNonNull(elements);
+        this.elements = new ArrayList<>(Objects.requireNonNull(elements));
     }
 
     private static boolean checkGeneratorContingency(Contingency contingency, GeneratorContingency element, Network network) {
@@ -104,6 +104,20 @@ public class Contingency extends AbstractExtendable<Contingency> {
 
     public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = Objects.requireNonNull(id);
+    }
+
+    public void addElement(ContingencyElement element) {
+        Objects.requireNonNull(element);
+        elements.add(element);
+    }
+
+    public void removeElement(ContingencyElement element) {
+        Objects.requireNonNull(element);
+        elements.remove(element);
     }
 
     public Collection<ContingencyElement> getElements() {
