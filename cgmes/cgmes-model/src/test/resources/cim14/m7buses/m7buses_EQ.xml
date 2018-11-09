@@ -1,0 +1,873 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"	xmlns:cim="http://iec.ch/TC57/2009/CIM-schema-cim14#">
+<cim:OperationalLimitType rdf:ID="_AC_PATL_OLT">
+	<cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#OperationalLimitDirectionKind.absoluteValue"/>
+	<cim:OperationalLimitType.acceptableDuration>45000</cim:OperationalLimitType.acceptableDuration>
+	<cim:IdentifiedObject.name>PATL</cim:IdentifiedObject.name>
+</cim:OperationalLimitType>
+<cim:BaseVoltage rdf:ID="_BV_0">
+	<cim:BaseVoltage.isDC>false</cim:BaseVoltage.isDC>
+	<cim:BaseVoltage.nominalVoltage>380</cim:BaseVoltage.nominalVoltage>
+	<cim:IdentifiedObject.name>0</cim:IdentifiedObject.name>
+</cim:BaseVoltage>
+<cim:BaseVoltage rdf:ID="_BV_1">
+	<cim:BaseVoltage.isDC>false</cim:BaseVoltage.isDC>
+	<cim:BaseVoltage.nominalVoltage>380</cim:BaseVoltage.nominalVoltage>
+	<cim:IdentifiedObject.name>1</cim:IdentifiedObject.name>
+</cim:BaseVoltage>
+<cim:BaseVoltage rdf:ID="_BV_2">
+	<cim:BaseVoltage.isDC>false</cim:BaseVoltage.isDC>
+	<cim:BaseVoltage.nominalVoltage>380</cim:BaseVoltage.nominalVoltage>
+	<cim:IdentifiedObject.name>2</cim:IdentifiedObject.name>
+</cim:BaseVoltage>
+<cim:BaseVoltage rdf:ID="_BV_3">
+	<cim:BaseVoltage.isDC>false</cim:BaseVoltage.isDC>
+	<cim:BaseVoltage.nominalVoltage>380</cim:BaseVoltage.nominalVoltage>
+	<cim:IdentifiedObject.name>3</cim:IdentifiedObject.name>
+</cim:BaseVoltage>
+<cim:BaseVoltage rdf:ID="_BV_4">
+	<cim:BaseVoltage.isDC>false</cim:BaseVoltage.isDC>
+	<cim:BaseVoltage.nominalVoltage>380</cim:BaseVoltage.nominalVoltage>
+	<cim:IdentifiedObject.name>4</cim:IdentifiedObject.name>
+</cim:BaseVoltage>
+<cim:BaseVoltage rdf:ID="_BV_5">
+	<cim:BaseVoltage.isDC>false</cim:BaseVoltage.isDC>
+	<cim:BaseVoltage.nominalVoltage>380</cim:BaseVoltage.nominalVoltage>
+	<cim:IdentifiedObject.name>5</cim:IdentifiedObject.name>
+</cim:BaseVoltage>
+<cim:BaseVoltage rdf:ID="_BV_6">
+	<cim:BaseVoltage.isDC>false</cim:BaseVoltage.isDC>
+	<cim:BaseVoltage.nominalVoltage>380</cim:BaseVoltage.nominalVoltage>
+	<cim:IdentifiedObject.name>6</cim:IdentifiedObject.name>
+</cim:BaseVoltage>
+<cim:ControlArea rdf:ID="_CA_1">
+	<cim:ControlArea.netInterchange>0</cim:ControlArea.netInterchange>
+	<cim:ControlArea.pTolerance>0</cim:ControlArea.pTolerance>
+	<cim:IdentifiedObject.name>_CA_1</cim:IdentifiedObject.name>
+</cim:ControlArea>
+<cim:EnergyConsumer rdf:ID="_FP.ANC12_EC">
+	<cim:EnergyConsumer.LoadResponse rdf:resource="#_FP.ANC12_EC_LRC"/>
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_FP.AND11_VL"/>
+	<cim:IdentifiedObject.name>FP.ANC12</cim:IdentifiedObject.name>
+</cim:EnergyConsumer>
+<cim:LoadResponseCharacteristic rdf:ID="_FP.ANC12_EC_LRC">
+	<cim:LoadResponseCharacteristic.pVoltageExponent>0</cim:LoadResponseCharacteristic.pVoltageExponent>
+	<cim:LoadResponseCharacteristic.qConstantPower>1</cim:LoadResponseCharacteristic.qConstantPower>
+	<cim:LoadResponseCharacteristic.qConstantImpedance>0</cim:LoadResponseCharacteristic.qConstantImpedance>
+	<cim:LoadResponseCharacteristic.exponentModel>false</cim:LoadResponseCharacteristic.exponentModel>
+	<cim:LoadResponseCharacteristic.pConstantImpedance>0</cim:LoadResponseCharacteristic.pConstantImpedance>
+	<cim:LoadResponseCharacteristic.qVoltageExponent>0</cim:LoadResponseCharacteristic.qVoltageExponent>
+	<cim:LoadResponseCharacteristic.qConstantCurrent>0</cim:LoadResponseCharacteristic.qConstantCurrent>
+	<cim:LoadResponseCharacteristic.pConstantPower>1</cim:LoadResponseCharacteristic.pConstantPower>
+	<cim:LoadResponseCharacteristic.pConstantCurrent>0</cim:LoadResponseCharacteristic.pConstantCurrent>
+	<cim:IdentifiedObject.name>FP.ANC12_EC_LRC</cim:IdentifiedObject.name>
+</cim:LoadResponseCharacteristic>
+<cim:Terminal rdf:ID="_FP.ANC12_EC_TE">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FP.ANC12_EC"/>
+	<cim:IdentifiedObject.name>FP.ANC12_EC_TE</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Switch rdf:ID="_FP.AND11-FP.AND12-A_SW">
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_FP.AND11_VL"/>
+	<cim:IdentifiedObject.name>FP.AND11-FP.AND12-A</cim:IdentifiedObject.name>
+</cim:Switch>
+<cim:Terminal rdf:ID="_FP.AND11-FP.AND12-A_SW_TE_EX">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FP.AND11-FP.AND12-A_SW"/>
+	<cim:IdentifiedObject.name>FP.AND11-FP.AND12-A_SW_TE_EX</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_FP.AND11-FP.AND12-A_SW_TE_OR">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FP.AND11-FP.AND12-A_SW"/>
+	<cim:IdentifiedObject.name>FP.AND11-FP.AND12-A_SW_TE_OR</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:PowerTransformer rdf:ID="_FP.AND11-FTDPRA11-1_PT">
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_FP.AND11_SS"/>
+	<cim:IdentifiedObject.name>FP.AND11-FTDPRA11-1</cim:IdentifiedObject.name>
+</cim:PowerTransformer>
+<cim:PhaseTapChanger rdf:ID="_FP.AND11-FTDPRA11-1_PTC_OR">
+	<cim:PhaseTapChanger.phaseTapChangerType rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#PhaseTapChangerKind.symmetrical"/>
+	<cim:PhaseTapChanger.stepPhaseShiftIncrement>0.572951</cim:PhaseTapChanger.stepPhaseShiftIncrement>
+	<cim:PhaseTapChanger.TransformerWinding rdf:resource="#_FP.AND11-FTDPRA11-1_TW_OR"/>
+	<cim:TapChanger.highStep>33</cim:TapChanger.highStep>
+	<cim:TapChanger.neutralU>380</cim:TapChanger.neutralU>
+	<cim:TapChanger.neutralStep>17</cim:TapChanger.neutralStep>
+	<cim:TapChanger.lowStep>1</cim:TapChanger.lowStep>
+	<cim:IdentifiedObject.name>FP.AND11-FTDPRA11-1_PTC_OR</cim:IdentifiedObject.name>
+</cim:PhaseTapChanger>
+<cim:TransformerWinding rdf:ID="_FP.AND11-FTDPRA11-1_TW_EX">
+	<cim:TransformerWinding.windingType rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#WindingType.secondary"/>
+	<cim:TransformerWinding.connectionType rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#WindingConnection.Y"/>
+	<cim:TransformerWinding.g>0</cim:TransformerWinding.g>
+	<cim:TransformerWinding.b>0</cim:TransformerWinding.b>
+	<cim:TransformerWinding.MemberOf_PowerTransformer rdf:resource="#_FP.AND11-FTDPRA11-1_PT"/>
+	<cim:TransformerWinding.r>0</cim:TransformerWinding.r>
+	<cim:TransformerWinding.ratedS>658.179</cim:TransformerWinding.ratedS>
+	<cim:TransformerWinding.ratedU>380</cim:TransformerWinding.ratedU>
+	<cim:TransformerWinding.x>0</cim:TransformerWinding.x>
+	<cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV_3"/>
+</cim:TransformerWinding>
+<cim:CurrentLimit rdf:ID="_FP.AND11-FTDPRA11-1_TW_EX_CL">
+	<cim:CurrentLimit.value>1000</cim:CurrentLimit.value>
+	<cim:OperationalLimit.OperationalLimitSet rdf:resource="#_FP.AND11-FTDPRA11-1_TW_EX_OLS"/>
+	<cim:OperationalLimit.OperationalLimitType rdf:resource="#_TW_PATL_OLT"/>
+	<cim:IdentifiedObject.name>FP.AND11-FTDPRA11-1_TW_EX_CL</cim:IdentifiedObject.name>
+</cim:CurrentLimit>
+<cim:OperationalLimitSet rdf:ID="_FP.AND11-FTDPRA11-1_TW_EX_OLS">
+	<cim:OperationalLimitSet.Terminal rdf:resource="#_FP.AND11-FTDPRA11-1_TW_EX_TE"/>
+	<cim:IdentifiedObject.name>FP.AND11-FTDPRA11-1_TW_EX_OLS</cim:IdentifiedObject.name>
+</cim:OperationalLimitSet>
+<cim:Terminal rdf:ID="_FP.AND11-FTDPRA11-1_TW_EX_TE">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FP.AND11-FTDPRA11-1_TW_EX"/>
+	<cim:IdentifiedObject.name>FP.AND11-FTDPRA11-1_TW_EX_TE</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:TransformerWinding rdf:ID="_FP.AND11-FTDPRA11-1_TW_OR">
+	<cim:TransformerWinding.windingType rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#WindingType.primary"/>
+	<cim:TransformerWinding.connectionType rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#WindingConnection.Y"/>
+	<cim:TransformerWinding.g>0</cim:TransformerWinding.g>
+	<cim:TransformerWinding.b>-0</cim:TransformerWinding.b>
+	<cim:TransformerWinding.MemberOf_PowerTransformer rdf:resource="#_FP.AND11-FTDPRA11-1_PT"/>
+	<cim:TransformerWinding.r>0.00999994</cim:TransformerWinding.r>
+	<cim:TransformerWinding.ratedS>658.179</cim:TransformerWinding.ratedS>
+	<cim:TransformerWinding.ratedU>380</cim:TransformerWinding.ratedU>
+	<cim:TransformerWinding.x>0.999999</cim:TransformerWinding.x>
+	<cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV_0"/>
+</cim:TransformerWinding>
+<cim:CurrentLimit rdf:ID="_FP.AND11-FTDPRA11-1_TW_OR_CL">
+	<cim:CurrentLimit.value>1000</cim:CurrentLimit.value>
+	<cim:OperationalLimit.OperationalLimitSet rdf:resource="#_FP.AND11-FTDPRA11-1_TW_OR_OLS"/>
+	<cim:OperationalLimit.OperationalLimitType rdf:resource="#_TW_PATL_OLT"/>
+	<cim:IdentifiedObject.name>FP.AND11-FTDPRA11-1_TW_OR_CL</cim:IdentifiedObject.name>
+</cim:CurrentLimit>
+<cim:OperationalLimitSet rdf:ID="_FP.AND11-FTDPRA11-1_TW_OR_OLS">
+	<cim:OperationalLimitSet.Terminal rdf:resource="#_FP.AND11-FTDPRA11-1_TW_OR_TE"/>
+	<cim:IdentifiedObject.name>FP.AND11-FTDPRA11-1_TW_OR_OLS</cim:IdentifiedObject.name>
+</cim:OperationalLimitSet>
+<cim:Terminal rdf:ID="_FP.AND11-FTDPRA11-1_TW_OR_TE">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FP.AND11-FTDPRA11-1_TW_OR"/>
+	<cim:IdentifiedObject.name>FP.AND11-FTDPRA11-1_TW_OR_TE</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:ACLineSegment rdf:ID="_FP.AND11-FVERGE11-1_AC">
+	<cim:Conductor.gch>0</cim:Conductor.gch>
+	<cim:Conductor.x>0.999248</cim:Conductor.x>
+	<cim:Conductor.bch>0</cim:Conductor.bch>
+	<cim:Conductor.r>0.008664</cim:Conductor.r>
+	<cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV_6"/>
+	<cim:IdentifiedObject.name>FP.AND11-FVERGE11-1</cim:IdentifiedObject.name>
+</cim:ACLineSegment>
+<cim:CurrentLimit rdf:ID="_FP.AND11-FVERGE11-1_AC_CL">
+	<cim:CurrentLimit.value>1000</cim:CurrentLimit.value>
+	<cim:OperationalLimit.OperationalLimitSet rdf:resource="#_FP.AND11-FVERGE11-1_AC_OLS"/>
+	<cim:OperationalLimit.OperationalLimitType rdf:resource="#_AC_PATL_OLT"/>
+	<cim:IdentifiedObject.name>FP.AND11-FVERGE11-1_AC_CL</cim:IdentifiedObject.name>
+</cim:CurrentLimit>
+<cim:OperationalLimitSet rdf:ID="_FP.AND11-FVERGE11-1_AC_OLS">
+	<cim:OperationalLimitSet.Terminal rdf:resource="#_FP.AND11-FVERGE11-1_AC_TE_OR"/>
+	<cim:IdentifiedObject.name>FP.AND11-FVERGE11-1_AC_OLS</cim:IdentifiedObject.name>
+</cim:OperationalLimitSet>
+<cim:Terminal rdf:ID="_FP.AND11-FVERGE11-1_AC_TE_EX">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FP.AND11-FVERGE11-1_AC"/>
+	<cim:IdentifiedObject.name>FP.AND11-FVERGE11-1_AC_TE_EX</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_FP.AND11-FVERGE11-1_AC_TE_OR">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FP.AND11-FVERGE11-1_AC"/>
+	<cim:IdentifiedObject.name>FP.AND11-FVERGE11-1_AC_TE_OR</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:ACLineSegment rdf:ID="_FP.AND11-FVERGE11-2_AC">
+	<cim:Conductor.gch>0</cim:Conductor.gch>
+	<cim:Conductor.x>0.999248</cim:Conductor.x>
+	<cim:Conductor.bch>0</cim:Conductor.bch>
+	<cim:Conductor.r>0.008664</cim:Conductor.r>
+	<cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV_6"/>
+	<cim:IdentifiedObject.name>FP.AND11-FVERGE11-2</cim:IdentifiedObject.name>
+</cim:ACLineSegment>
+<cim:CurrentLimit rdf:ID="_FP.AND11-FVERGE11-2_AC_CL">
+	<cim:CurrentLimit.value>1000</cim:CurrentLimit.value>
+	<cim:OperationalLimit.OperationalLimitSet rdf:resource="#_FP.AND11-FVERGE11-2_AC_OLS"/>
+	<cim:OperationalLimit.OperationalLimitType rdf:resource="#_AC_PATL_OLT"/>
+	<cim:IdentifiedObject.name>FP.AND11-FVERGE11-2_AC_CL</cim:IdentifiedObject.name>
+</cim:CurrentLimit>
+<cim:OperationalLimitSet rdf:ID="_FP.AND11-FVERGE11-2_AC_OLS">
+	<cim:OperationalLimitSet.Terminal rdf:resource="#_FP.AND11-FVERGE11-2_AC_TE_OR"/>
+	<cim:IdentifiedObject.name>FP.AND11-FVERGE11-2_AC_OLS</cim:IdentifiedObject.name>
+</cim:OperationalLimitSet>
+<cim:Terminal rdf:ID="_FP.AND11-FVERGE11-2_AC_TE_EX">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FP.AND11-FVERGE11-2_AC"/>
+	<cim:IdentifiedObject.name>FP.AND11-FVERGE11-2_AC_TE_EX</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_FP.AND11-FVERGE11-2_AC_TE_OR">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FP.AND11-FVERGE11-2_AC"/>
+	<cim:IdentifiedObject.name>FP.AND11-FVERGE11-2_AC_TE_OR</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Substation rdf:ID="_FP.AND11_SS">
+	<cim:Substation.Region rdf:resource="#_SGR_07"/>
+	<cim:IdentifiedObject.name>FP.AND11_SS</cim:IdentifiedObject.name>
+</cim:Substation>
+<cim:VoltageLevel rdf:ID="_FP.AND11_VL">
+	<cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_0"/>
+	<cim:VoltageLevel.MemberOf_Substation rdf:resource="#_FP.AND11_SS"/>
+	<cim:IdentifiedObject.name>FP.AND11_VL</cim:IdentifiedObject.name>
+</cim:VoltageLevel>
+<cim:EnergyConsumer rdf:ID="_FS.BIC11_EC">
+	<cim:EnergyConsumer.LoadResponse rdf:resource="#_FS.BIC11_EC_LRC"/>
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_FS.BIS11_VL"/>
+	<cim:IdentifiedObject.name>FS.BIC11</cim:IdentifiedObject.name>
+</cim:EnergyConsumer>
+<cim:LoadResponseCharacteristic rdf:ID="_FS.BIC11_EC_LRC">
+	<cim:LoadResponseCharacteristic.pVoltageExponent>0</cim:LoadResponseCharacteristic.pVoltageExponent>
+	<cim:LoadResponseCharacteristic.qConstantPower>1</cim:LoadResponseCharacteristic.qConstantPower>
+	<cim:LoadResponseCharacteristic.qConstantImpedance>0</cim:LoadResponseCharacteristic.qConstantImpedance>
+	<cim:LoadResponseCharacteristic.exponentModel>false</cim:LoadResponseCharacteristic.exponentModel>
+	<cim:LoadResponseCharacteristic.pConstantImpedance>0</cim:LoadResponseCharacteristic.pConstantImpedance>
+	<cim:LoadResponseCharacteristic.qVoltageExponent>0</cim:LoadResponseCharacteristic.qVoltageExponent>
+	<cim:LoadResponseCharacteristic.qConstantCurrent>0</cim:LoadResponseCharacteristic.qConstantCurrent>
+	<cim:LoadResponseCharacteristic.pConstantPower>1</cim:LoadResponseCharacteristic.pConstantPower>
+	<cim:LoadResponseCharacteristic.pConstantCurrent>0</cim:LoadResponseCharacteristic.pConstantCurrent>
+	<cim:IdentifiedObject.name>FS.BIC11_EC_LRC</cim:IdentifiedObject.name>
+</cim:LoadResponseCharacteristic>
+<cim:Terminal rdf:ID="_FS.BIC11_EC_TE">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FS.BIC11_EC"/>
+	<cim:IdentifiedObject.name>FS.BIC11_EC_TE</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Switch rdf:ID="_FS.BIS11-FS.BIS12-A_SW">
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_FS.BIS11_VL"/>
+	<cim:IdentifiedObject.name>FS.BIS11-FS.BIS12-A</cim:IdentifiedObject.name>
+</cim:Switch>
+<cim:Terminal rdf:ID="_FS.BIS11-FS.BIS12-A_SW_TE_EX">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FS.BIS11-FS.BIS12-A_SW"/>
+	<cim:IdentifiedObject.name>FS.BIS11-FS.BIS12-A_SW_TE_EX</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_FS.BIS11-FS.BIS12-A_SW_TE_OR">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FS.BIS11-FS.BIS12-A_SW"/>
+	<cim:IdentifiedObject.name>FS.BIS11-FS.BIS12-A_SW_TE_OR</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:ACLineSegment rdf:ID="_FS.BIS11-FVALDI11-1_AC">
+	<cim:Conductor.gch>0</cim:Conductor.gch>
+	<cim:Conductor.x>0.999248</cim:Conductor.x>
+	<cim:Conductor.bch>0</cim:Conductor.bch>
+	<cim:Conductor.r>0.008664</cim:Conductor.r>
+	<cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV_5"/>
+	<cim:IdentifiedObject.name>FS.BIS11-FVALDI11-1</cim:IdentifiedObject.name>
+</cim:ACLineSegment>
+<cim:CurrentLimit rdf:ID="_FS.BIS11-FVALDI11-1_AC_CL">
+	<cim:CurrentLimit.value>1000</cim:CurrentLimit.value>
+	<cim:OperationalLimit.OperationalLimitSet rdf:resource="#_FS.BIS11-FVALDI11-1_AC_OLS"/>
+	<cim:OperationalLimit.OperationalLimitType rdf:resource="#_AC_PATL_OLT"/>
+	<cim:IdentifiedObject.name>FS.BIS11-FVALDI11-1_AC_CL</cim:IdentifiedObject.name>
+</cim:CurrentLimit>
+<cim:OperationalLimitSet rdf:ID="_FS.BIS11-FVALDI11-1_AC_OLS">
+	<cim:OperationalLimitSet.Terminal rdf:resource="#_FS.BIS11-FVALDI11-1_AC_TE_OR"/>
+	<cim:IdentifiedObject.name>FS.BIS11-FVALDI11-1_AC_OLS</cim:IdentifiedObject.name>
+</cim:OperationalLimitSet>
+<cim:Terminal rdf:ID="_FS.BIS11-FVALDI11-1_AC_TE_EX">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FS.BIS11-FVALDI11-1_AC"/>
+	<cim:IdentifiedObject.name>FS.BIS11-FVALDI11-1_AC_TE_EX</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_FS.BIS11-FVALDI11-1_AC_TE_OR">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FS.BIS11-FVALDI11-1_AC"/>
+	<cim:IdentifiedObject.name>FS.BIS11-FVALDI11-1_AC_TE_OR</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:ACLineSegment rdf:ID="_FS.BIS11-FVALDI11-2_AC">
+	<cim:Conductor.gch>0</cim:Conductor.gch>
+	<cim:Conductor.x>0.999248</cim:Conductor.x>
+	<cim:Conductor.bch>0</cim:Conductor.bch>
+	<cim:Conductor.r>0.008664</cim:Conductor.r>
+	<cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV_5"/>
+	<cim:IdentifiedObject.name>FS.BIS11-FVALDI11-2</cim:IdentifiedObject.name>
+</cim:ACLineSegment>
+<cim:CurrentLimit rdf:ID="_FS.BIS11-FVALDI11-2_AC_CL">
+	<cim:CurrentLimit.value>1000</cim:CurrentLimit.value>
+	<cim:OperationalLimit.OperationalLimitSet rdf:resource="#_FS.BIS11-FVALDI11-2_AC_OLS"/>
+	<cim:OperationalLimit.OperationalLimitType rdf:resource="#_AC_PATL_OLT"/>
+	<cim:IdentifiedObject.name>FS.BIS11-FVALDI11-2_AC_CL</cim:IdentifiedObject.name>
+</cim:CurrentLimit>
+<cim:OperationalLimitSet rdf:ID="_FS.BIS11-FVALDI11-2_AC_OLS">
+	<cim:OperationalLimitSet.Terminal rdf:resource="#_FS.BIS11-FVALDI11-2_AC_TE_OR"/>
+	<cim:IdentifiedObject.name>FS.BIS11-FVALDI11-2_AC_OLS</cim:IdentifiedObject.name>
+</cim:OperationalLimitSet>
+<cim:Terminal rdf:ID="_FS.BIS11-FVALDI11-2_AC_TE_EX">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FS.BIS11-FVALDI11-2_AC"/>
+	<cim:IdentifiedObject.name>FS.BIS11-FVALDI11-2_AC_TE_EX</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_FS.BIS11-FVALDI11-2_AC_TE_OR">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FS.BIS11-FVALDI11-2_AC"/>
+	<cim:IdentifiedObject.name>FS.BIS11-FVALDI11-2_AC_TE_OR</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Substation rdf:ID="_FS.BIS11_SS">
+	<cim:Substation.Region rdf:resource="#_SGR_07"/>
+	<cim:IdentifiedObject.name>FS.BIS11_SS</cim:IdentifiedObject.name>
+</cim:Substation>
+<cim:VoltageLevel rdf:ID="_FS.BIS11_VL">
+	<cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_1"/>
+	<cim:VoltageLevel.MemberOf_Substation rdf:resource="#_FS.BIS11_SS"/>
+	<cim:IdentifiedObject.name>FS.BIS11_VL</cim:IdentifiedObject.name>
+</cim:VoltageLevel>
+<cim:ACLineSegment rdf:ID="_FSSV.O11-FP.AND11-1_AC">
+	<cim:Conductor.gch>0</cim:Conductor.gch>
+	<cim:Conductor.x>0.999248</cim:Conductor.x>
+	<cim:Conductor.bch>0</cim:Conductor.bch>
+	<cim:Conductor.r>0.008664</cim:Conductor.r>
+	<cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV_0"/>
+	<cim:IdentifiedObject.name>FSSV.O11-FP.AND11-1</cim:IdentifiedObject.name>
+</cim:ACLineSegment>
+<cim:CurrentLimit rdf:ID="_FSSV.O11-FP.AND11-1_AC_CL">
+	<cim:CurrentLimit.value>1000</cim:CurrentLimit.value>
+	<cim:OperationalLimit.OperationalLimitSet rdf:resource="#_FSSV.O11-FP.AND11-1_AC_OLS"/>
+	<cim:OperationalLimit.OperationalLimitType rdf:resource="#_AC_PATL_OLT"/>
+	<cim:IdentifiedObject.name>FSSV.O11-FP.AND11-1_AC_CL</cim:IdentifiedObject.name>
+</cim:CurrentLimit>
+<cim:OperationalLimitSet rdf:ID="_FSSV.O11-FP.AND11-1_AC_OLS">
+	<cim:OperationalLimitSet.Terminal rdf:resource="#_FSSV.O11-FP.AND11-1_AC_TE_OR"/>
+	<cim:IdentifiedObject.name>FSSV.O11-FP.AND11-1_AC_OLS</cim:IdentifiedObject.name>
+</cim:OperationalLimitSet>
+<cim:Terminal rdf:ID="_FSSV.O11-FP.AND11-1_AC_TE_EX">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FSSV.O11-FP.AND11-1_AC"/>
+	<cim:IdentifiedObject.name>FSSV.O11-FP.AND11-1_AC_TE_EX</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_FSSV.O11-FP.AND11-1_AC_TE_OR">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FSSV.O11-FP.AND11-1_AC"/>
+	<cim:IdentifiedObject.name>FSSV.O11-FP.AND11-1_AC_TE_OR</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:ACLineSegment rdf:ID="_FSSV.O11-FP.AND11-2_AC">
+	<cim:Conductor.gch>0</cim:Conductor.gch>
+	<cim:Conductor.x>0.999248</cim:Conductor.x>
+	<cim:Conductor.bch>0</cim:Conductor.bch>
+	<cim:Conductor.r>0.008664</cim:Conductor.r>
+	<cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV_0"/>
+	<cim:IdentifiedObject.name>FSSV.O11-FP.AND11-2</cim:IdentifiedObject.name>
+</cim:ACLineSegment>
+<cim:CurrentLimit rdf:ID="_FSSV.O11-FP.AND11-2_AC_CL">
+	<cim:CurrentLimit.value>1000</cim:CurrentLimit.value>
+	<cim:OperationalLimit.OperationalLimitSet rdf:resource="#_FSSV.O11-FP.AND11-2_AC_OLS"/>
+	<cim:OperationalLimit.OperationalLimitType rdf:resource="#_AC_PATL_OLT"/>
+	<cim:IdentifiedObject.name>FSSV.O11-FP.AND11-2_AC_CL</cim:IdentifiedObject.name>
+</cim:CurrentLimit>
+<cim:OperationalLimitSet rdf:ID="_FSSV.O11-FP.AND11-2_AC_OLS">
+	<cim:OperationalLimitSet.Terminal rdf:resource="#_FSSV.O11-FP.AND11-2_AC_TE_OR"/>
+	<cim:IdentifiedObject.name>FSSV.O11-FP.AND11-2_AC_OLS</cim:IdentifiedObject.name>
+</cim:OperationalLimitSet>
+<cim:Terminal rdf:ID="_FSSV.O11-FP.AND11-2_AC_TE_EX">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FSSV.O11-FP.AND11-2_AC"/>
+	<cim:IdentifiedObject.name>FSSV.O11-FP.AND11-2_AC_TE_EX</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_FSSV.O11-FP.AND11-2_AC_TE_OR">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FSSV.O11-FP.AND11-2_AC"/>
+	<cim:IdentifiedObject.name>FSSV.O11-FP.AND11-2_AC_TE_OR</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Switch rdf:ID="_FSSV.O11-FSSV.O12-A_SW">
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_FSSV.O11_VL"/>
+	<cim:IdentifiedObject.name>FSSV.O11-FSSV.O12-A</cim:IdentifiedObject.name>
+</cim:Switch>
+<cim:Terminal rdf:ID="_FSSV.O11-FSSV.O12-A_SW_TE_EX">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FSSV.O11-FSSV.O12-A_SW"/>
+	<cim:IdentifiedObject.name>FSSV.O11-FSSV.O12-A_SW_TE_EX</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_FSSV.O11-FSSV.O12-A_SW_TE_OR">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FSSV.O11-FSSV.O12-A_SW"/>
+	<cim:IdentifiedObject.name>FSSV.O11-FSSV.O12-A_SW_TE_OR</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:ACLineSegment rdf:ID="_FSSV.O11-FTILL511-1_AC">
+	<cim:Conductor.gch>0</cim:Conductor.gch>
+	<cim:Conductor.x>0.999248</cim:Conductor.x>
+	<cim:Conductor.bch>0</cim:Conductor.bch>
+	<cim:Conductor.r>0.008664</cim:Conductor.r>
+	<cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV_4"/>
+	<cim:IdentifiedObject.name>FSSV.O11-FTILL511-1</cim:IdentifiedObject.name>
+</cim:ACLineSegment>
+<cim:CurrentLimit rdf:ID="_FSSV.O11-FTILL511-1_AC_CL">
+	<cim:CurrentLimit.value>1000</cim:CurrentLimit.value>
+	<cim:OperationalLimit.OperationalLimitSet rdf:resource="#_FSSV.O11-FTILL511-1_AC_OLS"/>
+	<cim:OperationalLimit.OperationalLimitType rdf:resource="#_AC_PATL_OLT"/>
+	<cim:IdentifiedObject.name>FSSV.O11-FTILL511-1_AC_CL</cim:IdentifiedObject.name>
+</cim:CurrentLimit>
+<cim:OperationalLimitSet rdf:ID="_FSSV.O11-FTILL511-1_AC_OLS">
+	<cim:OperationalLimitSet.Terminal rdf:resource="#_FSSV.O11-FTILL511-1_AC_TE_OR"/>
+	<cim:IdentifiedObject.name>FSSV.O11-FTILL511-1_AC_OLS</cim:IdentifiedObject.name>
+</cim:OperationalLimitSet>
+<cim:Terminal rdf:ID="_FSSV.O11-FTILL511-1_AC_TE_EX">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FSSV.O11-FTILL511-1_AC"/>
+	<cim:IdentifiedObject.name>FSSV.O11-FTILL511-1_AC_TE_EX</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_FSSV.O11-FTILL511-1_AC_TE_OR">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FSSV.O11-FTILL511-1_AC"/>
+	<cim:IdentifiedObject.name>FSSV.O11-FTILL511-1_AC_TE_OR</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:ACLineSegment rdf:ID="_FSSV.O11-FTILL511-2_AC">
+	<cim:Conductor.gch>0</cim:Conductor.gch>
+	<cim:Conductor.x>0.999248</cim:Conductor.x>
+	<cim:Conductor.bch>0</cim:Conductor.bch>
+	<cim:Conductor.r>0.008664</cim:Conductor.r>
+	<cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV_4"/>
+	<cim:IdentifiedObject.name>FSSV.O11-FTILL511-2</cim:IdentifiedObject.name>
+</cim:ACLineSegment>
+<cim:CurrentLimit rdf:ID="_FSSV.O11-FTILL511-2_AC_CL">
+	<cim:CurrentLimit.value>1000</cim:CurrentLimit.value>
+	<cim:OperationalLimit.OperationalLimitSet rdf:resource="#_FSSV.O11-FTILL511-2_AC_OLS"/>
+	<cim:OperationalLimit.OperationalLimitType rdf:resource="#_AC_PATL_OLT"/>
+	<cim:IdentifiedObject.name>FSSV.O11-FTILL511-2_AC_CL</cim:IdentifiedObject.name>
+</cim:CurrentLimit>
+<cim:OperationalLimitSet rdf:ID="_FSSV.O11-FTILL511-2_AC_OLS">
+	<cim:OperationalLimitSet.Terminal rdf:resource="#_FSSV.O11-FTILL511-2_AC_TE_OR"/>
+	<cim:IdentifiedObject.name>FSSV.O11-FTILL511-2_AC_OLS</cim:IdentifiedObject.name>
+</cim:OperationalLimitSet>
+<cim:Terminal rdf:ID="_FSSV.O11-FTILL511-2_AC_TE_EX">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FSSV.O11-FTILL511-2_AC"/>
+	<cim:IdentifiedObject.name>FSSV.O11-FTILL511-2_AC_TE_EX</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_FSSV.O11-FTILL511-2_AC_TE_OR">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FSSV.O11-FTILL511-2_AC"/>
+	<cim:IdentifiedObject.name>FSSV.O11-FTILL511-2_AC_TE_OR</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Substation rdf:ID="_FSSV.O11_SS">
+	<cim:Substation.Region rdf:resource="#_SGR_07"/>
+	<cim:IdentifiedObject.name>FSSV.O11_SS</cim:IdentifiedObject.name>
+</cim:Substation>
+<cim:VoltageLevel rdf:ID="_FSSV.O11_VL">
+	<cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_2"/>
+	<cim:VoltageLevel.MemberOf_Substation rdf:resource="#_FSSV.O11_SS"/>
+	<cim:IdentifiedObject.name>FSSV.O11_VL</cim:IdentifiedObject.name>
+</cim:VoltageLevel>
+<cim:GeneratingUnit rdf:ID="_FSSV.T11_GU">
+	<cim:GeneratingUnit.nominalP>0</cim:GeneratingUnit.nominalP>
+	<cim:GeneratingUnit.minOperatingP>400</cim:GeneratingUnit.minOperatingP>
+	<cim:GeneratingUnit.maxOperatingP>1200</cim:GeneratingUnit.maxOperatingP>
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_FSSV.O11_VL"/>
+	<cim:IdentifiedObject.name>FSSV.T11</cim:IdentifiedObject.name>
+</cim:GeneratingUnit>
+<cim:SynchronousMachine rdf:ID="_FSSV.T11_SM">
+	<cim:SynchronousMachine.ratedS>0</cim:SynchronousMachine.ratedS>
+	<cim:SynchronousMachine.minQ>-200</cim:SynchronousMachine.minQ>
+	<cim:SynchronousMachine.r>0</cim:SynchronousMachine.r>
+	<cim:SynchronousMachine.qPercent>1</cim:SynchronousMachine.qPercent>
+	<cim:SynchronousMachine.MemberOf_GeneratingUnit rdf:resource="#_FSSV.T11_GU"/>
+	<cim:SynchronousMachine.operatingMode rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#SynchronousMachineOperatingMode.generator"/>
+	<cim:SynchronousMachine.x>0</cim:SynchronousMachine.x>
+	<cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#SynchronousMachineType.generator"/>
+	<cim:SynchronousMachine.maxQ>200</cim:SynchronousMachine.maxQ>
+	<cim:RegulatingCondEq.RegulatingControl rdf:resource="#_FSSV.T11_SM_RC"/>
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_FSSV.O11_VL"/>
+	<cim:IdentifiedObject.name>FSSV.T11</cim:IdentifiedObject.name>
+</cim:SynchronousMachine>
+<cim:RegulatingControl rdf:ID="_FSSV.T11_SM_RC">
+	<cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+	<cim:RegulatingControl.targetRange>0</cim:RegulatingControl.targetRange>
+	<cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#RegulatingControlModeKind.voltage"/>
+	<cim:RegulatingControl.targetValue>406.45</cim:RegulatingControl.targetValue>
+	<cim:RegulatingControl.Terminal rdf:resource="#_FSSV.T11_SM_TE"/>
+</cim:RegulatingControl>
+<cim:Terminal rdf:ID="_FSSV.T11_SM_TE">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FSSV.T11_SM"/>
+	<cim:IdentifiedObject.name>FSSV.T11</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Switch rdf:ID="_FTDPRA11-FTDPRA12-A_SW">
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_FTDPRA11_VL"/>
+	<cim:IdentifiedObject.name>FTDPRA11-FTDPRA12-A</cim:IdentifiedObject.name>
+</cim:Switch>
+<cim:Terminal rdf:ID="_FTDPRA11-FTDPRA12-A_SW_TE_EX">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FTDPRA11-FTDPRA12-A_SW"/>
+	<cim:IdentifiedObject.name>FTDPRA11-FTDPRA12-A_SW_TE_EX</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_FTDPRA11-FTDPRA12-A_SW_TE_OR">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FTDPRA11-FTDPRA12-A_SW"/>
+	<cim:IdentifiedObject.name>FTDPRA11-FTDPRA12-A_SW_TE_OR</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:ACLineSegment rdf:ID="_FTDPRA11-FVERGE11-1_AC">
+	<cim:Conductor.gch>0</cim:Conductor.gch>
+	<cim:Conductor.x>0.999248</cim:Conductor.x>
+	<cim:Conductor.bch>0</cim:Conductor.bch>
+	<cim:Conductor.r>0.008664</cim:Conductor.r>
+	<cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV_6"/>
+	<cim:IdentifiedObject.name>FTDPRA11-FVERGE11-1</cim:IdentifiedObject.name>
+</cim:ACLineSegment>
+<cim:CurrentLimit rdf:ID="_FTDPRA11-FVERGE11-1_AC_CL">
+	<cim:CurrentLimit.value>1000</cim:CurrentLimit.value>
+	<cim:OperationalLimit.OperationalLimitSet rdf:resource="#_FTDPRA11-FVERGE11-1_AC_OLS"/>
+	<cim:OperationalLimit.OperationalLimitType rdf:resource="#_AC_PATL_OLT"/>
+	<cim:IdentifiedObject.name>FTDPRA11-FVERGE11-1_AC_CL</cim:IdentifiedObject.name>
+</cim:CurrentLimit>
+<cim:OperationalLimitSet rdf:ID="_FTDPRA11-FVERGE11-1_AC_OLS">
+	<cim:OperationalLimitSet.Terminal rdf:resource="#_FTDPRA11-FVERGE11-1_AC_TE_OR"/>
+	<cim:IdentifiedObject.name>FTDPRA11-FVERGE11-1_AC_OLS</cim:IdentifiedObject.name>
+</cim:OperationalLimitSet>
+<cim:Terminal rdf:ID="_FTDPRA11-FVERGE11-1_AC_TE_EX">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FTDPRA11-FVERGE11-1_AC"/>
+	<cim:IdentifiedObject.name>FTDPRA11-FVERGE11-1_AC_TE_EX</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_FTDPRA11-FVERGE11-1_AC_TE_OR">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FTDPRA11-FVERGE11-1_AC"/>
+	<cim:IdentifiedObject.name>FTDPRA11-FVERGE11-1_AC_TE_OR</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:ACLineSegment rdf:ID="_FTDPRA11-FVERGE11-2_AC">
+	<cim:Conductor.gch>0</cim:Conductor.gch>
+	<cim:Conductor.x>0.999248</cim:Conductor.x>
+	<cim:Conductor.bch>0</cim:Conductor.bch>
+	<cim:Conductor.r>0.008664</cim:Conductor.r>
+	<cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV_6"/>
+	<cim:IdentifiedObject.name>FTDPRA11-FVERGE11-2</cim:IdentifiedObject.name>
+</cim:ACLineSegment>
+<cim:CurrentLimit rdf:ID="_FTDPRA11-FVERGE11-2_AC_CL">
+	<cim:CurrentLimit.value>1000</cim:CurrentLimit.value>
+	<cim:OperationalLimit.OperationalLimitSet rdf:resource="#_FTDPRA11-FVERGE11-2_AC_OLS"/>
+	<cim:OperationalLimit.OperationalLimitType rdf:resource="#_AC_PATL_OLT"/>
+	<cim:IdentifiedObject.name>FTDPRA11-FVERGE11-2_AC_CL</cim:IdentifiedObject.name>
+</cim:CurrentLimit>
+<cim:OperationalLimitSet rdf:ID="_FTDPRA11-FVERGE11-2_AC_OLS">
+	<cim:OperationalLimitSet.Terminal rdf:resource="#_FTDPRA11-FVERGE11-2_AC_TE_OR"/>
+	<cim:IdentifiedObject.name>FTDPRA11-FVERGE11-2_AC_OLS</cim:IdentifiedObject.name>
+</cim:OperationalLimitSet>
+<cim:Terminal rdf:ID="_FTDPRA11-FVERGE11-2_AC_TE_EX">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FTDPRA11-FVERGE11-2_AC"/>
+	<cim:IdentifiedObject.name>FTDPRA11-FVERGE11-2_AC_TE_EX</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_FTDPRA11-FVERGE11-2_AC_TE_OR">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FTDPRA11-FVERGE11-2_AC"/>
+	<cim:IdentifiedObject.name>FTDPRA11-FVERGE11-2_AC_TE_OR</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:VoltageLevel rdf:ID="_FTDPRA11_VL">
+	<cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_3"/>
+	<cim:VoltageLevel.MemberOf_Substation rdf:resource="#_FP.AND11_SS"/>
+	<cim:IdentifiedObject.name>FTDPRA11_VL</cim:IdentifiedObject.name>
+</cim:VoltageLevel>
+<cim:EnergyConsumer rdf:ID="_FTDPRC11_EC">
+	<cim:EnergyConsumer.LoadResponse rdf:resource="#_FTDPRC11_EC_LRC"/>
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_FTDPRA11_VL"/>
+	<cim:IdentifiedObject.name>FTDPRC11</cim:IdentifiedObject.name>
+</cim:EnergyConsumer>
+<cim:LoadResponseCharacteristic rdf:ID="_FTDPRC11_EC_LRC">
+	<cim:LoadResponseCharacteristic.pVoltageExponent>0</cim:LoadResponseCharacteristic.pVoltageExponent>
+	<cim:LoadResponseCharacteristic.qConstantPower>1</cim:LoadResponseCharacteristic.qConstantPower>
+	<cim:LoadResponseCharacteristic.qConstantImpedance>0</cim:LoadResponseCharacteristic.qConstantImpedance>
+	<cim:LoadResponseCharacteristic.exponentModel>false</cim:LoadResponseCharacteristic.exponentModel>
+	<cim:LoadResponseCharacteristic.pConstantImpedance>0</cim:LoadResponseCharacteristic.pConstantImpedance>
+	<cim:LoadResponseCharacteristic.qVoltageExponent>0</cim:LoadResponseCharacteristic.qVoltageExponent>
+	<cim:LoadResponseCharacteristic.qConstantCurrent>0</cim:LoadResponseCharacteristic.qConstantCurrent>
+	<cim:LoadResponseCharacteristic.pConstantPower>1</cim:LoadResponseCharacteristic.pConstantPower>
+	<cim:LoadResponseCharacteristic.pConstantCurrent>0</cim:LoadResponseCharacteristic.pConstantCurrent>
+	<cim:IdentifiedObject.name>FTDPRC11_EC_LRC</cim:IdentifiedObject.name>
+</cim:LoadResponseCharacteristic>
+<cim:Terminal rdf:ID="_FTDPRC11_EC_TE">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FTDPRC11_EC"/>
+	<cim:IdentifiedObject.name>FTDPRC11_EC_TE</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:ACLineSegment rdf:ID="_FTILL511-FS.BIS11-1_AC">
+	<cim:Conductor.gch>0</cim:Conductor.gch>
+	<cim:Conductor.x>0.999248</cim:Conductor.x>
+	<cim:Conductor.bch>0</cim:Conductor.bch>
+	<cim:Conductor.r>0.008664</cim:Conductor.r>
+	<cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV_1"/>
+	<cim:IdentifiedObject.name>FTILL511-FS.BIS11-1</cim:IdentifiedObject.name>
+</cim:ACLineSegment>
+<cim:CurrentLimit rdf:ID="_FTILL511-FS.BIS11-1_AC_CL">
+	<cim:CurrentLimit.value>1000</cim:CurrentLimit.value>
+	<cim:OperationalLimit.OperationalLimitSet rdf:resource="#_FTILL511-FS.BIS11-1_AC_OLS"/>
+	<cim:OperationalLimit.OperationalLimitType rdf:resource="#_AC_PATL_OLT"/>
+	<cim:IdentifiedObject.name>FTILL511-FS.BIS11-1_AC_CL</cim:IdentifiedObject.name>
+</cim:CurrentLimit>
+<cim:OperationalLimitSet rdf:ID="_FTILL511-FS.BIS11-1_AC_OLS">
+	<cim:OperationalLimitSet.Terminal rdf:resource="#_FTILL511-FS.BIS11-1_AC_TE_OR"/>
+	<cim:IdentifiedObject.name>FTILL511-FS.BIS11-1_AC_OLS</cim:IdentifiedObject.name>
+</cim:OperationalLimitSet>
+<cim:Terminal rdf:ID="_FTILL511-FS.BIS11-1_AC_TE_EX">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FTILL511-FS.BIS11-1_AC"/>
+	<cim:IdentifiedObject.name>FTILL511-FS.BIS11-1_AC_TE_EX</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_FTILL511-FS.BIS11-1_AC_TE_OR">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FTILL511-FS.BIS11-1_AC"/>
+	<cim:IdentifiedObject.name>FTILL511-FS.BIS11-1_AC_TE_OR</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:ACLineSegment rdf:ID="_FTILL511-FS.BIS11-2_AC">
+	<cim:Conductor.gch>0</cim:Conductor.gch>
+	<cim:Conductor.x>0.999248</cim:Conductor.x>
+	<cim:Conductor.bch>0</cim:Conductor.bch>
+	<cim:Conductor.r>0.008664</cim:Conductor.r>
+	<cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV_1"/>
+	<cim:IdentifiedObject.name>FTILL511-FS.BIS11-2</cim:IdentifiedObject.name>
+</cim:ACLineSegment>
+<cim:CurrentLimit rdf:ID="_FTILL511-FS.BIS11-2_AC_CL">
+	<cim:CurrentLimit.value>1000</cim:CurrentLimit.value>
+	<cim:OperationalLimit.OperationalLimitSet rdf:resource="#_FTILL511-FS.BIS11-2_AC_OLS"/>
+	<cim:OperationalLimit.OperationalLimitType rdf:resource="#_AC_PATL_OLT"/>
+	<cim:IdentifiedObject.name>FTILL511-FS.BIS11-2_AC_CL</cim:IdentifiedObject.name>
+</cim:CurrentLimit>
+<cim:OperationalLimitSet rdf:ID="_FTILL511-FS.BIS11-2_AC_OLS">
+	<cim:OperationalLimitSet.Terminal rdf:resource="#_FTILL511-FS.BIS11-2_AC_TE_OR"/>
+	<cim:IdentifiedObject.name>FTILL511-FS.BIS11-2_AC_OLS</cim:IdentifiedObject.name>
+</cim:OperationalLimitSet>
+<cim:Terminal rdf:ID="_FTILL511-FS.BIS11-2_AC_TE_EX">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FTILL511-FS.BIS11-2_AC"/>
+	<cim:IdentifiedObject.name>FTILL511-FS.BIS11-2_AC_TE_EX</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_FTILL511-FS.BIS11-2_AC_TE_OR">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FTILL511-FS.BIS11-2_AC"/>
+	<cim:IdentifiedObject.name>FTILL511-FS.BIS11-2_AC_TE_OR</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Switch rdf:ID="_FTILL511-FTILL512-A_SW">
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_FTILL511_VL"/>
+	<cim:IdentifiedObject.name>FTILL511-FTILL512-A</cim:IdentifiedObject.name>
+</cim:Switch>
+<cim:Terminal rdf:ID="_FTILL511-FTILL512-A_SW_TE_EX">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FTILL511-FTILL512-A_SW"/>
+	<cim:IdentifiedObject.name>FTILL511-FTILL512-A_SW_TE_EX</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_FTILL511-FTILL512-A_SW_TE_OR">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FTILL511-FTILL512-A_SW"/>
+	<cim:IdentifiedObject.name>FTILL511-FTILL512-A_SW_TE_OR</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Substation rdf:ID="_FTILL511_SS">
+	<cim:Substation.Region rdf:resource="#_SGR_07"/>
+	<cim:IdentifiedObject.name>FTILL511_SS</cim:IdentifiedObject.name>
+</cim:Substation>
+<cim:VoltageLevel rdf:ID="_FTILL511_VL">
+	<cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_4"/>
+	<cim:VoltageLevel.MemberOf_Substation rdf:resource="#_FTILL511_SS"/>
+	<cim:IdentifiedObject.name>FTILL511_VL</cim:IdentifiedObject.name>
+</cim:VoltageLevel>
+<cim:EnergyConsumer rdf:ID="_FTILLC51_EC">
+	<cim:EnergyConsumer.LoadResponse rdf:resource="#_FTILLC51_EC_LRC"/>
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_FTILL511_VL"/>
+	<cim:IdentifiedObject.name>FTILLC51</cim:IdentifiedObject.name>
+</cim:EnergyConsumer>
+<cim:LoadResponseCharacteristic rdf:ID="_FTILLC51_EC_LRC">
+	<cim:LoadResponseCharacteristic.pVoltageExponent>0</cim:LoadResponseCharacteristic.pVoltageExponent>
+	<cim:LoadResponseCharacteristic.qConstantPower>1</cim:LoadResponseCharacteristic.qConstantPower>
+	<cim:LoadResponseCharacteristic.qConstantImpedance>0</cim:LoadResponseCharacteristic.qConstantImpedance>
+	<cim:LoadResponseCharacteristic.exponentModel>false</cim:LoadResponseCharacteristic.exponentModel>
+	<cim:LoadResponseCharacteristic.pConstantImpedance>0</cim:LoadResponseCharacteristic.pConstantImpedance>
+	<cim:LoadResponseCharacteristic.qVoltageExponent>0</cim:LoadResponseCharacteristic.qVoltageExponent>
+	<cim:LoadResponseCharacteristic.qConstantCurrent>0</cim:LoadResponseCharacteristic.qConstantCurrent>
+	<cim:LoadResponseCharacteristic.pConstantPower>1</cim:LoadResponseCharacteristic.pConstantPower>
+	<cim:LoadResponseCharacteristic.pConstantCurrent>0</cim:LoadResponseCharacteristic.pConstantCurrent>
+	<cim:IdentifiedObject.name>FTILLC51_EC_LRC</cim:IdentifiedObject.name>
+</cim:LoadResponseCharacteristic>
+<cim:Terminal rdf:ID="_FTILLC51_EC_TE">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FTILLC51_EC"/>
+	<cim:IdentifiedObject.name>FTILLC51_EC_TE</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:ACLineSegment rdf:ID="_FVALDI11-FTDPRA11-1_AC">
+	<cim:Conductor.gch>0</cim:Conductor.gch>
+	<cim:Conductor.x>0.999248</cim:Conductor.x>
+	<cim:Conductor.bch>0</cim:Conductor.bch>
+	<cim:Conductor.r>0.008664</cim:Conductor.r>
+	<cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV_3"/>
+	<cim:IdentifiedObject.name>FVALDI11-FTDPRA11-1</cim:IdentifiedObject.name>
+</cim:ACLineSegment>
+<cim:CurrentLimit rdf:ID="_FVALDI11-FTDPRA11-1_AC_CL">
+	<cim:CurrentLimit.value>1000</cim:CurrentLimit.value>
+	<cim:OperationalLimit.OperationalLimitSet rdf:resource="#_FVALDI11-FTDPRA11-1_AC_OLS"/>
+	<cim:OperationalLimit.OperationalLimitType rdf:resource="#_AC_PATL_OLT"/>
+	<cim:IdentifiedObject.name>FVALDI11-FTDPRA11-1_AC_CL</cim:IdentifiedObject.name>
+</cim:CurrentLimit>
+<cim:OperationalLimitSet rdf:ID="_FVALDI11-FTDPRA11-1_AC_OLS">
+	<cim:OperationalLimitSet.Terminal rdf:resource="#_FVALDI11-FTDPRA11-1_AC_TE_OR"/>
+	<cim:IdentifiedObject.name>FVALDI11-FTDPRA11-1_AC_OLS</cim:IdentifiedObject.name>
+</cim:OperationalLimitSet>
+<cim:Terminal rdf:ID="_FVALDI11-FTDPRA11-1_AC_TE_EX">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FVALDI11-FTDPRA11-1_AC"/>
+	<cim:IdentifiedObject.name>FVALDI11-FTDPRA11-1_AC_TE_EX</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_FVALDI11-FTDPRA11-1_AC_TE_OR">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FVALDI11-FTDPRA11-1_AC"/>
+	<cim:IdentifiedObject.name>FVALDI11-FTDPRA11-1_AC_TE_OR</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:ACLineSegment rdf:ID="_FVALDI11-FTDPRA11-2_AC">
+	<cim:Conductor.gch>0</cim:Conductor.gch>
+	<cim:Conductor.x>0.999248</cim:Conductor.x>
+	<cim:Conductor.bch>0</cim:Conductor.bch>
+	<cim:Conductor.r>0.008664</cim:Conductor.r>
+	<cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV_3"/>
+	<cim:IdentifiedObject.name>FVALDI11-FTDPRA11-2</cim:IdentifiedObject.name>
+</cim:ACLineSegment>
+<cim:CurrentLimit rdf:ID="_FVALDI11-FTDPRA11-2_AC_CL">
+	<cim:CurrentLimit.value>1000</cim:CurrentLimit.value>
+	<cim:OperationalLimit.OperationalLimitSet rdf:resource="#_FVALDI11-FTDPRA11-2_AC_OLS"/>
+	<cim:OperationalLimit.OperationalLimitType rdf:resource="#_AC_PATL_OLT"/>
+	<cim:IdentifiedObject.name>FVALDI11-FTDPRA11-2_AC_CL</cim:IdentifiedObject.name>
+</cim:CurrentLimit>
+<cim:OperationalLimitSet rdf:ID="_FVALDI11-FTDPRA11-2_AC_OLS">
+	<cim:OperationalLimitSet.Terminal rdf:resource="#_FVALDI11-FTDPRA11-2_AC_TE_OR"/>
+	<cim:IdentifiedObject.name>FVALDI11-FTDPRA11-2_AC_OLS</cim:IdentifiedObject.name>
+</cim:OperationalLimitSet>
+<cim:Terminal rdf:ID="_FVALDI11-FTDPRA11-2_AC_TE_EX">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FVALDI11-FTDPRA11-2_AC"/>
+	<cim:IdentifiedObject.name>FVALDI11-FTDPRA11-2_AC_TE_EX</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_FVALDI11-FTDPRA11-2_AC_TE_OR">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FVALDI11-FTDPRA11-2_AC"/>
+	<cim:IdentifiedObject.name>FVALDI11-FTDPRA11-2_AC_TE_OR</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Switch rdf:ID="_FVALDI11-FVALDI12-A_SW">
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_FVALDI11_VL"/>
+	<cim:IdentifiedObject.name>FVALDI11-FVALDI12-A</cim:IdentifiedObject.name>
+</cim:Switch>
+<cim:Terminal rdf:ID="_FVALDI11-FVALDI12-A_SW_TE_EX">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FVALDI11-FVALDI12-A_SW"/>
+	<cim:IdentifiedObject.name>FVALDI11-FVALDI12-A_SW_TE_EX</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_FVALDI11-FVALDI12-A_SW_TE_OR">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FVALDI11-FVALDI12-A_SW"/>
+	<cim:IdentifiedObject.name>FVALDI11-FVALDI12-A_SW_TE_OR</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Substation rdf:ID="_FVALDI11_SS">
+	<cim:Substation.Region rdf:resource="#_SGR_07"/>
+	<cim:IdentifiedObject.name>FVALDI11_SS</cim:IdentifiedObject.name>
+</cim:Substation>
+<cim:VoltageLevel rdf:ID="_FVALDI11_VL">
+	<cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_5"/>
+	<cim:VoltageLevel.MemberOf_Substation rdf:resource="#_FVALDI11_SS"/>
+	<cim:IdentifiedObject.name>FVALDI11_VL</cim:IdentifiedObject.name>
+</cim:VoltageLevel>
+<cim:GeneratingUnit rdf:ID="_FVALDT11_GU">
+	<cim:GeneratingUnit.nominalP>0</cim:GeneratingUnit.nominalP>
+	<cim:GeneratingUnit.minOperatingP>400</cim:GeneratingUnit.minOperatingP>
+	<cim:GeneratingUnit.maxOperatingP>1200</cim:GeneratingUnit.maxOperatingP>
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_FVALDI11_VL"/>
+	<cim:IdentifiedObject.name>FVALDT11</cim:IdentifiedObject.name>
+</cim:GeneratingUnit>
+<cim:SynchronousMachine rdf:ID="_FVALDT11_SM">
+	<cim:SynchronousMachine.ratedS>0</cim:SynchronousMachine.ratedS>
+	<cim:SynchronousMachine.minQ>-200</cim:SynchronousMachine.minQ>
+	<cim:SynchronousMachine.r>0</cim:SynchronousMachine.r>
+	<cim:SynchronousMachine.qPercent>1</cim:SynchronousMachine.qPercent>
+	<cim:SynchronousMachine.MemberOf_GeneratingUnit rdf:resource="#_FVALDT11_GU"/>
+	<cim:SynchronousMachine.operatingMode rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#SynchronousMachineOperatingMode.generator"/>
+	<cim:SynchronousMachine.x>0</cim:SynchronousMachine.x>
+	<cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#SynchronousMachineType.generator"/>
+	<cim:SynchronousMachine.maxQ>200</cim:SynchronousMachine.maxQ>
+	<cim:RegulatingCondEq.RegulatingControl rdf:resource="#_FVALDT11_SM_RC"/>
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_FVALDI11_VL"/>
+	<cim:IdentifiedObject.name>FVALDT11</cim:IdentifiedObject.name>
+</cim:SynchronousMachine>
+<cim:RegulatingControl rdf:ID="_FVALDT11_SM_RC">
+	<cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+	<cim:RegulatingControl.targetRange>0</cim:RegulatingControl.targetRange>
+	<cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#RegulatingControlModeKind.voltage"/>
+	<cim:RegulatingControl.targetValue>406.45</cim:RegulatingControl.targetValue>
+	<cim:RegulatingControl.Terminal rdf:resource="#_FVALDT11_SM_TE"/>
+</cim:RegulatingControl>
+<cim:Terminal rdf:ID="_FVALDT11_SM_TE">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FVALDT11_SM"/>
+	<cim:IdentifiedObject.name>FVALDT11</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Switch rdf:ID="_FVERGE11-FVERGE12-A_SW">
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_FVERGE11_VL"/>
+	<cim:IdentifiedObject.name>FVERGE11-FVERGE12-A</cim:IdentifiedObject.name>
+</cim:Switch>
+<cim:Terminal rdf:ID="_FVERGE11-FVERGE12-A_SW_TE_EX">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FVERGE11-FVERGE12-A_SW"/>
+	<cim:IdentifiedObject.name>FVERGE11-FVERGE12-A_SW_TE_EX</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_FVERGE11-FVERGE12-A_SW_TE_OR">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FVERGE11-FVERGE12-A_SW"/>
+	<cim:IdentifiedObject.name>FVERGE11-FVERGE12-A_SW_TE_OR</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Substation rdf:ID="_FVERGE11_SS">
+	<cim:Substation.Region rdf:resource="#_SGR_07"/>
+	<cim:IdentifiedObject.name>FVERGE11_SS</cim:IdentifiedObject.name>
+</cim:Substation>
+<cim:VoltageLevel rdf:ID="_FVERGE11_VL">
+	<cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_6"/>
+	<cim:VoltageLevel.MemberOf_Substation rdf:resource="#_FVERGE11_SS"/>
+	<cim:IdentifiedObject.name>FVERGE11_VL</cim:IdentifiedObject.name>
+</cim:VoltageLevel>
+<cim:GeneratingUnit rdf:ID="_FVERGT11_GU">
+	<cim:GeneratingUnit.nominalP>0</cim:GeneratingUnit.nominalP>
+	<cim:GeneratingUnit.minOperatingP>-9999</cim:GeneratingUnit.minOperatingP>
+	<cim:GeneratingUnit.maxOperatingP>9999</cim:GeneratingUnit.maxOperatingP>
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_FVERGE11_VL"/>
+	<cim:IdentifiedObject.name>FVERGT11</cim:IdentifiedObject.name>
+</cim:GeneratingUnit>
+<cim:SynchronousMachine rdf:ID="_FVERGT11_SM">
+	<cim:SynchronousMachine.ratedS>0</cim:SynchronousMachine.ratedS>
+	<cim:SynchronousMachine.minQ>-9999</cim:SynchronousMachine.minQ>
+	<cim:SynchronousMachine.r>0</cim:SynchronousMachine.r>
+	<cim:SynchronousMachine.qPercent>1</cim:SynchronousMachine.qPercent>
+	<cim:SynchronousMachine.MemberOf_GeneratingUnit rdf:resource="#_FVERGT11_GU"/>
+	<cim:SynchronousMachine.operatingMode rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#SynchronousMachineOperatingMode.generator"/>
+	<cim:SynchronousMachine.x>0</cim:SynchronousMachine.x>
+	<cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#SynchronousMachineType.generator"/>
+	<cim:SynchronousMachine.maxQ>9999</cim:SynchronousMachine.maxQ>
+	<cim:RegulatingCondEq.RegulatingControl rdf:resource="#_FVERGT11_SM_RC"/>
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_FVERGE11_VL"/>
+	<cim:IdentifiedObject.name>FVERGT11</cim:IdentifiedObject.name>
+</cim:SynchronousMachine>
+<cim:RegulatingControl rdf:ID="_FVERGT11_SM_RC">
+	<cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+	<cim:RegulatingControl.targetRange>0</cim:RegulatingControl.targetRange>
+	<cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#RegulatingControlModeKind.voltage"/>
+	<cim:RegulatingControl.targetValue>406.45</cim:RegulatingControl.targetValue>
+	<cim:RegulatingControl.Terminal rdf:resource="#_FVERGT11_SM_TE"/>
+</cim:RegulatingControl>
+<cim:Terminal rdf:ID="_FVERGT11_SM_TE">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_FVERGT11_SM"/>
+	<cim:IdentifiedObject.name>FVERGT11</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:GeographicalRegion rdf:ID="_GR_07">
+	<cim:IdentifiedObject.name>07</cim:IdentifiedObject.name>
+</cim:GeographicalRegion>
+<cim:SubGeographicalRegion rdf:ID="_SGR_07">
+	<cim:SubGeographicalRegion.Region rdf:resource="#_GR_07"/>
+	<cim:IdentifiedObject.name>07</cim:IdentifiedObject.name>
+</cim:SubGeographicalRegion>
+<cim:OperationalLimitType rdf:ID="_T3_PATL_OLT">
+	<cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#OperationalLimitDirectionKind.absoluteValue"/>
+	<cim:OperationalLimitType.acceptableDuration>45000</cim:OperationalLimitType.acceptableDuration>
+	<cim:IdentifiedObject.name>PATL</cim:IdentifiedObject.name>
+</cim:OperationalLimitType>
+<cim:OperationalLimitType rdf:ID="_TW_PATL_OLT">
+	<cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#OperationalLimitDirectionKind.absoluteValue"/>
+	<cim:OperationalLimitType.acceptableDuration>45000</cim:OperationalLimitType.acceptableDuration>
+	<cim:IdentifiedObject.name>PATL</cim:IdentifiedObject.name>
+</cim:OperationalLimitType>
+<cim:IEC61970CIMVersion rdf:ID="version">
+	<cim:IEC61970CIMVersion.version>IEC61970CIM14v02</cim:IEC61970CIMVersion.version>
+	<cim:IEC61970CIMVersion.date>2009-05-10</cim:IEC61970CIMVersion.date>
+</cim:IEC61970CIMVersion>
+</rdf:RDF>

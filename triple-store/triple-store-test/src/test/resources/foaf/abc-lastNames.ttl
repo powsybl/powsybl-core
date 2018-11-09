@@ -1,0 +1,14 @@
+#
+# Copyright (c) 2017, RTE (http://www.rte-france.com)
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+@prefix : <http://example/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+:alice foaf:lastName    "Liddell" .
+
+:bob foaf:lastName "Marley" .
+
+:carol foaf:lastName "Channing" .

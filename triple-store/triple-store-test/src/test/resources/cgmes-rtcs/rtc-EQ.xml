@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright (c) 2017, RTE (http://www.rte-france.com)
+    This Source Code Form is subject to the terms of the Mozilla Public
+    License, v. 2.0. If a copy of the MPL was not distributed with this
+    file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+-->
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#"
+         xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#"
+         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+
+    <!-- a RatioTapChanger without control -->
+    <cim:RatioTapChanger rdf:ID="_11111111-4a10-4031-b008-60c0dc340a07">
+        <cim:IdentifiedObject.name>NO-CONTROL</cim:IdentifiedObject.name>
+        <cim:RatioTapChanger.stepVoltageIncrement>1.250000</cim:RatioTapChanger.stepVoltageIncrement>
+    </cim:RatioTapChanger>
+    <cim:RatioTapChanger rdf:ID="_955d9cd0-4a10-4031-b008-60c0dc340a07">
+        <cim:IdentifiedObject.name>BE-TR2_2</cim:IdentifiedObject.name>
+        <cim:RatioTapChanger.stepVoltageIncrement>1.250000</cim:RatioTapChanger.stepVoltageIncrement>
+        <cim:TapChanger.TapChangerControl rdf:resource="#_ee42c6c2-39e7-43c2-9bdd-d397c5dc980b"/>
+    </cim:RatioTapChanger>
+    <cim:RatioTapChanger rdf:ID="_83cc66dd-8d93-4a2c-8103-f1f5a9cf7e2e">
+        <cim:IdentifiedObject.name>BE-TR2_3</cim:IdentifiedObject.name>
+        <cim:RatioTapChanger.stepVoltageIncrement>0.800000</cim:RatioTapChanger.stepVoltageIncrement>
+        <cim:TapChanger.TapChangerControl rdf:resource="#_97110e84-7da6-479c-846c-696fdaa83d56"/>
+    </cim:RatioTapChanger>
+    <cim:RatioTapChanger rdf:ID="_fe25f43a-7341-446e-a71a-8ab7119ba806">
+        <cim:IdentifiedObject.name>BE-TR3_1</cim:IdentifiedObject.name>
+        <cim:RatioTapChanger.stepVoltageIncrement>0.625000</cim:RatioTapChanger.stepVoltageIncrement>
+        <cim:TapChanger.TapChangerControl rdf:resource="#_38f972bc-b7fd-4e75-8c24-379a86fbb506"/>
+    </cim:RatioTapChanger>
+
+    <cim:TapChangerControl rdf:ID="_ee42c6c2-39e7-43c2-9bdd-d397c5dc980b">
+        <cim:IdentifiedObject.name>BE-TR2_2</cim:IdentifiedObject.name>
+        <cim:RegulatingControl.mode
+                rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.voltage"/>
+    </cim:TapChangerControl>
+    <cim:TapChangerControl rdf:ID="_97110e84-7da6-479c-846c-696fdaa83d56">
+        <cim:IdentifiedObject.name>BE-TR2_3</cim:IdentifiedObject.name>
+        <cim:RegulatingControl.mode
+                rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.voltage"/>
+    </cim:TapChangerControl>
+    <!--
+    We want a TapChangerControl defined only in SSH to check if an error is raised
+    <cim:TapChangerControl rdf:ID="_38f972bc-b7fd-4e75-8c24-379a86fbb506">
+        <cim:IdentifiedObject.name>BE-TR3_1</cim:IdentifiedObject.name>
+        <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.voltage"/>
+    </cim:TapChangerControl>
+    -->
+</rdf:RDF>

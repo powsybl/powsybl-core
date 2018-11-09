@@ -1,0 +1,206 @@
+#
+# Copyright (c) 2017, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+# query: nestedGraph
+SELECT *
+WHERE {
+{ GRAPH ?graphEQ {
+    ?RatioTapChanger
+        rdf:type cim:RatioTapChanger ;
+        cim:TapChanger.lowStep ?lowStep ;
+        cim:TapChanger.highStep ?highStep ;
+        cim:TapChanger.neutralStep ?neutralStep ;
+        cim:TapChanger.normalStep ?normalStep ;
+        cim:TapChanger.neutralU ?neutralU ;
+        cim:RatioTapChanger.stepVoltageIncrement ?stepVoltageIncrement ;
+        cim:RatioTapChanger.TransformerEnd ?TransformerEnd .
+    OPTIONAL {
+        ?RatioTapChanger
+             cim:TapChanger.TapChangerControl ?TapChangerControl ;
+             cim:TapChanger.ltcFlag ?ltcFlag ;
+             cim:RatioTapChanger.tculControlMode ?tculControlMode .
+         ?TapChangerControl
+             cim:RegulatingControl.mode ?regulatingControlMode ;
+             cim:RegulatingControl.Terminal ?RegulatingControlTerminal .
+        OPTIONAL { GRAPH ?graphSSH {
+            ?TapChangerControl
+                a cim:TapChangerControl ;
+                cim:RegulatingControl.enabled ?regulatingControlEnabled ;
+                cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;
+                cim:RegulatingControl.targetDeadband ?regulatingControlTargetDeadband ;
+                cim:RegulatingControl.targetValueUnitMultiplier ?regulatingControlTargetValueUnitMultiplier ;
+                cim:RegulatingControl.discrete ?regulatingControlDiscrete .
+        }}
+    }
+}}
+}
+
+# query: optionalFilteredEquals
+SELECT *
+WHERE {
+{ GRAPH ?graphEQ {
+    ?RatioTapChanger
+        rdf:type cim:RatioTapChanger ;
+        cim:TapChanger.lowStep ?lowStep ;
+        cim:TapChanger.highStep ?highStep ;
+        cim:TapChanger.neutralStep ?neutralStep ;
+        cim:TapChanger.normalStep ?normalStep ;
+        cim:TapChanger.neutralU ?neutralU ;
+        cim:RatioTapChanger.stepVoltageIncrement ?stepVoltageIncrement ;
+        cim:RatioTapChanger.TransformerEnd ?TransformerEnd .
+    OPTIONAL {
+        ?RatioTapChanger
+             cim:TapChanger.TapChangerControl ?TapChangerControl ;
+             cim:TapChanger.ltcFlag ?ltcFlag ;
+             cim:RatioTapChanger.tculControlMode ?tculControlMode .
+         ?TapChangerControl
+             cim:RegulatingControl.mode ?regulatingControlMode ;
+             cim:RegulatingControl.Terminal ?RegulatingControlTerminal .
+    }
+}}
+{
+    {
+        GRAPH ?graphSSH {
+        ?TapChangerControlSSH
+            a cim:TapChangerControl ;
+            cim:RegulatingControl.enabled ?regulatingControlEnabled ;
+            cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;
+            cim:RegulatingControl.targetDeadband ?regulatingControlTargetDeadband ;
+            cim:RegulatingControl.targetValueUnitMultiplier ?regulatingControlTargetValueUnitMultiplier ;
+            cim:RegulatingControl.discrete ?regulatingControlDiscrete .
+        }
+    }
+    UNION
+    {
+        VALUES (
+            ?TapChangerControlSSH
+            ?regulatingControlEnabled
+            ?regulatingControlTargetValue
+            ?regulatingControlTargetDeadband
+            ?regulatingControlTargetValueUnitMultiplier
+            ?regulatingControlDiscrete )
+            {
+            ( UNDEF UNDEF UNDEF UNDEF UNDEF UNDEF )
+            }
+    }
+}
+# The filter must be at the top level so both variables TapChangerControl and TapChangerControlSSH
+# are in the same scope
+FILTER (
+    BOUND ( ?TapChangerControl ) && ?TapChangerControlSSH = ?TapChangerControl
+    ||
+    ! BOUND ( ?TapChangerControl ) && ! BOUND ( ?TapChangerControlSSH )
+
+    # There are still one missing condition in the FILTER:
+    # the fact that we have a TapChangerControl in the EQ file but no data for it is defined in SSH
+)
+}
+
+# query: optionalFilteredSameTerm
+SELECT *
+WHERE {
+{ GRAPH ?graphEQ {
+    ?RatioTapChanger
+        rdf:type cim:RatioTapChanger ;
+        cim:TapChanger.lowStep ?lowStep ;
+        cim:TapChanger.highStep ?highStep ;
+        cim:TapChanger.neutralStep ?neutralStep ;
+        cim:TapChanger.normalStep ?normalStep ;
+        cim:TapChanger.neutralU ?neutralU ;
+        cim:RatioTapChanger.stepVoltageIncrement ?stepVoltageIncrement ;
+        cim:RatioTapChanger.TransformerEnd ?TransformerEnd .
+    OPTIONAL {
+        ?RatioTapChanger
+             cim:TapChanger.TapChangerControl ?TapChangerControl ;
+             cim:TapChanger.ltcFlag ?ltcFlag ;
+             cim:RatioTapChanger.tculControlMode ?tculControlMode .
+         ?TapChangerControl
+             cim:RegulatingControl.mode ?regulatingControlMode ;
+             cim:RegulatingControl.Terminal ?RegulatingControlTerminal .
+    }
+}}
+{
+    {
+        GRAPH ?graphSSH {
+        ?TapChangerControlSSH
+            a cim:TapChangerControl ;
+            cim:RegulatingControl.enabled ?regulatingControlEnabled ;
+            cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;
+            cim:RegulatingControl.targetDeadband ?regulatingControlTargetDeadband ;
+            cim:RegulatingControl.targetValueUnitMultiplier ?regulatingControlTargetValueUnitMultiplier ;
+            cim:RegulatingControl.discrete ?regulatingControlDiscrete .
+        }
+    }
+    UNION
+    {
+        VALUES (
+            ?TapChangerControlSSH
+            ?regulatingControlEnabled
+            ?regulatingControlTargetValue
+            ?regulatingControlTargetDeadband
+            ?regulatingControlTargetValueUnitMultiplier
+            ?regulatingControlDiscrete )
+            {
+            ( UNDEF UNDEF UNDEF UNDEF UNDEF UNDEF )
+            }
+    }
+}
+# The filter must be at the top level so both variables TapChangerControl and TapChangerControlSSH
+# are in the same scope
+FILTER (
+    BOUND ( ?TapChangerControl ) && sameTerm ( ?TapChangerControlSSH, ?TapChangerControl )
+    ||
+    ! BOUND ( ?TapChangerControl ) && ! BOUND ( ?TapChangerControlSSH )
+
+    # There are still one missing condition in the FILTER:
+    # the fact that we have a TapChangerControl in the EQ file but no data for it is defined in SSH
+)
+}
+
+# query: noGraphClauses
+SELECT *
+WHERE {
+    ?RatioTapChanger
+        rdf:type cim:RatioTapChanger ;
+        cim:TapChanger.lowStep ?lowStep ;
+        cim:TapChanger.highStep ?highStep ;
+        cim:TapChanger.neutralStep ?neutralStep ;
+        cim:TapChanger.normalStep ?normalStep ;
+        cim:TapChanger.neutralU ?neutralU ;
+        cim:RatioTapChanger.stepVoltageIncrement ?stepVoltageIncrement ;
+        cim:RatioTapChanger.TransformerEnd ?TransformerEnd .
+    OPTIONAL {
+        ?RatioTapChanger
+            cim:TapChanger.TapChangerControl ?TapChangerControl ;
+            cim:TapChanger.ltcFlag ?ltcFlag ;
+            cim:RatioTapChanger.tculControlMode ?tculControlMode .
+        ?TapChangerControl
+            cim:RegulatingControl.mode ?regulatingControlMode ;
+            cim:RegulatingControl.Terminal ?RegulatingControlTerminal .
+        OPTIONAL {
+            # data from SSH
+            ?TapChangerControl
+                cim:RegulatingControl.enabled ?regulatingControlEnabled ;
+                cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;
+                cim:RegulatingControl.targetDeadband ?regulatingControlTargetDeadband ;
+                cim:RegulatingControl.targetValueUnitMultiplier ?regulatingControlTargetValueUnitMultiplier ;
+                cim:RegulatingControl.discrete ?regulatingControlDiscrete .
+        }
+    }
+}
+
+# query: simple
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?RatioTapChanger
+        rdf:type cim:RatioTapChanger ;
+        cim:TapChanger.lowStep ?lowStep ;
+        cim:TapChanger.highStep ?highStep ;
+        cim:TapChanger.neutralStep ?neutralStep ;
+        cim:TapChanger.normalStep ?normalStep .
+}}}

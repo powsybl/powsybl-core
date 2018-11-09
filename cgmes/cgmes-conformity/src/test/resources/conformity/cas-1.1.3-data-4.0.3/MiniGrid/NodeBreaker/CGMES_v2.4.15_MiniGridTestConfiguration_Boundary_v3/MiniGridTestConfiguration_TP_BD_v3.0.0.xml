@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<md:FullModel rdf:about="urn:uuid:2399cbd1-9a39-11e0-aa80-0800200c9a66">
+    <md:Model.scenarioTime>2030-01-02T09:00:00</md:Model.scenarioTime>
+    <md:Model.created>2014-10-22T09:01:25.830</md:Model.created>
+    <md:Model.description>CGMES Conformity Assessment: Mini Grid Test Configuration. The model is owned by ENTSO-E and is provided by ENTSO-E "as it is". To the fullest extent permitted by law, ENTSO-E shall not be liable for any damages of any kind arising out of the use of the model (including any of its subsequent modifications). ENTSO-E neither warrants, nor represents that the use of the model will not infringe the rights of third parties. Any use of the model shall include a reference to ENTSO-E. ENTSO-E web site is the only official source of information related to the model.</md:Model.description>
+	<md:Model.version>4</md:Model.version>
+    <md:Model.profile>http://entsoe.eu/CIM/TopologyBoundary/3/1</md:Model.profile>
+    <md:Model.modelingAuthoritySet>http://entsoe.eu/Boundary/CGMES</md:Model.modelingAuthoritySet>
+    <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66" />
+</md:FullModel>
+  <cim:TopologicalNode rdf:ID="_8372a156-7579-4ea5-1111-24caf0d24603">
+    <cim:IdentifiedObject.description>OHL 380 kV</cim:IdentifiedObject.description>
+    <cim:IdentifiedObject.name>XQ1_EQIN</cim:IdentifiedObject.name>
+    <entsoe:TopologicalNode.fromEndIsoCode>Z1</entsoe:TopologicalNode.fromEndIsoCode>
+    <entsoe:TopologicalNode.fromEndName>Z1Wes</entsoe:TopologicalNode.fromEndName>
+    <entsoe:TopologicalNode.fromEndNameTso>Z1TI</entsoe:TopologicalNode.fromEndNameTso>
+    <entsoe:TopologicalNode.toEndIsoCode>Z2</entsoe:TopologicalNode.toEndIsoCode>
+    <entsoe:TopologicalNode.toEndName>Z2Brs</entsoe:TopologicalNode.toEndName>
+    <entsoe:TopologicalNode.toEndNameTso>Z2DE</entsoe:TopologicalNode.toEndNameTso>
+	<entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+    <cim:TopologicalNode.BaseVoltage rdf:resource="#_e9277658-07e5-4e84-aef8-a891d14e7c54" />
+	<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_41d4fafe-e4ce-4ca3-86d9-f181ae3f8ea3" />
+	<entsoe:IdentifiedObject.energyIdentCodeEic>10T-Z1-Z2-XQ0001</entsoe:IdentifiedObject.energyIdentCodeEic>
+    <entsoe:IdentifiedObject.shortName>XQ1</entsoe:IdentifiedObject.shortName>
+  </cim:TopologicalNode>
+  <cim:TopologicalNode rdf:ID="_8372a156-7579-4ea5-2222-24caf0d24603">
+    <cim:IdentifiedObject.description>OHL_and_CAB 110 kV</cim:IdentifiedObject.description>
+    <cim:IdentifiedObject.name>XQ2_EQIN</cim:IdentifiedObject.name>
+    <entsoe:TopologicalNode.fromEndIsoCode>Z1</entsoe:TopologicalNode.fromEndIsoCode>
+    <entsoe:TopologicalNode.fromEndName>Z1Teg</entsoe:TopologicalNode.fromEndName>
+    <entsoe:TopologicalNode.fromEndNameTso>Z1Energine</entsoe:TopologicalNode.fromEndNameTso>
+    <entsoe:TopologicalNode.toEndIsoCode>Z2</entsoe:TopologicalNode.toEndIsoCode>
+    <entsoe:TopologicalNode.toEndName>Z2arp</entsoe:TopologicalNode.toEndName>
+    <entsoe:TopologicalNode.toEndNameTso>Z2Sven</entsoe:TopologicalNode.toEndNameTso>
+	<entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+    <cim:TopologicalNode.BaseVoltage rdf:resource="#_fe97b80b-3e0e-4a2c-964b-bc29b0dda632" />
+	<cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_c3f46fe5-0cd1-4a1c-b722-e967b9ab21e2" />
+	<entsoe:IdentifiedObject.energyIdentCodeEic>10T-Z1-Z2-XQ0002</entsoe:IdentifiedObject.energyIdentCodeEic>
+    <entsoe:IdentifiedObject.shortName>XQ2</entsoe:IdentifiedObject.shortName>
+  </cim:TopologicalNode>
+   <cim:ConnectivityNode rdf:about="#_183d126d-2522-4ff2-a8cd-c5016cf09c1b">
+    <cim:ConnectivityNode.TopologicalNode rdf:resource="#_8372a156-7579-4ea5-1111-24caf0d24603" />
+  </cim:ConnectivityNode>
+  <cim:ConnectivityNode rdf:about="#_49831d24-33e9-4233-8424-3f88186a924e">
+    <cim:ConnectivityNode.TopologicalNode rdf:resource="#_8372a156-7579-4ea5-2222-24caf0d24603" />
+  </cim:ConnectivityNode>
+</rdf:RDF>
