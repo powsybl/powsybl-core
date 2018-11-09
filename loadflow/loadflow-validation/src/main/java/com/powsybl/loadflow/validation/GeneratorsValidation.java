@@ -148,13 +148,12 @@ public final class GeneratorsValidation {
     }
 
     private static double getExpectedP(BalanceTypeGuesser guesser, String id, double p, double targetP, double minP, double maxP, double threshold) {
-        if (BalanceType.NONE.equals(guesser.getBalanceType())) {
-            return Math.abs(p + targetP) > threshold && id.equals(guesser.getSlack()) ? p : targetP;
-        }
         if (Math.abs(p + targetP) <= threshold) {
             return targetP;
         }
         switch (guesser.getBalanceType()) {
+            case NONE:
+                return id.equals(guesser.getSlack()) ? -p : targetP;
             case PROPORTIONAL_TO_GENERATION_P_MAX:
                 return Math.max(Math.max(0, minP), Math.min(maxP, targetP + maxP * guesser.getKMax()));
             case PROPORTIONAL_TO_GENERATION_P:
