@@ -149,8 +149,7 @@ public abstract class AbstractNodeBase<F> {
         Optional<NodeInfo> parentNode = storage.getParentNode(info.getId());
         if (parentNode.isPresent()) {
             return parentNode.get().getId().equals(abstractNodeBase.getId());
-        } else {
-            throw new AfsException("the source node parent doesn't exists");
         }
+        return false;
     }
 }
