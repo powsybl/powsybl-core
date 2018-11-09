@@ -30,12 +30,6 @@ public class Node extends AbstractNodeBase<Folder> {
         storage.flush();
     }
 
-    public void rename(String name) {
-        Objects.requireNonNull(name);
-        storage.renameNode(info.getId(), name);
-        storage.flush();
-    }
-
     @Override
     public boolean isFolder() {
         return folder;
