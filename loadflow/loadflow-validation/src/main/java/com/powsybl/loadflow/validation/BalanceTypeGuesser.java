@@ -25,28 +25,23 @@ import com.powsybl.iidm.network.Network;
  */
 public class BalanceTypeGuesser {
 
-    private String maxChangeId = "";
-    private double maxChange = 0;
+    private String slackCandidate;
+    private double maxActivePowerDifference = 0;
 
     /**
      * Compute balancing ratio assuming balancing proportional to P max.
      */
-    private KComputation kMaxComputation = new KComputation();
+    private final KComputation kMaxComputation = new KComputation();
 
     /**
      * Compute balancing ratio assuming balancing proportional to target P.
      */
-    private KComputation kTargetComputation = new KComputation();
+    private final KComputation kTargetComputation = new KComputation();
 
     /**
      * Compute balancing ratio assuming balancing proportional to headroom.
      */
-    private KComputation kHeadroomComputation = new KComputation();
-
-    /**
-     * Number of generators that significantly moved.
-     */
-    private int sumChanged = 0;
+    private final KComputation kHeadroomComputation = new KComputation();
 
     private BalanceType balanceType;
     private String slack;
@@ -66,12 +61,13 @@ public class BalanceTypeGuesser {
     }
 
     private void guess(Network network, double threshold) {
-        network.getGeneratorStream().forEach(generator -> computeSums(generator, threshold));
-        if (sumChanged > 0) {
+        // Number of generators that significantly moved
+        int movedGeneratorsCount = network.getGeneratorStream().mapToInt(generator -> isMovedGenerator(generator, threshold)).sum();
+        if (movedGeneratorsCount > 0) {
             this.balanceType = getBalanceType(kMaxComputation.getVarK(), kTargetComputation.getVarK(), kHeadroomComputation.getVarK());
         } else {
             this.balanceType = BalanceType.NONE;
-            this.slack = maxChangeId;
+            this.slack = slackCandidate;
         }
     }
 
@@ -84,14 +80,14 @@ public class BalanceTypeGuesser {
                      .orElse(BalanceType.NONE);
     }
 
-    private void computeSums(Generator generator, double threshold) {
+    private int isMovedGenerator(Generator generator, double threshold) {
         double p = -generator.getTerminal().getP();
         double targetP = generator.getTargetP();
         double maxP = generator.getMaxP();
         double minP = generator.getMinP();
-        if (Math.abs(p - targetP) > maxChange) {
-            maxChangeId = generator.getId();
-            maxChange = Math.abs(p - targetP);
+        if (Math.abs(p - targetP) > maxActivePowerDifference) {
+            slackCandidate = generator.getId();
+            maxActivePowerDifference = Math.abs(p - targetP);
         }
         if (ValidationUtils.boundedWithin(Math.max(threshold, minP), maxP - threshold, targetP, 0)
                 && ValidationUtils.boundedWithin(Math.max(0, minP), maxP, p, -threshold)
@@ -100,8 +96,9 @@ public class BalanceTypeGuesser {
             kMaxComputation.addGeneratorValues(p, targetP, maxP);
             kTargetComputation.addGeneratorValues(p, targetP, targetP);
             kHeadroomComputation.addGeneratorValues(p, targetP, maxP - targetP);
-            sumChanged++;
+            return 1;
         }
+        return 0;
     }
 
     /**
