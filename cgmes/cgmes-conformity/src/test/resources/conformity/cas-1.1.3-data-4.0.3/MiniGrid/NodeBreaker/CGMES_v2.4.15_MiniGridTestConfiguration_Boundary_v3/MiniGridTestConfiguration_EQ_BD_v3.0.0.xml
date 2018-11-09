@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF  xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<!-- Exported from CIMSpy EE/CIMdesk on Sat May 30 08:35:27.48. -->
+	<md:FullModel rdf:about="urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66">
+		<md:Model.scenarioTime>2030-01-02T09:00:00</md:Model.scenarioTime>
+		<md:Model.created>2014-10-22T09:01:25.830</md:Model.created>
+		<md:Model.description>CGMES Conformity Assessment: Mini Grid Test Configuration. The model is owned by ENTSO-E and is provided by ENTSO-E &quot;as it is&quot;. To the fullest extent permitted by law, ENTSO-E shall not be liable for any damages of any kind arising out of the use of the model (including any of its subsequent modifications). ENTSO-E neither warrants, nor represents that the use of the model will not infringe the rights of third parties. Any use of the model shall include a reference to ENTSO-E. ENTSO-E web site is the only official source of information related to the model.</md:Model.description>
+		<md:Model.version>4</md:Model.version>
+		<md:Model.profile>http://entsoe.eu/CIM/EquipmentBoundary/3/1</md:Model.profile>
+		<md:Model.profile>http://entsoe.eu/CIM/EquipmentBoundaryOperation/3/1</md:Model.profile>
+		<md:Model.modelingAuthoritySet>http://entsoe.eu/Boundary/CGMES</md:Model.modelingAuthoritySet>
+	</md:FullModel>
+	<cim:BaseVoltage rdf:ID="_fe97b80b-3e0e-4a2c-964b-bc29b0dda632">
+		<cim:IdentifiedObject.description>BV 110 kV</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.name>BV_110</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BV110</entsoe:IdentifiedObject.shortName>
+		<cim:BaseVoltage.nominalVoltage>110</cim:BaseVoltage.nominalVoltage>
+	</cim:BaseVoltage>
+	<cim:BaseVoltage rdf:ID="_e9277658-07e5-4e84-aef8-a891d14e7c54">
+		<cim:IdentifiedObject.description>BV 380 kV</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.name>BV_380</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.shortName>BV380</entsoe:IdentifiedObject.shortName>
+		<cim:BaseVoltage.nominalVoltage>380</cim:BaseVoltage.nominalVoltage>
+	</cim:BaseVoltage>
+	<cim:ConnectivityNode rdf:ID="_183d126d-2522-4ff2-a8cd-c5016cf09c1b">
+		<cim:IdentifiedObject.description>OHL 380 kV</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.name>XQ1_EQIN</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.energyIdentCodeEic>10T-Z1-Z2-XQ01CN</entsoe:IdentifiedObject.energyIdentCodeEic>
+		<entsoe:ConnectivityNode.fromEndIsoCode>Z1</entsoe:ConnectivityNode.fromEndIsoCode>
+		<entsoe:ConnectivityNode.fromEndName>Z1Wes</entsoe:ConnectivityNode.fromEndName>
+		<entsoe:ConnectivityNode.fromEndNameTso>Z1TI</entsoe:ConnectivityNode.fromEndNameTso>
+		<entsoe:ConnectivityNode.toEndIsoCode>Z2</entsoe:ConnectivityNode.toEndIsoCode>
+		<entsoe:ConnectivityNode.toEndName>Z2Brs</entsoe:ConnectivityNode.toEndName>
+		<entsoe:ConnectivityNode.toEndNameTso>Z2DE</entsoe:ConnectivityNode.toEndNameTso>
+		<entsoe:ConnectivityNode.boundaryPoint>true</entsoe:ConnectivityNode.boundaryPoint>
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_41d4fafe-e4ce-4ca3-86d9-f181ae3f8ea3"/>
+		<entsoe:IdentifiedObject.shortName>1</entsoe:IdentifiedObject.shortName>
+	</cim:ConnectivityNode>
+	<cim:ConnectivityNode rdf:ID="_49831d24-33e9-4233-8424-3f88186a924e">
+		<cim:IdentifiedObject.description>OHL_and_CAB 110 kV</cim:IdentifiedObject.description>
+		<cim:IdentifiedObject.name>XQ2_EQIN</cim:IdentifiedObject.name>
+		<entsoe:IdentifiedObject.energyIdentCodeEic>10T-Z1-Z2-XQ02CN</entsoe:IdentifiedObject.energyIdentCodeEic>
+		<entsoe:ConnectivityNode.fromEndIsoCode>Z1</entsoe:ConnectivityNode.fromEndIsoCode>
+		<entsoe:ConnectivityNode.fromEndName>Z1Teg</entsoe:ConnectivityNode.fromEndName>
+		<entsoe:ConnectivityNode.fromEndNameTso>Z1Energine</entsoe:ConnectivityNode.fromEndNameTso>
+		<entsoe:ConnectivityNode.toEndIsoCode>Z2</entsoe:ConnectivityNode.toEndIsoCode>
+		<entsoe:ConnectivityNode.toEndName>Z2arp</entsoe:ConnectivityNode.toEndName>
+		<entsoe:ConnectivityNode.toEndNameTso>Z2Sven</entsoe:ConnectivityNode.toEndNameTso>
+		<entsoe:ConnectivityNode.boundaryPoint>true</entsoe:ConnectivityNode.boundaryPoint>
+		<cim:ConnectivityNode.ConnectivityNodeContainer rdf:resource="#_c3f46fe5-0cd1-4a1c-b722-e967b9ab21e2"/>
+		<entsoe:IdentifiedObject.shortName>2</entsoe:IdentifiedObject.shortName>
+	</cim:ConnectivityNode>
+	<cim:GeographicalRegion rdf:ID="_b4530622-ddd6-4d0e-9127-939adc037ec4">
+		<cim:IdentifiedObject.name>EU</cim:IdentifiedObject.name>
+		<cim:IdentifiedObject.description>Geographical Region of EU</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.energyIdentCodeEic>10Y-CB-EU-00001E</entsoe:IdentifiedObject.energyIdentCodeEic>
+		<entsoe:IdentifiedObject.shortName>EU</entsoe:IdentifiedObject.shortName>
+	</cim:GeographicalRegion>
+	<cim:Line rdf:ID="_c3f46fe5-0cd1-4a1c-b722-e967b9ab21e2">
+		<cim:IdentifiedObject.name>TieLine_XMO_TE31</cim:IdentifiedObject.name>
+		<cim:Line.Region rdf:resource="#_f00d3f9e-f076-45f6-b0ef-00f756352976"/>
+		<cim:IdentifiedObject.description>l1</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.shortName>1</entsoe:IdentifiedObject.shortName>
+	</cim:Line>
+	<cim:Line rdf:ID="_41d4fafe-e4ce-4ca3-86d9-f181ae3f8ea3">
+		<cim:IdentifiedObject.name>TieLine_XWE_BR21</cim:IdentifiedObject.name>
+		<cim:Line.Region rdf:resource="#_f00d3f9e-f076-45f6-b0ef-00f756352976"/>
+		<cim:IdentifiedObject.description>l2</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.shortName>2</entsoe:IdentifiedObject.shortName>
+	</cim:Line>
+	<cim:SubGeographicalRegion rdf:ID="_f00d3f9e-f076-45f6-b0ef-00f756352976">
+		<cim:IdentifiedObject.name>ENTSO-E</cim:IdentifiedObject.name>
+		<cim:SubGeographicalRegion.Region rdf:resource="#_b4530622-ddd6-4d0e-9127-939adc037ec4"/>
+		<cim:IdentifiedObject.description>SubGeographical Region of ENTSO-E</cim:IdentifiedObject.description>
+		<entsoe:IdentifiedObject.energyIdentCodeEic>10Y-CB-ENTSO-001</entsoe:IdentifiedObject.energyIdentCodeEic>
+		<entsoe:IdentifiedObject.shortName>ENTSO-E</entsoe:IdentifiedObject.shortName>
+	</cim:SubGeographicalRegion>
+</rdf:RDF>

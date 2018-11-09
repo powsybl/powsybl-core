@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"	xmlns:cim="http://iec.ch/TC57/2009/CIM-schema-cim14#">
+<cim:OperationalLimitType rdf:ID="_AC_PATL_OLT">
+	<cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#OperationalLimitDirectionKind.absoluteValue"/>
+	<cim:OperationalLimitType.acceptableDuration>45000</cim:OperationalLimitType.acceptableDuration>
+	<cim:IdentifiedObject.name>PATL</cim:IdentifiedObject.name>
+</cim:OperationalLimitType>
+<cim:BaseVoltage rdf:ID="_BV_0">
+	<cim:BaseVoltage.isDC>false</cim:BaseVoltage.isDC>
+	<cim:BaseVoltage.nominalVoltage>21</cim:BaseVoltage.nominalVoltage>
+	<cim:IdentifiedObject.name>0</cim:IdentifiedObject.name>
+</cim:BaseVoltage>
+<cim:BaseVoltage rdf:ID="_BV_1">
+	<cim:BaseVoltage.isDC>false</cim:BaseVoltage.isDC>
+	<cim:BaseVoltage.nominalVoltage>380</cim:BaseVoltage.nominalVoltage>
+	<cim:IdentifiedObject.name>1</cim:IdentifiedObject.name>
+</cim:BaseVoltage>
+<cim:BaseVoltage rdf:ID="_BV_2">
+	<cim:BaseVoltage.isDC>false</cim:BaseVoltage.isDC>
+	<cim:BaseVoltage.nominalVoltage>380</cim:BaseVoltage.nominalVoltage>
+	<cim:IdentifiedObject.name>2</cim:IdentifiedObject.name>
+</cim:BaseVoltage>
+<cim:ControlArea rdf:ID="_CA_1">
+	<cim:ControlArea.netInterchange>0</cim:ControlArea.netInterchange>
+	<cim:ControlArea.pTolerance>0</cim:ControlArea.pTolerance>
+	<cim:IdentifiedObject.name>_CA_1</cim:IdentifiedObject.name>
+</cim:ControlArea>
+<cim:PowerTransformer rdf:ID="_GEN_____-GRID____-1_PT">
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_GEN______SS"/>
+	<cim:IdentifiedObject.name>GEN     -GRID    -1</cim:IdentifiedObject.name>
+</cim:PowerTransformer>
+<cim:TransformerWinding rdf:ID="_GEN_____-GRID____-1_TW_EX">
+	<cim:TransformerWinding.windingType rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#WindingType.secondary"/>
+	<cim:TransformerWinding.connectionType rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#WindingConnection.Y"/>
+	<cim:TransformerWinding.g>0</cim:TransformerWinding.g>
+	<cim:TransformerWinding.b>0</cim:TransformerWinding.b>
+	<cim:TransformerWinding.MemberOf_PowerTransformer rdf:resource="#_GEN_____-GRID____-1_PT"/>
+	<cim:TransformerWinding.r>0</cim:TransformerWinding.r>
+	<cim:TransformerWinding.ratedS>500</cim:TransformerWinding.ratedS>
+	<cim:TransformerWinding.ratedU>419</cim:TransformerWinding.ratedU>
+	<cim:TransformerWinding.x>0</cim:TransformerWinding.x>
+	<cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV_1"/>
+</cim:TransformerWinding>
+<cim:CurrentLimit rdf:ID="_GEN_____-GRID____-1_TW_EX_CL">
+	<cim:CurrentLimit.value>759.671</cim:CurrentLimit.value>
+	<cim:OperationalLimit.OperationalLimitSet rdf:resource="#_GEN_____-GRID____-1_TW_EX_OLS"/>
+	<cim:OperationalLimit.OperationalLimitType rdf:resource="#_TW_PATL_OLT"/>
+	<cim:IdentifiedObject.name>GEN     -GRID    -1_TW_EX_CL</cim:IdentifiedObject.name>
+</cim:CurrentLimit>
+<cim:OperationalLimitSet rdf:ID="_GEN_____-GRID____-1_TW_EX_OLS">
+	<cim:OperationalLimitSet.Terminal rdf:resource="#_GEN_____-GRID____-1_TW_EX_TE"/>
+	<cim:IdentifiedObject.name>GEN     -GRID    -1_TW_EX_OLS</cim:IdentifiedObject.name>
+</cim:OperationalLimitSet>
+<cim:Terminal rdf:ID="_GEN_____-GRID____-1_TW_EX_TE">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_GEN_____-GRID____-1_TW_EX"/>
+	<cim:IdentifiedObject.name>GEN     -GRID    -1_TW_EX_TE</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:TransformerWinding rdf:ID="_GEN_____-GRID____-1_TW_OR">
+	<cim:TransformerWinding.windingType rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#WindingType.primary"/>
+	<cim:TransformerWinding.connectionType rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#WindingConnection.Y"/>
+	<cim:TransformerWinding.g>0</cim:TransformerWinding.g>
+	<cim:TransformerWinding.b>-0</cim:TransformerWinding.b>
+	<cim:TransformerWinding.MemberOf_PowerTransformer rdf:resource="#_GEN_____-GRID____-1_PT"/>
+	<cim:TransformerWinding.r>0.001323</cim:TransformerWinding.r>
+	<cim:TransformerWinding.ratedS>500</cim:TransformerWinding.ratedS>
+	<cim:TransformerWinding.ratedU>21</cim:TransformerWinding.ratedU>
+	<cim:TransformerWinding.x>0.141114</cim:TransformerWinding.x>
+	<cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV_0"/>
+</cim:TransformerWinding>
+<cim:CurrentLimit rdf:ID="_GEN_____-GRID____-1_TW_OR_CL">
+	<cim:CurrentLimit.value>13746.4</cim:CurrentLimit.value>
+	<cim:OperationalLimit.OperationalLimitSet rdf:resource="#_GEN_____-GRID____-1_TW_OR_OLS"/>
+	<cim:OperationalLimit.OperationalLimitType rdf:resource="#_TW_PATL_OLT"/>
+	<cim:IdentifiedObject.name>GEN     -GRID    -1_TW_OR_CL</cim:IdentifiedObject.name>
+</cim:CurrentLimit>
+<cim:OperationalLimitSet rdf:ID="_GEN_____-GRID____-1_TW_OR_OLS">
+	<cim:OperationalLimitSet.Terminal rdf:resource="#_GEN_____-GRID____-1_TW_OR_TE"/>
+	<cim:IdentifiedObject.name>GEN     -GRID    -1_TW_OR_OLS</cim:IdentifiedObject.name>
+</cim:OperationalLimitSet>
+<cim:Terminal rdf:ID="_GEN_____-GRID____-1_TW_OR_TE">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_GEN_____-GRID____-1_TW_OR"/>
+	<cim:IdentifiedObject.name>GEN     -GRID    -1_TW_OR_TE</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:GeneratingUnit rdf:ID="_GEN______GU">
+	<cim:GeneratingUnit.nominalP>0</cim:GeneratingUnit.nominalP>
+	<cim:GeneratingUnit.minOperatingP>-999</cim:GeneratingUnit.minOperatingP>
+	<cim:GeneratingUnit.maxOperatingP>999</cim:GeneratingUnit.maxOperatingP>
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_GEN______VL"/>
+	<cim:IdentifiedObject.name>GEN     </cim:IdentifiedObject.name>
+</cim:GeneratingUnit>
+<cim:SynchronousMachine rdf:ID="_GEN______SM">
+	<cim:SynchronousMachine.ratedS>0</cim:SynchronousMachine.ratedS>
+	<cim:SynchronousMachine.minQ>-999</cim:SynchronousMachine.minQ>
+	<cim:SynchronousMachine.r>0</cim:SynchronousMachine.r>
+	<cim:SynchronousMachine.qPercent>1</cim:SynchronousMachine.qPercent>
+	<cim:SynchronousMachine.MemberOf_GeneratingUnit rdf:resource="#_GEN______GU"/>
+	<cim:SynchronousMachine.operatingMode rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#SynchronousMachineOperatingMode.generator"/>
+	<cim:SynchronousMachine.x>0</cim:SynchronousMachine.x>
+	<cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#SynchronousMachineType.generator"/>
+	<cim:SynchronousMachine.maxQ>999</cim:SynchronousMachine.maxQ>
+	<cim:RegulatingCondEq.RegulatingControl rdf:resource="#_GEN______SM_RC"/>
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_GEN______VL"/>
+	<cim:IdentifiedObject.name>GEN     </cim:IdentifiedObject.name>
+</cim:SynchronousMachine>
+<cim:RegulatingControl rdf:ID="_GEN______SM_RC">
+	<cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+	<cim:RegulatingControl.targetRange>0</cim:RegulatingControl.targetRange>
+	<cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#RegulatingControlModeKind.voltage"/>
+	<cim:RegulatingControl.targetValue>21</cim:RegulatingControl.targetValue>
+	<cim:RegulatingControl.Terminal rdf:resource="#_GEN______SM_TE"/>
+</cim:RegulatingControl>
+<cim:Terminal rdf:ID="_GEN______SM_TE">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_GEN______SM"/>
+	<cim:IdentifiedObject.name>GEN     </cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Substation rdf:ID="_GEN______SS">
+	<cim:Substation.Region rdf:resource="#_SGR_1_"/>
+	<cim:IdentifiedObject.name>GEN     _SS</cim:IdentifiedObject.name>
+</cim:Substation>
+<cim:VoltageLevel rdf:ID="_GEN______VL">
+	<cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_0"/>
+	<cim:VoltageLevel.MemberOf_Substation rdf:resource="#_GEN______SS"/>
+	<cim:IdentifiedObject.name>GEN     _VL</cim:IdentifiedObject.name>
+</cim:VoltageLevel>
+<cim:ACLineSegment rdf:ID="_GRID____-INF_____-1_AC">
+	<cim:Conductor.gch>0</cim:Conductor.gch>
+	<cim:Conductor.x>86.64</cim:Conductor.x>
+	<cim:Conductor.bch>0</cim:Conductor.bch>
+	<cim:Conductor.r>0</cim:Conductor.r>
+	<cim:ConductingEquipment.BaseVoltage rdf:resource="#_BV_2"/>
+	<cim:IdentifiedObject.name>GRID    -INF     -1</cim:IdentifiedObject.name>
+</cim:ACLineSegment>
+<cim:CurrentLimit rdf:ID="_GRID____-INF_____-1_AC_CL">
+	<cim:CurrentLimit.value>9116.06</cim:CurrentLimit.value>
+	<cim:OperationalLimit.OperationalLimitSet rdf:resource="#_GRID____-INF_____-1_AC_OLS"/>
+	<cim:OperationalLimit.OperationalLimitType rdf:resource="#_AC_PATL_OLT"/>
+	<cim:IdentifiedObject.name>GRID    -INF     -1_AC_CL</cim:IdentifiedObject.name>
+</cim:CurrentLimit>
+<cim:OperationalLimitSet rdf:ID="_GRID____-INF_____-1_AC_OLS">
+	<cim:OperationalLimitSet.Terminal rdf:resource="#_GRID____-INF_____-1_AC_TE_OR"/>
+	<cim:IdentifiedObject.name>GRID    -INF     -1_AC_OLS</cim:IdentifiedObject.name>
+</cim:OperationalLimitSet>
+<cim:Terminal rdf:ID="_GRID____-INF_____-1_AC_TE_EX">
+	<cim:Terminal.sequenceNumber>2</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_GRID____-INF_____-1_AC"/>
+	<cim:IdentifiedObject.name>GRID    -INF     -1_AC_TE_EX</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Terminal rdf:ID="_GRID____-INF_____-1_AC_TE_OR">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_GRID____-INF_____-1_AC"/>
+	<cim:IdentifiedObject.name>GRID    -INF     -1_AC_TE_OR</cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:VoltageLevel rdf:ID="_GRID_____VL">
+	<cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_1"/>
+	<cim:VoltageLevel.MemberOf_Substation rdf:resource="#_GEN______SS"/>
+	<cim:IdentifiedObject.name>GRID    _VL</cim:IdentifiedObject.name>
+</cim:VoltageLevel>
+<cim:GeographicalRegion rdf:ID="_GR_1_">
+	<cim:IdentifiedObject.name>1 </cim:IdentifiedObject.name>
+</cim:GeographicalRegion>
+<cim:GeneratingUnit rdf:ID="_INF______GU">
+	<cim:GeneratingUnit.nominalP>0</cim:GeneratingUnit.nominalP>
+	<cim:GeneratingUnit.minOperatingP>-999999</cim:GeneratingUnit.minOperatingP>
+	<cim:GeneratingUnit.maxOperatingP>999999</cim:GeneratingUnit.maxOperatingP>
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_INF______VL"/>
+	<cim:IdentifiedObject.name>INF     </cim:IdentifiedObject.name>
+</cim:GeneratingUnit>
+<cim:SynchronousMachine rdf:ID="_INF______SM">
+	<cim:SynchronousMachine.ratedS>0</cim:SynchronousMachine.ratedS>
+	<cim:SynchronousMachine.minQ>-999999</cim:SynchronousMachine.minQ>
+	<cim:SynchronousMachine.r>0</cim:SynchronousMachine.r>
+	<cim:SynchronousMachine.qPercent>1</cim:SynchronousMachine.qPercent>
+	<cim:SynchronousMachine.MemberOf_GeneratingUnit rdf:resource="#_INF______GU"/>
+	<cim:SynchronousMachine.operatingMode rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#SynchronousMachineOperatingMode.generator"/>
+	<cim:SynchronousMachine.x>0</cim:SynchronousMachine.x>
+	<cim:SynchronousMachine.type rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#SynchronousMachineType.generator"/>
+	<cim:SynchronousMachine.maxQ>999999</cim:SynchronousMachine.maxQ>
+	<cim:RegulatingCondEq.RegulatingControl rdf:resource="#_INF______SM_RC"/>
+	<cim:Equipment.MemberOf_EquipmentContainer rdf:resource="#_INF______VL"/>
+	<cim:IdentifiedObject.name>INF     </cim:IdentifiedObject.name>
+</cim:SynchronousMachine>
+<cim:RegulatingControl rdf:ID="_INF______SM_RC">
+	<cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+	<cim:RegulatingControl.targetRange>0</cim:RegulatingControl.targetRange>
+	<cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#RegulatingControlModeKind.voltage"/>
+	<cim:RegulatingControl.targetValue>419</cim:RegulatingControl.targetValue>
+	<cim:RegulatingControl.Terminal rdf:resource="#_INF______SM_TE"/>
+</cim:RegulatingControl>
+<cim:Terminal rdf:ID="_INF______SM_TE">
+	<cim:Terminal.sequenceNumber>1</cim:Terminal.sequenceNumber>
+	<cim:Terminal.ConductingEquipment rdf:resource="#_INF______SM"/>
+	<cim:IdentifiedObject.name>INF     </cim:IdentifiedObject.name>
+</cim:Terminal>
+<cim:Substation rdf:ID="_INF______SS">
+	<cim:Substation.Region rdf:resource="#_SGR_1_"/>
+	<cim:IdentifiedObject.name>INF     _SS</cim:IdentifiedObject.name>
+</cim:Substation>
+<cim:VoltageLevel rdf:ID="_INF______VL">
+	<cim:VoltageLevel.BaseVoltage rdf:resource="#_BV_2"/>
+	<cim:VoltageLevel.MemberOf_Substation rdf:resource="#_INF______SS"/>
+	<cim:IdentifiedObject.name>INF     _VL</cim:IdentifiedObject.name>
+</cim:VoltageLevel>
+<cim:SubGeographicalRegion rdf:ID="_SGR_1_">
+	<cim:SubGeographicalRegion.Region rdf:resource="#_GR_1_"/>
+	<cim:IdentifiedObject.name>1 </cim:IdentifiedObject.name>
+</cim:SubGeographicalRegion>
+<cim:OperationalLimitType rdf:ID="_T3_PATL_OLT">
+	<cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#OperationalLimitDirectionKind.absoluteValue"/>
+	<cim:OperationalLimitType.acceptableDuration>45000</cim:OperationalLimitType.acceptableDuration>
+	<cim:IdentifiedObject.name>PATL</cim:IdentifiedObject.name>
+</cim:OperationalLimitType>
+<cim:OperationalLimitType rdf:ID="_TW_PATL_OLT">
+	<cim:OperationalLimitType.direction rdf:resource="http://iec.ch/TC57/2009/CIM-schema-cim14#OperationalLimitDirectionKind.absoluteValue"/>
+	<cim:OperationalLimitType.acceptableDuration>45000</cim:OperationalLimitType.acceptableDuration>
+	<cim:IdentifiedObject.name>PATL</cim:IdentifiedObject.name>
+</cim:OperationalLimitType>
+<cim:IEC61970CIMVersion rdf:ID="version">
+	<cim:IEC61970CIMVersion.version>IEC61970CIM14v02</cim:IEC61970CIMVersion.version>
+	<cim:IEC61970CIMVersion.date>2009-05-10</cim:IEC61970CIMVersion.date>
+</cim:IEC61970CIMVersion>
+</rdf:RDF>
