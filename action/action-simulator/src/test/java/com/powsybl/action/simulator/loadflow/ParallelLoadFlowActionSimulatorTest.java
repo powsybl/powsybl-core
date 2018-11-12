@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Collections;
 import java.util.List;
 
 import static org.mockito.Matchers.any;
@@ -32,7 +31,7 @@ public class ParallelLoadFlowActionSimulatorTest {
 
         LoadFlowActionSimulatorConfig config = mock(LoadFlowActionSimulatorConfig.class);
 
-        parallelLoadFlowActionSimulator = new ParallelLoadFlowActionSimulator(network, computationManager, 7, config, false, Collections.emptyList());
+        parallelLoadFlowActionSimulator = new ParallelLoadFlowActionSimulator(network, computationManager, 7, config);
 
         contingencies = mock(List.class);
     }

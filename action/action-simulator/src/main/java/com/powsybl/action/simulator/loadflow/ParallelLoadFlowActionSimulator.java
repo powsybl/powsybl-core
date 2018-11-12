@@ -6,24 +6,21 @@
  */
 package com.powsybl.action.simulator.loadflow;
 
-import com.google.common.collect.ImmutableList;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.*;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXml;
-import com.powsybl.security.SecurityAnalysisResult;
-import com.powsybl.security.SecurityAnalysisResultMerger;
-import com.powsybl.security.json.SecurityAnalysisResultDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 import static com.powsybl.action.simulator.tools.ActionSimulatorToolConstants.*;
 import static com.powsybl.tools.ToolConstants.TASK;
@@ -45,27 +42,26 @@ public class ParallelLoadFlowActionSimulator {
     private final LoadFlowActionSimulatorConfig config;
     private final boolean applyIfSolved;
     private final int taskCount;
-    private final List<Consumer<SecurityAnalysisResult>> resultHandlers;
+    private final LoadFlowActionSimulatorResultBuilder resultBuilder;
 
     private static final String SUB_TASK_ID = "sas"; // sub_action_simulator
 
     public ParallelLoadFlowActionSimulator(Network network, ComputationManager cm, int taskCount) {
-        this(network, cm, taskCount, LoadFlowActionSimulatorConfig.load(), false, Collections.emptyList());
+        this(network, cm, taskCount, LoadFlowActionSimulatorConfig.load(), false, new SecurityAnalysisResultBuilder());
+    }
+
+    public ParallelLoadFlowActionSimulator(Network network, ComputationManager cm, int taskCount, LoadFlowActionSimulatorConfig config) {
+        this(network, cm, taskCount, config, false, new SecurityAnalysisResultBuilder());
     }
 
     public ParallelLoadFlowActionSimulator(Network network, ComputationManager cm, int taskCount, LoadFlowActionSimulatorConfig config,
-                                           boolean applyIfSolved, Consumer<SecurityAnalysisResult>... resultHandlers) {
-        this(network, cm, taskCount, config, applyIfSolved, Arrays.asList(resultHandlers));
-    }
-
-    public ParallelLoadFlowActionSimulator(Network network, ComputationManager cm, int taskCount, LoadFlowActionSimulatorConfig config,
-                                           boolean applyIfSolved, List<Consumer<SecurityAnalysisResult>> resultHandlers) {
+                                           boolean applyIfSolved, LoadFlowActionSimulatorResultBuilder resultBuilder) {
         this.network = Objects.requireNonNull(network);
         this.computationManager = Objects.requireNonNull(cm);
         this.config = Objects.requireNonNull(config);
         this.applyIfSolved = applyIfSolved;
         this.taskCount = taskCount;
-        this.resultHandlers = ImmutableList.copyOf(Objects.requireNonNull(resultHandlers));
+        this.resultBuilder = resultBuilder;
     }
 
     /**
@@ -81,13 +77,8 @@ public class ParallelLoadFlowActionSimulator {
         ExecutionEnvironment itoolsEnvironment = new ExecutionEnvironment(Collections.emptyMap(), "subTask_", config.isDebug());
 
         int actualTaskCount = Math.min(taskCount, contingencyIds.size());
-        CompletableFuture<SecurityAnalysisResult> future = computationManager.execute(itoolsEnvironment, new SubTaskHandler(actualTaskCount, script, contingencyIds));
-        try {
-            SecurityAnalysisResult result = future.get();
-            resultHandlers.forEach(h -> h.accept(result));
-        } catch (Exception e) {
-            throw new PowsyblException(e);
-        }
+        computationManager.execute(itoolsEnvironment, new SubTaskHandler(actualTaskCount, script, contingencyIds))
+                .join();
     }
 
     /**
@@ -96,7 +87,7 @@ public class ParallelLoadFlowActionSimulator {
      * then launches one itools command for each subtask.
      * Finally, reads and merge results.
      */
-    private final class SubTaskHandler extends AbstractExecutionHandler<SecurityAnalysisResult> {
+    private final class SubTaskHandler extends AbstractExecutionHandler<Void> {
 
 
         private final int actualTaskCount;
@@ -122,14 +113,21 @@ public class ParallelLoadFlowActionSimulator {
          * Reads result files and merge them.
          */
         @Override
-        public SecurityAnalysisResult after(Path workingDir, ExecutionReport report) {
+        public Void after(Path workingDir, ExecutionReport report) {
             LOGGER.debug("End of command execution in {}. ", workingDir);
-            List<SecurityAnalysisResult> results = new ArrayList<>();
+
+            ResultMerger merger = resultBuilder.createMerger();
             for (int taskNum = 0; taskNum < actualTaskCount; taskNum++) {
                 Path taskResultFile = workingDir.resolve(getOutputFileName(taskNum));
-                results.add(SecurityAnalysisResultDeserializer.read(taskResultFile));
+
+                try (InputStream is = Files.newInputStream(taskResultFile)) {
+                    merger.readResult(is);
+                } catch (IOException exc) {
+                    throw new UncheckedIOException(exc);
+                }
             }
-            return SecurityAnalysisResultMerger.merge(results);
+            merger.mergeResults();
+            return null;
         }
 
         private String getOutputFileName(int taskNumber) {
@@ -156,6 +154,7 @@ public class ParallelLoadFlowActionSimulator {
                 .option(TASK, i -> new Partition(i + 1, actualTaskCount).toString())
                 .option(OUTPUT_FILE, this::getOutputFileName)
                 .option(OUTPUT_FORMAT, "JSON")
+                .option(OUTPUT_BUILDER, resultBuilder.getName())
                 .flag(APPLY_IF_SOLVED_VIOLATIONS, applyIfSolved);
 
             if (!contingencyIds.isEmpty()) {

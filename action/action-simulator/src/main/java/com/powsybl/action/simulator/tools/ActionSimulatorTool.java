@@ -36,10 +36,7 @@ import org.codehaus.groovy.runtime.StackTraceUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintStream;
-import java.io.Writer;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
@@ -116,6 +113,11 @@ public class ActionSimulatorTool implements Tool {
                         .hasArg()
                         .argName("FORMAT")
                         .build());
+                options.addOption(Option.builder().longOpt(OUTPUT_BUILDER)
+                        .desc("custom output builder")
+                        .hasArg()
+                        .argName("NAME")
+                        .build());
                 options.addOption(Option.builder().longOpt(OUTPUT_CASE_FOLDER)
                         .desc("output case folder path")
                         .hasArg()
@@ -162,19 +164,12 @@ public class ActionSimulatorTool implements Tool {
     /**
      * Creates the consumer which will print the result to standard output.
      */
-    private static Consumer<SecurityAnalysisResult> createResultPrinter(Network network, ToolRunningContext context) {
+    private static Consumer<SecurityAnalysisResult> createResultPrinter(Network network, PrintStream stdOut) {
         return r -> {
-            context.getOutputStream().println("Final result");
-            Writer soutWriter = new OutputStreamWriter(context.getOutputStream());
+            stdOut.println("Final result");
+            Writer soutWriter = new OutputStreamWriter(stdOut);
             Security.print(r, network, soutWriter, new AsciiTableFormatterFactory(), TableFormatterConfig.load());
         };
-    }
-
-    /**
-     * Creates the consumer which will print the result to standard output.
-     */
-    private static Consumer<SecurityAnalysisResult> createResultExporter(Path outputFile, String format) {
-        return r -> SecurityAnalysisResultExporters.export(r, outputFile, format);
     }
 
     private static LoadFlowActionSimulatorObserver createCaseExporter(Path outputCaseFolder, String basename, String outputCaseFormat, CompressionFormat compressionFormat, boolean exportEachRound) {
@@ -203,21 +198,19 @@ public class ActionSimulatorTool implements Tool {
         return Optional.of(createCaseExporter(outputCaseFolder, baseName, outputCaseFormat, compressionFormat, exportEachRound));
     }
 
-    /**
-     * If options output-file and output-format are present, creates the corresponding printer.
-     */
-    private static Optional<Consumer<SecurityAnalysisResult>> optionalResultPrinter(CommandLine line, FileSystem fileSystem) throws ParseException {
-        if (!line.hasOption(OUTPUT_FILE)) {
-            return Optional.empty();
-        }
-        if (!line.hasOption(OUTPUT_FORMAT)) {
-            throw new ParseException("Missing required option: " + OUTPUT_FORMAT);
-        }
 
-        Path outputFile = fileSystem.getPath(line.getOptionValue(OUTPUT_FILE));
-        String format = line.getOptionValue(OUTPUT_FORMAT);
+    private LoadFlowActionSimulatorResultBuilder createDefaultResultBuilder(Network network, PrintStream stdOut) {
+        SecurityAnalysisResultBuilder sarb = new SecurityAnalysisResultBuilder();
+        sarb.addResultHandler(createResultPrinter(network, stdOut));
+        return sarb;
+    }
 
-        return Optional.of(createResultExporter(outputFile, format));
+    private LoadFlowActionSimulatorResultBuilder createCustomResultBuilder(String outputName) {
+        LoadFlowActionSimulatorResultBuilder resultBuilder = LoadFlowActionSimulatorResultBuilder.find(outputName);
+        if (resultBuilder == null) {
+            throw new IllegalArgumentException("Unknown type of result requested : " + outputName);
+        }
+        return resultBuilder;
     }
 
     @Override
@@ -228,15 +221,15 @@ public class ActionSimulatorTool implements Tool {
                                                                      : Collections.emptyList();
         boolean verbose = line.hasOption(VERBOSE);
         boolean applyIfSolved = line.hasOption(APPLY_IF_SOLVED_VIOLATIONS);
-        boolean isSubTask = line.hasOption(TASK_COUNT);
+        boolean isDistributed = line.hasOption(TASK_COUNT);
 
-        if (isSubTask) {
+        if (isDistributed) {
             checkOptionsInParallel(line);
         }
 
         //Create observers
         List<LoadFlowActionSimulatorObserver> observers = new ArrayList<>();
-        if (!isSubTask) {
+        if (!isDistributed) {
             optionalCaseExporter(line, context.getFileSystem(), DataSourceUtil.getBaseName(caseFile))
                     .ifPresent(observers::add);
         }
@@ -257,25 +250,31 @@ public class ActionSimulatorTool implements Tool {
 
             LoadFlowActionSimulatorConfig config = LoadFlowActionSimulatorConfig.load();
 
-            List<Consumer<SecurityAnalysisResult>> resultHandlers = new ArrayList<>();
-            resultHandlers.add(createResultPrinter(network, context));
-            optionalResultPrinter(line, context.getFileSystem()).ifPresent(resultHandlers::add);
+            LoadFlowActionSimulatorResultBuilder resultBuilder;
+            // Custom output requested?
+            if (line.hasOption(OUTPUT_BUILDER)) {
+                resultBuilder = createCustomResultBuilder(line.getOptionValue(OUTPUT_BUILDER));
+            } else {
+                // Else, default behaviour, we use the security analysis result builder and add the usual printer
+                resultBuilder = createDefaultResultBuilder(network, context.getOutputStream());
+            }
 
             // action simulator
             LOGGER.debug("Creating action simulator.");
-            if (isSubTask) {
+            if (isDistributed) {
 
                 context.getOutputStream().println("Using parallel load flow action simulator rules engine");
 
                 int taskCount = Integer.parseInt(line.getOptionValue(TASK_COUNT));
                 ParallelLoadFlowActionSimulator actionSimulator = new ParallelLoadFlowActionSimulator(network,
-                        context.getLongTimeExecutionComputationManager(), taskCount, config, applyIfSolved, resultHandlers);
+                        context.getLongTimeExecutionComputationManager(), taskCount, config, applyIfSolved, resultBuilder);
 
                 String dsl = new String(Files.readAllBytes(dslFile), StandardCharsets.UTF_8);
                 actionSimulator.run(dsl, contingencies);
             } else {
+                observers.add(resultBuilder.createObserver());
 
-                ActionSimulator actionSimulator = createActionSimulator(network, context, line, config, applyIfSolved, observers, resultHandlers);
+                ActionSimulator actionSimulator = createActionSimulator(network, context, line, config, applyIfSolved, observers);
 
                 context.getOutputStream().println("Using '" + actionSimulator.getName() + "' rules engine");
 
@@ -283,6 +282,14 @@ public class ActionSimulatorTool implements Tool {
                 actionSimulator.start(actionDb, contingencies);
             }
 
+            // Print result to file
+            if (line.hasOption(OUTPUT_FILE)) {
+                Path outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE));
+                String format = line.getOptionValue(OUTPUT_FORMAT);
+                try (Writer writer = Files.newBufferedWriter(outputFile, StandardCharsets.UTF_8)) {
+                    resultBuilder.writeResult(writer, format);
+                }
+            }
 
         } catch (Exception e) {
             LOGGER.trace(e.toString(), e); // to avoid user screen pollution...
@@ -295,11 +302,9 @@ public class ActionSimulatorTool implements Tool {
 
     private ActionSimulator createActionSimulator(Network network, ToolRunningContext context, CommandLine line,
                                                   LoadFlowActionSimulatorConfig config, boolean applyIfSolved,
-                                                  List<LoadFlowActionSimulatorObserver> observers,
-                                                  List<Consumer<SecurityAnalysisResult>> resultHandlers) throws IOException {
+                                                  List<LoadFlowActionSimulatorObserver> observers) throws IOException {
         ActionSimulator actionSimulator;
         //Add an observer which will create the result and handle it
-        observers.add(new SecurityAnalysisResultHandler(resultHandlers));
         if (line.hasOption(TASK)) {
             Partition partition = Partition.parse(line.getOptionValue(TASK));
             actionSimulator = new LocalLoadFlowActionSimulator(network, partition, config, applyIfSolved, observers);

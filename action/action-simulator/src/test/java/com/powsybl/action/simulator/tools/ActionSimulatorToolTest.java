@@ -46,7 +46,7 @@ public class ActionSimulatorToolTest extends AbstractToolTest {
         ActionSimulatorTool tool = new ActionSimulatorTool();
         Command command = tool.getCommand();
 
-        assertCommand(command, "action-simulator", 13, 2);
+        assertCommand(command, "action-simulator", 14, 2);
         assertOption(command.getOptions(), "case-file", true, true);
         assertOption(command.getOptions(), "dsl-file", true, true);
         assertOption(command.getOptions(), "contingencies", false, true);
@@ -54,6 +54,7 @@ public class ActionSimulatorToolTest extends AbstractToolTest {
         assertOption(command.getOptions(), "verbose", false, false);
         assertOption(command.getOptions(), "output-file", false, true);
         assertOption(command.getOptions(), "output-format", false, true);
+        assertOption(command.getOptions(), "output-builder", false, true);
         assertOption(command.getOptions(), "output-case-folder", false, true);
         assertOption(command.getOptions(), "output-case-format", false, true);
         assertOption(command.getOptions(), "output-compression-format", false, true);

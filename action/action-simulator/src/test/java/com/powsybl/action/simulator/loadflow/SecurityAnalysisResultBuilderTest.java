@@ -4,12 +4,14 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.action.simulator.tools;
+package com.powsybl.action.simulator.loadflow;
 
-import com.powsybl.action.simulator.loadflow.RunningContext;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.security.*;
+import com.powsybl.security.LimitViolation;
+import com.powsybl.security.LimitViolationType;
+import com.powsybl.security.LimitViolationsResult;
+import com.powsybl.security.PostContingencyResult;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -18,6 +20,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -46,52 +49,59 @@ public class SecurityAnalysisResultBuilderTest {
     }
 
     private void testSARBuilder(final boolean convergent) {
-        AbstractSecurityAnalysisResultBuilder builder = new AbstractSecurityAnalysisResultBuilder() {
-            @Override
-            public void onFinalStateResult(SecurityAnalysisResult result) {
+        SecurityAnalysisResultBuilder builder = new SecurityAnalysisResultBuilder();
+        builder.addResultHandler(result -> {
+            testLimitViolation(result.getPreContingencyResult(), convergent, Collections.singletonList("line1"), Collections.singletonList("pre-action"));
 
-                testLimitViolation(result.getPreContingencyResult(), convergent, Collections.singletonList("line1"), Collections.singletonList("pre-action"));
+            List<PostContingencyResult> postContingencyResults = result.getPostContingencyResults();
+            assertEquals(1, postContingencyResults.size());
 
-                List<PostContingencyResult> postContingencyResults = result.getPostContingencyResults();
-                assertEquals(1, postContingencyResults.size());
+            PostContingencyResult postContingencyResult = postContingencyResults.get(0);
+            assertEquals("contingency", postContingencyResult.getContingency().getId());
+            assertEquals(0, postContingencyResult.getContingency().getElements().size());
 
-                PostContingencyResult postContingencyResult = postContingencyResults.get(0);
-                assertEquals("contingency", postContingencyResult.getContingency().getId());
-                assertEquals(0, postContingencyResult.getContingency().getElements().size());
+            LimitViolationsResult postContingencyLimitViolationsResult = postContingencyResult.getLimitViolationsResult();
+            testLimitViolation(postContingencyLimitViolationsResult, convergent, Collections.singletonList("line2"), Arrays.asList("post-action1", "post-action2"));
 
-                LimitViolationsResult postContingencyLimitViolationsResult = postContingencyResult.getLimitViolationsResult();
-                testLimitViolation(postContingencyLimitViolationsResult, convergent, Collections.singletonList("line2"), Arrays.asList("post-action1", "post-action2"));
-            }
-        };
+        });
 
-        builder.beforePreContingencyAnalysis(null);
-        builder.afterAction(null, "pre-action");
+        LoadFlowActionSimulatorObserver observer = builder.createObserver();
+
+        observer.beforePreContingencyAnalysis(null);
+        observer.afterAction(null, "pre-action");
         RunningContext runningContext = new RunningContext(null, null);
         runningContext.setRound(0);
         if (convergent) {
-            builder.loadFlowConverged(runningContext, createPreContingencyViolations());
+            observer.loadFlowConverged(runningContext, createPreContingencyViolations());
         } else {
-            builder.loadFlowDiverged(runningContext);
+            observer.loadFlowDiverged(runningContext);
         }
-        builder.afterPreContingencyAnalysis();
+        observer.afterPreContingencyAnalysis();
 
         Contingency contingency = createContingency();
         RunningContext runningContext1 = new RunningContext(null, contingency);
         runningContext1.setRound(0);
-        builder.afterAction(runningContext1, "post-action1");
-        builder.afterAction(runningContext1, "post-action2");
+        observer.afterAction(runningContext1, "post-action1");
+        observer.afterAction(runningContext1, "post-action2");
         if (convergent) {
-            builder.loadFlowConverged(runningContext1, createPostContingencyViolations());
+            observer.loadFlowConverged(runningContext1, createPostContingencyViolations());
         } else {
-            builder.loadFlowDiverged(runningContext1);
+            observer.loadFlowDiverged(runningContext1);
         }
 
-        builder.afterPostContingencyAnalysis();
+        observer.afterPostContingencyAnalysis();
     }
 
     @Test
     public void testSARBuilder() {
         testSARBuilder(true);
         testSARBuilder(false);
+    }
+
+    @Test
+    public void testFindBuilder() {
+        LoadFlowActionSimulatorResultBuilder builder = LoadFlowActionSimulatorResultBuilder.find("security-analysis-result");
+        assertNotNull(builder);
+        assertEquals("security-analysis-result", builder.getName());
     }
 }
