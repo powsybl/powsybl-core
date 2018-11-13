@@ -65,7 +65,7 @@ public class LocalComputationConfigTest {
     @Test
     public void testAvailableCoresNegative() {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("computation-local");
-        moduleConfig.setStringProperty("availableCore", "-1");
+        moduleConfig.setStringProperty("available-core", "-1");
         LocalComputationConfig config = LocalComputationConfig.load(platformConfig, fileSystem);
         assertEquals(Runtime.getRuntime().availableProcessors(), config.getAvailableCore());
     }

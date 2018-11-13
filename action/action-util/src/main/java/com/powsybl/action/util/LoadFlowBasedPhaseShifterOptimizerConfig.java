@@ -34,7 +34,7 @@ public class LoadFlowBasedPhaseShifterOptimizerConfig implements Versionable {
                 .orElseGet(() -> new LoadFlowBasedPhaseShifterOptimizerConfig(loadFlowFactoryClass));
     }
 
-    static final String DEFAULT_CONFIG_VERSION = "1.0";
+    static final String DEFAULT_CONFIG_VERSION = "1.1";
 
     private ConfigVersion version = new ConfigVersion(DEFAULT_CONFIG_VERSION);
 

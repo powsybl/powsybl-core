@@ -28,7 +28,7 @@ public class LocalAppFileSystemConfig extends AbstractAppFileSystemConfig<LocalA
 
     private static final String CONFIG_MODULE_NAME = "local-app-file-system";
 
-    private static final String DEFAULT_CONFIG_VERSION = "1.0";
+    private static final String DEFAULT_CONFIG_VERSION = "1.1";
 
     private ConfigVersion version = new ConfigVersion(DEFAULT_CONFIG_VERSION);
 

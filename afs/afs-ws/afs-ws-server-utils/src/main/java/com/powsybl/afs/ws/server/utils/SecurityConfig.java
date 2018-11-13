@@ -22,7 +22,7 @@ public class SecurityConfig implements Versionable {
     static final long DEFAULT_TOKEN_VALIDITY = 3600L; // minutes
     static final boolean DEFAULT_SKIP_TOKEN_VALIDITY_CHECK = true;
 
-    static final String DEFAULT_CONFIG_VERSION = "1.0";
+    static final String DEFAULT_CONFIG_VERSION = "1.1";
 
     private ConfigVersion version = new ConfigVersion(DEFAULT_CONFIG_VERSION);
 

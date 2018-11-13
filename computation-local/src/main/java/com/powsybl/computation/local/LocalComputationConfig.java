@@ -32,7 +32,7 @@ public class LocalComputationConfig implements Versionable {
 
     private static final int DEFAULT_AVAILABLE_CORE = 1;
 
-    static final String DEFAULT_CONFIG_VERSION = "1.0";
+    static final String DEFAULT_CONFIG_VERSION = "1.1";
 
     private ConfigVersion version = new ConfigVersion(DEFAULT_CONFIG_VERSION);
 

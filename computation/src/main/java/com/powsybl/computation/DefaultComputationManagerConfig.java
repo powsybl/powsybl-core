@@ -33,7 +33,7 @@ public class DefaultComputationManagerConfig implements Versionable {
     private static final String DEFAULT_SHORT_TIME_EXECUTION_COMPUTATION_MANAGER_FACTORY_CLASS
             = "com.powsybl.computation.local.LocalComputationManagerFactory";
 
-    private static final String DEFAULT_CONFIG_VERSION = "1.0";
+    private static final String DEFAULT_CONFIG_VERSION = "1.1";
 
     private ConfigVersion version = new ConfigVersion(DEFAULT_CONFIG_VERSION);
 
