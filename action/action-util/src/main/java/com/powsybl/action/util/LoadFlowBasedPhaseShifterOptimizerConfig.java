@@ -9,7 +9,7 @@ package com.powsybl.action.util;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.config.VersionConfig;
+import com.powsybl.commons.config.ConfigVersion;
 import com.powsybl.loadflow.LoadFlowFactory;
 
 import java.util.Objects;
@@ -30,13 +30,13 @@ public class LoadFlowBasedPhaseShifterOptimizerConfig implements Versionable {
         ModuleConfig config = platformConfig.getModuleConfig(CONFIG_MODULE_NAME);
         Class<? extends LoadFlowFactory> loadFlowFactoryClass = config.getClassProperty("load-flow-factory", LoadFlowFactory.class);
         return config.getOptionalStringProperty("version")
-                .map(v -> new LoadFlowBasedPhaseShifterOptimizerConfig(new VersionConfig(v), loadFlowFactoryClass))
+                .map(v -> new LoadFlowBasedPhaseShifterOptimizerConfig(new ConfigVersion(v), loadFlowFactoryClass))
                 .orElseGet(() -> new LoadFlowBasedPhaseShifterOptimizerConfig(loadFlowFactoryClass));
     }
 
-    private static final String DEFAULT_CONFIG_VERSION = "1.0";
+    static final String DEFAULT_CONFIG_VERSION = "1.0";
 
-    private VersionConfig version = new VersionConfig(DEFAULT_CONFIG_VERSION);
+    private ConfigVersion version = new ConfigVersion(DEFAULT_CONFIG_VERSION);
 
     private Class<? extends LoadFlowFactory> loadFlowFactoryClass;
 
@@ -44,7 +44,7 @@ public class LoadFlowBasedPhaseShifterOptimizerConfig implements Versionable {
         this.loadFlowFactoryClass = Objects.requireNonNull(loadFlowFactoryClass);
     }
 
-    public LoadFlowBasedPhaseShifterOptimizerConfig(VersionConfig version, Class<? extends LoadFlowFactory> loadFlowFactoryClass) {
+    public LoadFlowBasedPhaseShifterOptimizerConfig(ConfigVersion version, Class<? extends LoadFlowFactory> loadFlowFactoryClass) {
         this(loadFlowFactoryClass);
         this.version = version;
     }
@@ -64,6 +64,6 @@ public class LoadFlowBasedPhaseShifterOptimizerConfig implements Versionable {
 
     @Override
     public String getVersion() {
-        return this.version.toString();
+        return version.toString();
     }
 }

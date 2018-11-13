@@ -10,6 +10,7 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
+import com.powsybl.commons.config.ConfigVersion;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +27,6 @@ import static org.junit.Assert.*;
 public class MapDbAppFileSystemConfigTest {
 
     private FileSystem fileSystem;
-
     private InMemoryPlatformConfig platformConfig;
 
     @Before
@@ -54,18 +54,31 @@ public class MapDbAppFileSystemConfigTest {
     public void loadTest() {
         List<MapDbAppFileSystemConfig> configs = MapDbAppFileSystemConfig.load(platformConfig);
         assertEquals(2, configs.size());
+
         MapDbAppFileSystemConfig config = configs.get(0);
         MapDbAppFileSystemConfig config1 = configs.get(1);
+
+        assertEquals(MapDbAppFileSystemConfig.DEFAULT_CONFIG_VERSION, config.getVersion());
         assertEquals("db", config.getDriveName());
         assertTrue(config.isRemotelyAccessible());
         assertEquals(fileSystem.getPath("/db"), config.getDbFile());
+
+        assertEquals(MapDbAppFileSystemConfig.DEFAULT_CONFIG_VERSION, config1.getVersion());
         assertEquals("db0", config1.getDriveName());
         assertFalse(config1.isRemotelyAccessible());
         assertEquals(fileSystem.getPath("/db0"), config1.getDbFile());
+
         config.setDriveName("db2");
         config.setDbFile(fileSystem.getPath("/db2"));
         assertEquals("db2", config.getDriveName());
         assertEquals(fileSystem.getPath("/db2"), config.getDbFile());
+
+        MapDbAppFileSystemConfig config2 = new MapDbAppFileSystemConfig(new ConfigVersion("1.1"), "db3", true, fileSystem.getPath("/db3"));
+        assertEquals("1.1", config2.getVersion());
+        assertEquals("db3", config2.getDriveName());
+        assertTrue(config2.isRemotelyAccessible());
+        assertEquals(fileSystem.getPath("/db3"), config2.getDbFile());
+
         try {
             config.setDbFile(fileSystem.getPath("/"));
             fail();

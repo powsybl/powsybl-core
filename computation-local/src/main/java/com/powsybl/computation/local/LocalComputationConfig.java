@@ -10,7 +10,7 @@ import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.ConfigurationException;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.config.VersionConfig;
+import com.powsybl.commons.config.ConfigVersion;
 
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -32,9 +32,9 @@ public class LocalComputationConfig implements Versionable {
 
     private static final int DEFAULT_AVAILABLE_CORE = 1;
 
-    private static final String DEFAULT_CONFIG_VERSION = "1.0";
+    static final String DEFAULT_CONFIG_VERSION = "1.0";
 
-    private VersionConfig version = new VersionConfig(DEFAULT_CONFIG_VERSION);
+    private ConfigVersion version = new ConfigVersion(DEFAULT_CONFIG_VERSION);
 
     private final Path localDir;
 
@@ -68,12 +68,12 @@ public class LocalComputationConfig implements Versionable {
 
     public static LocalComputationConfig load(PlatformConfig platformConfig, FileSystem fileSystem) {
         Objects.requireNonNull(platformConfig);
-        VersionConfig version = new VersionConfig(DEFAULT_CONFIG_VERSION);
+        ConfigVersion version = new ConfigVersion(DEFAULT_CONFIG_VERSION);
         Path localDir = getDefaultLocalDir(fileSystem);
         int availableCore = DEFAULT_AVAILABLE_CORE;
         if (platformConfig.moduleExists(CONFIG_MODULE_NAME)) {
             ModuleConfig config = platformConfig.getModuleConfig(CONFIG_MODULE_NAME);
-            version = config.hasProperty("version") ? new VersionConfig(config.getStringProperty("version")) : version;
+            version = config.hasProperty("version") ? new ConfigVersion(config.getStringProperty("version")) : version;
             if (version.equalsOrIsNewerThan("1.1")) {
                 localDir = getTmpDir(config, "tmp-dir")
                         .orElse(localDir);
@@ -101,7 +101,7 @@ public class LocalComputationConfig implements Versionable {
         this.availableCore = availableCore;
     }
 
-    public LocalComputationConfig(VersionConfig version, Path localDir, int availableCore) {
+    public LocalComputationConfig(ConfigVersion version, Path localDir, int availableCore) {
         this(localDir, availableCore);
         this.version = version;
     }
@@ -128,6 +128,6 @@ public class LocalComputationConfig implements Versionable {
 
     @Override
     public String getVersion() {
-        return this.version.toString();
+        return version.toString();
     }
 }

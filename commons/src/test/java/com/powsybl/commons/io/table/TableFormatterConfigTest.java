@@ -23,7 +23,8 @@ import static org.junit.Assert.assertEquals;
  */
 public class TableFormatterConfigTest {
 
-    private void testConfig(TableFormatterConfig config, Locale locale, char separator, String invalidString, boolean printHeader, boolean printTitle) {
+    private void testConfig(TableFormatterConfig config, String version, Locale locale, char separator, String invalidString, boolean printHeader, boolean printTitle) {
+        assertEquals(version, config.getVersion());
         assertEquals(locale, config.getLocale());
         assertEquals(separator, config.getCsvSeparator());
         assertEquals(invalidString, config.getInvalidString());
@@ -35,11 +36,12 @@ public class TableFormatterConfigTest {
     public void testConfig() throws IOException {
         TableFormatterConfig config = new TableFormatterConfig();
 
-        testConfig(config, Locale.getDefault(), ';', "inv", true, true);
+        testConfig(config, TableFormatterConfig.DEFAULT_CONFIG_VERSION, Locale.getDefault(), ';', "inv", true, true);
 
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
             MapModuleConfig moduleConfig = platformConfig.createModuleConfig("table-formatter");
+            moduleConfig.setStringProperty("version", "1.1");
             moduleConfig.setStringProperty("language", "en-US");
             moduleConfig.setStringProperty("separator", "\t");
             moduleConfig.setStringProperty("invalid-string", "NaN");
@@ -47,7 +49,7 @@ public class TableFormatterConfigTest {
             moduleConfig.setStringProperty("print-title", "false");
 
             config = TableFormatterConfig.load(platformConfig);
-            testConfig(config, Locale.US, '\t', "NaN", false, false);
+            testConfig(config, "1.1", Locale.US, '\t', "NaN", false, false);
         }
     }
 }

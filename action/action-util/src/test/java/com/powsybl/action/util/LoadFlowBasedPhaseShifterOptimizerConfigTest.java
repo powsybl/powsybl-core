@@ -36,16 +36,21 @@ public class LoadFlowBasedPhaseShifterOptimizerConfigTest {
     }
 
     @Test
-    public void test() throws IOException {
+    public void testDefaultVersion() throws IOException {
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
             MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow-based-phase-shifter-optimizer");
             moduleConfig.setClassProperty("load-flow-factory", LoadFlowFactoryMock.class);
 
             LoadFlowBasedPhaseShifterOptimizerConfig config = LoadFlowBasedPhaseShifterOptimizerConfig.load(platformConfig);
+            assertEquals(LoadFlowBasedPhaseShifterOptimizerConfig.DEFAULT_CONFIG_VERSION, config.getVersion());
             assertEquals(LoadFlowFactoryMock.class, config.getLoadFlowFactoryClass());
             config.setLoadFlowFactoryClass(AnotherLoadFlowFactoryMock.class);
             assertEquals(AnotherLoadFlowFactoryMock.class, config.getLoadFlowFactoryClass());
+
+            moduleConfig.setStringProperty("version", "1.1");
+            config = LoadFlowBasedPhaseShifterOptimizerConfig.load(platformConfig);
+            assertEquals("1.1", config.getVersion());
         }
     }
 

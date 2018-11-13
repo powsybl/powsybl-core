@@ -11,7 +11,7 @@ import java.util.Objects;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.config.VersionConfig;
+import com.powsybl.commons.config.ConfigVersion;
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterFactory;
 import com.powsybl.loadflow.LoadFlowFactory;
@@ -24,7 +24,7 @@ import com.powsybl.loadflow.LoadFlowParameters;
 public class ValidationConfig implements Versionable {
 
     private static final String CONFIG_MODULE_NAME = "loadflow-validation";
-    private static final String DEFAULT_CONFIG_VERSION = "1.0";
+    static final String DEFAULT_CONFIG_VERSION = "1.0";
 
     public static final double THRESHOLD_DEFAULT = 0.0;
     public static final boolean VERBOSE_DEFAULT = false;
@@ -38,7 +38,7 @@ public class ValidationConfig implements Versionable {
     public static final boolean CHECK_MAIN_COMPONENT_ONLY_DEFAULT = true;
     public static final boolean NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS = false;
 
-    private VersionConfig version = new VersionConfig(DEFAULT_CONFIG_VERSION);
+    private ConfigVersion version = new ConfigVersion(DEFAULT_CONFIG_VERSION);
     private double threshold;
     private boolean verbose;
     private Class<? extends LoadFlowFactory> loadFlowFactory;
@@ -76,7 +76,7 @@ public class ValidationConfig implements Versionable {
                     boolean noRequirementIfSetpointOutsidePowerBounds = config.getBooleanProperty("no-requirement-if-setpoint-outside-power-bounds", NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
 
                     return config.getOptionalStringProperty("version")
-                            .map(v -> new ValidationConfig(new VersionConfig(v), threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection,
+                            .map(v -> new ValidationConfig(new ConfigVersion(v), threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection,
                                     validationOutputWriter, loadFlowParameter, okMissingValues, noRequirementIfReactiveBoundInversion, compareResults, checkMainComponentOnly, noRequirementIfSetpointOutsidePowerBounds))
                             .orElseGet(() -> new ValidationConfig(threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection,
                                     validationOutputWriter, loadFlowParameter, okMissingValues, noRequirementIfReactiveBoundInversion, compareResults, checkMainComponentOnly, noRequirementIfSetpointOutsidePowerBounds));
@@ -114,7 +114,7 @@ public class ValidationConfig implements Versionable {
         this.noRequirementIfSetpointOutsidePowerBounds = noRequirementIfSetpointOutsidePowerBounds;
     }
 
-    public ValidationConfig(VersionConfig version, double threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory,
+    public ValidationConfig(ConfigVersion version, double threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory,
                             Class<? extends TableFormatterFactory> tableFormatterFactory, double epsilonX,
                             boolean applyReactanceCorrection, ValidationOutputWriter validationOutputWriter, LoadFlowParameters loadFlowParameters,
                             boolean okMissingValues, boolean noRequirementIfReactiveBoundInversion, boolean compareResults, boolean checkMainComponentOnly,
@@ -254,6 +254,6 @@ public class ValidationConfig implements Versionable {
 
     @Override
     public String getVersion() {
-        return this.version.toString();
+        return version.toString();
     }
 }

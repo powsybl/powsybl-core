@@ -8,7 +8,7 @@ package com.powsybl.afs.ws.client.utils;
 
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.config.VersionConfig;
+import com.powsybl.commons.config.ConfigVersion;
 import com.powsybl.commons.exceptions.UncheckedUriSyntaxException;
 
 import java.net.URI;
@@ -23,9 +23,9 @@ public class RemoteServiceConfig implements Versionable {
 
     private static final String CONFIG_MODULE_NAME = "remote-service";
 
-    private static final String DEFAULT_CONFIG_VERSION = "1.0";
+    static final String DEFAULT_CONFIG_VERSION = "1.0";
 
-    private VersionConfig version = new VersionConfig(DEFAULT_CONFIG_VERSION);
+    private ConfigVersion version = new ConfigVersion(DEFAULT_CONFIG_VERSION);
 
     private String hostName;
 
@@ -42,7 +42,7 @@ public class RemoteServiceConfig implements Versionable {
         this.secure = secure;
     }
 
-    public RemoteServiceConfig(VersionConfig version, String hostName, String appName, int port, boolean secure) {
+    public RemoteServiceConfig(ConfigVersion version, String hostName, String appName, int port, boolean secure) {
         this(hostName, appName, port, secure);
         this.version = version;
     }
@@ -59,7 +59,7 @@ public class RemoteServiceConfig implements Versionable {
             boolean secure = moduleConfig.getBooleanProperty("secure", true);
             int port = moduleConfig.getIntProperty("port", secure ? 443 : 80);
             return moduleConfig.getOptionalStringProperty("version")
-                    .map(v -> new RemoteServiceConfig(new VersionConfig(v), hostName, appName, port, secure))
+                    .map(v -> new RemoteServiceConfig(new ConfigVersion(v), hostName, appName, port, secure))
                     .orElseGet(() -> new RemoteServiceConfig(hostName, appName, port, secure));
         });
     }
@@ -135,6 +135,6 @@ public class RemoteServiceConfig implements Versionable {
 
     @Override
     public String getVersion() {
-        return this.version.toString();
+        return version.toString();
     }
 }

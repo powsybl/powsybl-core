@@ -46,6 +46,8 @@ public class LoadFlowActionSimulatorConfigTest {
 
             LoadFlowActionSimulatorConfig config = LoadFlowActionSimulatorConfig.load(platformConfig);
 
+            assertEquals(LoadFlowActionSimulatorConfig.DEFAULT_CONFIG_VERSION, config.getVersion());
+
             assertEquals(LoadFlowFactoryMock.class, config.getLoadFlowFactoryClass());
             config.setLoadFlowFactoryClass(AnotherLoadFlowFactoryMock.class);
             assertEquals(AnotherLoadFlowFactoryMock.class, config.getLoadFlowFactoryClass());
@@ -60,6 +62,10 @@ public class LoadFlowActionSimulatorConfigTest {
             assertFalse(config.isDebug());
             config.setDebug(true);
             assertTrue(config.isDebug());
+
+            moduleConfig.setStringProperty("version", "1.1");
+            config = LoadFlowActionSimulatorConfig.load(platformConfig);
+            assertEquals("1.1", config.getVersion());
         }
     }
 }

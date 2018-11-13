@@ -25,9 +25,9 @@ public interface ComponentDefaultConfig {
 
     static ComponentDefaultConfig load(PlatformConfig platformConfig) {
         return platformConfig.getOptionalModuleConfig(Impl.CONFIG_MODULE_NAME_V_1_1)
-                .map(moduleConfig -> new Impl(new VersionConfig("1.1"), moduleConfig))
+                .map(moduleConfig -> new Impl(new ConfigVersion("1.1"), moduleConfig))
                 .orElseGet(() -> platformConfig.getOptionalModuleConfig(Impl.CONFIG_MODULE_NAME_V_1_0)
-                        .map(moduleConfig -> new Impl(new VersionConfig("1.0"), moduleConfig))
+                        .map(moduleConfig -> new Impl(new ConfigVersion("1.0"), moduleConfig))
                         .orElse(null));
 
     }
@@ -43,7 +43,7 @@ public interface ComponentDefaultConfig {
          */
         private static ComponentDefaultConfig defaultConfig;
 
-        private VersionConfig version = new VersionConfig(CONFIG_MODULE_NAME_V_1_0);
+        private ConfigVersion version = new ConfigVersion(CONFIG_MODULE_NAME_V_1_0);
 
         private static synchronized ComponentDefaultConfig getDefaultConfig() {
             if (defaultConfig == null) {
@@ -58,7 +58,7 @@ public interface ComponentDefaultConfig {
             this.config = config;
         }
 
-        public Impl(VersionConfig version, ModuleConfig config) {
+        public Impl(ConfigVersion version, ModuleConfig config) {
             this(config);
             this.version = version;
         }
@@ -114,7 +114,7 @@ public interface ComponentDefaultConfig {
 
         @Override
         public String getVersion() {
-            return this.version.toString();
+            return version.toString();
         }
     }
 

@@ -9,7 +9,7 @@ package com.powsybl.iidm.import_;
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.config.VersionConfig;
+import com.powsybl.commons.config.ConfigVersion;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -27,7 +27,7 @@ public class ImportConfig implements Versionable {
 
     private static final String DEFAULT_CONFIG_VERSION = "1.0";
 
-    private VersionConfig version = new VersionConfig(DEFAULT_CONFIG_VERSION);
+    private ConfigVersion version = new ConfigVersion(DEFAULT_CONFIG_VERSION);
 
     private final List<String> postProcessors;
 
@@ -37,11 +37,11 @@ public class ImportConfig implements Versionable {
 
     public static ImportConfig load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        VersionConfig version = new VersionConfig(DEFAULT_CONFIG_VERSION);
+        ConfigVersion version = new ConfigVersion(DEFAULT_CONFIG_VERSION);
         List<String> postProcessors = DEFAULT_POST_PROCESSORS;
         if (platformConfig.moduleExists(CONFIG_MODULE_NAME)) {
             ModuleConfig config = platformConfig.getModuleConfig(CONFIG_MODULE_NAME);
-            version = config.hasProperty("version") ? new VersionConfig(config.getStringProperty("version")) : version;
+            version = config.hasProperty("version") ? new ConfigVersion(config.getStringProperty("version")) : version;
             if (version.equalsOrIsNewerThan("1.1")) {
                 postProcessors = config.getStringListProperty("post-processors", DEFAULT_POST_PROCESSORS);
             } else {
@@ -63,7 +63,7 @@ public class ImportConfig implements Versionable {
         this.postProcessors = Objects.requireNonNull(postProcessors);
     }
 
-    public ImportConfig(VersionConfig version, List<String> postProcessors) {
+    public ImportConfig(ConfigVersion version, List<String> postProcessors) {
         this(postProcessors);
         this.version = version;
     }
@@ -85,6 +85,6 @@ public class ImportConfig implements Versionable {
 
     @Override
     public String getVersion() {
-        return this.version.toString();
+        return version.toString();
     }
 }

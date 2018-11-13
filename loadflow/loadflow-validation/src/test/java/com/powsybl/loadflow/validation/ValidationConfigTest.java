@@ -30,20 +30,21 @@ import static org.junit.Assert.fail;
  */
 public class ValidationConfigTest {
 
-    InMemoryPlatformConfig platformConfig;
-    FileSystem fileSystem;
-    Class<? extends LoadFlowFactory> loadFlowFactory = LoadFlowFactoryMock.class;
-    double threshold = 0.1;
-    boolean verbose = true;
-    Class<? extends TableFormatterFactory> tableFormatterFactory = AsciiTableFormatterFactory.class;
-    double epsilonX = 0.1;
-    boolean applyReactanceCorrection = true;
-    ValidationOutputWriter validationOutputWriter = ValidationOutputWriter.CSV;
-    boolean okMissingValues = true;
-    boolean noRequirementIfReactiveBoundInversion = true;
-    boolean compareResults = true;
-    boolean checkMainComponentOnly = false;
-    boolean noRequirementIfSetpointOutsidePowerBounds = true;
+    private InMemoryPlatformConfig platformConfig;
+    private FileSystem fileSystem;
+    private final Class<? extends LoadFlowFactory> loadFlowFactory = LoadFlowFactoryMock.class;
+    private final String version = "1.1";
+    private final double threshold = 0.1;
+    private final boolean verbose = true;
+    private final Class<? extends TableFormatterFactory> tableFormatterFactory = AsciiTableFormatterFactory.class;
+    private final double epsilonX = 0.1;
+    private final boolean applyReactanceCorrection = true;
+    private final ValidationOutputWriter validationOutputWriter = ValidationOutputWriter.CSV;
+    private final boolean okMissingValues = true;
+    private final boolean noRequirementIfReactiveBoundInversion = true;
+    private final boolean compareResults = true;
+    private final boolean checkMainComponentOnly = false;
+    private final boolean noRequirementIfSetpointOutsidePowerBounds = true;
 
     @Before
     public void setUp() {
@@ -61,7 +62,7 @@ public class ValidationConfigTest {
     @Test
     public void testNoConfig() {
         ValidationConfig config = ValidationConfig.load(platformConfig);
-        checkValues(config, ValidationConfig.THRESHOLD_DEFAULT, ValidationConfig.VERBOSE_DEFAULT, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
+        checkValues(config, ValidationConfig.DEFAULT_CONFIG_VERSION, ValidationConfig.THRESHOLD_DEFAULT, ValidationConfig.VERBOSE_DEFAULT, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
                     ValidationConfig.EPSILON_X_DEFAULT, ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationConfig.VALIDATION_OUTPUT_WRITER_DEFAULT,
                     ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT, ValidationConfig.COMPARE_RESULTS_DEFAULT,
                     ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
@@ -75,7 +76,7 @@ public class ValidationConfigTest {
         moduleConfig.setStringProperty("epsilon-x", Double.toString(epsilonX));
         moduleConfig.setStringProperty("apply-reactance-correction", Boolean.toString(applyReactanceCorrection));
         ValidationConfig config = ValidationConfig.load(platformConfig);
-        checkValues(config, threshold, verbose, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, epsilonX, applyReactanceCorrection,
+        checkValues(config, ValidationConfig.DEFAULT_CONFIG_VERSION, threshold, verbose, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, epsilonX, applyReactanceCorrection,
                     ValidationConfig.VALIDATION_OUTPUT_WRITER_DEFAULT, ValidationConfig.OK_MISSING_VALUES_DEFAULT,
                     ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT, ValidationConfig.COMPARE_RESULTS_DEFAULT,
                     ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
@@ -84,6 +85,7 @@ public class ValidationConfigTest {
     @Test
     public void checkCompleteConfig() throws Exception {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("loadflow-validation");
+        moduleConfig.setStringProperty("version", version);
         moduleConfig.setStringProperty("threshold", Double.toString(threshold));
         moduleConfig.setStringProperty("verbose", Boolean.toString(verbose));
         moduleConfig.setStringProperty("load-flow-factory", loadFlowFactory.getCanonicalName());
@@ -97,7 +99,7 @@ public class ValidationConfigTest {
         moduleConfig.setStringProperty("check-main-component-only", Boolean.toString(checkMainComponentOnly));
         moduleConfig.setStringProperty("no-requirement-if-setpoint-outside-power-bounds", Boolean.toString(noRequirementIfSetpointOutsidePowerBounds));
         ValidationConfig config = ValidationConfig.load(platformConfig);
-        checkValues(config, threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, okMissingValues,
+        checkValues(config, version, threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, okMissingValues,
                     noRequirementIfReactiveBoundInversion, compareResults, checkMainComponentOnly, noRequirementIfSetpointOutsidePowerBounds);
     }
 
@@ -116,14 +118,15 @@ public class ValidationConfigTest {
         config.setCompareResults(compareResults);
         config.setCheckMainComponentOnly(checkMainComponentOnly);
         config.setNoRequirementIfSetpointOutsidePowerBounds(noRequirementIfSetpointOutsidePowerBounds);
-        checkValues(config, threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, okMissingValues,
+        checkValues(config, ValidationConfig.DEFAULT_CONFIG_VERSION, threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, okMissingValues,
                     noRequirementIfReactiveBoundInversion, compareResults, checkMainComponentOnly, noRequirementIfSetpointOutsidePowerBounds);
     }
 
-    private void checkValues(ValidationConfig config, double threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory,
+    private void checkValues(ValidationConfig config, String version, double threshold, boolean verbose, Class<? extends LoadFlowFactory> loadFlowFactory,
                              Class<? extends TableFormatterFactory> tableFormatterFactory, double epsilonX, boolean applyReactanceCorrection,
                              ValidationOutputWriter validationOutputWriter, boolean okMissingValues, boolean noRequirementIfReactiveBoundInversion,
                              boolean compareResults, boolean checkMainComponentOnly, boolean noRequirementIfSetpointOutsidePowerBounds) {
+        assertEquals(version, config.getVersion());
         assertEquals(threshold, config.getThreshold(), 0.0);
         assertEquals(verbose, config.isVerbose());
         assertEquals(loadFlowFactory, config.getLoadFlowFactory());

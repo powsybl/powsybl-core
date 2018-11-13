@@ -8,7 +8,7 @@ package com.powsybl.commons.io.table;
 
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.config.VersionConfig;
+import com.powsybl.commons.config.ConfigVersion;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -26,9 +26,9 @@ public class TableFormatterConfig implements Versionable {
     private static final boolean DEFAULT_PRINT_HEADER = true;
     private static final boolean DEFAULT_PRINT_TITLE = true;
 
-    private static final String DEFAULT_CONFIG_VERSION = "1.0";
+    static final String DEFAULT_CONFIG_VERSION = "1.0";
 
-    private VersionConfig version = new VersionConfig(DEFAULT_CONFIG_VERSION);
+    private ConfigVersion version = new ConfigVersion(DEFAULT_CONFIG_VERSION);
 
     private final Locale locale;
     private final char csvSeparator;
@@ -50,7 +50,7 @@ public class TableFormatterConfig implements Versionable {
                     boolean printHeader = config.getBooleanProperty("print-header", DEFAULT_PRINT_HEADER);
                     boolean printTitle = config.getBooleanProperty("print-title", DEFAULT_PRINT_TITLE);
                     return config.getOptionalStringProperty("version")
-                            .map(v -> new TableFormatterConfig(new VersionConfig(v), locale, separator.charAt(0), invalidString, printHeader, printTitle))
+                            .map(v -> new TableFormatterConfig(new ConfigVersion(v), locale, separator.charAt(0), invalidString, printHeader, printTitle))
                             .orElseGet(() -> new TableFormatterConfig(locale, separator.charAt(0), invalidString, printHeader, printTitle));
                 })
                 .orElseGet(() -> new TableFormatterConfig(Locale.forLanguageTag(DEFAULT_LANGUAGE), Character.toString(DEFAULT_CSV_SEPARATOR).charAt(0),
@@ -79,7 +79,7 @@ public class TableFormatterConfig implements Versionable {
         this(DEFAULT_LOCALE, DEFAULT_INVALID_STRING);
     }
 
-    public TableFormatterConfig(VersionConfig version, Locale locale, char csvSeparator, String invalidString, boolean printHeader, boolean printTitle) {
+    public TableFormatterConfig(ConfigVersion version, Locale locale, char csvSeparator, String invalidString, boolean printHeader, boolean printTitle) {
         this(locale, csvSeparator, invalidString, printHeader, printTitle);
         this.version = version;
     }
@@ -121,6 +121,6 @@ public class TableFormatterConfig implements Versionable {
 
     @Override
     public String getVersion() {
-        return this.version.toString();
+        return version.toString();
     }
 }

@@ -45,9 +45,11 @@ public class LocalComputationConfigTest {
     @Test
     public void test() {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("computation-local");
+        moduleConfig.setStringProperty("version", "1.0");
         moduleConfig.setStringProperty("tmpDir", "/tmp");
         moduleConfig.setStringProperty("availableCore", "2");
         LocalComputationConfig config = LocalComputationConfig.load(platformConfig, fileSystem);
+        assertEquals("1.0", config.getVersion());
         assertEquals(fileSystem.getPath("/tmp"), config.getLocalDir());
         assertEquals(2, config.getAvailableCore());
     }
@@ -55,6 +57,7 @@ public class LocalComputationConfigTest {
     @Test
     public void testDefaultConfig() {
         LocalComputationConfig config = LocalComputationConfig.load(platformConfig, fileSystem);
+        assertEquals(LocalComputationConfig.DEFAULT_CONFIG_VERSION, config.getVersion());
         assertEquals(fileSystem.getPath(LocalComputationConfig.DEFAULT_LOCAL_DIR), config.getLocalDir());
         assertEquals(1, config.getAvailableCore());
     }
@@ -74,6 +77,7 @@ public class LocalComputationConfigTest {
         moduleConfig.setStringProperty("tmp-dir", "/tmp");
         moduleConfig.setStringProperty("available-core", "99");
         LocalComputationConfig config = LocalComputationConfig.load(platformConfig, fileSystem);
+        assertEquals("1.1", config.getVersion());
         assertEquals(fileSystem.getPath("/tmp"), config.getLocalDir());
         assertEquals(99, config.getAvailableCore());
     }

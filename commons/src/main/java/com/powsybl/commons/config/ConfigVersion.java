@@ -9,11 +9,11 @@ package com.powsybl.commons.config;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class VersionConfig {
+public class ConfigVersion {
 
     private final String[] version;
 
-    public VersionConfig(String version) {
+    public ConfigVersion(String version) {
         this.version = version.split("\\.");
     }
 

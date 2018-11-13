@@ -8,7 +8,7 @@ package com.powsybl.afs.ws.server.utils;
 
 import com.powsybl.commons.Versionable;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.commons.config.VersionConfig;
+import com.powsybl.commons.config.ConfigVersion;
 
 import java.util.Objects;
 
@@ -19,12 +19,12 @@ public class SecurityConfig implements Versionable {
 
     private static final String CONFIG_MODULE_NAME = "security";
 
-    private static final long DEFAULT_TOKEN_VALIDITY = 3600L; // minutes
-    private static final boolean DEFAULT_SKIP_TOKEN_VALIDITY_CHECK = true;
+    static final long DEFAULT_TOKEN_VALIDITY = 3600L; // minutes
+    static final boolean DEFAULT_SKIP_TOKEN_VALIDITY_CHECK = true;
 
-    private static final String DEFAULT_CONFIG_VERSION = "1.0";
+    static final String DEFAULT_CONFIG_VERSION = "1.0";
 
-    private VersionConfig version = new VersionConfig(DEFAULT_CONFIG_VERSION);
+    private ConfigVersion version = new ConfigVersion(DEFAULT_CONFIG_VERSION);
 
     private long tokenValidity;
 
@@ -42,7 +42,7 @@ public class SecurityConfig implements Versionable {
         return platformConfig.getOptionalModuleConfig(CONFIG_MODULE_NAME)
                 .map(config ->
                         config.getOptionalStringProperty("version")
-                                .map(v -> new SecurityConfig(new VersionConfig(v), config.getOptionalLongProperty("token-validity")
+                                .map(v -> new SecurityConfig(new ConfigVersion(v), config.getOptionalLongProperty("token-validity")
                                         .orElse(DEFAULT_TOKEN_VALIDITY),
                                         config.getOptionalBooleanProperty("skip-token-validity-check")
                                                 .orElse(DEFAULT_SKIP_TOKEN_VALIDITY_CHECK)))
@@ -58,7 +58,7 @@ public class SecurityConfig implements Versionable {
         this.skipTokenValidityCheck = skipTokenValidityCheck;
     }
 
-    public SecurityConfig(VersionConfig version, long tokenValidity, boolean skipTokenValidityCheck) {
+    public SecurityConfig(ConfigVersion version, long tokenValidity, boolean skipTokenValidityCheck) {
         this(tokenValidity, skipTokenValidityCheck);
         this.version = version;
     }
@@ -86,6 +86,6 @@ public class SecurityConfig implements Versionable {
 
     @Override
     public String getVersion() {
-        return this.version.toString();
+        return version.toString();
     }
 }
