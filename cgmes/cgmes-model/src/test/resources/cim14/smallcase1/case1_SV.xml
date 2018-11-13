@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"	xmlns:cim="http://iec.ch/TC57/2009/CIM-schema-cim14#">
+<cim:SvPowerFlow rdf:ID="_SVPF_0">
+	<cim:SvPowerFlow.Terminal rdf:resource="#_GEN______SM_TE"/>
+	<cim:SvPowerFlow.p>-0</cim:SvPowerFlow.p>
+	<cim:SvPowerFlow.q>-0</cim:SvPowerFlow.q>
+</cim:SvPowerFlow>
+<cim:SvPowerFlow rdf:ID="_SVPF_1">
+	<cim:SvPowerFlow.Terminal rdf:resource="#_INF______SM_TE"/>
+	<cim:SvPowerFlow.p>-0</cim:SvPowerFlow.p>
+	<cim:SvPowerFlow.q>-0</cim:SvPowerFlow.q>
+</cim:SvPowerFlow>
+<cim:SvVoltage rdf:ID="_SV_0">
+	<cim:SvVoltage.angle>0</cim:SvVoltage.angle>
+	<cim:SvVoltage.TopologicalNode rdf:resource="#_GEN______TN"/>
+	<cim:SvVoltage.v>21</cim:SvVoltage.v>
+</cim:SvVoltage>
+<cim:SvVoltage rdf:ID="_SV_1">
+	<cim:SvVoltage.angle>0</cim:SvVoltage.angle>
+	<cim:SvVoltage.TopologicalNode rdf:resource="#_GRID_____TN"/>
+	<cim:SvVoltage.v>419</cim:SvVoltage.v>
+</cim:SvVoltage>
+<cim:SvVoltage rdf:ID="_SV_2">
+	<cim:SvVoltage.angle>0</cim:SvVoltage.angle>
+	<cim:SvVoltage.TopologicalNode rdf:resource="#_INF______TN"/>
+	<cim:SvVoltage.v>419</cim:SvVoltage.v>
+</cim:SvVoltage>
+</rdf:RDF>

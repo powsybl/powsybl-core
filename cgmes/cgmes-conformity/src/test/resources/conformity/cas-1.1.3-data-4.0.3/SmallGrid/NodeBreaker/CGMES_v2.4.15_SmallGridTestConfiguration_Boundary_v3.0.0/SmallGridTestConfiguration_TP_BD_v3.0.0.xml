@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+<md:FullModel rdf:about="urn:uuid:2399cbd1-9a39-11e0-aa80-0800200c9a66">
+    <md:Model.scenarioTime>2030-01-02T09:00:00.000</md:Model.scenarioTime>
+    <md:Model.created>2014-10-27T09:01:25.830</md:Model.created>
+    <md:Model.description>CGMES Conformity Assessment: Small Grid Test Configuration. The model is owned by ENTSO-E and is provided by ENTSO-E "as it is". To the fullest extent permitted by law, ENTSO-E shall not be liable for any damages of any kind arising out of the use of the model (including any of its subsequent modifications). ENTSO-E neither warrants, nor represents that the use of the model will not infringe the rights of third parties. Any use of the model shall include a reference to ENTSO-E. ENTSO-E web site is the only official source of information related to the model.</md:Model.description>
+	<md:Model.version>4</md:Model.version>
+    <md:Model.profile>http://entsoe.eu/CIM/TopologyBoundary/3/1</md:Model.profile>
+    <md:Model.modelingAuthoritySet>http://EU/Planning/ENTSOE/2</md:Model.modelingAuthoritySet>
+    <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66" />
+  </md:FullModel>  
+  <cim:TopologicalNode rdf:ID="_e7a3d162-f09d-4dc7-8687-e7bc65522b58">
+    <cim:IdentifiedObject.description>OHL 220 kV</cim:IdentifiedObject.description>
+    <entsoe:IdentifiedObject.energyIdentCodeEic>10T-GB-FR-XQ0001</entsoe:IdentifiedObject.energyIdentCodeEic>
+    <cim:IdentifiedObject.name>XWE_BR21</cim:IdentifiedObject.name>
+    <entsoe:IdentifiedObject.shortName>XWE</entsoe:IdentifiedObject.shortName>
+    <entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+    <entsoe:TopologicalNode.fromEndIsoCode>GB</entsoe:TopologicalNode.fromEndIsoCode>
+    <entsoe:TopologicalNode.fromEndName>Westtirol</entsoe:TopologicalNode.fromEndName>
+    <entsoe:TopologicalNode.fromEndNameTso>TIWAG</entsoe:TopologicalNode.fromEndNameTso>
+    <entsoe:TopologicalNode.toEndIsoCode>FR</entsoe:TopologicalNode.toEndIsoCode>
+    <entsoe:TopologicalNode.toEndName>Bürs</entsoe:TopologicalNode.toEndName>
+    <entsoe:TopologicalNode.toEndNameTso>DE</entsoe:TopologicalNode.toEndNameTso>
+    <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_41d4fafe-e4ce-4ca3-86d9-f181ae3f8ea3" />
+    <cim:TopologicalNode.BaseVoltage rdf:resource="#_e557cd71-6e24-4daf-9abe-cb188e8f98be" />
+  </cim:TopologicalNode>
+  <cim:TopologicalNode rdf:ID="_26a070b9-db0c-47cd-9991-0a461576aec2">
+    <cim:IdentifiedObject.description>OHL_and_CAB 132 kV</cim:IdentifiedObject.description>
+    <entsoe:IdentifiedObject.energyIdentCodeEic>10T-GB-DK-XQ0001</entsoe:IdentifiedObject.energyIdentCodeEic>
+    <cim:IdentifiedObject.name>XMO_TE31</cim:IdentifiedObject.name>
+    <entsoe:IdentifiedObject.shortName>XMO</entsoe:IdentifiedObject.shortName>
+    <entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+    <entsoe:TopologicalNode.fromEndIsoCode>GB</entsoe:TopologicalNode.fromEndIsoCode>
+    <entsoe:TopologicalNode.fromEndName>Teglstrupgård</entsoe:TopologicalNode.fromEndName>
+    <entsoe:TopologicalNode.fromEndNameTso>Energinet.dk</entsoe:TopologicalNode.fromEndNameTso>
+    <entsoe:TopologicalNode.toEndIsoCode>DK</entsoe:TopologicalNode.toEndIsoCode>
+    <entsoe:TopologicalNode.toEndName>Mörarp</entsoe:TopologicalNode.toEndName>
+    <entsoe:TopologicalNode.toEndNameTso>Svenska Kraftnät</entsoe:TopologicalNode.toEndNameTso>
+    <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_c3f46fe5-0cd1-4a1c-b722-e967b9ab21e2" />
+    <cim:TopologicalNode.BaseVoltage rdf:resource="#_af264e1c-ab1f-4f3b-88c4-ab019b9abf07" />
+  </cim:TopologicalNode>
+  <cim:TopologicalNode rdf:ID="_c46e8cb6-b2b9-4031-b5c8-da2735658f1a">
+    <cim:IdentifiedObject.description>OHL_and_CAB 132 kV</cim:IdentifiedObject.description>
+    <entsoe:IdentifiedObject.energyIdentCodeEic>10T-GB-DK-XQ0002</entsoe:IdentifiedObject.energyIdentCodeEic>
+    <cim:IdentifiedObject.name>XMO_TE32</cim:IdentifiedObject.name>
+    <entsoe:IdentifiedObject.shortName>XMO</entsoe:IdentifiedObject.shortName>
+    <entsoe:TopologicalNode.boundaryPoint>true</entsoe:TopologicalNode.boundaryPoint>
+    <entsoe:TopologicalNode.fromEndIsoCode>GB</entsoe:TopologicalNode.fromEndIsoCode>
+    <entsoe:TopologicalNode.fromEndName>Teglstrupgård</entsoe:TopologicalNode.fromEndName>
+    <entsoe:TopologicalNode.fromEndNameTso>Energinet.dk</entsoe:TopologicalNode.fromEndNameTso>
+    <entsoe:TopologicalNode.toEndIsoCode>DK</entsoe:TopologicalNode.toEndIsoCode>
+    <entsoe:TopologicalNode.toEndName>Mörarp</entsoe:TopologicalNode.toEndName>
+    <entsoe:TopologicalNode.toEndNameTso>Svenska Kraftnät</entsoe:TopologicalNode.toEndNameTso>
+    <cim:TopologicalNode.ConnectivityNodeContainer rdf:resource="#_0b5bf2ef-a008-4b9a-9fe9-3c528c8bec50" />
+    <cim:TopologicalNode.BaseVoltage rdf:resource="#_af264e1c-ab1f-4f3b-88c4-ab019b9abf07" />
+  </cim:TopologicalNode>
+  <cim:ConnectivityNode rdf:about="#_183d126d-2522-4ff2-a8cd-c5016cf09c1b">
+    <cim:ConnectivityNode.TopologicalNode rdf:resource="#_e7a3d162-f09d-4dc7-8687-e7bc65522b58" />
+  </cim:ConnectivityNode>
+  <cim:ConnectivityNode rdf:about="#_49831d24-33e9-4233-8424-3f88186a924e">
+    <cim:ConnectivityNode.TopologicalNode rdf:resource="#_26a070b9-db0c-47cd-9991-0a461576aec2" />
+  </cim:ConnectivityNode>
+  <cim:ConnectivityNode rdf:about="#_8a5a6e86-55e4-476b-a3bd-7832e6168569">
+    <cim:ConnectivityNode.TopologicalNode rdf:resource="#_c46e8cb6-b2b9-4031-b5c8-da2735658f1a" />
+  </cim:ConnectivityNode>
+</rdf:RDF>

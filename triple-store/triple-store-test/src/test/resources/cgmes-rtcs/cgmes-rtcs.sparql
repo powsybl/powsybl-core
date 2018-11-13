@@ -1,0 +1,52 @@
+#
+# Copyright (c) 2017, RTE (http://www.rte-france.com)
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+# query: tapChangerControls
+prefix cim: <http://iec.ch/TC57/2013/CIM-schema-cim16#>
+SELECT * {
+    ?TapChangerControl
+        a cim:TapChangerControl ;
+        cim:RegulatingControl.mode ?regulatingControlMode ;
+}
+
+#query: tapChangerControlsOptionalSSH
+prefix cim: <http://iec.ch/TC57/2013/CIM-schema-cim16#>
+SELECT * {
+    ?TapChangerControl
+        a cim:TapChangerControl ;
+        cim:RegulatingControl.mode ?regulatingControlMode .
+    OPTIONAL {
+        ?TapChangerControl
+            cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;
+    }
+}
+
+#query: tapChangerControlsOnlySSHData
+prefix cim: <http://iec.ch/TC57/2013/CIM-schema-cim16#>
+SELECT * {
+    ?TapChangerControl
+        a cim:TapChangerControl ;
+        cim:RegulatingControl.targetValue ?regulatingControlTargetValue
+}
+
+#query: tapChangerOptionalControlOptionalSSH
+prefix cim: <http://iec.ch/TC57/2013/CIM-schema-cim16#>
+SELECT * {
+    ?RatioTapChanger
+        a cim:RatioTapChanger ;
+        cim:RatioTapChanger.stepVoltageIncrement ?stepVoltageIncrement .
+    OPTIONAL {
+        ?RatioTapChanger
+            cim:TapChanger.TapChangerControl ?TapChangerControl .
+        ?TapChangerControl
+            a cim:TapChangerControl ;
+            cim:RegulatingControl.mode ?regulatingControlMode .
+        OPTIONAL {
+            ?TapChangerControl
+              cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;
+        }
+    }
+}
