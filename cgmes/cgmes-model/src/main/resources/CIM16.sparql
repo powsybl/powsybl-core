@@ -311,12 +311,11 @@ WHERE {
     VALUES ?type { cim:Switch cim:Breaker cim:Disconnector } .
     ?Terminal1
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?Switch ;
-        cim:ACDCTerminal.sequenceNumber "1" .
+        cim:Terminal.ConductingEquipment ?Switch .
     ?Terminal2
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?Switch ;
-        cim:ACDCTerminal.sequenceNumber "2" .
+        cim:Terminal.ConductingEquipment ?Switch .
+    FILTER ( STR(?Terminal1) < STR(?Terminal2) )
     OPTIONAL {
         ?EquipmentContainer a cim:VoltageLevel .
         BIND ( ?EquipmentContainer AS ?VoltageLevel )
