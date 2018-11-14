@@ -6,9 +6,9 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
-
 import gnu.trove.set.TIntSet;
 import gnu.trove.set.hash.TIntHashSet;
 
@@ -118,8 +118,8 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     private void writeNodeBreakerTopologyInternalConnection(int n1, int n2, NetworkXmlWriterContext context) {
         try {
             NodeBreakerViewInternalConnectionXml.INSTANCE.write(n1, n2, context);
-        } catch (XMLStreamException x) {
-            // Log the error
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
         }
     }
 
