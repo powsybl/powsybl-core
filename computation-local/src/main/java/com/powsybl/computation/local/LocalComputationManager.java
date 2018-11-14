@@ -160,10 +160,10 @@ public class LocalComputationManager implements ComputationManager {
                             preProcess(workingDir, command, idx);
                             int exitValue = process(workingDir, commandExecution, idx, variables);
                             postProcess(workingDir, commandExecution, idx, exitValue, errors, monitor);
-                            latch.countDown();
                         } catch (Exception e) {
                             LOGGER.warn(e.getMessage());
                         } finally {
+                            latch.countDown();
                             exit();
                         }
                     })
@@ -321,8 +321,7 @@ public class LocalComputationManager implements ComputationManager {
                 try (WorkingDirectory workingDir = new WorkingDirectory(config.getLocalDir(), environment.getWorkingDirPrefix(), environment.isDebug())) {
                     f.setWorkingDir(workingDir.toPath());
                     List<CommandExecution> commandExecutionList = handler.before(workingDir.toPath());
-                    ExecutionReport report = null;
-                    report = execute(workingDir.toPath(), commandExecutionList, environment.getVariables(), handler::onExecutionCompletion);
+                    ExecutionReport report = execute(workingDir.toPath(), commandExecutionList, environment.getVariables(), handler::onExecutionCompletion);
                     R result = handler.after(workingDir.toPath(), report);
                     f.complete(result);
                 }
