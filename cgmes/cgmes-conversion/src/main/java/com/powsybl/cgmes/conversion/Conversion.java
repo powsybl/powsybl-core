@@ -34,6 +34,7 @@ import com.powsybl.cgmes.conversion.elements.ExternalNetworkInjectionConversion;
 import com.powsybl.cgmes.conversion.elements.NodeConversion;
 import com.powsybl.cgmes.conversion.elements.PhaseTapChangerConversion;
 import com.powsybl.cgmes.conversion.elements.RatioTapChangerConversion;
+import com.powsybl.cgmes.conversion.elements.SeriesCompensatorConversion;
 import com.powsybl.cgmes.conversion.elements.ShuntConversion;
 import com.powsybl.cgmes.conversion.elements.StaticVarCompensatorConversion;
 import com.powsybl.cgmes.conversion.elements.SubstationConversion;
@@ -123,6 +124,7 @@ public class Conversion {
 
         convertACLineSegmentsToLines();
         convert(cgmes.equivalentBranches(), eqb -> new EquivalentBranchConversion(eqb, context));
+        convert(cgmes.seriesCompensators(), sc -> new SeriesCompensatorConversion(sc, context));
         convertTransformers();
         convert(cgmes.ratioTapChangers(), rtc -> new RatioTapChangerConversion(rtc, context));
         convert(cgmes.phaseTapChangers(), ptc -> new PhaseTapChangerConversion(ptc, context));

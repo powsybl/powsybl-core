@@ -13,6 +13,8 @@ import java.util.Properties;
 import java.util.function.Consumer;
 
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -65,6 +67,8 @@ public interface CgmesModel {
     PropertyBags acLineSegments();
 
     PropertyBags equivalentBranches();
+
+    PropertyBags seriesCompensators();
 
     PropertyBags transformers();
 
@@ -210,9 +214,9 @@ public interface CgmesModel {
             if (value0 == null || value0.equals(value1)) {
                 return;
             }
-            throw new CgmesModelException(
-                    String.format("Inconsistent values for %s: previous %s, now %s",
-                            attribute, value0, value1));
+            LOG.warn("Inconsistent values for {}: previous {}, now {}", attribute, value0, value1);
         }
     }
+
+    static final Logger LOG = LoggerFactory.getLogger(CgmesModel.class);
 }
