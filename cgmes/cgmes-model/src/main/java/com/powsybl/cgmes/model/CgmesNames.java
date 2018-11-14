@@ -13,6 +13,7 @@ public final class CgmesNames {
     public static final String VOLTAGE_LEVEL = "VoltageLevel";
     public static final String TERMINAL = "Terminal";
     public static final String AC_LINE_SEGMENT = "ACLineSegment";
+    public static final String SERIES_COMPENSATOR = "SeriesCompensator";
 
     public static final String TRANSFORMER_WINDING_RATED_U = "transformerWindingRatedU";
     public static final String TRANSFORMER_END = "TransformerEnd";

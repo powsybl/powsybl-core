@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -17,7 +18,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 public class SeriesCompensatorConversion extends AbstractConductingEquipmentConversion {
 
     public SeriesCompensatorConversion(PropertyBag sc, Conversion.Context context) {
-        super("SeriesCompensator", sc, context, 2);
+        super(CgmesNames.SERIES_COMPENSATOR, sc, context, 2);
     }
 
     @Override
@@ -46,8 +47,8 @@ public class SeriesCompensatorConversion extends AbstractConductingEquipmentConv
         String busId1 = busId(1);
         String busId2 = busId(2);
         final Line l = context.network().newLine()
-                .setId(context.namingStrategy().getId("SeriesCompensator", id))
-                .setName(context.namingStrategy().getName("SeriesCompensator", name))
+                .setId(context.namingStrategy().getId(CgmesNames.SERIES_COMPENSATOR, id))
+                .setName(context.namingStrategy().getName(CgmesNames.SERIES_COMPENSATOR, name))
                 .setEnsureIdUnicity(false)
                 .setBus1(terminalConnected(1) ? busId1 : null)
                 .setBus2(terminalConnected(2) ? busId2 : null)

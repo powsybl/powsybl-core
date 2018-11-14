@@ -216,7 +216,7 @@ public interface CgmesModel {
             }
             LOG.warn("Inconsistent values for {}: previous {}, now {}", attribute, value0, value1);
         }
-    }
 
-    static final Logger LOG = LoggerFactory.getLogger(CgmesModel.class);
+        private static final Logger LOG = LoggerFactory.getLogger(CgmesModel.class);
+    }
 }
