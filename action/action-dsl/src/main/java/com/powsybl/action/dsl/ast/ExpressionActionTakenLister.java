@@ -6,6 +6,8 @@
  */
 package com.powsybl.action.dsl.ast;
 
+import com.powsybl.dsl.ast.ExpressionNode;
+
 import java.util.ArrayList;
 import java.util.List;
 

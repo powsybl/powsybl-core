@@ -75,6 +75,7 @@
         <module>tools</module>
         <module>triple-store</module>
         <module>ucte</module>
+        <module>dsl</module>
     </modules>
 
     <properties>

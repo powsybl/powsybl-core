@@ -14,6 +14,7 @@ import com.powsybl.commons.exceptions.UncheckedIllegalAccessException;
 import com.powsybl.commons.exceptions.UncheckedInstantiationException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.dsl.ast.ExpressionNode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.loadflow.LoadFlow;
@@ -186,15 +187,15 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                 return context.getTimeLine().actionTaken(actionId);
             }
         };
-        boolean ok = ExpressionEvaluator.evaluate(conditionExpr, evalContext).equals(Boolean.TRUE);
+        boolean ok = ActionExpressionEvaluator.evaluate(conditionExpr, evalContext).equals(Boolean.TRUE);
 
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Evaluating {} to {}", ExpressionPrinter.toString(conditionExpr), Boolean.toString(ok));
+            LOGGER.debug("Evaluating {} to {}", ActionExpressionPrinter.toString(conditionExpr), Boolean.toString(ok));
         }
 
         Map<String, Object> variables = ExpressionVariableLister.list(conditionExpr).stream()
-                .collect(Collectors.toMap(ExpressionPrinter::toString,
-                    n -> ExpressionEvaluator.evaluate(n, evalContext),
+                .collect(Collectors.toMap(ActionExpressionPrinter::toString,
+                    n -> ActionExpressionEvaluator.evaluate(n, evalContext),
                     (v1, v2) -> v1,
                     TreeMap::new));
 
@@ -336,7 +337,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                 .filter(rule -> rule.getType().equals(RuleType.TEST))
                 .filter(rule -> {
                     ExpressionNode conditionExpr = ((ExpressionCondition) rule.getCondition()).getNode();
-                    return ExpressionEvaluator.evaluate(conditionExpr, evalContext).equals(Boolean.TRUE);
+                    return ActionExpressionEvaluator.evaluate(conditionExpr, evalContext).equals(Boolean.TRUE);
                 })
                 .collect(Collectors.toList());
         List<String> testActionIds = activedRules.stream()

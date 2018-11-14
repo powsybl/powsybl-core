@@ -6,8 +6,10 @@
  */
 package com.powsybl.action.dsl
 
-import com.powsybl.action.dsl.ast.BooleanLiteralNode
-import com.powsybl.action.dsl.ast.ExpressionNode
+import com.powsybl.contingency.dsl.ContingencyDslLoader
+import com.powsybl.dsl.DslLoader
+import com.powsybl.dsl.ast.BooleanLiteralNode
+import com.powsybl.dsl.ast.ExpressionNode
 import com.powsybl.action.dsl.spi.DslTaskExtension
 import com.powsybl.contingency.*
 import com.powsybl.contingency.tasks.ModificationTask
@@ -123,47 +125,7 @@ class ActionDslLoader extends DslLoader {
 
             Set<String> actionsId = new TreeSet<>()
 
-            // contingencies
-            binding.contingency = { String id, Closure<Void> closure ->
-                def cloned = closure.clone()
-                ContingencySpec contingencySpec = new ContingencySpec()
-                cloned.delegate = contingencySpec
-                cloned()
-                if (!contingencySpec.equipments) {
-                    throw new ActionDslException("'equipments' field is not set")
-                }
-                if (contingencySpec.equipments.length == 0) {
-                    throw new ActionDslException("'equipments' field is empty")
-                }
-                def elements = []
-                def valid = true
-                for (String equipment : contingencySpec.equipments) {
-                    Identifiable identifiable = network.getIdentifiable(equipment)
-                    if (identifiable == null) {
-                        LOGGER.warn("Equipment '{}' of contingency '{}' not found", equipment, id)
-                        valid = false
-                    } else if (identifiable instanceof Line || identifiable instanceof TwoWindingsTransformer) {
-                        elements.add(new BranchContingency(equipment))
-                    } else if (identifiable instanceof HvdcLine) {
-                        elements.add(new HvdcLineContingency(equipment))
-                    } else if (identifiable instanceof Generator) {
-                        elements.add(new GeneratorContingency(equipment))
-                    } else if (identifiable instanceof BusbarSection) {
-                        elements.add(new BusbarSectionContingency(equipment))
-                    } else {
-                        LOGGER.warn("Equipment type {} not supported in contingencies", identifiable.getClass().name)
-                        valid = false
-                    }
-                }
-                if (valid) {
-                    LOGGER.debug("Found contingency '{}'", id)
-                    observer?.contingencyFound(id)
-                    Contingency contingency = new Contingency(id, elements)
-                    rulesDb.addContingency(contingency)
-                } else {
-                    LOGGER.warn("Contingency '{}' is invalid", id)
-                }
-            }
+            ContingencyDslLoader.loadDsl(binding, network, rulesDb.&addContingency, observer)
 
             ConditionDslLoader.prepareClosures(binding)
 

@@ -6,10 +6,12 @@
  */
 package com.powsybl.action.dsl.ast;
 
+import com.powsybl.dsl.ast.*;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class DefaultExpressionVisitor<R, A> implements ExpressionVisitor<R, A> {
+public class DefaultExpressionVisitor<R, A> implements ActionExpressionVisitor<R, A> {
     @Override
     public R visitComparisonOperator(ComparisonOperatorNode node, A arg) {
         node.getLeft().accept(this, arg);

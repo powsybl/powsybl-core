@@ -35,6 +35,10 @@
                     </archive>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
 
@@ -52,6 +56,11 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-computation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-dsl</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
