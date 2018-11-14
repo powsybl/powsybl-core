@@ -68,6 +68,8 @@ public interface CgmesModel {
 
     PropertyBags equivalentBranches();
 
+    PropertyBags seriesCompensators();
+
     PropertyBags transformers();
 
     PropertyBags transformerEnds();

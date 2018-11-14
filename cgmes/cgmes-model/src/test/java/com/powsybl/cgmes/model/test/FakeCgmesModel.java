@@ -33,6 +33,7 @@ public final class FakeCgmesModel implements CgmesModel {
     private PropertyBags switches;
     private PropertyBags acLineSegments;
     private PropertyBags equivalentBranches;
+    private PropertyBags seriesCompensators;
     private PropertyBags transformers;
     private PropertyBags transformerEnds;
     private PropertyBags ratioTapChangers;
@@ -67,6 +68,7 @@ public final class FakeCgmesModel implements CgmesModel {
         switches = new PropertyBags();
         acLineSegments = new PropertyBags();
         equivalentBranches = new PropertyBags();
+        seriesCompensators = new PropertyBags();
         transformers = new PropertyBags();
         transformerEnds = new PropertyBags();
         ratioTapChangers = new PropertyBags();
@@ -149,6 +151,11 @@ public final class FakeCgmesModel implements CgmesModel {
     @Override
     public PropertyBags equivalentBranches() {
         return equivalentBranches;
+    }
+
+    @Override
+    public PropertyBags seriesCompensators() {
+        return seriesCompensators;
     }
 
     public FakeCgmesModel transformers(String... ids) {

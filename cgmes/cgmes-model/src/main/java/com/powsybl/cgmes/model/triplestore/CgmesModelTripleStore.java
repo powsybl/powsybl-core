@@ -231,6 +231,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags seriesCompensators() {
+        return namedQuery("seriesCompensators");
+    }
+
+    @Override
     public PropertyBags transformers() {
         return namedQuery("transformers");
     }

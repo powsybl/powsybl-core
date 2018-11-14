@@ -322,12 +322,11 @@ WHERE {
     VALUES ?type { cim:Switch cim:Breaker cim:Disconnector } .
     ?Terminal1
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?Switch ;
-        cim:ACDCTerminal.sequenceNumber "1" .
+        cim:Terminal.ConductingEquipment ?Switch .
     ?Terminal2
         a cim:Terminal ;
-        cim:Terminal.ConductingEquipment ?Switch ;
-        cim:ACDCTerminal.sequenceNumber "2" .
+        cim:Terminal.ConductingEquipment ?Switch .
+    FILTER ( STR(?Terminal1) < STR(?Terminal2) )
     OPTIONAL {
         ?EquipmentContainer a cim:VoltageLevel .
         BIND ( ?EquipmentContainer AS ?VoltageLevel )
@@ -389,6 +388,26 @@ WHERE {
         a cim:Terminal ;
         cim:Terminal.ConductingEquipment ?EquivalentBranch ;
         cim:ACDCTerminal.sequenceNumber "2" .
+}}
+}
+
+
+# query: seriesCompensators
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?SeriesCompensator
+        a cim:SeriesCompensator ;
+        cim:SeriesCompensator.r ?r ;
+        cim:SeriesCompensator.x ?x ;
+        cim:IdentifiedObject.name ?name .
+    ?Terminal1
+        a cim:Terminal ;
+        cim:Terminal.ConductingEquipment ?SeriesCompensator .
+    ?Terminal2
+        a cim:Terminal ;
+        cim:Terminal.ConductingEquipment ?SeriesCompensator .
+    FILTER ( STR (?Terminal1) < STR (?Terminal2) )
 }}
 }
 
