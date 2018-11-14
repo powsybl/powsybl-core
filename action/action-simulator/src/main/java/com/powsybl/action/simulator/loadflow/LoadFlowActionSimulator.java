@@ -38,7 +38,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadFlowActionSimulator.class);
 
-    static final LimitViolationFilter LIMIT_VIOLATION_FILTER = new LimitViolationFilter(EnumSet.of(LimitViolationType.CURRENT), 0.0);
+    private static final LimitViolationFilter LIMIT_VIOLATION_FILTER = new LimitViolationFilter(EnumSet.of(LimitViolationType.CURRENT), 0.0);
 
     static final LimitViolationFilter NO_FILTER = new LimitViolationFilter();
 
@@ -108,7 +108,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
         observers.forEach(LoadFlowActionSimulatorObserver::afterPreContingencyAnalysis);
 
-        CopyNetworkStrategy copyNetworkStrategy = config.getCopyStrategy() == CopyStrategy.STATE ? new CopyState() :  new CopyDeep();
+        NetworkCopyStrategy copyNetworkStrategy = config.getCopyStrategy() == CopyStrategy.STATE ? new CopyStateStrategy() :  new DeepCopyStrategy();
         copyNetworkStrategy.saveState();
 
         if (preContingencyAnalysisOk || config.isIgnorePreContingencyViolations()) {
@@ -196,7 +196,10 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         }
 
         Map<String, Object> variables = ExpressionVariableLister.list(conditionExpr).stream()
-                .collect(Collectors.toMap(ExpressionPrinter::toString, n -> ExpressionEvaluator.evaluate(n, evalContext), (v1, v2) -> v1, TreeMap::new));
+                .collect(Collectors.toMap(ExpressionPrinter::toString,
+                    n -> ExpressionEvaluator.evaluate(n, evalContext),
+                    (v1, v2) -> v1,
+                    TreeMap::new));
 
         LOGGER.debug("Variables values: {}", variables);
 
@@ -209,7 +212,10 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         }
 
         Map<String, Boolean> actions = ExpressionActionTakenLister.list(conditionExpr).stream()
-                .collect(Collectors.toMap(s -> s, s -> context.getTimeLine().actionTaken(s), (s1, s2) -> s1, TreeMap::new));
+                .collect(Collectors.toMap(s -> s,
+                    s -> context.getTimeLine().actionTaken(s),
+                    (s1, s2) -> s1,
+                    TreeMap::new));
 
         return new RuleContext(status, variables, actions);
     }
@@ -337,16 +343,16 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                 })
                 .collect(Collectors.toList());
         List<String> testActionIds = activedRules.stream()
-                .flatMap(r -> r.getActions().stream())
-                .distinct()
-                .filter(id -> !context.isTested(id))
-                .collect(Collectors.toList());
+                                .flatMap(r -> r.getActions().stream())
+                                .distinct()
+                                .filter(id -> !context.isTested(id))
+                                .collect(Collectors.toList());
 
         if (testActionIds.isEmpty()) {
             return;
         }
 
-        CopyNetworkStrategy copyNetworkStrategy = config.getCopyStrategy() == CopyStrategy.STATE ? new CopyState() :  new CopyDeep();
+        NetworkCopyStrategy copyNetworkStrategy = config.getCopyStrategy() == CopyStrategy.STATE ? new CopyStateStrategy() :  new DeepCopyStrategy();
         copyNetworkStrategy.saveState();
 
         for (String actionId : testActionIds) {
@@ -403,51 +409,54 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         }
     }
 
-    private interface CopyNetworkStrategy {
-        void saveState();
-        Network restoreState(String someId);
+    private interface NetworkCopyStrategy {
+
         void clearState();
+
+        Network restoreState(String stateId);
+
+        void saveState();
     }
 
-    private class CopyDeep implements CopyNetworkStrategy {
+    private class DeepCopyStrategy implements NetworkCopyStrategy {
         private byte[] contextNetwork;
+
+        @Override
+        public void clearState() {
+            // Nothing to do
+        }
+
+        @Override
+        public Network restoreState(String id) {
+            return NetworkXml.gunzip(contextNetwork);
+        }
 
         @Override
         public void saveState() {
             contextNetwork = NetworkXml.gzip(network);
         }
-
-        @Override
-        public Network restoreState(String someId) {
-            return NetworkXml.gunzip(contextNetwork);
-        }
-
-        @Override
-        public void clearState() {
-            //do nothing
-        }
     }
 
-    private class CopyState implements CopyNetworkStrategy {
+    private class CopyStateStrategy implements NetworkCopyStrategy {
         private String stateId;
         private String tmpStateId;
 
         @Override
-        public void saveState() {
-            stateId = network.getStateManager().getWorkingStateId();
+        public void clearState() {
+            network.getStateManager().removeState(tmpStateId);
         }
 
         @Override
-        public Network restoreState(String someId) {
-            tmpStateId = someId + "-" + UUID.randomUUID();
+        public Network restoreState(String id) {
+            tmpStateId = id + "-" + UUID.randomUUID();
             network.getStateManager().cloneState(stateId, tmpStateId);
             network.getStateManager().setWorkingState(tmpStateId);
             return network;
         }
 
         @Override
-        public void clearState() {
-            network.getStateManager().removeState(tmpStateId);
+        public void saveState() {
+            stateId = network.getStateManager().getWorkingStateId();
         }
     }
 

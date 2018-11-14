@@ -55,7 +55,7 @@ public class LoadFlowActionSimulatorConfig {
         this.maxIterations = maxIterations;
         this.ignorePreContingencyViolations = ignorePreContingencyViolations;
         this.debug = debug;
-        this.copyStrategy = copyStrategy;
+        this.copyStrategy = Objects.requireNonNull(copyStrategy);
     }
 
     public Class<? extends LoadFlowFactory> getLoadFlowFactoryClass() {
@@ -95,6 +95,6 @@ public class LoadFlowActionSimulatorConfig {
     }
 
     public void setCopyStrategy(CopyStrategy copyStrategy) {
-        this.copyStrategy = copyStrategy;
+        this.copyStrategy = Objects.requireNonNull(copyStrategy);
     }
 }

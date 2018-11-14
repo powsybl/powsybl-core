@@ -7,7 +7,6 @@
 
 package com.powsybl.action.simulator.loadflow;
 
-
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
