@@ -17,16 +17,17 @@ import org.apache.commons.lang3.SystemUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.IntStream;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -143,20 +144,42 @@ public class LocalComputationManager implements ComputationManager {
     }
 
     private ExecutionReport execute(Path workingDir, List<CommandExecution> commandExecutionList, Map<String, String> variables, ExecutionMonitor monitor)
-            throws IOException, InterruptedException {
+            throws InterruptedException {
+        // TODO concurrent
         List<ExecutionError> errors = new ArrayList<>();
+        ExecutorService executionSubmitter = Executors.newCachedThreadPool();
 
         for (CommandExecution commandExecution : commandExecutionList) {
             Command command = commandExecution.getCommand();
+            CountDownLatch latch = new CountDownLatch(commandExecution.getExecutionCount());
+            IntStream.range(0, commandExecution.getExecutionCount()).forEach(idx ->
+                    executionSubmitter.execute(() -> {
+                        try {
+                            enter();
+                            logExecutingCommand(workingDir, command, idx);
+                            preProcess(workingDir, command, idx);
+                            int exitValue = process(workingDir, commandExecution, idx, variables);
+                            postProcess(workingDir, commandExecution, idx, exitValue, errors, monitor);
+                        } catch (Exception e) {
+                            LOGGER.warn(e.getMessage());
+                        } finally {
+                            latch.countDown();
+                            exit();
+                        }
+                    })
+            );
+            latch.await();
+        }
 
-            for (int executionIndex = 0; executionIndex < commandExecution.getExecutionCount(); executionIndex++) {
-                logExecutingCommand(workingDir, command, executionIndex);
-
-                preProcess(workingDir, command, executionIndex);
-                int exitValue = process(workingDir, commandExecution, executionIndex, variables);
-                postProcess(workingDir, commandExecution, executionIndex, exitValue, errors, monitor);
+        // TODO remove duplicated code
+        executionSubmitter.shutdown();
+        if (!executionSubmitter.awaitTermination(20, TimeUnit.SECONDS)) {
+            executionSubmitter.shutdownNow();
+            if (!executionSubmitter.awaitTermination(20, TimeUnit.SECONDS)) {
+                LOGGER.error("Thread pool did not terminate");
             }
         }
+
         return new ExecutionReport(errors);
     }
 
@@ -298,13 +321,7 @@ public class LocalComputationManager implements ComputationManager {
                 try (WorkingDirectory workingDir = new WorkingDirectory(config.getLocalDir(), environment.getWorkingDirPrefix(), environment.isDebug())) {
                     f.setWorkingDir(workingDir.toPath());
                     List<CommandExecution> commandExecutionList = handler.before(workingDir.toPath());
-                    ExecutionReport report = null;
-                    enter();
-                    try {
-                        report = execute(workingDir.toPath(), commandExecutionList, environment.getVariables(), handler::onExecutionCompletion);
-                    } finally {
-                        exit();
-                    }
+                    ExecutionReport report = execute(workingDir.toPath(), commandExecutionList, environment.getVariables(), handler::onExecutionCompletion);
                     R result = handler.after(workingDir.toPath(), report);
                     f.complete(result);
                 }
