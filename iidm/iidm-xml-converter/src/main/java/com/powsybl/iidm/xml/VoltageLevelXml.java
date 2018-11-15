@@ -6,8 +6,11 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
+import gnu.trove.set.TIntSet;
+import gnu.trove.set.hash.TIntHashSet;
 
 import javax.xml.stream.XMLStreamException;
 
@@ -85,7 +88,39 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         for (Switch sw : vl.getNodeBreakerView().getSwitches()) {
             NodeBreakerViewSwitchXml.INSTANCE.write(sw, vl, context);
         }
+        writeNodeBreakerTopologyInternalConnections(vl, context);
         context.getWriter().writeEndElement();
+    }
+
+    private void writeNodeBreakerTopologyInternalConnections(VoltageLevel vl, NetworkXmlWriterContext context) {
+        VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
+        int[] nodes = topo.getNodes();
+        // There is no way in IIDM to obtain the list of internal connections,
+        // we have to traverse all connectivity and consider an internal connection
+        // when there are two nodes linked with an edge that does not have an
+        // associated object
+        final TIntSet explored = new TIntHashSet();
+        for (int n : nodes) {
+            if (explored.contains(n) || topo.getTerminal(n) == null) {
+                continue;
+            }
+            explored.add(n);
+            topo.traverse(n, (n1, sw, n2) -> {
+                explored.add(n2);
+                if (sw == null) {
+                    writeNodeBreakerTopologyInternalConnection(n1, n2, context);
+                }
+                return topo.getTerminal(n2) == null;
+            });
+        }
+    }
+
+    private void writeNodeBreakerTopologyInternalConnection(int n1, int n2, NetworkXmlWriterContext context) {
+        try {
+            NodeBreakerViewInternalConnectionXml.INSTANCE.write(n1, n2, context);
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
+        }
     }
 
     private void writeBusBreakerTopology(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
@@ -215,6 +250,10 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
 
                             case NodeBreakerViewSwitchXml.ROOT_ELEMENT_NAME:
                                 NodeBreakerViewSwitchXml.INSTANCE.read(vl, context);
+                                break;
+
+                            case NodeBreakerViewInternalConnectionXml.ROOT_ELEMENT_NAME:
+                                NodeBreakerViewInternalConnectionXml.INSTANCE.read(vl, context);
                                 break;
 
                             default:
