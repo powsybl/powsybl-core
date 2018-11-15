@@ -7,8 +7,13 @@
 
 package com.powsybl.cgmes.conformity.test;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.test.FakeCgmesModel;
+import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.cgmes.model.test.TestGridModelResources;
 
 /**
@@ -30,6 +35,25 @@ public class CgmesConformity1Catalog {
                 base + "MicroGridTestConfiguration_BC_BE_SSH_V2.xml",
                 base + "MicroGridTestConfiguration_BC_BE_SV_V2.xml",
                 base + "MicroGridTestConfiguration_BC_BE_TP_V2.xml",
+                baseBoundary + "MicroGridTestConfiguration_EQ_BD.xml",
+                baseBoundary + "MicroGridTestConfiguration_TP_BD.xml");
+    }
+
+    public TestGridModel microGridType4BE() {
+        String base = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/Type4_T4/CGMES_v2.4.15_MicroGridTestConfiguration_T4_BE_BB_Complete_v2/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/Type4_T4/CGMES_v2.4.15_MicroGridTestConfiguration_BD_v2/";
+        return new TestGridModelResources(
+                "MicroGrid-Type4-BE",
+                expectedMicroGridType4BE(),
+                base + "MicroGridTestConfiguration_T4_BE_DL_V2.xml",
+                base + "MicroGridTestConfiguration_T4_BE_DY_V2.xml",
+                base + "MicroGridTestConfiguration_T4_BE_EQ_V2.xml",
+                base + "MicroGridTestConfiguration_T4_BE_GL_V2.xml",
+                base + "MicroGridTestConfiguration_T4_BE_SSH_V2.xml",
+                base + "MicroGridTestConfiguration_T4_BE_SV_V2.xml",
+                base + "MicroGridTestConfiguration_T4_BE_TP_V2.xml",
                 baseBoundary + "MicroGridTestConfiguration_EQ_BD.xml",
                 baseBoundary + "MicroGridTestConfiguration_TP_BD.xml");
     }
@@ -141,7 +165,7 @@ public class CgmesConformity1Catalog {
                 baseBoundary + "SmallGridTestConfiguration_TP_BD_v3.0.0.xml");
     }
 
-    public CgmesModel expectedMicroGridBaseCaseBE() {
+    public FakeCgmesModel expectedMicroGridBaseCaseBE() {
         return new FakeCgmesModel()
                 .modelId("MicroBaseCaseBE")
                 .version("unknown")
@@ -347,7 +371,7 @@ public class CgmesConformity1Catalog {
                         "_550ebe0d-f2b2-48c1-991f-cebea43a21aa");
     }
 
-    private CgmesModel expectedMiniNodeBreaker() {
+    private FakeCgmesModel expectedMiniNodeBreaker() {
         return new FakeCgmesModel()
                 .modelId("MiniNodeBreakerBaseCaseComplete")
                 .version("unknown")
@@ -834,6 +858,184 @@ public class CgmesConformity1Catalog {
                 .asynchronousMachines("_062ece1f-ade5-4d20-9c3a-fd8f12d12ec1",
                         "_ba62884d-8800-41a8-9c26-698297d7ebaa",
                         "_f184d87b-5565-45ee-89b4-29e8a42d3ad1");
+    }
+
+    public CgmesModel expectedMicroGridType4BE() {
+        FakeCgmesModel m = expectedMicroGridBaseCaseBE();
+        m.voltageLevels("_69ef0dbd-da79-4eef-a02f-690cb8a28361");
+        m.terminals("_13dcec71-4b02-4c0c-93a7-8e16db4aa0b7",
+                "_67bb74f1-8620-4a32-9d7d-a44092d11d22",
+                "_8171fc34-6891-40e0-92d1-da9f4ba69e26");
+        m.terminalLimits(
+                "_0068a5c1-9212-4366-8e0e-cf621a92a8b7",
+                "_0068a5c1-9212-4366-8e0e-cf621a92a8b71",
+                "_08322f60-4e75-4a00-a4e0-0c55bf588919",
+                "_08322f60-4e75-4a00-a4e0-0c55bf5889191",
+                "_1b0850d6-317b-40a3-aa98-040b64f9350c",
+                "_1e793cd6-1608-46af-a3f7-b4d1cabc9d58",
+                "_2bb91774-4c1f-4dd6-aeb3-87a3009306c0",
+                "_2bb91774-4c1f-4dd6-aeb3-87a3009306c01",
+                "_2eb0f5f3-1377-4ea8-b794-a86c28039603",
+                "_2eb0f5f3-1377-4ea8-b794-a86c280396031",
+                "_328d2341-1ab1-417a-9246-8aa0e8124e9c",
+                "_328d2341-1ab1-417a-9246-8aa0e8124e9c1",
+                "_33d5e916-21fd-4d24-802d-69c0eb173eaf",
+                "_33d5e916-21fd-4d24-802d-69c0eb173eaf1",
+                "_3707e6e7-69e5-4f10-bc43-2812519c2842",
+                "_3707e6e7-69e5-4f10-bc43-2812519c28421",
+                "_382e1966-5b98-4257-a0e5-e0cce107f85d",
+                "_382e1966-5b98-4257-a0e5-e0cce107f85d1",
+                "_3ee6fbe2-5862-473e-b09d-a44522c6bf9e",
+                "_3ee6fbe2-5862-473e-b09d-a44522c6bf9e1",
+                "_4dca5f0b-dadf-46c9-aa93-5ff360c120fd",
+                "_4dca5f0b-dadf-46c9-aa93-5ff360c120fd1",
+                "_4f36a64e-0494-47b0-a552-93db9d01eb8a",
+                "_4f36a64e-0494-47b0-a552-93db9d01eb8a1",
+                "_50c2510a-8f27-44f3-a3a5-64ae99b6c077",
+                "_50c2510a-8f27-44f3-a3a5-64ae99b6c0771",
+                "_51a7a0f8-8b3c-4a59-9890-55de5f7de19b",
+                "_51a7a0f8-8b3c-4a59-9890-55de5f7de19b1",
+                "_55d9cdaf-9b02-448b-9206-f12f3c8d2f64",
+                "_55d9cdaf-9b02-448b-9206-f12f3c8d2f641",
+                "_56a462e6-5117-456b-9d0c-8d62b9a1f14a",
+                "_56a462e6-5117-456b-9d0c-8d62b9a1f14a1",
+                "_58c959fd-3675-4ad4-a221-9647b57073dd1",
+                "_58ccdb26-c046-4189-a1c2-e542a168f853",
+                "_58ccdb26-c046-4189-a1c2-e542a168f8531",
+                "_5ba29c54-df69-4e8f-8835-58f7deb762d9",
+                "_5ba29c54-df69-4e8f-8835-58f7deb762d91",
+                "_5f3bd045-4b3a-47f5-acce-6b45d332633b",
+                "_5f3bd045-4b3a-47f5-acce-6b45d332633b1",
+                "_6236459d-8471-44be-9b66-b271ac407165",
+                "_648d7a22-9468-4c53-9528-99c9f82d3e45",
+                "_648d7a22-9468-4c53-9528-99c9f82d3e451",
+                "_69ef4dd8-9f2a-48f7-a230-c4cd695f48761",
+                "_6a000ecb-b731-4cc0-9791-980a4d8c2891",
+                "_6a000ecb-b731-4cc0-9791-980a4d8c28911",
+                "_6c95290e-c4a6-4fa9-8d48-d4c847a1d2c4",
+                "_6c95290e-c4a6-4fa9-8d48-d4c847a1d2c41",
+                "_701a0052-ddb1-484a-885c-600c74063a6a",
+                "_701a0052-ddb1-484a-885c-600c74063a6a1",
+                "_7166b977-0713-4afd-9674-d5073c972321",
+                "_7166b977-0713-4afd-9674-d5073c9723211",
+                "_78a00357-6831-4773-a317-f0092621fb0c",
+                "_78a00357-6831-4773-a317-f0092621fb0c1",
+                "_8447ed5e-3d27-42c0-9e67-9affdda0be451",
+                "_858ebaaa-eec6-48e1-b579-b10986e0ddb6",
+                "_858ebaaa-eec6-48e1-b579-b10986e0ddb61",
+                "_86143da2-d202-41e3-a1b4-7eb13ba09334",
+                "_86143da2-d202-41e3-a1b4-7eb13ba093341",
+                "_89893083-697f-45cd-bdce-14f57fed5914",
+                "_89893083-697f-45cd-bdce-14f57fed59141",
+                "_8a9d3c6a-e33f-4a3b-828a-4a696602e4d2",
+                "_8a9d3c6a-e33f-4a3b-828a-4a696602e4d21",
+                "_94489b05-9fba-4d28-a720-f2f731fcbeb4",
+                "_94489b05-9fba-4d28-a720-f2f731fcbeb41",
+                "_9732c968-c1c4-446a-b47b-9038f5a59724",
+                "_9b2c1328-381e-4277-9042-94b0085f2b77",
+                "_a47ed63a-6b8a-4ccd-aae8-d6781f644ce5",
+                "_a47ed63a-6b8a-4ccd-aae8-d6781f644ce52",
+                "_a4fce087-92c7-454e-a901-b3efceafca61",
+                "_a4fce087-92c7-454e-a901-b3efceafca611",
+                "_a94ca937-819e-4975-a1fd-34598e05d56e",
+                "_a94ca937-819e-4975-a1fd-34598e05d56e1",
+                "_b0c127b9-ba6a-4c95-9c9f-a331e9237bb0",
+                "_b0c127b9-ba6a-4c95-9c9f-a331e9237bb01",
+                "_b1714414-0394-42b6-b441-a664069554a21",
+                "_b2f157c0-ced9-4692-b430-4864d5a665e4",
+                "_b2f157c0-ced9-4692-b430-4864d5a665e41",
+                "_b659ed1b-c1a0-459e-a858-6c3f7431f4f2",
+                "_b659ed1b-c1a0-459e-a858-6c3f7431f4f21",
+                "_bcf693fe-ccc9-443d-90d6-21d3702b4186",
+                "_bcf693fe-ccc9-443d-90d6-21d3702b41861",
+                "_bfdc67ea-b21a-4f48-a425-0c715c7e16e01",
+                "_c1e9a43c-a753-4f7c-b847-b7807c3779b5",
+                "_c1e9a43c-a753-4f7c-b847-b7807c3779b51",
+                "_c23d7e6c-1e09-452e-a82d-70599ec197b2",
+                "_c23d7e6c-1e09-452e-a82d-70599ec197b21",
+                "_c8852f92-33cc-44eb-b977-d282bb648d2f",
+                "_c8852f92-33cc-44eb-b977-d282bb648d2f1",
+                "_c90ed10b-9e23-48b5-a0f0-3ee7729dc83e",
+                "_c90ed10b-9e23-48b5-a0f0-3ee7729dc83e1",
+                "_cd228cb6-24ad-45f3-b9a1-24361a743d22",
+                "_cd228cb6-24ad-45f3-b9a1-24361a743d221",
+                "_cdb0571a-cacd-4f39-9537-0bfdf3f0fd1b",
+                "_cdb0571a-cacd-4f39-9537-0bfdf3f0fd1b2",
+                "_cde82226-7cea-4d13-b0b0-f545a0e08a18",
+                "_cde82226-7cea-4d13-b0b0-f545a0e08a181",
+                "_d29ef207-67d3-47bb-82ea-9d82074dde55",
+                "_d39031b2-8181-4b02-a4fe-2a4a5296dd51",
+                "_d39031b2-8181-4b02-a4fe-2a4a5296dd511",
+                "_d91f4be3-9191-4cf9-a271-5fd1f54465ce",
+                "_d91f4be3-9191-4cf9-a271-5fd1f54465ce1",
+                "_dea05113-ef3e-4161-957d-4602c874839e",
+                "_df47a1fa-8065-4c82-bc45-f62e92caaf3e",
+                "_df47a1fa-8065-4c82-bc45-f62e92caaf3e1",
+                "_e16c3321-9a86-4975-ba5e-4788ac070e54",
+                "_e16c3321-9a86-4975-ba5e-4788ac070e541",
+                "_e1ae19e7-8bb7-42ce-8ae6-24893f16e366",
+                "_ebe4f8e3-7bc8-4162-8bdf-e100742b23631",
+                "_f2b59bb4-79ce-4f17-8fc6-c006407b6358",
+                "_f2b59bb4-79ce-4f17-8fc6-c006407b63581",
+                "_f49c1cf8-6dad-442b-8b6e-88d17969887f",
+                "_f49c1cf8-6dad-442b-8b6e-88d17969887f1",
+                "_f552f5f8-348a-4299-81e6-c8f5a39a6db3",
+                "_f552f5f8-348a-4299-81e6-c8f5a39a6db31",
+                "_f6fbfd23-8043-4d2a-a547-73d14bd161cf",
+                "_f6fbfd23-8043-4d2a-a547-73d14bd161cf1",
+                "_f8bd3d90-ecc2-4f16-9de9-22ba0e62c1f3",
+                "_f8bd3d90-ecc2-4f16-9de9-22ba0e62c1f31",
+                "_fad252e8-cd6e-4226-9c0f-3a9f1e43904d",
+                "_fad252e8-cd6e-4226-9c0f-3a9f1e43904d1",
+                "_fd227658-0e1b-4ecd-952a-c6b0307b1ea1",
+                "_fd227658-0e1b-4ecd-952a-c6b0307b1ea11",
+                "_ff466d18-e4f5-439b-a50a-daec2fa41e2c",
+                "_ff466d18-e4f5-439b-a50a-daec2fa41e2c1");
+        Set<String> tlremove = new HashSet<>(Arrays.asList(
+                "_acbd4688-6393-4b43-a9f4-27d8c3f8c309",
+                "_1c8440dc-e65d-4337-9d3e-7558062228da1",
+                "_bfdc67ea-b21a-4f48-a425-0c715c7e16e02",
+                "_1c8440dc-e65d-4337-9d3e-7558062228da",
+                "_6f70e245-e075-4ed9-9f86-f137b7e33313",
+                "_6f70e245-e075-4ed9-9f86-f137b7e333131",
+                "_da1cb116-0730-4a00-b795-8ab0b52ad89f",
+                "_5b77485f-20a3-4a19-8d15-e4038c81663f",
+                "_69ef4dd8-9f2a-48f7-a230-c4cd695f48762",
+                "_aaa63bb1-fa34-41a3-bd92-0637bfce549c",
+                "_661b3900-dc24-4af5-8720-3e675b48b747",
+                "_2e27135c-53b6-4bd0-a4c1-5312fdbf0704",
+                "_661b3900-dc24-4af5-8720-3e675b48b7471",
+                "_4af98ccd-29f1-4039-86cd-c23fc2deb3bc",
+                "_2e27135c-53b6-4bd0-a4c1-5312fdbf07041",
+                "_84d4dbeb-ef3b-43a1-9a7e-ce5713013498",
+                "_7939fc42-08ef-4ce7-9912-97552a4db39a",
+                "_0d6f26df-9f86-4df0-b00c-bfb23870257f"));
+        m.terminalLimits().removeIf(tl -> tlremove.contains(tl.getId("OperationalLimit")));
+        m.topologicalNodes("_23b65c6b-2351-4673-89e9-1895c7291543");
+        m.transformerEnds(
+                "_3c59d1b0-1ee9-4ca3-9086-4fe102b51b21",
+                "_ba56158e-0c51-448d-999b-44cb0b3cebf5",
+                "_bf76ac9d-0144-48f5-a24a-34ae15a455fb",
+                "_e22f3c30-63f5-47bf-a8c4-fee2483d426c");
+        Set<String> teremove = new HashSet<>(Arrays.asList(
+                "_1912224a-9e98-41aa-84cf-00875bce7264",
+                "_49ca3fd4-1b54-4c5b-83fd-4dbd0f9fec9d",
+                "_664a19e1-1dc2-48d5-b265-c0630981e61c",
+                "_81a18364-0397-48d3-b850-22a0e34b410f"));
+        m.transformerEnds().removeIf(te -> teremove.contains(te.getId("TransformerEnd")));
+        m.ratioTapChangers()
+                .removeIf(rtc -> rtc.getId("RatioTapChanger").equals("_955d9cd0-4a10-4031-b008-60c0dc340a07"));
+        m.phaseTapChangers()
+                .removeIf(ptc -> ptc.getId("PhaseTapChanger").equals("_6ebbef67-3061-4236-a6fd-6ccc4595f6c3"));
+        m.phaseTapChangers(
+                "_36b83adb-3d45-4693-8967-96627b5f9ec9",
+                "_63454a73-f439-45bb-951a-e7b193986571");
+        // Remove the NonLinearShuntCompensator
+        // We will keep it when we convert non-linear shunt compensators
+        m.shuntCompensators()
+                .removeIf(sc -> sc.getId("ShuntCompensator").equals("_002b0a40-3957-46db-b84a-30420083558f"));
+        m.staticVarCompensators("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
+        return m;
     }
 
     private static final String ENTSOE_CONFORMITY_1 = "conformity/cas-1.1.3-data-4.0.3";

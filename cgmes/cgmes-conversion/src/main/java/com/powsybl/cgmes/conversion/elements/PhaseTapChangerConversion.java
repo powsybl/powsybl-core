@@ -264,6 +264,8 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                 double rho = 1.0;
                 alphas.add(alpha);
                 rhos.add(rho);
+
+                LOG.debug("ACTUAL    n,dy,alpha,rho  {} {} {} {}", n, dy, alpha, rho);
             }
         }
     }
@@ -289,6 +291,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         // using factor rho0square as a float
         double rho0 = tx.getRatedU2() / tx.getRatedU1();
         double rho0square = rho0 * rho0;
+        LOG.debug("ACTUAL    u2,u1,rho0square {}, {}, {}", tx.getRatedU2(), tx.getRatedU1(), rho0square);
 
         for (int i = 0; i < alphas.size(); i++) {
             double alpha = alphas.get(i);

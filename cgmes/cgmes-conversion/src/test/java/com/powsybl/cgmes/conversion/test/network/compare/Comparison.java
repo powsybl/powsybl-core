@@ -78,8 +78,8 @@ public class Comparison {
                 actual.getLoadStream(),
                 this::compareLoads);
         compare(
-                expected.getShuntStream(),
-                actual.getShuntStream(),
+                expected.getShuntCompensatorStream(),
+                actual.getShuntCompensatorStream(),
                 this::compareShunts);
         compare(
                 expected.getStaticVarCompensatorStream(),
