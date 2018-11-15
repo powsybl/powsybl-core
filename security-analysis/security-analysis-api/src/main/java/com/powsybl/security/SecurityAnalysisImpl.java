@@ -25,7 +25,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
-public class SecurityAnalysisImpl implements SecurityAnalysis {
+public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
 
     private final Network network;
 
