@@ -38,6 +38,10 @@ public abstract class AbstractNodeBase<F> {
 
     public abstract Optional<F> getParent();
 
+    protected Optional<NodeInfo> getParentInfo() {
+        return storage.getParentNode(info.getId());
+    }
+
     /**
      * An ID uniquely identifying this node in the file system tree.
      */
@@ -113,46 +117,36 @@ public abstract class AbstractNodeBase<F> {
         return getName();
     }
 
-    private boolean isMovable(AbstractNodeBase folder) {
-        return (folder instanceof ProjectFolder || folder instanceof Folder) && !isSourceAncestorOf(folder) && !targetIsParent(folder);
-    }
-
-    public void moveTo(AbstractNodeBase folder) {
+    public void moveTo(AbstractNodeBase<F> folder) {
         Objects.requireNonNull(folder);
-        if (isMovable(folder)) {
-            storage.setParentNode(info.getId(), folder.getId());
-            storage.flush();
-        } else {
-            throw new AfsException("The source node is a relative of the target");
+        if (!folder.isParentOf(this)) {
+            if (isMovableTo(folder)) {
+                storage.setParentNode(info.getId(), folder.getId());
+                storage.flush();
+            } else {
+                throw new AfsException("The source node is an ancestor of the target node");
+            }
         }
     }
 
-    private boolean isSourceAncestorOf(AbstractNodeBase abstractNodeBase) {
-        Optional<NodeInfo> parentNode = storage.getParentNode(abstractNodeBase.getId());
-        if (parentNode.isPresent()) {
-            NodeInfo nodeInfo = parentNode.get();
-            while (nodeInfo != null) {
-                if (info.getId().equals(nodeInfo.getId())) {
-                    return true;
-                } else {
-                    parentNode = storage.getParentNode(nodeInfo.getId());
-                    if (parentNode.isPresent()) {
-                        nodeInfo = parentNode.get();
-                    } else {
-                        break;
-                    }
-                }
+    private boolean isMovableTo(AbstractNodeBase<F> node) {
+        return node.isFolder() && !isAncestorOf(node);
+    }
+
+    boolean isAncestorOf(AbstractNodeBase<F> node) {
+        Optional<NodeInfo> current = storage.getParentNode(node.getId());
+        while (current.isPresent()) {
+            if (current.get().getId().equals(info.getId())) {
+                return true;
+            } else {
+                current = storage.getParentNode(current.get().getId());
             }
         }
         return false;
     }
 
-    private boolean targetIsParent(AbstractNodeBase abstractNodeBase) {
-        Optional<NodeInfo> parentNode = storage.getParentNode(info.getId());
-        if (parentNode.isPresent()) {
-            return parentNode.get().getId().equals(abstractNodeBase.getId());
-        }
-        return false;
+    boolean isParentOf(AbstractNodeBase<F> node) {
+        return node.getParentInfo().map(n -> n.getId().equals(info.getId())).orElse(false);
     }
 
     public void rename(String name) {

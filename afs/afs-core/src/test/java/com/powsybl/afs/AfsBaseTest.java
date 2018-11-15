@@ -139,12 +139,11 @@ public class AfsBaseTest {
         } catch (AfsException ignored) {
         }
 
-        try {
-            dir82.moveTo(dir81);
-            fail();
-        } catch (AfsException ignored) {
-        }
-
+        assertTrue(dir81.isParentOf(dir82));
+        assertTrue(root.isAncestorOf(dir82));
+        dir82.moveTo(dir81); // Does nothing
+        assertTrue(dir81.isParentOf(dir82));
+        assertTrue(root.isAncestorOf(dir82));
 
         List<String> added = new ArrayList<>();
         List<String> removed = new ArrayList<>();

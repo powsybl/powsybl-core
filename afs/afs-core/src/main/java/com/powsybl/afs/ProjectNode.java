@@ -33,7 +33,7 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
 
     @Override
     public Optional<ProjectFolder> getParent() {
-        return storage.getParentNode(info.getId())
+        return getParentInfo()
                 .filter(parentInfo -> ProjectFolder.PSEUDO_CLASS.equals(parentInfo.getPseudoClass()))
                 .map(parentInfo -> new ProjectFolder(new ProjectFileCreationContext(parentInfo, storage, project)));
     }
