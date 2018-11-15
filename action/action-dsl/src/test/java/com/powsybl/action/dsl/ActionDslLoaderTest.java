@@ -16,8 +16,12 @@ import groovy.lang.MissingMethodException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentMatcher;
+
+import java.util.function.Function;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -101,6 +105,29 @@ public class ActionDslLoaderTest {
         exception.expect(MissingMethodException.class);
         someAction.run(network, null);
     }
+
+
+    private static <T> ArgumentMatcher<T> matches(Function<T, Boolean> predicate) {
+        return new ArgumentMatcher<T>() {
+            @Override
+            public boolean matches(Object o) {
+                return predicate.apply((T) o);
+            }
+        };
+    }
+
+    @Test
+    public void testHandler() {
+        ActionDslHandler handler = mock(ActionDslHandler.class);
+        new ActionDslLoader(new GroovyCodeSource(getClass().getResource("/actions.groovy"))).load(network, handler, null);
+
+        verify(handler, times(1)).addAction(argThat(matches(a -> a.getId().equals("action"))));
+        verify(handler, times(2)).addContingency(any());
+        verify(handler, times(1)).addContingency(argThat(matches(c -> c.getId().equals("contingency1"))));
+        verify(handler, times(1)).addContingency(argThat(matches(c -> c.getId().equals("contingency2"))));
+        verify(handler, times(1)).addRule(argThat(matches(c -> c.getId().equals("rule"))));
+    }
+
 
     private void addPhaseShifter() {
         network.getTwoWindingsTransformer("NGEN_NHV1").newPhaseTapChanger()
