@@ -13,7 +13,6 @@ package com.powsybl.loadflow.validation;
 public enum BalanceType {
     PROPORTIONAL_TO_GENERATION_P,
     PROPORTIONAL_TO_GENERATION_P_MAX,
-    PROPORTIONAL_TO_LOAD,
     PROPORTIONAL_TO_GENERATION_HEADROOM,
     NONE
 }
