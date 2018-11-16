@@ -108,7 +108,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
         observers.forEach(LoadFlowActionSimulatorObserver::afterPreContingencyAnalysis);
 
-        NetworkCopyStrategy copyNetworkStrategy = config.getCopyStrategy() == CopyStrategy.STATE ? new CopyStateStrategy() :  new DeepCopyStrategy();
+        NetworkCopyStrategy copyNetworkStrategy = config.getCopyStrategy() == CopyStrategy.STATE ? new CopyStateStrategy(network) :  new DeepCopyStrategy(network);
         copyNetworkStrategy.saveState();
 
         if (preContingencyAnalysisOk || config.isIgnorePreContingencyViolations()) {
@@ -343,16 +343,16 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                 })
                 .collect(Collectors.toList());
         List<String> testActionIds = activedRules.stream()
-                                .flatMap(r -> r.getActions().stream())
-                                .distinct()
-                                .filter(id -> !context.isTested(id))
-                                .collect(Collectors.toList());
+                .flatMap(r -> r.getActions().stream())
+                .distinct()
+                .filter(id -> !context.isTested(id))
+                .collect(Collectors.toList());
 
         if (testActionIds.isEmpty()) {
             return;
         }
 
-        NetworkCopyStrategy copyNetworkStrategy = config.getCopyStrategy() == CopyStrategy.STATE ? new CopyStateStrategy() :  new DeepCopyStrategy();
+        NetworkCopyStrategy copyNetworkStrategy = config.getCopyStrategy() == CopyStrategy.STATE ? new CopyStateStrategy(getNetwork()) :  new DeepCopyStrategy(getNetwork());
         copyNetworkStrategy.saveState();
 
         for (String actionId : testActionIds) {
@@ -411,6 +411,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
     private interface NetworkCopyStrategy {
 
+        //will remove the temporary state of the network
         void clearState();
 
         Network restoreState(String stateId);
@@ -419,7 +420,12 @@ public class LoadFlowActionSimulator implements ActionSimulator {
     }
 
     private class DeepCopyStrategy implements NetworkCopyStrategy {
+        private Network network;
         private byte[] contextNetwork;
+
+        public DeepCopyStrategy(Network network) {
+            this.network = network;
+        }
 
         @Override
         public void clearState() {
@@ -433,30 +439,35 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
         @Override
         public void saveState() {
-            contextNetwork = NetworkXml.gzip(network);
+            contextNetwork = NetworkXml.gzip(this.network);
         }
     }
 
     private class CopyStateStrategy implements NetworkCopyStrategy {
+        private Network network;
         private String stateId;
         private String tmpStateId;
 
+        public CopyStateStrategy(Network network) {
+            this.network = network;
+        }
+
         @Override
         public void clearState() {
-            network.getStateManager().removeState(tmpStateId);
+            this.network.getStateManager().removeState(tmpStateId);
         }
 
         @Override
         public Network restoreState(String id) {
             tmpStateId = id + "-" + UUID.randomUUID();
-            network.getStateManager().cloneState(stateId, tmpStateId);
-            network.getStateManager().setWorkingState(tmpStateId);
-            return network;
+            this.network.getStateManager().cloneState(stateId, tmpStateId);
+            this.network.getStateManager().setWorkingState(tmpStateId);
+            return this.network;
         }
 
         @Override
         public void saveState() {
-            stateId = network.getStateManager().getWorkingStateId();
+            stateId = this.network.getStateManager().getWorkingStateId();
         }
     }
 
