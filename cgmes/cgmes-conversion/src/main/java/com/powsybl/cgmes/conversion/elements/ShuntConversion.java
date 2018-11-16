@@ -34,8 +34,6 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
             bPerSection = p.asDouble("bPerSection", 0.0);
         } else {
             PropertyBags ss = context.cgmes().nonlinearShuntCompensatorPoints(id);
-            System.out.println("nonlinearSC");
-            System.out.println(ss.tabulateLocals());
             final int nlsections = sections;
             double sumSections = ss.stream()
                     .filter(s -> s.asInt("sectionNumber") <= nlsections)
@@ -45,7 +43,6 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
             maximumSections = 1;
             sections = 1;
             bPerSection = sumSections;
-            System.out.println("nonlinearSC, sumSections b = " + sumSections);
         }
         if (bPerSection == 0) {
             float bPerSectionFixed = Float.MIN_VALUE;
