@@ -590,11 +590,6 @@ public class CgmesConformity1NetworkCatalog {
                 .setV(223.435281)
                 .setAngle(-17.412200);
 
-        // LinearShuntCompensator in BaseCase changed to
-        // NonlinearShuntCompensator in the Type4_T4 variant
-        // Remove it in the expected network until we implement conversion
-        network.getShuntCompensator("_002b0a40-3957-46db-b84a-30420083558f").remove();
-
         VoltageLevel vlAnvers220 = network.getVoltageLevel("_d0486169-2205-40b2-895e-b672ecb9e5fc");
         vlAnvers220.newStaticVarCompensator()
                 .setId("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4")

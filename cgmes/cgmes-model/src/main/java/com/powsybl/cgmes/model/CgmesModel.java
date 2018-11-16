@@ -87,6 +87,8 @@ public interface CgmesModel {
 
     PropertyBags shuntCompensators();
 
+    PropertyBags nonlinearShuntCompensatorPoints(String id);
+
     PropertyBags staticVarCompensators();
 
     PropertyBags synchronousMachines();

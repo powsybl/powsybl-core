@@ -1030,10 +1030,6 @@ public class CgmesConformity1Catalog {
         m.phaseTapChangers(
                 "_36b83adb-3d45-4693-8967-96627b5f9ec9",
                 "_63454a73-f439-45bb-951a-e7b193986571");
-        // Remove the NonLinearShuntCompensator
-        // We will keep it when we convert non-linear shunt compensators
-        m.shuntCompensators()
-                .removeIf(sc -> sc.getId("ShuntCompensator").equals("_002b0a40-3957-46db-b84a-30420083558f"));
         m.staticVarCompensators("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
         return m;
     }
