@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -30,8 +31,8 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         sections = Math.abs(sections);
         maximumSections = Math.max(maximumSections, sections);
         double bPerSection = 0;
-        if (p.containsKey("bPerSection")) {
-            bPerSection = p.asDouble("bPerSection", 0.0);
+        if (p.containsKey(CgmesNames.B_PER_SECTION)) {
+            bPerSection = p.asDouble(CgmesNames.B_PER_SECTION, 0.0);
         } else {
             PropertyBags ss = context.cgmes().nonlinearShuntCompensatorPoints(id);
             final int nlsections = sections;
@@ -46,7 +47,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         }
         if (bPerSection == 0) {
             float bPerSectionFixed = Float.MIN_VALUE;
-            fixed("bPerSection", "Can not be zero", bPerSection, bPerSectionFixed);
+            fixed(CgmesNames.B_PER_SECTION, "Can not be zero", bPerSection, bPerSectionFixed);
             bPerSection = bPerSectionFixed;
         }
 
