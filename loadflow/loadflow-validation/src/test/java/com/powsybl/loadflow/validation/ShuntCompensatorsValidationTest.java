@@ -124,7 +124,7 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
     public void checkNetworkShunts() {
         Network network = Mockito.mock(Network.class);
         Mockito.when(network.getId()).thenReturn("network");
-        Mockito.when(network.getShuntStream()).thenAnswer(dummy -> Stream.of(shunt));
+        Mockito.when(network.getShuntCompensatorStream()).thenAnswer(dummy -> Stream.of(shunt));
 
         assertTrue(ShuntCompensatorsValidation.checkShunts(network, strictConfig, NullWriter.NULL_WRITER));
 

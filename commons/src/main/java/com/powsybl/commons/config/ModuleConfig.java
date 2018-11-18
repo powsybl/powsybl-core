@@ -22,27 +22,53 @@ public interface ModuleConfig {
 
     Set<String> getPropertyNames();
 
+    // String
+
+    Optional<String> getOptionalStringProperty(String name);
+
     String getStringProperty(String name);
 
     String getStringProperty(String name, String defaultValue);
+
+    // List<String>
+
+    Optional<List<String>> getOptionalStringListProperty(String name);
 
     List<String> getStringListProperty(String name);
 
     List<String> getStringListProperty(String name, List<String> defaultValue);
 
+    // Enum
+
+    <E extends Enum<E>> Optional<E> getOptionalEnumProperty(String name, Class<E> clazz);
+
     <E extends Enum<E>> E getEnumProperty(String name, Class<E> clazz);
 
     <E extends Enum<E>> E getEnumProperty(String name, Class<E> clazz, E defaultValue);
+
+    // EnumSet
+
+    <E extends Enum<E>> Optional<Set<E>> getOptionalEnumSetProperty(String name, Class<E> clazz);
 
     <E extends Enum<E>> Set<E> getEnumSetProperty(String name, Class<E> clazz);
 
     <E extends Enum<E>> Set<E> getEnumSetProperty(String name, Class<E> clazz, Set<E> defaultValue);
 
-    int getIntProperty(String name);
+    // int
 
+    OptionalInt getOptionalIntProperty(String name);
+
+    /**
+     * @deprecated Use {@link #getOptionalIntProperty(String)}
+     */
+    @Deprecated
     Optional<Integer> getOptionalIntegerProperty(String name);
 
+    int getIntProperty(String name);
+
     int getIntProperty(String name, int defaultValue);
+
+    // long
 
     OptionalLong getOptionalLongProperty(String name);
 
@@ -50,11 +76,15 @@ public interface ModuleConfig {
 
     long getLongProperty(String name, long defaultValue);
 
+    // float
+
     Optional<Float> getOptionalFloatProperty(String name);
 
     float getFloatProperty(String name);
 
     float getFloatProperty(String name, float defaultValue);
+
+    // double
 
     OptionalDouble getOptionalDoubleProperty(String name);
 
@@ -62,30 +92,45 @@ public interface ModuleConfig {
 
     double getDoubleProperty(String name, double defaultValue);
 
+    // boolean
+
+    Optional<Boolean> getOptionalBooleanProperty(String name);
+
     boolean getBooleanProperty(String name);
 
     boolean getBooleanProperty(String name, boolean defaultValue);
 
-    Optional<Boolean> getOptionalBooleanProperty(String name);
+    // path
+
+    Optional<Path> getOptionalPathProperty(String name);
 
     Path getPathProperty(String name);
 
     Path getPathProperty(String name, Path defaultValue);
 
-    Optional<Path> getOptionalPathProperty(String name);
+    // List<Path>
+
+    Optional<List<Path>> getOptionalPathListProperty(String name);
 
     List<Path> getPathListProperty(String name);
 
-    Optional<List<Path>> getOptionalPathListProperty(String name);
+    // Class
+
+    <T> Optional<Class<? extends T>> getOptionalClassProperty(String name, Class<T> subClass);
 
     <T> Class<? extends T> getClassProperty(String name, Class<T> subClass);
 
     <T> Class<? extends T> getClassProperty(String name, Class<T> subClass, Class<? extends T> defaultValue);
 
+    // DateTime
+
     Optional<DateTime> getOptionalDateTimeProperty(String name);
 
     DateTime getDateTimeProperty(String name);
 
-    Interval getIntervalProperty(String name);
+    // Interval
 
+    Optional<Interval> getOptionalIntervalProperty(String name);
+
+    Interval getIntervalProperty(String name);
 }

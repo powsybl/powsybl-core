@@ -11,6 +11,7 @@ import com.powsybl.afs.storage.AbstractAppFileSystemConfig;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -57,7 +58,7 @@ public class LocalAppFileSystemConfig extends AbstractAppFileSystemConfig<LocalA
                 load(moduleConfig, OptionalInt.of(i), configs);
             }
         } else {
-            for (Path rootDir : platformConfig.getFileSystem().getRootDirectories()) {
+            for (Path rootDir : FileSystems.getDefault().getRootDirectories()) {
                 if (Files.isDirectory(rootDir)) {
                     configs.add(new LocalAppFileSystemConfig(rootDir.toString(), false, rootDir));
                 }

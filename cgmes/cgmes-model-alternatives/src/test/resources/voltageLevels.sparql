@@ -1,0 +1,47 @@
+#
+# Copyright (c) 2017, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+# query: usingGraphClauses
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?VoltageLevel
+        rdf:type cim:VoltageLevel ;
+        cim:VoltageLevel.Substation ?Substation ;
+        cim:IdentifiedObject.name ?name ;
+        cim:VoltageLevel.BaseVoltage ?BaseVoltage .
+    OPTIONAL { ?VoltageLevel cim:VoltageLevel.lowVoltageLimit ?lowVoltageLimit }
+    OPTIONAL { ?VoltageLevel cim:VoltageLevel.highVoltageLimit ?highVoltageLimit }
+}}
+OPTIONAL { GRAPH ?graph2 {
+    ?BaseVoltage cim:BaseVoltage.nominalVoltage ?nominalVoltage .
+}}
+}
+
+# query: noGraphClauses
+SELECT *
+WHERE {
+    ?VoltageLevel
+        rdf:type cim:VoltageLevel ;
+        cim:VoltageLevel.Substation ?Substation ;
+        cim:IdentifiedObject.name ?name ;
+        cim:VoltageLevel.BaseVoltage ?BaseVoltage .
+    OPTIONAL { ?VoltageLevel cim:VoltageLevel.lowVoltageLimit ?lowVoltageLimit }
+    OPTIONAL { ?VoltageLevel cim:VoltageLevel.highVoltageLimit ?highVoltageLimit }
+    OPTIONAL {
+        ?BaseVoltage cim:BaseVoltage.nominalVoltage ?nominalVoltage .
+    }
+}
+
+# query: baseVoltages
+SELECT *
+WHERE {
+    ?BaseVoltage
+        a cim:BaseVoltage ;
+        cim:BaseVoltage.nominalVoltage ?nominalVoltage .
+}
+

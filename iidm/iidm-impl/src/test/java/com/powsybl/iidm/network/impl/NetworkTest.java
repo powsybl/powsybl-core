@@ -49,6 +49,7 @@ public class NetworkTest {
         Country country1 = network.getCountries().iterator().next();
 
         assertEquals(1, Iterables.size(network.getSubstations()));
+        assertEquals(1, Iterables.size(network.getSubstations(Country.FR, "TSO1", "region1")));
         assertEquals(1, network.getSubstationCount());
 
         Substation substation1 = network.getSubstation("substation1");
@@ -186,9 +187,9 @@ public class NetworkTest {
         assertEquals(Collections.emptyList(), mapper.apply(network.getDanglingLineStream()));
         assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel("VLHV1").getDanglingLineStream()));
         assertEquals(network.getDanglingLineCount(), network.getDanglingLineStream().count());
-        assertEquals(Collections.emptyList(), mapper.apply(network.getShuntStream()));
-        assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel("VLHV2").getShuntStream()));
-        assertEquals(network.getShuntCount(), network.getShuntStream().count());
+        assertEquals(Collections.emptyList(), mapper.apply(network.getShuntCompensatorStream()));
+        assertEquals(Collections.emptyList(), mapper.apply(network.getVoltageLevel("VLHV2").getShuntCompensatorStream()));
+        assertEquals(network.getShuntCompensatorCount(), network.getShuntCompensatorStream().count());
 
         assertEquals(Collections.singletonList("LOAD"), mapper.apply(network.getLoadStream()));
         assertEquals(network.getLoadCount(), network.getLoadStream().count());

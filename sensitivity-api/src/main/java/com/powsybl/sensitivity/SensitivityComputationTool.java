@@ -151,7 +151,7 @@ public class SensitivityComputationTool implements Tool {
     private void printSensitivityComputationResult(SensitivityComputationResults result, Writer writer, TableFormatterFactory formatterFactory,
                                      TableFormatterConfig formatterConfig) {
         try (TableFormatter formatter = formatterFactory.create(writer,
-                "loadflow results",
+                "sensitivity computation results",
                 formatterConfig,
                 new Column("VariableId"),
                 new Column("VariableName"),

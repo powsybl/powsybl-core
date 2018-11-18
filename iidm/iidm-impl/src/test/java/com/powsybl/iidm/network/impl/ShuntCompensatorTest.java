@@ -36,7 +36,7 @@ public class ShuntCompensatorTest {
     public void baseTest() {
         // adder
         ShuntCompensator shuntCompensator = voltageLevel
-                                        .newShunt()
+                                        .newShuntCompensator()
                                             .setId("shunt")
                                             .setName("shuntName")
                                             .setConnectableBus("busA")
@@ -83,11 +83,11 @@ public class ShuntCompensatorTest {
         assertEquals(20, shuntCompensator.getMaximumSectionCount());
 
         // remove
-        int count = network.getShuntCount();
+        int count = network.getShuntCompensatorCount();
         shuntCompensator.remove();
-        assertNull(network.getShunt("shunt"));
+        assertNull(network.getShuntCompensator("shunt"));
         assertNotNull(shuntCompensator);
-        assertEquals(count - 1, network.getShuntCount());
+        assertEquals(count - 1, network.getShuntCompensatorCount());
     }
 
     @Test
@@ -115,7 +115,7 @@ public class ShuntCompensatorTest {
     public void testSetterGetterInMultiStates() {
         StateManager stateManager = network.getStateManager();
         createShunt("testMultiState", "testMultiState", 2.0, 5, 10);
-        ShuntCompensator shunt = network.getShunt("testMultiState");
+        ShuntCompensator shunt = network.getShuntCompensator("testMultiState");
         List<String> statesToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         stateManager.cloneState(StateManagerConstants.INITIAL_STATE_ID, statesToAdd);
 
@@ -151,7 +151,7 @@ public class ShuntCompensatorTest {
     }
 
     private void createShunt(String id, String name, double bPerSection, int currentSectionCount, int maxSectionCount) {
-        voltageLevel.newShunt()
+        voltageLevel.newShuntCompensator()
                     .setId(id)
                     .setName(name)
                     .setConnectableBus("busA")

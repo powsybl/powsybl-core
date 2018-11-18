@@ -12,7 +12,7 @@ http://www.powsybl.com
 ## Environment requirements
 In order to build the project, you need:
   * JDK *(1.8 or greater)*
-  * Maven 
+  * Maven *(3.3.9 or greater)*
   * CMake *(2.6 or greater)*
   * Recent C++ compiler (GNU g++ or Clang)
   * OpenMPI *(1.8.3 or greater)*

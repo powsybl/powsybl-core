@@ -1,0 +1,832 @@
+#
+# Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+# query: modelIds
+prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+SELECT *
+{ GRAPH ?graph {
+    # We will return all model identifiers for FullModel objects of profile EquipmentCore
+    ?FullModel
+        a md:FullModel ;
+        md:Model.modelingAuthoritySet ?modelingAuthoritySet ;
+        md:Model.profile ?profile .
+    FILTER (regex(?profile, "EquipmentCore", "i")
+        && !regex(?profile, "EquipmentBoundary", "i")
+        && !regex(?profile, "TopologyBoundary", "i"))
+}}
+
+# query: modelDates
+prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+SELECT *
+{ GRAPH ?graph {
+    # There are multiple FullModel instances.
+    # We return all dates from all Model instances that are not a boundary model
+    ?FullModel
+        a md:FullModel ;
+        md:Model.modelingAuthoritySet ?modelingAuthoritySet ;
+        md:Model.created ?created ;
+        md:Model.scenarioTime ?scenarioTime ;
+        md:Model.profile ?profile .
+    FILTER (!regex(?profile, "EquipmentBoundary", "i")
+        && !regex(?profile, "TopologyBoundary", "i"))
+}}
+
+# query: modelProfiles
+prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+SELECT *
+{ GRAPH ?graph {
+    ?FullModel
+        a md:FullModel ;
+        md:Model.profile ?profile .
+}}
+
+# query: version
+SELECT ?version
+{ GRAPH ?graph {
+    ?versionId cim:IEC61970CIMVersion.version ?version
+}}
+
+# query: numObjectsByType
+# Only types in a namespace given as parameter
+SELECT ?Type (COUNT (DISTINCT ?object) AS ?numObjects)
+{ GRAPH ?graph {
+     ?object a ?Type .
+    FILTER (STRSTARTS(STR(?Type), "{0}"))
+}}
+GROUP BY ?Type
+
+# query: allObjectsOfType
+SELECT * 
+{ GRAPH ?graph {
+     ?object a cim:{0} ;
+     ?attribute ?value .
+}}
+
+# query: boundaryNodes
+# All topological nodes belonging to a graph that has a modelProfile that contains the string "TopologyBoundary"
+# Union all connectivity nodes belonging to a graph that has profile EquipmentBoundaryOperation
+prefix md: <http://iec.ch/TC57/61970-552/ModelDescription/1#>
+SELECT *
+{
+{ GRAPH ?graphBDTP {
+    ?FullModel md:Model.profile ?modelProfile .
+    FILTER (regex(?modelProfile, "TopologyBoundary", "i"))
+    ?Node
+        a cim:TopologicalNode ;
+        cim:IdentifiedObject.name ?Name
+}}
+UNION
+{ GRAPH ?graphBDEQ {
+    ?FullModel md:Model.profile ?modelProfile .
+    FILTER (regex(?modelProfile, "EquipmentBoundaryOperation", "i"))
+    ?Node
+        a cim:ConnectivityNode ;
+        cim:IdentifiedObject.name ?Name
+}}
+}
+
+# query: baseVoltages
+SELECT *
+{ GRAPH ?graph {
+    ?BaseVoltage cim:BaseVoltage.nominalVoltage ?nominalVoltage .
+}}
+
+# query: substations
+SELECT ?Substation ?name ?SubRegion ?subRegionName ?Region ?regionName
+{ GRAPH ?graph {
+    ?Substation
+        a cim:Substation ;
+        cim:IdentifiedObject.name ?name ;
+        cim:Substation.Region ?SubRegion .
+    ?SubRegion
+        cim:SubGeographicalRegion.Region ?Region ;
+        cim:IdentifiedObject.name ?subRegionName .
+    ?Region cim:IdentifiedObject.name ?regionName
+}}
+
+# query: voltageLevels
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?VoltageLevel
+        a cim:VoltageLevel ;
+        cim:VoltageLevel.Substation ?Substation ;
+        cim:IdentifiedObject.name ?name ;
+        cim:VoltageLevel.BaseVoltage ?BaseVoltage .
+    OPTIONAL { ?VoltageLevel cim:VoltageLevel.lowVoltageLimit ?lowVoltageLimit }
+    OPTIONAL { ?VoltageLevel cim:VoltageLevel.highVoltageLimit ?highVoltageLimit }
+}}
+OPTIONAL { GRAPH ?graph2 {
+    ?BaseVoltage cim:BaseVoltage.nominalVoltage ?nominalVoltage .
+}}
+}
+
+# query: terminals
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?Terminal
+        a cim:Terminal ;
+        cim:Terminal.ConductingEquipment ?ConductingEquipment .
+    ?ConductingEquipment a ?conductingEquipmentType .
+}}
+OPTIONAL { GRAPH ?graphSSH {
+    ?Terminal cim:ACDCTerminal.connected ?connected
+}}
+OPTIONAL { GRAPH ?graphSV {
+    ?SvPowerFlow
+        a cim:SvPowerFlow ;
+        cim:SvPowerFlow.Terminal ?Terminal ;
+        cim:SvPowerFlow.p ?p ;
+        cim:SvPowerFlow.q ?q
+}}
+}
+
+# query: terminalsTP
+SELECT *
+WHERE {
+{ GRAPH ?graphTP {
+    ?Terminal cim:Terminal.TopologicalNode ?TopologicalNode
+}}
+OPTIONAL {
+    { GRAPH ?graphTP2 {
+        ?TopologicalNode cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainer
+    }}
+    OPTIONAL { GRAPH ?graph2 {
+        ?ConnectivityNodeContainer
+            a cim:VoltageLevel ;
+            cim:VoltageLevel.Substation ?Substation .
+        BIND ( ?ConnectivityNodeContainer AS ?VoltageLevel )
+    }}
+    OPTIONAL { GRAPH ?graph3 {
+        ?ConnectivityNodeContainer a cim:Bay ;
+            cim:Bay.VoltageLevel ?VoltageLevel .
+        ?VoltageLevel cim:VoltageLevel.Substation ?Substation
+    }}
+}
+}
+
+# query: terminalsCN
+SELECT *
+WHERE {
+{ GRAPH ?graphEQ {
+    ?Terminal
+        a cim:Terminal ;
+        cim:Terminal.ConnectivityNode ?ConnectivityNode .
+}}
+{ GRAPH ?graphEQ2 {
+    ?ConnectivityNode cim:ConnectivityNode.ConnectivityNodeContainer ?ConnectivityNodeContainer .
+    ?ConnectivityNodeContainer a ?connectivityNodeContainerType .
+    OPTIONAL {
+        ?ConnectivityNodeContainer
+            a cim:VoltageLevel ;
+            cim:VoltageLevel.Substation ?Substation .
+        BIND ( ?ConnectivityNodeContainer AS ?VoltageLevel )
+    }
+    OPTIONAL {
+        ?ConnectivityNodeContainer a cim:Bay ;
+            cim:Bay.VoltageLevel ?VoltageLevel .
+        ?VoltageLevel cim:VoltageLevel.Substation ?Substation
+    }
+}}
+# This is available only if the TP has been computed for all connectivity nodes
+OPTIONAL { GRAPH ?graphTP {
+    ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode
+}}
+}
+
+# query: topologicalNodes
+SELECT *
+WHERE {
+# Topological nodes that refer to a connectivity node container that is a voltage level
+{ GRAPH ?graphTP {
+    ?TopologicalNode
+        a cim:TopologicalNode ;
+        cim:IdentifiedObject.name ?name ;
+        cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainer
+}}
+# TODO other connectivity node containers ? ... (Lines in Boundaries)
+# By now, we only return topological nodes for which we can find voltage levels
+# (a voltage level is required to be able to map to IIDM)
+OPTIONAL { GRAPH ?graphEQ {
+    ?ConnectivityNodeContainer a cim:VoltageLevel .
+    BIND ( ?ConnectivityNodeContainer AS ?VoltageLevel )
+}}
+OPTIONAL {
+    ?ConnectivityNodeContainer a cim:Line .
+    ?TopologicalNode cim:TopologicalNode.BaseVoltage ?BaseVoltage .
+    ?BaseVoltage cim:BaseVoltage.nominalVoltage ?nominalVoltage .
+}
+OPTIONAL { GRAPH ?graphSV {
+    ?SvVoltage
+        a cim:SvVoltage ;
+        cim:SvVoltage.TopologicalNode ?TopologicalNode ;
+        cim:SvVoltage.angle ?angle ;
+        cim:SvVoltage.v ?v
+}}
+}
+
+# query: connectivityNodes
+SELECT *
+WHERE {
+{ GRAPH ?graphEQ1 {
+    ?ConnectivityNode
+        a cim:ConnectivityNode ;
+        cim:IdentifiedObject.name ?name ;
+        cim:ConnectivityNode.ConnectivityNodeContainer ?ConnectivityNodeContainer
+}}
+OPTIONAL {
+    { GRAPH ?graphEQ2 {
+        ?ConnectivityNodeContainer a cim:VoltageLevel .
+    }}
+    BIND ( ?ConnectivityNodeContainer AS ?VoltageLevel )
+}
+OPTIONAL {
+    { GRAPH ?graphEQ3 {
+        ?ConnectivityNodeContainer
+            a cim:Bay ;
+            cim:Bay.VoltageLevel ?VoltageLevel
+    }}
+}
+OPTIONAL {
+    GRAPH ?graphTP {
+        ?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode .
+        ?TopologicalNode cim:TopologicalNode.BaseVoltage ?BaseVoltage
+    }
+    # The only way to get a nominal voltage from a connectivity node on the boundary,
+    # contained in a Line, seems to be through its topological node
+    OPTIONAL { GRAPH ?graphEQ4 {
+        ?BaseVoltage cim:BaseVoltage.nominalVoltage ?nominalVoltage
+    }}
+    OPTIONAL { GRAPH ?graphSV {
+        ?SvVoltage
+            a cim:SvVoltage ;
+            cim:SvVoltage.TopologicalNode ?TopologicalNode ;
+            cim:SvVoltage.angle ?angle ;
+            cim:SvVoltage.v ?v
+    }}
+}
+}
+
+# query: terminalLimits
+SELECT *
+{ GRAPH ?graph {
+    ?Terminal a cim:Terminal .
+    ?OperationalLimitSet cim:OperationalLimitSet.Terminal ?Terminal .
+    ?OperationalLimit
+        cim:OperationalLimit.OperationalLimitSet ?OperationalLimitSet ;
+        cim:OperationalLimit.OperationalLimitType ?OperationalLimitType .
+        # TODO Assuming here all limits are limits for current
+        #{
+            {
+                ?OperationalLimit a cim:CurrentLimit ;
+                cim:CurrentLimit.value ?value .
+            }
+            # UNION VoltageLimit, ApparentPowerLimit, ActivePowerLimit, ...
+            #{
+            #    ?OperationalLimit a cim:VoltageLimit ;
+            #    cim:VoltageLimit.value ? value .
+            #}
+        #}
+    ?OperationalLimitType
+        cim:IdentifiedObject.name ?operationalLimitTypeName .
+    OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.direction ?direction }
+    OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.acceptableDuration ?acceptableDuration }
+}}
+
+# query: switches
+SELECT *
+WHERE {
+# EquipmentContainer for a Switch can be a Bay or a VoltageLevel
+# There should be two terminals for every switch
+{ GRAPH ?graph {
+    ?Switch
+        a ?type ;
+        cim:IdentifiedObject.name ?name ;
+        cim:Equipment.EquipmentContainer ?EquipmentContainer .
+    VALUES ?type { cim:Switch cim:Breaker cim:Disconnector } .
+    ?Terminal1
+        a cim:Terminal ;
+        cim:Terminal.ConductingEquipment ?Switch .
+    ?Terminal2
+        a cim:Terminal ;
+        cim:Terminal.ConductingEquipment ?Switch .
+    FILTER ( STR(?Terminal1) < STR(?Terminal2) )
+    OPTIONAL {
+        ?EquipmentContainer a cim:VoltageLevel .
+        BIND ( ?EquipmentContainer AS ?VoltageLevel )
+    }
+    OPTIONAL {
+        ?EquipmentContainer
+            a cim:Bay ;
+            cim:Bay.VoltageLevel ?VoltageLevel
+    }
+}}
+OPTIONAL { GRAPH ?graphSSH {
+    ?Switch cim:Switch.open ?open
+}}
+}
+
+# query: acLineSegments
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?ACLineSegment
+        a cim:ACLineSegment ;
+        cim:ACLineSegment.r ?r ;
+        cim:ACLineSegment.x ?x ;
+        cim:ACLineSegment.bch ?bch ;
+        cim:IdentifiedObject.name ?name .
+    OPTIONAL {
+        ?ACLineSegment cim:ACLineSegment.gch ?gch
+    }
+    ?Terminal1
+        a cim:Terminal ;
+        cim:Terminal.ConductingEquipment ?ACLineSegment ;
+        cim:ACDCTerminal.sequenceNumber "1" .
+    ?Terminal2
+        a cim:Terminal ;
+        cim:Terminal.ConductingEquipment ?ACLineSegment ;
+        cim:ACDCTerminal.sequenceNumber "2" .
+}}
+}
+
+# query: equivalentBranches
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?EquivalentBranch
+        a cim:EquivalentBranch ;
+        cim:IdentifiedObject.name ?name ;
+        cim:EquivalentBranch.r ?r ;
+        cim:EquivalentBranch.x ?x .
+    OPTIONAL {
+        ?EquivalentBranch
+            cim:EquivalentBranch.r21 ?r21 ;
+            cim:EquivalentBranch.x21 ?x21
+    }
+    ?Terminal1
+        a cim:Terminal ;
+        cim:Terminal.ConductingEquipment ?EquivalentBranch ;
+        cim:ACDCTerminal.sequenceNumber "1" .
+    ?Terminal2
+        a cim:Terminal ;
+        cim:Terminal.ConductingEquipment ?EquivalentBranch ;
+        cim:ACDCTerminal.sequenceNumber "2" .
+}}
+}
+
+
+# query: transformers
+SELECT *
+{ GRAPH ?graph {
+    ?PowerTransformer
+        a cim:PowerTransformer ;
+        cim:IdentifiedObject.name ?name .
+}}
+
+# query: transformerEnds
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?PowerTransformer
+        a cim:PowerTransformer ;
+        cim:IdentifiedObject.name ?name .
+    OPTIONAL { ?PowerTransformer cim:Equipment.EquipmentContainer ?EquipmentContainer }
+    ?TransformerEnd
+        a cim:PowerTransformerEnd ;
+        cim:PowerTransformerEnd.PowerTransformer ?PowerTransformer ;
+        cim:PowerTransformerEnd.b ?b ;
+        cim:PowerTransformerEnd.r ?r ;
+        cim:PowerTransformerEnd.x ?x ;
+        cim:PowerTransformerEnd.ratedU ?ratedU ;
+        cim:TransformerEnd.endNumber ?endNumber ;
+        cim:TransformerEnd.Terminal ?Terminal .
+    OPTIONAL { ?TransformerEnd  cim:PowerTransformerEnd.g ?g }
+    OPTIONAL { ?RatioTapChanger cim:RatioTapChanger.TransformerEnd ?TransformerEnd }
+    OPTIONAL { ?PhaseTapChanger cim:PhaseTapChanger.TransformerEnd ?TransformerEnd }
+}}
+}
+
+# query: ratioTapChangers
+SELECT *
+WHERE {
+{ GRAPH ?graphEQ {
+    ?RatioTapChanger
+        a cim:RatioTapChanger ;
+        cim:TapChanger.lowStep ?lowStep ;
+        cim:TapChanger.highStep ?highStep ;
+        cim:TapChanger.neutralStep ?neutralStep ;
+        cim:TapChanger.normalStep ?normalStep ;
+        cim:TapChanger.neutralU ?neutralU ;
+        cim:RatioTapChanger.stepVoltageIncrement ?stepVoltageIncrement ;
+        cim:RatioTapChanger.TransformerEnd ?TransformerEnd .
+    OPTIONAL {
+        ?RatioTapChanger
+             cim:TapChanger.TapChangerControl ?TapChangerControl ;
+             cim:TapChanger.ltcFlag ?ltcFlag ;
+             # ??? FIXME what is the difference between tculControlMode and TapChangerControl RegulatingControl.mode ?
+             cim:RatioTapChanger.tculControlMode ?tculControlMode .
+        ?TapChangerControl
+             cim:RegulatingControl.mode ?regulatingControlMode ;
+             cim:RegulatingControl.Terminal ?RegulatingControlTerminal .
+        OPTIONAL { GRAPH ?graphSSH {
+            ?TapChangerControl
+                cim:RegulatingControl.enabled ?regulatingControlEnabled ;
+                cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;
+                cim:RegulatingControl.targetDeadband ?regulatingControlTargetDeadband ;
+                cim:RegulatingControl.targetValueUnitMultiplier ?regulatingControlTargetValueUnitMultiplier ;
+                cim:RegulatingControl.discrete ?regulatingControlDiscrete .
+        }}
+    }
+}}
+OPTIONAL { GRAPH ?graphSSH {
+    # ??? FIXME Difference between TapChanger.controlEnabled and TapChangerControl.enabled ???
+    # When controlEnabled is set to false there is no additional data
+    ?RatioTapChanger cim:TapChanger.controlEnabled ?tapChangerControlEnabled
+}}
+OPTIONAL { GRAPH ?graphSV {
+    ?SvTapStep
+        a cim:SvTapStep ;
+        cim:SvTapStep.TapChanger ?RatioTapChanger ;
+        cim:SvTapStep.position ?SVtapStep
+}}
+}
+
+# query: phaseTapChangers
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?PhaseTapChanger
+        a ?phaseTapChangerType ;
+        cim:TapChanger.lowStep ?lowStep ;
+        cim:TapChanger.highStep ?highStep ;
+        cim:TapChanger.neutralStep ?neutralStep ;
+        cim:TapChanger.normalStep ?normalStep ;
+        cim:TapChanger.neutralU ?neutralU ;
+        cim:PhaseTapChanger.TransformerEnd ?TransformerEnd .
+    ?TransformerEnd
+        a cim:PowerTransformerEnd ;
+        cim:PowerTransformerEnd.ratedU ?transformerWindingRatedU .
+    OPTIONAL {
+        ?PhaseTapChanger cim:PhaseTapChangerAsymmetrical.windingConnectionAngle ?windingConnectionAngle
+    }
+    OPTIONAL {
+        ?PhaseTapChanger
+            cim:PhaseTapChangerNonLinear.xMax ?xMax ;
+            cim:PhaseTapChangerNonLinear.xMin ?xMin ;
+            cim:PhaseTapChangerNonLinear.voltageStepIncrement ?voltageStepIncrement
+    }
+    OPTIONAL {
+        ?PhaseTapChanger cim:PhaseTapChangerTabular.PhaseTapChangerTable ?PhaseTapChangerTable
+    }
+    OPTIONAL {
+        ?PhaseTapChanger
+            cim:TapChanger.ltcFlag ?ltcFlag ;
+            cim:TapChanger.TapChangerControl ?TapChangerControl .
+        ?TapChangerControl
+            cim:RegulatingControl.mode ?mode ;
+            cim:RegulatingControl.Terminal ?regulatingControlTerminal .
+        OPTIONAL { GRAPH ?graphSSH {
+            ?TapChangerControl
+                cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;
+                cim:RegulatingControl.enabled ?regulatingControlEnabled ;
+                cim:RegulatingControl.targetDeadband ?regulatingControlTargetDeadband ;
+                cim:RegulatingControl.targetValueUnitMultiplier ?regulatingControlTargetValueUnitMultiplier ;
+                cim:RegulatingControl.discrete ?regulatingControlDiscrete .
+        }}
+    }
+}}
+OPTIONAL { GRAPH ?graphSV {
+    ?SVTapStep
+        a cim:SvTapStep ;
+        cim:SvTapStep.TapChanger ?PhaseTapChanger ;
+        cim:SvTapStep.position ?SVtapStep
+}}
+}
+
+# query: phaseTapChangerTable
+SELECT *
+WHERE {
+    ?PhaseTapChangerTablePoint
+        a cim:PhaseTapChangerTablePoint ;
+        cim:PhaseTapChangerTablePoint.PhaseTapChangerTable ?Table ;
+        cim:PhaseTapChangerTablePoint.angle ?angle ;
+        cim:TapChangerTablePoint.ratio ?ratio ;
+        cim:TapChangerTablePoint.step ?step .
+    FILTER regex(str(?Table), "{0}")
+    OPTIONAL {
+        ?PhaseTapChangerTablePoint
+            cim:TapChangerTablePoint.r ?r ;
+            cim:TapChangerTablePoint.x ?x ;
+            cim:TapChangerTablePoint.g ?g ;
+            cim:TapChangerTablePoint.b ?b
+    }
+}
+
+# query: energyConsumers
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?EnergyConsumer
+        a ?type ;
+        cim:IdentifiedObject.name ?name .
+    VALUES ?type { cim:EnergyConsumer cim:ConformLoad cim:NonConformLoad }
+    ?Terminal cim:Terminal.ConductingEquipment ?EnergyConsumer
+}}
+}
+
+# query: energySources
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?EnergySource
+        a cim:EnergySource ;
+        cim:IdentifiedObject.name ?name .
+    ?Terminal cim:Terminal.ConductingEquipment ?EnergySource
+}}
+{ GRAPH ?graphSSH {
+    ?EnergySource
+        cim:EnergySource.activePower ?p ;
+        cim:EnergySource.reactivePower ?q
+}}
+}
+
+# query: shuntCompensators
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?ShuntCompensator
+        a cim:LinearShuntCompensator ;
+        cim:IdentifiedObject.name ?name ;
+        cim:LinearShuntCompensator.gPerSection ?gPerSection ;
+        cim:LinearShuntCompensator.bPerSection ?bPerSection ;
+        cim:ShuntCompensator.normalSections ?normalSections ;
+        cim:ShuntCompensator.maximumSections ?maximumSections ;
+        cim:ShuntCompensator.nomU ?nomU .
+    ?Terminal cim:Terminal.ConductingEquipment ?ShuntCompensator .
+    OPTIONAL {
+        ?ShuntCompensator cim:RegulatingCondEq.RegulatingControl ?RegulatingControl .
+        ?RegulatingControl
+            cim:RegulatingControl.mode ?regulatingControlMode ;
+            cim:RegulatingControl.Terminal ?RegulatingControlTerminal .
+            { GRAPH ?graphSSH {
+                ?RegulatingControl
+                    cim:RegulatingControl.targetValue ?targetValue ;
+                    cim:RegulatingControl.enabled ?enabled ;
+                    cim:RegulatingControl.targetDeadband ?targetDeadband ;
+                    cim:RegulatingControl.targetValueUnitMultiplier ?targetValueUnitMultiplier ;
+                    cim:RegulatingControl.discrete ?discrete .
+            }}
+    }
+}}
+OPTIONAL { GRAPH ?graphSV  {
+    ?SvShuntCompensatorSections
+        a cim:SvShuntCompensatorSections ;
+        cim:SvShuntCompensatorSections.ShuntCompensator ?ShuntCompensator ;
+        cim:SvShuntCompensatorSections.sections ?SVsections
+}}
+OPTIONAL { GRAPH ?graphSSH  {
+    ?ShuntCompensator cim:ShuntCompensator.sections ?SSHsections
+}}
+}
+
+# query: synchronousMachines
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?SynchronousMachine
+        a cim:SynchronousMachine ;
+        cim:RotatingMachine.GeneratingUnit ?GeneratingUnit ;
+        cim:RotatingMachine.ratedS ?ratedS .
+    ?GeneratingUnit
+        a ?generatingUnitType ;
+        cim:GeneratingUnit.minOperatingP ?minP ;
+        cim:GeneratingUnit.maxOperatingP ?maxP ;
+        cim:GeneratingUnit.initialP ?initialP ;
+        cim:IdentifiedObject.name ?name .
+    ?Terminal cim:Terminal.ConductingEquipment ?SynchronousMachine .
+    OPTIONAL {
+        ?SynchronousMachine
+            cim:SynchronousMachine.minQ ?minQ ;
+            cim:SynchronousMachine.maxQ ?maxQ .
+    }
+    OPTIONAL {
+        ?SynchronousMachine cim:RegulatingCondEq.RegulatingControl ?RegulatingControl .
+        ?RegulatingControl
+            cim:RegulatingControl.Terminal ?regulatingControlTerminal ;
+            cim:RegulatingControl.mode ?regulatingControlMode .
+        OPTIONAL { GRAPH ?graphSSH1 {
+            ?RegulatingControl
+                cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;
+                cim:RegulatingControl.enabled ?regulatingControlEnabled .
+        }}
+        OPTIONAL { GRAPH ?graphSSH2 {
+            ?regulatingControlTerminal cim:ACDCTerminal.connected ?regulatingControlTerminalConnected
+        }}
+# TODO SSH may contain following additional attributes:
+#   SynchronousMachine:RotatingMachine.p (should be the same value of GeneratingUnit.initialP ?)
+#   SynchronousMachine:RotatingMachine.q
+#   SynchronousMachine:SynchronousMachine.operatingMode
+#   SynchronousMachine:SynchronousMachine.referencePriority
+    }
+}}
+}
+
+# query: equivalentInjections
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?EquivalentInjection
+        a cim:EquivalentInjection ;
+        cim:IdentifiedObject.name ?name .
+    ?Terminal cim:Terminal.ConductingEquipment ?EquivalentInjection .
+    OPTIONAL {
+        ?EquivalentInjection
+            cim:EquivalentInjection.minP ?minP ;
+            cim:EquivalentInjection.maxP ?maxP
+        }
+    OPTIONAL {
+        ?EquivalentInjection
+            cim:EquivalentInjection.minQ ?minQ ;
+            cim:EquivalentInjection.maxQ ?maxQ .
+    }
+    OPTIONAL {
+        ?EquivalentInjection cim:EquivalentInjection.regulationCapability ?regulationCapability
+    }
+}}
+OPTIONAL { GRAPH ?graphSSH  {
+    ?EquivalentInjection
+        cim:EquivalentInjection.p ?p ;
+        cim:EquivalentInjection.q ?q ;
+        cim:EquivalentInjection.regulationStatus ?regulationStatus ;
+        cim:EquivalentInjection.regulationTarget ?regulationTarget .
+}}
+}
+
+# query: externalNetworkInjections
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?ExternalNetworkInjection
+        a cim:ExternalNetworkInjection ;
+        cim:IdentifiedObject.name ?name ;
+        cim:ExternalNetworkInjection.minP ?minP ;
+        cim:ExternalNetworkInjection.maxP ?maxP .
+    ?Terminal cim:Terminal.ConductingEquipment ?ExternalNetworkInjection
+    OPTIONAL {
+        ?ExternalNetworkInjection
+            cim:ExternalNetworkInjection.minQ ?minQ ;
+            cim:ExternalNetworkInjection.maxQ ?maxQ
+    }
+    OPTIONAL {
+        ?ExternalNetworkInjection cim:RegulatingCondEq.RegulatingControl ?RegulatingControl .
+        ?RegulatingControl
+            cim:RegulatingControl.Terminal ?regulatingControlTerminal ;
+            cim:RegulatingControl.mode ?regulatingControlMode .
+        OPTIONAL { GRAPH ?graphSSH1 {
+            ?RegulatingControl
+                cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;
+                cim:RegulatingControl.enabled ?regulatingControlEnabled
+        }}
+        OPTIONAL { GRAPH ?graphSSH2 {
+            ?regulatingControlTerminal cim:ACDCTerminal.connected ?regulatingControlTerminalConnected
+        }}
+    }
+}}
+OPTIONAL { GRAPH ?graphSSH3  {
+    ?ExternalNetworkInjection
+        cim:ExternalNetworkInjection.p ?p ;
+        cim:ExternalNetworkInjection.q ?q
+}}
+}
+
+# query: staticVarCompensators
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?StaticVarCompensator
+        a cim:StaticVarCompensator ;
+        cim:IdentifiedObject.name ?name ;
+        cim:StaticVarCompensator.capacitiveRating ?capacitiveRating ;
+        cim:StaticVarCompensator.inductiveRating ?inductiveRating ;
+        cim:StaticVarCompensator.slope ?slope ;
+        cim:StaticVarCompensator.sVCControlMode ?controlMode ;
+        cim:StaticVarCompensator.voltageSetPoint ?voltageSetPoint .
+    ?Terminal cim:Terminal.ConductingEquipment ?StaticVarCompensator .
+    OPTIONAL {
+        ?StaticVarCompensator cim:RegulatingCondEq.RegulatingControl ?RegulatingControl
+    }
+}}
+OPTIONAL { GRAPH ?graphSSH  {
+    ?StaticVarCompensator
+        cim:StaticVarCompensator.q ?q ;
+        cim:RegulatingCondEq.controlEnabled ?controlEnabled
+}}
+}
+
+# query: asynchronousMachines
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?AsynchronousMachine
+        a cim:AsynchronousMachine ;
+        cim:IdentifiedObject.name ?name .
+    ?Terminal cim:Terminal.ConductingEquipment ?AsynchronousMachine .
+}}
+OPTIONAL { GRAPH ?graphSSH  {
+    ?AsynchronousMachine
+        cim:AsynchronousMachine.asynchronousMachineType ?type ;
+        cim:RotatingMachine.p ?p ;
+        cim:RotatingMachine.q ?q ;
+        cim:RegulatingCondEq.controlEnabled ?controlEnabled
+}}
+}
+
+# query: acDcConverters
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?ACDCConverter
+        a ?type ;
+        cim:IdentifiedObject.name ?name ;
+        cim:ACDCConverter.ratedUdc ?ratedUdc .
+    ?Terminal cim:Terminal.ConductingEquipment ?ACDCConverter .
+    ?DCTerminal cim:ACDCConverterDCTerminal.DCConductingEquipment ?ACDCConverter .
+    VALUES ?type { cim:ACDCConverter cim:CsConverter cim:VsConverter } .
+}}
+# For Current Source Converter
+OPTIONAL { GRAPH ?graphSSH {
+    ?ACDCConverter
+        cim:CsConverter.operatingMode ?operatingMode ;
+        cim:CsConverter.pPccControl ?controlMode .
+}}
+}
+
+# query: dcTerminals
+SELECT *
+WHERE {
+{
+{ GRAPH ?graph {
+    ?DCTerminal
+        a cim:DCTerminal ;
+        cim:DCTerminal.DCConductingEquipment ?DCConductingEquipment .
+    ?DCConductingEquipment a ?dcConductingEquipmentType .
+}}
+UNION
+{ GRAPH ?graphACDC {
+    ?DCTerminal
+        a cim:ACDCConverterDCTerminal ;
+        cim:ACDCConverterDCTerminal.DCConductingEquipment ?DCConductingEquipment .
+    ?DCConductingEquipment a ?dcConductingEquipmentType .
+}}
+}
+OPTIONAL { GRAPH ?graphSSH {
+    ?DCTerminal cim:ACDCTerminal.connected ?connected
+}}
+}
+
+# query: dcTerminalsTP
+SELECT *
+WHERE {
+{ GRAPH ?graphTP {
+    ?DCTerminal cim:DCBaseTerminal.DCTopologicalNode ?DCTopologicalNode
+}}
+OPTIONAL {
+    { GRAPH ?graphTP2 {
+        ?DCTopologicalNode cim:DCTopologicalNode.DCEquipmentContainer ?EquipmentContainer
+    }}
+    OPTIONAL { GRAPH ?graph3 {
+        ?EquipmentContainer
+            a cim:DCConverterUnit ;
+            cim:DCConverterUnit.Substation ?Substation .
+    }}
+}
+}
+
+# query: dcLineSegments
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    ?DCLineSegment
+        a cim:DCLineSegment ;
+        cim:IdentifiedObject.name ?name .
+    OPTIONAL { ?DCLineSegment cim:DCLineSegment.resistance ?r }
+    OPTIONAL { ?DCLineSegment cim:DCLineSegment.inductance ?l }
+    OPTIONAL { ?DCLineSegment cim:DCLineSegment.capacitance ?c }
+    OPTIONAL { ?DCLineSegment cim:DCLineSegment.length ?length }
+    ?DCTerminal1
+        a cim:DCTerminal ;
+        cim:DCTerminal.DCConductingEquipment ?DCLineSegment ;
+        cim:ACDCTerminal.sequenceNumber "1" .
+    ?DCTerminal2
+        a cim:DCTerminal ;
+        cim:DCTerminal.DCConductingEquipment ?DCLineSegment ;
+        cim:ACDCTerminal.sequenceNumber "2" .
+}}
+}
+

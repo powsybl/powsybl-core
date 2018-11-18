@@ -155,6 +155,18 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-cgmes-conversion</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-cgmes-model</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-cim1-converter</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -311,6 +323,32 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-triple-store-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-triple-store-impl-rdf4j</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-triple-store-impl-jena</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-triple-store-impl-blazegraph</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-ucte-converter</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -325,39 +363,39 @@
 
     <build>
         <plugins>
-            <!--<plugin>-->
-                <!--<groupId>com.powsybl</groupId>-->
-                <!--<artifactId>powsybl-itools-packager-maven-plugin</artifactId>-->
-                <!--<version>${project.version}</version>-->
-                <!--<executions>-->
-                    <!--<execution>-->
-                        <!--<phase>package</phase>-->
-                        <!--<goals>-->
-                            <!--<goal>package-zip</goal>-->
-                        <!--</goals>-->
-                    <!--</execution>-->
-                <!--</executions>-->
-                <!--<configuration>-->
-                    <!--<packageName>powsybl</packageName>-->
-                    <!--<javaXmx>8G</javaXmx>-->
-                    <!--<copyToBin>-->
-                        <!--<files>-->
-                            <!--<file>${project.basedir}/../build/bin/slave</file>-->
-                        <!--</files>-->
-                    <!--</copyToBin>-->
-                    <!--<copyToLib>-->
-                        <!--<files>-->
-                            <!--<file>${project.basedir}/../build/lib/libmaster.so</file>-->
-                            <!--<file>${project.basedir}/../build/lib/libmathjni.so</file>-->
-                        <!--</files>-->
-                    <!--</copyToLib>-->
-                    <!--<copyToEtc>-->
-                        <!--<files>-->
-                            <!--<file>${project.basedir}/../iidm/iidm-xml-converter/src/main/resources/xsd/iidm.xsd</file>-->
-                        <!--</files>-->
-                    <!--</copyToEtc>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
+            <plugin>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>powsybl-itools-packager-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>package-zip</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <packageName>powsybl</packageName>
+                    <javaXmx>8G</javaXmx>
+                    <copyToBin>
+                        <files>
+                            <file>${project.basedir}/../build/bin/slave</file>
+                        </files>
+                    </copyToBin>
+                    <copyToLib>
+                        <files>
+                            <file>${project.basedir}/../build/lib/libmaster.so</file>
+                            <file>${project.basedir}/../build/lib/libmathjni.so</file>
+                        </files>
+                    </copyToLib>
+                    <copyToEtc>
+                        <files>
+                            <file>${project.basedir}/../iidm/iidm-xml-converter/src/main/resources/xsd/iidm.xsd</file>
+                        </files>
+                    </copyToEtc>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 

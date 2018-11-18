@@ -87,7 +87,7 @@ class ConditionDslLoader extends DslLoader {
         binding.branch = { id ->
             Network network = binding.getVariable("network")
             Branch b = getBranch(network, id)
-            binding.hasVariable(SCRIPT_IS_RUNNING) ? l : ExpressionHelper.newNetworkComponent(id, NetworkComponentNode.ComponentType.BRANCH)
+            binding.hasVariable(SCRIPT_IS_RUNNING) ? b : ExpressionHelper.newNetworkComponent(id, NetworkComponentNode.ComponentType.BRANCH)
         }
 
         binding.transformer = { id ->
@@ -197,6 +197,10 @@ class ConditionDslLoader extends DslLoader {
 
             BigDecimal.metaClass."$op0" = { ExpressionNode value ->
                 ExpressionHelper.newArithmeticBinaryOperator(ExpressionHelper.newBigDecimalLiteral(delegate), value, ArithmeticBinaryOperator."$op1")
+            }
+
+            NetworkPropertyNode.metaClass."$op0" = { ExpressionNode value ->
+                ExpressionHelper.newArithmeticBinaryOperator(delegate, value, ArithmeticBinaryOperator."$op1")
             }
         }
 
