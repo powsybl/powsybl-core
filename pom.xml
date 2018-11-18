@@ -100,12 +100,12 @@
         <maven.jacoco.version>0.8.1</maven.jacoco.version>
         <maven.jar.version>3.1.0</maven.jar.version>
         <maven.javadoc.version>3.0.1</maven.javadoc.version>
-        <maven.plugin.version>3.5.2</maven.plugin.version>
+        <maven.plugin.version>3.6.0</maven.plugin.version>
         <maven.resources.version>3.1.0</maven.resources.version>
         <maven.shade.version>3.1.1</maven.shade.version>
         <maven.site.version>3.7.1</maven.site.version>
         <maven.source.version>3.0.1</maven.source.version>
-        <maven.surefire.version>2.22.0</maven.surefire.version>
+        <maven.surefire.version>2.22.1</maven.surefire.version>
         <maven.templating.version>1.0.0</maven.templating.version>
         <maven.versions.version>2.7</maven.versions.version>
 
@@ -119,7 +119,7 @@
         </sonar.exclusions>
 
         <arquillianbom.version>1.2.0.Final</arquillianbom.version>
-        <asm.version>6.2.1</asm.version>
+        <asm.version>7.0</asm.version>
         <assertj.version>3.11.0</assertj.version>
         <autoservice.version>1.0-rc2</autoservice.version>
         <blazegraph.version>2.1.4</blazegraph.version>
@@ -146,7 +146,7 @@
         <logback.version>1.1.8</logback.version>
         <mapdb.version>3.0.3</mapdb.version>
         <maven.core.version>3.3.9</maven.core.version>
-        <maven.plugin.annotations.version>3.5.2</maven.plugin.annotations.version>
+        <maven.plugin.annotations.version>3.6.0</maven.plugin.annotations.version>
         <mockito.version>1.10.19</mockito.version>
         <poi.version>3.15</poi.version>
         <protobuf.version>2.5.0</protobuf.version>
@@ -589,6 +589,11 @@
                 <groupId>javax</groupId>
                 <artifactId>javaee-api</artifactId>
                 <version>${javaeeapi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${jaxb-api.version}</version>
             </dependency>
             <dependency>
                 <groupId>joda-time</groupId>
