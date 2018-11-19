@@ -12,6 +12,8 @@ import com.powsybl.afs.storage.NodeInfo;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -35,6 +37,10 @@ public abstract class AbstractNodeBase<F> {
     }
 
     public abstract Optional<F> getParent();
+
+    protected Optional<NodeInfo> getParentInfo() {
+        return storage.getParentNode(info.getId());
+    }
 
     /**
      * An ID uniquely identifying this node in the file system tree.
@@ -109,5 +115,57 @@ public abstract class AbstractNodeBase<F> {
     @Override
     public String toString() {
         return getName();
+    }
+
+    public void moveTo(AbstractNodeBase<F> folder) {
+        Objects.requireNonNull(folder);
+        if (!folder.isParentOf(this)) {
+            if (isMovableTo(folder)) {
+                storage.setParentNode(info.getId(), folder.getId());
+                storage.flush();
+            } else {
+                throw new AfsException("The source node is an ancestor of the target node");
+            }
+        }
+    }
+
+    private boolean isMovableTo(AbstractNodeBase<F> node) {
+        return node.isFolder() && !isAncestorOf(node);
+    }
+
+    boolean isAncestorOf(AbstractNodeBase<F> node) {
+        Optional<NodeInfo> current = storage.getParentNode(node.getId());
+        while (current.isPresent()) {
+            if (current.get().getId().equals(info.getId())) {
+                return true;
+            } else {
+                current = storage.getParentNode(current.get().getId());
+            }
+        }
+        return false;
+    }
+
+    boolean isParentOf(AbstractNodeBase<F> node) {
+        return node.getParentInfo().map(n -> n.getId().equals(info.getId())).orElse(false);
+    }
+
+    public void rename(String name) {
+        Objects.requireNonNull(name);
+        if (!nodeNameAlreadyExists(name)) {
+            storage.renameNode(info.getId(), name);
+            storage.flush();
+        } else {
+            throw new AfsException("name already exists");
+        }
+    }
+
+    private boolean nodeNameAlreadyExists(String name) {
+        Objects.requireNonNull(name);
+        Optional<NodeInfo> parentNode = storage.getParentNode(getId());
+        List<NodeInfo> childNodes = new ArrayList<>();
+        if (parentNode.isPresent()) {
+            childNodes = storage.getChildNodes(parentNode.get().getId());
+        }
+        return childNodes.stream().filter(nodeInfo -> !nodeInfo.getId().equals(getId())).anyMatch(nodeInfo -> nodeInfo.getName().equals(name));
     }
 }

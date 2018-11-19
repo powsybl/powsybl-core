@@ -30,17 +30,6 @@ public class Node extends AbstractNodeBase<Folder> {
         storage.flush();
     }
 
-    public void rename(String name) {
-        storage.renameNode(info.getId(), name);
-        storage.flush();
-    }
-
-    public void moveTo(Folder folder) {
-        Objects.requireNonNull(folder);
-        storage.setParentNode(info.getId(), folder.getId());
-        storage.flush();
-    }
-
     @Override
     public boolean isFolder() {
         return folder;
@@ -48,7 +37,7 @@ public class Node extends AbstractNodeBase<Folder> {
 
     @Override
     public Optional<Folder> getParent() {
-        return storage.getParentNode(info.getId()).map(parentInfo -> new Folder(new FileCreationContext(parentInfo, storage, fileSystem)));
+        return getParentInfo().map(parentInfo -> new Folder(new FileCreationContext(parentInfo, storage, fileSystem)));
     }
 
     private static boolean pathStop(Node node) {
