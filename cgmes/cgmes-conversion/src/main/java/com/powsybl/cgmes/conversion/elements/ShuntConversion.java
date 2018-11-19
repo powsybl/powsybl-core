@@ -8,10 +8,12 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorAdder;
 import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -26,15 +28,27 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     public void convert() {
         int maximumSections = p.asInt("maximumSections", 0);
         int normalSections = p.asInt("normalSections", 0);
-        double bPerSection = p.asDouble("bPerSection", 0.0);
         int sections = fromContinuous(p.asDouble("SVsections", normalSections));
-
-        // Adjustments
         sections = Math.abs(sections);
         maximumSections = Math.max(maximumSections, sections);
+        double bPerSection = 0;
+        if (p.containsKey(CgmesNames.B_PER_SECTION)) {
+            bPerSection = p.asDouble(CgmesNames.B_PER_SECTION, 0.0);
+        } else {
+            PropertyBags ss = context.cgmes().nonlinearShuntCompensatorPoints(id);
+            final int nlsections = sections;
+            double sumSections = ss.stream()
+                    .filter(s -> s.asInt("sectionNumber") <= nlsections)
+                    .map(s -> s.asDouble("b"))
+                    .reduce(0.0, Double::sum);
+            // Convert to a shunt compensator with a single section
+            maximumSections = 1;
+            sections = 1;
+            bPerSection = sumSections;
+        }
         if (bPerSection == 0) {
             float bPerSectionFixed = Float.MIN_VALUE;
-            fixed("bPerSection", "Can not be zero", bPerSection, bPerSectionFixed);
+            fixed(CgmesNames.B_PER_SECTION, "Can not be zero", bPerSection, bPerSectionFixed);
             bPerSection = bPerSectionFixed;
         }
 

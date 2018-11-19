@@ -371,6 +371,11 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags nonlinearShuntCompensatorPoints(String scId) {
+        return null;
+    }
+
+    @Override
     public PropertyBags staticVarCompensators() {
         return staticVarCompensators;
     }

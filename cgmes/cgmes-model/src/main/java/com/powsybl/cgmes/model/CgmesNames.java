@@ -26,6 +26,8 @@ public final class CgmesNames {
     public static final String DC_TERMINAL = "DCTerminal";
     public static final String RATED_UDC = "ratedUdc";
 
+    public static final String B_PER_SECTION = "bPerSection";
+
     private CgmesNames() {
     }
 }

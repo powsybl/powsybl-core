@@ -24,6 +24,7 @@ import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -34,16 +35,16 @@ import com.powsybl.iidm.network.VoltageLevel;
  */
 public class CgmesConformity1NetworkCatalog {
 
-    public Network microBE() {
-        String modelId = "urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73";
-        Network expected = NetworkFactory.create(modelId, "no-format");
-        Substation sBrussels = expected.newSubstation()
+    public Network microBE(String modelId) {
+        Network network = NetworkFactory.create(modelId, "no-format");
+
+        Substation sBrussels = network.newSubstation()
                 .setId("_37e14a0f-5e34-4647-a062-8bfd9305fa9d")
                 .setName("PP_Brussels")
                 .setCountry(Country.BE)
                 .setGeographicalTags("_c1d5bfc88f8011e08e4d00247eb1f55e") // ELIA-Brussels
                 .add();
-        Substation sAnvers = expected.newSubstation()
+        Substation sAnvers = network.newSubstation()
                 .setId("_87f7002b-056f-4a6a-a872-1744eea757e3")
                 .setName("Anvers")
                 .setCountry(Country.BE)
@@ -173,7 +174,7 @@ public class CgmesConformity1NetworkCatalog {
                 .add();
         busBrussels380.setV(412.989001);
         busBrussels380.setAngle(-6.780710);
-        ShuntCompensator shBrussels380 = vlBrussels380.newShunt()
+        ShuntCompensator shBrussels380 = vlBrussels380.newShuntCompensator()
                 .setId("_002b0a40-3957-46db-b84a-30420083558f")
                 .setName("BE_S2")
                 .setConnectableBus(busBrussels380.getId())
@@ -222,7 +223,7 @@ public class CgmesConformity1NetworkCatalog {
                 .setB(2.51956e-5)
                 .setUcteXnodeCode("TN_Border_MA11")
                 .add();
-        ShuntCompensator shBrussels110 = vlBrussels110.newShunt()
+        ShuntCompensator shBrussels110 = vlBrussels110.newShuntCompensator()
                 .setId("_d771118f-36e9-4115-a128-cc3d9ce3e3da")
                 .setName("BE_S1")
                 .setConnectableBus(busBrussels110.getId())
@@ -269,7 +270,7 @@ public class CgmesConformity1NetworkCatalog {
         // expected.newLine()
         // .setId("17086487-56ba-4979-b8de-064025a6b4da")
         // .add();
-        Line lineBE2 = expected.newLine()
+        Line lineBE2 = network.newLine()
                 .setId("_b58bf21a-096a-4dae-9a01-3f03b60c24c7")
                 .setName("BE-Line_2")
                 .setR(1.935)
@@ -296,7 +297,7 @@ public class CgmesConformity1NetworkCatalog {
         // expected.newLine()
         // .setId("b18cd1aa-7808-49b9-a7cf-605eaf07b006")
         // .add();
-        Line lineBE6 = expected.newLine()
+        Line lineBE6 = network.newLine()
                 .setId("_ffbabc27-1ccd-4fdc-b037-e341706c8d29")
                 .setName("BE-Line_6")
                 .setR(5.203)
@@ -488,58 +489,12 @@ public class CgmesConformity1NetworkCatalog {
             double xmin = 14.518904;
             double xmax = 14.518904;
             double voltageInc = 1.25;
-            PhaseTapChangerAdder ptca = txBE21.newPhaseTapChanger()
-                    .setLowTapPosition(low)
-                    .setTapPosition(position);
-            // Intermediate calculations made using double precision
-            double du0 = 0;
-            double du = voltageInc / 100;
-            double theta = Math.PI / 2;
-            LOG.debug("EXPECTED du0,du,theta {} {} {}", du0, du, theta);
-
-            List<Double> alphas = new ArrayList<>();
-            List<Double> rhos = new ArrayList<>();
-            for (int k = low; k <= high; k++) {
-                int n = k - neutral;
-                double dx = (n * du - du0) * Math.cos(theta);
-                double dy = (n * du - du0) * Math.sin(theta);
-                double alpha = Math.atan2(dy, 1 + dx);
-                double rho = 1 / Math.hypot(dy, 1 + dx);
-                alphas.add(alpha);
-                rhos.add(rho);
-                LOG.debug("EXPECTED    n,dx,dy,alpha,rho  {} {} {} {} {}", n, dx, dy, alpha, rho);
-            }
-            double alphaMax = alphas.stream()
-                    .mapToDouble(Double::doubleValue)
-                    .max()
-                    .orElse(Double.NaN);
-            LOG.debug("EXPECTED    alphaMax {}", alphaMax);
-            LOG.debug("EXPECTED    xStepMin, xStepMax {}, {}", xmin, xmax);
-            for (int k = 0; k < alphas.size(); k++) {
-                double alpha = alphas.get(k);
-                double rho = rhos.get(k);
-                // x for current k
-                double numer = Math.sin(theta) - Math.tan(alphaMax) * Math.cos(theta);
-                double denom = Math.sin(theta) - Math.tan(alpha) * Math.cos(theta);
-                double xn = xmin + (xmax - xmin)
-                        * Math.pow(Math.tan(alpha) / Math.tan(alphaMax) * numer / denom, 2);
-                xn = xn * rho02;
-                double dx = (xn - txBE21.getX()) / txBE21.getX() * 100;
-                ptca.beginStep()
-                        .setRho(rho)
-                        .setAlpha(Math.toDegrees(alpha))
-                        .setR(0)
-                        .setX(dx)
-                        .setG(0)
-                        .setB(0)
-                        .endStep();
-                if (LOG.isDebugEnabled()) {
-                    int n = (low + k) - neutral;
-                    LOG.debug("EXPECTED    n,rho,alpha,x,dx   {} {} {} {} {}",
-                            n, rho, Math.toDegrees(alpha), xn, dx);
-                }
-            }
-            ptca.add();
+            double windingConnectionAngle = 90;
+            addPhaseTapChanger(txBE21,
+                    PhaseTapChangerType.ASYMMETRICAL,
+                    low, high, neutral, position,
+                    xmin, xmax,
+                    voltageInc, windingConnectionAngle);
         }
         {
             double p = -90;
@@ -568,7 +523,274 @@ public class CgmesConformity1NetworkCatalog {
             genBrussels10.getTerminal().setQ(q);
         }
 
-        return expected;
+        return network;
+    }
+
+    public Network microBaseCaseBE() {
+        String modelId = "urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73";
+        return microBE(modelId);
+    }
+
+    public Network microType4BE() {
+        String modelId = "urn:uuid:96adadbe-902b-4cd6-9fc8-01a56ecbee79";
+        Network network = microBE(modelId);
+        // Add voltage level in Anvers
+        VoltageLevel vlAnvers225 = network.getSubstation("_87f7002b-056f-4a6a-a872-1744eea757e3")
+                .newVoltageLevel()
+                .setId("_69ef0dbd-da79-4eef-a02f-690cb8a28361")
+                .setName("225 kV")
+                .setNominalV(225.0)
+                .setLowVoltageLimit(202.5)
+                .setHighVoltageLimit(247.5)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        Bus busAnvers225 = vlAnvers225.getBusBreakerView().newBus()
+                .setId("_23b65c6b-2351-4673-89e9-1895c7291543")
+                .add()
+                .setV(223.435281)
+                .setAngle(-17.412200);
+
+        Bus busBrussels21 = network
+                .getVoltageLevel("_929ba893-c9dc-44d7-b1fd-30834bd3ab85")
+                .getBusBreakerView()
+                .getBus("_f96d552a-618d-4d0c-a39a-2dea3c411dee")
+                .setV(21.987000)
+                .setAngle(-20.588300);
+        Bus busBrussels110 = network
+                .getVoltageLevel("_8bbd7e74-ae20-4dce-8780-c20f8e18c2e0")
+                .getBusBreakerView()
+                .getBus("_5c74cb26-ce2f-40c6-951d-89091eb781b6")
+                .setV(115.5)
+                .setAngle(-22.029800);
+        Bus busBrussels10 = network
+                .getVoltageLevel("_4ba71b59-ee2f-450b-9f7d-cc2f1cc5e386")
+                .getBusBreakerView()
+                .getBus("_a81d08ed-f51d-4538-8d1e-fb2d0dbd128e")
+                .setV(10.816961)
+                .setAngle(-19.642100);
+
+        Bus busBrussels380 = network
+                .getVoltageLevel("_469df5f7-058f-4451-a998-57a48e8a56fe")
+                .getBusBreakerView()
+                .getBus("_e44141af-f1dc-44d3-bfa4-b674e5c953d7")
+                .setV(414.114413)
+                .setAngle(-21.526500);
+
+        Bus busBrussels225 = network
+                .getVoltageLevel("_b10b171b-3bc5-4849-bb1f-61ed9ea1ec7c")
+                .getBusBreakerView()
+                .getBus("_99b219f3-4593-428b-a4da-124a54630178")
+                .setV(224.156562)
+                .setAngle(-21.796200);
+
+        Bus busAnvers220 = network
+                .getVoltageLevel("_d0486169-2205-40b2-895e-b672ecb9e5fc")
+                .getBusBreakerView()
+                .getBus("_f70f6bad-eb8d-4b8f-8431-4ab93581514e")
+                .setV(223.435281)
+                .setAngle(-17.412200);
+
+        VoltageLevel vlAnvers220 = network.getVoltageLevel("_d0486169-2205-40b2-895e-b672ecb9e5fc");
+        vlAnvers220.newStaticVarCompensator()
+                .setId("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4")
+                .setName("SVC-1230797516")
+                .setBus("_f70f6bad-eb8d-4b8f-8431-4ab93581514e")
+                .setConnectableBus("_f70f6bad-eb8d-4b8f-8431-4ab93581514e")
+                .setBmax(5062.5)
+                .setBmin(-5062.5)
+                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setVoltageSetPoint(229.5)
+                .add();
+
+        double p = -118.0;
+        double q = -85.603401;
+        Generator genBrussels21 = network
+                .getGenerator("_550ebe0d-f2b2-48c1-991f-cebea43a21aa")
+                .setTargetP(-p)
+                .setTargetQ(-q);
+        genBrussels21.getTerminal().setP(p).setQ(q);
+
+        p = -90.0;
+        q = 84.484905;
+        Generator genBrussels10 = network
+                .getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0")
+                .setTargetP(-p)
+                .setTargetQ(-q);
+        genBrussels10.getTerminal().setP(p).setQ(q);
+
+        // Line _df16b3dd comes from a SeriesCompensator in CGMES model
+        Line scAnvers = network.newLine()
+                .setId("_df16b3dd-c905-4a6f-84ee-f067be86f5da")
+                .setName("SER-RLC-1230822986")
+                .setR(0)
+                .setX(-31.830989)
+                .setB1(0)
+                .setG1(0)
+                .setB2(0)
+                .setG2(0)
+                .setConnectableBus1(busAnvers225.getId())
+                .setBus1(busAnvers225.getId())
+                .setVoltageLevel1(vlAnvers225.getId())
+                .setConnectableBus2(busAnvers220.getId())
+                .setBus2(busAnvers220.getId())
+                .setVoltageLevel2(vlAnvers220.getId())
+                .add();
+
+        Line lineBE2 = network.getLine("_b58bf21a-096a-4dae-9a01-3f03b60c24c7");
+        lineBE2.getCurrentLimits1().setPermanentLimit(2000.0);
+        lineBE2.getCurrentLimits2().setPermanentLimit(2000.0);
+
+        network.getTwoWindingsTransformer("_e482b89a-fa84-4ea9-8e70-a83d44790957")
+                .getRatioTapChanger().setTapPosition(20);
+
+        TwoWindingsTransformer txBE22 = network.getTwoWindingsTransformer("_b94318f6-6d24-4f56-96b9-df2531ad6543");
+        txBE22.getRatioTapChanger().remove();
+        {
+            int low = 1;
+            int high = 25;
+            int neutral = 13;
+            int position = 10;
+            double xmin = 10.396291;
+            double xmax = 11.881475;
+            double voltageInc = 1.25;
+            double windingConnectionAngle = 5;
+            addPhaseTapChanger(txBE22,
+                    PhaseTapChangerType.ASYMMETRICAL,
+                    low, high, neutral, position,
+                    xmin, xmax,
+                    voltageInc, windingConnectionAngle);
+        }
+
+        {
+            TwoWindingsTransformer txBE21 = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
+            txBE21.getPhaseTapChanger().remove();
+            int low = 1;
+            int high = 25;
+            int neutral = 13;
+            int position = 13;
+            double xmin = 12.099087;
+            double xmax = 16.938722;
+            double voltageInc = 1.25;
+            // winding connection angle property is only defined for Asymmetrical
+            double windingConnectionAngle = Double.NaN;
+            addPhaseTapChanger(txBE21,
+                    PhaseTapChangerType.SYMMETRICAL,
+                    low, high, neutral, position,
+                    xmin, xmax,
+                    voltageInc, windingConnectionAngle);
+        }
+
+        network.getDanglingLine("_a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4")
+                .setP0(-86.814383)
+                .setQ0(4.958972);
+        network.getDanglingLine("_17086487-56ba-4979-b8de-064025a6b4da")
+                .setP0(-89.462903)
+                .setQ0(1.519011);
+        network.getDanglingLine("_78736387-5f60-4832-b3fe-d50daf81b0a6")
+                .setP0(-16.452661)
+                .setQ0(64.018020);
+        network.getDanglingLine("_b18cd1aa-7808-49b9-a7cf-605eaf07b006")
+                .setP0(-31.579291)
+                .setQ0(120.813763);
+        network.getDanglingLine("_ed0c5d75-4a54-43c8-b782-b20d7431630b")
+                .setP0(-11.518775)
+                .setQ0(67.377544);
+        return network;
+    }
+
+    enum PhaseTapChangerType {
+        ASYMMETRICAL, SYMMETRICAL
+    };
+
+    private void addPhaseTapChanger(
+            TwoWindingsTransformer tx,
+            PhaseTapChangerType type,
+            int low, int high, int neutral, int position,
+            double xmin, double xmax,
+            double voltageInc,
+            double windingConnectionAngle) {
+        LOG.debug("EXPECTED tx {}", tx.getId());
+        double rho0 = tx.getRatedU2() / tx.getRatedU1();
+        double rho02 = rho0 * rho0;
+
+        PhaseTapChangerAdder ptca = tx.newPhaseTapChanger()
+                .setLowTapPosition(low)
+                .setTapPosition(position);
+        // Intermediate calculations made using double precision
+        double du0 = 0;
+        double du = voltageInc / 100;
+        double theta = Math.toRadians(
+                type.equals(PhaseTapChangerType.ASYMMETRICAL)
+                        ? windingConnectionAngle
+                        : 90);
+        LOG.debug("EXPECTED du0,du,theta {} {} {}", du0, du, theta);
+
+        List<Double> alphas = new ArrayList<>();
+        List<Double> rhos = new ArrayList<>();
+        for (int k = low; k <= high; k++) {
+            int n = k - neutral;
+            double alpha;
+            double rho;
+            if (type.equals(PhaseTapChangerType.ASYMMETRICAL)) {
+                double dx = (n * du - du0) * Math.cos(theta);
+                double dy = (n * du - du0) * Math.sin(theta);
+                alpha = Math.atan2(dy, 1 + dx);
+                rho = 1 / Math.hypot(dy, 1 + dx);
+                LOG.debug("EXPECTED    n,dx,dy,alpha,rho  {} {} {} {} {}", n, dx, dy, alpha, rho);
+            } else if (type.equals(PhaseTapChangerType.SYMMETRICAL)) {
+                double dy = (n * du / 2 - du0) * Math.sin(theta);
+                alpha = 2 * Math.asin(dy);
+                rho = 1.0;
+                LOG.debug("EXPECTED    n,dy,alpha,rho  {} {} {} {}", n, dy, alpha, rho);
+            } else {
+                alpha = Double.NaN;
+                rho = Double.NaN;
+            }
+            alphas.add(alpha);
+            rhos.add(rho);
+        }
+        double alphaMax = alphas.stream()
+                .mapToDouble(Double::doubleValue)
+                .max()
+                .orElse(Double.NaN);
+        LOG.debug("EXPECTED    alphaMax {}", alphaMax);
+        LOG.debug("EXPECTED    xStepMin, xStepMax {}, {}", xmin, xmax);
+        LOG.debug("EXPECTED    u2,u1,rho0square {}, {}, {}", tx.getRatedU2(), tx.getRatedU1(), rho02);
+        for (int k = 0; k < alphas.size(); k++) {
+            double alpha = alphas.get(k);
+            double rho = rhos.get(k);
+
+            // x for current k
+            double xn;
+            if (type.equals(PhaseTapChangerType.ASYMMETRICAL)) {
+                double numer = Math.sin(theta) - Math.tan(alphaMax) * Math.cos(theta);
+                double denom = Math.sin(theta) - Math.tan(alpha) * Math.cos(theta);
+                xn = xmin + (xmax - xmin)
+                        * Math.pow(Math.tan(alpha) / Math.tan(alphaMax) * numer / denom, 2);
+            } else if (type.equals(PhaseTapChangerType.SYMMETRICAL)) {
+                xn = xmin + (xmax - xmin)
+                        * Math.pow(Math.sin(alpha / 2) / Math.sin(alphaMax / 2), 2);
+            } else {
+                xn = Double.NaN;
+            }
+            xn = xn * rho02;
+            double dx = (xn - tx.getX()) / tx.getX() * 100;
+
+            ptca.beginStep()
+                    .setRho(rho)
+                    .setAlpha(Math.toDegrees(alpha))
+                    .setR(0)
+                    .setX(dx)
+                    .setG(0)
+                    .setB(0)
+                    .endStep();
+            if (LOG.isDebugEnabled()) {
+                int n = (low + k) - neutral;
+                LOG.debug("EXPECTED    n,rho,alpha,x,dx   {} {} {} {} {}",
+                        n, rho, Math.toDegrees(alpha), xn, dx);
+            }
+        }
+        ptca.add();
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesConformity1NetworkCatalog.class);

@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016, RTE (http://www.rte-france.com)
+ * Copyright (c) 2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -29,7 +29,6 @@ public class NodeBreakerViewInternalConnectionXml {
         context.getWriter().writeEmptyElement(IIDM_URI, getRootElementName());
         context.getWriter().writeAttribute("node1", Integer.toString(node1));
         context.getWriter().writeAttribute("node2", Integer.toString(node2));
-        //context.getWriter().writeEndElement();
     }
 
     protected void read(VoltageLevel vl, NetworkXmlReaderContext context) {
