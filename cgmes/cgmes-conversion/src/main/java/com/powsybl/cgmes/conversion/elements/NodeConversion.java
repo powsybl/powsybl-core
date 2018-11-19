@@ -121,12 +121,18 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
             bus.setAngle(angle);
         } else {
             String reason = String.format(
-                    "v = %f, angle = %f. Substation, Voltage level = %s %s",
+                    "v = %f, angle = %f. Node %s",
                     v,
                     angle,
-                    bus.getVoltageLevel().getSubstation().getName(),
-                    bus.getVoltageLevel().getName());
-            context.invalid("SvVoltage", reason);
+                    id);
+            String location = bus == null
+                    ? "No bus"
+                    : String.format("Bus %s, Substation %s, Voltage level %s",
+                            bus.getId(),
+                            bus.getVoltageLevel().getSubstation().getName(),
+                            bus.getVoltageLevel().getName());
+            String message = String.format("%s. %s", reason, location);
+            context.invalid("SvVoltage", message);
         }
     }
 

@@ -46,6 +46,7 @@ import com.powsybl.cgmes.conversion.elements.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.TwoWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.VoltageLevelConversion;
 import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
@@ -149,16 +150,8 @@ public class Conversion {
 
         convert(cgmes.terminalLimits(), l -> new TerminalLimitConversion(l, context));
 
-        if (context.nodeBreaker()) {
-            // In node-breaker conversion,
-            // set (voltage, angle) values after all nodes have been created and connected
-            for (PropertyBag n : nodes) {
-                NodeConversion nc = new NodeConversion("ConnectivityNode", n, context);
-                if (!nc.insideBoundary()) {
-                    nc.setVoltageAngleNodeBreaker();
-                }
-            }
-        }
+        voltageAngles(nodes);
+        checkShuntCompensators();
 
         return network;
     }
@@ -257,6 +250,40 @@ public class Conversion {
                         c.convert();
                     }
                 });
+    }
+
+    private void voltageAngles(PropertyBags nodes) {
+        if (context.nodeBreaker()) {
+            // FIXME(Luma): we create again one conversion object for every node
+            // In node-breaker conversion,
+            // set (voltage, angle) values after all nodes have been created and connected
+            for (PropertyBag n : nodes) {
+                NodeConversion nc = new NodeConversion("ConnectivityNode", n, context);
+                if (!nc.insideBoundary()) {
+                    nc.setVoltageAngleNodeBreaker();
+                }
+            }
+        }
+    }
+
+    private void checkShuntCompensators() {
+        // FIXME(Luma): remove this method before pull request, 
+        // it is here only for debugging purposes
+        context.network().getShuntCompensators().forEach(shunt -> {
+            Bus bus = shunt.getTerminal().getBusView().getBus();
+            if (bus != null) {
+                double v = bus.getV();
+                if (Double.isNaN(v)) {
+                    LOG.info("checkSC voltage NaN {}", bus.getId());
+                } else {
+                    double q = shunt.getTerminal().getQ();
+                    double q1 = -1 * (v * v * shunt.getbPerSection() * shunt.getCurrentSectionCount());
+                    double dq = Math.abs(q - q1);
+                    LOG.info("checkSC Bus {} {}", bus.getId(), v);
+                    LOG.info("checkSC {} {} {} {}", shunt.getId(), String.format("%.5f", dq), q, q1);
+                }
+            }
+        });
     }
 
     public static class Config {
