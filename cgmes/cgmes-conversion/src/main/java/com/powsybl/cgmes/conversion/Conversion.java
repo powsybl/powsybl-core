@@ -267,7 +267,7 @@ public class Conversion {
     }
 
     private void checkShuntCompensators() {
-        // FIXME(Luma): remove this method before pull request, 
+        // FIXME(Luma): remove this method before pull request,
         // it is here only for debugging purposes
         context.network().getShuntCompensators().forEach(shunt -> {
             Bus bus = shunt.getTerminal().getBusView().getBus();
