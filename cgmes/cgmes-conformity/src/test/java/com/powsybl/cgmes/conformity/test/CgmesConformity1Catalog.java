@@ -371,7 +371,7 @@ public class CgmesConformity1Catalog {
                         "_550ebe0d-f2b2-48c1-991f-cebea43a21aa");
     }
 
-    private FakeCgmesModel expectedMiniNodeBreaker() {
+    private CgmesModel expectedMiniNodeBreaker() {
         return new FakeCgmesModel()
                 .modelId("MiniNodeBreakerBaseCaseComplete")
                 .version("unknown")
