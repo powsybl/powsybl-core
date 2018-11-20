@@ -894,11 +894,11 @@ public class UcteImporter implements Importer {
 
                 if (dl1.getCurrentLimits() != null) {
                     mergeLine.newCurrentLimits1()
-                            .setPermanentLimit(dl1.getCurrentLimits().getPermanentLimit());
+                            .setPermanentLimit(dl1.getCurrentLimits().getPermanentLimit()).add();
                 }
                 if (dl2.getCurrentLimits() != null) {
                     mergeLine.newCurrentLimits2()
-                            .setPermanentLimit(dl2.getCurrentLimits().getPermanentLimit());
+                            .setPermanentLimit(dl2.getCurrentLimits().getPermanentLimit()).add();
                 }
 
                 mergeLine.addExtension(MergedXnode.class, new MergedXnode(mergeLine, rdp, xdp, xnodeP1, xnodeQ1, xnodeP2, xnodeQ2, xnodeCode));
