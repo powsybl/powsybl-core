@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -56,8 +57,12 @@ public class AmplNetworkReader {
         return new AmplException("Wrong number of columns " + actual + ", expected " + expected);
     }
 
+    private InputStream newInputStream(String suffix) {
+        return dataSource.newInputStream(dataSource.getMainFileName() + suffix);
+    }
+
     private void read(String suffix, int expectedTokenCount, Function<String[], Void> handler) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(dataSource.getMainFileName() + suffix), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(newInputStream(suffix), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String trimedLine = line.trim();
@@ -453,7 +458,7 @@ public class AmplNetworkReader {
 
     public AmplNetworkReader readMetrics(Map<String, String> metrics) throws IOException {
         Objects.requireNonNull(metrics);
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(dataSource.getMainFileName() + "_indic.txt"), StandardCharsets.UTF_8))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(newInputStream("_indic.txt"), StandardCharsets.UTF_8))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 String trimedLine = line.trim();

@@ -239,7 +239,7 @@ public class ActionSimulatorTool implements Tool {
         ReadOnlyDataSource dataSource = Importers.createDataSource(caseFile);
         Importer importer = Importers.findImporter(dataSource, context.getShortTimeExecutionComputationManager());
         if (importer == null) {
-            throw new PowsyblException("No importer found  for case file "  + caseFile);
+            throw new PowsyblException("No importer found for case file "  + caseFile);
         }
 
         //Create observers

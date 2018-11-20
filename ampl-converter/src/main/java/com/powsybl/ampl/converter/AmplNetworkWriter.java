@@ -177,8 +177,8 @@ public class AmplNetworkWriter {
         return xNodeCcNum;
     }
 
-    private OutputStream newOutputStream(String suffixe) {
-        return dataSource.newOutputStream(dataSource.getMainFileName() + suffixe, append);
+    private OutputStream newOutputStream(String suffix) {
+        return dataSource.newOutputStream(dataSource.getMainFileName() + suffix, append);
     }
 
     private void writeSubstations() throws IOException {
