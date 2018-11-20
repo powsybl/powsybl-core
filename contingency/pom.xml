@@ -17,6 +17,7 @@
 
     <modules>
         <module>contingency-api</module>
+        <module>contingency-dsl</module>
     </modules>
 
 </project>

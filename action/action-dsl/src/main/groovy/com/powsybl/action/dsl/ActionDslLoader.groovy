@@ -6,14 +6,13 @@
  */
 package com.powsybl.action.dsl
 
+import com.powsybl.action.dsl.spi.DslTaskExtension
 import com.powsybl.contingency.dsl.ContingencyDslLoader
+import com.powsybl.contingency.tasks.ModificationTask
 import com.powsybl.dsl.DslLoader
 import com.powsybl.dsl.ast.BooleanLiteralNode
 import com.powsybl.dsl.ast.ExpressionNode
-import com.powsybl.action.dsl.spi.DslTaskExtension
-import com.powsybl.contingency.*
-import com.powsybl.contingency.tasks.ModificationTask
-import com.powsybl.iidm.network.*
+import com.powsybl.iidm.network.Network
 import org.codehaus.groovy.control.CompilationFailedException
 import org.slf4j.LoggerFactory
 
@@ -23,15 +22,6 @@ import org.slf4j.LoggerFactory
 class ActionDslLoader extends DslLoader {
 
     static LOGGER = LoggerFactory.getLogger(ActionDslLoader.class)
-
-    static class ContingencySpec {
-
-        String[] equipments
-
-        void equipments(String[] equipments) {
-            this.equipments = equipments
-        }
-    }
 
     static class RuleSpec {
 
