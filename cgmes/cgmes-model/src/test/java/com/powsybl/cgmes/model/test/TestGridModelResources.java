@@ -7,24 +7,14 @@
 
 package com.powsybl.cgmes.model.test;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
-
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ResourcesDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.io.ByteStreams;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.DataSourceUtil;
-import com.powsybl.commons.datasource.FileDataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import java.io.InputStream;
+import java.util.Arrays;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -39,6 +29,10 @@ public class TestGridModelResources extends AbstractTestGridModel {
         this.resourceNames = resourceNames;
     }
 
+    private InputStream resourceStream(String resource) {
+        return getClass().getClassLoader().getResourceAsStream(resource);
+    }
+
     @Override
     public boolean exists() {
         for (String r : resourceNames) {
@@ -51,47 +45,11 @@ public class TestGridModelResources extends AbstractTestGridModel {
 
     @Override
     public ReadOnlyDataSource dataSource() {
-        if (resourceNames.length == 1) {
-            return DataSourceUtil.createReadOnlyMemDataSource(resourceNames[0], resourceStream(resourceNames[0]));
-        } else {
-            throw new UnsupportedOperationException(
-                    "dataSource() from multiple resources not supported, use dataSourceBasedOn(FileSystem)");
-        }
-    }
-
-    @Override
-    public DataSource dataSourceBasedOn(FileSystem fs) throws IOException {
-        Path folder = Files.createDirectory(fs.getPath(name()));
-        DataSource ds = new FileDataSource(folder, baseNameFromResourceNames());
-        for (String r : resourceNames) {
-            // Take last component of the resource name
-            String r1 = r.replaceAll("^.*\\/", "");
-            try (InputStream is = resourceStream(r);
-                    OutputStream os = ds.newOutputStream(r1, false)) {
-                ByteStreams.copy(is, os);
-            }
-        }
+        ResourcesDataSource ds = new ResourcesDataSource("/", null, resourceNames);
         if (LOG.isInfoEnabled()) {
-            LOG.info("List of names in data source for {} = {}", name(), Arrays.toString(ds.listNames(".*").toArray()));
+            LOG.info("List of names in data source for {} = {}", name(), Arrays.toString(ds.getFileNames(".*").toArray()));
         }
         return ds;
-    }
-
-    private InputStream resourceStream(String resource) {
-        return getClass().getClassLoader().getResourceAsStream(resource);
-    }
-
-    private String baseNameFromResourceNames() {
-        for (String r : resourceNames) {
-            // Ignore resources related to boundaries
-            if (r.contains("Boundary") || r.contains("_BD_")) {
-                continue;
-            }
-            // From last component of resource name,
-            // remove all subset suffixes and XML extension
-            return r.replaceAll("^.*\\/", "").replaceAll("(?i)_(EQ|TP|SV|SSH|DL|GL|DY).*XML", "");
-        }
-        throw new CgmesModelException("Data source does not contain valid data");
     }
 
     private final String[] resourceNames;

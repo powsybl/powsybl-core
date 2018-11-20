@@ -28,10 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -746,13 +743,13 @@ public class UcteImporter implements Importer {
 
     }
 
-    private String findExtension(String mainFileName) {
+    private Optional<String> findExtension(String mainFileName) {
         for (String ext : EXTENSIONS) {
             if (mainFileName.endsWith('.' + ext)) {
-                return ext;
+                return Optional.of(ext);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     private String getMainFileName(ReadOnlyDataSource dataSource) {
@@ -766,28 +763,40 @@ public class UcteImporter implements Importer {
         return null;
     }
 
-    @Override
-    public boolean exists(ReadOnlyDataSource dataSource) {
-        String mainFileName = getMainFileName(dataSource);
-        return mainFileName != null
-                && dataSource.fileExists(mainFileName)
-                && findExtension(mainFileName) != null
+    private class ImportContext {
+
+        private String mainFileName;
+    }
+
+    private boolean exists(ReadOnlyDataSource dataSource, ImportContext context) {
+        Objects.requireNonNull(dataSource);
+        Objects.requireNonNull(context);
+        context.mainFileName = getMainFileName(dataSource);
+        return context.mainFileName != null
+                && dataSource.fileExists(context.mainFileName)
+                && findExtension(context.mainFileName).isPresent()
                 && checkHeader(dataSource);
     }
 
-    private void checkDataSourceExists(ReadOnlyDataSource dataSource) {
+    private ImportContext checkDataSourceExists(ReadOnlyDataSource dataSource) {
         Objects.requireNonNull(dataSource);
-        if (!exists(dataSource)) {
-            throw new PowsyblException("Data source is not importable");
+        ImportContext context = new ImportContext();
+        if (!exists(dataSource, context)) {
+            throw new PowsyblException("No valid UCTE data found in data source");
         }
+        return context;
+    }
+
+    @Override
+    public boolean exists(ReadOnlyDataSource dataSource) {
+        return exists(dataSource, new ImportContext());
     }
 
     @Override
     public String getPrettyName(ReadOnlyDataSource dataSource) {
-        checkDataSourceExists(dataSource);
-        String mainFileName = getMainFileName(dataSource);
-        String extension = findExtension(Objects.requireNonNull(mainFileName));
-        return mainFileName.substring(0, mainFileName.length() - extension.length());
+        ImportContext context = checkDataSourceExists(dataSource);
+        String extension = findExtension(context.mainFileName).orElseThrow(AssertionError::new);
+        return context.mainFileName.substring(0, context.mainFileName.length() - extension.length());
     }
 
     private boolean checkHeader(ReadOnlyDataSource dataSource) {
@@ -927,9 +936,9 @@ public class UcteImporter implements Importer {
 
     @Override
     public void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
-        checkDataSourceExists(fromDataSource);
+        ImportContext fromContext = checkDataSourceExists(fromDataSource);
         Objects.requireNonNull(toDataSource);
-        String fromMainFileName = getMainFileName(fromDataSource);
+        String fromMainFileName = fromContext.mainFileName;
         String toMainFileName;
         if (toDataSource.getMainFileName() != null) {
             toMainFileName = toDataSource.getMainFileName();
@@ -949,15 +958,15 @@ public class UcteImporter implements Importer {
 
     @Override
     public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
-        checkDataSourceExists(dataSource);
-        String fromMainFileName = getMainFileName(dataSource);
+        ImportContext context = checkDataSourceExists(dataSource);
+        String mainFileName = context.mainFileName;
         try {
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(fromMainFileName)))) {
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(mainFileName)))) {
 
                 Stopwatch stopwatch = Stopwatch.createStarted();
 
                 UcteNetworkExt ucteNetwork = new UcteNetworkExt(new UcteReader().read(reader), LINE_MIN_Z);
-                String fileName = fromMainFileName.substring(0, fromMainFileName.length() - 4);
+                String fileName = mainFileName.substring(0, mainFileName.length() - 4);
 
                 EntsoeFileName ucteFileName = EntsoeFileName.parse(fileName);
 

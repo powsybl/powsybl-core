@@ -7,18 +7,6 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Properties;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
@@ -30,6 +18,17 @@ import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.TripleStoreFactory;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -49,25 +48,25 @@ public class ImportExportPerformanceTest {
     }
 
     private void importExport(List<String> tsImpls, TestGridModel gm) throws IOException {
-        try (FileSystem fs = Jimfs.newFileSystem()) {
-            ReadOnlyDataSource ds = gm.dataSourceBasedOn(fs);
+        ReadOnlyDataSource ds = gm.dataSource();
 
-            int size = tsImpls.size();
-            long[] startTimes = new long[size];
-            long[] endTimes = new long[size];
-            for (int k = 0; k < size; k++) {
-                String impl = tsImpls.get(k);
-                LOG.info("importExport performance, TS implementation {}, model {}", impl, gm.name());
-                startTimes[k] = System.currentTimeMillis();
+        int size = tsImpls.size();
+        long[] startTimes = new long[size];
+        long[] endTimes = new long[size];
+        for (int k = 0; k < size; k++) {
+            String impl = tsImpls.get(k);
+            LOG.info("importExport performance, TS implementation {}, model {}", impl, gm.name());
+            startTimes[k] = System.currentTimeMillis();
 
+            try (FileSystem fs = Jimfs.newFileSystem()) {
                 importExport(impl, ds, fs);
+            }
 
-                endTimes[k] = System.currentTimeMillis();
-            }
-            for (int k = 0; k < size; k++) {
-                String impl = tsImpls.get(k);
-                LOG.info("importExport {} took {} milliseconds", impl, endTimes[k] - startTimes[k]);
-            }
+            endTimes[k] = System.currentTimeMillis();
+        }
+        for (int k = 0; k < size; k++) {
+            String impl = tsImpls.get(k);
+            LOG.info("importExport {} took {} milliseconds", impl, endTimes[k] - startTimes[k]);
         }
     }
 

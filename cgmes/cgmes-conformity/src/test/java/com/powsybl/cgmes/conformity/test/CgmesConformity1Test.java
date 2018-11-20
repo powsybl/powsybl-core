@@ -7,12 +7,9 @@
 
 package com.powsybl.cgmes.conformity.test;
 
-import java.io.IOException;
-
+import com.powsybl.cgmes.model.test.CgmesModelTester;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import com.powsybl.cgmes.model.test.CgmesModelTester;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -25,37 +22,37 @@ public class CgmesConformity1Test {
     }
 
     @Test
-    public void microGridBaseCaseBE() throws IOException {
+    public void microGridBaseCaseBE() {
         new CgmesModelTester(catalog.microGridBaseCaseBE()).test();
     }
 
     @Test
-    public void microGridBaseCaseNL() throws IOException {
+    public void microGridBaseCaseNL() {
         new CgmesModelTester(catalog.microGridBaseCaseNL()).test();
     }
 
     @Test
-    public void microGridBaseCaseAssembled() throws IOException {
+    public void microGridBaseCaseAssembled() {
         new CgmesModelTester(catalog.microGridBaseCaseAssembled()).test();
     }
 
     @Test
-    public void miniBusBranch() throws IOException {
+    public void miniBusBranch() {
         new CgmesModelTester(catalog.miniBusBranch()).test();
     }
 
     @Test
-    public void miniNodeBreaker() throws IOException {
+    public void miniNodeBreaker() {
         new CgmesModelTester(catalog.miniNodeBreaker()).test();
     }
 
     @Test
-    public void smallBusBranch() throws IOException {
+    public void smallBusBranch() {
         new CgmesModelTester(catalog.smallBusBranch()).test();
     }
 
     @Test
-    public void smallNodeBreaker() throws IOException {
+    public void smallNodeBreaker() {
         new CgmesModelTester(catalog.smallNodeBreaker()).test();
     }
 

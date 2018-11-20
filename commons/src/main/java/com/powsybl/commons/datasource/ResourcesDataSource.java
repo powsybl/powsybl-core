@@ -26,7 +26,7 @@ public class ResourcesDataSource implements ReadOnlyDataSource {
 
     public ResourcesDataSource(String resourceDir, String mainFileName, String... fileNames) {
         this.resourceDir = Objects.requireNonNull(resourceDir);
-        this.mainFileName = Objects.requireNonNull(mainFileName);
+        this.mainFileName = mainFileName;
         this.fileNames = Arrays.stream(Objects.requireNonNull(fileNames))
                                .map(fileName -> checkFile(resourceDir, fileName))
                                .collect(Collectors.toSet());

@@ -7,11 +7,7 @@
 
 package com.powsybl.cgmes.model.test;
 
-import java.io.IOException;
-import java.nio.file.FileSystem;
-
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 
 public interface TestGridModel {
@@ -20,8 +16,6 @@ public interface TestGridModel {
     boolean exists();
 
     ReadOnlyDataSource dataSource();
-
-    DataSource dataSourceBasedOn(FileSystem fs) throws IOException;
 
     String name();
 }

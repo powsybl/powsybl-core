@@ -13,6 +13,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.io.ByteStreams;
 import com.google.gdata.util.io.base.UnicodeReader;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -164,27 +165,48 @@ public class CIM1Importer implements Importer, CIM1Constants {
         return false;
     }
 
-    @Override
-    public boolean exists(ReadOnlyDataSource dataSource) {
-        String mainFileName = getMainFileName(dataSource);
-        if (mainFileName != null) {
-            if (mainFileName.endsWith("_ME.xml")) {
-                return dataSource.fileExists(mainFileName)
-                        && isCim14(dataSource, mainFileName);
-            } else if (mainFileName.endsWith("_EQ.xml")) {
-                String baseName = getBaseName(mainFileName);
-                return dataSource.fileExists(mainFileName)
+    private class ImportContext {
+
+        private String mainFileName;
+    }
+
+    public boolean exists(ReadOnlyDataSource dataSource, ImportContext context) {
+        Objects.requireNonNull(dataSource);
+        Objects.requireNonNull(context);
+        context.mainFileName = getMainFileName(dataSource);
+        if (context.mainFileName != null) {
+            if (context.mainFileName.endsWith("_ME.xml")) {
+                return dataSource.fileExists(context.mainFileName)
+                        && isCim14(dataSource, context.mainFileName);
+            } else if (context.mainFileName.endsWith("_EQ.xml")) {
+                String baseName = getBaseName(context.mainFileName);
+                return dataSource.fileExists(context.mainFileName)
                         && dataSource.fileExists(baseName + "_TP.xml")
                         && dataSource.fileExists(baseName + "_SV.xml")
-                        && isCim14(dataSource, mainFileName); // just test eq file to save time
+                        && isCim14(dataSource, context.mainFileName); // just test eq file to save time
             }
         }
         return false;
     }
 
     @Override
+    public boolean exists(ReadOnlyDataSource dataSource) {
+        return exists(dataSource, new ImportContext());
+    }
+
+    private ImportContext checkDataSourceExists(ReadOnlyDataSource dataSource) {
+        Objects.requireNonNull(dataSource);
+        ImportContext context = new ImportContext();
+        if (!exists(dataSource, context)) {
+            throw new PowsyblException("No valid CIM1 data found in data source");
+        }
+        return context;
+    }
+
+    @Override
     public String getPrettyName(ReadOnlyDataSource dataSource) {
-        return getBaseName(Objects.requireNonNull(getMainFileName(dataSource)));
+        ImportContext context = checkDataSourceExists(dataSource);
+        return getBaseName(context.mainFileName);
     }
 
     private CIMModel loadMergedModel(ReadOnlyDataSource dataSource, String meFileName, Reader bseqr, Reader bstpr) {
@@ -268,10 +290,10 @@ public class CIM1Importer implements Importer, CIM1Constants {
 
     @Override
     public void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
-        Objects.requireNonNull(fromDataSource);
+        ImportContext fromContext = checkDataSourceExists(fromDataSource);
         Objects.requireNonNull(toDataSource);
         try {
-            String fromMainFileName = Objects.requireNonNull(getMainFileName(fromDataSource));
+            String fromMainFileName = fromContext.mainFileName;
             String toMainFileName = getMainFileName(toDataSource);
             String fromBaseName = getBaseName(fromMainFileName);
             String toBaseName = toMainFileName != null ? getBaseName(toMainFileName) : fromBaseName;
@@ -290,6 +312,8 @@ public class CIM1Importer implements Importer, CIM1Constants {
 
     @Override
     public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
+        ImportContext context = checkDataSourceExists(dataSource);
+        String mainFileName = context.mainFileName;
 
         Network network;
 
@@ -298,8 +322,6 @@ public class CIM1Importer implements Importer, CIM1Constants {
         try {
             try (Reader bseqr = new UnicodeReader(getEqBoundaryFile(dataSource), null);
                  Reader bstpr = new UnicodeReader(getTpBoundaryFile(dataSource), null)) {
-
-                String mainFileName = getMainFileName(dataSource);
 
                 CIMModel model;
                 if (mainFileName != null && mainFileName.endsWith("_EQ.xml")) {

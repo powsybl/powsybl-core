@@ -7,19 +7,6 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import static org.junit.Assert.fail;
-
-import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Properties;
-import java.util.function.Consumer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
@@ -33,6 +20,18 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.XMLExporter;
 import com.powsybl.triplestore.api.TripleStoreFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Properties;
+import java.util.function.Consumer;
+
+import static org.junit.Assert.fail;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -111,26 +110,26 @@ public class ConversionTester {
         iparams.put("storeCgmesModelAsNetworkProperty", "true");
         iparams.put("powsyblTripleStore", impl);
         CgmesImport i = new CgmesImport();
-        try (FileSystem fs = Jimfs.newFileSystem()) {
-            ReadOnlyDataSource ds = gm.dataSourceBasedOn(fs);
-            Network network = i.importData(ds, iparams);
-            if (network.getSubstationCount() == 0) {
-                fail("Model is empty");
-            }
-            CgmesModel cgmes = (CgmesModel) network.getProperties().get(CgmesImport.NETWORK_PS_CGMES_MODEL);
-            if (!new TopologyTester(cgmes, network).test(strictTopologyTest)) {
-                fail("Topology test failed");
-            }
-            if (expected != null) {
-                new Comparison(expected, network, cconfig).compare();
-            }
-            if (exportXiidm) {
-                exportXiidm(gm.name(), impl, expected, network);
-            }
-            if (exportCgmes) {
-                exportCgmes(gm.name(), impl, network);
-            }
-            if (testExportImportCgmes) {
+        ReadOnlyDataSource ds = gm.dataSource();
+        Network network = i.importData(ds, iparams);
+        if (network.getSubstationCount() == 0) {
+            fail("Model is empty");
+        }
+        CgmesModel cgmes = (CgmesModel) network.getProperties().get(CgmesImport.NETWORK_PS_CGMES_MODEL);
+        if (!new TopologyTester(cgmes, network).test(strictTopologyTest)) {
+            fail("Topology test failed");
+        }
+        if (expected != null) {
+            new Comparison(expected, network, cconfig).compare();
+        }
+        if (exportXiidm) {
+            exportXiidm(gm.name(), impl, expected, network);
+        }
+        if (exportCgmes) {
+            exportCgmes(gm.name(), impl, network);
+        }
+        if (testExportImportCgmes) {
+            try (FileSystem fs = Jimfs.newFileSystem()) {
                 testExportImportCgmes(network, fs, i, iparams, cconfig);
             }
         }
@@ -142,13 +141,11 @@ public class ConversionTester {
         Properties params = new Properties();
         params.put("storeCgmesModelAsNetworkProperty", "true");
         params.put("powsyblTripleStore", impl);
-        try (FileSystem fs = Jimfs.newFileSystem()) {
-            ReadOnlyDataSource ds = gm.dataSourceBasedOn(fs);
-            LOG.info("Importer.exists() == {}", i.exists(ds));
-            Network n = i.importData(ds, params);
-            CgmesModel m = (CgmesModel) n.getProperties().get(CgmesImport.NETWORK_PS_CGMES_MODEL);
-            new Conversion(m).report(reportConsumer);
-        }
+        ReadOnlyDataSource ds = gm.dataSource();
+        LOG.info("Importer.exists() == {}", i.exists(ds));
+        Network n = i.importData(ds, params);
+        CgmesModel m = (CgmesModel) n.getProperties().get(CgmesImport.NETWORK_PS_CGMES_MODEL);
+        new Conversion(m).report(reportConsumer);
     }
 
     private void exportXiidm(String name, String impl, Network expected, Network actual) throws IOException {

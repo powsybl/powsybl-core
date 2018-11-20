@@ -7,22 +7,38 @@
 
 package com.powsybl.cgmes.model.test;
 
-import java.io.IOException;
-import java.nio.file.Paths;
-
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.cgmes.model.CgmesModelException;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
-import com.powsybl.cgmes.model.CgmesModelException;
+import java.io.IOException;
+import java.nio.file.FileSystem;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class MissingCaseTest {
+
+    private FileSystem fileSystem;
+
+    @Before
+    public void setUp() throws Exception {
+        fileSystem = Jimfs.newFileSystem(Configuration.unix());
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        fileSystem.close();
+    }
+
     @Test(expected = CgmesModelException.class)
     public void missing() throws IOException {
         TestGridModel missing = new TestGridModelPath(
-                Paths.get("./thisTestCaseDoesNotExist"),
-                "",
+                fileSystem.getPath("/thisTestCaseDoesNotExist"),
+                null,
                 null);
         new CgmesModelTester(missing).test();
     }
