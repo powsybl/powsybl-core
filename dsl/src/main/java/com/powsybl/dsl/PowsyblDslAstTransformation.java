@@ -28,9 +28,9 @@ import java.util.List;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @GroovyASTTransformation
-public class ActionDslAstTransformation implements ASTTransformation {
+public class PowsyblDslAstTransformation implements ASTTransformation {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ActionDslAstTransformation.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(PowsyblDslAstTransformation.class);
 
     private static final boolean DEBUG = false;
 
