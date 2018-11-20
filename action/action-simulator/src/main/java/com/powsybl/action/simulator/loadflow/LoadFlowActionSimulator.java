@@ -15,7 +15,6 @@ import com.powsybl.commons.exceptions.UncheckedInstantiationException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowFactory;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -108,13 +107,12 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
         observers.forEach(LoadFlowActionSimulatorObserver::afterPreContingencyAnalysis);
 
-        NetworkCopyStrategy copyNetworkStrategy = config.getCopyStrategy() == CopyStrategy.STATE ? new CopyStateStrategy(network) :  new DeepCopyStrategy(network);
-        copyNetworkStrategy.saveState();
+        NetworkCopyStrategy strategy = NetworkCopyStrategy.getInstance(config.getCopyStrategy(), runningContext.getNetwork());
 
         if (preContingencyAnalysisOk || config.isIgnorePreContingencyViolations()) {
             for (String contingencyId : contingencyIds) {
-                Network network2 = copyNetworkStrategy.restoreState(contingencyId);
                 Contingency contingency = actionDb.getContingency(contingencyId);
+                Network network2 = strategy.createState(contingencyId);
                 RunningContext runningContext2 = new RunningContext(network2, contingency);
 
                 observers.forEach(o -> o.beforePostContingencyAnalysis(runningContext2));
@@ -126,7 +124,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
                 next(actionDb, runningContext2);
 
-                copyNetworkStrategy.clearState();
+                strategy.removeState();
             }
         }
 
@@ -343,22 +341,21 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                 })
                 .collect(Collectors.toList());
         List<String> testActionIds = activedRules.stream()
-                .flatMap(r -> r.getActions().stream())
-                .distinct()
-                .filter(id -> !context.isTested(id))
-                .collect(Collectors.toList());
+                                .flatMap(r -> r.getActions().stream())
+                                .distinct()
+                                .filter(id -> !context.isTested(id))
+                                .collect(Collectors.toList());
 
         if (testActionIds.isEmpty()) {
             return;
         }
 
-        NetworkCopyStrategy copyNetworkStrategy = config.getCopyStrategy() == CopyStrategy.STATE ? new CopyStateStrategy(getNetwork()) :  new DeepCopyStrategy(getNetwork());
-        copyNetworkStrategy.saveState();
+        NetworkCopyStrategy strategy = NetworkCopyStrategy.getInstance(config.getCopyStrategy(), context.getNetwork());
 
         for (String actionId : testActionIds) {
             Action action = actionDb.getAction(actionId);
 
-            Network networkForTest = copyNetworkStrategy.restoreState(actionId);
+            Network networkForTest = strategy.createState(actionId);
 
             LoadFlowResult testResult = runTest(context, networkForTest, action);
             context.addTested(actionId);
@@ -389,7 +386,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                 LOGGER.info("Loadflow with test '{}' diverged", action.getId());
                 observers.forEach(o -> o.divergedAfterTest(action.getId()));
             }
-            copyNetworkStrategy.clearState();
+            strategy.removeState();
         }
     }
 
@@ -408,67 +405,4 @@ public class LoadFlowActionSimulator implements ActionSimulator {
             throw new PowsyblException(e);
         }
     }
-
-    private interface NetworkCopyStrategy {
-
-        //will remove the temporary state of the network
-        void clearState();
-
-        Network restoreState(String stateId);
-
-        void saveState();
-    }
-
-    private class DeepCopyStrategy implements NetworkCopyStrategy {
-        private Network network;
-        private byte[] contextNetwork;
-
-        public DeepCopyStrategy(Network network) {
-            this.network = network;
-        }
-
-        @Override
-        public void clearState() {
-            // Nothing to do
-        }
-
-        @Override
-        public Network restoreState(String id) {
-            return NetworkXml.gunzip(contextNetwork);
-        }
-
-        @Override
-        public void saveState() {
-            contextNetwork = NetworkXml.gzip(this.network);
-        }
-    }
-
-    private class CopyStateStrategy implements NetworkCopyStrategy {
-        private Network network;
-        private String stateId;
-        private String tmpStateId;
-
-        public CopyStateStrategy(Network network) {
-            this.network = network;
-        }
-
-        @Override
-        public void clearState() {
-            this.network.getStateManager().removeState(tmpStateId);
-        }
-
-        @Override
-        public Network restoreState(String id) {
-            tmpStateId = id + "-" + UUID.randomUUID();
-            this.network.getStateManager().cloneState(stateId, tmpStateId);
-            this.network.getStateManager().setWorkingState(tmpStateId);
-            return this.network;
-        }
-
-        @Override
-        public void saveState() {
-            stateId = this.network.getStateManager().getWorkingStateId();
-        }
-    }
-
 }
