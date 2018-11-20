@@ -27,11 +27,11 @@ public class DoubleTimeSeriesTest {
         //     0   2 3   5 6
         TimeSeriesIndex index = new TestTimeSeriesIndex(10000, 8);
         DoubleTimeSeries ts1 = new StoredDoubleTimeSeries(new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index),
-                                                          new CompressedDoubleArrayChunk(0, 8, new double[] {1}, new int[] {8}));
+                                                          new CompressedDoubleDataChunk(0, 8, new double[] {1}, new int[] {8}));
         DoubleTimeSeries ts2 = new StoredDoubleTimeSeries(new TimeSeriesMetadata("ts2", TimeSeriesDataType.DOUBLE, index),
-                                                          new CompressedDoubleArrayChunk(0, 8, new double[] {2, 3, 2}, new int[] {3, 3, 2}));
+                                                          new CompressedDoubleDataChunk(0, 8, new double[] {2, 3, 2}, new int[] {3, 3, 2}));
         DoubleTimeSeries ts3 = new StoredDoubleTimeSeries(new TimeSeriesMetadata("ts3", TimeSeriesDataType.DOUBLE, index),
-                                                          new CompressedDoubleArrayChunk(0, 8, new double[] {4, 5, 4}, new int[] {2, 3, 3}));
+                                                          new CompressedDoubleDataChunk(0, 8, new double[] {4, 5, 4}, new int[] {2, 3, 3}));
 
         Iterator<DoubleMultiPoint> it = DoubleTimeSeries.iterator(ImmutableList.of(ts1, ts2, ts3));
 

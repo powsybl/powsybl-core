@@ -6,8 +6,8 @@
  */
 package com.powsybl.afs.storage.buffer;
 
-import com.powsybl.timeseries.DoubleArrayChunk;
-import com.powsybl.timeseries.StringArrayChunk;
+import com.powsybl.timeseries.DoubleDataChunk;
+import com.powsybl.timeseries.StringDataChunk;
 import com.powsybl.timeseries.TimeSeriesMetadata;
 
 import java.util.List;
@@ -61,7 +61,7 @@ public class StorageChangeBuffer {
         }
     }
 
-    public void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks) {
+    public void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleDataChunk> chunks) {
         lock.lock();
         try {
             addChange(new DoubleTimeSeriesChunksAddition(nodeId, version, timeSeriesName, chunks));
@@ -70,7 +70,7 @@ public class StorageChangeBuffer {
         }
     }
 
-    public void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks) {
+    public void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringDataChunk> chunks) {
         lock.lock();
         try {
             addChange(new StringTimeSeriesChunksAddition(nodeId, version, timeSeriesName, chunks));

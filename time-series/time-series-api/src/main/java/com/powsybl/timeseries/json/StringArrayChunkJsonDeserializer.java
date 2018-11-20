@@ -9,8 +9,8 @@ package com.powsybl.timeseries.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.powsybl.timeseries.ArrayChunk;
-import com.powsybl.timeseries.StringArrayChunk;
+import com.powsybl.timeseries.DataChunk;
+import com.powsybl.timeseries.StringDataChunk;
 import com.powsybl.timeseries.TimeSeriesException;
 
 import java.util.ArrayList;
@@ -20,16 +20,16 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StringArrayChunkJsonDeserializer extends StdDeserializer<StringArrayChunk> {
+public class StringArrayChunkJsonDeserializer extends StdDeserializer<StringDataChunk> {
 
     public StringArrayChunkJsonDeserializer() {
-        super(StringArrayChunk.class);
+        super(StringDataChunk.class);
     }
 
     @Override
-    public StringArrayChunk deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
-        List<StringArrayChunk> chunks = new ArrayList<>();
-        ArrayChunk.parseJson(jsonParser, Collections.emptyList(), chunks, true);
+    public StringDataChunk deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
+        List<StringDataChunk> chunks = new ArrayList<>();
+        DataChunk.parseJson(jsonParser, Collections.emptyList(), chunks, true);
         if (chunks.size() != 1) {
             throw new TimeSeriesException("String array chunk JSON deserialization error");
         }

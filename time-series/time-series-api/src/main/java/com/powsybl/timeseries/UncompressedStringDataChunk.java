@@ -17,13 +17,13 @@ import java.util.stream.Stream;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class UncompressedStringArrayChunk extends AbstractUncompressedArrayChunk implements StringArrayChunk {
+public class UncompressedStringDataChunk extends AbstractUncompressedArrayChunk implements StringDataChunk {
 
     private final String[] values;
 
     private final int estimatedSize;
 
-    public UncompressedStringArrayChunk(int offset, String[] values) {
+    public UncompressedStringDataChunk(int offset, String[] values) {
         super(offset);
         this.values = Objects.requireNonNull(values);
         estimatedSize = computeEstimatedSize(values);
@@ -67,7 +67,7 @@ public class UncompressedStringArrayChunk extends AbstractUncompressedArrayChunk
     }
 
     @Override
-    public StringArrayChunk tryToCompress() {
+    public StringDataChunk tryToCompress() {
         List<String> stepValues = new ArrayList<>();
         TIntArrayList stepLengths = new TIntArrayList();
         int compressedEstimatedSize = 0;
@@ -76,7 +76,7 @@ public class UncompressedStringArrayChunk extends AbstractUncompressedArrayChunk
                 // create first step
                 stepValues.add(value);
                 stepLengths.add(1);
-                compressedEstimatedSize += CompressedStringArrayChunk.getStepEstimatedSize(value);
+                compressedEstimatedSize += CompressedStringDataChunk.getStepEstimatedSize(value);
             } else {
                 int previousIndex = stepValues.size() - 1;
                 String previousValue = stepValues.get(previousIndex);
@@ -86,7 +86,7 @@ public class UncompressedStringArrayChunk extends AbstractUncompressedArrayChunk
                     // create a new step
                     stepValues.add(value);
                     stepLengths.add(1);
-                    compressedEstimatedSize += CompressedStringArrayChunk.getStepEstimatedSize(value);
+                    compressedEstimatedSize += CompressedStringDataChunk.getStepEstimatedSize(value);
                 }
             }
             if (compressedEstimatedSize > estimatedSize) {
@@ -94,12 +94,12 @@ public class UncompressedStringArrayChunk extends AbstractUncompressedArrayChunk
                 return this;
             }
         }
-        return new CompressedStringArrayChunk(offset, values.length, stepValues.toArray(new String[stepValues.size()]),
+        return new CompressedStringDataChunk(offset, values.length, stepValues.toArray(new String[stepValues.size()]),
                                               stepLengths.toArray());
     }
 
     @Override
-    public Split<StringPoint, StringArrayChunk> splitAt(int splitIndex) {
+    public Split<StringPoint, StringDataChunk> splitAt(int splitIndex) {
         // split at offset is not allowed because it will result to a null left chunk
         if (splitIndex <= offset || splitIndex > (offset + values.length - 1)) {
             throw new IllegalArgumentException("Split index " + splitIndex + " out of chunk range ]" + offset
@@ -109,8 +109,8 @@ public class UncompressedStringArrayChunk extends AbstractUncompressedArrayChunk
         String[] values2 = new String[values.length - values1.length];
         System.arraycopy(values, 0, values1, 0, values1.length);
         System.arraycopy(values, values1.length, values2, 0, values2.length);
-        return new Split<>(new UncompressedStringArrayChunk(offset, values1),
-                           new UncompressedStringArrayChunk(splitIndex, values2));
+        return new Split<>(new UncompressedStringDataChunk(offset, values1),
+                           new UncompressedStringDataChunk(splitIndex, values2));
     }
 
     @Override
@@ -159,8 +159,8 @@ public class UncompressedStringArrayChunk extends AbstractUncompressedArrayChunk
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof UncompressedStringArrayChunk) {
-            UncompressedStringArrayChunk other = (UncompressedStringArrayChunk) obj;
+        if (obj instanceof UncompressedStringDataChunk) {
+            UncompressedStringDataChunk other = (UncompressedStringDataChunk) obj;
             return offset == other.offset &&
                     Arrays.equals(values, other.values);
         }
