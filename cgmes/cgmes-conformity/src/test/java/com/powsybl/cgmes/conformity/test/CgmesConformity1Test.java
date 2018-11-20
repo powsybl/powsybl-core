@@ -40,6 +40,11 @@ public class CgmesConformity1Test {
     }
 
     @Test
+    public void microGridType4BE() throws IOException {
+        new CgmesModelTester(catalog.microGridType4BE()).test();
+    }
+
+    @Test
     public void miniBusBranch() throws IOException {
         new CgmesModelTester(catalog.miniBusBranch()).test();
     }
