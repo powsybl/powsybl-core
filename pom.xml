@@ -60,7 +60,7 @@
         <module>computation</module>
         <module>computation-local</module>
         <module>computation-mpi</module>
-        <module>contingency-api</module>
+        <module>contingency</module>
         <module>distribution-core</module>
         <module>entsoe-util</module>
         <module>iidm</module>

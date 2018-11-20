@@ -36,7 +36,8 @@
 /computation-mpi/target/
 /computation-mpi-util/target/
 /computation/target/
-/contingency-api/target/
+/contingency/target/
+/contingency/contingency-api/target/
 /distribution-core/target/
 /dsl/target/
 /entsoe-util/target/
