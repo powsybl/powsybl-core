@@ -60,6 +60,7 @@
         <module>computation</module>
         <module>computation-local</module>
         <module>computation-mpi</module>
+		<module>connectable-switches-collapser</module>
         <module>contingency-api</module>
         <module>distribution-core</module>
         <module>entsoe-util</module>
