@@ -17,7 +17,7 @@ import java.util.stream.StreamSupport;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class CompressedDoubleDataChunk extends AbstractCompressedArrayChunk implements DoubleDataChunk {
+public class CompressedDoubleDataChunk extends AbstractCompressedDataChunk implements DoubleDataChunk {
 
     private final double[] stepValues;
 

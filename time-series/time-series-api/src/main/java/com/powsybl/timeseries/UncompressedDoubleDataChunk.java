@@ -22,7 +22,7 @@ import java.util.stream.Stream;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class UncompressedDoubleDataChunk extends AbstractUncompressedArrayChunk implements DoubleDataChunk {
+public class UncompressedDoubleDataChunk extends AbstractUncompressedDataChunk implements DoubleDataChunk {
 
     private final double[] values;
 

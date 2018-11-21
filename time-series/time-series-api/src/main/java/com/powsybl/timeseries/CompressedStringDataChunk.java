@@ -16,7 +16,7 @@ import java.util.stream.StreamSupport;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class CompressedStringDataChunk extends AbstractCompressedArrayChunk implements StringDataChunk {
+public class CompressedStringDataChunk extends AbstractCompressedDataChunk implements StringDataChunk {
 
     private final String[] stepValues;
 

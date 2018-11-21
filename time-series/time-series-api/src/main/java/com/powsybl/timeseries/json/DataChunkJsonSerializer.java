@@ -14,9 +14,9 @@ import com.powsybl.timeseries.DataChunk;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ArrayChunkJsonSerializer extends StdSerializer<DataChunk> {
+public class DataChunkJsonSerializer extends StdSerializer<DataChunk> {
 
-    public ArrayChunkJsonSerializer() {
+    public DataChunkJsonSerializer() {
         super(DataChunk.class);
     }
 

@@ -19,11 +19,11 @@ import java.io.Serializable;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public final class DoubleArrayChunkSerializer implements Serializer<DoubleDataChunk>, Serializable {
+public final class DoubleDataChunkSerializer implements Serializer<DoubleDataChunk>, Serializable {
 
-    public static final DoubleArrayChunkSerializer INSTANCE = new DoubleArrayChunkSerializer();
+    public static final DoubleDataChunkSerializer INSTANCE = new DoubleDataChunkSerializer();
 
-    private DoubleArrayChunkSerializer() {
+    private DoubleDataChunkSerializer() {
     }
 
     @Override

@@ -10,29 +10,33 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.powsybl.timeseries.DataChunk;
+import com.powsybl.timeseries.DoubleDataChunk;
 import com.powsybl.timeseries.StringDataChunk;
 import com.powsybl.timeseries.TimeSeriesException;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StringArrayChunkJsonDeserializer extends StdDeserializer<StringDataChunk> {
+public class DataChunkJsonDeserializer extends StdDeserializer<DataChunk> {
 
-    public StringArrayChunkJsonDeserializer() {
-        super(StringDataChunk.class);
+    public DataChunkJsonDeserializer() {
+        super(DataChunk.class);
     }
 
     @Override
-    public StringDataChunk deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
-        List<StringDataChunk> chunks = new ArrayList<>();
-        DataChunk.parseJson(jsonParser, Collections.emptyList(), chunks, true);
-        if (chunks.size() != 1) {
-            throw new TimeSeriesException("String array chunk JSON deserialization error");
+    public DataChunk deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) {
+        List<DoubleDataChunk> doubleChunks = new ArrayList<>();
+        List<StringDataChunk> stringChunks = new ArrayList<>();
+        DataChunk.parseJson(jsonParser, doubleChunks, stringChunks, true);
+        if (doubleChunks.size() == 1) {
+            return doubleChunks.get(0);
+        } else if (stringChunks.size() == 1) {
+            return stringChunks.get(0);
+        } else {
+            throw new TimeSeriesException("Array chunk JSON deserialization error");
         }
-        return chunks.get(0);
     }
 }

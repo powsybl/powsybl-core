@@ -131,11 +131,11 @@ public class MapDbAppStorage implements AppStorage {
                 .createOrOpen();
 
         doubleTimeSeriesChunksMap = this.db
-                .hashMap("doubleTimeSeriesChunksMap", TimeSeriesChunkKeySerializer.INSTANCE, DoubleArrayChunkSerializer.INSTANCE)
+                .hashMap("doubleTimeSeriesChunksMap", TimeSeriesChunkKeySerializer.INSTANCE, DoubleDataChunkSerializer.INSTANCE)
                 .createOrOpen();
 
         stringTimeSeriesChunksMap = this.db
-                .hashMap("stringTimeSeriesChunksMap", TimeSeriesChunkKeySerializer.INSTANCE, StringArrayChunkSerializer.INSTANCE)
+                .hashMap("stringTimeSeriesChunksMap", TimeSeriesChunkKeySerializer.INSTANCE, StringDataChunkSerializer.INSTANCE)
                 .createOrOpen();
 
         dependencyNodesMap = this.db

@@ -16,13 +16,13 @@ public class TimeSeriesJsonModule extends SimpleModule {
 
     public TimeSeriesJsonModule() {
         addSerializer(TimeSeriesMetadata.class, new TimeSeriesMetadataJsonSerializer());
-        addSerializer(DataChunk.class, new ArrayChunkJsonSerializer());
+        addSerializer(DataChunk.class, new DataChunkJsonSerializer());
         addSerializer(TimeSeries.class, new TimeSeriesJsonSerializer());
 
         addDeserializer(TimeSeriesMetadata.class, new TimeSeriesMetadataJsonDeserializer());
-        addDeserializer(DataChunk.class, new ArrayChunkJsonDeserializer());
-        addDeserializer(DoubleDataChunk.class, new DoubleArrayChunkJsonDeserializer());
-        addDeserializer(StringDataChunk.class, new StringArrayChunkJsonDeserializer());
+        addDeserializer(DataChunk.class, new DataChunkJsonDeserializer());
+        addDeserializer(DoubleDataChunk.class, new DoubleDataChunkJsonDeserializer());
+        addDeserializer(StringDataChunk.class, new StringDataChunkJsonDeserializer());
         addDeserializer(TimeSeries.class, new TimeSeriesJsonDeserializer());
         addDeserializer(DoubleTimeSeries.class, new DoubleTimeSeriesJsonDeserializer());
         addDeserializer(StringTimeSeries.class, new StringTimeSeriesJsonDeserializer());

@@ -20,9 +20,9 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class DoubleArrayChunkJsonDeserializer extends StdDeserializer<DoubleDataChunk> {
+public class DoubleDataChunkJsonDeserializer extends StdDeserializer<DoubleDataChunk> {
 
-    public DoubleArrayChunkJsonDeserializer() {
+    public DoubleDataChunkJsonDeserializer() {
         super(DoubleDataChunk.class);
     }
 
