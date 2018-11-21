@@ -11,38 +11,7 @@ import com.powsybl.dsl.ast.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class DefaultExpressionVisitor<R, A> implements ActionExpressionVisitor<R, A> {
-    @Override
-    public R visitComparisonOperator(ComparisonOperatorNode node, A arg) {
-        node.getLeft().accept(this, arg);
-        node.getRight().accept(this, arg);
-        return null;
-    }
-
-    @Override
-    public R visitLogicalOperator(LogicalBinaryOperatorNode node, A arg) {
-        node.getLeft().accept(this, arg);
-        node.getRight().accept(this, arg);
-        return null;
-    }
-
-    @Override
-    public R visitArithmeticOperator(ArithmeticBinaryOperatorNode node, A arg) {
-        node.getLeft().accept(this, arg);
-        node.getRight().accept(this, arg);
-        return null;
-    }
-
-    @Override
-    public R visitNotOperator(LogicalNotOperator node, A arg) {
-        node.getChild().accept(this, arg);
-        return null;
-    }
-
-    @Override
-    public R visitLiteral(AbstractLiteralNode node, A arg) {
-        return null;
-    }
+public class DefaultActionExpressionVisitor<R, A> extends DefaultExpressionVisitor<R, A> implements ActionExpressionVisitor<R, A> {
 
     @Override
     public R visitNetworkComponent(NetworkComponentNode node, A arg) {

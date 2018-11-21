@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ExpressionActionTakenLister extends DefaultExpressionVisitor<Void, List<String>> {
+public class ExpressionActionTakenLister extends DefaultActionExpressionVisitor<Void, List<String>> {
 
     public static List<String> list(ExpressionNode root) {
         List<String> actionIds = new ArrayList<>();

@@ -38,6 +38,7 @@
 /computation/target/
 /contingency/target/
 /contingency/contingency-api/target/
+/contingency/contingency-dsl/target/
 /distribution-core/target/
 /dsl/target/
 /entsoe-util/target/
