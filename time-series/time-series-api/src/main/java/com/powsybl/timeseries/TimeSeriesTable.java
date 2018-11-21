@@ -154,8 +154,8 @@ public class TimeSeriesTable {
     }
 
     public TimeSeriesTable(int fromVersion, int toVersion, TimeSeriesIndex tableIndex, IntFunction<ByteBuffer> byteBufferAllocator) {
-        checkVersion(fromVersion);
-        checkVersion(toVersion);
+        TimeSeriesVersions.check(fromVersion);
+        TimeSeriesVersions.check(toVersion);
         if (toVersion < fromVersion) {
             throw new TimeSeriesException("toVersion (" + toVersion + ") is expected to be greater than fromVersion (" + fromVersion + ")");
         }
@@ -260,13 +260,6 @@ public class TimeSeriesTable {
 
     private int getStatisticsIndex(int version, int timeSeriesNum) {
         return (version - fromVersion) * doubleTimeSeriesNames.size() + timeSeriesNum;
-    }
-
-    public static int checkVersion(int version) {
-        if (version < 0) {
-            throw new IllegalArgumentException("Bad version " + version);
-        }
-        return version;
     }
 
     private void checkVersionIsInRange(int version) {
