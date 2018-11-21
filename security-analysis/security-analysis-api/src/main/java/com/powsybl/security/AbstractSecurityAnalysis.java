@@ -6,62 +6,54 @@
  */
 package com.powsybl.security;
 
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.util.LimitViolationUtils;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.security.interceptors.RunningContext;
+import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Objects;
 
 /**
+ *
+ * Implements some common methods of interface {@link SecurityAnalysis},
+ * and provides a {@link SecurityAnalysisResultBuilder} to ease creation of results.
+ *
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public abstract class AbstractSecurityAnalysis implements SecurityAnalysis {
 
-    private static LimitViolation checkPermanentLimit(Branch branch, Branch.Side side, double value) {
+    protected final Network network;
+    protected final LimitViolationDetector violationDetector;
+    protected final LimitViolationFilter violationFilter;
 
-        Terminal t = branch.getTerminal(side);
-        CurrentLimits limits = branch.getCurrentLimits(side);
+    protected final List<SecurityAnalysisInterceptor> interceptors;
 
-        if (LimitViolationUtils.checkPermanentLimit(t, limits, 1, value)) {
-            return new LimitViolation(branch.getId(),
-                    LimitViolationType.CURRENT,
-                    null,
-                    Integer.MAX_VALUE,
-                    branch.getCurrentLimits(side).getPermanentLimit(),
-                    1,
-                    value,
-                    side);
-        }
-        return null;
+
+    protected AbstractSecurityAnalysis(Network network, LimitViolationFilter violationFilter) {
+        this(network, new DefaultLimitViolationDetector(EnumSet.allOf(Security.CurrentLimitType.class)), violationFilter);
     }
 
-    protected static LimitViolation checkCurrentLimits(Branch branch, Branch.Side side, Set<Security.CurrentLimitType> currentLimitTypes, double value) {
-
-        Terminal t = branch.getTerminal(side);
-        CurrentLimits limits = branch.getCurrentLimits(side);
-
-        Branch.Overload overload;
-        overload = LimitViolationUtils.checkTemporaryLimits(t, limits, 1, value);
-        if (currentLimitTypes.contains(Security.CurrentLimitType.TATL) && (overload != null)) {
-            return new LimitViolation(branch.getId(),
-                    LimitViolationType.CURRENT,
-                    overload.getPreviousLimitName(),
-                    overload.getTemporaryLimit().getAcceptableDuration(),
-                    overload.getPreviousLimit(),
-                    1,
-                    value,
-                    side);
-        } else if (currentLimitTypes.contains(Security.CurrentLimitType.PATL)) {
-            return checkPermanentLimit(branch, side, value);
-        }
-
-        return null;
+    protected AbstractSecurityAnalysis(Network network, LimitViolationDetector detector, LimitViolationFilter filter) {
+        this.network = Objects.requireNonNull(network);
+        this.violationDetector = Objects.requireNonNull(detector);
+        this.violationFilter = Objects.requireNonNull(filter);
+        this.interceptors = new ArrayList<>();
     }
 
-    protected static LimitViolation checkLimits(VoltageLevel vl, float value) {
-        if (value < vl.getLowVoltageLimit()) {
-            return new LimitViolation(vl.getId(), LimitViolationType.LOW_VOLTAGE, vl.getLowVoltageLimit(), 1, value);
-        } else {
-            return new LimitViolation(vl.getId(), LimitViolationType.HIGH_VOLTAGE, vl.getLowVoltageLimit(), 1, value);
-        }
+
+    @Override
+    public void addInterceptor(SecurityAnalysisInterceptor interceptor) {
+        interceptors.add(Objects.requireNonNull(interceptor));
+    }
+
+    @Override
+    public boolean removeInterceptor(SecurityAnalysisInterceptor interceptor) {
+        return interceptors.remove(interceptor);
+    }
+
+    protected SecurityAnalysisResultBuilder createResultBuilder(String initialWorkingStateId) {
+        return new SecurityAnalysisResultBuilder(violationFilter, new RunningContext(network, initialWorkingStateId), interceptors);
     }
 }

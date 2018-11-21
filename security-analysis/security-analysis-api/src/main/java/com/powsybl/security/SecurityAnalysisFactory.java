@@ -20,4 +20,9 @@ public interface SecurityAnalysisFactory {
         return create(network, computationManager, priority);
     }
 
+    default SecurityAnalysis create(Network network, LimitViolationDetector detector, LimitViolationFilter filter,
+                                    ComputationManager computationManager, int priority) {
+        return create(network, filter, computationManager, priority);
+    }
+
 }

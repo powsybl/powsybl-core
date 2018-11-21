@@ -8,11 +8,13 @@ package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.CurrentLimits;
-import com.powsybl.iidm.network.Terminal;
 
 import java.util.Objects;
 
 /**
+ *
+ * Helper methods for checking the occurence of overloads.
+ *
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public final class LimitViolationUtils {
@@ -20,8 +22,12 @@ public final class LimitViolationUtils {
     private LimitViolationUtils() {
     }
 
-    public static Branch.Overload checkTemporaryLimits(Terminal t, CurrentLimits limits, float limitReduction, double i) {
-        Objects.requireNonNull(t);
+    public static Branch.Overload checkTemporaryLimits(Branch branch, Branch.Side side, float limitReduction, double i) {
+        Objects.requireNonNull(branch);
+        Objects.requireNonNull(side);
+
+        CurrentLimits limits = branch.getCurrentLimits(side);
+
         if (limits != null && !Double.isNaN(limits.getPermanentLimit()) && !Double.isNaN(i)) {
             String previousLimitName = null;
             double previousLimit = limits.getPermanentLimit();
@@ -36,7 +42,8 @@ public final class LimitViolationUtils {
         return null;
     }
 
-    public static boolean checkPermanentLimit(Terminal terminal, CurrentLimits limits, float limitReduction, double i) {
+    public static boolean checkPermanentLimit(Branch branch, Branch.Side side, float limitReduction, double i) {
+        CurrentLimits limits = branch.getCurrentLimits(side);
         return limits != null &&
                 !Double.isNaN(limits.getPermanentLimit()) &&
                 !Double.isNaN(i) &&

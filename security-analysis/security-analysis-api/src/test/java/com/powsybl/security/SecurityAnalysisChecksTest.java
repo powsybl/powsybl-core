@@ -21,7 +21,6 @@ import static org.junit.Assert.assertNotNull;
  */
 public class SecurityAnalysisChecksTest {
 
-    AbstractSecurityAnalysis securityAnalysis;
     Network network;
 
     @Before
@@ -35,13 +34,15 @@ public class SecurityAnalysisChecksTest {
         Line line = network.getLine("NHV1_NHV2_1");
         LimitViolation limitViolation;
 
-        limitViolation = AbstractSecurityAnalysis.checkCurrentLimits(line, line.getSide(line.getTerminal2()), EnumSet.of(Security.CurrentLimitType.PATL), 1101);
+        LimitViolationDetector detector = new DefaultLimitViolationDetector(Collections.singleton(Security.CurrentLimitType.PATL));
+        limitViolation = detector.checkCurrent(line, Branch.Side.TWO, 1101).orElse(null);
 
         assertNotNull(limitViolation);
         //check th  that is permaenent limit violation
         assertEquals(1100, limitViolation.getLimit(), 0d);
 
-        limitViolation = AbstractSecurityAnalysis.checkCurrentLimits(line, line.getSide(line.getTerminal2()), EnumSet.of(Security.CurrentLimitType.TATL), 1201);
+        detector = new DefaultLimitViolationDetector(Collections.singleton(Security.CurrentLimitType.TATL));
+        limitViolation = detector.checkCurrent(line, Branch.Side.TWO, 1201).orElse(null);
 
         assertNotNull(limitViolation);
         //check th  that is temporary limit violation
@@ -50,22 +51,25 @@ public class SecurityAnalysisChecksTest {
 
     @Test
     //test voltage limit violation
-    public void checkLimits() {
+    public void checkVoltage() {
         VoltageLevel vl = network.getVoltageLevel("VLHV1");
-        double lvl = vl.getLowVoltageLimit();
-        double hvl = vl.getHighVoltageLimit();
 
-        LimitViolation limitViolation = AbstractSecurityAnalysis.checkLimits(vl, 380);
+        LimitViolationDetector detector = new DefaultLimitViolationDetector();
 
-        assertNotNull(limitViolation);
+        List<LimitViolation> violations = new ArrayList<>();
+        vl.getBusView().getBusStream().forEach(b -> detector.checkVoltage(b, 380, violations::add));
+
+        assertEquals(1, violations.size());
+        LimitViolation violation = violations.get(0);
         //check that is LimitViolationType.LOW_VOLTAGE limit violation
-        assertEquals(LimitViolationType.LOW_VOLTAGE, limitViolation.getLimitType());
+        assertEquals(LimitViolationType.LOW_VOLTAGE, violation.getLimitType());
 
-        limitViolation = null;
-        limitViolation = AbstractSecurityAnalysis.checkLimits(vl, 520);
+        violations.clear();
+        vl.getBusView().getBusStream().forEach(b -> detector.checkVoltage(b, 520, violations::add));
 
-        assertNotNull(limitViolation);
+        assertEquals(1, violations.size());
+        violation = violations.get(0);
         //check that is LimitViolationType.HIGH_VOLTAGE limit violation
-        assertEquals(LimitViolationType.HIGH_VOLTAGE, limitViolation.getLimitType());
+        assertEquals(LimitViolationType.HIGH_VOLTAGE, violation.getLimitType());
     }
 }

@@ -11,6 +11,10 @@ import com.powsybl.iidm.network.Network;
 import java.util.Objects;
 
 /**
+ *
+ * TODO: I think having state ID here is broken, as security analysis contract does not guarantee that
+ *       the corresponding state will be filled with N results
+ *
  * @author Mathieu Bague <mathieu.bague@rte-france.com>
  */
 public class RunningContext {
@@ -24,10 +28,20 @@ public class RunningContext {
         this.initialStateId = initialStateId;
     }
 
+    /**
+     * Get the network on which computation is carried out.
+     * @return the network on which computation is carried out
+     */
     public Network getNetwork() {
         return network;
     }
 
+    /**
+     * Get the state ID corresponding to the N situation computation.
+     * TODO: I think thisis broken, as security analysis contract does not guarantee that
+     *       the corresponding state will be filled with N results
+     * @return the state ID corresponding to the N situation computation
+     */
     public String getInitialStateId() {
         return initialStateId;
     }

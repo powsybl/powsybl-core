@@ -5,6 +5,9 @@ import com.powsybl.iidm.network.CurrentLimits;
 
 import java.util.Objects;
 
+/**
+ * A simple, default implementation of {@link Branch.Overload}.
+ */
 public class OverloadImpl implements Branch.Overload {
 
     private final CurrentLimits.TemporaryLimit temporaryLimit;
