@@ -661,9 +661,9 @@ public class CgmesConformity1NetworkCatalog {
                     voltageInc, windingConnectionAngle);
         }
 
+        TwoWindingsTransformer txBE21 = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
+        txBE21.getPhaseTapChanger().remove();
         {
-            TwoWindingsTransformer txBE21 = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0");
-            txBE21.getPhaseTapChanger().remove();
             int low = 1;
             int high = 25;
             int neutral = 13;
@@ -720,7 +720,7 @@ public class CgmesConformity1NetworkCatalog {
         double du0 = 0;
         double du = voltageInc / 100;
         double theta = Math.toRadians(
-                type.equals(PhaseTapChangerType.ASYMMETRICAL)
+                type == PhaseTapChangerType.ASYMMETRICAL
                         ? windingConnectionAngle
                         : 90);
         LOG.debug("EXPECTED du0,du,theta {} {} {}", du0, du, theta);
@@ -731,13 +731,13 @@ public class CgmesConformity1NetworkCatalog {
             int n = k - neutral;
             double alpha;
             double rho;
-            if (type.equals(PhaseTapChangerType.ASYMMETRICAL)) {
+            if (type == PhaseTapChangerType.ASYMMETRICAL) {
                 double dx = (n * du - du0) * Math.cos(theta);
                 double dy = (n * du - du0) * Math.sin(theta);
                 alpha = Math.atan2(dy, 1 + dx);
                 rho = 1 / Math.hypot(dy, 1 + dx);
                 LOG.debug("EXPECTED    n,dx,dy,alpha,rho  {} {} {} {} {}", n, dx, dy, alpha, rho);
-            } else if (type.equals(PhaseTapChangerType.SYMMETRICAL)) {
+            } else if (type == PhaseTapChangerType.SYMMETRICAL) {
                 double dy = (n * du / 2 - du0) * Math.sin(theta);
                 alpha = 2 * Math.asin(dy);
                 rho = 1.0;
@@ -762,12 +762,12 @@ public class CgmesConformity1NetworkCatalog {
 
             // x for current k
             double xn;
-            if (type.equals(PhaseTapChangerType.ASYMMETRICAL)) {
+            if (type == PhaseTapChangerType.ASYMMETRICAL) {
                 double numer = Math.sin(theta) - Math.tan(alphaMax) * Math.cos(theta);
                 double denom = Math.sin(theta) - Math.tan(alpha) * Math.cos(theta);
                 xn = xmin + (xmax - xmin)
                         * Math.pow(Math.tan(alpha) / Math.tan(alphaMax) * numer / denom, 2);
-            } else if (type.equals(PhaseTapChangerType.SYMMETRICAL)) {
+            } else if (type == PhaseTapChangerType.SYMMETRICAL) {
                 xn = xmin + (xmax - xmin)
                         * Math.pow(Math.sin(alpha / 2) / Math.sin(alphaMax / 2), 2);
             } else {
