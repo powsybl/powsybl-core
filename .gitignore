@@ -22,6 +22,11 @@
 /afs/afs-ws/afs-ws-utils/target/
 /afs/afs-ws/target/
 /ampl-converter/target/
+/cgmes/target
+/cgmes/cgmes-conformity/target/
+/cgmes/cgmes-conversion/target/
+/cgmes/cgmes-model/target/
+/cgmes/cgmes-model-alternatives/target/
 /cim-anonymiser/target/
 /cim1/cim1-converter/target/
 /cim1/cim1-model/target/
@@ -41,6 +46,7 @@
 /iidm/iidm-test/target/
 /iidm/iidm-util/target/
 /iidm/iidm-xml-converter/target/
+/itools-packager/target/
 /loadflow/loadflow-api/target/
 /loadflow/loadflow-results-completion/target/
 /loadflow/loadflow-validation/target/
@@ -56,7 +62,12 @@
 /time-series/target/
 /time-series/time-series-api/target/
 /tools/target/
-/target/
+/triple-store/target/
+/triple-store/triple-store-api/target/
+/triple-store/triple-store-impl-blazegraph/target/
+/triple-store/triple-store-impl-jena/target/
+/triple-store/triple-store-impl-rdf4j/target/
+/triple-store/triple-store-test/target/
 /ucte/ucte-converter/target/
 /ucte/ucte-network/target/
 /ucte/target/
@@ -78,3 +89,4 @@ install.cfg
 org.eclipse.core.resources.prefs
 org.eclipse.jdt.core.prefs
 org.eclipse.m2e.core.prefs
+org.eclipse.jdt.groovy.core.prefs

@@ -1,9 +1,21 @@
+/**
+ * Copyright (c) 2018, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.contingency.json;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.google.auto.service.AutoService;
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionJsonSerializer;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.contingency.*;
 import org.junit.Test;
@@ -18,6 +30,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
+ */
 public class ContingencyJsonTest extends AbstractConverterTest {
 
     private static Contingency create() {
@@ -29,7 +46,10 @@ public class ContingencyJsonTest extends AbstractConverterTest {
         elements.add(new GeneratorContingency("GEN"));
         elements.add(new BusbarSectionContingency("BBS1"));
 
-        return new Contingency("contingency", elements);
+        Contingency contingency = new Contingency("contingency", elements);
+
+        contingency.addExtension(DummyExtension.class, new DummyExtension());
+        return contingency;
     }
 
     private static Contingency read(Path jsonFile) {
@@ -37,9 +57,7 @@ public class ContingencyJsonTest extends AbstractConverterTest {
 
         try (InputStream is = Files.newInputStream(jsonFile)) {
             ObjectMapper objectMapper = JsonUtil.createObjectMapper();
-            SimpleModule module = new SimpleModule();
-            module.addDeserializer(Contingency.class, new ContingencyDeserializer());
-            module.addDeserializer(ContingencyElement.class, new ContingencyElementDeserializer());
+            ContingencyJsonModule module = new ContingencyJsonModule();
             objectMapper.registerModule(module);
 
             return objectMapper.readValue(is, Contingency.class);
@@ -54,8 +72,7 @@ public class ContingencyJsonTest extends AbstractConverterTest {
 
         try (OutputStream os = Files.newOutputStream(jsonFile)) {
             ObjectMapper mapper = JsonUtil.createObjectMapper();
-            SimpleModule module = new SimpleModule();
-            module.addSerializer(ContingencyElement.class, new ContingencyElementSerializer());
+            ContingencyJsonModule module = new ContingencyJsonModule();
             mapper.registerModule(module);
 
             ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
@@ -69,4 +86,56 @@ public class ContingencyJsonTest extends AbstractConverterTest {
     public void roundTripTest() throws IOException {
         roundTripTest(create(), ContingencyJsonTest::write, ContingencyJsonTest::read, "/contingency.json");
     }
+
+    static class DummyExtension implements Extension<Contingency> {
+
+        private Contingency contingency;
+
+        @Override
+        public void setExtendable(Contingency contingency) {
+            this.contingency = contingency;
+        }
+
+        @Override
+        public Contingency getExtendable() {
+            return contingency;
+        }
+
+        @Override
+        public String getName() {
+            return "dummy-extension";
+        }
+    }
+
+    @AutoService(ExtensionJsonSerializer.class)
+    public static class DummySerializer implements ExtensionJsonSerializer<Contingency, DummyExtension> {
+
+        @Override
+        public void serialize(DummyExtension extension, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) throws IOException {
+            jsonGenerator.writeStartObject();
+            jsonGenerator.writeEndObject();
+        }
+
+        @Override
+        public DummyExtension deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+            return new DummyExtension();
+        }
+
+        @Override
+        public String getExtensionName() {
+            return "dummy-extension";
+        }
+
+        @Override
+        public String getCategoryName() {
+            return "security-analysis";
+        }
+
+        @Override
+        public Class<? super DummyExtension> getExtensionClass() {
+            return DummyExtension.class;
+        }
+    }
+
+
 }

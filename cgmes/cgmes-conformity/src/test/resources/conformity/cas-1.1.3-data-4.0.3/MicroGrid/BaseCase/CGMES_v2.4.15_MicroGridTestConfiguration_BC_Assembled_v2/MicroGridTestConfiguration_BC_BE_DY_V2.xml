@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:cim="http://iec.ch/TC57/2013/CIM-schema-cim16#" xmlns:entsoe="http://entsoe.eu/CIM/SchemaExtension/3/1#" xmlns:md="http://iec.ch/TC57/61970-552/ModelDescription/1#">
+  <md:FullModel rdf:about="urn:uuid:239caf0a-38bf-468b-a4d8-15f619886c58">
+    <md:Model.created>2014-10-23T18:06:49</md:Model.created>
+    <md:Model.scenarioTime>2014-06-01T10:30:00</md:Model.scenarioTime>
+    <md:Model.version>2</md:Model.version>
+    <md:Model.DependentOn rdf:resource="urn:uuid:2399cbd0-9a39-11e0-aa80-0800200c9a66"/>
+    <md:Model.DependentOn rdf:resource="urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73"/>
+    <md:Model.description>CGMES Conformity Assessment: 'MicroGridTestConfiguration....BC(Assembled) Test Configuration. The model is owned by ENTSO-E and is provided by ENTSO-E “as it is”. To the fullest extent permitted by law, ENTSO-E shall not be liable for any damages of any kind arising out of the use of the model (including any of its subsequent modifications). ENTSO-E neither warrants, nor represents that the use of the model will not infringe the rights of third parties. Any use of the model shall  include a reference to ENTSO-E. ENTSO-E web site is the only official source of information related to the model.</md:Model.description>
+    <md:Model.modelingAuthoritySet>http://elia.be/CGMES/2.4.15</md:Model.modelingAuthoritySet>
+    <md:Model.profile>http://entsoe.eu/CIM/Dynamics/3/1</md:Model.profile>
+  </md:FullModel>
+  <cim:SynchronousMachineTimeConstantReactance rdf:ID="_b1510df7-10dc-49e6-9ee5-eae9cfecd432">
+    <cim:SynchronousMachineDynamics.SynchronousMachine rdf:resource="#_550ebe0d-f2b2-48c1-991f-cebea43a21aa"/>
+    <cim:IdentifiedObject.name>BE-G2</cim:IdentifiedObject.name>
+    <cim:DynamicsFunctionBlock.enabled>true</cim:DynamicsFunctionBlock.enabled>
+    <cim:RotatingMachineDynamics.damping>0e+000</cim:RotatingMachineDynamics.damping>
+    <cim:RotatingMachineDynamics.inertia>4.250000</cim:RotatingMachineDynamics.inertia>
+    <cim:RotatingMachineDynamics.saturationFactor>0e+000</cim:RotatingMachineDynamics.saturationFactor>
+    <cim:RotatingMachineDynamics.saturationFactor120>0e+000</cim:RotatingMachineDynamics.saturationFactor120>
+    <cim:RotatingMachineDynamics.statorLeakageReactance>0.160000</cim:RotatingMachineDynamics.statorLeakageReactance>
+    <cim:RotatingMachineDynamics.statorResistance>0e+000</cim:RotatingMachineDynamics.statorResistance>
+    <cim:SynchronousMachineTimeConstantReactance.tpdo>6.400000</cim:SynchronousMachineTimeConstantReactance.tpdo>
+    <cim:SynchronousMachineTimeConstantReactance.tppdo>0.120000</cim:SynchronousMachineTimeConstantReactance.tppdo>
+    <cim:SynchronousMachineTimeConstantReactance.tppqo>0.120000</cim:SynchronousMachineTimeConstantReactance.tppqo>
+    <cim:SynchronousMachineTimeConstantReactance.tpqo>6.400000</cim:SynchronousMachineTimeConstantReactance.tpqo>
+    <cim:SynchronousMachineTimeConstantReactance.xDirectSubtrans>0.200000</cim:SynchronousMachineTimeConstantReactance.xDirectSubtrans>
+    <cim:SynchronousMachineTimeConstantReactance.xDirectSync>1.970000</cim:SynchronousMachineTimeConstantReactance.xDirectSync>
+    <cim:SynchronousMachineTimeConstantReactance.xDirectTrans>0.290000</cim:SynchronousMachineTimeConstantReactance.xDirectTrans>
+    <cim:SynchronousMachineTimeConstantReactance.xQuadSubtrans>0.200000</cim:SynchronousMachineTimeConstantReactance.xQuadSubtrans>
+    <cim:SynchronousMachineTimeConstantReactance.xQuadSync>1.970000</cim:SynchronousMachineTimeConstantReactance.xQuadSync>
+    <cim:SynchronousMachineTimeConstantReactance.xQuadTrans>0.290000</cim:SynchronousMachineTimeConstantReactance.xQuadTrans>
+    <cim:SynchronousMachineTimeConstantReactance.rotorType rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RotorKind.roundRotor"/>
+    <cim:SynchronousMachineTimeConstantReactance.modelType rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#SynchronousMachineModelKind.subtransient"/>
+  </cim:SynchronousMachineTimeConstantReactance>
+  <cim:SynchronousMachineTimeConstantReactance rdf:ID="_3a5b94b5-0790-41ee-9c6b-90237b9919eb">
+    <cim:SynchronousMachineDynamics.SynchronousMachine rdf:resource="#_3a3b27be-b18b-4385-b557-6735d733baf0"/>
+    <cim:IdentifiedObject.name>BE-G1</cim:IdentifiedObject.name>
+    <cim:DynamicsFunctionBlock.enabled>true</cim:DynamicsFunctionBlock.enabled>
+    <cim:RotatingMachineDynamics.damping>0e+000</cim:RotatingMachineDynamics.damping>
+    <cim:RotatingMachineDynamics.inertia>4.250000</cim:RotatingMachineDynamics.inertia>
+    <cim:RotatingMachineDynamics.saturationFactor>0e+000</cim:RotatingMachineDynamics.saturationFactor>
+    <cim:RotatingMachineDynamics.saturationFactor120>0e+000</cim:RotatingMachineDynamics.saturationFactor120>
+    <cim:RotatingMachineDynamics.statorLeakageReactance>0.160000</cim:RotatingMachineDynamics.statorLeakageReactance>
+    <cim:RotatingMachineDynamics.statorResistance>0e+000</cim:RotatingMachineDynamics.statorResistance>
+    <cim:SynchronousMachineTimeConstantReactance.tpdo>6.400000</cim:SynchronousMachineTimeConstantReactance.tpdo>
+    <cim:SynchronousMachineTimeConstantReactance.tppdo>0.120000</cim:SynchronousMachineTimeConstantReactance.tppdo>
+    <cim:SynchronousMachineTimeConstantReactance.tppqo>0.120000</cim:SynchronousMachineTimeConstantReactance.tppqo>
+    <cim:SynchronousMachineTimeConstantReactance.tpqo>6.400000</cim:SynchronousMachineTimeConstantReactance.tpqo>
+    <cim:SynchronousMachineTimeConstantReactance.xDirectSubtrans>0.200000</cim:SynchronousMachineTimeConstantReactance.xDirectSubtrans>
+    <cim:SynchronousMachineTimeConstantReactance.xDirectSync>1.970000</cim:SynchronousMachineTimeConstantReactance.xDirectSync>
+    <cim:SynchronousMachineTimeConstantReactance.xDirectTrans>0.290000</cim:SynchronousMachineTimeConstantReactance.xDirectTrans>
+    <cim:SynchronousMachineTimeConstantReactance.xQuadSubtrans>0.200000</cim:SynchronousMachineTimeConstantReactance.xQuadSubtrans>
+    <cim:SynchronousMachineTimeConstantReactance.xQuadSync>1.970000</cim:SynchronousMachineTimeConstantReactance.xQuadSync>
+    <cim:SynchronousMachineTimeConstantReactance.xQuadTrans>0.290000</cim:SynchronousMachineTimeConstantReactance.xQuadTrans>
+    <cim:SynchronousMachineTimeConstantReactance.rotorType rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RotorKind.roundRotor"/>
+    <cim:SynchronousMachineTimeConstantReactance.modelType rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#SynchronousMachineModelKind.subtransient"/>
+  </cim:SynchronousMachineTimeConstantReactance>
+  <cim:Pss2B rdf:ID="_329eba15-da28-4084-8b22-774ae3a556df">
+    <cim:IdentifiedObject.name>BE-G1-PSSB</cim:IdentifiedObject.name>
+    <cim:DynamicsFunctionBlock.enabled>true</cim:DynamicsFunctionBlock.enabled>
+    <cim:PowerSystemStabilizerDynamics.ExcitationSystemDynamics rdf:resource="#_4152a759-f5da-4bd3-9ac4-e656795cadf0"/>
+    <cim:Pss2B.tw1>2.000000</cim:Pss2B.tw1>
+    <cim:Pss2B.tw2>2.000000</cim:Pss2B.tw2>
+    <cim:Pss2B.tw3>2.000000</cim:Pss2B.tw3>
+    <cim:Pss2B.tw4>0.000000</cim:Pss2B.tw4>
+    <cim:Pss2B.t6>0.000000</cim:Pss2B.t6>
+    <cim:Pss2B.t7>2.000000</cim:Pss2B.t7>
+    <cim:Pss2B.t1>0.200000</cim:Pss2B.t1>
+    <cim:Pss2B.t2>0.020000</cim:Pss2B.t2>
+    <cim:Pss2B.t3>0.450000</cim:Pss2B.t3>
+    <cim:Pss2B.t4>0.020000</cim:Pss2B.t4>
+    <cim:Pss2B.t8>0.200000</cim:Pss2B.t8>
+    <cim:Pss2B.t9>0.100000</cim:Pss2B.t9>
+    <cim:Pss2B.t10>0.000000</cim:Pss2B.t10>
+    <cim:Pss2B.t11>0.000000</cim:Pss2B.t11>
+    <cim:Pss2B.ks1>16.000000</cim:Pss2B.ks1>
+    <cim:Pss2B.ks2>0.310000</cim:Pss2B.ks2>
+    <cim:Pss2B.ks3>1.000000</cim:Pss2B.ks3>
+    <cim:Pss2B.ks4>1.000000</cim:Pss2B.ks4>
+    <cim:Pss2B.n>1</cim:Pss2B.n>
+    <cim:Pss2B.m>5</cim:Pss2B.m>
+    <cim:Pss2B.vstmin>-0.100000</cim:Pss2B.vstmin>
+    <cim:Pss2B.vstmax>0.100000</cim:Pss2B.vstmax>
+    <cim:Pss2B.vsi1max>999.000000</cim:Pss2B.vsi1max>
+    <cim:Pss2B.vsi1min>-999.000000</cim:Pss2B.vsi1min>
+    <cim:Pss2B.vsi2max>999.000000</cim:Pss2B.vsi2max>
+    <cim:Pss2B.vsi2min>-999.000000</cim:Pss2B.vsi2min>
+    <cim:Pss2B.a>1.000000</cim:Pss2B.a>
+    <cim:Pss2B.ta>0.000000</cim:Pss2B.ta>
+    <cim:Pss2B.tb>0.000000</cim:Pss2B.tb>
+    <cim:Pss2B.inputSignal1Type rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#InputSignalKind.rotorSpeed"/>
+    <cim:Pss2B.inputSignal2Type rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#InputSignalKind.generatorElectricalPower"/>
+  </cim:Pss2B>
+  <cim:ExcIEEEAC4A rdf:ID="_4152a759-f5da-4bd3-9ac4-e656795cadf0">
+    <cim:IdentifiedObject.name>BE-G1-ExcAC4A</cim:IdentifiedObject.name>
+    <cim:DynamicsFunctionBlock.enabled>true</cim:DynamicsFunctionBlock.enabled>
+    <cim:ExcitationSystemDynamics.SynchronousMachineDynamics rdf:resource="#_3a5b94b5-0790-41ee-9c6b-90237b9919eb"/>
+    <cim:ExcIEEEAC4A.vimax>0.100000</cim:ExcIEEEAC4A.vimax>
+    <cim:ExcIEEEAC4A.vimin>-0.100000</cim:ExcIEEEAC4A.vimin>
+    <cim:ExcIEEEAC4A.tc>1.800000</cim:ExcIEEEAC4A.tc>
+    <cim:ExcIEEEAC4A.tb>8.500000</cim:ExcIEEEAC4A.tb>
+    <cim:ExcIEEEAC4A.ka>200.000000</cim:ExcIEEEAC4A.ka>
+    <cim:ExcIEEEAC4A.ta>0.070000</cim:ExcIEEEAC4A.ta>
+    <cim:ExcIEEEAC4A.vrmax>5.000000</cim:ExcIEEEAC4A.vrmax>
+    <cim:ExcIEEEAC4A.vrmin>-4.650000</cim:ExcIEEEAC4A.vrmin>
+    <cim:ExcIEEEAC4A.kc>0.050000</cim:ExcIEEEAC4A.kc>
+  </cim:ExcIEEEAC4A>
+  <cim:VCompIEEEType1 rdf:ID="_f9437903-14ef-44d1-aac7-2e906abf44f5">
+    <cim:IdentifiedObject.name>BE-G1-Vcomp</cim:IdentifiedObject.name>
+    <cim:DynamicsFunctionBlock.enabled>true</cim:DynamicsFunctionBlock.enabled>
+    <cim:VoltageCompensatorDynamics.ExcitationSystemDynamics rdf:resource="#_4152a759-f5da-4bd3-9ac4-e656795cadf0"/>
+    <cim:VCompIEEEType1.rc>0.000000</cim:VCompIEEEType1.rc>
+    <cim:VCompIEEEType1.tr>0.000000</cim:VCompIEEEType1.tr>
+    <cim:VCompIEEEType1.xc>0.01</cim:VCompIEEEType1.xc>
+  </cim:VCompIEEEType1>
+  <cim:Pss2B rdf:ID="_fe1ce9ce-d742-42d7-8e29-edf4e89482cb">
+    <cim:IdentifiedObject.name>BE-G2-PSSB</cim:IdentifiedObject.name>
+    <cim:DynamicsFunctionBlock.enabled>true</cim:DynamicsFunctionBlock.enabled>
+    <cim:PowerSystemStabilizerDynamics.ExcitationSystemDynamics rdf:resource="#_86a6f0ca-4cf3-4d06-a65b-bd6b2e8e32a8"/>
+    <cim:Pss2B.tw1>2.000000</cim:Pss2B.tw1>
+    <cim:Pss2B.tw2>2.000000</cim:Pss2B.tw2>
+    <cim:Pss2B.tw3>2.000000</cim:Pss2B.tw3>
+    <cim:Pss2B.tw4>0.000000</cim:Pss2B.tw4>
+    <cim:Pss2B.t6>0.000000</cim:Pss2B.t6>
+    <cim:Pss2B.t7>2.000000</cim:Pss2B.t7>
+    <cim:Pss2B.t1>0.120000</cim:Pss2B.t1>
+    <cim:Pss2B.t2>0.020000</cim:Pss2B.t2>
+    <cim:Pss2B.t3>0.350000</cim:Pss2B.t3>
+    <cim:Pss2B.t4>0.020000</cim:Pss2B.t4>
+    <cim:Pss2B.t8>0.000000</cim:Pss2B.t8>
+    <cim:Pss2B.t9>0.100000</cim:Pss2B.t9>
+    <cim:Pss2B.t10>0.000000</cim:Pss2B.t10>
+    <cim:Pss2B.t11>0.000000</cim:Pss2B.t11>
+    <cim:Pss2B.ks1>8.000000</cim:Pss2B.ks1>
+    <cim:Pss2B.ks2>0.310000</cim:Pss2B.ks2>
+    <cim:Pss2B.ks3>1.000000</cim:Pss2B.ks3>
+    <cim:Pss2B.ks4>1.000000</cim:Pss2B.ks4>
+    <cim:Pss2B.n>1</cim:Pss2B.n>
+    <cim:Pss2B.m>5</cim:Pss2B.m>
+    <cim:Pss2B.vstmin>-0.100000</cim:Pss2B.vstmin>
+    <cim:Pss2B.vstmax>0.100000</cim:Pss2B.vstmax>
+    <cim:Pss2B.vsi1max>999.000000</cim:Pss2B.vsi1max>
+    <cim:Pss2B.vsi1min>-999.000000</cim:Pss2B.vsi1min>
+    <cim:Pss2B.vsi2max>999.000000</cim:Pss2B.vsi2max>
+    <cim:Pss2B.vsi2min>-999.000000</cim:Pss2B.vsi2min>
+    <cim:Pss2B.a>1.000000</cim:Pss2B.a>
+    <cim:Pss2B.ta>0.000000</cim:Pss2B.ta>
+    <cim:Pss2B.tb>0.000000</cim:Pss2B.tb>
+    <cim:Pss2B.inputSignal1Type rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#InputSignalKind.rotorSpeed"/>
+    <cim:Pss2B.inputSignal2Type rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#InputSignalKind.generatorElectricalPower"/>
+  </cim:Pss2B>
+  <cim:ExcIEEEAC4A rdf:ID="_86a6f0ca-4cf3-4d06-a65b-bd6b2e8e32a8">
+    <cim:IdentifiedObject.name>BE-G2-ExcAC4A</cim:IdentifiedObject.name>
+    <cim:DynamicsFunctionBlock.enabled>true</cim:DynamicsFunctionBlock.enabled>
+    <cim:ExcitationSystemDynamics.SynchronousMachineDynamics rdf:resource="#_b1510df7-10dc-49e6-9ee5-eae9cfecd432"/>
+    <cim:ExcIEEEAC4A.vimax>0.100000</cim:ExcIEEEAC4A.vimax>
+    <cim:ExcIEEEAC4A.vimin>-0.100000</cim:ExcIEEEAC4A.vimin>
+    <cim:ExcIEEEAC4A.tc>1.800000</cim:ExcIEEEAC4A.tc>
+    <cim:ExcIEEEAC4A.tb>8.500000</cim:ExcIEEEAC4A.tb>
+    <cim:ExcIEEEAC4A.ka>250.000000</cim:ExcIEEEAC4A.ka>
+    <cim:ExcIEEEAC4A.ta>0.070000</cim:ExcIEEEAC4A.ta>
+    <cim:ExcIEEEAC4A.vrmax>5.000000</cim:ExcIEEEAC4A.vrmax>
+    <cim:ExcIEEEAC4A.vrmin>-4.650000</cim:ExcIEEEAC4A.vrmin>
+    <cim:ExcIEEEAC4A.kc>0.050000</cim:ExcIEEEAC4A.kc>
+  </cim:ExcIEEEAC4A>
+  <cim:VCompIEEEType1 rdf:ID="_983593b6-fefd-4cd5-b270-68be8c047e84">
+    <cim:IdentifiedObject.name>BE-G2-Vcomp</cim:IdentifiedObject.name>
+    <cim:DynamicsFunctionBlock.enabled>true</cim:DynamicsFunctionBlock.enabled>
+    <cim:VoltageCompensatorDynamics.ExcitationSystemDynamics rdf:resource="#_86a6f0ca-4cf3-4d06-a65b-bd6b2e8e32a8"/>
+    <cim:VCompIEEEType1.rc>0.000000</cim:VCompIEEEType1.rc>
+    <cim:VCompIEEEType1.tr>0.000000</cim:VCompIEEEType1.tr>
+    <cim:VCompIEEEType1.xc>0.01</cim:VCompIEEEType1.xc>
+  </cim:VCompIEEEType1>
+  <cim:GovSteam1 rdf:ID="_0d7fa0bd-7b54-4d13-9e4f-060bd9c5dcee">
+    <cim:IdentifiedObject.name>BE-G1-TurbIEEEEG1</cim:IdentifiedObject.name>
+    <cim:DynamicsFunctionBlock.enabled>true</cim:DynamicsFunctionBlock.enabled>
+    <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_3a5b94b5-0790-41ee-9c6b-90237b9919eb"/>
+    <cim:GovSteam1.t1>5.000000</cim:GovSteam1.t1>
+    <cim:GovSteam1.t2>1.500000</cim:GovSteam1.t2>
+    <cim:GovSteam1.k>25.000000</cim:GovSteam1.k>
+    <cim:GovSteam1.t3>0.300000</cim:GovSteam1.t3>
+    <cim:GovSteam1.uo>1.050000</cim:GovSteam1.uo>
+    <cim:GovSteam1.uc>-1.050000</cim:GovSteam1.uc>
+    <cim:GovSteam1.pmax>1.050000</cim:GovSteam1.pmax>
+    <cim:GovSteam1.pmin>0.000000</cim:GovSteam1.pmin>
+    <cim:GovSteam1.t4>0.150000</cim:GovSteam1.t4>
+    <cim:GovSteam1.t5>2.000000</cim:GovSteam1.t5>
+    <cim:GovSteam1.t6>0.100000</cim:GovSteam1.t6>
+    <cim:GovSteam1.t7>0.000000</cim:GovSteam1.t7>
+    <cim:GovSteam1.k1>0.250000</cim:GovSteam1.k1>
+    <cim:GovSteam1.k2>0.000000</cim:GovSteam1.k2>
+    <cim:GovSteam1.k3>0.600000</cim:GovSteam1.k3>
+    <cim:GovSteam1.k4>0.000000</cim:GovSteam1.k4>
+    <cim:GovSteam1.k5>0.150000</cim:GovSteam1.k5>
+    <cim:GovSteam1.k6>0.000000</cim:GovSteam1.k6>
+    <cim:GovSteam1.k7>0.000000</cim:GovSteam1.k7>
+    <cim:GovSteam1.k8>0.000000</cim:GovSteam1.k8>
+    <cim:GovSteam1.db1>0.000000</cim:GovSteam1.db1>
+    <cim:GovSteam1.eps>0.000000</cim:GovSteam1.eps>
+    <cim:GovSteam1.db2>0.000000</cim:GovSteam1.db2>
+    <cim:GovSteam1.gv1>0.000000</cim:GovSteam1.gv1>
+    <cim:GovSteam1.pgv1>0.000000</cim:GovSteam1.pgv1>
+    <cim:GovSteam1.gv2>0.250000</cim:GovSteam1.gv2>
+    <cim:GovSteam1.pgv2>0.250000</cim:GovSteam1.pgv2>
+    <cim:GovSteam1.gv3>0.500000</cim:GovSteam1.gv3>
+    <cim:GovSteam1.pgv3>0.500000</cim:GovSteam1.pgv3>
+    <cim:GovSteam1.gv4>0.750000</cim:GovSteam1.gv4>
+    <cim:GovSteam1.pgv4>0.750000</cim:GovSteam1.pgv4>
+    <cim:GovSteam1.gv5>1.000000</cim:GovSteam1.gv5>
+    <cim:GovSteam1.pgv5>1.000000</cim:GovSteam1.pgv5>
+    <cim:GovSteam1.gv6>1.250000</cim:GovSteam1.gv6>
+    <cim:GovSteam1.pgv6>1.250000</cim:GovSteam1.pgv6>
+    <cim:GovSteam1.sdb1>true</cim:GovSteam1.sdb1>
+    <cim:GovSteam1.sdb2>true</cim:GovSteam1.sdb2>
+    <cim:GovSteam1.valve>true</cim:GovSteam1.valve>
+    <cim:GovSteam1.mwbase>0</cim:GovSteam1.mwbase>
+  </cim:GovSteam1>
+  <cim:GovSteam0 rdf:ID="_8ced59c7-2085-4de1-8079-6493838af8be">
+    <cim:IdentifiedObject.name>BE-G2-Turb-TGOV1</cim:IdentifiedObject.name>
+    <cim:DynamicsFunctionBlock.enabled>true</cim:DynamicsFunctionBlock.enabled>
+    <cim:TurbineGovernorDynamics.SynchronousMachineDynamics rdf:resource="#_b1510df7-10dc-49e6-9ee5-eae9cfecd432"/>
+    <cim:GovSteam0.r>0.040000</cim:GovSteam0.r>
+    <cim:GovSteam0.t1>0.300000</cim:GovSteam0.t1>
+    <cim:GovSteam0.vmax>1.000000</cim:GovSteam0.vmax>
+    <cim:GovSteam0.vmin>0.000000</cim:GovSteam0.vmin>
+    <cim:GovSteam0.t2>1.500000</cim:GovSteam0.t2>
+    <cim:GovSteam0.t3>5.000000</cim:GovSteam0.t3>
+    <cim:GovSteam0.dt>0.300000</cim:GovSteam0.dt>
+    <cim:GovSteam0.mwbase>0.000000</cim:GovSteam0.mwbase>
+  </cim:GovSteam0>
+  <cim:EnergyConsumer rdf:about="#_b1480a00-b427-4001-a26c-51954d2bb7e9">
+    <cim:EnergyConsumer.LoadDynamics rdf:resource="#_15c43948-1890-4ce4-8246-16d29f1ebdb6"/>
+  </cim:EnergyConsumer>
+  <cim:LoadAggregate rdf:ID="_15c43948-1890-4ce4-8246-16d29f1ebdb6">
+    <cim:IdentifiedObject.name>L-1230804819</cim:IdentifiedObject.name>
+  </cim:LoadAggregate>
+  <cim:LoadStatic rdf:ID="_b307ede0-52c3-4d7a-a51d-8020e2d75d63">
+    <cim:LoadStatic.LoadAggregate rdf:resource="#_15c43948-1890-4ce4-8246-16d29f1ebdb6"/>
+    <cim:IdentifiedObject.name>L-1230804819</cim:IdentifiedObject.name>
+    <cim:LoadStatic.staticLoadModelType rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#StaticLoadModelKind.constantZ"/>
+  </cim:LoadStatic>
+  <cim:EnergyConsumer rdf:about="#_cb459405-cc14-4215-a45c-416789205904">
+    <cim:EnergyConsumer.LoadDynamics rdf:resource="#_a31f10d9-4069-4f52-afa1-1a25e8c3b5d4"/>
+  </cim:EnergyConsumer>
+  <cim:LoadAggregate rdf:ID="_a31f10d9-4069-4f52-afa1-1a25e8c3b5d4">
+    <cim:IdentifiedObject.name>BE-Load_1</cim:IdentifiedObject.name>
+  </cim:LoadAggregate>
+  <cim:LoadStatic rdf:ID="_d9d8ab71-0768-4d5e-9999-424e52f5854a">
+    <cim:LoadStatic.LoadAggregate rdf:resource="#_a31f10d9-4069-4f52-afa1-1a25e8c3b5d4"/>
+    <cim:IdentifiedObject.name>BE-Load_1</cim:IdentifiedObject.name>
+    <cim:LoadStatic.staticLoadModelType rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#StaticLoadModelKind.constantZ"/>
+  </cim:LoadStatic>
+  <cim:EnergyConsumer rdf:about="#_1c6beed6-1acf-42e7-ba55-0cc9f04bddd8">
+    <cim:EnergyConsumer.LoadDynamics rdf:resource="#_96cd3885-586e-4fd9-8521-d63a65fceabb"/>
+  </cim:EnergyConsumer>
+  <cim:LoadAggregate rdf:ID="_96cd3885-586e-4fd9-8521-d63a65fceabb">
+    <cim:IdentifiedObject.name>BE-Load_2</cim:IdentifiedObject.name>
+  </cim:LoadAggregate>
+  <cim:LoadStatic rdf:ID="_0f370368-ba51-4df4-9a0b-0840ae9d2e2e">
+    <cim:LoadStatic.LoadAggregate rdf:resource="#_96cd3885-586e-4fd9-8521-d63a65fceabb"/>
+    <cim:IdentifiedObject.name>BE-Load_2</cim:IdentifiedObject.name>
+    <cim:LoadStatic.staticLoadModelType rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#StaticLoadModelKind.constantZ"/>
+  </cim:LoadStatic>
+</rdf:RDF>

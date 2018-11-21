@@ -8,6 +8,8 @@ package com.powsybl.iidm.xml;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.iidm.anonymizer.Anonymizer;
+import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyLevel;
@@ -85,7 +87,7 @@ public class XMLExporter implements Exporter {
             throw new IllegalArgumentException("network is null");
         }
 
-        XMLExportOptions options = new XMLExportOptions();
+        ExportOptions options = new ExportOptions();
         if (parameters != null) {
             options.setIndent(Boolean.parseBoolean(parameters.getProperty(INDENT_PROPERTY, Boolean.TRUE.toString())))
                 .setWithBranchSV(Boolean.parseBoolean(parameters.getProperty(WITH_BRANCH_STATE_VARIABLES_PROPERTY, Boolean.TRUE.toString())))

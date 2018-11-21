@@ -8,7 +8,7 @@ package com.powsybl.iidm.network;
 
 /**
  * To create a shunt compensator, from a <code>VoltageLevel</code> instance call
- * the {@link VoltageLevel#newShunt()} method to get a shunt compensator builder
+ * the {@link VoltageLevel#newShuntCompensator()} method to get a shunt compensator builder
  * instance.
  * <p>
  * Example:

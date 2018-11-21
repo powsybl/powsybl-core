@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
 import org.junit.Test;
@@ -30,7 +31,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractConverterTes
         load.addExtension(LoadZipModel.class, zipModel);
         byte[] buffer;
         try (ByteArrayOutputStream os = new ByteArrayOutputStream()) {
-            NetworkXml.write(network, new XMLExportOptions(), os);
+            NetworkXml.write(network, new ExportOptions(), os);
             buffer = os.toByteArray();
         }
         // try to validate the schema with extensions
@@ -54,7 +55,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractConverterTes
 
     @Test
     public void testMultipleExtensions() throws IOException {
-        roundTripTest(MultipleExtensionsTestNetworkFactory.create(),
+        roundTripXmlTest(MultipleExtensionsTestNetworkFactory.create(),
             NetworkXml::writeAndValidate,
             NetworkXml::read,
             "/multiple-extensions.xml");

@@ -35,7 +35,6 @@ public class PropertiesPlatformConfigTest {
     public void test() throws IOException {
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             Path cfgDir = Files.createDirectory(fileSystem.getPath("config"));
-            Path cacheDir = Files.createDirectory(fileSystem.getPath("cache"));
             Properties prop1 = new Properties();
             prop1.setProperty("s", "hello");
             prop1.setProperty("i", Integer.toString(3));
@@ -55,7 +54,7 @@ public class PropertiesPlatformConfigTest {
             try (Writer w = Files.newBufferedWriter(cfgDir.resolve("mod.properties"), StandardCharsets.UTF_8)) {
                 prop1.store(w, null);
             }
-            PropertiesPlatformConfig propsConfig = new PropertiesPlatformConfig(fileSystem, cfgDir, cacheDir);
+            PlatformConfig propsConfig = new PlatformConfig(new PropertiesModuleConfigRepository(cfgDir), cfgDir);
             ModuleConfig modConfig = propsConfig.getModuleConfig("mod");
 
             //  string tests

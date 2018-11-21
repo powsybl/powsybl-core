@@ -83,6 +83,7 @@ public interface AppStorage extends AutoCloseable {
      * Rename the node with ID {@code nodeId}
      */
     default void renameNode(String nodeId, String name) {
+        throw new UnsupportedOperationException("To implement");
     }
 
     /**

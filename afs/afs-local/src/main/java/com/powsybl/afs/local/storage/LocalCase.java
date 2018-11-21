@@ -6,6 +6,19 @@
  */
 package com.powsybl.afs.local.storage;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.powsybl.afs.ext.base.Case;
 import com.powsybl.afs.storage.AppStorageDataSource;
 import com.powsybl.afs.storage.NodeGenericMetadata;
@@ -16,11 +29,6 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.timeseries.DoubleDataChunk;
 import com.powsybl.timeseries.StringDataChunk;
 import com.powsybl.timeseries.TimeSeriesMetadata;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.util.*;
 
 /**
  *
@@ -106,7 +114,15 @@ public class LocalCase implements LocalFile {
 
     @Override
     public Set<String> getDataNames() {
-        throw new AssertionError("TODO"); // TODO
+        DataSource dataSource = Importers.createDataSource(file);
+        try {
+            Set<String> names = dataSource.listNames(".*");
+            LOG.info("LocalCase::getDataNames()");
+            names.forEach(n -> LOG.info("    {}", n));
+            return names;
+        } catch (IOException x) {
+            throw new UncheckedIOException("getDataNames()", x);
+        }
     }
 
     @Override
@@ -143,4 +159,6 @@ public class LocalCase implements LocalFile {
     public Map<String, List<StringDataChunk>> getStringTimeSeriesData(Set<String> timeSeriesNames, int version) {
         throw new AssertionError();
     }
+
+    private static final Logger LOG = LoggerFactory.getLogger(LocalCase.class);
 }

@@ -815,25 +815,64 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     int getLoadCount();
 
     /**
+     * @deprecated Use {@link #newShuntCompensator()} instead.
+     */
+    @Deprecated
+    default ShuntCompensatorAdder newShunt() {
+        throw new UnsupportedOperationException("deprecated");
+    }
+
+    /**
+     * @deprecated Use {@link #getShuntCompensators()} instead.
+     */
+    @Deprecated
+    default Iterable<ShuntCompensator> getShunts() {
+        throw new UnsupportedOperationException("deprecated");
+    }
+
+    /**
+     * @deprecated Use {@link #getShuntCompensatorStream()} instead.
+     */
+    @Deprecated
+    default Stream<ShuntCompensator> getShuntStream() {
+        throw new UnsupportedOperationException("deprecated");
+    }
+
+    /**
+     * @deprecated Use {@link #getShuntCompensatorCount()} instead.
+     */
+    @Deprecated
+    default int getShuntCount() {
+        throw new UnsupportedOperationException("deprecated");
+    }
+
+    /**
      * Get a builder to create a new compensator shunt.
      */
-    ShuntCompensatorAdder newShunt();
+    default ShuntCompensatorAdder newShuntCompensator() {
+        throw new UnsupportedOperationException("Not Implemented");
+    }
 
     /**
      * Get compensator shunts.
      */
-    Iterable<ShuntCompensator> getShunts();
-
+    default Iterable<ShuntCompensator> getShuntCompensators() {
+        throw new UnsupportedOperationException("Not Implemented");
+    }
 
     /**
      * Get compensator shunts.
      */
-    Stream<ShuntCompensator> getShuntStream();
+    default Stream<ShuntCompensator> getShuntCompensatorStream() {
+        throw new UnsupportedOperationException("Not Implemented");
+    }
 
     /**
      * Get shunt count.
      */
-    int getShuntCount();
+    default int getShuntCompensatorCount() {
+        throw new UnsupportedOperationException("Not Implemented");
+    }
 
     /**
      * Get a builder to create a new dangling line.

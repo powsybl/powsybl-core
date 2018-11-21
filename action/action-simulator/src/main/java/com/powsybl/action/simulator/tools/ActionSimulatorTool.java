@@ -49,6 +49,8 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.powsybl.action.simulator.tools.ActionSimulatorToolConstants.*;
+import static com.powsybl.tools.ToolConstants.TASK;
+import static com.powsybl.tools.ToolConstants.TASK_COUNT;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

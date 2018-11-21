@@ -13,12 +13,16 @@ import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.storage.AppStorageDataSource;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
+import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.import_.ImportersLoader;
+import com.powsybl.iidm.network.Network;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -88,6 +92,16 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
         }
         this.dataSource = dataSource;
         return this;
+    }
+
+    public ImportedCaseBuilder withNetwork(Network network) {
+        Objects.requireNonNull(network);
+        if (name == null) {
+            name = network.getId();
+        }
+        DataSource memDataSource = new MemDataSource();
+        Exporters.export("XIIDM", network, null, memDataSource);
+        return withDatasource(memDataSource);
     }
 
     public ImportedCaseBuilder withParameter(String name, String value) {

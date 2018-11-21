@@ -1,11 +1,12 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2018, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package com.powsybl.contingency;
 
+import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.contingency.tasks.CompoundModificationTask;
 import com.powsybl.contingency.tasks.ModificationTask;
 import com.powsybl.iidm.network.Branch;
@@ -18,12 +19,13 @@ import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
-public class Contingency {
+public class Contingency extends AbstractExtendable<Contingency> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Contingency.class);
 
-    private final String id;
+    private String id;
 
     private final List<ContingencyElement> elements;
 
@@ -33,7 +35,7 @@ public class Contingency {
 
     public Contingency(String id, List<ContingencyElement> elements) {
         this.id = Objects.requireNonNull(id);
-        this.elements = Objects.requireNonNull(elements);
+        this.elements = new ArrayList<>(Objects.requireNonNull(elements));
     }
 
     private static boolean checkGeneratorContingency(Contingency contingency, GeneratorContingency element, Network network) {
@@ -102,6 +104,20 @@ public class Contingency {
 
     public String getId() {
         return id;
+    }
+
+    public void setId(String id) {
+        this.id = Objects.requireNonNull(id);
+    }
+
+    public void addElement(ContingencyElement element) {
+        Objects.requireNonNull(element);
+        elements.add(element);
+    }
+
+    public void removeElement(ContingencyElement element) {
+        Objects.requireNonNull(element);
+        elements.remove(element);
     }
 
     public Collection<ContingencyElement> getElements() {
