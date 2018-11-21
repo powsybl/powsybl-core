@@ -15,7 +15,7 @@ import java.io.InputStream;
 /**
  * An ExtensionProvider able to serialize/deserialize extensions from XML.
  *
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public interface ExtensionXmlSerializer<T extends Extendable, E extends Extension<T>> extends ExtensionProvider<T, E> {
 
