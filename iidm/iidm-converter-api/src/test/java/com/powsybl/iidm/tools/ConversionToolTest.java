@@ -21,7 +21,7 @@ import java.nio.file.Files;
 import java.util.Collections;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public class ConversionToolTest extends AbstractToolTest {
 

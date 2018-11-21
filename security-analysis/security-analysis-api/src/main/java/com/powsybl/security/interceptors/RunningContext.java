@@ -11,7 +11,7 @@ import com.powsybl.iidm.network.Network;
 import java.util.Objects;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public class RunningContext {
 
