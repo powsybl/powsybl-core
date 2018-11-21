@@ -7,17 +7,20 @@
 package com.powsybl.iidm.postprocessor;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.auto.service.AutoService;
+import com.google.common.collect.Maps;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.import_.ImportPostProcessor;
 import com.powsybl.iidm.network.Bus;
@@ -86,33 +89,21 @@ public class ConnectableSwitchesCollapserPostProcessor implements ImportPostProc
     private int removeBreakers(Network network, VoltageLevel vl) {
         AtomicInteger removed = new AtomicInteger();
 
-        List<Switch> switchList = new ArrayList();
-        Map<String, List<Switch>> busMap = new HashMap();
-        vl.getSwitches().forEach(sw -> {
-            Bus b1 = sw.getVoltageLevel().getBusBreakerView().getBus1(sw.getId());
-            Bus b2 = sw.getVoltageLevel().getBusBreakerView().getBus2(sw.getId());
+        Map<String, List<String>> busMap = getBusSwitchMap(vl);
 
-            List<Switch> l1 = busMap.getOrDefault(b1.getId(), new ArrayList());
-            l1.add(sw);
-            busMap.put(b1.getId(), l1);
+        List<String> singleSwitchBuses = busMap.entrySet().stream()
+                .filter(e -> e.getValue().size() == 1).map(r -> r.getKey()).collect(Collectors.toList());
 
-            List<Switch> l2 = busMap.getOrDefault(b2.getId(), new ArrayList());
-            l2.add(sw);
-            busMap.put(b2.getId(), l2);
-            switchList.add(sw);
-        });
-
-        Map<String, Switch> singleSwitchBuses = busMap.entrySet().stream()
-                .filter(e -> e.getValue().size() == 1).collect(Collectors
-                        .toMap(entry -> entry.getKey(), entry -> entry.getValue().get(0)));
+        List<Switch> switchList = busMap.entrySet().stream()
+                .filter(e -> e.getValue().size() == 1).map(e -> vl.getBusBreakerView().getSwitch(e.getValue().get(0))).distinct().collect(Collectors.toList());
 
         switchList.forEach(sw -> {
             Bus b1 = vl.getBusBreakerView().getBus1(sw.getId());
             Bus b2 = vl.getBusBreakerView().getBus2(sw.getId());
             Bus toRemove = null;
             Bus toKeep = null;
-            if (singleSwitchBuses.containsKey(b1.getId())
-                    && singleSwitchBuses.containsKey(b2.getId())) {
+            if (singleSwitchBuses.contains(b1.getId())
+                    && singleSwitchBuses.contains(b2.getId())) {
                 if (compareBusToRemove(b1, b2)) {
                     toRemove = b1;
                     toKeep = b2;
@@ -120,10 +111,10 @@ public class ConnectableSwitchesCollapserPostProcessor implements ImportPostProc
                     toRemove = b2;
                     toKeep = b1;
                 }
-            } else if (singleSwitchBuses.containsKey(b1.getId())) {
+            } else if (singleSwitchBuses.contains(b1.getId())) {
                 toRemove = b1;
                 toKeep = b2;
-            } else if (singleSwitchBuses.containsKey(b2.getId())) {
+            } else if (singleSwitchBuses.contains(b2.getId())) {
                 toRemove = b2;
                 toKeep = b1;
             }
@@ -135,7 +126,7 @@ public class ConnectableSwitchesCollapserPostProcessor implements ImportPostProc
                     try {
                         vl.getBusBreakerView().removeBus(toKeep.getId());
                     } catch (Exception ex) {
-                        LOGGER.warn("Error removing disconnected bus " + toKeep.getId());
+                        LOGGER.debug("Not removed disconnected bus " + toKeep.getId());
                     }
                 }
             }
@@ -145,23 +136,12 @@ public class ConnectableSwitchesCollapserPostProcessor implements ImportPostProc
 
     private int removeDoubleSwitchBuses(Network network, VoltageLevel vl) {
         AtomicInteger removed = new AtomicInteger();
-        Map<String, List<String>> busMap2 = new HashMap();
-        vl.getSwitches().forEach(sw -> {
-            Bus b1 = sw.getVoltageLevel().getBusBreakerView().getBus1(sw.getId());
-            Bus b2 = sw.getVoltageLevel().getBusBreakerView().getBus2(sw.getId());
+        Map<String, List<String>> busMap = getBusSwitchMap(vl);
 
-            List<String> l1 = busMap2.getOrDefault(b1.getId(), new ArrayList());
-            l1.add(sw.getId());
-            busMap2.put(b1.getId(), l1);
-
-            List<String> l2 = busMap2.getOrDefault(b2.getId(), new ArrayList());
-            l2.add(sw.getId());
-            busMap2.put(b2.getId(), l2);
-        });
-
-        Map<String, List<String>> doubleSwitchBuses = busMap2.entrySet().stream()
+        Map<String, List<String>> doubleSwitchBuses = busMap.entrySet().stream()
                 .filter(e -> e.getValue().size() == 2)
                 .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
+
         doubleSwitchBuses.forEach((b, swl) -> {
             Bus bus = vl.getBusBreakerView().getBus(b);
             Switch s1 = vl.getBusBreakerView().getSwitch(swl.get(0));
@@ -198,7 +178,6 @@ public class ConnectableSwitchesCollapserPostProcessor implements ImportPostProc
 
                 vl.getBusBreakerView().removeSwitch(switchToKeep.getId());
                 vl.getBusBreakerView().removeBus(bus.getId());
-                String id = switchToKeep.getId();
                 vl.getBusBreakerView().newSwitch().setId(switchToKeep.getId())
                         .setName(switchToKeep.getName()).setFictitious(switchToKeep.isFictitious())
                         .setOpen(switchToKeep.isOpen() || switchToRemove.isOpen()).setBus1(bus1)
@@ -207,6 +186,18 @@ public class ConnectableSwitchesCollapserPostProcessor implements ImportPostProc
             }
         });
         return removed.get();
+    }
+
+    private Map<String, List<String>> getBusSwitchMap(VoltageLevel vl) {
+
+        return vl.getBusBreakerView().getSwitchStream().flatMap(s -> Stream.of(
+                Maps.immutableEntry(vl.getBusBreakerView().getBus1(s.getId()).getId(), s.getId()),
+                Maps.immutableEntry(vl.getBusBreakerView().getBus2(s.getId()).getId(), s.getId())))
+                            .collect(Collectors.toMap(a -> a.getKey(),
+                                a -> new ArrayList<>(Collections.singletonList(a.getValue())), (o, n) -> {
+                                    o.addAll(n);
+                                    return o;
+                                }, HashMap::new));
     }
 
     private boolean compareSwitchToRemove(VoltageLevel vl, Bus bus, Switch s1, Switch s2) {
@@ -325,5 +316,6 @@ public class ConnectableSwitchesCollapserPostProcessor implements ImportPostProc
         }
         return false;
     }
+
 
 }
