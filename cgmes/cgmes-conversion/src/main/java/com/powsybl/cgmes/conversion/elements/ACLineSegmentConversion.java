@@ -22,10 +22,10 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class ACLineSegmentConversion extends AbstractConductingEquipmentConversion {
+public class ACLineSegmentConversion extends AbstractBranchConversion {
 
     public ACLineSegmentConversion(PropertyBag line, Conversion.Context context) {
-        super(CgmesNames.AC_LINE_SEGMENT, line, context, 2);
+        super(CgmesNames.AC_LINE_SEGMENT, line, context);
     }
 
     @Override
@@ -33,7 +33,7 @@ public class ACLineSegmentConversion extends AbstractConductingEquipmentConversi
         // An AC line segment end voltage level may be null
         // (when it is in the boundary and the boundary nodes are not converted)
         // So we do not use the generic validity check for conducting equipment
-        // We only ensure we have nodes at both ends
+        // or branch. We only ensure we have nodes at both ends
         for (int k = 1; k <= 2; k++) {
             if (nodeId(k) == null) {
                 missing(nodeIdPropertyName() + k);

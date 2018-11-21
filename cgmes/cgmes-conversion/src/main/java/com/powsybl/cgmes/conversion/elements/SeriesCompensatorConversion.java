@@ -8,44 +8,28 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class EquivalentBranchConversion extends AbstractBranchConversion {
+public class SeriesCompensatorConversion extends AbstractBranchConversion {
 
-    public EquivalentBranchConversion(PropertyBag b, Conversion.Context context) {
-        super("EquivalentBranch", b, context);
+    public SeriesCompensatorConversion(PropertyBag sc, Conversion.Context context) {
+        super(CgmesNames.SERIES_COMPENSATOR, sc, context);
     }
 
     @Override
     public void convert() {
         double r = p.asDouble("r");
         double x = p.asDouble("x");
-        double r21 = p.asDouble("r21", r);
-        double x21 = p.asDouble("x21", x);
-        if (r21 != r || x21 != x) {
-            // r21 Notes:
-            // Resistance from terminal sequence 2 to terminal sequence 1.
-            // Used for steady state power flow.
-            // Attribute is optional and represent unbalanced network such as off-nominal phase
-            // shifter.
-            // If only EquivalentBranch.r is given,
-            // then EquivalentBranch.r21 is assumed equal to EquivalentBranch.r.
-            // Usage rule:
-            // EquivalentBranch is a result of network reduction prior to the data exchange.
-            invalid("Impedance 21 different of impedance 12 not supported");
-        }
-        double bch = 0;
-        double gch = 0;
-
         String busId1 = busId(1);
         String busId2 = busId(2);
         final Line l = context.network().newLine()
-                .setId(context.namingStrategy().getId("Line", id))
-                .setName(context.namingStrategy().getName("Line", name))
+                .setId(context.namingStrategy().getId(CgmesNames.SERIES_COMPENSATOR, id))
+                .setName(context.namingStrategy().getName(CgmesNames.SERIES_COMPENSATOR, name))
                 .setEnsureIdUnicity(false)
                 .setBus1(terminalConnected(1) ? busId1 : null)
                 .setBus2(terminalConnected(2) ? busId2 : null)
@@ -55,12 +39,11 @@ public class EquivalentBranchConversion extends AbstractBranchConversion {
                 .setVoltageLevel2(iidmVoltageLevelId(2))
                 .setR(r)
                 .setX(x)
-                .setG1(gch / 2)
-                .setG2(gch / 2)
-                .setB1(bch / 2)
-                .setB2(bch / 2)
+                .setG1(0)
+                .setG2(0)
+                .setB1(0)
+                .setB2(0)
                 .add();
-
         convertedTerminals(l.getTerminal1(), l.getTerminal2());
     }
 }
