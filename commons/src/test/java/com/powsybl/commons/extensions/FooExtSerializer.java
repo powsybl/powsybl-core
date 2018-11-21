@@ -17,7 +17,7 @@ import com.powsybl.commons.PowsyblException;
 import java.io.IOException;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 @AutoService(ExtensionJsonSerializer.class)
 public class FooExtSerializer implements ExtensionJsonSerializer<Foo, FooExt> {

@@ -11,7 +11,7 @@ import com.powsybl.security.SecurityAnalysisResult;
 import java.io.Writer;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public interface SecurityAnalysisResultExporter {
 

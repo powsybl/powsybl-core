@@ -11,7 +11,7 @@ import com.powsybl.security.PostContingencyResult;
 import com.powsybl.security.SecurityAnalysisResult;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public interface SecurityAnalysisInterceptor {
 
