@@ -71,10 +71,15 @@ public class ActionDb {
         return action;
     }
 
-    void checkUndefinedActions(Set<String> actionIds) {
-        Objects.requireNonNull(actionIds);
+    /**
+     * Checks that actions referenced in rules are indeed defined.
+     */
+    void checkUndefinedActions() {
+        //Collect actions referenced in rules
+        Set<String> referencedActionsIds = rules.values().stream().flatMap(r -> r.getActions().stream()).collect(Collectors.toSet());
 
-        String strActionIds = actionIds.stream()
+        //Check those actions are defined
+        String strActionIds = referencedActionsIds.stream()
                 .filter(id -> !actions.containsKey(id))
                 .collect(Collectors.joining(", "));
         if (!strActionIds.isEmpty()) {

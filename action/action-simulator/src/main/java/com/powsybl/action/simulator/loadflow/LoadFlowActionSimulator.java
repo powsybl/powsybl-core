@@ -16,7 +16,6 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.dsl.ast.ExpressionNode;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowFactory;
 import com.powsybl.loadflow.LoadFlowParameters;
@@ -33,12 +32,13 @@ import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public class LoadFlowActionSimulator implements ActionSimulator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadFlowActionSimulator.class);
 
-    static final LimitViolationFilter LIMIT_VIOLATION_FILTER = new LimitViolationFilter(EnumSet.of(LimitViolationType.CURRENT), 0.0);
+    private static final LimitViolationFilter LIMIT_VIOLATION_FILTER = new LimitViolationFilter(EnumSet.of(LimitViolationType.CURRENT), 0.0);
 
     static final LimitViolationFilter NO_FILTER = new LimitViolationFilter();
 
@@ -108,13 +108,12 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
         observers.forEach(LoadFlowActionSimulatorObserver::afterPreContingencyAnalysis);
 
-        // duplicate the network for each contingency
-        byte[] networkXmlGz = NetworkXml.gzip(network);
+        NetworkCopyStrategy strategy = NetworkCopyStrategy.getInstance(config.getCopyStrategy(), runningContext.getNetwork());
 
         if (preContingencyAnalysisOk || config.isIgnorePreContingencyViolations()) {
             for (String contingencyId : contingencyIds) {
                 Contingency contingency = actionDb.getContingency(contingencyId);
-                Network network2 = NetworkXml.gunzip(networkXmlGz);
+                Network network2 = strategy.createState(contingencyId);
                 RunningContext runningContext2 = new RunningContext(network2, contingency);
 
                 observers.forEach(o -> o.beforePostContingencyAnalysis(runningContext2));
@@ -125,6 +124,8 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                 observers.forEach(o -> o.postContingencyAnalysisNetworkLoaded(runningContext2));
 
                 next(actionDb, runningContext2);
+
+                strategy.removeState();
             }
         }
 
@@ -350,11 +351,13 @@ public class LoadFlowActionSimulator implements ActionSimulator {
             return;
         }
 
-        byte[] contextNetwork = NetworkXml.gzip(context.getNetwork());
+        NetworkCopyStrategy strategy = NetworkCopyStrategy.getInstance(config.getCopyStrategy(), context.getNetwork());
 
         for (String actionId : testActionIds) {
             Action action = actionDb.getAction(actionId);
-            Network networkForTest = NetworkXml.gunzip(contextNetwork);
+
+            Network networkForTest = strategy.createState(actionId);
+
             LoadFlowResult testResult = runTest(context, networkForTest, action);
             context.addTested(actionId);
             if (testResult.isOk()) {
@@ -384,6 +387,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
                 LOGGER.info("Loadflow with test '{}' diverged", action.getId());
                 observers.forEach(o -> o.divergedAfterTest(action.getId()));
             }
+            strategy.removeState();
         }
     }
 
