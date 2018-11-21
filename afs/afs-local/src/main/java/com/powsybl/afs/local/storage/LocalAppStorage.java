@@ -14,7 +14,10 @@ import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.commons.exceptions.UncheckedUnsupportedEncodingException;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.timeseries.*;
+import com.powsybl.timeseries.DoubleDataChunk;
+import com.powsybl.timeseries.StringDataChunk;
+import com.powsybl.timeseries.TimeSeriesMetadata;
+import com.powsybl.timeseries.TimeSeriesTable;
 
 import java.io.*;
 import java.net.URLDecoder;

@@ -21,7 +21,10 @@ import com.powsybl.afs.ws.utils.gzip.WriterInterceptorGzipCli;
 import com.powsybl.commons.exceptions.UncheckedInterruptedException;
 import com.powsybl.commons.io.ForwardingInputStream;
 import com.powsybl.commons.io.ForwardingOutputStream;
-import com.powsybl.timeseries.*;
+import com.powsybl.timeseries.DoubleDataChunk;
+import com.powsybl.timeseries.StringDataChunk;
+import com.powsybl.timeseries.TimeSeriesMetadata;
+import com.powsybl.timeseries.TimeSeriesTable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

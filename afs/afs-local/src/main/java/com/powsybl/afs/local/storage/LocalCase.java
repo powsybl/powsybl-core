@@ -6,19 +6,6 @@
  */
 package com.powsybl.afs.local.storage;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UncheckedIOException;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.afs.ext.base.Case;
 import com.powsybl.afs.storage.AppStorageDataSource;
 import com.powsybl.afs.storage.NodeGenericMetadata;
@@ -29,6 +16,14 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.timeseries.DoubleDataChunk;
 import com.powsybl.timeseries.StringDataChunk;
 import com.powsybl.timeseries.TimeSeriesMetadata;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.nio.file.Path;
+import java.util.*;
 
 /**
  *
