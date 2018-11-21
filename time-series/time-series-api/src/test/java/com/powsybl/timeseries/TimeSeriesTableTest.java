@@ -26,9 +26,9 @@ public class TimeSeriesTableTest {
         TimeSeriesMetadata metadata1 = new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, index);
         TimeSeriesMetadata metadata2 = new TimeSeriesMetadata("ts2", TimeSeriesDataType.DOUBLE, index);
         TimeSeriesMetadata metadata3 = new TimeSeriesMetadata("ts3", TimeSeriesDataType.STRING, index);
-        DoubleTimeSeries ts1 = new StoredDoubleTimeSeries(metadata1, new UncompressedDoubleArrayChunk(0, new double[] {1, 2, 3, 4}));
-        DoubleTimeSeries ts2 = new StoredDoubleTimeSeries(metadata2, new UncompressedDoubleArrayChunk(0, new double[] {5, 6, 7, 8}));
-        StringTimeSeries ts3 = new StringTimeSeries(metadata3, new UncompressedStringArrayChunk(1, new String[] {"a", "b", "c"}));
+        DoubleTimeSeries ts1 = new StoredDoubleTimeSeries(metadata1, new UncompressedDoubleDataChunk(0, new double[] {1, 2, 3, 4}));
+        DoubleTimeSeries ts2 = new StoredDoubleTimeSeries(metadata2, new UncompressedDoubleDataChunk(0, new double[] {5, 6, 7, 8}));
+        StringTimeSeries ts3 = new StringTimeSeries(metadata3, new UncompressedStringDataChunk(1, new String[] {"a", "b", "c"}));
 
         // load time series in the table
         TimeSeriesTable table = new TimeSeriesTable(1, 1, index);
