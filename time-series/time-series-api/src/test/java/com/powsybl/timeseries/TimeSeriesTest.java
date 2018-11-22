@@ -82,7 +82,7 @@ public class TimeSeriesTest {
         }
 
         List<List<DoubleTimeSeries>> split = TimeSeries.split(timeSeriesList, 2);
-        assertEquals(split.size(), 2);
+        assertEquals(2, split.size());
         assertEquals(2, split.get(0).size());
         assertEquals(2, split.get(1).size());
         assertArrayEquals(new double[] {1d, 2d, Double.NaN}, split.get(0).get(0).toArray(), 0d);
