@@ -154,8 +154,8 @@ public class TimeSeriesTable {
     }
 
     public TimeSeriesTable(int fromVersion, int toVersion, TimeSeriesIndex tableIndex, IntFunction<ByteBuffer> byteBufferAllocator) {
-        TimeSeriesIndex.checkVersion(fromVersion);
-        TimeSeriesIndex.checkVersion(toVersion);
+        TimeSeriesVersions.check(fromVersion);
+        TimeSeriesVersions.check(toVersion);
         if (toVersion < fromVersion) {
             throw new TimeSeriesException("toVersion (" + toVersion + ") is expected to be greater than fromVersion (" + fromVersion + ")");
         }

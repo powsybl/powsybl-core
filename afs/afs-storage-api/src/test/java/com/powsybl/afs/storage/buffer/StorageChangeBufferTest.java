@@ -9,7 +9,7 @@ package com.powsybl.afs.storage.buffer;
 import com.powsybl.timeseries.InfiniteTimeSeriesIndex;
 import com.powsybl.timeseries.TimeSeriesDataType;
 import com.powsybl.timeseries.TimeSeriesMetadata;
-import com.powsybl.timeseries.UncompressedDoubleArrayChunk;
+import com.powsybl.timeseries.UncompressedDoubleDataChunk;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -50,10 +50,10 @@ public class StorageChangeBufferTest {
         buffer.createTimeSeries("a", new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, InfiniteTimeSeriesIndex.INSTANCE));
         assertFalse(buffer.isEmpty());
         assertFalse(flushed[0]);
-        buffer.addDoubleTimeSeriesData("a", 1, "ts1", Collections.singletonList(new UncompressedDoubleArrayChunk(0, new double[] {0, 0, 0, 0})));
+        buffer.addDoubleTimeSeriesData("a", 1, "ts1", Collections.singletonList(new UncompressedDoubleDataChunk(0, new double[] {0, 0, 0, 0})));
         assertFalse(buffer.isEmpty());
         assertFalse(flushed[0]);
-        buffer.addDoubleTimeSeriesData("a", 1, "ts1", Collections.singletonList(new UncompressedDoubleArrayChunk(4, new double[] {0, 0, 0, 0})));
+        buffer.addDoubleTimeSeriesData("a", 1, "ts1", Collections.singletonList(new UncompressedDoubleDataChunk(4, new double[] {0, 0, 0, 0})));
         assertTrue(buffer.isEmpty());
         assertTrue(flushed[0]);
     }

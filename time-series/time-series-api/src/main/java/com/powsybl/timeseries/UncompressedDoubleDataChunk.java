@@ -22,11 +22,11 @@ import java.util.stream.Stream;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class UncompressedDoubleArrayChunk extends AbstractUncompressedArrayChunk implements DoubleArrayChunk {
+public class UncompressedDoubleDataChunk extends AbstractUncompressedDataChunk implements DoubleDataChunk {
 
     private final double[] values;
 
-    public UncompressedDoubleArrayChunk(int offset, double[] values) {
+    public UncompressedDoubleDataChunk(int offset, double[] values) {
         super(offset);
         this.values = Objects.requireNonNull(values);
     }
@@ -59,7 +59,7 @@ public class UncompressedDoubleArrayChunk extends AbstractUncompressedArrayChunk
     }
 
     @Override
-    public DoubleArrayChunk tryToCompress() {
+    public DoubleDataChunk tryToCompress() {
         TDoubleArrayListHack stepValues = new TDoubleArrayListHack();
         TIntArrayListHack stepLengths = new TIntArrayListHack();
         int estimatedSize = getEstimatedSize();
@@ -77,16 +77,16 @@ public class UncompressedDoubleArrayChunk extends AbstractUncompressedArrayChunk
                     stepLengths.add(1);
                 }
             }
-            if (CompressedDoubleArrayChunk.getEstimatedSize(stepValues.size(), stepLengths.size()) >= estimatedSize) {
+            if (CompressedDoubleDataChunk.getEstimatedSize(stepValues.size(), stepLengths.size()) >= estimatedSize) {
                 // compression is inefficient
                 return this;
             }
         }
-        return new CompressedDoubleArrayChunk(offset, values.length, stepValues.toArray(), stepLengths.toArray());
+        return new CompressedDoubleDataChunk(offset, values.length, stepValues.toArray(), stepLengths.toArray());
     }
 
     @Override
-    public Split<DoublePoint, DoubleArrayChunk> splitAt(int splitIndex) {
+    public Split<DoublePoint, DoubleDataChunk> splitAt(int splitIndex) {
         // split at offset is not allowed because it will result to a null left chunk
         if (splitIndex <= offset || splitIndex > (offset + values.length - 1)) {
             throw new IllegalArgumentException("Split index " + splitIndex + " out of chunk range ]" + offset
@@ -96,8 +96,8 @@ public class UncompressedDoubleArrayChunk extends AbstractUncompressedArrayChunk
         double[] values2 = new double[values.length - values1.length];
         System.arraycopy(values, 0, values1, 0, values1.length);
         System.arraycopy(values, values1.length, values2, 0, values2.length);
-        return new Split<>(new UncompressedDoubleArrayChunk(offset, values1),
-                           new UncompressedDoubleArrayChunk(splitIndex, values2));
+        return new Split<>(new UncompressedDoubleDataChunk(offset, values1),
+                           new UncompressedDoubleDataChunk(splitIndex, values2));
     }
 
     @Override
@@ -142,8 +142,8 @@ public class UncompressedDoubleArrayChunk extends AbstractUncompressedArrayChunk
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof UncompressedDoubleArrayChunk) {
-            UncompressedDoubleArrayChunk other = (UncompressedDoubleArrayChunk) obj;
+        if (obj instanceof UncompressedDoubleDataChunk) {
+            UncompressedDoubleDataChunk other = (UncompressedDoubleDataChunk) obj;
             return offset == other.offset &&
                     Arrays.equals(values, other.values);
         }

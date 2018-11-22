@@ -43,8 +43,8 @@ public interface LocalFile extends LocalNode {
 
     Set<Integer> getTimeSeriesDataVersions(String timeSeriesName);
 
-    Map<String, List<DoubleArrayChunk>> getDoubleTimeSeriesData(Set<String> timeSeriesNames, int version);
+    Map<String, List<DoubleDataChunk>> getDoubleTimeSeriesData(Set<String> timeSeriesNames, int version);
 
-    Map<String, List<StringArrayChunk>> getStringTimeSeriesData(Set<String> timeSeriesNames, int version);
+    Map<String, List<StringDataChunk>> getStringTimeSeriesData(Set<String> timeSeriesNames, int version);
 
 }

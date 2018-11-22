@@ -23,9 +23,9 @@ import java.util.stream.Stream;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface ArrayChunk<P extends AbstractPoint, A extends ArrayChunk<P, A>> {
+public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
 
-    class Split<P extends AbstractPoint, A extends ArrayChunk<P, A>> {
+    class Split<P extends AbstractPoint, A extends DataChunk<P, A>> {
 
         private final A chunk1;
 
@@ -132,11 +132,11 @@ public interface ArrayChunk<P extends AbstractPoint, A extends ArrayChunk<P, A>>
      * @param generator a json generator (jackson)
      * @param chunks    the chunk list
      */
-    static void writeJson(JsonGenerator generator, List<? extends ArrayChunk> chunks) {
+    static void writeJson(JsonGenerator generator, List<? extends DataChunk> chunks) {
         Objects.requireNonNull(generator);
         try {
             generator.writeStartArray();
-            for (ArrayChunk chunk : chunks) {
+            for (DataChunk chunk : chunks) {
                 chunk.writeJson(generator);
             }
             generator.writeEndArray();
@@ -146,13 +146,13 @@ public interface ArrayChunk<P extends AbstractPoint, A extends ArrayChunk<P, A>>
     }
 
     class JsonParsingContext {
-        JsonParsingContext(List<DoubleArrayChunk> doubleChunks, List<StringArrayChunk> stringChunks) {
+        JsonParsingContext(List<DoubleDataChunk> doubleChunks, List<StringDataChunk> stringChunks) {
             this.doubleChunks = Objects.requireNonNull(doubleChunks);
             this.stringChunks = Objects.requireNonNull(stringChunks);
         }
         private int offset = -1;
-        private List<DoubleArrayChunk> doubleChunks;
-        private List<StringArrayChunk> stringChunks;
+        private List<DoubleDataChunk> doubleChunks;
+        private List<StringDataChunk> stringChunks;
         private TDoubleArrayList doubleValues;
         private List<String> stringValues;
         private TIntArrayList stepLengths;
@@ -200,9 +200,9 @@ public interface ArrayChunk<P extends AbstractPoint, A extends ArrayChunk<P, A>>
 
     static void addUncompressedChunk(JsonParsingContext context) {
         if (context.doubleValues != null && context.stringValues == null) {
-            context.doubleChunks.add(new UncompressedDoubleArrayChunk(context.offset, context.doubleValues.toArray()));
+            context.doubleChunks.add(new UncompressedDoubleDataChunk(context.offset, context.doubleValues.toArray()));
         } else if (context.stringValues != null && context.doubleValues == null) {
-            context.stringChunks.add(new UncompressedStringArrayChunk(context.offset, context.stringValues.toArray(new String[context.stringValues.size()])));
+            context.stringChunks.add(new UncompressedStringDataChunk(context.offset, context.stringValues.toArray(new String[context.stringValues.size()])));
         } else if (context.stringValues != null && context.doubleValues != null) {
             throw new AssertionError("doubleValues and stringValues are not expected to be non null at the same time");
         } else {
@@ -212,13 +212,13 @@ public interface ArrayChunk<P extends AbstractPoint, A extends ArrayChunk<P, A>>
 
     static void addCompressedChunk(JsonParsingContext context) {
         if (context.doubleValues != null && context.stringValues == null) {
-            context.doubleChunks.add(new CompressedDoubleArrayChunk(context.offset, context.uncompressedLength,
+            context.doubleChunks.add(new CompressedDoubleDataChunk(context.offset, context.uncompressedLength,
                     context.doubleValues.toArray(), context.stepLengths.toArray()));
             context.doubleValues = null;
             context.stepLengths = null;
             context.uncompressedLength = -1;
         } else if (context.stringValues != null && context.doubleValues == null) {
-            context.stringChunks.add(new CompressedStringArrayChunk(context.offset, context.uncompressedLength,
+            context.stringChunks.add(new CompressedStringDataChunk(context.offset, context.uncompressedLength,
                     context.stringValues.toArray(new String[context.stringValues.size()]),
                     context.stepLengths.toArray()));
             context.stringValues = null;
@@ -248,13 +248,13 @@ public interface ArrayChunk<P extends AbstractPoint, A extends ArrayChunk<P, A>>
         }
     }
 
-    static void parseJson(JsonParser parser, List<DoubleArrayChunk> doubleChunks,
-                          List<StringArrayChunk> stringChunks) {
+    static void parseJson(JsonParser parser, List<DoubleDataChunk> doubleChunks,
+                          List<StringDataChunk> stringChunks) {
         parseJson(parser, doubleChunks, stringChunks, false);
     }
 
-    static void parseJson(JsonParser parser, List<DoubleArrayChunk> doubleChunks,
-                          List<StringArrayChunk> stringChunks, boolean single) {
+    static void parseJson(JsonParser parser, List<DoubleDataChunk> doubleChunks,
+                          List<StringDataChunk> stringChunks, boolean single) {
         Objects.requireNonNull(parser);
         try {
             JsonParsingContext context = new JsonParsingContext(doubleChunks, stringChunks);

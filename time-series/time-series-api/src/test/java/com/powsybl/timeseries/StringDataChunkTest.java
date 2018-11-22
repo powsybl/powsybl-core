@@ -28,11 +28,11 @@ import static org.junit.Assert.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StringArrayChunkTest {
+public class StringDataChunkTest {
 
     @Test
     public void baseTest() throws IOException {
-        UncompressedStringArrayChunk chunk = new UncompressedStringArrayChunk(1, new String[] {"a", "b", "c"});
+        UncompressedStringDataChunk chunk = new UncompressedStringDataChunk(1, new String[] {"a", "b", "c"});
         assertEquals(1, chunk.getOffset());
         assertEquals(3, chunk.getLength());
         assertArrayEquals(new String[]{"a", "b", "c"}, chunk.getValues());
@@ -55,13 +55,13 @@ public class StringArrayChunkTest {
         ObjectMapper objectMapper = JsonUtil.createObjectMapper()
                 .registerModule(new TimeSeriesJsonModule());
 
-        List<StringArrayChunk> chunks = objectMapper.readValue(objectMapper.writeValueAsString(Arrays.asList(chunk)),
-                                                               TypeFactory.defaultInstance().constructCollectionType(List.class, StringArrayChunk.class));
+        List<StringDataChunk> chunks = objectMapper.readValue(objectMapper.writeValueAsString(Arrays.asList(chunk)),
+                                                               TypeFactory.defaultInstance().constructCollectionType(List.class, StringDataChunk.class));
         assertEquals(1, chunks.size());
         assertEquals(chunk, chunks.get(0));
 
-        // check base class (ArrayChunk) deserializer
-        assertTrue(objectMapper.readValue(objectMapper.writeValueAsString(chunk), ArrayChunk.class) instanceof StringArrayChunk);
+        // check base class (DataChunk) deserializer
+        assertTrue(objectMapper.readValue(objectMapper.writeValueAsString(chunk), DataChunk.class) instanceof StringDataChunk);
 
         // stream test
         RegularTimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T00:45:00Z"),
@@ -74,10 +74,10 @@ public class StringArrayChunkTest {
 
     @Test
     public void compressTest() throws IOException {
-        UncompressedStringArrayChunk chunk = new UncompressedStringArrayChunk(1, new String[] {"aaa", "bbb", "bbb", "bbb", "bbb", "ccc"});
-        StringArrayChunk maybeCompressedChunk = chunk.tryToCompress();
-        assertTrue(maybeCompressedChunk instanceof CompressedStringArrayChunk);
-        CompressedStringArrayChunk compressedChunk = (CompressedStringArrayChunk) maybeCompressedChunk;
+        UncompressedStringDataChunk chunk = new UncompressedStringDataChunk(1, new String[] {"aaa", "bbb", "bbb", "bbb", "bbb", "ccc"});
+        StringDataChunk maybeCompressedChunk = chunk.tryToCompress();
+        assertTrue(maybeCompressedChunk instanceof CompressedStringDataChunk);
+        CompressedStringDataChunk compressedChunk = (CompressedStringDataChunk) maybeCompressedChunk;
         assertEquals(1, compressedChunk.getOffset());
         assertEquals(6, compressedChunk.getLength());
         assertTrue(compressedChunk.isCompressed());
@@ -106,13 +106,13 @@ public class StringArrayChunkTest {
 
     @Test
     public void compressFailureTest() throws IOException {
-        UncompressedStringArrayChunk chunk = new UncompressedStringArrayChunk(1, new String[] {"aaa", "bbb", "bbb", "ccc"});
+        UncompressedStringDataChunk chunk = new UncompressedStringDataChunk(1, new String[] {"aaa", "bbb", "bbb", "ccc"});
         assertSame(chunk, chunk.tryToCompress());
     }
 
     @Test
     public void splitTest() throws IOException {
-        UncompressedStringArrayChunk chunk = new UncompressedStringArrayChunk(1, new String[]{"a", "b", "c"});
+        UncompressedStringDataChunk chunk = new UncompressedStringDataChunk(1, new String[]{"a", "b", "c"});
         try {
             chunk.splitAt(1);
             fail();
@@ -123,15 +123,15 @@ public class StringArrayChunkTest {
             fail();
         } catch (IllegalArgumentException ignored) {
         }
-        ArrayChunk.Split<StringPoint, StringArrayChunk> split = chunk.splitAt(2);
+        DataChunk.Split<StringPoint, StringDataChunk> split = chunk.splitAt(2);
         assertNotNull(split.getChunk1());
         assertNotNull(split.getChunk2());
         assertEquals(1, split.getChunk1().getOffset());
-        assertTrue(split.getChunk1() instanceof UncompressedStringArrayChunk);
-        assertArrayEquals(new String[] {"a"}, ((UncompressedStringArrayChunk) split.getChunk1()).getValues());
+        assertTrue(split.getChunk1() instanceof UncompressedStringDataChunk);
+        assertArrayEquals(new String[] {"a"}, ((UncompressedStringDataChunk) split.getChunk1()).getValues());
         assertEquals(2, split.getChunk2().getOffset());
-        assertTrue(split.getChunk2() instanceof UncompressedStringArrayChunk);
-        assertArrayEquals(new String[] {"b", "c"}, ((UncompressedStringArrayChunk) split.getChunk2()).getValues());
+        assertTrue(split.getChunk2() instanceof UncompressedStringDataChunk);
+        assertArrayEquals(new String[] {"b", "c"}, ((UncompressedStringDataChunk) split.getChunk2()).getValues());
     }
 
     @Test
@@ -139,7 +139,7 @@ public class StringArrayChunkTest {
         // index  0   1   2   3   4   5
         // value  NaN a   a   b   b   b
         //            [-------]   [---]
-        CompressedStringArrayChunk chunk = new CompressedStringArrayChunk(1, 5, new String[] {"a", "b"}, new int[] {2, 3});
+        CompressedStringDataChunk chunk = new CompressedStringDataChunk(1, 5, new String[] {"a", "b"}, new int[] {2, 3});
         try {
             chunk.splitAt(0);
             fail();
@@ -150,19 +150,19 @@ public class StringArrayChunkTest {
             fail();
         } catch (IllegalArgumentException ignored) {
         }
-        ArrayChunk.Split<StringPoint, StringArrayChunk> split = chunk.splitAt(4);
+        DataChunk.Split<StringPoint, StringDataChunk> split = chunk.splitAt(4);
         assertNotNull(split.getChunk1());
         assertNotNull(split.getChunk2());
         assertEquals(1, split.getChunk1().getOffset());
-        assertTrue(split.getChunk1() instanceof CompressedStringArrayChunk);
-        assertEquals(3, ((CompressedStringArrayChunk) split.getChunk1()).getUncompressedLength());
-        assertArrayEquals(new String[] {"a", "b"}, ((CompressedStringArrayChunk) split.getChunk1()).getStepValues());
-        assertArrayEquals(new int[] {2, 1}, ((CompressedStringArrayChunk) split.getChunk1()).getStepLengths());
+        assertTrue(split.getChunk1() instanceof CompressedStringDataChunk);
+        assertEquals(3, ((CompressedStringDataChunk) split.getChunk1()).getUncompressedLength());
+        assertArrayEquals(new String[] {"a", "b"}, ((CompressedStringDataChunk) split.getChunk1()).getStepValues());
+        assertArrayEquals(new int[] {2, 1}, ((CompressedStringDataChunk) split.getChunk1()).getStepLengths());
         assertEquals(4, split.getChunk2().getOffset());
-        assertTrue(split.getChunk2() instanceof CompressedStringArrayChunk);
-        assertEquals(2, ((CompressedStringArrayChunk) split.getChunk2()).getUncompressedLength());
-        assertArrayEquals(new String[] {"b"}, ((CompressedStringArrayChunk) split.getChunk2()).getStepValues());
-        assertArrayEquals(new int[] {2}, ((CompressedStringArrayChunk) split.getChunk2()).getStepLengths());
+        assertTrue(split.getChunk2() instanceof CompressedStringDataChunk);
+        assertEquals(2, ((CompressedStringDataChunk) split.getChunk2()).getUncompressedLength());
+        assertArrayEquals(new String[] {"b"}, ((CompressedStringDataChunk) split.getChunk2()).getStepValues());
+        assertArrayEquals(new int[] {2}, ((CompressedStringDataChunk) split.getChunk2()).getStepLengths());
     }
 
     @Test
@@ -172,15 +172,15 @@ public class StringArrayChunkTest {
                 "  \"offset\" : 0,",
                 "  \"values\" : [ \"a\", null, null ]",
                 "}");
-        List<DoubleArrayChunk> doubleChunks = new ArrayList<>();
-        List<StringArrayChunk> stringChunks = new ArrayList<>();
+        List<DoubleDataChunk> doubleChunks = new ArrayList<>();
+        List<StringDataChunk> stringChunks = new ArrayList<>();
         JsonUtil.parseJson(json, parser -> {
-            ArrayChunk.parseJson(parser, doubleChunks, stringChunks);
+            DataChunk.parseJson(parser, doubleChunks, stringChunks);
             return null;
         });
         assertEquals(0, doubleChunks.size());
         assertEquals(1, stringChunks.size());
-        assertTrue(stringChunks.get(0) instanceof UncompressedStringArrayChunk);
-        assertArrayEquals(new String[] {"a", null, null}, ((UncompressedStringArrayChunk) stringChunks.get(0)).getValues());
+        assertTrue(stringChunks.get(0) instanceof UncompressedStringDataChunk);
+        assertArrayEquals(new String[] {"a", null, null}, ((UncompressedStringDataChunk) stringChunks.get(0)).getValues());
     }
 }
