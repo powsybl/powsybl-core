@@ -27,10 +27,6 @@ public class FloatNodeCalc implements LiteralNodeCalc {
         this.value = value;
     }
 
-    public float getValue() {
-        return value;
-    }
-
     @Override
     public double toDouble() {
         return value;
@@ -39,6 +35,10 @@ public class FloatNodeCalc implements LiteralNodeCalc {
     @Override
     public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg) {
         return visitor.visit(this, arg);
+    }
+
+    public float getValue() {
+        return value;
     }
 
     @Override

@@ -26,7 +26,8 @@ public class CalculatedTimeSeriesDslAstTransformation extends AbstractAstTransfo
     }
 
     class CustomClassCodeExpressionTransformer extends ClassCodeExpressionTransformer {
-        SourceUnit sourceUnit;
+
+        private final SourceUnit sourceUnit;
 
         CustomClassCodeExpressionTransformer(SourceUnit sourceUnit) {
             this.sourceUnit = sourceUnit;
@@ -37,24 +38,29 @@ public class CalculatedTimeSeriesDslAstTransformation extends AbstractAstTransfo
             return sourceUnit;
         }
 
+        private Expression transform(BinaryExpression binExpr) {
+            String op = binExpr.getOperation().getText();
+            switch (op) {
+                case ">":
+                case ">=":
+                case "<":
+                case "<=":
+                case "==":
+                case "!=":
+                    return new MethodCallExpression(transform(binExpr.getLeftExpression()),
+                            "compareToNodeCalc",
+                            new ArgumentListExpression(transform(binExpr.getRightExpression()), new ConstantExpression(op)));
+                default:
+                    break;
+            }
+            return null;
+        }
+
         @Override
         public Expression transform(Expression exp) {
             if (exp instanceof BinaryExpression) {
-                BinaryExpression binExpr = (BinaryExpression) exp;
-                String op = binExpr.getOperation().getText();
-                switch (op) {
-                    case ">":
-                    case ">=":
-                    case "<":
-                    case "<=":
-                    case "==":
-                    case "!=":
-                        return new MethodCallExpression(transform(binExpr.getLeftExpression()),
-                                "compareToNodeCalc",
-                                new ArgumentListExpression(transform(binExpr.getRightExpression()), new ConstantExpression(op)));
-                    default:
-                        break;
-                }
+                Expression binExpr = transform((BinaryExpression) exp);
+                if (binExpr != null) return binExpr;
             }
 
             // propagate visit inside transformed expression

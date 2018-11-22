@@ -59,16 +59,16 @@ public class UnaryOperation implements NodeCalc {
         this.operator = Objects.requireNonNull(operator);
     }
 
+    public Operator getOperator() {
+        return operator;
+    }
+
     public NodeCalc getChild() {
         return child;
     }
 
     public void setChild(NodeCalc child) {
         this.child = child;
-    }
-
-    public Operator getOperator() {
-        return operator;
     }
 
     @Override

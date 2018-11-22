@@ -8,7 +8,6 @@ package com.powsybl.timeseries;
 
 import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -16,17 +15,6 @@ import java.util.Objects;
 public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringDataChunk, StringTimeSeries> implements TimeSeries<StringPoint, StringTimeSeries> {
 
     private static final String[] NULL_ARRAY = new String[] {null};
-
-    public static StringTimeSeries create(String name, TimeSeriesIndex index, String[] values) {
-        Objects.requireNonNull(name);
-        Objects.requireNonNull(index);
-        Objects.requireNonNull(values);
-        if (index.getPointCount() != values.length) {
-            throw new IllegalArgumentException("Bad number of values " + values.length + ", expected " + index.getPointCount());
-        }
-        return new StringTimeSeries(new TimeSeriesMetadata(name, TimeSeriesDataType.STRING, index),
-                new UncompressedStringDataChunk(0, values));
-    }
 
     public StringTimeSeries(TimeSeriesMetadata metadata, StringDataChunk... chunks) {
         super(metadata, chunks);

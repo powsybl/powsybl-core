@@ -28,10 +28,6 @@ public class BigDecimalNodeCalc implements LiteralNodeCalc {
         this.value = Objects.requireNonNull(value);
     }
 
-    public BigDecimal getValue() {
-        return value;
-    }
-
     @Override
     public double toDouble() {
         return value.doubleValue();
@@ -40,6 +36,10 @@ public class BigDecimalNodeCalc implements LiteralNodeCalc {
     @Override
     public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg) {
         return visitor.visit(this, arg);
+    }
+
+    public BigDecimal getValue() {
+        return value;
     }
 
     @Override
