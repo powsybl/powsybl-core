@@ -8,7 +8,6 @@
 package com.powsybl.cgmes.model.triplestore;
 
 import java.io.InputStream;
-
 import java.io.PrintStream;
 import java.util.Objects;
 import java.util.Set;
@@ -186,28 +185,13 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public PropertyBags terminalsTP() {
-        return namedQuery("terminalsTP");
-    }
-
-    @Override
-    public PropertyBags terminalsCN() {
-        return namedQuery("terminalsCN");
+    public PropertyBags connectivityNodeContainers() {
+        return namedQuery("connectivityNodeContainers");
     }
 
     @Override
     public PropertyBags terminalLimits() {
         return namedQuery("terminalLimits");
-    }
-
-    @Override
-    public PropertyBags connectivityNodes() {
-        return namedQuery("connectivityNodes");
-    }
-
-    @Override
-    public PropertyBags topologicalNodes() {
-        return namedQuery("topologicalNodes");
     }
 
     @Override

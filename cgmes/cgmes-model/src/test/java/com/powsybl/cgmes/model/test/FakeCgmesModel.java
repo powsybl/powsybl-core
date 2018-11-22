@@ -9,6 +9,7 @@ import java.util.function.Consumer;
 
 import org.joda.time.DateTime;
 
+import com.powsybl.cgmes.model.CgmesContainer;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.Subset;
@@ -218,8 +219,7 @@ public final class FakeCgmesModel implements CgmesModel {
         return this;
     }
 
-    private void fakeObjectsFromIdentifiers(String propertyNameId, String[] ids,
-            PropertyBags objects) {
+    private void fakeObjectsFromIdentifiers(String propertyNameId, String[] ids, PropertyBags objects) {
         String[] propertyNames = {propertyNameId};
         for (String id : ids) {
             PropertyBag p = new PropertyBag(Arrays.asList(propertyNames));
@@ -290,12 +290,8 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
-    public PropertyBags terminalsTP() {
-        return null;
-    }
-
-    @Override
-    public PropertyBags terminalsCN() {
+    public PropertyBags connectivityNodeContainers() {
+        // FIXME(Luma) refactoring node-breaker conversion temporal
         return null;
     }
 
@@ -474,6 +470,21 @@ public final class FakeCgmesModel implements CgmesModel {
 
     @Override
     public String phaseTapChangerForPowerTransformer(String powerTransformerId) {
+        return null;
+    }
+
+    @Override
+    public String substation(CgmesTerminal t) {
+        return null;
+    }
+
+    @Override
+    public String voltageLevel(CgmesTerminal t) {
+        return null;
+    }
+
+    @Override
+    public CgmesContainer container(String containerId) {
         return null;
     }
 }

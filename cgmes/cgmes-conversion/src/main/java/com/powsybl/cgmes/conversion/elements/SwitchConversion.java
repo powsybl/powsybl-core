@@ -91,7 +91,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
     }
 
     private String switchVoltageLevelId() {
-        return p.getId("VoltageLevel");
+        return context.cgmes().container(p.getId("EquipmentContainer")).voltageLevel();
     }
 
     private boolean convertToLowImpedanceLine() {

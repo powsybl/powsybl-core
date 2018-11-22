@@ -7,12 +7,16 @@
 
 package com.powsybl.cgmes.model;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 /**
@@ -29,6 +33,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         return this.properties;
     }
 
+    @Override
     public Map<String, PropertyBags> groupedTransformerEnds() {
         if (cachedGroupedTransformerEnds == null) {
             cachedGroupedTransformerEnds = computeGroupedTransformerEnds();
@@ -60,6 +65,92 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     @Override
     public String phaseTapChangerForPowerTransformer(String powerTransformerId) {
         return powerTransformerPhaseTapChanger.get(powerTransformerId);
+    }
+
+    @Override
+    public PropertyBags connectivityNodes() {
+        // FIXME(Luma) refactoring node-breaker conversion temporal
+        if (cachedTerminals == null) {
+            cachedTerminals = computeTerminals();
+        }
+        PropertyBags ns = new PropertyBags();
+        Set<String> added = new HashSet<>();
+        cachedTerminals.values().forEach(t -> {
+            if (t.connectivityNode() != null && !added.contains(t.connectivityNode())) {
+                added.add(t.connectivityNode());
+                PropertyBag n = new PropertyBag(Arrays.asList("ConnectivityNode", "name", "ConnectivityNodeContainer", "TopologicalNode", "v", "angle"));
+                n.put("ConnectivityNode", t.connectivityNode());
+                n.put("name", t.connectivityNodeName());
+                n.put("ConnectivityNodeContainer", t.connectivityNodeContainer());
+                n.put("TopologicalNode", t.topologicalNode());
+                n.put("v", t.v());
+                n.put("angle", t.angle());
+                ns.add(n);
+            }
+        });
+        return ns;
+    }
+
+    @Override
+    public PropertyBags topologicalNodes() {
+        // FIXME(Luma) refactoring node-breaker conversion temporal
+        if (cachedTerminals == null) {
+            cachedTerminals = computeTerminals();
+        }
+        PropertyBags ns = new PropertyBags();
+        Set<String> added = new HashSet<>();
+        cachedTerminals.values().forEach(t -> {
+            if (t.topologicalNode() != null && !added.contains(t.topologicalNode())) {
+                added.add(t.topologicalNode());
+                PropertyBag n = new PropertyBag(Arrays.asList("TopologicalNode", "name", "ConnectivityNodeContainer", "v", "angle"));
+                n.put("TopologicalNode", t.topologicalNode());
+                n.put("name", t.topologicalNodeName());
+                n.put("ConnectivityNodeContainer", t.connectivityNodeContainerTopo());
+                n.put("v", t.v());
+                n.put("angle", t.angle());
+                ns.add(n);
+            }
+        });
+        return ns;
+    }
+
+    @Override
+    public String substation(CgmesTerminal t) {
+        CgmesContainer c = container(t);
+        if (c == null) {
+            return null;
+        }
+        return c.substation();
+    }
+
+    @Override
+    public String voltageLevel(CgmesTerminal t) {
+        CgmesContainer c = container(t);
+        if (c == null) {
+            return null;
+        }
+        return c.voltageLevel();
+    }
+
+    @Override
+    public CgmesContainer container(String containerId) {
+        if (cachedContainers == null) {
+            cachedContainers = computeContainers();
+        }
+        return cachedContainers.get(containerId);
+    }
+
+    private CgmesContainer container(CgmesTerminal t) {
+        String containerId = null;
+        if (t.connectivityNodeContainer() != null) {
+            containerId = t.connectivityNodeContainer();
+        } else if (t.connectivityNodeContainerTopo() != null) {
+            containerId = t.connectivityNodeContainerTopo();
+        }
+        if (containerId == null) {
+            return null;
+        }
+        return container(containerId);
     }
 
     private Map<String, PropertyBags> computeGroupedTransformerEnds() {
@@ -97,46 +188,33 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         Map<String, CgmesTerminal> ts = new HashMap<>();
         conductingEquipmentTerminal = new HashMap<>();
         terminals().forEach(t -> {
-            CgmesTerminal td = new CgmesTerminal(
-                    t.getId(CgmesNames.TERMINAL),
-                    t.getId("ConductingEquipment"),
-                    t.getLocal("conductingEquipmentType"),
-                    t.asBoolean("connected", false),
-                    new PowerFlow(t, "p", "q"));
+            CgmesTerminal td = new CgmesTerminal(t);
+            if (ts.containsKey(td.id())) {
+                return;
+            }
             ts.put(td.id(), td);
             conductingEquipmentTerminal.put(t.getId("ConductingEquipment"), t.getId(CgmesNames.TERMINAL));
         });
-        terminalsTP().forEach(t -> {
-            String tid = t.getId(CgmesNames.TERMINAL);
-            CgmesTerminal td = ts.get(tid);
-            if (td == null) {
-                // Terminal from TopologicalNode is not found in the list of
-                // Terminals linked to a ConductingEquipment
-                String message = "The corresponding object of Terminal from TopologicalNode does not exist in the base model "
-                        + tid;
-                throw new CgmesModelException(message);
-            }
-            td.assignTP(t.getId("TopologicalNode"), t.getId("VoltageLevel"), t.getId("Substation"));
-        });
-        terminalsCN().forEach(t -> {
-            String tid = t.getId(CgmesNames.TERMINAL);
-            CgmesTerminal td = ts.get(tid);
-            if (td == null) {
-                // Terminal from ConnectivityNode is not found in the list of
-                // Terminals linked to a ConductingEquipment
-                String message = "The corresponding object of Terminal from ConnectivityNode does not exist in the base model "
-                        + tid;
-                throw new CgmesModelException(message);
-            }
-            td.assignCN(t.getId("ConnectivityNode"), t.getId("TopologicalNode"), t.getId("VoltageLevel"),
-                    t.getId("Substation"));
-        });
         return ts;
+    }
+
+    // FIXME(Luma): better caches create an object "Cache" that is final ...
+    // (avoid filling all places with if cached == null...)
+    private Map<String, CgmesContainer> computeContainers() {
+        Map<String, CgmesContainer> cs = new HashMap<>();
+        connectivityNodeContainers().forEach(c -> {
+            String id = c.getId("ConnectivityNodeContainer");
+            String voltageLevel = c.getId("VoltageLevel");
+            String substation = c.getId("Substation");
+            cs.put(id, new CgmesContainer(voltageLevel, substation));
+        });
+        return cs;
     }
 
     private final Properties properties;
     private Map<String, PropertyBags> cachedGroupedTransformerEnds;
     private Map<String, CgmesTerminal> cachedTerminals;
+    private Map<String, CgmesContainer> cachedContainers;
     private Map<String, String> conductingEquipmentTerminal;
     private Map<String, String> powerTransformerRatioTapChanger;
     private Map<String, String> powerTransformerPhaseTapChanger;

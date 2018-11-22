@@ -7,6 +7,8 @@
 
 package com.powsybl.cgmes.conversion;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -152,6 +154,7 @@ public class Conversion {
 
         voltageAngles(nodes);
         checkShuntCompensators();
+        debugTopo();
 
         return network;
     }
@@ -285,6 +288,20 @@ public class Conversion {
             }
         });
     }
+    
+    private void debugTopo() {
+        context.network().getVoltageLevels().forEach(vl -> {
+            String name = vl.getSubstation().getName() + "-" + vl.getName();
+            name = name.replace('/', '-');
+            String filename = "/Users/zamarrenolm/temp/kkcgmes-" + name + ".dot";
+            try {
+                vl.exportTopology(filename);
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        });
+    }
+
 
     public static class Config {
         public List<String> substationIdsExcludedFromMapping() {

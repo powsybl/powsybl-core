@@ -1,30 +1,40 @@
 package com.powsybl.cgmes.model;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.powsybl.triplestore.api.PropertyBag;
 
 public class CgmesTerminal {
-    public CgmesTerminal(
-            String id,
-            String conductingEquipment,
-            String conductingEquipmentType,
-            boolean connected,
-            PowerFlow flow) {
-        this.id = id;
-        this.conductingEquipment = conductingEquipment;
-        this.conductingEquipmentType = conductingEquipmentType;
-        this.connected = connected;
-        this.flow = flow;
-    }
+    public CgmesTerminal(PropertyBag t) {
+        this.id = t.getId(CgmesNames.TERMINAL);
+        this.conductingEquipment = t.getId("ConductingEquipment");
+        this.conductingEquipmentType = t.getLocal("conductingEquipmentType");
 
-    public void assignTP(String topologicalNode, String voltageLevel, String substation) {
-        checkAssign(topologicalNode, voltageLevel, substation);
-    }
+        this.connectivityNode = t.getId("ConnectivityNode");
+        this.connectivityNodeName = t.getLocal("connectivityNodeName");
+        this.connectivityNodeContainer = t.getId("ConnectivityNodeContainer");
 
-    public void assignCN(String connectivityNode, String topologicalNode, String voltageLevel,
-            String substation) {
-        this.connectivityNode = connectivityNode;
-        checkAssign(topologicalNode, voltageLevel, substation);
+        // If no TopologicalNode is specified for the Terminal
+        // Use the TopologicalNode of the ConnectivityNode
+        if (t.containsKey("TopologicalNodeT")) {
+            this.topologicalNode = t.getId("TopologicalNodeT");
+            this.topologicalNodeName = t.getId("topologicalNodeTName");
+            this.connectivityNodeContainerTopo = t.getId("ConnectivityNodeContainerTTopo");
+            this.v = t.get("vT");
+            this.angle = t.get("angleT");
+        } else {
+            this.topologicalNode = t.getId("TopologicalNodeCN");
+            this.topologicalNodeName = t.getId("topologicalNodeCNName");
+            this.connectivityNodeContainerTopo = t.getId("ConnectivityNodeContainerCNTopo");
+            this.v = t.get("vCN");
+            this.angle = t.get("angleCN");
+        }
+        // FIXME(Luma): another possibility: the two topo nodes are different and have different voltages
+        // which one should we take ?
+
+        // FIXME(Luma): We could check for inconsistencies
+        // If both TopologicalNodes are present, check that they are the same
+
+        this.connected = t.asBoolean("connected", false);
+        this.flow = new PowerFlow(t, "p", "q");
     }
 
     public String id() {
@@ -43,16 +53,32 @@ public class CgmesTerminal {
         return connectivityNode;
     }
 
+    public String connectivityNodeName() {
+        return connectivityNodeName;
+    }
+
     public String topologicalNode() {
         return topologicalNode;
     }
 
-    public String voltageLevel() {
-        return voltageLevel;
+    public String topologicalNodeName() {
+        return topologicalNodeName;
     }
 
-    public String substation() {
-        return substation;
+    public String v() {
+        return v;
+    }
+
+    public String angle() {
+        return angle;
+    }
+
+    public String connectivityNodeContainer() {
+        return connectivityNodeContainer;
+    }
+
+    public String connectivityNodeContainerTopo() {
+        return connectivityNodeContainerTopo;
     }
 
     public boolean connected() {
@@ -63,43 +89,20 @@ public class CgmesTerminal {
         return flow;
     }
 
-    private void checkAssign(String topologicalNode, String voltageLevel, String substation) {
-        checkAssignAttr("topologicalNode", this.topologicalNode, topologicalNode);
-        this.topologicalNode = topologicalNode;
-        checkAssignAttr("voltageLevel", this.voltageLevel, voltageLevel);
-        this.voltageLevel = voltageLevel;
-        checkAssignAttr("substation", this.substation, substation);
-        this.substation = substation;
-    }
-
-    private void checkAssignAttr(String attribute, String value0, String value1) {
-        if (value0 == null || value0.equals(value1)) {
-            return;
-        }
-        String msg = String.format(
-                "Terminal %s, TopologicalNode %s, ConnectivityNode %s. Inconsistent values for %s: previous %s, now %s",
-                id,
-                topologicalNode,
-                connectivityNode,
-                attribute, value0, value1);
-        if (THROW_EXCEPTION_IF_INCONSISTENT_VALUES) {
-            throw new CgmesModelException(msg);
-        } else {
-            LOG.warn(msg);
-        }
-    }
-
     private final String id;
     private final String conductingEquipment;
     private final String conductingEquipmentType;
     private final boolean connected;
     private final PowerFlow flow;
 
-    private String connectivityNode;
-    private String topologicalNode;
-    private String voltageLevel;
-    private String substation;
+    private final String connectivityNode;
+    private final String topologicalNode;
+    private final String connectivityNodeName;
+    private final String topologicalNodeName;
+    private final String connectivityNodeContainer;
+    private final String connectivityNodeContainerTopo;
 
-    private static final boolean THROW_EXCEPTION_IF_INCONSISTENT_VALUES = false;
-    private static final Logger LOG = LoggerFactory.getLogger(CgmesTerminal.class);
+    // FIXME(Luma) topological node data, temporal
+    private final String v;
+    private final String angle;
 }

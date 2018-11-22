@@ -50,9 +50,7 @@ public interface CgmesModel {
 
     PropertyBags terminals();
 
-    PropertyBags terminalsTP();
-
-    PropertyBags terminalsCN();
+    PropertyBags connectivityNodeContainers();
 
     PropertyBags terminalLimits();
 
@@ -129,4 +127,12 @@ public interface CgmesModel {
     String ratioTapChangerForPowerTransformer(String powerTransformerId);
 
     String phaseTapChangerForPowerTransformer(String powerTransformerId);
+
+    // FIXME(Luma) refactoring node-breaker conversion temporal
+
+    String substation(CgmesTerminal t);
+
+    String voltageLevel(CgmesTerminal t);
+
+    CgmesContainer container(String containerId);
 }

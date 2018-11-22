@@ -107,7 +107,7 @@ public class SubstationIdMapping {
             CgmesTerminal t = context.cgmes().terminal(end.getId(CgmesNames.TERMINAL));
             String node = context.nodeBreaker() ? t.connectivityNode() : t.topologicalNode();
             if (node != null && !context.boundary().containsNode(node)) {
-                String sid = t.substation();
+                String sid = context.cgmes().substation(t);
                 substationsIds.add(context.namingStrategy().getId(CgmesNames.SUBSTATION, sid));
             }
         }

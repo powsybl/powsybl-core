@@ -82,7 +82,8 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
     }
 
     private VoltageLevel voltageLevel() {
-        String cgmesId = p.getId(CgmesNames.VOLTAGE_LEVEL);
+        String containerId = p.getId("ConnectivityNodeContainer");
+        String cgmesId = context.cgmes().container(containerId).voltageLevel();
         String iidmId = context.namingStrategy().getId(CgmesNames.VOLTAGE_LEVEL, cgmesId);
         return iidmId != null ? context.network().getVoltageLevel(iidmId) : null;
     }
