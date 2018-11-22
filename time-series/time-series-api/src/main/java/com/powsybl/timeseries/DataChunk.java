@@ -46,16 +46,16 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
     }
 
     /**
-     * Get array chunk offset.
+     * Get data chunk offset.
      *
-     * @return array chunk offset
+     * @return data chunk offset
      */
     int getOffset();
 
     /**
-     * Get array chunk length
+     * Get data chunk length
      *
-     * @return array chunk length
+     * @return data chunk length
      */
     int getLength();
 
@@ -119,12 +119,28 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
     Split<P, A> splitAt(int splitIndex);
 
     /**
-     * Serialize this array chunk to json.
+     * Serialize this data chunk to json.
      *
      * @param generator a json generator (jackson)
      * @throws IOException in case of json writing error
      */
     void writeJson(JsonGenerator generator);
+
+    static DoubleDataChunk create(int offset, double[] values) {
+        return new UncompressedDoubleDataChunk(offset, values);
+    }
+
+    static DoubleDataChunk create(double... values) {
+        return new UncompressedDoubleDataChunk(0, values);
+    }
+
+    static StringDataChunk create(int offset, String[] values) {
+        return new UncompressedStringDataChunk(offset, values);
+    }
+
+    static StringDataChunk create(String... values) {
+        return new UncompressedStringDataChunk(0, values);
+    }
 
     /**
      * Serialize a chunk list to json
@@ -144,6 +160,8 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
             throw new UncheckedIOException(e);
         }
     }
+
+    String toJson();
 
     class JsonParsingContext {
         JsonParsingContext(List<DoubleDataChunk> doubleChunks, List<StringDataChunk> stringChunks) {
