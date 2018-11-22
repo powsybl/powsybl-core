@@ -67,8 +67,8 @@ public class TimeSeriesTest {
         } catch (IllegalArgumentException ignored) {
         }
         TimeSeriesIndex index = new TestTimeSeriesIndex(10000, 3);
-        List<DoubleTimeSeries> timeSeriesList = Arrays.asList(TimeSeries.create("ts1", index, 1d, 2d, 3d),
-                                                              TimeSeries.create("ts1", index, 4d, 5d, 6d));
+        List<DoubleTimeSeries> timeSeriesList = Arrays.asList(TimeSeries.createDouble("ts1", index, 1d, 2d, 3d),
+                                                              TimeSeries.createDouble("ts1", index, 4d, 5d, 6d));
         try {
             TimeSeries.split(timeSeriesList, 4);
             fail();
@@ -82,7 +82,7 @@ public class TimeSeriesTest {
         }
 
         List<List<DoubleTimeSeries>> split = TimeSeries.split(timeSeriesList, 2);
-        assertEquals(split.size(), 2);
+        assertEquals(2, split.size());
         assertEquals(2, split.get(0).size());
         assertEquals(2, split.get(1).size());
         assertArrayEquals(new double[] {1d, 2d, Double.NaN}, split.get(0).get(0).toArray(), 0d);
