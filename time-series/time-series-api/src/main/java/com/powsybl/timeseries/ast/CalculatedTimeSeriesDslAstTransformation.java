@@ -50,7 +50,7 @@ public class CalculatedTimeSeriesDslAstTransformation extends AbstractAstTransfo
                     case "==":
                     case "!=":
                         return new MethodCallExpression(transform(binExpr.getLeftExpression()),
-                                "compareTo2",
+                                "compareToNodeCalc",
                                 new ArgumentListExpression(transform(binExpr.getRightExpression()), new ConstantExpression(op)));
                     default:
                         break;

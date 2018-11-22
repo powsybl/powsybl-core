@@ -23,7 +23,7 @@ import com.powsybl.timeseries.ast.UnaryOperation
 class NodeCalcGroovyExtensionModule {
 
     // restore default comparison behaviour
-    static boolean compareTo2(Object self, Object value, String op) {
+    static boolean compareToNodeCalc(Object self, Object value, String op) {
         switch (op) {
             case ">":
                 return self > value
@@ -62,37 +62,38 @@ class NodeCalcGroovyExtensionModule {
     }
 
     // comparison
-    static NodeCalc compareTo2(NodeCalc self, NodeCalc value, String op) {
+    static NodeCalc compareToNodeCalc(NodeCalc self, NodeCalc value, String op) {
         createComparisonNode(self, value, op)
     }
 
-    static NodeCalc compareTo2(NodeCalc self, Integer value, String op) {
+    static NodeCalc compareToNodeCalc(NodeCalc self, Integer value, String op) {
         createComparisonNode(self, new IntegerNodeCalc(value), op)
     }
 
-    static NodeCalc compareTo2(Integer self, NodeCalc value, String op) {
+    static NodeCalc compareToNodeCalc(Integer self, NodeCalc value, String op) {
         createComparisonNode(new IntegerNodeCalc(self), value, op)
     }
 
-    static NodeCalc compareTo2(NodeCalc self, Float value, String op) {
+    static NodeCalc compareToNodeCalc(NodeCalc self, Float value, String op) {
         createComparisonNode(self, new FloatNodeCalc(value), op)
     }
 
-    static NodeCalc compareTo2(Float self, NodeCalc value, String op) {
+    static NodeCalc compareToNodeCalc(Float self, NodeCalc value, String op) {
         createComparisonNode(new FloatNodeCalc(self), value, op)
     }
 
-    static NodeCalc compareTo2(NodeCalc self, Double value, String op) {
+    static NodeCalc compareToNodeCalc(NodeCalc self, Double value, String op) {
         createComparisonNode(self, new DoubleNodeCalc(value), op)
     }
-    static NodeCalc compareTo2(Double self, NodeCalc value, String op) {
+    static NodeCalc compareToNodeCalc(Double self, NodeCalc value, String op) {
         createComparisonNode(new DoubleNodeCalc(self), value, op)
     }
 
-    static NodeCalc compareTo2(NodeCalc self, BigDecimal value, String op) {
+    static NodeCalc compareToNodeCalc(NodeCalc self, BigDecimal value, String op) {
         createComparisonNode(self, new BigDecimalNodeCalc(value), op)
     }
-    static NodeCalc compareTo2(BigDecimal self, NodeCalc value, String op) {
+
+    static NodeCalc compareToNodeCalc(BigDecimal self, NodeCalc value, String op) {
         createComparisonNode(new BigDecimalNodeCalc(self), value, op)
     }
 
