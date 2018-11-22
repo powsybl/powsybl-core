@@ -16,7 +16,7 @@ import java.io.IOException;
 /**
  * An ExtensionProvider able to serialize/deserialize extensions from JSON.
  *
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public interface ExtensionJsonSerializer<T extends Extendable, E extends Extension<T>> extends ExtensionProvider<T, E> {
 

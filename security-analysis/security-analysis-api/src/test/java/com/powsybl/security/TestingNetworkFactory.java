@@ -9,7 +9,7 @@ package com.powsybl.security;
 import com.powsybl.iidm.network.*;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public final class TestingNetworkFactory {
 
