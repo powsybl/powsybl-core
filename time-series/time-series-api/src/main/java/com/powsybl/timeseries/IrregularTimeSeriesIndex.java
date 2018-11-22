@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -81,7 +81,7 @@ public class IrregularTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof TimeSeriesIndex) {
+        if (obj instanceof IrregularTimeSeriesIndex) {
             IrregularTimeSeriesIndex otherIndex = (IrregularTimeSeriesIndex) obj;
             return Arrays.equals(times, otherIndex.times);
         }
@@ -115,7 +115,7 @@ public class IrregularTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     @Override
     public String toString() {
-        return "IrregularTimeSeriesIndex(times=" + Arrays.stream(times).mapToObj(Instant::ofEpochMilli).collect(Collectors.toList())
+        return "IrregularTimeSeriesIndex(times=" + stream().collect(Collectors.toList())
                 + ")";
     }
 }

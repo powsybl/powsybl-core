@@ -51,9 +51,9 @@ public class CalculatedTimeSeriesTest {
         double[] bazValues = new double[] {-1d, -1d};
 
         ReadOnlyTimeSeriesStore store = new ReadOnlyTimeSeriesStoreCache(
-                TimeSeries.create(timeSeriesNames[0], index, fooValues),
-                TimeSeries.create(timeSeriesNames[1], index, barValues),
-                TimeSeries.create(timeSeriesNames[2], index, bazValues)
+                TimeSeries.createDouble(timeSeriesNames[0], index, fooValues),
+                TimeSeries.createDouble(timeSeriesNames[1], index, barValues),
+                TimeSeries.createDouble(timeSeriesNames[2], index, bazValues)
         );
 
         // evaluate calculated time series
@@ -190,7 +190,7 @@ public class CalculatedTimeSeriesTest {
     @Test
     public void jsonTest() throws IOException {
         TimeSeriesIndex index = RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-07-20T00:00:00Z"), Duration.ofDays(200));
-        DoubleTimeSeries ts = TimeSeries.create("ts", index, 1d, 2d);
+        DoubleTimeSeries ts = TimeSeries.createDouble("ts", index, 1d, 2d);
         TimeSeriesNameResolver resolver = new TimeSeriesNameResolver() {
 
             @Override

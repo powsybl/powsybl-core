@@ -44,7 +44,11 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     void setTimeSeriesNameResolver(TimeSeriesNameResolver resolver);
 
-    static DoubleTimeSeries create(String name, TimeSeriesIndex index, double... values) {
+    static StoredDoubleTimeSeries createDouble(String name, TimeSeriesIndex index) {
+        return createDouble(name, index, new double[0]);
+    }
+
+    static StoredDoubleTimeSeries createDouble(String name, TimeSeriesIndex index, double... values) {
         Objects.requireNonNull(name);
         Objects.requireNonNull(index);
         Objects.requireNonNull(values);
@@ -58,7 +62,11 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         return new StoredDoubleTimeSeries(new TimeSeriesMetadata(name, TimeSeriesDataType.DOUBLE, index), chunks);
     }
 
-    static StringTimeSeries create(String name, TimeSeriesIndex index, String... values) {
+    static StringTimeSeries createString(String name, TimeSeriesIndex index) {
+        return createString(name, index, new String[0]);
+    }
+
+    static StringTimeSeries createString(String name, TimeSeriesIndex index, String... values) {
         Objects.requireNonNull(name);
         Objects.requireNonNull(index);
         Objects.requireNonNull(values);
@@ -415,7 +423,9 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                             metadata = TimeSeriesMetadata.parseJson(parser);
                             break;
                         case "chunks":
-                            Objects.requireNonNull(metadata);
+                            if (metadata == null) {
+                                throw new TimeSeriesException("metadata is null");
+                            }
                             parseChunks(parser, metadata, timeSeriesList);
                             metadata = null;
                             break;
