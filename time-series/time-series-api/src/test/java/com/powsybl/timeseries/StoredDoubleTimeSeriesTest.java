@@ -129,7 +129,7 @@ public class StoredDoubleTimeSeriesTest {
     @Test
     public void testCreate() {
         TimeSeriesIndex index = new TestTimeSeriesIndex(0L, 3);
-        DoubleTimeSeries ts1 = TimeSeries.create("ts1", index, 0d, 1d, 2d);
+        DoubleTimeSeries ts1 = TimeSeries.createDouble("ts1", index, 0d, 1d, 2d);
         assertEquals("ts1", ts1.getMetadata().getName());
         assertEquals(TimeSeriesDataType.DOUBLE, ts1.getMetadata().getDataType());
         assertArrayEquals(new double[] {0d, 1d, 2d}, ts1.toArray(), 0d);
@@ -139,6 +139,6 @@ public class StoredDoubleTimeSeriesTest {
     public void testCreateError() {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("Bad number of values 2, expected 3");
-        TimeSeries.create("ts1", new TestTimeSeriesIndex(0L, 3), 0d, 1d);
+        TimeSeries.createDouble("ts1", new TestTimeSeriesIndex(0L, 3), 0d, 1d);
     }
 }

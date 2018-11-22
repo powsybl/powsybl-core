@@ -45,6 +45,11 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
         }
     }
 
+    public void addChunk(C chunk) {
+        Objects.requireNonNull(chunk);
+        chunks.add(chunk);
+    }
+
     public List<C> getChunks() {
         return chunks;
     }

@@ -67,8 +67,8 @@ public class TimeSeriesTest {
         } catch (IllegalArgumentException ignored) {
         }
         TimeSeriesIndex index = new TestTimeSeriesIndex(10000, 3);
-        List<DoubleTimeSeries> timeSeriesList = Arrays.asList(TimeSeries.create("ts1", index, 1d, 2d, 3d),
-                                                              TimeSeries.create("ts1", index, 4d, 5d, 6d));
+        List<DoubleTimeSeries> timeSeriesList = Arrays.asList(TimeSeries.createDouble("ts1", index, 1d, 2d, 3d),
+                                                              TimeSeries.createDouble("ts1", index, 4d, 5d, 6d));
         try {
             TimeSeries.split(timeSeriesList, 4);
             fail();
