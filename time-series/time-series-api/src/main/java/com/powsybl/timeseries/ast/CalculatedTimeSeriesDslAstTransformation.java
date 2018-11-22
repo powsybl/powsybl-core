@@ -60,7 +60,9 @@ public class CalculatedTimeSeriesDslAstTransformation extends AbstractAstTransfo
         public Expression transform(Expression exp) {
             if (exp instanceof BinaryExpression) {
                 Expression binExpr = transform((BinaryExpression) exp);
-                if (binExpr != null) return binExpr;
+                if (binExpr != null) {
+                    return binExpr;
+                }
             }
 
             // propagate visit inside transformed expression
