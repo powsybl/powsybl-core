@@ -10,6 +10,7 @@ import com.powsybl.action.dsl.*;
 import com.powsybl.action.dsl.ast.*;
 import com.powsybl.action.simulator.ActionSimulator;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.exceptions.BranchNotFoundException;
 import com.powsybl.commons.exceptions.UncheckedIllegalAccessException;
 import com.powsybl.commons.exceptions.UncheckedInstantiationException;
 import com.powsybl.computation.ComputationManager;
@@ -266,7 +267,11 @@ public class LoadFlowActionSimulator implements ActionSimulator {
             if (context.getRuleMatchCount(rule.getId()) >= rule.getLife()) {
                 ruleContext = new RuleContext(RuleEvaluationStatus.DEAD, Collections.emptyMap(), Collections.emptyMap());
             } else {
-                ruleContext = evaluateRule(rule, context);
+                try {
+                    ruleContext = evaluateRule(rule, context);
+                } catch (BranchNotFoundException ex) {
+                    continue;
+                }
             }
 
             observers.forEach(o -> o.ruleChecked(context, rule, ruleContext.getStatus(), ruleContext.getVariables(), ruleContext.getActions()));

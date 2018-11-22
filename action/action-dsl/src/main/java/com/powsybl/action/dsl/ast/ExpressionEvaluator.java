@@ -8,6 +8,7 @@ package com.powsybl.action.dsl.ast;
 
 import com.powsybl.action.dsl.GroovyUtil;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.exceptions.BranchNotFoundException;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Identifiable;
 
@@ -321,7 +322,7 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
     private Branch getBranch(String branchId) {
         Branch branch = context.getNetwork().getBranch(branchId);
         if (branch == null) {
-            throw new PowsyblException("Branch '" + branchId + "' not found");
+            throw new BranchNotFoundException("Branch '" + branchId + "' not found");
         }
         return branch;
     }
