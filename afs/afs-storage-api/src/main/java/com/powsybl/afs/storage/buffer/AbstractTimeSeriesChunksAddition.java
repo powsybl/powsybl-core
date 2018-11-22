@@ -8,7 +8,7 @@ package com.powsybl.afs.storage.buffer;
 
 import com.powsybl.timeseries.AbstractPoint;
 import com.powsybl.timeseries.DataChunk;
-import com.powsybl.timeseries.TimeSeriesIndex;
+import com.powsybl.timeseries.TimeSeriesVersions;
 
 import java.util.List;
 import java.util.Objects;
@@ -26,7 +26,7 @@ public abstract class AbstractTimeSeriesChunksAddition<P extends AbstractPoint, 
 
     protected AbstractTimeSeriesChunksAddition(String nodeId, int version, String timeSeriesName, List<T> chunks) {
         super(nodeId);
-        this.version = TimeSeriesIndex.checkVersion(version);
+        this.version = TimeSeriesVersions.check(version);
         this.timeSeriesName = Objects.requireNonNull(timeSeriesName);
         this.chunks = checkChunks(chunks);
     }

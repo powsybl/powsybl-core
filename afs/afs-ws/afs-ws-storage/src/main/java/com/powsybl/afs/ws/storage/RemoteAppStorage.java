@@ -23,8 +23,8 @@ import com.powsybl.commons.io.ForwardingInputStream;
 import com.powsybl.commons.io.ForwardingOutputStream;
 import com.powsybl.timeseries.DoubleDataChunk;
 import com.powsybl.timeseries.StringDataChunk;
-import com.powsybl.timeseries.TimeSeriesIndex;
 import com.powsybl.timeseries.TimeSeriesMetadata;
+import com.powsybl.timeseries.TimeSeriesVersions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -779,7 +779,7 @@ public class RemoteAppStorage implements AppStorage {
     @Override
     public void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleDataChunk> chunks) {
         Objects.requireNonNull(nodeId);
-        TimeSeriesIndex.checkVersion(version);
+        TimeSeriesVersions.check(version);
         Objects.requireNonNull(timeSeriesName);
         Objects.requireNonNull(chunks);
 
@@ -795,7 +795,7 @@ public class RemoteAppStorage implements AppStorage {
     public Map<String, List<DoubleDataChunk>> getDoubleTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version) {
         Objects.requireNonNull(nodeId);
         Objects.requireNonNull(timeSeriesNames);
-        TimeSeriesIndex.checkVersion(version);
+        TimeSeriesVersions.check(version);
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("getDoubleTimeSeriesData(fileSystemName={}, nodeId={}, timeSeriesNames={}, version={})",
@@ -820,7 +820,7 @@ public class RemoteAppStorage implements AppStorage {
     @Override
     public void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringDataChunk> chunks) {
         Objects.requireNonNull(nodeId);
-        TimeSeriesIndex.checkVersion(version);
+        TimeSeriesVersions.check(version);
         Objects.requireNonNull(timeSeriesName);
         Objects.requireNonNull(chunks);
 
@@ -836,7 +836,7 @@ public class RemoteAppStorage implements AppStorage {
     public Map<String, List<StringDataChunk>> getStringTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version) {
         Objects.requireNonNull(nodeId);
         Objects.requireNonNull(timeSeriesNames);
-        TimeSeriesIndex.checkVersion(version);
+        TimeSeriesVersions.check(version);
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("getStringTimeSeriesData(fileSystemName={}, nodeId={}, timeSeriesNames={}, version={})",

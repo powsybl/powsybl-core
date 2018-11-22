@@ -590,7 +590,7 @@ public class MapDbAppStorage implements AppStorage {
         Map<String, List<C>> getTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version, ConcurrentMap<TimeSeriesChunkKey, C> map) {
         UUID nodeUuid = checkNodeId(nodeId);
         Objects.requireNonNull(timeSeriesNames);
-        TimeSeriesIndex.checkVersion(version);
+        TimeSeriesVersions.check(version);
         Objects.requireNonNull(map);
         Map<String, List<C>> timeSeriesData = new HashMap<>();
         for (String timeSeriesName : timeSeriesNames) {
@@ -611,7 +611,7 @@ public class MapDbAppStorage implements AppStorage {
                                                                                         List<C> chunks,
                                                                                         ConcurrentMap<TimeSeriesChunkKey, C> map) {
         UUID nodeUuid = checkNodeId(nodeId);
-        TimeSeriesIndex.checkVersion(version);
+        TimeSeriesVersions.check(version);
         Objects.requireNonNull(timeSeriesName);
         Objects.requireNonNull(chunks);
         Objects.requireNonNull(map);
