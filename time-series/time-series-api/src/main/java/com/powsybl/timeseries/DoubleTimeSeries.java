@@ -137,6 +137,6 @@ public interface DoubleTimeSeries extends TimeSeries<DoublePoint, DoubleTimeSeri
     }
 
     static Builder fromTimeSeries(DoubleTimeSeries... list) {
-        return new Builder(Arrays.asList(list));
+        return fromTimeSeries(Arrays.asList(list));
     }
 }
