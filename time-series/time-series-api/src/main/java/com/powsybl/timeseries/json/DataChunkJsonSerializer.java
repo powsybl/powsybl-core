@@ -9,19 +9,19 @@ package com.powsybl.timeseries.json;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
-import com.powsybl.timeseries.ArrayChunk;
+import com.powsybl.timeseries.DataChunk;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ArrayChunkJsonSerializer extends StdSerializer<ArrayChunk> {
+public class DataChunkJsonSerializer extends StdSerializer<DataChunk> {
 
-    public ArrayChunkJsonSerializer() {
-        super(ArrayChunk.class);
+    public DataChunkJsonSerializer() {
+        super(DataChunk.class);
     }
 
     @Override
-    public void serialize(ArrayChunk chunk, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) {
+    public void serialize(DataChunk chunk, JsonGenerator jsonGenerator, SerializerProvider serializerProvider) {
         chunk.writeJson(jsonGenerator);
     }
 }

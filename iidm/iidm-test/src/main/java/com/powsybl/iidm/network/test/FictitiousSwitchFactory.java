@@ -10,7 +10,7 @@ import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public final class FictitiousSwitchFactory {
 

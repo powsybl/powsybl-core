@@ -6,63 +6,24 @@
  */
 package com.powsybl.dsl;
 
-import groovy.inspect.swingui.AstNodeToScriptVisitor;
+import com.powsybl.commons.ast.AbstractAstTransformation;
 import org.codehaus.groovy.ast.ASTNode;
 import org.codehaus.groovy.ast.ClassCodeExpressionTransformer;
-import org.codehaus.groovy.ast.MethodNode;
-import org.codehaus.groovy.ast.ModuleNode;
 import org.codehaus.groovy.ast.expr.*;
-import org.codehaus.groovy.ast.stmt.BlockStatement;
 import org.codehaus.groovy.control.SourceUnit;
-import org.codehaus.groovy.transform.ASTTransformation;
 import org.codehaus.groovy.transform.GroovyASTTransformation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.util.List;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @GroovyASTTransformation
-public class PowsyblDslAstTransformation implements ASTTransformation {
+public class PowsyblDslAstTransformation extends AbstractAstTransformation {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(PowsyblDslAstTransformation.class);
 
     private static final boolean DEBUG = false;
 
-    private static void printAST(BlockStatement blockStatement) {
-        Writer writer = new OutputStreamWriter(System.out);
-        blockStatement.visit(new AstNodeToScriptVisitor(writer));
-        try {
-            writer.flush();
-        } catch (IOException e) {
-            LOGGER.error(e.toString(), e);
-        }
-    }
-
     public void visit(ASTNode[] nodes, SourceUnit sourceUnit) {
-        LOGGER.trace("Apply AST transformation");
-        ModuleNode ast = sourceUnit.getAST();
-        BlockStatement blockStatement = ast.getStatementBlock();
-
-        if (DEBUG) {
-            printAST(blockStatement);
-        }
-
-        List<MethodNode> methods = ast.getMethods();
-        for (MethodNode methodNode : methods) {
-            methodNode.getCode().visit(new CustomClassCodeExpressionTransformer(sourceUnit));
-        }
-
-        blockStatement.visit(new CustomClassCodeExpressionTransformer(sourceUnit));
-
-        if (DEBUG) {
-            printAST(blockStatement);
-        }
+        visit(sourceUnit, new CustomClassCodeExpressionTransformer(sourceUnit), DEBUG);
     }
 
     class CustomClassCodeExpressionTransformer extends ClassCodeExpressionTransformer {

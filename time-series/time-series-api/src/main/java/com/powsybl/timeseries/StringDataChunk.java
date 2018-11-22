@@ -6,12 +6,10 @@
  */
 package com.powsybl.timeseries;
 
-import java.nio.DoubleBuffer;
-
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface DoubleArrayChunk extends ArrayChunk<DoublePoint, DoubleArrayChunk> {
+public interface StringDataChunk extends DataChunk<StringPoint, StringDataChunk> {
 
-    void fillBuffer(DoubleBuffer buffer, int timeSeriesOffset);
+    void fillBuffer(CompactStringBuffer buffer, int timeSeriesOffset);
 }
