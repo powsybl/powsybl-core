@@ -93,7 +93,7 @@ public class StringTimeSeriesTest {
     @Test
     public void testCreate() {
         TimeSeriesIndex index = new TestTimeSeriesIndex(0L, 3);
-        StringTimeSeries ts1 = StringTimeSeries.create("ts1", index, new String[]{"a", "b", "c"});
+        StringTimeSeries ts1 = TimeSeries.createString("ts1", index, "a", "b", "c");
         assertEquals("ts1", ts1.getMetadata().getName());
         assertEquals(TimeSeriesDataType.STRING, ts1.getMetadata().getDataType());
         assertArrayEquals(new String[] {"a", "b", "c"}, ts1.toArray());
@@ -103,6 +103,6 @@ public class StringTimeSeriesTest {
     public void testCreateError() {
         exception.expect(IllegalArgumentException.class);
         exception.expectMessage("Bad number of values 2, expected 3");
-        StringTimeSeries.create("ts1", new TestTimeSeriesIndex(0L, 3), new String[]{"a", "b"});
+        TimeSeries.createString("ts1", new TestTimeSeriesIndex(0L, 3), "a", "b");
     }
 }

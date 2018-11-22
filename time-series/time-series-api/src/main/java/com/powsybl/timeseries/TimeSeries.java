@@ -41,10 +41,49 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     List<T> split(int newChunkSize);
 
+    static StoredDoubleTimeSeries createDouble(String name, TimeSeriesIndex index) {
+        return createDouble(name, index, new double[0]);
+    }
+
+    static StoredDoubleTimeSeries createDouble(String name, TimeSeriesIndex index, double... values) {
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(index);
+        Objects.requireNonNull(values);
+        List<DoubleDataChunk> chunks = new ArrayList<>();
+        if (values.length > 0) {
+            if (index.getPointCount() != values.length) {
+                throw new IllegalArgumentException("Bad number of values " + values.length + ", expected " + index.getPointCount());
+            }
+            chunks.add(new UncompressedDoubleDataChunk(0, values));
+        }
+        return new StoredDoubleTimeSeries(new TimeSeriesMetadata(name, TimeSeriesDataType.DOUBLE, index), chunks);
+    }
+
+    static StringTimeSeries createString(String name, TimeSeriesIndex index) {
+        return createString(name, index, new String[0]);
+    }
+
+    static StringTimeSeries createString(String name, TimeSeriesIndex index, String... values) {
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(index);
+        Objects.requireNonNull(values);
+        List<StringDataChunk> chunks = new ArrayList<>();
+        if (values.length > 0) {
+            if (index.getPointCount() != values.length) {
+                throw new IllegalArgumentException("Bad number of values " + values.length + ", expected " + index.getPointCount());
+            }
+            chunks.add(new UncompressedStringDataChunk(0, values));
+        }
+        return new StringTimeSeries(new TimeSeriesMetadata(name, TimeSeriesDataType.STRING, index), chunks);
+    }
+
     static <P extends AbstractPoint, T extends TimeSeries<P, T>> List<List<T>> split(List<T> timeSeriesList, int newChunkSize) {
         Objects.requireNonNull(timeSeriesList);
         if (timeSeriesList.isEmpty()) {
             throw new IllegalArgumentException("Time series list is empty");
+        }
+        if (newChunkSize < 1) {
+            throw new IllegalArgumentException("Invalid chunk size: " + newChunkSize);
         }
         TimeSeriesIndex index = timeSeriesList.get(0).getMetadata().getIndex();
         for (int i = 1; i < timeSeriesList.size(); i++) {
@@ -116,8 +155,8 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             values = new Object[names.size()];
         }
 
-        private static AssertionError assertDataType(TimeSeriesDataType dataType) {
-            return new AssertionError("Unexpected data type " + dataType);
+        private static TimeSeriesException assertDataType(TimeSeriesDataType dataType) {
+            return new TimeSeriesException("Unexpected data type " + dataType);
         }
 
         private TDoubleArrayList createDoubleValues() {
@@ -315,10 +354,18 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     void writeJson(JsonGenerator generator);
 
+    String toJson();
+
     static void writeJson(JsonGenerator generator, List<? extends TimeSeries> timeSeriesList) {
         Objects.requireNonNull(timeSeriesList);
-        for (TimeSeries timeSeries : timeSeriesList) {
-            timeSeries.writeJson(generator);
+        try {
+            generator.writeStartArray();
+            for (TimeSeries timeSeries : timeSeriesList) {
+                timeSeries.writeJson(generator);
+            }
+            generator.writeEndArray();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -328,6 +375,10 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
 
     static void writeJson(Path file, List<? extends TimeSeries> timeSeriesList) {
         JsonUtil.writeJson(file, generator -> writeJson(generator, timeSeriesList));
+    }
+
+    static String toJson(List<? extends TimeSeries> timeSeriesList) {
+        return JsonUtil.toJson(generator -> writeJson(generator, timeSeriesList));
     }
 
     static void parseChunks(JsonParser parser, TimeSeriesMetadata metadata, List<TimeSeries> timeSeriesList) {
@@ -346,7 +397,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
             }
             timeSeriesList.add(new StringTimeSeries(metadata, stringChunks));
         } else {
-            throw new AssertionError("Unexpected time series data type " + metadata.getDataType());
+            throw new TimeSeriesException("Unexpected time series data type " + metadata.getDataType());
         }
     }
 
@@ -369,7 +420,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                             break;
                         case "chunks":
                             if (metadata == null) {
-                                throw new AssertionError("metadata is null");
+                                throw new TimeSeriesException("metadata is null");
                             }
                             parseChunks(parser, metadata, timeSeriesList);
                             metadata = null;
