@@ -62,6 +62,7 @@
         <module>computation-mpi</module>
         <module>contingency</module>
         <module>distribution-core</module>
+        <module>dsl</module>
         <module>entsoe-util</module>
         <module>iidm</module>
         <module>itools-packager</module>
@@ -75,7 +76,6 @@
         <module>tools</module>
         <module>triple-store</module>
         <module>ucte</module>
-        <module>dsl</module>
     </modules>
 
     <properties>
@@ -329,6 +329,8 @@
                         <sourceDirectories>
                             <sourceDirectory>${project.basedir}/action/action-dsl/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/action/action-util/src/main/groovy</sourceDirectory>
+                            <sourceDirectory>${project.basedir}/contingency/contingency-dsl/src/main/groovy</sourceDirectory>
+                            <sourceDirectory>${project.basedir}/dsl/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/iidm/iidm-api/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/loadflow/loadflow-api/src/main/groovy</sourceDirectory>
                             <sourceDirectory>${project.basedir}/scripting/src/main/groovy</sourceDirectory>

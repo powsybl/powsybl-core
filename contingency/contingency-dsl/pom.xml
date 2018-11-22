@@ -9,10 +9,9 @@
         <version>2.2.0-SNAPSHOT</version>
     </parent>
 
-
     <artifactId>powsybl-contingency-dsl</artifactId>
     <name>Contingency DSL</name>
-    <description>A DSL to describe contingencies</description>
+    <description>A DSL to describe contingency</description>
 
     <build>
         <plugins>
