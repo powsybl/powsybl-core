@@ -14,6 +14,8 @@ import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
 /**
+ * RLE (Run-Length encoding) compressed string data chunk.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class CompressedStringDataChunk extends AbstractCompressedDataChunk implements StringDataChunk {
