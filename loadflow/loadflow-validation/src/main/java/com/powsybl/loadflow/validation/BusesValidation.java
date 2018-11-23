@@ -95,9 +95,9 @@ public final class BusesValidation {
 
     private static void p(String eqt, Identifiable<?> id, Terminal t) {
         if (LOGGER.isWarnEnabled()) {
-            LOGGER.warn(String.format("    %-5s  %10.4f  %10.4f  %s", 
-                    eqt, 
-                    t.getP(), 
+            LOGGER.warn(String.format("    %-5s  %10.4f  %10.4f  %s",
+                    eqt,
+                    t.getP(),
                     t.getQ(),
                     id.getId()));
         }
@@ -124,11 +124,11 @@ public final class BusesValidation {
         Complex ysh03 = new Complex(0, 0);
         double ratedU0 = tx.getLeg1().getRatedU();
         Complex a01 = new Complex(1, 0);
-        Complex a1 = new Complex(tx.getLeg1().getRatedU()/ratedU0, 0);
+        Complex a1 = new Complex(tx.getLeg1().getRatedU() / ratedU0, 0);
         Complex a02 = new Complex(1, 0);
-        Complex a2 = new Complex(tx.getLeg2().getRatedU()/ratedU0, 0);
+        Complex a2 = new Complex(tx.getLeg2().getRatedU() / ratedU0, 0);
         Complex a03 = new Complex(1, 0);
-        Complex a3 = new Complex(tx.getLeg3().getRatedU()/ratedU0, 0);
+        Complex a3 = new Complex(tx.getLeg3().getRatedU() / ratedU0, 0);
 
         // At star bus sum of currents from each end must be zero
         Complex y01 = ytr1.negate().divide(a01.conjugate().multiply(a1));
@@ -154,13 +154,13 @@ public final class BusesValidation {
                 throw new PowsyblException("no leg for bus " + bus.getId() + " in transformer " + tx.getId());
         }
     }
-    
+
     private static Complex calcFlow(ThreeWindingsTransformer tx, Bus bus) {
         Terminal t = getThreeWindingTransformerTerminal(tx, bus);
         Complex v0 = calcStarBusVoltage(tx);
         LOGGER.info("Transformer {}", tx.getId());
         LOGGER.info("    Voltage star bus {} {}", v0.abs(), Math.toDegrees(v0.getArgument()));
-       
+
         LegBase<?> leg = getLeg(tx, t, bus);
         String id = tx.getId() + "." + bus.getId();
         double r = leg.getR();
@@ -194,11 +194,11 @@ public final class BusesValidation {
         BranchData branch = new BranchData(id,
                 r, x,
                 rhok, rho0,
-                bus.getV(), v0.abs(), 
+                bus.getV(), v0.abs(),
                 Math.toRadians(bus.getAngle()), v0.getArgument(),
                 alphak, alpha0,
                 gk, g0, bk, b0,
-                expectedFlowPk, expectedFlowQk, 
+                expectedFlowPk, expectedFlowQk,
                 expectedFlowP0, expectedFlowQ0,
                 buskConnected, bus0Connected,
                 buskMainComponent, bus0MainComponent,
@@ -211,7 +211,7 @@ public final class BusesValidation {
         t.setQ(branch.getComputedQ1());
         return flow;
     }
-    
+
     public static boolean checkBuses(Bus bus, ValidationConfig config, ValidationWriter busesWriter) {
         Objects.requireNonNull(bus);
         Objects.requireNonNull(config);
@@ -232,11 +232,11 @@ public final class BusesValidation {
         double danglingLineQ = bus.getDanglingLineStream().map(DanglingLine::getTerminal).mapToDouble(Terminal::getQ).sum();
         double twtP = bus.getTwoWindingTransformerStream().map(twt -> getBranchTerminal(twt, bus)).mapToDouble(Terminal::getP).sum();
         double twtQ = bus.getTwoWindingTransformerStream().map(twt -> getBranchTerminal(twt, bus)).mapToDouble(Terminal::getQ).sum();
-        
-        bus.getThreeWindingTransformers().forEach(tx -> calcFlow(tx, bus));
+
+        bus.getThreeWindingTransformerStream().forEach(tx -> calcFlow(tx, bus));
         double tltP = bus.getThreeWindingTransformerStream().map(tlt -> getThreeWindingTransformerTerminal(tlt, bus)).mapToDouble(Terminal::getP).sum();
         double tltQ = bus.getThreeWindingTransformerStream().map(tlt -> getThreeWindingTransformerTerminal(tlt, bus)).mapToDouble(Terminal::getQ).sum();
-        
+
         boolean mainComponent = bus.isInMainConnectedComponent();
         boolean r = checkBuses(bus.getId(), loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ,
                                danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, config, busesWriter);
