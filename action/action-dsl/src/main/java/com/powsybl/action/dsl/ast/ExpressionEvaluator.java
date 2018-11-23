@@ -11,6 +11,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.BranchNotFoundException;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Identifiable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +25,9 @@ import java.util.stream.Collectors;
 public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> {
 
     private final EvaluationContext context;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExpressionEvaluator.class);
+
 
     public ExpressionEvaluator(EvaluationContext context) {
         this.context = Objects.requireNonNull(context);
@@ -322,6 +327,7 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
     private Branch getBranch(String branchId) {
         Branch branch = context.getNetwork().getBranch(branchId);
         if (branch == null) {
+            LOGGER.error("Branch {}: branch not found in the context", branchId);
             throw new BranchNotFoundException("Branch '" + branchId + "' not found");
         }
         return branch;
