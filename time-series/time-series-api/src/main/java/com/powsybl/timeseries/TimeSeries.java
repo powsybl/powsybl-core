@@ -25,6 +25,7 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -88,14 +89,17 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         if (newChunkSize < 1) {
             throw new IllegalArgumentException("Invalid chunk size: " + newChunkSize);
         }
-        TimeSeriesIndex index = timeSeriesList.get(0).getMetadata().getIndex();
-        for (int i = 1; i < timeSeriesList.size(); i++) {
-            TimeSeriesMetadata metadata = timeSeriesList.get(i).getMetadata();
-            if (!index.equals(metadata.getIndex())) {
-                throw new IllegalArgumentException("Time series '" + metadata.getName() + "' has a different index: "
-                        + metadata.getIndex() + " != " + index);
-            }
+        Set<TimeSeriesIndex> indexes = timeSeriesList.stream()
+                .map(ts -> ts.getMetadata().getIndex())
+                .filter(index -> !(index instanceof InfiniteTimeSeriesIndex))
+                .collect(Collectors.toSet());
+        if (indexes.isEmpty()) {
+            throw new IllegalArgumentException("Cannot split a list of time series with only infinite index");
         }
+        if (indexes.size() != 1) {
+            throw new IllegalArgumentException("Cannot split a list of time series with different time indexes: " + indexes);
+        }
+        TimeSeriesIndex index = indexes.iterator().next();
         if (newChunkSize > index.getPointCount()) {
             throw new IllegalArgumentException("New chunk size " + newChunkSize + " is greater than point count "
                     + index.getPointCount());

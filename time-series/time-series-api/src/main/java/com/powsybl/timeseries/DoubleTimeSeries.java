@@ -120,7 +120,7 @@ public interface DoubleTimeSeries extends TimeSeries<DoublePoint, DoubleTimeSeri
             this.list = list;
         }
 
-        public List<DoubleTimeSeries> build(String... scriptLines) {
+        private static List<DoubleTimeSeries> build(List<DoubleTimeSeries> list, String... scriptLines) {
             String script = Arrays.stream(scriptLines).collect(Collectors.joining(System.lineSeparator()));
             ReadOnlyTimeSeriesStore store = new ReadOnlyTimeSeriesStoreCache(list);
             return new CalculatedTimeSeriesDslLoader(script)
@@ -130,6 +130,14 @@ public interface DoubleTimeSeries extends TimeSeries<DoublePoint, DoubleTimeSeri
                     .map(e -> new CalculatedTimeSeries(e.getKey(), e.getValue(), new FromStoreTimeSeriesNameResolver(store, -1)))
                     .collect(Collectors.toList());
         }
+
+        public List<DoubleTimeSeries> build(String... scriptLines) {
+            return build(list, scriptLines);
+        }
+    }
+
+    static List<DoubleTimeSeries> build(String... scriptLines) {
+        return Builder.build(Collections.emptyList(), scriptLines);
     }
 
     static Builder fromTimeSeries(List<DoubleTimeSeries> list) {
