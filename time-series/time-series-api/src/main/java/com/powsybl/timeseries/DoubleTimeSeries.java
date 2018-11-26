@@ -117,7 +117,7 @@ public interface DoubleTimeSeries extends TimeSeries<DoublePoint, DoubleTimeSeri
         private final List<DoubleTimeSeries> list;
 
         Builder(List<DoubleTimeSeries> list) {
-            this.list = list;
+            this.list = Objects.requireNonNull(list);
         }
 
         private static List<DoubleTimeSeries> build(List<DoubleTimeSeries> list, String... scriptLines) {

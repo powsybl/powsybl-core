@@ -28,7 +28,7 @@ public class ReadOnlyTimeSeriesStoreAggregator implements ReadOnlyTimeSeriesStor
     @Override
     public Set<String> getTimeSeriesNames(TimeSeriesFilter filter) {
         Set<String> timeSeriesNames = new HashSet<>();
-        for (int i = stores.size() - 1; i >= 0; i--) {
+        for (int i = 0; i < stores.size(); i++) {
             timeSeriesNames.addAll(stores.get(i).getTimeSeriesNames(filter));
         }
         return timeSeriesNames;
@@ -46,16 +46,15 @@ public class ReadOnlyTimeSeriesStoreAggregator implements ReadOnlyTimeSeriesStor
     }
 
     @Override
-    public TimeSeriesMetadata getTimeSeriesMetadata(String timeSeriesName) {
+    public Optional<TimeSeriesMetadata> getTimeSeriesMetadata(String timeSeriesName) {
         Objects.requireNonNull(timeSeriesName);
-        TimeSeriesMetadata metadata = null;
         for (ReadOnlyTimeSeriesStore store : stores) {
-            metadata = store.getTimeSeriesMetadata(timeSeriesName);
-            if (metadata != null) {
-                break;
+            Optional<TimeSeriesMetadata> metadata = store.getTimeSeriesMetadata(timeSeriesName);
+            if (metadata.isPresent()) {
+                return metadata;
             }
         }
-        return metadata;
+        return Optional.empty();
     }
 
     @Override
@@ -95,16 +94,16 @@ public class ReadOnlyTimeSeriesStoreAggregator implements ReadOnlyTimeSeriesStor
     }
 
     @Override
-    public DoubleTimeSeries getDoubleTimeSeries(String timeSeriesName, int version) {
+    public Optional<DoubleTimeSeries> getDoubleTimeSeries(String timeSeriesName, int version) {
         Objects.requireNonNull(timeSeriesName);
         TimeSeriesVersions.check(version);
         for (ReadOnlyTimeSeriesStore store : stores) {
-            DoubleTimeSeries timeSeries = store.getDoubleTimeSeries(timeSeriesName, version);
-            if (timeSeries != null) {
+            Optional<DoubleTimeSeries> timeSeries = store.getDoubleTimeSeries(timeSeriesName, version);
+            if (timeSeries.isPresent()) {
                 return timeSeries;
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override
@@ -127,16 +126,16 @@ public class ReadOnlyTimeSeriesStoreAggregator implements ReadOnlyTimeSeriesStor
     }
 
     @Override
-    public StringTimeSeries getStringTimeSeries(String timeSeriesName, int version) {
+    public Optional<StringTimeSeries> getStringTimeSeries(String timeSeriesName, int version) {
         Objects.requireNonNull(timeSeriesName);
         TimeSeriesVersions.check(version);
         for (ReadOnlyTimeSeriesStore store : stores) {
-            StringTimeSeries timeSeries = store.getStringTimeSeries(timeSeriesName, version);
-            if (timeSeries != null) {
+            Optional<StringTimeSeries> timeSeries = store.getStringTimeSeries(timeSeriesName, version);
+            if (timeSeries.isPresent()) {
                 return timeSeries;
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     @Override

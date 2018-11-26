@@ -7,6 +7,7 @@
 package com.powsybl.timeseries;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -19,7 +20,7 @@ public interface ReadOnlyTimeSeriesStore {
 
     boolean timeSeriesExists(String timeSeriesName);
 
-    TimeSeriesMetadata getTimeSeriesMetadata(String timeSeriesName);
+    Optional<TimeSeriesMetadata> getTimeSeriesMetadata(String timeSeriesName);
 
     List<TimeSeriesMetadata> getTimeSeriesMetadata(Set<String> timeSeriesNames);
 
@@ -27,11 +28,11 @@ public interface ReadOnlyTimeSeriesStore {
 
     Set<Integer> getTimeSeriesDataVersions(String timeSeriesName);
 
-    DoubleTimeSeries getDoubleTimeSeries(String timeSeriesName, int version);
+    Optional<DoubleTimeSeries> getDoubleTimeSeries(String timeSeriesName, int version);
 
     List<DoubleTimeSeries> getDoubleTimeSeries(Set<String> timeSeriesNames, int version);
 
-    StringTimeSeries getStringTimeSeries(String timeSeriesName, int version);
+    Optional<StringTimeSeries> getStringTimeSeries(String timeSeriesName, int version);
 
     List<StringTimeSeries> getStringTimeSeries(Set<String> timeSeriesNames, int version);
 

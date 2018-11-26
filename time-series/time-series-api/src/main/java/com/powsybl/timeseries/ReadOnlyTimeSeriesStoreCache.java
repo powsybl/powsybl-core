@@ -39,10 +39,10 @@ public class ReadOnlyTimeSeriesStoreCache implements ReadOnlyTimeSeriesStore {
     }
 
     @Override
-    public TimeSeriesMetadata getTimeSeriesMetadata(String timeSeriesName) {
+    public Optional<TimeSeriesMetadata> getTimeSeriesMetadata(String timeSeriesName) {
         Objects.requireNonNull(timeSeriesName);
-        DoubleTimeSeries timeSeries = doubleTimeSeriesMap.get(timeSeriesName);
-        return timeSeries != null ? timeSeries.getMetadata() : null;
+        return Optional.ofNullable(doubleTimeSeriesMap.get(timeSeriesName))
+                .map(TimeSeries::getMetadata);
     }
 
     @Override
@@ -50,7 +50,8 @@ public class ReadOnlyTimeSeriesStoreCache implements ReadOnlyTimeSeriesStore {
         Objects.requireNonNull(timeSeriesNames);
         return timeSeriesNames.stream()
                 .map(this::getTimeSeriesMetadata)
-                .filter(Objects::nonNull)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toList());
     }
 
@@ -65,21 +66,22 @@ public class ReadOnlyTimeSeriesStoreCache implements ReadOnlyTimeSeriesStore {
     }
 
     @Override
-    public DoubleTimeSeries getDoubleTimeSeries(String timeSeriesName, int version) {
-        return doubleTimeSeriesMap.get(timeSeriesName);
+    public Optional<DoubleTimeSeries> getDoubleTimeSeries(String timeSeriesName, int version) {
+        return Optional.ofNullable(doubleTimeSeriesMap.get(timeSeriesName));
     }
 
     @Override
     public List<DoubleTimeSeries> getDoubleTimeSeries(Set<String> timeSeriesNames, int version) {
         return timeSeriesNames.stream()
                 .map(timeSeriesName -> getDoubleTimeSeries(timeSeriesName, version))
-                .filter(Objects::nonNull)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public StringTimeSeries getStringTimeSeries(String timeSeriesName, int version) {
-        return null;
+    public Optional<StringTimeSeries> getStringTimeSeries(String timeSeriesName, int version) {
+        return Optional.empty();
     }
 
     @Override
