@@ -167,6 +167,10 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Data
         return JsonUtil.toJson(this::writeJson);
     }
 
+    public void setTimeSeriesNameResolver(TimeSeriesNameResolver ignored) {
+        // nothing to do
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(metadata, chunks);

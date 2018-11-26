@@ -12,6 +12,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.google.common.base.Stopwatch;
 import com.google.common.primitives.Doubles;
 import com.powsybl.commons.json.JsonUtil;
+import com.powsybl.timeseries.ast.NodeCalc;
 import gnu.trove.list.array.TDoubleArrayList;
 import org.slf4j.LoggerFactory;
 import org.threeten.extra.Interval;
@@ -24,6 +25,7 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -40,6 +42,8 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
     Iterator<P> iterator();
 
     List<T> split(int newChunkSize);
+
+    void setTimeSeriesNameResolver(TimeSeriesNameResolver resolver);
 
     static StoredDoubleTimeSeries createDouble(String name, TimeSeriesIndex index) {
         return createDouble(name, index, new double[0]);
@@ -85,14 +89,17 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         if (newChunkSize < 1) {
             throw new IllegalArgumentException("Invalid chunk size: " + newChunkSize);
         }
-        TimeSeriesIndex index = timeSeriesList.get(0).getMetadata().getIndex();
-        for (int i = 1; i < timeSeriesList.size(); i++) {
-            TimeSeriesMetadata metadata = timeSeriesList.get(i).getMetadata();
-            if (!index.equals(metadata.getIndex())) {
-                throw new IllegalArgumentException("Time series '" + metadata.getName() + "' has a different index: "
-                        + metadata.getIndex() + " != " + index);
-            }
+        Set<TimeSeriesIndex> indexes = timeSeriesList.stream()
+                .map(ts -> ts.getMetadata().getIndex())
+                .filter(index -> !(index instanceof InfiniteTimeSeriesIndex))
+                .collect(Collectors.toSet());
+        if (indexes.isEmpty()) {
+            throw new IllegalArgumentException("Cannot split a list of time series with only infinite index");
         }
+        if (indexes.size() != 1) {
+            throw new IllegalArgumentException("Cannot split a list of time series with different time indexes: " + indexes);
+        }
+        TimeSeriesIndex index = indexes.iterator().next();
         if (newChunkSize > index.getPointCount()) {
             throw new IllegalArgumentException("New chunk size " + newChunkSize + " is greater than point count "
                     + index.getPointCount());
@@ -410,6 +417,7 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
         List<TimeSeries> timeSeriesList = new ArrayList<>();
         try {
             TimeSeriesMetadata metadata = null;
+            String name = null;
             JsonToken token;
             while ((token = parser.nextToken()) != null) {
                 if (token == JsonToken.FIELD_NAME) {
@@ -424,6 +432,14 @@ public interface TimeSeries<P extends AbstractPoint, T extends TimeSeries<P, T>>
                             }
                             parseChunks(parser, metadata, timeSeriesList);
                             metadata = null;
+                            break;
+                        case "name":
+                            name = parser.nextTextValue();
+                            break;
+                        case "expr":
+                            Objects.requireNonNull(name);
+                            NodeCalc nodeCalc = NodeCalc.parseJson(parser);
+                            timeSeriesList.add(new CalculatedTimeSeries(name, nodeCalc));
                             break;
                         default:
                             break;
