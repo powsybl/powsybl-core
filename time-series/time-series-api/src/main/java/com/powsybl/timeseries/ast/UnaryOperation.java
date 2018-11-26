@@ -17,7 +17,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class UnaryOperation implements NodeCalc {
+public class UnaryOperation extends AbstractSingleChildNodeCalc {
 
     static final String NAME = "unaryOp";
 
@@ -50,25 +50,15 @@ public class UnaryOperation implements NodeCalc {
         return new UnaryOperation(child, Operator.POSITIVE);
     }
 
-    private NodeCalc child;
-
     private final Operator operator;
 
     UnaryOperation(NodeCalc child, Operator operator) {
-        this.child = Objects.requireNonNull(child);
+        super(child);
         this.operator = Objects.requireNonNull(operator);
     }
 
     public Operator getOperator() {
         return operator;
-    }
-
-    public NodeCalc getChild() {
-        return child;
-    }
-
-    public void setChild(NodeCalc child) {
-        this.child = child;
     }
 
     @Override

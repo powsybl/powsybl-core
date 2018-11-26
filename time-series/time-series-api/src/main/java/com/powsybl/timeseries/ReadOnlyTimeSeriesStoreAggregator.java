@@ -36,6 +36,7 @@ public class ReadOnlyTimeSeriesStoreAggregator implements ReadOnlyTimeSeriesStor
 
     @Override
     public boolean timeSeriesExists(String timeSeriesName) {
+        Objects.requireNonNull(timeSeriesName);
         for (ReadOnlyTimeSeriesStore store : stores) {
             if (store.timeSeriesExists(timeSeriesName)) {
                 return true;
@@ -46,6 +47,7 @@ public class ReadOnlyTimeSeriesStoreAggregator implements ReadOnlyTimeSeriesStor
 
     @Override
     public TimeSeriesMetadata getTimeSeriesMetadata(String timeSeriesName) {
+        Objects.requireNonNull(timeSeriesName);
         TimeSeriesMetadata metadata = null;
         for (ReadOnlyTimeSeriesStore store : stores) {
             metadata = store.getTimeSeriesMetadata(timeSeriesName);
@@ -58,6 +60,7 @@ public class ReadOnlyTimeSeriesStoreAggregator implements ReadOnlyTimeSeriesStor
 
     @Override
     public List<TimeSeriesMetadata> getTimeSeriesMetadata(Set<String> timeSeriesNames) {
+        Objects.requireNonNull(timeSeriesNames);
         List<TimeSeriesMetadata> aggregatedMetadataList = new ArrayList<>();
         Set<String> remainingTimeSeriesNames = new HashSet<>(timeSeriesNames);
         for (ReadOnlyTimeSeriesStore store : stores) {
@@ -82,6 +85,7 @@ public class ReadOnlyTimeSeriesStoreAggregator implements ReadOnlyTimeSeriesStor
 
     @Override
     public Set<Integer> getTimeSeriesDataVersions(String timeSeriesName) {
+        Objects.requireNonNull(timeSeriesName);
         for (ReadOnlyTimeSeriesStore store : stores) {
             if (store.timeSeriesExists(timeSeriesName)) {
                 return store.getTimeSeriesDataVersions(timeSeriesName);
@@ -92,6 +96,8 @@ public class ReadOnlyTimeSeriesStoreAggregator implements ReadOnlyTimeSeriesStor
 
     @Override
     public DoubleTimeSeries getDoubleTimeSeries(String timeSeriesName, int version) {
+        Objects.requireNonNull(timeSeriesName);
+        TimeSeriesVersions.check(version);
         for (ReadOnlyTimeSeriesStore store : stores) {
             DoubleTimeSeries timeSeries = store.getDoubleTimeSeries(timeSeriesName, version);
             if (timeSeries != null) {
@@ -103,6 +109,8 @@ public class ReadOnlyTimeSeriesStoreAggregator implements ReadOnlyTimeSeriesStor
 
     @Override
     public List<DoubleTimeSeries> getDoubleTimeSeries(Set<String> timeSeriesNames, int version) {
+        Objects.requireNonNull(timeSeriesNames);
+        TimeSeriesVersions.check(version);
         List<DoubleTimeSeries> aggregatedTimeSeriesList = new ArrayList<>();
         Set<String> remainingTimeSeriesNames = new HashSet<>(timeSeriesNames);
         for (ReadOnlyTimeSeriesStore store : stores) {
@@ -120,6 +128,8 @@ public class ReadOnlyTimeSeriesStoreAggregator implements ReadOnlyTimeSeriesStor
 
     @Override
     public StringTimeSeries getStringTimeSeries(String timeSeriesName, int version) {
+        Objects.requireNonNull(timeSeriesName);
+        TimeSeriesVersions.check(version);
         for (ReadOnlyTimeSeriesStore store : stores) {
             StringTimeSeries timeSeries = store.getStringTimeSeries(timeSeriesName, version);
             if (timeSeries != null) {
@@ -131,6 +141,8 @@ public class ReadOnlyTimeSeriesStoreAggregator implements ReadOnlyTimeSeriesStor
 
     @Override
     public List<StringTimeSeries> getStringTimeSeries(Set<String> timeSeriesNames, int version) {
+        Objects.requireNonNull(timeSeriesNames);
+        TimeSeriesVersions.check(version);
         List<StringTimeSeries> aggregatedTimeSeriesList = new ArrayList<>();
         Set<String> remainingTimeSeriesNames = new HashSet<>(timeSeriesNames);
         for (ReadOnlyTimeSeriesStore store : stores) {
@@ -149,6 +161,7 @@ public class ReadOnlyTimeSeriesStoreAggregator implements ReadOnlyTimeSeriesStor
 
     @Override
     public void addListener(TimeSeriesStoreListener listener) {
+        Objects.requireNonNull(listener);
         for (ReadOnlyTimeSeriesStore store : stores) {
             store.addListener(listener);
         }
@@ -156,6 +169,7 @@ public class ReadOnlyTimeSeriesStoreAggregator implements ReadOnlyTimeSeriesStor
 
     @Override
     public void removeListener(TimeSeriesStoreListener listener) {
+        Objects.requireNonNull(listener);
         for (ReadOnlyTimeSeriesStore store : stores) {
             store.removeListener(listener);
         }

@@ -106,7 +106,7 @@ public class BinaryOperation implements NodeCalc {
     }
 
     public void setLeft(NodeCalc left) {
-        this.left = left;
+        this.left = Objects.requireNonNull(left);
     }
 
     public NodeCalc getRight() {
@@ -114,7 +114,7 @@ public class BinaryOperation implements NodeCalc {
     }
 
     public void setRight(NodeCalc right) {
-        this.right = right;
+        this.right = Objects.requireNonNull(right);
     }
 
     @Override

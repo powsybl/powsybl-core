@@ -12,27 +12,16 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.timeseries.TimeSeriesException;
 
 import java.io.IOException;
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TimeNodeCalc implements NodeCalc {
+public class TimeNodeCalc extends AbstractSingleChildNodeCalc {
 
     static final String NAME = "time";
 
-    private NodeCalc child;
-
     public TimeNodeCalc(NodeCalc child) {
-        this.child = Objects.requireNonNull(child);
-    }
-
-    public NodeCalc getChild() {
-        return child;
-    }
-
-    public void setChild(NodeCalc child) {
-        this.child = Objects.requireNonNull(child);
+        super(child);
     }
 
     @Override

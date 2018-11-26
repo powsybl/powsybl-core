@@ -22,7 +22,7 @@ public class FromStoreTimeSeriesNameResolver implements TimeSeriesNameResolver {
 
     public FromStoreTimeSeriesNameResolver(ReadOnlyTimeSeriesStore store, int version) {
         this.store = Objects.requireNonNull(store);
-        this.version = version;
+        this.version = TimeSeriesVersions.check(version);
     }
 
     @Override
