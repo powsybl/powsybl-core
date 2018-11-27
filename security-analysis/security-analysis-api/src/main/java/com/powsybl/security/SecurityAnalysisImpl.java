@@ -76,10 +76,10 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
 
                     if (loadFlowResult.isOk()) {
 
-                        resultBuilder.startNSituation()
-                                .computationOk(true);
+                        resultBuilder.preContingency()
+                                .setComputationOk(true);
                         violationDetector.checkAll(network, resultBuilder::addViolation);
-                        resultBuilder.endState();
+                        resultBuilder.endPreContingency();
 
 
                         List<Contingency> contingencies = contingenciesProvider.getContingencies(network);
@@ -107,10 +107,10 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                                     .handleAsync((lfResult, throwable) -> {
                                         network.getStateManager().setWorkingState(postContStateId);
 
-                                        resultBuilder.startContingency(contingency)
-                                                .computationOk(lfResult.isOk());
+                                        resultBuilder.contingency(contingency)
+                                                .setComputationOk(lfResult.isOk());
                                         violationDetector.checkAll(network, resultBuilder::addViolation);
-                                        resultBuilder.endState();
+                                        resultBuilder.endContingency();
 
                                         network.getStateManager().removeState(postContStateId);
 
@@ -118,9 +118,9 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                                     }, computationManager.getExecutor());
                         }
                     } else {
-                        resultBuilder.startNSituation()
-                                .computationOk(false)
-                                .endState()
+                        resultBuilder.preContingency()
+                                .setComputationOk(false)
+                                .endPreContingency()
                                 .build();
                         futures = new CompletableFuture[0];
                     }
