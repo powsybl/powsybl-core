@@ -60,6 +60,8 @@ public class LocalSecurityAnalysisRunningService implements SecurityAnalysisRunn
 
             SecurityAnalysis securityAnalysis = factorySupplier.get().create(network, computationManager, 0);
 
+            network.getStateManager().allowStateMultiThreadAccess(true);
+
             // add all interceptors
             for (String interceptorName : SecurityAnalysisInterceptors.getExtensionNames()) {
                 securityAnalysis.addInterceptor(SecurityAnalysisInterceptors.createInterceptor(interceptorName));
@@ -77,6 +79,9 @@ public class LocalSecurityAnalysisRunningService implements SecurityAnalysisRunn
                         }
                         return null;
                     }).join();
+
+            network.getStateManager().allowStateMultiThreadAccess(false);
+
         } finally {
             runner.stopTask(taskId);
         }

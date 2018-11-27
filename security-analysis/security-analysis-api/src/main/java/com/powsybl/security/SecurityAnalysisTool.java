@@ -198,6 +198,7 @@ public class SecurityAnalysisTool implements Tool {
 
 
         SecurityAnalysis securityAnalysis;
+        network.getStateManager().allowStateMultiThreadAccess(true);
         if (line.hasOption(EXTERNAL)) {
             Integer taskCount = getOptionValue(line, TASK_COUNT).map(Integer::parseInt).orElse(null);
             ExternalSecurityAnalysisConfig config = ExternalSecurityAnalysisConfig.load();
@@ -215,6 +216,8 @@ public class SecurityAnalysisTool implements Tool {
         String currentState = network.getStateManager().getWorkingStateId();
 
         SecurityAnalysisResult result = securityAnalysis.run(currentState, parameters, contingenciesProvider).join();
+
+        network.getStateManager().allowStateMultiThreadAccess(false);
 
         if (!result.getPreContingencyResult().isComputationOk()) {
             context.getErrorStream().println("Pre-contingency state divergence");

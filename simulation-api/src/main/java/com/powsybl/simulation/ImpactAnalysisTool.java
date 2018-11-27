@@ -267,6 +267,8 @@ public class ImpactAnalysisTool implements Tool {
                 = runImpactAnalysis(network, contingencyIds, context.getShortTimeExecutionComputationManager(),
                 simulatorFactory, contingenciesProvider, context.getOutputStream());
 
+        network.getStateManager().allowStateMultiThreadAccess(false);
+
         if (securityIndexesPerContingency != null) {
             if (outputCsvFile == null) {
                 prettyPrint(securityIndexesPerContingency, context.getOutputStream());

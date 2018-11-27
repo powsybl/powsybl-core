@@ -101,6 +101,10 @@ public class SecurityAnalyzer {
         SecurityAnalysis securityAnalysis = securityAnalysisFactory.create(network, filter, computationManager, priority);
         interceptors.forEach(securityAnalysis::addInterceptor);
 
-        return securityAnalysis.run(network.getStateManager().getWorkingStateId(), parameters, contingenciesProvider).join();
+        SecurityAnalysisResult result =  securityAnalysis.run(network.getStateManager().getWorkingStateId(), parameters, contingenciesProvider).join();
+
+        network.getStateManager().allowStateMultiThreadAccess(false);
+
+        return result;
     }
 }
