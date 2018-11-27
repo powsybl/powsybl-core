@@ -26,13 +26,13 @@ public class LoadTasksTest {
 
         Load load = network.getLoad(loadId);
 
-        assertEquals(load.getP0(), 10f, EPSILON);
-        assertEquals(load.getQ0(), 3f, EPSILON);
+        assertEquals(10f, load.getP0(), EPSILON);
+        assertEquals(3f, load.getQ0(), EPSILON);
 
         new LoadP0Task(loadId, 20f).modify(network, null);
-        assertEquals(load.getP0(), 20f, EPSILON);
+        assertEquals(20f, load.getP0(), EPSILON);
         new LoadQ0Task(loadId, 1f).modify(network, null);
-        assertEquals(load.getQ0(), 1f, EPSILON);
+        assertEquals(1f, load.getQ0(), EPSILON);
     }
 
     @Test(expected = RuntimeException.class)
