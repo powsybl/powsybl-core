@@ -20,9 +20,9 @@ import java.util.Objects;
 public class LoadP0Task implements ModificationTask {
 
     private final String loadId;
-    private final float p0;
+    private final double p0;
 
-    LoadP0Task(String loadId, float p0) {
+    LoadP0Task(String loadId, double p0) {
         this.loadId = Objects.requireNonNull(loadId);
         this.p0 = p0;
     }

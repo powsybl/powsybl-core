@@ -17,7 +17,7 @@ import com.powsybl.contingency.tasks.ModificationTask
 class LoadP0TaskExtension implements DslTaskExtension {
     @Override
     void addToSpec(MetaClass tasksSpecMetaClass, List<ModificationTask> tasks, Binding binding) {
-        tasksSpecMetaClass.loadP0 = { String id, float p0 ->
+        tasksSpecMetaClass.loadP0 = { String id, double p0 ->
             tasks.add(new LoadP0Task(id, p0))
         }
     }
