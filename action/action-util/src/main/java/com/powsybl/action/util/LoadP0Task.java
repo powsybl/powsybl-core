@@ -33,8 +33,6 @@ public class LoadP0Task implements ModificationTask {
         if (load == null) {
             throw new PowsyblException("Load '" + loadId + "' not found");
         }
-        System.out.println("Old P0:" + load.getP0());
         load.setP0(p0);
-        System.out.println("New P0:" + load.getP0());
     }
 }
