@@ -22,7 +22,6 @@ import java.util.function.Consumer;
  */
 public abstract class AbstractLimitViolationDetector implements LimitViolationDetector {
 
-
     /**
      * This implementation takes the current value to be checked from the Network.
      */

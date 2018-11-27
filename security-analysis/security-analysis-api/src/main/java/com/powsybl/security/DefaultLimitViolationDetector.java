@@ -22,7 +22,6 @@ public class DefaultLimitViolationDetector extends AbstractLimitViolationDetecto
     private final float limitReduction;
     private final Set<Security.CurrentLimitType> currentLimitTypes;
 
-
     public DefaultLimitViolationDetector(float limitReduction, Collection<Security.CurrentLimitType> currentLimitTypes) {
         if (limitReduction <= 0) {
             throw new IllegalArgumentException("Bad limit reduction " + limitReduction);
@@ -54,11 +53,10 @@ public class DefaultLimitViolationDetector extends AbstractLimitViolationDetecto
         return  Optional.empty();
     }
 
-
     @Override
     public Optional<LimitViolation> checkCurrent(Branch branch, Branch.Side side, double value) {
 
-        Branch.Overload overload =  LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value);
+        Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value);
 
         if (currentLimitTypes.contains(Security.CurrentLimitType.TATL) && (overload != null)) {
             return Optional.of(new LimitViolation(branch.getId(),

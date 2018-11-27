@@ -30,7 +30,6 @@ public abstract class AbstractSecurityAnalysis implements SecurityAnalysis {
 
     protected final List<SecurityAnalysisInterceptor> interceptors;
 
-
     protected AbstractSecurityAnalysis(Network network, LimitViolationFilter violationFilter) {
         this(network, new DefaultLimitViolationDetector(EnumSet.allOf(Security.CurrentLimitType.class)), violationFilter);
     }
@@ -41,7 +40,6 @@ public abstract class AbstractSecurityAnalysis implements SecurityAnalysis {
         this.violationFilter = Objects.requireNonNull(filter);
         this.interceptors = new ArrayList<>();
     }
-
 
     @Override
     public void addInterceptor(SecurityAnalysisInterceptor interceptor) {
