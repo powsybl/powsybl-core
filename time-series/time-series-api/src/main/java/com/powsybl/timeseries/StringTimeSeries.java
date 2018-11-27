@@ -8,40 +8,28 @@ package com.powsybl.timeseries;
 
 import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringArrayChunk, StringTimeSeries> implements TimeSeries<StringPoint, StringTimeSeries> {
+public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringDataChunk, StringTimeSeries> implements TimeSeries<StringPoint, StringTimeSeries> {
 
     private static final String[] NULL_ARRAY = new String[] {null};
 
-    public static StringTimeSeries create(String name, TimeSeriesIndex index, String[] values) {
-        Objects.requireNonNull(name);
-        Objects.requireNonNull(index);
-        Objects.requireNonNull(values);
-        if (index.getPointCount() != values.length) {
-            throw new IllegalArgumentException("Bad number of values " + values.length + ", expected " + index.getPointCount());
-        }
-        return new StringTimeSeries(new TimeSeriesMetadata(name, TimeSeriesDataType.STRING, index),
-                new UncompressedStringArrayChunk(0, values));
-    }
-
-    public StringTimeSeries(TimeSeriesMetadata metadata, StringArrayChunk... chunks) {
+    public StringTimeSeries(TimeSeriesMetadata metadata, StringDataChunk... chunks) {
         super(metadata, chunks);
     }
 
-    public StringTimeSeries(TimeSeriesMetadata metadata, List<StringArrayChunk> chunks) {
+    public StringTimeSeries(TimeSeriesMetadata metadata, List<StringDataChunk> chunks) {
         super(metadata, chunks);
     }
 
-    protected CompressedStringArrayChunk createGapFillingChunk(int i, int length) {
-        return new CompressedStringArrayChunk(i, length, NULL_ARRAY, new int[] {length});
+    protected CompressedStringDataChunk createGapFillingChunk(int i, int length) {
+        return new CompressedStringDataChunk(i, length, NULL_ARRAY, new int[] {length});
     }
 
     @Override
-    protected StringTimeSeries createTimeSeries(StringArrayChunk chunk) {
+    protected StringTimeSeries createTimeSeries(StringDataChunk chunk) {
         return new StringTimeSeries(metadata, chunk);
     }
 

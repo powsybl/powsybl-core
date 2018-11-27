@@ -9,7 +9,7 @@ package com.powsybl.security.interceptors;
 import com.google.auto.service.AutoService;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 @AutoService(SecurityAnalysisInterceptorExtension.class)
 public class SecurityAnalysisInterceptorMockExtension implements SecurityAnalysisInterceptorExtension {

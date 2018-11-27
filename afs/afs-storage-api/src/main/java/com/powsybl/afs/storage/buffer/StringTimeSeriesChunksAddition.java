@@ -8,7 +8,7 @@ package com.powsybl.afs.storage.buffer;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.powsybl.timeseries.StringArrayChunk;
+import com.powsybl.timeseries.StringDataChunk;
 import com.powsybl.timeseries.StringPoint;
 
 import java.util.List;
@@ -16,13 +16,13 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StringTimeSeriesChunksAddition extends AbstractTimeSeriesChunksAddition<StringPoint, StringArrayChunk> {
+public class StringTimeSeriesChunksAddition extends AbstractTimeSeriesChunksAddition<StringPoint, StringDataChunk> {
 
     @JsonCreator
     public StringTimeSeriesChunksAddition(@JsonProperty("nodeId") String nodeId,
                                           @JsonProperty("version") int version,
                                           @JsonProperty("timeSeriesName") String timeSeriesName,
-                                          @JsonProperty("chunks") List<StringArrayChunk> chunks) {
+                                          @JsonProperty("chunks") List<StringDataChunk> chunks) {
         super(nodeId, version, timeSeriesName, chunks);
     }
 

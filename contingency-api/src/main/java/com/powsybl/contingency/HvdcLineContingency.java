@@ -12,7 +12,7 @@ import com.powsybl.contingency.tasks.HvdcLineTripping;
 import java.util.Objects;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public class HvdcLineContingency extends AbstractSidedContingency {
 

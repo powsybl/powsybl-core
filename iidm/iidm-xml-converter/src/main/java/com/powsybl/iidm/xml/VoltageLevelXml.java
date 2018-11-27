@@ -101,7 +101,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         // associated object
         final TIntSet explored = new TIntHashSet();
         for (int n : nodes) {
-            if (explored.contains(n) || topo.getTerminal(n) == null) {
+            if (explored.contains(n)) {
                 continue;
             }
             explored.add(n);
@@ -110,7 +110,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                 if (sw == null) {
                     writeNodeBreakerTopologyInternalConnection(n1, n2, context);
                 }
-                return topo.getTerminal(n2) == null;
+                return true;
             });
         }
     }

@@ -7,8 +7,8 @@
 package com.powsybl.afs.storage.buffer;
 
 import com.powsybl.timeseries.AbstractPoint;
-import com.powsybl.timeseries.ArrayChunk;
-import com.powsybl.timeseries.TimeSeriesIndex;
+import com.powsybl.timeseries.DataChunk;
+import com.powsybl.timeseries.TimeSeriesVersions;
 
 import java.util.List;
 import java.util.Objects;
@@ -16,7 +16,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class AbstractTimeSeriesChunksAddition<P extends AbstractPoint, T extends ArrayChunk<P, T>> extends AbstractStorageChange {
+public abstract class AbstractTimeSeriesChunksAddition<P extends AbstractPoint, T extends DataChunk<P, T>> extends AbstractStorageChange {
 
     protected int version;
 
@@ -26,14 +26,14 @@ public abstract class AbstractTimeSeriesChunksAddition<P extends AbstractPoint, 
 
     protected AbstractTimeSeriesChunksAddition(String nodeId, int version, String timeSeriesName, List<T> chunks) {
         super(nodeId);
-        this.version = TimeSeriesIndex.checkVersion(version);
+        this.version = TimeSeriesVersions.check(version);
         this.timeSeriesName = Objects.requireNonNull(timeSeriesName);
         this.chunks = checkChunks(chunks);
     }
 
     @Override
     public long getEstimatedSize() {
-        return chunks.stream().mapToLong(ArrayChunk::getEstimatedSize).sum();
+        return chunks.stream().mapToLong(DataChunk::getEstimatedSize).sum();
     }
 
     private List<T> checkChunks(List<T> chunks) {
