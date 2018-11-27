@@ -38,10 +38,10 @@ public class DefaultLimitViolationDetector extends AbstractLimitViolationDetecto
         this(EnumSet.allOf(Security.CurrentLimitType.class));
     }
 
-    private Optional<LimitViolation> checkPermanentLimit(Branch branch, Branch.Side side, double value) {
+    private void checkPermanentLimit(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer) {
 
         if (LimitViolationUtils.checkPermanentLimit(branch, side, limitReduction, value)) {
-            return Optional.of(new LimitViolation(branch.getId(),
+            consumer.accept(new LimitViolation(branch.getId(),
                     LimitViolationType.CURRENT,
                     null,
                     Integer.MAX_VALUE,
@@ -50,16 +50,15 @@ public class DefaultLimitViolationDetector extends AbstractLimitViolationDetecto
                     value,
                     side));
         }
-        return  Optional.empty();
     }
 
     @Override
-    public Optional<LimitViolation> checkCurrent(Branch branch, Branch.Side side, double value) {
+    public void checkCurrent(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer) {
 
         Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value);
 
         if (currentLimitTypes.contains(Security.CurrentLimitType.TATL) && (overload != null)) {
-            return Optional.of(new LimitViolation(branch.getId(),
+            consumer.accept(new LimitViolation(branch.getId(),
                     LimitViolationType.CURRENT,
                     overload.getPreviousLimitName(),
                     overload.getTemporaryLimit().getAcceptableDuration(),
@@ -68,9 +67,8 @@ public class DefaultLimitViolationDetector extends AbstractLimitViolationDetecto
                     branch.getTerminal(side).getI(),
                     side));
         } else if (currentLimitTypes.contains(Security.CurrentLimitType.PATL)) {
-            return checkPermanentLimit(branch, side, value);
+            checkPermanentLimit(branch, side, value, consumer);
         }
-        return Optional.empty();
     }
 
     @Override

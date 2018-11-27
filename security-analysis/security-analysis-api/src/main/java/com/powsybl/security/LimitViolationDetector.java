@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 
-import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -25,25 +24,25 @@ public interface LimitViolationDetector {
     /**
      * Checks whether the specified current value on the specified side
      * of the specified {@link Branch} should be considered as a {@link LimitViolation} or not.
-     * In case it should, returns the corresponding limit violation.
+     * In case it should, feeds the consumer with it.
      *
      * @param branch        The branch on which the current must be checked.
      * @param side          The side of the branch on which the current must be checked.
      * @param currentValue  The current value to be checked, in A.
-     * @return              The created limit violation, if one has been detected, empty otherwise.
+     * @param consumer      Will be fed with possibly created limit violations.
      */
-    Optional<LimitViolation> checkCurrent(Branch branch, Branch.Side side, double currentValue);
+    void checkCurrent(Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer);
 
     /**
      * Checks whether the current value on the specified side
      * of the specified {@link Branch} should be considered as a {@link LimitViolation} or not.
-     * In case it should, returns the corresponding limit violation.
+     * In case it should, feeds the consumer with it.
      *
      * @param branch        The branch on which the current must be checked.
      * @param side          The side of the branch on which the current must be checked.
-     * @return              The created limit violation, if one has been detected, empty otherwise.
+     * @param consumer      Will be fed with possibly created limit violations.
      */
-    Optional<LimitViolation> checkCurrent(Branch branch, Branch.Side side);
+    void checkCurrent(Branch branch, Branch.Side side, Consumer<LimitViolation> consumer);
 
     /**
      * Checks whether the specified voltage value on the specified {@link Bus}

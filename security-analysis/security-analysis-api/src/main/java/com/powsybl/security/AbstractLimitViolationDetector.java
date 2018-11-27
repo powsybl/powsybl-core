@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 
-import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -26,8 +25,8 @@ public abstract class AbstractLimitViolationDetector implements LimitViolationDe
      * This implementation takes the current value to be checked from the Network.
      */
     @Override
-    public Optional<LimitViolation> checkCurrent(Branch branch, Branch.Side side) {
-        return checkCurrent(branch, side, branch.getTerminal(side).getI());
+    public void checkCurrent(Branch branch, Branch.Side side, Consumer<LimitViolation> consumer) {
+        checkCurrent(branch, side, branch.getTerminal(side).getI(), consumer);
     }
 
     /**
@@ -45,8 +44,8 @@ public abstract class AbstractLimitViolationDetector implements LimitViolationDe
 
     @Override
     public void checkCurrent(Branch branch, Consumer<LimitViolation> consumer) {
-        checkCurrent(branch, Branch.Side.ONE).ifPresent(consumer);
-        checkCurrent(branch, Branch.Side.TWO).ifPresent(consumer);
+        checkCurrent(branch, Branch.Side.ONE, consumer);
+        checkCurrent(branch, Branch.Side.TWO, consumer);
     }
 
     @Override

@@ -30,12 +30,19 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
 
     private final LoadFlowFactory loadFlowFactory;
 
-    public SecurityAnalysisImpl(Network network, ComputationManager computationManager, LoadFlowFactory loadFlowFactory) {
+    public SecurityAnalysisImpl(Network network, ComputationManager computationManager,
+                                LoadFlowFactory loadFlowFactory) {
         this(network, new LimitViolationFilter(), computationManager, loadFlowFactory);
     }
 
-    public SecurityAnalysisImpl(Network network, LimitViolationFilter filter, ComputationManager computationManager, LoadFlowFactory loadFlowFactory) {
-        super(network, filter);
+    public SecurityAnalysisImpl(Network network, LimitViolationFilter filter,
+                                ComputationManager computationManager, LoadFlowFactory loadFlowFactory) {
+        this(network, new DefaultLimitViolationDetector(), filter, computationManager, loadFlowFactory);
+    }
+
+    public SecurityAnalysisImpl(Network network, LimitViolationDetector detector, LimitViolationFilter filter,
+                                ComputationManager computationManager, LoadFlowFactory loadFlowFactory) {
+        super(network, detector, filter);
 
         this.computationManager = Objects.requireNonNull(computationManager);
         this.loadFlowFactory = Objects.requireNonNull(loadFlowFactory);

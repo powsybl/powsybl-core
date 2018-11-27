@@ -6,15 +6,20 @@
  */
 package com.powsybl.security;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
@@ -32,21 +37,23 @@ public class SecurityAnalysisChecksTest {
     //test current limit violation
     public void checkCurrentLimits() {
         Line line = network.getLine("NHV1_NHV2_1");
-        LimitViolation limitViolation;
 
+
+        List<LimitViolation> violations = new ArrayList<>();
         LimitViolationDetector detector = new DefaultLimitViolationDetector(Collections.singleton(Security.CurrentLimitType.PATL));
-        limitViolation = detector.checkCurrent(line, Branch.Side.TWO, 1101).orElse(null);
+        detector.checkCurrent(line, Branch.Side.TWO, 1101, violations::add);
 
-        assertNotNull(limitViolation);
-        //check th  that is permaenent limit violation
-        assertEquals(1100, limitViolation.getLimit(), 0d);
+        Assertions.assertThat(violations)
+                .hasSize(1)
+                .allSatisfy(l -> assertEquals(1100, l.getLimit(), 0d));
 
+        violations = new ArrayList<>();
         detector = new DefaultLimitViolationDetector(Collections.singleton(Security.CurrentLimitType.TATL));
-        limitViolation = detector.checkCurrent(line, Branch.Side.TWO, 1201).orElse(null);
+        detector.checkCurrent(line, Branch.Side.TWO, 1201, violations::add);
 
-        assertNotNull(limitViolation);
-        //check th  that is temporary limit violation
-        assertEquals(1200, limitViolation.getLimit(), 0d);
+        Assertions.assertThat(violations)
+                .hasSize(1)
+                .allSatisfy(l -> assertEquals(1200, l.getLimit(), 0d));
     }
 
     @Test
