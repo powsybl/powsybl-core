@@ -48,7 +48,7 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
             case LESS_THAN_OR_EQUALS_TO:
                 return value1 <= value2;
             default:
-                throw new AssertionError();
+                throw new AssertionError("Unexpected operator: " + node.getOperator());
         }
     }
 
@@ -79,7 +79,7 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
             case OR:
                 return value1 || value2;
             default:
-                throw new AssertionError();
+                throw new AssertionError("Unexpected operator: " + node.getOperator());
         }
     }
 
@@ -105,7 +105,7 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
             case DIVIDE:
                 return value1 / value2;
             default:
-                throw new AssertionError();
+                throw new AssertionError("Unexpected operator: " + node.getOperator());
         }
     }
 }

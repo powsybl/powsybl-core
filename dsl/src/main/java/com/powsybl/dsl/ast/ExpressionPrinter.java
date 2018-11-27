@@ -60,7 +60,7 @@ public class ExpressionPrinter extends DefaultExpressionVisitor<Void, Void> {
                 out.print("||");
                 break;
             default:
-                throw new AssertionError();
+                throw new AssertionError("Unexpected operator: " + node.getOperator());
         }
         out.print(" ");
         node.getRight().accept(this, arg);
@@ -87,7 +87,7 @@ public class ExpressionPrinter extends DefaultExpressionVisitor<Void, Void> {
                 out.print("/");
                 break;
             default:
-                throw new AssertionError();
+                throw new AssertionError("Unexpected operator: " + node.getOperator());
         }
         out.print(" ");
         node.getRight().accept(this, arg);
@@ -128,7 +128,7 @@ public class ExpressionPrinter extends DefaultExpressionVisitor<Void, Void> {
                 out.print("<=");
                 break;
             default:
-                throw new AssertionError();
+                throw new AssertionError("Unexpected operator: " + node.getOperator());
         }
         out.print(" ");
         node.getRight().accept(this, arg);
