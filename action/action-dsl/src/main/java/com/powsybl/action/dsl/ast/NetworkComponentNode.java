@@ -11,9 +11,9 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NetworkComponentNode implements NetworkNode {
+public class NetworkComponentNode extends AbstractActionExpressionNode implements NetworkNode {
 
-    enum ComponentType {
+    public enum ComponentType {
         LINE,
         BRANCH,
         TRANSFORMER,
@@ -40,7 +40,7 @@ public class NetworkComponentNode implements NetworkNode {
     }
 
     @Override
-    public <R, A> R accept(ExpressionVisitor<R, A> visitor, A arg) {
+    public <R, A> R accept(ActionExpressionVisitor<R, A> visitor, A arg) {
         return visitor.visitNetworkComponent(this, arg);
     }
 }

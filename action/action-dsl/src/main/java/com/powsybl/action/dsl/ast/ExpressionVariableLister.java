@@ -6,13 +6,15 @@
  */
 package com.powsybl.action.dsl.ast;
 
+import com.powsybl.dsl.ast.ExpressionNode;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ExpressionVariableLister extends DefaultExpressionVisitor<Void, List<NetworkNode>> {
+public class ExpressionVariableLister extends DefaultActionExpressionVisitor<Void, List<NetworkNode>> {
 
     public static List<NetworkNode> list(ExpressionNode root) {
         List<NetworkNode> variables = new ArrayList<>();
