@@ -45,50 +45,24 @@ public final class Security {
     private static final String ABS_VALUE_LIMIT = "abs(value-limit)";
     private static final String LOADING_RATE = "Loading rate %";
 
+    /**
+     * Permanently or temporarily admissible currents,
+     * as defined in the ENTSO-E operation handbook.
+     *
+     * @see <a href="https://www.entsoe.eu/fileadmin/user_upload/_library/publications/entsoe/Operation_Handbook/Policy_3_final.pdf">Policy 3 of ENTSO-E operation handbook</a>
+     */
     public enum CurrentLimitType {
+        /**
+         * Permanently Admissible Transmission Loading.
+         */
         PATL,
+        /**
+         * Temporary Admissible Transmission Loading.
+         */
         TATL
     }
 
     private Security() {
-    }
-
-    private static void checkPermanentLimit(Branch branch, Branch.Side side, float limitReduction, List<LimitViolation> violations) {
-        if (branch.checkPermanentLimit(side, limitReduction)) {
-            violations.add(new LimitViolation(branch.getId(),
-                LimitViolationType.CURRENT,
-                null,
-                Integer.MAX_VALUE,
-                branch.getCurrentLimits(side).getPermanentLimit(),
-                limitReduction,
-                branch.getTerminal(side).getI(),
-                side));
-        }
-    }
-
-    private static void checkCurrentLimits(Branch branch, Branch.Side side, Set<CurrentLimitType> currentLimitTypes,
-                                           float limitReduction, List<LimitViolation> violations) {
-        Branch.Overload overload = branch.checkTemporaryLimits(side, limitReduction);
-        if (currentLimitTypes.contains(CurrentLimitType.TATL) && (overload != null)) {
-            violations.add(new LimitViolation(branch.getId(),
-                LimitViolationType.CURRENT,
-                overload.getPreviousLimitName(),
-                overload.getTemporaryLimit().getAcceptableDuration(),
-                overload.getPreviousLimit(),
-                limitReduction,
-                branch.getTerminal(side).getI(),
-                side));
-        } else if (currentLimitTypes.contains(CurrentLimitType.PATL)) {
-            checkPermanentLimit(branch, side, limitReduction, violations);
-        }
-    }
-
-    private static void checkCurrentLimits(Iterable<? extends Branch> branches, Set<CurrentLimitType> currentLimitTypes,
-                                           float limitReduction, List<LimitViolation> violations) {
-        for (Branch branch : branches) {
-            checkCurrentLimits(branch, Branch.Side.ONE, currentLimitTypes, limitReduction, violations);
-            checkCurrentLimits(branch, Branch.Side.TWO, currentLimitTypes, limitReduction, violations);
-        }
     }
 
     public static List<LimitViolation> checkLimits(Network network) {
@@ -113,22 +87,7 @@ public final class Security {
             throw new IllegalArgumentException("Bad limit reduction " + limitReduction);
         }
         List<LimitViolation> violations = new ArrayList<>();
-        checkCurrentLimits(network.getLines(), currentLimitTypes, limitReduction, violations);
-        checkCurrentLimits(network.getTwoWindingsTransformers(), currentLimitTypes, limitReduction, violations);
-        for (VoltageLevel vl : network.getVoltageLevels()) {
-            if (!Double.isNaN(vl.getLowVoltageLimit())) {
-                vl.getBusView().getBusStream()
-                        .filter(b -> !Double.isNaN(b.getV()))
-                        .filter(b -> b.getV() < vl.getLowVoltageLimit())
-                        .forEach(b -> violations.add(new LimitViolation(vl.getId(), LimitViolationType.LOW_VOLTAGE, vl.getLowVoltageLimit(), 1, b.getV())));
-            }
-            if (!Double.isNaN(vl.getHighVoltageLimit())) {
-                vl.getBusView().getBusStream()
-                        .filter(b -> !Double.isNaN(b.getV()))
-                        .filter(b -> b.getV() > vl.getHighVoltageLimit())
-                        .forEach(b -> violations.add(new LimitViolation(vl.getId(), LimitViolationType.HIGH_VOLTAGE, vl.getLowVoltageLimit(), 1, b.getV())));
-            }
-        }
+        new DefaultLimitViolationDetector(limitReduction, currentLimitTypes).checkAll(network, violations::add);
         return violations;
     }
 

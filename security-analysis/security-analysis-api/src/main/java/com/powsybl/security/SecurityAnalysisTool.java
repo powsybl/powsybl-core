@@ -208,7 +208,7 @@ public class SecurityAnalysisTool implements Tool {
             securityAnalysis = new DistributedSecurityAnalysis(config, network, computationManager, extensions, taskCount);
         } else {
             securityAnalysis = SecurityAnalysisFactories.newDefaultFactory()
-                    .create(network, limitViolationFilter, computationManager, 0);
+                    .create(network, new DefaultLimitViolationDetector(), limitViolationFilter, computationManager, 0);
             interceptors.forEach(securityAnalysis::addInterceptor);
         }
 
