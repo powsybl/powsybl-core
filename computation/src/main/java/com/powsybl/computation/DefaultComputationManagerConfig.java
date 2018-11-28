@@ -96,7 +96,7 @@ public class DefaultComputationManagerConfig {
         String str = "DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass=" + shortTimeExecutionComputationManagerFactoryClass.getName()
                 + ", longTimeExecutionComputationManagerFactoryClass=";
         if (longTimeExecutionComputationManagerFactoryClass != null) {
-            str +=  longTimeExecutionComputationManagerFactoryClass.getName();
+            str += longTimeExecutionComputationManagerFactoryClass.getName();
         } else {
             str += shortTimeExecutionComputationManagerFactoryClass.getName();
         }
