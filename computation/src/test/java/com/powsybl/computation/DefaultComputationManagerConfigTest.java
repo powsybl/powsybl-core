@@ -59,9 +59,9 @@ public class DefaultComputationManagerConfigTest {
         assertNotNull(config.createLongTimeExecutionComputationManager());
 
         config = new DefaultComputationManagerConfig(FirstComputationManagerFactory.class, null);
-        assertEquals("DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass=com.powsybl.computation.DefaultComputationManagerConfigTest$FirstComputationManagerFactory)", config.toString());
+        assertEquals("DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass=com.powsybl.computation.DefaultComputationManagerConfigTest$FirstComputationManagerFactory, longTimeExecutionComputationManagerFactoryClass=com.powsybl.computation.DefaultComputationManagerConfigTest$FirstComputationManagerFactory)", config.toString());
         assertNotNull(config.createShortTimeExecutionComputationManager());
-        assertNull(config.createLongTimeExecutionComputationManager());
+        assertNotNull(config.createLongTimeExecutionComputationManager());
 
         InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("default-computation-manager");
