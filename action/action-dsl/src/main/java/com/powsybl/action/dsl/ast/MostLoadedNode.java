@@ -14,7 +14,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class MostLoadedNode implements ExpressionNode {
+public class MostLoadedNode extends AbstractActionExpressionNode {
 
     private final List<String> branchIds;
 
@@ -30,7 +30,7 @@ public class MostLoadedNode implements ExpressionNode {
     }
 
     @Override
-    public <R, A> R accept(ExpressionVisitor<R, A> visitor, A arg) {
+    public <R, A> R accept(ActionExpressionVisitor<R, A> visitor, A arg) {
         return visitor.visitMostLoaded(this, arg);
     }
 }

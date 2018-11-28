@@ -18,6 +18,9 @@ import com.powsybl.contingency.Contingency;
 public interface ActionDslHandler {
 
     void addContingency(Contingency contingency);
+
     void addRule(Rule rule);
+
     void addAction(Action action);
+
 }
