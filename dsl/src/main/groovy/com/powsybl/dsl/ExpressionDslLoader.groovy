@@ -92,7 +92,7 @@ class ExpressionDslLoader extends DslLoader {
                 case "!=":
                     return delegate != value
                 default:
-                    throw new AssertionError("Unexpected operator: " + op)
+                    throw createUnexpectedOperatorException(op)
             }
         }
 
@@ -174,8 +174,12 @@ class ExpressionDslLoader extends DslLoader {
             case "!=":
                 return ExpressionHelper.newComparisonOperator(left, right, ComparisonOperator.NOT_EQUALS)
             default:
-                throw new AssertionError("Unexpected operator: " + op)
+                throw createUnexpectedOperatorException(op)
         }
+    }
+
+    private static AssertionError createUnexpectedOperatorException(String operator) {
+        return new AssertionError("Unexpected operator: " + operator)
     }
 
     static ExpressionNode createExpressionNode(Object value) {
