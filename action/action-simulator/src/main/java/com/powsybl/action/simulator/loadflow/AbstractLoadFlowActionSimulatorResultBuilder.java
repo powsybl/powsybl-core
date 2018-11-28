@@ -18,7 +18,6 @@ import java.util.function.Consumer;
  */
 public abstract class AbstractLoadFlowActionSimulatorResultBuilder<R> implements LoadFlowActionSimulatorResultBuilder<R> {
 
-
     private final List<Consumer<R>> handlers = new ArrayList<>();
 
     private R result;

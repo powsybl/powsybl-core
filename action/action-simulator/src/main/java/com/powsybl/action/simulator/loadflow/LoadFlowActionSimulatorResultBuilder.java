@@ -31,7 +31,6 @@ public interface LoadFlowActionSimulatorResultBuilder<R> {
      */
     String getName();
 
-
     /**
      * The built result.
      */
