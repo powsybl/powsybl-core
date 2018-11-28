@@ -150,18 +150,11 @@ public class SecurityAnalysisResultBuilder {
 
     }
 
-    private class PreContingencyResultBuilder implements ResultBuilder {
+    private class LimitViolationsResultBuilder implements ResultBuilder {
 
-        private boolean computationOk;
+        protected boolean computationOk;
 
-        private final List<LimitViolation> violations = new ArrayList<>();
-
-        void endPreContingency() {
-            List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
-            LimitViolationsResult res = new LimitViolationsResult(computationOk, filteredViolations);
-            interceptors.forEach(i -> i.onPreContingencyResult(context, res));
-            preContingencyResult = res;
-        }
+        protected final List<LimitViolation> violations = new ArrayList<>();
 
         @Override
         public void setComputationOk(boolean computationOk) {
@@ -172,15 +165,22 @@ public class SecurityAnalysisResultBuilder {
         public void addViolation(LimitViolation violation) {
             violations.add(Objects.requireNonNull(violation));
         }
+
     }
 
-    private class PostContingencyResultBuilder implements ResultBuilder {
+    private class PreContingencyResultBuilder extends LimitViolationsResultBuilder {
+
+        void endPreContingency() {
+            List<LimitViolation> filteredViolations = filter.apply(violations, context.getNetwork());
+            LimitViolationsResult res = new LimitViolationsResult(computationOk, filteredViolations);
+            interceptors.forEach(i -> i.onPreContingencyResult(context, res));
+            preContingencyResult = res;
+        }
+    }
+
+    private class PostContingencyResultBuilder extends LimitViolationsResultBuilder {
 
         private final Contingency contingency;
-
-        private boolean computationOk;
-
-        private final List<LimitViolation> violations = new ArrayList<>();
 
         PostContingencyResultBuilder(Contingency contingency) {
             this.contingency = Objects.requireNonNull(contingency);
@@ -191,16 +191,6 @@ public class SecurityAnalysisResultBuilder {
             PostContingencyResult res = new PostContingencyResult(contingency, computationOk, filteredViolations);
             interceptors.forEach(i -> i.onPostContingencyResult(context, res));
             postContingencyResults.add(res);
-        }
-
-        @Override
-        public void setComputationOk(boolean computationOk) {
-            this.computationOk = computationOk;
-        }
-
-        @Override
-        public void addViolation(LimitViolation violation) {
-            violations.add(Objects.requireNonNull(violation));
         }
     }
 }
