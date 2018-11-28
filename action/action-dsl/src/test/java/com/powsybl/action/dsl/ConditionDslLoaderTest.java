@@ -9,6 +9,7 @@ package com.powsybl.action.dsl;
 import com.powsybl.action.dsl.ast.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.dsl.ast.ExpressionNode;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
@@ -44,13 +45,13 @@ public class ConditionDslLoaderTest {
     private void loadAndAssert(String expected, String script) throws IOException {
         ExpressionNode node = (ExpressionNode) new ConditionDslLoader(script).load(network);
         assertNotNull(node);
-        assertEquals(expected, ExpressionPrinter.toString(node));
+        assertEquals(expected, ActionExpressionPrinter.toString(node));
     }
 
     private void evalAndAssert(Object expected, String script) throws IOException {
         ExpressionNode node = (ExpressionNode) new ConditionDslLoader(script).load(network);
         assertNotNull(node);
-        assertEquals(expected, ExpressionEvaluator.evaluate(node, new EvaluationContext() {
+        assertEquals(expected, ActionExpressionEvaluator.evaluate(node, new EvaluationContext() {
             @Override
             public Network getNetwork() {
                 return network;
@@ -217,8 +218,8 @@ public class ConditionDslLoaderTest {
                 .add();
 
         // IIDM method call
-        evalAndAssert(800.0, "line('NHV1_NHV2_1').currentLimits1.getTemporaryLimitValue(1200)");
         evalAndAssert(false, "line('NHV1_NHV2_1').overloaded");
+        evalAndAssert(800.0, "line('NHV1_NHV2_1').currentLimits1.getTemporaryLimitValue(1200)");
 
         evalAndAssert(800.0, "branch('NHV1_NHV2_1').currentLimits1.getTemporaryLimitValue(1200)");
         evalAndAssert(0.0, "branch('NHV2_NLOAD').g");

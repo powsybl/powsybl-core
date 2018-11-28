@@ -19,8 +19,8 @@
     </parent>
 
     <artifactId>powsybl-action-dsl</artifactId>
-    <name>Action, contingency and rule DSL</name>
-    <description>A DSL to describe actions, contingencies and rules</description>
+    <name>Action and rule DSL</name>
+    <description>A DSL to describe actions, rules and access to network equipments</description>
 
     <build>
         <plugins>
@@ -70,6 +70,16 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-contingency-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-contingency-dsl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-dsl</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

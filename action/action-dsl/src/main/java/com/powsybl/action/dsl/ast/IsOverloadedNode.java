@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 
-public class IsOverloadedNode implements ExpressionNode {
+public class IsOverloadedNode extends AbstractActionExpressionNode {
 
     private final List<String> branchIds;
     private final float limitReduction;
@@ -36,7 +36,7 @@ public class IsOverloadedNode implements ExpressionNode {
     }
 
     @Override
-    public <R, A> R accept(ExpressionVisitor<R, A> visitor, A arg) {
+    public <R, A> R accept(ActionExpressionVisitor<R, A> visitor, A arg) {
         return visitor.visitIsOverloaded(this, arg);
     }
 }
