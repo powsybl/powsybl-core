@@ -6,10 +6,12 @@
  */
 package com.powsybl.action.dsl.ast;
 
+
 import java.util.List;
 import java.util.Objects;
 
-public class AllOverloadedNode implements AbstractActionExpressionNode {
+
+public class AllOverloadedNode extends AbstractActionExpressionNode {
 
     private final List<String> branchIds;
     private final float limitReduction;
