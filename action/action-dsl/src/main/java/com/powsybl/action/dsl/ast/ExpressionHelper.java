@@ -85,7 +85,6 @@ public final class ExpressionHelper {
         return new IsOverloadedNode(branchIds, limitReduction);
     }
 
-
     public static AllOverloadedNode newAllOverloadedNode(List<String> branchIds, float limitReduction) {
         return new AllOverloadedNode(branchIds, limitReduction);
     }
