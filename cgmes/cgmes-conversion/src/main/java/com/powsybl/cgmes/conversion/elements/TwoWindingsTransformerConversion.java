@@ -79,7 +79,7 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
 
         // FIXME(Luma) Review the way of deciding which rtc/ptc should be converted,
         // considering also the artificial ones introduced by the phaseAngleClock
-        
+
         // Add phaseAngleClock as a fixed phase tap changer
         if (context.config().considerPhaseAngleClock()) {
             // FIXME(Luma) If there is already a phase tap change,
