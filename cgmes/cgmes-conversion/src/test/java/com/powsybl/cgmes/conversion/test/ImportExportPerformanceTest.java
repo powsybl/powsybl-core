@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.cgmes.model.test.cim14.Cim14SmallCasesCatalog;
@@ -75,10 +76,9 @@ public class ImportExportPerformanceTest {
         CgmesImport i = new CgmesImport();
         Properties importParameters = new Properties();
         importParameters.put("powsyblTripleStore", ts);
-        importParameters.put("storeCgmesModelAsNetworkProperty", "true");
+        importParameters.put("storeCgmesModelAsNetworkExtension", "true");
         Network n = i.importData(ds, importParameters);
-        Object c = n.getProperties().get("CGMESModel");
-        CgmesModel cgmes = (CgmesModel) c;
+        CgmesModel cgmes = n.getExtension(CgmesModelExtension.class).cgmes();
         cgmes.print(LOG::info);
 
         CgmesExport e = new CgmesExport();
