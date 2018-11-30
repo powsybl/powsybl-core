@@ -426,7 +426,8 @@ WHERE {
         cim:PowerTransformerEnd.ratedU ?ratedU ;
         cim:TransformerEnd.endNumber ?endNumber ;
         cim:TransformerEnd.Terminal ?Terminal .
-    OPTIONAL { ?TransformerEnd  cim:PowerTransformerEnd.g ?g }
+    OPTIONAL { ?TransformerEnd cim:PowerTransformerEnd.g ?g }
+    OPTIONAL { ?TransformerEnd cim:PowerTransformerEnd.phaseAngleClock ?phaseAngleClock }
     OPTIONAL { ?RatioTapChanger cim:RatioTapChanger.TransformerEnd ?TransformerEnd }
     OPTIONAL { ?PhaseTapChanger cim:PhaseTapChanger.TransformerEnd ?TransformerEnd }
 }}

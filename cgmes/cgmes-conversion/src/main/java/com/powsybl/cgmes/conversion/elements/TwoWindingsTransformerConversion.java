@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -76,6 +77,39 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
         String ptc1 = end1.getId(ptcPropertyName);
         String ptc2 = end2.getId(ptcPropertyName);
 
+        // FIXME(Luma) Review the way of deciding which rtc/ptc should be converted,
+        // considering also the artificial ones introduced by the phaseAngleClock
+        
+        // Add phaseAngleClock as a fixed phase tap changer
+        if (context.config().considerPhaseAngleClock()) {
+            // FIXME(Luma) If there is already a phase tap change,
+            // we should add the shift to every tap position
+            int clock1 = end1.asInt("phaseAngleClock", 0);
+            int clock2 = end2.asInt("phaseAngleClock", 0);
+            if (clock1 != 0 && ptc1 != null) {
+                String reason = String.format("Ignored phase tap changer because end has phase angle clock %s", clock1);
+                ignored(ptc1, reason);
+                ptc1 = null;
+            }
+            if (clock1 != 0) {
+                // FIXME(Luma) There could still be a conflict with the potential RTC
+                // Instead of adding directly the phase tap changer,
+                // Store in context.tapChangerTransformers() enough
+                // information to build it during tap changer conversion
+                // It will help also in deciding if the ptc introduced
+                // is "compatible" with the rest of tap changers
+                addPhaseAngleClockTapChanger(tx, 1, clock1);
+            }
+            if (clock2 != 0 && ptc2 != null) {
+                String reason = String.format("Ignored phase tap changer because end has phase angle clock %s", clock2);
+                ignored(ptc2, reason);
+                ptc2 = null;
+            }
+            if (clock2 != 0) {
+                addPhaseAngleClockTapChanger(tx, 2, clock2);
+            }
+        }
+
         if (context.config().allowUnsupportedTapChangers()) {
             context.tapChangerTransformers().add(rtc1, tx, 1);
             context.tapChangerTransformers().add(rtc2, tx, 2);
@@ -128,6 +162,22 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
                     ptc);
             invalid(reason);
         }
+    }
+
+    private void addPhaseAngleClockTapChanger(TwoWindingsTransformer tx, int side, int clock) {
+        double alpha = 30.0 * clock;
+        PhaseTapChangerAdder ptca = tx.newPhaseTapChanger()
+                .setLowTapPosition(0)
+                .setTapPosition(0);
+        ptca.beginStep()
+                .setAlpha(alpha * (side == 1 ? 1 : -1))
+                .setRho(1)
+                .setR(0)
+                .setX(0)
+                .setG(0)
+                .setB(0)
+                .endStep();
+        ptca.add();
     }
 
     private final PropertyBag end1;
