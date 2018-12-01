@@ -15,7 +15,7 @@ import java.util.Objects;
 public abstract class AbstractBranchActionExpressionNode extends AbstractActionExpressionNode {
 
     private final List<String> branchIds;
-    
+
     private final float limitReduction;
 
     public AbstractBranchActionExpressionNode(List<String> branchIds, float limitReduction) {
