@@ -219,6 +219,9 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
         return Iterables.concat(iterables);
     }
 
+    /**
+     * @deprecated Use {@link #getTwoWindingsTransformers()} instead.
+     */
     @Deprecated
     @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingTransformers() {
@@ -231,6 +234,9 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
         return buses.stream().flatMap(ConfiguredBus::getTwoWindingsTransformerStream);
     }
 
+    /**
+     * @deprecated Use {@link #getTwoWindingsTransformerStream()} instead.
+     */
     @Deprecated
     @Override
     public Stream<TwoWindingsTransformer> getTwoWindingTransformerStream() {
@@ -247,6 +253,9 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
         return Iterables.concat(iterables);
     }
 
+    /**
+     * @deprecated Use {@link #getThreeWindingsTransformers()} instead.
+     */
     @Deprecated
     @Override
     public Iterable<ThreeWindingsTransformer> getThreeWindingTransformers() {
@@ -259,6 +268,9 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
         return buses.stream().flatMap(ConfiguredBus::getThreeWindingsTransformerStream);
     }
 
+    /**
+     * @deprecated Use {@link #getThreeWindingsTransformerStream()} instead.
+     */
     @Deprecated
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingTransformerStream() {

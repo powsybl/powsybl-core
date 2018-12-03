@@ -148,6 +148,9 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
         return getConnectables(TwoWindingsTransformer.class);
     }
 
+    /**
+     * @deprecated Use {@link #getTwoWindingsTransformers()} instead.
+     */
     @Deprecated
     @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingTransformers() {
@@ -159,6 +162,9 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
         return getConnectableStream(TwoWindingsTransformer.class);
     }
 
+    /**
+     * @deprecated Use {@link #getTwoWindingsTransformerStream()} instead.
+     */
     @Deprecated
     @Override
     public Stream<TwoWindingsTransformer> getTwoWindingTransformerStream() {
@@ -170,8 +176,11 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
         return getConnectables(ThreeWindingsTransformer.class);
     }
 
-    @Override
+    /**
+     * @deprecated Use {@link #getThreeWindingsTransformers()} instead.
+     */
     @Deprecated
+    @Override
     public Iterable<ThreeWindingsTransformer> getThreeWindingTransformers() {
         return getThreeWindingsTransformers();
     }
@@ -181,6 +190,9 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
         return getConnectableStream(ThreeWindingsTransformer.class);
     }
 
+    /**
+     * @deprecated Use {@link #getThreeWindingsTransformerStream()} instead.
+     */
     @Deprecated
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingTransformerStream() {
