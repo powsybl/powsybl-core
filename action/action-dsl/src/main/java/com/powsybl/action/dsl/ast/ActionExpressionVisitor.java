@@ -28,4 +28,6 @@ public interface ActionExpressionVisitor<R, A> extends ExpressionVisitor<R, A> {
     R visitMostLoaded(MostLoadedNode mostLoadedNode, A arg);
 
     R visitIsOverloaded(IsOverloadedNode isOverloadedNode, A arg);
+
+    R visitAllOverloaded(AllOverloadedNode allOverloadedNode, A arg);
 }

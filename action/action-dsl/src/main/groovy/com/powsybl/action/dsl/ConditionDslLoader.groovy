@@ -154,8 +154,12 @@ class ConditionDslLoader extends DslLoader {
             ActionExpressionHelper.newMostLoaded(branchIds)
         }
 
-        binding.isOverloaded = {branchIds, limitReduction = 1 as float ->
+        binding.isOverloaded = { branchIds, limitReduction = 1 as float ->
             ActionExpressionHelper.newIsOverloadedNode(branchIds, limitReduction)
+        }
+
+        binding.allOverloaded = { branchIds, limitReduction = 1 as float ->
+            ActionExpressionHelper.newAllOverloadedNode(branchIds, limitReduction)
         }
 
         NetworkNode.metaClass.propertyMissing = { String name ->
