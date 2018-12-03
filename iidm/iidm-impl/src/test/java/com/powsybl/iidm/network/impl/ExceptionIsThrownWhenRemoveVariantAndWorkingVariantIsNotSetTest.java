@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.StateManagerConstants;
+import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Assert;
 import org.junit.Test;
@@ -19,19 +19,19 @@ import java.util.concurrent.TimeUnit;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ExceptionIsThrownWhenRemoveStateAndWorkingStateIsNotSetTest {
+public class ExceptionIsThrownWhenRemoveVariantAndWorkingVariantIsNotSetTest {
 
     @Test
     public void test() throws Exception {
         Network network = EurostagTutorialExample1Factory.create();
-        network.getStateManager().allowStateMultiThreadAccess(true);
-        network.getStateManager().cloneState(StateManagerConstants.INITIAL_STATE_ID, "s");
+        network.getVariantManager().allowVariantMultiThreadAccess(true);
+        network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "s");
         ExecutorService executorService = Executors.newSingleThreadExecutor();
         boolean[] exceptionThrown = new boolean[1];
         exceptionThrown[0] = false;
         executorService.execute(() -> {
             try {
-                network.getStateManager().removeState("s");
+                network.getVariantManager().removeVariant("s");
             } catch (Throwable e) {
                 exceptionThrown[0] = true;
             }

@@ -162,14 +162,14 @@ public class HvdcLineTest {
 
     @Test
     public void testSetterGetterInMultiStates() {
-        StateManager stateManager = network.getStateManager();
+        VariantManager variantManager = network.getVariantManager();
         createHvdcLine("testMultiState", "testMultiState", 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
                 11.0, 12.0, 22.0, "C1", "C2");
         HvdcLine hvdcLine = network.getHvdcLine("testMultiState");
-        List<String> statesToAdd = Arrays.asList("s1", "s2", "s3", "s4");
-        stateManager.cloneState(StateManagerConstants.INITIAL_STATE_ID, statesToAdd);
+        List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
 
-        stateManager.setWorkingState("s4");
+        variantManager.setWorkingVariant("s4");
         // check values cloned by extend
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, hvdcLine.getConvertersMode());
         assertEquals(12.0, hvdcLine.getActivePowerSetpoint(), 0.0);
@@ -178,22 +178,22 @@ public class HvdcLineTest {
         hvdcLine.setActivePowerSetpoint(22.0);
 
         // remove s2
-        stateManager.removeState("s2");
+        variantManager.removeVariant("s2");
 
-        stateManager.cloneState("s4", "s2b");
-        stateManager.setWorkingState("s2b");
+        variantManager.cloneVariant("s4", "s2b");
+        variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER, hvdcLine.getConvertersMode());
         assertEquals(22.0, hvdcLine.getActivePowerSetpoint(), 0.0);
 
-        // recheck initial state value
-        stateManager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
+        // recheck initial variant value
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertEquals(HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER, hvdcLine.getConvertersMode());
         assertEquals(12.0, hvdcLine.getActivePowerSetpoint(), 0.0);
 
-        // remove working state s4
-        stateManager.setWorkingState("s4");
-        stateManager.removeState("s4");
+        // remove working variant s4
+        variantManager.setWorkingVariant("s4");
+        variantManager.removeVariant("s4");
         try {
             hvdcLine.getConvertersMode();
             fail();

@@ -104,13 +104,13 @@ public class StaticVarCompensatorTest {
 
     @Test
     public void testSetterGetterInMultiStates() {
-        StateManager stateManager = network.getStateManager();
+        VariantManager variantManager = network.getVariantManager();
         createSvc("testMultiState");
         StaticVarCompensator svc = network.getStaticVarCompensator("testMultiState");
-        List<String> statesToAdd = Arrays.asList("s1", "s2", "s3", "s4");
-        stateManager.cloneState(StateManagerConstants.INITIAL_STATE_ID, statesToAdd);
+        List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
 
-        stateManager.setWorkingState("s4");
+        variantManager.setWorkingVariant("s4");
         // check values cloned by extend
         assertEquals(1.0, svc.getReactivePowerSetPoint(), 0.0);
         assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, svc.getRegulationMode());
@@ -121,24 +121,24 @@ public class StaticVarCompensatorTest {
         svc.setVoltageSetPoint(440.0);
 
         // remove s2
-        stateManager.removeState("s2");
+        variantManager.removeVariant("s2");
 
-        stateManager.cloneState("s4", "s2b");
-        stateManager.setWorkingState("s2b");
+        variantManager.cloneVariant("s4", "s2b");
+        variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
         assertEquals(3.0, svc.getReactivePowerSetPoint(), 0.0);
         assertEquals(StaticVarCompensator.RegulationMode.REACTIVE_POWER, svc.getRegulationMode());
         assertEquals(440.0, svc.getVoltageSetPoint(), 0.0);
 
-        // recheck initial state value
-        stateManager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
+        // recheck initial variant value
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertEquals(1.0, svc.getReactivePowerSetPoint(), 0.0);
         assertEquals(StaticVarCompensator.RegulationMode.VOLTAGE, svc.getRegulationMode());
         assertEquals(390.0, svc.getVoltageSetPoint(), 0.0);
 
-        // remove working state s4
-        stateManager.setWorkingState("s4");
-        stateManager.removeState("s4");
+        // remove working variant s4
+        variantManager.setWorkingVariant("s4");
+        variantManager.removeVariant("s4");
         try {
             svc.getReactivePowerSetPoint();
             fail();

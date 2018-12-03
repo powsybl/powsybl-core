@@ -112,14 +112,14 @@ public class ShuntCompensatorTest {
     }
 
     @Test
-    public void testSetterGetterInMultiStates() {
-        StateManager stateManager = network.getStateManager();
+    public void testSetterGetterInMultiVariants() {
+        VariantManager variantManager = network.getVariantManager();
         createShunt("testMultiState", "testMultiState", 2.0, 5, 10);
         ShuntCompensator shunt = network.getShuntCompensator("testMultiState");
-        List<String> statesToAdd = Arrays.asList("s1", "s2", "s3", "s4");
-        stateManager.cloneState(StateManagerConstants.INITIAL_STATE_ID, statesToAdd);
+        List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
 
-        stateManager.setWorkingState("s4");
+        variantManager.setWorkingVariant("s4");
         // check values cloned by extend
         assertEquals(5, shunt.getCurrentSectionCount());
         assertEquals(10.0, shunt.getCurrentB(), 0.0); // 2*5
@@ -127,22 +127,22 @@ public class ShuntCompensatorTest {
         shunt.setCurrentSectionCount(4);
 
         // remove s2
-        stateManager.removeState("s2");
+        variantManager.removeVariant("s2");
 
-        stateManager.cloneState("s4", "s2b");
-        stateManager.setWorkingState("s2b");
+        variantManager.cloneVariant("s4", "s2b");
+        variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
         assertEquals(4, shunt.getCurrentSectionCount());
         assertEquals(8.0, shunt.getCurrentB(), 0.0); // 2*4
 
-        // recheck initial state value
-        stateManager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
+        // recheck initial variant value
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertEquals(5, shunt.getCurrentSectionCount());
         assertEquals(10.0, shunt.getCurrentB(), 0.0); // 2*5
 
-        // remove working state s4
-        stateManager.setWorkingState("s4");
-        stateManager.removeState("s4");
+        // remove working variant s4
+        variantManager.setWorkingVariant("s4");
+        variantManager.removeVariant("s4");
         try {
             shunt.getCurrentSectionCount();
             fail();

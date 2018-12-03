@@ -179,13 +179,13 @@ public class DanglingLineTest {
 
     @Test
     public void testSetterGetterInMultiStates() {
-        StateManager stateManager = network.getStateManager();
+        VariantManager variantManager = network.getVariantManager();
         createDanglingLine("testMultiState", "testMultiState", 1.0, 1.1, 2.2, 1.0, 1.0, 1.2, "code");
         DanglingLine danglingLine = network.getDanglingLine("testMultiState");
-        List<String> statesToAdd = Arrays.asList("s1", "s2", "s3", "s4");
-        stateManager.cloneState(StateManagerConstants.INITIAL_STATE_ID, statesToAdd);
+        List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
 
-        stateManager.setWorkingState("s4");
+        variantManager.setWorkingVariant("s4");
         // check values cloned by extend
         assertEquals(1.0, danglingLine.getP0(), 0.0);
         assertEquals(1.2, danglingLine.getQ0(), 0.0);
@@ -194,21 +194,21 @@ public class DanglingLineTest {
         danglingLine.setQ0(2.0);
 
         // remove s2
-        stateManager.removeState("s2");
+        variantManager.removeVariant("s2");
 
-        stateManager.cloneState("s4", "s2b");
-        stateManager.setWorkingState("s2b");
+        variantManager.cloneVariant("s4", "s2b");
+        variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
         assertEquals(3.0, danglingLine.getP0(), 0.0);
         assertEquals(2.0, danglingLine.getQ0(), 0.0);
-        // recheck initial state value
-        stateManager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
+        // recheck initial variant value
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertEquals(1.0, danglingLine.getP0(), 0.0);
         assertEquals(1.2, danglingLine.getQ0(), 0.0);
 
-        // remove working state s4
-        stateManager.setWorkingState("s4");
-        stateManager.removeState("s4");
+        // remove working variant s4
+        variantManager.setWorkingVariant("s4");
+        variantManager.removeVariant("s4");
         try {
             danglingLine.getQ0();
             fail();

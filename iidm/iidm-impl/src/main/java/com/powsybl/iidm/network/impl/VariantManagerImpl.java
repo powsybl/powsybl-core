@@ -12,6 +12,7 @@ import com.google.common.collect.HashBiMap;
 import com.google.common.primitives.Ints;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.StateManager;
+import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +24,7 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class VariantManagerImpl implements StateManager {
+class VariantManagerImpl implements VariantManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VariantManagerImpl.class);
 

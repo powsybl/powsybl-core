@@ -131,7 +131,7 @@ public interface Network extends Container<Network> {
     /**
      * Get the variant manager of the network.
      */
-    StateManager getVariantManager();
+    VariantManager getVariantManager();
 
     @Deprecated
     default StateManager getStateManager() {
