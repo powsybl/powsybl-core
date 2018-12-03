@@ -18,7 +18,7 @@ import gnu.trove.list.array.TDoubleArrayList;
  */
 class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements DanglingLine, CurrentLimitsOwner<Void> {
 
-    private final Ref<? extends MultiStateObject> network;
+    private final Ref<? extends MultiVariantTopLevelObject> network;
 
     private double r;
 
@@ -32,19 +32,19 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private CurrentLimitsImpl limits;
 
-    // attributes depending on the state
+    // attributes depending on the variant
 
     private final TDoubleArrayList p0;
 
     private final TDoubleArrayList q0;
 
-    DanglingLineImpl(Ref<? extends MultiStateObject> network, String id, String name, double p0, double q0, double r, double x, double g, double b, String ucteXnodeCode) {
+    DanglingLineImpl(Ref<? extends MultiVariantTopLevelObject> network, String id, String name, double p0, double q0, double r, double x, double g, double b, String ucteXnodeCode) {
         super(id, name);
         this.network = network;
-        int stateArraySize = network.get().getStateManager().getStateArraySize();
-        this.p0 = new TDoubleArrayList(stateArraySize);
-        this.q0 = new TDoubleArrayList(stateArraySize);
-        for (int i = 0; i < stateArraySize; i++) {
+        int variantArraySize = network.get().getVariantManager().getVariantArraySize();
+        this.p0 = new TDoubleArrayList(variantArraySize);
+        this.q0 = new TDoubleArrayList(variantArraySize);
+        for (int i = 0; i < variantArraySize; i++) {
             this.p0.add(p0);
             this.q0.add(q0);
         }
@@ -72,26 +72,26 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     @Override
     public double getP0() {
-        return p0.get(network.get().getStateIndex());
+        return p0.get(network.get().getVariantIndex());
     }
 
     @Override
     public DanglingLineImpl setP0(double p0) {
         ValidationUtil.checkP0(this, p0);
-        double oldValue = this.p0.set(network.get().getStateIndex(), p0);
+        double oldValue = this.p0.set(network.get().getVariantIndex(), p0);
         notifyUpdate("p0", oldValue, p0);
         return this;
     }
 
     @Override
     public double getQ0() {
-        return q0.get(network.get().getStateIndex());
+        return q0.get(network.get().getVariantIndex());
     }
 
     @Override
     public DanglingLineImpl setQ0(double q0) {
         ValidationUtil.checkQ0(this, q0);
-        double oldValue = this.q0.set(network.get().getStateIndex(), q0);
+        double oldValue = this.q0.set(network.get().getVariantIndex(), q0);
         notifyUpdate("q0", oldValue, q0);
         return this;
     }
@@ -173,8 +173,8 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
-        super.extendStateArraySize(initStateArraySize, number, sourceIndex);
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         p0.ensureCapacity(p0.size() + number);
         q0.ensureCapacity(q0.size() + number);
         for (int i = 0; i < number; i++) {
@@ -184,21 +184,21 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     }
 
     @Override
-    public void reduceStateArraySize(int number) {
-        super.reduceStateArraySize(number);
+    public void reduceVariantArraySize(int number) {
+        super.reduceVariantArraySize(number);
         p0.remove(p0.size() - number, number);
         q0.remove(q0.size() - number, number);
     }
 
     @Override
-    public void deleteStateArrayElement(int index) {
-        super.deleteStateArrayElement(index);
+    public void deleteVariantArrayElement(int index) {
+        super.deleteVariantArrayElement(index);
         // nothing to do
     }
 
     @Override
-    public void allocateStateArrayElement(int[] indexes, int sourceIndex) {
-        super.allocateStateArrayElement(indexes, sourceIndex);
+    public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+        super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
             p0.set(index, p0.get(sourceIndex));
             q0.set(index, q0.get(sourceIndex));

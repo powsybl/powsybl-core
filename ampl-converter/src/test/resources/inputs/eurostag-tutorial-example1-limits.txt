@@ -1,2 +1,2 @@
-#Temporary current limits (sim1/InitialState)
+#Temporary current limits (sim1/InitialVariant)
 #"num" "branch" "side" "limit (A)" "accept. duration (s)" "fault" "curative"

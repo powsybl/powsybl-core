@@ -24,9 +24,9 @@ import static org.junit.Assert.*;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StateManagerImplTest {
+public class VariantManagerImplTest {
 
-    private static final class IdentifiableMock extends AbstractExtendable<IdentifiableMock> implements Identifiable<IdentifiableMock>, Stateful {
+    private static final class IdentifiableMock extends AbstractExtendable<IdentifiableMock> implements Identifiable<IdentifiableMock>, MultiVariantObject {
 
         private final String id;
 
@@ -61,28 +61,28 @@ public class StateManagerImplTest {
         }
 
         @Override
-        public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
+        public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
             for (int i = 0; i < number; i++) {
                 extended.add(sourceIndex);
             }
         }
 
         @Override
-        public void reduceStateArraySize(int number) {
+        public void reduceVariantArraySize(int number) {
             reducedCount += number;
         }
 
         @Override
-        public void deleteStateArrayElement(int index) {
+        public void deleteVariantArrayElement(int index) {
             deleted.add(index);
         }
 
         @Override
-        public void allocateStateArrayElement(int[] indexes, int sourceIndex) {
+        public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         }
     }
 
-    public StateManagerImplTest() {
+    public VariantManagerImplTest() {
     }
 
     @Test
@@ -90,11 +90,11 @@ public class StateManagerImplTest {
         ObjectStore objectStore = new ObjectStore();
         IdentifiableMock identifiable1 = new IdentifiableMock("1");
         objectStore.checkAndAdd(identifiable1);
-        StateManagerImpl stateManager = new StateManagerImpl(objectStore);
+        VariantManagerImpl stateManager = new VariantManagerImpl(objectStore);
         // initial state test
-        assertEquals(1, stateManager.getStateArraySize());
+        assertEquals(1, stateManager.getVariantArraySize());
         assertEquals(Collections.singleton(StateManagerConstants.INITIAL_STATE_ID), stateManager.getStateIds());
-        assertEquals(Collections.singleton(0), stateManager.getStateIndexes());
+        assertEquals(Collections.singleton(0), stateManager.getVariantIndexes());
         try {
             stateManager.setWorkingState("UnknownState");
             fail();
@@ -112,15 +112,15 @@ public class StateManagerImplTest {
         }
         // cloning test
         stateManager.cloneState(StateManagerConstants.INITIAL_STATE_ID, "ClonedState1");
-        assertEquals(2, stateManager.getStateArraySize());
+        assertEquals(2, stateManager.getVariantArraySize());
         assertEquals(Sets.newHashSet(StateManagerConstants.INITIAL_STATE_ID, "ClonedState1"), stateManager.getStateIds());
-        assertEquals(Sets.newHashSet(0, 1), stateManager.getStateIndexes());
+        assertEquals(Sets.newHashSet(0, 1), stateManager.getVariantIndexes());
         assertEquals(Collections.singleton(0), identifiable1.extended);
         // second cloning test
         stateManager.cloneState("ClonedState1", "ClonedState2");
-        assertEquals(3, stateManager.getStateArraySize());
+        assertEquals(3, stateManager.getVariantArraySize());
         assertEquals(Sets.newHashSet(StateManagerConstants.INITIAL_STATE_ID, "ClonedState1", "ClonedState2"), stateManager.getStateIds());
-        assertEquals(Sets.newHashSet(0, 1, 2), stateManager.getStateIndexes());
+        assertEquals(Sets.newHashSet(0, 1, 2), stateManager.getVariantIndexes());
         assertEquals(StateManagerConstants.INITIAL_STATE_ID, stateManager.getWorkingStateId());
         stateManager.setWorkingState("ClonedState1");
         assertEquals("ClonedState1", stateManager.getWorkingStateId());
@@ -131,22 +131,22 @@ public class StateManagerImplTest {
             fail();
         } catch (Exception ignored) {
         }
-        assertEquals(3, stateManager.getStateArraySize());
+        assertEquals(3, stateManager.getVariantArraySize());
         assertEquals(Sets.newHashSet(StateManagerConstants.INITIAL_STATE_ID, "ClonedState2"), stateManager.getStateIds());
-        assertEquals(Sets.newHashSet(0, 2), stateManager.getStateIndexes());
+        assertEquals(Sets.newHashSet(0, 2), stateManager.getVariantIndexes());
         assertEquals(Collections.singleton(1), identifiable1.deleted);
         // state array index recycling test
         stateManager.cloneState("ClonedState2", "ClonedState3");
-        assertEquals(3, stateManager.getStateArraySize());
+        assertEquals(3, stateManager.getVariantArraySize());
         assertEquals(Sets.newHashSet(StateManagerConstants.INITIAL_STATE_ID, "ClonedState2", "ClonedState3"), stateManager.getStateIds());
-        assertEquals(Sets.newHashSet(0, 1, 2), stateManager.getStateIndexes());
+        assertEquals(Sets.newHashSet(0, 1, 2), stateManager.getVariantIndexes());
         // state array reduction test
         stateManager.removeState("ClonedState3");
-        assertEquals(3, stateManager.getStateArraySize());
+        assertEquals(3, stateManager.getVariantArraySize());
         stateManager.removeState("ClonedState2");
-        assertEquals(1, stateManager.getStateArraySize());
+        assertEquals(1, stateManager.getVariantArraySize());
         assertEquals(Collections.singleton(StateManagerConstants.INITIAL_STATE_ID), stateManager.getStateIds());
-        assertEquals(Collections.singleton(0), stateManager.getStateIndexes());
+        assertEquals(Collections.singleton(0), stateManager.getVariantIndexes());
         assertEquals(2, identifiable1.reducedCount);
     }
 }

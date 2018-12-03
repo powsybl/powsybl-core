@@ -34,7 +34,7 @@ public class ManipulationsOnStatesTest {
     @Test
     public void errorRemoveInitialState() {
         thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Removing initial state is forbidden");
+        thrown.expectMessage("Removing initial variant is forbidden");
         stateManager.removeState(StateManagerConstants.INITIAL_STATE_ID);
     }
 
@@ -48,7 +48,7 @@ public class ManipulationsOnStatesTest {
     @Test
     public void errorCloneToEmptyStates() {
         thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("Empty target state id list");
+        thrown.expectMessage("Empty target variant id list");
         stateManager.cloneState(StateManagerConstants.INITIAL_STATE_ID, Collections.emptyList());
     }
 

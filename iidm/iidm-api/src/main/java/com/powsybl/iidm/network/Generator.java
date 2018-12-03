@@ -48,16 +48,16 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
     /**
      * Get the voltage regulator status.
      * <p>
-     * Depends on the working state.
-     * @see StateManager
+     * Depends on the working variant.
+     * @see VariantManager
      */
     boolean isVoltageRegulatorOn();
 
     /**
      * Set the voltage regulator status.
      * <p>
-     * Depends on the working state.
-     * @see StateManager
+     * Depends on the working variant.
+     * @see VariantManager
      */
     Generator setVoltageRegulatorOn(boolean voltageRegulatorOn);
 
@@ -72,48 +72,48 @@ public interface Generator extends Injection<Generator>, ReactiveLimitsHolder {
     /**
      * Get the voltage target in kV.
      * <p>
-     * Depends on the working state.
-     * @see StateManager
+     * Depends on the working variant.
+     * @see VariantManager
      */
     double getTargetV();
 
     /**
      * Set the voltage target in kV.
      * <p>
-     * Depends on the working state.
-     * @see StateManager
+     * Depends on the working variant.
+     * @see VariantManager
      */
     Generator setTargetV(double targetV);
 
     /**
      * Get the active power target in MW.
      * <p>
-     * Depends on the working state.
-     * @see StateManager
+     * Depends on the working variant.
+     * @see VariantManager
      */
     double getTargetP();
 
     /**
      * Set the active power target in MW.
      * <p>
-     * Depends on the working state.
-     * @see StateManager
+     * Depends on the working variant.
+     * @see VariantManager
      */
     Generator setTargetP(double targetP);
 
     /**
      * Get the reactive power target in MVAR.
      * <p>
-     * Depends on the working state.
-     * @see StateManager
+     * Depends on the working variant.
+     * @see VariantManager
      */
     double getTargetQ();
 
     /**
      * Set the reactive power target in MVAR.
      * <p>
-     * Depends on the working state.
-     * @see StateManager
+     * Depends on the working variant.
+     * @see VariantManager
      */
     Generator setTargetQ(double targetQ);
 

@@ -25,8 +25,8 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
     /**
      * Get the current tap position.
      * <p>
-     * Depends on the working state.
-     * @see StateManager
+     * Depends on the working variant.
+     * @see VariantManager
      */
     int getTapPosition();
 
@@ -35,8 +35,8 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
      * <p>
      * It is expected to be contained between the lowest and the highest tap position.
      * <p>
-     * Depends on the working state.
-     * @see StateManager
+     * Depends on the working variant.
+     * @see VariantManager
      *
      * @param tapPosition the current tap position
      */
@@ -58,24 +58,24 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
     /**
      * Get the current step.
      * <p>
-     * Depends on the working state.
-     * @see StateManager
+     * Depends on the working variant.
+     * @see VariantManager
      */
     S getCurrentStep();
 
     /**
      * Get the regulating status.
      * <p>
-     * Depends on the working state.
-     * @see StateManager
+     * Depends on the working variant.
+     * @see VariantManager
      */
     boolean isRegulating();
 
     /**
      * Set the regulating status.
      * <p>
-     * Depends on the working state.
-     * @see StateManager
+     * Depends on the working variant.
+     * @see VariantManager
      */
     C setRegulating(boolean regulating);
 

@@ -212,7 +212,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         private void updateCache() {
-            if (states.get().cache != null) {
+            if (variants.get().cache != null) {
                 return;
             }
 
@@ -246,27 +246,27 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                 }
             }
 
-            states.get().cache = new BusCache(mergedBuses, mapping);
+            variants.get().cache = new BusCache(mergedBuses, mapping);
         }
 
         private void invalidateCache() {
             // detach buses
-            if (states.get().cache != null) {
-                for (MergedBus bus : states.get().cache.getMergedBuses()) {
+            if (variants.get().cache != null) {
+                for (MergedBus bus : variants.get().cache.getMergedBuses()) {
                     bus.invalidate();
                 }
-                states.get().cache = null;
+                variants.get().cache = null;
             }
         }
 
         private Collection<MergedBus> getMergedBuses() {
             updateCache();
-            return states.get().cache.getMergedBuses();
+            return variants.get().cache.getMergedBuses();
         }
 
         private MergedBus getMergedBus(String mergedBusId, boolean throwException) {
             updateCache();
-            MergedBus bus = states.get().cache.getMergedBus(mergedBusId);
+            MergedBus bus = variants.get().cache.getMergedBus(mergedBusId);
             if (throwException && bus == null) {
                 throw new PowsyblException("Bus " + mergedBusId
                         + " not found in substation voltage level "
@@ -278,7 +278,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         MergedBus getMergedBus(ConfiguredBus bus) {
             Objects.requireNonNull(bus, "bus is null");
             updateCache();
-            return states.get().cache.getMergedBus(bus);
+            return variants.get().cache.getMergedBus(bus);
         }
 
     }
@@ -286,25 +286,25 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     final CalculatedBusTopology calculatedBusTopology
             = new CalculatedBusTopology();
 
-    private static final class StateImpl implements State {
+    private static final class VariantImpl implements Variant {
 
         private BusCache cache;
 
-        private StateImpl() {
+        private VariantImpl() {
         }
 
         @Override
-        public StateImpl copy() {
-            return new StateImpl();
+        public VariantImpl copy() {
+            return new VariantImpl();
         }
     }
 
-    protected final StateArray<StateImpl> states;
+    protected final VariantArray<VariantImpl> variants;
 
     BusBreakerVoltageLevel(String id, String name, SubstationImpl substation,
                            double nominalV, double lowVoltageLimit, double highVoltageLimit) {
         super(id, name, substation, nominalV, lowVoltageLimit, highVoltageLimit);
-        states = new StateArray<>(substation.getNetwork().getRef(), StateImpl::new);
+        variants = new VariantArray<>(substation.getNetwork().getRef(), VariantImpl::new);
         // invalidate topology and connected components
         graph.addListener(this::invalidateCache);
     }
@@ -689,7 +689,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         final ConfiguredBus connectableBus = getBus(connectableBusId, true);
 
-        getNetwork().getStateManager().forEachState(() -> {
+        getNetwork().getVariantManager().forEachVariant(() -> {
             connectableBus.addTerminal((BusTerminal) terminal);
 
             // invalidate connected components
@@ -709,7 +709,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
         final ConfiguredBus connectableBus = getBus(connectableBusId, true);
 
-        getNetwork().getStateManager().forEachState(() -> {
+        getNetwork().getVariantManager().forEachVariant(() -> {
             connectableBus.removeTerminal((BusTerminal) terminal);
             ((BusTerminal) terminal).setConnectableBusId(null);
 
@@ -810,23 +810,23 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
-    public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
-        states.push(number, () -> states.copy(sourceIndex));
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        variants.push(number, () -> variants.copy(sourceIndex));
     }
 
     @Override
-    public void reduceStateArraySize(int number) {
-        states.pop(number);
+    public void reduceVariantArraySize(int number) {
+        variants.pop(number);
     }
 
     @Override
-    public void deleteStateArrayElement(int index) {
-        states.delete(index);
+    public void deleteVariantArrayElement(int index) {
+        variants.delete(index);
     }
 
     @Override
-    public void allocateStateArrayElement(int[] indexes, final int sourceIndex) {
-        states.allocate(indexes, () -> states.copy(sourceIndex));
+    public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
+        variants.allocate(indexes, () -> variants.copy(sourceIndex));
     }
 
     @Override

@@ -6,14 +6,16 @@
  */
 package com.powsybl.iidm.network;
 
-@Deprecated
-public final class StateManagerConstants {
+/**
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ */
+public final class VariantManagerConstants {
 
     /**
-     * A constant for the id of the initial state (the one created by default)
+     * A constant for the id of the initial variant (the one created by default)
      */
-    public static final String INITIAL_STATE_ID = "InitialVariant";
+    public static final String INITIAL_VARIANT_ID = "InitialVariant";
 
-    private StateManagerConstants() {
+    private VariantManagerConstants() {
     }
 }

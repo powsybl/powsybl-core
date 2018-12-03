@@ -23,7 +23,7 @@ import static org.junit.Assert.*;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class MultiStateNetworkThreadCleanerTest {
+public class MultiVariantNetworkThreadCleanerTest {
 
     @Test
     public void testAfterExecute() throws Exception {
@@ -31,7 +31,7 @@ public class MultiStateNetworkThreadCleanerTest {
         StateManager manager = network.getStateManager();
         manager.allowStateMultiThreadAccess(true);
         assertEquals(StateManagerConstants.INITIAL_STATE_ID, manager.getWorkingStateId());
-        ExecutorService service = CleanableExecutors.newFixedThreadPool("TEST_POOL", 1, Collections.singleton(new MultiStateNetworkThreadCleaner()));
+        ExecutorService service = CleanableExecutors.newFixedThreadPool("TEST_POOL", 1, Collections.singleton(new MultiVariantNetworkThreadCleaner()));
         Thread[] threads = new Thread[1];
         service.submit(() -> {
             manager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);

@@ -17,7 +17,7 @@ import gnu.trove.list.array.TIntArrayList;
  */
 class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> implements ShuntCompensator {
 
-    private final Ref<? extends MultiStateObject> network;
+    private final Ref<? extends MultiVariantTopLevelObject> network;
 
     /* susceptance per section */
     private double bPerSection;
@@ -25,21 +25,21 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     /* the maximum number of section */
     private int maximumSectionCount;
 
-    // attributes depending on the state
+    // attributes depending on the variant
 
     /* the current number of section switched on */
     private final TIntArrayList currentSectionCount;
 
-    ShuntCompensatorImpl(Ref<? extends MultiStateObject> network,
+    ShuntCompensatorImpl(Ref<? extends MultiVariantTopLevelObject> network,
                          String id, String name, double bPerSection, int maximumSectionCount,
                          int currentSectionCount) {
         super(id, name);
         this.network = network;
         this.bPerSection = bPerSection;
         this.maximumSectionCount = maximumSectionCount;
-        int stateArraySize = network.get().getStateManager().getStateArraySize();
-        this.currentSectionCount = new TIntArrayList(stateArraySize);
-        for (int i = 0; i < stateArraySize; i++) {
+        int variantArraySize = network.get().getVariantManager().getVariantArraySize();
+        this.currentSectionCount = new TIntArrayList(variantArraySize);
+        for (int i = 0; i < variantArraySize; i++) {
             this.currentSectionCount.add(currentSectionCount);
         }
     }
@@ -84,13 +84,13 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
 
     @Override
     public int getCurrentSectionCount() {
-        return currentSectionCount.get(network.get().getStateIndex());
+        return currentSectionCount.get(network.get().getVariantIndex());
     }
 
     @Override
     public ShuntCompensatorImpl setCurrentSectionCount(int currentSectionCount) {
         ValidationUtil.checkSections(this, currentSectionCount, maximumSectionCount);
-        int oldValue = this.currentSectionCount.set(network.get().getStateIndex(), currentSectionCount);
+        int oldValue = this.currentSectionCount.set(network.get().getVariantIndex(), currentSectionCount);
         notifyUpdate("currentSectionCount", oldValue, currentSectionCount);
         return this;
     }
@@ -106,8 +106,8 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
-    public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
-        super.extendStateArraySize(initStateArraySize, number, sourceIndex);
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         currentSectionCount.ensureCapacity(currentSectionCount.size() + number);
         for (int i = 0; i < number; i++) {
             currentSectionCount.add(currentSectionCount.get(sourceIndex));
@@ -115,20 +115,20 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     }
 
     @Override
-    public void reduceStateArraySize(int number) {
-        super.reduceStateArraySize(number);
+    public void reduceVariantArraySize(int number) {
+        super.reduceVariantArraySize(number);
         currentSectionCount.remove(currentSectionCount.size() - number, number);
     }
 
     @Override
-    public void deleteStateArrayElement(int index) {
-        super.deleteStateArrayElement(index);
+    public void deleteVariantArrayElement(int index) {
+        super.deleteVariantArrayElement(index);
         // nothing to do
     }
 
     @Override
-    public void allocateStateArrayElement(int[] indexes, final int sourceIndex) {
-        super.allocateStateArrayElement(indexes, sourceIndex);
+    public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
+        super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
             currentSectionCount.set(index, currentSectionCount.get(sourceIndex));
         }

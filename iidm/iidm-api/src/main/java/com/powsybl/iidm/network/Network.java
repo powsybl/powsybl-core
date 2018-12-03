@@ -17,42 +17,42 @@ import java.util.stream.Stream;
  *
  * <p>To create a new network, use {@link NetworkFactory}.
  *
- * <p>The network is initially created with one state identified by
- * <code>StateManagerConstants.INITIAL_STATE_ID</code>. {@link StateManager} is
- * responsible for state management and is accessible from the network thanks
- * to {@link #getStateManager()}.
+ * <p>The network is initially created with one variant identified by
+ * <code>VariantManagerConstants.INITIAL_VARIANT_ID</code>. {@link VariantManager} is
+ * responsible for variant management and is accessible from the network thanks
+ * to {@link #getVariantManager()}.
  *
  * <p>Instances of <code>Network</code> are not thread safe except for attributes
- * depending of the state (always specified in the javadoc) if
- * {@link StateManager#allowStateMultiThreadAccess(boolean)} is set to true.
+ * depending of the variant (always specified in the javadoc) if
+ * {@link VariantManager#allowStateMultiThreadAccess(boolean)} is set to true.
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @see NetworkFactory
- * @see StateManager
+ * @see VariantManager
  */
 public interface Network extends Container<Network> {
 
     /**
      * A global bus/breaker view of the network.
      * <p>
-     * Depends on the working state.
-     * @see StateManager
+     * Depends on the working variant.
+     * @see VariantManager
      */
     interface BusBreakerView {
 
         /**
          * Get all buses.
          * <p>
-         * Depends on the working state.
-         * @see StateManager
+         * Depends on the working variant.
+         * @see VariantManager
          */
         Iterable<Bus> getBuses();
 
         /**
          * Get all buses.
          * <p>
-         * Depends on the working state.
-         * @see StateManager
+         * Depends on the working variant.
+         * @see VariantManager
          */
         Stream<Bus> getBusStream();
 
@@ -80,24 +80,24 @@ public interface Network extends Container<Network> {
         /**
          * Get all buses.
          * <p>
-         * Depends on the working state.
-         * @see StateManager
+         * Depends on the working variant.
+         * @see VariantManager
          */
         Iterable<Bus> getBuses();
 
         /**
          * Get all buses.
          * <p>
-         * Depends on the working state.
-         * @see StateManager
+         * Depends on the working variant.
+         * @see VariantManager
          */
         Stream<Bus> getBusStream();
 
         /**
          * Get all connected compoments.
          * <p>
-         * Depends on the working state.
-         * @see StateManager
+         * Depends on the working variant.
+         * @see VariantManager
          */
         Collection<Component> getConnectedComponents();
 
@@ -129,9 +129,14 @@ public interface Network extends Container<Network> {
     String getSourceFormat();
 
     /**
-     * Get the state manager of the network.
+     * Get the variant manager of the network.
      */
-    StateManager getStateManager();
+    StateManager getVariantManager();
+
+    @Deprecated
+    default StateManager getStateManager() {
+        return getVariantManager();
+    }
 
     /**
      * Get all countries.

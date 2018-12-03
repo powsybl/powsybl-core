@@ -17,7 +17,7 @@ import gnu.trove.list.array.TDoubleArrayList;
  */
 abstract class AbstractTerminal implements TerminalExt {
 
-    protected final Ref<? extends MultiStateObject> network;
+    protected final Ref<? extends MultiVariantTopLevelObject> network;
 
     protected AbstractConnectable connectable;
 
@@ -25,18 +25,18 @@ abstract class AbstractTerminal implements TerminalExt {
 
     protected int num = -1;
 
-    // attributes depending on the state
+    // attributes depending on the variant
 
     protected final TDoubleArrayList p;
 
     protected final TDoubleArrayList q;
 
-    AbstractTerminal(Ref<? extends MultiStateObject> network) {
+    AbstractTerminal(Ref<? extends MultiVariantTopLevelObject> network) {
         this.network = network;
-        int stateArraySize = network.get().getStateManager().getStateArraySize();
-        p = new TDoubleArrayList(stateArraySize);
-        q = new TDoubleArrayList(stateArraySize);
-        for (int i = 0; i < stateArraySize; i++) {
+        int variantArraySize = network.get().getVariantManager().getVariantArraySize();
+        p = new TDoubleArrayList(variantArraySize);
+        q = new TDoubleArrayList(variantArraySize);
+        for (int i = 0; i < variantArraySize; i++) {
             p.add(Double.NaN);
             q.add(Double.NaN);
         }
@@ -69,7 +69,7 @@ abstract class AbstractTerminal implements TerminalExt {
 
     @Override
     public double getP() {
-        return p.get(network.get().getStateIndex());
+        return p.get(network.get().getVariantIndex());
     }
 
     @Override
@@ -80,14 +80,14 @@ abstract class AbstractTerminal implements TerminalExt {
         if (!Double.isNaN(p) && connectable.getType() == ConnectableType.SHUNT_COMPENSATOR) {
             throw new ValidationException(connectable, "cannot set active power on a shunt compensator");
         }
-        double oldValue = this.p.set(network.get().getStateIndex(), p);
+        double oldValue = this.p.set(network.get().getVariantIndex(), p);
         getConnectable().notifyUpdate("p" + (num != -1 ? num : ""), oldValue, p);
         return this;
     }
 
     @Override
     public double getQ() {
-        return q.get(network.get().getStateIndex());
+        return q.get(network.get().getVariantIndex());
     }
 
     @Override
@@ -95,7 +95,7 @@ abstract class AbstractTerminal implements TerminalExt {
         if (connectable.getType() == ConnectableType.BUSBAR_SECTION) {
             throw new ValidationException(connectable, "cannot set reactive power on a busbar section");
         }
-        double oldValue = this.q.set(network.get().getStateIndex(), q);
+        double oldValue = this.q.set(network.get().getVariantIndex(), q);
         getConnectable().notifyUpdate("q" + (num != -1 ? num : ""), oldValue, q);
         return this;
     }
@@ -107,8 +107,8 @@ abstract class AbstractTerminal implements TerminalExt {
         if (connectable.getType() == ConnectableType.BUSBAR_SECTION) {
             return 0;
         }
-        int stateIndex = network.get().getStateIndex();
-        return Math.hypot(p.get(stateIndex), q.get(stateIndex))
+        int variantIndex = network.get().getVariantIndex();
+        return Math.hypot(p.get(variantIndex), q.get(variantIndex))
                 / (Math.sqrt(3.) * getV() / 1000);
     }
 
@@ -123,7 +123,7 @@ abstract class AbstractTerminal implements TerminalExt {
     }
 
     @Override
-    public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         p.ensureCapacity(p.size() + number);
         q.ensureCapacity(q.size() + number);
         for (int i = 0; i < number; i++) {
@@ -133,18 +133,18 @@ abstract class AbstractTerminal implements TerminalExt {
     }
 
     @Override
-    public void reduceStateArraySize(int number) {
+    public void reduceVariantArraySize(int number) {
         p.remove(p.size() - number, number);
         q.remove(q.size() - number, number);
     }
 
     @Override
-    public void deleteStateArrayElement(int index) {
+    public void deleteVariantArrayElement(int index) {
         // nothing to do
     }
 
     @Override
-    public void allocateStateArrayElement(int[] indexes, int sourceIndex) {
+    public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         for (int index : indexes) {
             p.set(index, p.get(sourceIndex));
             q.set(index, q.get(sourceIndex));

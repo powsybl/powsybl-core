@@ -33,7 +33,7 @@ public class MergeNetworkTest {
     @Test
     public void failMergeIfMultiStates() {
         thrown.expect(PowsyblException.class);
-        thrown.expectMessage("Merging of multi-states network is not supported");
+        thrown.expectMessage("Merging of multi-variants network is not supported");
         n1.getStateManager().cloneState(StateManagerConstants.INITIAL_STATE_ID, "Totest");
         n1.merge(n2);
     }
