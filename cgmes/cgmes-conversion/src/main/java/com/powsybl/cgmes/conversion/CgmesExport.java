@@ -39,9 +39,6 @@ public class CgmesExport implements Exporter {
             throw new CgmesModelException("No extension for CGMES model found in Network");
         }
         CgmesModel cgmes = ext.getCgmesModel();
-        if (cgmes == null) {
-            throw new CgmesModelException("No CGMES model stored in Network extension");
-        }
 
         // Clear the previous SV data
         cgmes.clear(Subset.STATE_VARIABLES);
