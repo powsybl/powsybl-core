@@ -78,7 +78,7 @@ public class ImportExportPerformanceTest {
         importParameters.put("powsyblTripleStore", ts);
         importParameters.put("storeCgmesModelAsNetworkExtension", "true");
         Network n = i.importData(ds, importParameters);
-        CgmesModel cgmes = n.getExtension(CgmesModelExtension.class).cgmes();
+        CgmesModel cgmes = n.getExtension(CgmesModelExtension.class).getCgmesModel();
         cgmes.print(LOG::info);
 
         CgmesExport e = new CgmesExport();

@@ -1,16 +1,19 @@
 package com.powsybl.cgmes.conversion;
 
+import java.util.Objects;
+
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.Network;
 
-public class CgmesModelExtension implements Extension<Network> {
+public class CgmesModelExtension extends AbstractExtension<Network> {
 
     public CgmesModelExtension(CgmesModel cgmes) {
+        Objects.requireNonNull(cgmes);
         this.cgmes = cgmes;
     }
 
-    public CgmesModel cgmes() {
+    public CgmesModel getCgmesModel() {
         return cgmes;
     }
 

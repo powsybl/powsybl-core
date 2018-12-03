@@ -34,9 +34,13 @@ public class CgmesExport implements Exporter {
         // Right now the network must contain the original CgmesModel
         // In the future it should be possible to export to CGMES
         // directly from an IIDM Network
-        CgmesModel cgmes = network.getExtension(CgmesModelExtension.class).cgmes();
+        CgmesModelExtension ext = network.getExtension(CgmesModelExtension.class);
+        if (ext == null) {
+            throw new CgmesModelException("No extension for CGMES model found in Network");
+        }
+        CgmesModel cgmes = ext.getCgmesModel();
         if (cgmes == null) {
-            throw new CgmesModelException("No original CGMES model available in network");
+            throw new CgmesModelException("No CGMES model stored in Network extension");
         }
 
         // Clear the previous SV data

@@ -118,7 +118,7 @@ public class ConversionTester {
             if (network.getSubstationCount() == 0) {
                 fail("Model is empty");
             }
-            CgmesModel cgmes = network.getExtension(CgmesModelExtension.class).cgmes();
+            CgmesModel cgmes = network.getExtension(CgmesModelExtension.class).getCgmesModel();
             if (!new TopologyTester(cgmes, network).test(strictTopologyTest)) {
                 fail("Topology test failed");
             }
@@ -147,7 +147,7 @@ public class ConversionTester {
             ReadOnlyDataSource ds = gm.dataSourceBasedOn(fs);
             LOG.info("Importer.exists() == {}", i.exists(ds));
             Network n = i.importData(ds, params);
-            CgmesModel m = n.getExtension(CgmesModelExtension.class).cgmes();
+            CgmesModel m = n.getExtension(CgmesModelExtension.class).getCgmesModel();
             new Conversion(m).report(reportConsumer);
         }
     }
