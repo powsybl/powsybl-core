@@ -93,21 +93,41 @@ public interface Bus extends Identifiable<Bus> {
     /**
      * Get 2 windings transformer connected to the bus.
      */
+    default Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
+        return getTwoWindingTransformers();
+    }
+
+    @Deprecated
     Iterable<TwoWindingsTransformer> getTwoWindingTransformers();
 
     /**
      * Get 2 windings transformer connected to the bus.
      */
+    default Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
+        return getTwoWindingTransformerStream();
+    }
+
+    @Deprecated
     Stream<TwoWindingsTransformer> getTwoWindingTransformerStream();
 
     /**
      * Get 3 windings transformers connected to the bus.
      */
+    default Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
+        return getThreeWindingTransformers();
+    }
+
+    @Deprecated
     Iterable<ThreeWindingsTransformer> getThreeWindingTransformers();
 
     /**
      * Get 3 windings transformers connected to the bus.
      */
+    default Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
+        return getThreeWindingTransformerStream();
+    }
+
+    @Deprecated
     Stream<ThreeWindingsTransformer> getThreeWindingTransformerStream();
 
     /**

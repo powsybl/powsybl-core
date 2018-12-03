@@ -17,7 +17,7 @@ import java.util.stream.Stream;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class AbstractBus extends AbstractIdentifiable<Bus> {
+abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
 
     protected VoltageLevelExt voltageLevel;
 
@@ -26,25 +26,22 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> {
         this.voltageLevel = voltageLevel;
     }
 
-    protected abstract Component getConnectedComponent();
-
+    @Override
     public boolean isInMainConnectedComponent() {
         Component cc = getConnectedComponent();
         return cc != null && cc.getNum() == ComponentConstants.MAIN_NUM;
     }
 
-    protected abstract Component getSynchronousComponent();
-
+    @Override
     public boolean isInMainSynchronousComponent() {
         Component sc = getSynchronousComponent();
         return sc != null && sc.getNum() == ComponentConstants.MAIN_NUM;
     }
 
+    @Override
     public VoltageLevel getVoltageLevel() {
         return voltageLevel;
     }
-
-    public abstract int getConnectedTerminalCount();
 
     public abstract Iterable<TerminalExt> getConnectedTerminals();
 
@@ -52,6 +49,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> {
 
     public abstract Collection<? extends TerminalExt> getTerminals();
 
+    @Override
     public double getP() {
         if (getConnectedTerminalCount() == 0) {
             return Double.NaN;
@@ -83,6 +81,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> {
         return p;
     }
 
+    @Override
     public double getQ() {
         if (getConnectedTerminalCount() == 0) {
             return Double.NaN;
@@ -134,35 +133,66 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> {
                 .map(clazz::cast);
     }
 
+    @Override
     public Iterable<Line> getLines() {
         return getConnectables(Line.class);
     }
 
+    @Override
     public Stream<Line> getLineStream() {
         return getConnectableStream(Line.class);
     }
 
-    public Iterable<TwoWindingsTransformer> getTwoWindingTransformers() {
+    @Override
+    public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
         return getConnectables(TwoWindingsTransformer.class);
     }
 
-    public Stream<TwoWindingsTransformer> getTwoWindingTransformerStream() {
+    @Deprecated
+    @Override
+    public Iterable<TwoWindingsTransformer> getTwoWindingTransformers() {
+        return getTwoWindingsTransformers();
+    }
+
+    @Override
+    public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
         return getConnectableStream(TwoWindingsTransformer.class);
     }
 
+    @Deprecated
+    @Override
+    public Stream<TwoWindingsTransformer> getTwoWindingTransformerStream() {
+        return getTwoWindingsTransformerStream();
+    }
 
-    public Iterable<ThreeWindingsTransformer> getThreeWindingTransformers() {
+    @Override
+    public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
         return getConnectables(ThreeWindingsTransformer.class);
     }
 
-    public Stream<ThreeWindingsTransformer> getThreeWindingTransformerStream() {
+    @Override
+    @Deprecated
+    public Iterable<ThreeWindingsTransformer> getThreeWindingTransformers() {
+        return getThreeWindingsTransformers();
+    }
+
+    @Override
+    public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
         return getConnectableStream(ThreeWindingsTransformer.class);
     }
 
+    @Deprecated
+    @Override
+    public Stream<ThreeWindingsTransformer> getThreeWindingTransformerStream() {
+        return getThreeWindingsTransformerStream();
+    }
+
+    @Override
     public Iterable<Load> getLoads() {
         return getConnectables(Load.class);
     }
 
+    @Override
     public Stream<Load> getLoadStream() {
         return getConnectableStream(Load.class);
     }
@@ -171,6 +201,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> {
      * @deprecated Use {@link #getShuntCompensators()} instead.
      */
     @Deprecated
+    @Override
     public Iterable<ShuntCompensator> getShunts() {
         return getShuntCompensators();
     }
@@ -179,62 +210,77 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> {
      * @deprecated Use {@link #getShuntCompensatorStream()} instead.
      */
     @Deprecated
+    @Override
     public Stream<ShuntCompensator> getShuntStream() {
         return getShuntCompensatorStream();
     }
 
+    @Override
     public Iterable<ShuntCompensator> getShuntCompensators() {
         return getConnectables(ShuntCompensator.class);
     }
 
+    @Override
     public Stream<ShuntCompensator> getShuntCompensatorStream() {
         return getConnectableStream(ShuntCompensator.class);
     }
 
+    @Override
     public Iterable<Generator> getGenerators() {
         return getConnectables(Generator.class);
     }
 
+    @Override
     public Stream<Generator> getGeneratorStream() {
         return getConnectableStream(Generator.class);
     }
 
+    @Override
     public Iterable<DanglingLine> getDanglingLines() {
         return getConnectables(DanglingLine.class);
     }
 
+    @Override
     public Stream<DanglingLine> getDanglingLineStream() {
         return getConnectableStream(DanglingLine.class);
     }
 
+    @Override
     public Iterable<StaticVarCompensator> getStaticVarCompensators() {
         return getConnectables(StaticVarCompensator.class);
     }
 
+    @Override
     public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
         return getConnectableStream(StaticVarCompensator.class);
     }
 
+    @Override
     public Iterable<LccConverterStation> getLccConverterStations() {
         return getConnectables(LccConverterStation.class);
     }
 
+    @Override
     public Stream<LccConverterStation> getLccConverterStationStream() {
         return getConnectableStream(LccConverterStation.class);
     }
 
+    @Override
     public Iterable<VscConverterStation> getVscConverterStations() {
         return getConnectables(VscConverterStation.class);
     }
 
+    @Override
     public Stream<VscConverterStation> getVscConverterStationStream() {
         return getConnectableStream(VscConverterStation.class);
     }
 
+    @Override
     public void visitConnectedEquipments(TopologyVisitor visitor) {
         visitEquipments(getConnectedTerminals(), visitor);
     }
 
+    @Override
     public void visitConnectedOrConnectableEquipments(TopologyVisitor visitor) {
         visitEquipments(getTerminals(), visitor);
     }
