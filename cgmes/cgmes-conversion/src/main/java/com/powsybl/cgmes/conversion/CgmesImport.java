@@ -73,15 +73,15 @@ public class CgmesImport implements Importer {
         }
         Network network = new Conversion(cgmes, config).convertedNetwork();
 
-        boolean storeCgmesModelAsNetworkProperty = true;
+        boolean storeCgmesModelAsNetworkExtension = true;
         if (p != null) {
-            storeCgmesModelAsNetworkProperty = Boolean
-                    .parseBoolean(p.getProperty("storeCgmesModelAsNetworkProperty", "true"));
+            storeCgmesModelAsNetworkExtension = Boolean
+                    .parseBoolean(p.getProperty("storeCgmesModelAsNetworkExtension", "true"));
         }
-        if (storeCgmesModelAsNetworkProperty) {
+        if (storeCgmesModelAsNetworkExtension) {
             // Store a reference to the original CGMES model inside the IIDM network
             // We could also add listeners to be aware of changes in IIDM data
-            network.getProperties().put(NETWORK_PS_CGMES_MODEL, cgmes);
+            network.addExtension(CgmesModelExtension.class, new CgmesModelExtension(cgmes));
         }
 
         return network;
@@ -120,8 +120,6 @@ public class CgmesImport implements Importer {
     }
 
     private static final String FORMAT = "CGMES";
-
-    public static final String NETWORK_PS_CGMES_MODEL = "CGMESModel";
 
     // TODO Allow this property to be configurable
     // Parameters of importers are only passed to importData method,

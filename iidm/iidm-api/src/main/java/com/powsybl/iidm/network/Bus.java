@@ -93,22 +93,66 @@ public interface Bus extends Identifiable<Bus> {
     /**
      * Get 2 windings transformer connected to the bus.
      */
-    Iterable<TwoWindingsTransformer> getTwoWindingTransformers();
+    default Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
+        return getTwoWindingTransformers();
+    }
+
+    /**
+     * Get 2 windings transformer connected to the bus.
+     * @deprecated Use {@link #getTwoWindingsTransformers()} instead.
+     */
+    @Deprecated
+    default Iterable<TwoWindingsTransformer> getTwoWindingTransformers() {
+        throw new UnsupportedOperationException("deprecated");
+    }
 
     /**
      * Get 2 windings transformer connected to the bus.
      */
-    Stream<TwoWindingsTransformer> getTwoWindingTransformerStream();
+    default Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
+        return getTwoWindingTransformerStream();
+    }
+
+    /**
+     * Get 2 windings transformer connected to the bus.
+     * @deprecated Use {@link #getTwoWindingsTransformerStream()} instead.
+     */
+    @Deprecated
+    default Stream<TwoWindingsTransformer> getTwoWindingTransformerStream() {
+        throw new UnsupportedOperationException("deprecated");
+    }
 
     /**
      * Get 3 windings transformers connected to the bus.
      */
-    Iterable<ThreeWindingsTransformer> getThreeWindingTransformers();
+    default Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
+        return getThreeWindingTransformers();
+    }
+
+    /**
+     * Get 3 windings transformers connected to the bus.
+     * @deprecated Use {@link #getThreeWindingsTransformers()} instead.
+     */
+    @Deprecated
+    default Iterable<ThreeWindingsTransformer> getThreeWindingTransformers() {
+        throw new UnsupportedOperationException("deprecated");
+    }
 
     /**
      * Get 3 windings transformers connected to the bus.
      */
-    Stream<ThreeWindingsTransformer> getThreeWindingTransformerStream();
+    default Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
+        return getThreeWindingTransformerStream();
+    }
+
+    /**
+     * Get 3 windings transformers connected to the bus.
+     * @deprecated Use {@link #getThreeWindingsTransformerStream()} instead.
+     */
+    @Deprecated
+    default Stream<ThreeWindingsTransformer> getThreeWindingTransformerStream() {
+        throw new UnsupportedOperationException("deprecated");
+    }
 
     /**
      * Get generators connected to the bus.

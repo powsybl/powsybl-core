@@ -200,13 +200,13 @@ public class NetworkTest {
         assertEquals(Collections.singletonList("GEN"), mapper.apply(network.getVoltageLevel("VLGEN").getGeneratorStream()));
 
         Bus bus = network.getVoltageLevel("VLGEN").getBusView().getBus("VLGEN_0");
-        assertEquals(Collections.singletonList("NGEN_NHV1"), mapper.apply(bus.getTwoWindingTransformerStream()));
+        assertEquals(Collections.singletonList("NGEN_NHV1"), mapper.apply(bus.getTwoWindingsTransformerStream()));
         assertEquals(Collections.singletonList("GEN"), mapper.apply(bus.getGeneratorStream()));
         bus = network.getVoltageLevel("VLHV1").getBusView().getBus("VLHV1_0");
         assertEquals(Arrays.asList("NHV1_NHV2_1", "NHV1_NHV2_2"), mapper.apply(bus.getLineStream()));
-        assertEquals(Collections.singletonList("NGEN_NHV1"), mapper.apply(bus.getTwoWindingTransformerStream()));
+        assertEquals(Collections.singletonList("NGEN_NHV1"), mapper.apply(bus.getTwoWindingsTransformerStream()));
         bus = network.getVoltageLevel("VLHV2").getBusView().getBus("VLHV2_0");
-        assertEquals(Collections.singletonList("NHV2_NLOAD"), mapper.apply(bus.getTwoWindingTransformerStream()));
+        assertEquals(Collections.singletonList("NHV2_NLOAD"), mapper.apply(bus.getTwoWindingsTransformerStream()));
         bus = network.getVoltageLevel("VLLOAD").getBusView().getBus("VLLOAD_0");
         assertEquals(Collections.singletonList("LOAD"), mapper.apply(bus.getLoadStream()));
 

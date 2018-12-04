@@ -217,6 +217,16 @@ public class ActionExpressionEvaluator extends ExpressionEvaluator implements Ac
                 .reduce(false, (a, b) -> a || b);
     }
 
+    @Override
+    public Object visitAllOverloaded(AllOverloadedNode allOverloadedNode, Void arg) {
+        float limitReduction = allOverloadedNode.getLimitReduction();
+
+        // Iterate over all the branch Ids to be sure that all the branches exist in the network
+        return allOverloadedNode.getBranchIds().stream()
+                .map(id -> getBranch(id).isOverloaded(limitReduction))
+                .reduce(true, (a, b) -> a && b);
+    }
+
     private Branch getBranch(String branchId) {
         Branch branch = context.getNetwork().getBranch(branchId);
         if (branch == null) {
