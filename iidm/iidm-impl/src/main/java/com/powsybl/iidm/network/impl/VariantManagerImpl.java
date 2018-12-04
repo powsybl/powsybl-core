@@ -147,7 +147,9 @@ class VariantManagerImpl implements VariantManager {
                 for (MultiVariantObject obj : getStafulObjects()) {
                     obj.allocateVariantArrayElement(indexes, sourceIndex);
                 }
-                LOGGER.trace("Recycling variant array indexes {}", Arrays.toString(indexes));
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace("Recycling variant array indexes {}", Arrays.toString(indexes));
+                }
             }
             if (extendedCount > 0) {
                 for (MultiVariantObject obj : getStafulObjects()) {

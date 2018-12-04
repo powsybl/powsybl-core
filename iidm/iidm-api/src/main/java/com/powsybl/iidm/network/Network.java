@@ -133,6 +133,9 @@ public interface Network extends Container<Network> {
      */
     VariantManager getVariantManager();
 
+    /**
+     * Use {@link #getVariantManager()} instead.
+     */
     @Deprecated
     default StateManager getStateManager() {
         return getVariantManager();
