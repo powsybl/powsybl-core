@@ -28,6 +28,9 @@ public class TwtDataTest extends AbstractTwtDataTest {
         assertEquals(-85.368180, twtData.getComputedQ(Side.TWO), .3);
         assertEquals(118, twtData.getComputedP(Side.THREE), .3);
         assertEquals(92.612077, twtData.getComputedQ(Side.THREE), .3);
+
+        assertEquals(412.66853716385845, twtData.getStarU(), .0001);
+        assertEquals(-7.353779246544198, Math.toDegrees(twtData.getStarTheta()), .0001);
     }
 
 }
