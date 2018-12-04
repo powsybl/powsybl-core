@@ -9,8 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.TopologyKind;
-
-import java.util.BitSet;
+import gnu.trove.list.array.TByteArrayList;
 
 /**
  *
@@ -24,9 +23,9 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
 
     private boolean fictitious;
 
-    private final BitSet open;
+    private final TByteArrayList open;
 
-    private final BitSet retained;
+    private final TByteArrayList retained;
 
     SwitchImpl(VoltageLevelExt voltageLevel,
                String id, String name, SwitchKind kind, final boolean open, boolean retained, boolean fictitious) {
@@ -35,10 +34,12 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
         this.kind = kind;
         this.fictitious = fictitious;
         int variantArraySize = voltageLevel.getNetwork().getVariantManager().getVariantArraySize();
-        this.open = new BitSet(variantArraySize);
-        this.open.set(0, variantArraySize, open);
-        this.retained = new BitSet(variantArraySize);
-        this.retained.set(0, variantArraySize, retained);
+        this.open = new TByteArrayList(variantArraySize);
+        this.retained = new TByteArrayList(variantArraySize);
+        for (int i = 0; i < variantArraySize; i++) {
+            this.open.add((byte) (open ? 1 : 0));
+            this.retained.add((byte) (retained ? 1 : 0));
+        }
     }
 
     @Override
@@ -53,16 +54,16 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
 
     @Override
     public boolean isOpen() {
-        return open.get(voltageLevel.getNetwork().getVariantIndex());
+        return open.get(voltageLevel.getNetwork().getVariantIndex()) == 1;
     }
 
     @Override
     public void setOpen(boolean open) {
         NetworkImpl network = voltageLevel.getNetwork();
         int index = network.getVariantIndex();
-        boolean oldValue = this.open.get(index);
+        boolean oldValue = this.open.get(index) == 1;
         if (oldValue != open) {
-            this.open.set(index, open);
+            this.open.set(index, (byte) (open ? 1 : 0));
             voltageLevel.invalidateCache();
             network.getListeners().notifyUpdate(this, "open", oldValue, open);
         }
@@ -70,7 +71,7 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
 
     @Override
     public boolean isRetained() {
-        return retained.get(voltageLevel.getNetwork().getVariantIndex());
+        return retained.get(voltageLevel.getNetwork().getVariantIndex()) == 1;
     }
 
     @Override
@@ -80,9 +81,9 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
         }
         NetworkImpl network = voltageLevel.getNetwork();
         int index = network.getVariantIndex();
-        boolean oldValue = this.retained.get(index);
+        boolean oldValue = this.retained.get(index) == 1;
         if (oldValue != retained) {
-            this.retained.set(index, retained);
+            this.retained.set(index, (byte) (retained ? 1 : 0));
             voltageLevel.invalidateCache();
             network.getListeners().notifyUpdate(this, "retained", oldValue, retained);
         }
@@ -106,13 +107,16 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-        this.open.set(initVariantArraySize, initVariantArraySize + number, this.open.get(sourceIndex));
-        this.retained.set(initVariantArraySize, initVariantArraySize + number, this.retained.get(sourceIndex));
+        open.ensureCapacity(open.size() + number);
+        open.fill(initVariantArraySize, initVariantArraySize + number, open.get(sourceIndex));
+        retained.ensureCapacity(retained.size() + number);
+        retained.fill(initVariantArraySize, initVariantArraySize + number, retained.get(sourceIndex));
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
-        // nothing to do
+        open.remove(open.size() - number, number);
+        retained.remove(retained.size() - number, number);
     }
 
     @Override

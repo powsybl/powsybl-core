@@ -8,9 +8,9 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.impl.util.Ref;
+import gnu.trove.list.array.TByteArrayList;
 import gnu.trove.list.array.TDoubleArrayList;
 
-import java.util.BitSet;
 import java.util.Objects;
 
 /**
@@ -29,7 +29,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, M
 
     // attributes depending on the variant
 
-    private final BitSet convertersMode;
+    private final TByteArrayList convertersMode;
 
     private final TDoubleArrayList activePowerSetpoint;
 
@@ -49,8 +49,8 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, M
         this.nominalV = nominalV;
         this.maxP = maxP;
         int variantArraySize = networkRef.get().getVariantManager().getVariantArraySize();
-        this.convertersMode = new BitSet(variantArraySize);
-        this.convertersMode.set(0, variantArraySize, convertersMode == ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
+        this.convertersMode = new TByteArrayList(variantArraySize);
+        this.convertersMode.fill(0, variantArraySize, (byte) convertersMode.ordinal());
         this.activePowerSetpoint = new TDoubleArrayList(variantArraySize);
         this.activePowerSetpoint.fill(0, variantArraySize, activePowerSetpoint);
         this.converterStation1 = converterStation1;
@@ -67,12 +67,12 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, M
         return networkRef.get();
     }
 
-    private static ConvertersMode toEnum(boolean convertersMode) {
-        return convertersMode ? ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER : ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
+    private static ConvertersMode toEnum(byte convertersMode) {
+        return ConvertersMode.values()[convertersMode];
     }
 
-    private static boolean fromEnum(ConvertersMode convertersMode) {
-        return convertersMode == ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
+    private static byte fromEnum(ConvertersMode convertersMode) {
+        return (byte) convertersMode.ordinal();
     }
 
     @Override
@@ -84,7 +84,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, M
     public HvdcLineImpl setConvertersMode(ConvertersMode convertersMode) {
         ValidationUtil.checkConvertersMode(this, convertersMode);
         int variantIndex = getNetwork().getVariantIndex();
-        boolean oldValue = this.convertersMode.get(variantIndex);
+        byte oldValue = this.convertersMode.get(variantIndex);
         this.convertersMode.set(variantIndex, fromEnum(Objects.requireNonNull(convertersMode)));
         notifyUpdate("convertersMode", toEnum(oldValue), convertersMode);
         return this;
@@ -157,7 +157,8 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, M
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-        convertersMode.set(initVariantArraySize, initVariantArraySize + number, convertersMode.get(sourceIndex));
+        convertersMode.ensureCapacity(convertersMode.size() + number);
+        convertersMode.fill(initVariantArraySize, initVariantArraySize + number, convertersMode.get(sourceIndex));
 
         activePowerSetpoint.ensureCapacity(activePowerSetpoint.size() + number);
         activePowerSetpoint.fill(initVariantArraySize, initVariantArraySize + number, activePowerSetpoint.get(sourceIndex));
