@@ -22,12 +22,12 @@ public class TwtDataTest extends AbstractTwtDataTest {
     public void test() {
         TwtData twtData = new TwtData(twt, 0, false);
 
-        assertEquals(99.218431, twtData.getComputedP(Side.ONE), .2);
-        assertEquals(3.304328, twtData.getComputedQ(Side.ONE), .2);
-        assertEquals(-216.198190, twtData.getComputedP(Side.TWO), .2);
-        assertEquals(-85.368180, twtData.getComputedQ(Side.TWO), .2);
-        assertEquals(118, twtData.getComputedP(Side.THREE), .2);
-        assertEquals(92.612077, twtData.getComputedQ(Side.THREE), .2);
+        assertEquals(99.218431, twtData.getComputedP(Side.ONE), .3);
+        assertEquals(3.304328, twtData.getComputedQ(Side.ONE), .3);
+        assertEquals(-216.198190, twtData.getComputedP(Side.TWO), .3);
+        assertEquals(-85.368180, twtData.getComputedQ(Side.TWO), .3);
+        assertEquals(118, twtData.getComputedP(Side.THREE), .3);
+        assertEquals(92.612077, twtData.getComputedQ(Side.THREE), .3);
     }
 
 }

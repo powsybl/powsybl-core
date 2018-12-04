@@ -19,9 +19,8 @@ public class StarBusTest extends AbstractTwtDataTest {
     @Test
     public void test() {
         StarBus starBus = new StarBus(twt);
-
-        assertEquals(412.66200701692287, starBus.getU(), .0001);
-        assertEquals(-7.353686938578365, Math.toDegrees(starBus.getTheta()), .0001);
+        assertEquals(412.66853716385845, starBus.getU(), .0001);
+        assertEquals(-7.353779246544198, Math.toDegrees(starBus.getTheta()), .0001);
     }
 
 }
