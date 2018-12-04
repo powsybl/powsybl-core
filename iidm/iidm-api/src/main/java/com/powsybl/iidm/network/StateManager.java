@@ -13,6 +13,8 @@ import java.util.List;
  * This class provides methods to manage variants of the network (create and
  * remove a variant, set the working variant, etc).
  *
+ * @deprecated use {@link VariantManager} instead.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @Deprecated
@@ -25,6 +27,9 @@ public interface StateManager {
      */
     Collection<String> getVariantIds();
 
+    /**
+     * @deprecated use {@link #getVariantIds()} instead.
+     */
     @Deprecated
     default Collection<String> getStateIds() {
         return getVariantIds();
@@ -37,6 +42,9 @@ public interface StateManager {
      */
     String getWorkingVariantId();
 
+    /**
+     * @deprecated use {@link #getWorkingVariantId()} instead.
+     */
     @Deprecated
     default String getWorkingStateId() {
         return getWorkingVariantId();
@@ -50,6 +58,9 @@ public interface StateManager {
      */
     void setWorkingVariant(String variantId);
 
+    /**
+     * @deprecated use {@link #setWorkingVariant(String)} instead.
+     */
     @Deprecated
     default void setWorkingState(String variantId) {
         setWorkingVariant(variantId);
@@ -66,6 +77,9 @@ public interface StateManager {
      */
     void cloneVariant(String sourceVariantId, List<String> targetVariantIds);
 
+    /**
+     * @deprecated use {@link #cloneVariant(String, List)} instead.
+     */
     @Deprecated
     default void cloneState(String sourceStateId, List<String> targetStateIds) {
         cloneVariant(sourceStateId, targetStateIds);
@@ -82,6 +96,9 @@ public interface StateManager {
      */
     void cloneVariant(String sourceVariantId, String targetVariantId);
 
+    /**
+     * @deprecated use {@link #cloneVariant(String, String)} instead.
+     */
     @Deprecated
     default void cloneState(String sourceStateId, String targetStateId) {
         cloneVariant(sourceStateId, targetStateId);
@@ -94,6 +111,9 @@ public interface StateManager {
      */
     void removeVariant(String variantId);
 
+    /**
+     * @deprecated use {@link #removeVariant(String)} instead.
+     */
     @Deprecated
     default void removeState(String stateId) {
         removeVariant(stateId);
@@ -107,6 +127,9 @@ public interface StateManager {
      */
     void allowVariantMultiThreadAccess(boolean allow);
 
+    /**
+     * @deprecated use {@link #allowVariantMultiThreadAccess(boolean)} instead.
+     */
     @Deprecated
     default void allowStateMultiThreadAccess(boolean allow) {
         allowVariantMultiThreadAccess(allow);
@@ -114,6 +137,9 @@ public interface StateManager {
 
     boolean isVariantMultiThreadAccessAllowed();
 
+    /**
+     * @deprecated use {@link #isVariantMultiThreadAccessAllowed()} instead.
+     */
     @Deprecated
     default boolean isStateMultiThreadAccessAllowed() {
         return isVariantMultiThreadAccessAllowed();

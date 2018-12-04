@@ -40,7 +40,7 @@ public class MultiVariantNetworkThreadCleanerTest {
         service.submit(() -> {
             assertSame(Thread.currentThread(), threads[0]); // just one thread in the pool
             try {
-                // current working state should not be set even if it is the same thread than previously
+                // current working variant should not be set even if it is the same thread than previously
                 network.getGenerator("GEN").getTargetP();
                 fail();
             } catch (Exception ignored) {

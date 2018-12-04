@@ -114,8 +114,8 @@ public class ShuntCompensatorTest {
     @Test
     public void testSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
-        createShunt("testMultiState", "testMultiState", 2.0, 5, 10);
-        ShuntCompensator shunt = network.getShuntCompensator("testMultiState");
+        createShunt("testMultiVariant", "testMultiVariant", 2.0, 5, 10);
+        ShuntCompensator shunt = network.getShuntCompensator("testMultiVariant");
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
 

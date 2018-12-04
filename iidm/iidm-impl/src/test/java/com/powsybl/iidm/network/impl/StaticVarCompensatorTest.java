@@ -35,7 +35,7 @@ public class StaticVarCompensatorTest {
     }
 
     @Test
-    public void initialStateTest() {
+    public void initialVariantTest() {
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
         assertNotNull(svc);
         assertEquals(1, network.getStaticVarCompensatorCount());
@@ -103,10 +103,10 @@ public class StaticVarCompensatorTest {
     }
 
     @Test
-    public void testSetterGetterInMultiStates() {
+    public void testSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
-        createSvc("testMultiState");
-        StaticVarCompensator svc = network.getStaticVarCompensator("testMultiState");
+        createSvc("testMultiVariant");
+        StaticVarCompensator svc = network.getStaticVarCompensator("testMultiVariant");
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
 

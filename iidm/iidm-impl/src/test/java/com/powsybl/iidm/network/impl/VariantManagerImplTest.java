@@ -93,15 +93,15 @@ public class VariantManagerImplTest {
         VariantManagerImpl variantManager = new VariantManagerImpl(objectStore);
         // initial variant test
         assertEquals(1, variantManager.getVariantArraySize());
-        assertEquals(Collections.singleton(VariantManagerConstants.INITIAL_VARIANT_ID), variantManager.getStateIds());
+        assertEquals(Collections.singleton(VariantManagerConstants.INITIAL_VARIANT_ID), variantManager.getVariantIds());
         assertEquals(Collections.singleton(0), variantManager.getVariantIndexes());
         try {
-            variantManager.setWorkingVariant("UnknownState");
+            variantManager.setWorkingVariant("UnknownVariant");
             fail();
         } catch (PowsyblException ignored) {
         }
         try {
-            variantManager.removeVariant("UnknownState");
+            variantManager.removeVariant("UnknownVariant");
             fail();
         } catch (PowsyblException ignored) {
         }
@@ -111,41 +111,41 @@ public class VariantManagerImplTest {
         } catch (PowsyblException ignored) {
         }
         // cloning test
-        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "ClonedState1");
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "ClonedVariant1");
         assertEquals(2, variantManager.getVariantArraySize());
-        assertEquals(Sets.newHashSet(VariantManagerConstants.INITIAL_VARIANT_ID, "ClonedState1"), variantManager.getStateIds());
+        assertEquals(Sets.newHashSet(VariantManagerConstants.INITIAL_VARIANT_ID, "ClonedVariant1"), variantManager.getVariantIds());
         assertEquals(Sets.newHashSet(0, 1), variantManager.getVariantIndexes());
         assertEquals(Collections.singleton(0), identifiable1.extended);
         // second cloning test
-        variantManager.cloneVariant("ClonedState1", "ClonedState2");
+        variantManager.cloneVariant("ClonedVariant1", "ClonedVariant2");
         assertEquals(3, variantManager.getVariantArraySize());
-        assertEquals(Sets.newHashSet(VariantManagerConstants.INITIAL_VARIANT_ID, "ClonedState1", "ClonedState2"), variantManager.getStateIds());
+        assertEquals(Sets.newHashSet(VariantManagerConstants.INITIAL_VARIANT_ID, "ClonedVariant1", "ClonedVariant2"), variantManager.getVariantIds());
         assertEquals(Sets.newHashSet(0, 1, 2), variantManager.getVariantIndexes());
         assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, variantManager.getWorkingVariantId());
-        variantManager.setWorkingVariant("ClonedState1");
-        assertEquals("ClonedState1", variantManager.getWorkingVariantId());
+        variantManager.setWorkingVariant("ClonedVariant1");
+        assertEquals("ClonedVariant1", variantManager.getWorkingVariantId());
         // "middle" variant removing test
-        variantManager.removeVariant("ClonedState1");
+        variantManager.removeVariant("ClonedVariant1");
         try {
             assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, variantManager.getWorkingVariantId()); // because variant is not set
             fail();
         } catch (Exception ignored) {
         }
         assertEquals(3, variantManager.getVariantArraySize());
-        assertEquals(Sets.newHashSet(VariantManagerConstants.INITIAL_VARIANT_ID, "ClonedState2"), variantManager.getStateIds());
+        assertEquals(Sets.newHashSet(VariantManagerConstants.INITIAL_VARIANT_ID, "ClonedVariant2"), variantManager.getVariantIds());
         assertEquals(Sets.newHashSet(0, 2), variantManager.getVariantIndexes());
         assertEquals(Collections.singleton(1), identifiable1.deleted);
         // variant array index recycling test
-        variantManager.cloneVariant("ClonedState2", "ClonedState3");
+        variantManager.cloneVariant("ClonedVariant2", "ClonedVariant3");
         assertEquals(3, variantManager.getVariantArraySize());
-        assertEquals(Sets.newHashSet(VariantManagerConstants.INITIAL_VARIANT_ID, "ClonedState2", "ClonedState3"), variantManager.getStateIds());
+        assertEquals(Sets.newHashSet(VariantManagerConstants.INITIAL_VARIANT_ID, "ClonedVariant2", "ClonedVariant3"), variantManager.getVariantIds());
         assertEquals(Sets.newHashSet(0, 1, 2), variantManager.getVariantIndexes());
         // variant array reduction test
-        variantManager.removeVariant("ClonedState3");
+        variantManager.removeVariant("ClonedVariant3");
         assertEquals(3, variantManager.getVariantArraySize());
-        variantManager.removeVariant("ClonedState2");
+        variantManager.removeVariant("ClonedVariant2");
         assertEquals(1, variantManager.getVariantArraySize());
-        assertEquals(Collections.singleton(VariantManagerConstants.INITIAL_VARIANT_ID), variantManager.getStateIds());
+        assertEquals(Collections.singleton(VariantManagerConstants.INITIAL_VARIANT_ID), variantManager.getVariantIds());
         assertEquals(Collections.singleton(0), variantManager.getVariantIndexes());
         assertEquals(2, identifiable1.reducedCount);
     }

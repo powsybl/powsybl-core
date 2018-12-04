@@ -23,14 +23,14 @@ import static org.junit.Assert.*;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class MultiStateNetworkTest {
+public class MultiVariantNetworkTest {
 
     @Test
     public void singleThreadTest() {
         Network network = EurostagTutorialExample1Factory.create();
         final VariantManager manager = network.getVariantManager();
-        manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "SecondState");
-        manager.setWorkingVariant("SecondState");
+        manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "SecondVariant");
+        manager.setWorkingVariant("SecondVariant");
         final Generator generator = network.getGenerator("GEN");
         generator.setVoltageRegulatorOn(false);
         assertFalse(generator.isVoltageRegulatorOn());
@@ -44,18 +44,18 @@ public class MultiStateNetworkTest {
         final VariantManager manager = network.getVariantManager();
         manager.allowVariantMultiThreadAccess(true);
 
-        manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "SecondState");
+        manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "SecondVariant");
 
         final Generator generator = network.getGenerator("GEN");
 
         manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         generator.setVoltageRegulatorOn(true);
 
-        manager.setWorkingVariant("SecondState");
+        manager.setWorkingVariant("SecondVariant");
         generator.setVoltageRegulatorOn(false);
 
-        final boolean[] voltageRegulatorOnInitialState = new boolean[1];
-        final boolean[] voltageRegulatorOnSecondState = new boolean[1];
+        final boolean[] voltageRegulatorOnInitialVariant = new boolean[1];
+        final boolean[] voltageRegulatorOnSecondVariant = new boolean[1];
         final CountDownLatch latch = new CountDownLatch(2); // to sync threads after having set the working variant
         ExecutorService service = Executors.newFixedThreadPool(2);
         service.invokeAll(Arrays.asList(
@@ -63,28 +63,28 @@ public class MultiStateNetworkTest {
                 manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
                 latch.countDown();
                 latch.await();
-                voltageRegulatorOnInitialState[0] = generator.isVoltageRegulatorOn();
+                voltageRegulatorOnInitialVariant[0] = generator.isVoltageRegulatorOn();
                 return null;
             },
             () -> {
-                manager.setWorkingVariant("SecondState");
+                manager.setWorkingVariant("SecondVariant");
                 latch.countDown();
                 latch.await();
-                voltageRegulatorOnSecondState[0] = generator.isVoltageRegulatorOn();
+                voltageRegulatorOnSecondVariant[0] = generator.isVoltageRegulatorOn();
                 return null;
             })
         );
         service.shutdown();
         service.awaitTermination(1, TimeUnit.MINUTES);
-        assertTrue(voltageRegulatorOnInitialState[0]);
-        assertFalse(voltageRegulatorOnSecondState[0]);
+        assertTrue(voltageRegulatorOnInitialVariant[0]);
+        assertFalse(voltageRegulatorOnSecondVariant[0]);
     }
 
     @Test
-    public void multiStateTopologyTest() throws InterruptedException {
+    public void multiVariantTopologyTest() throws InterruptedException {
         Network network = EurostagTutorialExample1Factory.create();
         VariantManager manager = network.getVariantManager();
-        manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "NEW_STATE");
+        manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "NEW_VARIANT");
         VoltageLevel vlload = network.getVoltageLevel("VLLOAD");
         Bus nload = vlload.getBusBreakerView().getBus("NLOAD");
         Load newLoad = vlload.newLoad()
@@ -94,7 +94,7 @@ public class MultiStateNetworkTest {
                 .setBus("NLOAD")
                 .setConnectableBus("NLOAD")
             .add();
-        manager.setWorkingVariant("NEW_STATE");
+        manager.setWorkingVariant("NEW_VARIANT");
         assertNotNull(newLoad.getTerminal().getBusBreakerView().getBus());
         assertEquals(2, Iterables.size(nload.getLoads()));
         newLoad.getTerminal().disconnect();

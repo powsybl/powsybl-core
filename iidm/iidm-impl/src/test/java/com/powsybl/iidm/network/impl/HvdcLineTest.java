@@ -32,7 +32,7 @@ public class HvdcLineTest {
     }
 
     @Test
-    public void testHvdcLineOneStateAttributes() {
+    public void testHvdcLineOneVariantAttributes() {
         Network network = HvdcTestNetwork.createLcc();
         HvdcLine l = network.getHvdcLine("L");
         assertNotNull(l);
@@ -161,11 +161,11 @@ public class HvdcLineTest {
     }
 
     @Test
-    public void testSetterGetterInMultiStates() {
+    public void testSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
-        createHvdcLine("testMultiState", "testMultiState", 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
+        createHvdcLine("testMultiVariant", "testMultiVariant", 10.0, HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER,
                 11.0, 12.0, 22.0, "C1", "C2");
-        HvdcLine hvdcLine = network.getHvdcLine("testMultiState");
+        HvdcLine hvdcLine = network.getHvdcLine("testMultiVariant");
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
 

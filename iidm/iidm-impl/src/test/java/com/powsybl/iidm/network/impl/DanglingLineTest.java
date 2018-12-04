@@ -178,10 +178,10 @@ public class DanglingLineTest {
     }
 
     @Test
-    public void testSetterGetterInMultiStates() {
+    public void testSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
-        createDanglingLine("testMultiState", "testMultiState", 1.0, 1.1, 2.2, 1.0, 1.0, 1.2, "code");
-        DanglingLine danglingLine = network.getDanglingLine("testMultiState");
+        createDanglingLine("testMultiVariant", "testMultiVariant", 1.0, 1.1, 2.2, 1.0, 1.0, 1.2, "code");
+        DanglingLine danglingLine = network.getDanglingLine("testMultiVariant");
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
 

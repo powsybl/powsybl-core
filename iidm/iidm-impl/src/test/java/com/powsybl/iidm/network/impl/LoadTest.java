@@ -111,10 +111,10 @@ public class LoadTest {
     }
 
     @Test
-    public void testSetterGetterInMultiStates() {
+    public void testSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
-        createLoad("testMultiState", 0.6d, 0.7d);
-        Load load = network.getLoad("testMultiState");
+        createLoad("testMultiVariant", 0.6d, 0.7d);
+        Load load = network.getLoad("testMultiVariant");
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
 

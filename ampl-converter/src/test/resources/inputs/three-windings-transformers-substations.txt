@@ -1,4 +1,4 @@
-#Substations (three-windings-transformer/InitialVariant)
+#Substations (three-windings-transformer/InitialState)
 #"num" "unused1" "unused2" "nomV (KV)" "minV (pu)" "maxV (pu)" "fault" "curative" "country" "id" "description"
 1 "" 0 132.000 0.900000 1.10000 0 0 "FR" "VL_132" "VL_132"
 2 "" 0 33.0000 0.900000 1.10000 0 0 "FR" "VL_33" "VL_33"

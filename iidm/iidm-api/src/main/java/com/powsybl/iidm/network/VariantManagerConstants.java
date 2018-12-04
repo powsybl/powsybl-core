@@ -14,7 +14,7 @@ public final class VariantManagerConstants {
     /**
      * A constant for the id of the initial variant (the one created by default)
      */
-    public static final String INITIAL_VARIANT_ID = "InitialVariant";
+    public static final String INITIAL_VARIANT_ID = "InitialState";
 
     private VariantManagerConstants() {
     }

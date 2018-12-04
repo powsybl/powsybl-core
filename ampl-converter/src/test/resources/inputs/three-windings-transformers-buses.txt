@@ -1,4 +1,4 @@
-#Buses (three-windings-transformer/InitialVariant)
+#Buses (three-windings-transformer/InitialState)
 #"num" "substation" "cc" "v (pu)" "theta (rad)" "p (MW)" "q (MVar)" "fault" "curative" "id"
 1 1 0 1.01200 -0.167901 0.00000 0.00000 0 0 "VL_132_0"
 2 2 0 1.05700 -0.265988 11.2000 7.50000 0 0 "VL_33_0"

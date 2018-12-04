@@ -101,7 +101,7 @@ public class VscTest {
     }
 
     @Test
-    public void testSetterGetterInMultiStates() {
+    public void testSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);

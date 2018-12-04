@@ -156,7 +156,7 @@ public class TapChangerTest {
     }
 
     @Test
-    public void testTapChangerSetterGetterInMultiStates() {
+    public void testTapChangerSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
         createPhaseTapChangerWith2Steps(1, 0, true,
                 PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 1.0, terminal);

@@ -199,11 +199,11 @@ public class GeneratorTest {
     }
 
     @Test
-    public void testSetterGetterInMultiStates() {
+    public void testSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
-        createGenerator("testMultiState", EnergySource.HYDRO, 20.0, 11., 2.0,
+        createGenerator("testMultiVariant", EnergySource.HYDRO, 20.0, 11., 2.0,
                 30.0, 40.0, true, 2.0);
-        Generator generator = network.getGenerator("testMultiState");
+        Generator generator = network.getGenerator("testMultiVariant");
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
 
