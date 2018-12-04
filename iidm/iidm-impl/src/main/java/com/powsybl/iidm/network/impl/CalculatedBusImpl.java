@@ -170,27 +170,27 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     }
 
     @Override
-    public Iterable<TwoWindingsTransformer> getTwoWindingTransformers() {
+    public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
         checkValidity();
-        return super.getTwoWindingTransformers();
+        return super.getTwoWindingsTransformers();
     }
 
     @Override
-    public Stream<TwoWindingsTransformer> getTwoWindingTransformerStream() {
+    public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
         checkValidity();
-        return super.getTwoWindingTransformerStream();
+        return super.getTwoWindingsTransformerStream();
     }
 
     @Override
-    public Iterable<ThreeWindingsTransformer> getThreeWindingTransformers() {
+    public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
         checkValidity();
-        return super.getThreeWindingTransformers();
+        return super.getThreeWindingsTransformers();
     }
 
     @Override
-    public Stream<ThreeWindingsTransformer> getThreeWindingTransformerStream() {
+    public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
         checkValidity();
-        return super.getThreeWindingTransformerStream();
+        return super.getThreeWindingsTransformerStream();
     }
 
     @Override
