@@ -19,8 +19,15 @@ import com.powsybl.iidm.network.Network;
 */
 public interface AmplExtensionWriter {
 
-    public String getName();
+    String getName();
 
-    public void write(List<AmplExtension> extensions, Network network, StringToIntMapper<AmplSubset> mapper,
-            DataSource dataSource, boolean append, AmplExportConfig config) throws IOException;
+    @Deprecated
+    default void write(List<AmplExtension> extensions, Network network, StringToIntMapper<AmplSubset> mapper,
+            DataSource dataSource, boolean append, AmplExportConfig config) throws IOException {
+        throw new UnsupportedOperationException("deprecated");
+    }
+    default void write(List<AmplExtension> extensions, Network network, StringToIntMapper<AmplSubset> mapper,
+            DataSource dataSource, boolean append, AmplExportConfig config, int index) throws IOException {
+        write(extensions, network, mapper, dataSource, append, config);
+    }
 }
