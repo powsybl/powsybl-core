@@ -40,7 +40,8 @@ public class StarBus {
         Complex a03 = new Complex(1, 0);
         Complex a3 = new Complex(twt.getLeg3().getRatedU() / ratedU0, 0);
 
-        Complex ysh01 = new Complex(0, 0);
+        // IIDM model includes admittance to ground at star bus side in Leg1
+        Complex ysh01 = new Complex(twt.getLeg1().getG(), twt.getLeg1().getB());
         Complex ysh02 = new Complex(0, 0);
         Complex ysh03 = new Complex(0, 0);
         Complex y01 = ytr1.negate().divide(a01.conjugate().multiply(a1));
