@@ -9,59 +9,33 @@ package com.powsybl.action.dsl;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.contingency.dsl.AbstractDslContingenciesProvider;
 import com.powsybl.iidm.network.Network;
-import groovy.lang.GroovyCodeSource;
-import groovy.lang.GroovyShell;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Objects;
 
 /**
- * A {@link ContingenciesProvider} which provides same contincencies definition syntax as
+ * A {@link ContingenciesProvider} which provides same contingencies definition syntax as
  * {@link com.powsybl.contingency.dsl.GroovyDslContingenciesProvider},
  * but allows to use more complete action-dsl scripts as is for standard security analysis.
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class GroovyDslContingenciesProvider implements ContingenciesProvider {
+public class GroovyDslContingenciesProvider extends AbstractDslContingenciesProvider {
 
-
-    private final GroovyCodeSource script;
-
-    /**
-     * Creates a provider by reading the DSL from a UTF-8 encoded file.
-     */
     public GroovyDslContingenciesProvider(final Path path) {
-        Objects.requireNonNull(path);
-        try (Reader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
-            this.script = new GroovyCodeSource(reader, "script", GroovyShell.DEFAULT_CODE_BASE);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        super(path);
     }
 
-    /**
-     * Creates a provider by reading the DSL content from a UTF-8 encoded input stream.
-     */
     public  GroovyDslContingenciesProvider(final InputStream input) {
-        Objects.requireNonNull(input);
-        this.script = new GroovyCodeSource(new InputStreamReader(input, StandardCharsets.UTF_8), "script", GroovyShell.DEFAULT_CODE_BASE);
+        super(input);
     }
 
     @Override
     public List<Contingency> getContingencies(Network network) {
-
         ActionDb actionDb = new ActionDslLoader(script).load(network);
         return ImmutableList.copyOf(actionDb.getContingencies());
     }
-
-    @Override
-    public String asScript() {
-        return script.getScriptText();
-    }
-
 }
