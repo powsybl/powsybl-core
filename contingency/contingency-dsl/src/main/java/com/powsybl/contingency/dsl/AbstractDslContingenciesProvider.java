@@ -29,7 +29,7 @@ public abstract class AbstractDslContingenciesProvider implements ContingenciesP
     protected AbstractDslContingenciesProvider(final Path path) {
         Objects.requireNonNull(path);
         try (Reader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
-            this.script = new GroovyCodeSource(reader, "script", GroovyShell.DEFAULT_CODE_BASE);
+            script = new GroovyCodeSource(reader, "script", GroovyShell.DEFAULT_CODE_BASE);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -40,7 +40,7 @@ public abstract class AbstractDslContingenciesProvider implements ContingenciesP
      */
     protected AbstractDslContingenciesProvider(final InputStream input) {
         Objects.requireNonNull(input);
-        this.script = new GroovyCodeSource(new InputStreamReader(input, StandardCharsets.UTF_8), "script", GroovyShell.DEFAULT_CODE_BASE);
+        script = new GroovyCodeSource(new InputStreamReader(input, StandardCharsets.UTF_8), "script", GroovyShell.DEFAULT_CODE_BASE);
     }
 
     @Override
