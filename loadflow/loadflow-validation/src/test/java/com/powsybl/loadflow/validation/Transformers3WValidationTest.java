@@ -34,7 +34,7 @@ public class Transformers3WValidationTest extends AbstractValidationTest {
     @Test
     public void checkTwts() {
         assertFalse(Transformers3WValidation.checkTransformer(twt3wValidationData.get3WTransformer(), strictConfig, NullWriter.NULL_WRITER));
-        strictConfig.setThreshold(.2);
+        strictConfig.setThreshold(.3);
         assertTrue(Transformers3WValidation.checkTransformer(twt3wValidationData.get3WTransformer(), strictConfig, NullWriter.NULL_WRITER));
         // check NaN values
         twt3wValidationData.setNanP();
@@ -50,7 +50,7 @@ public class Transformers3WValidationTest extends AbstractValidationTest {
         Mockito.when(network.getThreeWindingsTransformerStream()).thenAnswer(dummy -> Stream.of(twt3wValidationData.get3WTransformer()));
 
         assertFalse(Transformers3WValidation.checkTransformers(network, strictConfig, NullWriter.NULL_WRITER));
-        strictConfig.setThreshold(.2);
+        strictConfig.setThreshold(.3);
         assertTrue(Transformers3WValidation.checkTransformers(network, strictConfig, NullWriter.NULL_WRITER));
     }
 

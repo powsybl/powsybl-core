@@ -307,15 +307,15 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         assertEquals(shuntQ, setterCaptor.getValue(), 0.0001);
 
         Mockito.verify(leg1Terminal, Mockito.times(1)).setP(setterCaptor.capture());
-        assertEquals(leg1P, setterCaptor.getValue(), 0.2);
+        assertEquals(leg1P, setterCaptor.getValue(), 0.3);
         Mockito.verify(leg1Terminal, Mockito.times(1)).setQ(setterCaptor.capture());
-        assertEquals(leg1Q, setterCaptor.getValue(), 0.2);
+        assertEquals(leg1Q, setterCaptor.getValue(), 0.3);
         Mockito.verify(leg2Terminal, Mockito.times(0)).setP(Matchers.anyDouble());
         Mockito.verify(leg2Terminal, Mockito.times(0)).setQ(Matchers.anyDouble());
         Mockito.verify(leg3Terminal, Mockito.times(1)).setP(setterCaptor.capture());
-        assertEquals(leg3P, setterCaptor.getValue(), 0.2);
+        assertEquals(leg3P, setterCaptor.getValue(), 0.3);
         Mockito.verify(leg3Terminal, Mockito.times(1)).setQ(setterCaptor.capture());
-        assertEquals(leg3Q, setterCaptor.getValue(), 0.2);
+        assertEquals(leg3Q, setterCaptor.getValue(), 0.3);
     }
 
 }

@@ -29,12 +29,12 @@ public class Twt3wTestData {
     public static double P3 = 118;
     public static double Q3 = 92.612077;
 
-    public static double COMPUTED_P1 = 99.2273;
-    public static double COMPUTED_Q1 = 3.16289;
-    public static double COMPUTED_P2 = -216.196;
-    public static double COMPUTED_Q2 = -85.4905;
-    public static double COMPUTED_P3 = 117.988;
-    public static double COMPUTED_Q3 = 92.5008;
+    public static double COMPUTED_P1 = 99.2366;
+    public static double COMPUTED_Q1 = 3.00581;
+    public static double COMPUTED_P2 = -216.1928;
+    public static double COMPUTED_Q2 = -85.6264;
+    public static double COMPUTED_P3 = 117.9754;
+    public static double COMPUTED_Q3 = 92.3782;
 
     public static double U1 = 412.989001;
     public static double ANGLE1 = -6.78071;
@@ -43,8 +43,8 @@ public class Twt3wTestData {
     public static double U3 = 21.987;
     public static double ANGLE3 = -6.6508;
 
-    public static double G = 2.4375E-6;
-    public static double B = 0;
+    public static double G = 0;
+    public static double B = 2.4375E-6;
 
     public static double R1 = 0.898462;
     public static double X1 = 17.204128;
