@@ -26,31 +26,31 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.*;
 /**
  * XML export of an IIDM model.<p>
  * <table border="1">
- *     <tr>
- *         <td><b>property name</b></td>
- *         <td><b>comment</b></td>
- *         <td><b>possible values</b></td>
- *     </tr>
- *     <tr>
- *         <td>iidm.export.xml.indent</td>
- *         <td>if true write indented xml (4 spaces)</td>
- *         <td>true or false</td>
- *     </tr>
- *     <tr>
- *         <td>iidm.export.xml.with-branch-state-variables</td>
- *         <td>if true export branches state (active and reactive flow)</td>
- *         <td>true or false</td>
- *     </tr>
- *     <tr>
- *         <td>iidm.export.xml.only-main-cc</td>
- *         <td>if true only export equipments of the main connected component</td>
- *         <td>true or false</td>
- *     </tr>
- *     <tr>
- *         <td>iidm.export.xml.topology-level</td>
- *         <td>the detail level used in the export of voltage levels</td>
- *         <td>NODE_BREAKER, BUS_BREAKER, BUS_BRANCH</td>
- *     </tr>
+ * <tr>
+ * <td><b>property name</b></td>
+ * <td><b>comment</b></td>
+ * <td><b>possible values</b></td>
+ * </tr>
+ * <tr>
+ * <td>iidm.export.xml.indent</td>
+ * <td>if true write indented xml (4 spaces)</td>
+ * <td>true or false</td>
+ * </tr>
+ * <tr>
+ * <td>iidm.export.xml.with-branch-state-variables</td>
+ * <td>if true export branches state (active and reactive flow)</td>
+ * <td>true or false</td>
+ * </tr>
+ * <tr>
+ * <td>iidm.export.xml.only-main-cc</td>
+ * <td>if true only export equipments of the main connected component</td>
+ * <td>true or false</td>
+ * </tr>
+ * <tr>
+ * <td>iidm.export.xml.topology-level</td>
+ * <td>the detail level used in the export of voltage levels</td>
+ * <td>NODE_BREAKER, BUS_BREAKER, BUS_BRANCH</td>
+ * </tr>
  * </table>
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -71,6 +71,8 @@ public class XMLExporter implements Exporter {
 
     public static final String TOPOLOGY_LEVEL_PROPERTY = "iidm.export.xml.topology-level";
 
+    public static final String THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND = "iidm.export.xml.throw-exception-if-extension-not-found";
+
     @Override
     public String getFormat() {
         return "XIIDM";
@@ -90,18 +92,19 @@ public class XMLExporter implements Exporter {
         ExportOptions options = new ExportOptions();
         if (parameters != null) {
             options.setIndent(Boolean.parseBoolean(parameters.getProperty(INDENT_PROPERTY, Boolean.TRUE.toString())))
-                .setWithBranchSV(Boolean.parseBoolean(parameters.getProperty(WITH_BRANCH_STATE_VARIABLES_PROPERTY, Boolean.TRUE.toString())))
-                .setOnlyMainCc(Boolean.parseBoolean(parameters.getProperty(ONLY_MAIN_CC_PROPERTIES, Boolean.FALSE.toString())))
-                .setAnonymized(Boolean.parseBoolean(parameters.getProperty(ANONYMISED_PROPERTIES, Boolean.FALSE.toString())))
-                .setSkipExtensions(Boolean.parseBoolean(parameters.getProperty(SKIP_EXTENSIONS_PROPERTIES, Boolean.FALSE.toString())))
-                .setTopologyLevel(TopologyLevel.valueOf(parameters.getProperty(TOPOLOGY_LEVEL_PROPERTY, TopologyLevel.NODE_BREAKER.name())));
+                    .setWithBranchSV(Boolean.parseBoolean(parameters.getProperty(WITH_BRANCH_STATE_VARIABLES_PROPERTY, Boolean.TRUE.toString())))
+                    .setOnlyMainCc(Boolean.parseBoolean(parameters.getProperty(ONLY_MAIN_CC_PROPERTIES, Boolean.FALSE.toString())))
+                    .setAnonymized(Boolean.parseBoolean(parameters.getProperty(ANONYMISED_PROPERTIES, Boolean.FALSE.toString())))
+                    .setSkipExtensions(Boolean.parseBoolean(parameters.getProperty(SKIP_EXTENSIONS_PROPERTIES, Boolean.FALSE.toString())))
+                    .setTopologyLevel(TopologyLevel.valueOf(parameters.getProperty(TOPOLOGY_LEVEL_PROPERTY, TopologyLevel.NODE_BREAKER.name())))
+                    .setThrowExceptionIfExtensionNotFound(Boolean.parseBoolean(parameters.getProperty(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, Boolean.TRUE.toString())));
         }
 
         try {
             long startTime = System.currentTimeMillis();
 
             try (OutputStream os = dataSource.newOutputStream(null, "xiidm", false);
-                 BufferedOutputStream bos = new BufferedOutputStream(os)) {
+                    BufferedOutputStream bos = new BufferedOutputStream(os)) {
                 Anonymizer anonymizer = NetworkXml.write(network, options, bos);
                 if (anonymizer != null) {
                     try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dataSource.newOutputStream("_mapping", "csv", false), StandardCharsets.UTF_8))) {

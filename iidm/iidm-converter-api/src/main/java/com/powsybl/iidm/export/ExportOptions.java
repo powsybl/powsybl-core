@@ -28,6 +28,8 @@ public class ExportOptions {
 
     private TopologyLevel topologyLevel = TopologyLevel.NODE_BREAKER;
 
+    private boolean throwExceptionIfExtensionNotFound = true;
+
     public ExportOptions() {
     }
 
@@ -89,6 +91,15 @@ public class ExportOptions {
 
     public ExportOptions setTopologyLevel(TopologyLevel topologyLevel) {
         this.topologyLevel = Objects.requireNonNull(topologyLevel);
+        return this;
+    }
+
+    public boolean isThrowExceptionIfExtensionNotFound() {
+        return throwExceptionIfExtensionNotFound;
+    }
+
+    public ExportOptions setThrowExceptionIfExtensionNotFound(boolean throwException) {
+        this.throwExceptionIfExtensionNotFound = throwException;
         return this;
     }
 }
