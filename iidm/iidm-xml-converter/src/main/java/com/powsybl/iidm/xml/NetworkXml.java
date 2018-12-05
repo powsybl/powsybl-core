@@ -233,6 +233,8 @@ public final class NetworkXml {
             }
 
             if (!options.isSkipExtensions()) {
+                // Consider the network has been exported so its extensions will be written also
+                context.addExportedEquipment(n);
                 // write extensions
                 writeExtensions(n, context);
             }
