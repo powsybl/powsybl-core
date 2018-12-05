@@ -66,9 +66,7 @@ public abstract class AbstractConverterTest {
     protected static void compareTxt(InputStream expected, InputStream actual) {
         try {
             String expectedStr = normalizeLineSeparator(new String(ByteStreams.toByteArray(expected), StandardCharsets.UTF_8));
-            System.err.println(expectedStr);
             String actualStr = normalizeLineSeparator(new String(ByteStreams.toByteArray(actual), StandardCharsets.UTF_8));
-            System.out.println(actualStr);
             assertEquals(expectedStr, actualStr);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
