@@ -56,8 +56,6 @@ public class AmplNetworkWriter {
     private static final String ACTIVE_POWER = "P (MW)";
     private static final String REACTIVE_POWER = "Q (MVar)";
 
-    private static final String VARIANT_COLUMN_NAME = "variant";
-
     private final Network network;
 
     private final int faultNum;
@@ -74,6 +72,9 @@ public class AmplNetworkWriter {
 
     private final AmplExportConfig config;
 
+    /** By default : Only one ampl export per file*/
+    private int index = 1;
+
     private static class AmplExportContext {
 
         private int otherCcNum = Integer.MAX_VALUE;
@@ -85,7 +86,6 @@ public class AmplNetworkWriter {
         public final Set<String> generatorIdsToExport = new HashSet<>();
 
         public final Set<String> loadsToExport = new HashSet<>();
-
     }
 
     public AmplNetworkWriter(Network network, DataSource dataSource, int faultNum, int actionNum, boolean append,
@@ -107,6 +107,11 @@ public class AmplNetworkWriter {
 
     public AmplNetworkWriter(Network network, DataSource dataSource, AmplExportConfig config) {
         this(network, dataSource, 0, 0, false, AmplUtil.createMapper(network), config);
+    }
+    /**For multiple export*/
+    public AmplNetworkWriter(Network network, DataSource dataSource, AmplExportConfig config, int index) {
+        this(network, dataSource, 0, 0, false, AmplUtil.createMapper(network), config);
+        this.index = index;
     }
 
     public static String getTableTitle(Network network, String tableName) {
@@ -187,12 +192,12 @@ public class AmplNetworkWriter {
         return xNodeCcNum;
     }
 
-    private void writeSubstations(int index) throws IOException {
+    private void writeSubstations() throws IOException {
         try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_substations", "txt", append),
                 StandardCharsets.UTF_8);
                 TableFormatter formatter = new AmplDatTableFormatter(writer, getTableTitle("Substations"),
                         AmplConstants.INVALID_FLOAT_VALUE, !append, AmplConstants.LOCALE,
-                        new Column(VARIANT_COLUMN_NAME), new Column("num"), new Column("unused1"),
+                        new Column(AmplConstants.VARIANT_COLUMN_NAME), new Column("num"), new Column("unused1"),
                         new Column("unused2"), new Column("nomV (KV)"), new Column("minV (pu)"),
                         new Column("maxV (pu)"), new Column(FAULT), new Column(config.getActionType().getLabel()),
                         new Column("country"), new Column("id"), new Column(DESCRIPTION))) {
@@ -269,20 +274,20 @@ public class AmplNetworkWriter {
         return !(isOnlyMainCc() && numCC != ComponentConstants.MAIN_NUM);
     }
 
-    private void writeBuses(AmplExportContext context, int index) throws IOException {
+    private void writeBuses(AmplExportContext context) throws IOException {
         try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_buses", "txt", append),
                 StandardCharsets.UTF_8);
                 TableFormatter formatter = new AmplDatTableFormatter(writer, getTableTitle("Buses"),
                         AmplConstants.INVALID_FLOAT_VALUE, !append, AmplConstants.LOCALE,
-                        new Column(VARIANT_COLUMN_NAME), new Column("num"), new Column(SUBSTATION), new Column("cc"),
+                        new Column(AmplConstants.VARIANT_COLUMN_NAME), new Column("num"), new Column(SUBSTATION), new Column("cc"),
                         new Column("v (pu)"), new Column("theta (rad)"), new Column("p (MW)"), new Column("q (MVar)"),
                         new Column(FAULT), new Column(config.getActionType().getLabel()), new Column("id"))) {
 
-            writeBuses(context, formatter, index);
+            writeBuses(context, formatter);
 
-            writeThreeWindingsTransformerMiddleBuses(context, formatter, index);
+            writeThreeWindingsTransformerMiddleBuses(context, formatter);
 
-            writeDanglingLineMiddleBuses(context, formatter, index);
+            writeDanglingLineMiddleBuses(context, formatter);
 
             if (config.isExportXNodes()) {
                 writeTieLineMiddleBuses(context, formatter);
@@ -290,7 +295,7 @@ public class AmplNetworkWriter {
         }
     }
 
-    private void writeBuses(AmplExportContext context, TableFormatter formatter, int index) throws IOException {
+    private void writeBuses(AmplExportContext context, TableFormatter formatter) throws IOException {
         for (Bus b : AmplUtil.getBuses(network)) {
             int ccNum = ConnectedComponents.getCcNum(b);
             if (connectedComponentToExport(ccNum)) {
@@ -319,7 +324,7 @@ public class AmplNetworkWriter {
         }
     }
 
-    private void exportExtensions(int index) throws IOException {
+    private void exportExtensions() throws IOException {
 
         for (Entry<String, List<AmplExtension>> entry : extensionMap.entrySet()) {
             AmplExtensionWriter extWriter = AmplExtensionWriters.getWriter(entry.getKey());
@@ -329,8 +334,7 @@ public class AmplNetworkWriter {
         }
     }
 
-    private void writeThreeWindingsTransformerMiddleBuses(AmplExportContext context, TableFormatter formatter,
-            int index) throws IOException {
+    private void writeThreeWindingsTransformerMiddleBuses(AmplExportContext context, TableFormatter formatter) throws IOException {
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
             int middleCcNum = getThreeWindingsTransformerMiddleBusComponentNum(context, twt);
 
@@ -347,7 +351,7 @@ public class AmplNetworkWriter {
         }
     }
 
-    private void writeDanglingLineMiddleBuses(AmplExportContext context, TableFormatter formatter, int index)
+    private void writeDanglingLineMiddleBuses(AmplExportContext context, TableFormatter formatter)
             throws IOException {
         for (DanglingLine dl : network.getDanglingLines()) {
             Terminal t = dl.getTerminal();
@@ -385,7 +389,9 @@ public class AmplNetworkWriter {
                 String xNodeBusId = AmplUtil.getXnodeBusId(tieLine);
                 int xNodeBusNum = mapper.getInt(AmplSubset.BUS, xNodeBusId);
                 int xNodeVlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, AmplUtil.getXnodeVoltageLevelId(tieLine));
-                formatter.writeCell(xNodeBusNum).writeCell(xNodeVlNum).writeCell(xNodeCcNum).writeCell(Float.NaN)
+                formatter
+                        .writeCell(index)
+                        .writeCell(xNodeBusNum).writeCell(xNodeVlNum).writeCell(xNodeCcNum).writeCell(Float.NaN)
                         .writeCell(Double.NaN).writeCell(0.0).writeCell(0.0).writeCell(faultNum).writeCell(actionNum)
                         .writeCell(xNodeBusId);
             }
@@ -403,12 +409,12 @@ public class AmplNetworkWriter {
         return busId != null && context.busIdsToExport.contains(busId);
     }
 
-    private void writeBranches(AmplExportContext context, int index) throws IOException {
+    private void writeBranches(AmplExportContext context) throws IOException {
         try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_branches", "txt", append),
                 StandardCharsets.UTF_8);
                 TableFormatter formatter = new AmplDatTableFormatter(writer, getTableTitle("Branches"),
                         AmplConstants.INVALID_FLOAT_VALUE, !append, AmplConstants.LOCALE,
-                        new Column(VARIANT_COLUMN_NAME), new Column("num"), new Column("bus1"), new Column("bus2"),
+                        new Column(AmplConstants.VARIANT_COLUMN_NAME), new Column("num"), new Column("bus1"), new Column("bus2"),
                         new Column("3wt num"), new Column("sub.1"), new Column("sub.2"), new Column("r (pu)"),
                         new Column("x (pu)"), new Column("g1 (pu)"), new Column("g2 (pu)"), new Column("b1 (pu)"),
                         new Column("b2 (pu)"), new Column("cst ratio (pu)"), new Column("ratio tc"),
@@ -421,9 +427,9 @@ public class AmplNetworkWriter {
 
             writeTwoWindingsTransformers(context, formatter);
 
-            writeThreeWindingsTransformers(context, formatter, index);
+            writeThreeWindingsTransformers(context, formatter);
 
-            writeDanglingLines(context, formatter, index);
+            writeDanglingLines(context, formatter);
         }
     }
 
@@ -468,7 +474,7 @@ public class AmplNetworkWriter {
                 int xNodeBusNum = mapper.getInt(AmplSubset.BUS, xNodeBusId);
                 int xNodeVoltageLevelNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, xnodeVoltageLevelId);
 
-                formatter.writeCell(half1Num).writeCell(bus1Num).writeCell(xNodeBusNum).writeCell(-1).writeCell(vl1Num)
+                formatter.writeCell(index).writeCell(half1Num).writeCell(bus1Num).writeCell(xNodeBusNum).writeCell(-1).writeCell(vl1Num)
                         .writeCell(xNodeVoltageLevelNum).writeCell(tl.getHalf1().getR() / zb)
                         .writeCell(tl.getHalf1().getX() / zb).writeCell(tl.getHalf1().getG1() * zb)
                         .writeCell(tl.getHalf1().getG2() * zb).writeCell(tl.getHalf1().getB1() * zb)
@@ -492,7 +498,7 @@ public class AmplNetworkWriter {
                         .writeCell(merged).writeCell(faultNum).writeCell(actionNum).writeCell(half2Id)
                         .writeCell(tl.getHalf2().getName());
             } else {
-                formatter.writeCell(num).writeCell(bus1Num).writeCell(bus2Num).writeCell(-1).writeCell(vl1Num)
+                formatter.writeCell(index).writeCell(num).writeCell(bus1Num).writeCell(bus2Num).writeCell(-1).writeCell(vl1Num)
                         .writeCell(vl2Num).writeCell(l.getR() / zb).writeCell(l.getX() / zb).writeCell(l.getG1() * zb)
                         .writeCell(l.getG2() * zb).writeCell(l.getB1() * zb).writeCell(l.getB2() * zb).writeCell(1f) // constant
                                                                                                                      // ratio
@@ -570,7 +576,7 @@ public class AmplNetworkWriter {
         }
     }
 
-    private void writeThreeWindingsTransformers(AmplExportContext context, TableFormatter formatter, int index)
+    private void writeThreeWindingsTransformers(AmplExportContext context, TableFormatter formatter)
             throws IOException {
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
             Terminal t1 = twt.getLeg1().getTerminal();
@@ -662,7 +668,7 @@ public class AmplNetworkWriter {
         }
     }
 
-    private void writeDanglingLines(AmplExportContext context, TableFormatter formatter, int index)
+    private void writeDanglingLines(AmplExportContext context, TableFormatter formatter)
             throws IOException {
         for (DanglingLine dl : network.getDanglingLines()) {
             Terminal t = dl.getTerminal();
@@ -711,22 +717,22 @@ public class AmplNetworkWriter {
         return bus == null ? -1 : mapper.getInt(AmplSubset.BUS, bus.getId());
     }
 
-    private void writeTapChangerTable(int index) throws IOException {
+    private void writeTapChangerTable() throws IOException {
         try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_tct", "txt", append),
                 StandardCharsets.UTF_8);
                 TableFormatter formatter = new AmplDatTableFormatter(writer, getTableTitle("Tap changer table"),
                         AmplConstants.INVALID_FLOAT_VALUE, !append, AmplConstants.LOCALE,
-                        new Column(VARIANT_COLUMN_NAME), new Column("num"), new Column("tap"), new Column("var ratio"),
+                        new Column(AmplConstants.VARIANT_COLUMN_NAME), new Column("num"), new Column("tap"), new Column("var ratio"),
                         new Column("x (pu)"), new Column("angle (rad)"), new Column(FAULT),
                         new Column(config.getActionType().getLabel()))) {
 
-            writeTwoWindingsTransformerTapChangerTable(formatter, index);
+            writeTwoWindingsTransformerTapChangerTable(formatter);
 
-            writeThreeWindingsTransformerTapChangerTable(formatter, index);
+            writeThreeWindingsTransformerTapChangerTable(formatter);
         }
     }
 
-    private void writeTwoWindingsTransformerTapChangerTable(TableFormatter formatter, int index) throws IOException {
+    private void writeTwoWindingsTransformerTapChangerTable(TableFormatter formatter) throws IOException {
         for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
             Terminal t2 = twt.getTerminal2();
             double vb2 = t2.getVoltageLevel().getNominalV();
@@ -735,19 +741,19 @@ public class AmplNetworkWriter {
             RatioTapChanger rtc = twt.getRatioTapChanger();
             if (rtc != null) {
                 String id = twt.getId() + "_ratio_table";
-                writeRatioTapChanger(formatter, id, zb2, twt.getX(), rtc, index);
+                writeRatioTapChanger(formatter, id, zb2, twt.getX(), rtc);
             }
 
             PhaseTapChanger ptc = twt.getPhaseTapChanger();
             if (ptc != null) {
                 String id = twt.getId() + "_phase_table";
-                writePhaseTapChanger(formatter, id, zb2, twt.getX(), ptc, index);
+                writePhaseTapChanger(formatter, id, zb2, twt.getX(), ptc);
 
             }
         }
     }
 
-    private void writeThreeWindingsTransformerTapChangerTable(TableFormatter formatter, int index) throws IOException {
+    private void writeThreeWindingsTransformerTapChangerTable(TableFormatter formatter) throws IOException {
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
             RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
             if (rtc2 != null) {
@@ -757,7 +763,7 @@ public class AmplNetworkWriter {
                 double vb2 = t2.getVoltageLevel().getNominalV();
                 double zb2 = vb2 * vb2 / AmplConstants.SB;
 
-                writeRatioTapChanger(formatter, id, zb2, twt.getLeg2().getX(), rtc2, index);
+                writeRatioTapChanger(formatter, id, zb2, twt.getLeg2().getX(), rtc2);
             }
 
             RatioTapChanger rtc3 = twt.getLeg3().getRatioTapChanger();
@@ -768,13 +774,13 @@ public class AmplNetworkWriter {
                 double vb3 = t3.getVoltageLevel().getNominalV();
                 double zb3 = vb3 * vb3 / AmplConstants.SB;
 
-                writeRatioTapChanger(formatter, id, zb3, twt.getLeg3().getX(), rtc3, index);
+                writeRatioTapChanger(formatter, id, zb3, twt.getLeg3().getX(), rtc3);
             }
         }
     }
 
     private void writeRatioTapChanger(TableFormatter formatter, String id, double zb2, double reactance,
-            RatioTapChanger rtc, int index) throws IOException {
+            RatioTapChanger rtc) throws IOException {
         int num = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, id);
 
         for (int position = rtc.getLowTapPosition(); position <= rtc.getHighTapPosition(); position++) {
@@ -786,7 +792,7 @@ public class AmplNetworkWriter {
     }
 
     private void writePhaseTapChanger(TableFormatter formatter, String id, double zb2, double reactance,
-            PhaseTapChanger ptc, int index) throws IOException {
+            PhaseTapChanger ptc) throws IOException {
         int num = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, id);
 
         for (int position = ptc.getLowTapPosition(); position <= ptc.getHighTapPosition(); position++) {
@@ -798,8 +804,7 @@ public class AmplNetworkWriter {
         }
     }
 
-    private void writeRatioTapChanger(TableFormatter formatter, String rtcId, RatioTapChanger rtc, String tcsId,
-            int index) throws IOException {
+    private void writeRatioTapChanger(TableFormatter formatter, String rtcId, RatioTapChanger rtc, String tcsId) throws IOException {
         int rtcNum = mapper.getInt(AmplSubset.RATIO_TAP_CHANGER, rtcId);
         int tcsNum = mapper.getInt(AmplSubset.TAP_CHANGER_TABLE, tcsId);
         formatter.writeCell(index).writeCell(rtcNum).writeCell(rtc.getTapPosition() - rtc.getLowTapPosition() + 1)
@@ -810,9 +815,9 @@ public class AmplNetworkWriter {
         formatter.writeCell(faultNum).writeCell(actionNum).writeCell(rtcId);
     }
 
-    private void writeRatioTapChangers(int index) throws IOException {
+    private void writeRatioTapChangers() throws IOException {
         List<Column> columns = new ArrayList<>(8);
-        columns.add(new Column(VARIANT_COLUMN_NAME));
+        columns.add(new Column(AmplConstants.VARIANT_COLUMN_NAME));
         columns.add(new Column("num"));
         columns.add(new Column("tap"));
         columns.add(new Column("table"));
@@ -833,7 +838,7 @@ public class AmplNetworkWriter {
                 if (rtc != null) {
                     String rtcId = twt.getId();
                     String tcsId = twt.getId() + "_ratio_table";
-                    writeRatioTapChanger(formatter, rtcId, rtc, tcsId, index);
+                    writeRatioTapChanger(formatter, rtcId, rtc, tcsId);
                 }
             }
             for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
@@ -841,24 +846,24 @@ public class AmplNetworkWriter {
                 if (rtc2 != null) {
                     String rtc2Id = twt.getId() + AmplConstants.LEG2_SUFFIX;
                     String tcs2Id = twt.getId() + "_leg2_ratio_table";
-                    writeRatioTapChanger(formatter, rtc2Id, rtc2, tcs2Id, index);
+                    writeRatioTapChanger(formatter, rtc2Id, rtc2, tcs2Id);
                 }
                 RatioTapChanger rtc3 = twt.getLeg3().getRatioTapChanger();
                 if (rtc3 != null) {
                     String rtc3Id = twt.getId() + AmplConstants.LEG3_SUFFIX;
                     String tcs3Id = twt.getId() + "_leg3_ratio_table";
-                    writeRatioTapChanger(formatter, rtc3Id, rtc3, tcs3Id, index);
+                    writeRatioTapChanger(formatter, rtc3Id, rtc3, tcs3Id);
                 }
             }
         }
     }
 
-    private void writePhaseTapChangers(int index) throws IOException {
+    private void writePhaseTapChangers() throws IOException {
         try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_ptc", "txt", append),
                 StandardCharsets.UTF_8);
                 TableFormatter formatter = new AmplDatTableFormatter(writer, getTableTitle("Phase tap changers"),
                         AmplConstants.INVALID_FLOAT_VALUE, !append, AmplConstants.LOCALE,
-                        new Column(VARIANT_COLUMN_NAME), new Column("num"), new Column("tap"), new Column("table"),
+                        new Column(AmplConstants.VARIANT_COLUMN_NAME), new Column("num"), new Column("tap"), new Column("table"),
                         new Column(FAULT), new Column(config.getActionType().getLabel()), new Column("id"))) {
             for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
                 PhaseTapChanger ptc = twt.getPhaseTapChanger();
@@ -888,12 +893,12 @@ public class AmplNetworkWriter {
         }
     }
 
-    private void writeLoads(AmplExportContext context, int index) throws IOException {
+    private void writeLoads(AmplExportContext context) throws IOException {
         try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_loads", "txt", append),
                 StandardCharsets.UTF_8);
                 TableFormatter formatter = new AmplDatTableFormatter(writer, getTableTitle("Loads"),
                         AmplConstants.INVALID_FLOAT_VALUE, !append, AmplConstants.LOCALE,
-                        new Column(VARIANT_COLUMN_NAME), new Column("num"), new Column("bus"), new Column(SUBSTATION),
+                        new Column(AmplConstants.VARIANT_COLUMN_NAME), new Column("num"), new Column("bus"), new Column(SUBSTATION),
                         new Column("p0 (MW)"), new Column("q0 (MVar)"), new Column(FAULT),
                         new Column(config.getActionType().getLabel()), new Column("id"), new Column(DESCRIPTION),
                         new Column("p (MW)"), new Column("q (MVar)"))) {
@@ -955,12 +960,12 @@ public class AmplNetworkWriter {
         }
     }
 
-    private void writeShunts(AmplExportContext context, int index) throws IOException {
+    private void writeShunts(AmplExportContext context) throws IOException {
         try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_shunts", "txt", append),
                 StandardCharsets.UTF_8);
                 TableFormatter formatter = new AmplDatTableFormatter(writer, getTableTitle("Shunts"),
                         AmplConstants.INVALID_FLOAT_VALUE, !append, AmplConstants.LOCALE,
-                        new Column(VARIANT_COLUMN_NAME), new Column("num"), new Column("bus"), new Column(CON_BUS),
+                        new Column(AmplConstants.VARIANT_COLUMN_NAME), new Column("num"), new Column("bus"), new Column(CON_BUS),
                         new Column(SUBSTATION), new Column("minB (pu)"), new Column("maxB (pu)"),
                         new Column("inter. points"), new Column("b (pu)"), new Column(FAULT),
                         new Column(config.getActionType().getLabel()), new Column("id"), new Column(DESCRIPTION),
@@ -1011,12 +1016,12 @@ public class AmplNetworkWriter {
         }
     }
 
-    private void writeStaticVarCompensators(int index) throws IOException {
+    private void writeStaticVarCompensators() throws IOException {
         try (Writer writer = new OutputStreamWriter(
                 dataSource.newOutputStream("_network_static_var_compensators", "txt", append), StandardCharsets.UTF_8);
                 TableFormatter formatter = new AmplDatTableFormatter(writer, getTableTitle("Static VAR compensators"),
                         AmplConstants.INVALID_FLOAT_VALUE, !append, AmplConstants.LOCALE,
-                        new Column(VARIANT_COLUMN_NAME), new Column("num"), new Column("bus"), new Column(CON_BUS),
+                        new Column(AmplConstants.VARIANT_COLUMN_NAME), new Column("num"), new Column("bus"), new Column(CON_BUS),
                         new Column(SUBSTATION), new Column("minB (pu)"), new Column("maxB (pu)"), new Column(V_REGUL),
                         new Column(TARGET_V), new Column(FAULT), new Column(config.getActionType().getLabel()),
                         new Column("id"), new Column(DESCRIPTION), new Column(ACTIVE_POWER),
@@ -1051,12 +1056,12 @@ public class AmplNetworkWriter {
         }
     }
 
-    private void writeGenerators(AmplExportContext context, int index) throws IOException {
+    private void writeGenerators(AmplExportContext context) throws IOException {
         try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_generators", "txt", append),
                 StandardCharsets.UTF_8);
                 TableFormatter formatter = new AmplDatTableFormatter(writer, getTableTitle("Generators"),
                         AmplConstants.INVALID_FLOAT_VALUE, !append, AmplConstants.LOCALE,
-                        new Column(VARIANT_COLUMN_NAME), new Column("num"), new Column("bus"), new Column(CON_BUS),
+                        new Column(AmplConstants.VARIANT_COLUMN_NAME), new Column("num"), new Column("bus"), new Column(CON_BUS),
                         new Column(SUBSTATION), new Column("minP (MW)"), new Column(MAXP),
                         new Column("minQmaxP (MVar)"), new Column("minQminP (MVar)"), new Column("maxQmaxP (MVar)"),
                         new Column("maxQminP (MVar)"), new Column(V_REGUL), new Column(TARGET_V),
@@ -1109,7 +1114,7 @@ public class AmplNetworkWriter {
     }
 
     private void writeTemporaryCurrentLimits(CurrentLimits limits, TableFormatter formatter, String branchId,
-            boolean side1, String sideId, int index) throws IOException {
+            boolean side1, String sideId) throws IOException {
         int branchNum = mapper.getInt(AmplSubset.BRANCH, branchId);
         for (TemporaryLimit tl : limits.getTemporaryLimits()) {
             String limitId = branchId + "_" + sideId + "_" + tl.getAcceptableDuration();
@@ -1120,67 +1125,67 @@ public class AmplNetworkWriter {
         }
     }
 
-    private void writeCurrentLimits(int index) throws IOException {
+    private void writeCurrentLimits() throws IOException {
         try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_limits", "txt", append),
                 StandardCharsets.UTF_8);
                 TableFormatter formatter = new AmplDatTableFormatter(writer, getTableTitle("Temporary current limits"),
                         AmplConstants.INVALID_FLOAT_VALUE, !append, AmplConstants.LOCALE,
-                        new Column(VARIANT_COLUMN_NAME), new Column("num"), new Column("branch"), new Column("side"),
+                        new Column(AmplConstants.VARIANT_COLUMN_NAME), new Column("num"), new Column("branch"), new Column("side"),
                         new Column("limit (A)"), new Column("accept. duration (s)"), new Column(FAULT),
                         new Column(config.getActionType().getLabel()))) {
 
-            writeBranchCurrentLimits(formatter, index);
+            writeBranchCurrentLimits(formatter);
 
-            writeThreeWindingsTransformerCurrentLimits(formatter, index);
+            writeThreeWindingsTransformerCurrentLimits(formatter);
 
-            writeDanglingLineCurrentLimits(formatter, index);
+            writeDanglingLineCurrentLimits(formatter);
         }
     }
 
-    private void writeBranchCurrentLimits(TableFormatter formatter, int index) throws IOException {
+    private void writeBranchCurrentLimits(TableFormatter formatter) throws IOException {
         for (Branch branch : network.getBranches()) {
             String branchId = branch.getId();
             if (branch.getCurrentLimits1() != null) {
-                writeTemporaryCurrentLimits(branch.getCurrentLimits1(), formatter, branchId, true, "_1_", index);
+                writeTemporaryCurrentLimits(branch.getCurrentLimits1(), formatter, branchId, true, "_1_");
             }
             if (branch.getCurrentLimits2() != null) {
-                writeTemporaryCurrentLimits(branch.getCurrentLimits2(), formatter, branchId, false, "_2_", index);
+                writeTemporaryCurrentLimits(branch.getCurrentLimits2(), formatter, branchId, false, "_2_");
             }
         }
     }
 
-    private void writeThreeWindingsTransformerCurrentLimits(TableFormatter formatter, int index) throws IOException {
+    private void writeThreeWindingsTransformerCurrentLimits(TableFormatter formatter) throws IOException {
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
             if (twt.getLeg1().getCurrentLimits() != null) {
                 String branchId = twt.getId() + AmplConstants.LEG1_SUFFIX;
-                writeTemporaryCurrentLimits(twt.getLeg1().getCurrentLimits(), formatter, branchId, false, "", index);
+                writeTemporaryCurrentLimits(twt.getLeg1().getCurrentLimits(), formatter, branchId, false, "");
             }
             if (twt.getLeg2().getCurrentLimits() != null) {
                 String branchId = twt.getId() + AmplConstants.LEG2_SUFFIX;
-                writeTemporaryCurrentLimits(twt.getLeg2().getCurrentLimits(), formatter, branchId, true, "", index);
+                writeTemporaryCurrentLimits(twt.getLeg2().getCurrentLimits(), formatter, branchId, true, "");
             }
             if (twt.getLeg3().getCurrentLimits() != null) {
                 String branchId = twt.getId() + AmplConstants.LEG3_SUFFIX;
-                writeTemporaryCurrentLimits(twt.getLeg3().getCurrentLimits(), formatter, branchId, true, "", index);
+                writeTemporaryCurrentLimits(twt.getLeg3().getCurrentLimits(), formatter, branchId, true, "");
             }
         }
     }
 
-    private void writeDanglingLineCurrentLimits(TableFormatter formatter, int index) throws IOException {
+    private void writeDanglingLineCurrentLimits(TableFormatter formatter) throws IOException {
         for (DanglingLine dl : network.getDanglingLines()) {
             String branchId = dl.getId();
             if (dl.getCurrentLimits() != null) {
-                writeTemporaryCurrentLimits(dl.getCurrentLimits(), formatter, branchId, true, "", index);
+                writeTemporaryCurrentLimits(dl.getCurrentLimits(), formatter, branchId, true, "");
             }
         }
     }
 
-    private void writeHvdcLines(int index) throws IOException {
+    private void writeHvdcLines() throws IOException {
         try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_hvdc", "txt", append),
                 StandardCharsets.UTF_8);
                 TableFormatter formatter = new AmplDatTableFormatter(writer, getTableTitle("HVDC lines"),
                         AmplConstants.INVALID_FLOAT_VALUE, !append, AmplConstants.LOCALE,
-                        new Column(VARIANT_COLUMN_NAME), new Column("num"), new Column("type"),
+                        new Column(AmplConstants.VARIANT_COLUMN_NAME), new Column("num"), new Column("type"),
                         new Column("converterStation1"), new Column("converterStation2"), new Column("r (ohm)"),
                         new Column("nomV (KV)"), new Column("convertersMode"), new Column("targetP (MW)"),
                         new Column(MAXP), new Column(FAULT), new Column(config.getActionType().getLabel()),
@@ -1216,12 +1221,12 @@ public class AmplNetworkWriter {
         return lineMap;
     }
 
-    private void writeLccConverterStations(int index) throws IOException {
+    private void writeLccConverterStations() throws IOException {
         try (Writer writer = new OutputStreamWriter(
                 dataSource.newOutputStream("_network_lcc_converter_stations", "txt", append), StandardCharsets.UTF_8);
                 TableFormatter formatter = new AmplDatTableFormatter(writer, getTableTitle("LCC Converter Stations"),
                         AmplConstants.INVALID_FLOAT_VALUE, !append, AmplConstants.LOCALE,
-                        new Column(VARIANT_COLUMN_NAME), new Column("num"), new Column("bus"), new Column(CON_BUS),
+                        new Column(AmplConstants.VARIANT_COLUMN_NAME), new Column("num"), new Column("bus"), new Column(CON_BUS),
                         new Column(SUBSTATION), new Column("lossFactor (%PDC)"), new Column("powerFactor"),
                         new Column(FAULT), new Column(config.getActionType().getLabel()), new Column("id"),
                         new Column(DESCRIPTION), new Column(ACTIVE_POWER), new Column(REACTIVE_POWER))) {
@@ -1248,12 +1253,12 @@ public class AmplNetworkWriter {
         }
     }
 
-    private void writeVscConverterStations(int index) throws IOException {
+    private void writeVscConverterStations() throws IOException {
         try (Writer writer = new OutputStreamWriter(
                 dataSource.newOutputStream("_network_vsc_converter_stations", "txt", append), StandardCharsets.UTF_8);
                 TableFormatter formatter = new AmplDatTableFormatter(writer, getTableTitle("VSC Converter Stations"),
                         AmplConstants.INVALID_FLOAT_VALUE, !append, AmplConstants.LOCALE,
-                        new Column(VARIANT_COLUMN_NAME), new Column("num"), new Column("bus"), new Column(CON_BUS),
+                        new Column(AmplConstants.VARIANT_COLUMN_NAME), new Column("num"), new Column("bus"), new Column(CON_BUS),
                         new Column(SUBSTATION), new Column("minP (MW)"), new Column(MAXP),
                         new Column("minQmaxP (MVar)"), new Column("minQ0 (MVar)"), new Column("minQminP (MVar)"),
                         new Column("maxQmaxP (MVar)"), new Column("maxQ0 (MVar)"), new Column("maxQminP (MVar)"),
@@ -1298,30 +1303,26 @@ public class AmplNetworkWriter {
         }
     }
 
-    public void write(int index) throws IOException {
-        write(new AmplExportContext(), index);
-    }
-
     public void write() throws IOException {
-        write(new AmplExportContext(), 1);
+        write(new AmplExportContext());
     }
 
-    public void write(AmplExportContext context, int index) throws IOException {
+    public void write(AmplExportContext context) throws IOException {
         extensionMap.clear();
-        writeBuses(context, index);
-        writeTapChangerTable(index);
-        writeRatioTapChangers(index);
-        writePhaseTapChangers(index);
-        writeBranches(context, index);
-        writeCurrentLimits(index);
-        writeGenerators(context, index);
-        writeLoads(context, index);
-        writeShunts(context, index);
-        writeStaticVarCompensators(index);
-        writeSubstations(index);
-        writeVscConverterStations(index);
-        writeLccConverterStations(index);
-        writeHvdcLines(index);
-        exportExtensions(index);
+        writeBuses(context);
+        writeTapChangerTable();
+        writeRatioTapChangers();
+        writePhaseTapChangers();
+        writeBranches(context);
+        writeCurrentLimits();
+        writeGenerators(context);
+        writeLoads(context);
+        writeShunts(context);
+        writeStaticVarCompensators();
+        writeSubstations();
+        writeVscConverterStations();
+        writeLccConverterStations();
+        writeHvdcLines();
+        exportExtensions();
     }
 }

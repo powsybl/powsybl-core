@@ -29,4 +29,6 @@ public final class AmplConstants {
     public static final String LEG1_SUFFIX = "_leg1";
     public static final String LEG2_SUFFIX = "_leg2";
     public static final String LEG3_SUFFIX = "_leg3";
+
+    public static final String VARIANT_COLUMN_NAME = "variant";
 }
