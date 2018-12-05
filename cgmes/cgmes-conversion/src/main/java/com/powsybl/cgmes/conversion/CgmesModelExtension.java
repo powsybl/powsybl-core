@@ -19,8 +19,6 @@ public class CgmesModelExtension extends AbstractExtension<Network> {
 
     private final CgmesModel cgmes;
 
-    private Network network;
-
     public CgmesModelExtension(CgmesModel cgmes) {
         this.cgmes = Objects.requireNonNull(cgmes);
     }
@@ -32,16 +30,5 @@ public class CgmesModelExtension extends AbstractExtension<Network> {
     @Override
     public String getName() {
         return "CgmesModel";
-    }
-
-    @Override
-    public Network getExtendable() {
-        return network;
-    }
-
-    @Override
-    public void setExtendable(Network network) {
-        this.network = network;
-
     }
 }
