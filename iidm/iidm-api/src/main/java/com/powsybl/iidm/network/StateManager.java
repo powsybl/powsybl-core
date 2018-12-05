@@ -25,7 +25,9 @@ public interface StateManager {
      *
      * @return the variant id list
      */
-    Collection<String> getVariantIds();
+    default Collection<String> getVariantIds() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * @deprecated use {@link #getVariantIds()} instead.
@@ -40,7 +42,9 @@ public interface StateManager {
      *
      * @return the id of the working variant
      */
-    String getWorkingVariantId();
+    default String getWorkingVariantId() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * @deprecated use {@link #getWorkingVariantId()} instead.
@@ -56,7 +60,9 @@ public interface StateManager {
      * @param variantId the id of the working variant
      * @throws com.powsybl.commons.PowsyblException if the variant is not found
      */
-    void setWorkingVariant(String variantId);
+    default void setWorkingVariant(String variantId) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * @deprecated use {@link #setWorkingVariant(String)} instead.
@@ -75,7 +81,9 @@ public interface StateManager {
      *                         if the source variant is not found or if a variant with
      *                         an id of targetStateIds already exists
      */
-    void cloneVariant(String sourceVariantId, List<String> targetVariantIds);
+    default void cloneVariant(String sourceVariantId, List<String> targetVariantIds) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * @deprecated use {@link #cloneVariant(String, List)} instead.
@@ -94,7 +102,9 @@ public interface StateManager {
      *                         if the source variant is not found or if a variant with
      *                         the id targetVariantId already exists
      */
-    void cloneVariant(String sourceVariantId, String targetVariantId);
+    default void cloneVariant(String sourceVariantId, String targetVariantId) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * @deprecated use {@link #cloneVariant(String, String)} instead.
@@ -109,7 +119,9 @@ public interface StateManager {
      *
      * @param variantId the id of the variant to remove
      */
-    void removeVariant(String variantId);
+    default void removeVariant(String variantId) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * @deprecated use {@link #removeVariant(String)} instead.
@@ -125,7 +137,9 @@ public interface StateManager {
      * for each thread.
      * @param allow
      */
-    void allowVariantMultiThreadAccess(boolean allow);
+    default void allowVariantMultiThreadAccess(boolean allow) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * @deprecated use {@link #allowVariantMultiThreadAccess(boolean)} instead.
@@ -135,7 +149,9 @@ public interface StateManager {
         allowVariantMultiThreadAccess(allow);
     }
 
-    boolean isVariantMultiThreadAccessAllowed();
+    default boolean isVariantMultiThreadAccessAllowed() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * @deprecated use {@link #isVariantMultiThreadAccessAllowed()} instead.

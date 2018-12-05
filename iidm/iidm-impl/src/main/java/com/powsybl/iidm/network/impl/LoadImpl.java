@@ -18,7 +18,7 @@ import gnu.trove.list.array.TDoubleArrayList;
  */
 class LoadImpl extends AbstractConnectable<Load> implements Load {
 
-    private final Ref<? extends MultiVariantTopLevelObject> network;
+    private final Ref<? extends VariantManagerHolder> network;
 
     private LoadType loadType;
 
@@ -28,7 +28,7 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
 
     private final TDoubleArrayList q0;
 
-    LoadImpl(Ref<? extends MultiVariantTopLevelObject> network,
+    LoadImpl(Ref<? extends VariantManagerHolder> network,
              String id, String name, LoadType loadType, double p0, double q0) {
         super(id, name);
         this.network = network;

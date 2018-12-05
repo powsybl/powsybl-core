@@ -74,7 +74,7 @@ class NodeTerminal extends AbstractTerminal {
 
     };
 
-    NodeTerminal(Ref<? extends MultiVariantTopLevelObject> network, int node) {
+    NodeTerminal(Ref<? extends VariantManagerHolder> network, int node) {
         super(network);
         this.node = node;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();

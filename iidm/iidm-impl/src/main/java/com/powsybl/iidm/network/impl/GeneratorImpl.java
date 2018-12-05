@@ -40,7 +40,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     private final TDoubleArrayList targetV;
 
-    GeneratorImpl(Ref<? extends MultiVariantTopLevelObject> ref,
+    GeneratorImpl(Ref<? extends VariantManagerHolder> ref,
                   String id, String name, EnergySource energySource,
                   double minP, double maxP,
                   boolean voltageRegulatorOn, TerminalExt regulatingTerminal,

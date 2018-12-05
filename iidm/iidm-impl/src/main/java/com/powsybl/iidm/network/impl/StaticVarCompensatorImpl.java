@@ -33,7 +33,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     private final TIntArrayList regulationMode;
 
     StaticVarCompensatorImpl(String id, String name, double bMin, double bMax, double voltageSetPoint, double reactivePowerSetPoint,
-                             RegulationMode regulationMode, Ref<? extends MultiVariantTopLevelObject> ref) {
+                             RegulationMode regulationMode, Ref<? extends VariantManagerHolder> ref) {
         super(id, name);
         this.bMin = bMin;
         this.bMax = bMax;

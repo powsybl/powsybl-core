@@ -29,7 +29,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     private final TDoubleArrayList voltageSetpoint;
 
-    VscConverterStationImpl(String id, String name, float lossFactor, Ref<? extends MultiVariantTopLevelObject> ref,
+    VscConverterStationImpl(String id, String name, float lossFactor, Ref<? extends VariantManagerHolder> ref,
                             boolean voltageRegulatorOn, double reactivePowerSetpoint, double voltageSetpoint) {
         super(id, name, lossFactor);
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();

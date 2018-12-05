@@ -14,7 +14,7 @@ import com.powsybl.iidm.network.impl.util.Ref;
  */
 class TerminalBuilder {
 
-    private final Ref<? extends MultiVariantTopLevelObject> network;
+    private final Ref<? extends VariantManagerHolder> network;
 
     private final Validable validable;
 
@@ -24,7 +24,7 @@ class TerminalBuilder {
 
     private String connectableBus;
 
-    TerminalBuilder(Ref<? extends MultiVariantTopLevelObject> network, Validable validable) {
+    TerminalBuilder(Ref<? extends VariantManagerHolder> network, Validable validable) {
         this.network = network;
         this.validable = validable;
     }

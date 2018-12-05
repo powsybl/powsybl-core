@@ -131,7 +131,9 @@ public interface Network extends Container<Network> {
     /**
      * Get the variant manager of the network.
      */
-    VariantManager getVariantManager();
+    default VariantManager getVariantManager() {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * @deprecated Use {@link #getVariantManager()} instead.
