@@ -19,7 +19,7 @@ import java.util.List;
  */
 abstract class AbstractTapChanger<H extends TapChangerParent, C extends AbstractTapChanger<H, C, S>, S extends TapChangerStepImpl<S>> implements MultiVariantObject {
 
-    protected final Ref<? extends MultiVariantTopLevelObject> network;
+    protected final Ref<? extends VariantManagerHolder> network;
 
     protected final H parent;
 
@@ -35,7 +35,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected final TBooleanArrayList regulating;
 
-    protected AbstractTapChanger(Ref<? extends MultiVariantTopLevelObject> network, H parent,
+    protected AbstractTapChanger(Ref<? extends VariantManagerHolder> network, H parent,
                                  int lowTapPosition, List<S> steps, TerminalExt regulationTerminal,
                                  int tapPosition, boolean regulating) {
         this.network = network;

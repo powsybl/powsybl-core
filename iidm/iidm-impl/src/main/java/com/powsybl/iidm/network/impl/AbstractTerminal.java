@@ -17,7 +17,7 @@ import gnu.trove.list.array.TDoubleArrayList;
  */
 abstract class AbstractTerminal implements TerminalExt {
 
-    protected final Ref<? extends MultiVariantTopLevelObject> network;
+    protected final Ref<? extends VariantManagerHolder> network;
 
     protected AbstractConnectable connectable;
 
@@ -31,7 +31,7 @@ abstract class AbstractTerminal implements TerminalExt {
 
     protected final TDoubleArrayList q;
 
-    AbstractTerminal(Ref<? extends MultiVariantTopLevelObject> network) {
+    AbstractTerminal(Ref<? extends VariantManagerHolder> network) {
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         p = new TDoubleArrayList(variantArraySize);

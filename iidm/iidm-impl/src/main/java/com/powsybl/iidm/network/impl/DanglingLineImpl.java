@@ -18,7 +18,7 @@ import gnu.trove.list.array.TDoubleArrayList;
  */
 class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements DanglingLine, CurrentLimitsOwner<Void> {
 
-    private final Ref<? extends MultiVariantTopLevelObject> network;
+    private final Ref<? extends VariantManagerHolder> network;
 
     private double r;
 
@@ -38,7 +38,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private final TDoubleArrayList q0;
 
-    DanglingLineImpl(Ref<? extends MultiVariantTopLevelObject> network, String id, String name, double p0, double q0, double r, double x, double g, double b, String ucteXnodeCode) {
+    DanglingLineImpl(Ref<? extends VariantManagerHolder> network, String id, String name, double p0, double q0, double r, double x, double g, double b, String ucteXnodeCode) {
         super(id, name);
         this.network = network;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();

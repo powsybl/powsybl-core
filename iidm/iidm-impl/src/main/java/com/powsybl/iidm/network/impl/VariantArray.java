@@ -18,13 +18,13 @@ import java.util.List;
  */
 class VariantArray<S extends Variant> {
 
-    private final Ref<? extends MultiVariantTopLevelObject> topLevelObject;
+    private final Ref<? extends VariantManagerHolder> variantManagerHolder;
 
     private final List<S> variants;
 
-    VariantArray(Ref<? extends MultiVariantTopLevelObject> topLevelObject, VariantFactory<S> variantFactory) {
-        this.topLevelObject = topLevelObject;
-        VariantManagerImpl variantManager = topLevelObject.get().getVariantManager();
+    VariantArray(Ref<? extends VariantManagerHolder> variantManagerHolder, VariantFactory<S> variantFactory) {
+        this.variantManagerHolder = variantManagerHolder;
+        VariantManagerImpl variantManager = variantManagerHolder.get().getVariantManager();
         variants = Collections.synchronizedList(new ArrayList<S>(variantManager.getVariantArraySize()));
         for (int i = 0; i < variantManager.getVariantArraySize(); i++) {
             variants.add(null);
@@ -35,7 +35,7 @@ class VariantArray<S extends Variant> {
     }
 
     S get() {
-        return variants.get(topLevelObject.get().getVariantManager().getVariantContext().getVariantIndex());
+        return variants.get(variantManagerHolder.get().getVariantManager().getVariantContext().getVariantIndex());
     }
 
     void push(int number, VariantFactory<S> variantFactory) {

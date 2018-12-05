@@ -17,7 +17,7 @@ import gnu.trove.list.array.TIntArrayList;
  */
 class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> implements ShuntCompensator {
 
-    private final Ref<? extends MultiVariantTopLevelObject> network;
+    private final Ref<? extends VariantManagerHolder> network;
 
     /* susceptance per section */
     private double bPerSection;
@@ -30,7 +30,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     /* the current number of section switched on */
     private final TIntArrayList currentSectionCount;
 
-    ShuntCompensatorImpl(Ref<? extends MultiVariantTopLevelObject> network,
+    ShuntCompensatorImpl(Ref<? extends VariantManagerHolder> network,
                          String id, String name, double bPerSection, int maximumSectionCount,
                          int currentSectionCount) {
         super(id, name);
