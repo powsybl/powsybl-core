@@ -6,9 +6,9 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.impl.util.Ref;
-import gnu.trove.list.array.TByteArrayList;
 import gnu.trove.list.array.TIntArrayList;
 
 import java.util.List;
@@ -33,7 +33,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected final TIntArrayList tapPosition;
 
-    protected final TByteArrayList regulating;
+    protected final TBooleanArrayList regulating;
 
     protected AbstractTapChanger(Ref<? extends MultiVariantTopLevelObject> network, H parent,
                                  int lowTapPosition, List<S> steps, TerminalExt regulationTerminal,
@@ -45,10 +45,10 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         this.regulationTerminal = regulationTerminal;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.tapPosition = new TIntArrayList(variantArraySize);
-        this.regulating = new TByteArrayList(variantArraySize);
+        this.regulating = new TBooleanArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.tapPosition.add(tapPosition);
-            this.regulating.add((byte) (regulating ? 1 : 0));
+            this.regulating.add(regulating);
         }
     }
 
@@ -98,11 +98,11 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     }
 
     public boolean isRegulating() {
-        return regulating.get(network.get().getVariantIndex()) == 1;
+        return regulating.get(network.get().getVariantIndex());
     }
 
     public C setRegulating(boolean regulating) {
-        this.regulating.set(network.get().getVariantIndex(), (byte) (regulating ? 1 : 0));
+        this.regulating.set(network.get().getVariantIndex(), regulating);
         return (C) this;
     }
 

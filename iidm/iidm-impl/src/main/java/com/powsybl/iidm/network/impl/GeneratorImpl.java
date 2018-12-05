@@ -6,9 +6,9 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
-import gnu.trove.list.array.TByteArrayList;
 import gnu.trove.list.array.TDoubleArrayList;
 
 /**
@@ -31,7 +31,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     // attributes depending on the variant
 
-    private final TByteArrayList voltageRegulatorOn;
+    private final TBooleanArrayList voltageRegulatorOn;
 
     private final TDoubleArrayList targetP;
 
@@ -53,12 +53,12 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         this.regulatingTerminal = regulatingTerminal;
         this.ratedS = ratedS;
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
-        this.voltageRegulatorOn = new TByteArrayList(variantArraySize);
+        this.voltageRegulatorOn = new TBooleanArrayList(variantArraySize);
         this.targetP = new TDoubleArrayList(variantArraySize);
         this.targetQ = new TDoubleArrayList(variantArraySize);
         this.targetV = new TDoubleArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
-            this.voltageRegulatorOn.add((byte) (voltageRegulatorOn ? 1 : 0));
+            this.voltageRegulatorOn.add(voltageRegulatorOn);
             this.targetP.add(targetP);
             this.targetQ.add(targetQ);
             this.targetV.add(targetV);
@@ -121,14 +121,14 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return voltageRegulatorOn.get(getNetwork().getVariantIndex()) == 1;
+        return voltageRegulatorOn.get(getNetwork().getVariantIndex());
     }
 
     @Override
     public GeneratorImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         int variantIndex = getNetwork().getVariantIndex();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV.get(variantIndex), targetQ.get(variantIndex));
-        boolean oldValue = this.voltageRegulatorOn.set(variantIndex, (byte) (voltageRegulatorOn ? 1 : 0)) == 1;
+        boolean oldValue = this.voltageRegulatorOn.set(variantIndex, voltageRegulatorOn);
         notifyUpdate("voltageRegulatorOn", oldValue, voltageRegulatorOn);
         return this;
     }
@@ -166,7 +166,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     @Override
     public GeneratorImpl setTargetQ(double targetQ) {
         int variantIndex = getNetwork().getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex) == 1, targetV.get(variantIndex), targetQ);
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex), targetV.get(variantIndex), targetQ);
         double oldValue = this.targetQ.set(variantIndex, targetQ);
         notifyUpdate("targetQ", oldValue, targetQ);
         return this;
@@ -180,7 +180,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     @Override
     public GeneratorImpl setTargetV(double targetV) {
         int variantIndex = getNetwork().getVariantIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex) == 1, targetV, targetQ.get(variantIndex));
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex), targetV, targetQ.get(variantIndex));
         double oldValue = this.targetV.set(variantIndex, targetV);
         notifyUpdate("targetV", oldValue, targetV);
         return this;

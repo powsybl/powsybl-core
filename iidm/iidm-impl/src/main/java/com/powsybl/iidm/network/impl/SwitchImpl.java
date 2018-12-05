@@ -6,10 +6,10 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.TopologyKind;
-import gnu.trove.list.array.TByteArrayList;
 
 /**
  *
@@ -23,9 +23,9 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
 
     private boolean fictitious;
 
-    private final TByteArrayList open;
+    private final TBooleanArrayList open;
 
-    private final TByteArrayList retained;
+    private final TBooleanArrayList retained;
 
     SwitchImpl(VoltageLevelExt voltageLevel,
                String id, String name, SwitchKind kind, final boolean open, boolean retained, boolean fictitious) {
@@ -34,11 +34,11 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
         this.kind = kind;
         this.fictitious = fictitious;
         int variantArraySize = voltageLevel.getNetwork().getVariantManager().getVariantArraySize();
-        this.open = new TByteArrayList(variantArraySize);
-        this.retained = new TByteArrayList(variantArraySize);
+        this.open = new TBooleanArrayList(variantArraySize);
+        this.retained = new TBooleanArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
-            this.open.add((byte) (open ? 1 : 0));
-            this.retained.add((byte) (retained ? 1 : 0));
+            this.open.add(open);
+            this.retained.add(retained);
         }
     }
 
@@ -54,16 +54,16 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
 
     @Override
     public boolean isOpen() {
-        return open.get(voltageLevel.getNetwork().getVariantIndex()) == 1;
+        return open.get(voltageLevel.getNetwork().getVariantIndex());
     }
 
     @Override
     public void setOpen(boolean open) {
         NetworkImpl network = voltageLevel.getNetwork();
         int index = network.getVariantIndex();
-        boolean oldValue = this.open.get(index) == 1;
+        boolean oldValue = this.open.get(index);
         if (oldValue != open) {
-            this.open.set(index, (byte) (open ? 1 : 0));
+            this.open.set(index, open);
             voltageLevel.invalidateCache();
             network.getListeners().notifyUpdate(this, "open", oldValue, open);
         }
@@ -71,7 +71,7 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
 
     @Override
     public boolean isRetained() {
-        return retained.get(voltageLevel.getNetwork().getVariantIndex()) == 1;
+        return retained.get(voltageLevel.getNetwork().getVariantIndex());
     }
 
     @Override
@@ -81,9 +81,9 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
         }
         NetworkImpl network = voltageLevel.getNetwork();
         int index = network.getVariantIndex();
-        boolean oldValue = this.retained.get(index) == 1;
+        boolean oldValue = this.retained.get(index);
         if (oldValue != retained) {
-            this.retained.set(index, (byte) (retained ? 1 : 0));
+            this.retained.set(index, retained);
             voltageLevel.invalidateCache();
             network.getListeners().notifyUpdate(this, "retained", oldValue, retained);
         }

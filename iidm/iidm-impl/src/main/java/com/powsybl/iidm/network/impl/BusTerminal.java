@@ -6,10 +6,10 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.impl.util.Ref;
-import gnu.trove.list.array.TByteArrayList;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -65,7 +65,7 @@ class BusTerminal extends AbstractTerminal {
 
     // attributes depending on the variant
 
-    private final TByteArrayList connected;
+    private final TBooleanArrayList connected;
 
     private final ArrayList<String> connectableBusId;
 
@@ -73,10 +73,10 @@ class BusTerminal extends AbstractTerminal {
         super(network);
         Objects.requireNonNull(connectableBusId);
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
-        this.connected = new TByteArrayList(variantArraySize);
+        this.connected = new TBooleanArrayList(variantArraySize);
         this.connectableBusId = new ArrayList<>(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
-            this.connected.add((byte) (connected ? 1 : 0));
+            this.connected.add(connected);
             this.connectableBusId.add(connectableBusId);
         }
     }
@@ -90,12 +90,12 @@ class BusTerminal extends AbstractTerminal {
     }
 
     void setConnected(boolean connected) {
-        this.connected.set(network.get().getVariantIndex(), (byte) (connected ? 1 : 0));
+        this.connected.set(network.get().getVariantIndex(), connected);
     }
 
     @Override
     public boolean isConnected() {
-        return this.connected.get(network.get().getVariantIndex()) == 1;
+        return this.connected.get(network.get().getVariantIndex());
     }
 
     @Override
