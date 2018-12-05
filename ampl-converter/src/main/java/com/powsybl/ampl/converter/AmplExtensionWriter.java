@@ -21,7 +21,6 @@ public interface AmplExtensionWriter {
 
     String getName();
 
-    @Deprecated
     default void write(List<AmplExtension> extensions, Network network, StringToIntMapper<AmplSubset> mapper,
             DataSource dataSource, boolean append, AmplExportConfig config) throws IOException {
         throw new UnsupportedOperationException("deprecated");

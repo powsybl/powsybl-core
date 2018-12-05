@@ -408,8 +408,7 @@ public class AmplNetworkWriter {
                 StandardCharsets.UTF_8);
                 TableFormatter formatter = new AmplDatTableFormatter(writer, getTableTitle("Branches"),
                         AmplConstants.INVALID_FLOAT_VALUE, !append, AmplConstants.LOCALE,
-                        // TODO : to check
-                        new Column("variant"), new Column("num"), new Column("bus1"), new Column("bus2"),
+                        new Column(VARIANT_COLUMN_NAME), new Column("num"), new Column("bus1"), new Column("bus2"),
                         new Column("3wt num"), new Column("sub.1"), new Column("sub.2"), new Column("r (pu)"),
                         new Column("x (pu)"), new Column("g1 (pu)"), new Column("g2 (pu)"), new Column("b1 (pu)"),
                         new Column("b2 (pu)"), new Column("cst ratio (pu)"), new Column("ratio tc"),
@@ -565,7 +564,7 @@ public class AmplNetworkWriter {
                     .writeCell(vl2Num).writeCell(r).writeCell(x).writeCell(g1).writeCell(g2).writeCell(b1).writeCell(b2)
                     .writeCell(ratio).writeCell(rtcNum).writeCell(ptcNum).writeCell(t1.getP()).writeCell(t2.getP())
                     .writeCell(t1.getQ()).writeCell(t2.getQ()).writeCell(getPermanentLimit(twt.getCurrentLimits1()))
-                    .writeCell(getPermanentLimit(twt.getCurrentLimits2())).writeCell(false) // TODO to update
+                    .writeCell(getPermanentLimit(twt.getCurrentLimits2())).writeCell(false)
                     .writeCell(faultNum).writeCell(actionNum).writeCell(id).writeCell(twt.getName());
             addExtensions(num, twt);
         }
@@ -631,8 +630,6 @@ public class AmplNetworkWriter {
                     getThreeWindingsTransformerMiddleVoltageLevelId(twt));
             String middleBusId = getThreeWindingsTransformerMiddleBusId(twt);
             int middleBusNum = mapper.getInt(AmplSubset.BUS, middleBusId);
-
-            // TODO : to checke later
 
             if (!isOnlyMainCc() || isBusExported(context, middleBusId) || isBusExported(context, bus1Id)) {
                 formatter.writeCell(index).writeCell(num1).writeCell(middleBusNum).writeCell(bus1Num).writeCell(num3wt)
