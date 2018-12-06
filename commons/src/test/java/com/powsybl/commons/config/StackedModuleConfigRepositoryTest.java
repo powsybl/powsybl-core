@@ -95,6 +95,8 @@ public class StackedModuleConfigRepositoryTest extends MapModuleConfigTest {
         assertTrue(sut.moduleExists(lowerCamel));
         ModuleConfig moduleConfig1 = sut.getModuleConfig(lowerCamel).get();
         assertEquals("asfd", moduleConfig1.getStringProperty(lowerCamel));
+
+        assertFalse(sut.moduleExists(""));
         try {
             modConfig.getPropertyNames();
             fail();

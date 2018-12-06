@@ -70,12 +70,13 @@ public final class EnvironmentModuleConfigRepository implements ModuleConfigRepo
 
     @Override
     public boolean moduleExists(String name) {
-        if (Strings.isNullOrEmpty(name) || CACHED_MODULE_CONFIG.keySet().contains(name)) {
-            return true;
-        }
-        if (CHECKED_NOT_EXISTS_MODULES.contains(name)) {
+        if (Strings.isNullOrEmpty(name) || CHECKED_NOT_EXISTS_MODULES.contains(name)) {
             return false;
         }
+        if (CACHED_MODULE_CONFIG.keySet().contains(name)) {
+            return true;
+        }
+
         boolean found = UPPER_CASE_ENV.keySet().stream().anyMatch(k -> k.startsWith(ENV_VAR_FORMATTER.apply(name)));
         if (!found) {
             CHECKED_NOT_EXISTS_MODULES.add(name);
