@@ -8,29 +8,27 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 
-import java.util.function.Supplier;
-
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ThreadLocalMultiStateContext implements StateContext {
+public class ThreadLocalMultiVariantContext implements VariantContext {
 
-    public static final ThreadLocalMultiStateContext INSTANCE = new ThreadLocalMultiStateContext();
+    public static final ThreadLocalMultiVariantContext INSTANCE = new ThreadLocalMultiVariantContext();
 
-    private final ThreadLocal<Integer> index = ThreadLocal.withInitial((Supplier<Integer>) () -> null);
+    private final ThreadLocal<Integer> index = ThreadLocal.withInitial(() -> null);
 
     @Override
-    public int getStateIndex() {
+    public int getVariantIndex() {
         Integer i = index.get();
         if (i == null) {
-            throw new PowsyblException("State not set for current thread " + Thread.currentThread().getName());
+            throw new PowsyblException("Variant index not set for current thread " + Thread.currentThread().getName());
         }
         return i;
     }
 
     @Override
-    public void setStateIndex(int index) {
+    public void setVariantIndex(int index) {
         this.index.set(index);
     }
 
@@ -39,7 +37,7 @@ public class ThreadLocalMultiStateContext implements StateContext {
     }
 
     @Override
-    public void resetIfStateIndexIs(int index) {
+    public void resetIfVariantIndexIs(int index) {
         Integer i = this.index.get();
         if (i != null && i == index) {
             this.index.remove();

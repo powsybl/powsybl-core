@@ -29,16 +29,16 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     private final TDoubleArrayList voltageSetpoint;
 
-    VscConverterStationImpl(String id, String name, float lossFactor, Ref<? extends MultiStateObject> ref,
+    VscConverterStationImpl(String id, String name, float lossFactor, Ref<? extends VariantManagerHolder> ref,
                             boolean voltageRegulatorOn, double reactivePowerSetpoint, double voltageSetpoint) {
         super(id, name, lossFactor);
-        int stateArraySize = ref.get().getStateManager().getStateArraySize();
-        this.voltageRegulatorOn = new BitSet(stateArraySize);
-        this.reactivePowerSetpoint = new TDoubleArrayList(stateArraySize);
-        this.voltageSetpoint = new TDoubleArrayList(stateArraySize);
-        this.voltageRegulatorOn.set(0, stateArraySize, voltageRegulatorOn);
-        this.reactivePowerSetpoint.fill(0, stateArraySize, reactivePowerSetpoint);
-        this.voltageSetpoint.fill(0, stateArraySize, voltageSetpoint);
+        int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
+        this.voltageRegulatorOn = new BitSet(variantArraySize);
+        this.reactivePowerSetpoint = new TDoubleArrayList(variantArraySize);
+        this.voltageSetpoint = new TDoubleArrayList(variantArraySize);
+        this.voltageRegulatorOn.set(0, variantArraySize, voltageRegulatorOn);
+        this.reactivePowerSetpoint.fill(0, variantArraySize, reactivePowerSetpoint);
+        this.voltageSetpoint.fill(0, variantArraySize, voltageSetpoint);
         this.reactiveLimits = new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE);
     }
 
@@ -54,43 +54,43 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return voltageRegulatorOn.get(getNetwork().getStateIndex());
+        return voltageRegulatorOn.get(getNetwork().getVariantIndex());
     }
 
     @Override
     public VscConverterStationImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        int stateIndex = getNetwork().getStateIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint.get(stateIndex), reactivePowerSetpoint.get(stateIndex));
-        boolean oldValue = this.voltageRegulatorOn.get(stateIndex);
-        this.voltageRegulatorOn.set(stateIndex, voltageRegulatorOn);
+        int variantIndex = getNetwork().getVariantIndex();
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint.get(variantIndex), reactivePowerSetpoint.get(variantIndex));
+        boolean oldValue = this.voltageRegulatorOn.get(variantIndex);
+        this.voltageRegulatorOn.set(variantIndex, voltageRegulatorOn);
         notifyUpdate("voltageRegulatorOn", oldValue, voltageRegulatorOn);
         return this;
     }
 
     @Override
     public double getVoltageSetpoint() {
-        return this.voltageSetpoint.get(getNetwork().getStateIndex());
+        return this.voltageSetpoint.get(getNetwork().getVariantIndex());
     }
 
     @Override
     public VscConverterStationImpl setVoltageSetpoint(double voltageSetpoint) {
-        int stateIndex = getNetwork().getStateIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(stateIndex), voltageSetpoint, reactivePowerSetpoint.get(stateIndex));
-        double oldValue = this.voltageSetpoint.set(stateIndex, voltageSetpoint);
+        int variantIndex = getNetwork().getVariantIndex();
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex), voltageSetpoint, reactivePowerSetpoint.get(variantIndex));
+        double oldValue = this.voltageSetpoint.set(variantIndex, voltageSetpoint);
         notifyUpdate("voltageSetpoint", oldValue, voltageSetpoint);
         return this;
     }
 
     @Override
     public double getReactivePowerSetpoint() {
-        return reactivePowerSetpoint.get(getNetwork().getStateIndex());
+        return reactivePowerSetpoint.get(getNetwork().getVariantIndex());
     }
 
     @Override
     public VscConverterStationImpl setReactivePowerSetpoint(double reactivePowerSetpoint) {
-        int stateIndex = getNetwork().getStateIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(stateIndex), voltageSetpoint.get(stateIndex), reactivePowerSetpoint);
-        double oldValue = this.reactivePowerSetpoint.set(stateIndex, reactivePowerSetpoint);
+        int variantIndex = getNetwork().getVariantIndex();
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex), voltageSetpoint.get(variantIndex), reactivePowerSetpoint);
+        double oldValue = this.reactivePowerSetpoint.set(variantIndex, reactivePowerSetpoint);
         notifyUpdate("reactivePowerSetpoint", oldValue, reactivePowerSetpoint);
         return this;
     }
@@ -129,34 +129,34 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     }
 
     @Override
-    public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
-        super.extendStateArraySize(initStateArraySize, number, sourceIndex);
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
 
         reactivePowerSetpoint.ensureCapacity(reactivePowerSetpoint.size() + number);
-        reactivePowerSetpoint.fill(initStateArraySize, initStateArraySize + number, reactivePowerSetpoint.get(sourceIndex));
+        reactivePowerSetpoint.fill(initVariantArraySize, initVariantArraySize + number, reactivePowerSetpoint.get(sourceIndex));
 
         voltageSetpoint.ensureCapacity(voltageSetpoint.size() + number);
-        voltageSetpoint.fill(initStateArraySize, initStateArraySize + number, voltageSetpoint.get(sourceIndex));
+        voltageSetpoint.fill(initVariantArraySize, initVariantArraySize + number, voltageSetpoint.get(sourceIndex));
 
-        voltageRegulatorOn.set(initStateArraySize, initStateArraySize + number, voltageRegulatorOn.get(sourceIndex));
+        voltageRegulatorOn.set(initVariantArraySize, initVariantArraySize + number, voltageRegulatorOn.get(sourceIndex));
     }
 
     @Override
-    public void reduceStateArraySize(int number) {
-        super.reduceStateArraySize(number);
+    public void reduceVariantArraySize(int number) {
+        super.reduceVariantArraySize(number);
         reactivePowerSetpoint.remove(reactivePowerSetpoint.size() - number, number);
         voltageSetpoint.remove(voltageSetpoint.size() - number, number);
     }
 
     @Override
-    public void deleteStateArrayElement(int index) {
-        super.deleteStateArrayElement(index);
+    public void deleteVariantArrayElement(int index) {
+        super.deleteVariantArrayElement(index);
         // nothing to do
     }
 
     @Override
-    public void allocateStateArrayElement(int[] indexes, int sourceIndex) {
-        super.allocateStateArrayElement(indexes, sourceIndex);
+    public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+        super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
             voltageRegulatorOn.set(index, voltageRegulatorOn.get(sourceIndex));
             reactivePowerSetpoint.set(index, reactivePowerSetpoint.get(sourceIndex));

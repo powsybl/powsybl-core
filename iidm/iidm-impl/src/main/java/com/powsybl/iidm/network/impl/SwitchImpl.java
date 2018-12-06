@@ -16,7 +16,7 @@ import java.util.BitSet;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, Stateful {
+class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVariantObject {
 
     private final VoltageLevelExt voltageLevel;
 
@@ -34,11 +34,11 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, Statefu
         this.voltageLevel = voltageLevel;
         this.kind = kind;
         this.fictitious = fictitious;
-        int stateArraySize = voltageLevel.getNetwork().getStateManager().getStateArraySize();
-        this.open = new BitSet(stateArraySize);
-        this.open.set(0, stateArraySize, open);
-        this.retained = new BitSet(stateArraySize);
-        this.retained.set(0, stateArraySize, retained);
+        int variantArraySize = voltageLevel.getNetwork().getVariantManager().getVariantArraySize();
+        this.open = new BitSet(variantArraySize);
+        this.open.set(0, variantArraySize, open);
+        this.retained = new BitSet(variantArraySize);
+        this.retained.set(0, variantArraySize, retained);
     }
 
     @Override
@@ -53,13 +53,13 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, Statefu
 
     @Override
     public boolean isOpen() {
-        return open.get(voltageLevel.getNetwork().getStateIndex());
+        return open.get(voltageLevel.getNetwork().getVariantIndex());
     }
 
     @Override
     public void setOpen(boolean open) {
         NetworkImpl network = voltageLevel.getNetwork();
-        int index = network.getStateIndex();
+        int index = network.getVariantIndex();
         boolean oldValue = this.open.get(index);
         if (oldValue != open) {
             this.open.set(index, open);
@@ -70,7 +70,7 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, Statefu
 
     @Override
     public boolean isRetained() {
-        return retained.get(voltageLevel.getNetwork().getStateIndex());
+        return retained.get(voltageLevel.getNetwork().getVariantIndex());
     }
 
     @Override
@@ -79,7 +79,7 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, Statefu
             throw new ValidationException(this, "retain status is not modifiable in a non node/breaker voltage level");
         }
         NetworkImpl network = voltageLevel.getNetwork();
-        int index = network.getStateIndex();
+        int index = network.getVariantIndex();
         boolean oldValue = this.retained.get(index);
         if (oldValue != retained) {
             this.retained.set(index, retained);
@@ -105,23 +105,23 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, Statefu
     }
 
     @Override
-    public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
-        this.open.set(initStateArraySize, initStateArraySize + number, this.open.get(sourceIndex));
-        this.retained.set(initStateArraySize, initStateArraySize + number, this.retained.get(sourceIndex));
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        this.open.set(initVariantArraySize, initVariantArraySize + number, this.open.get(sourceIndex));
+        this.retained.set(initVariantArraySize, initVariantArraySize + number, this.retained.get(sourceIndex));
     }
 
     @Override
-    public void reduceStateArraySize(int number) {
+    public void reduceVariantArraySize(int number) {
         // nothing to do
     }
 
     @Override
-    public void deleteStateArrayElement(int index) {
+    public void deleteVariantArrayElement(int index) {
         // nothing to do
     }
 
     @Override
-    public void allocateStateArrayElement(int[] indexes, final int sourceIndex) {
+    public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
         for (int index : indexes) {
             open.set(index, open.get(sourceIndex));
             retained.set(index, retained.get(sourceIndex));

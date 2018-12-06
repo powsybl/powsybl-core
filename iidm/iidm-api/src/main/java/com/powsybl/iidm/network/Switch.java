@@ -27,17 +27,17 @@ public interface Switch extends Identifiable<Switch> {
     /**
      * Get the open status of the switch.
      * <p>
-     * Depends on the working state.
-     * @see StateManager
+     * Depends on the working variant.
+     * @see VariantManager
      */
     boolean isOpen();
 
     /**
      * Change the switch status.
      * <p>
-     * Depends on the working state.
+     * Depends on the working variant.
      * @param open the new switch status
-     * @see StateManager
+     * @see VariantManager
      */
     void setOpen(boolean open);
 

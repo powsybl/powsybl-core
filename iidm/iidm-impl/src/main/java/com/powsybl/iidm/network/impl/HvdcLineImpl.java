@@ -17,7 +17,7 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, Stateful {
+class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, MultiVariantObject {
 
     static final String TYPE_DESCRIPTION = "hvdcLine";
 
@@ -27,7 +27,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, S
 
     private double maxP;
 
-    // attributes depending on the state
+    // attributes depending on the variant
 
     private final BitSet convertersMode;
 
@@ -48,11 +48,11 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, S
         this.r = r;
         this.nominalV = nominalV;
         this.maxP = maxP;
-        int stateArraySize = networkRef.get().getStateManager().getStateArraySize();
-        this.convertersMode = new BitSet(stateArraySize);
-        this.convertersMode.set(0, stateArraySize, convertersMode == ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
-        this.activePowerSetpoint = new TDoubleArrayList(stateArraySize);
-        this.activePowerSetpoint.fill(0, stateArraySize, activePowerSetpoint);
+        int variantArraySize = networkRef.get().getVariantManager().getVariantArraySize();
+        this.convertersMode = new BitSet(variantArraySize);
+        this.convertersMode.set(0, variantArraySize, convertersMode == ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER);
+        this.activePowerSetpoint = new TDoubleArrayList(variantArraySize);
+        this.activePowerSetpoint.fill(0, variantArraySize, activePowerSetpoint);
         this.converterStation1 = converterStation1;
         this.converterStation2 = converterStation2;
         this.networkRef = networkRef;
@@ -77,15 +77,15 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, S
 
     @Override
     public ConvertersMode getConvertersMode() {
-        return toEnum(convertersMode.get(getNetwork().getStateIndex()));
+        return toEnum(convertersMode.get(getNetwork().getVariantIndex()));
     }
 
     @Override
     public HvdcLineImpl setConvertersMode(ConvertersMode convertersMode) {
         ValidationUtil.checkConvertersMode(this, convertersMode);
-        int stateIndex = getNetwork().getStateIndex();
-        boolean oldValue = this.convertersMode.get(stateIndex);
-        this.convertersMode.set(stateIndex, fromEnum(Objects.requireNonNull(convertersMode)));
+        int variantIndex = getNetwork().getVariantIndex();
+        boolean oldValue = this.convertersMode.get(variantIndex);
+        this.convertersMode.set(variantIndex, fromEnum(Objects.requireNonNull(convertersMode)));
         notifyUpdate("convertersMode", toEnum(oldValue), convertersMode);
         return this;
     }
@@ -134,13 +134,13 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, S
 
     @Override
     public double getActivePowerSetpoint() {
-        return activePowerSetpoint.get(getNetwork().getStateIndex());
+        return activePowerSetpoint.get(getNetwork().getVariantIndex());
     }
 
     @Override
     public HvdcLineImpl setActivePowerSetpoint(double activePowerSetpoint) {
         ValidationUtil.checkActivePowerSetpoint(this, activePowerSetpoint);
-        double oldValue = this.activePowerSetpoint.set(getNetwork().getStateIndex(), activePowerSetpoint);
+        double oldValue = this.activePowerSetpoint.set(getNetwork().getVariantIndex(), activePowerSetpoint);
         notifyUpdate("activePowerSetpoint", oldValue, activePowerSetpoint);
         return this;
     }
@@ -156,25 +156,25 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, S
     }
 
     @Override
-    public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
-        convertersMode.set(initStateArraySize, initStateArraySize + number, convertersMode.get(sourceIndex));
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        convertersMode.set(initVariantArraySize, initVariantArraySize + number, convertersMode.get(sourceIndex));
 
         activePowerSetpoint.ensureCapacity(activePowerSetpoint.size() + number);
-        activePowerSetpoint.fill(initStateArraySize, initStateArraySize + number, activePowerSetpoint.get(sourceIndex));
+        activePowerSetpoint.fill(initVariantArraySize, initVariantArraySize + number, activePowerSetpoint.get(sourceIndex));
     }
 
     @Override
-    public void reduceStateArraySize(int number) {
+    public void reduceVariantArraySize(int number) {
         activePowerSetpoint.remove(activePowerSetpoint.size() - number, number);
     }
 
     @Override
-    public void deleteStateArrayElement(int index) {
+    public void deleteVariantArrayElement(int index) {
         // nothing to do
     }
 
     @Override
-    public void allocateStateArrayElement(int[] indexes, int sourceIndex) {
+    public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         for (int index : indexes) {
             convertersMode.set(index, convertersMode.get(sourceIndex));
             activePowerSetpoint.set(index, activePowerSetpoint.get(sourceIndex));
