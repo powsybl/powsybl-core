@@ -75,6 +75,9 @@ public class StackedModuleConfigRepositoryTest extends MapModuleConfigTest {
 
         fakeEnvMap.put("LOAD_FLOW_ACTION_SIMULATOR_MAX_ITERATIONS", "7");
 
+        String lowerCamel = "lowerCamel";
+        fakeEnvMap.put("LOWER_CAMEL_LOWER_CAMEL", "asfd");
+
         EnvironmentModuleConfigRepository sut = EnvironmentModuleConfigRepository.getInstanceForTest(fakeEnvMap, fileSystem);
         assertTrue(sut.moduleExists("mod"));
         Optional<ModuleConfig> modConfigOpt = sut.getModuleConfig("mod");
@@ -89,6 +92,9 @@ public class StackedModuleConfigRepositoryTest extends MapModuleConfigTest {
         ModuleConfig moduleConfig = moduleConfigOpt.get();
         assertEquals(7, moduleConfig.getIntProperty("max-iterations"));
 
+        assertTrue(sut.moduleExists(lowerCamel));
+        ModuleConfig moduleConfig1 = sut.getModuleConfig(lowerCamel).get();
+        assertEquals("asfd", moduleConfig1.getStringProperty(lowerCamel));
         try {
             modConfig.getPropertyNames();
             fail();

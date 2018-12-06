@@ -6,6 +6,7 @@
  */
 package com.powsybl.commons.config;
 
+import com.google.common.base.CaseFormat;
 import com.google.common.base.Strings;
 
 import java.nio.file.FileSystem;
@@ -29,7 +30,16 @@ public final class EnvironmentModuleConfigRepository implements ModuleConfigRepo
 
     private static final Set<String> CHECKED_NOT_EXISTS_MODULES = new HashSet<>();
 
-    static final Function<String, String> ENV_VAR_FORMATTER = name -> name.toUpperCase().replaceAll("-", "_");
+
+    static final Function<String, String> ENV_VAR_FORMATTER = name -> {
+        if (name.toLowerCase().equals(name)) {
+            return CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_UNDERSCORE, name);
+        } else {
+            return CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, name);
+        }
+    };
+
+
 
     private EnvironmentModuleConfigRepository(Map<String, String> map, FileSystem fileSystem) {
         map.keySet().stream()
@@ -66,7 +76,7 @@ public final class EnvironmentModuleConfigRepository implements ModuleConfigRepo
         if (CHECKED_NOT_EXISTS_MODULES.contains(name)) {
             return false;
         }
-        boolean found = UPPER_CASE_ENV.keySet().stream().anyMatch(k -> k.startsWith(name.toUpperCase().replaceAll("-", "_")));
+        boolean found = UPPER_CASE_ENV.keySet().stream().anyMatch(k -> k.startsWith(ENV_VAR_FORMATTER.apply(name)));
         if (!found) {
             CHECKED_NOT_EXISTS_MODULES.add(name);
         }
