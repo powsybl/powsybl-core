@@ -13,6 +13,7 @@ import java.nio.file.FileSystem;
 import java.util.*;
 
 import static com.powsybl.commons.config.EnvironmentModuleConfigRepository.ENV_VAR_FORMATTER;
+import static com.powsybl.commons.config.EnvironmentModuleConfigRepository.SEPARATOR;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
@@ -23,7 +24,7 @@ public class KeyNameUpperCasedMapModuleConfig extends MapModuleConfig {
 
     public KeyNameUpperCasedMapModuleConfig(Map<Object, Object> properties, FileSystem fs, String moduleName) {
         super(properties, fs);
-        this.prefix = ENV_VAR_FORMATTER.apply(moduleName) + "_";
+        this.prefix = ENV_VAR_FORMATTER.apply(moduleName) + SEPARATOR;
     }
 
     private String toUpper(String name) {

@@ -55,28 +55,28 @@ public class StackedModuleConfigRepositoryTest extends MapModuleConfigTest {
 
     private void testEnvConfig() {
         Map<String, String> fakeEnvMap = new HashMap<>();
-        fakeEnvMap.put("MOD_S", "hello");
-        fakeEnvMap.put("MOD_I", "3");
-        fakeEnvMap.put("MOD_L", "33333333333");
-        fakeEnvMap.put("MOD_B", "false");
-        fakeEnvMap.put("MOD_D", "2.3");
-        fakeEnvMap.put("MOD_C", ArrayList.class.getName());
-        fakeEnvMap.put("MOD_SL1", "a,b,c");
-        fakeEnvMap.put("MOD_SL2", "a:b:c");
-        fakeEnvMap.put("MOD_E", StandardOpenOption.APPEND.name());
-        fakeEnvMap.put("MOD_EL", StandardOpenOption.APPEND + "," + StandardOpenOption.CREATE);
+        fakeEnvMap.put("MOD__S", "hello");
+        fakeEnvMap.put("MOD__I", "3");
+        fakeEnvMap.put("MOD__L", "33333333333");
+        fakeEnvMap.put("MOD__B", "false");
+        fakeEnvMap.put("MOD__D", "2.3");
+        fakeEnvMap.put("MOD__C", ArrayList.class.getName());
+        fakeEnvMap.put("MOD__SL1", "a,b,c");
+        fakeEnvMap.put("MOD__SL2", "a:b:c");
+        fakeEnvMap.put("MOD__E", StandardOpenOption.APPEND.name());
+        fakeEnvMap.put("MOD__EL", StandardOpenOption.APPEND + "," + StandardOpenOption.CREATE);
         Path p = fileSystem.getPath("/tmp");
         Path p2 = fileSystem.getPath("/home");
-        fakeEnvMap.put("MOD_P", p.toString());
-        fakeEnvMap.put("MOD_PL", p.toString() + ":" + p2.toString());
-        fakeEnvMap.put("MOD_PL2", p.toString() + "," + p2.toString());
-        fakeEnvMap.put("MOD_DT", "2009-01-03T18:15:05Z");
-        fakeEnvMap.put("MOD_IT", "2009-01-03T18:15:05Z/2009-01-09T02:54:25Z");
+        fakeEnvMap.put("MOD__P", p.toString());
+        fakeEnvMap.put("MOD__PL", p.toString() + ":" + p2.toString());
+        fakeEnvMap.put("MOD__PL2", p.toString() + "," + p2.toString());
+        fakeEnvMap.put("MOD__DT", "2009-01-03T18:15:05Z");
+        fakeEnvMap.put("MOD__IT", "2009-01-03T18:15:05Z/2009-01-09T02:54:25Z");
 
-        fakeEnvMap.put("LOAD_FLOW_ACTION_SIMULATOR_MAX_ITERATIONS", "7");
+        fakeEnvMap.put("LOAD_FLOW_ACTION_SIMULATOR__MAX_ITERATIONS", "7");
 
         String lowerCamel = "lowerCamel";
-        fakeEnvMap.put("LOWER_CAMEL_LOWER_CAMEL", "asfd");
+        fakeEnvMap.put("LOWER_CAMEL__LOWER_CAMEL", "asfd");
 
         EnvironmentModuleConfigRepository sut = EnvironmentModuleConfigRepository.getInstanceForTest(fakeEnvMap, fileSystem);
         assertTrue(sut.moduleExists("mod"));

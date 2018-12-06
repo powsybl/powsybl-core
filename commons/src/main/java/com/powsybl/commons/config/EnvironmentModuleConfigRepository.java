@@ -20,7 +20,7 @@ import java.util.function.Function;
 public final class EnvironmentModuleConfigRepository implements ModuleConfigRepository {
 
 
-    private static EnvironmentModuleConfigRepository instance = null;
+    private static volatile EnvironmentModuleConfigRepository instance = null;
 
     private static final Map<String, String> UPPER_CASE_ENV = new HashMap<>();
 
@@ -30,6 +30,7 @@ public final class EnvironmentModuleConfigRepository implements ModuleConfigRepo
 
     private static final Set<String> CHECKED_NOT_EXISTS_MODULES = new HashSet<>();
 
+    static final String SEPARATOR = "__";
 
     static final Function<String, String> ENV_VAR_FORMATTER = name -> {
         if (name.toLowerCase().equals(name)) {
@@ -39,12 +40,10 @@ public final class EnvironmentModuleConfigRepository implements ModuleConfigRepo
         }
     };
 
-
-
     private EnvironmentModuleConfigRepository(Map<String, String> map, FileSystem fileSystem) {
         map.keySet().stream()
                 .filter(k -> k.toUpperCase().equals(k))
-                .filter(k -> k.contains("_")) // should contains at least one underscore
+                .filter(k -> k.contains(SEPARATOR))
                 .forEach(k -> UPPER_CASE_ENV.put(k, map.get(k)));
         fs = Objects.requireNonNull(fileSystem);
     }
@@ -77,7 +76,7 @@ public final class EnvironmentModuleConfigRepository implements ModuleConfigRepo
             return true;
         }
 
-        boolean found = UPPER_CASE_ENV.keySet().stream().anyMatch(k -> k.startsWith(ENV_VAR_FORMATTER.apply(name)));
+        boolean found = UPPER_CASE_ENV.keySet().stream().anyMatch(k -> k.startsWith(ENV_VAR_FORMATTER.apply(name) + SEPARATOR));
         if (!found) {
             CHECKED_NOT_EXISTS_MODULES.add(name);
         }
