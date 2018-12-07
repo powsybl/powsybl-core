@@ -71,20 +71,15 @@ public class AmplNetworkReader {
                     continue;
                 }
 
-                //skip first token
-
                 String[] tokens = trimedLine.split("( )+");
                 if (tokens.length != expectedTokenCount) {
                     throw createWrongNumberOfColumnException(expectedTokenCount, tokens.length);
                 }
 
                 //check if it is the right network
-                int networkNum = Integer.parseInt(tokens[0]);
-                if (variantIndex != networkNum) {
-                    continue;
+                if (variantIndex == Integer.parseInt(tokens[0])) {
+                    handler.apply(tokens);
                 }
-
-                handler.apply(tokens);
             }
         }
     }
