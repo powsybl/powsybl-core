@@ -10,8 +10,7 @@ import com.powsybl.action.dsl.Rule;
 import com.powsybl.commons.io.table.AsciiTableFormatter;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.Security;
-import org.nocrala.tools.texttablefmt.BorderStyle;
-import org.nocrala.tools.texttablefmt.Table;
+
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -76,12 +75,20 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
                 formatter.writeCell("Variable");
                 formatter.writeCell("Value");
                 variables.forEach((key, value) -> {
-                    formatter.writeCell(key);
-                    formatter.writeCell(Objects.toString(value));
+                    try {
+                        formatter.writeCell(key);
+                        formatter.writeCell(Objects.toString(value));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 });
                 actions.forEach((key, value) -> {
-                    formatter.writeCell(key + ".actionTaken");
-                    formatter.writeCell(value.toString());
+                    try {
+                        formatter.writeCell(key + ".actionTaken");
+                        formatter.writeCell(value.toString());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 });
             } catch (IOException e) {
                 e.printStackTrace();
