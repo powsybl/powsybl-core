@@ -263,25 +263,26 @@ public class ValidationFormatterCsvWriterTest extends AbstractValidationFormatte
     protected String getGeneratorsContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.GENERATORS + " check",
-                           String.join(";", "id", "p", "q", "v", "targetP", "targetQ", "targetV"),
+                           String.join(";", "id", "p", "q", "v", "targetP", "targetQ", "targetV", "expectedP"),
                            String.join(";", generatorId,
                                        String.format(Locale.getDefault(), "%g", -p), String.format(Locale.getDefault(), "%g", -q),
                                        String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", targetP),
-                                       String.format(Locale.getDefault(), "%g", targetQ), String.format(Locale.getDefault(), "%g", targetV)));
+                                       String.format(Locale.getDefault(), "%g", targetQ), String.format(Locale.getDefault(), "%g", targetV),
+                                       String.format(Locale.getDefault(), "%g", expectedP)));
     }
 
     @Override
     protected String getGeneratorsVerboseContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.GENERATORS + " check",
-                           String.join(";", "id", "p", "q", "v", "targetP", "targetQ", "targetV", AbstractValidationFormatterWriter.CONNECTED,
+                           String.join(";", "id", "p", "q", "v", "targetP", "targetQ", "targetV", "expectedP", AbstractValidationFormatterWriter.CONNECTED,
                                        "voltageRegulatorOn", "minP", "maxP", "minQ", "maxQ", AbstractValidationFormatterWriter.MAIN_COMPONENT,
                                        AbstractValidationFormatterWriter.VALIDATION),
                            String.join(";", generatorId,
                                        String.format(Locale.getDefault(), "%g", -p), String.format(Locale.getDefault(), "%g", -q),
                                        String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", targetP),
                                        String.format(Locale.getDefault(), "%g", targetQ), String.format(Locale.getDefault(), "%g", targetV),
-                                       Boolean.toString(connected), Boolean.toString(voltageRegulatorOn),
+                                       String.format(Locale.getDefault(), "%g", expectedP), Boolean.toString(connected), Boolean.toString(voltageRegulatorOn),
                                        String.format(Locale.getDefault(), "%g", minP), String.format(Locale.getDefault(), "%g", maxP),
                                        String.format(Locale.getDefault(), "%g", minQ), String.format(Locale.getDefault(), "%g", maxQ),
                                        Boolean.toString(mainComponent), AbstractValidationFormatterWriter.SUCCESS));
@@ -291,50 +292,55 @@ public class ValidationFormatterCsvWriterTest extends AbstractValidationFormatte
     protected String getGeneratorsCompareContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.GENERATORS + " check",
-                           String.join(";", "id", "p", "q", "v", "targetP", "targetQ", "targetV",
+                           String.join(";", "id", "p", "q", "v", "targetP", "targetQ", "targetV", "expectedP",
                                        "p" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "q" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "v" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "targetP" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "targetQ" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
-                                       "targetV" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
+                                       "targetV" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
+                                       "expectedP" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", generatorId,
                                        String.format(Locale.getDefault(), "%g", -p), String.format(Locale.getDefault(), "%g", -q),
                                        String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", targetP),
                                        String.format(Locale.getDefault(), "%g", targetQ), String.format(Locale.getDefault(), "%g", targetV),
+                                       String.format(Locale.getDefault(), "%g", expectedP),
                                        String.format(Locale.getDefault(), "%g", -p), String.format(Locale.getDefault(), "%g", -q),
                                        String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", targetP),
-                                       String.format(Locale.getDefault(), "%g", targetQ), String.format(Locale.getDefault(), "%g", targetV)));
+                                       String.format(Locale.getDefault(), "%g", targetQ), String.format(Locale.getDefault(), "%g", targetV),
+                                       String.format(Locale.getDefault(), "%g", expectedP)));
     }
 
     @Override
     protected String getGeneratorsCompareDifferentIdsContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.GENERATORS + " check",
-                           String.join(";", "id", "p", "q", "v", "targetP", "targetQ", "targetV",
+                           String.join(";", "id", "p", "q", "v", "targetP", "targetQ", "targetV", "expectedP",
                                        "p" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "q" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "v" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "targetP" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "targetQ" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
-                                       "targetV" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
+                                       "targetV" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
+                                       "expectedP" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", otherGeneratorId,
-                                       "", "", "", "", "", "",
+                                       "", "", "", "", "", "", "",
                                        String.format(Locale.getDefault(), "%g", -p), String.format(Locale.getDefault(), "%g", -q),
                                        String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", targetP),
-                                       String.format(Locale.getDefault(), "%g", targetQ), String.format(Locale.getDefault(), "%g", targetV)),
+                                       String.format(Locale.getDefault(), "%g", targetQ), String.format(Locale.getDefault(), "%g", targetV),
+                                       String.format(Locale.getDefault(), "%g", expectedP)),
                            String.join(";", generatorId,
                                        String.format(Locale.getDefault(), "%g", -p), String.format(Locale.getDefault(), "%g", -q),
                                        String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", targetP),
                                        String.format(Locale.getDefault(), "%g", targetQ), String.format(Locale.getDefault(), "%g", targetV),
-                                       "", "", "", "", "", ""));
+                                       String.format(Locale.getDefault(), "%g", expectedP), "", "", "", "", "", "", ""));
     }
 
     @Override
     protected String getGeneratorsCompareVerboseContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.GENERATORS + " check",
-                           String.join(";", "id", "p", "q", "v", "targetP", "targetQ", "targetV", AbstractValidationFormatterWriter.CONNECTED,
+                           String.join(";", "id", "p", "q", "v", "targetP", "targetQ", "targetV", "expectedP", AbstractValidationFormatterWriter.CONNECTED,
                                        "voltageRegulatorOn", "minP", "maxP", "minQ", "maxQ", AbstractValidationFormatterWriter.MAIN_COMPONENT,
                                        AbstractValidationFormatterWriter.VALIDATION,
                                        "p" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
@@ -343,6 +349,7 @@ public class ValidationFormatterCsvWriterTest extends AbstractValidationFormatte
                                        "targetP" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "targetQ" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "targetV" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
+                                       "expectedP" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        AbstractValidationFormatterWriter.CONNECTED + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "voltageRegulatorOn" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "minP" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
@@ -355,14 +362,14 @@ public class ValidationFormatterCsvWriterTest extends AbstractValidationFormatte
                                        String.format(Locale.getDefault(), "%g", -p), String.format(Locale.getDefault(), "%g", -q),
                                        String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", targetP),
                                        String.format(Locale.getDefault(), "%g", targetQ), String.format(Locale.getDefault(), "%g", targetV),
-                                       Boolean.toString(connected), Boolean.toString(voltageRegulatorOn),
+                                       String.format(Locale.getDefault(), "%g", expectedP), Boolean.toString(connected), Boolean.toString(voltageRegulatorOn),
                                        String.format(Locale.getDefault(), "%g", minP), String.format(Locale.getDefault(), "%g", maxP),
                                        String.format(Locale.getDefault(), "%g", minQ), String.format(Locale.getDefault(), "%g", maxQ),
                                        Boolean.toString(mainComponent), AbstractValidationFormatterWriter.SUCCESS,
                                        String.format(Locale.getDefault(), "%g", -p), String.format(Locale.getDefault(), "%g", -q),
                                        String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", targetP),
                                        String.format(Locale.getDefault(), "%g", targetQ), String.format(Locale.getDefault(), "%g", targetV),
-                                       Boolean.toString(connected), Boolean.toString(voltageRegulatorOn),
+                                       String.format(Locale.getDefault(), "%g", expectedP), Boolean.toString(connected), Boolean.toString(voltageRegulatorOn),
                                        String.format(Locale.getDefault(), "%g", minP), String.format(Locale.getDefault(), "%g", maxP),
                                        String.format(Locale.getDefault(), "%g", minQ), String.format(Locale.getDefault(), "%g", maxQ),
                                        Boolean.toString(mainComponent), AbstractValidationFormatterWriter.SUCCESS));
@@ -372,7 +379,7 @@ public class ValidationFormatterCsvWriterTest extends AbstractValidationFormatte
     protected String getGeneratorsCompareDifferentIdsVerboseContent() {
         return String.join(System.lineSeparator(),
                            "test " + ValidationType.GENERATORS + " check",
-                           String.join(";", "id", "p", "q", "v", "targetP", "targetQ", "targetV", AbstractValidationFormatterWriter.CONNECTED,
+                           String.join(";", "id", "p", "q", "v", "targetP", "targetQ", "targetV", "expectedP", AbstractValidationFormatterWriter.CONNECTED,
                                        "voltageRegulatorOn", "minP", "maxP", "minQ", "maxQ", AbstractValidationFormatterWriter.MAIN_COMPONENT,
                                        AbstractValidationFormatterWriter.VALIDATION,
                                        "p" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
@@ -381,6 +388,7 @@ public class ValidationFormatterCsvWriterTest extends AbstractValidationFormatte
                                        "targetP" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "targetQ" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "targetV" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
+                                       "expectedP" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        AbstractValidationFormatterWriter.CONNECTED + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "voltageRegulatorOn" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        "minP" + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
@@ -390,11 +398,11 @@ public class ValidationFormatterCsvWriterTest extends AbstractValidationFormatte
                                        AbstractValidationFormatterWriter.MAIN_COMPONENT +  AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX,
                                        AbstractValidationFormatterWriter.VALIDATION + AbstractValidationFormatterWriter.POST_COMPUTATION_SUFFIX),
                            String.join(";", otherGeneratorId,
-                                       "", "", "", "", "", "", "", "", "", "", "", "", "", "",
+                                       "", "", "", "", "", "", "", "", "", "", "", "", "", "", "",
                                        String.format(Locale.getDefault(), "%g", -p), String.format(Locale.getDefault(), "%g", -q),
                                        String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", targetP),
                                        String.format(Locale.getDefault(), "%g", targetQ), String.format(Locale.getDefault(), "%g", targetV),
-                                       Boolean.toString(connected), Boolean.toString(voltageRegulatorOn),
+                                       String.format(Locale.getDefault(), "%g", expectedP), Boolean.toString(connected), Boolean.toString(voltageRegulatorOn),
                                        String.format(Locale.getDefault(), "%g", minP), String.format(Locale.getDefault(), "%g", maxP),
                                        String.format(Locale.getDefault(), "%g", minQ), String.format(Locale.getDefault(), "%g", maxQ),
                                        Boolean.toString(mainComponent), AbstractValidationFormatterWriter.SUCCESS),
@@ -402,11 +410,11 @@ public class ValidationFormatterCsvWriterTest extends AbstractValidationFormatte
                                        String.format(Locale.getDefault(), "%g", -p), String.format(Locale.getDefault(), "%g", -q),
                                        String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", targetP),
                                        String.format(Locale.getDefault(), "%g", targetQ), String.format(Locale.getDefault(), "%g", targetV),
-                                       Boolean.toString(connected), Boolean.toString(voltageRegulatorOn),
+                                       String.format(Locale.getDefault(), "%g", expectedP), Boolean.toString(connected), Boolean.toString(voltageRegulatorOn),
                                        String.format(Locale.getDefault(), "%g", minP), String.format(Locale.getDefault(), "%g", maxP),
                                        String.format(Locale.getDefault(), "%g", minQ), String.format(Locale.getDefault(), "%g", maxQ),
                                        Boolean.toString(mainComponent), AbstractValidationFormatterWriter.SUCCESS,
-                                       "", "", "", "", "", "", "", "", "", "", "", "", "", ""));
+                                       "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""));
     }
 
     @Override

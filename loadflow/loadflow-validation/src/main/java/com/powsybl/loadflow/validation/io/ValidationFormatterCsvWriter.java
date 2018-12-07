@@ -149,7 +149,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             new Column("v"),
             new Column("targetP"),
             new Column("targetQ"),
-            new Column("targetV")
+            new Column("targetV"),
+            new Column("expectedP"),
         };
         if (verbose) {
             generatorColumns = ArrayUtils.addAll(generatorColumns,
@@ -169,7 +170,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                                  new Column("v" + POST_COMPUTATION_SUFFIX),
                                                  new Column("targetP" + POST_COMPUTATION_SUFFIX),
                                                  new Column("targetQ" + POST_COMPUTATION_SUFFIX),
-                                                 new Column("targetV" + POST_COMPUTATION_SUFFIX));
+                                                 new Column("targetV" + POST_COMPUTATION_SUFFIX),
+                                                 new Column("expectedP" + POST_COMPUTATION_SUFFIX));
             if (verbose) {
                 generatorColumns = ArrayUtils.addAll(generatorColumns,
                                                      new Column(CONNECTED + POST_COMPUTATION_SUFFIX),
@@ -435,21 +437,21 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     }
 
     @Override
-    protected void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV,
+    protected void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP,
                          boolean connected, boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ,  boolean mainComponent,
                          boolean validated, GeneratorData generatorData, boolean found, boolean writeValues) throws IOException {
         formatter.writeCell(generatorId);
         if (compareResults) {
             formatter = found ?
                         write(found, generatorData.p, generatorData.q, generatorData.v, generatorData.targetP, generatorData.targetQ, generatorData.targetV,
-                              generatorData.connected, generatorData.voltageRegulatorOn, generatorData.minP, generatorData.maxP, generatorData.minQ,
+                              generatorData.expectedP, generatorData.connected, generatorData.voltageRegulatorOn, generatorData.minP, generatorData.maxP, generatorData.minQ,
                               generatorData.maxQ, generatorData.mainComponent, generatorData.validated) :
-                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false);
+                        write(found, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false);
         }
-        formatter = write(writeValues, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
+        formatter = write(writeValues, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
     }
 
-    private TableFormatter write(boolean writeValues, double p, double q, double v, double targetP, double targetQ, double targetV, boolean connected,
+    private TableFormatter write(boolean writeValues, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP, boolean connected,
                                  boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent, boolean validated) throws IOException {
         formatter = writeValues ?
                     formatter.writeCell(-p)
@@ -457,8 +459,9 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                              .writeCell(v)
                              .writeCell(targetP)
                              .writeCell(targetQ)
-                             .writeCell(targetV) :
-                    formatter.writeEmptyCells(6);
+                             .writeCell(targetV)
+                             .writeCell(expectedP) :
+                    formatter.writeEmptyCells(7);
         if (verbose) {
             formatter = writeValues ?
                         formatter.writeCell(connected)
