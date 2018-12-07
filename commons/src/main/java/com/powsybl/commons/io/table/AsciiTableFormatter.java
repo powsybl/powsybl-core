@@ -34,6 +34,16 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
         }
     }
 
+    public AsciiTableFormatter(Writer writer, String title, TableFormatterConfig config,int length) {
+        super(writer, config);
+        this.title = title;
+        this.table = new Table(length, BorderStyle.CLASSIC_WIDE);
+    }
+
+    public AsciiTableFormatter(String title,int length) {
+        this(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), title, TableFormatterConfig.load(), length);
+    }
+
     public AsciiTableFormatter(String title, Column... columns) {
         this(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), title, TableFormatterConfig.load(), columns);
     }
@@ -46,11 +56,17 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
 
     @Override
     protected TableFormatter write(String value) throws IOException {
-        HorizontalAlignment horizontalAlignment = columns[column].getHorizontalAlignment();
-        column = (column + 1) % columns.length;
+           // HorizontalAlignment horizontalAlignment = columns[column].getHorizontalAlignment();
+            //column = (column + 1) % columns.length;
+            table.addCell(value, convertCellStyle(HorizontalAlignment.LEFT));
+        return this;
+    }
 
-        table.addCell(value, convertCellStyle(horizontalAlignment));
-
+    @Override
+    protected TableFormatter writeWithColspan(String value,int colspan) throws IOException {
+        //HorizontalAlignment horizontalAlignment = columns[column].getHorizontalAlignment();
+        //column = (column + 1) % columns.length;
+        table.addCell(value, convertCellStyle(HorizontalAlignment.LEFT),colspan);
         return this;
     }
 
@@ -74,5 +90,9 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
             default:
                 return new CellStyle();
         }
+    }
+
+    public Table getTable() {
+        return table;
     }
 }

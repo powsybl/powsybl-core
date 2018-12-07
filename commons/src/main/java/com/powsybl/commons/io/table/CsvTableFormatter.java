@@ -77,6 +77,11 @@ public class CsvTableFormatter extends AbstractTableFormatter {
     }
 
     @Override
+    protected TableFormatter writeWithColspan(String value, int colspan) throws IOException {
+        return null;
+    }
+
+    @Override
     public void close() throws IOException {
         writeHeaderIfNotDone();
         writer.flush();
