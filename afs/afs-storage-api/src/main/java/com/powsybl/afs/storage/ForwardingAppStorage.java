@@ -6,8 +6,8 @@
  */
 package com.powsybl.afs.storage;
 
-import com.powsybl.timeseries.DoubleArrayChunk;
-import com.powsybl.timeseries.StringArrayChunk;
+import com.powsybl.timeseries.DoubleDataChunk;
+import com.powsybl.timeseries.StringDataChunk;
 import com.powsybl.timeseries.TimeSeriesMetadata;
 
 import java.io.InputStream;
@@ -153,22 +153,22 @@ public class ForwardingAppStorage implements AppStorage {
     }
 
     @Override
-    public Map<String, List<DoubleArrayChunk>> getDoubleTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version) {
+    public Map<String, List<DoubleDataChunk>> getDoubleTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version) {
         return storage.getDoubleTimeSeriesData(nodeId, timeSeriesNames, version);
     }
 
     @Override
-    public void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks) {
+    public void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleDataChunk> chunks) {
         storage.addDoubleTimeSeriesData(nodeId, version, timeSeriesName, chunks);
     }
 
     @Override
-    public Map<String, List<StringArrayChunk>> getStringTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version) {
+    public Map<String, List<StringDataChunk>> getStringTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version) {
         return storage.getStringTimeSeriesData(nodeId, timeSeriesNames, version);
     }
 
     @Override
-    public void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks) {
+    public void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringDataChunk> chunks) {
         storage.addStringTimeSeriesData(nodeId, version, timeSeriesName, chunks);
     }
 

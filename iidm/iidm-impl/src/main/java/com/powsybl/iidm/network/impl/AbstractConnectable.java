@@ -16,7 +16,7 @@ import java.util.List;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIdentifiable<I> implements Connectable<I>, Stateful {
+abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIdentifiable<I> implements Connectable<I>, MultiVariantObject {
 
     protected final List<TerminalExt> terminals = new ArrayList<>();
 
@@ -57,30 +57,30 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
     }
 
     @Override
-    public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         for (TerminalExt t : terminals) {
-            t.extendStateArraySize(initStateArraySize, number, sourceIndex);
+            t.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         }
     }
 
     @Override
-    public void reduceStateArraySize(int number) {
+    public void reduceVariantArraySize(int number) {
         for (TerminalExt t : terminals) {
-            t.reduceStateArraySize(number);
+            t.reduceVariantArraySize(number);
         }
     }
 
     @Override
-    public void deleteStateArrayElement(int index) {
+    public void deleteVariantArrayElement(int index) {
         for (TerminalExt t : terminals) {
-            t.deleteStateArrayElement(index);
+            t.deleteVariantArrayElement(index);
         }
     }
 
     @Override
-    public void allocateStateArrayElement(int[] indexes, int sourceIndex) {
+    public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         for (TerminalExt t : terminals) {
-            t.allocateStateArrayElement(indexes, sourceIndex);
+            t.allocateVariantArrayElement(indexes, sourceIndex);
         }
     }
 

@@ -11,7 +11,7 @@ import org.joda.time.DateTime;
 import com.powsybl.iidm.network.*;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public final class ThreeWindingsTransformerNetworkFactory {
 

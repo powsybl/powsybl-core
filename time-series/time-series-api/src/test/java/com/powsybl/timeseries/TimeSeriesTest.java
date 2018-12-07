@@ -8,11 +8,12 @@ package com.powsybl.timeseries;
 
 import org.junit.Test;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -56,5 +57,65 @@ public class TimeSeriesTest {
         assertEquals("ts2", ts2v2.getMetadata().getName());
         assertEquals(TimeSeriesDataType.STRING, ts2v2.getMetadata().getDataType());
         assertArrayEquals(new String[] {"c", null, "d"}, ((StringTimeSeries) ts2v2).toArray());
+    }
+
+    @Test
+    public void splitTest() {
+        try {
+            TimeSeries.split(Collections.<DoubleTimeSeries>emptyList(), 2);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+        TimeSeriesIndex index = new TestTimeSeriesIndex(10000, 3);
+        List<DoubleTimeSeries> timeSeriesList = Arrays.asList(TimeSeries.createDouble("ts1", index, 1d, 2d, 3d),
+                                                              TimeSeries.createDouble("ts1", index, 4d, 5d, 6d));
+        try {
+            TimeSeries.split(timeSeriesList, 4);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+
+        try {
+            TimeSeries.split(timeSeriesList, -1);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+
+        List<List<DoubleTimeSeries>> split = TimeSeries.split(timeSeriesList, 2);
+        assertEquals(2, split.size());
+        assertEquals(2, split.get(0).size());
+        assertEquals(2, split.get(1).size());
+        assertArrayEquals(new double[] {1d, 2d, Double.NaN}, split.get(0).get(0).toArray(), 0d);
+        assertArrayEquals(new double[] {4d, 5d, Double.NaN}, split.get(0).get(1).toArray(), 0d);
+        assertArrayEquals(new double[] {Double.NaN, Double.NaN, 3d}, split.get(1).get(0).toArray(), 0d);
+        assertArrayEquals(new double[] {Double.NaN, Double.NaN, 6d}, split.get(1).get(1).toArray(), 0d);
+    }
+
+    @Test
+    public void splitWithCalcTest() {
+        TimeSeriesIndex index = new TestTimeSeriesIndex(10000, 3);
+        DoubleTimeSeries a = TimeSeries.createDouble("a", index, 1d, 2d, 3d);
+        DoubleTimeSeries b = DoubleTimeSeries.fromTimeSeries(a).build("ts['b'] = ts['a'] + 1").get(0);
+        List<DoubleTimeSeries> timeSeriesList = Arrays.asList(a, b);
+        List<List<DoubleTimeSeries>> split = TimeSeries.split(timeSeriesList, 2);
+        assertEquals(2, split.size());
+        assertEquals(2, split.get(0).size());
+        assertEquals(2, split.get(1).size());
+        assertTrue(split.get(0).get(0) instanceof StoredDoubleTimeSeries);
+        assertTrue(split.get(1).get(0) instanceof StoredDoubleTimeSeries);
+        assertTrue(split.get(0).get(1) instanceof CalculatedTimeSeries);
+        assertTrue(split.get(1).get(1) instanceof CalculatedTimeSeries);
+        assertArrayEquals(new double[]{1d, 2d, Double.NaN}, split.get(0).get(0).toArray(), 0d);
+        assertArrayEquals(new double[]{Double.NaN, Double.NaN, 3d}, split.get(1).get(0).toArray(), 0d);
+        // next check could surprising but it is because of calculated time series with infinite indexes which
+        // are not really splitted
+        assertArrayEquals(new double[]{2d, 3d, 4d}, split.get(0).get(1).toArray(), 0d);
+        assertArrayEquals(new double[]{2d, 3d, 4d}, split.get(1).get(1).toArray(), 0d);
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void splitWithOnlyCalcTest() {
+        List<DoubleTimeSeries> timeSeriesList = DoubleTimeSeries.build("ts['a'] = 1", "ts['b'] = 2");
+        TimeSeries.split(timeSeriesList, 2);
     }
 }

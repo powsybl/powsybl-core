@@ -12,14 +12,18 @@ import com.fasterxml.jackson.core.JsonToken;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.time.Instant;
+import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian@rte-france.com>
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public enum InfiniteTimeSeriesIndex implements TimeSeriesIndex {
+public class InfiniteTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
-    INSTANCE;
+    public static final InfiniteTimeSeriesIndex INSTANCE = new InfiniteTimeSeriesIndex();
 
     public static final String TYPE = "infiniteIndex";
     public static final long START_TIME = 0L;
@@ -70,6 +74,16 @@ public enum InfiniteTimeSeriesIndex implements TimeSeriesIndex {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    @Override
+    public Iterator<Instant> iterator() {
+        return Arrays.asList(Instant.ofEpochMilli(START_TIME), Instant.ofEpochMilli(END_TIME)).iterator();
+    }
+
+    @Override
+    public Stream<Instant> stream() {
+        return Stream.of(Instant.ofEpochMilli(START_TIME), Instant.ofEpochMilli(END_TIME));
     }
 
     @Override

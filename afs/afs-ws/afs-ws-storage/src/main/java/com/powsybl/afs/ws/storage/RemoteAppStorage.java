@@ -21,10 +21,10 @@ import com.powsybl.afs.ws.utils.gzip.WriterInterceptorGzipCli;
 import com.powsybl.commons.exceptions.UncheckedInterruptedException;
 import com.powsybl.commons.io.ForwardingInputStream;
 import com.powsybl.commons.io.ForwardingOutputStream;
-import com.powsybl.timeseries.DoubleArrayChunk;
-import com.powsybl.timeseries.StringArrayChunk;
-import com.powsybl.timeseries.TimeSeriesIndex;
+import com.powsybl.timeseries.DoubleDataChunk;
+import com.powsybl.timeseries.StringDataChunk;
 import com.powsybl.timeseries.TimeSeriesMetadata;
+import com.powsybl.timeseries.TimeSeriesVersions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -777,9 +777,9 @@ public class RemoteAppStorage implements AppStorage {
     }
 
     @Override
-    public void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks) {
+    public void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleDataChunk> chunks) {
         Objects.requireNonNull(nodeId);
-        TimeSeriesIndex.checkVersion(version);
+        TimeSeriesVersions.check(version);
         Objects.requireNonNull(timeSeriesName);
         Objects.requireNonNull(chunks);
 
@@ -792,10 +792,10 @@ public class RemoteAppStorage implements AppStorage {
     }
 
     @Override
-    public Map<String, List<DoubleArrayChunk>> getDoubleTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version) {
+    public Map<String, List<DoubleDataChunk>> getDoubleTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version) {
         Objects.requireNonNull(nodeId);
         Objects.requireNonNull(timeSeriesNames);
-        TimeSeriesIndex.checkVersion(version);
+        TimeSeriesVersions.check(version);
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("getDoubleTimeSeriesData(fileSystemName={}, nodeId={}, timeSeriesNames={}, version={})",
@@ -810,7 +810,7 @@ public class RemoteAppStorage implements AppStorage {
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .post(Entity.json(timeSeriesNames));
         try {
-            return readEntityIfOk(response, new GenericType<Map<String, List<DoubleArrayChunk>>>() {
+            return readEntityIfOk(response, new GenericType<Map<String, List<DoubleDataChunk>>>() {
             });
         } finally {
             response.close();
@@ -818,9 +818,9 @@ public class RemoteAppStorage implements AppStorage {
     }
 
     @Override
-    public void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks) {
+    public void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringDataChunk> chunks) {
         Objects.requireNonNull(nodeId);
-        TimeSeriesIndex.checkVersion(version);
+        TimeSeriesVersions.check(version);
         Objects.requireNonNull(timeSeriesName);
         Objects.requireNonNull(chunks);
 
@@ -833,10 +833,10 @@ public class RemoteAppStorage implements AppStorage {
     }
 
     @Override
-    public Map<String, List<StringArrayChunk>> getStringTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version) {
+    public Map<String, List<StringDataChunk>> getStringTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version) {
         Objects.requireNonNull(nodeId);
         Objects.requireNonNull(timeSeriesNames);
-        TimeSeriesIndex.checkVersion(version);
+        TimeSeriesVersions.check(version);
 
         if (LOGGER.isDebugEnabled()) {
             LOGGER.debug("getStringTimeSeriesData(fileSystemName={}, nodeId={}, timeSeriesNames={}, version={})",
@@ -851,7 +851,7 @@ public class RemoteAppStorage implements AppStorage {
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .post(Entity.json(timeSeriesNames));
         try {
-            return readEntityIfOk(response, new GenericType<Map<String, List<StringArrayChunk>>>() {
+            return readEntityIfOk(response, new GenericType<Map<String, List<StringDataChunk>>>() {
             });
         } finally {
             response.close();

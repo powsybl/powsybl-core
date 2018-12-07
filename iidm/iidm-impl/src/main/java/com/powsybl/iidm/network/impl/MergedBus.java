@@ -210,35 +210,71 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
     }
 
     @Override
-    public Iterable<TwoWindingsTransformer> getTwoWindingTransformers() {
+    public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
         checkValidity();
         List<Iterable<TwoWindingsTransformer>> iterables = new ArrayList<>(buses.size());
         for (ConfiguredBus bus : buses) {
-            iterables.add(bus.getTwoWindingTransformers());
+            iterables.add(bus.getTwoWindingsTransformers());
         }
         return Iterables.concat(iterables);
     }
 
+    /**
+     * @deprecated Use {@link #getTwoWindingsTransformers()} instead.
+     */
+    @Deprecated
     @Override
-    public Stream<TwoWindingsTransformer> getTwoWindingTransformerStream() {
-        checkValidity();
-        return buses.stream().flatMap(ConfiguredBus::getTwoWindingTransformerStream);
+    public Iterable<TwoWindingsTransformer> getTwoWindingTransformers() {
+        return getTwoWindingsTransformers();
     }
 
     @Override
-    public Iterable<ThreeWindingsTransformer> getThreeWindingTransformers() {
+    public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
+        checkValidity();
+        return buses.stream().flatMap(ConfiguredBus::getTwoWindingsTransformerStream);
+    }
+
+    /**
+     * @deprecated Use {@link #getTwoWindingsTransformerStream()} instead.
+     */
+    @Deprecated
+    @Override
+    public Stream<TwoWindingsTransformer> getTwoWindingTransformerStream() {
+        return getTwoWindingsTransformerStream();
+    }
+
+    @Override
+    public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
         checkValidity();
         List<Iterable<ThreeWindingsTransformer>> iterables = new ArrayList<>(buses.size());
         for (ConfiguredBus bus : buses) {
-            iterables.add(bus.getThreeWindingTransformers());
+            iterables.add(bus.getThreeWindingsTransformers());
         }
         return Iterables.concat(iterables);
     }
 
+    /**
+     * @deprecated Use {@link #getThreeWindingsTransformers()} instead.
+     */
+    @Deprecated
+    @Override
+    public Iterable<ThreeWindingsTransformer> getThreeWindingTransformers() {
+        return getThreeWindingsTransformers();
+    }
+
+    @Override
+    public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
+        checkValidity();
+        return buses.stream().flatMap(ConfiguredBus::getThreeWindingsTransformerStream);
+    }
+
+    /**
+     * @deprecated Use {@link #getThreeWindingsTransformerStream()} instead.
+     */
+    @Deprecated
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingTransformerStream() {
-        checkValidity();
-        return buses.stream().flatMap(ConfiguredBus::getThreeWindingTransformerStream);
+        return getThreeWindingsTransformerStream();
     }
 
     @Override

@@ -8,8 +8,8 @@ package com.powsybl.afs.storage;
 
 import com.powsybl.afs.storage.events.*;
 import com.powsybl.commons.util.WeakListenerList;
-import com.powsybl.timeseries.DoubleArrayChunk;
-import com.powsybl.timeseries.StringArrayChunk;
+import com.powsybl.timeseries.DoubleDataChunk;
+import com.powsybl.timeseries.StringDataChunk;
 import com.powsybl.timeseries.TimeSeriesMetadata;
 
 import java.io.OutputStream;
@@ -105,13 +105,13 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
     }
 
     @Override
-    public void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks) {
+    public void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleDataChunk> chunks) {
         super.addDoubleTimeSeriesData(nodeId, version, timeSeriesName, chunks);
         addEvent(new TimeSeriesDataUpdated(nodeId, timeSeriesName));
     }
 
     @Override
-    public void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks) {
+    public void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringDataChunk> chunks) {
         super.addStringTimeSeriesData(nodeId, version, timeSeriesName, chunks);
         addEvent(new TimeSeriesDataUpdated(nodeId, timeSeriesName));
     }
