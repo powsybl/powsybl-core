@@ -35,14 +35,14 @@ public abstract class AbstractTableFormatter implements TableFormatter {
         this.writer = Objects.requireNonNull(writer);
         this.config = Objects.requireNonNull(config);
         columns = new Column[length];
-        for(int i=0;i<length;i++){
+        for (int i = 0; i < length; i++) {
             columns[i] = new Column(String.valueOf(i));
         }
     }
 
     protected abstract TableFormatter write(String value) throws IOException;
 
-    protected abstract TableFormatter writeWithColspan(String value,int colspan) throws IOException;
+    protected abstract TableFormatter writeWithColspan(String value, int colspan) throws IOException;
 
 
     @Override
@@ -51,8 +51,8 @@ public abstract class AbstractTableFormatter implements TableFormatter {
     }
 
     @Override
-    public TableFormatter writeCellWithColspan(String s,int colspan) throws IOException {
-        return writeWithColspan(s,colspan);
+    public TableFormatter writeCellWithColspan(String s, int colspan) throws IOException {
+        return writeWithColspan(s, colspan);
     }
 
     @Override

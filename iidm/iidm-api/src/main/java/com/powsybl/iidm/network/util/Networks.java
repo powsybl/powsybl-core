@@ -241,14 +241,14 @@ public final class Networks {
 
 
     private static Table writeInTable(ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
-        AsciiTableFormatter formatter = new AsciiTableFormatter("myFormatter",5);
+        AsciiTableFormatter formatter = new AsciiTableFormatter("myFormatter", 5);
         try {
             formatter.writeCell("Bus count").
-                    writeCellWithColspan("Main CC connected/disconnected",2).
-                    writeCellWithColspan("Others CC connected/disconnected",2);
+                    writeCellWithColspan("Main CC connected/disconnected", 2).
+                    writeCellWithColspan("Others CC connected/disconnected", 2);
             formatter.writeCell("Bus count").
-                    writeCellWithColspan(Integer.toString(balanceMainCC.busCount),2).
-                    writeCellWithColspan(Integer.toString(balanceOtherCC.busCount),2);
+                    writeCellWithColspan(Integer.toString(balanceMainCC.busCount), 2).
+                    writeCellWithColspan(Integer.toString(balanceOtherCC.busCount), 2);
             formatter.writeCell("Load count").
                     writeCell(Integer.toString(balanceMainCC.connectedLoads.size())).
                     writeCell(Integer.toString(balanceMainCC.disconnectedLoads.size())).

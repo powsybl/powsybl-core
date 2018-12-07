@@ -69,7 +69,7 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
             out.println("        Rule '" + rule.getId() + "' evaluated to " + status);
         }
         if (verbose &&  (variables.size() + actions.size() > 0)) {
-            AsciiTableFormatter formatter = new AsciiTableFormatter("myFormatter",2);
+            AsciiTableFormatter formatter = new AsciiTableFormatter("myFormatter", 2);
 
             try {
                 formatter.writeCell("Variable");

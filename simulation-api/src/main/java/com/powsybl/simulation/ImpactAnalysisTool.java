@@ -127,7 +127,7 @@ public class ImpactAnalysisTool implements Tool {
     }
 
     private static void prettyPrint(Multimap<String, SecurityIndex> securityIndexesPerContingency, PrintStream out) {
-        AsciiTableFormatter formatter = new AsciiTableFormatter("myFormatter",1 + SecurityIndexType.values().length);
+        AsciiTableFormatter formatter = new AsciiTableFormatter("myFormatter", 1 + SecurityIndexType.values().length);
 
         try {
             formatter.writeCell("Contingency");
