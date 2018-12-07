@@ -12,29 +12,29 @@ import com.powsybl.commons.PowsyblException;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class MultiStateContext implements StateContext {
+class MultiVariantContext implements VariantContext {
 
     private int index;
 
-    MultiStateContext(int initialStateIndex) {
-        this.index = initialStateIndex;
+    MultiVariantContext(int index) {
+        this.index = index;
     }
 
     @Override
-    public int getStateIndex() {
+    public int getVariantIndex() {
         if (index == -1) {
-            throw new PowsyblException("State not set");
+            throw new PowsyblException("Variant index not set");
         }
         return index;
     }
 
     @Override
-    public void setStateIndex(int index) {
+    public void setVariantIndex(int index) {
         this.index = index;
     }
 
     @Override
-    public void resetIfStateIndexIs(int index) {
+    public void resetIfVariantIndexIs(int index) {
         if (this.index == index) {
             this.index = -1;
         }

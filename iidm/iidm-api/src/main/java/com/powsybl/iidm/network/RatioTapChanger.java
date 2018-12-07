@@ -16,16 +16,16 @@ public interface RatioTapChanger extends TapChanger<RatioTapChanger, RatioTapCha
     /**
      * Get the target voltage in kV.
      * <p>
-     * Depends on the working state.
-     * @see StateManager
+     * Depends on the working variant.
+     * @see VariantManager
      */
     double getTargetV();
 
     /**
      * Set the target voltage in kV.
      * <p>
-     * Depends on the working state.
-     * @see StateManager
+     * Depends on the working variant.
+     * @see VariantManager
      */
     RatioTapChanger setTargetV(double targetV);
 

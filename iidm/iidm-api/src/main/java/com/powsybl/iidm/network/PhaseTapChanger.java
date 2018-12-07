@@ -37,16 +37,16 @@ public interface PhaseTapChanger extends TapChanger<PhaseTapChanger, PhaseTapCha
      *   - a threshold in A in case of current limiter regulation
      *   - a setpoint in MW in case of active power control regulation
      * <p>
-     * Depends on the working state.
-     * @see StateManager
+     * Depends on the working variant.
+     * @see VariantManager
      */
     double getRegulationValue();
 
     /**
      * Set the regulation value.
      * <p>
-     * Depends on the working state.
-     * @see StateManager
+     * Depends on the working variant.
+     * @see VariantManager
      */
     PhaseTapChanger setRegulationValue(double regulationValue);
 

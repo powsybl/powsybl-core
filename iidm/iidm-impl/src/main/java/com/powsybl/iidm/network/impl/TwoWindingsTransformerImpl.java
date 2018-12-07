@@ -176,46 +176,46 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
     }
 
     @Override
-    public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
-        super.extendStateArraySize(initStateArraySize, number, sourceIndex);
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         if (ratioTapChanger != null) {
-            ratioTapChanger.extendStateArraySize(initStateArraySize, number, sourceIndex);
+            ratioTapChanger.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         }
         if (phaseTapChanger != null) {
-            phaseTapChanger.extendStateArraySize(initStateArraySize, number, sourceIndex);
+            phaseTapChanger.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         }
     }
 
     @Override
-    public void reduceStateArraySize(int number) {
-        super.reduceStateArraySize(number);
+    public void reduceVariantArraySize(int number) {
+        super.reduceVariantArraySize(number);
         if (ratioTapChanger != null) {
-            ratioTapChanger.reduceStateArraySize(number);
+            ratioTapChanger.reduceVariantArraySize(number);
         }
         if (phaseTapChanger != null) {
-            phaseTapChanger.reduceStateArraySize(number);
+            phaseTapChanger.reduceVariantArraySize(number);
         }
     }
 
     @Override
-    public void deleteStateArrayElement(int index) {
-        super.deleteStateArrayElement(index);
+    public void deleteVariantArrayElement(int index) {
+        super.deleteVariantArrayElement(index);
         if (ratioTapChanger != null) {
-            ratioTapChanger.deleteStateArrayElement(index);
+            ratioTapChanger.deleteVariantArrayElement(index);
         }
         if (phaseTapChanger != null) {
-            phaseTapChanger.deleteStateArrayElement(index);
+            phaseTapChanger.deleteVariantArrayElement(index);
         }
     }
 
     @Override
-    public void allocateStateArrayElement(int[] indexes, int sourceIndex) {
-        super.allocateStateArrayElement(indexes, sourceIndex);
+    public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+        super.allocateVariantArrayElement(indexes, sourceIndex);
         if (ratioTapChanger != null) {
-            ratioTapChanger.allocateStateArrayElement(indexes, sourceIndex);
+            ratioTapChanger.allocateVariantArrayElement(indexes, sourceIndex);
         }
         if (phaseTapChanger != null) {
-            phaseTapChanger.allocateStateArrayElement(indexes, sourceIndex);
+            phaseTapChanger.allocateVariantArrayElement(indexes, sourceIndex);
         }
     }
 

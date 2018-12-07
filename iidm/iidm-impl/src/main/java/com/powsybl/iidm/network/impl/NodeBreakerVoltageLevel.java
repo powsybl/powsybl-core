@@ -58,7 +58,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private final Map<String, Integer> switches = new HashMap<>();
 
-    private class StateImpl implements State {
+    private class VariantImpl implements Variant {
 
         final CalculatedBusTopology calculatedBusTopology
                 = new CalculatedBusTopology();
@@ -67,13 +67,13 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 = new CalculatedBusBreakerTopology();
 
         @Override
-        public StateImpl copy() {
-            return new StateImpl();
+        public VariantImpl copy() {
+            return new VariantImpl();
         }
 
     }
 
-    private final StateArray<StateImpl> states;
+    private final VariantArray<VariantImpl> variants;
 
     private final class SwitchAdderImpl extends AbstractIdentifiableAdder<SwitchAdderImpl> implements NodeBreakerView.SwitchAdder {
 
@@ -522,13 +522,13 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     NodeBreakerVoltageLevel(String id, String name, SubstationImpl substation,
                             double nominalV, double lowVoltageLimit, double highVoltageLimit) {
         super(id, name, substation, nominalV, lowVoltageLimit, highVoltageLimit);
-        states = new StateArray<>(substation.getNetwork().getRef(), StateImpl::new);
+        variants = new VariantArray<>(substation.getNetwork().getRef(), VariantImpl::new);
     }
 
     @Override
     public void invalidateCache() {
-        states.get().calculatedBusBreakerTopology.invalidateCache();
-        states.get().calculatedBusTopology.invalidateCache();
+        variants.get().calculatedBusBreakerTopology.invalidateCache();
+        variants.get().calculatedBusTopology.invalidateCache();
         getNetwork().getConnectedComponentsManager().invalidate();
     }
 
@@ -561,11 +561,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     CalculatedBusBreakerTopology getCalculatedBusBreakerTopology() {
-        return states.get().calculatedBusBreakerTopology;
+        return variants.get().calculatedBusBreakerTopology;
     }
 
     CalculatedBusTopology getCalculatedBusTopology() {
-        return states.get().calculatedBusTopology;
+        return variants.get().calculatedBusTopology;
     }
 
     private final NodeBreakerViewExt nodeBreakerView = new NodeBreakerViewExt() {
@@ -720,24 +720,24 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public Iterable<Bus> getBuses() {
-            return Collections.unmodifiableCollection(states.get().calculatedBusTopology.getBuses());
+            return Collections.unmodifiableCollection(variants.get().calculatedBusTopology.getBuses());
         }
 
         @Override
         public Stream<Bus> getBusStream() {
-            return states.get().calculatedBusTopology.getBuses().stream().map(Function.identity());
+            return variants.get().calculatedBusTopology.getBuses().stream().map(Function.identity());
         }
 
         @Override
         public CalculatedBus getBus(String id) {
-            return states.get().calculatedBusTopology.getBus(id, false);
+            return variants.get().calculatedBusTopology.getBus(id, false);
         }
 
         @Override
         public Bus getMergedBus(String busBarId) {
             NodeTerminal nt = (NodeTerminal) nodeBreakerView.getBusbarSection(busBarId).getTerminal();
             int node = nt.getNode();
-            return states.get().calculatedBusTopology.getBus(node);
+            return variants.get().calculatedBusTopology.getBus(node);
         }
     };
 
@@ -750,17 +750,17 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public Iterable<Bus> getBuses() {
-            return Collections.unmodifiableCollection(states.get().calculatedBusBreakerTopology.getBuses());
+            return Collections.unmodifiableCollection(variants.get().calculatedBusBreakerTopology.getBuses());
         }
 
         @Override
         public Stream<Bus> getBusStream() {
-            return states.get().calculatedBusBreakerTopology.getBuses().stream().map(Function.identity());
+            return variants.get().calculatedBusBreakerTopology.getBuses().stream().map(Function.identity());
         }
 
         @Override
         public CalculatedBus getBus(String id) {
-            return states.get().calculatedBusBreakerTopology.getBus(id, false);
+            return variants.get().calculatedBusBreakerTopology.getBus(id, false);
         }
 
         @Override
@@ -780,17 +780,17 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public Iterable<Switch> getSwitches() {
-            return Iterables.filter(states.get().calculatedBusBreakerTopology.getSwitches(), Switch.class); // just to upcast and return an unmodifiable iterable
+            return Iterables.filter(variants.get().calculatedBusBreakerTopology.getSwitches(), Switch.class); // just to upcast and return an unmodifiable iterable
         }
 
         @Override
         public Stream<Switch> getSwitchStream() {
-            return states.get().calculatedBusBreakerTopology.getSwitchStream();
+            return variants.get().calculatedBusBreakerTopology.getSwitchStream();
         }
 
         @Override
         public int getSwitchCount() {
-            return states.get().calculatedBusBreakerTopology.getSwitchCount();
+            return variants.get().calculatedBusBreakerTopology.getSwitchCount();
         }
 
         @Override
@@ -805,17 +805,17 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public Bus getBus1(String switchId) {
-            return states.get().calculatedBusBreakerTopology.getBus1(switchId, true);
+            return variants.get().calculatedBusBreakerTopology.getBus1(switchId, true);
         }
 
         @Override
         public Bus getBus2(String switchId) {
-            return states.get().calculatedBusBreakerTopology.getBus2(switchId, true);
+            return variants.get().calculatedBusBreakerTopology.getBus2(switchId, true);
         }
 
         @Override
         public Switch getSwitch(String switchId) {
-            return states.get().calculatedBusBreakerTopology.getSwitch(switchId, true);
+            return variants.get().calculatedBusBreakerTopology.getSwitch(switchId, true);
         }
 
         @Override
@@ -1010,23 +1010,23 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
-    public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
-        states.push(number, StateImpl::new);
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        variants.push(number, VariantImpl::new);
     }
 
     @Override
-    public void reduceStateArraySize(int number) {
-        states.pop(number);
+    public void reduceVariantArraySize(int number) {
+        variants.pop(number);
     }
 
     @Override
-    public void deleteStateArrayElement(int index) {
-        states.delete(index);
+    public void deleteVariantArrayElement(int index) {
+        variants.delete(index);
     }
 
     @Override
-    public void allocateStateArrayElement(int[] indexes, final int sourceIndex) {
-        states.allocate(indexes, StateImpl::new);
+    public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
+        variants.allocate(indexes, VariantImpl::new);
     }
 
     @Override

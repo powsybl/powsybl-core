@@ -23,7 +23,7 @@ class NodeTerminal extends AbstractTerminal {
 
     private final int node;
 
-    // attributes depending on the state
+    // attributes depending on the variant
 
     protected final TDoubleArrayList v;
 
@@ -74,15 +74,15 @@ class NodeTerminal extends AbstractTerminal {
 
     };
 
-    NodeTerminal(Ref<? extends MultiStateObject> network, int node) {
+    NodeTerminal(Ref<? extends VariantManagerHolder> network, int node) {
         super(network);
         this.node = node;
-        int stateArraySize = network.get().getStateManager().getStateArraySize();
-        v = new TDoubleArrayList(stateArraySize);
-        angle = new TDoubleArrayList(stateArraySize);
-        connectedComponentNumber = new TIntArrayList(stateArraySize);
-        synchronousComponentNumber = new TIntArrayList(stateArraySize);
-        for (int i = 0; i < stateArraySize; i++) {
+        int variantArraySize = network.get().getVariantManager().getVariantArraySize();
+        v = new TDoubleArrayList(variantArraySize);
+        angle = new TDoubleArrayList(variantArraySize);
+        connectedComponentNumber = new TIntArrayList(variantArraySize);
+        synchronousComponentNumber = new TIntArrayList(variantArraySize);
+        for (int i = 0; i < variantArraySize; i++) {
             v.add(Double.NaN);
             angle.add(Double.NaN);
             connectedComponentNumber.add(0);
@@ -96,38 +96,38 @@ class NodeTerminal extends AbstractTerminal {
 
     @Override
     protected double getV() {
-        return v.get(network.get().getStateIndex());
+        return v.get(network.get().getVariantIndex());
     }
 
     void setV(double v) {
         if (v < 0) {
             throw new ValidationException(connectable, "voltage cannot be < 0");
         }
-        this.v.set(network.get().getStateIndex(), v);
+        this.v.set(network.get().getVariantIndex(), v);
     }
 
     double getAngle() {
-        return angle.get(network.get().getStateIndex());
+        return angle.get(network.get().getVariantIndex());
     }
 
     void setAngle(double angle) {
-        this.angle.set(network.get().getStateIndex(), angle);
+        this.angle.set(network.get().getVariantIndex(), angle);
     }
 
     int getConnectedComponentNumber() {
-        return connectedComponentNumber.get(network.get().getStateIndex());
+        return connectedComponentNumber.get(network.get().getVariantIndex());
     }
 
     void setConnectedComponentNumber(int connectedComponentNumber) {
-        this.connectedComponentNumber.set(network.get().getStateIndex(), connectedComponentNumber);
+        this.connectedComponentNumber.set(network.get().getVariantIndex(), connectedComponentNumber);
     }
 
     int getSynchronousComponentNumber() {
-        return synchronousComponentNumber.get(network.get().getStateIndex());
+        return synchronousComponentNumber.get(network.get().getVariantIndex());
     }
 
     void setSynchronousComponentNumber(int componentNumber) {
-        this.synchronousComponentNumber.set(network.get().getStateIndex(), componentNumber);
+        this.synchronousComponentNumber.set(network.get().getVariantIndex(), componentNumber);
     }
 
     @Override
@@ -161,8 +161,8 @@ class NodeTerminal extends AbstractTerminal {
     }
 
     @Override
-    public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
-        super.extendStateArraySize(initStateArraySize, number, sourceIndex);
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         v.ensureCapacity(v.size() + number);
         angle.ensureCapacity(angle.size() + number);
         connectedComponentNumber.ensureCapacity(connectedComponentNumber.size() + number);
@@ -176,8 +176,8 @@ class NodeTerminal extends AbstractTerminal {
     }
 
     @Override
-    public void reduceStateArraySize(int number) {
-        super.reduceStateArraySize(number);
+    public void reduceVariantArraySize(int number) {
+        super.reduceVariantArraySize(number);
         v.remove(v.size() - number, number);
         angle.remove(angle.size() - number, number);
         connectedComponentNumber.remove(connectedComponentNumber.size() - number, number);
@@ -185,8 +185,8 @@ class NodeTerminal extends AbstractTerminal {
     }
 
     @Override
-    public void allocateStateArrayElement(int[] indexes, int sourceIndex) {
-        super.allocateStateArrayElement(indexes, sourceIndex);
+    public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+        super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
             v.set(index, v.get(sourceIndex));
             angle.set(index, angle.get(sourceIndex));

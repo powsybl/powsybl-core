@@ -10,10 +10,12 @@ package com.powsybl.iidm.network.impl;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-interface MultiStateObject {
+interface VariantContext {
 
-    StateManagerImpl getStateManager();
+    int getVariantIndex();
 
-    int getStateIndex();
+    void setVariantIndex(int index);
+
+    void resetIfVariantIndexIs(int index);
 
 }

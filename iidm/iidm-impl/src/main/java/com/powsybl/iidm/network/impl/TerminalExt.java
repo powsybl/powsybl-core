@@ -15,7 +15,7 @@ import java.util.Set;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-interface TerminalExt extends Terminal, Stateful {
+interface TerminalExt extends Terminal, MultiVariantObject {
 
     interface BusBreakerViewExt extends BusBreakerView {
 

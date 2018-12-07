@@ -19,7 +19,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     private boolean loadTapChangingCapabilities;
 
-    // attributes depending on the state
+    // attributes depending on the variant
 
     private final TDoubleArrayList targetV;
 
@@ -28,9 +28,9 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
                         int tapPosition, boolean regulating, double targetV) {
         super(parent.getNetwork().getRef(), parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating);
         this.loadTapChangingCapabilities = loadTapChangingCapabilities;
-        int stateArraySize = network.get().getStateManager().getStateArraySize();
-        this.targetV = new TDoubleArrayList(stateArraySize);
-        for (int i = 0; i < stateArraySize; i++) {
+        int variantArraySize = network.get().getVariantManager().getVariantArraySize();
+        this.targetV = new TDoubleArrayList(variantArraySize);
+        for (int i = 0; i < variantArraySize; i++) {
             this.targetV.add(targetV);
         }
     }
@@ -53,13 +53,13 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     @Override
     public double getTargetV() {
-        return targetV.get(network.get().getStateIndex());
+        return targetV.get(network.get().getVariantIndex());
     }
 
     @Override
     public RatioTapChangerImpl setTargetV(double targetV) {
         ValidationUtil.checkRatioTapChangerRegulation(parent, loadTapChangingCapabilities, isRegulating(), regulationTerminal, targetV, getNetwork());
-        this.targetV.set(network.get().getStateIndex(), targetV);
+        this.targetV.set(network.get().getVariantIndex(), targetV);
         return this;
     }
 
@@ -75,8 +75,8 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     }
 
     @Override
-    public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
-        super.extendStateArraySize(initStateArraySize, number, sourceIndex);
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         targetV.ensureCapacity(targetV.size() + number);
         for (int i = 0; i < number; i++) {
             targetV.add(targetV.get(sourceIndex));
@@ -84,20 +84,20 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     }
 
     @Override
-    public void reduceStateArraySize(int number) {
-        super.reduceStateArraySize(number);
+    public void reduceVariantArraySize(int number) {
+        super.reduceVariantArraySize(number);
         targetV.remove(targetV.size() - number, number);
     }
 
     @Override
-    public void deleteStateArrayElement(int index) {
-        super.deleteStateArrayElement(index);
+    public void deleteVariantArrayElement(int index) {
+        super.deleteVariantArrayElement(index);
         // nothing to do
     }
 
     @Override
-    public void allocateStateArrayElement(int[] indexes, final int sourceIndex) {
-        super.allocateStateArrayElement(indexes, sourceIndex);
+    public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
+        super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
             targetV.set(index, targetV.get(sourceIndex));
         }
