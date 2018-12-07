@@ -229,7 +229,8 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", generatorId, "v", String.format(Locale.getDefault(), "%g", v)),
                            String.join(";", generatorId, "targetP", String.format(Locale.getDefault(), "%g", targetP)),
                            String.join(";", generatorId, "targetQ", String.format(Locale.getDefault(), "%g", targetQ)),
-                           String.join(";", generatorId, "targetV", String.format(Locale.getDefault(), "%g", targetV)));
+                           String.join(";", generatorId, "targetV", String.format(Locale.getDefault(), "%g", targetV)),
+                           String.join(";", generatorId, "expectedP", String.format(Locale.getDefault(), "%g", expectedP)));
     }
 
     @Override
@@ -243,6 +244,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", generatorId, "targetP", String.format(Locale.getDefault(), "%g", targetP)),
                            String.join(";", generatorId, "targetQ", String.format(Locale.getDefault(), "%g", targetQ)),
                            String.join(";", generatorId, "targetV", String.format(Locale.getDefault(), "%g", targetV)),
+                           String.join(";", generatorId, "expectedP", String.format(Locale.getDefault(), "%g", expectedP)),
                            String.join(";", generatorId, AbstractValidationFormatterWriter.CONNECTED, Boolean.toString(connected)),
                            String.join(";", generatorId, "voltageRegulatorOn", Boolean.toString(voltageRegulatorOn)),
                            String.join(";", generatorId, "minP", String.format(Locale.getDefault(), "%g", minP)),
@@ -263,7 +265,8 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", generatorId, "v", String.format(Locale.getDefault(), "%g", v), String.format(Locale.getDefault(), "%g", v)),
                            String.join(";", generatorId, "targetP", String.format(Locale.getDefault(), "%g", targetP), String.format(Locale.getDefault(), "%g", targetP)),
                            String.join(";", generatorId, "targetQ", String.format(Locale.getDefault(), "%g", targetQ), String.format(Locale.getDefault(), "%g", targetQ)),
-                           String.join(";", generatorId, "targetV", String.format(Locale.getDefault(), "%g", targetV), String.format(Locale.getDefault(), "%g", targetV)));
+                           String.join(";", generatorId, "targetV", String.format(Locale.getDefault(), "%g", targetV), String.format(Locale.getDefault(), "%g", targetV)),
+                           String.join(";", generatorId, "expectedP", String.format(Locale.getDefault(), "%g", expectedP), String.format(Locale.getDefault(), "%g", expectedP)));
     }
 
     @Override
@@ -277,12 +280,14 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", otherGeneratorId, "targetP", "", String.format(Locale.getDefault(), "%g", targetP)),
                            String.join(";", otherGeneratorId, "targetQ", "", String.format(Locale.getDefault(), "%g", targetQ)),
                            String.join(";", otherGeneratorId, "targetV", "", String.format(Locale.getDefault(), "%g", targetV)),
+                           String.join(";", otherGeneratorId, "expectedP", "", String.format(Locale.getDefault(), "%g", expectedP)),
                            String.join(";", generatorId, "p", String.format(Locale.getDefault(), "%g", -p), ""),
                            String.join(";", generatorId, "q", String.format(Locale.getDefault(), "%g", -q), ""),
                            String.join(";", generatorId, "v", String.format(Locale.getDefault(), "%g", v), ""),
                            String.join(";", generatorId, "targetP", String.format(Locale.getDefault(), "%g", targetP), ""),
                            String.join(";", generatorId, "targetQ", String.format(Locale.getDefault(), "%g", targetQ), ""),
-                           String.join(";", generatorId, "targetV", String.format(Locale.getDefault(), "%g", targetV), ""));
+                           String.join(";", generatorId, "targetV", String.format(Locale.getDefault(), "%g", targetV), ""),
+                           String.join(";", generatorId, "expectedP", String.format(Locale.getDefault(), "%g", expectedP), ""));
     }
 
     @Override
@@ -296,6 +301,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", generatorId, "targetP", String.format(Locale.getDefault(), "%g", targetP), String.format(Locale.getDefault(), "%g", targetP)),
                            String.join(";", generatorId, "targetQ", String.format(Locale.getDefault(), "%g", targetQ), String.format(Locale.getDefault(), "%g", targetQ)),
                            String.join(";", generatorId, "targetV", String.format(Locale.getDefault(), "%g", targetV), String.format(Locale.getDefault(), "%g", targetV)),
+                           String.join(";", generatorId, "expectedP", String.format(Locale.getDefault(), "%g", expectedP), String.format(Locale.getDefault(), "%g", expectedP)),
                            String.join(";", generatorId, AbstractValidationFormatterWriter.CONNECTED, Boolean.toString(connected), Boolean.toString(connected)),
                            String.join(";", generatorId, "voltageRegulatorOn", Boolean.toString(voltageRegulatorOn), Boolean.toString(voltageRegulatorOn)),
                            String.join(";", generatorId, "minP", String.format(Locale.getDefault(), "%g", minP), String.format(Locale.getDefault(), "%g", minP)),
@@ -317,6 +323,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", otherGeneratorId, "targetP", "", String.format(Locale.getDefault(), "%g", targetP)),
                            String.join(";", otherGeneratorId, "targetQ", "", String.format(Locale.getDefault(), "%g", targetQ)),
                            String.join(";", otherGeneratorId, "targetV", "", String.format(Locale.getDefault(), "%g", targetV)),
+                           String.join(";", otherGeneratorId, "expectedP", "", String.format(Locale.getDefault(), "%g", expectedP)),
                            String.join(";", otherGeneratorId, AbstractValidationFormatterWriter.CONNECTED, "", Boolean.toString(connected)),
                            String.join(";", otherGeneratorId, "voltageRegulatorOn", "", Boolean.toString(voltageRegulatorOn)),
                            String.join(";", otherGeneratorId, "minP", "", String.format(Locale.getDefault(), "%g", minP)),
@@ -331,6 +338,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", generatorId, "targetP", String.format(Locale.getDefault(), "%g", targetP), ""),
                            String.join(";", generatorId, "targetQ", String.format(Locale.getDefault(), "%g", targetQ), ""),
                            String.join(";", generatorId, "targetV", String.format(Locale.getDefault(), "%g", targetV), ""),
+                           String.join(";", generatorId, "expectedP", String.format(Locale.getDefault(), "%g", expectedP), ""),
                            String.join(";", generatorId, AbstractValidationFormatterWriter.CONNECTED, Boolean.toString(connected), ""),
                            String.join(";", generatorId, "voltageRegulatorOn", Boolean.toString(voltageRegulatorOn), ""),
                            String.join(";", generatorId, "minP", String.format(Locale.getDefault(), "%g", minP), ""),

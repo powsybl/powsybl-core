@@ -73,6 +73,8 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
         Mockito.when(generator.getTargetP()).thenReturn(targetP);
         Mockito.when(generator.getTargetQ()).thenReturn(targetQ);
         Mockito.when(generator.getTargetV()).thenReturn(targetV);
+        Mockito.when(generator.getMaxP()).thenReturn(maxP);
+        Mockito.when(generator.getMinP()).thenReturn(minP);
         Mockito.when(generator.getReactiveLimits()).thenReturn(genReactiveLimits);
     }
 
@@ -195,11 +197,13 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
         Mockito.when(genReactiveLimits1.getMaxQ(Mockito.anyFloat())).thenReturn(maxQ);
 
         Generator generator1 =  Mockito.mock(Generator.class);
-        Mockito.when(generator1.getId()).thenReturn("gen");
+        Mockito.when(generator1.getId()).thenReturn("gen1");
         Mockito.when(generator1.getTerminal()).thenReturn(genTerminal1);
         Mockito.when(generator1.getTargetP()).thenReturn(targetP);
         Mockito.when(generator1.getTargetQ()).thenReturn(targetQ);
         Mockito.when(generator1.getTargetV()).thenReturn(targetV);
+        Mockito.when(generator1.getMaxP()).thenReturn(maxP);
+        Mockito.when(generator1.getMinP()).thenReturn(minP);
         Mockito.when(generator1.getReactiveLimits()).thenReturn(genReactiveLimits1);
 
         assertTrue(GeneratorsValidation.checkGenerators(generator1, strictConfig, NullWriter.NULL_WRITER));
@@ -212,6 +216,38 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
 
         ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), looseConfig, NullWriter.NULL_WRITER, ValidationType.GENERATORS);
         assertTrue(ValidationType.GENERATORS.check(network, looseConfig, validationWriter));
+
+        // test generation adjustment
+        Bus genBus2 = Mockito.mock(Bus.class);
+        Mockito.when(genBus2.getV()).thenReturn(v);
+        Mockito.when(genBus2.isInMainConnectedComponent()).thenReturn(mainComponent);
+
+        BusView genBusView2 = Mockito.mock(BusView.class);
+        Mockito.when(genBusView2.getBus()).thenReturn(genBus2);
+        Mockito.when(genBusView2.getConnectableBus()).thenReturn(genBus2);
+
+        Terminal genTerminal2 = Mockito.mock(Terminal.class);
+        Mockito.when(genTerminal2.getP()).thenReturn(-155.236);
+        Mockito.when(genTerminal2.getQ()).thenReturn(q);
+        Mockito.when(genTerminal2.getBusView()).thenReturn(genBusView1);
+
+        ReactiveLimits genReactiveLimits2 = Mockito.mock(ReactiveLimits.class);
+        Mockito.when(genReactiveLimits2.getMinQ(Mockito.anyFloat())).thenReturn(minQ);
+        Mockito.when(genReactiveLimits2.getMaxQ(Mockito.anyFloat())).thenReturn(maxQ);
+
+        Generator generator2 =  Mockito.mock(Generator.class);
+        Mockito.when(generator2.getId()).thenReturn("gen2");
+        Mockito.when(generator2.getTerminal()).thenReturn(genTerminal2);
+        Mockito.when(generator2.getTargetP()).thenReturn(155.107);
+        Mockito.when(generator2.getTargetQ()).thenReturn(targetQ);
+        Mockito.when(generator2.getTargetV()).thenReturn(targetV);
+        Mockito.when(generator2.getMaxP()).thenReturn(227.5);
+        Mockito.when(generator2.getMinP()).thenReturn(-227.5);
+        Mockito.when(generator2.getReactiveLimits()).thenReturn(genReactiveLimits1);
+
+        Mockito.when(network.getGeneratorStream()).thenAnswer(dummy -> Stream.of(generator, generator1, generator2));
+
+        assertTrue(GeneratorsValidation.checkGenerators(network, looseConfig, NullWriter.NULL_WRITER));
     }
 
 }
