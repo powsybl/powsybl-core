@@ -150,12 +150,6 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
     }
 
     @Override
-    public void deleteVariantArrayElement(int index) {
-        super.deleteVariantArrayElement(index);
-        // nothing to do
-    }
-
-    @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
