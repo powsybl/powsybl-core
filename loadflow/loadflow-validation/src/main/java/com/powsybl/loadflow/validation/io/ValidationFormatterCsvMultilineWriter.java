@@ -17,6 +17,8 @@ import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
 import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.ValidationType;
 
 /**
@@ -62,14 +64,14 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
                          double r, double x, double g1, double g2, double b1, double b2, double rho1, double rho2, double alpha1, double alpha2,
                          double u1, double u2, double theta1, double theta2, double z, double y, double ksi, boolean connected1, boolean connected2,
                          boolean mainComponent1, boolean mainComponent2, boolean validated, FlowData flowData, boolean found, boolean writeValues) throws IOException {
-        write(branchId, "network_p1", found, flowData.p1, writeValues, p1);
-        write(branchId, "expected_p1", found, flowData.p1Calc, writeValues, p1Calc);
-        write(branchId, "network_q1", found, flowData.q1, writeValues, q1);
-        write(branchId, "expected_q1", found, flowData.q1Calc, writeValues, q1Calc);
-        write(branchId, "network_p2", found, flowData.p2, writeValues, p2);
-        write(branchId, "expected_p2", found, flowData.p2Calc, writeValues, p2Calc);
-        write(branchId, "network_q2", found, flowData.q2, writeValues, q2);
-        write(branchId, "expected_q2", found, flowData.q2Calc, writeValues, q2Calc);
+        write(branchId, NETWORK_P1, found, flowData.p1, writeValues, p1);
+        write(branchId, EXPECTED_P1, found, flowData.p1Calc, writeValues, p1Calc);
+        write(branchId, NETWORK_Q1, found, flowData.q1, writeValues, q1);
+        write(branchId, EXPECTED_Q1, found, flowData.q1Calc, writeValues, q1Calc);
+        write(branchId, NETWORK_P2, found, flowData.p2, writeValues, p2);
+        write(branchId, EXPECTED_P2, found, flowData.p2Calc, writeValues, p2Calc);
+        write(branchId, NETWORK_Q2, found, flowData.q2, writeValues, q2);
+        write(branchId, EXPECTED_Q2, found, flowData.q2Calc, writeValues, q2Calc);
         if (verbose) {
             write(branchId, "r", found, flowData.r, writeValues, r);
             write(branchId, "x", found, flowData.x, writeValues, x);
@@ -83,8 +85,8 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
             write(branchId, "alpha2", found, flowData.alpha2, writeValues, alpha2);
             write(branchId, "u1", found, flowData.u1, writeValues, u1);
             write(branchId, "u2", found, flowData.u2, writeValues, u2);
-            write(branchId, "theta1", found, flowData.theta1, writeValues, theta1);
-            write(branchId, "theta2", found, flowData.theta2, writeValues, theta2);
+            write(branchId, THETA1, found, flowData.theta1, writeValues, theta1);
+            write(branchId, THETA2, found, flowData.theta2, writeValues, theta2);
             write(branchId, "z", found, flowData.z, writeValues, z);
             write(branchId, "y", found, flowData.y, writeValues, y);
             write(branchId, "ksi", found, flowData.ksi, writeValues, ksi);
@@ -208,6 +210,50 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
             write(twtId, CONNECTED, found, twtData.connected, writeValues, connected);
             write(twtId, MAIN_COMPONENT, found, twtData.mainComponent, writeValues, mainComponent);
             write(twtId, VALIDATION, found, getValidated(twtData.validated), writeValues, getValidated(validated));
+        }
+    }
+
+    @Override
+    protected void write(String twtId, Transformer3WData transformer3WData1, Transformer3WData transformer3WData2, boolean found, boolean writeValues) throws IOException {
+        TwtData twtData1 = transformer3WData1.twtData;
+        TwtData twtData2 = transformer3WData2.twtData;
+        write(twtId, NETWORK_P1, found, found ? twtData2.getP(ThreeWindingsTransformer.Side.ONE) : Double.NaN, writeValues, writeValues ? twtData1.getP(ThreeWindingsTransformer.Side.ONE) : Double.NaN);
+        write(twtId, EXPECTED_P1, found, found ? twtData2.getComputedP(ThreeWindingsTransformer.Side.ONE) : Double.NaN, writeValues, writeValues ? twtData1.getComputedP(ThreeWindingsTransformer.Side.ONE) : Double.NaN);
+        write(twtId, NETWORK_Q1, found, found ? twtData2.getQ(ThreeWindingsTransformer.Side.ONE) : Double.NaN, writeValues, writeValues ? twtData1.getQ(ThreeWindingsTransformer.Side.ONE) : Double.NaN);
+        write(twtId, EXPECTED_Q1, found, found ? twtData2.getComputedQ(ThreeWindingsTransformer.Side.ONE) : Double.NaN, writeValues, writeValues ? twtData1.getComputedQ(ThreeWindingsTransformer.Side.ONE) : Double.NaN);
+        write(twtId, NETWORK_P2, found, found ? twtData2.getP(ThreeWindingsTransformer.Side.TWO) : Double.NaN, writeValues, writeValues ? twtData1.getP(ThreeWindingsTransformer.Side.TWO) : Double.NaN);
+        write(twtId, EXPECTED_P2, found, found ? twtData2.getComputedP(ThreeWindingsTransformer.Side.TWO) : Double.NaN, writeValues, writeValues ? twtData1.getComputedP(ThreeWindingsTransformer.Side.TWO) : Double.NaN);
+        write(twtId, NETWORK_Q2, found, found ? twtData2.getQ(ThreeWindingsTransformer.Side.TWO) : Double.NaN, writeValues, writeValues ? twtData1.getQ(ThreeWindingsTransformer.Side.TWO) : Double.NaN);
+        write(twtId, EXPECTED_Q2, found, found ? twtData2.getComputedQ(ThreeWindingsTransformer.Side.TWO) : Double.NaN, writeValues, writeValues ? twtData1.getComputedQ(ThreeWindingsTransformer.Side.TWO) : Double.NaN);
+        write(twtId, NETWORK_P3, found, found ? twtData2.getP(ThreeWindingsTransformer.Side.THREE) : Double.NaN, writeValues, writeValues ? twtData1.getP(ThreeWindingsTransformer.Side.THREE) : Double.NaN);
+        write(twtId, EXPECTED_P3, found, found ? twtData2.getComputedP(ThreeWindingsTransformer.Side.THREE) : Double.NaN, writeValues, writeValues ? twtData1.getComputedP(ThreeWindingsTransformer.Side.THREE) : Double.NaN);
+        write(twtId, NETWORK_Q3, found, found ? twtData2.getQ(ThreeWindingsTransformer.Side.THREE) : Double.NaN, writeValues, writeValues ? twtData1.getQ(ThreeWindingsTransformer.Side.THREE) : Double.NaN);
+        write(twtId, EXPECTED_Q3, found, found ? twtData2.getComputedQ(ThreeWindingsTransformer.Side.THREE) : Double.NaN, writeValues, writeValues ? twtData1.getComputedQ(ThreeWindingsTransformer.Side.THREE) : Double.NaN);
+        if (verbose) {
+            write(twtId, "u1", found, found ? twtData2.getU(ThreeWindingsTransformer.Side.ONE) : Double.NaN, writeValues, writeValues ? twtData1.getU(ThreeWindingsTransformer.Side.ONE) : Double.NaN);
+            write(twtId, "u2", found, found ? twtData2.getU(ThreeWindingsTransformer.Side.TWO) : Double.NaN, writeValues, writeValues ? twtData1.getU(ThreeWindingsTransformer.Side.TWO) : Double.NaN);
+            write(twtId, "u3", found, found ? twtData2.getU(ThreeWindingsTransformer.Side.THREE) : Double.NaN, writeValues, writeValues ? twtData1.getU(ThreeWindingsTransformer.Side.THREE) : Double.NaN);
+            write(twtId, THETA1, found, found ? twtData2.getTheta(ThreeWindingsTransformer.Side.ONE) : Double.NaN, writeValues, writeValues ? twtData1.getTheta(ThreeWindingsTransformer.Side.ONE) : Double.NaN);
+            write(twtId, THETA2, found, found ? twtData2.getTheta(ThreeWindingsTransformer.Side.TWO) : Double.NaN, writeValues, writeValues ? twtData1.getTheta(ThreeWindingsTransformer.Side.TWO) : Double.NaN);
+            write(twtId, THETA3, found, found ? twtData2.getTheta(ThreeWindingsTransformer.Side.THREE) : Double.NaN, writeValues, writeValues ? twtData1.getTheta(ThreeWindingsTransformer.Side.THREE) : Double.NaN);
+            write(twtId, "g", found, found ? twtData2.getG() : Double.NaN, writeValues, writeValues ? twtData1.getG() : Double.NaN);
+            write(twtId, "b", found, found ? twtData2.getB() : Double.NaN, writeValues, writeValues ? twtData1.getB() : Double.NaN);
+            write(twtId, "r1", found, found ? twtData2.getR(ThreeWindingsTransformer.Side.ONE) : Double.NaN, writeValues, writeValues ? twtData1.getR(ThreeWindingsTransformer.Side.ONE) : Double.NaN);
+            write(twtId, "r2", found, found ? twtData2.getR(ThreeWindingsTransformer.Side.TWO) : Double.NaN, writeValues, writeValues ? twtData1.getR(ThreeWindingsTransformer.Side.TWO) : Double.NaN);
+            write(twtId, "r3", found, found ? twtData2.getR(ThreeWindingsTransformer.Side.THREE) : Double.NaN, writeValues, writeValues ? twtData1.getR(ThreeWindingsTransformer.Side.THREE) : Double.NaN);
+            write(twtId, "x1", found, found ? twtData2.getX(ThreeWindingsTransformer.Side.ONE) : Double.NaN, writeValues, writeValues ? twtData1.getX(ThreeWindingsTransformer.Side.ONE) : Double.NaN);
+            write(twtId, "x2", found, found ? twtData2.getX(ThreeWindingsTransformer.Side.TWO) : Double.NaN, writeValues, writeValues ? twtData1.getX(ThreeWindingsTransformer.Side.TWO) : Double.NaN);
+            write(twtId, "x3", found, found ? twtData2.getX(ThreeWindingsTransformer.Side.THREE) : Double.NaN, writeValues, writeValues ? twtData1.getX(ThreeWindingsTransformer.Side.THREE) : Double.NaN);
+            write(twtId, "ratedU1", found, found ? twtData2.getRatedU(ThreeWindingsTransformer.Side.ONE) : Double.NaN, writeValues, writeValues ? twtData1.getRatedU(ThreeWindingsTransformer.Side.ONE) : Double.NaN);
+            write(twtId, "ratedU2", found, found ? twtData2.getRatedU(ThreeWindingsTransformer.Side.TWO) : Double.NaN, writeValues, writeValues ? twtData1.getRatedU(ThreeWindingsTransformer.Side.TWO) : Double.NaN);
+            write(twtId, "ratedU3", found, found ? twtData2.getRatedU(ThreeWindingsTransformer.Side.THREE) : Double.NaN, writeValues, writeValues ? twtData1.getRatedU(ThreeWindingsTransformer.Side.THREE) : Double.NaN);
+            write(twtId, CONNECTED + "1", found, found ? twtData2.isConnected(ThreeWindingsTransformer.Side.ONE) : false, writeValues, writeValues ? twtData1.isConnected(ThreeWindingsTransformer.Side.ONE) : false);
+            write(twtId, CONNECTED + "2", found, found ? twtData2.isConnected(ThreeWindingsTransformer.Side.TWO) : false, writeValues, writeValues ? twtData1.isConnected(ThreeWindingsTransformer.Side.TWO) : false);
+            write(twtId, CONNECTED + "3", found, found ? twtData2.isConnected(ThreeWindingsTransformer.Side.THREE) : false, writeValues, writeValues ? twtData1.isConnected(ThreeWindingsTransformer.Side.THREE) : false);
+            write(twtId, MAIN_COMPONENT + "1", found, found ? twtData2.isMainComponent(ThreeWindingsTransformer.Side.ONE) : false, writeValues, writeValues ? twtData1.isMainComponent(ThreeWindingsTransformer.Side.ONE) : false);
+            write(twtId, MAIN_COMPONENT + "2", found, found ? twtData2.isMainComponent(ThreeWindingsTransformer.Side.TWO) : false, writeValues, writeValues ? twtData1.isMainComponent(ThreeWindingsTransformer.Side.TWO) : false);
+            write(twtId, MAIN_COMPONENT + "3", found, found ? twtData2.isMainComponent(ThreeWindingsTransformer.Side.THREE) : false, writeValues, writeValues ? twtData1.isMainComponent(ThreeWindingsTransformer.Side.THREE) : false);
+            write(twtId, VALIDATION, found, getValidated(transformer3WData2.validated), writeValues, getValidated(transformer3WData1.validated));
         }
     }
 
