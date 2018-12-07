@@ -287,8 +287,17 @@ public class Conversion {
             return true;
         }
 
+        public boolean considerPhaseAngleClock() {
+            return considerPhaseAngleClock;
+        }
+
+        public void setConsiderPhaseAngleClock(boolean b) {
+            this.considerPhaseAngleClock = b;
+        }
+
         private boolean convertBoundary = false;
-        private boolean changeSignForShuntReactivePowerFlowInitialState;
+        private boolean changeSignForShuntReactivePowerFlowInitialState = false;
+        private boolean considerPhaseAngleClock = false;
         private double lowImpedanceLineR = 0.05;
         private double lowImpedanceLineX = 0.05;
     }
