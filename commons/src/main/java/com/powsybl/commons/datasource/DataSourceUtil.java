@@ -23,8 +23,8 @@ public interface DataSourceUtil {
     }
 
     static OpenOption[] getOpenOptions(boolean append) {
-        OpenOption[] defaultOpenOptions = {StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING};
-        OpenOption[] appendOpenOptions = {StandardOpenOption.APPEND};
+        OpenOption[] defaultOpenOptions = {StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE};
+        OpenOption[] appendOpenOptions = {StandardOpenOption.APPEND, StandardOpenOption.WRITE};
 
         return append ? appendOpenOptions : defaultOpenOptions;
     }
