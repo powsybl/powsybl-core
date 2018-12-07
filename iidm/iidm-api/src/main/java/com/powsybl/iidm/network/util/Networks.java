@@ -11,8 +11,6 @@ import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.AsciiTableFormatter;
 import com.powsybl.iidm.network.*;
-import org.nocrala.tools.texttablefmt.BorderStyle;
-import org.nocrala.tools.texttablefmt.CellStyle;
 import org.nocrala.tools.texttablefmt.Table;
 import org.slf4j.Logger;
 

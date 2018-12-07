@@ -7,11 +7,13 @@
 package com.powsybl.action.simulator.loadflow;
 
 import com.powsybl.action.dsl.Rule;
+import com.powsybl.commons.io.table.AsciiTableFormatter;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.Security;
 import org.nocrala.tools.texttablefmt.BorderStyle;
 import org.nocrala.tools.texttablefmt.Table;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.List;
 import java.util.Map;
@@ -68,18 +70,23 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
             out.println("        Rule '" + rule.getId() + "' evaluated to " + status);
         }
         if (verbose &&  (variables.size() + actions.size() > 0)) {
-            Table table = new Table(2, BorderStyle.CLASSIC_WIDE);
-            table.addCell("Variable");
-            table.addCell("Value");
-            variables.forEach((key, value) -> {
-                table.addCell(key);
-                table.addCell(Objects.toString(value));
-            });
-            actions.forEach((key, value) -> {
-                table.addCell(key + ".actionTaken");
-                table.addCell(value.toString());
-            });
-            out.println(table.render());
+            AsciiTableFormatter formatter = new AsciiTableFormatter("myFormatter",2);
+
+            try {
+                formatter.writeCell("Variable");
+                formatter.writeCell("Value");
+                variables.forEach((key, value) -> {
+                    formatter.writeCell(key);
+                    formatter.writeCell(Objects.toString(value));
+                });
+                actions.forEach((key, value) -> {
+                    formatter.writeCell(key + ".actionTaken");
+                    formatter.writeCell(value.toString());
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            out.println(formatter.getTable().render());
         }
     }
 

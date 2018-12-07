@@ -39,7 +39,7 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
     }
 
     public AsciiTableFormatter(Writer writer, String title, TableFormatterConfig config,int length) {
-        super(writer, config);
+        super(writer, config, length);
         this.title = title;
         this.table = new Table(length, BorderStyle.CLASSIC_WIDE);
     }
@@ -55,16 +55,16 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
 
     @Override
     protected TableFormatter writeWithColspan(String value,int colspan) throws IOException {
-        //HorizontalAlignment horizontalAlignment = columns[column].getHorizontalAlignment();
-        //column = (column + 1) % columns.length;
+        HorizontalAlignment horizontalAlignment = columns[column].getHorizontalAlignment();
+        column = (column + colspan) % columns.length;
         table.addCell(value, convertCellStyle(HorizontalAlignment.LEFT),colspan);
         return this;
     }
 
     @Override
     protected TableFormatter write(String value) throws IOException {
-        //HorizontalAlignment horizontalAlignment = columns[column].getHorizontalAlignment();
-        //column = (column + 1) % columns.length;
+        HorizontalAlignment horizontalAlignment = columns[column].getHorizontalAlignment();
+        column = (column + 1) % columns.length;
 
         table.addCell(value, convertCellStyle(HorizontalAlignment.LEFT));
 
