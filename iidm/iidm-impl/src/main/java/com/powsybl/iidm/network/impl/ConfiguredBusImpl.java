@@ -21,7 +21,7 @@ import java.util.stream.Stream;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, Stateful {
+class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, MultiVariantObject {
 
     private final Ref<NetworkImpl> network;
 
@@ -38,13 +38,13 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, Stateful {
     ConfiguredBusImpl(String id, VoltageLevelExt voltageLevel) {
         super(id, voltageLevel);
         network = voltageLevel.getNetwork().getRef();
-        int stateArraySize = network.get().getStateManager().getStateArraySize();
-        terminals = new ArrayList<>(stateArraySize);
-        v = new TDoubleArrayList(stateArraySize);
-        angle = new TDoubleArrayList(stateArraySize);
-        connectedComponentNumber = new TIntArrayList(stateArraySize);
-        synchronousComponentNumber = new TIntArrayList(stateArraySize);
-        for (int i = 0; i < stateArraySize; i++) {
+        int variantArraySize = network.get().getVariantManager().getVariantArraySize();
+        terminals = new ArrayList<>(variantArraySize);
+        v = new TDoubleArrayList(variantArraySize);
+        angle = new TDoubleArrayList(variantArraySize);
+        connectedComponentNumber = new TIntArrayList(variantArraySize);
+        synchronousComponentNumber = new TIntArrayList(variantArraySize);
+        for (int i = 0; i < variantArraySize; i++) {
             terminals.add(new ArrayList<>());
             v.add(Double.NaN);
             angle.add(Double.NaN);
@@ -70,22 +70,22 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, Stateful {
 
     @Override
     public int getTerminalCount() {
-        return terminals.get(network.get().getStateIndex()).size();
+        return terminals.get(network.get().getVariantIndex()).size();
     }
 
     @Override
     public List<BusTerminal> getTerminals() {
-        return terminals.get(network.get().getStateIndex());
+        return terminals.get(network.get().getVariantIndex());
     }
 
     @Override
     public void addTerminal(BusTerminal t) {
-        terminals.get(network.get().getStateIndex()).add(t);
+        terminals.get(network.get().getVariantIndex()).add(t);
     }
 
     @Override
     public void removeTerminal(BusTerminal t) {
-        if (!terminals.get(network.get().getStateIndex()).remove(t)) {
+        if (!terminals.get(network.get().getVariantIndex()).remove(t)) {
             throw new IllegalStateException("Terminal " + t + " not found");
         }
     }
@@ -96,7 +96,7 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, Stateful {
 
     @Override
     public double getV() {
-        return v.get(network.get().getStateIndex());
+        return v.get(network.get().getVariantIndex());
     }
 
     @Override
@@ -104,49 +104,49 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, Stateful {
         if (v < 0) {
             throw new ValidationException(this, "voltage cannot be < 0");
         }
-        double oldValue = this.v.set(network.get().getStateIndex(), v);
+        double oldValue = this.v.set(network.get().getVariantIndex(), v);
         notifyUpdate("v", oldValue, v);
         return this;
     }
 
     @Override
     public double getAngle() {
-        return angle.get(network.get().getStateIndex());
+        return angle.get(network.get().getVariantIndex());
     }
 
     @Override
     public BusExt setAngle(double angle) {
-        double oldValue = this.angle.set(network.get().getStateIndex(), angle);
+        double oldValue = this.angle.set(network.get().getVariantIndex(), angle);
         notifyUpdate("angle", oldValue, angle);
         return this;
     }
 
     @Override
     public void setConnectedComponentNumber(int connectedComponentNumber) {
-        this.connectedComponentNumber.set(network.get().getStateIndex(), connectedComponentNumber);
+        this.connectedComponentNumber.set(network.get().getVariantIndex(), connectedComponentNumber);
     }
 
     @Override
     public Component getConnectedComponent() {
         NetworkImpl.ConnectedComponentsManager ccm = voltageLevel.getNetwork().getConnectedComponentsManager();
         ccm.update();
-        return ccm.getComponent(connectedComponentNumber.get(network.get().getStateIndex()));
+        return ccm.getComponent(connectedComponentNumber.get(network.get().getVariantIndex()));
     }
 
     @Override
     public void setSynchronousComponentNumber(int componentNumber) {
-        this.synchronousComponentNumber.set(network.get().getStateIndex(), componentNumber);
+        this.synchronousComponentNumber.set(network.get().getVariantIndex(), componentNumber);
     }
 
     @Override
     public Component getSynchronousComponent() {
         NetworkImpl.SynchronousComponentsManager scm = voltageLevel.getNetwork().getSynchronousComponentsManager();
         scm.update();
-        return scm.getComponent(synchronousComponentNumber.get(network.get().getStateIndex()));
+        return scm.getComponent(synchronousComponentNumber.get(network.get().getVariantIndex()));
     }
 
     @Override
-    public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         terminals.ensureCapacity(terminals.size() + number);
         v.ensureCapacity(v.size() + number);
         angle.ensureCapacity(angle.size() + number);
@@ -162,7 +162,7 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, Stateful {
     }
 
     @Override
-    public void reduceStateArraySize(int number) {
+    public void reduceVariantArraySize(int number) {
         for (int i = 0; i < number; i++) {
             terminals.remove(terminals.size() - 1);
         }
@@ -173,12 +173,12 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, Stateful {
     }
 
     @Override
-    public void deleteStateArrayElement(int index) {
+    public void deleteVariantArrayElement(int index) {
         terminals.set(index, null);
     }
 
     @Override
-    public void allocateStateArrayElement(int[] indexes, int sourceIndex) {
+    public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         for (int index : indexes) {
             terminals.set(index, new ArrayList<>(terminals.get(sourceIndex)));
             v.set(index, v.get(sourceIndex));

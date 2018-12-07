@@ -6,6 +6,8 @@
  */
 package com.powsybl.action.dsl.ast;
 
+import com.powsybl.dsl.ast.ExpressionNode;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */

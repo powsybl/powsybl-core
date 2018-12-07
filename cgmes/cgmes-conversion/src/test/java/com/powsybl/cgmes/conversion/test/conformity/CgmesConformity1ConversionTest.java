@@ -84,12 +84,17 @@ public class CgmesConformity1ConversionTest {
                 TripleStoreFactory.onlyDefaultImplementation(),
                 new ComparisonConfig().tolerance(1e-5));
         t.setTestExportImportCgmes(true);
-        t.testConversion(expecteds.microBE(), actuals.microGridBaseCaseBE());
+        t.testConversion(expecteds.microBaseCaseBE(), actuals.microGridBaseCaseBE());
     }
 
     @Test
     public void microGridBaseCaseBE() throws IOException {
-        tester.testConversion(expecteds.microBE(), actuals.microGridBaseCaseBE());
+        tester.testConversion(expecteds.microBaseCaseBE(), actuals.microGridBaseCaseBE());
+    }
+
+    @Test
+    public void microGridType4BE() throws IOException {
+        tester.testConversion(expecteds.microType4BE(), actuals.microGridType4BE());
     }
 
     @Test

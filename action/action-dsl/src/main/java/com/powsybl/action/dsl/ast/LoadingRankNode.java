@@ -7,6 +7,7 @@
 package com.powsybl.action.dsl.ast;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.dsl.ast.ExpressionNode;
 
 import java.util.List;
 import java.util.Objects;
@@ -14,7 +15,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class LoadingRankNode implements ExpressionNode {
+public class LoadingRankNode extends AbstractActionExpressionNode {
 
     private final ExpressionNode branchIdToRankNode;
 
@@ -37,7 +38,7 @@ public class LoadingRankNode implements ExpressionNode {
     }
 
     @Override
-    public <R, A> R accept(ExpressionVisitor<R, A> visitor, A arg) {
+    public <R, A> R accept(ActionExpressionVisitor<R, A> visitor, A arg) {
         return visitor.visitLoadingRank(this, arg);
     }
 }

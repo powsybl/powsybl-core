@@ -9,6 +9,7 @@ package com.powsybl.action.dsl;
 import com.powsybl.action.dsl.ast.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.dsl.ast.ExpressionNode;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
@@ -44,13 +45,13 @@ public class ConditionDslLoaderTest {
     private void loadAndAssert(String expected, String script) throws IOException {
         ExpressionNode node = (ExpressionNode) new ConditionDslLoader(script).load(network);
         assertNotNull(node);
-        assertEquals(expected, ExpressionPrinter.toString(node));
+        assertEquals(expected, ActionExpressionPrinter.toString(node));
     }
 
     private void evalAndAssert(Object expected, String script) throws IOException {
         ExpressionNode node = (ExpressionNode) new ConditionDslLoader(script).load(network);
         assertNotNull(node);
-        assertEquals(expected, ExpressionEvaluator.evaluate(node, new EvaluationContext() {
+        assertEquals(expected, ActionExpressionEvaluator.evaluate(node, new EvaluationContext() {
             @Override
             public Network getNetwork() {
                 return network;
@@ -112,8 +113,9 @@ public class ConditionDslLoaderTest {
         loadAndAssert("contingencyOccurred('contingency1')", "contingencyOccurred('contingency1')");
         loadAndAssert("contingencyOccurred()", "contingencyOccurred()");
         evalAndAssert(false, "contingencyOccurred()");
-        loadAndAssert("mostLoaded([NHV1_NHV2_1, NHV1_NHV2_2])", "mostLoaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
-        loadAndAssert("isOverloaded([NHV1_NHV2_1, NHV1_NHV2_2])", "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
+        loadAndAssert("mostLoaded(['NHV1_NHV2_1', 'NHV1_NHV2_2'])", "mostLoaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
+        loadAndAssert("isOverloaded(['NHV1_NHV2_1', 'NHV1_NHV2_2'])", "isOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
+        loadAndAssert("allOverloaded(['NHV1_NHV2_1', 'NHV1_NHV2_2'])", "allOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
     }
 
     @Test
@@ -183,6 +185,39 @@ public class ConditionDslLoaderTest {
         }
     }
 
+    @Test
+    public void testAllOverloadedNode() throws IOException {
+        // Both lines are not overloaded
+        line1.getTerminal1().setP(100.0f).setQ(50.0f);
+        line2.getTerminal1().setP(100.0f).setQ(50.0f);
+        evalAndAssert(false, "allOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
+
+        // Only line1 is overloaded
+        line1.getTerminal1().setP(600.0f).setQ(300.0f); // i = 1019.2061
+        double current1 = line1.getTerminal1().getI();
+        line1.newCurrentLimits1().setPermanentLimit(current1 - 100).add();
+        evalAndAssert(false, "allOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
+
+        // Both lines are overloaded
+        line2.getTerminal1().setP(600.0f).setQ(300.0f); // i = 1019.2061
+        double current2 = line2.getTerminal1().getI();
+        line2.newCurrentLimits1().setPermanentLimit(current2 - 100).add();
+        evalAndAssert(true, "allOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
+
+        // Only line2 is overloaded
+        line1.getTerminal1().setP(400.0f).setQ(150.0f); // i = 649.06
+        evalAndAssert(false, "allOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2'])");
+
+        // Unknown branch
+        try {
+            evalAndAssert(false, "allOverloaded(['NHV1_NHV2_1','NHV1_NHV2_2', 'UNKNOWN'])");
+            fail();
+        } catch (PowsyblException e) {
+            assertEquals("Branch 'UNKNOWN' not found", e.getMessage());
+        }
+    }
+
+
     private void addCurrentLimitsOnLine1() {
         line1.newCurrentLimits1()
                 .setPermanentLimit(400)
@@ -217,8 +252,8 @@ public class ConditionDslLoaderTest {
                 .add();
 
         // IIDM method call
-        evalAndAssert(800.0, "line('NHV1_NHV2_1').currentLimits1.getTemporaryLimitValue(1200)");
         evalAndAssert(false, "line('NHV1_NHV2_1').overloaded");
+        evalAndAssert(800.0, "line('NHV1_NHV2_1').currentLimits1.getTemporaryLimitValue(1200)");
 
         evalAndAssert(800.0, "branch('NHV1_NHV2_1').currentLimits1.getTemporaryLimitValue(1200)");
         evalAndAssert(0.0, "branch('NHV2_NLOAD').g");

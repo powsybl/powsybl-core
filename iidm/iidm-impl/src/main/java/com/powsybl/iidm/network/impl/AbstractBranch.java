@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.util.LimitViolationUtils;
 
 import java.util.Objects;
 
@@ -16,7 +17,7 @@ import java.util.Objects;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnectable<I> implements CurrentLimitsOwner<Side> {
+abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I> implements CurrentLimitsOwner<Side>, Branch<I> {
 
     private CurrentLimits limits1;
 
@@ -26,14 +27,17 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
         super(id, name);
     }
 
+    @Override
     public TerminalExt getTerminal1() {
         return terminals.get(0);
     }
 
+    @Override
     public TerminalExt getTerminal2() {
         return terminals.get(1);
     }
 
+    @Override
     public Terminal getTerminal(Side side) {
         switch (side) {
             case ONE:
@@ -47,6 +51,7 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
         }
     }
 
+    @Override
     public Terminal getTerminal(String voltageLevelId) {
         Objects.requireNonNull(voltageLevelId);
         boolean side1 = getTerminal1().getVoltageLevel().getId().equals(voltageLevelId);
@@ -88,6 +93,7 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
         }
     }
 
+    @Override
     public CurrentLimits getCurrentLimits(Side side) {
         switch (side) {
             case ONE:
@@ -100,30 +106,37 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
 
     }
 
+    @Override
     public CurrentLimits getCurrentLimits1() {
         return limits1;
     }
 
+    @Override
     public CurrentLimitsAdder newCurrentLimits1() {
         return new CurrentLimitsAdderImpl<>(Branch.Side.ONE, this);
     }
 
+    @Override
     public CurrentLimits getCurrentLimits2() {
         return limits2;
     }
 
+    @Override
     public CurrentLimitsAdder newCurrentLimits2() {
         return new CurrentLimitsAdderImpl<>(Branch.Side.TWO, this);
     }
 
+    @Override
     public boolean isOverloaded() {
         return isOverloaded(1.0f);
     }
 
+    @Override
     public boolean isOverloaded(float limitReduction) {
         return checkPermanentLimit1(limitReduction) || checkPermanentLimit2(limitReduction);
     }
 
+    @Override
     public int getOverloadDuration() {
         Branch.Overload o1 = checkTemporaryLimits1();
         Branch.Overload o2 = checkTemporaryLimits2();
@@ -132,6 +145,7 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
         return Math.min(duration1, duration2);
     }
 
+    @Override
     public boolean checkPermanentLimit(Side side, float limitReduction) {
         Objects.requireNonNull(side);
         switch (side) {
@@ -146,65 +160,33 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
         }
     }
 
+    @Override
     public boolean checkPermanentLimit(Side side) {
         return checkPermanentLimit(side, 1f);
     }
 
+    @Override
     public boolean checkPermanentLimit1(float limitReduction) {
-        return checkPermanentLimit(getTerminal1(), getCurrentLimits1(), limitReduction);
+        return LimitViolationUtils.checkPermanentLimit(this, Side.ONE, limitReduction, getTerminal1().getI());
     }
 
+    @Override
     public boolean checkPermanentLimit1() {
         return checkPermanentLimit1(1f);
     }
 
+    @Override
     public boolean checkPermanentLimit2(float limitReduction) {
-        return checkPermanentLimit(getTerminal2(), getCurrentLimits2(), limitReduction);
+        return LimitViolationUtils.checkPermanentLimit(this, Side.TWO, limitReduction, getTerminal2().getI());
     }
 
+    @Override
     public boolean checkPermanentLimit2() {
         return checkPermanentLimit2(1f);
     }
 
-    private static boolean checkPermanentLimit(Terminal terminal, CurrentLimits limits, float limitReduction) {
-        double i = terminal.getI();
-        return limits != null &&
-            !Double.isNaN(limits.getPermanentLimit()) &&
-            !Double.isNaN(i) &&
-            (i >= limits.getPermanentLimit() * limitReduction);
-    }
-
-    static final class OverloadImpl implements Branch.Overload {
-
-        private final CurrentLimits.TemporaryLimit temporaryLimit;
-
-        private final String previousLimitName;
-
-        private final double previousLimit;
-
-        private OverloadImpl(CurrentLimits.TemporaryLimit temporaryLimit, String previousLimitName, double previousLimit) {
-            this.temporaryLimit = Objects.requireNonNull(temporaryLimit);
-            this.previousLimitName = previousLimitName;
-            this.previousLimit = previousLimit;
-        }
-
-        @Override
-        public CurrentLimits.TemporaryLimit getTemporaryLimit() {
-            return temporaryLimit;
-        }
-
-        @Override
-        public String getPreviousLimitName() {
-            return previousLimitName;
-        }
-
-        @Override
-        public double getPreviousLimit() {
-            return previousLimit;
-        }
-    }
-
-    public OverloadImpl checkTemporaryLimits(Side side, float limitReduction) {
+    @Override
+    public Branch.Overload checkTemporaryLimits(Side side, float limitReduction) {
         Objects.requireNonNull(side);
         switch (side) {
             case ONE:
@@ -218,40 +200,28 @@ abstract class AbstractBranch<I extends Connectable<I>> extends AbstractConnecta
         }
     }
 
-    public OverloadImpl checkTemporaryLimits(Side side) {
+    @Override
+    public Branch.Overload checkTemporaryLimits(Side side) {
         return checkTemporaryLimits(side, 1f);
     }
 
-    public OverloadImpl checkTemporaryLimits1(float limitReduction) {
-        return checkTemporaryLimits(getTerminal1(), limits1, limitReduction);
+    @Override
+    public Branch.Overload checkTemporaryLimits1(float limitReduction) {
+        return LimitViolationUtils.checkTemporaryLimits(this, Side.ONE, limitReduction, getTerminal1().getI());
     }
 
-    public OverloadImpl checkTemporaryLimits1() {
+    @Override
+    public Branch.Overload checkTemporaryLimits1() {
         return checkTemporaryLimits1(1f);
     }
 
-    public OverloadImpl checkTemporaryLimits2(float limitReduction) {
-        return checkTemporaryLimits(getTerminal2(), limits2, limitReduction);
+    @Override
+    public Branch.Overload checkTemporaryLimits2(float limitReduction) {
+        return LimitViolationUtils.checkTemporaryLimits(this, Side.TWO, limitReduction, getTerminal2().getI());
     }
 
-    public OverloadImpl checkTemporaryLimits2() {
+    @Override
+    public Branch.Overload checkTemporaryLimits2() {
         return checkTemporaryLimits2(1f);
-    }
-
-    private static OverloadImpl checkTemporaryLimits(TerminalExt t, CurrentLimits limits, float limitReduction) {
-        Objects.requireNonNull(t);
-        double i = t.getI();
-        if (limits != null && !Double.isNaN(limits.getPermanentLimit()) && !Double.isNaN(i)) {
-            String previousLimitName = null;
-            double previousLimit = limits.getPermanentLimit();
-            for (CurrentLimits.TemporaryLimit tl : limits.getTemporaryLimits()) { // iterate in ascending order
-                if (i >= previousLimit * limitReduction && i < tl.getValue() * limitReduction) {
-                    return new OverloadImpl(tl, previousLimitName, previousLimit);
-                }
-                previousLimitName = tl.getName();
-                previousLimit = tl.getValue();
-            }
-        }
-        return null;
     }
 }

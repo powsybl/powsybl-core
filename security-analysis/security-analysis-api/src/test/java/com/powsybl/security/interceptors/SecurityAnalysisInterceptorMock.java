@@ -11,7 +11,7 @@ import com.powsybl.security.*;
 import static org.junit.Assert.*;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public class SecurityAnalysisInterceptorMock extends DefaultSecurityAnalysisInterceptor {
 

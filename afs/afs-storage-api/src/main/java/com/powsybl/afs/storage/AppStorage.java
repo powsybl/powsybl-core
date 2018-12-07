@@ -146,22 +146,22 @@ public interface AppStorage extends AutoCloseable {
     /**
      * Gets data (double) for the time series with names {@code timeSeriesNames} associated with node with ID {@code nodeId}.
      */
-    Map<String, List<DoubleArrayChunk>> getDoubleTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version);
+    Map<String, List<DoubleDataChunk>> getDoubleTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version);
 
     /**
      * Adds data (double) to the time series with names {@code timeSeriesNames} associated with node with ID {@code nodeId}.
      */
-    void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleArrayChunk> chunks);
+    void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleDataChunk> chunks);
 
     /**
      * Gets data (string) for the time series with names {@code timeSeriesNames} associated with node with ID {@code nodeId}.
      */
-    Map<String, List<StringArrayChunk>> getStringTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version);
+    Map<String, List<StringDataChunk>> getStringTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version);
 
     /**
      * Adds data (string) to the time series with names {@code timeSeriesNames} associated with node with ID {@code nodeId}.
      */
-    void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringArrayChunk> chunks);
+    void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringDataChunk> chunks);
 
     /**
      * Deletes time series associated with node with ID {@code nodeId}

@@ -23,8 +23,14 @@ public class SecurityAnalysisFactoryImpl implements SecurityAnalysisFactory {
 
     @Override
     public SecurityAnalysis create(Network network, LimitViolationFilter filter, ComputationManager computationManager, int priority) {
+        return create(network, new DefaultLimitViolationDetector(), filter, computationManager, priority);
+    }
+
+    @Override
+    public SecurityAnalysis create(Network network, LimitViolationDetector detector, LimitViolationFilter filter,
+                                    ComputationManager computationManager, int priority) {
         ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
         LoadFlowFactory loadFlowFactory = defaultConfig.newFactoryImpl(LoadFlowFactory.class);
-        return new SecurityAnalysisImpl(network, filter, computationManager, loadFlowFactory);
+        return new SecurityAnalysisImpl(network, detector, filter, computationManager, loadFlowFactory);
     }
 }

@@ -6,12 +6,14 @@
  */
 package com.powsybl.action.dsl.ast;
 
+import com.powsybl.dsl.ast.ExpressionNode;
+
 import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NetworkPropertyNode implements NetworkNode {
+public class NetworkPropertyNode extends AbstractActionExpressionNode implements NetworkNode {
 
     private final NetworkNode parent;
 
@@ -31,7 +33,7 @@ public class NetworkPropertyNode implements NetworkNode {
     }
 
     @Override
-    public <R, A> R accept(ExpressionVisitor<R, A> visitor, A arg) {
+    public <R, A> R accept(ActionExpressionVisitor<R, A> visitor, A arg) {
         return visitor.visitNetworkProperty(this, arg);
     }
 }

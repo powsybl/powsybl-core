@@ -13,7 +13,7 @@ import com.powsybl.security.SecurityAnalysisResult;
 /**
  * Default implementation of the SecurityAnalysisInterceptor interface.
  *
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public class DefaultSecurityAnalysisInterceptor implements SecurityAnalysisInterceptor {
 

@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 /**
- * @author Sebastien Murgey <sebastien.murgey@rte-france.com>
+ * @author Sebastien Murgey <sebastien.murgey at rte-france.com>
  */
 public class JsonSensitivityComputationParametersTest extends AbstractConverterTest {
 

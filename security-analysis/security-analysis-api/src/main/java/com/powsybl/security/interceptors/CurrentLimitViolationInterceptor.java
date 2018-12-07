@@ -15,7 +15,7 @@ import com.powsybl.security.extensions.ActivePowerExtension;
 import com.powsybl.security.extensions.CurrentExtension;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public class CurrentLimitViolationInterceptor extends DefaultSecurityAnalysisInterceptor {
 

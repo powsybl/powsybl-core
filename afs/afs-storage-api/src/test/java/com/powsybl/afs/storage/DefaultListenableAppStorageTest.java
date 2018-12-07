@@ -7,8 +7,8 @@
 package com.powsybl.afs.storage;
 
 import com.powsybl.afs.storage.events.*;
-import com.powsybl.timeseries.DoubleArrayChunk;
-import com.powsybl.timeseries.StringArrayChunk;
+import com.powsybl.timeseries.DoubleDataChunk;
+import com.powsybl.timeseries.StringDataChunk;
 import com.powsybl.timeseries.TimeSeriesMetadata;
 import org.junit.After;
 import org.junit.Before;
@@ -82,11 +82,11 @@ public class DefaultListenableAppStorageTest {
         listenableStorage.flush();
         assertEquals(new NodeEventList(new TimeSeriesCreated("node1", "ts1")), lastEventList);
 
-        listenableStorage.addDoubleTimeSeriesData("node1", 1, "ts1", Collections.singletonList(Mockito.mock(DoubleArrayChunk.class)));
+        listenableStorage.addDoubleTimeSeriesData("node1", 1, "ts1", Collections.singletonList(Mockito.mock(DoubleDataChunk.class)));
         listenableStorage.flush();
         assertEquals(new NodeEventList(new TimeSeriesDataUpdated("node1", "ts1")), lastEventList);
 
-        listenableStorage.addStringTimeSeriesData("node1", 1, "ts1", Collections.singletonList(Mockito.mock(StringArrayChunk.class)));
+        listenableStorage.addStringTimeSeriesData("node1", 1, "ts1", Collections.singletonList(Mockito.mock(StringDataChunk.class)));
         listenableStorage.flush();
         assertEquals(new NodeEventList(new TimeSeriesDataUpdated("node1", "ts1")), lastEventList);
 

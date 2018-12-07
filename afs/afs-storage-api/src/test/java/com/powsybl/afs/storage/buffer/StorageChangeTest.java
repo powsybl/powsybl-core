@@ -35,8 +35,8 @@ public class StorageChangeTest {
     public void test() throws IOException {
         StorageChangeSet changeSet = new StorageChangeSet();
         changeSet.getChanges().add(new TimeSeriesCreation("id1", new TimeSeriesMetadata("ts1", TimeSeriesDataType.DOUBLE, InfiniteTimeSeriesIndex.INSTANCE)));
-        changeSet.getChanges().add(new DoubleTimeSeriesChunksAddition("id1", 1, "ts1", Collections.singletonList(new UncompressedDoubleArrayChunk(0, new double[] {1d, 2d}))));
-        changeSet.getChanges().add(new StringTimeSeriesChunksAddition("id1", 1, "ts1", Collections.singletonList(new UncompressedStringArrayChunk(0, new String[] {"a", "b"}))));
+        changeSet.getChanges().add(new DoubleTimeSeriesChunksAddition("id1", 1, "ts1", Collections.singletonList(new UncompressedDoubleDataChunk(0, new double[] {1d, 2d}))));
+        changeSet.getChanges().add(new StringTimeSeriesChunksAddition("id1", 1, "ts1", Collections.singletonList(new UncompressedStringDataChunk(0, new String[] {"a", "b"}))));
 
         StorageChangeSet changeSet2 = objectMapper.readValue(objectMapper.writeValueAsString(changeSet), StorageChangeSet.class);
         assertEquals(changeSet, changeSet2);
