@@ -12,6 +12,12 @@ import java.util.List;
 /**
  * This class provides methods to manage variants of the network (create and
  * remove a variant, set the working variant, etc).
+ * <p>
+ * WARNING: Variant management is not thread safe and should never be done will an other thread read from or write to
+ * an already existing variant. The classical pattern for multi-variant processing is to pre-allocate variants and
+ * call {@link #allowVariantMultiThreadAccess} to allow multi-thread access on main thread, work on variants from other
+ * threads (be carefull to only write concurrently attributes flagged as dependent to variant in the Javadoc) and then
+ * remove variants from main thread once work is over.
  *
  * @deprecated use {@link VariantManager} instead.
  *

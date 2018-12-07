@@ -6,10 +6,11 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TIntArrayList;
-import java.util.BitSet;
+
 import java.util.List;
 
 /**
@@ -32,7 +33,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected final TIntArrayList tapPosition;
 
-    protected final BitSet regulating;
+    protected final TBooleanArrayList regulating;
 
     protected AbstractTapChanger(Ref<? extends VariantManagerHolder> network, H parent,
                                  int lowTapPosition, List<S> steps, TerminalExt regulationTerminal,
@@ -44,10 +45,10 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         this.regulationTerminal = regulationTerminal;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.tapPosition = new TIntArrayList(variantArraySize);
-        this.regulating = new BitSet(variantArraySize);
-        this.regulating.set(0, variantArraySize, regulating);
+        this.regulating = new TBooleanArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
             this.tapPosition.add(tapPosition);
+            this.regulating.add(regulating);
         }
     }
 
@@ -122,15 +123,17 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        regulating.ensureCapacity(regulating.size() + number);
         tapPosition.ensureCapacity(tapPosition.size() + number);
         for (int i = 0; i < number; i++) {
-            regulating.set(initVariantArraySize + i, regulating.get(sourceIndex));
+            regulating.add(regulating.get(sourceIndex));
             tapPosition.add(tapPosition.get(sourceIndex));
         }
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
+        regulating.remove(regulating.size() - number, number);
         tapPosition.remove(tapPosition.size() - number, number);
     }
 

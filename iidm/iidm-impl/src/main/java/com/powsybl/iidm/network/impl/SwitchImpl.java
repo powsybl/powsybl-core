@@ -6,11 +6,10 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.TopologyKind;
-
-import java.util.BitSet;
 
 /**
  *
@@ -24,9 +23,9 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
 
     private boolean fictitious;
 
-    private final BitSet open;
+    private final TBooleanArrayList open;
 
-    private final BitSet retained;
+    private final TBooleanArrayList retained;
 
     SwitchImpl(VoltageLevelExt voltageLevel,
                String id, String name, SwitchKind kind, final boolean open, boolean retained, boolean fictitious) {
@@ -35,10 +34,12 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
         this.kind = kind;
         this.fictitious = fictitious;
         int variantArraySize = voltageLevel.getNetwork().getVariantManager().getVariantArraySize();
-        this.open = new BitSet(variantArraySize);
-        this.open.set(0, variantArraySize, open);
-        this.retained = new BitSet(variantArraySize);
-        this.retained.set(0, variantArraySize, retained);
+        this.open = new TBooleanArrayList(variantArraySize);
+        this.retained = new TBooleanArrayList(variantArraySize);
+        for (int i = 0; i < variantArraySize; i++) {
+            this.open.add(open);
+            this.retained.add(retained);
+        }
     }
 
     @Override
@@ -106,13 +107,16 @@ class SwitchImpl extends AbstractIdentifiable<Switch> implements Switch, MultiVa
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
-        this.open.set(initVariantArraySize, initVariantArraySize + number, this.open.get(sourceIndex));
-        this.retained.set(initVariantArraySize, initVariantArraySize + number, this.retained.get(sourceIndex));
+        open.ensureCapacity(open.size() + number);
+        open.fill(initVariantArraySize, initVariantArraySize + number, open.get(sourceIndex));
+        retained.ensureCapacity(retained.size() + number);
+        retained.fill(initVariantArraySize, initVariantArraySize + number, retained.get(sourceIndex));
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
-        // nothing to do
+        open.remove(open.size() - number, number);
+        retained.remove(retained.size() - number, number);
     }
 
     @Override
