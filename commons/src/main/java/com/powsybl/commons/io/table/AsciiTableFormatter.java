@@ -93,7 +93,12 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
         }
     }
 
+    public String render() {
+         return table.render();
+    }
+
     public Table getTable() {
         return table;
     }
+
 }

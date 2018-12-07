@@ -93,7 +93,7 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            out.println(formatter.getTable().render());
+            System.out.println(formatter.render());
         }
     }
 

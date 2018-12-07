@@ -148,7 +148,7 @@ public class ImpactAnalysisTool implements Tool {
             e.printStackTrace();
         }
 
-        out.println(formatter.getTable().render());
+        System.out.println(formatter.render());
     }
 
     private static void writeCsv(Multimap<String, SecurityIndex> securityIndexesPerContingency, Path outputCsvFile) throws IOException {
