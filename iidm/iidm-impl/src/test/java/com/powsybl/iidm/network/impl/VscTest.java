@@ -101,12 +101,12 @@ public class VscTest {
     }
 
     @Test
-    public void testSetterGetterInMultiStates() {
-        StateManager stateManager = network.getStateManager();
-        List<String> statesToAdd = Arrays.asList("s1", "s2", "s3", "s4");
-        stateManager.cloneState(StateManagerConstants.INITIAL_STATE_ID, statesToAdd);
+    public void testSetterGetterInMultiVariants() {
+        VariantManager variantManager = network.getVariantManager();
+        List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
 
-        stateManager.setWorkingState("s4");
+        variantManager.setWorkingVariant("s4");
         // check values cloned by extend
         assertTrue(cs1.isVoltageRegulatorOn());
         assertTrue(Double.isNaN(cs1.getReactivePowerSetpoint()));
@@ -117,24 +117,24 @@ public class VscTest {
         cs1.setVoltageSetpoint(10.0);
 
         // remove s2
-        stateManager.removeState("s2");
+        variantManager.removeVariant("s2");
 
-        stateManager.cloneState("s4", "s2b");
-        stateManager.setWorkingState("s2b");
+        variantManager.cloneVariant("s4", "s2b");
+        variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
         assertFalse(cs1.isVoltageRegulatorOn());
         assertEquals(1.0, cs1.getReactivePowerSetpoint(), 0.0);
         assertEquals(10.0, cs1.getVoltageSetpoint(), 0.0);
 
-        // recheck initial state value
-        stateManager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
+        // recheck initial variant value
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertTrue(cs1.isVoltageRegulatorOn());
         assertTrue(Double.isNaN(cs1.getReactivePowerSetpoint()));
         assertEquals(405.0, cs1.getVoltageSetpoint(), 0.0);
 
-        // remove working state s4
-        stateManager.setWorkingState("s4");
-        stateManager.removeState("s4");
+        // remove working variant s4
+        variantManager.setWorkingVariant("s4");
+        variantManager.removeVariant("s4");
         try {
             cs1.isVoltageRegulatorOn();
             fail();
