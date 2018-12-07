@@ -33,9 +33,17 @@ public abstract class AbstractTableFormatter implements TableFormatter {
 
     protected abstract TableFormatter write(String value) throws IOException;
 
+    protected abstract TableFormatter writeWithColspan(String value,int colspan) throws IOException;
+
+
     @Override
     public TableFormatter writeCell(String s) throws IOException {
         return write(s);
+    }
+
+    @Override
+    public TableFormatter writeCellWithColspan(String s,int colspan) throws IOException {
+        return writeWithColspan(s,colspan);
     }
 
     @Override
