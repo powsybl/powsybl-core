@@ -22,9 +22,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import static java.lang.System.out;
-
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -240,7 +237,7 @@ public final class Networks {
 
 
     private static Writer writeInTable(ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
-        try (Writer myWriter = new OutputStreamWriter(out, StandardCharsets.UTF_8);
+        try (Writer myWriter = new StringWriter();
              AbstractTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter", 5)) {
 
             formatter.writeCell("Bus count").
@@ -296,7 +293,7 @@ public final class Networks {
 
     private static void logOtherCC(Logger logger, String title, Writer writer, ConnectedPower balanceOtherCC) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Active balance at step '{}':\n{}", title, writer.toString());
+            logger.debug("Active balance at step '{}':\n{}", title, writer);
         }
 
         if (!balanceOtherCC.connectedLoads.isEmpty()) {

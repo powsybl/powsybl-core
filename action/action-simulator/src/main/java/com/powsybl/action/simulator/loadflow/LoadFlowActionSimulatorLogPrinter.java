@@ -62,6 +62,15 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
             out.println(Security.printLimitsViolations(violations, runningContext.getNetwork(), LoadFlowActionSimulator.NO_FILTER));
         }
     }
+    private void formatterAddKeyValue(AbstractTableFormatter formatter, String key, String value) {
+        try {
+            formatter.writeCell(key);
+            formatter.writeCell(value);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
+    }
 
     @Override
     public void ruleChecked(RunningContext runningContext, Rule rule, RuleEvaluationStatus status, Map<String, Object> variables, Map<String, Boolean> actions) {
@@ -74,22 +83,12 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
                  AbstractTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter", 2)) {
                 formatter.writeCell("Variable");
                 formatter.writeCell("Value");
-                variables.forEach((key, value) -> {
-                    try {
-                        formatter.writeCell(key);
-                        formatter.writeCell(Objects.toString(value));
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                });
-                actions.forEach((key, value) -> {
-                    try {
-                        formatter.writeCell(key + ".actionTaken");
-                        formatter.writeCell(value.toString());
-                    } catch (IOException e) {
-                        throw new UncheckedIOException(e);
-                    }
-                });
+                variables.forEach((key, value) ->
+                    formatterAddKeyValue(formatter, key + "", value.toString())
+                );
+                actions.forEach((key, value) ->
+                    formatterAddKeyValue(formatter, key + ".actionTaken", value.toString())
+                );
                 out.println(myWriter.toString());
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
