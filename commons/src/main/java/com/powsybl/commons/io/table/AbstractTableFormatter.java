@@ -42,7 +42,9 @@ public abstract class AbstractTableFormatter implements TableFormatter {
 
     protected abstract TableFormatter write(String value) throws IOException;
 
-    protected abstract TableFormatter writeWithColspan(String value, int colspan) throws IOException;
+    protected  TableFormatter writeWithColspan(String value, int colspan) throws IOException {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
 
     @Override

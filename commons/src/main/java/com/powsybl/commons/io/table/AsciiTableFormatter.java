@@ -43,8 +43,10 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
         this.title = title;
         this.table = new Table(length, BorderStyle.CLASSIC_WIDE);
     }
-    public AsciiTableFormatter(String title, int length) {
-        this(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), title, TableFormatterConfig.load(), length);
+
+
+    public AsciiTableFormatter(Writer writer, String title, int length) {
+        this(writer, title, TableFormatterConfig.load(), length);
     }
 
     @Override
@@ -57,18 +59,13 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
     protected TableFormatter writeWithColspan(String value, int colspan) throws IOException {
         HorizontalAlignment horizontalAlignment = columns[column].getHorizontalAlignment();
         column = (column + colspan) % columns.length;
-        table.addCell(value, convertCellStyle(HorizontalAlignment.LEFT), colspan);
+        table.addCell(value, convertCellStyle(horizontalAlignment), colspan);
         return this;
     }
 
     @Override
     protected TableFormatter write(String value) throws IOException {
-        HorizontalAlignment horizontalAlignment = columns[column].getHorizontalAlignment();
-        column = (column + 1) % columns.length;
-
-        table.addCell(value, convertCellStyle(horizontalAlignment));
-
-        return this;
+        return writeWithColspan(value, 1);
     }
 
     @Override
@@ -79,6 +76,7 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
         writer.write(table.render() + System.lineSeparator());
         writer.flush();
     }
+
 
     private static CellStyle convertCellStyle(HorizontalAlignment horizontalAlignment) {
         switch (horizontalAlignment) {
@@ -91,14 +89,6 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
             default:
                 return new CellStyle();
         }
-    }
-
-    public String render() {
-         return table.render();
-    }
-
-    public Table getTable() {
-        return table;
     }
 
 }

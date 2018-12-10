@@ -12,6 +12,7 @@ import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ComponentDefaultConfig;
+import com.powsybl.commons.io.table.AbstractTableFormatter;
 import com.powsybl.commons.io.table.AsciiTableFormatter;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
@@ -30,9 +31,7 @@ import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -127,28 +126,32 @@ public class ImpactAnalysisTool implements Tool {
     }
 
     private static void prettyPrint(Multimap<String, SecurityIndex> securityIndexesPerContingency, PrintStream out) {
-        AsciiTableFormatter formatter = new AsciiTableFormatter("myFormatter", 1 + SecurityIndexType.values().length);
+        try (Writer myWriter = new OutputStreamWriter(out, StandardCharsets.UTF_8)) {
+            try (AbstractTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter", 1 + SecurityIndexType.values().length);) {
+                try {
+                    formatter.writeCell("Contingency");
 
-        try {
-            formatter.writeCell("Contingency");
+                    for (SecurityIndexType securityIndexType : SecurityIndexType.values()) {
+                        formatter.writeCell(securityIndexType.toString());
+                    }
 
-            for (SecurityIndexType securityIndexType : SecurityIndexType.values()) {
-                formatter.writeCell(securityIndexType.toString());
-            }
-
-            for (Map.Entry<String, Collection<SecurityIndex>> entry : securityIndexesPerContingency.asMap().entrySet()) {
-                String contingencyId = entry.getKey();
-                formatter.writeCell(contingencyId);
-                for (String str : toRow(entry.getValue())) {
-                    formatter.writeCell(str);
+                    for (Map.Entry<String, Collection<SecurityIndex>> entry : securityIndexesPerContingency.asMap().entrySet()) {
+                        String contingencyId = entry.getKey();
+                        formatter.writeCell(contingencyId);
+                        for (String str : toRow(entry.getValue())) {
+                            formatter.writeCell(str);
+                        }
+                    }
+                    out.println(myWriter.toString());
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
                 }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
             }
-
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new UncheckedIOException(e);
         }
-
-        System.out.println(formatter.render());
     }
 
     private static void writeCsv(Multimap<String, SecurityIndex> securityIndexesPerContingency, Path outputCsvFile) throws IOException {

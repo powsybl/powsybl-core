@@ -7,13 +7,14 @@
 package com.powsybl.action.simulator.loadflow;
 
 import com.powsybl.action.dsl.Rule;
+import com.powsybl.commons.io.table.AbstractTableFormatter;
 import com.powsybl.commons.io.table.AsciiTableFormatter;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.Security;
 
 
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -69,7 +70,9 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
             out.println("        Rule '" + rule.getId() + "' evaluated to " + status);
         }
         if (verbose &&  (variables.size() + actions.size() > 0)) {
-            AsciiTableFormatter formatter = new AsciiTableFormatter("myFormatter", 2);
+
+            Writer myWriter = new OutputStreamWriter(out, StandardCharsets.UTF_8);
+            AbstractTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter", 2);
 
             try {
                 formatter.writeCell("Variable");
@@ -87,13 +90,13 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
                         formatter.writeCell(key + ".actionTaken");
                         formatter.writeCell(value.toString());
                     } catch (IOException e) {
-                        e.printStackTrace();
+                        throw new UncheckedIOException(e);
                     }
                 });
+                out.println(myWriter.toString());
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            System.out.println(formatter.render());
         }
     }
 
