@@ -240,56 +240,55 @@ public final class Networks {
 
 
     private static Writer writeInTable(ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
-        try (Writer myWriter = new OutputStreamWriter(out, StandardCharsets.UTF_8)) {
-            try (AbstractTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter", 5)) {
-                formatter.writeCell("Bus count").
-                        writeCellWithColspan("Main CC connected/disconnected", 2).
-                        writeCellWithColspan("Others CC connected/disconnected", 2);
-                formatter.writeCell("Bus count").
-                        writeCellWithColspan(Integer.toString(balanceMainCC.busCount), 2).
-                        writeCellWithColspan(Integer.toString(balanceOtherCC.busCount), 2);
-                formatter.writeCell("Load count").
-                        writeCell(Integer.toString(balanceMainCC.connectedLoads.size())).
-                        writeCell(Integer.toString(balanceMainCC.disconnectedLoads.size())).
-                        writeCell(Integer.toString(balanceOtherCC.connectedLoads.size())).
-                        writeCell(Integer.toString(balanceOtherCC.disconnectedLoads.size()));
-                formatter.writeCell("Load (MW)").
-                        writeCell(Double.toString(balanceMainCC.connectedLoadVolume)).
-                        writeCell(Double.toString(balanceMainCC.disconnectedLoadVolume)).
-                        writeCell(Double.toString(balanceOtherCC.connectedLoadVolume)).
-                        writeCell(Double.toString(balanceOtherCC.disconnectedLoadVolume));
-                formatter.writeCell("Generator count").
-                        writeCell(Integer.toString(balanceMainCC.connectedGenerators.size())).
-                        writeCell(Integer.toString(balanceMainCC.disconnectedGenerators.size())).
-                        writeCell(Integer.toString(balanceOtherCC.connectedGenerators.size())).
-                        writeCell(Integer.toString(balanceOtherCC.disconnectedGenerators.size()));
-                formatter.writeCell("Max generation (MW)").
-                        writeCell(Double.toString(balanceMainCC.connectedMaxGeneration)).
-                        writeCell(Double.toString(balanceMainCC.disconnectedMaxGeneration)).
-                        writeCell(Double.toString(balanceOtherCC.connectedMaxGeneration)).
-                        writeCell(Double.toString(balanceOtherCC.disconnectedMaxGeneration));
-                formatter.writeCell("Generation (MW)").
-                        writeCell(Double.toString(balanceMainCC.connectedGeneration)).
-                        writeCell(Double.toString(balanceMainCC.disconnectedGeneration)).
-                        writeCell(Double.toString(balanceOtherCC.connectedGeneration)).
-                        writeCell(Double.toString(balanceOtherCC.disconnectedGeneration));
-                formatter.writeCell("Shunt at nom V (MVar)").
-                        writeCell(Double.toString(balanceMainCC.connectedShuntPositiveVolume) + " " +
-                                Double.toString(balanceMainCC.connectedShuntNegativeVolume) +
-                                " (" + Integer.toString(balanceMainCC.connectedShunts.size()) + ")").
-                        writeCell(Double.toString(balanceMainCC.disconnectedShuntPositiveVolume) + " " +
-                                Double.toString(balanceMainCC.disconnectedShuntNegativeVolume) +
-                                " (" + Integer.toString(balanceMainCC.disconnectedShunts.size()) + ")").
-                        writeCell(Double.toString(balanceOtherCC.connectedShuntPositiveVolume) + " " +
-                                Double.toString(balanceOtherCC.connectedShuntNegativeVolume) +
-                                " (" + Integer.toString(balanceOtherCC.connectedShunts.size()) + ")").
-                        writeCell(Double.toString(balanceOtherCC.disconnectedShuntPositiveVolume) + " " +
-                                Double.toString(balanceOtherCC.disconnectedShuntNegativeVolume) +
-                                " (" + Integer.toString(balanceOtherCC.disconnectedShunts.size()) + ")");
-                return myWriter;
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+        try (Writer myWriter = new OutputStreamWriter(out, StandardCharsets.UTF_8);
+             AbstractTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter", 5)) {
+
+            formatter.writeCell("Bus count").
+                    writeCellWithColspan("Main CC connected/disconnected", 2).
+                    writeCellWithColspan("Others CC connected/disconnected", 2);
+            formatter.writeCell("Bus count").
+                    writeCellWithColspan(Integer.toString(balanceMainCC.busCount), 2).
+                    writeCellWithColspan(Integer.toString(balanceOtherCC.busCount), 2);
+            formatter.writeCell("Load count").
+                    writeCell(Integer.toString(balanceMainCC.connectedLoads.size())).
+                    writeCell(Integer.toString(balanceMainCC.disconnectedLoads.size())).
+                    writeCell(Integer.toString(balanceOtherCC.connectedLoads.size())).
+                    writeCell(Integer.toString(balanceOtherCC.disconnectedLoads.size()));
+            formatter.writeCell("Load (MW)").
+                    writeCell(Double.toString(balanceMainCC.connectedLoadVolume)).
+                    writeCell(Double.toString(balanceMainCC.disconnectedLoadVolume)).
+                    writeCell(Double.toString(balanceOtherCC.connectedLoadVolume)).
+                    writeCell(Double.toString(balanceOtherCC.disconnectedLoadVolume));
+            formatter.writeCell("Generator count").
+                    writeCell(Integer.toString(balanceMainCC.connectedGenerators.size())).
+                    writeCell(Integer.toString(balanceMainCC.disconnectedGenerators.size())).
+                    writeCell(Integer.toString(balanceOtherCC.connectedGenerators.size())).
+                    writeCell(Integer.toString(balanceOtherCC.disconnectedGenerators.size()));
+            formatter.writeCell("Max generation (MW)").
+                    writeCell(Double.toString(balanceMainCC.connectedMaxGeneration)).
+                    writeCell(Double.toString(balanceMainCC.disconnectedMaxGeneration)).
+                    writeCell(Double.toString(balanceOtherCC.connectedMaxGeneration)).
+                    writeCell(Double.toString(balanceOtherCC.disconnectedMaxGeneration));
+            formatter.writeCell("Generation (MW)").
+                    writeCell(Double.toString(balanceMainCC.connectedGeneration)).
+                    writeCell(Double.toString(balanceMainCC.disconnectedGeneration)).
+                    writeCell(Double.toString(balanceOtherCC.connectedGeneration)).
+                    writeCell(Double.toString(balanceOtherCC.disconnectedGeneration));
+            formatter.writeCell("Shunt at nom V (MVar)").
+                    writeCell(Double.toString(balanceMainCC.connectedShuntPositiveVolume) + " " +
+                            Double.toString(balanceMainCC.connectedShuntNegativeVolume) +
+                            " (" + Integer.toString(balanceMainCC.connectedShunts.size()) + ")").
+                    writeCell(Double.toString(balanceMainCC.disconnectedShuntPositiveVolume) + " " +
+                            Double.toString(balanceMainCC.disconnectedShuntNegativeVolume) +
+                            " (" + Integer.toString(balanceMainCC.disconnectedShunts.size()) + ")").
+                    writeCell(Double.toString(balanceOtherCC.connectedShuntPositiveVolume) + " " +
+                            Double.toString(balanceOtherCC.connectedShuntNegativeVolume) +
+                            " (" + Integer.toString(balanceOtherCC.connectedShunts.size()) + ")").
+                    writeCell(Double.toString(balanceOtherCC.disconnectedShuntPositiveVolume) + " " +
+                            Double.toString(balanceOtherCC.disconnectedShuntNegativeVolume) +
+                            " (" + Integer.toString(balanceOtherCC.disconnectedShunts.size()) + ")");
+            return myWriter;
+
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -126,29 +126,22 @@ public class ImpactAnalysisTool implements Tool {
     }
 
     private static void prettyPrint(Multimap<String, SecurityIndex> securityIndexesPerContingency, PrintStream out) {
-        try (Writer myWriter = new OutputStreamWriter(out, StandardCharsets.UTF_8)) {
-            try (AbstractTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter", 1 + SecurityIndexType.values().length);) {
-                try {
-                    formatter.writeCell("Contingency");
+        try (Writer myWriter = new StringWriter();
+             AbstractTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter", 1 + SecurityIndexType.values().length)) {
+            formatter.writeCell("Contingency");
 
-                    for (SecurityIndexType securityIndexType : SecurityIndexType.values()) {
-                        formatter.writeCell(securityIndexType.toString());
-                    }
-
-                    for (Map.Entry<String, Collection<SecurityIndex>> entry : securityIndexesPerContingency.asMap().entrySet()) {
-                        String contingencyId = entry.getKey();
-                        formatter.writeCell(contingencyId);
-                        for (String str : toRow(entry.getValue())) {
-                            formatter.writeCell(str);
-                        }
-                    }
-                    out.println(myWriter.toString());
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
+            for (SecurityIndexType securityIndexType : SecurityIndexType.values()) {
+                formatter.writeCell(securityIndexType.toString());
             }
+
+            for (Map.Entry<String, Collection<SecurityIndex>> entry : securityIndexesPerContingency.asMap().entrySet()) {
+                String contingencyId = entry.getKey();
+                formatter.writeCell(contingencyId);
+                for (String str : toRow(entry.getValue())) {
+                    formatter.writeCell(str);
+                }
+            }
+            out.println(myWriter.toString());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

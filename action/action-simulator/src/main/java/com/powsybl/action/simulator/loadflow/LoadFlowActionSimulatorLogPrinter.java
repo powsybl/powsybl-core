@@ -14,7 +14,6 @@ import com.powsybl.security.Security;
 
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -71,10 +70,8 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
         }
         if (verbose &&  (variables.size() + actions.size() > 0)) {
 
-            Writer myWriter = new OutputStreamWriter(out, StandardCharsets.UTF_8);
-            AbstractTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter", 2);
-
-            try {
+            try (Writer myWriter = new StringWriter();
+                 AbstractTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter", 2)) {
                 formatter.writeCell("Variable");
                 formatter.writeCell("Value");
                 variables.forEach((key, value) -> {
@@ -95,7 +92,7 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
                 });
                 out.println(myWriter.toString());
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new UncheckedIOException(e);
             }
         }
     }
