@@ -62,7 +62,7 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
             out.println(Security.printLimitsViolations(violations, runningContext.getNetwork(), LoadFlowActionSimulator.NO_FILTER));
         }
     }
-    private void formatterAddKeyValue(AbstractTableFormatter formatter, String key, String value) {
+    private static void addKeyValueToTable(AbstractTableFormatter formatter, String key, String value) {
         try {
             formatter.writeCell(key);
             formatter.writeCell(value);
@@ -84,10 +84,10 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
                 formatter.writeCell("Variable");
                 formatter.writeCell("Value");
                 variables.forEach((key, value) ->
-                    formatterAddKeyValue(formatter, key + "", value.toString())
+                        addKeyValueToTable(formatter, key + "", value.toString())
                 );
                 actions.forEach((key, value) ->
-                    formatterAddKeyValue(formatter, key + ".actionTaken", value.toString())
+                        addKeyValueToTable(formatter, key + ".actionTaken", value.toString())
                 );
                 out.println(myWriter.toString());
             } catch (IOException e) {
