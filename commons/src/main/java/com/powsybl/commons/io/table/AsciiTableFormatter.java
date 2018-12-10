@@ -12,7 +12,9 @@ import org.nocrala.tools.texttablefmt.CellStyle;
 import org.nocrala.tools.texttablefmt.Table;
 
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -30,6 +32,10 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
         for (Column column : columns) {
             table.addCell(column.getName());
         }
+    }
+
+    public AsciiTableFormatter(String title, Column... columns) {
+        this(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), title, TableFormatterConfig.load(), columns);
     }
 
 
