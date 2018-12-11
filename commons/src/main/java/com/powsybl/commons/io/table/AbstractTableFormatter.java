@@ -80,7 +80,7 @@ public abstract class AbstractTableFormatter implements TableFormatter {
 
     @Override
     public TableFormatter writeEmptyLine() throws IOException {
-        return writeEmptyCells(columns.length - column);
+        return writeEmptyCells(tabLength - column);
     }
 
     @Override

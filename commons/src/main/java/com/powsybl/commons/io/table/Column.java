@@ -17,7 +17,7 @@ public class Column {
 
     private final String name;
 
-    private final int colspan;
+    private int colspan;
 
     private HorizontalAlignment horizontalAlignment;
 
@@ -25,12 +25,6 @@ public class Column {
 
     public Column(String name) {
         this.colspan = 1;
-        this.name = name;
-        this.horizontalAlignment = HorizontalAlignment.LEFT;
-    }
-
-    public Column(String name, int colspan) {
-        this.colspan = colspan;
         this.name = name;
         this.horizontalAlignment = HorizontalAlignment.LEFT;
     }
@@ -59,5 +53,10 @@ public class Column {
 
     public int getColspan() {
         return colspan;
+    }
+
+    public Column setColspan(int colspan) {
+        this.colspan = colspan;
+        return this;
     }
 }

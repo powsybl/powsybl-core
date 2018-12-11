@@ -28,7 +28,7 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
     public AsciiTableFormatter(Writer writer, String title, TableFormatterConfig config, Column... columns) {
         super(writer, config, columns);
         this.title = title;
-        this.table = new Table(columns.length, BorderStyle.CLASSIC_WIDE);
+        this.table = new Table(tabLength, BorderStyle.CLASSIC_WIDE);
         for (Column column : columns) {
             table.addCell(column.getName(), column.getColspan());
         }

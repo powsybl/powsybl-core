@@ -243,8 +243,8 @@ public final class Networks {
         try (Writer myWriter = new PrintWriter(System.out);
              AbstractTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter",
                      new Column("Bus count"),
-                     new Column("Main CC connected/disconnected", 2),
-                     new Column("Others CC connected/disconnected", 2))) {
+                     new Column("Main CC connected/disconnected").setColspan(2),
+                     new Column("Others CC connected/disconnected").setColspan(2))) {
             formatter.writeCell("Bus count").
                     writeCellWithColspan(Integer.toString(balanceMainCC.busCount), 2).
                     writeCellWithColspan(Integer.toString(balanceOtherCC.busCount), 2);
