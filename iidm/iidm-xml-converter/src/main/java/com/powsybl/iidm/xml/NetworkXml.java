@@ -124,8 +124,8 @@ public final class NetworkXml {
 
     static void validateWithExtensions(InputStream is) {
         List<Source> additionalSchemas = EXTENSIONS_SUPPLIER.get().getProviders().stream()
-                .map(e -> new StreamSource(e.getXsdAsStream()))
-                .collect(Collectors.toList());
+            .map(e -> new StreamSource(e.getXsdAsStream()))
+            .collect(Collectors.toList());
         validate(new StreamSource(is), additionalSchemas);
     }
 
@@ -137,8 +137,7 @@ public final class NetworkXml {
         }
     }
 
-    private static void writeExtensionNamespaces(Network n, ExportOptions options, XMLStreamWriter writer)
-            throws XMLStreamException {
+    private static void writeExtensionNamespaces(Network n, ExportOptions options, XMLStreamWriter writer) throws XMLStreamException {
         Set<String> extensionUris = new HashSet<>();
         Set<String> extensionPrefixes = new HashSet<>();
         for (String extensionName : getNetworkExtensions(n)) {
@@ -161,8 +160,7 @@ public final class NetworkXml {
         }
     }
 
-    private static void writeExtension(Extension<? extends Identifiable<?>> extension, NetworkXmlWriterContext context)
-            throws XMLStreamException {
+    private static void writeExtension(Extension<? extends Identifiable<?>> extension, NetworkXmlWriterContext context) throws XMLStreamException {
         ExtensionXmlSerializer extensionXmlSerializer = getExtensionXmlSerializer(context.getOptions(),
                 extension.getName());
         if (extensionXmlSerializer == null) {
@@ -185,7 +183,7 @@ public final class NetworkXml {
                 ? EXTENSIONS_SUPPLIER.get().findProviderOrThrowException(extensionName)
                 : EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
         if (extensionXmlSerializer == null) {
-            LOGGER.error("No Extension XML Serializer for {}", extensionName);
+            LOGGER.warn("No Extension XML Serializer for {}", extensionName);
         }
         return extensionXmlSerializer;
     }
@@ -251,6 +249,7 @@ public final class NetworkXml {
             if (!options.isSkipExtensions()) {
                 // Consider the network has been exported so its extensions will be written also
                 context.addExportedEquipment(n);
+
                 // write extensions
                 writeExtensions(n, context);
             }
@@ -373,7 +372,7 @@ public final class NetworkXml {
     }
 
     private static void readExtensions(Identifiable identifiable, NetworkXmlReaderContext context,
-            Set<String> extensionNamesNotFound) throws XMLStreamException {
+                                       Set<String> extensionNamesNotFound) throws XMLStreamException {
 
         XmlUtil.readUntilEndElement(EXTENSION_ELEMENT_NAME, context.getReader(), new XmlUtil.XmlEventHandler() {
 

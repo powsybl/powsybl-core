@@ -26,6 +26,7 @@ import java.io.InputStream;
 import javax.xml.stream.XMLStreamException;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -51,7 +52,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractConverterTes
         try (ByteArrayInputStream is = new ByteArrayInputStream(buffer)) {
             Network network2 = NetworkXml.read(is);
             LoadZipModel zipModel2 = network2.getLoad("LOAD").getExtension(LoadZipModel.class);
-            assertTrue(zipModel2 != null);
+            assertNotNull(zipModel2);
             assertTrue(zipModel.getA1() == zipModel2.getA1()
                     && zipModel.getA2() == zipModel2.getA2()
                     && zipModel.getA3() == zipModel2.getA3()
@@ -109,7 +110,8 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractConverterTes
 
     // Define a network extension with XML serializer
     static class NetworkSourceExtension extends AbstractExtension<Network> {
-        public NetworkSourceExtension(String sourceData) {
+
+        NetworkSourceExtension(String sourceData) {
             this.sourceData = sourceData;
         }
 
@@ -118,7 +120,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractConverterTes
             return "networkSource";
         }
 
-        public String getSourceData() {
+        String getSourceData() {
             return sourceData;
         }
 
@@ -127,6 +129,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractConverterTes
 
     @AutoService(ExtensionXmlSerializer.class)
     public static class NetworkSourceExtensionXmlSerializer implements ExtensionXmlSerializer<Network, NetworkSourceExtension> {
+
         @Override
         public String getExtensionName() {
             return "networkSource";
@@ -192,7 +195,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractConverterTes
         try (ByteArrayInputStream is = new ByteArrayInputStream(buffer)) {
             Network network2 = NetworkXml.read(is);
             NetworkSourceExtension source2 = network2.getExtension(NetworkSourceExtension.class);
-            assertTrue(source2 != null);
+            assertNotNull(source2);
             assertEquals(sourceData, source2.getSourceData());
         }
     }
