@@ -126,7 +126,7 @@ public class ImpactAnalysisTool implements Tool {
     }
 
     private static void prettyPrint(Multimap<String, SecurityIndex> securityIndexesPerContingency, PrintStream out) {
-        try (Writer myWriter = new StringWriter();
+        try (Writer myWriter = new PrintWriter(System.out);
              AbstractTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter", 1 + SecurityIndexType.values().length)) {
             formatter.writeCell("Contingency");
 
@@ -141,7 +141,6 @@ public class ImpactAnalysisTool implements Tool {
                     formatter.writeCell(str);
                 }
             }
-            out.println(myWriter.toString());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

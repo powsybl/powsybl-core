@@ -22,6 +22,8 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -99,9 +101,14 @@ public final class Networks {
         addGenerators(network, balanceMainCC, balanceOtherCC);
         addShuntCompensators(network, balanceMainCC, balanceOtherCC);
 
-        Writer writer = writeInTable(balanceMainCC, balanceOtherCC);
+        Supplier<String> mySupplier = new Supplier<String>() {
+            @Override
+            public String get() {
+                return writeInTable(balanceMainCC, balanceOtherCC);
+            }
+        };
 
-        logOtherCC(logger, title, writer, balanceOtherCC);
+        logOtherCC(logger, title, mySupplier, balanceOtherCC);
     }
 
     private static void addBuses(Network network, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
@@ -236,8 +243,8 @@ public final class Networks {
     }
 
 
-    private static Writer writeInTable(ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
-        try (Writer myWriter = new StringWriter();
+    private static String writeInTable(ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
+        try (Writer myWriter = new PrintWriter(System.out);
              AbstractTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter", 5)) {
 
             formatter.writeCell("Bus count").
@@ -284,16 +291,16 @@ public final class Networks {
                     writeCell(Double.toString(balanceOtherCC.disconnectedShuntPositiveVolume) + " " +
                             Double.toString(balanceOtherCC.disconnectedShuntNegativeVolume) +
                             " (" + Integer.toString(balanceOtherCC.disconnectedShunts.size()) + ")");
-            return myWriter;
+            return myWriter.toString();
 
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private static void logOtherCC(Logger logger, String title, Writer writer, ConnectedPower balanceOtherCC) {
+    private static void logOtherCC(Logger logger, String title,  Supplier<String> mySupplier, ConnectedPower balanceOtherCC) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Active balance at step '{}':\n{}", title, writer);
+            logger.debug("Active balance at step '{}':\n{}", title, mySupplier.get());
         }
 
         if (!balanceOtherCC.connectedLoads.isEmpty()) {
