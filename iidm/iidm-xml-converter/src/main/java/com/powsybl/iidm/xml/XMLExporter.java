@@ -71,6 +71,8 @@ public class XMLExporter implements Exporter {
 
     public static final String TOPOLOGY_LEVEL_PROPERTY = "iidm.export.xml.topology-level";
 
+    public static final String THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND = "iidm.export.xml.throw-exception-if-extension-not-found";
+
     @Override
     public String getFormat() {
         return "XIIDM";
@@ -94,7 +96,8 @@ public class XMLExporter implements Exporter {
                 .setOnlyMainCc(Boolean.parseBoolean(parameters.getProperty(ONLY_MAIN_CC_PROPERTIES, Boolean.FALSE.toString())))
                 .setAnonymized(Boolean.parseBoolean(parameters.getProperty(ANONYMISED_PROPERTIES, Boolean.FALSE.toString())))
                 .setSkipExtensions(Boolean.parseBoolean(parameters.getProperty(SKIP_EXTENSIONS_PROPERTIES, Boolean.FALSE.toString())))
-                .setTopologyLevel(TopologyLevel.valueOf(parameters.getProperty(TOPOLOGY_LEVEL_PROPERTY, TopologyLevel.NODE_BREAKER.name())));
+                .setTopologyLevel(TopologyLevel.valueOf(parameters.getProperty(TOPOLOGY_LEVEL_PROPERTY, TopologyLevel.NODE_BREAKER.name())))
+                .setThrowExceptionIfExtensionNotFound(Boolean.parseBoolean(parameters.getProperty(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, Boolean.TRUE.toString())));
         }
 
         try {

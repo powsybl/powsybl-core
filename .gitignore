@@ -62,6 +62,7 @@
 /sensitivity-api/target/
 /simulation-api/target/
 /scripting/target/
+/target
 /time-series/target/
 /time-series/time-series-api/target/
 /tools/target/
@@ -93,3 +94,6 @@ org.eclipse.core.resources.prefs
 org.eclipse.jdt.core.prefs
 org.eclipse.m2e.core.prefs
 org.eclipse.jdt.groovy.core.prefs
+
+# Log files
+powsybl.log
