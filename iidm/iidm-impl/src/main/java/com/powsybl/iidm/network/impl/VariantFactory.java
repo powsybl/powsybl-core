@@ -10,8 +10,8 @@ package com.powsybl.iidm.network.impl;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-interface State {
+interface VariantFactory<S extends Variant> {
 
-    <S extends State> S copy();
+    S newVariant();
 
 }

@@ -116,29 +116,29 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                                   boolean mainComponent1, boolean mainComponent2, boolean validated, FlowData flowData, boolean found, boolean writeValues) throws IOException;
 
     @Override
-    public void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, boolean connected,
+    public void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP, boolean connected,
                       boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent, boolean validated) throws IOException {
         Objects.requireNonNull(generatorId);
         GeneratorData emptyGeneratorData = new GeneratorData(generatorId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                                                             false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false);
+                                                             Double.NaN, false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
                 boolean found = generatorsData.containsKey(generatorId);
                 GeneratorData generatorData = found ? generatorsData.get(generatorId) : emptyGeneratorData;
-                write(generatorId, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn,
+                write(generatorId, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn,
                       minP, maxP, minQ, maxQ, mainComponent, validated, generatorData, found, true);
                 generatorsData.remove(generatorId);
             } else {
-                generatorsData.put(generatorId, new GeneratorData(generatorId, p, q, v, targetP, targetQ, targetV, connected,
+                generatorsData.put(generatorId, new GeneratorData(generatorId, p, q, v, targetP, targetQ, targetV, expectedP, connected,
                                                                   voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated));
             }
         } else {
-            write(generatorId, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn,
+            write(generatorId, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn,
                   minP, maxP, minQ, maxQ, mainComponent, validated, emptyGeneratorData, false, true);
         }
     }
 
-    protected abstract void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV,
+    protected abstract void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP,
                                   boolean connected, boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent,
                                   boolean validated, GeneratorData generatorData, boolean found, boolean writeValues) throws IOException;
 
@@ -318,7 +318,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         generatorsData.values().forEach(generatorData -> {
             try {
                 write(generatorData.generatorId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                      Double.NaN, false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false,
+                      Double.NaN, Double.NaN, false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false,
                       generatorData, true, false);
             } catch (IOException e) {
                 LOGGER.error("Error writing data of generator {}: {}", generatorData.generatorId, e.getMessage());
@@ -467,6 +467,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         final double targetP;
         final double targetQ;
         final double targetV;
+        final double expectedP;
         final boolean connected;
         final boolean voltageRegulatorOn;
         final double minP;
@@ -476,7 +477,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         final boolean mainComponent;
         final boolean validated;
 
-        GeneratorData(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV,
+        GeneratorData(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP,
                       boolean connected, boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ,
                       boolean mainComponent, boolean validated) {
             this.generatorId = Objects.requireNonNull(generatorId);
@@ -486,6 +487,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
             this.targetP = targetP;
             this.targetQ = targetQ;
             this.targetV = targetV;
+            this.expectedP = expectedP;
             this.connected = connected;
             this.voltageRegulatorOn = voltageRegulatorOn;
             this.minP = minP;

@@ -8,8 +8,8 @@ package com.powsybl.iidm.network.impl.util;
 
 import com.powsybl.commons.concurrent.CleanableExecutors;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.StateManager;
-import com.powsybl.iidm.network.StateManagerConstants;
+import com.powsybl.iidm.network.VariantManager;
+import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
 
@@ -23,24 +23,24 @@ import static org.junit.Assert.*;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class MultiStateNetworkThreadCleanerTest {
+public class MultiVariantNetworkThreadCleanerTest {
 
     @Test
     public void testAfterExecute() throws Exception {
         Network network = EurostagTutorialExample1Factory.create();
-        StateManager manager = network.getStateManager();
-        manager.allowStateMultiThreadAccess(true);
-        assertEquals(StateManagerConstants.INITIAL_STATE_ID, manager.getWorkingStateId());
-        ExecutorService service = CleanableExecutors.newFixedThreadPool("TEST_POOL", 1, Collections.singleton(new MultiStateNetworkThreadCleaner()));
+        VariantManager manager = network.getVariantManager();
+        manager.allowVariantMultiThreadAccess(true);
+        assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, manager.getWorkingVariantId());
+        ExecutorService service = CleanableExecutors.newFixedThreadPool("TEST_POOL", 1, Collections.singleton(new MultiVariantNetworkThreadCleaner()));
         Thread[] threads = new Thread[1];
         service.submit(() -> {
-            manager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
+            manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
             threads[0] = Thread.currentThread();
         }).get();
         service.submit(() -> {
             assertSame(Thread.currentThread(), threads[0]); // just one thread in the pool
             try {
-                // current working state should not be set even if it is the same thread than previously
+                // current working variant should not be set even if it is the same thread than previously
                 network.getGenerator("GEN").getTargetP();
                 fail();
             } catch (Exception ignored) {

@@ -26,29 +26,29 @@ public interface DanglingLine extends Injection<DanglingLine> {
 
     /**
      * Get the constant active power in MW.
-     * <p>Depends on the working state.
-     * @see StateManager
+     * <p>Depends on the working variant.
+     * @see VariantManager
      */
     double getP0();
 
     /**
      * Set the constant active power in MW.
-     * <p>Depends on the working state.
-     * @see StateManager
+     * <p>Depends on the working variant.
+     * @see VariantManager
      */
     DanglingLine setP0(double p0);
 
     /**
      * Get the constant reactive power in MW.
-     * <p>Depends on the working state.
-     * @see StateManager
+     * <p>Depends on the working variant.
+     * @see VariantManager
      */
     double getQ0();
 
     /**
      * Set the constant reactive power in MW.
-     * <p>Depends on the working state.
-     * @see StateManager
+     * <p>Depends on the working variant.
+     * @see VariantManager
      */
     DanglingLine setQ0(double q0);
 

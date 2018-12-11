@@ -6,12 +6,12 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.impl.util.Ref;
 
 import java.util.ArrayList;
-import java.util.BitSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -63,39 +63,39 @@ class BusTerminal extends AbstractTerminal {
 
     };
 
-    // attributes depending on the state
+    // attributes depending on the variant
 
-    private final BitSet connected;
+    private final TBooleanArrayList connected;
 
     private final ArrayList<String> connectableBusId;
 
-    BusTerminal(Ref<? extends MultiStateObject> network, String connectableBusId, boolean connected) {
+    BusTerminal(Ref<? extends VariantManagerHolder> network, String connectableBusId, boolean connected) {
         super(network);
         Objects.requireNonNull(connectableBusId);
-        int stateArraySize = network.get().getStateManager().getStateArraySize();
-        this.connectableBusId = new ArrayList<>(stateArraySize);
-        for (int i = 0; i < stateArraySize; i++) {
+        int variantArraySize = network.get().getVariantManager().getVariantArraySize();
+        this.connected = new TBooleanArrayList(variantArraySize);
+        this.connectableBusId = new ArrayList<>(variantArraySize);
+        for (int i = 0; i < variantArraySize; i++) {
+            this.connected.add(connected);
             this.connectableBusId.add(connectableBusId);
         }
-        this.connected = new BitSet(stateArraySize);
-        this.connected.set(0, stateArraySize, connected);
     }
 
     void setConnectableBusId(String connectableBusId) {
-        this.connectableBusId.set(network.get().getStateIndex(), connectableBusId);
+        this.connectableBusId.set(network.get().getVariantIndex(), connectableBusId);
     }
 
     String getConnectableBusId() {
-        return this.connectableBusId.get(network.get().getStateIndex());
+        return this.connectableBusId.get(network.get().getVariantIndex());
     }
 
     void setConnected(boolean connected) {
-        this.connected.set(network.get().getStateIndex(), connected);
+        this.connected.set(network.get().getVariantIndex(), connected);
     }
 
     @Override
     public boolean isConnected() {
-        return this.connected.get(network.get().getStateIndex());
+        return this.connected.get(network.get().getVariantIndex());
     }
 
     @Override
@@ -134,35 +134,37 @@ class BusTerminal extends AbstractTerminal {
     }
 
     @Override
-    public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
-        super.extendStateArraySize(initStateArraySize, number, sourceIndex);
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        connected.ensureCapacity(connected.size() + number);
         connectableBusId.ensureCapacity(connectableBusId.size() + number);
         for (int i = 0; i < number; i++) {
+            connected.add(connected.get(sourceIndex));
             connectableBusId.add(connectableBusId.get(sourceIndex));
-            connected.set(initStateArraySize + i, connected.get(sourceIndex));
         }
     }
 
     @Override
-    public void reduceStateArraySize(int number) {
-        super.reduceStateArraySize(number);
+    public void reduceVariantArraySize(int number) {
+        super.reduceVariantArraySize(number);
         for (int i = 0; i < number; i++) {
+            connected.removeAt(connected.size() - 1);
             connectableBusId.remove(connectableBusId.size() - 1);
         }
     }
 
     @Override
-    public void deleteStateArrayElement(int index) {
-        super.deleteStateArrayElement(index);
+    public void deleteVariantArrayElement(int index) {
+        super.deleteVariantArrayElement(index);
         connectableBusId.set(index, null);
     }
 
     @Override
-    public void allocateStateArrayElement(int[] indexes, int sourceIndex) {
-        super.allocateStateArrayElement(indexes, sourceIndex);
+    public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+        super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
-            connectableBusId.set(index, connectableBusId.get(sourceIndex));
             connected.set(index, connected.get(sourceIndex));
+            connectableBusId.set(index, connectableBusId.get(sourceIndex));
         }
     }
 

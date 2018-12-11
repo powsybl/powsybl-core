@@ -13,7 +13,7 @@ import java.util.Objects;
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
-interface NetworkCopyStrategy {
+public interface NetworkCopyStrategy {
 
     Network createState(String id);
 
