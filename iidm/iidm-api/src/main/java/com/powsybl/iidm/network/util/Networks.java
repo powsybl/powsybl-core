@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.AbstractTableFormatter;
 import com.powsybl.commons.io.table.AsciiTableFormatter;
+import com.powsybl.commons.io.table.Column;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 
@@ -245,11 +246,10 @@ public final class Networks {
 
     private static String writeInTable(ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
         try (Writer myWriter = new PrintWriter(System.out);
-             AbstractTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter", 5)) {
-
-            formatter.writeCell("Bus count").
-                    writeCellWithColspan("Main CC connected/disconnected", 2).
-                    writeCellWithColspan("Others CC connected/disconnected", 2);
+             AbstractTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter",
+                     new Column("Bus count"),
+                     new Column("Main CC connected/disconnected", 2),
+                     new Column("Others CC connected/disconnected", 2))) {
             formatter.writeCell("Bus count").
                     writeCellWithColspan(Integer.toString(balanceMainCC.busCount), 2).
                     writeCellWithColspan(Integer.toString(balanceOtherCC.busCount), 2);

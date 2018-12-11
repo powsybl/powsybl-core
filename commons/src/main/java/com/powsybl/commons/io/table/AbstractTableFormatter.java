@@ -6,6 +6,7 @@
  */
 package com.powsybl.commons.io.table;
 
+
 import java.io.IOException;
 import java.io.Writer;
 import java.text.NumberFormat;
@@ -22,6 +23,8 @@ public abstract class AbstractTableFormatter implements TableFormatter {
 
     protected final Column[] columns;
 
+    protected  int tabLength = 0;
+
     protected int column;
 
     protected AbstractTableFormatter(Writer writer, TableFormatterConfig config, Column... columns) {
@@ -29,9 +32,12 @@ public abstract class AbstractTableFormatter implements TableFormatter {
         this.config = Objects.requireNonNull(config);
         this.columns = Objects.requireNonNull(columns);
         this.column = 0;
+        for (Column c : columns) {
+            tabLength += c.getColspan();
+        }
     }
 
-    public AbstractTableFormatter(Writer writer, TableFormatterConfig config, int length) {
+    protected AbstractTableFormatter(Writer writer, TableFormatterConfig config, int length) {
         this.writer = Objects.requireNonNull(writer);
         this.config = Objects.requireNonNull(config);
         this.column = 0;
@@ -39,6 +45,7 @@ public abstract class AbstractTableFormatter implements TableFormatter {
         for (int i = 0; i < length; i++) {
             columns[i] = new Column(String.valueOf(i));
         }
+        tabLength = length;
     }
 
     protected abstract TableFormatter write(String value) throws IOException;

@@ -17,11 +17,20 @@ public class Column {
 
     private final String name;
 
+    private final int colspan;
+
     private HorizontalAlignment horizontalAlignment;
 
     private NumberFormat numberFormat = null;
 
     public Column(String name) {
+        this.colspan = 1;
+        this.name = name;
+        this.horizontalAlignment = HorizontalAlignment.LEFT;
+    }
+
+    public Column(String name, int colspan) {
+        this.colspan = colspan;
         this.name = name;
         this.horizontalAlignment = HorizontalAlignment.LEFT;
     }
@@ -46,5 +55,9 @@ public class Column {
     public Column setNumberFormat(NumberFormat numberFormat) {
         this.numberFormat = Objects.requireNonNull(numberFormat);
         return this;
+    }
+
+    public int getColspan() {
+        return colspan;
     }
 }

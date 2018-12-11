@@ -9,6 +9,7 @@ package com.powsybl.action.simulator.loadflow;
 import com.powsybl.action.dsl.Rule;
 import com.powsybl.commons.io.table.AbstractTableFormatter;
 import com.powsybl.commons.io.table.AsciiTableFormatter;
+import com.powsybl.commons.io.table.Column;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.Security;
 
@@ -80,9 +81,9 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
         if (verbose &&  (variables.size() + actions.size() > 0)) {
 
             try (Writer myWriter = new StringWriter();
-                 AbstractTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter", 2)) {
-                formatter.writeCell("Variable");
-                formatter.writeCell("Value");
+                 AbstractTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter",
+                         new Column("Variable"),
+                         new Column("Value"))) {
                 variables.forEach((key, value) ->
                         addKeyValueToTable(formatter, key + "", value.toString())
                 );
