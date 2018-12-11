@@ -11,7 +11,7 @@ import com.google.common.base.Strings;
 
 import java.nio.file.FileSystem;
 import java.util.*;
-import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
@@ -28,7 +28,7 @@ public final class KeyNameUpperCasedMapModuleConfigRepository implements ModuleC
 
     static final String SEPARATOR = "__";
 
-    static final Function<String, String> ENV_VAR_FORMATTER = name -> {
+    static final UnaryOperator<String> ENV_VAR_FORMATTER = name -> {
         if (name.toLowerCase().equals(name)) {
             return CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_UNDERSCORE, name);
         } else {
