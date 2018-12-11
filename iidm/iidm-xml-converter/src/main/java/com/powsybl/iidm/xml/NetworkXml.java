@@ -137,11 +137,14 @@ public final class NetworkXml {
         }
     }
 
-    private static void writeExtensionNamespaces(Network n, XMLStreamWriter writer) throws XMLStreamException {
+    private static void writeExtensionNamespaces(Network n, ExportOptions options, XMLStreamWriter writer) throws XMLStreamException {
         Set<String> extensionUris = new HashSet<>();
         Set<String> extensionPrefixes = new HashSet<>();
         for (String extensionName : getNetworkExtensions(n)) {
-            ExtensionXmlSerializer extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProviderOrThrowException(extensionName);
+            ExtensionXmlSerializer extensionXmlSerializer = getExtensionXmlSerializer(options, extensionName);
+            if (extensionXmlSerializer == null) {
+                continue;
+            }
             if (extensionUris.contains(extensionXmlSerializer.getNamespaceUri())) {
                 throw new PowsyblException("Extension namespace URI collision");
             } else {
@@ -157,12 +160,13 @@ public final class NetworkXml {
         }
     }
 
-
     private static void writeExtension(Extension<? extends Identifiable<?>> extension, NetworkXmlWriterContext context) throws XMLStreamException {
-
+        ExtensionXmlSerializer extensionXmlSerializer = getExtensionXmlSerializer(context.getOptions(),
+                extension.getName());
+        if (extensionXmlSerializer == null) {
+            return;
+        }
         XMLStreamWriter writer = context.getWriter();
-
-        ExtensionXmlSerializer extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProviderOrThrowException(extension.getName());
         if (extensionXmlSerializer.hasSubElements()) {
             writer.writeStartElement(extensionXmlSerializer.getNamespaceUri(), extension.getName());
         } else {
@@ -172,6 +176,16 @@ public final class NetworkXml {
         if (extensionXmlSerializer.hasSubElements()) {
             writer.writeEndElement();
         }
+    }
+
+    private static ExtensionXmlSerializer getExtensionXmlSerializer(ExportOptions options, String extensionName) {
+        ExtensionXmlSerializer extensionXmlSerializer = options.isThrowExceptionIfExtensionNotFound()
+                ? EXTENSIONS_SUPPLIER.get().findProviderOrThrowException(extensionName)
+                : EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
+        if (extensionXmlSerializer == null) {
+            LOGGER.warn("No Extension XML Serializer for {}", extensionName);
+        }
+        return extensionXmlSerializer;
     }
 
     private static void writeExtensions(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
@@ -202,7 +216,7 @@ public final class NetworkXml {
 
             if (!options.isSkipExtensions()) {
                 // add additional extension namespaces and check there is no collision between extensions
-                writeExtensionNamespaces(n, writer);
+                writeExtensionNamespaces(n, options, writer);
             }
 
             writer.writeAttribute("id", n.getId());
@@ -233,6 +247,9 @@ public final class NetworkXml {
             }
 
             if (!options.isSkipExtensions()) {
+                // Consider the network has been exported so its extensions will be written also
+                context.addExportedEquipment(n);
+
                 // write extensions
                 writeExtensions(n, context);
             }
