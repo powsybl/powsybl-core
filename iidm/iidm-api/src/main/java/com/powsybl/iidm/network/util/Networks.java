@@ -102,12 +102,7 @@ public final class Networks {
         addGenerators(network, balanceMainCC, balanceOtherCC);
         addShuntCompensators(network, balanceMainCC, balanceOtherCC);
 
-        Supplier<String> mySupplier = new Supplier<String>() {
-            @Override
-            public String get() {
-                return writeInTable(balanceMainCC, balanceOtherCC);
-            }
-        };
+        Supplier<String> mySupplier = () -> writeInTable(balanceMainCC, balanceOtherCC);
 
         logOtherCC(logger, title, mySupplier, balanceOtherCC);
     }
