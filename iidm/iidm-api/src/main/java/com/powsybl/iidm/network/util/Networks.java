@@ -240,7 +240,7 @@ public final class Networks {
 
 
     private static String writeInTable(ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
-        try (Writer myWriter = new PrintWriter(System.out);
+        try (Writer myWriter = new StringWriter();
              AbstractTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter",
                      new Column("Bus count"),
                      new Column("Main CC connected/disconnected").setColspan(2),
