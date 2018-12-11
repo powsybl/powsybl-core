@@ -234,9 +234,11 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
             write(twtId, "u1", found, found ? twtData2.getU(ThreeWindingsTransformer.Side.ONE) : Double.NaN, writeValues, writeValues ? twtData1.getU(ThreeWindingsTransformer.Side.ONE) : Double.NaN);
             write(twtId, "u2", found, found ? twtData2.getU(ThreeWindingsTransformer.Side.TWO) : Double.NaN, writeValues, writeValues ? twtData1.getU(ThreeWindingsTransformer.Side.TWO) : Double.NaN);
             write(twtId, "u3", found, found ? twtData2.getU(ThreeWindingsTransformer.Side.THREE) : Double.NaN, writeValues, writeValues ? twtData1.getU(ThreeWindingsTransformer.Side.THREE) : Double.NaN);
+            write(twtId, "starU", found, found ? twtData2.getStarU() : Double.NaN, writeValues, writeValues ? twtData1.getStarU() : Double.NaN);
             write(twtId, THETA1, found, found ? twtData2.getTheta(ThreeWindingsTransformer.Side.ONE) : Double.NaN, writeValues, writeValues ? twtData1.getTheta(ThreeWindingsTransformer.Side.ONE) : Double.NaN);
             write(twtId, THETA2, found, found ? twtData2.getTheta(ThreeWindingsTransformer.Side.TWO) : Double.NaN, writeValues, writeValues ? twtData1.getTheta(ThreeWindingsTransformer.Side.TWO) : Double.NaN);
             write(twtId, THETA3, found, found ? twtData2.getTheta(ThreeWindingsTransformer.Side.THREE) : Double.NaN, writeValues, writeValues ? twtData1.getTheta(ThreeWindingsTransformer.Side.THREE) : Double.NaN);
+            write(twtId, "starTheta", found, found ? twtData2.getStarTheta() : Double.NaN, writeValues, writeValues ? twtData1.getStarTheta() : Double.NaN);
             write(twtId, "g", found, found ? twtData2.getG() : Double.NaN, writeValues, writeValues ? twtData1.getG() : Double.NaN);
             write(twtId, "b", found, found ? twtData2.getB() : Double.NaN, writeValues, writeValues ? twtData1.getB() : Double.NaN);
             write(twtId, "r1", found, found ? twtData2.getR(ThreeWindingsTransformer.Side.ONE) : Double.NaN, writeValues, writeValues ? twtData1.getR(ThreeWindingsTransformer.Side.ONE) : Double.NaN);

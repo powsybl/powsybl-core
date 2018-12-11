@@ -43,6 +43,9 @@ public class Twt3wTestData {
     public static double U3 = 21.987;
     public static double ANGLE3 = -6.6508;
 
+    public static double STAR_U = 412.66853716385845;
+    public static double STAR_ANGLE = -7.353779246544198;
+
     public static double G = 0;
     public static double B = 2.4375E-6;
 
