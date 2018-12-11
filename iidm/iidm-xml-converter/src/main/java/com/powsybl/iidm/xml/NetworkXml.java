@@ -240,7 +240,7 @@ public final class NetworkXml {
                 }
             }
             for (HvdcLine l : n.getHvdcLines()) {
-                if (!filter.test(l.getConverterStation1()) && filter.test(l.getConverterStation2())) {
+                if (!filter.test(l.getConverterStation1()) || !filter.test(l.getConverterStation2())) {
                     continue;
                 }
                 HvdcLineXml.INSTANCE.write(l, n, context);

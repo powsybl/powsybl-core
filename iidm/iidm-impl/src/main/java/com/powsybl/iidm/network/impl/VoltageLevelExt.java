@@ -12,7 +12,7 @@ import com.powsybl.iidm.network.VoltageLevel;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-interface VoltageLevelExt extends VoltageLevel, Stateful {
+interface VoltageLevelExt extends VoltageLevel, MultiVariantObject {
 
     interface NodeBreakerViewExt extends NodeBreakerView {
 

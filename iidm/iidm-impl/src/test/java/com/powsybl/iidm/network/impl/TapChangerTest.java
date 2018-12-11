@@ -156,8 +156,8 @@ public class TapChangerTest {
     }
 
     @Test
-    public void testTapChangerSetterGetterInMultiStates() {
-        StateManager stateManager = network.getStateManager();
+    public void testTapChangerSetterGetterInMultiVariants() {
+        VariantManager variantManager = network.getVariantManager();
         createPhaseTapChangerWith2Steps(1, 0, true,
                 PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, 1.0, terminal);
         createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, terminal);
@@ -170,10 +170,10 @@ public class TapChangerTest {
         RatioTapChanger ratioTapChangerInLeg2 = leg2.getRatioTapChanger();
         RatioTapChanger ratioTapChangerInLeg3 = leg3.getRatioTapChanger();
 
-        List<String> statesToAdd = Arrays.asList("s1", "s2", "s3", "s4");
-        stateManager.cloneState(StateManagerConstants.INITIAL_STATE_ID, statesToAdd);
+        List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
 
-        stateManager.setWorkingState("s4");
+        variantManager.setWorkingVariant("s4");
         // check values cloned by extend
         assertEquals(1, phaseTapChanger.getTapPosition());
         assertTrue(phaseTapChanger.isRegulating());
@@ -203,10 +203,10 @@ public class TapChangerTest {
         ratioTapChangerInLeg3.setTargetV(13.5);
 
         // remove s2
-        stateManager.removeState("s2");
+        variantManager.removeVariant("s2");
 
-        stateManager.cloneState("s4", "s2b");
-        stateManager.setWorkingState("s2b");
+        variantManager.cloneVariant("s4", "s2b");
+        variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
         assertEquals(0, phaseTapChanger.getTapPosition());
         assertFalse(phaseTapChanger.isRegulating());
@@ -221,8 +221,8 @@ public class TapChangerTest {
         assertFalse(ratioTapChangerInLeg3.isRegulating());
         assertEquals(13.5, ratioTapChangerInLeg3.getTargetV(), 0.0);
 
-        // recheck initial state value
-        stateManager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
+        // recheck initial variant value
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertEquals(1, phaseTapChanger.getTapPosition());
         assertTrue(phaseTapChanger.isRegulating());
         assertEquals(1.0, phaseTapChanger.getRegulationValue(), 0.0);
@@ -236,9 +236,9 @@ public class TapChangerTest {
         assertTrue(ratioTapChangerInLeg3.isRegulating());
         assertEquals(11.0, ratioTapChangerInLeg3.getTargetV(), 0.0);
 
-        // remove working state s4
-        stateManager.setWorkingState("s4");
-        stateManager.removeState("s4");
+        // remove working variant s4
+        variantManager.setWorkingVariant("s4");
+        variantManager.removeVariant("s4");
         getTapPositionThrowsException(phaseTapChanger);
         getTapPositionThrowsException(ratioTapChanger);
         getTapPositionThrowsException(ratioTapChangerInLeg2);

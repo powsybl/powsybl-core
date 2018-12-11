@@ -199,15 +199,15 @@ public class GeneratorTest {
     }
 
     @Test
-    public void testSetterGetterInMultiStates() {
-        StateManager stateManager = network.getStateManager();
-        createGenerator("testMultiState", EnergySource.HYDRO, 20.0, 11., 2.0,
+    public void testSetterGetterInMultiVariants() {
+        VariantManager variantManager = network.getVariantManager();
+        createGenerator("testMultiVariant", EnergySource.HYDRO, 20.0, 11., 2.0,
                 30.0, 40.0, true, 2.0);
-        Generator generator = network.getGenerator("testMultiState");
-        List<String> statesToAdd = Arrays.asList("s1", "s2", "s3", "s4");
-        stateManager.cloneState(StateManagerConstants.INITIAL_STATE_ID, statesToAdd);
+        Generator generator = network.getGenerator("testMultiVariant");
+        List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
 
-        stateManager.setWorkingState("s4");
+        variantManager.setWorkingVariant("s4");
         // check values cloned by extend
         assertTrue(generator.isVoltageRegulatorOn());
         assertEquals(30.0, generator.getTargetP(), 0.0);
@@ -220,26 +220,26 @@ public class GeneratorTest {
         generator.setTargetV(9.3);
 
         // remove s2
-        stateManager.removeState("s2");
+        variantManager.removeVariant("s2");
 
-        stateManager.cloneState("s4", "s2b");
-        stateManager.setWorkingState("s2b");
+        variantManager.cloneVariant("s4", "s2b");
+        variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
         assertFalse(generator.isVoltageRegulatorOn());
         assertEquals(9.1, generator.getTargetP(), 0.0);
         assertEquals(9.2, generator.getTargetQ(), 0.0);
         assertEquals(9.3, generator.getTargetV(), 0.0);
 
-        // recheck initial state value
-        stateManager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
+        // recheck initial variant value
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertTrue(generator.isVoltageRegulatorOn());
         assertEquals(30.0, generator.getTargetP(), 0.0);
         assertEquals(40.0, generator.getTargetQ(), 0.0);
         assertEquals(2.0, generator.getTargetV(), 0.0);
 
-        // remove working state s4
-        stateManager.setWorkingState("s4");
-        stateManager.removeState("s4");
+        // remove working variant s4
+        variantManager.setWorkingVariant("s4");
+        variantManager.removeVariant("s4");
         try {
             generator.getTargetP();
             fail();
