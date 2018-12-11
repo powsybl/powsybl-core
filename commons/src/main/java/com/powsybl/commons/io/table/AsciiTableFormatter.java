@@ -44,7 +44,6 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
         this(writer, title, TableFormatterConfig.load(), length);
     }
 
-
     public AsciiTableFormatter(String title, Column... columns) {
         this(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), title, TableFormatterConfig.load(), columns);
     }
@@ -80,7 +79,6 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
         writer.write(table.render() + System.lineSeparator());
         writer.flush();
     }
-
 
     private static CellStyle convertCellStyle(HorizontalAlignment horizontalAlignment) {
         switch (horizontalAlignment) {
