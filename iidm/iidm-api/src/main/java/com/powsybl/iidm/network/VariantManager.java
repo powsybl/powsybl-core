@@ -4,18 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.network.impl;
+package com.powsybl.iidm.network;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-interface StateContext {
-
-    int getStateIndex();
-
-    void setStateIndex(int index);
-
-    void resetIfStateIndexIs(int index);
-
+public interface VariantManager extends StateManager {
 }

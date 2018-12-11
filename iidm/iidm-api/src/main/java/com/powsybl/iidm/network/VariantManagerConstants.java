@@ -7,17 +7,15 @@
 package com.powsybl.iidm.network;
 
 /**
- * @deprecated use {@link VariantManagerConstants} instead.
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-@Deprecated
-public final class StateManagerConstants {
+public final class VariantManagerConstants {
 
     /**
-     * @deprecated use {@link VariantManagerConstants#INITIAL_VARIANT_ID} instead.
+     * A constant for the id of the initial variant (the one created by default)
      */
-    @Deprecated
-    public static final String INITIAL_STATE_ID = "InitialState";
+    public static final String INITIAL_VARIANT_ID = "InitialState";
 
-    private StateManagerConstants() {
+    private VariantManagerConstants() {
     }
 }

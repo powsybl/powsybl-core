@@ -10,8 +10,10 @@ package com.powsybl.iidm.network.impl;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-interface StateFactory<S extends State> {
+interface VariantManagerHolder {
 
-    S newState();
+    VariantManagerImpl getVariantManager();
+
+    int getVariantIndex();
 
 }
