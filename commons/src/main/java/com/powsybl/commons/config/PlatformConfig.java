@@ -15,10 +15,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -60,9 +57,12 @@ public class PlatformConfig {
     }
 
     private static ModuleConfigRepository loadModuleRepository(Path[] configDirs, String configName) {
-        List<ModuleConfigRepository> repositories = Arrays.stream(configDirs)
+        List<ModuleConfigRepository> repositoriesFromPath = Arrays.stream(configDirs)
                 .map(configDir -> loadModuleRepository(configDir, configName))
                 .collect(Collectors.toList());
+        List<ModuleConfigRepository> repositories = new ArrayList<>();
+        repositories.add(new KeyNameUpperCasedMapModuleConfigRepository(System.getenv(), FileSystems.getDefault()));
+        repositories.addAll(repositoriesFromPath);
         return new StackedModuleConfigRepository(repositories);
     }
 

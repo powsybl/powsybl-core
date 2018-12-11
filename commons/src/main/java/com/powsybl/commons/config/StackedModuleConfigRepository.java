@@ -6,7 +6,10 @@
  */
 package com.powsybl.commons.config;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  *
@@ -14,15 +17,14 @@ import java.util.*;
  */
 public class StackedModuleConfigRepository implements ModuleConfigRepository {
 
-    private final List<ModuleConfigRepository> repositories = new ArrayList<>();
+    private final List<ModuleConfigRepository> repositories;
 
     public StackedModuleConfigRepository(ModuleConfigRepository... repositories) {
         this(Arrays.asList(repositories));
     }
 
     public StackedModuleConfigRepository(List<ModuleConfigRepository> repositories) {
-        this.repositories.add(EnvironmentModuleConfigRepository.getInstance());
-        this.repositories.addAll(Objects.requireNonNull(repositories));
+        this.repositories = Objects.requireNonNull(repositories);
     }
 
     @Override

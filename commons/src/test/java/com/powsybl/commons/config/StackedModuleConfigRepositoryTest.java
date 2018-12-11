@@ -6,14 +6,14 @@
  */
 package com.powsybl.commons.config;
 
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.io.IOException;
+import java.nio.file.FileSystem;
 
 import static org.junit.Assert.*;
 
@@ -21,7 +21,19 @@ import static org.junit.Assert.*;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StackedModuleConfigRepositoryTest extends MapModuleConfigTest {
+public class StackedModuleConfigRepositoryTest {
+
+    private FileSystem fileSystem;
+
+    @Before
+    public void setUp() throws IOException {
+        fileSystem = Jimfs.newFileSystem(Configuration.unix());
+    }
+
+    @After
+    public void tearDown() throws IOException {
+        fileSystem.close();
+    }
 
     private ModuleConfigRepository createRepository1() {
         InMemoryModuleConfigRepository repository1 = new InMemoryModuleConfigRepository(fileSystem);
@@ -44,64 +56,10 @@ public class StackedModuleConfigRepositoryTest extends MapModuleConfigTest {
 
     @Test
     public void test() {
-        testEnvConfig();
-
         StackedModuleConfigRepository stackedRepository = new StackedModuleConfigRepository(createRepository2(), createRepository1());
         ModuleConfig config1 = stackedRepository.getModuleConfig("config1").orElse(null);
         assertNotNull(config1);
         assertEquals("newValue1", config1.getStringProperty("key1"));
         assertEquals("value2", config1.getStringProperty("key2"));
-    }
-
-    private void testEnvConfig() {
-        Map<String, String> fakeEnvMap = new HashMap<>();
-        fakeEnvMap.put("MOD__S", "hello");
-        fakeEnvMap.put("MOD__I", "3");
-        fakeEnvMap.put("MOD__L", "33333333333");
-        fakeEnvMap.put("MOD__B", "false");
-        fakeEnvMap.put("MOD__D", "2.3");
-        fakeEnvMap.put("MOD__C", ArrayList.class.getName());
-        fakeEnvMap.put("MOD__SL1", "a,b,c");
-        fakeEnvMap.put("MOD__SL2", "a:b:c");
-        fakeEnvMap.put("MOD__E", StandardOpenOption.APPEND.name());
-        fakeEnvMap.put("MOD__EL", StandardOpenOption.APPEND + "," + StandardOpenOption.CREATE);
-        Path p = fileSystem.getPath("/tmp");
-        Path p2 = fileSystem.getPath("/home");
-        fakeEnvMap.put("MOD__P", p.toString());
-        fakeEnvMap.put("MOD__PL", p.toString() + ":" + p2.toString());
-        fakeEnvMap.put("MOD__PL2", p.toString() + "," + p2.toString());
-        fakeEnvMap.put("MOD__DT", "2009-01-03T18:15:05Z");
-        fakeEnvMap.put("MOD__IT", "2009-01-03T18:15:05Z/2009-01-09T02:54:25Z");
-
-        fakeEnvMap.put("LOAD_FLOW_ACTION_SIMULATOR__MAX_ITERATIONS", "7");
-
-        String lowerCamel = "lowerCamel";
-        fakeEnvMap.put("LOWER_CAMEL__LOWER_CAMEL", "asfd");
-
-        EnvironmentModuleConfigRepository sut = EnvironmentModuleConfigRepository.getInstanceForTest(fakeEnvMap, fileSystem);
-        assertTrue(sut.moduleExists("mod"));
-        Optional<ModuleConfig> modConfigOpt = sut.getModuleConfig("mod");
-        assertTrue(modConfigOpt.isPresent());
-        ModuleConfig modConfig = modConfigOpt.get();
-
-        assertModConfig(modConfig);
-
-        String modName = "load-flow-action-simulator";
-        Optional<ModuleConfig> moduleConfigOpt = sut.getModuleConfig(modName);
-        assertTrue(moduleConfigOpt.isPresent());
-        ModuleConfig moduleConfig = moduleConfigOpt.get();
-        assertEquals(7, moduleConfig.getIntProperty("max-iterations"));
-
-        assertTrue(sut.moduleExists(lowerCamel));
-        ModuleConfig moduleConfig1 = sut.getModuleConfig(lowerCamel).get();
-        assertEquals("asfd", moduleConfig1.getStringProperty(lowerCamel));
-
-        assertFalse(sut.moduleExists(""));
-        try {
-            modConfig.getPropertyNames();
-            fail();
-        } catch (Exception e) {
-            // ignore
-        }
     }
 }

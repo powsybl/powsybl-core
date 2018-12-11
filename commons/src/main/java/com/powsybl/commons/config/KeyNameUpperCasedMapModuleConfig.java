@@ -12,8 +12,8 @@ import org.joda.time.DateTime;
 import java.nio.file.FileSystem;
 import java.util.*;
 
-import static com.powsybl.commons.config.EnvironmentModuleConfigRepository.ENV_VAR_FORMATTER;
-import static com.powsybl.commons.config.EnvironmentModuleConfigRepository.SEPARATOR;
+import static com.powsybl.commons.config.KeyNameUpperCasedMapModuleConfigRepository.ENV_VAR_FORMATTER;
+import static com.powsybl.commons.config.KeyNameUpperCasedMapModuleConfigRepository.SEPARATOR;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
