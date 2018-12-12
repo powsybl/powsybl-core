@@ -480,6 +480,8 @@ public abstract class AbstractAppStorageTest {
 
         // 19) rename node test
         NodeInfo folder5Info = storage.createNode(rootFolderInfo.getId(), "test5", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
+        storage.createNode(folder5Info.getId(), "child_of_test5", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
+        storage.createNode(folder5Info.getId(), "another_child_of_test5", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
         storage.flush();
 
         String newName = "newtest5";
@@ -488,6 +490,9 @@ public abstract class AbstractAppStorageTest {
         storage.flush();
         folder5Info = storage.getNodeInfo(folder5Info.getId());
         assertEquals(newName, folder5Info.getName());
+        assertEquals(2, storage.getChildNodes(folder5Info.getId()).size());
+        assertTrue(storage.getChildNode(folder5Info.getId(), "child_of_test5").isPresent());
+        assertTrue(storage.getChildNode(folder5Info.getId(), "another_child_of_test5").isPresent());
 
         NodeInfo folder6Info = storage.createNode(rootFolderInfo.getId(), "test6", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
         try {
