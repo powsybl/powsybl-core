@@ -105,8 +105,9 @@ public class XMLImporterTest {
 
     @Test
     public void getParameters() throws Exception {
-        assertEquals(1, importer.getParameters().size());
-        assertEquals("throwExceptionIfExtensionNotFound", importer.getParameters().get(0).getName());
+        assertEquals(2, importer.getParameters().size());
+        assertEquals("iidm.import.xml.throw-exception-if-extension-not-found", importer.getParameters().get(0).getName());
+        assertEquals("throwExceptionIfExtensionNotFound", importer.getParameters().get(1).getName());
     }
 
     @Test
@@ -156,10 +157,21 @@ public class XMLImporterTest {
         assertNotNull(importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5"), null));
 
         // extension plugin will be not found but option is set to throw an exception
+        // (deprecated parameter name)
         Properties params = new Properties();
         params.put("throwExceptionIfExtensionNotFound", "true");
         try {
             importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5"), params);
+            fail();
+        } catch (RuntimeException ignored) {
+        }
+
+        // extension plugin will be not found but option is set to throw an exception
+        // (parameter name following same naming convention of XmlExporter)
+        Properties params2 = new Properties();
+        params2.put("iidm.import.xml.throw-exception-if-extension-not-found", "true");
+        try {
+            importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5"), params2);
             fail();
         } catch (RuntimeException ignored) {
         }

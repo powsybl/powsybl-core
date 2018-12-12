@@ -6,6 +6,29 @@
  */
 package com.powsybl.iidm.xml;
 
+import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
+import static com.powsybl.iidm.xml.IidmXmlConstants.VERSION;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.UncheckedIOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Properties;
+
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.events.XMLEvent;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.auto.service.AutoService;
 import com.google.common.base.Joiner;
 import com.google.common.base.Supplier;
@@ -24,22 +47,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 import com.powsybl.iidm.parameters.ParameterType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.events.XMLEvent;
-import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
-
-import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
-import static com.powsybl.iidm.xml.IidmXmlConstants.VERSION;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -53,8 +60,11 @@ public class XMLImporter implements Importer {
 
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 
-    private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND
+    private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_DEPRECATED
             = new Parameter("throwExceptionIfExtensionNotFound", ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE);
+
+    private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND
+            = new Parameter("iidm.import.xml.throw-exception-if-extension-not-found", ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE);
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
@@ -75,7 +85,7 @@ public class XMLImporter implements Importer {
 
     @Override
     public List<Parameter> getParameters() {
-        return Collections.singletonList(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND);
+        return Arrays.asList(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_DEPRECATED);
     }
 
     @Override
@@ -168,7 +178,7 @@ public class XMLImporter implements Importer {
                 throw new PowsyblException("File " + dataSource.getBaseName()
                         + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
             }
-            boolean throwExceptionIfExtensionNotFound = (Boolean) Importers.readParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, defaultValueConfig);
+            boolean throwExceptionIfExtensionNotFound = isThrowExceptionIfExtensionNotFound(parameters);
             Anonymizer anonymizer = null;
             if (dataSource.exists(SUFFIX_MAPPING, "csv")) {
                 anonymizer = new SimpleAnonymizer();
@@ -186,5 +196,10 @@ public class XMLImporter implements Importer {
         return network;
     }
 
+    private boolean isThrowExceptionIfExtensionNotFound(Properties parameters) {
+        boolean b1 = (Boolean) Importers.readParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, defaultValueConfig);
+        boolean b2 = (Boolean) Importers.readParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_DEPRECATED, defaultValueConfig);
+        return b1 || b2;
+    }
 }
 
