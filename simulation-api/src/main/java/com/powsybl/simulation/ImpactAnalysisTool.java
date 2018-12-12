@@ -14,6 +14,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.commons.io.table.AbstractTableFormatter;
 import com.powsybl.commons.io.table.AsciiTableFormatter;
+import com.powsybl.commons.io.table.Column;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -126,14 +127,13 @@ public class ImpactAnalysisTool implements Tool {
     }
 
     private static void prettyPrint(Multimap<String, SecurityIndex> securityIndexesPerContingency, PrintStream out) {
+        Column[] columns = new Column[ 1 + SecurityIndexType.values().length];
+        columns[0] = new Column("Contingency");
+        for (int i = 1; i <= SecurityIndexType.values().length; i++) {
+            columns[i] = new Column("" + SecurityIndexType.values()[i - 1].toString());
+        }
         try (Writer myWriter = new PrintWriter(out);
-             AbstractTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter", 1 + SecurityIndexType.values().length)) {
-            formatter.writeCell("Contingency");
-
-            for (SecurityIndexType securityIndexType : SecurityIndexType.values()) {
-                formatter.writeCell(securityIndexType.toString());
-            }
-
+             AbstractTableFormatter formatter = new AsciiTableFormatter(myWriter,  "myFormatter", columns)) {
             for (Map.Entry<String, Collection<SecurityIndex>> entry : securityIndexesPerContingency.asMap().entrySet()) {
                 String contingencyId = entry.getKey();
                 formatter.writeCell(contingencyId);
