@@ -25,6 +25,8 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
  */
 public class TwtData {
 
+    private static final String UNEXPECTED_SIDE = "Unexpected side";
+
     private final String id;
 
     private final double p1;
@@ -227,7 +229,7 @@ public class TwtData {
     private BranchData legBranchData(String twtId, Side side, LegBase<?> leg, double g, double b, double ratedU0,
             Complex starVoltage,
             double epsilonX, boolean applyReactanceCorrection) {
-        String id = twtId + "_" + side;
+        String branchId = twtId + "_" + side;
         double r = side == Side.ONE ? leg.getR() : adjustedR((Leg2or3) leg);
         double x = side == Side.ONE ? leg.getX() : adjustedX((Leg2or3) leg);
         double uk = getV(leg);
@@ -250,7 +252,7 @@ public class TwtData {
         double flowQk = Double.NaN;
         double flowP0 = Double.NaN;
         double flowQ0 = Double.NaN;
-        return new BranchData(id, r, x, rhok, rho0, uk, u0, thetak, theta0, alphak, alpha0, gk, g0, bk, b0,
+        return new BranchData(branchId, r, x, rhok, rho0, uk, u0, thetak, theta0, alphak, alpha0, gk, g0, bk, b0,
                 flowPk, flowQk, flowP0, flowQ0, buskConnected, bus0Connected, buskMainComponent, bus0MainComponent,
                 epsilonX, applyReactanceCorrection);
     }
@@ -269,7 +271,7 @@ public class TwtData {
             case THREE:
                 return computedP3;
             default:
-                throw new AssertionError("Unexpected side: " + side);
+                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -283,7 +285,7 @@ public class TwtData {
             case THREE:
                 return computedQ3;
             default:
-                throw new AssertionError("Unexpected side: " + side);
+                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -297,7 +299,7 @@ public class TwtData {
             case THREE:
                 return p3;
             default:
-                throw new AssertionError("Unexpected side: " + side);
+                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -311,7 +313,7 @@ public class TwtData {
             case THREE:
                 return q3;
             default:
-                throw new AssertionError("Unexpected side: " + side);
+                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -325,7 +327,7 @@ public class TwtData {
             case THREE:
                 return u3;
             default:
-                throw new AssertionError("Unexpected side: " + side);
+                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -343,7 +345,7 @@ public class TwtData {
             case THREE:
                 return theta3;
             default:
-                throw new AssertionError("Unexpected side: " + side);
+                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -369,7 +371,7 @@ public class TwtData {
             case THREE:
                 return r3;
             default:
-                throw new AssertionError("Unexpected side: " + side);
+                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -383,7 +385,7 @@ public class TwtData {
             case THREE:
                 return x3;
             default:
-                throw new AssertionError("Unexpected side: " + side);
+                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -397,7 +399,7 @@ public class TwtData {
             case THREE:
                 return ratedU3;
             default:
-                throw new AssertionError("Unexpected side: " + side);
+                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -411,7 +413,7 @@ public class TwtData {
             case THREE:
                 return connected3;
             default:
-                throw new AssertionError("Unexpected side: " + side);
+                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
         }
     }
 
@@ -425,7 +427,7 @@ public class TwtData {
             case THREE:
                 return mainComponent3;
             default:
-                throw new AssertionError("Unexpected side: " + side);
+                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
         }
     }
 }

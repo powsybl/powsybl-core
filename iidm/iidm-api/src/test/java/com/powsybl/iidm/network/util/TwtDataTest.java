@@ -16,21 +16,21 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public class TwtDataTest extends AbstractTwtDataTest {
+public class TwtDataTest {
 
     @Test
     public void test() {
-        TwtData twtData = new TwtData(twt, 0, false);
+        TwtData twtData = new TwtData(new TwtTestData().get3WTransformer(), 0, false);
 
-        assertEquals(99.218431, twtData.getComputedP(Side.ONE), .3);
-        assertEquals(3.304328, twtData.getComputedQ(Side.ONE), .3);
-        assertEquals(-216.198190, twtData.getComputedP(Side.TWO), .3);
-        assertEquals(-85.368180, twtData.getComputedQ(Side.TWO), .3);
-        assertEquals(118, twtData.getComputedP(Side.THREE), .3);
-        assertEquals(92.612077, twtData.getComputedQ(Side.THREE), .3);
+        assertEquals(TwtTestData.P1, twtData.getComputedP(Side.ONE), .3);
+        assertEquals(TwtTestData.Q1, twtData.getComputedQ(Side.ONE), .3);
+        assertEquals(TwtTestData.P2, twtData.getComputedP(Side.TWO), .3);
+        assertEquals(TwtTestData.Q2, twtData.getComputedQ(Side.TWO), .3);
+        assertEquals(TwtTestData.P3, twtData.getComputedP(Side.THREE), .3);
+        assertEquals(TwtTestData.Q3, twtData.getComputedQ(Side.THREE), .3);
 
-        assertEquals(412.66853716385845, twtData.getStarU(), .0001);
-        assertEquals(-7.353779246544198, Math.toDegrees(twtData.getStarTheta()), .0001);
+        assertEquals(TwtTestData.STAR_U, twtData.getStarU(), .0001);
+        assertEquals(TwtTestData.STAR_ANGLE, Math.toDegrees(twtData.getStarTheta()), .0001);
     }
 
 }

@@ -17,6 +17,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.util.TwtTestData;
 
 /**
  *
@@ -24,30 +25,30 @@ import com.powsybl.iidm.network.Network;
  */
 public class Transformers3WValidationTest extends AbstractValidationTest {
 
-    private Twt3wTestData twt3wValidationData;
+    private TwtTestData twtValidationData;
 
     @Before
     public void setUp() {
-        twt3wValidationData = new Twt3wTestData();
+        twtValidationData = new TwtTestData();
     }
 
     @Test
     public void checkTwts() {
-        assertFalse(Transformers3WValidation.checkTransformer(twt3wValidationData.get3WTransformer(), strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(Transformers3WValidation.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, NullWriter.NULL_WRITER));
         strictConfig.setThreshold(.3);
-        assertTrue(Transformers3WValidation.checkTransformer(twt3wValidationData.get3WTransformer(), strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(Transformers3WValidation.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, NullWriter.NULL_WRITER));
         // check NaN values
-        twt3wValidationData.setNanP();
-        assertFalse(Transformers3WValidation.checkTransformer(twt3wValidationData.get3WTransformer(), strictConfig, NullWriter.NULL_WRITER));
+        twtValidationData.setNanLeg1P();
+        assertFalse(Transformers3WValidation.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, NullWriter.NULL_WRITER));
         strictConfig.setOkMissingValues(true);
-        assertTrue(Transformers3WValidation.checkTransformer(twt3wValidationData.get3WTransformer(), strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(Transformers3WValidation.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, NullWriter.NULL_WRITER));
     }
 
     @Test
     public void checkNetworkTwts() {
         Network network = Mockito.mock(Network.class);
         Mockito.when(network.getId()).thenReturn("network");
-        Mockito.when(network.getThreeWindingsTransformerStream()).thenAnswer(dummy -> Stream.of(twt3wValidationData.get3WTransformer()));
+        Mockito.when(network.getThreeWindingsTransformerStream()).thenAnswer(dummy -> Stream.of(twtValidationData.get3WTransformer()));
 
         assertFalse(Transformers3WValidation.checkTransformers(network, strictConfig, NullWriter.NULL_WRITER));
         strictConfig.setThreshold(.3);

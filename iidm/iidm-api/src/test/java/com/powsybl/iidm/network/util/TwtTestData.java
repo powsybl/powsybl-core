@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.loadflow.validation;
+package com.powsybl.iidm.network.util;
 
 import org.mockito.Mockito;
 
@@ -14,13 +14,12 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.Terminal.BusView;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg1;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg2or3;
-import com.powsybl.iidm.network.util.TwtData;
 
 /**
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public class Twt3wTestData {
+public class TwtTestData {
 
     public static double P1 = 99.218431;
     public static double Q1 = 3.304328;
@@ -42,6 +41,9 @@ public class Twt3wTestData {
     public static double ANGLE2 = -8.77012;
     public static double U3 = 21.987;
     public static double ANGLE3 = -6.6508;
+
+    public static double STAR_U = 412.66853716385845;
+    public static double STAR_ANGLE = -7.353779246544198;
 
     public static double G = 0;
     public static double B = 2.4375E-6;
@@ -66,7 +68,7 @@ public class Twt3wTestData {
     private Terminal leg1Terminal;
     private ThreeWindingsTransformer twt3w;
 
-    public Twt3wTestData() {
+    public TwtTestData() {
         Bus leg1Bus = Mockito.mock(Bus.class);
         Mockito.when(leg1Bus.getV()).thenReturn(U1);
         Mockito.when(leg1Bus.getAngle()).thenReturn(ANGLE1);
@@ -140,12 +142,8 @@ public class Twt3wTestData {
         return twt3w;
     }
 
-    public void setNanP() {
+    public void setNanLeg1P() {
         Mockito.when(leg1Terminal.getP()).thenReturn(Double.NaN);
-    }
-
-    public TwtData getTwTData() {
-        return new TwtData(twt3w, 0, false);
     }
 
 }
