@@ -32,7 +32,11 @@ public final class KeyNameUpperCasedMapModuleConfigRepository implements ModuleC
         if (name.toLowerCase().equals(name)) {
             return CaseFormat.LOWER_HYPHEN.to(CaseFormat.UPPER_UNDERSCORE, name);
         } else {
-            return CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, name);
+            if (Character.isUpperCase(name.charAt(0))) {
+                return CaseFormat.UPPER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, name);
+            } else {
+                return CaseFormat.LOWER_CAMEL.to(CaseFormat.UPPER_UNDERSCORE, name);
+            }
         }
     };
 

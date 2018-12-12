@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.powsybl.commons.config.KeyNameUpperCasedMapModuleConfigRepository.ENV_VAR_FORMATTER;
 import static org.junit.Assert.*;
 
 /**
@@ -52,6 +53,9 @@ public class KeyNameUpperCasedMapModuleConfigRepositoryTest extends MapModuleCon
         String snakeCaseMod = "a_snake_mod";
         fakeEnvMap.put("A_SNAKE_MOD__SNAKE_LENGTH", "3");
 
+        String upperCamel = "UpperCamel";
+        fakeEnvMap.put("UPPER_CAMEL__UPPER_CAMEL", "UpperCamel");
+
         KeyNameUpperCasedMapModuleConfigRepository sut = new KeyNameUpperCasedMapModuleConfigRepository(fakeEnvMap, fileSystem);
         assertTrue(sut.moduleExists("mod"));
         Optional<ModuleConfig> modConfigOpt = sut.getModuleConfig("mod");
@@ -73,6 +77,9 @@ public class KeyNameUpperCasedMapModuleConfigRepositoryTest extends MapModuleCon
         assertTrue(sut.moduleExists(snakeCaseMod));
         assertEquals(3, sut.getModuleConfig(snakeCaseMod).get().getIntProperty("snake_length"));
 
+        assertTrue(sut.moduleExists(upperCamel));
+        assertEquals("UpperCamel", sut.getModuleConfig(upperCamel).get().getStringProperty("UpperCamel"));
+
         assertTrue(sut.moduleExists("ab__cd"));
         assertEquals("fio", sut.getModuleConfig("ab__cd").get().getStringProperty("ef"));
         assertTrue(sut.moduleExists("ab"));
@@ -84,5 +91,14 @@ public class KeyNameUpperCasedMapModuleConfigRepositoryTest extends MapModuleCon
         } catch (Exception e) {
             // ignore
         }
+    }
+
+    @Test
+    public void testNameToEnvConverter() {
+        assertEquals("NAME", ENV_VAR_FORMATTER.apply("name"));
+        assertEquals("LOWER_HYPHEN", ENV_VAR_FORMATTER.apply("lower-hyphen"));
+        assertEquals("LOWER_CAMEL", ENV_VAR_FORMATTER.apply("lowerCamel"));
+        assertEquals("UPPER_CAMEL", ENV_VAR_FORMATTER.apply("UpperCamel"));
+        assertEquals("SNAKE_CASE", ENV_VAR_FORMATTER.apply("snake_case"));
     }
 }
