@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -127,6 +128,19 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
                 tx.getLeg2().getTerminal(),
                 tx.getLeg3().getTerminal());
 
+        // Save phase angle clocks as an extension, if any of them is non-zero
+        // Add phaseAngleClock as a fixed phase tap changer
+        if (context.config().considerPhaseAngleClock()) {
+            int clock1 = winding1.asInt("phaseAngleClock", 0);
+            int clock2 = winding2.asInt("phaseAngleClock", 0);
+            int clock3 = winding3.asInt("phaseAngleClock", 0);
+            if (clock1 != 0 || clock2 != 0 || clock3 != 0) {
+                tx.addExtension(
+                        PhaseAngleClocksExtension.class,
+                        new PhaseAngleClocksExtension(clock1, clock2, clock3));
+            }
+        }
+
         // We do not follow here the same schema of two-windings,
         // we are saving for later all possible tap changers
         context.tapChangerTransformers().add(rtc1, tx, 1);
@@ -135,6 +149,36 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
         context.tapChangerTransformers().add(ptc1, tx, 1);
         context.tapChangerTransformers().add(ptc2, tx, 2);
         context.tapChangerTransformers().add(ptc3, tx, 3);
+    }
+
+    public static class PhaseAngleClocksExtension extends AbstractExtension<ThreeWindingsTransformer> {
+
+        public PhaseAngleClocksExtension(int clock1, int clock2, int clock3) {
+            this.clock1 = clock1;
+            this.clock2 = clock2;
+            this.clock3 = clock3;
+        }
+
+        public int clock1() {
+            return clock1;
+        }
+
+        public int clock2() {
+            return clock2;
+        }
+
+        public int clock3() {
+            return clock3;
+        }
+
+        @Override
+        public String getName() {
+            return "PhaseAngleClocks";
+        }
+
+        private final int clock1;
+        private final int clock2;
+        private final int clock3;
     }
 
     private final PropertyBag winding1;
