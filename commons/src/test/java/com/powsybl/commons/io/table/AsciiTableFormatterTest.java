@@ -6,17 +6,16 @@
  */
 package com.powsybl.commons.io.table;
 
+
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.Result;
-import org.junit.runner.notification.Failure;
 
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
+import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
 
@@ -24,6 +23,7 @@ import static org.junit.Assert.assertEquals;
  * @author Chamseddine BENHAMED <chamseddine.benhamed at rte-france.com>
  */
 public class AsciiTableFormatterTest {
+    TableFormatterConfig config = new TableFormatterConfig(Locale.US, "inv");
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
@@ -33,7 +33,7 @@ public class AsciiTableFormatterTest {
         thrown.expect(IllegalArgumentException.class);
         thrown.expectMessage("colspan must be greater than 0");
         Writer myWriter = new StringWriter();
-        try (AsciiTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter",
+        try (AsciiTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter", config,
                 new Column("column1")
                         .setColspan(-5),
                 new Column("colomun2"))) {
@@ -57,7 +57,7 @@ public class AsciiTableFormatterTest {
     @Test
     public void testAsciiTableFormatter1() throws IOException {
         Writer myWriter = new StringWriter();
-        try (AsciiTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter",
+        try (AsciiTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter", config,
                 new Column("column1")
                         .setColspan(5),
                 new Column("colomun2"))) {
@@ -91,7 +91,7 @@ public class AsciiTableFormatterTest {
     @Test
     public void testAsciiTableFormatter2() throws IOException {
         Writer myWriter = new StringWriter();
-        try (AsciiTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter",
+        try (AsciiTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter", config,
                 new Column("column1"),
                 new Column("column2"),
                 new Column("column3"))) {
@@ -113,7 +113,7 @@ public class AsciiTableFormatterTest {
     @Test
     public void testAsciiTableFormatter3() throws IOException {
         Writer myWriter = new StringWriter();
-        try (AsciiTableFormatter formatter3 = new AsciiTableFormatter(myWriter, "myFormatter",
+        try (AsciiTableFormatter formatter3 = new AsciiTableFormatter(myWriter, "myFormatter", config,
                 new Column("column1").setColspan(2),
                 new Column("column2"))) {
             formatter3.writeWithColspan("Test3", 3);
@@ -130,16 +130,5 @@ public class AsciiTableFormatterTest {
                         "+-------+-------+---------+\n",
                 myWriter.toString());
         myWriter.close();
-    }
-
-
-
-
-    public static void main(String[] args) {
-        Result result = JUnitCore.runClasses(AsciiTableFormatterTest.class);
-        for (Failure failure : result.getFailures()) {
-            System.out.println(failure.toString());
-        }
-        System.out.println(result.wasSuccessful());
     }
 }
