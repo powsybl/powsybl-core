@@ -11,10 +11,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.UncheckedIOException;
-import java.io.Writer;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
@@ -56,7 +54,8 @@ public class AsciiTableFormatterTest {
 
     @Test
     public void testAsciiTableFormatter1() throws IOException {
-        Writer myWriter = new StringWriter();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        Writer myWriter = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
         try (AsciiTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter", config,
                 new Column("column1")
                         .setColspan(5),
@@ -74,7 +73,7 @@ public class AsciiTableFormatterTest {
             formatter.writeWithColspan("content3", 1);
             formatter.writeWithColspan("content3", 1);
         }
-        assertEquals("myFormatter:\n" +
+        assertEquals("myFormatter:" + System.lineSeparator() +
                         "+------------------------------------------------------+----------+\n" +
                         "| column1                                              | colomun2 |\n" +
                         "+-----------------------------------------------------------------+\n" +
@@ -82,15 +81,16 @@ public class AsciiTableFormatterTest {
                         "| content2 | content3                                             |\n" +
                         "| content2 | content3                                             |\n" +
                         "| content3 | content3 | content3 | content3 | content3 | content3 |\n" +
-                        "+----------+----------+----------+----------+----------+----------+\n",
-                myWriter.toString());
+                        "+----------+----------+----------+----------+----------+----------+" + System.lineSeparator(),
+                new String(bos.toByteArray(), StandardCharsets.UTF_8));
         myWriter.close();
     }
 
 
     @Test
     public void testAsciiTableFormatter2() throws IOException {
-        Writer myWriter = new StringWriter();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        Writer myWriter = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
         try (AsciiTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter", config,
                 new Column("column1"),
                 new Column("column2"),
@@ -99,20 +99,21 @@ public class AsciiTableFormatterTest {
             formatter.writeWithColspan("Test1", 2);
             formatter.writeWithColspan("Test1", 1);
         }
-        assertEquals("myFormatter:\n" +
+        assertEquals("myFormatter:" + System.lineSeparator() +
                         "+---------+---------+---------+\n" +
                         "| column1 | column2 | column3 |\n" +
                         "+-----------------------------+\n" +
                         "| Test1                       |\n" +
                         "| Test1             | Test1   |\n" +
-                        "+-------------------+---------+\n",
-                myWriter.toString());
+                        "+-------------------+---------+" + System.lineSeparator(),
+                new String(bos.toByteArray(), StandardCharsets.UTF_8));
         myWriter.close();
     }
 
     @Test
     public void testAsciiTableFormatter3() throws IOException {
-        Writer myWriter = new StringWriter();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        Writer myWriter = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
         try (AsciiTableFormatter formatter3 = new AsciiTableFormatter(myWriter, "myFormatter", config,
                 new Column("column1").setColspan(2),
                 new Column("column2"))) {
@@ -121,14 +122,14 @@ public class AsciiTableFormatterTest {
             formatter3.writeWithColspan("Test3", 1);
             formatter3.writeWithColspan("Test3", 1);
         }
-        assertEquals("myFormatter:\n" +
+        assertEquals("myFormatter:" + System.lineSeparator() +
                         "+---------------+---------+\n" +
                         "| column1       | column2 |\n" +
                         "+-------------------------+\n" +
                         "| Test3                   |\n" +
                         "| Test3 | Test3 | Test3   |\n" +
-                        "+-------+-------+---------+\n",
-                myWriter.toString());
+                        "+-------+-------+---------+" + System.lineSeparator(),
+                new String(bos.toByteArray(), StandardCharsets.UTF_8));
         myWriter.close();
     }
 }
