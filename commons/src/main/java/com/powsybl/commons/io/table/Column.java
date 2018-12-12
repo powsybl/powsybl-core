@@ -56,7 +56,13 @@ public class Column {
     }
 
     public Column setColspan(int colspan) {
-        this.colspan = colspan;
+        this.colspan = checkColspan(colspan);
         return this;
+    }
+    private static int checkColspan(int colspan) {
+        if (colspan < 1) {
+            throw new IllegalArgumentException("colspan must be greater than 0");
+        }
+        return  colspan;
     }
 }
