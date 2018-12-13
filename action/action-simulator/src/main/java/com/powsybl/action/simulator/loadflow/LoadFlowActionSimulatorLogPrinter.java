@@ -63,15 +63,6 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
             out.println(Security.printLimitsViolations(violations, runningContext.getNetwork(), LoadFlowActionSimulator.NO_FILTER));
         }
     }
-    private static void addKeyValueToTable(AbstractTableFormatter formatter, String key, String value) {
-        try {
-            formatter.writeCell(key);
-            formatter.writeCell(value);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-
-    }
 
     @Override
     public void ruleChecked(RunningContext runningContext, Rule rule, RuleEvaluationStatus status, Map<String, Object> variables, Map<String, Boolean> actions) {
@@ -83,12 +74,14 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
             try (AbstractTableFormatter formatter = new AsciiTableFormatter(writer, null,
                          new Column("Variable"),
                          new Column("Value"))) {
-                variables.forEach((key, value) ->
-                        addKeyValueToTable(formatter, key + "", value.toString())
-                );
-                actions.forEach((key, value) ->
-                        addKeyValueToTable(formatter, key + ".actionTaken", value.toString())
-                );
+                for (Map.Entry<String, Object> entry : variables.entrySet()) {
+                    formatter.writeCell(entry.getKey());
+                    formatter.writeCell(Objects.toString(entry.getValue()));
+                }
+                for (Map.Entry<String, Boolean> entry : actions.entrySet()) {
+                    formatter.writeCell(entry.getKey() + ".actionTaken");
+                    formatter.writeCell(entry.getValue());
+                }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
