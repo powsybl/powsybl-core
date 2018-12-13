@@ -80,6 +80,11 @@ public class ReadOnlyTimeSeriesStoreCache implements ReadOnlyTimeSeriesStore {
     }
 
     @Override
+    public List<DoubleTimeSeries> getDoubleTimeSeries(int version) {
+        return new ArrayList<>(doubleTimeSeriesMap.values());
+    }
+
+    @Override
     public Optional<StringTimeSeries> getStringTimeSeries(String timeSeriesName, int version) {
         return Optional.empty();
     }
