@@ -126,6 +126,13 @@ public class ReadOnlyTimeSeriesStoreAggregator implements ReadOnlyTimeSeriesStor
     }
 
     @Override
+    public List<DoubleTimeSeries> getDoubleTimeSeries(int version) {
+        return stores.stream()
+                .flatMap(store -> store.getDoubleTimeSeries(version).stream())
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public Optional<StringTimeSeries> getStringTimeSeries(String timeSeriesName, int version) {
         Objects.requireNonNull(timeSeriesName);
         TimeSeriesVersions.check(version);

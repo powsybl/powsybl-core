@@ -32,6 +32,8 @@ public interface ReadOnlyTimeSeriesStore {
 
     List<DoubleTimeSeries> getDoubleTimeSeries(Set<String> timeSeriesNames, int version);
 
+    List<DoubleTimeSeries> getDoubleTimeSeries(int version);
+
     Optional<StringTimeSeries> getStringTimeSeries(String timeSeriesName, int version);
 
     List<StringTimeSeries> getStringTimeSeries(Set<String> timeSeriesNames, int version);
