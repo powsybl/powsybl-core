@@ -77,6 +77,18 @@ public class AmplNetworkReaderTest {
     }
 
     @Test
+    public void readThreeWindingTransformers2() throws IOException {
+        Network network = ThreeWindingsTransformerNetworkFactory.create();
+        StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
+
+        MemDataSource memDataSource = new MemDataSource();
+        importData(memDataSource, "_branches", "outputs/3wt-branches-variant-index-2.txt");
+
+        AmplNetworkReader reader = new AmplNetworkReader(memDataSource, network, 2, mapper);
+        testThreeWindingTransBranches(network, reader);
+    }
+
+    @Test
     public void readDanglingLines() throws IOException {
         Network network = DanglingLineNetworkFactory.create();
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
@@ -113,6 +125,31 @@ public class AmplNetworkReaderTest {
 
     }
 
+
+    @Test
+    public void readHvdcLinesWithVariousVariants() throws IOException {
+        Network network = HvdcTestNetwork.createLcc();
+        StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
+
+        MemDataSource memDataSource = new MemDataSource();
+        importData(memDataSource, "_hvdc", "outputs/hvdc-with-various-variants.txt");
+        importData(memDataSource, "_shunts", "outputs/shunts-with-various-variants.txt");
+        importData(memDataSource, "_lcc_converter_stations", "outputs/lcc-with-various-variants.txt");
+
+        AmplNetworkReader reader = new AmplNetworkReader(memDataSource, network, 3, mapper);
+        testHvdc(network, reader);
+        testShunts(network, reader);
+        testLcc(network, reader);
+
+        Network network2 = HvdcTestNetwork.createVsc();
+        StringToIntMapper<AmplSubset> mapper2 = AmplUtil.createMapper(network2);
+
+        MemDataSource memDataSource2 = new MemDataSource();
+        importData(memDataSource2, "_vsc_converter_stations", "outputs/vsc-with-various-variants.txt");
+        AmplNetworkReader reader2 = new AmplNetworkReader(memDataSource2, network2, 3, mapper2);
+        testVsc(network2, reader2);
+
+    }
 
     @Test
     public void readSvc() throws IOException {
