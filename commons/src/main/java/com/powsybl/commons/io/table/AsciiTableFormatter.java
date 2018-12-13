@@ -38,8 +38,8 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
         this(new OutputStreamWriter(System.out, StandardCharsets.UTF_8), title, TableFormatterConfig.load(), columns);
     }
 
-    public AsciiTableFormatter(Writer myWriter, String title, Column... columns) {
-        this(myWriter, title, TableFormatterConfig.load(), columns);
+    public AsciiTableFormatter(Writer writer, String title, Column... columns) {
+        this(writer, title, TableFormatterConfig.load(), columns);
     }
 
     @Override

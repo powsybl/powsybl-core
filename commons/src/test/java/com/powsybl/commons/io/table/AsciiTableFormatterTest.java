@@ -21,36 +21,11 @@ import static org.junit.Assert.assertEquals;
  * @author Chamseddine BENHAMED <chamseddine.benhamed at rte-france.com>
  */
 public class AsciiTableFormatterTest {
+
     TableFormatterConfig config = new TableFormatterConfig(Locale.US, "inv");
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
-
-    @Test
-    public void throwException() {
-        thrown.expect(IllegalArgumentException.class);
-        thrown.expectMessage("colspan must be greater than 0");
-        Writer myWriter = new StringWriter();
-        try (AsciiTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter", config,
-                new Column("column1")
-                        .setColspan(-5),
-                new Column("colomun2"))) {
-            formatter.writeWithColspan("content1", 3);
-            formatter.writeWithColspan("content1", 3);
-            formatter.writeWithColspan("content2", 1);
-            formatter.writeWithColspan("content3", 5);
-            formatter.writeWithColspan("content2", 1);
-            formatter.writeWithColspan("content3", 5);
-            formatter.writeWithColspan("content3", 1);
-            formatter.writeWithColspan("content3", 1);
-            formatter.writeWithColspan("content3", 1);
-            formatter.writeWithColspan("content3", 1);
-            formatter.writeWithColspan("content3", 1);
-            formatter.writeWithColspan("content3", 1);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
 
     @Test
     public void testAsciiTableFormatter1() throws IOException {

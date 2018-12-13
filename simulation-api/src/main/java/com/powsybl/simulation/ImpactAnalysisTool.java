@@ -127,13 +127,15 @@ public class ImpactAnalysisTool implements Tool {
     }
 
     private static void prettyPrint(Multimap<String, SecurityIndex> securityIndexesPerContingency, PrintStream out) {
-        Column[] columns = new Column[ 1 + SecurityIndexType.values().length];
-        columns[0] = new Column("Contingency");
-        for (int i = 1; i <= SecurityIndexType.values().length; i++) {
-            columns[i] = new Column("" + SecurityIndexType.values()[i - 1].toString());
+        List<Column> columns = new ArrayList<>(SecurityIndexType.values().length + 1);
+        columns.add(new Column("Contingency"));
+        for (SecurityIndexType securityIndexType : SecurityIndexType.values()) {
+            columns.add(new Column(securityIndexType.toString()));
         }
-        try (Writer myWriter = new PrintWriter(out);
-             AbstractTableFormatter formatter = new AsciiTableFormatter(myWriter,  "myFormatter", columns)) {
+        Column[] arrayColumns = columns.toArray(new Column[0]);
+
+        Writer writer = new OutputStreamWriter(out);
+        try (AbstractTableFormatter formatter = new AsciiTableFormatter(writer, null, arrayColumns)) {
             for (Map.Entry<String, Collection<SecurityIndex>> entry : securityIndexesPerContingency.asMap().entrySet()) {
                 String contingencyId = entry.getKey();
                 formatter.writeCell(contingencyId);

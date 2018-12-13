@@ -82,26 +82,4 @@ public class TableFormatterTest {
                 "+-----+---------+---------+-------+-------+------+--------+--------+" + System.lineSeparator(),
             new String(bos.toByteArray(), StandardCharsets.UTF_8));
     }
-
-    @Test
-    public void testAcsiiTable() throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        TableFormatterConfig config = new TableFormatterConfig(Locale.US, "inv");
-        AsciiTableFormatterFactory factory = new AsciiTableFormatterFactory();
-        try (Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
-             TableFormatter formatter = factory.create(writer, "ascii test", config, COLUMNS)) {
-            write(formatter);
-        }
-        assertEquals("ascii test:" + System.lineSeparator() +
-                        "+-----+---------+---------+-------+-------+------+--------+--------+\n" +
-                        "| int | double  | float   | bool  | empty | char | string | empty2 |\n" +
-                        "+-----+---------+---------+-------+-------+------+--------+--------+\n" +
-                        "|     |         |         |       |       |      |        |        |\n" +
-                        "| 2   | inv     | 2.40000 | true  |       | a    | aaa    |        |\n" +
-                        "|     |         |         |       |       |      |        |        |\n" +
-                        "|     |         |         |       |       |      |        |        |\n" +
-                        "| 3   | 4.20000 | inv     | false |       | b    | bbb    |        |\n" +
-                        "+-----+---------+---------+-------+-------+------+--------+--------+" + System.lineSeparator(),
-                new String(bos.toByteArray(), StandardCharsets.UTF_8));
-    }
 }

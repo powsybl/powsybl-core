@@ -37,17 +37,6 @@ public abstract class AbstractTableFormatter implements TableFormatter {
         }
     }
 
-    protected AbstractTableFormatter(Writer writer, TableFormatterConfig config, int length) {
-        this.writer = Objects.requireNonNull(writer);
-        this.config = Objects.requireNonNull(config);
-        this.column = 0;
-        columns = new Column[length];
-        for (int i = 0; i < length; i++) {
-            columns[i] = new Column(String.valueOf(i));
-        }
-        tabLength = length;
-    }
-
     protected abstract TableFormatter write(String value) throws IOException;
 
     protected  TableFormatter writeWithColspan(String value, int colspan) throws IOException {

@@ -102,9 +102,7 @@ public final class Networks {
         addGenerators(network, balanceMainCC, balanceOtherCC);
         addShuntCompensators(network, balanceMainCC, balanceOtherCC);
 
-        Supplier<String> mySupplier = () -> writeInTable(balanceMainCC, balanceOtherCC);
-
-        logOtherCC(logger, title, mySupplier, balanceOtherCC);
+        logOtherCC(logger, title, () -> writeInTable(balanceMainCC, balanceOtherCC), balanceOtherCC);
     }
 
     private static void addBuses(Network network, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
@@ -240,12 +238,13 @@ public final class Networks {
 
 
     private static String writeInTable(ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
-        try (Writer myWriter = new StringWriter();
-             AbstractTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter",
-                     new Column("Bus count"),
+        try (Writer writer = new StringWriter();
+             AbstractTableFormatter formatter = new AsciiTableFormatter(writer, null,
+                     new Column(""),
                      new Column("Main CC connected/disconnected").setColspan(2),
                      new Column("Others CC connected/disconnected").setColspan(2))) {
             formatter.writeCell("Bus count").
+                    // TODO(MBA): CellStyle centerStyle = new CellStyle(CellStyle.HorizontalAlign.center);
                     writeCellWithColspan(Integer.toString(balanceMainCC.busCount), 2).
                     writeCellWithColspan(Integer.toString(balanceOtherCC.busCount), 2);
             formatter.writeCell("Load count").
@@ -286,16 +285,16 @@ public final class Networks {
                     writeCell(Double.toString(balanceOtherCC.disconnectedShuntPositiveVolume) + " " +
                             Double.toString(balanceOtherCC.disconnectedShuntNegativeVolume) +
                             " (" + Integer.toString(balanceOtherCC.disconnectedShunts.size()) + ")");
-            return myWriter.toString();
+            return writer.toString();
 
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private static void logOtherCC(Logger logger, String title,  Supplier<String> mySupplier, ConnectedPower balanceOtherCC) {
+    private static void logOtherCC(Logger logger, String title,  Supplier<String> tableSupplier, ConnectedPower balanceOtherCC) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Active balance at step '{}':\n{}", title, mySupplier.get());
+            logger.debug("Active balance at step '{}':\n{}", title, tableSupplier.get());
         }
 
         if (!balanceOtherCC.connectedLoads.isEmpty()) {

@@ -17,15 +17,14 @@ public class Column {
 
     private final String name;
 
-    private int colspan;
-
     private HorizontalAlignment horizontalAlignment;
 
     private NumberFormat numberFormat = null;
 
+    private int colspan = 1;
+
     public Column(String name) {
-        this.colspan = 1;
-        this.name = name;
+        this.name = Objects.requireNonNull(name);
         this.horizontalAlignment = HorizontalAlignment.LEFT;
     }
 
@@ -59,6 +58,7 @@ public class Column {
         this.colspan = checkColspan(colspan);
         return this;
     }
+
     private static int checkColspan(int colspan) {
         if (colspan < 1) {
             throw new IllegalArgumentException("colspan must be greater than 0");
