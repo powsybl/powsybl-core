@@ -82,5 +82,4 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
                 return new CellStyle();
         }
     }
-
 }

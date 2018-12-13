@@ -6,7 +6,6 @@
  */
 package com.powsybl.commons.io.table;
 
-
 import java.io.IOException;
 import java.io.Writer;
 import java.text.NumberFormat;
@@ -42,7 +41,6 @@ public abstract class AbstractTableFormatter implements TableFormatter {
     protected  TableFormatter writeWithColspan(String value, int colspan) throws IOException {
         throw new UnsupportedOperationException("Not implemented");
     }
-
 
     @Override
     public TableFormatter writeCell(String s) throws IOException {

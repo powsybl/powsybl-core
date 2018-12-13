@@ -79,9 +79,8 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
             out.println("        Rule '" + rule.getId() + "' evaluated to " + status);
         }
         if (verbose &&  (variables.size() + actions.size() > 0)) {
-
-            try (Writer myWriter = new StringWriter();
-                 AbstractTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter",
+            Writer writer = new OutputStreamWriter(out);
+            try (AbstractTableFormatter formatter = new AsciiTableFormatter(writer, null,
                          new Column("Variable"),
                          new Column("Value"))) {
                 variables.forEach((key, value) ->
@@ -90,7 +89,6 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
                 actions.forEach((key, value) ->
                         addKeyValueToTable(formatter, key + ".actionTaken", value.toString())
                 );
-                out.println(myWriter.toString());
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
