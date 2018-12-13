@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.powsybl.commons.config.KeyNameUpperCasedMapModuleConfigRepository.ENV_VAR_FORMATTER;
+import static com.powsybl.commons.config.KeyNameUpperCasedMapModuleConfigRepository.UPPER_UNDERSCORE_FORMATTER;
 import static org.junit.Assert.*;
 
 /**
@@ -94,11 +94,11 @@ public class KeyNameUpperCasedMapModuleConfigRepositoryTest extends MapModuleCon
     }
 
     @Test
-    public void testNameToEnvConverter() {
-        assertEquals("NAME", ENV_VAR_FORMATTER.apply("name"));
-        assertEquals("LOWER_HYPHEN", ENV_VAR_FORMATTER.apply("lower-hyphen"));
-        assertEquals("LOWER_CAMEL", ENV_VAR_FORMATTER.apply("lowerCamel"));
-        assertEquals("UPPER_CAMEL", ENV_VAR_FORMATTER.apply("UpperCamel"));
-        assertEquals("SNAKE_CASE", ENV_VAR_FORMATTER.apply("snake_case"));
+    public void testUpperUndersocreFormatter() {
+        assertEquals("NAME", UPPER_UNDERSCORE_FORMATTER.apply("name"));
+        assertEquals("LOWER_HYPHEN", UPPER_UNDERSCORE_FORMATTER.apply("lower-hyphen"));
+        assertEquals("LOWER_CAMEL", UPPER_UNDERSCORE_FORMATTER.apply("lowerCamel"));
+        assertEquals("UPPER_CAMEL", UPPER_UNDERSCORE_FORMATTER.apply("UpperCamel"));
+        assertEquals("SNAKE_CASE", UPPER_UNDERSCORE_FORMATTER.apply("snake_case"));
     }
 }

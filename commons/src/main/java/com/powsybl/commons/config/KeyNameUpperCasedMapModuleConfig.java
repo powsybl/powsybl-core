@@ -12,8 +12,8 @@ import org.joda.time.DateTime;
 import java.nio.file.FileSystem;
 import java.util.*;
 
-import static com.powsybl.commons.config.KeyNameUpperCasedMapModuleConfigRepository.ENV_VAR_FORMATTER;
 import static com.powsybl.commons.config.KeyNameUpperCasedMapModuleConfigRepository.SEPARATOR;
+import static com.powsybl.commons.config.KeyNameUpperCasedMapModuleConfigRepository.UPPER_UNDERSCORE_FORMATTER;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
@@ -24,11 +24,11 @@ public class KeyNameUpperCasedMapModuleConfig extends MapModuleConfig {
 
     public KeyNameUpperCasedMapModuleConfig(Map<Object, Object> properties, FileSystem fs, String moduleName) {
         super(properties, fs);
-        this.prefix = ENV_VAR_FORMATTER.apply(moduleName) + SEPARATOR;
+        this.prefix = UPPER_UNDERSCORE_FORMATTER.apply(moduleName) + SEPARATOR;
     }
 
     private String toUpper(String name) {
-        return prefix + ENV_VAR_FORMATTER.apply(name);
+        return prefix + UPPER_UNDERSCORE_FORMATTER.apply(name);
     }
 
     @Override
