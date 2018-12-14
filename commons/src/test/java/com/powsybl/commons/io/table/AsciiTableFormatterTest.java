@@ -11,6 +11,8 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
@@ -29,81 +31,89 @@ public class AsciiTableFormatterTest {
     @Test
     public void testAsciiTableFormatter1() throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        Writer myWriter = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
-        try (AsciiTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter", config,
-                new Column("column1")
-                        .setColspan(5),
-                new Column("colomun2"))) {
-            formatter.writeWithColspan("content1", 3);
-            formatter.writeWithColspan("content1", 3);
-            formatter.writeWithColspan("content2", 1);
-            formatter.writeWithColspan("content3", 5);
-            formatter.writeWithColspan("content2", 1);
-            formatter.writeWithColspan("content3", 5);
-            formatter.writeWithColspan("content3", 1);
-            formatter.writeWithColspan("content3", 1);
-            formatter.writeWithColspan("content3", 1);
-            formatter.writeWithColspan("content3", 1);
-            formatter.writeWithColspan("content3", 1);
-            formatter.writeWithColspan("content3", 1);
+        Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
+        try (AsciiTableFormatter formatter = new AsciiTableFormatter(writer,  null, config,
+                new Column("column1").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER),
+                new Column("column2").setHorizontalAlignment(HorizontalAlignment.CENTER))) {
+            formatter.write("Line:1 Cell:1", 2);
+            formatter.write("Line:1 Cell:2", 1);
+            formatter.write("Line:2 Cell:1", 1);
+            formatter.write("Line:2 Cell:2", 1);
+            formatter.write("Line:2 Cell:3", 1);
         }
-        assertEquals("myFormatter:" + System.lineSeparator() +
-                        "+------------------------------------------------------+----------+\n" +
-                        "| column1                                              | colomun2 |\n" +
-                        "+-----------------------------------------------------------------+\n" +
-                        "| content1                       | content1                       |\n" +
-                        "| content2 | content3                                             |\n" +
-                        "| content2 | content3                                             |\n" +
-                        "| content3 | content3 | content3 | content3 | content3 | content3 |\n" +
-                        "+----------+----------+----------+----------+----------+----------+" + System.lineSeparator(),
+        assertEquals("+-------------------------------+---------------+\n" +
+                        "|            column1            |    column2    |\n" +
+                        "+-------------------------------+---------------+\n" +
+                        "|         Line:1 Cell:1         | Line:1 Cell:2 |\n" +
+                        "| Line:2 Cell:1 | Line:2 Cell:2 | Line:2 Cell:3 |\n" +
+                        "+---------------+---------------+---------------+" + System.lineSeparator(),
                 new String(bos.toByteArray(), StandardCharsets.UTF_8));
-        myWriter.close();
+        writer.close();
     }
-
 
     @Test
     public void testAsciiTableFormatter2() throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        Writer myWriter = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
-        try (AsciiTableFormatter formatter = new AsciiTableFormatter(myWriter, "myFormatter", config,
-                new Column("column1"),
-                new Column("column2"),
-                new Column("column3"))) {
-            formatter.writeWithColspan("Test1", 3);
-            formatter.writeWithColspan("Test1", 2);
-            formatter.writeWithColspan("Test1", 1);
+        Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
+        try (AsciiTableFormatter formatter = new AsciiTableFormatter(writer,  null, config,
+                new Column("column1").setColspan(4).setHorizontalAlignment(HorizontalAlignment.CENTER),
+                new Column("column2").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER))) {
+            formatter.write("Line:1 Cell:1", 1);
+            formatter.write("Line:1 Cell:2", 1);
+            formatter.write("Line:1 Cell:3", 1);
+            formatter.write("Line:1 Cell:4", 1);
+            formatter.write("Line:1 Cell:5", 1);
+            formatter.write("Line:1 Cell:6", 1);
         }
-        assertEquals("myFormatter:" + System.lineSeparator() +
-                        "+---------+---------+---------+\n" +
-                        "| column1 | column2 | column3 |\n" +
-                        "+-----------------------------+\n" +
-                        "| Test1                       |\n" +
-                        "| Test1             | Test1   |\n" +
-                        "+-------------------+---------+" + System.lineSeparator(),
+        assertEquals("+---------------------------------------------------------------+-------------------------------+\n" +
+                        "|                            column1                            |            column2            |\n" +
+                        "+---------------------------------------------------------------+-------------------------------+\n" +
+                        "| Line:1 Cell:1 | Line:1 Cell:2 | Line:1 Cell:3 | Line:1 Cell:4 | Line:1 Cell:5 | Line:1 Cell:6 |\n" +
+                        "+---------------+---------------+---------------+---------------+---------------+---------------+" + System.lineSeparator(),
                 new String(bos.toByteArray(), StandardCharsets.UTF_8));
-        myWriter.close();
+        writer.close();
     }
 
     @Test
-    public void testAsciiTableFormatter3() throws IOException {
+    public void testUnauthorizedColspan() throws IOException {
+        thrown.expect(IllegalArgumentException.class);
+        thrown.expectMessage("You have exceded the authorized colspan");
+
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        Writer myWriter = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
-        try (AsciiTableFormatter formatter3 = new AsciiTableFormatter(myWriter, "myFormatter", config,
-                new Column("column1").setColspan(2),
-                new Column("column2"))) {
-            formatter3.writeWithColspan("Test3", 3);
-            formatter3.writeWithColspan("Test3", 1);
-            formatter3.writeWithColspan("Test3", 1);
-            formatter3.writeWithColspan("Test3", 1);
+        Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
+        try (AsciiTableFormatter formatter = new AsciiTableFormatter(writer,  null, config,
+                new Column("column1").setColspan(4).setHorizontalAlignment(HorizontalAlignment.CENTER),
+                new Column("column2").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER))) {
+            formatter.write("Line:1 Cell:1", 1);
+            formatter.write("Line:1 Cell:2", 1);
+            formatter.write("Line:1 Cell:3", 1);
+            formatter.write("Line:1 Cell:4", 2);
+            formatter.write("Line:1 Cell:5", 1);
         }
-        assertEquals("myFormatter:" + System.lineSeparator() +
-                        "+---------------+---------+\n" +
-                        "| column1       | column2 |\n" +
-                        "+-------------------------+\n" +
-                        "| Test3                   |\n" +
-                        "| Test3 | Test3 | Test3   |\n" +
-                        "+-------+-------+---------+" + System.lineSeparator(),
-                new String(bos.toByteArray(), StandardCharsets.UTF_8));
-        myWriter.close();
+    }
+
+    @Test
+    public void getColumnIndexTest() throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
+
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
+        try (AsciiTableFormatter formatter = new AsciiTableFormatter(writer,  null, config,
+                new Column("column1").setColspan(4).setHorizontalAlignment(HorizontalAlignment.CENTER),
+                new Column("column2").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER))) {
+            formatter.write("Line:1 Cell:1", 1);
+            formatter.write("Line:1 Cell:2", 1);
+            formatter.write("Line:1 Cell:3", 1);
+            formatter.write("Line:1 Cell:4", 1);
+            formatter.write("Line:1 Cell:5", 2);
+            Method method = AsciiTableFormatter.class.getDeclaredMethod("getColumnIndex", int.class);
+            method.setAccessible(true);
+            int output = (int) method.invoke(formatter, 0);
+            assertEquals(0, output);
+            output = (int) method.invoke(formatter, 3);
+            assertEquals(0, output);
+            output = (int) method.invoke(formatter, 5);
+            assertEquals(1, output);
+        }
+
     }
 }

@@ -12,6 +12,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.AbstractTableFormatter;
 import com.powsybl.commons.io.table.AsciiTableFormatter;
 import com.powsybl.commons.io.table.Column;
+import com.powsybl.commons.io.table.HorizontalAlignment;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 
@@ -240,13 +241,12 @@ public final class Networks {
     private static String writeInTable(ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
         try (Writer writer = new StringWriter();
              AbstractTableFormatter formatter = new AsciiTableFormatter(writer, null,
-                     new Column(""),
-                     new Column("Main CC connected/disconnected").setColspan(2),
-                     new Column("Others CC connected/disconnected").setColspan(2))) {
+                     new Column("").setHorizontalAlignment(HorizontalAlignment.CENTER),
+                     new Column("Main CC connected/disconnected").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER),
+                     new Column("Others CC connected/disconnected").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER))) {
             formatter.writeCell("Bus count").
-                    // TODO(MBA): CellStyle centerStyle = new CellStyle(CellStyle.HorizontalAlign.center);
-                    writeCellWithColspan(Integer.toString(balanceMainCC.busCount), 2).
-                    writeCellWithColspan(Integer.toString(balanceOtherCC.busCount), 2);
+                    writeCell(Integer.toString(balanceMainCC.busCount), 2).
+                    writeCell(Integer.toString(balanceOtherCC.busCount), 2);
             formatter.writeCell("Load count").
                     writeCell(Integer.toString(balanceMainCC.connectedLoads.size())).
                     writeCell(Integer.toString(balanceMainCC.disconnectedLoads.size())).

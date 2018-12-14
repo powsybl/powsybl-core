@@ -15,6 +15,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -25,12 +27,20 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
 
     private final Table table;
 
+    private final List<Integer> indexes;
+
+    private int columnIndex = 0;
+
     public AsciiTableFormatter(Writer writer, String title, TableFormatterConfig config, Column... columns) {
         super(writer, config, columns);
         this.title = title;
         this.table = new Table(tabLength, BorderStyle.CLASSIC_WIDE);
-        for (Column column : columns) {
-            table.addCell(column.getName(), column.getColspan());
+        indexes = new ArrayList<>();
+        indexes.add(columns[0].getColspan());
+        table.addCell(columns[0].getName(), convertCellStyle(columns[0].getHorizontalAlignment()), columns[0].getColspan());
+        for (int i = 1; i < columns.length; i++) {
+            table.addCell(columns[i].getName(), convertCellStyle(columns[i].getHorizontalAlignment()), columns[i].getColspan());
+            indexes.add(columns[i].getColspan() + indexes.get(i - 1));
         }
     }
 
@@ -48,17 +58,35 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
         return this;
     }
 
+    private  int getColumnIndex(int column) {
+        for (int i = 0; i < columns.length; i++) {
+            if (column < indexes.get(i)) {
+                return i;
+            }
+        }
+        return columns.length - 1;
+    }
+
     @Override
-    protected TableFormatter writeWithColspan(String value, int colspan) throws IOException {
-        HorizontalAlignment horizontalAlignment = columns[column].getHorizontalAlignment();
-        column = (column + colspan) % columns.length;
-        table.addCell(value, convertCellStyle(horizontalAlignment), colspan);
+    protected TableFormatter write(String value, int colspan) throws IOException {
+        if (colspan > indexes.get(columnIndex) - column) {
+            throw new IllegalArgumentException("You have exceded the authorized colspan");
+        }
+
+        if (colspan > 1) {
+            table.addCell(value, convertCellStyle(HorizontalAlignment.CENTER), colspan);
+        } else {
+            HorizontalAlignment horizontalAlignment = columns[columnIndex].getHorizontalAlignment();
+            table.addCell(value, convertCellStyle(horizontalAlignment), colspan);
+        }
+        column = (column + colspan) % tabLength;
+        columnIndex = getColumnIndex(column);
         return this;
     }
 
     @Override
     protected TableFormatter write(String value) throws IOException {
-        return writeWithColspan(value, 1);
+        return write(value, 1);
     }
 
     @Override
