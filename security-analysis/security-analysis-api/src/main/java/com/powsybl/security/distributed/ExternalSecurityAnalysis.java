@@ -36,6 +36,7 @@ import static java.util.Objects.requireNonNull;
  * for example to remotely execute the security-analysis.
  *
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public class ExternalSecurityAnalysis implements SecurityAnalysis {
 
@@ -119,7 +120,8 @@ public class ExternalSecurityAnalysis implements SecurityAnalysis {
          * Reads result file.
          */
         @Override
-        public SecurityAnalysisResult after(Path workingDir, ExecutionReport report) {
+        public SecurityAnalysisResult after(Path workingDir, ExecutionReport report) throws IOException {
+            super.after(workingDir, report);
             LOGGER.debug("End of command execution in {}. ", workingDir);
             return readResults(workingDir);
         }
