@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 /**
  * @author Yichen Tang <yichen.tang at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public class Partition {
 
@@ -58,7 +59,7 @@ public class Partition {
     }
 
     private void checkSize(int size) {
-        if (size < taskCount) {
+        if (size != 0 && size < taskCount) {
             throw new PowsyblException("Data size must be greater than task count");
         }
     }
