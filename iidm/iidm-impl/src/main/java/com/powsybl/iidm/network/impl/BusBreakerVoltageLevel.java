@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.google.common.base.Functions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
@@ -827,6 +828,27 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     @Override
     public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
         variants.allocate(indexes, () -> variants.copy(sourceIndex));
+    }
+
+    @Override
+    public void remove() {
+        checkRemovability();
+
+        // Remove all connectables
+        List<Connectable> connectables = Lists.newArrayList(getConnectables());
+        for (Connectable connectable : connectables) {
+            connectable.remove();
+        }
+
+        // Remove the topology
+        removeAllSwitches();
+        removeAllBuses();
+
+        // Remove this voltage level from the network
+        getSubstation().remove(this);
+        getNetwork().getObjectStore().remove(this);
+
+        getNetwork().getListeners().notifyRemoval(this);
     }
 
     @Override

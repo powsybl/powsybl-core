@@ -7,12 +7,11 @@
 package com.powsybl.iidm.network.impl;
 
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Lists;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -162,4 +161,82 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
         return "Substation";
     }
 
+    /**
+     * Throw a {@link com.powsybl.commons.PowsyblException} if this substation contains at least one {@link Branch} or
+     * one {@link ThreeWindingsTransformer} or one {@link HvdcConverterStation} linked to a voltage level outside this
+     * substation.
+     */
+    private void checkRemovability() {
+        String errorMessage = "The substation " + getId() + " is still connected to another substation";
+
+        for (VoltageLevelExt vl : voltageLevels) {
+            for (Connectable connectable : vl.getConnectables()) {
+                if (connectable instanceof Branch) {
+                    Branch branch = (Branch) connectable;
+                    Substation s1 = branch.getTerminal1().getVoltageLevel().getSubstation();
+                    Substation s2 = branch.getTerminal2().getVoltageLevel().getSubstation();
+                    if ((s1 != this) || (s2 != this)) {
+                        throw new AssertionError(errorMessage);
+                    }
+                } else if (connectable instanceof ThreeWindingsTransformer) {
+                    ThreeWindingsTransformer twt = (ThreeWindingsTransformer) connectable;
+                    Substation s1 = twt.getLeg1().getTerminal().getVoltageLevel().getSubstation();
+                    Substation s2 = twt.getLeg2().getTerminal().getVoltageLevel().getSubstation();
+                    Substation s3 = twt.getLeg3().getTerminal().getVoltageLevel().getSubstation();
+                    if ((s1 != this) || (s2 != this) || (s3 != this)) {
+                        throw new AssertionError(errorMessage);
+                    }
+                } else if (connectable instanceof HvdcConverterStation) {
+                    HvdcLine hvdcLine = getNetwork().getHvdcLine((HvdcConverterStation) connectable);
+                    if (hvdcLine != null) {
+                        Substation s1 = hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getSubstation();
+                        Substation s2 = hvdcLine.getConverterStation2().getTerminal().getVoltageLevel().getSubstation();
+                        if ((s1 != this) || (s2 != this)) {
+                            throw new AssertionError(errorMessage);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void remove() {
+        checkRemovability();
+
+        Set<ConnectableType> types = EnumSet.of(
+                ConnectableType.LINE,
+                ConnectableType.TWO_WINDINGS_TRANSFORMER,
+                ConnectableType.THREE_WINDINGS_TRANSFORMER);
+
+        Set<VoltageLevelExt> vls = new HashSet<>(voltageLevels);
+        for (VoltageLevelExt vl : vls) {
+            // Remove all branches, transformers and HVDC lines
+            List<Connectable> connectables = Lists.newArrayList(vl.getConnectables());
+            for (Connectable connectable : connectables) {
+                ConnectableType type = connectable.getType();
+                if (types.contains(type)) {
+                    connectable.remove();
+                } else if (type == ConnectableType.HVDC_CONVERTER_STATION) {
+                    HvdcLine hvdcLine = getNetwork().getHvdcLine((HvdcConverterStation) connectable);
+                    if (hvdcLine != null) {
+                        hvdcLine.remove();
+                    }
+                }
+            }
+
+            // Then remove the voltage level (bus, switches and injections) from the network
+            vl.remove();
+        }
+
+        // Remove this substation from the network
+        getNetwork().getObjectStore().remove(this);
+
+        getNetwork().getListeners().notifyRemoval(this);
+    }
+
+    void remove(VoltageLevelExt voltageLevelExt) {
+        Objects.requireNonNull(voltageLevelExt);
+        voltageLevels.remove(voltageLevelExt);
+    }
 }
