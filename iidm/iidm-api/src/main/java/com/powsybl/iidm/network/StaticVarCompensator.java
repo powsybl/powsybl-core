@@ -48,7 +48,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
     /**
      * <p>Get the voltage setpoint in Kv.</p>
      * <p>Needed only when regulating mode is set to {@link RegulationMode#VOLTAGE}.</p>
-     * <p>Depends on the working state.</p>
+     * <p>Depends on the working variant.</p>
      * @return the voltage setpoint
      */
     double getVoltageSetPoint();
@@ -56,7 +56,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
     /**
      * <p>Set the voltage setpoint in Kv.</p>
      * <p>Needed only when regulating mode is set to {@link RegulationMode#VOLTAGE}.</p>
-     * <p>Depends on the working state.</p>
+     * <p>Depends on the working variant.</p>
      * @param voltageSetPoint the voltage setpoint
      * @return this to allow method chaining
      */
@@ -65,7 +65,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
     /**
      * <p>Get the reactive power setpoint in MVAR.</p>
      * <p>Needed only when regulating mode is set to {@link RegulationMode#REACTIVE_POWER}.</p>
-     * <p>Depends on the working state.</p>
+     * <p>Depends on the working variant.</p>
      * @return the reactive power setpoint
      */
     double getReactivePowerSetPoint();
@@ -73,7 +73,7 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
     /**
      * <p>Set the reactive power setpoint in MVAR.</p>
      * <p>Needed only when regulating mode is set to {@link RegulationMode#REACTIVE_POWER}.</p>
-     * <p>Depends on the working state.</p>
+     * <p>Depends on the working variant.</p>
      * @param reactivePowerSetPoint the reactive power setpoint
      * @return this to allow method chaining
      */
@@ -81,14 +81,14 @@ public interface StaticVarCompensator extends Injection<StaticVarCompensator> {
 
     /**
      * <p>Get the regulating mode.</p>
-     * <p>Depends on the working state.</p>
+     * <p>Depends on the working variant.</p>
      * @return the regulating mode
      */
     RegulationMode getRegulationMode();
 
     /**
      * <p>set the regulating mode.</p>
-     * <p>Depends on the working state.</p>
+     * <p>Depends on the working variant.</p>
      * @param regulationMode the regulating mode
      * @return this to allow method chaining
      */

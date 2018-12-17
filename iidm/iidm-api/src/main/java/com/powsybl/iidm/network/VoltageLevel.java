@@ -513,26 +513,26 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         /**
          * Get buses.
          * <p>
-         * Depends on the working state if topology kind is NODE_BREAKER.
-         * @see StateManager
+         * Depends on the working variant if topology kind is NODE_BREAKER.
+         * @see VariantManager
          */
         Iterable<Bus> getBuses();
 
         /**
          * Get buses.
          * <p>
-         * Depends on the working state if topology kind is NODE_BREAKER.
-         * @see StateManager
+         * Depends on the working variant if topology kind is NODE_BREAKER.
+         * @see VariantManager
          */
         Stream<Bus> getBusStream();
 
         /**
          * Get a bus.
          * <p>
-         * Depends on the working state if topology kind is NODE_BREAKER.
+         * Depends on the working variant if topology kind is NODE_BREAKER.
          * @param id the id of the bus.
          * @return the bus or <code>null</code> if not found
-         * @see StateManager
+         * @see VariantManager
          */
         Bus getBus(String id);
 
@@ -582,20 +582,20 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         /**
          * Get the first bus to which the switch is connected.
          * <p>
-         * Depends on the working state if topology kind is NODE_BREAKER.
+         * Depends on the working variant if topology kind is NODE_BREAKER.
          * @param switchId the id of the switch
          * @throws com.powsybl.commons.PowsyblException if switch is not found
-         * @see StateManager
+         * @see VariantManager
          */
         Bus getBus1(String switchId);
 
         /**
          * Get the second bus to which the switch is connected.
          * <p>
-         * Depends on the working state if topology kind is NODE_BREAKER.
+         * Depends on the working variant if topology kind is NODE_BREAKER.
          * @param switchId the id of the switch
          * @throws com.powsybl.commons.PowsyblException if switch is not found
-         * @see StateManager
+         * @see VariantManager
          */
         Bus getBus2(String switchId);
 
@@ -623,36 +623,36 @@ public interface VoltageLevel extends Container<VoltageLevel> {
         /**
          * Get buses.
          * <p>
-         * Depends on the working state.
-         * @see StateManager
+         * Depends on the working variant.
+         * @see VariantManager
          */
         Iterable<Bus> getBuses();
 
         /**
          * Get buses.
          * <p>
-         * Depends on the working state.
-         * @see StateManager
+         * Depends on the working variant.
+         * @see VariantManager
          */
         Stream<Bus> getBusStream();
 
         /**
          * Get a bus.
          *<p>
-         * Depends on the working state.
+         * Depends on the working variant.
          * @param id the id of the bus.
          * @return the bus or <code>null</code> if not found
-         * @see StateManager
+         * @see VariantManager
          */
         Bus getBus(String id);
 
         /**
          * Get the merged bus that includes the given configured bus or Busbar section.
          *<p>
-         * Depends on the working state.
+         * Depends on the working variant.
          * @param configuredBusId The id of the configured bus or busbar section.
          * @return the merged bus or <code>null</code> if not found
-         * @see StateManager
+         * @see VariantManager
          */
         Bus getMergedBus(String configuredBusId);
     }

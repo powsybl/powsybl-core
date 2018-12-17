@@ -32,9 +32,9 @@ public interface Terminal {
 
         /**
          * Get the connection bus of this terminal in the bus/breaker topology.
-         * <p>Depends on the working state.
+         * <p>Depends on the working variant.
          * @return the connection bus in the bus/breaker topology or null if not connected
-         * @see StateManager
+         * @see VariantManager
          */
         Bus getBus();
 
@@ -54,9 +54,9 @@ public interface Terminal {
 
         /**
          * Get the connection bus of this terminal in the bus only topology.
-         * <p>Depends on the working state.
+         * <p>Depends on the working variant.
          * @return the connection bus in the bus only topology or null if not connected
-         * @see StateManager
+         * @see VariantManager
          */
         Bus getBus();
 
@@ -96,55 +96,55 @@ public interface Terminal {
     /**
      * Get the active power in MW injected at the terminal.
      * <p>
-     * Depends on the working state.
-     * @see StateManager
+     * Depends on the working variant.
+     * @see VariantManager
      */
     double getP();
 
     /**
      * Set the active power in MW injected at the terminal.
      * <p>
-     * Depends on the working state.
-     * @see StateManager
+     * Depends on the working variant.
+     * @see VariantManager
      */
     Terminal setP(double p);
 
     /**
      * Get the reactive power in MVAR injected at the terminal.
      * <p>
-     * Depends on the working state.
-     * @see StateManager
+     * Depends on the working variant.
+     * @see VariantManager
      */
     double getQ();
 
     /**
      * Set the reactive power in MVAR injected at the terminal.
      * <p>
-     * Depends on the working state.
-     * @see StateManager
+     * Depends on the working variant.
+     * @see VariantManager
      */
     Terminal setQ(double q);
 
     /**
      * Get the current in A at the terminal.
-     * <p>Depends on the working state.
-     * @see StateManager
+     * <p>Depends on the working variant.
+     * @see VariantManager
      */
     double getI();
 
     /**
      * Try to connect the terminal.
-     * <p>Depends on the working state.
+     * <p>Depends on the working variant.
      * @return true if terminal has been connected, false otherwise
-     * @see StateManager
+     * @see VariantManager
      */
     boolean connect();
 
     /**
      * Disconnect the terminal.
-     * <p>Depends on the working state.
+     * <p>Depends on the working variant.
      * @return true if terminal has been disconnected, false otherwise
-     * @see StateManager
+     * @see VariantManager
      */
     boolean disconnect();
 

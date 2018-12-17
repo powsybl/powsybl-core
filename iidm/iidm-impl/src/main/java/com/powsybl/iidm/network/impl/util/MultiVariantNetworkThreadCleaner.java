@@ -8,18 +8,18 @@ package com.powsybl.iidm.network.impl.util;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.concurrent.CleanableExecutors;
-import com.powsybl.iidm.network.impl.ThreadLocalMultiStateContext;
+import com.powsybl.iidm.network.impl.ThreadLocalMultiVariantContext;
 
 /**
- * Thread cleaner that reset the current network state.
+ * Thread cleaner that reset the current network variant.
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(CleanableExecutors.ThreadCleaner.class)
-public class MultiStateNetworkThreadCleaner implements CleanableExecutors.ThreadCleaner {
+public class MultiVariantNetworkThreadCleaner implements CleanableExecutors.ThreadCleaner {
 
     @Override
     public void clean() {
-        ThreadLocalMultiStateContext.INSTANCE.reset();
+        ThreadLocalMultiVariantContext.INSTANCE.reset();
     }
 }

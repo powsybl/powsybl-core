@@ -23,68 +23,68 @@ import static org.junit.Assert.*;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class MultiStateNetworkTest {
+public class MultiVariantNetworkTest {
 
     @Test
     public void singleThreadTest() {
         Network network = EurostagTutorialExample1Factory.create();
-        final StateManager manager = network.getStateManager();
-        manager.cloneState(StateManagerConstants.INITIAL_STATE_ID, "SecondState");
-        manager.setWorkingState("SecondState");
+        final VariantManager manager = network.getVariantManager();
+        manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "SecondVariant");
+        manager.setWorkingVariant("SecondVariant");
         final Generator generator = network.getGenerator("GEN");
         generator.setVoltageRegulatorOn(false);
         assertFalse(generator.isVoltageRegulatorOn());
-        manager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
+        manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertTrue(generator.isVoltageRegulatorOn());
     }
 
     @Test
     public void multiThreadTest() throws InterruptedException {
         final Network network = EurostagTutorialExample1Factory.create();
-        final StateManager manager = network.getStateManager();
-        manager.allowStateMultiThreadAccess(true);
+        final VariantManager manager = network.getVariantManager();
+        manager.allowVariantMultiThreadAccess(true);
 
-        manager.cloneState(StateManagerConstants.INITIAL_STATE_ID, "SecondState");
+        manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "SecondVariant");
 
         final Generator generator = network.getGenerator("GEN");
 
-        manager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
+        manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         generator.setVoltageRegulatorOn(true);
 
-        manager.setWorkingState("SecondState");
+        manager.setWorkingVariant("SecondVariant");
         generator.setVoltageRegulatorOn(false);
 
-        final boolean[] voltageRegulatorOnInitialState = new boolean[1];
-        final boolean[] voltageRegulatorOnSecondState = new boolean[1];
-        final CountDownLatch latch = new CountDownLatch(2); // to sync threads after having set the working state
+        final boolean[] voltageRegulatorOnInitialVariant = new boolean[1];
+        final boolean[] voltageRegulatorOnSecondVariant = new boolean[1];
+        final CountDownLatch latch = new CountDownLatch(2); // to sync threads after having set the working variant
         ExecutorService service = Executors.newFixedThreadPool(2);
         service.invokeAll(Arrays.asList(
             () -> {
-                manager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
+                manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
                 latch.countDown();
                 latch.await();
-                voltageRegulatorOnInitialState[0] = generator.isVoltageRegulatorOn();
+                voltageRegulatorOnInitialVariant[0] = generator.isVoltageRegulatorOn();
                 return null;
             },
             () -> {
-                manager.setWorkingState("SecondState");
+                manager.setWorkingVariant("SecondVariant");
                 latch.countDown();
                 latch.await();
-                voltageRegulatorOnSecondState[0] = generator.isVoltageRegulatorOn();
+                voltageRegulatorOnSecondVariant[0] = generator.isVoltageRegulatorOn();
                 return null;
             })
         );
         service.shutdown();
         service.awaitTermination(1, TimeUnit.MINUTES);
-        assertTrue(voltageRegulatorOnInitialState[0]);
-        assertFalse(voltageRegulatorOnSecondState[0]);
+        assertTrue(voltageRegulatorOnInitialVariant[0]);
+        assertFalse(voltageRegulatorOnSecondVariant[0]);
     }
 
     @Test
-    public void multiStateTopologyTest() throws InterruptedException {
+    public void multiVariantTopologyTest() throws InterruptedException {
         Network network = EurostagTutorialExample1Factory.create();
-        StateManager manager = network.getStateManager();
-        manager.cloneState(StateManagerConstants.INITIAL_STATE_ID, "NEW_STATE");
+        VariantManager manager = network.getVariantManager();
+        manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "NEW_VARIANT");
         VoltageLevel vlload = network.getVoltageLevel("VLLOAD");
         Bus nload = vlload.getBusBreakerView().getBus("NLOAD");
         Load newLoad = vlload.newLoad()
@@ -94,25 +94,25 @@ public class MultiStateNetworkTest {
                 .setBus("NLOAD")
                 .setConnectableBus("NLOAD")
             .add();
-        manager.setWorkingState("NEW_STATE");
+        manager.setWorkingVariant("NEW_VARIANT");
         assertNotNull(newLoad.getTerminal().getBusBreakerView().getBus());
         assertEquals(2, Iterables.size(nload.getLoads()));
         newLoad.getTerminal().disconnect();
         assertNull(newLoad.getTerminal().getBusBreakerView().getBus());
         assertEquals(2, Iterables.size(vlload.getLoads()));
         assertEquals(1, Iterables.size(nload.getLoads()));
-        manager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
+        manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertNotNull(newLoad.getTerminal().getBusBreakerView().getBus());
         assertEquals(2, Iterables.size(vlload.getLoads()));
         assertEquals(2, Iterables.size(nload.getLoads()));
     }
 
     @Test
-    public void stateNotSetTest() throws InterruptedException {
+    public void variantNotSetTest() throws InterruptedException {
         Network network = EurostagTutorialExample1Factory.create();
-        StateManager manager = network.getStateManager();
-        manager.allowStateMultiThreadAccess(true);
-        assertEquals(StateManagerConstants.INITIAL_STATE_ID, manager.getWorkingStateId());
+        VariantManager manager = network.getVariantManager();
+        manager.allowVariantMultiThreadAccess(true);
+        assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, manager.getWorkingVariantId());
         ExecutorService service = Executors.newSingleThreadExecutor();
         service.submit(() -> {
             try {
@@ -126,15 +126,15 @@ public class MultiStateNetworkTest {
     }
 
     @Test
-    public void stateSetTest() throws InterruptedException {
+    public void variantSetTest() throws InterruptedException {
         Network network = EurostagTutorialExample1Factory.create();
-        StateManager manager = network.getStateManager();
-        manager.allowStateMultiThreadAccess(true);
-        assertEquals(StateManagerConstants.INITIAL_STATE_ID, manager.getWorkingStateId());
+        VariantManager manager = network.getVariantManager();
+        manager.allowVariantMultiThreadAccess(true);
+        assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, manager.getWorkingVariantId());
         ExecutorService service = Executors.newSingleThreadExecutor();
         service.submit(() -> {
             try {
-                manager.setWorkingState(StateManagerConstants.INITIAL_STATE_ID);
+                manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
                 network.getGenerator("GEN").getTargetP();
             } catch (Exception e) {
                 fail();

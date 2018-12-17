@@ -7,6 +7,15 @@
  */
 package com.powsybl.iidm.network.util;
 
+import com.google.common.collect.ImmutableMap;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
+import org.nocrala.tools.texttablefmt.BorderStyle;
+import org.nocrala.tools.texttablefmt.CellStyle;
+import org.nocrala.tools.texttablefmt.Table;
+import org.slf4j.Logger;
+
+import javax.script.*;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Reader;
@@ -17,28 +26,6 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-import javax.script.SimpleScriptContext;
-
-import org.nocrala.tools.texttablefmt.BorderStyle;
-import org.nocrala.tools.texttablefmt.CellStyle;
-import org.nocrala.tools.texttablefmt.Table;
-import org.slf4j.Logger;
-
-import com.google.common.collect.ImmutableMap;
-
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.Terminal;
 
 /**
  *
@@ -54,18 +41,18 @@ public final class Networks {
     }
 
     public static Map<String, String> getExecutionTags(Network network) {
-        return ImmutableMap.of("state", network.getStateManager().getWorkingStateId());
+        return ImmutableMap.of("variant", network.getVariantManager().getWorkingVariantId());
     }
 
-    public static void dumpStateId(Path workingDir, String stateId) throws IOException {
-        try (BufferedWriter writer = Files.newBufferedWriter(workingDir.resolve("state.txt"), StandardCharsets.UTF_8)) {
-            writer.write(stateId);
+    public static void dumpVariantId(Path workingDir, String variantId) throws IOException {
+        try (BufferedWriter writer = Files.newBufferedWriter(workingDir.resolve("variant.txt"), StandardCharsets.UTF_8)) {
+            writer.write(variantId);
             writer.newLine();
         }
     }
 
-    public static void dumpStateId(Path workingDir, Network network) throws IOException {
-        dumpStateId(workingDir, network.getStateManager().getWorkingStateId());
+    public static void dumpVariantId(Path workingDir, Network network) throws IOException {
+        dumpVariantId(workingDir, network.getVariantManager().getWorkingVariantId());
     }
 
     public static void runScript(Network network, Reader reader, Writer out) {

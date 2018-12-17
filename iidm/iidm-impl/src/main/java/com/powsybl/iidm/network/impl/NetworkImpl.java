@@ -8,12 +8,12 @@ package com.powsybl.iidm.network.impl;
 
 import com.google.common.collect.*;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.math.graph.GraphUtil;
-import com.powsybl.math.graph.GraphUtil.ConnectedComponentsComputationResult;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.impl.util.RefChain;
 import com.powsybl.iidm.network.impl.util.RefObj;
+import com.powsybl.math.graph.GraphUtil;
+import com.powsybl.math.graph.GraphUtil.ConnectedComponentsComputationResult;
 import gnu.trove.list.array.TIntArrayList;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -28,7 +28,7 @@ import java.util.stream.Stream;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class NetworkImpl extends AbstractIdentifiable<Network> implements Network, MultiStateObject, Stateful {
+class NetworkImpl extends AbstractIdentifiable<Network> implements Network, VariantManagerHolder, MultiVariantObject {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkImpl.class);
 
@@ -42,7 +42,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
 
     private final ObjectStore objectStore = new ObjectStore();
 
-    private final StateManagerImpl stateManager;
+    private final VariantManagerImpl variantManager;
 
     private final NetworkListenerList listeners = new NetworkListenerList();
 
@@ -94,7 +94,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
 
         @Override
         public Collection<Component> getConnectedComponents() {
-            return Collections.unmodifiableList(states.get().connectedComponentsManager.getConnectedComponents());
+            return Collections.unmodifiableList(variants.get().connectedComponentsManager.getConnectedComponents());
         }
 
     }
@@ -105,11 +105,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         super(id, name);
         Objects.requireNonNull(sourceFormat, "source format is null");
         this.sourceFormat = sourceFormat;
-        stateManager = new StateManagerImpl(objectStore);
-        states = new StateArray<>(ref, StateImpl::new);
-        // add the network the object list as it is a stateful object
+        variantManager = new VariantManagerImpl(objectStore);
+        variants = new VariantArray<>(ref, VariantImpl::new);
+        // add the network the object list as it is a multi variant object
         // and it needs to be notified when and extension or a reduction of
-        // the state array is requested
+        // the variant array is requested
         objectStore.checkAndAdd(this);
     }
 
@@ -160,13 +160,13 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
     }
 
     @Override
-    public StateManagerImpl getStateManager() {
-        return stateManager;
+    public VariantManagerImpl getVariantManager() {
+        return variantManager;
     }
 
     @Override
-    public int getStateIndex() {
-        return stateManager.getStateContext().getStateIndex();
+    public int getVariantIndex() {
+        return variantManager.getVariantContext().getVariantIndex();
     }
 
     @Override
@@ -775,7 +775,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
         }
     }
 
-    private class StateImpl implements State {
+    private class VariantImpl implements Variant {
 
         private final ConnectedComponentsManager connectedComponentsManager
                 = new ConnectedComponentsManager(NetworkImpl.this);
@@ -784,40 +784,40 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
                 = new SynchronousComponentsManager(NetworkImpl.this);
 
         @Override
-        public StateImpl copy() {
-            return new StateImpl();
+        public VariantImpl copy() {
+            return new VariantImpl();
         }
 
     }
 
-    private final StateArray<StateImpl> states;
+    private final VariantArray<VariantImpl> variants;
 
     ConnectedComponentsManager getConnectedComponentsManager() {
-        return states.get().connectedComponentsManager;
+        return variants.get().connectedComponentsManager;
     }
 
     SynchronousComponentsManager getSynchronousComponentsManager() {
-        return states.get().synchronousComponentsManager;
+        return variants.get().synchronousComponentsManager;
     }
 
     @Override
-    public void extendStateArraySize(int initStateArraySize, int number, final int sourceIndex) {
-        states.push(number, () -> states.copy(sourceIndex));
+    public void extendVariantArraySize(int initVariantArraySize, int number, final int sourceIndex) {
+        variants.push(number, () -> variants.copy(sourceIndex));
     }
 
     @Override
-    public void reduceStateArraySize(int number) {
-        states.pop(number);
+    public void reduceVariantArraySize(int number) {
+        variants.pop(number);
     }
 
     @Override
-    public void deleteStateArrayElement(int index) {
-        states.delete(index);
+    public void deleteVariantArrayElement(int index) {
+        variants.delete(index);
     }
 
     @Override
-    public void allocateStateArrayElement(int[] indexes, final int sourceIndex) {
-        states.allocate(indexes, () -> states.copy(sourceIndex));
+    public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
+        variants.allocate(indexes, () -> variants.copy(sourceIndex));
     }
 
     @Override
@@ -836,12 +836,12 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Mult
     public void merge(Network other) {
         NetworkImpl otherNetwork = (NetworkImpl) other;
 
-        // this check must not be done on the number of state but on the size
-        // of the internal state array because the network can have only
-        // one state but an internal array with a size greater that one and
-        // some re-usable states
-        if (stateManager.getStateArraySize() != 1 || otherNetwork.stateManager.getStateArraySize() != 1) {
-            throw new PowsyblException("Merging of multi-states network is not supported");
+        // this check must not be done on the number of variants but on the size
+        // of the internal variant array because the network can have only
+        // one variant but an internal array with a size greater that one and
+        // some re-usable variants
+        if (variantManager.getVariantArraySize() != 1 || otherNetwork.variantManager.getVariantArraySize() != 1) {
+            throw new PowsyblException("Merging of multi-variants network is not supported");
         }
 
         long start = System.currentTimeMillis();
