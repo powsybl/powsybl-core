@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" id="sim1" caseDate="2013-01-15T18:45:00.000+01:00" forecastDistance="0" sourceFormat="test">
+    <iidm:substation id="A" country="FR" tso="B" geographicalTags="C">
+        <iidm:voltageLevel id="D" nominalV="24.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology nodeCount="5">
+                <iidm:busbarSection id="E1" name="1" node="0"/>
+                <iidm:busbarSection id="E2" name="2" node="1"/>
+                <iidm:switch id="E_sw" name="E_sw" kind="BREAKER" retained="true" open="false" fictitious="false" node1="0" node2="1"/>
+                <iidm:switch id="E_sw1" name="E_sw1" kind="BREAKER" retained="false" open="false" fictitious="false" node1="0" node2="2"/>
+                <iidm:switch id="E_sw2" name="E_sw2" kind="BREAKER" retained="false" open="false" fictitious="false" node1="1" node2="3"/>
+                <iidm:switch id="E_sw3" name="E_sw3" kind="BREAKER" retained="false" open="false" fictitious="false" node1="1" node2="4"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:generator id="F" energySource="OTHER" minP="-9999.99" maxP="9999.99" voltageRegulatorOn="true" targetP="607.0" targetV="24.5" targetQ="301.0" node="2">
+                <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
+            </iidm:generator>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="G" nominalV="380.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology nodeCount="4">
+                <iidm:busbarSection id="H1" name="1" node="0"/>
+                <iidm:busbarSection id="H2" name="2" node="1"/>
+                <iidm:switch id="H_sw" name="H_sw" kind="BREAKER" retained="true" open="false" fictitious="false" node1="0" node2="1"/>
+                <iidm:switch id="H_sw1" name="H_sw1" kind="BREAKER" retained="false" open="false" fictitious="false" node1="0" node2="2"/>
+                <iidm:switch id="H_sw2" name="H_sw2" kind="BREAKER" retained="false" open="false" fictitious="false" node1="1" node2="3"/>
+            </iidm:nodeBreakerTopology>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="I" r="0.26658461538461536" x="11.104492831516762" g="0.0" b="0.0" ratedU1="24.0" ratedU2="400.0" voltageLevelId1="D" node1="3" voltageLevelId2="G" node2="2"/>
+    </iidm:substation>
+    <iidm:substation id="J" country="FR" tso="B" geographicalTags="K">
+        <iidm:voltageLevel id="L" nominalV="380.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology nodeCount="4">
+                <iidm:busbarSection id="M1" name="1" node="0"/>
+                <iidm:busbarSection id="M2" name="2" node="1"/>
+                <iidm:switch id="M_sw" name="M_sw" kind="BREAKER" retained="true" open="false" fictitious="false" node1="0" node2="1"/>
+                <iidm:switch id="M_sw1" name="M_sw1" kind="BREAKER" retained="false" open="false" fictitious="false" node1="0" node2="2"/>
+                <iidm:switch id="M_sw2" name="M_sw2" kind="BREAKER" retained="false" open="false" fictitious="false" node1="1" node2="3"/>
+            </iidm:nodeBreakerTopology>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="N" nominalV="150.0" topologyKind="NODE_BREAKER">
+            <iidm:nodeBreakerTopology nodeCount="5">
+                <iidm:busbarSection id="O1" name="1" node="0"/>
+                <iidm:busbarSection id="O2" name="2" node="1"/>
+                <iidm:switch id="O_sw" name="O_sw" kind="BREAKER" retained="true" open="false" fictitious="false" node1="0" node2="1"/>
+                <iidm:switch id="O_sw1" name="O_sw1" kind="BREAKER" retained="false" open="false" fictitious="false" node1="0" node2="2"/>
+                <iidm:switch id="O_sw2" name="O_sw2" kind="BREAKER" retained="false" open="false" fictitious="false" node1="1" node2="3"/>
+                <iidm:switch id="O_sw3" name="O_sw3" kind="BREAKER" retained="false" open="false" fictitious="false" node1="1" node2="4"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:load id="P" loadType="UNDEFINED" p0="600.0" q0="200.0" node="2"/>
+        </iidm:voltageLevel>
+        <iidm:twoWindingsTransformer id="Q" r="0.04724999999999999" x="4.049724365620455" g="0.0" b="0.0" ratedU1="400.0" ratedU2="158.0" voltageLevelId1="L" node1="2" voltageLevelId2="N" node2="3">
+            <iidm:ratioTapChanger lowTapPosition="0" tapPosition="1" loadTapChangingCapabilities="true" regulating="true" targetV="158.0">
+                <iidm:terminalRef id="Q" side="TWO"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="0.8505666905244191"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.0006666666666666"/>
+                <iidm:step r="0.0" x="0.0" g="0.0" b="0.0" rho="1.150766642808914"/>
+            </iidm:ratioTapChanger>
+        </iidm:twoWindingsTransformer>
+    </iidm:substation>
+    <iidm:line id="R" r="3.0" x="33.0" g1="0.0" b1="1.93E-4" g2="0.0" b2="1.93E-4" voltageLevelId1="G" node1="3" voltageLevelId2="L" node2="3"/>
+    <iidm:line id="S" r="3.0" x="33.0" g1="0.0" b1="1.93E-4" g2="0.0" b2="1.93E-4" voltageLevelId1="D" node1="4" voltageLevelId2="N" node2="4"/>
+</iidm:network>
