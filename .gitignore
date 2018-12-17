@@ -53,6 +53,7 @@
 /loadflow/loadflow-api/target/
 /loadflow/loadflow-results-completion/target/
 /loadflow/loadflow-validation/target/
+/loadflow/simple-loadflow/target/
 /loadflow/target/
 /math/target/
 /security-analysis/target/

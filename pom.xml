@@ -131,7 +131,7 @@
         <gdata.version>1.41.1_1</gdata.version>
         <graphvizapi.version>1.1</graphvizapi.version>
         <groovy.version>2.4.12</groovy.version>
-        <guava.version>20.0</guava.version>
+        <guava.version>27.0.1-jre</guava.version>
         <jackson.version>2.8.7</jackson.version>
         <jama.version>1.0.3</jama.version>
         <javaeeapi.version>7.0</javaeeapi.version>
@@ -146,6 +146,7 @@
         <maven.core.version>3.3.9</maven.core.version>
         <maven.plugin.annotations.version>3.5.2</maven.plugin.annotations.version>
         <mockito.version>1.10.19</mockito.version>
+        <ojalgo.version>46.3.0</ojalgo.version>
         <poi.version>3.15</poi.version>
         <protobuf.version>2.5.0</protobuf.version>
         <rdf4j.version>2.2.2</rdf4j.version>
@@ -745,6 +746,11 @@
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
                 <version>${snakeyaml.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ojalgo</groupId>
+                <artifactId>ojalgo</artifactId>
+                <version>${ojalgo.version}</version>
             </dependency>
 
             <!-- Runtime dependencies -->
