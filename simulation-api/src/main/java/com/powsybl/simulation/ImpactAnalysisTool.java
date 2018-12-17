@@ -126,7 +126,7 @@ public class ImpactAnalysisTool implements Tool {
         return l;
     }
 
-    private static void prettyPrint(Multimap<String, SecurityIndex> securityIndexesPerContingency, PrintStream out) {
+    static void prettyPrint(Multimap<String, SecurityIndex> securityIndexesPerContingency, PrintStream out) {
         List<Column> columns = new ArrayList<>(SecurityIndexType.values().length + 1);
         columns.add(new Column("Contingency"));
         for (SecurityIndexType securityIndexType : SecurityIndexType.values()) {

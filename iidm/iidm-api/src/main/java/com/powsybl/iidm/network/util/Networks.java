@@ -239,8 +239,8 @@ public final class Networks {
 
 
     private static String writeInTable(ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
-        try (Writer writer = new StringWriter();
-             AbstractTableFormatter formatter = new AsciiTableFormatter(writer, null,
+        Writer writer = new StringWriter();
+        try (AbstractTableFormatter formatter = new AsciiTableFormatter(writer, null,
                      new Column("").setHorizontalAlignment(HorizontalAlignment.CENTER),
                      new Column("Main CC connected/disconnected").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER),
                      new Column("Others CC connected/disconnected").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER))) {
@@ -285,11 +285,10 @@ public final class Networks {
                     writeCell(Double.toString(balanceOtherCC.disconnectedShuntPositiveVolume) + " " +
                             Double.toString(balanceOtherCC.disconnectedShuntNegativeVolume) +
                             " (" + Integer.toString(balanceOtherCC.disconnectedShunts.size()) + ")");
-            return writer.toString();
-
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+        return writer.toString();
     }
 
     private static void logOtherCC(Logger logger, String title,  Supplier<String> tableSupplier, ConnectedPower balanceOtherCC) {
