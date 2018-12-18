@@ -15,8 +15,8 @@ public class NetworksTest {
     public void printBalanceSummaryTest()  {
 
         Network network = EurostagTutorialExample1Factory.create();
-        LoggerForTest LOGGER = new LoggerForTest();
-        Networks.printBalanceSummary("", network, LOGGER);
+        LoggerForTest logger = new LoggerForTest();
+        Networks.printBalanceSummary("", network, logger);
         assertEquals("+-----------------------+--------------------------------+----------------------------------+\n" +
                         "|                       | Main CC connected/disconnected | Others CC connected/disconnected |\n" +
                         "+-----------------------+--------------------------------+----------------------------------+\n" +
@@ -28,6 +28,6 @@ public class NetworksTest {
                         "| Generation (MW)       | 607.0       | 0.0              | 0.0         | 0.0                |\n" +
                         "| Shunt at nom V (MVar) | 0.0 0.0 (0) | 0.0 0.0 (0)      | 0.0 0.0 (0) | 0.0 0.0 (0)        |\n" +
                         "+-----------------------+-------------+------------------+-------------+--------------------+" + System.lineSeparator(),
-                LOGGER.getContent());
+                logger.getContent());
     }
 }

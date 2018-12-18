@@ -71,7 +71,7 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
         table.addCell(value, convertCellStyle(horizontalAlignment), colspan);
 
         column = (column + colspan) % columns[columnIndex].getColspan();
-        if( column == 0 ) {
+        if (column == 0) {
             columnIndex = (columnIndex + 1) % columns.length;
         }
         return this;

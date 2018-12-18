@@ -6,7 +6,6 @@ import com.powsybl.simulation.securityindexes.SecurityIndex;
 import org.junit.Test;
 
 import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
 
 public class ImpactAnalysisToolTest {
     @Test

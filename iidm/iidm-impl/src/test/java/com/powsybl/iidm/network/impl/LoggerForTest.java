@@ -7,7 +7,7 @@ public class LoggerForTest implements Logger {
 
     private StringBuffer buffer = new StringBuffer();
 
-    public String getContent(){
+    public String getContent() {
         return buffer.toString();
     }
 
