@@ -22,8 +22,6 @@ public abstract class AbstractTableFormatter implements TableFormatter {
 
     protected final Column[] columns;
 
-    protected  int tabLength = 0;
-
     protected int column;
 
     protected AbstractTableFormatter(Writer writer, TableFormatterConfig config, Column... columns) {
@@ -31,9 +29,6 @@ public abstract class AbstractTableFormatter implements TableFormatter {
         this.config = Objects.requireNonNull(config);
         this.columns = Objects.requireNonNull(columns);
         this.column = 0;
-        for (Column c : columns) {
-            tabLength += c.getColspan();
-        }
     }
 
     protected abstract TableFormatter write(String value) throws IOException;
@@ -67,7 +62,7 @@ public abstract class AbstractTableFormatter implements TableFormatter {
 
     @Override
     public TableFormatter writeEmptyLine() throws IOException {
-        return writeEmptyCells(tabLength - column);
+        return writeEmptyCells(columns.length - column);
     }
 
     @Override

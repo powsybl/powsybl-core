@@ -33,8 +33,8 @@ public class AsciiTableFormatterTest {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
         try (AsciiTableFormatter formatter = new AsciiTableFormatter(writer,  null, config,
-                new Column("column1").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER),
-                new Column("column2").setHorizontalAlignment(HorizontalAlignment.CENTER))) {
+                new Column("column1").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER).setTitleHorizontalAlignment(HorizontalAlignment.CENTER),
+                new Column("column2").setHorizontalAlignment(HorizontalAlignment.CENTER).setTitleHorizontalAlignment(HorizontalAlignment.CENTER))) {
             formatter.write("Line:1 Cell:1", 2);
             formatter.write("Line:1 Cell:2", 1);
             formatter.write("Line:2 Cell:1", 1);
@@ -56,8 +56,8 @@ public class AsciiTableFormatterTest {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
         try (AsciiTableFormatter formatter = new AsciiTableFormatter(writer,  null, config,
-                new Column("column1").setColspan(4).setHorizontalAlignment(HorizontalAlignment.CENTER),
-                new Column("column2").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER))) {
+                new Column("column1").setColspan(4).setHorizontalAlignment(HorizontalAlignment.CENTER).setTitleHorizontalAlignment(HorizontalAlignment.CENTER),
+                new Column("column2").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER).setTitleHorizontalAlignment(HorizontalAlignment.CENTER))) {
             formatter.write("Line:1 Cell:1", 1);
             formatter.write("Line:1 Cell:2", 1);
             formatter.write("Line:1 Cell:3", 1);
@@ -90,30 +90,5 @@ public class AsciiTableFormatterTest {
             formatter.write("Line:1 Cell:4", 2);
             formatter.write("Line:1 Cell:5", 1);
         }
-    }
-
-    @Test
-    public void getColumnIndexTest() throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
-        try (AsciiTableFormatter formatter = new AsciiTableFormatter(writer,  null, config,
-                new Column("column1").setColspan(4).setHorizontalAlignment(HorizontalAlignment.CENTER),
-                new Column("column2").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER))) {
-            formatter.write("Line:1 Cell:1", 1);
-            formatter.write("Line:1 Cell:2", 1);
-            formatter.write("Line:1 Cell:3", 1);
-            formatter.write("Line:1 Cell:4", 1);
-            formatter.write("Line:1 Cell:5", 2);
-            Method method = AsciiTableFormatter.class.getDeclaredMethod("getColumnIndex", int.class);
-            method.setAccessible(true);
-            int output = (int) method.invoke(formatter, 0);
-            assertEquals(0, output);
-            output = (int) method.invoke(formatter, 3);
-            assertEquals(0, output);
-            output = (int) method.invoke(formatter, 5);
-            assertEquals(1, output);
-        }
-
     }
 }

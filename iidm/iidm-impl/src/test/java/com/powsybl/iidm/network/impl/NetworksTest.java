@@ -17,17 +17,16 @@ public class NetworksTest {
         Network network = EurostagTutorialExample1Factory.create();
         LoggerForTest LOGGER = new LoggerForTest();
         Networks.printBalanceSummary("", network, LOGGER);
-        System.out.println(LOGGER.getContent());
         assertEquals("+-----------------------+--------------------------------+----------------------------------+\n" +
                         "|                       | Main CC connected/disconnected | Others CC connected/disconnected |\n" +
                         "+-----------------------+--------------------------------+----------------------------------+\n" +
-                        "|       Bus count       |               4                |                0                 |\n" +
-                        "|      Load count       |      1      |        0         |      0      |         0          |\n" +
-                        "|       Load (MW)       |    600.0    |       0.0        |     0.0     |        0.0         |\n" +
-                        "|    Generator count    |      1      |        0         |      0      |         0          |\n" +
-                        "|  Max generation (MW)  |   9999.99   |       0.0        |     0.0     |        0.0         |\n" +
-                        "|    Generation (MW)    |    607.0    |       0.0        |     0.0     |        0.0         |\n" +
-                        "| Shunt at nom V (MVar) | 0.0 0.0 (0) |   0.0 0.0 (0)    | 0.0 0.0 (0) |    0.0 0.0 (0)     |\n" +
+                        "| Bus count             | 4                              | 0                                |\n" +
+                        "| Load count            | 1           | 0                | 0           | 0                  |\n" +
+                        "| Load (MW)             | 600.0       | 0.0              | 0.0         | 0.0                |\n" +
+                        "| Generator count       | 1           | 0                | 0           | 0                  |\n" +
+                        "| Max generation (MW)   | 9999.99     | 0.0              | 0.0         | 0.0                |\n" +
+                        "| Generation (MW)       | 607.0       | 0.0              | 0.0         | 0.0                |\n" +
+                        "| Shunt at nom V (MVar) | 0.0 0.0 (0) | 0.0 0.0 (0)      | 0.0 0.0 (0) | 0.0 0.0 (0)        |\n" +
                         "+-----------------------+-------------+------------------+-------------+--------------------+" + System.lineSeparator(),
                 LOGGER.getContent());
     }

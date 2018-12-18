@@ -241,9 +241,14 @@ public final class Networks {
     private static String writeInTable(ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
         Writer writer = new StringWriter();
         try (AbstractTableFormatter formatter = new AsciiTableFormatter(writer, null,
-                     new Column("").setHorizontalAlignment(HorizontalAlignment.CENTER),
-                     new Column("Main CC connected/disconnected").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER),
-                     new Column("Others CC connected/disconnected").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER))) {
+                     new Column("")
+                             .setTitleHorizontalAlignment(HorizontalAlignment.CENTER),
+                     new Column("Main CC connected/disconnected")
+                             .setColspan(2)
+                             .setTitleHorizontalAlignment(HorizontalAlignment.CENTER),
+                     new Column("Others CC connected/disconnected")
+                             .setColspan(2)
+                             .setTitleHorizontalAlignment(HorizontalAlignment.CENTER))) {
             formatter.writeCell("Bus count").
                     writeCell(Integer.toString(balanceMainCC.busCount), 2).
                     writeCell(Integer.toString(balanceOtherCC.busCount), 2);
