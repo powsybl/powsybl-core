@@ -1,13 +1,18 @@
-package com.powsybl.commons;
 /**
- * @author Chamseddine BENHAMED <chamseddine.benhamed at rte-france.com>
+ * Copyright (c) 2018, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
+package com.powsybl.commons;
 
 import org.slf4j.Logger;
 import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MarkerIgnoringBase;
 import org.slf4j.helpers.MessageFormatter;
-
+/**
+ * @author Chamseddine BENHAMED <chamseddine.benhamed at rte-france.com>
+ */
 public class CustomLogger extends MarkerIgnoringBase implements Logger {
 
     private StringBuilder buffer = new StringBuilder();
