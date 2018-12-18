@@ -68,7 +68,7 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner & Valid
             if (point != null) {
                 if (point.getMinQ() != minQ || point.getMaxQ() != maxQ) {
                     throw new ValidationException(owner,
-                            "a point already exists for active power " + p  + " with a different reactive range: [" +
+                            "a point already exists for active power " + p  + " with a different reactive power range: [" +
                             minQ  + ", " + maxQ + "] != " + "[" + point.getMinQ() + ", " + point.getMaxQ() + "]");
                 } else {
                     LOGGER.warn("{}duplicate point for active power {}", owner.getMessageHeader(), p);
