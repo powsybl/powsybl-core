@@ -129,7 +129,6 @@ public class ReactiveCapabilityCurveTest {
                 .add();
     }
 
-    @Ignore(value = "To be reactivated in IIDM v1.1")
     @Test
     public void invalidMinQGreaterThanMaxQ() {
         thrown.expect(ValidationException.class);

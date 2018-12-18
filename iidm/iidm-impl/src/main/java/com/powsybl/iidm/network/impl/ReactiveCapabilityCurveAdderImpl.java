@@ -63,11 +63,10 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner & Valid
                 throw new ValidationException(owner,
                         "a point already exists for active power " + p);
             }
-            // TODO: to be activated in IIDM v1.1
-            // if (maxQ < minQ) {
-            //     throw new ValidationException(owner,
-            //             "maximum reactive power is expected to be greater than or equal to minimum reactive power");
-            // }
+            if (maxQ < minQ) {
+                throw new ValidationException(owner,
+                        "maximum reactive power is expected to be greater than or equal to minimum reactive power");
+            }
             points.put(p, new PointImpl(p, minQ, maxQ));
             return ReactiveCapabilityCurveAdderImpl.this;
         }
