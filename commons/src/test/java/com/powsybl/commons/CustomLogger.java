@@ -1,4 +1,7 @@
 package com.powsybl.commons;
+/**
+ * @author Chamseddine BENHAMED <chamseddine.benhamed at rte-france.com>
+ */
 
 import org.slf4j.Logger;
 import org.slf4j.helpers.FormattingTuple;
