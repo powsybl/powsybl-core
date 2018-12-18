@@ -1,5 +1,6 @@
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.CustomLogger;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.util.Networks;
@@ -15,9 +16,11 @@ public class NetworksTest {
     public void printBalanceSummaryTest()  {
 
         Network network = EurostagTutorialExample1Factory.create();
-        LoggerForTest logger = new LoggerForTest();
+        CustomLogger logger = new CustomLogger("LoggerForTest");
+        logger.setLogLevel("debug");
         Networks.printBalanceSummary("", network, logger);
-        assertEquals("+-----------------------+--------------------------------+----------------------------------+\n" +
+        assertEquals("[DEBUG] Active balance at step '':\n" +
+                        "+-----------------------+--------------------------------+----------------------------------+\n" +
                         "|                       | Main CC connected/disconnected | Others CC connected/disconnected |\n" +
                         "+-----------------------+--------------------------------+----------------------------------+\n" +
                         "| Bus count             | 4                              | 0                                |\n" +
