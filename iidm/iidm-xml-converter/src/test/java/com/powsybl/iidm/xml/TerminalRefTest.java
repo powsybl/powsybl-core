@@ -9,6 +9,7 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import org.junit.Test;
 
 import java.io.IOException;
 
@@ -19,12 +20,12 @@ import static org.junit.Assert.assertNotNull;
  */
 public class TerminalRefTest extends AbstractConverterTest {
 
- //   @Test
+    @Test
     public void roundTripTest() throws IOException {
         String filename = "terminalRef.xiidm";
 
         Network network = Importers.loadNetwork(filename, getClass().getResourceAsStream("/" + filename));
         assertNotNull(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::read, filename);
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::read, "/" + filename);
     }
 }

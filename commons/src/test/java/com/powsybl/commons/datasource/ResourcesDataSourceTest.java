@@ -6,6 +6,10 @@
  */
 package com.powsybl.commons.datasource;
 
+import org.junit.Test;
+
+import java.util.Collections;
+
 import static org.junit.Assert.*;
 
 /**
@@ -13,4 +17,16 @@ import static org.junit.Assert.*;
  */
 public class ResourcesDataSourceTest {
 
+    @Test
+    public void test() {
+        ResourceDataSource dataSource = new ResourceDataSource("foo", new ResourceSet("/test/", "foo.txt"));
+        assertEquals("foo", dataSource.getBaseName());
+        assertTrue(dataSource.exists("foo.txt"));
+        assertTrue(dataSource.exists(null, "txt"));
+        assertFalse(dataSource.exists("foo.doc"));
+        assertFalse(dataSource.exists(null, "doc"));
+        assertNotNull(dataSource.newInputStream("foo.txt"));
+        assertNotNull(dataSource.newInputStream(null, "txt"));
+        assertEquals(Collections.singletonList("foo.txt"), dataSource.listNames(".*"));
+    }
 }
