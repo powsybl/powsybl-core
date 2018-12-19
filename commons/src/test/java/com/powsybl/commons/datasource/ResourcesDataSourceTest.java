@@ -27,6 +27,6 @@ public class ResourcesDataSourceTest {
         assertFalse(dataSource.exists(null, "doc"));
         assertNotNull(dataSource.newInputStream("foo.txt"));
         assertNotNull(dataSource.newInputStream(null, "txt"));
-        assertEquals(Collections.singletonList("foo.txt"), dataSource.listNames(".*"));
+        assertEquals(Collections.singleton("foo.txt"), dataSource.listNames(".*"));
     }
 }
