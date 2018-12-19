@@ -111,7 +111,7 @@ public class ExternalSecurityAnalysis implements SecurityAnalysis {
         @Override
         public List<CommandExecution> before(Path workingDir) throws IOException {
 
-            network.getStateManager().setWorkingState(workingStateId);
+            network.getVariantManager().setWorkingVariant(workingStateId);
             copyInputFiles(workingDir);
             return buildCommandExecution();
         }

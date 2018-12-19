@@ -18,14 +18,14 @@ public interface VariantManager {
      *
      * @return the variant id list
      */
-     Collection<String> getVariantIds();
+    Collection<String> getVariantIds();
 
     /**
      * Get the working variant.
      *
      * @return the id of the working variant
      */
-     String getWorkingVariantId();
+    String getWorkingVariantId();
 
     /**
      * Set the working variant.
@@ -33,7 +33,7 @@ public interface VariantManager {
      * @param variantId the id of the working variant
      * @throws com.powsybl.commons.PowsyblException if the variant is not found
      */
-     void setWorkingVariant(String variantId);
+    void setWorkingVariant(String variantId);
 
     /**
      * Create a new variant by cloning an existing one.
@@ -44,7 +44,7 @@ public interface VariantManager {
      *                         if the source variant is not found or if a variant with
      *                         an id of targetStateIds already exists
      */
-     void cloneVariant(String sourceVariantId, List<String> targetVariantIds);
+    void cloneVariant(String sourceVariantId, List<String> targetVariantIds);
 
     /**
      * Create a new variant by cloning an existing one.
@@ -55,14 +55,14 @@ public interface VariantManager {
      *                         if the source variant is not found or if a variant with
      *                         the id targetVariantId already exists
      */
-     void cloneVariant(String sourceVariantId, String targetVariantId);
+    void cloneVariant(String sourceVariantId, String targetVariantId);
 
     /**
      * Remove a variant.
      *
      * @param variantId the id of the variant to remove
      */
-     void removeVariant(String variantId);
+    void removeVariant(String variantId);
 
     /**
      * Allows variants to be accessed simulaneously by different threads. When
@@ -70,7 +70,7 @@ public interface VariantManager {
      * for each thread.
      * @param allow
      */
-     void allowVariantMultiThreadAccess(boolean allow);
+    void allowVariantMultiThreadAccess(boolean allow);
 
     boolean isVariantMultiThreadAccessAllowed();
 }

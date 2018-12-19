@@ -49,7 +49,7 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
     @Override
     public void run(Network network, ComputationManager computationManager) {
         Objects.requireNonNull(network);
-        LOGGER.info("Running {} on network {}, state {}", getName(), network.getId(), network.getStateManager().getWorkingStateId());
+        LOGGER.info("Running {} on network {}, state {}", getName(), network.getId(), network.getVariantManager().getWorkingVariantId());
         LOGGER.info("LoadFlowResultsCompletionParameters={}", parameters);
         LOGGER.info("LoadFlowParameters={}", lfParameters);
 

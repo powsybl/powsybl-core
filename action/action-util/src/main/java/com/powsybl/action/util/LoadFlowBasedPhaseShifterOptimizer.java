@@ -74,11 +74,11 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
         int optimalTap;
 
         // fromNode a temporary state that will be used to move the phase shifter tap without changing the current state
-        String stateId = network.getStateManager().getWorkingStateId();
+        String stateId = network.getVariantManager().getWorkingVariantId();
         String tmpStateId = "phase-shifter-optim-" + UUID.randomUUID();
-        network.getStateManager().cloneState(stateId, tmpStateId);
+        network.getVariantManager().cloneVariant(stateId, tmpStateId);
         try {
-            network.getStateManager().setWorkingState(tmpStateId);
+            network.getVariantManager().setWorkingVariant(tmpStateId);
             LoadFlowFactory loadFlowFactory = config.getLoadFlowFactoryClass().newInstance();
             LoadFlow loadFlow = loadFlowFactory.create(network, computationManager, 0);
             runLoadFlow(loadFlow, tmpStateId);
@@ -128,8 +128,8 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
             throw new UncheckedInstantiationException(e);
         } finally {
             // don't forget to remove the temporary state!
-            network.getStateManager().removeState(tmpStateId);
-            network.getStateManager().setWorkingState(stateId);
+            network.getVariantManager().removeVariant(tmpStateId);
+            network.getVariantManager().setWorkingVariant(stateId);
         }
 
         LOGGER.debug("Optimal phase shifter '{}' tap is {} (from {})",

@@ -139,7 +139,7 @@ public interface Network extends Container<Network> {
      * @deprecated Use {@link #getVariantManager()} instead.
      */
     @Deprecated
-    default StateManager getStateManager() {
+    default VariantManager getStateManager() {
         return getVariantManager();
     }
 

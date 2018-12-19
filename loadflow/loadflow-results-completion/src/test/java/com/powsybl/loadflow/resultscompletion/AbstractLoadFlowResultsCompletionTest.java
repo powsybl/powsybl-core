@@ -6,8 +6,8 @@
  */
 package com.powsybl.loadflow.resultscompletion;
 
-import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.Terminal.BusView;
 import org.junit.Before;
 import org.mockito.ArgumentCaptor;
@@ -164,12 +164,12 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(shunt.getTerminal()).thenReturn(shuntTerminal);
         Mockito.when(shunt.getCurrentB()).thenReturn(0.099769);
 
-        StateManager stateManager = Mockito.mock(StateManager.class);
-        Mockito.when(stateManager.getWorkingStateId()).thenReturn(StateManagerConstants.INITIAL_STATE_ID);
+        VariantManager variantManager = Mockito.mock(VariantManager.class);
+        Mockito.when(variantManager.getWorkingVariantId()).thenReturn(VariantManagerConstants.INITIAL_VARIANT_ID);
 
         network = Mockito.mock(Network.class);
         Mockito.when(network.getId()).thenReturn("network");
-        Mockito.when(network.getStateManager()).thenReturn(stateManager);
+        Mockito.when(network.getVariantManager()).thenReturn(variantManager);
         Mockito.when(network.getLineStream()).thenAnswer(dummy -> Stream.of(line));
         Mockito.when(network.getTwoWindingsTransformerStream()).thenAnswer(dummy -> Stream.of(transformer));
         Mockito.when(network.getShuntCompensatorStream()).thenAnswer(dummy -> Stream.of(shunt));
