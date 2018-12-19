@@ -234,4 +234,11 @@ public class BranchDataTest {
     private void testEntsoeCAS1MicroGrid3wTx(EntsoeMicroGridVariant variant) {
         TestCaseCatalog.entsoeCAS1MicroGrid3wTx(variant).test();
     }
+
+    // DACF NGET 11:30 e67767ee
+
+    @Test
+    public void testDacfNget1130Elst2Sgt8() {
+        TestCaseCatalog.dacfNget1130Elst2Sgt8().test();
+    }
 }

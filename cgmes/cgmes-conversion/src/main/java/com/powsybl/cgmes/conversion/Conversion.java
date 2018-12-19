@@ -132,8 +132,10 @@ public class Conversion {
         convf = asm -> new AsynchronousMachineConversion(asm, context);
         convert(cgmes.asynchronousMachines(), convf);
 
-        // In CIM1 synchronous machines are added AFTER transmission lines and transformers
-        // Is there a strong reason to wait for these equipment to be added to the network ?
+        // In CIM1 synchronous machines are added AFTER transmission lines and
+        // transformers
+        // Is there a strong reason to wait for these equipment to be added to the
+        // network ?
         convert(cgmes.synchronousMachines(), sm -> new SynchronousMachineConversion(sm, context));
 
         // DC
@@ -247,6 +249,14 @@ public class Conversion {
             return Collections.emptyList();
         }
 
+        public boolean strict() {
+            return strict;
+        }
+
+        public void setStrict(boolean strict) {
+            this.strict = strict;
+        }
+
         public boolean allowUnsupportedTapChangers() {
             return true;
         }
@@ -259,8 +269,16 @@ public class Conversion {
             return lowImpedanceLineR;
         }
 
+        public void setLowImpedanceLineR(double r) {
+            this.lowImpedanceLineR = r;
+        }
+
         public double lowImpedanceLineX() {
             return lowImpedanceLineX;
+        }
+
+        public void setLowImpedanceLineX(double x) {
+            this.lowImpedanceLineX = x;
         }
 
         public boolean convertBoundary() {
@@ -295,9 +313,21 @@ public class Conversion {
             this.considerPhaseAngleClock = b;
         }
 
+        public boolean considerRatioTapChangersFor3wTxAtNetworkSide() {
+            return this.considerRatioTapChangersFor3wTxAtNetworkSide;
+        }
+
+        public void setConsiderRatioTapChangersFor3wTxAtNetworkSide(boolean b) {
+            this.considerRatioTapChangersFor3wTxAtNetworkSide = b;
+        }
+
+        private boolean strict = false;
+
         private boolean convertBoundary = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
         private boolean considerPhaseAngleClock = false;
+        private boolean considerRatioTapChangersFor3wTxAtNetworkSide = false;
+
         private double lowImpedanceLineR = 0.05;
         private double lowImpedanceLineX = 0.05;
     }

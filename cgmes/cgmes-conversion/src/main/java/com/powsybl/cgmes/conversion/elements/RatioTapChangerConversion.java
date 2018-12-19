@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.elements.extensions.RatioTapChangerExtension;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
@@ -41,7 +42,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         }
         if (tx3 != null) {
             int side = context.tapChangerTransformers().whichSide(id);
-            if (side == 1) {
+            if (side == 1 && context.config().strict()) {
                 String reason0 = String.format(
                         "Not supported at end 1 of 3wtx. txId 'name' 'substation': %s '%s' '%s'",
                         tx3.getId(),
@@ -62,8 +63,13 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
                 return false;
             }
         }
-        return inRange("defaultStep", neutralStep, lowStep, highStep) &&
-                inRange("position", position, lowStep, highStep);
+
+        boolean valid = true;
+        if (context.config().strict()) {
+            valid = inRange("defaultStep", neutralStep, lowStep, highStep)
+                    && inRange("position", position, lowStep, highStep);
+        }
+        return valid;
     }
 
     @Override
@@ -73,6 +79,15 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
             invalid("Could not create ratio tap changer adder");
             return;
         }
+        // position = fitToRange(position, lowStep, highStep);
+        // XXX LUMA Just checking Twineham
+        if (position < lowStep) {
+            lowStep = position;
+        }
+        if (position > highStep) {
+            highStep = position;
+        }
+        neutralStep = fitToRange(neutralStep, lowStep, highStep);
         rtca.setLowTapPosition(lowStep).setTapPosition(position);
         addSteps(rtca);
         String tapChangerControl = p.getId("TapChangerControl");
@@ -90,8 +105,14 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         } else if (tx3 != null) {
             int side = context.tapChangerTransformers().whichSide(id);
             if (side == 1) {
-                // No supported in IIDM model
-                return null;
+                if (context.config().strict()) {
+                    return null;
+                } else {
+                    // No supported in IIDM model, add as an extension
+                    RatioTapChangerExtension rtce = new RatioTapChangerExtension();
+                    tx3.addExtension(RatioTapChangerExtension.class, rtce);
+                    return rtce.newRatioTapChanger();
+                }
             } else if (side == 2) {
                 return tx3.getLeg2().newRatioTapChanger();
             } else if (side == 3) {
@@ -145,7 +166,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         if (tx2 != null) {
             return context.tapChangerTransformers().whichSide(id) == 1;
         }
-        return false;
+        return context.config().considerRatioTapChangersFor3wTxAtNetworkSide();
     }
 
     private void addRegulatingControl(RatioTapChangerAdder rtca) {
@@ -195,7 +216,11 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
             }
         } else if (tx3 != null) {
             if (side == 1) {
-                // invalid
+                if (context.config().strict()) {
+                    return null;
+                } else {
+                    return tx3.getLeg1().getTerminal();
+                }
             } else if (side == 2) {
                 return tx3.getLeg2().getTerminal();
             } else if (side == 3) {
@@ -207,10 +232,10 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
 
     private final TwoWindingsTransformer tx2;
     private final ThreeWindingsTransformer tx3;
-    private final int lowStep;
-    private final int highStep;
-    private final int neutralStep;
-    private final int position;
+    private int lowStep;
+    private int highStep;
+    private int neutralStep;
+    private int position;
 
     private static final Logger LOG = LoggerFactory.getLogger(RatioTapChangerConversion.class);
 }

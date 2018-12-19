@@ -73,6 +73,12 @@ public abstract class AbstractObjectConversion {
         return true;
     }
 
+    public int fitToRange(int x, int xmin, int xmax) {
+        if (x < xmin) return xmin;
+        if (x > xmax) return xmax;
+        return x;
+    }
+
     public void invalid(String reason) {
         context.invalid(what(), reason);
     }

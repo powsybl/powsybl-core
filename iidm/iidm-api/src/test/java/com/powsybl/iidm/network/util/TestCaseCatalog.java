@@ -425,4 +425,86 @@ public final class TestCaseCatalog {
         String label = String.format("ENTSO-E CAS1 MicroGrid %s variant %s", name, variant);
         return new ThreeWindingsTransformerTestCase(label, w380, w225, w21);
     }
+
+    // DACF NGET 11:30 e67767ee
+
+    static AbstractTestCase dacfNget1130Elst2Sgt8() {
+        BranchTestCase w275 = TestCaseCatalog.dacfNget1130Elst2Sgt8W275();
+        BranchTestCase w132 = TestCaseCatalog.dacfNget1130Elst2Sgt8W132();
+        BranchTestCase w13 = TestCaseCatalog.dacfNget1130Elst2Sgt8W13();
+        String name = "ELST2 SGT 8";
+        String label = "DACF NGET ????-??-?? 11:30 " + name;
+        return new ThreeWindingsTransformerTestCase(label, w275, w132, w13)
+                .setToleranceVoltage(0.01)
+                .setToleranceBalanceStar(2.21)
+                .setToleranceFlowStarFromVS(3)
+                .setToleranceFlowStarFromV1V2V3Y(2.5);
+    }
+
+    static BranchTestCase dacfNget1130Elst2Sgt8W275() {
+        BranchTestCase t = new BranchTestCase();
+        t.config.paramsCgmes = true;
+        t.label = "275";
+        t.end1.ratedU = 275;
+        t.end2.ratedU = 1;
+        t.end1.r = 0.511979;
+        t.end1.x = 74.5619;
+        t.end1.g = -0.000000516529;
+        t.end1.b = 0.000000618843;
+        t.config.splitMagnetizingAdmittance = false;
+        t.end2.expectedFlow.p = Double.NaN;
+        t.end2.expectedFlow.q = Double.NaN;
+
+        t.end1.voltage.u = 279.466;
+        t.end1.voltage.theta = Math.toRadians(8.92073);
+        t.end1.expectedFlow.p = 0;
+        t.end1.expectedFlow.q = 0;
+        return t;
+    }
+
+    static BranchTestCase dacfNget1130Elst2Sgt8W132() {
+        BranchTestCase t = new BranchTestCase();
+        t.config.paramsCgmes = true;
+        t.config.splitMagnetizingAdmittance = false;
+        t.label = "132";
+        t.end1.ratedU = 132;
+        t.end2.ratedU = 1;
+        t.end1.r = 0.0947278;
+        t.end1.x = -3.15842;
+        t.end1.b = 0.0;
+
+        int neutralStep = 10;
+        int step = 1;
+        double stepVoltageIncrement = -1.6667;
+        t.end1.tap.forStep(step, neutralStep, stepVoltageIncrement);
+        
+        t.end2.expectedFlow.p = Double.NaN;
+        t.end2.expectedFlow.q = Double.NaN;
+
+        t.end1.voltage.u = 154.334;
+        t.end1.voltage.theta = Math.toRadians(8.91882);
+        t.end1.expectedFlow.p = 0;
+        t.end1.expectedFlow.q = 0.3113;
+        return t;
+    }
+
+    static BranchTestCase dacfNget1130Elst2Sgt8W13() {
+        BranchTestCase t = new BranchTestCase();
+        t.config.paramsCgmes = true;
+        t.config.splitMagnetizingAdmittance = false;
+        t.label = "13";
+        t.end1.ratedU = 13;
+        t.end2.ratedU = 1;
+        t.end1.r = 0.00634351;
+        t.end1.x = 0.237487;
+        t.end1.b = 0.0;
+        t.end2.expectedFlow.p = Double.NaN;
+        t.end2.expectedFlow.q = Double.NaN;
+
+        t.end1.voltage.u = 13.2158;
+        t.end1.voltage.theta = Math.toRadians(8.9191);
+        t.end1.expectedFlow.p = 0;
+        t.end1.expectedFlow.q = 0;
+        return t;
+    }
 }

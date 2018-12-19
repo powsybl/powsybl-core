@@ -58,18 +58,7 @@ public class CgmesImport implements Importer {
 
         Conversion.Config config = new Conversion.Config();
         if (p != null) {
-            if (p.containsKey("changeSignForShuntReactivePowerFlowInitialState")) {
-                String s = p.getProperty("changeSignForShuntReactivePowerFlowInitialState");
-                config.setChangeSignForShuntReactivePowerFlowInitialState(Boolean.parseBoolean(s));
-            }
-            if (p.containsKey("convertBoundary")) {
-                String s = p.getProperty("convertBoundary");
-                config.setConvertBoundary(Boolean.parseBoolean(s));
-            }
-            if (p.containsKey("considerPhaseAngleClock")) {
-                String s = p.getProperty("considerPhaseAngleClock");
-                config.setConsiderPhaseAngleClock(Boolean.parseBoolean(s));
-            }
+            updateConfigFromProperties(config, p);
         }
         Network network = new Conversion(cgmes, config).convertedNetwork();
 
@@ -100,6 +89,37 @@ public class CgmesImport implements Importer {
             }
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+    }
+
+    private void updateConfigFromProperties(Conversion.Config config, Properties p) {
+        if (p.containsKey("changeSignForShuntReactivePowerFlowInitialState")) {
+            String s = p.getProperty("changeSignForShuntReactivePowerFlowInitialState");
+            config.setChangeSignForShuntReactivePowerFlowInitialState(Boolean.parseBoolean(s));
+        }
+        if (p.containsKey("strict")) {
+            String s = p.getProperty("strict");
+            config.setStrict(Boolean.parseBoolean(s));
+        }
+        if (p.containsKey("convertBoundary")) {
+            String s = p.getProperty("convertBoundary");
+            config.setConvertBoundary(Boolean.parseBoolean(s));
+        }
+        if (p.containsKey("considerPhaseAngleClock")) {
+            String s = p.getProperty("considerPhaseAngleClock");
+            config.setConsiderPhaseAngleClock(Boolean.parseBoolean(s));
+        }
+        if (p.containsKey("considerRatioTapChangersFor3wTxAtNetworkSide")) {
+            String s = p.getProperty("considerRatioTapChangersFor3wTxAtNetworkSide");
+            config.setConsiderRatioTapChangersFor3wTxAtNetworkSide(Boolean.parseBoolean(s));
+        }
+        if (p.containsKey("lowImpedanceLineR")) {
+            String s = p.getProperty("lowImpedanceLineR");
+            config.setLowImpedanceLineR(Double.parseDouble(s));
+        }
+        if (p.containsKey("lowImpedanceLineX")) {
+            String s = p.getProperty("lowImpedanceLineX");
+            config.setLowImpedanceLineX(Double.parseDouble(s));
         }
     }
 

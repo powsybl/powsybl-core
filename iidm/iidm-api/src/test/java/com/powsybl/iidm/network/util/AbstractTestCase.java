@@ -102,7 +102,7 @@ public abstract class AbstractTestCase {
             if (end == config.ratioRatedUatEnd && end1.ratedU != end2.ratedU) {
                 rho = rho * (end == 1 ? end2.ratedU / end1.ratedU : end1.ratedU / end2.ratedU);
             }
-            return ComplexUtils.polar2Complex(1 / rho, -alpha);
+            return ComplexUtils.polar2Complex(rho, alpha).reciprocal();
         }
 
         Complex ysh(int end) {
@@ -251,9 +251,14 @@ public abstract class AbstractTestCase {
     }
 
     static class ThreeWindingsTransformerTestCase extends AbstractTestCase {
-        private static final double TOLERANCE_BALANCE_3W_STAR_BUS = 0.8;
-        private static final double TOLERANCE_FLOW_WHEN_3W_STAR_BUS_FROM_VS = 0.03;
-        private static final double TOLERANCE_FLOW_WHEN_3W_STAR_BUS_FROM_V1V2V3Y = 0.3;
+        private static final double TOLERANCE_BALANCE_STAR = 0.8;
+        private static final double TOLERANCE_FLOW_STAR_FROM_VS = 0.03;
+        private static final double TOLERANCE_FLOW_STAR_FROM_V1V2V3Y = 0.3;
+
+        private double toleranceVoltage;
+        private double toleranceBalanceStar = TOLERANCE_BALANCE_STAR;
+        private double toleranceFlowStarFromVS = TOLERANCE_FLOW_STAR_FROM_VS;
+        private double toleranceFlowStarFromV1V2V3Y = TOLERANCE_FLOW_STAR_FROM_V1V2V3Y;
 
         private BranchTestCase w1;
         private BranchTestCase w2;
@@ -264,8 +269,30 @@ public abstract class AbstractTestCase {
             this.w1 = w1;
             this.w2 = w2;
             this.w3 = w3;
+            // By default use the same tolerance voltage of primary
+            this.toleranceVoltage = w1.config.toleranceVoltage;
         }
 
+        ThreeWindingsTransformerTestCase setToleranceVoltage(double tol) {
+            this.toleranceVoltage = tol;
+            return this;
+        }
+        
+        ThreeWindingsTransformerTestCase setToleranceBalanceStar(double tol) {
+            this.toleranceBalanceStar = tol;
+            return this;
+        }
+        
+        ThreeWindingsTransformerTestCase setToleranceFlowStarFromVS(double tol) {
+            this.toleranceFlowStarFromVS = tol;
+            return this;
+        }
+        
+        ThreeWindingsTransformerTestCase setToleranceFlowStarFromV1V2V3Y(double tol) {
+            this.toleranceFlowStarFromV1V2V3Y = tol;
+            return this;
+        }
+        
         @Override
         void test() {
             super.log();
@@ -301,7 +328,6 @@ public abstract class AbstractTestCase {
 
             // Ensure the voltage of the star bus is similar
             // when it is computed using the different alternatives
-            double toleranceVoltage = w1.config.toleranceVoltage;
             Voltage.assertEquals(v01, v02, toleranceVoltage);
             Voltage.assertEquals(v01, v03, toleranceVoltage);
             Voltage.assertEquals(v01, v0V1V2V3Y, toleranceVoltage);
@@ -347,7 +373,7 @@ public abstract class AbstractTestCase {
             // either because flows are not given with enough precision or because
             // the given solution already contained had a mismatch at star bus.
             // The balance at star bus must be exact if V0 is calculated from V1, V2, V3, Y
-            double toleranceBalance = vksk == 0 ? BusBalance.EXACT : TOLERANCE_BALANCE_3W_STAR_BUS;
+            double toleranceBalance = vksk == 0 ? BusBalance.EXACT : toleranceBalanceStar;
             new BusBalance("Balance at star bus, " + label, toleranceBalance, f1, f2, f3).test();
         }
 
@@ -357,9 +383,9 @@ public abstract class AbstractTestCase {
                 // then the winding k the flow must be exact
                 return Flow.EXACT;
             } else if (starVoltageFromEndNumber > 0) {
-                return TOLERANCE_FLOW_WHEN_3W_STAR_BUS_FROM_VS;
+                return toleranceFlowStarFromVS;
             } else if (starVoltageFromEndNumber == 0) {
-                return TOLERANCE_FLOW_WHEN_3W_STAR_BUS_FROM_V1V2V3Y;
+                return toleranceFlowStarFromV1V2V3Y;
             }
             throw new PowsyblException("Bad endNumber");
         }
