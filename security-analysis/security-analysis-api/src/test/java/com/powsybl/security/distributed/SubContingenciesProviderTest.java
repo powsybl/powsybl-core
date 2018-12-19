@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -22,14 +23,15 @@ import static org.junit.Assert.*;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
+ * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public class SubContingenciesProviderTest {
 
     @Test
     public void test() {
         ContingenciesProvider provider = n -> IntStream.range(1, 5)
-                    .mapToObj(i -> new Contingency("contingency-" + i))
-                    .collect(Collectors.toList());
+                .mapToObj(i -> new Contingency("contingency-" + i))
+                .collect(Collectors.toList());
 
         Network network = Mockito.mock(Network.class);
 
@@ -43,6 +45,19 @@ public class SubContingenciesProviderTest {
 
         assertEquals(ImmutableList.of("contingency-1", "contingency-2"), subList1);
         assertEquals(ImmutableList.of("contingency-3", "contingency-4"), subList2);
+    }
+
+    @Test
+    public void testEmpty() {
+        ContingenciesProvider provider = n -> Collections.emptyList();
+
+        Network network = Mockito.mock(Network.class);
+
+        List<String> subList1 = new SubContingenciesProvider(provider, new Partition(1, 1))
+                .getContingencies(network)
+                .stream().map(Contingency::getId).collect(Collectors.toList());
+
+        assertEquals(Collections.emptyList(), subList1);
     }
 
 }
