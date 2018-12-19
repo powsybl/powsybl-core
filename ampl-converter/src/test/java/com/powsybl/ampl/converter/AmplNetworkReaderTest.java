@@ -6,56 +6,42 @@
  */
 package com.powsybl.ampl.converter;
 
-import com.google.common.io.ByteStreams;
-import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
-import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.network.test.HvdcTestNetwork;
-import com.powsybl.iidm.network.test.PhaseShifterTestCaseFactory;
-import com.powsybl.iidm.network.test.SvcTestCaseFactory;
-import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
-
+import com.powsybl.iidm.network.test.*;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public class AmplNetworkReaderTest {
 
-    private static void importData(MemDataSource dataSource, String suffix, String filename) throws IOException {
-        try (OutputStream stream = dataSource.newOutputStream(suffix, "txt", false)) {
-            ByteStreams.copy(AmplNetworkReaderTest.class.getResourceAsStream("/" + filename), stream);
-        }
-    }
-
     @Test
     public void readEurostag() throws IOException {
         Network network = EurostagTutorialExample1Factory.create();
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
-        MemDataSource memDataSource = new MemDataSource();
-        importData(memDataSource, "_generators", "outputs/eurostag-tutorial-example1-generators.txt");
-        importData(memDataSource, "_loads", "outputs/eurostag-tutorial-example1-loads.txt");
-        importData(memDataSource, "_rtc", "outputs/eurostag-tutorial-example1-rtc.txt");
-        importData(memDataSource, "_indic", "outputs/eurostag-tutorial-example1-indic.txt");
-        importData(memDataSource, "_buses", "outputs/eurostag-tutorial-example1-buses.txt");
-        importData(memDataSource, "_branches", "outputs/eurostag-tutorial-example1-branches.txt");
+        ReadOnlyDataSource dataSource = new ResourceDataSource("eurostag-tutorial-example1",
+                                                               new ResourceSet("/outputs/", "eurostag-tutorial-example1_generators.txt",
+                                                                                            "eurostag-tutorial-example1_loads.txt",
+                                                                                            "eurostag-tutorial-example1_rtc.txt",
+                                                                                            "eurostag-tutorial-example1_indic.txt",
+                                                                                            "eurostag-tutorial-example1_buses.txt",
+                                                                                            "eurostag-tutorial-example1_branches.txt"));
 
-        AmplNetworkReader reader = new AmplNetworkReader(memDataSource, network, mapper);
+        AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, mapper);
         testGenerators(network, reader);
         testLoads(network, reader);
         testRatioTapChanger(network, reader);
@@ -69,10 +55,11 @@ public class AmplNetworkReaderTest {
         Network network = ThreeWindingsTransformerNetworkFactory.create();
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
-        MemDataSource memDataSource = new MemDataSource();
-        importData(memDataSource, "_branches", "outputs/3wt-branches.txt");
+        ReadOnlyDataSource dataSource = new ResourceDataSource("3wt",
+                                                               new ResourceSet("/outputs/",
+                                                                               "3wt_branches.txt"));
 
-        AmplNetworkReader reader = new AmplNetworkReader(memDataSource, network, mapper);
+        AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, mapper);
         testThreeWindingTransBranches(network, reader);
     }
 
@@ -81,10 +68,11 @@ public class AmplNetworkReaderTest {
         Network network = ThreeWindingsTransformerNetworkFactory.create();
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
-        MemDataSource memDataSource = new MemDataSource();
-        importData(memDataSource, "_branches", "outputs/3wt-branches-variant-index-2.txt");
+        ReadOnlyDataSource dataSource = new ResourceDataSource("3wt-variant-index-2",
+                                                               new ResourceSet("/outputs/",
+                                                                               "3wt-variant-index-2_branches.txt"));
 
-        AmplNetworkReader reader = new AmplNetworkReader(memDataSource, network, 2, mapper);
+        AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, 2, mapper);
         testThreeWindingTransBranches(network, reader);
     }
 
@@ -93,10 +81,11 @@ public class AmplNetworkReaderTest {
         Network network = DanglingLineNetworkFactory.create();
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
-        MemDataSource memDataSource = new MemDataSource();
-        importData(memDataSource, "_branches", "outputs/dl-branches.txt");
+        ReadOnlyDataSource dataSource = new ResourceDataSource("dl",
+                                                               new ResourceSet("/outputs/",
+                                                                               "dl_branches.txt"));
 
-        AmplNetworkReader reader = new AmplNetworkReader(memDataSource, network, mapper);
+        AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, mapper);
         testDLBranches(network, reader);
     }
 
@@ -105,12 +94,13 @@ public class AmplNetworkReaderTest {
         Network network = HvdcTestNetwork.createLcc();
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
-        MemDataSource memDataSource = new MemDataSource();
-        importData(memDataSource, "_hvdc", "outputs/hvdc.txt");
-        importData(memDataSource, "_shunts", "outputs/shunts.txt");
-        importData(memDataSource, "_lcc_converter_stations", "outputs/lcc.txt");
+        ReadOnlyDataSource dataSource = new ResourceDataSource("lcc-test",
+                                                               new ResourceSet("/outputs/",
+                                                                               "lcc-test_hvdc.txt",
+                                                                               "lcc-test_shunts.txt",
+                                                                               "lcc-test_lcc_converter_stations.txt"));
 
-        AmplNetworkReader reader = new AmplNetworkReader(memDataSource, network, mapper);
+        AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, mapper);
         testHvdc(network, reader);
         testShunts(network, reader);
         testLcc(network, reader);
@@ -118,25 +108,26 @@ public class AmplNetworkReaderTest {
         Network network2 = HvdcTestNetwork.createVsc();
         StringToIntMapper<AmplSubset> mapper2 = AmplUtil.createMapper(network2);
 
-        MemDataSource memDataSource2 = new MemDataSource();
-        importData(memDataSource2, "_vsc_converter_stations", "outputs/vsc.txt");
-        AmplNetworkReader reader2 = new AmplNetworkReader(memDataSource2, network2, mapper2);
+        ReadOnlyDataSource dataSource2 = new ResourceDataSource("vsc-test",
+                                                                new ResourceSet("/outputs/",
+                                                                                "vsc-test_vsc_converter_stations.txt"));
+
+        AmplNetworkReader reader2 = new AmplNetworkReader(dataSource2, network2, mapper2);
         testVsc(network2, reader2);
-
     }
-
 
     @Test
     public void readHvdcLinesWithVariousVariants() throws IOException {
         Network network = HvdcTestNetwork.createLcc();
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
-        MemDataSource memDataSource = new MemDataSource();
-        importData(memDataSource, "_hvdc", "outputs/hvdc-with-various-variants.txt");
-        importData(memDataSource, "_shunts", "outputs/shunts-with-various-variants.txt");
-        importData(memDataSource, "_lcc_converter_stations", "outputs/lcc-with-various-variants.txt");
+        ReadOnlyDataSource dataSource = new ResourceDataSource("lcc-test-with-various-variants",
+                                                               new ResourceSet("/outputs/",
+                                                                               "lcc-test-with-various-variants_hvdc.txt",
+                                                                               "lcc-test-with-various-variants_shunts.txt",
+                                                                               "lcc-test-with-various-variants_lcc_converter_stations.txt"));
 
-        AmplNetworkReader reader = new AmplNetworkReader(memDataSource, network, 3, mapper);
+        AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, 3, mapper);
         testHvdc(network, reader);
         testShunts(network, reader);
         testLcc(network, reader);
@@ -144,11 +135,12 @@ public class AmplNetworkReaderTest {
         Network network2 = HvdcTestNetwork.createVsc();
         StringToIntMapper<AmplSubset> mapper2 = AmplUtil.createMapper(network2);
 
-        MemDataSource memDataSource2 = new MemDataSource();
-        importData(memDataSource2, "_vsc_converter_stations", "outputs/vsc-with-various-variants.txt");
-        AmplNetworkReader reader2 = new AmplNetworkReader(memDataSource2, network2, 3, mapper2);
-        testVsc(network2, reader2);
+        ReadOnlyDataSource dataSource2 = new ResourceDataSource("vsc-test-with-various-variants",
+                                                                new ResourceSet("/outputs/",
+                                                                                "vsc-test-with-various-variants_vsc_converter_stations.txt"));
 
+        AmplNetworkReader reader2 = new AmplNetworkReader(dataSource2, network2, 3, mapper2);
+        testVsc(network2, reader2);
     }
 
     @Test
@@ -156,10 +148,11 @@ public class AmplNetworkReaderTest {
         Network network = SvcTestCaseFactory.create();
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
-        MemDataSource memDataSource = new MemDataSource();
-        importData(memDataSource, "_static_var_compensators", "outputs/svc.txt");
+        ReadOnlyDataSource dataSource = new ResourceDataSource("svc-test",
+                                                               new ResourceSet("/outputs/",
+                                                                               "svc-test_static_var_compensators.txt"));
 
-        AmplNetworkReader reader = new AmplNetworkReader(memDataSource, network, mapper);
+        AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, mapper);
         testSvc(network, reader);
     }
 
@@ -231,10 +224,11 @@ public class AmplNetworkReaderTest {
         PhaseTapChanger ptc = twt.getPhaseTapChanger();
         assertEquals(1, ptc.getTapPosition());
 
-        MemDataSource memDataSource = new MemDataSource();
-        importData(memDataSource, "_ptc", "outputs/ptc-test-case.txt");
+        ReadOnlyDataSource dataSource = new ResourceDataSource("ptc-test",
+                                                               new ResourceSet("/outputs/",
+                                                                               "ptc-test_ptc.txt"));
 
-        AmplNetworkReader reader = new AmplNetworkReader(memDataSource, network, mapper);
+        AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, mapper);
         reader.readPhaseTapChangers();
 
         assertEquals(2, ptc.getTapPosition());

@@ -428,7 +428,9 @@ public final class Importers {
     }
 
     public static Network loadNetwork(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader) {
-        ReadOnlyMemDataSource dataSource = DataSourceUtil.createReadOnlyMemDataSource(filename, data);
+        ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource(DataSourceUtil.getBaseName(filename));
+        dataSource.putData(filename, data);
+        System.out.println(new String(dataSource.getData(filename)));
         Importer importer = findImporter(dataSource, loader, computationManager, config);
         if (importer != null) {
             return importer.importData(dataSource, parameters);
