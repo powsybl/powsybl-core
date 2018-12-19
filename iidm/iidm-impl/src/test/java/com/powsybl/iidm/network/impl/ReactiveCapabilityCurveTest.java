@@ -84,7 +84,7 @@ public class ReactiveCapabilityCurveTest {
                     .endPoint()
                     .beginPoint()
                         .setP(1.0)
-                        .setMaxQ(5.0)
+                        .setMaxQ(6.0)
                         .setMinQ(1.0)
                     .endPoint()
                 .add();
