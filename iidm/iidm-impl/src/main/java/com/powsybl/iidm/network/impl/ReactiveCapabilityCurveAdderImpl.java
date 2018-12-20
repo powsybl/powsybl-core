@@ -9,6 +9,9 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.ReactiveCapabilityCurve;
 import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
 import com.powsybl.iidm.network.impl.ReactiveCapabilityCurveImpl.PointImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.TreeMap;
 
 /**
@@ -17,6 +20,8 @@ import java.util.TreeMap;
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner & Validable> implements ReactiveCapabilityCurveAdder {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ReactiveCapabilityCurveAdderImpl.class);
 
     private final OWNER owner;
 
@@ -59,9 +64,15 @@ class ReactiveCapabilityCurveAdderImpl<OWNER extends ReactiveLimitsOwner & Valid
             if (Double.isNaN(maxQ)) {
                 throw new ValidationException(owner, "max Q is not set");
             }
-            if (points.containsKey(p)) {
-                throw new ValidationException(owner,
-                        "a point already exists for active power " + p);
+            ReactiveCapabilityCurve.Point point = points.get(p);
+            if (point != null) {
+                if (point.getMinQ() != minQ || point.getMaxQ() != maxQ) {
+                    throw new ValidationException(owner,
+                            "a point already exists for active power " + p  + " with a different reactive power range: [" +
+                            minQ  + ", " + maxQ + "] != " + "[" + point.getMinQ() + ", " + point.getMaxQ() + "]");
+                } else {
+                    LOGGER.warn("{}duplicate point for active power {}", owner.getMessageHeader(), p);
+                }
             }
             // TODO: to be activated in IIDM v1.1
             // if (maxQ < minQ) {
