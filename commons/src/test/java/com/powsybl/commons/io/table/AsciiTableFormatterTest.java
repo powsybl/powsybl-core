@@ -81,8 +81,8 @@ public class AsciiTableFormatterTest {
         thrown.expectMessage("You have exceded the authorized colspan");
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
-        try (AsciiTableFormatter formatter = new AsciiTableFormatter(writer,  null, config,
+        try (Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
+             AsciiTableFormatter formatter = new AsciiTableFormatter(writer,  null, config,
                 new Column("column1").setColspan(4).setHorizontalAlignment(HorizontalAlignment.CENTER),
                 new Column("column2").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER))) {
             formatter.writeCell("Line:1 Cell:1", 1)
@@ -91,5 +91,25 @@ public class AsciiTableFormatterTest {
                     .writeCell("Line:1 Cell:4", 2)
                     .writeCell("Line:1 Cell:5", 1);
         }
+    }
+
+    @Test
+    public void testEmptyLines() throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try (Writer writer = new OutputStreamWriter(bos, StandardCharsets.UTF_8);
+             AsciiTableFormatter formatter = new AsciiTableFormatter(writer,  null, config,
+                new Column("column1").setColspan(4),
+                new Column("column2").setColspan(2))) {
+            formatter.writeCell("Line:1 Cell:1")
+                    .writeCell("Line:1 Cell:2")
+                    .writeCell("Line:1 Cell:3")
+                    .writeEmptyLine();
+        }
+        assertEquals("+--------------------------------------------------+---------+\n" +
+                     "| column1                                          | column2 |\n" +
+                     "+--------------------------------------------------+---------+\n" +
+                     "| Line:1 Cell:1 | Line:1 Cell:2 | Line:1 Cell:3 |  |  |      |\n" +
+                     "+---------------+---------------+---------------+--+--+------+" + System.lineSeparator(),
+                new String(bos.toByteArray(), StandardCharsets.UTF_8));
     }
 }

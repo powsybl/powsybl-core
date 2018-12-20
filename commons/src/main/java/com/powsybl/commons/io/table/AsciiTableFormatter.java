@@ -28,6 +28,10 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
 
     private final int cellsCount;
 
+    // Cell index in the current row
+    private int rowCellIndex = 0;
+
+    // Cell index in the current column
     private int cellIndex = 0;
 
     public AsciiTableFormatter(Writer writer, String title, TableFormatterConfig config, Column... columns) {
@@ -51,7 +55,7 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
 
     @Override
     public TableFormatter writeEmptyLine() throws IOException {
-        return writeEmptyCells(cellsCount - column);
+        return writeEmptyCells(cellsCount - rowCellIndex);
     }
 
     @Override
@@ -69,6 +73,7 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
         HorizontalAlignment horizontalAlignment = (colspan == 1) ? columns[column].getHorizontalAlignment() : HorizontalAlignment.CENTER;
         table.addCell(value, convertCellStyle(horizontalAlignment), colspan);
 
+        rowCellIndex = (rowCellIndex + 1) % cellsCount;
         cellIndex = (cellIndex + colspan) % columns[column].getColspan();
         if (cellIndex == 0) {
             column = (column + 1) % columns.length;
