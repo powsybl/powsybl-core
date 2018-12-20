@@ -66,7 +66,7 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
             throw new IllegalArgumentException("You have exceded the authorized colspan");
         }
 
-        HorizontalAlignment horizontalAlignment = columns[column].getHorizontalAlignment();
+        HorizontalAlignment horizontalAlignment = (colspan == 1) ? columns[column].getHorizontalAlignment() : HorizontalAlignment.CENTER;
         table.addCell(value, convertCellStyle(horizontalAlignment), colspan);
 
         cellIndex = (cellIndex + colspan) % columns[column].getColspan();
