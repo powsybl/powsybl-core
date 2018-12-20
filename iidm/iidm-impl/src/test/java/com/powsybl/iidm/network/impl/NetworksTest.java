@@ -6,11 +6,16 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.CustomLogger;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.util.Networks;
 import org.junit.Test;
+import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.helpers.FormattingTuple;
+import org.slf4j.helpers.MessageFormatter;
+
+import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
 
@@ -21,11 +26,20 @@ public class NetworksTest {
 
     @Test
     public void printBalanceSummaryTest()  {
+        StringBuilder buffer = new StringBuilder();
+
+        Logger logger = Mockito.mock(Logger.class);
+        Mockito.when(logger.isDebugEnabled()).thenReturn(true);
+        Mockito.doAnswer(invocationOnMock -> {
+            Object[] args = invocationOnMock.getArguments();
+            FormattingTuple formatter = MessageFormatter.format(Objects.toString(args[0]), args[1], args[2]);
+            buffer.append(formatter.getMessage());
+            return null;
+        }).when(logger).debug(Mockito.anyString(), Mockito.any(), Mockito.any());
+
         Network network = EurostagTutorialExample1Factory.create();
-        CustomLogger logger = new CustomLogger("LoggerForTest");
-        logger.setLogLevel("debug");
         Networks.printBalanceSummary("", network, logger);
-        assertEquals("[DEBUG] Active balance at step '':\n" +
+        assertEquals("Active balance at step '':\n" +
                      "+-----------------------+--------------------------------+----------------------------------+\n" +
                      "|                       | Main CC connected/disconnected | Others CC connected/disconnected |\n" +
                      "+-----------------------+--------------------------------+----------------------------------+\n" +
@@ -37,6 +51,6 @@ public class NetworksTest {
                      "| Generation (MW)       | 607.0       | 0.0              | 0.0         | 0.0                |\n" +
                      "| Shunt at nom V (MVar) | 0.0 0.0 (0) | 0.0 0.0 (0)      | 0.0 0.0 (0) | 0.0 0.0 (0)        |\n" +
                      "+-----------------------+-------------+------------------+-------------+--------------------+" + System.lineSeparator(),
-                logger.getContent());
+                buffer.toString());
     }
 }
