@@ -36,18 +36,18 @@ public class AsciiTableFormatterTest {
         try (AsciiTableFormatter formatter = new AsciiTableFormatter(writer,  null, config,
                 new Column("column1").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER).setTitleHorizontalAlignment(HorizontalAlignment.CENTER),
                 new Column("column2").setHorizontalAlignment(HorizontalAlignment.CENTER).setTitleHorizontalAlignment(HorizontalAlignment.CENTER))) {
-            formatter.write("Line:1 Cell:1", 2);
-            formatter.write("Line:1 Cell:2", 1);
-            formatter.write("Line:2 Cell:1", 1);
-            formatter.write("Line:2 Cell:2", 1);
-            formatter.write("Line:2 Cell:3", 1);
+            formatter.writeCell("Line:1 Cell:1", 2)
+                    .writeCell("Line:1 Cell:2", 1)
+                    .writeCell("Line:2 Cell:1", 1)
+                    .writeCell("Line:2 Cell:2", 1)
+                    .writeCell("Line:2 Cell:3", 1);
         }
         assertEquals("+-------------------------------+---------------+\n" +
-                        "|            column1            |    column2    |\n" +
-                        "+-------------------------------+---------------+\n" +
-                        "|         Line:1 Cell:1         | Line:1 Cell:2 |\n" +
-                        "| Line:2 Cell:1 | Line:2 Cell:2 | Line:2 Cell:3 |\n" +
-                        "+---------------+---------------+---------------+" + System.lineSeparator(),
+                     "|            column1            |    column2    |\n" +
+                     "+-------------------------------+---------------+\n" +
+                     "|         Line:1 Cell:1         | Line:1 Cell:2 |\n" +
+                     "| Line:2 Cell:1 | Line:2 Cell:2 | Line:2 Cell:3 |\n" +
+                     "+---------------+---------------+---------------+" + System.lineSeparator(),
                 new String(bos.toByteArray(), StandardCharsets.UTF_8));
         writer.close();
     }
@@ -59,18 +59,18 @@ public class AsciiTableFormatterTest {
         try (AsciiTableFormatter formatter = new AsciiTableFormatter(writer,  null, config,
                 new Column("column1").setColspan(4).setHorizontalAlignment(HorizontalAlignment.CENTER).setTitleHorizontalAlignment(HorizontalAlignment.CENTER),
                 new Column("column2").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER).setTitleHorizontalAlignment(HorizontalAlignment.CENTER))) {
-            formatter.write("Line:1 Cell:1", 1);
-            formatter.write("Line:1 Cell:2", 1);
-            formatter.write("Line:1 Cell:3", 1);
-            formatter.write("Line:1 Cell:4", 1);
-            formatter.write("Line:1 Cell:5", 1);
-            formatter.write("Line:1 Cell:6", 1);
+            formatter.writeCell("Line:1 Cell:1", 1)
+                    .writeCell("Line:1 Cell:2", 1)
+                    .writeCell("Line:1 Cell:3", 1)
+                    .writeCell("Line:1 Cell:4", 1)
+                    .writeCell("Line:1 Cell:5", 1)
+                    .writeCell("Line:1 Cell:6", 1);
         }
         assertEquals("+---------------------------------------------------------------+-------------------------------+\n" +
-                        "|                            column1                            |            column2            |\n" +
-                        "+---------------------------------------------------------------+-------------------------------+\n" +
-                        "| Line:1 Cell:1 | Line:1 Cell:2 | Line:1 Cell:3 | Line:1 Cell:4 | Line:1 Cell:5 | Line:1 Cell:6 |\n" +
-                        "+---------------+---------------+---------------+---------------+---------------+---------------+" + System.lineSeparator(),
+                     "|                            column1                            |            column2            |\n" +
+                     "+---------------------------------------------------------------+-------------------------------+\n" +
+                     "| Line:1 Cell:1 | Line:1 Cell:2 | Line:1 Cell:3 | Line:1 Cell:4 | Line:1 Cell:5 | Line:1 Cell:6 |\n" +
+                     "+---------------+---------------+---------------+---------------+---------------+---------------+" + System.lineSeparator(),
                 new String(bos.toByteArray(), StandardCharsets.UTF_8));
         writer.close();
     }
@@ -85,11 +85,11 @@ public class AsciiTableFormatterTest {
         try (AsciiTableFormatter formatter = new AsciiTableFormatter(writer,  null, config,
                 new Column("column1").setColspan(4).setHorizontalAlignment(HorizontalAlignment.CENTER),
                 new Column("column2").setColspan(2).setHorizontalAlignment(HorizontalAlignment.CENTER))) {
-            formatter.write("Line:1 Cell:1", 1);
-            formatter.write("Line:1 Cell:2", 1);
-            formatter.write("Line:1 Cell:3", 1);
-            formatter.write("Line:1 Cell:4", 2);
-            formatter.write("Line:1 Cell:5", 1);
+            formatter.writeCell("Line:1 Cell:1", 1)
+                    .writeCell("Line:1 Cell:2", 1)
+                    .writeCell("Line:1 Cell:3", 1)
+                    .writeCell("Line:1 Cell:4", 2)
+                    .writeCell("Line:1 Cell:5", 1);
         }
     }
 }

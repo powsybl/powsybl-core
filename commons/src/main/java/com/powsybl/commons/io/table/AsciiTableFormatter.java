@@ -55,13 +55,13 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
     }
 
     @Override
-    public TableFormatter writeComment(String comment) throws IOException {
+    public TableFormatter writeComment(String comment) {
         // not supported
         return this;
     }
 
     @Override
-    protected TableFormatter write(String value, int colspan) throws IOException {
+    public TableFormatter writeCell(String value, int colspan) {
 
         if (colspan > columns[columnIndex].getColspan() - column) {
             throw new IllegalArgumentException("You have exceded the authorized colspan");
@@ -79,7 +79,7 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
 
     @Override
     protected TableFormatter write(String value) throws IOException {
-        return write(value, 1);
+        return writeCell(value, 1);
     }
 
     @Override

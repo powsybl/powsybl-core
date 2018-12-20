@@ -17,7 +17,9 @@ public interface TableFormatter extends AutoCloseable {
 
     TableFormatter writeCell(String s) throws IOException;
 
-    TableFormatter writeCell(String s, int colspan) throws IOException;
+    default TableFormatter writeCell(String s, int colspan) throws IOException {
+        return writeCell(s);
+    }
 
     TableFormatter writeEmptyCell() throws IOException;
 

@@ -33,18 +33,9 @@ public abstract class AbstractTableFormatter implements TableFormatter {
 
     protected abstract TableFormatter write(String value) throws IOException;
 
-    protected  TableFormatter write(String value, int colspan) throws IOException {
-        throw new UnsupportedOperationException("Not implemented");
-    }
-
     @Override
     public TableFormatter writeCell(String s) throws IOException {
         return write(s);
-    }
-
-    @Override
-    public TableFormatter writeCell(String s, int colspan) throws IOException {
-        return write(s, colspan);
     }
 
     @Override
