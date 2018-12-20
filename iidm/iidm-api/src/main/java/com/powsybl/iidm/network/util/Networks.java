@@ -249,45 +249,45 @@ public final class Networks {
                      new Column("Others CC connected/disconnected")
                              .setColspan(2)
                              .setTitleHorizontalAlignment(HorizontalAlignment.CENTER))) {
-            formatter.writeCell("Bus count").
-                    writeCell(Integer.toString(balanceMainCC.busCount), 2).
-                    writeCell(Integer.toString(balanceOtherCC.busCount), 2);
-            formatter.writeCell("Load count").
-                    writeCell(Integer.toString(balanceMainCC.connectedLoads.size())).
-                    writeCell(Integer.toString(balanceMainCC.disconnectedLoads.size())).
-                    writeCell(Integer.toString(balanceOtherCC.connectedLoads.size())).
-                    writeCell(Integer.toString(balanceOtherCC.disconnectedLoads.size()));
-            formatter.writeCell("Load (MW)").
-                    writeCell(Double.toString(balanceMainCC.connectedLoadVolume)).
-                    writeCell(Double.toString(balanceMainCC.disconnectedLoadVolume)).
-                    writeCell(Double.toString(balanceOtherCC.connectedLoadVolume)).
-                    writeCell(Double.toString(balanceOtherCC.disconnectedLoadVolume));
-            formatter.writeCell("Generator count").
-                    writeCell(Integer.toString(balanceMainCC.connectedGenerators.size())).
-                    writeCell(Integer.toString(balanceMainCC.disconnectedGenerators.size())).
-                    writeCell(Integer.toString(balanceOtherCC.connectedGenerators.size())).
-                    writeCell(Integer.toString(balanceOtherCC.disconnectedGenerators.size()));
-            formatter.writeCell("Max generation (MW)").
-                    writeCell(Double.toString(balanceMainCC.connectedMaxGeneration)).
-                    writeCell(Double.toString(balanceMainCC.disconnectedMaxGeneration)).
-                    writeCell(Double.toString(balanceOtherCC.connectedMaxGeneration)).
-                    writeCell(Double.toString(balanceOtherCC.disconnectedMaxGeneration));
-            formatter.writeCell("Generation (MW)").
-                    writeCell(Double.toString(balanceMainCC.connectedGeneration)).
-                    writeCell(Double.toString(balanceMainCC.disconnectedGeneration)).
-                    writeCell(Double.toString(balanceOtherCC.connectedGeneration)).
-                    writeCell(Double.toString(balanceOtherCC.disconnectedGeneration));
-            formatter.writeCell("Shunt at nom V (MVar)").
-                    writeCell(Double.toString(balanceMainCC.connectedShuntPositiveVolume) + " " +
+            formatter.writeCell("Bus count")
+                    .writeCell(Integer.toString(balanceMainCC.busCount), 2)
+                    .writeCell(Integer.toString(balanceOtherCC.busCount), 2);
+            formatter.writeCell("Load count")
+                    .writeCell(Integer.toString(balanceMainCC.connectedLoads.size()))
+                    .writeCell(Integer.toString(balanceMainCC.disconnectedLoads.size()))
+                    .writeCell(Integer.toString(balanceOtherCC.connectedLoads.size()))
+                    .writeCell(Integer.toString(balanceOtherCC.disconnectedLoads.size()));
+            formatter.writeCell("Load (MW)")
+                    .writeCell(Double.toString(balanceMainCC.connectedLoadVolume))
+                    .writeCell(Double.toString(balanceMainCC.disconnectedLoadVolume))
+                    .writeCell(Double.toString(balanceOtherCC.connectedLoadVolume))
+                    .writeCell(Double.toString(balanceOtherCC.disconnectedLoadVolume));
+            formatter.writeCell("Generator count")
+                    .writeCell(Integer.toString(balanceMainCC.connectedGenerators.size()))
+                    .writeCell(Integer.toString(balanceMainCC.disconnectedGenerators.size()))
+                    .writeCell(Integer.toString(balanceOtherCC.connectedGenerators.size()))
+                    .writeCell(Integer.toString(balanceOtherCC.disconnectedGenerators.size()));
+            formatter.writeCell("Max generation (MW)")
+                    .writeCell(Double.toString(balanceMainCC.connectedMaxGeneration))
+                    .writeCell(Double.toString(balanceMainCC.disconnectedMaxGeneration))
+                    .writeCell(Double.toString(balanceOtherCC.connectedMaxGeneration))
+                    .writeCell(Double.toString(balanceOtherCC.disconnectedMaxGeneration));
+            formatter.writeCell("Generation (MW)")
+                    .writeCell(Double.toString(balanceMainCC.connectedGeneration))
+                    .writeCell(Double.toString(balanceMainCC.disconnectedGeneration))
+                    .writeCell(Double.toString(balanceOtherCC.connectedGeneration))
+                    .writeCell(Double.toString(balanceOtherCC.disconnectedGeneration));
+            formatter.writeCell("Shunt at nom V (MVar)")
+                    .writeCell(Double.toString(balanceMainCC.connectedShuntPositiveVolume) + " " +
                             Double.toString(balanceMainCC.connectedShuntNegativeVolume) +
-                            " (" + Integer.toString(balanceMainCC.connectedShunts.size()) + ")").
-                    writeCell(Double.toString(balanceMainCC.disconnectedShuntPositiveVolume) + " " +
+                            " (" + Integer.toString(balanceMainCC.connectedShunts.size()) + ")")
+                    .writeCell(Double.toString(balanceMainCC.disconnectedShuntPositiveVolume) + " " +
                             Double.toString(balanceMainCC.disconnectedShuntNegativeVolume) +
-                            " (" + Integer.toString(balanceMainCC.disconnectedShunts.size()) + ")").
-                    writeCell(Double.toString(balanceOtherCC.connectedShuntPositiveVolume) + " " +
+                            " (" + Integer.toString(balanceMainCC.disconnectedShunts.size()) + ")")
+                    .writeCell(Double.toString(balanceOtherCC.connectedShuntPositiveVolume) + " " +
                             Double.toString(balanceOtherCC.connectedShuntNegativeVolume) +
-                            " (" + Integer.toString(balanceOtherCC.connectedShunts.size()) + ")").
-                    writeCell(Double.toString(balanceOtherCC.disconnectedShuntPositiveVolume) + " " +
+                            " (" + Integer.toString(balanceOtherCC.connectedShunts.size()) + ")")
+                    .writeCell(Double.toString(balanceOtherCC.disconnectedShuntPositiveVolume) + " " +
                             Double.toString(balanceOtherCC.disconnectedShuntNegativeVolume) +
                             " (" + Integer.toString(balanceOtherCC.disconnectedShunts.size()) + ")");
         } catch (IOException e) {
@@ -296,7 +296,7 @@ public final class Networks {
         return writer.toString();
     }
 
-    private static void logOtherCC(Logger logger, String title,  Supplier<String> tableSupplier, ConnectedPower balanceOtherCC) {
+    private static void logOtherCC(Logger logger, String title, Supplier<String> tableSupplier, ConnectedPower balanceOtherCC) {
         if (logger.isDebugEnabled()) {
             logger.debug("Active balance at step '{}':\n{}", title, tableSupplier.get());
         }
