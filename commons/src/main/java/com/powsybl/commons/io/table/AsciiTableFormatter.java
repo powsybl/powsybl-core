@@ -62,7 +62,6 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
 
     @Override
     public TableFormatter writeCell(String value, int colspan) {
-
         if (colspan > columns[columnIndex].getColspan() - column) {
             throw new IllegalArgumentException("You have exceded the authorized colspan");
         }
