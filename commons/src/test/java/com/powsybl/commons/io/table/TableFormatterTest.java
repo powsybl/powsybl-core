@@ -79,7 +79,6 @@ public class TableFormatterTest {
                      "|     |         |         |       |       |      |        |        |\n" +
                      "|     |         |         |       |       |      |        |        |\n" +
                      "| 3   | 4.20000 | inv     | false |       | b    | bbb    |        |\n" +
-                     "|     |         |         |       |       |      |        |        |\n" +
                      "+-----+---------+---------+-------+-------+------+--------+--------+" + System.lineSeparator(),
             new String(bos.toByteArray(), StandardCharsets.UTF_8));
     }

@@ -28,7 +28,7 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
 
     private final int cellsCount;
 
-    private int columnIndex = 0;
+    private int cellIndex = 0;
 
     public AsciiTableFormatter(Writer writer, String title, TableFormatterConfig config, Column... columns) {
         super(writer, config, columns);
@@ -62,16 +62,16 @@ public class AsciiTableFormatter extends AbstractTableFormatter {
 
     @Override
     public TableFormatter writeCell(String value, int colspan) {
-        if (colspan > columns[columnIndex].getColspan() - column) {
+        if (colspan > columns[column].getColspan() - cellIndex) {
             throw new IllegalArgumentException("You have exceded the authorized colspan");
         }
 
-        HorizontalAlignment horizontalAlignment = columns[columnIndex].getHorizontalAlignment();
+        HorizontalAlignment horizontalAlignment = columns[column].getHorizontalAlignment();
         table.addCell(value, convertCellStyle(horizontalAlignment), colspan);
 
-        column = (column + colspan) % columns[columnIndex].getColspan();
-        if (column == 0) {
-            columnIndex = (columnIndex + 1) % columns.length;
+        cellIndex = (cellIndex + colspan) % columns[column].getColspan();
+        if (cellIndex == 0) {
+            column = (column + 1) % columns.length;
         }
         return this;
     }
