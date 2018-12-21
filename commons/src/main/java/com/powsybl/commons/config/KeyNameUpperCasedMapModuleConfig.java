@@ -78,6 +78,6 @@ public class KeyNameUpperCasedMapModuleConfig extends MapModuleConfig {
 
     @Override
     public Set<String> getPropertyNames() {
-        throw new PowsyblException("not supported");
+        throw new UnsupportedOperationException();
     }
 }

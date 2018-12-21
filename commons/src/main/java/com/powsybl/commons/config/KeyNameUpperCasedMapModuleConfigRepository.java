@@ -21,10 +21,6 @@ import java.util.function.UnaryOperator;
  */
 public final class KeyNameUpperCasedMapModuleConfigRepository implements ModuleConfigRepository {
 
-    private final Map<String, String> upperCasedMap = new HashMap<>();
-
-    private final FileSystem fs;
-
     static final String SEPARATOR = "__";
 
     static final UnaryOperator<String> UPPER_UNDERSCORE_FORMATTER = name -> {
@@ -39,7 +35,12 @@ public final class KeyNameUpperCasedMapModuleConfigRepository implements ModuleC
         }
     };
 
+    private final Map<String, String> upperCasedMap = new HashMap<>();
+
+    private final FileSystem fs;
+
     KeyNameUpperCasedMapModuleConfigRepository(Map<String, String> map, FileSystem fileSystem) {
+        Objects.requireNonNull(map);
         map.keySet().stream()
                 .filter(k -> k.toUpperCase().equals(k))
                 .filter(k -> k.contains(SEPARATOR))

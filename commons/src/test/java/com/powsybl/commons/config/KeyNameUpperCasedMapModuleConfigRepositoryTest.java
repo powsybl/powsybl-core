@@ -88,7 +88,7 @@ public class KeyNameUpperCasedMapModuleConfigRepositoryTest extends MapModuleCon
         try {
             modConfig.getPropertyNames();
             fail();
-        } catch (Exception e) {
+        } catch (UnsupportedOperationException e) {
             // ignore
         }
     }
