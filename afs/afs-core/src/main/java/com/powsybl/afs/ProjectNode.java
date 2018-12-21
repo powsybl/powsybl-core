@@ -6,6 +6,11 @@
  */
 package com.powsybl.afs;
 
+import com.powsybl.afs.storage.AppStorageArchive;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -68,6 +73,19 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
                 .stream()
                 .map(project::createProjectFile)
                 .collect(Collectors.toList());
+    }
+
+    public void archive(Path dir) {
+        Objects.requireNonNull(dir);
+        try {
+            new AppStorageArchive(storage).archive(info, dir);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public void unarchive(Path dir) {
+        new AppStorageArchive(storage).unarchive(info, dir);
     }
 
     protected void invalidate() {
