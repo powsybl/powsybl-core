@@ -6,6 +6,8 @@
  */
 package com.powsybl.afs;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.DefaultListenableAppStorage;
 import com.powsybl.afs.storage.ListenableAppStorage;
@@ -43,7 +45,7 @@ public class AppFileSystem implements AutoCloseable {
 
     private final ListenableAppStorage storage;
 
-    private final NodeInfo rootNodeInfo;
+    private final Supplier<NodeInfo> rootNodeInfo;
 
     private final TaskMonitor taskMonitor;
 
@@ -58,7 +60,7 @@ public class AppFileSystem implements AutoCloseable {
         this.remotelyAccessible = remotelyAccessible;
         this.storage = Objects.requireNonNull(storage);
         this.taskMonitor = Objects.requireNonNull(taskMonitor);
-        rootNodeInfo = storage.createRootNodeIfNotExists(name, Folder.PSEUDO_CLASS);
+        rootNodeInfo = Suppliers.memoize(() -> storage.createRootNodeIfNotExists(name, Folder.PSEUDO_CLASS));
     }
 
     public String getName() {
@@ -74,7 +76,7 @@ public class AppFileSystem implements AutoCloseable {
     }
 
     public Folder getRootFolder() {
-        return new Folder(new FileCreationContext(rootNodeInfo, storage, this));
+        return new Folder(new FileCreationContext(rootNodeInfo.get(), storage, this));
     }
 
     /**
