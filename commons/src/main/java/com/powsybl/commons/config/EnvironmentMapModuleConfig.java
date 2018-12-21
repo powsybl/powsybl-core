@@ -6,23 +6,22 @@
  */
 package com.powsybl.commons.config;
 
-import com.powsybl.commons.PowsyblException;
 import org.joda.time.DateTime;
 
 import java.nio.file.FileSystem;
 import java.util.*;
 
-import static com.powsybl.commons.config.KeyNameUpperCasedMapModuleConfigRepository.SEPARATOR;
-import static com.powsybl.commons.config.KeyNameUpperCasedMapModuleConfigRepository.UPPER_UNDERSCORE_FORMATTER;
+import static com.powsybl.commons.config.EnvironmentModuleConfigRepository.SEPARATOR;
+import static com.powsybl.commons.config.EnvironmentModuleConfigRepository.UPPER_UNDERSCORE_FORMATTER;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class KeyNameUpperCasedMapModuleConfig extends MapModuleConfig {
+public class EnvironmentMapModuleConfig extends MapModuleConfig {
 
     private final String prefix;
 
-    public KeyNameUpperCasedMapModuleConfig(Map<Object, Object> properties, FileSystem fs, String moduleName) {
+    public EnvironmentMapModuleConfig(Map<Object, Object> properties, FileSystem fs, String moduleName) {
         super(properties, fs);
         this.prefix = UPPER_UNDERSCORE_FORMATTER.apply(moduleName) + SEPARATOR;
     }

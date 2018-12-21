@@ -19,7 +19,7 @@ import java.util.function.UnaryOperator;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public final class KeyNameUpperCasedMapModuleConfigRepository implements ModuleConfigRepository {
+public final class EnvironmentModuleConfigRepository implements ModuleConfigRepository {
 
     static final String SEPARATOR = "__";
 
@@ -35,16 +35,16 @@ public final class KeyNameUpperCasedMapModuleConfigRepository implements ModuleC
         }
     };
 
-    private final Map<String, String> upperCasedMap = new HashMap<>();
+    private final Map<String, String> filteredEnvVarMap = new HashMap<>();
 
     private final FileSystem fs;
 
-    KeyNameUpperCasedMapModuleConfigRepository(Map<String, String> map, FileSystem fileSystem) {
+    EnvironmentModuleConfigRepository(Map<String, String> map, FileSystem fileSystem) {
         Objects.requireNonNull(map);
         map.keySet().stream()
                 .filter(k -> k.toUpperCase().equals(k))
                 .filter(k -> k.contains(SEPARATOR))
-                .forEach(k -> upperCasedMap.put(k, map.get(k)));
+                .forEach(k -> filteredEnvVarMap.put(k, map.get(k)));
         fs = Objects.requireNonNull(fileSystem);
     }
 
@@ -54,7 +54,7 @@ public final class KeyNameUpperCasedMapModuleConfigRepository implements ModuleC
             return false;
         }
 
-        return upperCasedMap.keySet().stream().anyMatch(k -> k.startsWith(UPPER_UNDERSCORE_FORMATTER.apply(name) + SEPARATOR));
+        return filteredEnvVarMap.keySet().stream().anyMatch(k -> k.startsWith(UPPER_UNDERSCORE_FORMATTER.apply(name) + SEPARATOR));
     }
 
     @Override
@@ -64,8 +64,8 @@ public final class KeyNameUpperCasedMapModuleConfigRepository implements ModuleC
         }
 
         Map<Object, Object> map = new HashMap<>();
-        upperCasedMap.keySet().stream().filter(k -> k.startsWith(UPPER_UNDERSCORE_FORMATTER.apply(name)))
-                .forEach(k -> map.put((Object) k, (Object) upperCasedMap.get(k)));
-        return Optional.of(new KeyNameUpperCasedMapModuleConfig(map, fs, name));
+        filteredEnvVarMap.keySet().stream().filter(k -> k.startsWith(UPPER_UNDERSCORE_FORMATTER.apply(name)))
+                .forEach(k -> map.put((Object) k, (Object) filteredEnvVarMap.get(k)));
+        return Optional.of(new EnvironmentMapModuleConfig(map, fs, name));
     }
 }

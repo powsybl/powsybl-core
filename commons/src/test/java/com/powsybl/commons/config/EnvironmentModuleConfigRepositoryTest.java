@@ -15,13 +15,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static com.powsybl.commons.config.KeyNameUpperCasedMapModuleConfigRepository.UPPER_UNDERSCORE_FORMATTER;
+import static com.powsybl.commons.config.EnvironmentModuleConfigRepository.UPPER_UNDERSCORE_FORMATTER;
 import static org.junit.Assert.*;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class KeyNameUpperCasedMapModuleConfigRepositoryTest extends MapModuleConfigTest {
+public class EnvironmentModuleConfigRepositoryTest extends MapModuleConfigTest {
 
     @Test
     public void test() {
@@ -56,7 +56,7 @@ public class KeyNameUpperCasedMapModuleConfigRepositoryTest extends MapModuleCon
         String upperCamel = "UpperCamel";
         fakeEnvMap.put("UPPER_CAMEL__UPPER_CAMEL", "UpperCamel");
 
-        KeyNameUpperCasedMapModuleConfigRepository sut = new KeyNameUpperCasedMapModuleConfigRepository(fakeEnvMap, fileSystem);
+        EnvironmentModuleConfigRepository sut = new EnvironmentModuleConfigRepository(fakeEnvMap, fileSystem);
         assertTrue(sut.moduleExists("mod"));
         Optional<ModuleConfig> modConfigOpt = sut.getModuleConfig("mod");
         assertTrue(modConfigOpt.isPresent());

@@ -61,7 +61,7 @@ public class PlatformConfig {
                 .map(configDir -> loadModuleRepository(configDir, configName))
                 .collect(Collectors.toList());
         List<ModuleConfigRepository> repositories = new ArrayList<>();
-        repositories.add(new KeyNameUpperCasedMapModuleConfigRepository(System.getenv(), FileSystems.getDefault()));
+        repositories.add(new EnvironmentModuleConfigRepository(System.getenv(), FileSystems.getDefault()));
         repositories.addAll(repositoriesFromPath);
         return new StackedModuleConfigRepository(repositories);
     }
