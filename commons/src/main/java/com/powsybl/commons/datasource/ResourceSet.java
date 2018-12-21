@@ -29,11 +29,15 @@ public class ResourceSet {
         this.fileNames = Objects.requireNonNull(fileNames);
         // check resources exist
         for (String fileName : fileNames) {
-            String resourceName = dir + fileName;
+            String resourceName = getResourceName(dir, fileName);
             if (getClass().getResourceAsStream(resourceName) == null) {
                 throw new IllegalArgumentException("Resource '" + resourceName + "' not found");
             }
         }
+    }
+
+    private static String getResourceName(String dir, String fileName) {
+        return dir.endsWith("/") ? dir + fileName : dir + "/" + fileName;
     }
 
     public String getDir() {
@@ -50,9 +54,10 @@ public class ResourceSet {
     }
 
     public InputStream newInputStream(String fileName) {
+        Objects.requireNonNull(fileName);
         if (!fileNames.contains(fileName)) {
             throw new IllegalArgumentException("File '" + fileName  + "' not found");
         }
-        return getClass().getResourceAsStream(dir + fileName);
+        return getClass().getResourceAsStream(getResourceName(dir, fileName));
     }
 }
