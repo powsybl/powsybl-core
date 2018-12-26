@@ -19,10 +19,13 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
+ * Provides implementation for methods of {@link ModuleConfig}.
+ * Implementations can focus on implementing the core getOptional* methods.
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class AbstractMapModule implements ModuleConfig {
+public abstract class AbstractModuleConfig implements ModuleConfig {
+
 
     private static PowsyblException createPropertyNotSetException(String name) {
         return new PowsyblException("Property " + name + " is not set");
@@ -186,4 +189,5 @@ public abstract class AbstractMapModule implements ModuleConfig {
     public Interval getIntervalProperty(String name) {
         return getOptionalIntervalProperty(name).orElseThrow(() -> createPropertyNotSetException(name));
     }
+
 }
