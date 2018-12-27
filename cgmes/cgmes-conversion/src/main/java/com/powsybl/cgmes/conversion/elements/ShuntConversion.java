@@ -27,7 +27,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
     public void convert() {
         int maximumSections = p.asInt("maximumSections", 0);
         int normalSections = p.asInt("normalSections", 0);
-        int sections = fromContinuous(p.asDouble("SVsections", normalSections));
+        int sections = fromContinuous(p.asDouble("SVsections", p.asDouble("SSHsections", normalSections)));
         sections = Math.abs(sections);
         maximumSections = Math.max(maximumSections, sections);
         double bPerSection = 0;
