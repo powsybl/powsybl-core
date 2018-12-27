@@ -283,8 +283,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
     }
 
-    final CalculatedBusTopology calculatedBusTopology
-            = new CalculatedBusTopology();
+    final CalculatedBusTopology calculatedBusTopology 
+           = new CalculatedBusTopology();
 
     private static final class VariantImpl implements Variant {
 
@@ -302,7 +302,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     protected final VariantArray<VariantImpl> variants;
 
     BusBreakerVoltageLevel(String id, String name, SubstationImpl substation,
-                           double nominalV, double lowVoltageLimit, double highVoltageLimit) {
+            double nominalV, double lowVoltageLimit, double highVoltageLimit) {
         super(id, name, substation, nominalV, lowVoltageLimit, highVoltageLimit);
         variants = new VariantArray<>(substation.getNetwork().getRef(), VariantImpl::new);
         // invalidate topology and connected components
@@ -319,8 +319,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     @Override
     public Iterable<Terminal> getTerminals() {
         return FluentIterable.from(graph.getVerticesObj())
-                             .transformAndConcat(ConfiguredBus::getTerminals)
-                             .transform(Terminal.class::cast);
+                .transformAndConcat(ConfiguredBus::getTerminals)
+                .transform(Terminal.class::cast);
     }
 
     @Override
@@ -665,7 +665,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
         if (!(terminal instanceof BusTerminal)) {
             throw new ValidationException(terminal.getConnectable(),
                     "voltage level " + BusBreakerVoltageLevel.this.id + " has a bus/breaker topology"
-                    + ", a bus connection should be specified instead of a node connection");
+                            + ", a bus connection should be specified instead of a node connection");
         }
 
         // check connectable buses exist
@@ -843,7 +843,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             StringBuilder builder = new StringBuilder();
             builder.append(bus.getId())
                     .append(" [");
-            for (Iterator<TerminalExt> it = bus.getConnectedTerminals().iterator(); it.hasNext(); ) {
+            for (Iterator<TerminalExt> it = bus.getConnectedTerminals().iterator(); it.hasNext();) {
                 TerminalExt terminal = it.next();
                 builder.append(dict != null ? dict.getShortId(terminal.getConnectable().getId()) : terminal.getConnectable().getId());
                 if (it.hasNext()) {
@@ -873,46 +873,47 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
     @Override
     public void exportTopology(OutputStream outputStream) throws IOException {
-        Writer writer = new OutputStreamWriter(outputStream, "UTF-8");
-        writer.append("graph \"").append(BusBreakerVoltageLevel.this.id).append("\" {\n");
-        for (ConfiguredBus bus : graph.getVerticesObj()) {
-            String label = "BUS\\n" + bus.getId();
-            writer.append("  ").append(bus.getId())
-                        .append(" [label=\"").append(label).append("\"]\n");
-            for (TerminalExt terminal : bus.getTerminals()) {
-                AbstractConnectable connectable = terminal.getConnectable();
-                label = connectable.getType().toString() + "\\n" + connectable.getId();
-                writer.append("  ").append(connectable.getId())
-                        .append(" [label=\"").append(label).append("\"]\n");
-            }
-        }
-        for (ConfiguredBus bus : graph.getVerticesObj()) {
-            for (TerminalExt terminal : bus.getTerminals()) {
-                AbstractConnectable connectable = terminal.getConnectable();
+        try (Writer writer = new OutputStreamWriter(outputStream, "UTF-8")) {
+            writer.append("graph \"").append(BusBreakerVoltageLevel.this.id).append("\" {\n");
+            for (ConfiguredBus bus : graph.getVerticesObj()) {
+                String label = "BUS\\n" + bus.getId();
                 writer.append("  ").append(bus.getId())
-                    .append(" -- ").append(connectable.getId())
-                    .append(" [").append("style=\"").append(terminal.isConnected() ? "solid" : "dotted").append("\"")
-                    .append("]\n");
+                        .append(" [label=\"").append(label).append("\"]\n");
+                for (TerminalExt terminal : bus.getTerminals()) {
+                    AbstractConnectable connectable = terminal.getConnectable();
+                    label = connectable.getType().toString() + "\\n" + connectable.getId();
+                    writer.append("  ").append(connectable.getId())
+                            .append(" [label=\"").append(label).append("\"]\n");
+                }
             }
-        }
-        boolean drawSwitchId = false;
-        for (int e = 0; e < graph.getEdgeCount(); e++) {
-            int v1 = graph.getEdgeVertex1(e);
-            int v2 = graph.getEdgeVertex2(e);
-            SwitchImpl sw = graph.getEdgeObject(e);
-            ConfiguredBus bus1 = graph.getVertexObject(v1);
-            ConfiguredBus bus2 = graph.getVertexObject(v2);
-            writer.append("  ").append(bus1.getId())
-                    .append(" -- ").append(bus2.getId())
-                    .append(" [");
-            if (drawSwitchId) {
-                writer.append("label=\"").append(sw.getId())
-                        .append("\", fontsize=10");
+            for (ConfiguredBus bus : graph.getVerticesObj()) {
+                for (TerminalExt terminal : bus.getTerminals()) {
+                    AbstractConnectable connectable = terminal.getConnectable();
+                    writer.append("  ").append(bus.getId())
+                            .append(" -- ").append(connectable.getId())
+                            .append(" [").append("style=\"").append(terminal.isConnected() ? "solid" : "dotted").append("\"")
+                            .append("]\n");
+                }
             }
-            writer.append("style=\"").append(sw.isOpen() ? "dotted" : "solid").append("\"");
-            writer.append("]\n");
+            boolean drawSwitchId = false;
+            for (int e = 0; e < graph.getEdgeCount(); e++) {
+                int v1 = graph.getEdgeVertex1(e);
+                int v2 = graph.getEdgeVertex2(e);
+                SwitchImpl sw = graph.getEdgeObject(e);
+                ConfiguredBus bus1 = graph.getVertexObject(v1);
+                ConfiguredBus bus2 = graph.getVertexObject(v2);
+                writer.append("  ").append(bus1.getId())
+                        .append(" -- ").append(bus2.getId())
+                        .append(" [");
+                if (drawSwitchId) {
+                    writer.append("label=\"").append(sw.getId())
+                            .append("\", fontsize=10");
+                }
+                writer.append("style=\"").append(sw.isOpen() ? "dotted" : "solid").append("\"");
+                writer.append("]\n");
+            }
+            writer.append("}\n");
         }
-        writer.append("}\n");
     }
 
 }
