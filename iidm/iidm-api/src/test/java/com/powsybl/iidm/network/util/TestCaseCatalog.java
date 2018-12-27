@@ -477,7 +477,7 @@ public final class TestCaseCatalog {
         int step = 1;
         double stepVoltageIncrement = -1.6667;
         t.end1.tap.forStep(step, neutralStep, stepVoltageIncrement);
-        
+
         t.end2.expectedFlow.p = Double.NaN;
         t.end2.expectedFlow.q = Double.NaN;
 

@@ -277,22 +277,22 @@ public abstract class AbstractTestCase {
             this.toleranceVoltage = tol;
             return this;
         }
-        
+
         ThreeWindingsTransformerTestCase setToleranceBalanceStar(double tol) {
             this.toleranceBalanceStar = tol;
             return this;
         }
-        
+
         ThreeWindingsTransformerTestCase setToleranceFlowStarFromVS(double tol) {
             this.toleranceFlowStarFromVS = tol;
             return this;
         }
-        
+
         ThreeWindingsTransformerTestCase setToleranceFlowStarFromV1V2V3Y(double tol) {
             this.toleranceFlowStarFromV1V2V3Y = tol;
             return this;
         }
-        
+
         @Override
         void test() {
             super.log();

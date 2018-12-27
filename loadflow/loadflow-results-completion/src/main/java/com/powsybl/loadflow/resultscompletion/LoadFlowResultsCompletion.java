@@ -79,7 +79,7 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
             }
             if (terminal.isConnected()
                     && Double.isNaN(terminal.getQ())
-                    // Check that we have a bus 
+                    // Check that we have a bus
                     // When detailed connectivity with invalid buses
                     // is found no bus is calculated for bus view
                     && terminal.getBusView().getBus() != null

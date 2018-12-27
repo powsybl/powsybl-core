@@ -74,8 +74,12 @@ public abstract class AbstractObjectConversion {
     }
 
     public int fitToRange(int x, int xmin, int xmax) {
-        if (x < xmin) return xmin;
-        if (x > xmax) return xmax;
+        if (x < xmin) {
+            return xmin;
+        }
+        if (x > xmax) {
+            return xmax;
+        }
         return x;
     }
 

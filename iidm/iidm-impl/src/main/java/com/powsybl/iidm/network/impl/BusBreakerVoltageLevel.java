@@ -283,7 +283,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
     }
 
-    final CalculatedBusTopology calculatedBusTopology 
+    final CalculatedBusTopology calculatedBusTopology
            = new CalculatedBusTopology();
 
     private static final class VariantImpl implements Variant {
