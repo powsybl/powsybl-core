@@ -74,8 +74,15 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
 
         network.getShuntCompensatorStream().forEach(sh -> {
             Terminal terminal = sh.getTerminal();
+            if (terminal.isConnected() && terminal.getBusView().getBus() == null) {
+                LOGGER.debug("Shunt {} does not have a calculated bus", sh.getId());
+            }
             if (terminal.isConnected()
                     && Double.isNaN(terminal.getQ())
+                    // Check that we have a bus 
+                    // When detailed connectivity with invalid buses
+                    // is found no bus is calculated for bus view
+                    && terminal.getBusView().getBus() != null
                     && terminal.getBusView().getBus().isInMainConnectedComponent()) {
                 double v = terminal.getBusView().getBus().getV();
                 double q = -sh.getCurrentB() * v * v;
