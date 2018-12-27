@@ -125,6 +125,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
     }
 
     private void addStepsFromTable(PhaseTapChangerAdder ptca) {
+        boolean changeSign = context.config().changeSignForPhaseShiftInPhaseTapChangerTable();
         String tableId = p.getId("PhaseTapChangerTable");
         LOG.debug("PhaseTapChanger {} table {}", id, tableId);
         PropertyBags table = context.cgmes().phaseTapChangerTable(tableId);
@@ -156,6 +157,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             // We have to merge previous explicit corrections defined for the tap
             // with dz, dy that appear when moving ideal ratio to side 1
             // R' = R * (1 + r/100) * (1 + dz/100) ==> r' = r + dz + r * dz / 100
+            alpha = changeSign ? -alpha : alpha;
             ptca.beginStep()
                     .setAlpha(alpha * (side == 1 ? 1 : -1))
                     .setRho(side == 1 ? rho : 1 / rho)

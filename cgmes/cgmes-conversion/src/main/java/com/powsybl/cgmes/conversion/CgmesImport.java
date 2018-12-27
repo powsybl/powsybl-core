@@ -121,6 +121,10 @@ public class CgmesImport implements Importer {
             String s = p.getProperty("lowImpedanceLineX");
             config.setLowImpedanceLineX(Double.parseDouble(s));
         }
+        if (p.containsKey("changeSignForPhaseShiftInPhaseTapChangerTable")) {
+            String s = p.getProperty("changeSignForPhaseShiftInPhaseTapChangerTable");
+            config.setChangeSignForPhaseShiftInPhaseTapChangerTable(Boolean.parseBoolean(s));
+        }
     }
 
     private void copyStream(ReadOnlyDataSource from, DataSource to, String fromName, String toName) throws IOException {

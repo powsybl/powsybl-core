@@ -321,12 +321,21 @@ public class Conversion {
             this.considerRatioTapChangersFor3wTxAtNetworkSide = b;
         }
 
+        public boolean changeSignForPhaseShiftInPhaseTapChangerTable() {
+            return this.changeSignForPhaseShiftInPhaseTapChangerTable;
+        }
+
+        public void setChangeSignForPhaseShiftInPhaseTapChangerTable(boolean b) {
+            this.changeSignForPhaseShiftInPhaseTapChangerTable = b;
+        }
+
         private boolean strict = false;
 
         private boolean convertBoundary = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
         private boolean considerPhaseAngleClock = false;
         private boolean considerRatioTapChangersFor3wTxAtNetworkSide = false;
+        private boolean changeSignForPhaseShiftInPhaseTapChangerTable = false;
 
         private double lowImpedanceLineR = 0.05;
         private double lowImpedanceLineX = 0.05;
