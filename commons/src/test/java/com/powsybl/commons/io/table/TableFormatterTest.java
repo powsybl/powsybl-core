@@ -71,15 +71,15 @@ public class TableFormatterTest {
             write(formatter);
         }
         assertEquals("ascii test:" + System.lineSeparator() +
-                "+-----+---------+---------+-------+-------+------+--------+--------+\n" +
-                "| int | double  | float   | bool  | empty | char | string | empty2 |\n" +
-                "+-----+---------+---------+-------+-------+------+--------+--------+\n" +
-                "|     |         |         |       |       |      |        |        |\n" +
-                "| 2   | inv     | 2.40000 | true  |       | a    | aaa    |        |\n" +
-                "|     |         |         |       |       |      |        |        |\n" +
-                "|     |         |         |       |       |      |        |        |\n" +
-                "| 3   | 4.20000 | inv     | false |       | b    | bbb    |        |\n" +
-                "+-----+---------+---------+-------+-------+------+--------+--------+" + System.lineSeparator(),
+                     "+-----+---------+---------+-------+-------+------+--------+--------+\n" +
+                     "| int | double  | float   | bool  | empty | char | string | empty2 |\n" +
+                     "+-----+---------+---------+-------+-------+------+--------+--------+\n" +
+                     "|     |         |         |       |       |      |        |        |\n" +
+                     "| 2   | inv     | 2.40000 | true  |       | a    | aaa    |        |\n" +
+                     "|     |         |         |       |       |      |        |        |\n" +
+                     "|     |         |         |       |       |      |        |        |\n" +
+                     "| 3   | 4.20000 | inv     | false |       | b    | bbb    |        |\n" +
+                     "+-----+---------+---------+-------+-------+------+--------+--------+" + System.lineSeparator(),
             new String(bos.toByteArray(), StandardCharsets.UTF_8));
     }
 }
