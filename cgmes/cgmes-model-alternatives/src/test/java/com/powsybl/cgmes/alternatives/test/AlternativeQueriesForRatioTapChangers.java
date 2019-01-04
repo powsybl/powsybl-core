@@ -10,6 +10,7 @@ package com.powsybl.cgmes.alternatives.test;
 import java.io.IOException;
 import java.util.function.Consumer;
 
+import com.powsybl.commons.datasource.ResourceSet;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -32,8 +33,8 @@ public class AlternativeQueriesForRatioTapChangers {
         TestGridModel model = new TestGridModelResources(
                 "not_all_tap_changers_have_control",
                 null,
-                "sample_not_all_tap_changers_have_control/MicroGridTestConfiguration_BC_BE_EQ_V2.xml",
-                "sample_not_all_tap_changers_have_control/MicroGridTestConfiguration_BC_BE_SSH_V2.xml");
+                new ResourceSet("/sample_not_all_tap_changers_have_control", "MicroGridTestConfiguration_BC_BE_EQ_V2.xml",
+                                                                             "MicroGridTestConfiguration_BC_BE_SSH_V2.xml"));
         Expected expected = new Expected()
                 .resultSize(3)
                 .propertyCount("regulatingControlTargetValue", 2);

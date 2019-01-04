@@ -26,7 +26,7 @@ public class Cim14SmallCasesTest {
     @Test
     public void small1() throws IOException {
         new CgmesModelTester(catalog.small1()).test();
-    };
+    }
 
     @Test
     public void m7Buses() throws IOException {

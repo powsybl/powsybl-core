@@ -34,6 +34,7 @@ public class ReadOnlyTimeSeriesStoreAggregatorTest {
         assertSame(ts1, store12.getDoubleTimeSeries("ts1", 1).orElseThrow(AssertionError::new));
         assertFalse(store12.getDoubleTimeSeries("ts3", 1).isPresent());
         assertEquals(Arrays.asList(ts1, ts2), store12.getDoubleTimeSeries(Sets.newHashSet("ts1", "ts2"), 1));
+        assertEquals(Arrays.asList(ts1, ts2), store12.getDoubleTimeSeries(1));
         assertFalse(store12.getStringTimeSeries("ts3", 1).isPresent());
         assertTrue(store12.getStringTimeSeries(Collections.singleton("ts3"), 1).isEmpty());
     }

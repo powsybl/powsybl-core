@@ -7,12 +7,7 @@
 
 package com.powsybl.cgmes.model.test;
 
-import java.io.IOException;
-import java.nio.file.FileSystem;
-
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -33,15 +28,6 @@ public abstract class AbstractTestGridModel implements TestGridModel {
     public String name() {
         return name;
     }
-
-    @Override
-    public abstract boolean exists();
-
-    @Override
-    public abstract ReadOnlyDataSource dataSource();
-
-    @Override
-    public abstract DataSource dataSourceBasedOn(FileSystem fs) throws IOException;
 
     private final String name;
     private final CgmesModel expected;
