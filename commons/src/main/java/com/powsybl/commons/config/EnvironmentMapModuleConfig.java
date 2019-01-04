@@ -6,15 +6,21 @@
  */
 package com.powsybl.commons.config;
 
-import org.joda.time.DateTime;
-
 import java.nio.file.FileSystem;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 import static com.powsybl.commons.config.EnvironmentModuleConfigRepository.SEPARATOR;
 import static com.powsybl.commons.config.EnvironmentModuleConfigRepository.UPPER_UNDERSCORE_FORMATTER;
 
 /**
+ * A {@link ModuleConfig} designed to read property values
+ * from the map of environment variables.
+ *
+ * For a configuration property named "property-name" in module "module-name",
+ * the expected environment variables name is MODULE_NAME__PROPERTY_NAME.
+ * CamelCase names are also translated to underscore-separated names.
+ *
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 public class EnvironmentMapModuleConfig extends MapModuleConfig {
@@ -36,43 +42,8 @@ public class EnvironmentMapModuleConfig extends MapModuleConfig {
     }
 
     @Override
-    public Optional<String> getOptionalStringProperty(String name) {
-        return super.getOptionalStringProperty(toUpper(name));
-    }
-
-    @Override
-    public Optional<List<String>> getOptionalStringListProperty(String name) {
-        return super.getOptionalStringListProperty(toUpper(name));
-    }
-
-    @Override
-    public OptionalInt getOptionalIntProperty(String name) {
-        return super.getOptionalIntProperty(toUpper(name));
-    }
-
-    @Override
-    public OptionalLong getOptionalLongProperty(String name) {
-        return super.getOptionalLongProperty(toUpper(name));
-    }
-
-    @Override
-    public Optional<Float> getOptionalFloatProperty(String name) {
-        return super.getOptionalFloatProperty(toUpper(name));
-    }
-
-    @Override
-    public OptionalDouble getOptionalDoubleProperty(String name) {
-        return super.getOptionalDoubleProperty(toUpper(name));
-    }
-
-    @Override
-    public Optional<Boolean> getOptionalBooleanProperty(String name) {
-        return super.getOptionalBooleanProperty(toUpper(name));
-    }
-
-    @Override
-    public Optional<DateTime> getOptionalDateTimeProperty(String name) {
-        return super.getOptionalDateTimeProperty(toUpper(name));
+    protected Object getValue(String propertyName) {
+        return super.getValue(toUpper(propertyName));
     }
 
     @Override

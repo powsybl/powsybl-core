@@ -17,6 +17,13 @@ import java.util.Optional;
 import java.util.function.UnaryOperator;
 
 /**
+ * A {@link ModuleConfigRepository} designed to read property values
+ * from the map of environment variables.
+ *
+ * For a configuration property named "property-name" in module "module-name",
+ * the expected environment variables name is MODULE_NAME__PROPERTY_NAME.
+ * CamelCase names are also translated to underscore-separated names.
+ *
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 public final class EnvironmentModuleConfigRepository implements ModuleConfigRepository {
@@ -39,13 +46,14 @@ public final class EnvironmentModuleConfigRepository implements ModuleConfigRepo
 
     private final FileSystem fs;
 
-    EnvironmentModuleConfigRepository(Map<String, String> map, FileSystem fileSystem) {
+    public EnvironmentModuleConfigRepository(Map<String, String> map, FileSystem fileSystem) {
+        fs = Objects.requireNonNull(fileSystem);
+
         Objects.requireNonNull(map);
         map.keySet().stream()
                 .filter(k -> k.toUpperCase().equals(k))
                 .filter(k -> k.contains(SEPARATOR))
                 .forEach(k -> filteredEnvVarMap.put(k, map.get(k)));
-        fs = Objects.requireNonNull(fileSystem);
     }
 
     @Override
@@ -65,7 +73,7 @@ public final class EnvironmentModuleConfigRepository implements ModuleConfigRepo
 
         Map<Object, Object> map = new HashMap<>();
         filteredEnvVarMap.keySet().stream().filter(k -> k.startsWith(UPPER_UNDERSCORE_FORMATTER.apply(name)))
-                .forEach(k -> map.put((Object) k, (Object) filteredEnvVarMap.get(k)));
+                .forEach(k -> map.put(k, filteredEnvVarMap.get(k)));
         return Optional.of(new EnvironmentMapModuleConfig(map, fs, name));
     }
 }
