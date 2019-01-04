@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Objects;
 import java.util.function.BiFunction;
-import java.util.function.Function;
+import java.util.function.ToDoubleFunction;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -220,8 +220,8 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
         return bool ? f.apply(twtData, side) : Double.NaN;
     }
 
-    private double getTwtValue(boolean bool, TwtData twtData, Function<TwtData, Double> f) {
-        return bool ? f.apply(twtData) : Double.NaN;
+    private double getTwtValue(boolean bool, TwtData twtData, ToDoubleFunction<TwtData> f) {
+        return bool ? f.applyAsDouble(twtData) : Double.NaN;
     }
 
     @Override
@@ -268,14 +268,6 @@ public class ValidationFormatterCsvMultilineWriter extends AbstractValidationFor
             write(twtId, MAIN_COMPONENT + "3", found, found && twtData2.isMainComponent(ThreeWindingsTransformer.Side.THREE), writeValues, writeValues && twtData1.isMainComponent(ThreeWindingsTransformer.Side.THREE));
             write(twtId, VALIDATION, found, getValidated(transformer3WData2.validated), writeValues, getValidated(transformer3WData1.validated));
         }
-    }
-
-    private void write(String id, String label, boolean writeFirst, float first, boolean writeSecond, float second) throws IOException {
-        formatter.writeCell(id).writeCell(label);
-        if (compareResults) {
-            formatter = writeFirst ? formatter.writeCell(first) : formatter.writeEmptyCell();
-        }
-        formatter = writeSecond ? formatter.writeCell(second) : formatter.writeEmptyCell();
     }
 
     private void write(String id, String label, boolean writeFirst, double first, boolean writeSecond, double second) throws IOException {
