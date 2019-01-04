@@ -47,12 +47,13 @@ public final class EnvironmentModuleConfigRepository implements ModuleConfigRepo
     private final FileSystem fs;
 
     public EnvironmentModuleConfigRepository(Map<String, String> map, FileSystem fileSystem) {
+        fs = Objects.requireNonNull(fileSystem);
+
         Objects.requireNonNull(map);
         map.keySet().stream()
                 .filter(k -> k.toUpperCase().equals(k))
                 .filter(k -> k.contains(SEPARATOR))
                 .forEach(k -> filteredEnvVarMap.put(k, map.get(k)));
-        fs = Objects.requireNonNull(fileSystem);
     }
 
     @Override

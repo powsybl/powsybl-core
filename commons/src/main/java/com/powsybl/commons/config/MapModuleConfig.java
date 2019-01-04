@@ -31,7 +31,7 @@ public class MapModuleConfig extends AbstractMapModuleConfig {
 
     public MapModuleConfig(Map<Object, Object> properties, FileSystem fs) {
         super(fs);
-        this.properties = properties;
+        this.properties = Objects.requireNonNull(properties);
     }
 
     @Override

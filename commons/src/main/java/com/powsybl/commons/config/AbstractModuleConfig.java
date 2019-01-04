@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractModuleConfig implements ModuleConfig {
 
-
     private static PowsyblException createPropertyNotSetException(String name) {
         return new PowsyblException("Property " + name + " is not set");
     }
@@ -189,5 +188,4 @@ public abstract class AbstractModuleConfig implements ModuleConfig {
     public Interval getIntervalProperty(String name) {
         return getOptionalIntervalProperty(name).orElseThrow(() -> createPropertyNotSetException(name));
     }
-
 }

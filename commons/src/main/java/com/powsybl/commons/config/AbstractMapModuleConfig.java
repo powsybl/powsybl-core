@@ -25,6 +25,22 @@ public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
 
     private final FileSystem fs;
 
+    private static PowsyblException createUnexpectedPropertyTypeException(String name, Class<?> type, Class<?>[] expectedTypes) {
+        return new PowsyblException("Unexpected value type " + type.getName()
+                + " for property " + name + ", " + Arrays.toString(expectedTypes) + " is expected ");
+    }
+
+    private static PowsyblException createPropertyIsNotException(String name, String what, Exception e) {
+        return new PowsyblException("Property " + name + " is not " + what, e);
+    }
+
+    /**
+     * @param fs File system to provide {@link Path} objects.
+     */
+    protected AbstractMapModuleConfig(FileSystem fs) {
+        this.fs = Objects.requireNonNull(fs);
+    }
+
     /**
      * Returns the value of the property with the specified name, or {@code null} if it does not exist.
      * The returned object may be a {@link String} or directly a more specialized type
@@ -34,24 +50,6 @@ public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
      * @return             The value of the specified property it it exists, {@code null} otherwise.
      */
     protected abstract Object getValue(String propertyName);
-
-    /**
-     * @param fs File system to provide {@link Path} objects.
-     */
-    protected AbstractMapModuleConfig(FileSystem fs) {
-        this.fs = Objects.requireNonNull(fs);
-    }
-
-
-    private static PowsyblException createUnexpectedPropertyTypeException(String name, Class<?> type, Class<?>[] expectedTypes) {
-        return new PowsyblException("Unexpected value type " + type.getName()
-                + " for property " + name + ", " + Arrays.toString(expectedTypes) + " is expected ");
-    }
-
-    private static PowsyblException createPropertyIsNotException(String name, String what, Exception e) {
-        throw new PowsyblException("Property " + name + " is not " + what, e);
-    }
-
 
     @Override
     public Optional<String> getOptionalStringProperty(String name) {
@@ -65,7 +63,6 @@ public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
         }
         return Optional.of((String) value).map(PlatformEnv::substitute);
     }
-
 
     @Override
     public Optional<List<String>> getOptionalStringListProperty(String name) {
@@ -88,8 +85,6 @@ public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
             }
         }
     }
-
-
 
     @Override
     public OptionalInt getOptionalIntProperty(String name) {
@@ -188,7 +183,6 @@ public abstract class AbstractMapModuleConfig extends AbstractModuleConfig {
             throw createUnexpectedPropertyTypeException(name, value.getClass(), new Class[] {Boolean.class, String.class});
         }
     }
-
 
     @Override
     public Optional<DateTime> getOptionalDateTimeProperty(String name) {
