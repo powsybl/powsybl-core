@@ -30,7 +30,7 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
     }
 
     @Override
-    public <E extends Extension<T>> E getExtension(Class<E> type) {
+    public <E extends Extension<T>> E getExtension(Class<? super E> type) {
         Objects.requireNonNull(type);
         return (E) extensions.get(type);
     }
