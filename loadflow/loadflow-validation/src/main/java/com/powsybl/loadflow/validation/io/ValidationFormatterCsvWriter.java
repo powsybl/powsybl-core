@@ -16,8 +16,10 @@ import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.ValidationType;
 
 /**
@@ -60,6 +62,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                 return getShuntColumns();
             case TWTS:
                 return getTwtColumns();
+            case TWTS3W:
+                return getTwt3wColumns();
             default:
                 throw new AssertionError("Unexpected ValidationType value: " + validationType);
         }
@@ -68,14 +72,14 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
     private Column[] getFlowColumns() {
         Column[] flowColumns = new Column[] {
             new Column("id"),
-            new Column("network_p1"),
-            new Column("expected_p1"),
-            new Column("network_q1"),
-            new Column("expected_q1"),
-            new Column("network_p2"),
-            new Column("expected_p2"),
-            new Column("network_q2"),
-            new Column("expected_q2")
+            new Column(NETWORK_P1),
+            new Column(EXPECTED_P1),
+            new Column(NETWORK_Q1),
+            new Column(EXPECTED_Q1),
+            new Column(NETWORK_P2),
+            new Column(EXPECTED_P2),
+            new Column(NETWORK_Q2),
+            new Column(EXPECTED_Q2)
         };
         if (verbose) {
             flowColumns = ArrayUtils.addAll(flowColumns,
@@ -91,8 +95,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                             new Column("alpha2"),
                                             new Column("u1"),
                                             new Column("u2"),
-                                            new Column("theta1"),
-                                            new Column("theta2"),
+                                            new Column(THETA1),
+                                            new Column(THETA2),
                                             new Column("z"),
                                             new Column("y"),
                                             new Column("ksi"),
@@ -104,14 +108,14 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
         }
         if (compareResults) {
             flowColumns = ArrayUtils.addAll(flowColumns,
-                                            new Column("network_p1" + POST_COMPUTATION_SUFFIX),
-                                            new Column("expected_p1" + POST_COMPUTATION_SUFFIX),
-                                            new Column("network_q1" + POST_COMPUTATION_SUFFIX),
-                                            new Column("expected_q1" + POST_COMPUTATION_SUFFIX),
-                                            new Column("network_p2" + POST_COMPUTATION_SUFFIX),
-                                            new Column("expected_p2" + POST_COMPUTATION_SUFFIX),
-                                            new Column("network_q2" + POST_COMPUTATION_SUFFIX),
-                                            new Column("expected_q2" + POST_COMPUTATION_SUFFIX));
+                                            new Column(NETWORK_P1 + POST_COMPUTATION_SUFFIX),
+                                            new Column(EXPECTED_P1 + POST_COMPUTATION_SUFFIX),
+                                            new Column(NETWORK_Q1 + POST_COMPUTATION_SUFFIX),
+                                            new Column(EXPECTED_Q1 + POST_COMPUTATION_SUFFIX),
+                                            new Column(NETWORK_P2 + POST_COMPUTATION_SUFFIX),
+                                            new Column(EXPECTED_P2 + POST_COMPUTATION_SUFFIX),
+                                            new Column(NETWORK_Q2 + POST_COMPUTATION_SUFFIX),
+                                            new Column(EXPECTED_Q2 + POST_COMPUTATION_SUFFIX));
             if (verbose) {
                 flowColumns = ArrayUtils.addAll(flowColumns,
                                                 new Column("r" + POST_COMPUTATION_SUFFIX),
@@ -126,8 +130,8 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                                 new Column("alpha2" + POST_COMPUTATION_SUFFIX),
                                                 new Column("u1" + POST_COMPUTATION_SUFFIX),
                                                 new Column("u2" + POST_COMPUTATION_SUFFIX),
-                                                new Column("theta1" + POST_COMPUTATION_SUFFIX),
-                                                new Column("theta2" + POST_COMPUTATION_SUFFIX),
+                                                new Column(THETA1 + POST_COMPUTATION_SUFFIX),
+                                                new Column(THETA2 + POST_COMPUTATION_SUFFIX),
                                                 new Column("z" + POST_COMPUTATION_SUFFIX),
                                                 new Column("y" + POST_COMPUTATION_SUFFIX),
                                                 new Column("ksi" + POST_COMPUTATION_SUFFIX),
@@ -371,6 +375,98 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
             }
         }
         return twtColumns;
+    }
+
+    private Column[] getTwt3wColumns() {
+        Column[] twt3wColumns = new Column[] {
+            new Column("id"),
+            new Column(NETWORK_P1),
+            new Column(EXPECTED_P1),
+            new Column(NETWORK_Q1),
+            new Column(EXPECTED_Q1),
+            new Column(NETWORK_P2),
+            new Column(EXPECTED_P2),
+            new Column(NETWORK_Q2),
+            new Column(EXPECTED_Q2),
+            new Column(NETWORK_P3),
+            new Column(EXPECTED_P3),
+            new Column(NETWORK_Q3),
+            new Column(EXPECTED_Q3)
+        };
+        if (verbose) {
+            twt3wColumns = ArrayUtils.addAll(twt3wColumns,
+                                            new Column("u1"),
+                                            new Column("u2"),
+                                            new Column("u3"),
+                                            new Column("starU"),
+                                            new Column(THETA1),
+                                            new Column(THETA2),
+                                            new Column(THETA3),
+                                            new Column("starTheta"),
+                                            new Column("g"),
+                                            new Column("b"),
+                                            new Column("r1"),
+                                            new Column("r2"),
+                                            new Column("r3"),
+                                            new Column("x1"),
+                                            new Column("x2"),
+                                            new Column("x3"),
+                                            new Column("ratedU1"),
+                                            new Column("ratedU2"),
+                                            new Column("ratedU3"),
+                                            new Column(CONNECTED + "1"),
+                                            new Column(CONNECTED + "2"),
+                                            new Column(CONNECTED + "3"),
+                                            new Column(MAIN_COMPONENT + "1"),
+                                            new Column(MAIN_COMPONENT + "2"),
+                                            new Column(MAIN_COMPONENT + "3"),
+                                            new Column(VALIDATION));
+        }
+        if (compareResults) {
+            twt3wColumns = ArrayUtils.addAll(twt3wColumns,
+                                            new Column(NETWORK_P1 + POST_COMPUTATION_SUFFIX),
+                                            new Column(EXPECTED_P1 + POST_COMPUTATION_SUFFIX),
+                                            new Column(NETWORK_Q1 + POST_COMPUTATION_SUFFIX),
+                                            new Column(EXPECTED_Q1 + POST_COMPUTATION_SUFFIX),
+                                            new Column(NETWORK_P2 + POST_COMPUTATION_SUFFIX),
+                                            new Column(EXPECTED_P2 + POST_COMPUTATION_SUFFIX),
+                                            new Column(NETWORK_Q2 + POST_COMPUTATION_SUFFIX),
+                                            new Column(EXPECTED_Q2 + POST_COMPUTATION_SUFFIX),
+                                            new Column(NETWORK_P3 + POST_COMPUTATION_SUFFIX),
+                                            new Column(EXPECTED_P3 + POST_COMPUTATION_SUFFIX),
+                                            new Column(NETWORK_Q3 + POST_COMPUTATION_SUFFIX),
+                                            new Column(EXPECTED_Q3 + POST_COMPUTATION_SUFFIX));
+            if (verbose) {
+                twt3wColumns = ArrayUtils.addAll(twt3wColumns,
+                                                new Column("u1" + POST_COMPUTATION_SUFFIX),
+                                                new Column("u2" + POST_COMPUTATION_SUFFIX),
+                                                new Column("u3" + POST_COMPUTATION_SUFFIX),
+                                                new Column("starU" + POST_COMPUTATION_SUFFIX),
+                                                new Column(THETA1 + POST_COMPUTATION_SUFFIX),
+                                                new Column(THETA2 + POST_COMPUTATION_SUFFIX),
+                                                new Column(THETA3 + POST_COMPUTATION_SUFFIX),
+                                                new Column("starTheta" + POST_COMPUTATION_SUFFIX),
+                                                new Column("g" + POST_COMPUTATION_SUFFIX),
+                                                new Column("b" + POST_COMPUTATION_SUFFIX),
+                                                new Column("r1" + POST_COMPUTATION_SUFFIX),
+                                                new Column("r2" + POST_COMPUTATION_SUFFIX),
+                                                new Column("r3" + POST_COMPUTATION_SUFFIX),
+                                                new Column("x1" + POST_COMPUTATION_SUFFIX),
+                                                new Column("x2" + POST_COMPUTATION_SUFFIX),
+                                                new Column("x3" + POST_COMPUTATION_SUFFIX),
+                                                new Column("ratedU1" + POST_COMPUTATION_SUFFIX),
+                                                new Column("ratedU2" + POST_COMPUTATION_SUFFIX),
+                                                new Column("ratedU3" + POST_COMPUTATION_SUFFIX),
+                                                new Column(CONNECTED + "1" + POST_COMPUTATION_SUFFIX),
+                                                new Column(CONNECTED + "2" + POST_COMPUTATION_SUFFIX),
+                                                new Column(CONNECTED + "3" + POST_COMPUTATION_SUFFIX),
+                                                new Column(MAIN_COMPONENT + "1" + POST_COMPUTATION_SUFFIX),
+                                                new Column(MAIN_COMPONENT + "2" + POST_COMPUTATION_SUFFIX),
+                                                new Column(MAIN_COMPONENT + "3" + POST_COMPUTATION_SUFFIX),
+                                                new Column(VALIDATION + POST_COMPUTATION_SUFFIX));
+            }
+        }
+        return twt3wColumns;
     }
 
     @Override
@@ -644,6 +740,63 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(mainComponent)
                                  .writeCell(getValidated(validated)) :
                         formatter.writeEmptyCells(12);
+        }
+        return formatter;
+    }
+
+    @Override
+    protected void write(String twtId, Transformer3WData transformer3wData1, Transformer3WData transformer3wData2, boolean found, boolean writeValues) throws IOException {
+        formatter.writeCell(twtId);
+        if (compareResults) {
+            formatter = write(found, transformer3wData2.twtData, transformer3wData2.validated);
+        }
+        write(writeValues, transformer3wData1.twtData, transformer3wData1.validated);
+    }
+
+    private TableFormatter write(boolean writeValues, TwtData twtData, boolean validated) throws IOException {
+        formatter = writeValues ?
+                    formatter.writeCell(twtData.getP(ThreeWindingsTransformer.Side.ONE))
+                             .writeCell(twtData.getComputedP(ThreeWindingsTransformer.Side.ONE))
+                             .writeCell(twtData.getQ(ThreeWindingsTransformer.Side.ONE))
+                             .writeCell(twtData.getComputedQ(ThreeWindingsTransformer.Side.ONE))
+                             .writeCell(twtData.getP(ThreeWindingsTransformer.Side.TWO))
+                             .writeCell(twtData.getComputedP(ThreeWindingsTransformer.Side.TWO))
+                             .writeCell(twtData.getQ(ThreeWindingsTransformer.Side.TWO))
+                             .writeCell(twtData.getComputedQ(ThreeWindingsTransformer.Side.TWO))
+                             .writeCell(twtData.getP(ThreeWindingsTransformer.Side.THREE))
+                             .writeCell(twtData.getComputedP(ThreeWindingsTransformer.Side.THREE))
+                             .writeCell(twtData.getQ(ThreeWindingsTransformer.Side.THREE))
+                             .writeCell(twtData.getComputedQ(ThreeWindingsTransformer.Side.THREE)) :
+                    formatter.writeEmptyCells(12);
+        if (verbose) {
+            formatter = writeValues ?
+                        formatter.writeCell(twtData.getU(ThreeWindingsTransformer.Side.ONE))
+                                 .writeCell(twtData.getU(ThreeWindingsTransformer.Side.TWO))
+                                 .writeCell(twtData.getU(ThreeWindingsTransformer.Side.THREE))
+                                 .writeCell(twtData.getStarU())
+                                 .writeCell(twtData.getTheta(ThreeWindingsTransformer.Side.ONE))
+                                 .writeCell(twtData.getTheta(ThreeWindingsTransformer.Side.TWO))
+                                 .writeCell(twtData.getTheta(ThreeWindingsTransformer.Side.THREE))
+                                 .writeCell(twtData.getStarTheta())
+                                 .writeCell(twtData.getG())
+                                 .writeCell(twtData.getB())
+                                 .writeCell(twtData.getR(ThreeWindingsTransformer.Side.ONE))
+                                 .writeCell(twtData.getR(ThreeWindingsTransformer.Side.TWO))
+                                 .writeCell(twtData.getR(ThreeWindingsTransformer.Side.THREE))
+                                 .writeCell(twtData.getX(ThreeWindingsTransformer.Side.ONE))
+                                 .writeCell(twtData.getX(ThreeWindingsTransformer.Side.TWO))
+                                 .writeCell(twtData.getX(ThreeWindingsTransformer.Side.THREE))
+                                 .writeCell(twtData.getRatedU(ThreeWindingsTransformer.Side.ONE))
+                                 .writeCell(twtData.getRatedU(ThreeWindingsTransformer.Side.TWO))
+                                 .writeCell(twtData.getRatedU(ThreeWindingsTransformer.Side.THREE))
+                                 .writeCell(twtData.isConnected(ThreeWindingsTransformer.Side.ONE))
+                                 .writeCell(twtData.isConnected(ThreeWindingsTransformer.Side.TWO))
+                                 .writeCell(twtData.isConnected(ThreeWindingsTransformer.Side.THREE))
+                                 .writeCell(twtData.isMainComponent(ThreeWindingsTransformer.Side.ONE))
+                                 .writeCell(twtData.isMainComponent(ThreeWindingsTransformer.Side.TWO))
+                                 .writeCell(twtData.isMainComponent(ThreeWindingsTransformer.Side.THREE))
+                                 .writeCell(getValidated(validated)) :
+                        formatter.writeEmptyCells(26);
         }
         return formatter;
     }
