@@ -10,6 +10,7 @@ package com.powsybl.cgmes.model.test.cim14;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.test.FakeCgmesModel;
 import com.powsybl.cgmes.model.test.TestGridModelResources;
+import com.powsybl.commons.datasource.ResourceSet;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -18,37 +19,47 @@ public class Cim14SmallCasesCatalog {
 
     public TestGridModelResources txMicroBEAdapted() {
         return new TestGridModelResources("tx-from-microBE-adapted", null,
-                "cim14/tx-from-microBE-adapted/tx-from-microBE-adapted_EQ.xml",
-                "cim14/tx-from-microBE-adapted/tx-from-microBE-adapted_SV.xml",
-                "cim14/tx-from-microBE-adapted/tx-from-microBE-adapted_TP.xml");
+                new ResourceSet("/cim14/tx-from-microBE-adapted/", "tx-from-microBE-adapted_EQ.xml",
+                                                                   "tx-from-microBE-adapted_SV.xml",
+                                                                   "tx-from-microBE-adapted_TP.xml"),
+                new ResourceSet("/cim14/", "ENTSO-E_Boundary_Set_EU_EQ.xml",
+                                           "ENTSO-E_Boundary_Set_EU_TP.xml"));
     }
 
     public final TestGridModelResources small1() {
         return new TestGridModelResources("smallcase1", expectedSmall1(),
-                "cim14/smallcase1/case1_EQ.xml",
-                "cim14/smallcase1/case1_SV.xml",
-                "cim14/smallcase1/case1_TP.xml");
+                new ResourceSet("/cim14/smallcase1/", "case1_EQ.xml",
+                                                      "case1_SV.xml",
+                                                      "case1_TP.xml"),
+                new ResourceSet("/cim14/", "ENTSO-E_Boundary_Set_EU_EQ.xml",
+                                           "ENTSO-E_Boundary_Set_EU_TP.xml"));
     }
 
     public final TestGridModelResources m7buses() {
         return new TestGridModelResources("7buses", expectedM7Buses(),
-                "cim14/m7buses/m7buses_EQ.xml",
-                "cim14/m7buses/m7buses_SV.xml",
-                "cim14/m7buses/m7buses_TP.xml");
+                new ResourceSet("/cim14/m7buses/", "m7buses_EQ.xml",
+                                                   "m7buses_SV.xml",
+                                                   "m7buses_TP.xml"),
+                new ResourceSet("/cim14/", "ENTSO-E_Boundary_Set_EU_EQ.xml",
+                                           "ENTSO-E_Boundary_Set_EU_TP.xml"));
     }
 
     public final TestGridModelResources ieee14() {
         return new TestGridModelResources("ieee14", expectedIeee14(),
-                "cim14/ieee14/ieee14bus_EQ.xml",
-                "cim14/ieee14/ieee14bus_SV.xml",
-                "cim14/ieee14/ieee14bus_TP.xml");
+                new ResourceSet("/cim14/ieee14/", "ieee14bus_EQ.xml",
+                                                  "ieee14bus_SV.xml",
+                                                  "ieee14bus_TP.xml"),
+                new ResourceSet("/cim14/", "ENTSO-E_Boundary_Set_EU_EQ.xml",
+                                           "ENTSO-E_Boundary_Set_EU_TP.xml"));
     }
 
     public final TestGridModelResources nordic32() {
         return new TestGridModelResources("nordic32", expectedNordic32(),
-                "cim14/nordic32/Nordic32_EQ.xml",
-                "cim14/nordic32/Nordic32_SV.xml",
-                "cim14/nordic32/Nordic32_TP.xml");
+                new ResourceSet("/cim14/nordic32/", "Nordic32_EQ.xml",
+                                                    "Nordic32_SV.xml",
+                                                    "Nordic32_TP.xml"),
+                new ResourceSet("/cim14/", "ENTSO-E_Boundary_Set_EU_EQ.xml",
+                                           "ENTSO-E_Boundary_Set_EU_TP.xml"));
     }
 
     private CgmesModel expectedSmall1() {

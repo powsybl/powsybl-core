@@ -6,12 +6,11 @@
  */
 package com.powsybl.ampl.converter;
 
-import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.HvdcLine.ConvertersMode;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,11 +18,15 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
 import static com.powsybl.ampl.converter.AmplConstants.DEFAULT_VARIANT_INDEX;
 
 /**
@@ -36,7 +39,7 @@ public class AmplNetworkReader {
 
     private static final Pattern PATTERN = Pattern.compile("([^']\\S*|'.+?')\\s*");
 
-    private final DataSource dataSource;
+    private final ReadOnlyDataSource dataSource;
 
     private final Network network;
     private final int variantIndex;
@@ -44,7 +47,7 @@ public class AmplNetworkReader {
     private final StringToIntMapper<AmplSubset> mapper;
     private final Map<String, Bus> buses;
 
-    public AmplNetworkReader(DataSource dataSource, Network network, int variantIndex, StringToIntMapper<AmplSubset> mapper) {
+    public AmplNetworkReader(ReadOnlyDataSource dataSource, Network network, int variantIndex, StringToIntMapper<AmplSubset> mapper) {
         this.dataSource = dataSource;
         this.network = network;
         this.mapper = mapper;
@@ -52,7 +55,7 @@ public class AmplNetworkReader {
         this.variantIndex = variantIndex;
     }
 
-    public AmplNetworkReader(DataSource dataSource, Network network, StringToIntMapper<AmplSubset> mapper) {
+    public AmplNetworkReader(ReadOnlyDataSource dataSource, Network network, StringToIntMapper<AmplSubset> mapper) {
         this(dataSource, network, DEFAULT_VARIANT_INDEX, mapper);
     }
 
