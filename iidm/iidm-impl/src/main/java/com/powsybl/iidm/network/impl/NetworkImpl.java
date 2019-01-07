@@ -862,14 +862,14 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         }
 
         // try to find dangling lines couples
-        Map<String, DanglingLine> dl1byXnodeCode = new HashMap<>();
-        for (DanglingLine dl1 : getDanglingLines()) {
-            if (dl1.getUcteXnodeCode() != null) {
-                dl1byXnodeCode.put(dl1.getUcteXnodeCode(), dl1);
-            }
-        }
         List<MergedLine> lines = new ArrayList<>();
         for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines())) {
+            Map<String, DanglingLine> dl1byXnodeCode = new HashMap<>();
+            for (DanglingLine dl1 : getDanglingLines()) {
+                if (dl1.getUcteXnodeCode() != null) {
+                    dl1byXnodeCode.put(dl1.getUcteXnodeCode(), dl1);
+                }
+            }
             DanglingLine dl1 = getDanglingLineByTheOther(dl2, dl1byXnodeCode);
             mergeDanglingLines(lines, dl1, dl2);
         }
