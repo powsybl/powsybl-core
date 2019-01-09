@@ -7,14 +7,15 @@
 
 package com.powsybl.cgmes.conformity.test;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.test.FakeCgmesModel;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.cgmes.model.test.TestGridModelResources;
+import com.powsybl.commons.datasource.ResourceSet;
+
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -28,15 +29,15 @@ public class CgmesConformity1Catalog {
         return new TestGridModelResources(
                 "MicroGrid-BaseCase-BE",
                 expectedMicroGridBaseCaseBE(),
-                base + "MicroGridTestConfiguration_BC_BE_DL_V2.xml",
-                base + "MicroGridTestConfiguration_BC_BE_DY_V2.xml",
-                base + "MicroGridTestConfiguration_BC_BE_EQ_V2.xml",
-                base + "MicroGridTestConfiguration_BC_BE_GL_V2.xml",
-                base + "MicroGridTestConfiguration_BC_BE_SSH_V2.xml",
-                base + "MicroGridTestConfiguration_BC_BE_SV_V2.xml",
-                base + "MicroGridTestConfiguration_BC_BE_TP_V2.xml",
-                baseBoundary + "MicroGridTestConfiguration_EQ_BD.xml",
-                baseBoundary + "MicroGridTestConfiguration_TP_BD.xml");
+                new ResourceSet(base, "MicroGridTestConfiguration_BC_BE_DL_V2.xml",
+                                      "MicroGridTestConfiguration_BC_BE_DY_V2.xml",
+                                      "MicroGridTestConfiguration_BC_BE_EQ_V2.xml",
+                                      "MicroGridTestConfiguration_BC_BE_GL_V2.xml",
+                                      "MicroGridTestConfiguration_BC_BE_SSH_V2.xml",
+                                      "MicroGridTestConfiguration_BC_BE_SV_V2.xml",
+                                      "MicroGridTestConfiguration_BC_BE_TP_V2.xml"),
+                new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
+                                              "MicroGridTestConfiguration_TP_BD.xml"));
     }
 
     public TestGridModel microGridType4BE() {
@@ -47,15 +48,15 @@ public class CgmesConformity1Catalog {
         return new TestGridModelResources(
                 "MicroGrid-Type4-BE",
                 expectedMicroGridType4BE(),
-                base + "MicroGridTestConfiguration_T4_BE_DL_V2.xml",
-                base + "MicroGridTestConfiguration_T4_BE_DY_V2.xml",
-                base + "MicroGridTestConfiguration_T4_BE_EQ_V2.xml",
-                base + "MicroGridTestConfiguration_T4_BE_GL_V2.xml",
-                base + "MicroGridTestConfiguration_T4_BE_SSH_V2.xml",
-                base + "MicroGridTestConfiguration_T4_BE_SV_V2.xml",
-                base + "MicroGridTestConfiguration_T4_BE_TP_V2.xml",
-                baseBoundary + "MicroGridTestConfiguration_EQ_BD.xml",
-                baseBoundary + "MicroGridTestConfiguration_TP_BD.xml");
+                new ResourceSet(base, "MicroGridTestConfiguration_T4_BE_DL_V2.xml",
+                                      "MicroGridTestConfiguration_T4_BE_DY_V2.xml",
+                                      "MicroGridTestConfiguration_T4_BE_EQ_V2.xml",
+                                      "MicroGridTestConfiguration_T4_BE_GL_V2.xml",
+                                      "MicroGridTestConfiguration_T4_BE_SSH_V2.xml",
+                                      "MicroGridTestConfiguration_T4_BE_SV_V2.xml",
+                                      "MicroGridTestConfiguration_T4_BE_TP_V2.xml"),
+                new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
+                                              "MicroGridTestConfiguration_TP_BD.xml"));
     }
 
     public final TestGridModelResources microGridBaseCaseNL() {
@@ -65,15 +66,15 @@ public class CgmesConformity1Catalog {
         return new TestGridModelResources(
                 "MicroGrid-BaseCase-NL",
                 null,
-                base + "MicroGridTestConfiguration_BC_NL_DL_V2.xml",
-                base + "MicroGridTestConfiguration_BC_NL_DY_V2.xml",
-                base + "MicroGridTestConfiguration_BC_NL_EQ_V2.xml",
-                base + "MicroGridTestConfiguration_BC_NL_GL_V2.xml",
-                base + "MicroGridTestConfiguration_BC_NL_SSH_V2.xml",
-                base + "MicroGridTestConfiguration_BC_NL_SV_V2.xml",
-                base + "MicroGridTestConfiguration_BC_NL_TP_V2.xml",
-                baseBoundary + "MicroGridTestConfiguration_EQ_BD.xml",
-                baseBoundary + "MicroGridTestConfiguration_TP_BD.xml");
+                new ResourceSet(base, "MicroGridTestConfiguration_BC_NL_DL_V2.xml",
+                                      "MicroGridTestConfiguration_BC_NL_DY_V2.xml",
+                                      "MicroGridTestConfiguration_BC_NL_EQ_V2.xml",
+                                      "MicroGridTestConfiguration_BC_NL_GL_V2.xml",
+                                      "MicroGridTestConfiguration_BC_NL_SSH_V2.xml",
+                                      "MicroGridTestConfiguration_BC_NL_SV_V2.xml",
+                                      "MicroGridTestConfiguration_BC_NL_TP_V2.xml"),
+                new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
+                                              "MicroGridTestConfiguration_TP_BD.xml"));
     }
 
     public final TestGridModelResources microGridBaseCaseAssembled() {
@@ -84,20 +85,20 @@ public class CgmesConformity1Catalog {
         return new TestGridModelResources(
                 "MicroGrid-BaseCase-Assembled",
                 null,
-                base + "MicroGridTestConfiguration_BC_Assembled_DL_V2.xml",
-                base + "MicroGridTestConfiguration_BC_Assembled_SV_V2.xml",
-                base + "MicroGridTestConfiguration_BC_BE_DY_V2.xml",
-                base + "MicroGridTestConfiguration_BC_BE_EQ_V2.xml",
-                base + "MicroGridTestConfiguration_BC_BE_GL_V2.xml",
-                base + "MicroGridTestConfiguration_BC_BE_SSH_V2.xml",
-                base + "MicroGridTestConfiguration_BC_BE_TP_V2.xml",
-                base + "MicroGridTestConfiguration_BC_NL_DY_V2.xml",
-                base + "MicroGridTestConfiguration_BC_NL_EQ_V2.xml",
-                base + "MicroGridTestConfiguration_BC_NL_GL_V2.xml",
-                base + "MicroGridTestConfiguration_BC_NL_SSH_V2.xml",
-                base + "MicroGridTestConfiguration_BC_NL_TP_V2.xml",
-                baseBoundary + "MicroGridTestConfiguration_EQ_BD.xml",
-                baseBoundary + "MicroGridTestConfiguration_TP_BD.xml");
+                new ResourceSet(base, "MicroGridTestConfiguration_BC_Assembled_DL_V2.xml",
+                                      "MicroGridTestConfiguration_BC_Assembled_SV_V2.xml",
+                                      "MicroGridTestConfiguration_BC_BE_DY_V2.xml",
+                                      "MicroGridTestConfiguration_BC_BE_EQ_V2.xml",
+                                      "MicroGridTestConfiguration_BC_BE_GL_V2.xml",
+                                      "MicroGridTestConfiguration_BC_BE_SSH_V2.xml",
+                                      "MicroGridTestConfiguration_BC_BE_TP_V2.xml",
+                                      "MicroGridTestConfiguration_BC_NL_DY_V2.xml",
+                                      "MicroGridTestConfiguration_BC_NL_EQ_V2.xml",
+                                      "MicroGridTestConfiguration_BC_NL_GL_V2.xml",
+                                      "MicroGridTestConfiguration_BC_NL_SSH_V2.xml",
+                                      "MicroGridTestConfiguration_BC_NL_TP_V2.xml"),
+                new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
+                                              "MicroGridTestConfiguration_TP_BD.xml"));
     }
 
     public final TestGridModelResources miniBusBranch() {
@@ -105,11 +106,11 @@ public class CgmesConformity1Catalog {
         return new TestGridModelResources(
                 "MiniGrid-BusBranch",
                 null,
-                base + "MiniGridTestConfiguration_BC_DL_v3.0.0.xml",
-                base + "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml",
-                base + "MiniGridTestConfiguration_BC_SSH_v3.0.0.xml",
-                base + "MiniGridTestConfiguration_BC_SV_v3.0.0.xml",
-                base + "MiniGridTestConfiguration_BC_TP_v3.0.0.xml");
+                new ResourceSet(base, "MiniGridTestConfiguration_BC_DL_v3.0.0.xml",
+                                      "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml",
+                                      "MiniGridTestConfiguration_BC_SSH_v3.0.0.xml",
+                                      "MiniGridTestConfiguration_BC_SV_v3.0.0.xml",
+                                      "MiniGridTestConfiguration_BC_TP_v3.0.0.xml"));
     }
 
     public final TestGridModelResources miniNodeBreaker() {
@@ -120,13 +121,13 @@ public class CgmesConformity1Catalog {
         return new TestGridModelResources(
                 "MiniGrid-NodeBreaker",
                 expectedMiniNodeBreaker(),
-                base + "MiniGridTestConfiguration_BC_DL_v3.0.0.xml",
-                base + "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml",
-                base + "MiniGridTestConfiguration_BC_SSH_v3.0.0.xml",
-                base + "MiniGridTestConfiguration_BC_SV_v3.0.0.xml",
-                base + "MiniGridTestConfiguration_BC_TP_v3.0.0.xml",
-                baseBoundary + "MiniGridTestConfiguration_EQ_BD_v3.0.0.xml",
-                baseBoundary + "MiniGridTestConfiguration_TP_BD_v3.0.0.xml");
+                new ResourceSet(base, "MiniGridTestConfiguration_BC_DL_v3.0.0.xml",
+                                      "MiniGridTestConfiguration_BC_EQ_v3.0.0.xml",
+                                      "MiniGridTestConfiguration_BC_SSH_v3.0.0.xml",
+                                      "MiniGridTestConfiguration_BC_SV_v3.0.0.xml",
+                                      "MiniGridTestConfiguration_BC_TP_v3.0.0.xml"),
+                new ResourceSet(baseBoundary, "MiniGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                                              "MiniGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
     public final TestGridModelResources smallBusBranch() {
@@ -137,14 +138,14 @@ public class CgmesConformity1Catalog {
         return new TestGridModelResources(
                 "SmallGrid-BusBranch",
                 null,
-                base + "SmallGridTestConfiguration_BC_DL_v3.0.0.xml",
-                base + "SmallGridTestConfiguration_BC_EQ_v3.0.0.xml",
-                base + "SmallGridTestConfiguration_BC_GL_v3.0.0.xml",
-                base + "SmallGridTestConfiguration_BC_SSH_v3.0.0.xml",
-                base + "SmallGridTestConfiguration_BC_SV_v3.0.0.xml",
-                base + "SmallGridTestConfiguration_BC_TP_v3.0.0.xml",
-                baseBoundary + "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml",
-                baseBoundary + "SmallGridTestConfiguration_TP_BD_v3.0.0.xml");
+                new ResourceSet(base, "SmallGridTestConfiguration_BC_DL_v3.0.0.xml",
+                                      "SmallGridTestConfiguration_BC_EQ_v3.0.0.xml",
+                                      "SmallGridTestConfiguration_BC_GL_v3.0.0.xml",
+                                      "SmallGridTestConfiguration_BC_SSH_v3.0.0.xml",
+                                      "SmallGridTestConfiguration_BC_SV_v3.0.0.xml",
+                                      "SmallGridTestConfiguration_BC_TP_v3.0.0.xml"),
+                new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                                              "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
     public final TestGridModelResources smallNodeBreaker() {
@@ -155,14 +156,14 @@ public class CgmesConformity1Catalog {
         return new TestGridModelResources(
                 "SmallGrid-NodeBreaker",
                 null,
-                base + "SmallGridTestConfiguration_BC_DL_v3.0.0.xml",
-                base + "SmallGridTestConfiguration_BC_EQ_v3.0.0.xml",
-                base + "SmallGridTestConfiguration_BC_GL_v3.0.0.xml",
-                base + "SmallGridTestConfiguration_BC_SSH_v3.0.0.xml",
-                base + "SmallGridTestConfiguration_BC_SV_v3.0.0.xml",
-                base + "SmallGridTestConfiguration_BC_TP_v3.0.0.xml",
-                baseBoundary + "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml",
-                baseBoundary + "SmallGridTestConfiguration_TP_BD_v3.0.0.xml");
+                new ResourceSet(base, "SmallGridTestConfiguration_BC_DL_v3.0.0.xml",
+                                      "SmallGridTestConfiguration_BC_EQ_v3.0.0.xml",
+                                      "SmallGridTestConfiguration_BC_GL_v3.0.0.xml",
+                                      "SmallGridTestConfiguration_BC_SSH_v3.0.0.xml",
+                                      "SmallGridTestConfiguration_BC_SV_v3.0.0.xml",
+                                      "SmallGridTestConfiguration_BC_TP_v3.0.0.xml"),
+                new ResourceSet(baseBoundary, "SmallGridTestConfiguration_EQ_BD_v3.0.0.xml",
+                                              "SmallGridTestConfiguration_TP_BD_v3.0.0.xml"));
     }
 
     public FakeCgmesModel expectedMicroGridBaseCaseBE() {
@@ -1034,5 +1035,5 @@ public class CgmesConformity1Catalog {
         return m;
     }
 
-    private static final String ENTSOE_CONFORMITY_1 = "conformity/cas-1.1.3-data-4.0.3";
+    private static final String ENTSOE_CONFORMITY_1 = "/conformity/cas-1.1.3-data-4.0.3";
 }

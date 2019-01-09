@@ -6,11 +6,10 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
-
-import java.util.BitSet;
 
 /**
  *
@@ -30,9 +29,9 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     private TerminalExt regulatingTerminal;
 
-    // attributes depending on the state
+    // attributes depending on the variant
 
-    private final BitSet voltageRegulatorOn;
+    private final TBooleanArrayList voltageRegulatorOn;
 
     private final TDoubleArrayList targetP;
 
@@ -40,7 +39,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     private final TDoubleArrayList targetV;
 
-    GeneratorImpl(Ref<? extends MultiStateObject> ref,
+    GeneratorImpl(Ref<? extends VariantManagerHolder> ref,
                   String id, String name, EnergySource energySource,
                   double minP, double maxP,
                   boolean voltageRegulatorOn, TerminalExt regulatingTerminal,
@@ -53,13 +52,13 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         reactiveLimits = new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE);
         this.regulatingTerminal = regulatingTerminal;
         this.ratedS = ratedS;
-        int stateArraySize = ref.get().getStateManager().getStateArraySize();
-        this.voltageRegulatorOn = new BitSet(stateArraySize);
-        this.targetP = new TDoubleArrayList(stateArraySize);
-        this.targetQ = new TDoubleArrayList(stateArraySize);
-        this.targetV = new TDoubleArrayList(stateArraySize);
-        this.voltageRegulatorOn.set(0, stateArraySize, voltageRegulatorOn);
-        for (int i = 0; i < stateArraySize; i++) {
+        int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
+        this.voltageRegulatorOn = new TBooleanArrayList(variantArraySize);
+        this.targetP = new TDoubleArrayList(variantArraySize);
+        this.targetQ = new TDoubleArrayList(variantArraySize);
+        this.targetV = new TDoubleArrayList(variantArraySize);
+        for (int i = 0; i < variantArraySize; i++) {
+            this.voltageRegulatorOn.add(voltageRegulatorOn);
             this.targetP.add(targetP);
             this.targetQ.add(targetQ);
             this.targetV.add(targetV);
@@ -122,15 +121,14 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public boolean isVoltageRegulatorOn() {
-        return voltageRegulatorOn.get(getNetwork().getStateIndex());
+        return voltageRegulatorOn.get(getNetwork().getVariantIndex());
     }
 
     @Override
     public GeneratorImpl setVoltageRegulatorOn(boolean voltageRegulatorOn) {
-        int stateIndex = getNetwork().getStateIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV.get(stateIndex), targetQ.get(stateIndex));
-        boolean oldValue = this.voltageRegulatorOn.get(stateIndex);
-        this.voltageRegulatorOn.set(stateIndex, voltageRegulatorOn);
+        int variantIndex = getNetwork().getVariantIndex();
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV.get(variantIndex), targetQ.get(variantIndex));
+        boolean oldValue = this.voltageRegulatorOn.set(variantIndex, voltageRegulatorOn);
         notifyUpdate("voltageRegulatorOn", oldValue, voltageRegulatorOn);
         return this;
     }
@@ -149,41 +147,41 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public double getTargetP() {
-        return targetP.get(getNetwork().getStateIndex());
+        return targetP.get(getNetwork().getVariantIndex());
     }
 
     @Override
     public GeneratorImpl setTargetP(double targetP) {
         ValidationUtil.checkActivePowerSetpoint(this, targetP);
-        double oldValue = this.targetP.set(getNetwork().getStateIndex(), targetP);
+        double oldValue = this.targetP.set(getNetwork().getVariantIndex(), targetP);
         notifyUpdate("targetP", oldValue, targetP);
         return this;
     }
 
     @Override
     public double getTargetQ() {
-        return targetQ.get(getNetwork().getStateIndex());
+        return targetQ.get(getNetwork().getVariantIndex());
     }
 
     @Override
     public GeneratorImpl setTargetQ(double targetQ) {
-        int stateIndex = getNetwork().getStateIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(stateIndex), targetV.get(stateIndex), targetQ);
-        double oldValue = this.targetQ.set(stateIndex, targetQ);
+        int variantIndex = getNetwork().getVariantIndex();
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex), targetV.get(variantIndex), targetQ);
+        double oldValue = this.targetQ.set(variantIndex, targetQ);
         notifyUpdate("targetQ", oldValue, targetQ);
         return this;
     }
 
     @Override
     public double getTargetV() {
-        return this.targetV.get(getNetwork().getStateIndex());
+        return this.targetV.get(getNetwork().getVariantIndex());
     }
 
     @Override
     public GeneratorImpl setTargetV(double targetV) {
-        int stateIndex = getNetwork().getStateIndex();
-        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(stateIndex), targetV, targetQ.get(stateIndex));
-        double oldValue = this.targetV.set(stateIndex, targetV);
+        int variantIndex = getNetwork().getVariantIndex();
+        ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex), targetV, targetQ.get(variantIndex));
+        double oldValue = this.targetV.set(variantIndex, targetV);
         notifyUpdate("targetV", oldValue, targetV);
         return this;
     }
@@ -236,13 +234,14 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     @Override
-    public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
-        super.extendStateArraySize(initStateArraySize, number, sourceIndex);
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        voltageRegulatorOn.ensureCapacity(voltageRegulatorOn.size() + number);
         targetP.ensureCapacity(targetP.size() + number);
         targetQ.ensureCapacity(targetQ.size() + number);
         targetV.ensureCapacity(targetV.size() + number);
         for (int i = 0; i < number; i++) {
-            voltageRegulatorOn.set(initStateArraySize + i, voltageRegulatorOn.get(sourceIndex));
+            voltageRegulatorOn.add(voltageRegulatorOn.get(sourceIndex));
             targetP.add(targetP.get(sourceIndex));
             targetQ.add(targetQ.get(sourceIndex));
             targetV.add(targetV.get(sourceIndex));
@@ -250,22 +249,23 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     @Override
-    public void reduceStateArraySize(int number) {
-        super.reduceStateArraySize(number);
+    public void reduceVariantArraySize(int number) {
+        super.reduceVariantArraySize(number);
+        voltageRegulatorOn.remove(voltageRegulatorOn.size() - number, number);
         targetP.remove(targetP.size() - number, number);
         targetQ.remove(targetQ.size() - number, number);
         targetV.remove(targetV.size() - number, number);
     }
 
     @Override
-    public void deleteStateArrayElement(int index) {
-        super.deleteStateArrayElement(index);
+    public void deleteVariantArrayElement(int index) {
+        super.deleteVariantArrayElement(index);
         // nothing to do
     }
 
     @Override
-    public void allocateStateArrayElement(int[] indexes, int sourceIndex) {
-        super.allocateStateArrayElement(indexes, sourceIndex);
+    public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+        super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
             voltageRegulatorOn.set(index, voltageRegulatorOn.get(sourceIndex));
             targetP.set(index, targetP.get(sourceIndex));

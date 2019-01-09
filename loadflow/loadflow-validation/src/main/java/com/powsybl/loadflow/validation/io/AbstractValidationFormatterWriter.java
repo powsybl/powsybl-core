@@ -21,6 +21,7 @@ import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
 import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.validation.ValidationType;
 
 /**
@@ -38,6 +39,21 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     protected static final String MAIN_COMPONENT = "mainComponent";
     protected static final String POST_COMPUTATION_SUFFIX = "_postComp";
     protected static final String NOMINAL_V = "nominalV";
+    protected static final String NETWORK_P1 = "network_p1";
+    protected static final String EXPECTED_P1 = "expected_p1";
+    protected static final String NETWORK_Q1 = "network_q1";
+    protected static final String EXPECTED_Q1 = "expected_q1";
+    protected static final String NETWORK_P2 = "network_p2";
+    protected static final String EXPECTED_P2 = "expected_p2";
+    protected static final String NETWORK_Q2 = "network_q2";
+    protected static final String EXPECTED_Q2 = "expected_q2";
+    protected static final String NETWORK_P3 = "network_p3";
+    protected static final String EXPECTED_P3 = "expected_p3";
+    protected static final String NETWORK_Q3 = "network_q3";
+    protected static final String EXPECTED_Q3 = "expected_q3";
+    protected static final String THETA1 = "theta1";
+    protected static final String THETA2 = "theta2";
+    protected static final String THETA3 = "theta3";
 
     protected ValidationType validationType;
     protected boolean compareResults;
@@ -50,6 +66,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     protected Map<String, ShuntData> shuntsData = new HashMap<>();
     protected Map<String, FlowData> flowsData = new HashMap<>();
     protected Map<String, TransformerData> twtsData = new HashMap<>();
+    protected Map<String, Transformer3WData> twts3wData = new HashMap<>();
 
     protected TableFormatter createTableFormatter(String id, Class<? extends TableFormatterFactory> formatterFactoryClass,
                                                   TableFormatterConfig formatterConfig, Writer writer, ValidationType validationType) {
@@ -99,29 +116,29 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                                   boolean mainComponent1, boolean mainComponent2, boolean validated, FlowData flowData, boolean found, boolean writeValues) throws IOException;
 
     @Override
-    public void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, boolean connected,
+    public void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP, boolean connected,
                       boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent, boolean validated) throws IOException {
         Objects.requireNonNull(generatorId);
         GeneratorData emptyGeneratorData = new GeneratorData(generatorId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                                                             false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false);
+                                                             Double.NaN, false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
                 boolean found = generatorsData.containsKey(generatorId);
                 GeneratorData generatorData = found ? generatorsData.get(generatorId) : emptyGeneratorData;
-                write(generatorId, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn,
+                write(generatorId, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn,
                       minP, maxP, minQ, maxQ, mainComponent, validated, generatorData, found, true);
                 generatorsData.remove(generatorId);
             } else {
-                generatorsData.put(generatorId, new GeneratorData(generatorId, p, q, v, targetP, targetQ, targetV, connected,
+                generatorsData.put(generatorId, new GeneratorData(generatorId, p, q, v, targetP, targetQ, targetV, expectedP, connected,
                                                                   voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated));
             }
         } else {
-            write(generatorId, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn,
+            write(generatorId, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn,
                   minP, maxP, minQ, maxQ, mainComponent, validated, emptyGeneratorData, false, true);
         }
     }
 
-    protected abstract void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV,
+    protected abstract void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP,
                                   boolean connected, boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent,
                                   boolean validated, GeneratorData generatorData, boolean found, boolean writeValues) throws IOException;
 
@@ -233,6 +250,26 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                                   boolean mainComponent, boolean validated, TransformerData twtData, boolean found, boolean writeValues) throws IOException;
 
     @Override
+    public void write(String twtId, TwtData twtData, boolean validated) throws IOException {
+        Objects.requireNonNull(twtId);
+        Objects.requireNonNull(twtData);
+        if (compareResults) {
+            if (preLoadflowValidationCompleted) {
+                boolean found = twts3wData.containsKey(twtId);
+                Transformer3WData transformer3wData = found ? twts3wData.get(twtId) : new Transformer3WData(twtId, null, false);
+                write(twtId, new Transformer3WData(twtId, twtData, validated), transformer3wData, found, true);
+                twts3wData.remove(twtId);
+            } else {
+                twts3wData.put(twtId, new Transformer3WData(twtId, twtData, validated));
+            }
+        } else {
+            write(twtId, new Transformer3WData(twtId, twtData, validated), new Transformer3WData(twtId, null, false), false, true);
+        }
+    }
+
+    protected abstract void write(String twtId, Transformer3WData transformer3wData1, Transformer3WData transformer3wData2, boolean found, boolean writeValues) throws IOException;
+
+    @Override
     public void setValidationCompleted() {
         if (!preLoadflowValidationCompleted) {
             preLoadflowValidationCompleted = true;
@@ -257,6 +294,9 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
             case TWTS:
                 writeTwtsData();
                 break;
+            case TWTS3W:
+                writeTwts3wData();
+                break;
             default:
                 throw new AssertionError("Unexpected ValidationType value: " + validationType);
         }
@@ -278,7 +318,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         generatorsData.values().forEach(generatorData -> {
             try {
                 write(generatorData.generatorId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
-                      Double.NaN, false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false,
+                      Double.NaN, Double.NaN, false, false, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false,
                       generatorData, true, false);
             } catch (IOException e) {
                 LOGGER.error("Error writing data of generator {}: {}", generatorData.generatorId, e.getMessage());
@@ -325,6 +365,16 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
             try {
                 write(twtData.twtId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                       -1, -1, -1, Double.NaN, Side.ONE, Double.NaN, false, false, false, twtData, true, false);
+            } catch (IOException e) {
+                LOGGER.error("Error writing data of twt {}: {}", twtData.twtId, e.getMessage());
+            }
+        });
+    }
+
+    private void writeTwts3wData() {
+        twts3wData.values().forEach(twtData -> {
+            try {
+                write(twtData.twtId, new Transformer3WData(twtData.twtId, null, false), twtData, true, false);
             } catch (IOException e) {
                 LOGGER.error("Error writing data of twt {}: {}", twtData.twtId, e.getMessage());
             }
@@ -417,6 +467,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         final double targetP;
         final double targetQ;
         final double targetV;
+        final double expectedP;
         final boolean connected;
         final boolean voltageRegulatorOn;
         final double minP;
@@ -426,7 +477,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         final boolean mainComponent;
         final boolean validated;
 
-        GeneratorData(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV,
+        GeneratorData(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP,
                       boolean connected, boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ,
                       boolean mainComponent, boolean validated) {
             this.generatorId = Objects.requireNonNull(generatorId);
@@ -436,6 +487,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
             this.targetP = targetP;
             this.targetQ = targetQ;
             this.targetV = targetV;
+            this.expectedP = expectedP;
             this.connected = connected;
             this.voltageRegulatorOn = voltageRegulatorOn;
             this.minP = minP;
@@ -596,7 +648,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         TransformerData(String twtId, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep,
                         double rhoNextStep, int tapPosition, int lowTapPosition, int highTapPosition, double targetV, Side regulatedSide,
                         double v, boolean connected, boolean mainComponent, boolean validated) {
-            this.twtId = twtId;
+            this.twtId = Objects.requireNonNull(twtId);
             this.error = error;
             this.upIncrement = upIncrement;
             this.downIncrement = downIncrement;
@@ -611,6 +663,19 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
             this.v = v;
             this.connected = connected;
             this.mainComponent = mainComponent;
+            this.validated = validated;
+        }
+
+    }
+
+    class Transformer3WData {
+        final String twtId;
+        final TwtData twtData;
+        final boolean validated;
+
+        Transformer3WData(String twtId, TwtData twtData, boolean validated) {
+            this.twtId = Objects.requireNonNull(twtId);
+            this.twtData = twtData;
             this.validated = validated;
         }
 

@@ -11,6 +11,7 @@ import java.io.IOException;
 import com.powsybl.iidm.network.Branch.Side;
 
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.network.util.TwtData;
 
 /**
  *
@@ -23,7 +24,7 @@ public interface ValidationWriter extends AutoCloseable {
                double u1, double u2, double theta1, double theta2, double z, double y, double ksi, boolean connected1, boolean connected2,
                boolean mainComponent1, boolean mainComponent2, boolean validated) throws IOException;
 
-    void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, boolean connected,
+    void write(String generatorId, double p, double q, double v, double targetP, double targetQ, double targetV, double expectedP, boolean connected,
                boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean mainComponent, boolean validated) throws IOException;
 
     void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
@@ -40,6 +41,8 @@ public interface ValidationWriter extends AutoCloseable {
     void write(String twtId, double error, double upIncrement, double downIncrement, double rho, double rhoPreviousStep, double rhoNextStep,
                int tapPosition, int lowTapPosition, int highTapPosition, double targetV, Side regulatedSide, double v, boolean connected,
                boolean mainComponent, boolean validated) throws IOException;
+
+    void write(String twtId, TwtData twtData, boolean validated) throws IOException;
 
     void setValidationCompleted();
 

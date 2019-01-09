@@ -7,22 +7,10 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import static org.junit.Assert.fail;
-
-import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Properties;
-import java.util.function.Consumer;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
@@ -33,6 +21,18 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.XMLExporter;
 import com.powsybl.triplestore.api.TripleStoreFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Properties;
+import java.util.function.Consumer;
+
+import static org.junit.Assert.fail;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -91,10 +91,6 @@ public class ConversionTester {
 
     public void testConversion(Network expected, TestGridModel gm, ComparisonConfig config)
             throws IOException {
-        if (!gm.exists()) {
-            LOG.error("Test grid model does not exist {}", gm.name());
-            return;
-        }
         if (onlyReport) {
             testConversionOnlyReport(gm);
         } else {
@@ -108,19 +104,19 @@ public class ConversionTester {
     private void testConversion(Network expected, TestGridModel gm, ComparisonConfig cconfig, String impl)
             throws IOException {
         Properties iparams = importParams == null ? new Properties() : importParams;
-        iparams.put("storeCgmesModelAsNetworkProperty", "true");
+        iparams.put("storeCgmesModelAsNetworkExtension", "true");
         iparams.put("powsyblTripleStore", impl);
         // FIXME(Luma) This is to be able to easily compare the topology computed by powsybl
         // against the topology present in the CGMES model
         iparams.put("createBusbarSectionForEveryConnectivityNode", "true");
         CgmesImport i = new CgmesImport();
         try (FileSystem fs = Jimfs.newFileSystem()) {
-            ReadOnlyDataSource ds = gm.dataSourceBasedOn(fs);
+            ReadOnlyDataSource ds = gm.dataSource();
             Network network = i.importData(ds, iparams);
             if (network.getSubstationCount() == 0) {
                 fail("Model is empty");
             }
-            CgmesModel cgmes = (CgmesModel) network.getProperties().get(CgmesImport.NETWORK_PS_CGMES_MODEL);
+            CgmesModel cgmes = network.getExtension(CgmesModelExtension.class).getCgmesModel();
             if (!new TopologyTester(cgmes, network).test(strictTopologyTest)) {
                 fail("Topology test failed");
             }
@@ -143,15 +139,13 @@ public class ConversionTester {
         String impl = TripleStoreFactory.defaultImplementation();
         CgmesImport i = new CgmesImport();
         Properties params = new Properties();
-        params.put("storeCgmesModelAsNetworkProperty", "true");
+        params.put("storeCgmesModelAsNetworkExtension", "true");
         params.put("powsyblTripleStore", impl);
-        try (FileSystem fs = Jimfs.newFileSystem()) {
-            ReadOnlyDataSource ds = gm.dataSourceBasedOn(fs);
-            LOG.info("Importer.exists() == {}", i.exists(ds));
-            Network n = i.importData(ds, params);
-            CgmesModel m = (CgmesModel) n.getProperties().get(CgmesImport.NETWORK_PS_CGMES_MODEL);
-            new Conversion(m).report(reportConsumer);
-        }
+        ReadOnlyDataSource ds = gm.dataSource();
+        LOG.info("Importer.exists() == {}", i.exists(ds));
+        Network n = i.importData(ds, params);
+        CgmesModel m = n.getExtension(CgmesModelExtension.class).getCgmesModel();
+        new Conversion(m).report(reportConsumer);
     }
 
     private void exportXiidm(String name, String impl, Network expected, Network actual) throws IOException {

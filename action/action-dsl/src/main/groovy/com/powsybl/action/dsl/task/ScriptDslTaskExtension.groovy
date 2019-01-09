@@ -13,7 +13,7 @@ import com.powsybl.computation.ComputationManager
 import com.powsybl.contingency.tasks.ModificationTask
 import com.powsybl.iidm.network.Network
 
-import static com.powsybl.action.dsl.GroovyDslConstants.SCRIPT_IS_RUNNING
+import static com.powsybl.dsl.GroovyDslConstants.SCRIPT_IS_RUNNING
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

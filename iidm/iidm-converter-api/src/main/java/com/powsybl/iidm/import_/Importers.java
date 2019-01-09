@@ -10,6 +10,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.MapModuleConfig;
+import com.powsybl.commons.config.ModuleConfigUtil;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
@@ -333,16 +334,16 @@ public final class Importers {
             MapModuleConfig moduleConfig = new MapModuleConfig(parameters);
             switch (configuredParameter.getType()) {
                 case BOOLEAN:
-                    value = moduleConfig.getOptionalBooleanProperty(configuredParameter.getName()).orElse(null);
+                    value = ModuleConfigUtil.getOptionalBooleanProperty(moduleConfig, configuredParameter.getNames()).orElse(null);
                     break;
                 case STRING:
-                    value = moduleConfig.getStringProperty(configuredParameter.getName(), null);
+                    value = ModuleConfigUtil.getOptionalStringProperty(moduleConfig, configuredParameter.getNames()).orElse(null);
                     break;
                 case STRING_LIST:
-                    value = moduleConfig.getStringListProperty(configuredParameter.getName(), null);
+                    value = ModuleConfigUtil.getOptionalStringListProperty(moduleConfig, configuredParameter.getNames()).orElse(null);
                     break;
                 default:
-                    throw new AssertionError();
+                    throw new AssertionError("Unexpected ParameterType value: " + configuredParameter.getType());
             }
         }
         // if none, use configured parameters
@@ -428,7 +429,8 @@ public final class Importers {
     }
 
     public static Network loadNetwork(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader) {
-        ReadOnlyMemDataSource dataSource = DataSourceUtil.createReadOnlyMemDataSource(filename, data);
+        ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource(DataSourceUtil.getBaseName(filename));
+        dataSource.putData(filename, data);
         Importer importer = findImporter(dataSource, loader, computationManager, config);
         if (importer != null) {
             return importer.importData(dataSource, parameters);

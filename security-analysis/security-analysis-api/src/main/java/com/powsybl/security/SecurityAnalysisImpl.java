@@ -15,7 +15,6 @@ import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowFactory;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.security.interceptors.CurrentLimitViolationInterceptor;
-import com.powsybl.security.interceptors.RunningContext;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
 import java.util.*;
@@ -25,25 +24,26 @@ import java.util.concurrent.CompletableFuture;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
-public class SecurityAnalysisImpl implements SecurityAnalysis {
-
-    private final Network network;
-
-    private final LimitViolationFilter filter;
+public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
 
     private final ComputationManager computationManager;
 
     private final LoadFlowFactory loadFlowFactory;
 
-    private final List<SecurityAnalysisInterceptor> interceptors = new ArrayList<>();
-
-    public SecurityAnalysisImpl(Network network, ComputationManager computationManager, LoadFlowFactory loadFlowFactory) {
+    public SecurityAnalysisImpl(Network network, ComputationManager computationManager,
+                                LoadFlowFactory loadFlowFactory) {
         this(network, new LimitViolationFilter(), computationManager, loadFlowFactory);
     }
 
-    public SecurityAnalysisImpl(Network network, LimitViolationFilter filter, ComputationManager computationManager, LoadFlowFactory loadFlowFactory) {
-        this.network = Objects.requireNonNull(network);
-        this.filter = Objects.requireNonNull(filter);
+    public SecurityAnalysisImpl(Network network, LimitViolationFilter filter,
+                                ComputationManager computationManager, LoadFlowFactory loadFlowFactory) {
+        this(network, new DefaultLimitViolationDetector(), filter, computationManager, loadFlowFactory);
+    }
+
+    public SecurityAnalysisImpl(Network network, LimitViolationDetector detector, LimitViolationFilter filter,
+                                ComputationManager computationManager, LoadFlowFactory loadFlowFactory) {
+        super(network, detector, filter);
+
         this.computationManager = Objects.requireNonNull(computationManager);
         this.loadFlowFactory = Objects.requireNonNull(loadFlowFactory);
 
@@ -60,12 +60,6 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
         return interceptors.remove(interceptor);
     }
 
-    private List<LimitViolation> checkLimits(Network network) {
-        List<LimitViolation> violations = Security.checkLimits(network, 1f);
-
-        return filter.apply(violations, network);
-    }
-
     @Override
     public CompletableFuture<SecurityAnalysisResult> run(String workingStateId, SecurityAnalysisParameters securityAnalysisParameters, ContingenciesProvider contingenciesProvider) {
         Objects.requireNonNull(workingStateId);
@@ -74,12 +68,7 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
 
         LoadFlowParameters loadFlowParameters = securityAnalysisParameters.getLoadFlowParameters();
 
-        RunningContext context = new RunningContext(network, workingStateId);
-
         LoadFlow loadFlow = loadFlowFactory.create(network, computationManager, 0);
-
-        final LimitViolationsResult[] limitViolationsResults = new LimitViolationsResult[1];
-        final List<PostContingencyResult> postContingencyResults = Collections.synchronizedList(new ArrayList<>());
 
         // start post contingency LF from pre-contingency state variables
         LoadFlowParameters postContParameters = loadFlowParameters.copy().setVoltageInitMode(LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES);
@@ -88,14 +77,17 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
                 .thenComposeAsync(loadFlowResult -> {
                     network.getStateManager().setWorkingState(workingStateId);
 
-                    limitViolationsResults[0] = new LimitViolationsResult(loadFlowResult.isOk(), new ArrayList<>());
+                    SecurityAnalysisResultBuilder resultBuilder = createResultBuilder(workingStateId);
 
                     CompletableFuture<Void>[] futures;
 
                     if (loadFlowResult.isOk()) {
-                        limitViolationsResults[0].getLimitViolations().addAll(checkLimits(network));
 
-                        interceptors.forEach(o -> o.onPreContingencyResult(context, limitViolationsResults[0]));
+                        resultBuilder.preContingency()
+                                .setComputationOk(true);
+                        violationDetector.checkAll(network, resultBuilder::addViolation);
+                        resultBuilder.endPreContingency();
+
 
                         List<Contingency> contingencies = contingenciesProvider.getContingencies(network);
 
@@ -122,10 +114,10 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
                                     .handleAsync((lfResult, throwable) -> {
                                         network.getStateManager().setWorkingState(postContStateId);
 
-                                        PostContingencyResult postContingencyResult = new PostContingencyResult(contingency, lfResult.isOk(), checkLimits(network));
-                                        postContingencyResults.add(postContingencyResult);
-
-                                        interceptors.forEach(o -> o.onPostContingencyResult(context, postContingencyResult));
+                                        resultBuilder.contingency(contingency)
+                                                .setComputationOk(lfResult.isOk());
+                                        violationDetector.checkAll(network, resultBuilder::addViolation);
+                                        resultBuilder.endContingency();
 
                                         network.getStateManager().removeState(postContStateId);
 
@@ -133,19 +125,17 @@ public class SecurityAnalysisImpl implements SecurityAnalysis {
                                     }, computationManager.getExecutor());
                         }
                     } else {
-                        interceptors.forEach(o -> o.onPreContingencyResult(context, limitViolationsResults[0]));
-
+                        resultBuilder.preContingency()
+                                .setComputationOk(false)
+                                .endPreContingency()
+                                .build();
                         futures = new CompletableFuture[0];
                     }
 
                     return CompletableFuture.allOf(futures)
                         .thenApplyAsync(aVoid -> {
-                            SecurityAnalysisResult result = new SecurityAnalysisResult(limitViolationsResults[0], postContingencyResults);
-                            result.setNetworkMetadata(new NetworkMetadata(network));
-
-                            interceptors.forEach(o -> o.onSecurityAnalysisResult(context, result));
-
-                            return result;
+                            network.getStateManager().setWorkingState(workingStateId);
+                            return resultBuilder.build();
                         });
                 }, computationManager.getExecutor());
     }

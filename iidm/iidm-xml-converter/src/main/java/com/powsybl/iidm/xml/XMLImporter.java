@@ -54,7 +54,8 @@ public class XMLImporter implements Importer {
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND
-            = new Parameter("throwExceptionIfExtensionNotFound", ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE);
+            = new Parameter("iidm.import.xml.throw-exception-if-extension-not-found", ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE)
+                    .addAdditionalNames("throwExceptionIfExtensionNotFound");
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
@@ -185,6 +186,5 @@ public class XMLImporter implements Importer {
         }
         return network;
     }
-
 }
 
