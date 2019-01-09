@@ -22,10 +22,10 @@ public class TerminalRefTest extends AbstractConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
-        String filename = "/terminalRef.xiidm";
+        String filename = "terminalRef.xiidm";
 
-        Network network = Importers.loadNetwork(filename, getClass().getResourceAsStream(filename));
+        Network network = Importers.loadNetwork(filename, getClass().getResourceAsStream("/" + filename));
         assertNotNull(network);
-        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::read, filename);
+        roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::read, "/" + filename);
     }
 }
