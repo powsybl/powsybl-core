@@ -288,7 +288,7 @@ public class Conversion {
             }
         });
     }
-    
+
     private void debugTopo() {
         context.network().getVoltageLevels().forEach(vl -> {
             String name = vl.getSubstation().getName() + "-" + vl.getName();
