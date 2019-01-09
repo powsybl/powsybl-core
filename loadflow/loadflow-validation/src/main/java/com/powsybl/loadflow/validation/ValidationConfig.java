@@ -17,6 +17,8 @@ import com.powsybl.commons.io.table.TableFormatterFactory;
 import com.powsybl.loadflow.LoadFlowFactory;
 import com.powsybl.loadflow.LoadFlowParameters;
 
+import static com.powsybl.commons.config.ConfigVersion.DEFAULT_CONFIG_VERSION;
+
 /**
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.it>
@@ -24,7 +26,6 @@ import com.powsybl.loadflow.LoadFlowParameters;
 public class ValidationConfig implements Versionable {
 
     private static final String CONFIG_MODULE_NAME = "loadflow-validation";
-    static final String DEFAULT_CONFIG_VERSION = "1.1";
 
     public static final double THRESHOLD_DEFAULT = 0.0;
     public static final boolean VERBOSE_DEFAULT = false;

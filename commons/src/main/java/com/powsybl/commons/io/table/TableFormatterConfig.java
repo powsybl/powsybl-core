@@ -13,6 +13,8 @@ import com.powsybl.commons.config.ConfigVersion;
 import java.util.Locale;
 import java.util.Objects;
 
+import static com.powsybl.commons.config.ConfigVersion.DEFAULT_CONFIG_VERSION;
+
 /**
  * @author c.biasuzzi@techrain.it
  */
@@ -25,8 +27,6 @@ public class TableFormatterConfig implements Versionable {
     private static final String DEFAULT_INVALID_STRING = "inv";
     private static final boolean DEFAULT_PRINT_HEADER = true;
     private static final boolean DEFAULT_PRINT_TITLE = true;
-
-    static final String DEFAULT_CONFIG_VERSION = "1.1";
 
     private ConfigVersion version = new ConfigVersion(DEFAULT_CONFIG_VERSION);
 

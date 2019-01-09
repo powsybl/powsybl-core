@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.util.Locale;
 
+import static com.powsybl.commons.config.ConfigVersion.DEFAULT_CONFIG_VERSION;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -36,7 +37,7 @@ public class TableFormatterConfigTest {
     public void testConfig() throws IOException {
         TableFormatterConfig config = new TableFormatterConfig();
 
-        testConfig(config, TableFormatterConfig.DEFAULT_CONFIG_VERSION, Locale.getDefault(), ';', "inv", true, true);
+        testConfig(config, DEFAULT_CONFIG_VERSION, Locale.getDefault(), ';', "inv", true, true);
 
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);

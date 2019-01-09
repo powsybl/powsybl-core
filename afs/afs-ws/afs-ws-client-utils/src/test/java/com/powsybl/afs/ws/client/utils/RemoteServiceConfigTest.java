@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.util.Optional;
 
+import static com.powsybl.commons.config.ConfigVersion.DEFAULT_CONFIG_VERSION;
 import static org.junit.Assert.*;
 
 /**
@@ -70,7 +71,7 @@ public class RemoteServiceConfigTest {
         Optional<RemoteServiceConfig> remoteServiceConfig = RemoteServiceConfig.load(platformConfig);
         assertTrue(remoteServiceConfig.isPresent());
         remoteServiceConfig.ifPresent(rsc -> {
-            assertEquals(RemoteServiceConfig.DEFAULT_CONFIG_VERSION, rsc.getVersion());
+            assertEquals(DEFAULT_CONFIG_VERSION, rsc.getVersion());
             assertEquals("https://host:443/test", rsc.getRestUri().toString());
             assertEquals("wss://host:443/test", rsc.getWsUri().toString());
         });
@@ -92,7 +93,7 @@ public class RemoteServiceConfigTest {
         remoteServiceConfig = RemoteServiceConfig.load(platformConfig);
         assertTrue(remoteServiceConfig.isPresent());
         remoteServiceConfig.ifPresent(rsc -> {
-            assertEquals(RemoteServiceConfig.DEFAULT_CONFIG_VERSION, rsc.getVersion());
+            assertEquals(DEFAULT_CONFIG_VERSION, rsc.getVersion());
             assertEquals("https://host:443/test", rsc.getRestUri().toString());
             assertEquals("wss://host:443/test", rsc.getWsUri().toString());
         });
@@ -101,7 +102,7 @@ public class RemoteServiceConfigTest {
         remoteServiceConfig = RemoteServiceConfig.load(platformConfig);
         assertTrue(remoteServiceConfig.isPresent());
         remoteServiceConfig.ifPresent(rsc -> {
-            assertEquals(RemoteServiceConfig.DEFAULT_CONFIG_VERSION, rsc.getVersion());
+            assertEquals(DEFAULT_CONFIG_VERSION, rsc.getVersion());
             assertEquals("http://host:80/test", rsc.getRestUri().toString());
             assertEquals("ws://host:80/test", rsc.getWsUri().toString());
         });

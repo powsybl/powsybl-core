@@ -21,6 +21,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static com.powsybl.commons.config.ConfigVersion.DEFAULT_CONFIG_VERSION;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -31,8 +33,6 @@ public class LocalComputationConfig implements Versionable {
     static final String DEFAULT_LOCAL_DIR = System.getProperty("java.io.tmpdir");
 
     private static final int DEFAULT_AVAILABLE_CORE = 1;
-
-    static final String DEFAULT_CONFIG_VERSION = "1.1";
 
     private ConfigVersion version = new ConfigVersion(DEFAULT_CONFIG_VERSION);
 

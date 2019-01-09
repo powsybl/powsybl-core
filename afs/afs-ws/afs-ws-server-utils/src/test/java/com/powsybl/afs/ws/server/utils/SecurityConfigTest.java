@@ -13,6 +13,7 @@ import org.junit.rules.ExpectedException;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 
+import static com.powsybl.commons.config.ConfigVersion.DEFAULT_CONFIG_VERSION;
 import static org.junit.Assert.assertEquals;
 
 public class SecurityConfigTest {
@@ -38,7 +39,7 @@ public class SecurityConfigTest {
     @Test
     public void testNoConfig() {
         SecurityConfig securityConfig = SecurityConfig.load(platformConfig);
-        checkValues(securityConfig, SecurityConfig.DEFAULT_CONFIG_VERSION, SecurityConfig.DEFAULT_TOKEN_VALIDITY, SecurityConfig.DEFAULT_SKIP_TOKEN_VALIDITY_CHECK);
+        checkValues(securityConfig, DEFAULT_CONFIG_VERSION, SecurityConfig.DEFAULT_TOKEN_VALIDITY, SecurityConfig.DEFAULT_SKIP_TOKEN_VALIDITY_CHECK);
     }
 
     @Test
@@ -46,7 +47,7 @@ public class SecurityConfigTest {
         MapModuleConfig config = platformConfig.createModuleConfig("security");
         config.setStringProperty("token-validity", Long.toString(3600L * 60));
         SecurityConfig securityConfig = SecurityConfig.load(platformConfig);
-        checkValues(securityConfig, SecurityConfig.DEFAULT_CONFIG_VERSION, 3600L * 60, SecurityConfig.DEFAULT_SKIP_TOKEN_VALIDITY_CHECK);
+        checkValues(securityConfig, DEFAULT_CONFIG_VERSION, 3600L * 60, SecurityConfig.DEFAULT_SKIP_TOKEN_VALIDITY_CHECK);
 
     }
 
@@ -65,7 +66,7 @@ public class SecurityConfigTest {
         SecurityConfig securityConfig = SecurityConfig.load(platformConfig);
         securityConfig.setTokenValidity(3600L * 60);
         securityConfig.setSkipTokenValidityCheck(false);
-        checkValues(securityConfig, SecurityConfig.DEFAULT_CONFIG_VERSION, 3600L * 60, false);
+        checkValues(securityConfig, DEFAULT_CONFIG_VERSION, 3600L * 60, false);
     }
 
     @Test

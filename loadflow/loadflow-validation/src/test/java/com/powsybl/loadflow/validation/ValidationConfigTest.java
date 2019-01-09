@@ -21,6 +21,7 @@ import org.junit.Test;
 
 import java.nio.file.FileSystem;
 
+import static com.powsybl.commons.config.ConfigVersion.DEFAULT_CONFIG_VERSION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -62,7 +63,7 @@ public class ValidationConfigTest {
     @Test
     public void testNoConfig() {
         ValidationConfig config = ValidationConfig.load(platformConfig);
-        checkValues(config, ValidationConfig.DEFAULT_CONFIG_VERSION, ValidationConfig.THRESHOLD_DEFAULT, ValidationConfig.VERBOSE_DEFAULT, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
+        checkValues(config, DEFAULT_CONFIG_VERSION, ValidationConfig.THRESHOLD_DEFAULT, ValidationConfig.VERBOSE_DEFAULT, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
                     ValidationConfig.EPSILON_X_DEFAULT, ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationConfig.VALIDATION_OUTPUT_WRITER_DEFAULT,
                     ValidationConfig.OK_MISSING_VALUES_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT, ValidationConfig.COMPARE_RESULTS_DEFAULT,
                     ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
@@ -76,7 +77,7 @@ public class ValidationConfigTest {
         moduleConfig.setStringProperty("epsilon-x", Double.toString(epsilonX));
         moduleConfig.setStringProperty("apply-reactance-correction", Boolean.toString(applyReactanceCorrection));
         ValidationConfig config = ValidationConfig.load(platformConfig);
-        checkValues(config, ValidationConfig.DEFAULT_CONFIG_VERSION, threshold, verbose, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, epsilonX, applyReactanceCorrection,
+        checkValues(config, DEFAULT_CONFIG_VERSION, threshold, verbose, loadFlowFactory, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, epsilonX, applyReactanceCorrection,
                     ValidationConfig.VALIDATION_OUTPUT_WRITER_DEFAULT, ValidationConfig.OK_MISSING_VALUES_DEFAULT,
                     ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT, ValidationConfig.COMPARE_RESULTS_DEFAULT,
                     ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
@@ -118,7 +119,7 @@ public class ValidationConfigTest {
         config.setCompareResults(compareResults);
         config.setCheckMainComponentOnly(checkMainComponentOnly);
         config.setNoRequirementIfSetpointOutsidePowerBounds(noRequirementIfSetpointOutsidePowerBounds);
-        checkValues(config, ValidationConfig.DEFAULT_CONFIG_VERSION, threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, okMissingValues,
+        checkValues(config, DEFAULT_CONFIG_VERSION, threshold, verbose, loadFlowFactory, tableFormatterFactory, epsilonX, applyReactanceCorrection, validationOutputWriter, okMissingValues,
                     noRequirementIfReactiveBoundInversion, compareResults, checkMainComponentOnly, noRequirementIfSetpointOutsidePowerBounds);
     }
 

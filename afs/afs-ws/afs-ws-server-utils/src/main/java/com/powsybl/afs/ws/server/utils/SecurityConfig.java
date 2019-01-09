@@ -12,6 +12,8 @@ import com.powsybl.commons.config.ConfigVersion;
 
 import java.util.Objects;
 
+import static com.powsybl.commons.config.ConfigVersion.DEFAULT_CONFIG_VERSION;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -21,8 +23,6 @@ public class SecurityConfig implements Versionable {
 
     static final long DEFAULT_TOKEN_VALIDITY = 3600L; // minutes
     static final boolean DEFAULT_SKIP_TOKEN_VALIDITY_CHECK = true;
-
-    static final String DEFAULT_CONFIG_VERSION = "1.1";
 
     private ConfigVersion version = new ConfigVersion(DEFAULT_CONFIG_VERSION);
 

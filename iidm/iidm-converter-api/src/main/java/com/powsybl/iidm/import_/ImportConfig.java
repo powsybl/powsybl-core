@@ -16,6 +16,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import static com.powsybl.commons.config.ConfigVersion.DEFAULT_CONFIG_VERSION;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -24,8 +26,6 @@ public class ImportConfig implements Versionable {
     private static final String CONFIG_MODULE_NAME = "import";
 
     private static final List<String> DEFAULT_POST_PROCESSORS = Collections.emptyList();
-
-    private static final String DEFAULT_CONFIG_VERSION = "1.1";
 
     private ConfigVersion version = new ConfigVersion(DEFAULT_CONFIG_VERSION);
 

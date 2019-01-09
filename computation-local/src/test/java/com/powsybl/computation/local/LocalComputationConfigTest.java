@@ -19,6 +19,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.util.Arrays;
 
+import static com.powsybl.commons.config.ConfigVersion.DEFAULT_CONFIG_VERSION;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -57,7 +58,7 @@ public class LocalComputationConfigTest {
     @Test
     public void testDefaultConfig() {
         LocalComputationConfig config = LocalComputationConfig.load(platformConfig, fileSystem);
-        assertEquals(LocalComputationConfig.DEFAULT_CONFIG_VERSION, config.getVersion());
+        assertEquals(DEFAULT_CONFIG_VERSION, config.getVersion());
         assertEquals(fileSystem.getPath(LocalComputationConfig.DEFAULT_LOCAL_DIR), config.getLocalDir());
         assertEquals(1, config.getAvailableCore());
     }
