@@ -226,6 +226,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags seriesCompensators() {
+        return namedQuery("seriesCompensators");
+    }
+
+    @Override
     public PropertyBags transformers() {
         return namedQuery("transformers");
     }
@@ -258,6 +263,12 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     @Override
     public PropertyBags shuntCompensators() {
         return namedQuery("shuntCompensators");
+    }
+
+    @Override
+    public PropertyBags nonlinearShuntCompensatorPoints(String scId) {
+        Objects.requireNonNull(scId);
+        return namedQuery("nonlinearShuntCompensatorPoints", scId);
     }
 
     @Override

@@ -6,7 +6,7 @@
  */
 package com.powsybl.action.dsl;
 
-import com.powsybl.action.dsl.ast.BooleanLiteralNode;
+import com.powsybl.dsl.ast.BooleanLiteralNode;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

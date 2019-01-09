@@ -105,15 +105,19 @@ public class DefaultComputationManagerConfig implements Versionable {
             } catch (IllegalAccessException e) {
                 throw new UncheckedIllegalAccessException(e);
             }
+        } else {
+            return createShortTimeExecutionComputationManager();
         }
-        return null;
     }
 
     @Override
     public String toString() {
-        String str = "DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass=" + shortTimeExecutionComputationManagerFactoryClass.getName();
+        String str = "DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass=" + shortTimeExecutionComputationManagerFactoryClass.getName()
+                + ", longTimeExecutionComputationManagerFactoryClass=";
         if (longTimeExecutionComputationManagerFactoryClass != null) {
-            str += ", longTimeExecutionComputationManagerFactoryClass=" + longTimeExecutionComputationManagerFactoryClass.getName();
+            str += longTimeExecutionComputationManagerFactoryClass.getName();
+        } else {
+            str += shortTimeExecutionComputationManagerFactoryClass.getName();
         }
         str += ")";
         return str;

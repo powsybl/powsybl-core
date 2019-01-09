@@ -9,7 +9,7 @@ package com.powsybl.action.dsl.ast;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ContingencyOccurredNode implements ExpressionNode {
+public class ContingencyOccurredNode extends AbstractActionExpressionNode {
 
     private final String contingencyId;
 
@@ -26,7 +26,7 @@ public class ContingencyOccurredNode implements ExpressionNode {
     }
 
     @Override
-    public <R, A> R accept(ExpressionVisitor<R, A> visitor, A arg) {
+    public <R, A> R accept(ActionExpressionVisitor<R, A> visitor, A arg) {
         return visitor.visitContingencyOccurred(this, arg);
     }
 }

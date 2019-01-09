@@ -12,6 +12,9 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
+ * A {@link ModuleConfigRepository} backed by a list of modules repositories.
+ * Configuration property values encountered first in this list of repositories
+ * take precedence over values defined in subsequent repositories.
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */

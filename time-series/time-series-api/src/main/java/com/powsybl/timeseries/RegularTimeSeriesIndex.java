@@ -15,12 +15,14 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class RegularTimeSeriesIndex implements TimeSeriesIndex {
+public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     public static final String TYPE = "regularIndex";
 
@@ -48,9 +50,16 @@ public class RegularTimeSeriesIndex implements TimeSeriesIndex {
         this.spacing = spacing;
     }
 
+    public static RegularTimeSeriesIndex create(Instant start, Instant end, Duration spacing) {
+        Objects.requireNonNull(start);
+        Objects.requireNonNull(end);
+        Objects.requireNonNull(spacing);
+        return new RegularTimeSeriesIndex(start.toEpochMilli(), end.toEpochMilli(), spacing.toMillis());
+    }
+
     public static RegularTimeSeriesIndex create(Interval interval, Duration spacing) {
-        return new RegularTimeSeriesIndex(interval.getStart().toEpochMilli(), interval.getEnd().toEpochMilli(),
-                                          spacing.toMillis());
+        Objects.requireNonNull(interval);
+        return create(interval.getStart(), interval.getEnd(), spacing);
     }
 
     public static RegularTimeSeriesIndex parseJson(JsonParser parser) {
@@ -144,6 +153,36 @@ public class RegularTimeSeriesIndex implements TimeSeriesIndex {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    @Override
+    public Iterator<Instant> iterator() {
+        return new Iterator<Instant>() {
+
+            long time = startTime;
+
+            @Override
+            public boolean hasNext() {
+                return time <= endTime;
+            }
+
+            @Override
+            public Instant next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                Instant instant = Instant.ofEpochMilli(time);
+                time += spacing;
+                return instant;
+            }
+        };
+    }
+
+    @Override
+    public Stream<Instant> stream() {
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(iterator(),
+                                                                        Spliterator.ORDERED | Spliterator.IMMUTABLE),
+                                    false);
     }
 
     @Override

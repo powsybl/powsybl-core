@@ -6,7 +6,7 @@
  */
 package com.powsybl.action.dsl;
 
-import com.powsybl.action.dsl.ast.ExpressionNode;
+import com.powsybl.dsl.ast.ExpressionNode;
 
 import java.util.Objects;
 

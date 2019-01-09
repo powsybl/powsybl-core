@@ -131,6 +131,20 @@ public class AfsBaseTest {
         project4.moveTo(dir71);
         assertFalse(dir71.getChildren().isEmpty());
 
+        Folder dir81 = root.createFolder("dir8");
+        Folder dir82 = dir81.createFolder("dir9");
+        try {
+            dir81.moveTo(dir82);
+            fail();
+        } catch (AfsException ignored) {
+        }
+
+        assertTrue(dir81.isParentOf(dir82));
+        assertTrue(root.isAncestorOf(dir82));
+        dir82.moveTo(dir81); // Does nothing
+        assertTrue(dir81.isParentOf(dir82));
+        assertTrue(root.isAncestorOf(dir82));
+
         List<String> added = new ArrayList<>();
         List<String> removed = new ArrayList<>();
         ProjectFolderListener l = new ProjectFolderListener() {

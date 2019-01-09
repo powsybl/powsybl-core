@@ -115,6 +115,9 @@ public class TimeSeriesMetadata {
                 case RegularTimeSeriesIndex.TYPE:
                     context.index = RegularTimeSeriesIndex.parseJson(parser);
                     break;
+                case IrregularTimeSeriesIndex.TYPE:
+                    context.index = IrregularTimeSeriesIndex.parseJson(parser);
+                    break;
                 case InfiniteTimeSeriesIndex.TYPE:
                     context.index = InfiniteTimeSeriesIndex.parseJson(parser);
                     break;

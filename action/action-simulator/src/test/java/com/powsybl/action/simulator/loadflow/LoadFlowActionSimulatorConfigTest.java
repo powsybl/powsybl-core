@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -24,6 +24,7 @@ import static org.junit.Assert.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
+ * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public class LoadFlowActionSimulatorConfigTest {
 
@@ -43,6 +44,7 @@ public class LoadFlowActionSimulatorConfigTest {
             moduleConfig.setClassProperty("load-flow-factory", LoadFlowFactoryMock.class);
             moduleConfig.setStringProperty("max-iterations", "15");
             moduleConfig.setStringProperty("ignore-pre-contingency-violations", "true");
+            moduleConfig.setStringProperty("copy-strategy", CopyStrategy.DEEP.name());
 
             LoadFlowActionSimulatorConfig config = LoadFlowActionSimulatorConfig.load(platformConfig);
 
@@ -59,6 +61,9 @@ public class LoadFlowActionSimulatorConfigTest {
             assertTrue(config.isIgnorePreContingencyViolations());
             config.setIgnorePreContingencyViolations(false);
             assertFalse(config.isIgnorePreContingencyViolations());
+            assertEquals(CopyStrategy.DEEP, config.getCopyStrategy());
+            config.setCopyStrategy(CopyStrategy.STATE);
+            assertEquals(CopyStrategy.STATE, config.getCopyStrategy());
             assertFalse(config.isDebug());
             config.setDebug(true);
             assertTrue(config.isDebug());

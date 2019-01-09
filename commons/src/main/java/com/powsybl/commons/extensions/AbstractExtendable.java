@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public abstract class AbstractExtendable<T> implements Extendable<T> {
 
@@ -30,7 +30,7 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
     }
 
     @Override
-    public <E extends Extension<T>> E getExtension(Class<E> type) {
+    public <E extends Extension<T>> E getExtension(Class<? super E> type) {
         Objects.requireNonNull(type);
         return (E) extensions.get(type);
     }

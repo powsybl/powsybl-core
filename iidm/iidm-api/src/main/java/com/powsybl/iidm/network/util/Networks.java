@@ -7,38 +7,24 @@
  */
 package com.powsybl.iidm.network.util;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
+import com.google.common.collect.ImmutableMap;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.io.table.AbstractTableFormatter;
+import com.powsybl.commons.io.table.AsciiTableFormatter;
+import com.powsybl.commons.io.table.Column;
+import com.powsybl.commons.io.table.HorizontalAlignment;
+import com.powsybl.iidm.network.*;
+import org.slf4j.Logger;
+
+import javax.script.*;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-
-import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import javax.script.ScriptException;
-import javax.script.SimpleScriptContext;
-
-import org.nocrala.tools.texttablefmt.BorderStyle;
-import org.nocrala.tools.texttablefmt.CellStyle;
-import org.nocrala.tools.texttablefmt.Table;
-import org.slf4j.Logger;
-
-import com.google.common.collect.ImmutableMap;
-
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.Terminal;
+import java.util.function.Supplier;
 
 /**
  *
@@ -54,18 +40,18 @@ public final class Networks {
     }
 
     public static Map<String, String> getExecutionTags(Network network) {
-        return ImmutableMap.of("state", network.getStateManager().getWorkingStateId());
+        return ImmutableMap.of("variant", network.getVariantManager().getWorkingVariantId());
     }
 
-    public static void dumpStateId(Path workingDir, String stateId) throws IOException {
-        try (BufferedWriter writer = Files.newBufferedWriter(workingDir.resolve("state.txt"), StandardCharsets.UTF_8)) {
-            writer.write(stateId);
+    public static void dumpVariantId(Path workingDir, String variantId) throws IOException {
+        try (BufferedWriter writer = Files.newBufferedWriter(workingDir.resolve("variant.txt"), StandardCharsets.UTF_8)) {
+            writer.write(variantId);
             writer.newLine();
         }
     }
 
-    public static void dumpStateId(Path workingDir, Network network) throws IOException {
-        dumpStateId(workingDir, network.getStateManager().getWorkingStateId());
+    public static void dumpVariantId(Path workingDir, Network network) throws IOException {
+        dumpVariantId(workingDir, network.getVariantManager().getWorkingVariantId());
     }
 
     public static void runScript(Network network, Reader reader, Writer out) {
@@ -117,9 +103,7 @@ public final class Networks {
         addGenerators(network, balanceMainCC, balanceOtherCC);
         addShuntCompensators(network, balanceMainCC, balanceOtherCC);
 
-        Table table = writeInTable(balanceMainCC, balanceOtherCC);
-
-        logOtherCC(logger, title, table, balanceOtherCC);
+        logOtherCC(logger, title, () -> writeInTable(balanceMainCC, balanceOtherCC), balanceOtherCC);
     }
 
     private static void addBuses(Network network, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
@@ -254,59 +238,67 @@ public final class Networks {
     }
 
 
-    private static Table writeInTable(ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
-        Table table = new Table(5, BorderStyle.CLASSIC_WIDE);
-        table.addCell("");
-        table.addCell("Main CC connected/disconnected", 2);
-        table.addCell("Others CC connected/disconnected", 2);
-        table.addCell("Bus count");
-        CellStyle centerStyle = new CellStyle(CellStyle.HorizontalAlign.center);
-        table.addCell(Integer.toString(balanceMainCC.busCount), centerStyle, 2);
-        table.addCell(Integer.toString(balanceOtherCC.busCount), centerStyle, 2);
-        table.addCell("Load count");
-        table.addCell(Integer.toString(balanceMainCC.connectedLoads.size()));
-        table.addCell(Integer.toString(balanceMainCC.disconnectedLoads.size()));
-        table.addCell(Integer.toString(balanceOtherCC.connectedLoads.size()));
-        table.addCell(Integer.toString(balanceOtherCC.disconnectedLoads.size()));
-        table.addCell("Load (MW)");
-        table.addCell(Double.toString(balanceMainCC.connectedLoadVolume));
-        table.addCell(Double.toString(balanceMainCC.disconnectedLoadVolume));
-        table.addCell(Double.toString(balanceOtherCC.connectedLoadVolume));
-        table.addCell(Double.toString(balanceOtherCC.disconnectedLoadVolume));
-        table.addCell("Generator count");
-        table.addCell(Integer.toString(balanceMainCC.connectedGenerators.size()));
-        table.addCell(Integer.toString(balanceMainCC.disconnectedGenerators.size()));
-        table.addCell(Integer.toString(balanceOtherCC.connectedGenerators.size()));
-        table.addCell(Integer.toString(balanceOtherCC.disconnectedGenerators.size()));
-        table.addCell("Max generation (MW)");
-        table.addCell(Double.toString(balanceMainCC.connectedMaxGeneration));
-        table.addCell(Double.toString(balanceMainCC.disconnectedMaxGeneration));
-        table.addCell(Double.toString(balanceOtherCC.connectedMaxGeneration));
-        table.addCell(Double.toString(balanceOtherCC.disconnectedMaxGeneration));
-        table.addCell("Generation (MW)");
-        table.addCell(Double.toString(balanceMainCC.connectedGeneration));
-        table.addCell(Double.toString(balanceMainCC.disconnectedGeneration));
-        table.addCell(Double.toString(balanceOtherCC.connectedGeneration));
-        table.addCell(Double.toString(balanceOtherCC.disconnectedGeneration));
-        table.addCell("Shunt at nom V (MVar)");
-        table.addCell(Double.toString(balanceMainCC.connectedShuntPositiveVolume) + " " +
-                Double.toString(balanceMainCC.connectedShuntNegativeVolume) +
-                " (" + Integer.toString(balanceMainCC.connectedShunts.size()) + ")");
-        table.addCell(Double.toString(balanceMainCC.disconnectedShuntPositiveVolume) + " " +
-                Double.toString(balanceMainCC.disconnectedShuntNegativeVolume) +
-                " (" + Integer.toString(balanceMainCC.disconnectedShunts.size()) + ")");
-        table.addCell(Double.toString(balanceOtherCC.connectedShuntPositiveVolume) + " " +
-                Double.toString(balanceOtherCC.connectedShuntNegativeVolume) +
-                " (" + Integer.toString(balanceOtherCC.connectedShunts.size()) + ")");
-        table.addCell(Double.toString(balanceOtherCC.disconnectedShuntPositiveVolume) + " " +
-                Double.toString(balanceOtherCC.disconnectedShuntNegativeVolume) +
-                " (" + Integer.toString(balanceOtherCC.disconnectedShunts.size()) + ")");
-        return table;
+    private static String writeInTable(ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
+        Writer writer = new StringWriter();
+        try (AbstractTableFormatter formatter = new AsciiTableFormatter(writer, null,
+                     new Column("")
+                             .setTitleHorizontalAlignment(HorizontalAlignment.CENTER),
+                     new Column("Main CC connected/disconnected")
+                             .setColspan(2)
+                             .setTitleHorizontalAlignment(HorizontalAlignment.CENTER),
+                     new Column("Others CC connected/disconnected")
+                             .setColspan(2)
+                             .setTitleHorizontalAlignment(HorizontalAlignment.CENTER))) {
+            formatter.writeCell("Bus count")
+                    .writeCell(Integer.toString(balanceMainCC.busCount), 2)
+                    .writeCell(Integer.toString(balanceOtherCC.busCount), 2);
+            formatter.writeCell("Load count")
+                    .writeCell(Integer.toString(balanceMainCC.connectedLoads.size()))
+                    .writeCell(Integer.toString(balanceMainCC.disconnectedLoads.size()))
+                    .writeCell(Integer.toString(balanceOtherCC.connectedLoads.size()))
+                    .writeCell(Integer.toString(balanceOtherCC.disconnectedLoads.size()));
+            formatter.writeCell("Load (MW)")
+                    .writeCell(Double.toString(balanceMainCC.connectedLoadVolume))
+                    .writeCell(Double.toString(balanceMainCC.disconnectedLoadVolume))
+                    .writeCell(Double.toString(balanceOtherCC.connectedLoadVolume))
+                    .writeCell(Double.toString(balanceOtherCC.disconnectedLoadVolume));
+            formatter.writeCell("Generator count")
+                    .writeCell(Integer.toString(balanceMainCC.connectedGenerators.size()))
+                    .writeCell(Integer.toString(balanceMainCC.disconnectedGenerators.size()))
+                    .writeCell(Integer.toString(balanceOtherCC.connectedGenerators.size()))
+                    .writeCell(Integer.toString(balanceOtherCC.disconnectedGenerators.size()));
+            formatter.writeCell("Max generation (MW)")
+                    .writeCell(Double.toString(balanceMainCC.connectedMaxGeneration))
+                    .writeCell(Double.toString(balanceMainCC.disconnectedMaxGeneration))
+                    .writeCell(Double.toString(balanceOtherCC.connectedMaxGeneration))
+                    .writeCell(Double.toString(balanceOtherCC.disconnectedMaxGeneration));
+            formatter.writeCell("Generation (MW)")
+                    .writeCell(Double.toString(balanceMainCC.connectedGeneration))
+                    .writeCell(Double.toString(balanceMainCC.disconnectedGeneration))
+                    .writeCell(Double.toString(balanceOtherCC.connectedGeneration))
+                    .writeCell(Double.toString(balanceOtherCC.disconnectedGeneration));
+            formatter.writeCell("Shunt at nom V (MVar)")
+                    .writeCell(Double.toString(balanceMainCC.connectedShuntPositiveVolume) + " " +
+                            Double.toString(balanceMainCC.connectedShuntNegativeVolume) +
+                            " (" + Integer.toString(balanceMainCC.connectedShunts.size()) + ")")
+                    .writeCell(Double.toString(balanceMainCC.disconnectedShuntPositiveVolume) + " " +
+                            Double.toString(balanceMainCC.disconnectedShuntNegativeVolume) +
+                            " (" + Integer.toString(balanceMainCC.disconnectedShunts.size()) + ")")
+                    .writeCell(Double.toString(balanceOtherCC.connectedShuntPositiveVolume) + " " +
+                            Double.toString(balanceOtherCC.connectedShuntNegativeVolume) +
+                            " (" + Integer.toString(balanceOtherCC.connectedShunts.size()) + ")")
+                    .writeCell(Double.toString(balanceOtherCC.disconnectedShuntPositiveVolume) + " " +
+                            Double.toString(balanceOtherCC.disconnectedShuntNegativeVolume) +
+                            " (" + Integer.toString(balanceOtherCC.disconnectedShunts.size()) + ")");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        return writer.toString();
     }
 
-    private static void logOtherCC(Logger logger, String title, Table table, ConnectedPower balanceOtherCC) {
+    private static void logOtherCC(Logger logger, String title, Supplier<String> tableSupplier, ConnectedPower balanceOtherCC) {
         if (logger.isDebugEnabled()) {
-            logger.debug("Active balance at step '{}':\n{}", title, table.render());
+            logger.debug("Active balance at step '{}':\n{}", title, tableSupplier.get());
         }
 
         if (!balanceOtherCC.connectedLoads.isEmpty()) {

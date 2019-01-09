@@ -6,14 +6,13 @@
  */
 package com.powsybl.commons.datasource;
 
-import java.io.InputStream;
 import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Objects;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian@rte-france.com>
+ * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface DataSourceUtil {
 
@@ -23,8 +22,8 @@ public interface DataSourceUtil {
     }
 
     static OpenOption[] getOpenOptions(boolean append) {
-        OpenOption[] defaultOpenOptions = {StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING};
-        OpenOption[] appendOpenOptions = {StandardOpenOption.APPEND};
+        OpenOption[] defaultOpenOptions = {StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.WRITE};
+        OpenOption[] appendOpenOptions = {StandardOpenOption.APPEND, StandardOpenOption.WRITE};
 
         return append ? appendOpenOptions : defaultOpenOptions;
     }
@@ -72,24 +71,5 @@ public interface DataSourceUtil {
         } else {
             return new FileDataSource(directory, getBaseName(fileNameOrBaseName), observer);
         }
-    }
-
-    static ReadOnlyMemDataSource createReadOnlyMemDataSource(String fileName, InputStream content) {
-        Objects.requireNonNull(fileName);
-        Objects.requireNonNull(content);
-
-        ReadOnlyMemDataSource dataSource;
-        if (fileName.endsWith(".zip")) {
-            dataSource = new ZipMemDataSource(fileName, content);
-        } else if (fileName.endsWith(".gz")) {
-            dataSource =  new GzMemDataSource(fileName, content);
-        } else if (fileName.endsWith(".bz2")) {
-            dataSource =  new Bzip2MemDataSource(fileName, content);
-        } else {
-            dataSource = new ReadOnlyMemDataSource(getBaseName(fileName));
-            dataSource.putData(fileName, content);
-        }
-
-        return dataSource;
     }
 }

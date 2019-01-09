@@ -9,7 +9,7 @@ package com.powsybl.commons.extensions;
 import java.util.Collection;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public interface Extendable<O> {
 
@@ -27,7 +27,7 @@ public interface Extendable<O> {
      * @param <E> the extension type
      * @return the extension mapped to the class type or null if not found
      */
-    <E extends Extension<O>> E getExtension(Class<E> type);
+    <E extends Extension<O>> E getExtension(Class<? super E> type);
 
     /**
      * Get an extension based on its name.

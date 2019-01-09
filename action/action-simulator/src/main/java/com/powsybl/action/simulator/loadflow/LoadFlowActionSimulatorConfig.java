@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -16,6 +16,7 @@ import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public class LoadFlowActionSimulatorConfig implements Versionable {
 
@@ -33,9 +34,10 @@ public class LoadFlowActionSimulatorConfig implements Versionable {
         int maxIterations = config.getIntProperty("max-iterations");
         boolean ignorePreContingencyViolations = config.getBooleanProperty("ignore-pre-contingency-violations", false);
         boolean debug = config.getBooleanProperty("debug", false);
+        CopyStrategy copyStrategy = config.getEnumProperty("copy-strategy", CopyStrategy.class, CopyStrategy.DEEP);
         return config.getOptionalStringProperty("version")
-                .map(v -> new LoadFlowActionSimulatorConfig(new ConfigVersion(v), loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations, debug))
-                .orElseGet(() -> new LoadFlowActionSimulatorConfig(loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations, debug));
+                .map(v -> new LoadFlowActionSimulatorConfig(new ConfigVersion(v), loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations, debug, copyStrategy))
+                .orElseGet(() -> new LoadFlowActionSimulatorConfig(loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations, debug, copyStrategy));
     }
 
     static final String DEFAULT_CONFIG_VERSION = "1.1";
@@ -50,17 +52,25 @@ public class LoadFlowActionSimulatorConfig implements Versionable {
 
     private boolean debug;
 
+    private CopyStrategy copyStrategy;
+
     public LoadFlowActionSimulatorConfig(Class<? extends LoadFlowFactory> loadFlowFactoryClass, int maxIterations, boolean ignorePreContingencyViolations,
                                          boolean debug) {
+        this(loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations, debug, CopyStrategy.DEEP);
+    }
+
+    public LoadFlowActionSimulatorConfig(Class<? extends LoadFlowFactory> loadFlowFactoryClass, int maxIterations, boolean ignorePreContingencyViolations,
+                                         boolean debug, CopyStrategy copyStrategy) {
         this.loadFlowFactoryClass = Objects.requireNonNull(loadFlowFactoryClass);
         this.maxIterations = maxIterations;
         this.ignorePreContingencyViolations = ignorePreContingencyViolations;
         this.debug = debug;
+        this.copyStrategy = Objects.requireNonNull(copyStrategy);
     }
 
     public LoadFlowActionSimulatorConfig(ConfigVersion version, Class<? extends LoadFlowFactory> loadFlowFactoryClass, int maxIterations,
-                                         boolean ignorePreContingencyViolations, boolean debug) {
-        this(loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations, debug);
+                                         boolean ignorePreContingencyViolations, boolean debug, CopyStrategy copyStrategy) {
+        this(loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations, debug, copyStrategy);
         this.version = version;
     }
 
@@ -104,5 +114,13 @@ public class LoadFlowActionSimulatorConfig implements Versionable {
     @Override
     public String getVersion() {
         return version.toString();
+    }
+
+    public CopyStrategy getCopyStrategy() {
+        return copyStrategy;
+    }
+
+    public void setCopyStrategy(CopyStrategy copyStrategy) {
+        this.copyStrategy = Objects.requireNonNull(copyStrategy);
     }
 }

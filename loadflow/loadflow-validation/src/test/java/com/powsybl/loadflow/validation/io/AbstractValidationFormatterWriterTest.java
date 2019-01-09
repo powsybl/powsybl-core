@@ -18,6 +18,8 @@ import org.junit.Test;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.network.util.TwtData;
+import com.powsybl.iidm.network.util.TwtTestData;
 
 /**
  *
@@ -64,6 +66,7 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected final double q = 3.72344;
     protected final double v = 380;
     protected final double targetP = 39.5056;
+    protected final double expectedP = 39.5056;
     protected final double targetQ = -3.72344;
     protected final double targetV = 380;
     protected final boolean connected = true;
@@ -128,6 +131,9 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected final Side regulatedSide = Side.ONE;
     protected final double twtV = 92.8007;
     protected final boolean mainComponent = true;
+
+    protected final String twt3wId = "twt3wId";
+    protected final String otherTwt3wId = "otherTwt3wId";
 
     @Test
     public void testFlows() throws Exception {
@@ -237,10 +243,10 @@ public abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter generatorsWriter = getGeneratorsValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            generatorsWriter.write(generatorId1, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
+            generatorsWriter.write(generatorId1, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
             generatorsWriter.setValidationCompleted();
             if (compareResults) {
-                generatorsWriter.write(generatorId2, p, q, v, targetP, targetQ, targetV, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
+                generatorsWriter.write(generatorId2, p, q, v, targetP, targetQ, targetV, expectedP, connected, voltageRegulatorOn, minP, maxP, minQ, maxQ, mainComponent, validated);
                 generatorsWriter.setValidationCompleted();
             }
             assertEquals(generatorsContent, writer.toString().trim());
@@ -497,5 +503,64 @@ public abstract class AbstractValidationFormatterWriterTest {
     }
 
     protected abstract String getTwtsMissingSideContent();
+
+    @Test
+    public void testTwts3w() throws Exception {
+        testTwts3w(getTwts3wContent(), false, false, twt3wId, null);
+    }
+
+    protected abstract String getTwts3wContent();
+
+    @Test
+    public void testTwts3wVerbose() throws Exception {
+        testTwts3w(getTwts3wVerboseContent(), true, false, twt3wId, null);
+    }
+
+    protected abstract String getTwts3wVerboseContent();
+
+    @Test
+    public void testTwts3wCompare() throws Exception {
+        testTwts3w(getTwts3wCompareContent(), false, true, twt3wId, twt3wId);
+    }
+
+    protected abstract String getTwts3wCompareContent();
+
+    @Test
+    public void testTwts3wCompareDifferentIds() throws Exception {
+        testTwts3w(getTwts3wCompareDifferentIdsContent(), false, true, twt3wId, otherTwt3wId);
+    }
+
+    protected abstract String getTwts3wCompareDifferentIdsContent();
+
+    @Test
+    public void testTwts3wCompareVerbose() throws Exception {
+        testTwts3w(getTwts3wCompareVerboseContent(), true, true, twt3wId, twt3wId);
+    }
+
+    protected abstract String getTwts3wCompareVerboseContent();
+
+    @Test
+    public void testTwts3wCompareDifferentIdsVerbose() throws Exception {
+        testTwts3w(getTwts3wCompareDifferentIdsVerboseContent(), true, true, twt3wId, otherTwt3wId);
+    }
+
+    protected abstract String getTwts3wCompareDifferentIdsVerboseContent();
+
+    protected void testTwts3w(String twts3wContent, boolean verbose, boolean compareResults, String twt3wId1, String twt3wId2) throws IOException {
+        Writer writer = new StringWriter();
+        TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
+        TwtData twtData = new TwtData(new TwtTestData().get3WTransformer(), 0, false);
+        try (ValidationWriter twts3wWriter = getTwts3wValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
+            twts3wWriter.write(twt3wId1, twtData, validated);
+            twts3wWriter.setValidationCompleted();
+            if (compareResults) {
+                twts3wWriter.write(twt3wId2, twtData, validated);
+                twts3wWriter.setValidationCompleted();
+            }
+            assertEquals(twts3wContent, writer.toString().trim());
+        }
+    }
+
+    protected abstract ValidationWriter getTwts3wValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults);
 
 }
