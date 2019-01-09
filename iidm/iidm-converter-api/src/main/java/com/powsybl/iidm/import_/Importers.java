@@ -438,8 +438,12 @@ public final class Importers {
         return null;
     }
 
+    public static Network loadNetwork(String filename, InputStream data, ComputationManager computationManager) {
+        return loadNetwork(filename, data, computationManager, CONFIG.get(), null);
+    }
+
     public static Network loadNetwork(String filename, InputStream data) {
-        return loadNetwork(filename, data, LocalComputationManager.getDefault(), CONFIG.get(), null);
+        return loadNetwork(filename, data, LocalComputationManager.getDefault());
     }
 
 }
