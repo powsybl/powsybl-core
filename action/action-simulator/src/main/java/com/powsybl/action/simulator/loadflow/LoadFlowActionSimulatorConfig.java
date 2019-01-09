@@ -14,6 +14,8 @@ import com.powsybl.loadflow.LoadFlowFactory;
 
 import java.util.Objects;
 
+import static com.powsybl.commons.config.ConfigVersion.DEFAULT_CONFIG_VERSION;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
@@ -39,8 +41,6 @@ public class LoadFlowActionSimulatorConfig implements Versionable {
                 .map(v -> new LoadFlowActionSimulatorConfig(new ConfigVersion(v), loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations, debug, copyStrategy))
                 .orElseGet(() -> new LoadFlowActionSimulatorConfig(loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations, debug, copyStrategy));
     }
-
-    static final String DEFAULT_CONFIG_VERSION = "1.1";
 
     private ConfigVersion version = new ConfigVersion(DEFAULT_CONFIG_VERSION);
 

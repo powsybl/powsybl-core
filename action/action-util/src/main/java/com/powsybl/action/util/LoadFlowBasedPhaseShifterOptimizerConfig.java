@@ -14,6 +14,8 @@ import com.powsybl.loadflow.LoadFlowFactory;
 
 import java.util.Objects;
 
+import static com.powsybl.commons.config.ConfigVersion.DEFAULT_CONFIG_VERSION;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -33,8 +35,6 @@ public class LoadFlowBasedPhaseShifterOptimizerConfig implements Versionable {
                 .map(v -> new LoadFlowBasedPhaseShifterOptimizerConfig(new ConfigVersion(v), loadFlowFactoryClass))
                 .orElseGet(() -> new LoadFlowBasedPhaseShifterOptimizerConfig(loadFlowFactoryClass));
     }
-
-    static final String DEFAULT_CONFIG_VERSION = "1.1";
 
     private ConfigVersion version = new ConfigVersion(DEFAULT_CONFIG_VERSION);
 

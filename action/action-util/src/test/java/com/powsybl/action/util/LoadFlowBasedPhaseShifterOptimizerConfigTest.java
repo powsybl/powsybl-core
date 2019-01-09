@@ -20,6 +20,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 
+import static com.powsybl.commons.config.ConfigVersion.DEFAULT_CONFIG_VERSION;
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -43,7 +44,7 @@ public class LoadFlowBasedPhaseShifterOptimizerConfigTest {
             moduleConfig.setClassProperty("load-flow-factory", LoadFlowFactoryMock.class);
 
             LoadFlowBasedPhaseShifterOptimizerConfig config = LoadFlowBasedPhaseShifterOptimizerConfig.load(platformConfig);
-            assertEquals(LoadFlowBasedPhaseShifterOptimizerConfig.DEFAULT_CONFIG_VERSION, config.getVersion());
+            assertEquals(DEFAULT_CONFIG_VERSION, config.getVersion());
             assertEquals(LoadFlowFactoryMock.class, config.getLoadFlowFactoryClass());
             config.setLoadFlowFactoryClass(AnotherLoadFlowFactoryMock.class);
             assertEquals(AnotherLoadFlowFactoryMock.class, config.getLoadFlowFactoryClass());

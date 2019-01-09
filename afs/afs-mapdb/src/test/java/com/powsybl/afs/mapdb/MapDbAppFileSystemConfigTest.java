@@ -19,6 +19,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.util.List;
 
+import static com.powsybl.commons.config.ConfigVersion.DEFAULT_CONFIG_VERSION;
 import static org.junit.Assert.*;
 
 /**
@@ -58,12 +59,12 @@ public class MapDbAppFileSystemConfigTest {
         MapDbAppFileSystemConfig config = configs.get(0);
         MapDbAppFileSystemConfig config1 = configs.get(1);
 
-        assertEquals(MapDbAppFileSystemConfig.DEFAULT_CONFIG_VERSION, config.getVersion());
+        assertEquals(DEFAULT_CONFIG_VERSION, config.getVersion());
         assertEquals("db", config.getDriveName());
         assertTrue(config.isRemotelyAccessible());
         assertEquals(fileSystem.getPath("/db"), config.getDbFile());
 
-        assertEquals(MapDbAppFileSystemConfig.DEFAULT_CONFIG_VERSION, config1.getVersion());
+        assertEquals(DEFAULT_CONFIG_VERSION, config1.getVersion());
         assertEquals("db0", config1.getDriveName());
         assertFalse(config1.isRemotelyAccessible());
         assertEquals(fileSystem.getPath("/db0"), config1.getDbFile());

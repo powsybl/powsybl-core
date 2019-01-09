@@ -20,6 +20,7 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 
+import static com.powsybl.commons.config.ConfigVersion.DEFAULT_CONFIG_VERSION;
 import static org.junit.Assert.*;
 
 /**
@@ -48,7 +49,7 @@ public class LoadFlowActionSimulatorConfigTest {
 
             LoadFlowActionSimulatorConfig config = LoadFlowActionSimulatorConfig.load(platformConfig);
 
-            assertEquals(LoadFlowActionSimulatorConfig.DEFAULT_CONFIG_VERSION, config.getVersion());
+            assertEquals(DEFAULT_CONFIG_VERSION, config.getVersion());
 
             assertEquals(LoadFlowFactoryMock.class, config.getLoadFlowFactoryClass());
             config.setLoadFlowFactoryClass(AnotherLoadFlowFactoryMock.class);

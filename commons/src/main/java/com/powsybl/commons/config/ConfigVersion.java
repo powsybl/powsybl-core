@@ -13,6 +13,8 @@ public class ConfigVersion {
 
     private final String[] version;
 
+    public static final String DEFAULT_CONFIG_VERSION = "1.1";
+
     public ConfigVersion(String version) {
         this.version = version.split("\\.");
     }
