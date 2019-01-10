@@ -167,11 +167,16 @@ OPTIONAL {
 		}}
 	}}
 }
-OPTIONAL { GRAPH ?graphTPT {
-	?Terminal cim:Terminal.TopologicalNode ?TopologicalNodeT .
-	?TopologicalNodeT 
-		cim:IdentifiedObject.name ?topologicalNodeTName ;
-		cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainerTTopo
+OPTIONAL { 
+	GRAPH ?graphTPT {
+		?Terminal cim:Terminal.TopologicalNode ?TopologicalNodeT .
+	}
+	GRAPH ?graphTPT2 {
+		# Definition of topological node may be in a boundary (different TP of Terminal)
+		?TopologicalNodeT 
+			cim:IdentifiedObject.name ?topologicalNodeTName ;
+			cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainerTTopo
+	}
 	OPTIONAL { GRAPH ?graphSVT {
 		?SvVoltageT 
 			a cim:SvVoltage ;
@@ -179,7 +184,7 @@ OPTIONAL { GRAPH ?graphTPT {
 			cim:SvVoltage.v ?vT ;
 			cim:SvVoltage.angle ?angleT 
 	}}
-}}
+}
 }
 
 # query: connectivityNodeContainers
