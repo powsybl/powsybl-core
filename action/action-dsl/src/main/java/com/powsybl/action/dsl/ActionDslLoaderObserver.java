@@ -6,10 +6,12 @@
  */
 package com.powsybl.action.dsl;
 
+import com.powsybl.contingency.dsl.ContingencyDslObserver;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface ActionDslLoaderObserver {
+public interface ActionDslLoaderObserver extends ContingencyDslObserver {
 
     void begin(String dslFile);
 

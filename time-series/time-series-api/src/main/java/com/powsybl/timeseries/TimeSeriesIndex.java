@@ -9,28 +9,27 @@ package com.powsybl.timeseries;
 import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.time.Instant;
+import java.util.Iterator;
+import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface TimeSeriesIndex {
-
-    static int checkVersion(int version) {
-        if (version < 0) {
-            throw new IllegalArgumentException("Bad version " + version);
-        }
-        return version;
-    }
-
-    static Instant getInstantAt(TimeSeriesIndex index, int point) {
-        return Instant.ofEpochMilli(index.getTimeAt(point));
-    }
+public interface TimeSeriesIndex extends Iterable<Instant> {
 
     int getPointCount();
 
     long getTimeAt(int point);
 
+    Instant getInstantAt(int point);
+
     String getType();
 
     void writeJson(JsonGenerator generator);
+
+    String toJson();
+
+    Stream<Instant> stream();
+
+    Iterator<Instant> iterator();
 }

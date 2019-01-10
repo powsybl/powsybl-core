@@ -1,0 +1,3 @@
+#Ratio tap changers
+#"variant" "num" "tap"
+1 1 3

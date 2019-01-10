@@ -21,7 +21,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl,
 
     private RegulationMode regulationMode;
 
-    // attributes depending on the state
+    // attributes depending on the variant
 
     private final TDoubleArrayList regulationValue;
 
@@ -29,10 +29,10 @@ class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl,
                         List<PhaseTapChangerStepImpl> steps, TerminalExt regulationTerminal,
                         int tapPosition, boolean regulating, RegulationMode regulationMode, double regulationValue) {
         super(parent.getNetwork().getRef(), parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating);
-        int stateArraySize = network.get().getStateManager().getStateArraySize();
+        int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.regulationMode = regulationMode;
-        this.regulationValue = new TDoubleArrayList(stateArraySize);
-        for (int i = 0; i < stateArraySize; i++) {
+        this.regulationValue = new TDoubleArrayList(variantArraySize);
+        for (int i = 0; i < variantArraySize; i++) {
             this.regulationValue.add(regulationValue);
         }
     }
@@ -56,13 +56,13 @@ class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl,
 
     @Override
     public double getRegulationValue() {
-        return regulationValue.get(network.get().getStateIndex());
+        return regulationValue.get(network.get().getVariantIndex());
     }
 
     @Override
     public PhaseTapChangerImpl setRegulationValue(double regulationValue) {
         ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue, isRegulating(), getRegulationTerminal(), getNetwork());
-        this.regulationValue.set(network.get().getStateIndex(), regulationValue);
+        this.regulationValue.set(network.get().getVariantIndex(), regulationValue);
         return this;
     }
 
@@ -78,8 +78,8 @@ class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl,
     }
 
     @Override
-    public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
-        super.extendStateArraySize(initStateArraySize, number, sourceIndex);
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         regulationValue.ensureCapacity(regulationValue.size() + number);
         for (int i = 0; i < number; i++) {
             regulationValue.add(regulationValue.get(sourceIndex));
@@ -87,20 +87,20 @@ class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl,
     }
 
     @Override
-    public void reduceStateArraySize(int number) {
-        super.reduceStateArraySize(number);
+    public void reduceVariantArraySize(int number) {
+        super.reduceVariantArraySize(number);
         regulationValue.remove(regulationValue.size() - number, number);
     }
 
     @Override
-    public void deleteStateArrayElement(int index) {
-        super.deleteStateArrayElement(index);
+    public void deleteVariantArrayElement(int index) {
+        super.deleteVariantArrayElement(index);
         // nothing to do
     }
 
     @Override
-    public void allocateStateArrayElement(int[] indexes, final int sourceIndex) {
-        super.allocateStateArrayElement(indexes, sourceIndex);
+    public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
+        super.allocateVariantArrayElement(indexes, sourceIndex);
         for (int index : indexes) {
             regulationValue.set(index, regulationValue.get(sourceIndex));
         }

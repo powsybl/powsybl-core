@@ -7,21 +7,10 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Properties;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.conversion.CgmesModelExtension;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.cgmes.model.test.cim14.Cim14SmallCasesCatalog;
@@ -30,6 +19,17 @@ import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.TripleStoreFactory;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -50,7 +50,7 @@ public class ImportExportPerformanceTest {
 
     private void importExport(List<String> tsImpls, TestGridModel gm) throws IOException {
         try (FileSystem fs = Jimfs.newFileSystem()) {
-            ReadOnlyDataSource ds = gm.dataSourceBasedOn(fs);
+            ReadOnlyDataSource ds = gm.dataSource();
 
             int size = tsImpls.size();
             long[] startTimes = new long[size];
@@ -75,10 +75,9 @@ public class ImportExportPerformanceTest {
         CgmesImport i = new CgmesImport();
         Properties importParameters = new Properties();
         importParameters.put("powsyblTripleStore", ts);
-        importParameters.put("storeCgmesModelAsNetworkProperty", "true");
+        importParameters.put("storeCgmesModelAsNetworkExtension", "true");
         Network n = i.importData(ds, importParameters);
-        Object c = n.getProperties().get("CGMESModel");
-        CgmesModel cgmes = (CgmesModel) c;
+        CgmesModel cgmes = n.getExtension(CgmesModelExtension.class).getCgmesModel();
         cgmes.print(LOG::info);
 
         CgmesExport e = new CgmesExport();

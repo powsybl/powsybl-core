@@ -55,9 +55,9 @@ public class SwitchSetRetainedTest {
         Switch b1 = network.getSwitch("B1");
         assertNotNull(b1);
 
-        StateManager stateManager = network.getStateManager();
-        stateManager.allowStateMultiThreadAccess(true);
-        stateManager.cloneState(StateManagerConstants.INITIAL_STATE_ID, "backup");
+        VariantManager variantManager = network.getVariantManager();
+        variantManager.allowVariantMultiThreadAccess(true);
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "backup");
 
         assertTrue(b1.isRetained());
         assertEquals(2, Iterables.size(vl.getBusBreakerView().getBuses()));
@@ -66,7 +66,7 @@ public class SwitchSetRetainedTest {
         assertFalse(b1.isRetained());
         assertEquals(1, Iterables.size(vl.getBusBreakerView().getBuses()));
 
-        stateManager.setWorkingState("backup");
+        variantManager.setWorkingVariant("backup");
         assertTrue(b1.isRetained());
         assertEquals(2, Iterables.size(vl.getBusBreakerView().getBuses()));
     }

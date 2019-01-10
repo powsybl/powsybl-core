@@ -6,12 +6,11 @@
  */
 package com.powsybl.ampl.converter;
 
-import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.HvdcLine.ConvertersMode;
 import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,6 +27,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.powsybl.ampl.converter.AmplConstants.DEFAULT_VARIANT_INDEX;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -38,18 +39,24 @@ public class AmplNetworkReader {
 
     private static final Pattern PATTERN = Pattern.compile("([^']\\S*|'.+?')\\s*");
 
-    private final DataSource dataSource;
+    private final ReadOnlyDataSource dataSource;
 
     private final Network network;
+    private final int variantIndex;
 
     private final StringToIntMapper<AmplSubset> mapper;
     private final Map<String, Bus> buses;
 
-    public AmplNetworkReader(DataSource dataSource, Network network, StringToIntMapper<AmplSubset> mapper) {
+    public AmplNetworkReader(ReadOnlyDataSource dataSource, Network network, int variantIndex, StringToIntMapper<AmplSubset> mapper) {
         this.dataSource = dataSource;
         this.network = network;
         this.mapper = mapper;
         this.buses = network.getBusView().getBusStream().collect(Collectors.toMap(Identifiable::getId, Function.identity()));
+        this.variantIndex = variantIndex;
+    }
+
+    public AmplNetworkReader(ReadOnlyDataSource dataSource, Network network, StringToIntMapper<AmplSubset> mapper) {
+        this(dataSource, network, DEFAULT_VARIANT_INDEX, mapper);
     }
 
     private static AmplException createWrongNumberOfColumnException(int expected, int actual) {
@@ -72,7 +79,10 @@ public class AmplNetworkReader {
                     throw createWrongNumberOfColumnException(expectedTokenCount, tokens.length);
                 }
 
-                handler.apply(tokens);
+                //check if it is the right network
+                if (variantIndex == Integer.parseInt(tokens[0])) {
+                    handler.apply(tokens);
+                }
             }
         }
     }
@@ -84,20 +94,20 @@ public class AmplNetworkReader {
             g.setTargetV(g.getTerminal().getVoltageLevel().getNominalV());
         }
 
-        read("_generators", 8, this::readGenerator);
+        read("_generators", 9, this::readGenerator);
 
         return this;
     }
 
     private Void readGenerator(String[] tokens) {
-        int num = Integer.parseInt(tokens[0]);
-        int busNum = Integer.parseInt(tokens[1]);
-        boolean vregul = Boolean.parseBoolean(tokens[2]);
-        double targetV = readDouble(tokens[3]);
-        double targetP = readDouble(tokens[4]);
-        double targetQ = readDouble(tokens[5]);
-        double p = readDouble(tokens[6]);
-        double q = readDouble(tokens[7]);
+        int num = Integer.parseInt(tokens[1]);
+        int busNum = Integer.parseInt(tokens[2]);
+        boolean vregul = Boolean.parseBoolean(tokens[3]);
+        double targetV = readDouble(tokens[4]);
+        double targetP = readDouble(tokens[5]);
+        double targetQ = readDouble(tokens[6]);
+        double p = readDouble(tokens[7]);
+        double q = readDouble(tokens[8]);
         String id = mapper.getId(AmplSubset.GENERATOR, num);
         Generator g = network.getGenerator(id);
         if (g == null) {
@@ -121,18 +131,18 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readLoads() throws IOException {
-        read("_loads", 6, this::readLoad);
+        read("_loads", 7, this::readLoad);
 
         return this;
     }
 
     private Void readLoad(String[] tokens) {
-        int num = Integer.parseInt(tokens[0]);
-        int busNum = Integer.parseInt(tokens[1]);
-        double p = readDouble(tokens[2]);
-        double q = readDouble(tokens[3]);
-        double p0 = readDouble(tokens[4]);
-        double q0 = readDouble(tokens[5]);
+        int num = Integer.parseInt(tokens[1]);
+        int busNum = Integer.parseInt(tokens[2]);
+        double p = readDouble(tokens[3]);
+        double q = readDouble(tokens[4]);
+        double p0 = readDouble(tokens[5]);
+        double q0 = readDouble(tokens[6]);
         String id = mapper.getId(AmplSubset.LOAD, num);
         Load l = network.getLoad(id);
         if (l != null) {
@@ -154,14 +164,14 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readRatioTapChangers() throws IOException {
-        read("_rtc", 2, this::readRatioTapChanger);
+        read("_rtc", 3, this::readRatioTapChanger);
 
         return this;
     }
 
     private Void readRatioTapChanger(String[] tokens) {
-        int num = Integer.parseInt(tokens[0]);
-        int tap = Integer.parseInt(tokens[1]);
+        int num = Integer.parseInt(tokens[1]);
+        int tap = Integer.parseInt(tokens[2]);
         String id = mapper.getId(AmplSubset.RATIO_TAP_CHANGER, num);
         if (id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(AmplConstants.LEG3_SUFFIX)) {
             ThreeWindingsTransformer twt = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG2_SUFFIX)));
@@ -190,14 +200,14 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readPhaseTapChangers() throws IOException {
-        read("_ptc", 2, this::readPhaseTapChanger);
+        read("_ptc", 3, this::readPhaseTapChanger);
 
         return this;
     }
 
     private Void readPhaseTapChanger(String[] tokens) {
-        int num = Integer.parseInt(tokens[0]);
-        int tap = Integer.parseInt(tokens[1]);
+        int num = Integer.parseInt(tokens[1]);
+        int tap = Integer.parseInt(tokens[2]);
         String id = mapper.getId(AmplSubset.PHASE_TAP_CHANGER, num);
         TwoWindingsTransformer twt = network.getTwoWindingsTransformer(id);
         if (twt == null) {
@@ -210,17 +220,17 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readShunts() throws IOException {
-        read("_shunts", 5, this::readShunt);
+        read("_shunts", 6, this::readShunt);
 
         return this;
     }
 
     private Void readShunt(String[] tokens) {
-        int num = Integer.parseInt(tokens[0]);
-        int busNum = Integer.parseInt(tokens[1]);
+        int num = Integer.parseInt(tokens[1]);
+        int busNum = Integer.parseInt(tokens[2]);
 
-        double q = readDouble(tokens[3]);
-        int sections = Integer.parseInt(tokens[4]);
+        double q = readDouble(tokens[4]);
+        int sections = Integer.parseInt(tokens[5]);
 
         String id = mapper.getId(AmplSubset.SHUNT, num);
         ShuntCompensator sc = network.getShuntCompensator(id);
@@ -238,15 +248,15 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readBuses() throws IOException {
-        read("_buses", 3, this::readBus);
+        read("_buses", 4, this::readBus);
 
         return this;
     }
 
     private Void readBus(String[] tokens) {
-        int num = Integer.parseInt(tokens[0]);
-        double v = readDouble(tokens[1]);
-        double theta = readDouble(tokens[2]);
+        int num = Integer.parseInt(tokens[1]);
+        double v = readDouble(tokens[2]);
+        double theta = readDouble(tokens[3]);
 
         String id = mapper.getId(AmplSubset.BUS, num);
         Bus bus = buses.get(id);
@@ -262,19 +272,19 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readBranches() throws IOException {
-        read("_branches", 7, this::readBranch);
+        read("_branches", 8, this::readBranch);
 
         return this;
     }
 
     private Void readBranch(String[] tokens) {
-        int num = Integer.parseInt(tokens[0]);
-        int busNum = Integer.parseInt(tokens[1]);
-        int busNum2 = Integer.parseInt(tokens[2]);
-        double p1 = readDouble(tokens[3]);
-        double p2 = readDouble(tokens[4]);
-        double q1 = readDouble(tokens[5]);
-        double q2 = readDouble(tokens[6]);
+        int num = Integer.parseInt(tokens[1]);
+        int busNum = Integer.parseInt(tokens[2]);
+        int busNum2 = Integer.parseInt(tokens[3]);
+        double p1 = readDouble(tokens[4]);
+        double p2 = readDouble(tokens[5]);
+        double q1 = readDouble(tokens[6]);
+        double q2 = readDouble(tokens[7]);
 
         String id = mapper.getId(AmplSubset.BRANCH, num);
 
@@ -334,15 +344,15 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readHvdcLines() throws IOException {
-        read("_hvdc", 3, this::readHvdcLine);
+        read("_hvdc", 4, this::readHvdcLine);
 
         return this;
     }
 
     private Void readHvdcLine(String[] tokens) {
-        int num = Integer.parseInt(tokens[0]);
-        String converterMode = tokens[1].replace("\"", "");
-        double targetP = readDouble(tokens[2]);
+        int num = Integer.parseInt(tokens[1]);
+        String converterMode = tokens[2].replace("\"", "");
+        double targetP = readDouble(tokens[3]);
 
         String id = mapper.getId(AmplSubset.HVDC_LINE, num);
 
@@ -359,17 +369,17 @@ public class AmplNetworkReader {
 
 
     public AmplNetworkReader readStaticVarcompensator() throws IOException {
-        read("_static_var_compensators", 5, this::readSvc);
+        read("_static_var_compensators", 6, this::readSvc);
 
         return this;
     }
 
     private Void readSvc(String[] tokens) {
-        int num = Integer.parseInt(tokens[0]);
-        int busNum = Integer.parseInt(tokens[1]);
-        boolean vregul = Boolean.parseBoolean(tokens[2]);
-        double targetV = readDouble(tokens[3]);
-        double q = readDouble(tokens[4]);
+        int num = Integer.parseInt(tokens[1]);
+        int busNum = Integer.parseInt(tokens[2]);
+        boolean vregul = Boolean.parseBoolean(tokens[3]);
+        double targetV = readDouble(tokens[4]);
+        double q = readDouble(tokens[5]);
 
         String id = mapper.getId(AmplSubset.STATIC_VAR_COMPENSATOR, num);
         StaticVarCompensator svc = network.getStaticVarCompensator(id);
@@ -388,7 +398,6 @@ public class AmplNetworkReader {
             }
         }
 
-
         Terminal t = svc.getTerminal();
         t.setQ(q);
         double nominalV = t.getVoltageLevel().getNominalV();
@@ -400,16 +409,16 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readLccConverterStations() throws IOException {
-        read("_lcc_converter_stations", 4, this::readLcc);
+        read("_lcc_converter_stations", 5, this::readLcc);
 
         return this;
     }
 
     private Void readLcc(String[] tokens) {
-        int num = Integer.parseInt(tokens[0]);
-        int busNum = Integer.parseInt(tokens[1]);
-        double p = readDouble(tokens[2]);
-        double q = readDouble(tokens[3]);
+        int num = Integer.parseInt(tokens[1]);
+        int busNum = Integer.parseInt(tokens[2]);
+        double p = readDouble(tokens[3]);
+        double q = readDouble(tokens[4]);
 
         String id = mapper.getId(AmplSubset.LCC_CONVERTER_STATION, num);
         LccConverterStation lcc = network.getLccConverterStation(id);
@@ -420,19 +429,19 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readVscConverterStations() throws IOException {
-        read("_vsc_converter_stations", 7, this::readVsc);
+        read("_vsc_converter_stations", 8, this::readVsc);
 
         return this;
     }
 
     private Void readVsc(String[] tokens) {
-        int num = Integer.parseInt(tokens[0]);
-        int busNum = Integer.parseInt(tokens[1]);
-        boolean vregul = Boolean.parseBoolean(tokens[2]);
-        double targetV = readDouble(tokens[3]);
-        double targetQ = readDouble(tokens[4]);
-        double p = readDouble(tokens[5]);
-        double q = readDouble(tokens[6]);
+        int num = Integer.parseInt(tokens[1]);
+        int busNum = Integer.parseInt(tokens[2]);
+        boolean vregul = Boolean.parseBoolean(tokens[3]);
+        double targetV = readDouble(tokens[4]);
+        double targetQ = readDouble(tokens[5]);
+        double p = readDouble(tokens[6]);
+        double q = readDouble(tokens[7]);
 
         String id = mapper.getId(AmplSubset.VSC_CONVERTER_STATION, num);
         VscConverterStation vsc = network.getVscConverterStation(id);

@@ -17,12 +17,11 @@ import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.afs.storage.buffer.*;
 import com.powsybl.afs.ws.server.utils.JwtTokenNeeded;
-import com.powsybl.timeseries.*;
 import com.powsybl.afs.ws.server.utils.AppDataBean;
 import com.powsybl.afs.ws.utils.AfsRestApi;
 import com.powsybl.afs.ws.utils.gzip.Compress;
-import com.powsybl.timeseries.DoubleArrayChunk;
-import com.powsybl.timeseries.StringArrayChunk;
+import com.powsybl.timeseries.DoubleDataChunk;
+import com.powsybl.timeseries.StringDataChunk;
 import com.powsybl.timeseries.TimeSeriesMetadata;
 import io.swagger.annotations.*;
 
@@ -475,7 +474,7 @@ public class AppStorageServer {
                                             @ApiParam(value = "Node ID") @PathParam("nodeId") String nodeId,
                                             @ApiParam(value = "Version") @PathParam("version") int version,
                                             @ApiParam(value = "Time series name") @PathParam("timeSeriesName") String timeSeriesName,
-                                            @ApiParam(value = "List double array chunk") List<DoubleArrayChunk> chunks) {
+                                            @ApiParam(value = "List double array chunk") List<DoubleDataChunk> chunks) {
         AppStorage storage = appDataBean.getStorage(fileSystemName);
         storage.addDoubleTimeSeriesData(nodeId, version, timeSeriesName, chunks);
         return Response.ok().build();
@@ -493,7 +492,7 @@ public class AppStorageServer {
                                             @ApiParam(value = "Version") @PathParam("version") int version,
                                             @ApiParam(value = "Set time series names") Set<String> timeSeriesNames) {
         AppStorage storage = appDataBean.getStorage(fileSystemName);
-        Map<String, List<DoubleArrayChunk>> timeSeriesData = storage.getDoubleTimeSeriesData(nodeId, timeSeriesNames, version);
+        Map<String, List<DoubleDataChunk>> timeSeriesData = storage.getDoubleTimeSeriesData(nodeId, timeSeriesNames, version);
         return Response.ok()
                 .header(HttpHeaders.CONTENT_ENCODING, "gzip")
                 .entity(timeSeriesData)
@@ -509,7 +508,7 @@ public class AppStorageServer {
                                             @ApiParam(value = "File system name") @PathParam("nodeId") String nodeId,
                                             @ApiParam(value = "File system name") @PathParam("version") int version,
                                             @ApiParam(value = "File system name") @PathParam("timeSeriesName") String timeSeriesName,
-                                            @ApiParam(value = "List string array chunkFile system name") List<StringArrayChunk> chunks) {
+                                            @ApiParam(value = "List string array chunkFile system name") List<StringDataChunk> chunks) {
         AppStorage storage = appDataBean.getStorage(fileSystemName);
         storage.addStringTimeSeriesData(nodeId, version, timeSeriesName, chunks);
         return Response.ok().build();
@@ -527,7 +526,7 @@ public class AppStorageServer {
                                             @ApiParam(value = "Version") @PathParam("version") int version,
                                             @ApiParam(value = "Set time series names") Set<String> timeSeriesNames) {
         AppStorage storage = appDataBean.getStorage(fileSystemName);
-        Map<String, List<StringArrayChunk>> timeSeriesData = storage.getStringTimeSeriesData(nodeId, timeSeriesNames, version);
+        Map<String, List<StringDataChunk>> timeSeriesData = storage.getStringTimeSeriesData(nodeId, timeSeriesNames, version);
         return Response.ok()
                 .header(HttpHeaders.CONTENT_ENCODING, "gzip")
                 .entity(timeSeriesData)

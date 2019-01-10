@@ -36,8 +36,11 @@
 /computation-mpi/target/
 /computation-mpi-util/target/
 /computation/target/
-/contingency-api/target/
+/contingency/target/
+/contingency/contingency-api/target/
+/contingency/contingency-dsl/target/
 /distribution-core/target/
+/dsl/target/
 /entsoe-util/target/
 /iidm/target/
 /iidm/iidm-api/target
@@ -59,6 +62,7 @@
 /sensitivity-api/target/
 /simulation-api/target/
 /scripting/target/
+/target
 /time-series/target/
 /time-series/time-series-api/target/
 /tools/target/
@@ -90,3 +94,6 @@ org.eclipse.core.resources.prefs
 org.eclipse.jdt.core.prefs
 org.eclipse.m2e.core.prefs
 org.eclipse.jdt.groovy.core.prefs
+
+# Log files
+powsybl.log

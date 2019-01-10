@@ -35,8 +35,8 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * It is expected to be greater than one and lesser than or equal to the
      * maximum section count.
      * <p>
-     * Depends on the working state.
-     * @see StateManager
+     * Depends on the working variant.
+     * @see VariantManager
      */
     int getCurrentSectionCount();
 
@@ -44,9 +44,9 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
      * Change the number of section.
      *
      * <p>
-     * Depends on the working state.
+     * Depends on the working variant.
      *
-     * @see StateManager
+     * @see VariantManager
      * @param currentSectionCount the number of section
      * @return the shunt compensator to chain method calls.
      */
@@ -73,8 +73,8 @@ public interface ShuntCompensator extends Injection<ShuntCompensator> {
     /**
      * Get the susceptance for the current section counts.
      * <p>
-     * Depends on the working state.
-     * @see StateManager
+     * Depends on the working variant.
+     * @see VariantManager
      */
     double getCurrentB();
 

@@ -17,7 +17,7 @@ import java.nio.file.Path;
 
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public class UcteFileReadWriteTest extends AbstractConverterTest {
 

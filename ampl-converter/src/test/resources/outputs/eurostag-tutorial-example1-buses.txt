@@ -1,3 +1,0 @@
-#Buses
-#"num" "v (pu)" "theta (rad)"
-1 180.000 2.00000

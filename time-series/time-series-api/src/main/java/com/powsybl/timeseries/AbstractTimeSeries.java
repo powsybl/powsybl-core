@@ -8,6 +8,7 @@ package com.powsybl.timeseries;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.google.common.collect.Iterators;
+import com.powsybl.commons.json.JsonUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,7 +21,7 @@ import java.util.stream.Stream;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends ArrayChunk<P, C>, T extends TimeSeries<P, T>> {
+public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends DataChunk<P, C>, T extends TimeSeries<P, T>> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractTimeSeries.class);
 
@@ -28,11 +29,11 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Arra
 
     protected final List<C> chunks;
 
-    public AbstractTimeSeries(TimeSeriesMetadata metadata, C... chunks) {
+    protected AbstractTimeSeries(TimeSeriesMetadata metadata, C... chunks) {
         this(metadata, Arrays.asList(chunks));
     }
 
-    public AbstractTimeSeries(TimeSeriesMetadata metadata, List<C> chunks) {
+    protected AbstractTimeSeries(TimeSeriesMetadata metadata, List<C> chunks) {
         this.metadata = Objects.requireNonNull(metadata);
         this.chunks = Objects.requireNonNull(chunks);
     }
@@ -42,6 +43,11 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Arra
         if (!metadata.getIndex().equals(newIndex)) {
             throw new UnsupportedOperationException("Not yet implemented");
         }
+    }
+
+    public void addChunk(C chunk) {
+        Objects.requireNonNull(chunk);
+        chunks.add(chunk);
     }
 
     public List<C> getChunks() {
@@ -121,7 +127,7 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Arra
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("   At index {}", newChunkLowIndex);
             }
-            ArrayChunk.Split<P, C> split = chunk.splitAt(newChunkLowIndex);
+            DataChunk.Split<P, C> split = chunk.splitAt(newChunkLowIndex);
             if (LOGGER.isTraceEnabled()) {
                 LOGGER.trace("   Adding chunk [{}, {}]", split.getChunk1().getOffset(), split.getChunk1().getOffset() + split.getChunk1().getLength() - 1);
             }
@@ -150,11 +156,19 @@ public abstract class AbstractTimeSeries<P extends AbstractPoint, C extends Arra
             generator.writeFieldName("metadata");
             metadata.writeJson(generator);
             generator.writeFieldName("chunks");
-            ArrayChunk.writeJson(generator, chunks);
+            DataChunk.writeJson(generator, chunks);
             generator.writeEndObject();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    public String toJson() {
+        return JsonUtil.toJson(this::writeJson);
+    }
+
+    public void setTimeSeriesNameResolver(TimeSeriesNameResolver ignored) {
+        // nothing to do
     }
 
     @Override

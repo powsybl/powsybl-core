@@ -8,10 +8,14 @@ package com.powsybl.timeseries;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 
+import java.time.Instant;
+import java.util.Iterator;
+import java.util.stream.Stream;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TestTimeSeriesIndex implements TimeSeriesIndex {
+public class TestTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     private int pointCount;
 
@@ -39,6 +43,16 @@ public class TestTimeSeriesIndex implements TimeSeriesIndex {
 
     @Override
     public void writeJson(JsonGenerator generator) {
+        throw new AssertionError();
+    }
+
+    @Override
+    public Iterator<Instant> iterator() {
+        throw new AssertionError();
+    }
+
+    @Override
+    public Stream<Instant> stream() {
         throw new AssertionError();
     }
 }

@@ -316,46 +316,46 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     }
 
     @Override
-    public void extendStateArraySize(int initStateArraySize, int number, int sourceIndex) {
-        super.extendStateArraySize(initStateArraySize, number, sourceIndex);
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         if (leg2.getRatioTapChanger() != null) {
-            leg2.getRatioTapChanger().extendStateArraySize(initStateArraySize, number, sourceIndex);
+            leg2.getRatioTapChanger().extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         }
         if (leg3.getRatioTapChanger() != null) {
-            leg3.getRatioTapChanger().extendStateArraySize(initStateArraySize, number, sourceIndex);
+            leg3.getRatioTapChanger().extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         }
     }
 
     @Override
-    public void reduceStateArraySize(int number) {
-        super.reduceStateArraySize(number);
+    public void reduceVariantArraySize(int number) {
+        super.reduceVariantArraySize(number);
         if (leg2.getRatioTapChanger() != null) {
-            leg2.getRatioTapChanger().reduceStateArraySize(number);
+            leg2.getRatioTapChanger().reduceVariantArraySize(number);
         }
         if (leg3.getRatioTapChanger() != null) {
-            leg3.getRatioTapChanger().reduceStateArraySize(number);
+            leg3.getRatioTapChanger().reduceVariantArraySize(number);
         }
     }
 
     @Override
-    public void deleteStateArrayElement(int index) {
-        super.deleteStateArrayElement(index);
+    public void deleteVariantArrayElement(int index) {
+        super.deleteVariantArrayElement(index);
         if (leg2.getRatioTapChanger() != null) {
-            leg2.getRatioTapChanger().deleteStateArrayElement(index);
+            leg2.getRatioTapChanger().deleteVariantArrayElement(index);
         }
         if (leg3.getRatioTapChanger() != null) {
-            leg3.getRatioTapChanger().deleteStateArrayElement(index);
+            leg3.getRatioTapChanger().deleteVariantArrayElement(index);
         }
     }
 
     @Override
-    public void allocateStateArrayElement(int[] indexes, int sourceIndex) {
-        super.allocateStateArrayElement(indexes, sourceIndex);
+    public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+        super.allocateVariantArrayElement(indexes, sourceIndex);
         if (leg2.getRatioTapChanger() != null) {
-            leg2.getRatioTapChanger().allocateStateArrayElement(indexes, sourceIndex);
+            leg2.getRatioTapChanger().allocateVariantArrayElement(indexes, sourceIndex);
         }
         if (leg3.getRatioTapChanger() != null) {
-            leg3.getRatioTapChanger().allocateStateArrayElement(indexes, sourceIndex);
+            leg3.getRatioTapChanger().allocateVariantArrayElement(indexes, sourceIndex);
         }
     }
 

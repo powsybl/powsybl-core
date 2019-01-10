@@ -11,7 +11,7 @@ import javax.xml.stream.XMLStreamWriter;
 import java.util.List;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public abstract class AbstractTsoGeneratorAutomaton extends AbstractSecurityIndex {
 

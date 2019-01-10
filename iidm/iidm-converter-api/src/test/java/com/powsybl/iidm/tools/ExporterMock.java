@@ -16,7 +16,7 @@ import java.util.Properties;
 import static org.junit.Assert.assertEquals;
 
 /**
- * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 @AutoService(Exporter.class)
 public class ExporterMock implements Exporter {
