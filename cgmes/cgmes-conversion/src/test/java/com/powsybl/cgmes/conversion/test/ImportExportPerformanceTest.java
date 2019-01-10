@@ -45,7 +45,7 @@ public class ImportExportPerformanceTest {
 
     @Test
     public void smallcase1() throws IOException {
-        importExport(TripleStoreFactory.allImplementations(), catalog.small1());
+        importExport(TripleStoreFactory.onlyDefaultImplementation(), catalog.small1());
     }
 
     private void importExport(List<String> tsImpls, TestGridModel gm) throws IOException {
