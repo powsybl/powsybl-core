@@ -1,15 +1,14 @@
 language: java
 
 dist: trusty
-
 sudo: required
 
 os:
-    - linux
-    - osx
+- linux
+- osx
 
 jdk:
-    - openjdk11
+- openjdk11
 
 addons:
     sonarcloud:
@@ -18,4 +17,4 @@ addons:
             secure: ${SONAR_TOKEN}
 
 script:
-    - mvn clean verify -Pjacoco coveralls:report sonar:sonar
+- mvn clean verify -Pjacoco coveralls:report sonar:sonar
