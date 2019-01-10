@@ -157,7 +157,7 @@ OPTIONAL {
 		?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNodeCN .
 		?TopologicalNodeCN 
 			cim:IdentifiedObject.name ?topologicalNodeCNName ;
-			cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainerTopoCN
+			cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainerCNTopo
 		OPTIONAL { GRAPH ?graphSVCN {
 			?SvVoltageCN 
 				a cim:SvVoltage ;
@@ -171,7 +171,7 @@ OPTIONAL { GRAPH ?graphTPT {
 	?Terminal cim:Terminal.TopologicalNode ?TopologicalNodeT .
 	?TopologicalNodeT 
 		cim:IdentifiedObject.name ?topologicalNodeTName ;
-		cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainerTopoT
+		cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainerTTopo
 	OPTIONAL { GRAPH ?graphSVT {
 		?SvVoltageT 
 			a cim:SvVoltage ;
@@ -187,6 +187,7 @@ SELECT *
 WHERE {
 { GRAPH ?graphEQ {
     ?ConnectivityNodeContainer a ?connectivityNodeContainerType .
+    VALUES ?connectivityNodeContainerType { cim:VoltageLevel cim:Bay cim:Line } .
     OPTIONAL {
         ?ConnectivityNodeContainer
             a cim:VoltageLevel ;
@@ -198,9 +199,6 @@ WHERE {
             cim:Bay.VoltageLevel ?VoltageLevel .
         ?VoltageLevel cim:VoltageLevel.Substation ?Substation
     }
-    OPTIONAL {
-	    ?ConnectivityNodeContainer a cim:Line
-	}
 }}
 }
 
