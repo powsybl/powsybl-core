@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 import org.junit.After;
 import org.junit.Before;
@@ -46,13 +45,13 @@ public class LoadFlowResultsCompletionZ0FlowsTest {
     public void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
     }
-    
+
     @After
     public void tearDown() throws IOException {
         fileSystem.close();
     }
 
-   private Network createNetwork() {
+    private Network createNetwork() {
         Network network = NetworkFactory.create("test", "test");
         Substation s = network.newSubstation()
                 .setId("S1")
@@ -390,10 +389,10 @@ public class LoadFlowResultsCompletionZ0FlowsTest {
         CandidateComputation computation = new LoadFlowResultsCompletion(parameters, lfParameters);
         assertEquals(LoadFlowResultsCompletion.NAME, computation.getName());
         computation.run(network, null);
-        
+
         ValidationConfig config = createValidationConfig(lfParameters);
         Path working = Files.createDirectories(fileSystem.getPath("temp-validation"));
-        
+
         boolean rb = ValidationType.BUSES.check(network, config, working);
         assertTrue(rb);
     }
