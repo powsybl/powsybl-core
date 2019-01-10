@@ -15,6 +15,7 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.resultscompletion.z0flows.BusLineZ0BalanceFlowCalculator;
 import com.powsybl.loadflow.validation.CandidateComputation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,6 +94,7 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
             completeTerminalData(twt.getLeg3().getTerminal(), ThreeWindingsTransformer.Side.THREE, twtData);
         });
 
+        BusLineZ0BalanceFlowCalculator.calc(network);
     }
 
     private void completeTerminalData(Terminal terminal, Side side, BranchData branchData) {

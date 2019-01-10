@@ -258,12 +258,15 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(twt3w.getLeg2()).thenReturn(leg2);
         Mockito.when(twt3w.getLeg3()).thenReturn(leg3);
 
+        Network.BusView busView = Mockito.mock(Network.BusView.class);
+        Mockito.when(busView.getBusStream()).thenAnswer(dummy -> Stream.of(lineBus1, lineBus2, twtBus1, twtBus2, shuntBus, leg1Bus, leg2Bus, leg3Bus));
 
         StateManager stateManager = Mockito.mock(StateManager.class);
         Mockito.when(stateManager.getWorkingStateId()).thenReturn(StateManagerConstants.INITIAL_STATE_ID);
 
         network = Mockito.mock(Network.class);
         Mockito.when(network.getId()).thenReturn("network");
+        Mockito.when(network.getBusView()).thenReturn(busView);
         Mockito.when(network.getStateManager()).thenReturn(stateManager);
         Mockito.when(network.getLineStream()).thenAnswer(dummy -> Stream.of(line));
         Mockito.when(network.getTwoWindingsTransformerStream()).thenAnswer(dummy -> Stream.of(transformer));
