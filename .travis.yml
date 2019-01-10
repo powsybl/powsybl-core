@@ -5,7 +5,6 @@ dist: trusty
 sudo: required
 
 os:
-    - windows
     - linux
     - osx
 
