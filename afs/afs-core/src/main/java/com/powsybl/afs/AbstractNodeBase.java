@@ -153,7 +153,7 @@ public abstract class AbstractNodeBase<F> {
         Objects.requireNonNull(name);
         if (!nodeNameAlreadyExists(name)) {
             storage.renameNode(info.getId(), name);
-            storage.flush();
+            info.setName(name);
         } else {
             throw new AfsException("name already exists");
         }

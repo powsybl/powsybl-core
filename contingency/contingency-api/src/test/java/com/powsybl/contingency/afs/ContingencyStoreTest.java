@@ -28,7 +28,7 @@ public class ContingencyStoreTest extends AbstractProjectFileTest {
 
     @Override
     protected AppStorage createStorage() {
-        return MapDbAppStorage.createHeap("mem");
+        return MapDbAppStorage.createMem("mem");
     }
 
     @Override

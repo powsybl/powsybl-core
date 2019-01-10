@@ -31,7 +31,7 @@ public class AppDataBeanMock extends AppDataBean {
     @Override
     public void init() {
         appData = Mockito.mock(AppData.class);
-        ListenableAppStorage storage = new DefaultListenableAppStorage(MapDbAppStorage.createHeap(TEST_FS_NAME));
+        ListenableAppStorage storage = new DefaultListenableAppStorage(MapDbAppStorage.createMem(TEST_FS_NAME));
         Mockito.when(appData.getRemotelyAccessibleStorage(TEST_FS_NAME))
                 .thenReturn(storage);
         Mockito.when(appData.getRemotelyAccessibleFileSystemNames())
