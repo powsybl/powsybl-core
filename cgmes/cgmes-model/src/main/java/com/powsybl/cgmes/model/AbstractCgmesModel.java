@@ -78,13 +78,14 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         cachedTerminals.values().forEach(t -> {
             if (t.connectivityNode() != null && !added.contains(t.connectivityNode())) {
                 added.add(t.connectivityNode());
-                PropertyBag n = new PropertyBag(Arrays.asList("ConnectivityNode", "name", "ConnectivityNodeContainer", "TopologicalNode", "v", "angle"));
-                n.put("ConnectivityNode", t.connectivityNode());
-                n.put("name", t.connectivityNodeName());
-                n.put("ConnectivityNodeContainer", t.connectivityNodeContainer());
-                n.put("TopologicalNode", t.topologicalNode());
-                n.put("v", t.v());
-                n.put("angle", t.angle());
+                PropertyBag n = new PropertyBag(Arrays.asList("ConnectivityNode", "name", "ConnectivityNodeContainer",
+                        "TopologicalNode", "v", "angle"));
+                n.putNonNull("ConnectivityNode", t.connectivityNode());
+                n.putNonNull("name", t.connectivityNodeName());
+                n.putNonNull("ConnectivityNodeContainer", t.connectivityNodeContainer());
+                n.putNonNull("TopologicalNode", t.topologicalNode());
+                n.putNonNull("v", t.v());
+                n.putNonNull("angle", t.angle());
                 ns.add(n);
             }
         });
@@ -102,12 +103,14 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         cachedTerminals.values().forEach(t -> {
             if (t.topologicalNode() != null && !added.contains(t.topologicalNode())) {
                 added.add(t.topologicalNode());
-                PropertyBag n = new PropertyBag(Arrays.asList("TopologicalNode", "name", "ConnectivityNodeContainer", "v", "angle"));
-                n.put("TopologicalNode", t.topologicalNode());
-                n.put("name", t.topologicalNodeName());
-                n.put("ConnectivityNodeContainer", t.connectivityNodeContainerTopo());
-                n.put("v", t.v());
-                n.put("angle", t.angle());
+                PropertyBag n = new PropertyBag(
+                        Arrays.asList("TopologicalNode", "name", "ConnectivityNodeContainer", "v", "angle"));
+                n.putNonNull("TopologicalNode", t.topologicalNode());
+                n.putNonNull("name", t.topologicalNodeName());
+                n.putNonNull("BaseVoltage", t.topologicalNodeBaseVoltage());
+                n.putNonNull("ConnectivityNodeContainer", t.connectivityNodeContainerTopo());
+                n.putNonNull("v", t.v());
+                n.putNonNull("angle", t.angle());
                 ns.add(n);
             }
         });
@@ -138,6 +141,16 @@ public abstract class AbstractCgmesModel implements CgmesModel {
             cachedContainers = computeContainers();
         }
         return cachedContainers.get(containerId);
+    }
+
+    @Override
+    public double nominalVoltage(String baseVoltageId) {
+        if (cachedBaseVoltages == null) {
+            cachedBaseVoltages = new HashMap<>();
+            baseVoltages()
+                    .forEach(bv -> cachedBaseVoltages.put(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage")));
+        }
+        return cachedBaseVoltages.get(baseVoltageId);
     }
 
     private CgmesContainer container(CgmesTerminal t) {
@@ -215,6 +228,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     private Map<String, PropertyBags> cachedGroupedTransformerEnds;
     private Map<String, CgmesTerminal> cachedTerminals;
     private Map<String, CgmesContainer> cachedContainers;
+    private Map<String, Double> cachedBaseVoltages;
     private Map<String, String> conductingEquipmentTerminal;
     private Map<String, String> powerTransformerRatioTapChanger;
     private Map<String, String> powerTransformerPhaseTapChanger;

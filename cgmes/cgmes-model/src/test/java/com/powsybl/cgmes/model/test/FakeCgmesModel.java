@@ -487,4 +487,9 @@ public final class FakeCgmesModel implements CgmesModel {
     public CgmesContainer container(String containerId) {
         return null;
     }
+
+    @Override
+    public double nominalVoltage(String baseVoltageId) {
+        return Double.NaN;
+    }
 }

@@ -135,4 +135,6 @@ public interface CgmesModel {
     String voltageLevel(CgmesTerminal t);
 
     CgmesContainer container(String containerId);
+
+    double nominalVoltage(String baseVoltageId);
 }

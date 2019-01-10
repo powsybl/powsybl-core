@@ -17,17 +17,20 @@ public class CgmesTerminal {
         if (t.containsKey("TopologicalNodeT")) {
             this.topologicalNode = t.getId("TopologicalNodeT");
             this.topologicalNodeName = t.getId("topologicalNodeTName");
+            this.topologicalNodeBaseVoltage = t.getId("topologicalNodeTBaseVoltage");
             this.connectivityNodeContainerTopo = t.getId("ConnectivityNodeContainerTTopo");
             this.v = t.get("vT");
             this.angle = t.get("angleT");
         } else {
             this.topologicalNode = t.getId("TopologicalNodeCN");
             this.topologicalNodeName = t.getId("topologicalNodeCNName");
+            this.topologicalNodeBaseVoltage = t.getId("topologicalNodeCNBaseVoltage");
             this.connectivityNodeContainerTopo = t.getId("ConnectivityNodeContainerCNTopo");
             this.v = t.get("vCN");
             this.angle = t.get("angleCN");
         }
-        // FIXME(Luma): another possibility: the two topo nodes are different and have different voltages
+        // FIXME(Luma): another possibility: the two topo nodes are different and have
+        // different voltages
         // which one should we take ?
 
         // FIXME(Luma): We could check for inconsistencies
@@ -65,6 +68,10 @@ public class CgmesTerminal {
         return topologicalNodeName;
     }
 
+    public String topologicalNodeBaseVoltage() {
+        return topologicalNodeBaseVoltage;
+    }
+
     public String v() {
         return v;
     }
@@ -99,6 +106,7 @@ public class CgmesTerminal {
     private final String topologicalNode;
     private final String connectivityNodeName;
     private final String topologicalNodeName;
+    private final String topologicalNodeBaseVoltage;
     private final String connectivityNodeContainer;
     private final String connectivityNodeContainerTopo;
 

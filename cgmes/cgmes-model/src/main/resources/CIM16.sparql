@@ -157,6 +157,7 @@ OPTIONAL {
 		?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNodeCN .
 		?TopologicalNodeCN 
 			cim:IdentifiedObject.name ?topologicalNodeCNName ;
+			cim:TopologicalNode.BaseVoltage ?topologicalNodeCNBaseVoltage ;
 			cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainerCNTopo
 		OPTIONAL { GRAPH ?graphSVCN {
 			?SvVoltageCN 
@@ -175,6 +176,7 @@ OPTIONAL {
 		# Definition of topological node may be in a boundary (different TP of Terminal)
 		?TopologicalNodeT 
 			cim:IdentifiedObject.name ?topologicalNodeTName ;
+			cim:TopologicalNode.BaseVoltage ?topologicalNodeTBaseVoltage ;
 			cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainerTTopo
 	}
 	OPTIONAL { GRAPH ?graphSVT {

@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.model.CgmesContainer;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.BusbarSection;
@@ -36,15 +37,21 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
     @Override
     public void convertInsideBoundary() {
         if (context.config().convertBoundary()) {
-            double v = p.asDouble("nominalVoltage");
+            String bv = p.getId("BaseVoltage");
+            double v = context.cgmes().nominalVoltage(bv);
             LOG.info("Boundary node will be converted {}, nominalVoltage {}", id, v);
             VoltageLevel voltageLevel = context.createSubstationVoltageLevel(id, v);
             newBus(voltageLevel);
         } else {
-            double v = p.asDouble("v");
-            double angle = p.asDouble("angle");
-            if (valid(v, angle)) {
-                context.boundary().addVoltageAtBoundary(id, v, angle);
+            // FIXME(Luma): when the boundary nodes are not converted to IIDM buses
+            // they are not exported (the SV is built from buses of IIDM network)
+            // if we try to re-import the exported CGMES, those nodes do not have voltage
+            if (p.containsKey("v") && p.containsKey("angle")) {
+                double v = p.asDouble("v");
+                double angle = p.asDouble("angle");
+                if (valid(v, angle)) {
+                    context.boundary().addVoltageAtBoundary(id, v, angle);
+                }
             }
         }
     }
