@@ -11,7 +11,7 @@ import java.util.List;
 
 import org.apache.commons.math3.complex.Complex;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.DanglingLine;
@@ -27,7 +27,7 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class ACLineSegmentConversion extends AbstractBranchConversion {
 
-    public ACLineSegmentConversion(PropertyBag line, Conversion.Context context) {
+    public ACLineSegmentConversion(PropertyBag line, Context context) {
         super(CgmesNames.AC_LINE_SEGMENT, line, context);
     }
 

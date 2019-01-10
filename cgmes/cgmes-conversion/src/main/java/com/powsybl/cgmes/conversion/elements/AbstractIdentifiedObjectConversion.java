@@ -7,7 +7,7 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.IdentifiableAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -17,14 +17,14 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectConversion {
 
-    public AbstractIdentifiedObjectConversion(String type, PropertyBag properties, Conversion.Context context) {
+    public AbstractIdentifiedObjectConversion(String type, PropertyBag properties, Context context) {
         super(type, properties, context);
 
         this.id = properties.getId(type);
         this.name = p.get("name");
     }
 
-    public AbstractIdentifiedObjectConversion(String type, PropertyBags propertiess, Conversion.Context context) {
+    public AbstractIdentifiedObjectConversion(String type, PropertyBags propertiess, Context context) {
         super(type, propertiess, context);
 
         this.id = ps.get(0).getId(type);

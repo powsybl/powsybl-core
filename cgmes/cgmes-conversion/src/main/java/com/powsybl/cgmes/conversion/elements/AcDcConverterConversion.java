@@ -9,7 +9,7 @@ package com.powsybl.cgmes.conversion.elements;
 
 import java.util.Objects;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 import com.powsybl.iidm.network.LccConverterStationAdder;
@@ -21,7 +21,7 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class AcDcConverterConversion extends AbstractConductingEquipmentConversion {
 
-    public AcDcConverterConversion(PropertyBag c, Conversion.Context context) {
+    public AcDcConverterConversion(PropertyBag c, Context context) {
         super("ACDCConverter", c, context);
         converterType = decodeType(p.getLocal("type"));
     }

@@ -7,7 +7,7 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.BusbarSectionAdder;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -17,7 +17,7 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class BusbarSectionConversion extends AbstractConductingEquipmentConversion {
 
-    public BusbarSectionConversion(PropertyBag bbs, Conversion.Context context) {
+    public BusbarSectionConversion(PropertyBag bbs, Context context) {
         super("BusbarSection", bbs, context);
     }
 

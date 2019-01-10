@@ -19,7 +19,7 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class DcMapping {
 
-    public DcMapping(Conversion.Context context) {
+    public DcMapping(Context context) {
         this.context = context;
         terminals = new HashMap<>();
         converters = new HashMap<>();
@@ -103,7 +103,7 @@ public class DcMapping {
             this.connected = connected;
         }
 
-        public void tp(String topologicalNode, String substation, Conversion.Context context) {
+        public void tp(String topologicalNode, String substation, Context context) {
             checkAssign(topologicalNode, substation, context);
         }
 
@@ -132,7 +132,7 @@ public class DcMapping {
         }
 
         private void checkAssign(String topologicalNode, String substation,
-                Conversion.Context context) {
+                Context context) {
             checkAssignAttr("topologicalNode", this.topologicalNode, topologicalNode, context);
             this.topologicalNode = topologicalNode;
             checkAssignAttr("substation", this.substation, substation, context);
@@ -140,7 +140,7 @@ public class DcMapping {
         }
 
         private boolean checkAssignAttr(String attribute, String value0, String value1,
-                Conversion.Context context) {
+                Context context) {
             if (value0 == null || value0.equals(value1)) {
                 return true;
             } else {
@@ -151,7 +151,7 @@ public class DcMapping {
         }
     }
 
-    private final Conversion.Context context;
+    private final Context context;
     private final Map<String, DcTerminal> terminals;
     private final Map<String, HvdcConverterStation> converters;
     private final Map<HvdcConverterStation, PropertyBag> cgmesConverters;

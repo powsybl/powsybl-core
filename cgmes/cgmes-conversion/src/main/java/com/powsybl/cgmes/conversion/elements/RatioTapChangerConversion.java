@@ -10,7 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
@@ -22,7 +22,7 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversion {
 
-    public RatioTapChangerConversion(PropertyBag rtc, Conversion.Context context) {
+    public RatioTapChangerConversion(PropertyBag rtc, Context context) {
         super("RatioTapChanger", rtc, context);
 
         tx2 = context.tapChangerTransformers().transformer2(id);

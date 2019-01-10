@@ -7,7 +7,7 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -17,14 +17,14 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public abstract class AbstractObjectConversion {
 
-    public AbstractObjectConversion(String type, PropertyBag properties, Conversion.Context context) {
+    public AbstractObjectConversion(String type, PropertyBag properties, Context context) {
         this.type = type;
         this.p = properties;
         this.ps = null;
         this.context = context;
     }
 
-    public AbstractObjectConversion(String type, PropertyBags propertiess, Conversion.Context context) {
+    public AbstractObjectConversion(String type, PropertyBags propertiess, Context context) {
         this.type = type;
         this.p = null;
         this.ps = propertiess;
@@ -113,5 +113,5 @@ public abstract class AbstractObjectConversion {
     protected final String type;
     protected final PropertyBag p;
     protected final PropertyBags ps;
-    protected final Conversion.Context context;
+    protected final Context context;
 }

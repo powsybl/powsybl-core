@@ -7,7 +7,7 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -17,7 +17,7 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class StaticVarCompensatorConversion extends AbstractConductingEquipmentConversion {
 
-    public StaticVarCompensatorConversion(PropertyBag svc, Conversion.Context context) {
+    public StaticVarCompensatorConversion(PropertyBag svc, Context context) {
         super("StaticVarCompensator", svc, context);
     }
 

@@ -1,6 +1,6 @@
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.triplestore.api.PropertyBag;
 
 public abstract class AbstractBranchConversion extends AbstractConductingEquipmentConversion {
@@ -8,7 +8,7 @@ public abstract class AbstractBranchConversion extends AbstractConductingEquipme
     public AbstractBranchConversion(
             String type,
             PropertyBag p,
-            Conversion.Context context) {
+            Context context) {
         super(type, p, context, 2);
     }
 

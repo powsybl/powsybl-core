@@ -14,7 +14,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
@@ -29,7 +29,7 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversion {
 
-    public PhaseTapChangerConversion(PropertyBag ptc, Conversion.Context context) {
+    public PhaseTapChangerConversion(PropertyBag ptc, Context context) {
         super("PhaseTapChanger", ptc, context);
 
         configIsInvertVoltageStepIncrementOutOfPhase = false;

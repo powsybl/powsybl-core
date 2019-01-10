@@ -7,7 +7,7 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -17,7 +17,7 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class EquivalentBranchConversion extends AbstractBranchConversion {
 
-    public EquivalentBranchConversion(PropertyBag b, Conversion.Context context) {
+    public EquivalentBranchConversion(PropertyBag b, Context context) {
         super("EquivalentBranch", b, context);
     }
 

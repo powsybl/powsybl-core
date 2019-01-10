@@ -12,7 +12,7 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.BusbarSection;
@@ -24,7 +24,7 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class NodeConversion extends AbstractIdentifiedObjectConversion {
 
-    public NodeConversion(String nodeTypeName, PropertyBag n, Conversion.Context context) {
+    public NodeConversion(String nodeTypeName, PropertyBag n, Context context) {
         super(nodeTypeName, n, context);
     }
 

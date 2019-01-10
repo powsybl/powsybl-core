@@ -7,7 +7,7 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
@@ -33,7 +33,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     public AbstractConductingEquipmentConversion(
             String type,
             PropertyBag p,
-            Conversion.Context context) {
+            Context context) {
         super(type, p, context);
         numTerminals = 1;
         terminals = new TerminalData[] {null, null, null};
@@ -44,7 +44,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     public AbstractConductingEquipmentConversion(
             String type,
             PropertyBag p,
-            Conversion.Context context,
+            Context context,
             int numTerminals) {
         super(type, p, context);
         // Information about each terminal is in properties of the unique property bag
@@ -63,7 +63,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     public AbstractConductingEquipmentConversion(
             String type,
             PropertyBags ps,
-            Conversion.Context context) {
+            Context context) {
         super(type, ps, context);
         // Information about each terminal is in each separate property bags
         // It is assumed the property bags are already sorted
@@ -262,7 +262,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         private final String iidmVoltageLevelId;
         private final VoltageLevel voltageLevel;
 
-        TerminalData(String terminalPropertyName, PropertyBag p, Conversion.Context context) {
+        TerminalData(String terminalPropertyName, PropertyBag p, Context context) {
             t = context.cgmes().terminal(p.getId(terminalPropertyName));
             String nodeId = context.nodeBreaker() ? t.connectivityNode() : t.topologicalNode();
             this.busId = context.namingStrategy().getId("Bus", nodeId);

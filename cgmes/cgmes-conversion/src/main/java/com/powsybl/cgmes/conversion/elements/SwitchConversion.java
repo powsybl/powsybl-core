@@ -10,7 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.iidm.network.SwitchKind;
@@ -22,7 +22,7 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class SwitchConversion extends AbstractConductingEquipmentConversion {
 
-    public SwitchConversion(PropertyBag sw, Conversion.Context context) {
+    public SwitchConversion(PropertyBag sw, Context context) {
         super("Switch", sw, context, 2);
     }
 

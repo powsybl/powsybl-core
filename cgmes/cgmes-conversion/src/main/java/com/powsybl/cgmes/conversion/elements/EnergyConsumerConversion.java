@@ -7,7 +7,7 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadAdder;
@@ -19,7 +19,7 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class EnergyConsumerConversion extends AbstractConductingEquipmentConversion {
 
-    public EnergyConsumerConversion(PropertyBag ec, Conversion.Context context) {
+    public EnergyConsumerConversion(PropertyBag ec, Context context) {
         super("EnergyConsumer", ec, context);
     }
 

@@ -7,7 +7,7 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadAdder;
@@ -19,7 +19,7 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class AsynchronousMachineConversion extends AbstractConductingEquipmentConversion {
 
-    public AsynchronousMachineConversion(PropertyBag asm, Conversion.Context context) {
+    public AsynchronousMachineConversion(PropertyBag asm, Context context) {
         super("AsynchronousMachine", asm, context);
     }
 

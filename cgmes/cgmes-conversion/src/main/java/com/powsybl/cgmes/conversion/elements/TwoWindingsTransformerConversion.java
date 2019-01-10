@@ -7,7 +7,7 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
@@ -19,7 +19,7 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public class TwoWindingsTransformerConversion extends AbstractConductingEquipmentConversion {
 
-    public TwoWindingsTransformerConversion(PropertyBags ends, Conversion.Context context) {
+    public TwoWindingsTransformerConversion(PropertyBags ends, Context context) {
         super("PowerTransformer", ends, context);
         end1 = ends.get(0);
         end2 = ends.get(1);

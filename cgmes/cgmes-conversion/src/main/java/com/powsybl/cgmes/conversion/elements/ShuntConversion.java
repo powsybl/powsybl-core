@@ -7,7 +7,7 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.ShuntCompensator;
@@ -20,7 +20,7 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public class ShuntConversion extends AbstractConductingEquipmentConversion {
 
-    public ShuntConversion(PropertyBag sh, Conversion.Context context) {
+    public ShuntConversion(PropertyBag sh, Context context) {
         super("ShuntCompensator", sh, context);
     }
 

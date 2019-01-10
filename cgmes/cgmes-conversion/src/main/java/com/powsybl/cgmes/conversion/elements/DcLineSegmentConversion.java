@@ -9,7 +9,7 @@ package com.powsybl.cgmes.conversion.elements;
 
 import java.util.Objects;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
@@ -21,7 +21,7 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion {
 
-    public DcLineSegmentConversion(PropertyBag l, Conversion.Context context) {
+    public DcLineSegmentConversion(PropertyBag l, Context context) {
         super("DCLineSegment", l, context);
 
         iconverter1 = context.dc().converterAt(l.getId("DCTerminal1"));
