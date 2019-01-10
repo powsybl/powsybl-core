@@ -8,11 +8,10 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.computation.local.LocalComputationConfig;
-import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 
@@ -27,8 +26,7 @@ public class TerminalRefTest extends AbstractConverterTest {
     public void roundTripTest() throws IOException {
         String filename = "terminalRef.xiidm";
 
-        LocalComputationConfig config = new LocalComputationConfig(tmpDir, 1);
-        ComputationManager computationManager = new LocalComputationManager(config);
+        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
 
         Network network = Importers.loadNetwork(filename, getClass().getResourceAsStream("/" + filename), computationManager);
         assertNotNull(network);
