@@ -8,6 +8,7 @@ package com.powsybl.security.distributed;
 
 import com.powsybl.computation.*;
 import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.SecurityAnalysisParameters;
 import com.powsybl.security.SecurityAnalysisResult;
@@ -45,7 +46,8 @@ public class DistributedSecurityAnalysis extends ExternalSecurityAnalysis {
 
         ExecutionEnvironment itoolsEnv = new ExecutionEnvironment(Collections.emptyMap(), "security_analysis_task_", config.isDebug());
 
-        int actualTaskCount = Math.min(taskCount, contingenciesProvider.getContingencies(network).size());
+        List<Contingency> contingencies = contingenciesProvider.getContingencies(network);
+        int actualTaskCount = Math.min(taskCount, Math.max(1, contingencies.size()));
         return computationManager.execute(itoolsEnv, new SubTaskHandler(workingStateId, parameters, contingenciesProvider, actualTaskCount));
     }
 

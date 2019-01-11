@@ -89,6 +89,12 @@ public final class XmlUtil {
         }
     }
 
+    public static void writeOptionalString(String name, String value, XMLStreamWriter writer) throws XMLStreamException {
+        if (value != null) {
+            writer.writeAttribute(name, value);
+        }
+    }
+
     public static int readIntAttribute(XMLStreamReader reader, String attributeName) {
         return Integer.parseInt(reader.getAttributeValue(null, attributeName));
     }
