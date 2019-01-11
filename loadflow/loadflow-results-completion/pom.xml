@@ -61,6 +61,10 @@
             <artifactId>powsybl-loadflow-validation</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.jgrapht</groupId>
+            <artifactId>jgrapht-core</artifactId>
+        </dependency>
 
         <!-- Test dependencies -->
         <dependency>
