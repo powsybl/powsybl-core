@@ -150,7 +150,9 @@ public class Conversion {
 
         voltageAngles(nodes);
         checkShuntCompensators();
-        debugTopo();
+        if (context.config().debugTopology()) {
+            debugTopology();
+        }
 
         return network;
     }
@@ -285,11 +287,11 @@ public class Conversion {
         });
     }
 
-    private void debugTopo() {
+    private void debugTopology() {
         context.network().getVoltageLevels().forEach(vl -> {
             String name = vl.getSubstation().getName() + "-" + vl.getName();
             name = name.replace('/', '-');
-            String filename = "/Users/zamarrenolm/temp/kkcgmes-" + name + ".dot";
+            String filename = "/Users/zamarrenolm/temp/temp-cgmes-" + name + ".dot";
             try {
                 vl.exportTopology(filename);
             } catch (IOException e) {
@@ -301,6 +303,10 @@ public class Conversion {
     public static class Config {
         public List<String> substationIdsExcludedFromMapping() {
             return Collections.emptyList();
+        }
+
+        public boolean debugTopology() {
+            return false;
         }
 
         public boolean allowUnsupportedTapChangers() {
