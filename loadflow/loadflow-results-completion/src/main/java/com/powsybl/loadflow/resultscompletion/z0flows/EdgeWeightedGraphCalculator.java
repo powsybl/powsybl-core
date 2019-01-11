@@ -27,10 +27,11 @@ public class EdgeWeightedGraphCalculator {
 
     public void calc(SimpleWeightedGraph graph) {
 
-        bus.getLines().forEach(line -> {
+        bus.getLineStream().forEach(line -> {
             Side side = Side.ONE;
-            if (line.getTerminal2().getBusView().getBus().equals(bus))
+            if (line.getTerminal2().getBusView().getBus().equals(bus)) {
                 side = Side.TWO;
+            }
             visitLine(graph, line, side);
         });
     }

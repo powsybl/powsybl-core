@@ -67,7 +67,7 @@ public class Z0FlowsCompletion {
         List<Bus> levelBuses = new ArrayList<Bus>();
         levelBuses.add(z0Bus.getBus(0));
         levels.add(levelBuses);
-        
+
         int level = 0;
         while (level < levels.size()) {
 
@@ -140,7 +140,7 @@ public class Z0FlowsCompletion {
 
     private Network             network;
     private List<List<Bus>>     levels;
-    private Map<Bus,Line>       parent;
+    private Map<Bus, Line>      parent;
 
     private static final Logger LOG = LoggerFactory.getLogger(Z0FlowsCompletion.class);
 

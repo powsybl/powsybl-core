@@ -20,10 +20,9 @@ public class Z0LineWeightEdge extends DefaultWeightedEdge {
     public void setLine(Line line) {
         this.line = line;
     }
-    
+
     @Override
-    protected double getWeight()
-    {
+    protected double getWeight() {
         return line.getX();
     }
 }

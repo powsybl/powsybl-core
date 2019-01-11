@@ -48,10 +48,11 @@ public class BusZ0Calculator {
         int pos = 0;
         while (pos < z0Bus.size()) {
             Bus b = z0Bus.getBus(pos);
-            b.getLines().forEach(line -> {
+            b.getLineStream().forEach(line -> {
                 Side side = Side.ONE;
-                if (line.getTerminal2().getBusView().getBus().equals(bus))
+                if (line.getTerminal2().getBusView().getBus().equals(bus)) {
                     side = Side.TWO;
+                }
                 visitLine(line, side);
             });
             pos++;
