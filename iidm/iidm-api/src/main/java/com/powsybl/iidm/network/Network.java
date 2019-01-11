@@ -136,14 +136,6 @@ public interface Network extends Container<Network> {
     }
 
     /**
-     * @deprecated Use {@link #getVariantManager()} instead.
-     */
-    @Deprecated
-    default VariantManager getStateManager() {
-        return getVariantManager();
-    }
-
-    /**
      * Get all countries.
      */
     Set<Country> getCountries();

@@ -68,7 +68,7 @@ public class MapModuleConfigTest {
             fail();
         } catch (Exception ignored) {
         }
-        assertFalse(modConfig.getOptionalIntegerProperty("i2").isPresent());
+        assertFalse(modConfig.getOptionalIntProperty("i2").isPresent());
         assertEquals(4, modConfig.getIntProperty("i2", 4));
 
         // long tests

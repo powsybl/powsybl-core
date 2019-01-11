@@ -7,7 +7,6 @@
 package com.powsybl.security.distributed;
 
 import com.powsybl.commons.config.ConfigurationException;
-import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Objects;
@@ -54,14 +53,13 @@ public class ExternalSecurityAnalysisConfig {
 
     public static ExternalSecurityAnalysisConfig load(PlatformConfig platformConfig) {
 
-        boolean debug = DEFAULT_DEBUG;
-        String itoolsCommand = DEFAULT_COMMAND;
+        return platformConfig.getOptionalModuleConfig("external-security-analysis-config")
+                .map(module -> {
+                    boolean debug = module.getBooleanProperty("debug", DEFAULT_DEBUG);
+                    String itoolsCommand = module.getStringProperty("itools-command", DEFAULT_COMMAND);
+                    return new ExternalSecurityAnalysisConfig(debug, itoolsCommand);
+                })
+                .orElseGet(() -> new ExternalSecurityAnalysisConfig(DEFAULT_DEBUG, DEFAULT_COMMAND));
 
-        ModuleConfig module = platformConfig.getModuleConfigIfExists("external-security-analysis-config");
-        if (module != null) {
-            debug = module.getBooleanProperty("debug", DEFAULT_DEBUG);
-            itoolsCommand = module.getStringProperty("itools-command", DEFAULT_COMMAND);
-        }
-        return new ExternalSecurityAnalysisConfig(debug, itoolsCommand);
     }
 }

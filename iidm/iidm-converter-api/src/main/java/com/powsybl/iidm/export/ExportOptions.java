@@ -33,14 +33,6 @@ public class ExportOptions {
     public ExportOptions() {
     }
 
-    /**
-     * @deprecated Use {@link #ExportOptions(boolean, boolean, boolean, TopologyLevel, boolean)} instead.
-     */
-    @Deprecated
-    public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel) {
-        this(withBranchSV, indent, onlyMainCc, topologyLevel, true);
-    }
-
     public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound) {
         this.withBranchSV = withBranchSV;
         this.indent = indent;

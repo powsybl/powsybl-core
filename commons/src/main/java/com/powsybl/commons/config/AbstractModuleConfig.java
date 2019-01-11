@@ -83,19 +83,19 @@ public abstract class AbstractModuleConfig implements ModuleConfig {
     }
 
     @Override
-    public Optional<Integer> getOptionalIntegerProperty(String name) {
+    public OptionalInt getOptionalIntProperty(String name) {
         OptionalInt oi = getOptionalIntProperty(name);
-        return oi.isPresent() ? Optional.of(oi.getAsInt()) : Optional.empty();
+        return oi.isPresent() ? oi : OptionalInt.empty();
     }
 
     @Override
     public int getIntProperty(String name) {
-        return getOptionalIntegerProperty(name).orElseThrow(() -> createPropertyNotSetException(name));
+        return getOptionalIntProperty(name).orElseThrow(() -> createPropertyNotSetException(name));
     }
 
     @Override
     public int getIntProperty(String name, int defaultValue) {
-        return getOptionalIntegerProperty(name).orElse(defaultValue);
+        return getOptionalIntProperty(name).orElse(defaultValue);
     }
 
     @Override
