@@ -67,7 +67,7 @@ public class LimitViolationFilter {
                     filter.setCountries(moduleConfig.getEnumSetProperty("countries", Country.class, DEFAULT_COUNTRIES));
                     return filter;
                 })
-                .orElseGet(() -> new LimitViolationFilter());
+                .orElseGet(LimitViolationFilter::new);
     }
 
     private Set<LimitViolationType> violationTypes;
