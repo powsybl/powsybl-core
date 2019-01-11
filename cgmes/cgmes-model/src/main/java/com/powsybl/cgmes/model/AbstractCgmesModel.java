@@ -7,14 +7,14 @@
 
 package com.powsybl.cgmes.model;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -68,56 +68,6 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     @Override
-    public PropertyBags connectivityNodes() {
-        // FIXME(Luma) refactoring node-breaker conversion temporal
-        if (cachedTerminals == null) {
-            cachedTerminals = computeTerminals();
-        }
-        PropertyBags ns = new PropertyBags();
-        Set<String> added = new HashSet<>();
-        cachedTerminals.values().forEach(t -> {
-            if (t.connectivityNode() != null && !added.contains(t.connectivityNode())) {
-                added.add(t.connectivityNode());
-                PropertyBag n = new PropertyBag(Arrays.asList("ConnectivityNode", "name", "ConnectivityNodeContainer",
-                        "TopologicalNode", "v", "angle"));
-                n.putNonNull("ConnectivityNode", t.connectivityNode());
-                n.putNonNull("name", t.connectivityNodeName());
-                n.putNonNull("ConnectivityNodeContainer", t.connectivityNodeContainer());
-                n.putNonNull("TopologicalNode", t.topologicalNode());
-                n.putNonNull("v", t.v());
-                n.putNonNull("angle", t.angle());
-                ns.add(n);
-            }
-        });
-        return ns;
-    }
-
-    @Override
-    public PropertyBags topologicalNodes() {
-        // FIXME(Luma) refactoring node-breaker conversion temporal
-        if (cachedTerminals == null) {
-            cachedTerminals = computeTerminals();
-        }
-        PropertyBags ns = new PropertyBags();
-        Set<String> added = new HashSet<>();
-        cachedTerminals.values().forEach(t -> {
-            if (t.topologicalNode() != null && !added.contains(t.topologicalNode())) {
-                added.add(t.topologicalNode());
-                PropertyBag n = new PropertyBag(
-                        Arrays.asList("TopologicalNode", "name", "ConnectivityNodeContainer", "v", "angle"));
-                n.putNonNull("TopologicalNode", t.topologicalNode());
-                n.putNonNull("name", t.topologicalNodeName());
-                n.putNonNull("BaseVoltage", t.topologicalNodeBaseVoltage());
-                n.putNonNull("ConnectivityNodeContainer", t.connectivityNodeContainerTopo());
-                n.putNonNull("v", t.v());
-                n.putNonNull("angle", t.angle());
-                ns.add(n);
-            }
-        });
-        return ns;
-    }
-
-    @Override
     public String substation(CgmesTerminal t) {
         CgmesContainer c = container(t);
         if (c == null) {
@@ -154,11 +104,20 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     }
 
     private CgmesContainer container(CgmesTerminal t) {
+        if (cachedNodes == null) {
+            cachedNodes = computeNodes();
+        }
         String containerId = null;
-        if (t.connectivityNodeContainer() != null) {
-            containerId = t.connectivityNodeContainer();
-        } else if (t.connectivityNodeContainerTopo() != null) {
-            containerId = t.connectivityNodeContainerTopo();
+        String nodeId = t.connectivityNode() != null ? t.connectivityNode() : t.topologicalNode();
+        if (nodeId != null) {
+            PropertyBag node = cachedNodes.get(nodeId);
+            if (node != null) {
+                containerId = node.getId("ConnectivityNodeContainer");
+            } else {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Missing node {} from terminal {}", nodeId, t.id());
+                }
+            }
         }
         if (containerId == null) {
             return null;
@@ -197,6 +156,13 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         return gends;
     }
 
+    private Map<String, PropertyBag> computeNodes() {
+        Map<String, PropertyBag> nodes = new HashMap<>();
+        connectivityNodes().forEach(cn -> nodes.put(cn.getId("ConnectivityNode"), cn));
+        topologicalNodes().forEach(tn -> nodes.put(tn.getId("TopologicalNode"), tn));
+        return nodes;
+    }
+
     private Map<String, CgmesTerminal> computeTerminals() {
         Map<String, CgmesTerminal> ts = new HashMap<>();
         conductingEquipmentTerminal = new HashMap<>();
@@ -229,7 +195,10 @@ public abstract class AbstractCgmesModel implements CgmesModel {
     private Map<String, CgmesTerminal> cachedTerminals;
     private Map<String, CgmesContainer> cachedContainers;
     private Map<String, Double> cachedBaseVoltages;
+    private Map<String, PropertyBag> cachedNodes;
     private Map<String, String> conductingEquipmentTerminal;
     private Map<String, String> powerTransformerRatioTapChanger;
     private Map<String, String> powerTransformerPhaseTapChanger;
+
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractCgmesModel.class);
 }

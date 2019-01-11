@@ -9,32 +9,15 @@ public class CgmesTerminal {
         this.conductingEquipmentType = t.getLocal("conductingEquipmentType");
 
         this.connectivityNode = t.getId("ConnectivityNode");
-        this.connectivityNodeName = t.getLocal("connectivityNodeName");
-        this.connectivityNodeContainer = t.getId("ConnectivityNodeContainer");
+        this.topologicalNode = t.getId("TopologicalNode");
 
-        // If no TopologicalNode is specified for the Terminal
-        // Use the TopologicalNode of the ConnectivityNode
-        if (t.containsKey("TopologicalNodeT")) {
-            this.topologicalNode = t.getId("TopologicalNodeT");
-            this.topologicalNodeName = t.getId("topologicalNodeTName");
-            this.topologicalNodeBaseVoltage = t.getId("topologicalNodeTBaseVoltage");
-            this.connectivityNodeContainerTopo = t.getId("ConnectivityNodeContainerTTopo");
-            this.v = t.get("vT");
-            this.angle = t.get("angleT");
-        } else {
-            this.topologicalNode = t.getId("TopologicalNodeCN");
-            this.topologicalNodeName = t.getId("topologicalNodeCNName");
-            this.topologicalNodeBaseVoltage = t.getId("topologicalNodeCNBaseVoltage");
-            this.connectivityNodeContainerTopo = t.getId("ConnectivityNodeContainerCNTopo");
-            this.v = t.get("vCN");
-            this.angle = t.get("angleCN");
-        }
-        // FIXME(Luma): another possibility: the two topo nodes are different and have
-        // different voltages
-        // which one should we take ?
+        // A TopologicalNode can be obtained from a Terminal using
+        // relationship Terminal.TopologicalNode or
+        // Terminal.ConnectivityNode.TopologicalNode
 
-        // FIXME(Luma): We could check for inconsistencies
-        // If both TopologicalNodes are present, check that they are the same
+        // In some cases the two TopologicalNode's obtained through these
+        // two relationships may be different
+        // (FIXME(Luma): missing reference here)
 
         this.connected = t.asBoolean("connected", false);
         this.flow = new PowerFlow(t, "p", "q");
@@ -56,36 +39,8 @@ public class CgmesTerminal {
         return connectivityNode;
     }
 
-    public String connectivityNodeName() {
-        return connectivityNodeName;
-    }
-
     public String topologicalNode() {
         return topologicalNode;
-    }
-
-    public String topologicalNodeName() {
-        return topologicalNodeName;
-    }
-
-    public String topologicalNodeBaseVoltage() {
-        return topologicalNodeBaseVoltage;
-    }
-
-    public String v() {
-        return v;
-    }
-
-    public String angle() {
-        return angle;
-    }
-
-    public String connectivityNodeContainer() {
-        return connectivityNodeContainer;
-    }
-
-    public String connectivityNodeContainerTopo() {
-        return connectivityNodeContainerTopo;
     }
 
     public boolean connected() {
@@ -101,16 +56,6 @@ public class CgmesTerminal {
     private final String conductingEquipmentType;
     private final boolean connected;
     private final PowerFlow flow;
-
     private final String connectivityNode;
     private final String topologicalNode;
-    private final String connectivityNodeName;
-    private final String topologicalNodeName;
-    private final String topologicalNodeBaseVoltage;
-    private final String connectivityNodeContainer;
-    private final String connectivityNodeContainerTopo;
-
-    // FIXME(Luma) topological node data, temporal
-    private final String v;
-    private final String angle;
 }

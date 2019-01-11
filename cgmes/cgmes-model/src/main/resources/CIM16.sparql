@@ -144,49 +144,43 @@ OPTIONAL { GRAPH ?graphSV {
         cim:SvPowerFlow.p ?p ;
         cim:SvPowerFlow.q ?q
 }}
-OPTIONAL { 
-	GRAPH ?graphCN {
+OPTIONAL { GRAPH ?graphCN {
 		?Terminal cim:Terminal.ConnectivityNode ?ConnectivityNode .
-	}
-	GRAPH ?graphCN2 {
-		?ConnectivityNode
-			cim:IdentifiedObject.name ?connectivityNodeName ;
-			cim:ConnectivityNode.ConnectivityNodeContainer ?ConnectivityNodeContainer
-	}
-	OPTIONAL { GRAPH ?graphTPCN {
-		?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNodeCN .
-		?TopologicalNodeCN 
-			cim:IdentifiedObject.name ?topologicalNodeCNName ;
-			cim:TopologicalNode.BaseVoltage ?topologicalNodeCNBaseVoltage ;
-			cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainerCNTopo
-		OPTIONAL { GRAPH ?graphSVCN {
-			?SvVoltageCN 
-				a cim:SvVoltage ;
-		    	cim:SvVoltage.TopologicalNode ?TopologicalNodeCN ;
-				cim:SvVoltage.v ?vCN ;
-				cim:SvVoltage.angle ?angleCN 
-		}}
-	}}
+}}
+OPTIONAL { GRAPH ?graphTPT {
+		?Terminal cim:Terminal.TopologicalNode ?TopologicalNode .
+}}
 }
-OPTIONAL { 
-	GRAPH ?graphTPT {
-		?Terminal cim:Terminal.TopologicalNode ?TopologicalNodeT .
-	}
-	GRAPH ?graphTPT2 {
-		# Definition of topological node may be in a boundary (different TP of Terminal)
-		?TopologicalNodeT 
-			cim:IdentifiedObject.name ?topologicalNodeTName ;
-			cim:TopologicalNode.BaseVoltage ?topologicalNodeTBaseVoltage ;
-			cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainerTTopo
-	}
-	OPTIONAL { GRAPH ?graphSVT {
-		?SvVoltageT 
-			a cim:SvVoltage ;
-	    	cim:SvVoltage.TopologicalNode ?TopologicalNodeT ;
-			cim:SvVoltage.v ?vT ;
-			cim:SvVoltage.angle ?angleT 
-	}}
+
+# query: connectivityNodes
+SELECT *
+WHERE {
+{ GRAPH ?graphCN2 {
+	?ConnectivityNode
+		cim:IdentifiedObject.name ?name ;
+		cim:ConnectivityNode.ConnectivityNodeContainer ?ConnectivityNodeContainer
+}}
+OPTIONAL { GRAPH ?graphTPCN {
+	?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode 
+}}
 }
+
+# query: topologicalNodes
+SELECT *
+WHERE {
+{ GRAPH ?graphTP {
+	?TopologicalNode 
+		cim:IdentifiedObject.name ?name ;
+		cim:TopologicalNode.BaseVoltage ?BaseVoltage ;
+		cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainer
+}}
+OPTIONAL { GRAPH ?graphSVT {
+	?SvVoltageT 
+		a cim:SvVoltage ;
+    	cim:SvVoltage.TopologicalNode ?TopologicalNode ;
+		cim:SvVoltage.v ?v ;
+		cim:SvVoltage.angle ?angle 
+}}
 }
 
 # query: connectivityNodeContainers

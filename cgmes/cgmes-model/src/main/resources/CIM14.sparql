@@ -57,17 +57,16 @@ GRAPH ?graph2 {
 }
 
 # query: terminals
-# We are assuming here that connectivity node containers will always be voltage levels
 SELECT *
 WHERE {
 { GRAPH ?graph {
     ?Terminal
         a cim:Terminal ;
         cim:Terminal.ConductingEquipment ?ConductingEquipment .
-    ?ConductingEquipment a ?conductingEquipmentType .
+    ?ConductingEquipment a ?conductingEquipmentType
 }}
 { GRAPH ?graphTP {
-    ?Terminal cim:Terminal.connected ?connected .
+    ?Terminal cim:Terminal.connected ?connected
 }}
 OPTIONAL { GRAPH ?graphSV {
     ?SvPowerFlow
@@ -76,18 +75,25 @@ OPTIONAL { GRAPH ?graphSV {
         cim:SvPowerFlow.p ?p ;
         cim:SvPowerFlow.q ?q
 }}
-{ GRAPH ?graphTP2 {
-    ?Terminal cim:Terminal.TopologicalNode ?TopologicalNodeT .
-    ?TopologicalNodeT 
-    	cim:IdentifiedObject.name ?topologicalNodeTName ;
-    	cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainerTTopo
-	OPTIONAL { GRAPH ?graphSVT {
-		?SvVoltageT 
-			a cim:SvVoltage ;
-	    	cim:SvVoltage.TopologicalNode ?TopologicalNodeT ;
-			cim:SvVoltage.v ?vT ;
-			cim:SvVoltage.angle ?angleT 
-	}}
+OPTIONAL { GRAPH ?graphTP2 {
+    ?Terminal cim:Terminal.TopologicalNode ?TopologicalNode
+}}
+}
+
+# query: topologicalNodes
+SELECT *
+WHERE {
+{ GRAPH ?graphTP {
+    ?TopologicalNode 
+    	cim:IdentifiedObject.name ?name ;
+    	cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainer
+}}
+OPTIONAL { GRAPH ?graphSV {
+	?SvVoltage 
+		a cim:SvVoltage ;
+    	cim:SvVoltage.TopologicalNode ?TopologicalNode ;
+		cim:SvVoltage.v ?v ;
+		cim:SvVoltage.angle ?angle 
 }}
 }
 

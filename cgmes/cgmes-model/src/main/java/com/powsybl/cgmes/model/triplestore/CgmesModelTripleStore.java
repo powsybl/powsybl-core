@@ -185,6 +185,16 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags connectivityNodes() {
+        return namedQuery("connectivityNodes");
+    }
+
+    @Override
+    public PropertyBags topologicalNodes() {
+        return namedQuery("topologicalNodes");
+    }
+
+    @Override
     public PropertyBags connectivityNodeContainers() {
         return namedQuery("connectivityNodeContainers");
     }
