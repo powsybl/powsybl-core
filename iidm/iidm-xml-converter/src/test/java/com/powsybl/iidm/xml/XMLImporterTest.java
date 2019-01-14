@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.Properties;
 
 import static org.junit.Assert.*;
@@ -99,23 +100,24 @@ public class XMLImporterTest {
     }
 
     @Test
-    public void getFormat() throws Exception {
+    public void getFormat() {
         assertEquals("XIIDM", importer.getFormat());
     }
 
     @Test
-    public void getParameters() throws Exception {
+    public void getParameters() {
         assertEquals(1, importer.getParameters().size());
-        assertEquals("throwExceptionIfExtensionNotFound", importer.getParameters().get(0).getName());
+        assertEquals("iidm.import.xml.throw-exception-if-extension-not-found", importer.getParameters().get(0).getName());
+        assertEquals(Arrays.asList("iidm.import.xml.throw-exception-if-extension-not-found", "throwExceptionIfExtensionNotFound"), importer.getParameters().get(0).getNames());
     }
 
     @Test
-    public void getComment() throws Exception {
+    public void getComment() {
         assertEquals("IIDM XML v 1.0 importer", importer.getComment());
     }
 
     @Test
-    public void exists() throws Exception {
+    public void exists() {
         assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test0")));
         assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test1")));
         assertTrue(importer.exists(new FileDataSource(fileSystem.getPath("/"), "test2")));
@@ -141,7 +143,7 @@ public class XMLImporterTest {
     }
 
     @Test
-    public void importData() throws Exception {
+    public void importData() {
         // should be ok
         assertNotNull(importer.importData(new FileDataSource(fileSystem.getPath("/"), "test0"), null));
 
@@ -156,10 +158,21 @@ public class XMLImporterTest {
         assertNotNull(importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5"), null));
 
         // extension plugin will be not found but option is set to throw an exception
+        // (deprecated parameter name)
         Properties params = new Properties();
         params.put("throwExceptionIfExtensionNotFound", "true");
         try {
             importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5"), params);
+            fail();
+        } catch (RuntimeException ignored) {
+        }
+
+        // extension plugin will be not found but option is set to throw an exception
+        // (parameter name following same naming convention of XmlExporter)
+        Properties params2 = new Properties();
+        params2.put("iidm.import.xml.throw-exception-if-extension-not-found", "true");
+        try {
+            importer.importData(new FileDataSource(fileSystem.getPath("/"), "test5"), params2);
             fail();
         } catch (RuntimeException ignored) {
         }

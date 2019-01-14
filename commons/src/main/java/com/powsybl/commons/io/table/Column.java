@@ -19,11 +19,16 @@ public class Column {
 
     private HorizontalAlignment horizontalAlignment;
 
+    private HorizontalAlignment titleHorizontalAlignment;
+
     private NumberFormat numberFormat = null;
 
+    private int colspan = 1;
+
     public Column(String name) {
-        this.name = name;
+        this.name = Objects.requireNonNull(name);
         this.horizontalAlignment = HorizontalAlignment.LEFT;
+        this.titleHorizontalAlignment = HorizontalAlignment.LEFT;
     }
 
     public String getName() {
@@ -32,6 +37,15 @@ public class Column {
 
     public HorizontalAlignment getHorizontalAlignment() {
         return horizontalAlignment;
+    }
+
+    public HorizontalAlignment getTitleHorizontalAlignment() {
+        return titleHorizontalAlignment;
+    }
+
+    public Column setTitleHorizontalAlignment(HorizontalAlignment titleHorizontalAlignment) {
+        this.titleHorizontalAlignment = Objects.requireNonNull(titleHorizontalAlignment);
+        return this;
     }
 
     public Column setHorizontalAlignment(HorizontalAlignment horizontalAlignment) {
@@ -46,5 +60,21 @@ public class Column {
     public Column setNumberFormat(NumberFormat numberFormat) {
         this.numberFormat = Objects.requireNonNull(numberFormat);
         return this;
+    }
+
+    public int getColspan() {
+        return colspan;
+    }
+
+    public Column setColspan(int colspan) {
+        this.colspan = checkColspan(colspan);
+        return this;
+    }
+
+    private static int checkColspan(int colspan) {
+        if (colspan < 1) {
+            throw new IllegalArgumentException("colspan must be greater than 0");
+        }
+        return  colspan;
     }
 }

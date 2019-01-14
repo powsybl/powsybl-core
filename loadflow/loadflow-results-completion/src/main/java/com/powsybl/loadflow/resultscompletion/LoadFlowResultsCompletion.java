@@ -11,7 +11,9 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.util.BranchData;
+import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.CandidateComputation;
 import org.slf4j.Logger;
@@ -82,6 +84,15 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
             }
         });
 
+        network.getThreeWindingsTransformerStream().forEach(twt -> {
+            TwtData twtData = new TwtData(twt,
+                                          parameters.getEpsilonX(),
+                                          parameters.isApplyReactanceCorrection());
+            completeTerminalData(twt.getLeg1().getTerminal(), ThreeWindingsTransformer.Side.ONE, twtData);
+            completeTerminalData(twt.getLeg2().getTerminal(), ThreeWindingsTransformer.Side.TWO, twtData);
+            completeTerminalData(twt.getLeg3().getTerminal(), ThreeWindingsTransformer.Side.THREE, twtData);
+        });
+
     }
 
     private void completeTerminalData(Terminal terminal, Side side, BranchData branchData) {
@@ -93,6 +104,19 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
             if (Double.isNaN(terminal.getQ())) {
                 LOGGER.debug("Branch {}, Side {}: setting q = {}", branchData.getId(), side, branchData.getComputedQ(side));
                 terminal.setQ(branchData.getComputedQ(side));
+            }
+        }
+    }
+
+    private void completeTerminalData(Terminal terminal, ThreeWindingsTransformer.Side side, TwtData twtData) {
+        if (terminal.isConnected() && terminal.getBusView().getBus().isInMainConnectedComponent()) {
+            if (Double.isNaN(terminal.getP())) {
+                LOGGER.debug("Twt {}, Side {}: setting p = {}", twtData.getId(), side, twtData.getComputedP(side));
+                terminal.setP(twtData.getComputedP(side));
+            }
+            if (Double.isNaN(terminal.getQ())) {
+                LOGGER.debug("Twt {}, Side {}: setting q = {}", twtData.getId(), side, twtData.getComputedQ(side));
+                terminal.setQ(twtData.getComputedQ(side));
             }
         }
     }
