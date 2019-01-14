@@ -75,7 +75,7 @@ public class ImmutableSubstation extends AbstractImmutableIdentifiable<Substatio
 
     @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
-        return identifiable.getTwoWindingsTransformers();
+        return Iterables.transform(identifiable.getTwoWindingsTransformers(), ImmutableTwoWindingsTransformer::new);
     }
 
     @Override
@@ -95,12 +95,12 @@ public class ImmutableSubstation extends AbstractImmutableIdentifiable<Substatio
 
     @Override
     public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
-        return identifiable.getThreeWindingsTransformers();
+        return Iterables.transform(identifiable.getThreeWindingsTransformers(), ImmutableThreeWindingsTransformer::new);
     }
 
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
-        return identifiable.getThreeWindingsTransformerStream();
+        return identifiable.getThreeWindingsTransformerStream().map(ImmutableThreeWindingsTransformer::new);
     }
 
     @Override

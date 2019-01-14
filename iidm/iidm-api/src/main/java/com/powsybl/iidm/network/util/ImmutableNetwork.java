@@ -20,6 +20,8 @@ import java.util.stream.Stream;
  */
 public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> implements Network {
 
+    static final PowsyblException UNMODIFIABLE_EXCEPTION = new PowsyblException("Unmodifiable identifiable");
+
     public ImmutableNetwork(Network identifiable) {
         super(identifiable);
     }
@@ -29,7 +31,7 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
     }
 
     static PowsyblException createUnmodifiableNetworkException() {
-        return new PowsyblException("Unmodifiable identifiable");
+        return UNMODIFIABLE_EXCEPTION;
     }
 
     @Override
@@ -174,12 +176,12 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
-        return identifiable.getTwoWindingsTransformers();
+        return Iterables.transform(identifiable.getTwoWindingsTransformers(), ImmutableTwoWindingsTransformer::new);
     }
 
     @Override
     public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
-        return identifiable.getTwoWindingsTransformerStream();
+        return identifiable.getTwoWindingsTransformerStream().map(ImmutableTwoWindingsTransformer::new);
     }
 
     @Override
@@ -189,17 +191,17 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public TwoWindingsTransformer getTwoWindingsTransformer(String id) {
-        return identifiable.getTwoWindingsTransformer(id);
+        return ImmutableTwoWindingsTransformer.ofNullable(identifiable.getTwoWindingsTransformer(id));
     }
 
     @Override
     public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
-        return identifiable.getThreeWindingsTransformers();
+        return Iterables.transform(identifiable.getThreeWindingsTransformers(), ImmutableThreeWindingsTransformer::new);
     }
 
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
-        return identifiable.getThreeWindingsTransformerStream();
+        return identifiable.getThreeWindingsTransformerStream().map(ImmutableThreeWindingsTransformer::new);
     }
 
     @Override
@@ -209,7 +211,7 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public ThreeWindingsTransformer getThreeWindingsTransformer(String id) {
-        return identifiable.getThreeWindingsTransformer(id);
+        return ImmutableThreeWindingsTransformer.ofNullable(identifiable.getThreeWindingsTransformer(id));
     }
 
     @Override
@@ -434,7 +436,7 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public HvdcLineAdder newHvdcLine() {
-        return identifiable.newHvdcLine();
+        throw createUnmodifiableNetworkException();
     }
 
     @Override

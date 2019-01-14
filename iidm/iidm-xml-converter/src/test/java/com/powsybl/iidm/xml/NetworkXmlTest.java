@@ -15,19 +15,21 @@ import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyLevel;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.BusbarSectionExt;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
 import javax.xml.stream.XMLStreamException;
-
-import static org.junit.Assert.*;
-
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -40,12 +42,27 @@ public class NetworkXmlTest extends AbstractConverterTest {
         return network;
     }
 
+    public void writeToXmlTest(Network network, String ref) {
+        Path xmlFile = tmpDir.resolve("n.xml");
+        NetworkXml.writeAndValidate(network, xmlFile);
+        try {
+            compareXml(getClass().getResourceAsStream(ref), Files.newInputStream(xmlFile));
+        } catch (IOException e) {
+            fail();
+        }
+    }
+
     @Test
     public void roundTripTest() throws IOException {
         roundTripXmlTest(createEurostagTutorialExample1(),
                          NetworkXml::writeAndValidate,
                          NetworkXml::read,
                          "/eurostag-tutorial-example1.xml");
+    }
+
+    @Test
+    public void testWriteEurostag() {
+        writeToXmlTest(createEurostagTutorialExample1(), "/eurostag-tutorial-example1.xml");
     }
 
     @Test

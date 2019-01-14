@@ -6,23 +6,31 @@
  */
 package com.powsybl.iidm.xml;
 
-import java.io.IOException;
-
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
+import com.powsybl.iidm.network.util.ImmutableNetwork;
 import org.junit.Test;
 
-import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
+import java.io.IOException;
 
 /**
  * @author Luma Zamarreno <zamarrenolm at aia.es>
  */
-public class ThreeWindingsTransformerXmlTest extends AbstractConverterTest {
+public class ThreeWindingsTransformerXmlTest extends NetworkXmlTest {
+
+    private static final String REF = "/threeWindingsTransformerRoundTripRef.xml";
+    private static final Network NETWORK = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits();
+
+    @Test
+    public void testReadImmutable() {
+        writeToXmlTest(ImmutableNetwork.of(NETWORK), REF);
+    }
 
     @Test
     public void roundTripTest() throws IOException {
-        roundTripXmlTest(ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits(),
+        roundTripXmlTest(NETWORK,
                          NetworkXml::writeAndValidate,
                          NetworkXml::read,
-                         "/threeWindingsTransformerRoundTripRef.xml");
+                         REF);
     }
 }

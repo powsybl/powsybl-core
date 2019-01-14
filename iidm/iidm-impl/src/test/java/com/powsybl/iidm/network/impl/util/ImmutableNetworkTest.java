@@ -6,13 +6,15 @@
  */
 package com.powsybl.iidm.network.impl.util;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.util.ImmutableNetwork;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import java.util.HashSet;
+import java.util.Set;
+
+import static com.powsybl.iidm.network.impl.util.ImmutableTestHelper.testInvalidMethods;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -22,11 +24,13 @@ public class ImmutableNetworkTest {
     @Test
     public void test() {
         Network network = ImmutableNetwork.of(EurostagTutorialExample1Factory.create());
-        assertEquals("sim1", network.getId());
-        try {
-            network.setForecastDistance(10);
-            fail();
-        } catch (PowsyblException ignored) {
-        }
+        Set<String> expectedInvalidMethods = new HashSet<>();
+        expectedInvalidMethods.add("setForecastDistance");
+        expectedInvalidMethods.add("setCaseDate");
+        expectedInvalidMethods.add("newSubstation");
+        expectedInvalidMethods.add("newLine");
+        expectedInvalidMethods.add("newTieLine");
+        expectedInvalidMethods.add("newHvdcLine");
+        testInvalidMethods(network, expectedInvalidMethods);
     }
 }
