@@ -33,7 +33,7 @@ public class AfsBaseTest {
 
     @Before
     public void setup() {
-        storage = new DefaultListenableAppStorage(MapDbAppStorage.createHeap("mem"));
+        storage = new DefaultListenableAppStorage(MapDbAppStorage.createMem("mem"));
 
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         afs = new AppFileSystem("mem", true, storage);
