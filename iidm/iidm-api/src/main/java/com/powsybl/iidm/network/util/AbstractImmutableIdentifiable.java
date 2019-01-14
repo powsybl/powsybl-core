@@ -50,7 +50,7 @@ abstract class AbstractImmutableIdentifiable<I extends Identifiable<I>> implemen
     }
 
     @Override
-    public <E extends Extension<I>> E getExtension(Class<E> type) {
+    public <E extends Extension<I>> E getExtension(Class<? super E> type) {
         return identifiable.getExtension(type);
     }
 

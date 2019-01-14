@@ -149,11 +149,6 @@ public class ImmutableSubstation extends AbstractImmutableIdentifiable<Substatio
     }
 
     @Override
-    public <E extends Extension<Substation>> E getExtension(Class<E> type) {
-        return identifiable.getExtension(type);
-    }
-
-    @Override
     public <E extends Extension<Substation>> E getExtensionByName(String name) {
         return identifiable.getExtensionByName(name);
     }
