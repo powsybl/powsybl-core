@@ -164,6 +164,24 @@ public class ImmutableBus extends AbstractImmutableIdentifiable<Bus> implements 
         identifiable.visitConnectedOrConnectableEquipments(visitor);
     }
 
+    public Bus getBus() {
+        return identifiable;
+    }
+
+    @Override
+    public int hashCode() {
+        return identifiable.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        // TODO an immutable bus equals noraml bus???
+        if (obj instanceof ImmutableBus) {
+            return identifiable.equals(((ImmutableBus) obj).getBus());
+        }
+        return false;
+    }
+
     protected ImmutableBus(ImmutableBus identifiable) {
         super(identifiable);
     }

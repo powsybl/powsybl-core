@@ -83,6 +83,8 @@ public class ImmutableTerminal implements Terminal {
                 return ImmutableTwoWindingsTransformer.ofNullable((TwoWindingsTransformer) terminal.getConnectable());
             case THREE_WINDINGS_TRANSFORMER:
                 return ImmutableThreeWindingsTransformer.ofNullable((ThreeWindingsTransformer) terminal.getConnectable());
+            case GENERATOR:
+                return ImmutableGenerator.ofNullable((Generator) terminal.getConnectable());
             default:
                 return terminal.getConnectable();
         }

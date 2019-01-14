@@ -216,12 +216,12 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Iterable<Generator> getGenerators() {
-        return identifiable.getGenerators();
+        return Iterables.transform(identifiable.getGenerators(), ImmutableGenerator::new);
     }
 
     @Override
     public Stream<Generator> getGeneratorStream() {
-        return identifiable.getGeneratorStream();
+        return identifiable.getGeneratorStream().map(ImmutableGenerator::new);
     }
 
     @Override
@@ -231,17 +231,17 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Generator getGenerator(String id) {
-        return identifiable.getGenerator(id);
+        return ImmutableGenerator.ofNullable(identifiable.getGenerator(id));
     }
 
     @Override
     public Iterable<Load> getLoads() {
-        return identifiable.getLoads();
+        return Iterables.transform(identifiable.getLoads(), ImmutableLoad::new);
     }
 
     @Override
     public Stream<Load> getLoadStream() {
-        return identifiable.getLoadStream();
+        return identifiable.getLoadStream().map(ImmutableLoad::new);
     }
 
     @Override
@@ -251,7 +251,7 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Load getLoad(String id) {
-        return identifiable.getLoad(id);
+        return ImmutableLoad.ofNullable(identifiable.getLoad(id));
     }
 
     @Override

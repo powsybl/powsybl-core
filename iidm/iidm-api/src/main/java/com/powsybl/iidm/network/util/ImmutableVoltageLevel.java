@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.util;
 
+import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
 
 import java.io.IOException;
@@ -98,17 +99,17 @@ public class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<Voltage
 
     @Override
     public GeneratorAdder newGenerator() {
-        return identifiable.newGenerator();
+        throw ImmutableNetwork.createUnmodifiableNetworkException();
     }
 
     @Override
     public Iterable<Generator> getGenerators() {
-        return identifiable.getGenerators();
+        return Iterables.transform(identifiable.getGenerators(), ImmutableGenerator::new);
     }
 
     @Override
     public Stream<Generator> getGeneratorStream() {
-        return identifiable.getGeneratorStream();
+        return identifiable.getGeneratorStream().map(ImmutableGenerator::new);
     }
 
     @Override
@@ -118,17 +119,17 @@ public class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<Voltage
 
     @Override
     public LoadAdder newLoad() {
-        return identifiable.newLoad();
+        throw ImmutableNetwork.createUnmodifiableNetworkException();
     }
 
     @Override
     public Iterable<Load> getLoads() {
-        return identifiable.getLoads();
+        return Iterables.transform(identifiable.getLoads(), ImmutableLoad::new);
     }
 
     @Override
     public Stream<Load> getLoadStream() {
-        return identifiable.getLoadStream();
+        return identifiable.getLoadStream().map(ImmutableLoad::new);
     }
 
     @Override
