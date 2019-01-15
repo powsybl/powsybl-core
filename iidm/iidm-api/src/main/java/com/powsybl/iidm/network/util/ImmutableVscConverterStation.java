@@ -9,11 +9,20 @@ package com.powsybl.iidm.network.util;
 import com.powsybl.iidm.network.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 public class ImmutableVscConverterStation extends AbstractImmutableIdentifiable<VscConverterStation> implements VscConverterStation {
+
+    protected ImmutableVscConverterStation(VscConverterStation identifiable) {
+        super(identifiable);
+    }
+
+    static ImmutableVscConverterStation ofNullable(VscConverterStation vsc) {
+        return null == vsc ? null : new ImmutableVscConverterStation(vsc);
+    }
 
     @Override
     public boolean isVoltageRegulatorOn() {
@@ -62,7 +71,7 @@ public class ImmutableVscConverterStation extends AbstractImmutableIdentifiable<
 
     @Override
     public Terminal getTerminal() {
-        return identifiable.getTerminal();
+        return ImmutableTerminal.ofNullable(identifiable.getTerminal());
     }
 
     @Override
@@ -72,36 +81,32 @@ public class ImmutableVscConverterStation extends AbstractImmutableIdentifiable<
 
     @Override
     public List<? extends Terminal> getTerminals() {
-//        return identifiable.getTerminals().stream().map();
-        return null;
+        return identifiable.getTerminals().stream().map(ImmutableTerminal::new).collect(Collectors.toList());
     }
 
     @Override
     public void remove() {
-
+        throw ImmutableNetwork.createUnmodifiableNetworkException();
     }
 
     @Override
     public ReactiveLimits getReactiveLimits() {
-        return null;
+        return identifiable.getReactiveLimits();
     }
 
     @Override
     public <L extends ReactiveLimits> L getReactiveLimits(Class<L> type) {
-        return null;
+        return identifiable.getReactiveLimits(type);
     }
 
     @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
-        return null;
+        throw ImmutableNetwork.createUnmodifiableNetworkException();
     }
 
     @Override
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
-        return null;
+        throw ImmutableNetwork.createUnmodifiableNetworkException();
     }
 
-    protected ImmutableVscConverterStation(VscConverterStation identifiable) {
-        super(identifiable);
-    }
 }

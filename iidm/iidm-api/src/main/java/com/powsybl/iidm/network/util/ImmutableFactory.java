@@ -6,8 +6,8 @@
  */
 package com.powsybl.iidm.network.util;
 
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.TieLine;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.network.*;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
@@ -22,6 +22,16 @@ public final class ImmutableFactory {
             return new ImmutableTieLine((TieLine) line);
         }
         return ImmutableLine.ofNullalbe(line);
+    }
+
+    static HvdcConverterStation ofNullableHvdcConverterStation(HvdcConverterStation cs) {
+        if (cs instanceof LccConverterStation) {
+            return new ImmutableLccConverterStation((LccConverterStation) cs);
+        } else if (cs instanceof VscConverterStation) {
+            return new ImmutableVscConverterStation((VscConverterStation) cs);
+        } else {
+            throw new PowsyblException("Invalid type " + cs.getClass() + " to be immutablized");
+        }
     }
 
     private ImmutableFactory() {

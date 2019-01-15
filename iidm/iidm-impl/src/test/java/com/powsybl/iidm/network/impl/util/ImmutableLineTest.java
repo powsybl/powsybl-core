@@ -6,11 +6,14 @@
  */
 package com.powsybl.iidm.network.impl.util;
 
+import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
+import com.powsybl.iidm.network.util.ImmutableHvdcLine;
 import com.powsybl.iidm.network.util.ImmutableLine;
 import com.powsybl.iidm.network.util.ImmutableNetwork;
 import com.powsybl.iidm.network.util.ImmutableTieLine;
@@ -70,7 +73,18 @@ public class ImmutableLineTest {
     }
 
     @Test
-    public void testImmutableDanglingLine() {
-
+    public void testHvdcLine() {
+        Network network = ImmutableNetwork.of(HvdcTestNetwork.createLcc());
+        HvdcLine hvdcLine = network.getHvdcLine("L");
+        assertTrue(hvdcLine instanceof ImmutableHvdcLine);
+        assertTrue(hvdcLine.getNetwork() instanceof ImmutableNetwork);
+        Set<String> expectedInvalidMethods = new HashSet<>();
+        expectedInvalidMethods.add("setConvertersMode");
+        expectedInvalidMethods.add("setR");
+        expectedInvalidMethods.add("setNominalV");
+        expectedInvalidMethods.add("setActivePowerSetpoint");
+        expectedInvalidMethods.add("setMaxP");
+        expectedInvalidMethods.add("remove");
+        ImmutableTestHelper.testInvalidMethods(hvdcLine, expectedInvalidMethods);
     }
 }

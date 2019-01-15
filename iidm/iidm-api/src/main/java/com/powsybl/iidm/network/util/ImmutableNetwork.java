@@ -356,12 +356,12 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Iterable<HvdcConverterStation<?>> getHvdcConverterStations() {
-        return identifiable.getHvdcConverterStations();
+        return Iterables.transform(identifiable.getHvdcConverterStations(), ImmutableFactory::ofNullableHvdcConverterStation);
     }
 
     @Override
     public Stream<HvdcConverterStation<?>> getHvdcConverterStationStream() {
-        return identifiable.getHvdcConverterStationStream();
+        return identifiable.getHvdcConverterStationStream().map(ImmutableFactory::ofNullableHvdcConverterStation);
     }
 
     @Override
@@ -376,12 +376,12 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Iterable<LccConverterStation> getLccConverterStations() {
-        return identifiable.getLccConverterStations();
+        return Iterables.transform(identifiable.getLccConverterStations(), ImmutableLccConverterStation::new);
     }
 
     @Override
     public Stream<LccConverterStation> getLccConverterStationStream() {
-        return identifiable.getLccConverterStationStream();
+        return identifiable.getLccConverterStationStream().map(ImmutableLccConverterStation::new);
     }
 
     @Override
@@ -391,17 +391,17 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public LccConverterStation getLccConverterStation(String id) {
-        return identifiable.getLccConverterStation(id);
+        return ImmutableLccConverterStation.ofNullable(identifiable.getLccConverterStation(id));
     }
 
     @Override
     public Iterable<VscConverterStation> getVscConverterStations() {
-        return identifiable.getVscConverterStations();
+        return Iterables.transform(identifiable.getVscConverterStations(), ImmutableVscConverterStation::new);
     }
 
     @Override
     public Stream<VscConverterStation> getVscConverterStationStream() {
-        return identifiable.getVscConverterStationStream();
+        return identifiable.getVscConverterStationStream().map(ImmutableVscConverterStation::new);
     }
 
     @Override
@@ -411,17 +411,17 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public VscConverterStation getVscConverterStation(String id) {
-        return identifiable.getVscConverterStation(id);
+        return ImmutableVscConverterStation.ofNullable(identifiable.getVscConverterStation(id));
     }
 
     @Override
     public Iterable<HvdcLine> getHvdcLines() {
-        return identifiable.getHvdcLines();
+        return Iterables.transform(identifiable.getHvdcLines(), ImmutableHvdcLine::new);
     }
 
     @Override
     public Stream<HvdcLine> getHvdcLineStream() {
-        return identifiable.getHvdcLineStream();
+        return identifiable.getHvdcLineStream().map(ImmutableHvdcLine::new);
     }
 
     @Override
@@ -431,7 +431,7 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public HvdcLine getHvdcLine(String id) {
-        return identifiable.getHvdcLine(id);
+        return ImmutableHvdcLine.ofNullable(identifiable.getHvdcLine(id));
     }
 
     @Override

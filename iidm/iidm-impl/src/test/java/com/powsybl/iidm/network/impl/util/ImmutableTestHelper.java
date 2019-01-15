@@ -22,7 +22,9 @@ import static org.mockito.Matchers.any;
  */
 public final class ImmutableTestHelper {
 
-    public static final Set<String> RXGB_SETTERS = new HashSet<>(Arrays.asList("setR", "setX", "setG", "setB"));
+    static final Set<String> RXGB_SETTERS = new HashSet<>(Arrays.asList("setR", "setX", "setG", "setB"));
+
+    static final Set<String> NEW_REACTIVE = new HashSet<>(Arrays.asList("newReactiveCapabilityCurve", "newMinMaxReactiveLimits"));
 
     private static final String EXPECTED_MESSAGE = "Unmodifiable identifiable";
 

@@ -214,12 +214,12 @@ public class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<Voltage
 
     @Override
     public Iterable<VscConverterStation> getVscConverterStations() {
-        return identifiable.getVscConverterStations();
+        return Iterables.transform(identifiable.getVscConverterStations(), ImmutableVscConverterStation::new);
     }
 
     @Override
     public Stream<VscConverterStation> getVscConverterStationStream() {
-        return identifiable.getVscConverterStationStream();
+        return identifiable.getVscConverterStationStream().map(ImmutableVscConverterStation::new);
     }
 
     @Override
@@ -234,12 +234,12 @@ public class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<Voltage
 
     @Override
     public Iterable<LccConverterStation> getLccConverterStations() {
-        return identifiable.getLccConverterStations();
+        return Iterables.transform(identifiable.getLccConverterStations(), ImmutableLccConverterStation::new);
     }
 
     @Override
     public Stream<LccConverterStation> getLccConverterStationStream() {
-        return identifiable.getLccConverterStationStream();
+        return identifiable.getLccConverterStationStream().map(ImmutableLccConverterStation::new);
     }
 
     @Override

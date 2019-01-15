@@ -46,8 +46,7 @@ public class ImmutableInjectionTest {
         expectedInvalidMethods.add("setVoltageRegulatorOn");
         expectedInvalidMethods.add("setRegulatingTerminal");
         expectedInvalidMethods.add("remove");
-        expectedInvalidMethods.add("newReactiveCapabilityCurve");
-        expectedInvalidMethods.add("newMinMaxReactiveLimits");
+        expectedInvalidMethods.addAll(ImmutableTestHelper.NEW_REACTIVE);
         ImmutableTestHelper.testInvalidMethods(generator, expectedInvalidMethods);
     }
 
