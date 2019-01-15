@@ -36,12 +36,12 @@ public class TerminalLimitConversion extends AbstractIdentifiedObjectConversion 
 
     @Override
     public void convert() {
-        String type = p.getLocal("operationalLimitTypeName");
+        String limitType = p.getLocal("limitType");
         double value = p.asDouble("value");
         int terminalNumber = context.terminalMapping().number(terminalId);
         Connectable eq = terminal.getConnectable();
         boolean assigned = false;
-        if (type.equals("PATL")) {
+        if (limitType.equals("LimitTypeKind.patl")) {
             if (value <= 0) {
                 context.ignored("Operational limit", "value is <= 0");
             } else {
