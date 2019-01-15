@@ -46,9 +46,9 @@ public class NetworkXmlTest extends AbstractConverterTest {
         Path xmlFile = tmpDir.resolve("n.xml");
         NetworkXml.writeAndValidate(network, xmlFile);
         try {
-            String result = new String(Files.readAllBytes(xmlFile));
-            System.out.println(result);
-//            compareXml(getClass().getResourceAsStream(ref), Files.newInputStream(xmlFile));
+//            String result = new String(Files.readAllBytes(xmlFile));
+//            System.out.println(result);
+            compareXml(getClass().getResourceAsStream(ref), Files.newInputStream(xmlFile));
         } catch (IOException e) {
             fail();
         }

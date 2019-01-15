@@ -7,9 +7,12 @@
 package com.powsybl.iidm.network.impl.util;
 
 import com.powsybl.iidm.network.ConnectableType;
+import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
+import com.powsybl.iidm.network.util.ImmutableDanglingLine;
 import com.powsybl.iidm.network.util.ImmutableGenerator;
 import com.powsybl.iidm.network.util.ImmutableLoad;
 import com.powsybl.iidm.network.util.ImmutableNetwork;
@@ -59,5 +62,19 @@ public class ImmutableInjectionTest {
         expectedInvalidMethods.add("setLoadType");
         expectedInvalidMethods.add("remove");
         ImmutableTestHelper.testInvalidMethods(load, expectedInvalidMethods);
+    }
+
+    @Test
+    public void testDanglingLine() {
+        ImmutableNetwork network = ImmutableNetwork.of(NoEquipmentNetworkFactory.createWithDanglingLine());
+        DanglingLine dl = network.getDanglingLine("DL");
+        assertTrue(dl instanceof ImmutableDanglingLine);
+        Set<String> invalidDanglingLineMethods = new HashSet<>(ImmutableTestHelper.RXGB_SETTERS);
+        invalidDanglingLineMethods.add("setP0");
+        invalidDanglingLineMethods.add("setQ0");
+        invalidDanglingLineMethods.add("newCurrentLimits");
+        invalidDanglingLineMethods.add("remove");
+        ImmutableTestHelper.testInvalidMethods(dl, invalidDanglingLineMethods);
+
     }
 }

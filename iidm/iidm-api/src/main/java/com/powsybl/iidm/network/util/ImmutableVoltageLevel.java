@@ -174,12 +174,12 @@ public class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<Voltage
 
     @Override
     public Iterable<DanglingLine> getDanglingLines() {
-        return identifiable.getDanglingLines();
+        return Iterables.transform(identifiable.getDanglingLines(), ImmutableDanglingLine::new);
     }
 
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
-        return identifiable.getDanglingLineStream();
+        return identifiable.getDanglingLineStream().map(ImmutableDanglingLine::new);
     }
 
     @Override

@@ -131,7 +131,7 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Iterable<Line> getLines() {
-        return identifiable.getLines();
+        return Iterables.transform(identifiable.getLines(), ImmutableFactory::ofNullableLine);
     }
 
     @Override
@@ -156,7 +156,7 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Stream<Line> getLineStream() {
-        return identifiable.getLineStream();
+        return identifiable.getLineStream().map(ImmutableFactory::ofNullableLine);
     }
 
     @Override
@@ -166,7 +166,7 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Line getLine(String id) {
-        return identifiable.getLine(id);
+        return ImmutableFactory.ofNullableLine(identifiable.getLine(id));
     }
 
     @Override
@@ -276,12 +276,12 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Iterable<DanglingLine> getDanglingLines() {
-        return identifiable.getDanglingLines();
+        return Iterables.transform(identifiable.getDanglingLines(), ImmutableDanglingLine::new);
     }
 
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
-        return identifiable.getDanglingLineStream();
+        return identifiable.getDanglingLineStream().map(ImmutableDanglingLine::new);
     }
 
     @Override
@@ -291,7 +291,7 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public DanglingLine getDanglingLine(String id) {
-        return identifiable.getDanglingLine(id);
+        return ImmutableDanglingLine.ofNullable(identifiable.getDanglingLine(id));
     }
 
     @Override
