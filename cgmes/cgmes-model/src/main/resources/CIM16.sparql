@@ -276,14 +276,31 @@ OPTIONAL {
 SELECT *
 WHERE
 { GRAPH ?graph {
-    ?Terminal a cim:Terminal .
-    ?OperationalLimitSet cim:OperationalLimitSet.Terminal ?Terminal .
+    {
+        ?Terminal a cim:Terminal .
+        ?OperationalLimitSet cim:OperationalLimitSet.Terminal ?Terminal .
+    }
+    # operational limit sets can also be attached directly to equipments
+    UNION
+    {
+        ?Equipment a cim:EquivalentBranch .
+        ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment .
+    }
+    UNION
+    {
+        ?Equipment a cim:ACLineSegment .
+        ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment .
+    }
+    UNION
+    {
+        ?Equipment a cim:PowerTransformer .
+        ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment .
+    }
     ?OperationalLimit
         cim:OperationalLimit.OperationalLimitSet ?OperationalLimitSet ;
         cim:OperationalLimit.OperationalLimitType ?OperationalLimitType .
-        # TODO Assuming here all limits are limits for current and apparent power
         {
-            ?OperationalLimit a $OperationalLimitSubtype ;
+            ?OperationalLimit a $OperationalLimitSubclass;
             {
                 ?OperationalLimit a cim:CurrentLimit ;
                 cim:CurrentLimit.value ?value .
@@ -293,11 +310,11 @@ WHERE
                 ?OperationalLimit a cim:ApparentPowerLimit ;
                 cim:ApparentPowerLimit.value ?value .
             }
-            # UNION VoltageLimit
-            #{
-            #    ?OperationalLimit a cim:VoltageLimit ;
-            #    cim:VoltageLimit.value ? value .
-            #}
+            UNION
+            {
+                ?OperationalLimit a cim:VoltageLimit ;
+                cim:VoltageLimit.value ?value .
+            }
         }
     ?OperationalLimitType
         cim:IdentifiedObject.name ?operationalLimitTypeName .
