@@ -37,6 +37,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
     @Override
     public LimitViolation deserialize(JsonParser parser, DeserializationContext deserializationContext) throws IOException {
         String subjectId = null;
+        String subjectName = null;
         LimitViolationType limitType = null;
         String limitName = null;
         int acceptableDuration = Integer.MAX_VALUE;
@@ -51,6 +52,10 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
             switch (parser.getCurrentName()) {
                 case "subjectId":
                     subjectId = parser.nextTextValue();
+                    break;
+
+                case "subjectName":
+                    subjectName = parser.nextTextValue();
                     break;
 
                 case "limitType":
@@ -97,7 +102,7 @@ public class LimitViolationDeserializer extends StdDeserializer<LimitViolation> 
             }
         }
 
-        LimitViolation violation = new LimitViolation(subjectId, limitType, limitName, acceptableDuration, limit, limitReduction, value, side);
+        LimitViolation violation = new LimitViolation(subjectId, subjectName, limitType, limitName, acceptableDuration, limit, limitReduction, value, side);
         SUPPLIER.get().addExtensions(violation, extensions);
 
         return violation;
