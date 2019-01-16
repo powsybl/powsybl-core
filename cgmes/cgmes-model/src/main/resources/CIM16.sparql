@@ -281,8 +281,9 @@ WHERE
     ?OperationalLimit
         cim:OperationalLimit.OperationalLimitSet ?OperationalLimitSet ;
         cim:OperationalLimit.OperationalLimitType ?OperationalLimitType .
-        # TODO Assuming here all limits are limits for current
+        # TODO Assuming here all limits are limits for current and apparent power
         {
+            ?OperationalLimit a $OperationalLimitSubtype ;
             {
                 ?OperationalLimit a cim:CurrentLimit ;
                 cim:CurrentLimit.value ?value .
@@ -292,7 +293,7 @@ WHERE
                 ?OperationalLimit a cim:ApparentPowerLimit ;
                 cim:ApparentPowerLimit.value ?value .
             }
-            # UNION VoltageLimit, ApparentPowerLimit, ActivePowerLimit, ...
+            # UNION VoltageLimit
             #{
             #    ?OperationalLimit a cim:VoltageLimit ;
             #    cim:VoltageLimit.value ? value .
