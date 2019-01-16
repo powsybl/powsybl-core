@@ -6,16 +6,12 @@
  */
 package com.powsybl.iidm.network.impl.util;
 
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
-import com.powsybl.iidm.network.util.ImmutableDanglingLine;
-import com.powsybl.iidm.network.util.ImmutableGenerator;
-import com.powsybl.iidm.network.util.ImmutableLoad;
-import com.powsybl.iidm.network.util.ImmutableNetwork;
+import com.powsybl.iidm.network.test.SvcTestCaseFactory;
+import com.powsybl.iidm.network.util.*;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -75,5 +71,37 @@ public class ImmutableInjectionTest {
         invalidDanglingLineMethods.add("remove");
         ImmutableTestHelper.testInvalidMethods(dl, invalidDanglingLineMethods);
 
+    }
+
+    @Test
+    public void testSvc() {
+        ImmutableNetwork network = ImmutableNetwork.of(SvcTestCaseFactory.create());
+        StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
+        assertTrue(svc instanceof ImmutableStaticVarCompensator);
+        Set<String> invalidMethods = new HashSet<>();
+        invalidMethods.add("setBmin");
+        invalidMethods.add("setBmax");
+        invalidMethods.add("setVoltageSetPoint");
+        invalidMethods.add("setReactivePowerSetPoint");
+        invalidMethods.add("setRegulationMode");
+        invalidMethods.add("remove");
+        ImmutableTestHelper.testInvalidMethods(svc, invalidMethods);
+    }
+
+    @Test
+    public void testShunt() {
+        Network n = HvdcTestNetwork.createLcc();
+        Network network = ImmutableNetwork.of(n);
+        ShuntCompensator shunt = network.getShuntCompensator("C1_Filter1");
+        assertTrue(shunt instanceof ImmutableShuntCompensator);
+        Set<String> invalidMethods = new HashSet<>();
+        invalidMethods.add("setMaximumSectionCount");
+        invalidMethods.add("setCurrentSectionCount");
+        invalidMethods.add("setbPerSection");
+        invalidMethods.add("remove");
+        ImmutableTestHelper.testInvalidMethods(shunt, invalidMethods);
+
+        assertEquals(n.getShuntCompensator("C1_Filter1").getMaximumB(), shunt.getMaximumB(), 0.0);
+        assertEquals(n.getShuntCompensator("C1_Filter1").getCurrentB(), shunt.getCurrentB(), 0.0);
     }
 }

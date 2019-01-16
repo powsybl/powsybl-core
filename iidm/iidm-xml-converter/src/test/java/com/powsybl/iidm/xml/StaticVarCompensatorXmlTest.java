@@ -6,8 +6,9 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.SvcTestCaseFactory;
+import com.powsybl.iidm.network.util.ImmutableNetwork;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -15,13 +16,21 @@ import java.io.IOException;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StaticVarCompensatorXmlTest extends AbstractConverterTest {
+public class StaticVarCompensatorXmlTest extends AbstractNetworkXmlTest {
+
+    private static final Network NETWORK = SvcTestCaseFactory.create();
+    private static final String REF = "/staticVarCompensatorRoundTripRef.xml";
 
     @Test
     public void roundTripTest() throws IOException {
-        roundTripXmlTest(SvcTestCaseFactory.create(),
+        roundTripXmlTest(NETWORK,
                          NetworkXml::writeAndValidate,
                          NetworkXml::read,
-                         "/staticVarCompensatorRoundTripRef.xml");
+                         REF);
+    }
+
+    @Test
+    public void readFromImmutable() {
+        writeToXmlTest(ImmutableNetwork.of(NETWORK), REF);
     }
 }

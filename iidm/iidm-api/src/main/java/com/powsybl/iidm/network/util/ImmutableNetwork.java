@@ -256,12 +256,12 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Iterable<ShuntCompensator> getShuntCompensators() {
-        return identifiable.getShuntCompensators();
+        return Iterables.transform(identifiable.getShuntCompensators(), ImmutableShuntCompensator::new);
     }
 
     @Override
     public Stream<ShuntCompensator> getShuntCompensatorStream() {
-        return identifiable.getShuntCompensatorStream();
+        return identifiable.getShuntCompensatorStream().map(ImmutableShuntCompensator::new);
     }
 
     @Override
@@ -271,7 +271,7 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public ShuntCompensator getShuntCompensator(String id) {
-        return identifiable.getShuntCompensator(id);
+        return ImmutableShuntCompensator.ofNullable(identifiable.getShuntCompensator(id));
     }
 
     @Override
@@ -296,12 +296,12 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Iterable<StaticVarCompensator> getStaticVarCompensators() {
-        return identifiable.getStaticVarCompensators();
+        return Iterables.transform(identifiable.getStaticVarCompensators(), ImmutableStaticVarCompensator::new);
     }
 
     @Override
     public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
-        return identifiable.getStaticVarCompensatorStream();
+        return identifiable.getStaticVarCompensatorStream().map(ImmutableStaticVarCompensator::new);
     }
 
     @Override
@@ -311,7 +311,7 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public StaticVarCompensator getStaticVarCompensator(String id) {
-        return identifiable.getStaticVarCompensator(id);
+        return ImmutableStaticVarCompensator.ofNullable(identifiable.getStaticVarCompensator(id));
     }
 
     @Override

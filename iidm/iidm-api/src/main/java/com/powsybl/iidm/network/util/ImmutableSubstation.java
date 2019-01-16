@@ -80,7 +80,7 @@ public class ImmutableSubstation extends AbstractImmutableIdentifiable<Substatio
 
     @Override
     public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
-        return identifiable.getTwoWindingsTransformerStream();
+        return identifiable.getTwoWindingsTransformerStream().map(ImmutableTwoWindingsTransformer::new);
     }
 
     @Override

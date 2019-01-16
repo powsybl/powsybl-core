@@ -35,7 +35,7 @@ public class ImmutableVariantManager implements VariantManager {
 
     @Override
     public void setWorkingVariant(String variantId) {
-        variantManager.setWorkingVariant(variantId);
+        throw ImmutableNetwork.createUnmodifiableNetworkException();
     }
 
     @Override
