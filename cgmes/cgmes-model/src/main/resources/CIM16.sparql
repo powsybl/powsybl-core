@@ -298,6 +298,8 @@ WHERE
             #    cim:VoltageLimit.value ? value .
             #}
         }
+    ?OperationalLimitType
+        cim:IdentifiedObject.name ?operationalLimitTypeName .
     OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.direction ?direction }
     OPTIONAL { ?OperationalLimitType entsoe:OperationalLimitType.limitType ?limitType }
     OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.acceptableDuration ?acceptableDuration }
