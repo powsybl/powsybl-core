@@ -37,6 +37,7 @@ public class TerminalLimitConversion extends AbstractIdentifiedObjectConversion 
     @Override
     public void convert() {
         String limitTypeName = p.getLocal("operationalLimitTypeName");
+        String limitSubtype = p.getLocal("OperationalLimitSubtype");
         String limitType = p.getLocal("limitType");
         double value = p.asDouble("value");
         int terminalNumber = context.terminalMapping().number(terminalId);
@@ -46,17 +47,19 @@ public class TerminalLimitConversion extends AbstractIdentifiedObjectConversion 
             if (value <= 0) {
                 context.ignored("Operational limit", "value is <= 0");
             } else {
-                // Enhancement: we should be able to use a CurrentLimitsAdder (an owner)
-                // to avoid checking the class of the equipment
-                // In terminal mapping insert a CurrentLimitsAdder instead of a Branch.side
-                if (eq instanceof Branch) {
-                    Branch b = (Branch) eq;
-                    if (terminalNumber == 1) {
-                        b.newCurrentLimits1().setPermanentLimit(value).add();
-                        assigned = true;
-                    } else if (terminalNumber == 2) {
-                        b.newCurrentLimits2().setPermanentLimit(value).add();
-                        assigned = true;
+                if (limitSubtype.equals("CurrentLimit")) {
+                    // Enhancement: we should be able to use a CurrentLimitsAdder (an owner)
+                    // to avoid checking the class of the equipment
+                    // In terminal mapping insert a CurrentLimitsAdder instead of a Branch.side
+                    if (eq instanceof Branch) {
+                        Branch b = (Branch) eq;
+                        if (terminalNumber == 1) {
+                            b.newCurrentLimits1().setPermanentLimit(value).add();
+                            assigned = true;
+                        } else if (terminalNumber == 2) {
+                            b.newCurrentLimits2().setPermanentLimit(value).add();
+                            assigned = true;
+                        }
                     }
                 }
             }
