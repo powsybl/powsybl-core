@@ -16,7 +16,7 @@ import java.io.IOException;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class HvdcXmlTest extends NetworkXmlTest {
+public class HvdcXmlTest extends AbstractNetworkXmlTest {
 
     private static final Network LCC_NETWORK = HvdcTestNetwork.createLcc();
     private static final String LCC_REF = "/LccRoundTripRef.xml";

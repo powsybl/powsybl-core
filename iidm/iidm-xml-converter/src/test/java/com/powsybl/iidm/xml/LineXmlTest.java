@@ -16,7 +16,7 @@ import java.io.IOException;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class LineXmlTest extends NetworkXmlTest {
+public class LineXmlTest extends AbstractNetworkXmlTest {
 
     private static final String TIELINE_REF = "/tieLineRef.xml";
     private static final Network TIELINE_NETWORK = NoEquipmentNetworkFactory.createWithTieLine();

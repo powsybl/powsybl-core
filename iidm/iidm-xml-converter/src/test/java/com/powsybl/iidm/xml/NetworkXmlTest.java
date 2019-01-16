@@ -7,7 +7,6 @@
 package com.powsybl.iidm.xml;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
@@ -34,24 +33,12 @@ import static org.junit.Assert.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NetworkXmlTest extends AbstractConverterTest {
+public class NetworkXmlTest extends AbstractNetworkXmlTest {
 
     static Network createEurostagTutorialExample1() {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(DateTime.parse("2013-01-15T18:45:00+01:00"));
         return network;
-    }
-
-    public void writeToXmlTest(Network network, String ref) {
-        Path xmlFile = tmpDir.resolve("n.xml");
-        NetworkXml.writeAndValidate(network, xmlFile);
-        try {
-//            String result = new String(Files.readAllBytes(xmlFile));
-//            System.out.println(result);
-            compareXml(getClass().getResourceAsStream(ref), Files.newInputStream(xmlFile));
-        } catch (IOException e) {
-            fail();
-        }
     }
 
     @Test

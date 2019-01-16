@@ -16,7 +16,7 @@ import java.io.IOException;
 /**
  * @author Luma Zamarreno <zamarrenolm at aia.es>
  */
-public class ThreeWindingsTransformerXmlTest extends NetworkXmlTest {
+public class ThreeWindingsTransformerXmlTest extends AbstractNetworkXmlTest {
 
     private static final String REF = "/threeWindingsTransformerRoundTripRef.xml";
     private static final Network NETWORK = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits();

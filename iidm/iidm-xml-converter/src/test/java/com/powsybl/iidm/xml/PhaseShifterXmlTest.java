@@ -16,7 +16,7 @@ import java.io.IOException;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class PhaseShifterXmlTest extends NetworkXmlTest {
+public class PhaseShifterXmlTest extends AbstractNetworkXmlTest {
 
     private static final String REF = "/phaseShifterRoundTripRef.xml";
     private static final Network NETWORK = PhaseShifterTestCaseFactory.create();
