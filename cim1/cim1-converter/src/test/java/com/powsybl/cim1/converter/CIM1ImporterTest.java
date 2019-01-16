@@ -8,6 +8,7 @@ package com.powsybl.cim1.converter;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -17,6 +18,7 @@ import org.junit.After;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -81,7 +83,7 @@ public class CIM1ImporterTest {
         copyFile(zdsSplit, "ENTSO-E_Boundary_Set_EU_EQ.xml");
         copyFile(zdsSplit, "ENTSO-E_Boundary_Set_EU_TP.xml");
 
-        importer = new CIM1Importer();
+        importer = new CIM1Importer(Mockito.mock(PlatformConfig.class));
     }
 
     @After

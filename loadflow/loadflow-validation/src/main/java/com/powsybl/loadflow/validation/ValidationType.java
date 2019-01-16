@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Objects;
 
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 
@@ -27,9 +28,34 @@ public enum ValidationType {
     TWTS3W("twt3w.csv");
 
     private final String file;
+    private static final String UNEXPECTED_VALIDATION_TYPE_ERROR = "Unexpected ValidationType value: ";
 
     ValidationType(String file) {
         this.file = Objects.requireNonNull(file);
+    }
+
+    public boolean check(Network network, ValidationConfig validationConfig, TableFormatterConfig tableFormatterConfig, Path folder) throws IOException {
+        Objects.requireNonNull(network);
+        Objects.requireNonNull(validationConfig);
+        Objects.requireNonNull(folder);
+        switch (this) {
+            case FLOWS:
+                return FlowsValidation.checkFlows(network, validationConfig, folder.resolve(file));
+            case GENERATORS:
+                return GeneratorsValidation.checkGenerators(network, validationConfig, folder.resolve(file));
+            case BUSES:
+                return BusesValidation.checkBuses(network, validationConfig, tableFormatterConfig, folder.resolve(file));
+            case SVCS:
+                return StaticVarCompensatorsValidation.checkSVCs(network, validationConfig, folder.resolve(file));
+            case SHUNTS:
+                return ShuntCompensatorsValidation.checkShunts(network, validationConfig, folder.resolve(file));
+            case TWTS:
+                return TransformersValidation.checkTransformers(network, validationConfig, folder.resolve(file));
+            case TWTS3W:
+                return Transformers3WValidation.checkTransformers(network, validationConfig, folder.resolve(file));
+            default:
+                throw new AssertionError(UNEXPECTED_VALIDATION_TYPE_ERROR + this);
+        }
     }
 
     public boolean check(Network network, ValidationConfig config, Path folder) throws IOException {
@@ -52,7 +78,7 @@ public enum ValidationType {
             case TWTS3W:
                 return Transformers3WValidation.checkTransformers(network, config, folder.resolve(file));
             default:
-                throw new AssertionError("Unexpected ValidationType value: " + this);
+                throw new AssertionError(UNEXPECTED_VALIDATION_TYPE_ERROR + this);
         }
     }
 
@@ -76,7 +102,7 @@ public enum ValidationType {
             case TWTS3W:
                 return Transformers3WValidation.checkTransformers(network, config, validationWriter);
             default:
-                throw new AssertionError("Unexpected ValidationType value: " + this);
+                throw new AssertionError(UNEXPECTED_VALIDATION_TYPE_ERROR + this);
         }
     }
 

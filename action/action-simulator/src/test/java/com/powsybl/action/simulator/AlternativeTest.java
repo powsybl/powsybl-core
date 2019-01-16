@@ -7,11 +7,15 @@
 package com.powsybl.action.simulator;
 
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorObserver;
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.Test;
 import org.mockito.Mockito;
+
+import java.util.Collections;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
@@ -41,7 +45,7 @@ public class AlternativeTest extends AbstractLoadFlowRulesEngineTest {
         double targetP = generator.getTargetP();
         double loadP0 = load.getP0();
 
-        engine.start(actionDb, "contingency1"); // life = 3
+        engine.start(actionDb, Collections.singletonList("contingency1"), new LoadFlowParameters(), new TableFormatterConfig()); // life = 3
         assertEquals(targetP + 2.0, generator.getTargetP(), 0.0);
         assertEquals(loadP0, load.getP0(), 0.0);
 

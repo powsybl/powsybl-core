@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -94,7 +93,6 @@ public class CandidateComputationsTest {
     public void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
-        PlatformConfig.setDefaultConfig(platformConfig);
     }
 
     @After
@@ -130,8 +128,8 @@ public class CandidateComputationsTest {
 
     @Test
     public void runLoadFlowMock() {
-
         platformConfig.createModuleConfig("loadflow-validation").setClassProperty("load-flow-factory", LoadFlowFactoryMock.class);
+        platformConfig.createModuleConfig("componentDefaultConfig").setClassProperty("LoadFlowFactory", LoadFlowFactoryMock.class);
 
         Network network = EurostagTutorialExample1Factory.create();
 
@@ -139,7 +137,7 @@ public class CandidateComputationsTest {
         assertNotNull(computation);
         assertEquals("loadflow", computation.getName());
 
-        computation.run(network, Mockito.mock(ComputationManager.class));
+        computation.run(network, Mockito.mock(ComputationManager.class), platformConfig);
         assertEquals(92f, network.getGenerator("GEN").getTerminal().getP(), 0f);
     }
 }

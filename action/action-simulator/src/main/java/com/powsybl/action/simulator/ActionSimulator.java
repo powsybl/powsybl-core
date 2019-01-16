@@ -7,6 +7,9 @@
 package com.powsybl.action.simulator;
 
 import com.powsybl.action.dsl.ActionDb;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.io.table.TableFormatterConfig;
+import com.powsybl.loadflow.LoadFlowParameters;
 
 import java.util.List;
 
@@ -20,4 +23,13 @@ public interface ActionSimulator {
     void start(ActionDb actionDb, List<String> contingencyIds);
 
     void start(ActionDb actionDb, String... contingencyIds);
+
+    default void start(ActionDb actionDb, List<String> contingencyIds, LoadFlowParameters loadFlowParameters) {
+        throw new PowsyblException("Not implemented");
+    }
+
+    default void start(ActionDb actionDb, List<String> contingencyIds, LoadFlowParameters loadFlowParameters,
+               TableFormatterConfig tableFormatterConfig) {
+        throw new PowsyblException("Not implemented");
+    }
 }

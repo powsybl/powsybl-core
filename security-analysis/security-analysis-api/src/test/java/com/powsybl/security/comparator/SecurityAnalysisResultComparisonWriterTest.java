@@ -17,6 +17,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +26,7 @@ import org.junit.Test;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
+import org.mockito.Mockito;
 
 /**
  *
@@ -45,7 +48,7 @@ public class SecurityAnalysisResultComparisonWriterTest {
         similarLineViolation = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, "PermanentLimit", Integer.MAX_VALUE, 1000.0, 1, 1100.09, Branch.Side.ONE);
         actions = Arrays.asList("action1", "action2");
         writer = new StringWriter();
-        comparisonWriter = new SecurityAnalysisResultComparisonWriter(writer);
+        comparisonWriter = new SecurityAnalysisResultComparisonWriter(writer, TableFormatterConfig.load(Mockito.mock(PlatformConfig.class)));
     }
 
     @After
@@ -74,7 +77,8 @@ public class SecurityAnalysisResultComparisonWriterTest {
                                                  "PermanentLimit", String.format(Locale.getDefault(), "%g", 1100.0), String.format(Locale.getDefault(), "%g", 1000.0),
                                                  "PermanentLimit", String.format(Locale.getDefault(), "%g", 1100.09), String.format(Locale.getDefault(), "%g", 1000.0),
                                                  "", "",  "equivalent"),
-                                     String.join(";", "contingency", "", "", "", "", "", "", "", "", "", "", "", actions.toString(), actions.toString(), "equivalent"));
+                                     String.join(";", "contingency", "", "", "", "", "", "", "", "", "", "", "", actions.toString(), actions.toString(), "equivalent"),
+                                     String.join(System.lineSeparator(), ""));
 
         // precontingency violations results
         comparisonWriter.write(true, true, true);
@@ -88,7 +92,7 @@ public class SecurityAnalysisResultComparisonWriterTest {
         comparisonWriter.write(lineViolation, similarLineViolation, true);
         comparisonWriter.write(actions, actions, true);
 
-        assertEquals(content, writer.toString().trim());
+        assertEquals(content, writer.toString());
     }
 
     @Test

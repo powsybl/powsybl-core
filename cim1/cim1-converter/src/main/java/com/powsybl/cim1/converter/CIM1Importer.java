@@ -23,6 +23,7 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.parameters.Parameter;
+import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 import com.powsybl.iidm.parameters.ParameterType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +44,8 @@ import java.util.*;
 public class CIM1Importer implements Importer, CIM1Constants {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CIM1Importer.class);
+
+    private final ParameterDefaultValueConfig defaultValueConfig;
 
     private static final String RDF_NS = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
     private static final String CIM14_NS = "http://iec.ch/TC57/2009/CIM-schema-cim14#";
@@ -74,6 +77,14 @@ public class CIM1Importer implements Importer, CIM1Constants {
     private enum Packaging {
         MERGED,
         SPLIT
+    }
+
+    public CIM1Importer() {
+        this(PlatformConfig.defaultConfig());
+    }
+
+    public CIM1Importer(PlatformConfig platformConfig) {
+        this.defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
     }
 
     @Override
@@ -295,10 +306,10 @@ public class CIM1Importer implements Importer, CIM1Constants {
                     throw new CIM1Exception(e);
                 }
 
-                boolean invertVoltageStepIncrementOutOfPhase = (Boolean) Importers.readParameter(FORMAT, parameters, INVERT_VOLTAGE_STEP_INCREMENT_OUT_OF_PHASE_PARAMETER);
-                Country defaultCountry = Country.valueOf((String) Importers.readParameter(FORMAT, parameters, DEFAULT_COUNTRY_PARAMETER));
-                boolean usePsseNamingStrategy = (Boolean) Importers.readParameter(FORMAT, parameters, USE_PSSE_NAMING_STRATEGY_PARAMETER);
-                List<String> substationIdExcludedFromMapping = (List<String>) Importers.readParameter(FORMAT, parameters, SUBSTATION_ID_EXCLUDED_FROM_MAPPING);
+                boolean invertVoltageStepIncrementOutOfPhase = (Boolean) Importers.readParameter(FORMAT, parameters, INVERT_VOLTAGE_STEP_INCREMENT_OUT_OF_PHASE_PARAMETER, defaultValueConfig);
+                Country defaultCountry = Country.valueOf((String) Importers.readParameter(FORMAT, parameters, DEFAULT_COUNTRY_PARAMETER, defaultValueConfig));
+                boolean usePsseNamingStrategy = (Boolean) Importers.readParameter(FORMAT, parameters, USE_PSSE_NAMING_STRATEGY_PARAMETER, defaultValueConfig);
+                List<String> substationIdExcludedFromMapping = (List<String>) Importers.readParameter(FORMAT, parameters, SUBSTATION_ID_EXCLUDED_FROM_MAPPING, defaultValueConfig);
 
                 if (invertVoltageStepIncrementOutOfPhase) {
                     LOGGER.warn("Voltage step increment out of phase has been inverted!");

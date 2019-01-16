@@ -6,6 +6,8 @@
  */
 package com.powsybl.loadflow.validation;
 
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 
@@ -33,4 +35,7 @@ public interface CandidateComputation {
      */
     void run(Network network, ComputationManager computationManager);
 
+    default void run(Network network, ComputationManager computationManager, PlatformConfig platformConfig) {
+        throw new PowsyblException("Not implemented");
+    }
 }

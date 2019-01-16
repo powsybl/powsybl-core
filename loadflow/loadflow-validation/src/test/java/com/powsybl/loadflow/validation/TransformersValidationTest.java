@@ -11,6 +11,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.stream.Stream;
 
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,6 +49,8 @@ public class TransformersValidationTest extends AbstractValidationTest {
 
     private TwoWindingsTransformer transformer;
     private Bus bus;
+
+    private final TableFormatterConfig tableFormatterConfig = Mockito.mock(TableFormatterConfig.class);
 
     @Before
     public void setUp() {
@@ -89,29 +92,29 @@ public class TransformersValidationTest extends AbstractValidationTest {
     @Test
     public void checkTwtsValues() {
         assertTrue(TransformersValidation.checkTransformer("test", rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
-                                                            targetV, regulatedSide, v, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
+                                                            targetV, regulatedSide, v, connected, mainComponent, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
         // Error >= -Max(UpIncrement, DownIncrement)
         assertFalse(TransformersValidation.checkTransformer("test", rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
-                                                             targetV, regulatedSide, lowV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
+                                                             targetV, regulatedSide, lowV, connected, mainComponent, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
         assertFalse(TransformersValidation.checkTransformer("test", rho, Float.NaN, rhoNextStep, lowTapPosition, lowTapPosition, highTapPosition,
-                                                             targetV, regulatedSide, lowV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
+                                                             targetV, regulatedSide, lowV, connected, mainComponent, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
         // Error <= -Min(UpIncrement, DownIncrement)
         assertFalse(TransformersValidation.checkTransformer("test", rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
-                                                             targetV, regulatedSide, highV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
+                                                             targetV, regulatedSide, highV, connected, mainComponent, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
         assertFalse(TransformersValidation.checkTransformer("test", rho, rhoPreviousStep, Float.NaN, highTapPosition, lowTapPosition, highTapPosition,
-                                                             targetV, regulatedSide, highV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
+                                                             targetV, regulatedSide, highV, connected, mainComponent, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
         // check NaN vales
         assertFalse(TransformersValidation.checkTransformer("test", rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
-                                                             Float.NaN, regulatedSide, v, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
+                                                             Float.NaN, regulatedSide, v, connected, mainComponent, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
         assertFalse(TransformersValidation.checkTransformer("test", rho, rhoPreviousStep, rhoNextStep, tapPosition, lowTapPosition, highTapPosition,
-                                                             targetV, regulatedSide, Float.NaN, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
+                                                             targetV, regulatedSide, Float.NaN, connected, mainComponent, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
     }
 
     @Test
     public void checkTwts() {
-        assertTrue(TransformersValidation.checkTransformer(transformer, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(TransformersValidation.checkTransformer(transformer, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
         Mockito.when(bus.getV()).thenReturn(highV);
-        assertFalse(TransformersValidation.checkTransformer(transformer, strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(TransformersValidation.checkTransformer(transformer, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
     }
 
     @Test
@@ -119,9 +122,9 @@ public class TransformersValidationTest extends AbstractValidationTest {
         Network network = Mockito.mock(Network.class);
         Mockito.when(network.getId()).thenReturn("network");
         Mockito.when(network.getTwoWindingsTransformerStream()).thenAnswer(dummy -> Stream.of(transformer));
-        assertTrue(TransformersValidation.checkTransformers(network, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(TransformersValidation.checkTransformers(network, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
 
-        ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), strictConfig, NullWriter.NULL_WRITER, ValidationType.TWTS);
+        ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER, ValidationType.TWTS);
         assertTrue(ValidationType.TWTS.check(network, strictConfig, validationWriter));
     }
 

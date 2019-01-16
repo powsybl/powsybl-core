@@ -15,6 +15,9 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Objects;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +35,9 @@ public final class StaticVarCompensatorsValidation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(StaticVarCompensatorsValidation.class);
 
+    private static final Supplier<TableFormatterConfig> TABLE_FORMATTER_CONFIG = Suppliers.memoize(TableFormatterConfig::load);
+
+
     private StaticVarCompensatorsValidation() {
     }
 
@@ -45,11 +51,16 @@ public final class StaticVarCompensatorsValidation {
     }
 
     public static boolean checkSVCs(Network network, ValidationConfig config, Writer writer) {
+        return checkSVCs(network, config, TABLE_FORMATTER_CONFIG.get(), writer);
+    }
+
+    public static boolean checkSVCs(Network network, ValidationConfig validationConfig, TableFormatterConfig tableFormatterConfig, Writer writer) {
         Objects.requireNonNull(network);
-        Objects.requireNonNull(config);
+        Objects.requireNonNull(validationConfig);
+        Objects.requireNonNull(tableFormatterConfig);
         Objects.requireNonNull(writer);
-        try (ValidationWriter svcsWriter = ValidationUtils.createValidationWriter(network.getId(), config, writer, ValidationType.SVCS)) {
-            return checkSVCs(network, config, svcsWriter);
+        try (ValidationWriter svcsWriter = ValidationUtils.createValidationWriter(network.getId(), validationConfig, tableFormatterConfig, writer, ValidationType.SVCS)) {
+            return checkSVCs(network, validationConfig, svcsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -68,12 +79,17 @@ public final class StaticVarCompensatorsValidation {
     }
 
     public static boolean checkSVCs(StaticVarCompensator svc, ValidationConfig config, Writer writer) {
+        return checkSVCs(svc, config, TABLE_FORMATTER_CONFIG.get(), writer);
+    }
+
+    public static boolean checkSVCs(StaticVarCompensator svc, ValidationConfig validationConfig, TableFormatterConfig tableFormatterConfig, Writer writer) {
         Objects.requireNonNull(svc);
-        Objects.requireNonNull(config);
+        Objects.requireNonNull(validationConfig);
+        Objects.requireNonNull(tableFormatterConfig);
         Objects.requireNonNull(writer);
 
-        try (ValidationWriter svcsWriter = ValidationUtils.createValidationWriter(svc.getId(), config, writer, ValidationType.SVCS)) {
-            return checkSVCs(svc, config, svcsWriter);
+        try (ValidationWriter svcsWriter = ValidationUtils.createValidationWriter(svc.getId(), validationConfig, tableFormatterConfig, writer, ValidationType.SVCS)) {
+            return checkSVCs(svc, validationConfig, svcsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -103,12 +119,19 @@ public final class StaticVarCompensatorsValidation {
     public static boolean checkSVCs(String id, double p, double q, double v, double nominalV, double reactivePowerSetpoint, double voltageSetpoint,
                                     RegulationMode regulationMode, double bMin, double bMax, boolean connected, boolean mainComponent,
                                     ValidationConfig config, Writer writer) {
+        return checkSVCs(id, p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, config, TABLE_FORMATTER_CONFIG.get(), writer);
+    }
+
+    public static boolean checkSVCs(String id, double p, double q, double v, double nominalV, double reactivePowerSetpoint, double voltageSetpoint,
+                                    RegulationMode regulationMode, double bMin, double bMax, boolean connected, boolean mainComponent,
+                                    ValidationConfig validationConfig, TableFormatterConfig tableFormatterConfig, Writer writer) {
         Objects.requireNonNull(id);
-        Objects.requireNonNull(config);
+        Objects.requireNonNull(validationConfig);
+        Objects.requireNonNull(tableFormatterConfig);
         Objects.requireNonNull(writer);
 
-        try (ValidationWriter svcsWriter = ValidationUtils.createValidationWriter(id, config, writer, ValidationType.SVCS)) {
-            return checkSVCs(id, p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, config, svcsWriter);
+        try (ValidationWriter svcsWriter = ValidationUtils.createValidationWriter(id, validationConfig, tableFormatterConfig, writer, ValidationType.SVCS)) {
+            return checkSVCs(id, p, q, v, nominalV, reactivePowerSetpoint, voltageSetpoint, regulationMode, bMin, bMax, connected, mainComponent, validationConfig, svcsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

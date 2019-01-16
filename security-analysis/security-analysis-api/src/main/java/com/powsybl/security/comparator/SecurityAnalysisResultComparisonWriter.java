@@ -37,8 +37,13 @@ public class SecurityAnalysisResultComparisonWriter implements AutoCloseable {
     private String contingency;
 
     public SecurityAnalysisResultComparisonWriter(Writer writer) {
+        this(writer, TableFormatterConfig.load());
+    }
+
+    public SecurityAnalysisResultComparisonWriter(Writer writer, TableFormatterConfig config) {
         Objects.requireNonNull(writer);
-        formatter = new CsvTableFormatterFactory().create(writer, "Security Analysis Results Comparison", TableFormatterConfig.load(), getColumns());
+        Objects.requireNonNull(config);
+        formatter = new CsvTableFormatterFactory().create(writer, "Security Analysis Results Comparison", config, getColumns());
     }
 
     private Column[] getColumns() {

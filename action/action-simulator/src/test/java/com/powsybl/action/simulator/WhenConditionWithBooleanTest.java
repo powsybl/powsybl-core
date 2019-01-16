@@ -6,9 +6,13 @@
  */
 package com.powsybl.action.simulator;
 
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.Test;
+
+import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
 
@@ -31,7 +35,7 @@ public class WhenConditionWithBooleanTest extends AbstractLoadFlowRulesEngineTes
     public void test() {
         Load load = network.getLoad("LOAD");
         assertEquals(600.0, load.getP0(), 0.0);
-        engine.start(actionDb);
+        engine.start(actionDb, new ArrayList<>(), new LoadFlowParameters(), new TableFormatterConfig());
         assertEquals(601.0, load.getP0(), 0.0);
     }
 }

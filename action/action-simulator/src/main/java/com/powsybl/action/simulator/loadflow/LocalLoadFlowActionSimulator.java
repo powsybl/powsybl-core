@@ -7,9 +7,11 @@
 package com.powsybl.action.simulator.loadflow;
 
 import com.powsybl.action.dsl.ActionDb;
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.Partition;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlowParameters;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -45,8 +47,19 @@ public class LocalLoadFlowActionSimulator extends LoadFlowActionSimulator {
 
     @Override
     public void start(ActionDb actionDb, List<String> contingencyIds) {
+        start(actionDb, contingencyIds, LOAD_FLOW_PARAMETERS.get());
+    }
+
+    @Override
+    public void start(ActionDb actionDb, List<String> contingencyIds, LoadFlowParameters loadFlowParameters) {
+        start(actionDb, contingencyIds, loadFlowParameters, TABLE_FORMATTER_CONFIG.get());
+    }
+
+    @Override
+    public void start(ActionDb actionDb, List<String> contingencyIds, LoadFlowParameters loadFlowParameters,
+                      TableFormatterConfig tableFormatterConfig) {
         List<String> partContingencyIds = getPartOfContingency(contingencyIds);
-        super.start(actionDb, partContingencyIds);
+        super.start(actionDb, partContingencyIds, loadFlowParameters, tableFormatterConfig);
     }
 
     private List<String> getPartOfContingency(List<String> contingencyIds) {

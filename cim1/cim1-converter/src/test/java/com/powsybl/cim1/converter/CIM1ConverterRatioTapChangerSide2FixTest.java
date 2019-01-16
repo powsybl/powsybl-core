@@ -14,10 +14,13 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -58,7 +61,7 @@ public class CIM1ConverterRatioTapChangerSide2FixTest {
         resourceToDataSource("ENTSO-E_Boundary_Set_EU_EQ.xml", dataSource);
         resourceToDataSource("ENTSO-E_Boundary_Set_EU_TP.xml", dataSource);
 
-        importer = new CIM1Importer();
+        importer = new CIM1Importer(Mockito.mock(PlatformConfig.class));
     }
 
     @After
@@ -73,10 +76,10 @@ public class CIM1ConverterRatioTapChangerSide2FixTest {
         LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
         loadFlowParameters.setSpecificCompatibility(true);
         computeMissingFlows(network, loadFlowParameters);
-        ValidationConfig config = createValidationConfig(loadFlowParameters);
+        ValidationConfig validationConfig = createValidationConfig(loadFlowParameters);
 
         Path working = Files.createDirectories(fileSystem.getPath("temp-validation"));
-        boolean rb = ValidationType.BUSES.check(network, config, working);
+        boolean rb = ValidationType.BUSES.check(network, validationConfig, Mockito.mock(TableFormatterConfig.class), working);
         LOG.info("Bus balance validation for tx-from-microBE-adapted is [{}]", rb);
         assertTrue(rb);
     }

@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
 
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +28,7 @@ import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
 import com.powsybl.loadflow.validation.ValidationConfig;
 import com.powsybl.loadflow.validation.ValidationOutputWriter;
 import com.powsybl.loadflow.validation.ValidationType;
+import org.mockito.Mockito;
 
 /**
  *
@@ -50,7 +52,7 @@ public class ValidationWritersTest {
     public void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         Path folder = Files.createDirectory(fileSystem.getPath("/folder"));
-        validationWriters = new ValidationWriters("network", usedValidationTypes, folder, config);
+        validationWriters = new ValidationWriters("network", usedValidationTypes, folder, config, Mockito.mock(TableFormatterConfig.class));
     }
 
     @Test

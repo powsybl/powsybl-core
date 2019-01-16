@@ -15,6 +15,7 @@ import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersLoaderList;
@@ -24,6 +25,7 @@ import com.powsybl.iidm.xml.XMLImporter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -47,7 +49,8 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
     }
 
     private ImportersLoader createImportersLoader() {
-        return new ImportersLoaderList(Arrays.asList(new TestImporter(network), new XMLImporter()), Collections.emptyList());
+        return new ImportersLoaderList(Arrays.asList(new TestImporter(network),
+                new XMLImporter(Mockito.mock(PlatformConfig.class))), Collections.emptyList());
     }
 
     @Override

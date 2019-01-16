@@ -15,6 +15,9 @@ import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.Objects;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,17 +35,24 @@ public final class FlowsValidation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(FlowsValidation.class);
 
+    private static final Supplier<TableFormatterConfig> TABLE_FORMATTER_CONFIG = Suppliers.memoize(TableFormatterConfig::load);
+
     private FlowsValidation() {
     }
 
     public static boolean checkFlows(BranchData branch, ValidationConfig config, Writer writer) {
+        return checkFlows(branch, config, TABLE_FORMATTER_CONFIG.get(), writer);
+    }
+
+    public static boolean checkFlows(BranchData branch, ValidationConfig validationConfig, TableFormatterConfig tableFormatterConfig, Writer writer) {
         Objects.requireNonNull(branch);
         Objects.requireNonNull(branch.getId());
-        Objects.requireNonNull(config);
+        Objects.requireNonNull(validationConfig);
+        Objects.requireNonNull(tableFormatterConfig);
         Objects.requireNonNull(writer);
 
-        try (ValidationWriter flowsWriter = ValidationUtils.createValidationWriter(branch.getId(), config, writer, ValidationType.FLOWS)) {
-            return checkFlows(branch, config, flowsWriter);
+        try (ValidationWriter flowsWriter = ValidationUtils.createValidationWriter(branch.getId(), validationConfig, tableFormatterConfig, writer, ValidationType.FLOWS)) {
+            return checkFlows(branch, validationConfig, flowsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -112,12 +122,17 @@ public final class FlowsValidation {
     }
 
     public static boolean checkFlows(Line l, ValidationConfig config, Writer writer) {
+        return checkFlows(l, config, TABLE_FORMATTER_CONFIG.get(), writer);
+    }
+
+    public static boolean checkFlows(Line l, ValidationConfig validationConfig, TableFormatterConfig tableFormatterConfig, Writer writer) {
         Objects.requireNonNull(l);
-        Objects.requireNonNull(config);
+        Objects.requireNonNull(validationConfig);
+        Objects.requireNonNull(tableFormatterConfig);
         Objects.requireNonNull(writer);
 
-        try (ValidationWriter flowsWriter = ValidationUtils.createValidationWriter(l.getId(), config, writer, ValidationType.FLOWS)) {
-            return checkFlows(l, config, flowsWriter);
+        try (ValidationWriter flowsWriter = ValidationUtils.createValidationWriter(l.getId(), validationConfig, tableFormatterConfig, writer, ValidationType.FLOWS)) {
+            return checkFlows(l, validationConfig, flowsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -133,12 +148,17 @@ public final class FlowsValidation {
     }
 
     public static boolean checkFlows(TwoWindingsTransformer twt, ValidationConfig config, Writer writer) {
+        return checkFlows(twt, config, TABLE_FORMATTER_CONFIG.get(), writer);
+    }
+
+    public static boolean checkFlows(TwoWindingsTransformer twt, ValidationConfig validationConfig, TableFormatterConfig tableFormatterConfig, Writer writer) {
         Objects.requireNonNull(twt);
-        Objects.requireNonNull(config);
+        Objects.requireNonNull(validationConfig);
+        Objects.requireNonNull(tableFormatterConfig);
         Objects.requireNonNull(writer);
 
-        try (ValidationWriter flowsWriter = ValidationUtils.createValidationWriter(twt.getId(), config, writer, ValidationType.FLOWS)) {
-            return checkFlows(twt, config, flowsWriter);
+        try (ValidationWriter flowsWriter = ValidationUtils.createValidationWriter(twt.getId(), validationConfig, tableFormatterConfig, writer, ValidationType.FLOWS)) {
+            return checkFlows(twt, validationConfig, flowsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -154,12 +174,16 @@ public final class FlowsValidation {
     }
 
     public static boolean checkFlows(Network network, ValidationConfig config, Writer writer) {
+        return checkFlows(network, config, TABLE_FORMATTER_CONFIG.get(), writer);
+    }
+
+    public static boolean checkFlows(Network network, ValidationConfig validationConfig, TableFormatterConfig tableFormatterConfig, Writer writer) {
         Objects.requireNonNull(network);
-        Objects.requireNonNull(config);
+        Objects.requireNonNull(validationConfig);
         Objects.requireNonNull(writer);
 
-        try (ValidationWriter flowsWriter = ValidationUtils.createValidationWriter(network.getId(), config, writer, ValidationType.FLOWS)) {
-            return checkFlows(network, config, flowsWriter);
+        try (ValidationWriter flowsWriter = ValidationUtils.createValidationWriter(network.getId(), validationConfig, tableFormatterConfig, writer, ValidationType.FLOWS)) {
+            return checkFlows(network, validationConfig, flowsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

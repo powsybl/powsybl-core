@@ -11,6 +11,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.stream.Stream;
 
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,6 +28,8 @@ public class Transformers3WValidationTest extends AbstractValidationTest {
 
     private TwtTestData twtValidationData;
 
+    private final TableFormatterConfig tableFormatterConfig = Mockito.mock(TableFormatterConfig.class);
+
     @Before
     public void setUp() {
         twtValidationData = new TwtTestData();
@@ -34,14 +37,14 @@ public class Transformers3WValidationTest extends AbstractValidationTest {
 
     @Test
     public void checkTwts() {
-        assertFalse(Transformers3WValidation.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(Transformers3WValidation.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
         strictConfig.setThreshold(.3);
-        assertTrue(Transformers3WValidation.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(Transformers3WValidation.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
         // check NaN values
         twtValidationData.setNanLeg1P();
-        assertFalse(Transformers3WValidation.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(Transformers3WValidation.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
         strictConfig.setOkMissingValues(true);
-        assertTrue(Transformers3WValidation.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(Transformers3WValidation.checkTransformer(twtValidationData.get3WTransformer(), strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
     }
 
     @Test
@@ -50,9 +53,9 @@ public class Transformers3WValidationTest extends AbstractValidationTest {
         Mockito.when(network.getId()).thenReturn("network");
         Mockito.when(network.getThreeWindingsTransformerStream()).thenAnswer(dummy -> Stream.of(twtValidationData.get3WTransformer()));
 
-        assertFalse(Transformers3WValidation.checkTransformers(network, strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(Transformers3WValidation.checkTransformers(network, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
         strictConfig.setThreshold(.3);
-        assertTrue(Transformers3WValidation.checkTransformers(network, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(Transformers3WValidation.checkTransformers(network, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
     }
 
 }

@@ -6,12 +6,15 @@
  */
 package com.powsybl.action.simulator.loadflow;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.powsybl.action.dsl.*;
 import com.powsybl.action.dsl.ast.*;
 import com.powsybl.action.simulator.ActionSimulator;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.exceptions.UncheckedIllegalAccessException;
 import com.powsybl.commons.exceptions.UncheckedInstantiationException;
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.dsl.ast.ExpressionNode;
@@ -51,6 +54,10 @@ public class LoadFlowActionSimulator implements ActionSimulator {
     private final boolean applyIfSolvedViolations;
 
     private final List<LoadFlowActionSimulatorObserver> observers;
+
+    protected static final Supplier<LoadFlowParameters> LOAD_FLOW_PARAMETERS = Suppliers.memoize(LoadFlowParameters::load);
+
+    protected static final Supplier<TableFormatterConfig> TABLE_FORMATTER_CONFIG = Suppliers.memoize(TableFormatterConfig::load);
 
     public LoadFlowActionSimulator(Network network, ComputationManager computationManager) {
         this(network, computationManager, LoadFlowActionSimulatorConfig.load(), false, Collections.emptyList());
@@ -98,13 +105,26 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
     @Override
     public void start(ActionDb actionDb, List<String> contingencyIds) {
+        start(actionDb, contingencyIds, LOAD_FLOW_PARAMETERS.get());
+    }
+
+    @Override
+    public void start(ActionDb actionDb, List<String> contingencyIds, LoadFlowParameters loadFlowParameters) {
+        start(actionDb, contingencyIds, loadFlowParameters, TABLE_FORMATTER_CONFIG.get());
+    }
+
+    @Override
+    public void start(ActionDb actionDb, List<String> contingencyIds, LoadFlowParameters loadFlowParameters,
+                      TableFormatterConfig tableFormatterConfig) {
         Objects.requireNonNull(actionDb);
+        Objects.requireNonNull(loadFlowParameters);
+        Objects.requireNonNull(tableFormatterConfig);
 
         LOGGER.info("Starting pre-contingency analysis");
         RunningContext runningContext = new RunningContext(network);
         observers.forEach(o -> o.beforePreContingencyAnalysis(runningContext));
 
-        boolean preContingencyAnalysisOk = next(actionDb, runningContext);
+        boolean preContingencyAnalysisOk = next(actionDb, runningContext, loadFlowParameters, tableFormatterConfig);
 
         observers.forEach(LoadFlowActionSimulatorObserver::afterPreContingencyAnalysis);
 
@@ -123,7 +143,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
                 observers.forEach(o -> o.postContingencyAnalysisNetworkLoaded(runningContext2));
 
-                next(actionDb, runningContext2);
+                next(actionDb, runningContext2, loadFlowParameters, tableFormatterConfig);
 
                 strategy.removeState();
             }
@@ -234,7 +254,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         }
     }
 
-    private boolean checkViolations(ActionDb actionDb, RunningContext context) {
+    private boolean checkViolations(ActionDb actionDb, RunningContext context, LoadFlowParameters loadFlowParameters, TableFormatterConfig tableFormatterConfig) {
         List<LimitViolation> violations = LIMIT_VIOLATION_FILTER.apply(Security.checkLimits(context.getNetwork(), 1), context.getNetwork());
         observers.forEach(o -> o.loadFlowConverged(context, violations));
         // no more violations => work complete
@@ -245,7 +265,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         }
 
         if (LOGGER.isInfoEnabled()) {
-            LOGGER.info("Violations: \n{}", Security.printLimitsViolations(violations, network, NO_FILTER));
+            LOGGER.info("Violations: \n{}", Security.printLimitsViolations(violations, network, NO_FILTER, tableFormatterConfig));
         }
 
         if (context.getRound() + 1 == config.getMaxIterations()) {
@@ -254,7 +274,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
             return false;
         }
 
-        runTests(actionDb, context);
+        runTests(actionDb, context, loadFlowParameters);
         if (context.isTestWorks() && applyIfSolvedViolations) {
             return true;
         }
@@ -285,7 +305,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
         if (!actionsTaken.isEmpty()) {
             context.setRound(context.getRound() + 1);
-            return next(actionDb, context);
+            return next(actionDb, context, loadFlowParameters, tableFormatterConfig);
         } else {
             LOGGER.info("Still some violations and no rule match");
             observers.forEach(o -> o.violationsAnymoreAndNoRulesMatch(context));
@@ -293,7 +313,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         }
     }
 
-    private boolean next(ActionDb actionDb, RunningContext context) {
+    private boolean next(ActionDb actionDb, RunningContext context, LoadFlowParameters loadFlowParameters, TableFormatterConfig tableFormatterConfig) {
         observers.forEach(o -> o.roundBegin(context));
 
         LoadFlowFactory loadFlowFactory = newLoadFlowFactory();
@@ -302,12 +322,12 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         LOGGER.info("Running loadflow ({})", loadFlow.getName());
         LoadFlowResult result;
         try {
-            result = loadFlow.run(context.getNetwork().getStateManager().getWorkingStateId(), LoadFlowParameters.load()).join();
+            result = loadFlow.run(context.getNetwork().getStateManager().getWorkingStateId(), loadFlowParameters).join();
         } catch (Exception e) {
             throw new PowsyblException(e);
         }
         if (result.isOk()) {
-            return checkViolations(actionDb, context);
+            return checkViolations(actionDb, context, loadFlowParameters, tableFormatterConfig);
         } else {
             LOGGER.warn("Loadflow diverged: {}", result.getMetrics());
             observers.forEach(o -> o.loadFlowDiverged(context));
@@ -315,7 +335,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         }
     }
 
-    private void runTests(ActionDb actionDb, RunningContext context) {
+    private void runTests(ActionDb actionDb, RunningContext context, LoadFlowParameters loadFlowParameters) {
         // test actions
         EvaluationContext evalContext = new EvaluationContext() {
             @Override
@@ -358,7 +378,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
             Network networkForTest = strategy.createState(actionId);
 
-            LoadFlowResult testResult = runTest(context, networkForTest, action);
+            LoadFlowResult testResult = runTest(context, networkForTest, action, loadFlowParameters);
             context.addTested(actionId);
             if (testResult.isOk()) {
                 List<LimitViolation> violationsInTest =
@@ -391,7 +411,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         }
     }
 
-    private LoadFlowResult runTest(RunningContext context, Network networkForTry, Action action) {
+    private LoadFlowResult runTest(RunningContext context, Network networkForTry, Action action, LoadFlowParameters loadFlowParameters) {
         String actionId = action.getId();
         LOGGER.info("Test action '{}'", actionId);
         action.run(networkForTry, computationManager);
@@ -399,7 +419,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         LoadFlow testLoadFlow = loadFlowFactory.create(networkForTry, computationManager, 0);
         try {
             observers.forEach(o -> o.beforeTest(context, actionId));
-            LoadFlowResult testResult = testLoadFlow.run(networkForTry.getStateManager().getWorkingStateId(), LoadFlowParameters.load()).join();
+            LoadFlowResult testResult = testLoadFlow.run(networkForTry.getStateManager().getWorkingStateId(), loadFlowParameters).join();
             observers.forEach(o -> o.afterTest(context, actionId));
             return testResult;
         } catch (Exception e) {

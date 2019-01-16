@@ -9,8 +9,10 @@ package com.powsybl.action.simulator;
 import com.powsybl.action.simulator.loadflow.DefaultLoadFlowActionSimulatorObserver;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorObserver;
 import com.powsybl.action.simulator.loadflow.RunningContext;
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -84,7 +86,7 @@ public class ContingencyOccurredTest extends AbstractLoadFlowRulesEngineTest {
 
     @Test
     public void test() throws Exception {
-        engine.start(actionDb, "contingency1");
+        engine.start(actionDb, Collections.singletonList("contingency1"), new LoadFlowParameters(), new TableFormatterConfig());
 
         // check action1 is activated in pre-contingency state and action2 in post-contingency state
         assertEquals(preContActions, Collections.singletonList("action1"));

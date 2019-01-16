@@ -12,6 +12,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Properties;
 import java.util.stream.Stream;
 
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,6 +46,8 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
     private ShuntCompensator shunt;
     private Terminal shuntTerminal;
     private BusView shuntBusView;
+
+    private final TableFormatterConfig tableFormatterConfig = Mockito.mock(TableFormatterConfig.class);
 
     @Before
     public void setUp() {
@@ -80,44 +83,44 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
     @Test
     public void checkShuntsValues() {
         // “p” is always NaN
-        assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
         p = 1;
-        assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
         p = Float.NaN;
 
         // “q” = - bPerSection * currentSectionCount * v^2
-        assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
         q = 170.52;
-        assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
-        assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, looseConfig, NullWriter.NULL_WRITER));
+        assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
+        assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, looseConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
         q = 171.52;
-        assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, looseConfig, NullWriter.NULL_WRITER));
+        assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, looseConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
         // check main component
         mainComponent = false;
-        assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, looseConfig, NullWriter.NULL_WRITER));
+        assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, looseConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
         mainComponent = true;
         q = 170.50537;
 
         // check with NaN values
-        assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, Float.NaN, v, qMax, nominalV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
-        assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, Float.NaN, qMax, nominalV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, Float.NaN, v, qMax, nominalV, connected, mainComponent, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
+        assertFalse(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, Float.NaN, qMax, nominalV, connected, mainComponent, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
         strictConfig.setOkMissingValues(true);
-        assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, Float.NaN, v, qMax, nominalV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
-        assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, Float.NaN, qMax, nominalV, connected, mainComponent, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, Float.NaN, v, qMax, nominalV, connected, mainComponent, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
+        assertTrue(ShuntCompensatorsValidation.checkShunts("test", p, q, currentSectionCount, maximumSectionCount, bPerSection, Float.NaN, qMax, nominalV, connected, mainComponent, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
     }
 
     @Test
     public void checkShunts() {
         // “q” = - bPerSection * currentSectionCount * v^2
-        assertTrue(ShuntCompensatorsValidation.checkShunts(shunt, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(ShuntCompensatorsValidation.checkShunts(shunt, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
         Mockito.when(shuntTerminal.getQ()).thenReturn(171.52);
-        assertFalse(ShuntCompensatorsValidation.checkShunts(shunt, strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(ShuntCompensatorsValidation.checkShunts(shunt, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
 
         // if the shunt is disconnected then either “q” is not defined or “q” is 0
         Mockito.when(shuntBusView.getBus()).thenReturn(null);
-        assertFalse(ShuntCompensatorsValidation.checkShunts(shunt, strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(ShuntCompensatorsValidation.checkShunts(shunt, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
         Mockito.when(shuntTerminal.getQ()).thenReturn(Double.NaN);
-        assertTrue(ShuntCompensatorsValidation.checkShunts(shunt, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(ShuntCompensatorsValidation.checkShunts(shunt, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
     }
 
     @Test
@@ -126,9 +129,9 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
         Mockito.when(network.getId()).thenReturn("network");
         Mockito.when(network.getShuntCompensatorStream()).thenAnswer(dummy -> Stream.of(shunt));
 
-        assertTrue(ShuntCompensatorsValidation.checkShunts(network, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(ShuntCompensatorsValidation.checkShunts(network, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
 
-        ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), strictConfig, NullWriter.NULL_WRITER, ValidationType.SHUNTS);
+        ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER, ValidationType.SHUNTS);
         assertTrue(ValidationType.SHUNTS.check(network, strictConfig, validationWriter));
     }
 }

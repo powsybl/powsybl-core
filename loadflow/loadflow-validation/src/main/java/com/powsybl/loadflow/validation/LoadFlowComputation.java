@@ -37,10 +37,7 @@ public class LoadFlowComputation implements CandidateComputation {
      * Returns the loadflow factory configured in "loadflow-validation" module,
      * or else the default platform loadflow factory.
      */
-    private static LoadFlowFactory getLoadFlowFactory() {
-
-        PlatformConfig platformConfig = PlatformConfig.defaultConfig();
-
+    private static LoadFlowFactory getLoadFlowFactory(PlatformConfig platformConfig) {
         if (platformConfig.moduleExists("loadflow-validation")) {
             ModuleConfig config = platformConfig.getModuleConfig("loadflow-validation");
             if (config.hasProperty("load-flow-factory")) {
@@ -52,16 +49,21 @@ public class LoadFlowComputation implements CandidateComputation {
             }
         }
 
-        return ComponentDefaultConfig.load().newFactoryImpl(LoadFlowFactory.class);
+        return ComponentDefaultConfig.load(platformConfig).newFactoryImpl(LoadFlowFactory.class);
     }
 
     @Override
     public void run(Network network, ComputationManager computationManager) {
+        run(network, computationManager, PlatformConfig.defaultConfig());
+    }
+
+    @Override
+    public void run(Network network, ComputationManager computationManager, PlatformConfig platformConfig) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(computationManager);
 
-        LoadFlowParameters parameters = LoadFlowParameters.load();
-        LoadFlow loadFlow = getLoadFlowFactory().create(network, computationManager, 0);
+        LoadFlowParameters parameters = LoadFlowParameters.load(platformConfig);
+        LoadFlow loadFlow = getLoadFlowFactory(platformConfig).create(network, computationManager, 0);
         loadFlow.run(StateManagerConstants.INITIAL_STATE_ID, parameters)
                 .thenAccept(loadFlowResult -> {
                     if (!loadFlowResult.isOk()) {
