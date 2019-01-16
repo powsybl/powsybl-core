@@ -43,11 +43,11 @@ public class TerminalLimitConversion extends AbstractIdentifiedObjectConversion 
         int terminalNumber = context.terminalMapping().number(terminalId);
         Connectable eq = terminal.getConnectable();
         boolean assigned = false;
-        if (limitTypeName.equals("PATL") || limitType.equals("LimitTypeKind.patl")) {
+        if (limitTypeName.equals("PATL") || "LimitTypeKind.patl".equals(limitType)) {
             if (value <= 0) {
                 context.ignored("Operational limit", "value is <= 0");
             } else {
-                if (limitSubtype.equals("CurrentLimit")) {
+                if (limitSubtype == null || limitSubtype.equals("CurrentLimit")) {
                     // Enhancement: we should be able to use a CurrentLimitsAdder (an owner)
                     // to avoid checking the class of the equipment
                     // In terminal mapping insert a CurrentLimitsAdder instead of a Branch.side
