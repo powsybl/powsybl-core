@@ -134,7 +134,7 @@ public class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<Voltage
 
     @Override
     public Iterable<Switch> getSwitches() {
-        return identifiable.getSwitches();
+        return Iterables.transform(identifiable.getSwitches(), ImmutableSwitch::new);
     }
 
     @Override
@@ -259,12 +259,208 @@ public class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<Voltage
 
     @Override
     public NodeBreakerView getNodeBreakerView() {
-        return identifiable.getNodeBreakerView();
+        return new NodeBreakerView() {
+
+            private final NodeBreakerView nbv = identifiable.getNodeBreakerView();
+
+            @Override
+            public int getNodeCount() {
+                return nbv.getNodeCount();
+            }
+
+            @Override
+            public int[] getNodes() {
+                return nbv.getNodes();
+            }
+
+            @Override
+            public NodeBreakerView setNodeCount(int count) {
+                throw ImmutableNetwork.createUnmodifiableNetworkException();
+            }
+
+            @Override
+            public SwitchAdder newSwitch() {
+                throw ImmutableNetwork.createUnmodifiableNetworkException();
+            }
+
+            @Override
+            public InternalConnectionAdder newInternalConnection() {
+                throw ImmutableNetwork.createUnmodifiableNetworkException();
+            }
+
+            @Override
+            public SwitchAdder newBreaker() {
+                throw ImmutableNetwork.createUnmodifiableNetworkException();
+            }
+
+            @Override
+            public SwitchAdder newDisconnector() {
+                throw ImmutableNetwork.createUnmodifiableNetworkException();
+            }
+
+            @Override
+            public int getNode1(String switchId) {
+                return nbv.getNode1(switchId);
+            }
+
+            @Override
+            public int getNode2(String switchId) {
+                return nbv.getNode2(switchId);
+            }
+
+            @Override
+            public Terminal getTerminal(int node) {
+                return ImmutableTerminal.ofNullable(nbv.getTerminal(node));
+            }
+
+            @Override
+            public Terminal getTerminal1(String switchId) {
+                return ImmutableTerminal.ofNullable(nbv.getTerminal1(switchId));
+            }
+
+            @Override
+            public Terminal getTerminal2(String switchId) {
+                return ImmutableTerminal.ofNullable(nbv.getTerminal2(switchId));
+            }
+
+            @Override
+            public Switch getSwitch(String switchId) {
+                return ImmutableSwitch.ofNullable(nbv.getSwitch(switchId));
+            }
+
+            @Override
+            public Iterable<Switch> getSwitches() {
+                return Iterables.transform(nbv.getSwitches(), ImmutableSwitch::new);
+            }
+
+            @Override
+            public Stream<Switch> getSwitchStream() {
+                return nbv.getSwitchStream().map(ImmutableSwitch::new);
+            }
+
+            @Override
+            public int getSwitchCount() {
+                return nbv.getSwitchCount();
+            }
+
+            @Override
+            public void removeSwitch(String switchId) {
+                throw ImmutableNetwork.createUnmodifiableNetworkException();
+            }
+
+            @Override
+            public BusbarSectionAdder newBusbarSection() {
+                throw ImmutableNetwork.createUnmodifiableNetworkException();
+            }
+
+            @Override
+            public Iterable<BusbarSection> getBusbarSections() {
+                return nbv.getBusbarSections();
+            }
+
+            @Override
+            public Stream<BusbarSection> getBusbarSectionStream() {
+                return nbv.getBusbarSectionStream();
+            }
+
+            @Override
+            public int getBusbarSectionCount() {
+                return nbv.getBusbarSectionCount();
+            }
+
+            @Override
+            public BusbarSection getBusbarSection(String id) {
+                return nbv.getBusbarSection(id);
+            }
+
+            @Override
+            public void traverse(int node, Traverser traverser) {
+                nbv.traverse(node, traverser);
+            }
+        };
     }
 
     @Override
     public BusBreakerView getBusBreakerView() {
-        return identifiable.getBusBreakerView();
+        return new BusBreakerView() {
+
+            private final BusBreakerView bbv = identifiable.getBusBreakerView();
+
+            @Override
+            public Iterable<Bus> getBuses() {
+                return Iterables.transform(bbv.getBuses(), ImmutableBus::new);
+            }
+
+            @Override
+            public Stream<Bus> getBusStream() {
+                return bbv.getBusStream().map(ImmutableBus::new);
+            }
+
+            @Override
+            public Bus getBus(String id) {
+                return ImmutableBus.ofNullable(bbv.getBus(id));
+            }
+
+            @Override
+            public BusAdder newBus() {
+                throw ImmutableNetwork.createUnmodifiableNetworkException();
+            }
+
+            @Override
+            public void removeBus(String busId) {
+                throw ImmutableNetwork.createUnmodifiableNetworkException();
+            }
+
+            @Override
+            public void removeAllBuses() {
+                throw ImmutableNetwork.createUnmodifiableNetworkException();
+            }
+
+            @Override
+            public Iterable<Switch> getSwitches() {
+                return Iterables.transform(bbv.getSwitches(), ImmutableSwitch::new);
+            }
+
+            @Override
+            public Stream<Switch> getSwitchStream() {
+                return bbv.getSwitchStream().map(ImmutableSwitch::new);
+            }
+
+            @Override
+            public int getSwitchCount() {
+                return bbv.getSwitchCount();
+            }
+
+            @Override
+            public void removeSwitch(String switchId) {
+                throw ImmutableNetwork.createUnmodifiableNetworkException();
+            }
+
+            @Override
+            public void removeAllSwitches() {
+                throw ImmutableNetwork.createUnmodifiableNetworkException();
+            }
+
+            @Override
+            public Bus getBus1(String switchId) {
+                return ImmutableBus.ofNullable(bbv.getBus1(switchId));
+            }
+
+            @Override
+            public Bus getBus2(String switchId) {
+                return ImmutableBus.ofNullable(bbv.getBus2(switchId));
+            }
+
+            @Override
+            public Switch getSwitch(String switchId) {
+                return ImmutableSwitch.ofNullable(bbv.getSwitch(switchId));
+            }
+
+            @Override
+            public SwitchAdder newSwitch() {
+                throw ImmutableNetwork.createUnmodifiableNetworkException();
+            }
+        };
     }
 
     @Override

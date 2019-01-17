@@ -6,8 +6,9 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
+import com.powsybl.iidm.network.util.ImmutableNetwork;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -15,14 +16,22 @@ import java.io.IOException;
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class FictitiousSwitchTest extends AbstractConverterTest {
+public class FictitiousSwitchTest extends AbstractNetworkXmlTest {
+
+    private static final Network NETWORK = FictitiousSwitchFactory.create();
+    private static final String REF = "/fictitiousSwitchRef.xml";
 
     @Test
     public void roundTripTest() throws IOException {
-        roundTripXmlTest(FictitiousSwitchFactory.create(),
+        roundTripXmlTest(NETWORK,
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                "/fictitiousSwitchRef.xml");
+                REF);
+    }
+
+    @Test
+    public void testReadImmutable() {
+        writeToXmlTest(ImmutableNetwork.of(NETWORK), REF);
     }
 
 }

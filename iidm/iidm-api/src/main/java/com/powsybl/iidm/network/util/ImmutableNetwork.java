@@ -317,17 +317,17 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Switch getSwitch(String id) {
-        return identifiable.getSwitch(id);
+        return ImmutableSwitch.ofNullable(identifiable.getSwitch(id));
     }
 
     @Override
     public Iterable<Switch> getSwitches() {
-        return identifiable.getSwitches();
+        return Iterables.transform(identifiable.getSwitches(), ImmutableSwitch::new);
     }
 
     @Override
     public Stream<Switch> getSwitchStream() {
-        return identifiable.getSwitchStream();
+        return identifiable.getSwitchStream().map(ImmutableSwitch::new);
     }
 
     @Override
@@ -468,12 +468,12 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
             @Override
             public Iterable<Switch> getSwitches() {
-                return null;
+                return Iterables.transform(busBreakerView.getSwitches(), ImmutableSwitch::new);
             }
 
             @Override
             public Stream<Switch> getSwitchStream() {
-                return null;
+                return busBreakerView.getSwitchStream().map(ImmutableSwitch::new);
             }
 
             @Override
