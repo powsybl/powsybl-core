@@ -85,19 +85,16 @@ public class SubstationIdMapping {
     }
 
     private UndirectedGraph<String, Object> graphSubstationsTransformers() {
-        LOG.info("graph substations transformers");
         UndirectedGraph<String, Object> graph = new Pseudograph<>(Object.class);
         for (PropertyBag s : context.cgmes().substations()) {
             String id = s.getId(CgmesNames.SUBSTATION);
             String iid = context.namingStrategy().getId(CgmesNames.SUBSTATION, id);
-            LOG.info("    [{}]", iid);
             graph.addVertex(iid);
         }
         for (PropertyBags tends : context.cgmes().groupedTransformerEnds().values()) {
             List<String> substationsIds = substationsIds(tends);
             if (substationsIds.size() > 1) {
                 for (int i = 1; i < substationsIds.size(); i++) {
-                    LOG.info("    edge [{}] [{}]", substationsIds.get(0), substationsIds.get(i));
                     graph.addEdge(substationsIds.get(0), substationsIds.get(i));
                 }
             }
