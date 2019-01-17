@@ -19,6 +19,8 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
 
     private final String subjectId;
 
+    private final String subjectName;
+
     private final LimitViolationType limitType;
 
     private final double limit;
@@ -33,9 +35,10 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
 
     private final Branch.Side side;
 
-    public LimitViolation(String subjectId, LimitViolationType limitType, String limitName, int acceptableDuration,
+    public LimitViolation(String subjectId, String subjectName, LimitViolationType limitType, String limitName, int acceptableDuration,
                           double limit, float limitReduction, double value, Branch.Side side) {
         this.subjectId = Objects.requireNonNull(subjectId);
+        this.subjectName = subjectName;
         this.limitType = Objects.requireNonNull(limitType);
         this.limitName = limitName;
         this.acceptableDuration = acceptableDuration;
@@ -45,12 +48,25 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
         this.side = checkSide(limitType, side);
     }
 
+    public LimitViolation(String subjectId, LimitViolationType limitType, String limitName, int acceptableDuration,
+                          double limit, float limitReduction, double value, Branch.Side side) {
+        this(subjectId, null, limitType, limitName, acceptableDuration, limit, limitReduction, value, side);
+    }
+
+    public LimitViolation(String subjectId, String subjectName, LimitViolationType limitType, double limit, float limitReduction, double value) {
+        this(subjectId, subjectName, limitType, null, Integer.MAX_VALUE, limit, limitReduction, value, null);
+    }
+
     public LimitViolation(String subjectId, LimitViolationType limitType, double limit, float limitReduction, double value) {
-        this(subjectId, limitType, null, Integer.MAX_VALUE, limit, limitReduction, value, null);
+        this(subjectId, null, limitType, limit, limitReduction, value);
     }
 
     public String getSubjectId() {
         return subjectId;
+    }
+
+    public String getSubjectName() {
+        return subjectName;
     }
 
     public LimitViolationType getLimitType() {
