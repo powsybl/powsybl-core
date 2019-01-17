@@ -10,13 +10,13 @@ import com.powsybl.iidm.network.Identifiable;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.any;
+import static org.junit.Assert.*;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
@@ -44,7 +44,18 @@ public final class ImmutableTestHelper {
                         } else {
                             Object[] mocks = new Object[parameterTypes.length];
                             for (int i = 0; i < parameterTypes.length; i++) {
-                                mocks[i] = any(parameterTypes[i]);
+                                String clazz = m.getParameterTypes()[i].getSimpleName();
+                                if (clazz.equals("double")) {
+                                    mocks[i] = 1.0;
+                                } else if (clazz.equals("int")) {
+                                    mocks[i] = 1;
+                                } else if (clazz.equals("float")) {
+                                    mocks[i] = 1.0f;
+                                } else if (clazz.equals("boolean")) {
+                                    mocks[i] = true;
+                                } else {
+                                    // implicitly set as null
+                                }
                             }
                             m.invoke(sut, mocks);
                         }
