@@ -394,35 +394,47 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
     }
 
     private void addRegulatingControl(PhaseTapChangerAdder ptca) {
-        // TODO How to obtain terminal of corresponding winding ?
-        // Only one transformer end is available for the tap changer
-        String terminal1 = p.getId("Terminal1");
-        String terminal2 = p.getId("Terminal2");
-
-        String regulatingControl = p.getId("RegulatingControl");
+        String regulatingControl = p.getId("TapChangerControl");
         String regulatingControlMode = p.getLocal("regulatingControlMode");
-        double regulatingControlTargetValue = p.asDouble("regulatingControlTargetValue");
-        String regulatingControlTerminal = p.getId("RegulatingControlTerminal");
         if (regulatingControl != null) {
             if (regulatingControlMode.endsWith("currentFlow")) {
-                Terminal treg;
-                if (regulatingControlTerminal.equals(terminal1)) {
-                    treg = tx.getTerminal1();
-                } else if (regulatingControlTerminal.equals(terminal2)) {
-                    treg = tx.getTerminal2();
-                } else {
-                    treg = context.terminalMapping().find(regulatingControlTerminal);
-                }
-                ptca.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
-                        .setRegulationValue(regulatingControlTargetValue)
-                        .setRegulating(true)
-                        .setRegulationTerminal(treg);
+                addCurrentFlowRegControl(ptca);
+            } else if (regulatingControlMode.endsWith("activePower")) {
+                addActivePowerRegControl(ptca);
             } else if (regulatingControlMode.endsWith("fixed")) {
                 // Nothing to do
             } else {
                 ignored(regulatingControlMode, "Unsupported regulating mode");
             }
         }
+    }
+
+    private void addCurrentFlowRegControl(PhaseTapChangerAdder ptca) {
+        Terminal treg = context.terminalMapping().find(p.getId("RegulatingControlTerminal"));
+        boolean regulatingControlEnabled  = p.asBoolean("regulatingControlEnabled", true);
+        double targetV = p.asDouble("regulatingControlTargetValue");
+        if (side == 1) {
+            targetV *= tx.getRatedU1();
+        } else {
+            targetV *= tx.getRatedU2();
+        }
+        ptca.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
+                .setRegulationValue(targetV)
+                .setRegulating(regulatingControlEnabled)
+                .setRegulationTerminal(treg);
+    }
+
+    private void addActivePowerRegControl(PhaseTapChangerAdder ptca) {
+        Terminal treg = context.terminalMapping().find(p.getId("RegulatingControlTerminal"));
+        boolean regulatingControlEnabled  = p.asBoolean("regulatingControlEnabled", true);
+        double targetV = -p.asDouble("regulatingControlTargetValue");
+        if ((treg.equals(tx.getTerminal1()) && side == 2) || (treg.equals(tx.getTerminal2()) && side == 1)) {
+            targetV *= -1;
+        }
+        ptca.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
+                .setRegulationTerminal(treg)
+                .setRegulating(regulatingControlEnabled)
+                .setRegulationValue(targetV);
     }
 
     private boolean validType() {
