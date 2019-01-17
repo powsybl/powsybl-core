@@ -269,7 +269,29 @@ public class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<Voltage
 
     @Override
     public BusView getBusView() {
-        return identifiable.getBusView();
+        return new BusView() {
+
+            final BusView busView = identifiable.getBusView();
+            @Override
+            public Iterable<Bus> getBuses() {
+                return Iterables.transform(busView.getBuses(), ImmutableBus::new);
+            }
+
+            @Override
+            public Stream<Bus> getBusStream() {
+                return busView.getBusStream().map(ImmutableBus::new);
+            }
+
+            @Override
+            public Bus getBus(String id) {
+                return ImmutableBus.ofNullable(busView.getBus(id));
+            }
+
+            @Override
+            public Bus getMergedBus(String configuredBusId) {
+                return ImmutableBus.ofNullable(busView.getMergedBus(configuredBusId));
+            }
+        };
     }
 
     @Override

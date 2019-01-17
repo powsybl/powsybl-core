@@ -6,14 +6,15 @@
  */
 package com.powsybl.iidm.network.impl.util;
 
+import com.powsybl.iidm.network.Identifiable;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 
@@ -60,7 +61,14 @@ public final class ImmutableTestHelper {
 
     private static boolean isMutableMethods(Method m) {
         String name = m.getName();
-        return name.startsWith("set") || name.startsWith("new") || name.equals("remove");
+        return name.startsWith("set") || name.startsWith("new") || name.equals("remove") || name.equals("connect") || name.equals("disconnect");
+    }
+
+    public static <T extends Identifiable> void assertElementType(Class expectedClazz, Iterable<T> iterable, Stream<T> stream) {
+        Iterator<T> iterator = iterable.iterator();
+        assertTrue(iterator.hasNext());
+        assertEquals(expectedClazz, iterator.next().getClass());
+        stream.findAny().ifPresent(e -> assertEquals(expectedClazz, e.getClass()));
     }
 
     private ImmutableTestHelper() {

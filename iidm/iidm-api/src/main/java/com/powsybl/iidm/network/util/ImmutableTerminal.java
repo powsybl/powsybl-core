@@ -10,8 +10,6 @@ import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
 
-import static com.powsybl.iidm.network.util.ImmutableNetwork.createUnmodifiableNetworkException;
-
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
@@ -19,15 +17,15 @@ public class ImmutableTerminal implements Terminal {
 
     Terminal terminal;
 
-    public ImmutableTerminal(Terminal terminal) {
+    ImmutableTerminal(Terminal terminal) {
         this.terminal = Objects.requireNonNull(terminal);
     }
 
-    public static ImmutableTerminal ofNullable(Terminal terminal) {
+    static ImmutableTerminal ofNullable(Terminal terminal) {
         return terminal == null ? null : new ImmutableTerminal(terminal);
     }
 
-    public Terminal getTerminal() {
+    Terminal getTerminal() {
         return terminal;
     }
 
@@ -38,7 +36,7 @@ public class ImmutableTerminal implements Terminal {
 
     @Override
     public NodeBreakerView getNodeBreakerView() {
-        return terminal.getNodeBreakerView(); // NodeBreakerView only contains getter
+        return terminal.getNodeBreakerView(); // this nbv contains only primitive return type getter
     }
 
     @Override
@@ -56,7 +54,7 @@ public class ImmutableTerminal implements Terminal {
 
             @Override
             public void setConnectableBus(String busId) {
-                createUnmodifiableNetworkException();
+                throw ImmutableNetwork.createUnmodifiableNetworkException();
             }
         };
     }
@@ -78,15 +76,30 @@ public class ImmutableTerminal implements Terminal {
 
     @Override
     public Connectable getConnectable() {
-        switch (terminal.getConnectable().getType()) {
+        Connectable connectable = terminal.getConnectable();
+        switch (connectable.getType()) {
+            case BUSBAR_SECTION:
+                return connectable;
+            case LINE:
+                return ImmutableFactory.ofNullableLine((Line) connectable);
             case TWO_WINDINGS_TRANSFORMER:
-                return ImmutableTwoWindingsTransformer.ofNullable((TwoWindingsTransformer) terminal.getConnectable());
+                return ImmutableTwoWindingsTransformer.ofNullable((TwoWindingsTransformer) connectable);
             case THREE_WINDINGS_TRANSFORMER:
-                return ImmutableThreeWindingsTransformer.ofNullable((ThreeWindingsTransformer) terminal.getConnectable());
+                return ImmutableThreeWindingsTransformer.ofNullable((ThreeWindingsTransformer) connectable);
             case GENERATOR:
-                return ImmutableGenerator.ofNullable((Generator) terminal.getConnectable());
+                return ImmutableGenerator.ofNullable((Generator) connectable);
+            case LOAD:
+                return ImmutableLoad.ofNullable((Load) connectable);
+            case SHUNT_COMPENSATOR:
+                return ImmutableShuntCompensator.ofNullable((ShuntCompensator) connectable);
+            case DANGLING_LINE:
+                return ImmutableDanglingLine.ofNullable((DanglingLine) connectable);
+            case STATIC_VAR_COMPENSATOR:
+                return ImmutableStaticVarCompensator.ofNullable((StaticVarCompensator) connectable);
+            case HVDC_CONVERTER_STATION:
+                return ImmutableFactory.ofNullableHvdcConverterStation((HvdcConverterStation) connectable);
             default:
-                return terminal.getConnectable();
+                throw new IllegalArgumentException(connectable.getType().name() + " is not valid to be immutablized");
         }
     }
 
@@ -132,6 +145,8 @@ public class ImmutableTerminal implements Terminal {
 
     @Override
     public void traverse(VoltageLevel.TopologyTraverser traverser) {
+        // TO REVIEW
         terminal.traverse(traverser);
     }
+
 }

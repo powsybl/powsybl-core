@@ -24,7 +24,7 @@ public class ImmutableComponent implements Component {
         this.component = Objects.requireNonNull(component);
     }
 
-    public static ImmutableComponent ofNullable(Component component) {
+    static ImmutableComponent ofNullable(Component component) {
         return component == null ? null : new ImmutableComponent(component);
     }
 
@@ -40,11 +40,11 @@ public class ImmutableComponent implements Component {
 
     @Override
     public Iterable<Bus> getBuses() {
-        return Iterables.transform(component.getBuses(), ImmutableBus::ofNullable);
+        return Iterables.transform(component.getBuses(), ImmutableBus::new);
     }
 
     @Override
     public Stream<Bus> getBusStream() {
-        return component.getBusStream().map(bus -> ImmutableBus.ofNullable(bus));
+        return component.getBusStream().map(ImmutableBus::new);
     }
 }

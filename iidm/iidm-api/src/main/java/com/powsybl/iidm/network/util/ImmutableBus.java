@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.util;
 
+import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
 
 import java.util.stream.Stream;
@@ -15,11 +16,11 @@ import java.util.stream.Stream;
  */
 public class ImmutableBus extends AbstractImmutableIdentifiable<Bus> implements Bus {
 
-    public ImmutableBus(Bus identifiable) {
+    ImmutableBus(Bus identifiable) {
         super(identifiable);
     }
 
-    public static ImmutableBus ofNullable(Bus bus) {
+    static ImmutableBus ofNullable(Bus bus) {
         return bus == null ? null : new ImmutableBus(bus);
     }
 
@@ -60,7 +61,7 @@ public class ImmutableBus extends AbstractImmutableIdentifiable<Bus> implements 
 
     @Override
     public Component getConnectedComponent() {
-        return identifiable.getConnectedComponent();
+        return ImmutableComponent.ofNullable(identifiable.getConnectedComponent());
     }
 
     @Override
@@ -85,78 +86,108 @@ public class ImmutableBus extends AbstractImmutableIdentifiable<Bus> implements 
 
     @Override
     public Iterable<Line> getLines() {
-        return null;
+        return Iterables.transform(identifiable.getLines(), ImmutableLine::new);
     }
 
     @Override
     public Stream<Line> getLineStream() {
-        return null;
+        return identifiable.getLineStream().map(ImmutableLine::new);
     }
 
     @Override
     public Iterable<Generator> getGenerators() {
-        return null;
+        return Iterables.transform(identifiable.getGenerators(), ImmutableGenerator::new);
     }
 
     @Override
     public Stream<Generator> getGeneratorStream() {
-        return null;
+        return identifiable.getGeneratorStream().map(ImmutableGenerator::new);
     }
 
     @Override
     public Iterable<Load> getLoads() {
-        return null;
+        return Iterables.transform(identifiable.getLoads(), ImmutableLoad::new);
     }
 
     @Override
     public Stream<Load> getLoadStream() {
-        return null;
+        return identifiable.getLoadStream().map(ImmutableLoad::new);
     }
 
     @Override
     public Iterable<DanglingLine> getDanglingLines() {
-        return null;
+        return Iterables.transform(identifiable.getDanglingLines(), ImmutableDanglingLine::new);
     }
 
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
-        return null;
+        return identifiable.getDanglingLineStream().map(ImmutableDanglingLine::new);
     }
 
     @Override
     public Iterable<StaticVarCompensator> getStaticVarCompensators() {
-        return null;
+        return Iterables.transform(identifiable.getStaticVarCompensators(), ImmutableStaticVarCompensator::new);
     }
 
     @Override
     public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
-        return null;
+        return identifiable.getStaticVarCompensatorStream().map(ImmutableStaticVarCompensator::new);
     }
 
     @Override
     public Iterable<LccConverterStation> getLccConverterStations() {
-        return null;
+        return Iterables.transform(identifiable.getLccConverterStations(), ImmutableLccConverterStation::new);
     }
 
     @Override
     public Stream<LccConverterStation> getLccConverterStationStream() {
-        return null;
+        return identifiable.getLccConverterStationStream().map(ImmutableLccConverterStation::new);
     }
 
     @Override
     public Iterable<VscConverterStation> getVscConverterStations() {
-        return null;
+        return Iterables.transform(identifiable.getVscConverterStations(), ImmutableVscConverterStation::new);
     }
 
     @Override
     public Stream<VscConverterStation> getVscConverterStationStream() {
-//        return identifiable.getVscConverterStationStream().map();
-        return null;
+        return identifiable.getVscConverterStationStream().map(ImmutableVscConverterStation::new);
     }
 
     @Override
     public void visitConnectedEquipments(TopologyVisitor visitor) {
+        // TO REVIEW
         identifiable.visitConnectedEquipments(visitor);
+    }
+
+    @Override
+    public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
+        return Iterables.transform(identifiable.getTwoWindingsTransformers(), ImmutableTwoWindingsTransformer::new);
+    }
+
+    @Override
+    public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
+        return identifiable.getTwoWindingsTransformerStream().map(ImmutableTwoWindingsTransformer::new);
+    }
+
+    @Override
+    public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
+        return Iterables.transform(identifiable.getThreeWindingsTransformers(), ImmutableThreeWindingsTransformer::new);
+    }
+
+    @Override
+    public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
+        return identifiable.getThreeWindingsTransformerStream().map(ImmutableThreeWindingsTransformer::new);
+    }
+
+    @Override
+    public Iterable<ShuntCompensator> getShuntCompensators() {
+        return Iterables.transform(identifiable.getShuntCompensators(), ImmutableShuntCompensator::new);
+    }
+
+    @Override
+    public Stream<ShuntCompensator> getShuntCompensatorStream() {
+        return identifiable.getShuntCompensatorStream().map(ImmutableShuntCompensator::new);
     }
 
     @Override
@@ -164,7 +195,7 @@ public class ImmutableBus extends AbstractImmutableIdentifiable<Bus> implements 
         identifiable.visitConnectedOrConnectableEquipments(visitor);
     }
 
-    public Bus getBus() {
+    Bus getBus() {
         return identifiable;
     }
 
@@ -175,6 +206,7 @@ public class ImmutableBus extends AbstractImmutableIdentifiable<Bus> implements 
 
     @Override
     public boolean equals(Object obj) {
+        // TO REVIEW
         // TODO an immutable bus equals noraml bus???
         if (obj instanceof ImmutableBus) {
             return identifiable.equals(((ImmutableBus) obj).getBus());
@@ -182,7 +214,4 @@ public class ImmutableBus extends AbstractImmutableIdentifiable<Bus> implements 
         return false;
     }
 
-    protected ImmutableBus(ImmutableBus identifiable) {
-        super(identifiable);
-    }
 }

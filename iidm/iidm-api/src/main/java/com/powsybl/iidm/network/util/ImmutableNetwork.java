@@ -13,6 +13,7 @@ import org.joda.time.DateTime;
 
 import java.util.Collection;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -451,12 +452,55 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public BusBreakerView getBusBreakerView() {
-        return identifiable.getBusBreakerView();
+        return new BusBreakerView() {
+
+            final BusBreakerView busBreakerView = identifiable.getBusBreakerView();
+
+            @Override
+            public Iterable<Bus> getBuses() {
+                return Iterables.transform(busBreakerView.getBuses(), ImmutableBus::new);
+            }
+
+            @Override
+            public Stream<Bus> getBusStream() {
+                return busBreakerView.getBusStream().map(ImmutableBus::new);
+            }
+
+            @Override
+            public Iterable<Switch> getSwitches() {
+                return null;
+            }
+
+            @Override
+            public Stream<Switch> getSwitchStream() {
+                return null;
+            }
+
+            @Override
+            public int getSwitchCount() {
+                return busBreakerView.getSwitchCount();
+            }
+        };
     }
 
     @Override
     public BusView getBusView() {
-        return identifiable.getBusView();
+        return new BusView() {
+            @Override
+            public Iterable<Bus> getBuses() {
+                return Iterables.transform(identifiable.getBusView().getBuses(), ImmutableBus::new);
+            }
+
+            @Override
+            public Stream<Bus> getBusStream() {
+                return identifiable.getBusView().getBusStream().map(ImmutableBus::new);
+            }
+
+            @Override
+            public Collection<Component> getConnectedComponents() {
+                return identifiable.getBusView().getConnectedComponents().stream().map(ImmutableComponent::new).collect(Collectors.toList());
+            }
+        };
     }
 
     @Override
