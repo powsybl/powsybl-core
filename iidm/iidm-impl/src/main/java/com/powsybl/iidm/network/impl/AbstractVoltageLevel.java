@@ -7,12 +7,11 @@
 package com.powsybl.iidm.network.impl;
 
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Lists;
 import com.powsybl.iidm.network.*;
 
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -342,28 +341,6 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         return "Voltage level";
     }
 
-    /**
-     * Throw a {@link com.powsybl.commons.PowsyblException} if this voltage level contains at least one {@link Branch} or
-     * one {@link ThreeWindingsTransformer} or one {@link HvdcConverterStation}.
-     */
-    protected void checkRemovability() {
-        Set<ConnectableType> types = EnumSet.of(
-                ConnectableType.LINE,
-                ConnectableType.TWO_WINDINGS_TRANSFORMER,
-                ConnectableType.THREE_WINDINGS_TRANSFORMER);
-
-        for (Connectable connectable : getConnectables()) {
-            ConnectableType type = connectable.getType();
-            if (types.contains(type)) {
-                // Reject lines, 2WT and 3WT
-                throw new AssertionError("The voltage level '" + getId() + "' cannot be removed because of a remaining " + type);
-            } else if ((type == ConnectableType.HVDC_CONVERTER_STATION) && (getNetwork().getHvdcLine((HvdcConverterStation) connectable) != null)) {
-                // Reject all converter stations connected to a HVDC line
-                throw new AssertionError("The voltage level '" + getId() + "' cannot be removed because of a remaining HVDC line");
-            }
-        }
-    }
-
     protected abstract Iterable<Terminal> getTerminals();
 
     protected abstract Stream<Terminal> getTerminalStream();
@@ -402,4 +379,26 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
             }
         }
     }
+
+    @Override
+    public void remove() {
+        VoltageLevels.checkRemovability(this);
+
+        // Remove all connectables
+        List<Connectable> connectables = Lists.newArrayList(getConnectables());
+        for (Connectable connectable : connectables) {
+            connectable.remove();
+        }
+
+        // Remove the topology
+        removeTopology();
+
+        // Remove this voltage level from the network
+        getSubstation().remove(this);
+        getNetwork().getObjectStore().remove(this);
+
+        getNetwork().getListeners().notifyRemoval(this);
+    }
+
+    protected abstract void removeTopology();
 }

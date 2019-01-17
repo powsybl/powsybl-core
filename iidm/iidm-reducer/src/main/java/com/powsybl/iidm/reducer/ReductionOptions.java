@@ -17,7 +17,7 @@ public class ReductionOptions {
         return withDanglingLines;
     }
 
-    ReductionOptions setWithDanglingLlines(boolean withDanglingLines) {
+    ReductionOptions withDanglingLlines(boolean withDanglingLines) {
         this.withDanglingLines = withDanglingLines;
         return this;
     }

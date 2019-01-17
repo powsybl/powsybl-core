@@ -8,6 +8,7 @@ package com.powsybl.iidm.reducer;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
@@ -17,6 +18,7 @@ import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import com.powsybl.iidm.xml.XMLImporter;
@@ -28,7 +30,6 @@ import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Properties;
 
@@ -68,9 +69,9 @@ public class DefaultNetworkReducerTest {
 
         NetworkReducerObserverImpl observer = new NetworkReducerObserverImpl();
 
-        NetworkReducer reducer = new DefaultNetworkReducerBuilder()
-                .setNetworkFilter(new IdentifierNetworkFilter(Collections.singleton("P1")))
-                .addObserver(observer)
+        NetworkReducer reducer = NetworkReducer.builder()
+                .withNetworkFilter(IdentifierNetworkPredicate.of("P1"))
+                .withObservers(observer)
                 .build();
         reducer.reduce(network);
 
@@ -101,7 +102,7 @@ public class DefaultNetworkReducerTest {
         assertEquals(1, observer.getSubstationRemovedCount());
         assertEquals(2, observer.getVoltageLevelRemovedCount());
         assertEquals(2, observer.getLineReducedCount());
-        assertEquals(0, observer.getLineRemovedCount());
+        assertEquals(2, observer.getLineRemovedCount());
         assertEquals(0, observer.getTwoWindingsTransformerReducedCount());
         assertEquals(1, observer.getTwoWindingsTransformerRemovedCount());
         assertEquals(0, observer.getThreeWindingsTransformerReducedCount());
@@ -116,9 +117,9 @@ public class DefaultNetworkReducerTest {
 
         NetworkReducerObserverImpl observer = new NetworkReducerObserverImpl();
 
-        NetworkReducer reducer = new DefaultNetworkReducerBuilder()
-                .setNetworkFilter(new NominalVoltageNetworkFilter(225.0, 400.0))
-                .addObserver(observer)
+        NetworkReducer reducer = NetworkReducer.builder()
+                .withNetworkFilter(new NominalVoltageNetworkPredicate(225.0, 400.0))
+                .withObservers(observer)
                 .build();
         reducer.reduce(network);
 
@@ -151,7 +152,7 @@ public class DefaultNetworkReducerTest {
         assertEquals(0, observer.getLineReducedCount());
         assertEquals(0, observer.getLineRemovedCount());
         assertEquals(2, observer.getTwoWindingsTransformerReducedCount());
-        assertEquals(0, observer.getTwoWindingsTransformerRemovedCount());
+        assertEquals(2, observer.getTwoWindingsTransformerRemovedCount());
         assertEquals(0, observer.getThreeWindingsTransformerReducedCount());
         assertEquals(0, observer.getThreeWindingsTransformerRemovedCount());
         assertEquals(0, observer.getHvdcLineReducedCount());
@@ -162,9 +163,9 @@ public class DefaultNetworkReducerTest {
     public void testDanglingLine() {
         Network network = new XMLImporter(platformConfig).importData(dataSource, new Properties());
 
-        NetworkReducer reducer = new DefaultNetworkReducerBuilder()
-                .setNetworkFilter(new IdentifierNetworkFilter(Collections.singleton("P2")))
-                .setWithDanglingLines(true)
+        NetworkReducer reducer = NetworkReducer.builder()
+                .withNetworkFilter(IdentifierNetworkPredicate.of("P2"))
+                .withDanglingLines(true)
                 .build();
 
         reducer.reduce(network);
@@ -201,6 +202,19 @@ public class DefaultNetworkReducerTest {
     }
 
     @Test
+    public void testFailure() {
+        thrown.expect(PowsyblException.class);
+        thrown.expectMessage("The active power of 'NHV1_NHV2_1' (VLHV1) is not set. Do you forget to compute the flows?");
+
+        Network network = EurostagTutorialExample1Factory.create();
+
+        NetworkReducer reducer = NetworkReducer.builder()
+                .withNetworkFilter(IdentifierNetworkPredicate.of("P1"))
+                .build();
+        reducer.reduce(network);
+    }
+
+    @Test
     public void testHvdc() {
         Network network = HvdcTestNetwork.createLcc();
         assertEquals(1, network.getHvdcLineCount());
@@ -208,9 +222,9 @@ public class DefaultNetworkReducerTest {
         NetworkReducerObserverImpl observer = new NetworkReducerObserverImpl();
 
         // Keeping both end of the HVDC is OK
-        NetworkReducer reducer = new DefaultNetworkReducerBuilder()
-                .setNetworkFilter(new IdentifierNetworkFilter(Arrays.asList("VL1", "VL2")))
-                .addObserver(observer)
+        NetworkReducer reducer = NetworkReducer.builder()
+                .withNetworkFilter(IdentifierNetworkPredicate.of("VL1", "VL2"))
+                .withObservers(observer)
                 .build();
         reducer.reduce(network);
         assertEquals(1, network.getHvdcLineCount());
@@ -219,9 +233,9 @@ public class DefaultNetworkReducerTest {
         assertEquals(0, observer.getHvdcLineRemovedCount());
 
         // Keeping none of the ends of the HVDC is OK
-        reducer = new DefaultNetworkReducerBuilder()
-                .setNetworkFilter(new IdentifierNetworkFilter(Collections.emptyList()))
-                .setObservers(Collections.singleton(observer))
+        reducer = NetworkReducer.builder()
+                .withNetworkFilter(new IdentifierNetworkPredicate(Collections.emptyList()))
+                .withObservers(Collections.singleton(observer))
                 .build();
         reducer.reduce(network);
         assertEquals(0, network.getHvdcLineCount());
@@ -236,9 +250,9 @@ public class DefaultNetworkReducerTest {
         thrown.expectMessage("Reduction of HVDC lines is not supported");
 
         Network network = HvdcTestNetwork.createLcc();
-        NetworkReducer reducer = new DefaultNetworkReducerBuilder()
-                    .setNetworkFilter(new IdentifierNetworkFilter(Collections.singleton("VL1")))
-                    .setReductionOptions(new ReductionOptions())
+        NetworkReducer reducer = NetworkReducer.builder()
+                    .withNetworkFilter(IdentifierNetworkPredicate.of("VL1"))
+                    .withReductionOptions(new ReductionOptions())
                     .build();
         reducer.reduce(network);
     }
@@ -251,9 +265,9 @@ public class DefaultNetworkReducerTest {
         NetworkReducerObserverImpl observer = new NetworkReducerObserverImpl();
 
         // Keeping all the ends of the 3WT is OK
-        NetworkReducer reducer = new DefaultNetworkReducerBuilder()
-                .setNetworkFilter(new IdentifierNetworkFilter(Arrays.asList("VL_132", "VL_33", "VL_11")))
-                .addObserver(observer)
+        NetworkReducer reducer = NetworkReducer.builder()
+                .withNetworkFilter(IdentifierNetworkPredicate.of("VL_132", "VL_33", "VL_11"))
+                .withObservers(observer)
                 .build();
         reducer.reduce(network);
         assertEquals(1, network.getThreeWindingsTransformerCount());
@@ -262,9 +276,9 @@ public class DefaultNetworkReducerTest {
         assertEquals(0, observer.getThreeWindingsTransformerRemovedCount());
 
         // Keeping none of the ends of the 3WT is OK
-        reducer = new DefaultNetworkReducerBuilder()
-                .setNetworkFilter(new IdentifierNetworkFilter(Collections.emptyList()))
-                .setObservers(Collections.singleton(observer))
+        reducer = NetworkReducer.builder()
+                .withNetworkFilter(new IdentifierNetworkPredicate(Collections.emptyList()))
+                .withObservers(Collections.singleton(observer))
                 .build();
         reducer.reduce(network);
         assertEquals(0, network.getThreeWindingsTransformerCount());
@@ -279,9 +293,9 @@ public class DefaultNetworkReducerTest {
         thrown.expectMessage("Reduction of three-windings transformers is not supported");
 
         Network network = ThreeWindingsTransformerNetworkFactory.create();
-        NetworkReducer reducer = new DefaultNetworkReducerBuilder()
-                .setNetworkFilter(new IdentifierNetworkFilter(Arrays.asList("VL_132", "VL_11")))
-                .setReductionOptions(new ReductionOptions())
+        NetworkReducer reducer = NetworkReducer.builder()
+                .withNetworkFilter(IdentifierNetworkPredicate.of("VL_132", "VL_11"))
+                .withReductionOptions(new ReductionOptions())
                 .build();
         reducer.reduce(network);
     }

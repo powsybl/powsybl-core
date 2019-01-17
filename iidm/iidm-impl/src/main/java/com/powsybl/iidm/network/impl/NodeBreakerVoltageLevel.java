@@ -1027,22 +1027,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
-    public void remove() {
-        checkRemovability();
-
-        // Remove all connectables
-        List<Connectable> connectables = Lists.newArrayList(getConnectables());
-        for (Connectable connectable : connectables) {
-            connectable.remove();
-        }
-
-        // Remove the topology
+    protected void removeTopology() {
         removeAllSwitches();
-
-        getSubstation().remove(this);
-        getNetwork().getObjectStore().remove(this);
-
-        getNetwork().getListeners().notifyRemoval(this);
     }
 
     private void removeAllSwitches() {

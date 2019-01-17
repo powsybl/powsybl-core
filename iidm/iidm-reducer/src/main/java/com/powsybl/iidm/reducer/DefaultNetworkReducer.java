@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.reducer;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
 import java.util.*;
@@ -19,15 +20,15 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
     private final List<NetworkReducerObserver> observers = new ArrayList<>();
 
-    public DefaultNetworkReducer(NetworkFilter filter, ReductionOptions options) {
+    public DefaultNetworkReducer(NetworkPredicate filter, ReductionOptions options) {
         this(filter, options, Collections.emptyList());
     }
 
-    public DefaultNetworkReducer(NetworkFilter filter, ReductionOptions options, NetworkReducerObserver... observers) {
+    public DefaultNetworkReducer(NetworkPredicate filter, ReductionOptions options, NetworkReducerObserver... observers) {
         this(filter, options, Arrays.asList(observers));
     }
 
-    public DefaultNetworkReducer(NetworkFilter filter, ReductionOptions options, List<NetworkReducerObserver> observers) {
+    public DefaultNetworkReducer(NetworkPredicate filter, ReductionOptions options, List<NetworkReducerObserver> observers) {
         super(filter);
         this.options = Objects.requireNonNull(options);
         this.observers.addAll(Objects.requireNonNull(observers));
@@ -52,14 +53,15 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         VoltageLevel vl1 = terminal1.getVoltageLevel();
         VoltageLevel vl2 = terminal2.getVoltageLevel();
 
-        if (getFilter().accept(vl1)) {
+        if (getPredicate().test(vl1)) {
             reduce(line, vl1, terminal1);
-        } else if (getFilter().accept(vl2)) {
+        } else if (getPredicate().test(vl2)) {
             reduce(line, vl2, terminal2);
         } else {
             line.remove();
-            observers.forEach(o -> o.lineRemoved(line));
         }
+
+        observers.forEach(o -> o.lineRemoved(line));
     }
 
     @Override
@@ -69,14 +71,16 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         VoltageLevel vl1 = terminal1.getVoltageLevel();
         VoltageLevel vl2 = terminal2.getVoltageLevel();
 
-        if (getFilter().accept(vl1)) {
+        if (getPredicate().test(vl1)) {
             replaceTransformerByLoad(transformer, vl1, terminal1);
-        } else if (getFilter().accept(vl2)) {
+        } else if (getPredicate().test(vl2)) {
             replaceTransformerByLoad(transformer, vl2, terminal2);
         } else {
             transformer.remove();
-            observers.forEach(o -> o.transformerRemoved(transformer));
+
         }
+
+        observers.forEach(o -> o.transformerRemoved(transformer));
     }
 
     @Override
@@ -84,24 +88,26 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         VoltageLevel vl1 = transformer.getLeg1().getTerminal().getVoltageLevel();
         VoltageLevel vl2 = transformer.getLeg2().getTerminal().getVoltageLevel();
         VoltageLevel vl3 = transformer.getLeg3().getTerminal().getVoltageLevel();
-        if (getFilter().accept(vl1) || getFilter().accept(vl2) || getFilter().accept(vl3)) {
+        if (getPredicate().test(vl1) || getPredicate().test(vl2) || getPredicate().test(vl3)) {
             throw new UnsupportedOperationException("Reduction of three-windings transformers is not supported");
         } else {
             transformer.remove();
-            observers.forEach(o -> o.transformerRemoved(transformer));
         }
+
+        observers.forEach(o -> o.transformerRemoved(transformer));
     }
 
     @Override
     protected void reduce(HvdcLine hvdcLine) {
         VoltageLevel vl1 = hvdcLine.getConverterStation1().getTerminal().getVoltageLevel();
         VoltageLevel vl2 = hvdcLine.getConverterStation2().getTerminal().getVoltageLevel();
-        if (getFilter().accept(vl1) || getFilter().accept(vl2)) {
+        if (getPredicate().test(vl1) || getPredicate().test(vl2)) {
             throw new UnsupportedOperationException("Reduction of HVDC lines is not supported");
         } else {
             hvdcLine.remove();
-            observers.forEach(o -> o.hvdcLineRemoved(hvdcLine));
         }
+
+        observers.forEach(o -> o.hvdcLineRemoved(hvdcLine));
     }
 
     private void reduce(Line line, VoltageLevel vl, Terminal terminal) {
@@ -127,8 +133,8 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
                 .setX(line.getX() / 2)
                 .setB(side == Branch.Side.ONE ? line.getB1() : line.getB2())
                 .setG(side == Branch.Side.ONE ? line.getG1() : line.getG2())
-                .setP0(terminal.getP())
-                .setQ0(terminal.getQ());
+                .setP0(checkP(terminal))
+                .setQ0(checkQ(terminal));
         fillNodeOrBus(dlAdder, terminal);
 
         line.remove();
@@ -151,8 +157,8 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
                 .setId(branch.getId())
                 .setName(branch.getName())
                 .setLoadType(LoadType.FICTITIOUS)
-                .setP0(terminal.getP())
-                .setQ0(terminal.getQ());
+                .setP0(checkP(terminal))
+                .setQ0(checkQ(terminal));
         fillNodeOrBus(loadAdder, terminal);
 
         branch.remove();
@@ -172,5 +178,23 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
             adder.setBus(terminal.getBusBreakerView().getBus().getId());
             adder.setConnectableBus(terminal.getBusBreakerView().getConnectableBus().getId());
         }
+    }
+
+    private static double checkP(Terminal terminal) {
+        if (Double.isNaN(terminal.getP())) {
+            String connectableId = terminal.getConnectable().getId();
+            String voltageLevelId = terminal.getVoltageLevel().getId();
+            throw new PowsyblException("The active power of '" + connectableId + "' (" + voltageLevelId + ") is not set. Do you forget to compute the flows?");
+        }
+        return terminal.getP();
+    }
+
+    private static double checkQ(Terminal terminal) {
+        if (Double.isNaN(terminal.getQ())) {
+            String connectableId = terminal.getConnectable().getId();
+            String voltageLevelId = terminal.getVoltageLevel().getId();
+            throw new PowsyblException("The reactive power of '" + connectableId + "' (" + voltageLevelId + ") is not set. Do you forget to compute the flows?");
+        }
+        return terminal.getQ();
     }
 }

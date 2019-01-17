@@ -161,63 +161,9 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
         return "Substation";
     }
 
-    /**
-     * Throw a {@link com.powsybl.commons.PowsyblException} if this substation contains at least one {@link Branch} or
-     * one {@link ThreeWindingsTransformer} or one {@link HvdcConverterStation} linked to a voltage level outside this
-     * substation.
-     */
-    private void checkRemovability() {
-        String errorMessage = "The substation " + getId() + " is still connected to another substation";
-
-        for (VoltageLevelExt vl : voltageLevels) {
-            for (Connectable connectable : vl.getConnectables()) {
-                if (connectable instanceof Branch) {
-                    checkRemovability((Branch) connectable, errorMessage);
-                } else if (connectable instanceof ThreeWindingsTransformer) {
-                    checkRemovability((ThreeWindingsTransformer) connectable, errorMessage);
-                } else if (connectable instanceof HvdcConverterStation) {
-                    checkRemovability((HvdcConverterStation) connectable, errorMessage);
-                }
-            }
-        }
-    }
-
-    private void checkRemovability(Branch branch, String errorMessage) {
-        Substation s1 = branch.getTerminal1().getVoltageLevel().getSubstation();
-        Substation s2 = branch.getTerminal2().getVoltageLevel().getSubstation();
-        if ((s1 != this) || (s2 != this)) {
-            throw new AssertionError(errorMessage);
-        }
-    }
-
-    private void checkRemovability(ThreeWindingsTransformer twt, String errorMessage) {
-        Substation s1 = twt.getLeg1().getTerminal().getVoltageLevel().getSubstation();
-        Substation s2 = twt.getLeg2().getTerminal().getVoltageLevel().getSubstation();
-        Substation s3 = twt.getLeg3().getTerminal().getVoltageLevel().getSubstation();
-        if ((s1 != this) || (s2 != this) || (s3 != this)) {
-            throw new AssertionError(errorMessage);
-        }
-    }
-
-    private void checkRemovability(HvdcConverterStation station, String errorMessage) {
-        HvdcLine hvdcLine = getNetwork().getHvdcLine(station);
-        if (hvdcLine != null) {
-            Substation s1 = hvdcLine.getConverterStation1().getTerminal().getVoltageLevel().getSubstation();
-            Substation s2 = hvdcLine.getConverterStation2().getTerminal().getVoltageLevel().getSubstation();
-            if ((s1 != this) || (s2 != this)) {
-                throw new AssertionError(errorMessage);
-            }
-        }
-    }
-
     @Override
     public void remove() {
-        checkRemovability();
-
-        Set<ConnectableType> types = EnumSet.of(
-                ConnectableType.LINE,
-                ConnectableType.TWO_WINDINGS_TRANSFORMER,
-                ConnectableType.THREE_WINDINGS_TRANSFORMER);
+        Substations.checkRemovability(this);
 
         Set<VoltageLevelExt> vls = new HashSet<>(voltageLevels);
         for (VoltageLevelExt vl : vls) {
@@ -225,7 +171,7 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
             List<Connectable> connectables = Lists.newArrayList(vl.getConnectables());
             for (Connectable connectable : connectables) {
                 ConnectableType type = connectable.getType();
-                if (types.contains(type)) {
+                if (VoltageLevels.MULTIPLE_TERMINALS_CONNECTABLE_TYPES.contains(type)) {
                     connectable.remove();
                 } else if (type == ConnectableType.HVDC_CONVERTER_STATION) {
                     HvdcLine hvdcLine = getNetwork().getHvdcLine((HvdcConverterStation) connectable);

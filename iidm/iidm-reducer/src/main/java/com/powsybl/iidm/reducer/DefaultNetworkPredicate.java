@@ -6,16 +6,22 @@
  */
 package com.powsybl.iidm.reducer;
 
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 
 /**
+ * A default implementation of {@link NetworkPredicate} that keeps everything.
+ *
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public interface NetworkReducer {
+public class DefaultNetworkPredicate implements NetworkPredicate {
 
-    static DefaultNetworkReducerBuilder builder() {
-        return new DefaultNetworkReducerBuilder();
+    @Override
+    public boolean test(Substation substation) {
+        return true;
     }
 
-    void reduce(Network network);
+    @Override
+    public boolean test(VoltageLevel voltageLevel) {
+        return true;
+    }
 }

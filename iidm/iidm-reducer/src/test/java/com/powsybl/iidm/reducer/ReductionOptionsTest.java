@@ -21,7 +21,7 @@ public class ReductionOptionsTest {
         ReductionOptions options = new ReductionOptions();
         assertFalse(options.isWithDanglingLines());
 
-        options.setWithDanglingLlines(true);
+        options.withDanglingLlines(true);
         assertTrue(options.isWithDanglingLines());
     }
 }

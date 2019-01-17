@@ -10,25 +10,19 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
 
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-public class IdentifierNetworkFilterTest {
+public class DefaultNetworkPredicateTest {
+
+    private final NetworkPredicate filter = new DefaultNetworkPredicate();
 
     @Test
-    public void test() {
+    public void testDefault() {
         Network network = EurostagTutorialExample1Factory.create();
-
-        NetworkPredicate filter = IdentifierNetworkPredicate.of("P2");
-        assertFalse(filter.test(network.getSubstation("P1")));
-        assertFalse(filter.test(network.getVoltageLevel("VLGEN")));
-        assertFalse(filter.test(network.getVoltageLevel("VLHV1")));
-
-        assertTrue(filter.test(network.getSubstation("P2")));
-        assertTrue(filter.test(network.getVoltageLevel("VLLOAD")));
-        assertTrue(filter.test(network.getVoltageLevel("VLHV2")));
+        assertTrue(network.getSubstationStream().allMatch(filter::test));
+        assertTrue(network.getVoltageLevelStream().allMatch(filter::test));
     }
 }
