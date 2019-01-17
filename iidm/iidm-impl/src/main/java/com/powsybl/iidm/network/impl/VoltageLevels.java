@@ -6,9 +6,9 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.google.common.collect.Sets;
 import com.powsybl.iidm.network.*;
 
-import java.util.EnumSet;
 import java.util.Set;
 
 /**
@@ -16,7 +16,7 @@ import java.util.Set;
  */
 final class VoltageLevels {
 
-    static final Set<ConnectableType> MULTIPLE_TERMINALS_CONNECTABLE_TYPES = EnumSet.of(
+    static final Set<ConnectableType> MULTIPLE_TERMINALS_CONNECTABLE_TYPES = Sets.immutableEnumSet(
             ConnectableType.LINE,
             ConnectableType.TWO_WINDINGS_TRANSFORMER,
             ConnectableType.THREE_WINDINGS_TRANSFORMER);

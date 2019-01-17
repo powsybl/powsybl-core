@@ -22,13 +22,13 @@ public class IdentifierNetworkFilterTest {
     public void test() {
         Network network = EurostagTutorialExample1Factory.create();
 
-        NetworkPredicate filter = IdentifierNetworkPredicate.of("P2");
-        assertFalse(filter.test(network.getSubstation("P1")));
-        assertFalse(filter.test(network.getVoltageLevel("VLGEN")));
-        assertFalse(filter.test(network.getVoltageLevel("VLHV1")));
+        NetworkPredicate predicate = IdentifierNetworkPredicate.of("P2");
+        assertFalse(predicate.test(network.getSubstation("P1")));
+        assertFalse(predicate.test(network.getVoltageLevel("VLGEN")));
+        assertFalse(predicate.test(network.getVoltageLevel("VLHV1")));
 
-        assertTrue(filter.test(network.getSubstation("P2")));
-        assertTrue(filter.test(network.getVoltageLevel("VLLOAD")));
-        assertTrue(filter.test(network.getVoltageLevel("VLHV2")));
+        assertTrue(predicate.test(network.getSubstation("P2")));
+        assertTrue(predicate.test(network.getVoltageLevel("VLLOAD")));
+        assertTrue(predicate.test(network.getVoltageLevel("VLHV2")));
     }
 }

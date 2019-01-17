@@ -17,12 +17,12 @@ import static org.junit.Assert.assertTrue;
  */
 public class DefaultNetworkPredicateTest {
 
-    private final NetworkPredicate filter = new DefaultNetworkPredicate();
+    private final NetworkPredicate predicate = new DefaultNetworkPredicate();
 
     @Test
     public void testDefault() {
         Network network = EurostagTutorialExample1Factory.create();
-        assertTrue(network.getSubstationStream().allMatch(filter::test));
-        assertTrue(network.getVoltageLevelStream().allMatch(filter::test));
+        assertTrue(network.getSubstationStream().allMatch(predicate::test));
+        assertTrue(network.getVoltageLevelStream().allMatch(predicate::test));
     }
 }

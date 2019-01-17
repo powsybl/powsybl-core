@@ -24,11 +24,11 @@ public class NominalVoltageNetworkPredicateTest {
 
     @Test
     public void testVHV() {
-        NetworkPredicate filter = new NominalVoltageNetworkPredicate(200.0, 400.0);
+        NetworkPredicate predicate = new NominalVoltageNetworkPredicate(200.0, 400.0);
 
         Network network = EurostagTutorialExample1Factory.create();
-        assertEquals(2, network.getSubstationStream().filter(filter::test).count());
-        assertEquals(2, network.getVoltageLevelStream().filter(filter::test).count());
+        assertEquals(2, network.getSubstationStream().filter(predicate::test).count());
+        assertEquals(2, network.getVoltageLevelStream().filter(predicate::test).count());
     }
 
     @Test

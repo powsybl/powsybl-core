@@ -20,16 +20,16 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
     private final List<NetworkReducerObserver> observers = new ArrayList<>();
 
-    public DefaultNetworkReducer(NetworkPredicate filter, ReductionOptions options) {
-        this(filter, options, Collections.emptyList());
+    public DefaultNetworkReducer(NetworkPredicate predicate, ReductionOptions options) {
+        this(predicate, options, Collections.emptyList());
     }
 
-    public DefaultNetworkReducer(NetworkPredicate filter, ReductionOptions options, NetworkReducerObserver... observers) {
-        this(filter, options, Arrays.asList(observers));
+    public DefaultNetworkReducer(NetworkPredicate predicate, ReductionOptions options, NetworkReducerObserver... observers) {
+        this(predicate, options, Arrays.asList(observers));
     }
 
-    public DefaultNetworkReducer(NetworkPredicate filter, ReductionOptions options, List<NetworkReducerObserver> observers) {
-        super(filter);
+    public DefaultNetworkReducer(NetworkPredicate predicate, ReductionOptions options, List<NetworkReducerObserver> observers) {
+        super(predicate);
         this.options = Objects.requireNonNull(options);
         this.observers.addAll(Objects.requireNonNull(observers));
     }
@@ -175,12 +175,17 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
         if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.NODE_BREAKER) {
             adder.setNode(terminal.getNodeBreakerView().getNode());
         } else {
-            adder.setBus(terminal.getBusBreakerView().getBus().getId());
+            if (terminal.isConnected()) {
+                adder.setBus(terminal.getBusBreakerView().getBus().getId());
+            }
             adder.setConnectableBus(terminal.getBusBreakerView().getConnectableBus().getId());
         }
     }
 
     private static double checkP(Terminal terminal) {
+        if (!terminal.isConnected()) {
+            return 0.0;
+        }
         if (Double.isNaN(terminal.getP())) {
             String connectableId = terminal.getConnectable().getId();
             String voltageLevelId = terminal.getVoltageLevel().getId();
@@ -190,6 +195,9 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
     }
 
     private static double checkQ(Terminal terminal) {
+        if (!terminal.isConnected()) {
+            return 0.0;
+        }
         if (Double.isNaN(terminal.getQ())) {
             String connectableId = terminal.getConnectable().getId();
             String voltageLevelId = terminal.getVoltageLevel().getId();

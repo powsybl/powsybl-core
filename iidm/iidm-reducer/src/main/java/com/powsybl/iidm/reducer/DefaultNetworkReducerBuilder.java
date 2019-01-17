@@ -13,14 +13,14 @@ import java.util.*;
  */
 public class DefaultNetworkReducerBuilder {
 
-    private NetworkPredicate filter;
+    private NetworkPredicate predicate;
 
     private ReductionOptions options = new ReductionOptions();
 
     private List<NetworkReducerObserver> observers = new ArrayList<>();
 
-    public DefaultNetworkReducerBuilder withNetworkFilter(NetworkPredicate filter) {
-        this.filter = Objects.requireNonNull(filter);
+    public DefaultNetworkReducerBuilder withNetworkPredicate(NetworkPredicate predicate) {
+        this.predicate = Objects.requireNonNull(predicate);
         return this;
     }
 
@@ -46,6 +46,6 @@ public class DefaultNetworkReducerBuilder {
     }
 
     public DefaultNetworkReducer build() {
-        return new DefaultNetworkReducer(filter, options, observers);
+        return new DefaultNetworkReducer(predicate, options, observers);
     }
 }

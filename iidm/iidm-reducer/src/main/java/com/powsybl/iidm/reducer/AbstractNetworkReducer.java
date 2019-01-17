@@ -17,10 +17,10 @@ import java.util.stream.Collectors;
  */
 public abstract class AbstractNetworkReducer implements NetworkReducer {
 
-    private final NetworkPredicate filter;
+    private final NetworkPredicate predicate;
 
-    public AbstractNetworkReducer(NetworkPredicate filter) {
-        this.filter = Objects.requireNonNull(filter);
+    public AbstractNetworkReducer(NetworkPredicate predicate) {
+        this.predicate = Objects.requireNonNull(predicate);
     }
 
     public final void reduce(Network network) {
@@ -62,7 +62,7 @@ public abstract class AbstractNetworkReducer implements NetworkReducer {
     }
 
     protected final NetworkPredicate getPredicate() {
-        return filter;
+        return predicate;
     }
 
     protected abstract void reduce(Substation substation);
@@ -78,11 +78,11 @@ public abstract class AbstractNetworkReducer implements NetworkReducer {
     protected abstract void reduce(HvdcLine hvdcLine);
 
     protected boolean test(Substation substation) {
-        return filter.test(substation);
+        return predicate.test(substation);
     }
 
     protected boolean test(VoltageLevel voltageLevel) {
-        return filter.test(voltageLevel);
+        return predicate.test(voltageLevel);
     }
 
     /**
