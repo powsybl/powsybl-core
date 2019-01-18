@@ -10,27 +10,27 @@ import com.google.common.collect.Iterables;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 
-import java.util.Collection;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ImmutableSubstation extends AbstractImmutableIdentifiable<Substation> implements Substation {
+public final class ImmutableSubstation extends AbstractImmutableIdentifiable<Substation> implements Substation {
 
-    public ImmutableSubstation(Substation identifiable) {
+    private static final Map<Substation, ImmutableSubstation> CACHE = new HashMap<>();
+
+    private ImmutableSubstation(Substation identifiable) {
         super(identifiable);
     }
 
-    public static ImmutableSubstation ofNullable(Substation identifiable) {
-        return identifiable == null ? null : new ImmutableSubstation(identifiable);
+    static ImmutableSubstation ofNullable(Substation identifiable) {
+        return identifiable == null ? null : CACHE.computeIfAbsent(identifiable, k -> new ImmutableSubstation(identifiable));
     }
 
     @Override
     public Network getNetwork() {
-        return new ImmutableNetwork(identifiable.getNetwork());
+        return ImmutableNetwork.of(identifiable.getNetwork());
     }
 
     @Override
@@ -60,12 +60,12 @@ public class ImmutableSubstation extends AbstractImmutableIdentifiable<Substatio
 
     @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
-        return Iterables.transform(identifiable.getVoltageLevels(), ImmutableVoltageLevel::new);
+        return Iterables.transform(identifiable.getVoltageLevels(), ImmutableVoltageLevel::ofNullable);
     }
 
     @Override
     public Stream<VoltageLevel> getVoltageLevelStream() {
-        return identifiable.getVoltageLevelStream().map(ImmutableVoltageLevel::new);
+        return identifiable.getVoltageLevelStream().map(ImmutableVoltageLevel::ofNullable);
     }
 
     @Override
@@ -75,12 +75,12 @@ public class ImmutableSubstation extends AbstractImmutableIdentifiable<Substatio
 
     @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
-        return Iterables.transform(identifiable.getTwoWindingsTransformers(), ImmutableTwoWindingsTransformer::new);
+        return Iterables.transform(identifiable.getTwoWindingsTransformers(), ImmutableTwoWindingsTransformer::ofNullable);
     }
 
     @Override
     public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
-        return identifiable.getTwoWindingsTransformerStream().map(ImmutableTwoWindingsTransformer::new);
+        return identifiable.getTwoWindingsTransformerStream().map(ImmutableTwoWindingsTransformer::ofNullable);
     }
 
     @Override
@@ -95,12 +95,12 @@ public class ImmutableSubstation extends AbstractImmutableIdentifiable<Substatio
 
     @Override
     public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
-        return Iterables.transform(identifiable.getThreeWindingsTransformers(), ImmutableThreeWindingsTransformer::new);
+        return Iterables.transform(identifiable.getThreeWindingsTransformers(), ImmutableThreeWindingsTransformer::ofNullable);
     }
 
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
-        return identifiable.getThreeWindingsTransformerStream().map(ImmutableThreeWindingsTransformer::new);
+        return identifiable.getThreeWindingsTransformerStream().map(ImmutableThreeWindingsTransformer::ofNullable);
     }
 
     @Override

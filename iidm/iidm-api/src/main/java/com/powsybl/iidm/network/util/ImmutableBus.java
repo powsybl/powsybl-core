@@ -9,19 +9,23 @@ package com.powsybl.iidm.network.util;
 import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ImmutableBus extends AbstractImmutableIdentifiable<Bus> implements Bus {
+public final class ImmutableBus extends AbstractImmutableIdentifiable<Bus> implements Bus {
 
-    ImmutableBus(Bus identifiable) {
+    private static final Map<Bus, ImmutableBus> CACHE = new HashMap<>();
+
+    private ImmutableBus(Bus identifiable) {
         super(identifiable);
     }
 
     static ImmutableBus ofNullable(Bus bus) {
-        return bus == null ? null : new ImmutableBus(bus);
+        return bus == null ? null : CACHE.computeIfAbsent(bus, k -> new ImmutableBus(bus));
     }
 
     @Override
@@ -86,108 +90,107 @@ public class ImmutableBus extends AbstractImmutableIdentifiable<Bus> implements 
 
     @Override
     public Iterable<Line> getLines() {
-        return Iterables.transform(identifiable.getLines(), ImmutableLine::new);
+        return Iterables.transform(identifiable.getLines(), ImmutableFactory::ofNullableLine);
     }
 
     @Override
     public Stream<Line> getLineStream() {
-        return identifiable.getLineStream().map(ImmutableLine::new);
+        return identifiable.getLineStream().map(ImmutableFactory::ofNullableLine);
     }
 
     @Override
     public Iterable<Generator> getGenerators() {
-        return Iterables.transform(identifiable.getGenerators(), ImmutableGenerator::new);
+        return Iterables.transform(identifiable.getGenerators(), ImmutableGenerator::ofNullable);
     }
 
     @Override
     public Stream<Generator> getGeneratorStream() {
-        return identifiable.getGeneratorStream().map(ImmutableGenerator::new);
+        return identifiable.getGeneratorStream().map(ImmutableGenerator::ofNullable);
     }
 
     @Override
     public Iterable<Load> getLoads() {
-        return Iterables.transform(identifiable.getLoads(), ImmutableLoad::new);
+        return Iterables.transform(identifiable.getLoads(), ImmutableLoad::ofNullable);
     }
 
     @Override
     public Stream<Load> getLoadStream() {
-        return identifiable.getLoadStream().map(ImmutableLoad::new);
+        return identifiable.getLoadStream().map(ImmutableLoad::ofNullable);
     }
 
     @Override
     public Iterable<DanglingLine> getDanglingLines() {
-        return Iterables.transform(identifiable.getDanglingLines(), ImmutableDanglingLine::new);
+        return Iterables.transform(identifiable.getDanglingLines(), ImmutableDanglingLine::ofNullable);
     }
 
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
-        return identifiable.getDanglingLineStream().map(ImmutableDanglingLine::new);
+        return identifiable.getDanglingLineStream().map(ImmutableDanglingLine::ofNullable);
     }
 
     @Override
     public Iterable<StaticVarCompensator> getStaticVarCompensators() {
-        return Iterables.transform(identifiable.getStaticVarCompensators(), ImmutableStaticVarCompensator::new);
+        return Iterables.transform(identifiable.getStaticVarCompensators(), ImmutableStaticVarCompensator::ofNullable);
     }
 
     @Override
     public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
-        return identifiable.getStaticVarCompensatorStream().map(ImmutableStaticVarCompensator::new);
+        return identifiable.getStaticVarCompensatorStream().map(ImmutableStaticVarCompensator::ofNullable);
     }
 
     @Override
     public Iterable<LccConverterStation> getLccConverterStations() {
-        return Iterables.transform(identifiable.getLccConverterStations(), ImmutableLccConverterStation::new);
+        return Iterables.transform(identifiable.getLccConverterStations(), ImmutableLccConverterStation::ofNullable);
     }
 
     @Override
     public Stream<LccConverterStation> getLccConverterStationStream() {
-        return identifiable.getLccConverterStationStream().map(ImmutableLccConverterStation::new);
+        return identifiable.getLccConverterStationStream().map(ImmutableLccConverterStation::ofNullable);
     }
 
     @Override
     public Iterable<VscConverterStation> getVscConverterStations() {
-        return Iterables.transform(identifiable.getVscConverterStations(), ImmutableVscConverterStation::new);
+        return Iterables.transform(identifiable.getVscConverterStations(), ImmutableVscConverterStation::ofNullable);
     }
 
     @Override
     public Stream<VscConverterStation> getVscConverterStationStream() {
-        return identifiable.getVscConverterStationStream().map(ImmutableVscConverterStation::new);
+        return identifiable.getVscConverterStationStream().map(ImmutableVscConverterStation::ofNullable);
     }
 
     @Override
     public void visitConnectedEquipments(TopologyVisitor visitor) {
-        // TO REVIEW
         identifiable.visitConnectedEquipments(visitor);
     }
 
     @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
-        return Iterables.transform(identifiable.getTwoWindingsTransformers(), ImmutableTwoWindingsTransformer::new);
+        return Iterables.transform(identifiable.getTwoWindingsTransformers(), ImmutableTwoWindingsTransformer::ofNullable);
     }
 
     @Override
     public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
-        return identifiable.getTwoWindingsTransformerStream().map(ImmutableTwoWindingsTransformer::new);
+        return identifiable.getTwoWindingsTransformerStream().map(ImmutableTwoWindingsTransformer::ofNullable);
     }
 
     @Override
     public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
-        return Iterables.transform(identifiable.getThreeWindingsTransformers(), ImmutableThreeWindingsTransformer::new);
+        return Iterables.transform(identifiable.getThreeWindingsTransformers(), ImmutableThreeWindingsTransformer::ofNullable);
     }
 
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
-        return identifiable.getThreeWindingsTransformerStream().map(ImmutableThreeWindingsTransformer::new);
+        return identifiable.getThreeWindingsTransformerStream().map(ImmutableThreeWindingsTransformer::ofNullable);
     }
 
     @Override
     public Iterable<ShuntCompensator> getShuntCompensators() {
-        return Iterables.transform(identifiable.getShuntCompensators(), ImmutableShuntCompensator::new);
+        return Iterables.transform(identifiable.getShuntCompensators(), ImmutableShuntCompensator::ofNullable);
     }
 
     @Override
     public Stream<ShuntCompensator> getShuntCompensatorStream() {
-        return identifiable.getShuntCompensatorStream().map(ImmutableShuntCompensator::new);
+        return identifiable.getShuntCompensatorStream().map(ImmutableShuntCompensator::ofNullable);
     }
 
     @Override

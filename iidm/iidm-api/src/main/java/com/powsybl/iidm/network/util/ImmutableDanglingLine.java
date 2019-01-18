@@ -8,20 +8,24 @@ package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ImmutableDanglingLine extends AbstractImmutableIdentifiable<DanglingLine> implements DanglingLine {
+public final class ImmutableDanglingLine extends AbstractImmutableIdentifiable<DanglingLine> implements DanglingLine {
 
-    protected ImmutableDanglingLine(DanglingLine identifiable) {
+    private static final Map<DanglingLine, ImmutableDanglingLine> CACHE = new HashMap<>();
+
+    private ImmutableDanglingLine(DanglingLine identifiable) {
         super(identifiable);
     }
 
     static ImmutableDanglingLine ofNullable(DanglingLine danglingLine) {
-        return null == danglingLine ? null : new ImmutableDanglingLine(danglingLine);
+        return null == danglingLine ? null : CACHE.computeIfAbsent(danglingLine, k -> new ImmutableDanglingLine(danglingLine));
     }
 
     @Override
@@ -111,7 +115,7 @@ public class ImmutableDanglingLine extends AbstractImmutableIdentifiable<Danglin
 
     @Override
     public List<? extends Terminal> getTerminals() {
-        return identifiable.getTerminals().stream().map(ImmutableTerminal::new).collect(Collectors.toList());
+        return identifiable.getTerminals().stream().map(ImmutableTerminal::ofNullable).collect(Collectors.toList());
     }
 
     @Override

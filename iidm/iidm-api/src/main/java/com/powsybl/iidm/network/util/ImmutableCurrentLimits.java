@@ -8,23 +8,23 @@ package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.CurrentLimits;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ImmutableCurrentLimits implements CurrentLimits {
+public final class ImmutableCurrentLimits implements CurrentLimits {
 
-    CurrentLimits currentLimits;
+    private static final Map<CurrentLimits, ImmutableCurrentLimits> CACHE = new HashMap<>();
 
-    public ImmutableCurrentLimits(CurrentLimits currentLimits) {
+    private CurrentLimits currentLimits;
+
+    private ImmutableCurrentLimits(CurrentLimits currentLimits) {
         this.currentLimits = Objects.requireNonNull(currentLimits);
     }
 
-    public static ImmutableCurrentLimits ofNullable(CurrentLimits currentLimits) {
-        return currentLimits == null ? null : new ImmutableCurrentLimits(currentLimits);
+    static ImmutableCurrentLimits ofNullable(CurrentLimits currentLimits) {
+        return currentLimits == null ? null : CACHE.computeIfAbsent(currentLimits, k -> new ImmutableCurrentLimits(currentLimits));
     }
 
     @Override

@@ -8,20 +8,24 @@ package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ImmutableGenerator extends AbstractImmutableIdentifiable<Generator> implements Generator {
+public final class ImmutableGenerator extends AbstractImmutableIdentifiable<Generator> implements Generator {
 
-    protected ImmutableGenerator(Generator identifiable) {
+    private static final Map<Generator, ImmutableGenerator> CACHE = new HashMap<>();
+
+    private ImmutableGenerator(Generator identifiable) {
         super(identifiable);
     }
 
-    public static ImmutableGenerator ofNullable(Generator generator) {
-        return null == generator ? null : new ImmutableGenerator(generator);
+    static ImmutableGenerator ofNullable(Generator generator) {
+        return null == generator ? null : CACHE.computeIfAbsent(generator, k -> new ImmutableGenerator(generator));
     }
 
     @Override

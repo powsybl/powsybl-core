@@ -8,7 +8,9 @@ package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -16,12 +18,15 @@ import java.util.stream.Collectors;
  */
 public class ImmutableLine extends AbstractImmutableIdentifiable<Line> implements Line {
 
+    private static final Map<Line, ImmutableLine> CACHE = new HashMap<>();
+
     protected ImmutableLine(Line identifiable) {
         super(identifiable);
     }
 
+    // should only be called by ImmutableFactory where it checks isTieLine or not
     static ImmutableLine ofNullalbe(Line line) {
-        return null == line ? null : new ImmutableLine(line);
+        return null == line ? null : CACHE.computeIfAbsent(line, k -> new ImmutableLine(line));
     }
 
     @Override

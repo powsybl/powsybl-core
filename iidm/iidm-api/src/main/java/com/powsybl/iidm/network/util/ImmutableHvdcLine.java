@@ -10,18 +10,22 @@ import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ImmutableHvdcLine extends AbstractImmutableIdentifiable<HvdcLine> implements HvdcLine {
+public final class ImmutableHvdcLine extends AbstractImmutableIdentifiable<HvdcLine> implements HvdcLine {
 
+    private static final Map<HvdcLine, ImmutableHvdcLine> CACHE = new HashMap<>();
 
-    ImmutableHvdcLine(HvdcLine identifiable) {
+    private ImmutableHvdcLine(HvdcLine identifiable) {
         super(identifiable);
     }
 
     static ImmutableHvdcLine ofNullable(HvdcLine hvdcLine) {
-        return null == hvdcLine ? null : new ImmutableHvdcLine(hvdcLine);
+        return null == hvdcLine ? null : CACHE.computeIfAbsent(hvdcLine, k -> new ImmutableHvdcLine(hvdcLine));
     }
 
     @Override

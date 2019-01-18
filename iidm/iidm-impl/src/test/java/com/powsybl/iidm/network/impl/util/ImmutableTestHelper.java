@@ -6,17 +6,15 @@
  */
 package com.powsybl.iidm.network.impl.util;
 
-import com.powsybl.iidm.network.Identifiable;
-
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
@@ -61,9 +59,12 @@ public final class ImmutableTestHelper {
                         }
                         fail(m.getName() + " should throw exception.");
                     } catch (InvocationTargetException e) {
-                        assertEquals(EXPECTED_MESSAGE, e.getCause().getMessage());
+                        if (!e.getCause().getMessage().equals("deprecated")) {
+                            assertEquals(EXPECTED_MESSAGE, e.getCause().getMessage());
+                        } else {
+                            testedInvalidMethods.remove(m.getName());
+                        }
                     } catch (IllegalAccessException e) {
-                        e.printStackTrace();
                         fail(m.getName() + " not tested");
                     }
                 });
@@ -72,14 +73,8 @@ public final class ImmutableTestHelper {
 
     private static boolean isMutableMethods(Method m) {
         String name = m.getName();
-        return name.startsWith("set") || name.startsWith("new") || name.equals("remove") || name.equals("connect") || name.equals("disconnect");
-    }
-
-    public static <T extends Identifiable> void assertElementType(Class expectedClazz, Iterable<T> iterable, Stream<T> stream) {
-        Iterator<T> iterator = iterable.iterator();
-        assertTrue(iterator.hasNext());
-        assertEquals(expectedClazz, iterator.next().getClass());
-        stream.findAny().ifPresent(e -> assertEquals(expectedClazz, e.getClass()));
+        return name.startsWith("set") || name.startsWith("new") || name.equals("remove")
+                || name.equals("connect") || name.equals("disconnect") || name.startsWith("addGeographicalTag");
     }
 
     private ImmutableTestHelper() {

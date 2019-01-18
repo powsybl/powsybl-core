@@ -8,34 +8,34 @@ package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ImmutableTwoWindingsTransformer extends AbstractImmutableIdentifiable<TwoWindingsTransformer> implements TwoWindingsTransformer {
+public final class ImmutableTwoWindingsTransformer extends AbstractImmutableIdentifiable<TwoWindingsTransformer> implements TwoWindingsTransformer {
 
-    TwoWindingsTransformer twt;
+    private static final Map<TwoWindingsTransformer, ImmutableTwoWindingsTransformer> CACHE = new HashMap<>();
 
-    public ImmutableTwoWindingsTransformer(TwoWindingsTransformer twt) {
+    private ImmutableTwoWindingsTransformer(TwoWindingsTransformer twt) {
         super(twt);
-        this.twt = Objects.requireNonNull(twt);
     }
 
-    public static ImmutableTwoWindingsTransformer ofNullable(TwoWindingsTransformer twt) {
-        return twt == null ? null : new ImmutableTwoWindingsTransformer(twt);
+    static ImmutableTwoWindingsTransformer ofNullable(TwoWindingsTransformer twt) {
+        return twt == null ? null : CACHE.computeIfAbsent(twt, k -> new ImmutableTwoWindingsTransformer(twt));
     }
 
     @Override
     public Substation getSubstation() {
-        return ImmutableSubstation.ofNullable(twt.getSubstation());
+        return ImmutableSubstation.ofNullable(identifiable.getSubstation());
     }
 
     @Override
     public double getR() {
-        return twt.getR();
+        return identifiable.getR();
     }
 
     @Override
@@ -45,7 +45,7 @@ public class ImmutableTwoWindingsTransformer extends AbstractImmutableIdentifiab
 
     @Override
     public double getX() {
-        return twt.getX();
+        return identifiable.getX();
     }
 
     @Override
@@ -55,7 +55,7 @@ public class ImmutableTwoWindingsTransformer extends AbstractImmutableIdentifiab
 
     @Override
     public double getG() {
-        return twt.getG();
+        return identifiable.getG();
     }
 
     @Override
@@ -65,7 +65,7 @@ public class ImmutableTwoWindingsTransformer extends AbstractImmutableIdentifiab
 
     @Override
     public double getB() {
-        return twt.getB();
+        return identifiable.getB();
     }
 
     @Override
@@ -75,7 +75,7 @@ public class ImmutableTwoWindingsTransformer extends AbstractImmutableIdentifiab
 
     @Override
     public double getRatedU1() {
-        return twt.getRatedU1();
+        return identifiable.getRatedU1();
     }
 
     @Override
@@ -85,7 +85,7 @@ public class ImmutableTwoWindingsTransformer extends AbstractImmutableIdentifiab
 
     @Override
     public double getRatedU2() {
-        return twt.getRatedU2();
+        return identifiable.getRatedU2();
     }
 
     @Override
@@ -100,7 +100,7 @@ public class ImmutableTwoWindingsTransformer extends AbstractImmutableIdentifiab
 
     @Override
     public PhaseTapChanger getPhaseTapChanger() {
-        return ImmutablePhaseTapChanger.ofNullable(twt.getPhaseTapChanger());
+        return ImmutablePhaseTapChanger.ofNullable(identifiable.getPhaseTapChanger());
     }
 
     @Override
@@ -110,7 +110,7 @@ public class ImmutableTwoWindingsTransformer extends AbstractImmutableIdentifiab
 
     @Override
     public RatioTapChanger getRatioTapChanger() {
-        return ImmutableRatioTapChanger.ofNullable(twt.getRatioTapChanger());
+        return ImmutableRatioTapChanger.ofNullable(identifiable.getRatioTapChanger());
     }
 
     // branch interfaces

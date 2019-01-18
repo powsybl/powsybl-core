@@ -18,7 +18,7 @@ public class ImmutableTapChanger {
 
     TapChanger tapChanger;
 
-    public ImmutableTapChanger(TapChanger tapChanger) {
+    ImmutableTapChanger(TapChanger tapChanger) {
         this.tapChanger = Objects.requireNonNull(tapChanger);
     }
 

@@ -11,20 +11,24 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Terminal;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ImmutableLoad extends AbstractImmutableIdentifiable<Load> implements Load {
+public final class ImmutableLoad extends AbstractImmutableIdentifiable<Load> implements Load {
 
-    public ImmutableLoad(Load identifiable) {
+    private static final Map<Load, ImmutableLoad> CACHE = new HashMap<>();
+
+    private ImmutableLoad(Load identifiable) {
         super(identifiable);
     }
 
-    public static ImmutableLoad ofNullable(Load l) {
-        return null == l ? null : new ImmutableLoad(l);
+    static ImmutableLoad ofNullable(Load l) {
+        return null == l ? null : CACHE.computeIfAbsent(l, k -> new ImmutableLoad(l));
     }
 
     @Override

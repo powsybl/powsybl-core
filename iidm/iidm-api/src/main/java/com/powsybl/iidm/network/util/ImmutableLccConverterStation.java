@@ -10,20 +10,24 @@ import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.Terminal;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ImmutableLccConverterStation extends AbstractImmutableIdentifiable<LccConverterStation> implements LccConverterStation {
+public final class ImmutableLccConverterStation extends AbstractImmutableIdentifiable<LccConverterStation> implements LccConverterStation {
 
-    ImmutableLccConverterStation(LccConverterStation identifiable) {
+    private static final Map<LccConverterStation, ImmutableLccConverterStation> CACHE = new HashMap<>();
+
+    private ImmutableLccConverterStation(LccConverterStation identifiable) {
         super(identifiable);
     }
 
     static ImmutableLccConverterStation ofNullable(LccConverterStation lcc) {
-        return null == lcc ? null : new ImmutableLccConverterStation(lcc);
+        return null == lcc ? null : CACHE.computeIfAbsent(lcc, k -> new ImmutableLccConverterStation(lcc));
     }
 
     @Override
@@ -63,7 +67,7 @@ public class ImmutableLccConverterStation extends AbstractImmutableIdentifiable<
 
     @Override
     public List<? extends Terminal> getTerminals() {
-        return identifiable.getTerminals().stream().map(ImmutableTerminal::new).collect(Collectors.toList());
+        return identifiable.getTerminals().stream().map(ImmutableTerminal::ofNullable).collect(Collectors.toList());
     }
 
     @Override

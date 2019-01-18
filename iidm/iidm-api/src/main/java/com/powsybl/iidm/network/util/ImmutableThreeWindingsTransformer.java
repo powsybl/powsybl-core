@@ -8,21 +8,25 @@ package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ImmutableThreeWindingsTransformer extends AbstractImmutableIdentifiable<ThreeWindingsTransformer> implements ThreeWindingsTransformer {
+public final class ImmutableThreeWindingsTransformer extends AbstractImmutableIdentifiable<ThreeWindingsTransformer> implements ThreeWindingsTransformer {
 
-    protected ImmutableThreeWindingsTransformer(ThreeWindingsTransformer identifiable) {
+    private static final Map<ThreeWindingsTransformer, ImmutableThreeWindingsTransformer> CACHE = new HashMap<>();
+
+    private ImmutableThreeWindingsTransformer(ThreeWindingsTransformer identifiable) {
         super(identifiable);
     }
 
-    public static ThreeWindingsTransformer ofNullable(ThreeWindingsTransformer threeWindingsTransformer) {
-        return null == threeWindingsTransformer ? null : new ImmutableThreeWindingsTransformer(threeWindingsTransformer);
+    static ThreeWindingsTransformer ofNullable(ThreeWindingsTransformer threeWindingsTransformer) {
+        return null == threeWindingsTransformer ? null : CACHE.computeIfAbsent(threeWindingsTransformer, k -> new ImmutableThreeWindingsTransformer(threeWindingsTransformer));
     }
 
     @Override

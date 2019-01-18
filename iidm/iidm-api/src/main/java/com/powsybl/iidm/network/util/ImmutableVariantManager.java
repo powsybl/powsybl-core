@@ -8,19 +8,24 @@ package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.VariantManager;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ImmutableVariantManager implements VariantManager {
+public final class ImmutableVariantManager implements VariantManager {
+
+    private static final Map<VariantManager, ImmutableVariantManager> CACHE = new HashMap<>();
 
     private final VariantManager variantManager;
 
-    public ImmutableVariantManager(VariantManager variantManager) {
-        this.variantManager = Objects.requireNonNull(variantManager);
+    private ImmutableVariantManager(VariantManager variantManager) {
+        this.variantManager = variantManager;
+    }
+
+    static ImmutableVariantManager of(VariantManager variantManager) {
+        Objects.requireNonNull(variantManager);
+        return CACHE.computeIfAbsent(variantManager, k -> new ImmutableVariantManager(variantManager));
     }
 
     @Override
@@ -35,7 +40,7 @@ public class ImmutableVariantManager implements VariantManager {
 
     @Override
     public void setWorkingVariant(String variantId) {
-        throw ImmutableNetwork.createUnmodifiableNetworkException();
+        variantManager.setWorkingVariant(variantId);
     }
 
     @Override

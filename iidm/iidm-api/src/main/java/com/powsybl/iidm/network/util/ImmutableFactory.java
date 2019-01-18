@@ -14,23 +14,67 @@ import com.powsybl.iidm.network.*;
  */
 public final class ImmutableFactory {
 
-    public static Line ofNullableLine(Line line) {
+    static Line ofNullableLine(Line line) {
         if (line == null) {
             return null;
         }
         if (line.isTieLine()) {
-            return new ImmutableTieLine((TieLine) line);
+            return ImmutableTieLine.ofNullable((TieLine) line);
         }
         return ImmutableLine.ofNullalbe(line);
     }
 
     static HvdcConverterStation ofNullableHvdcConverterStation(HvdcConverterStation cs) {
         if (cs instanceof LccConverterStation) {
-            return new ImmutableLccConverterStation((LccConverterStation) cs);
+            return ImmutableLccConverterStation.ofNullable((LccConverterStation) cs);
         } else if (cs instanceof VscConverterStation) {
-            return new ImmutableVscConverterStation((VscConverterStation) cs);
+            return ImmutableVscConverterStation.ofNullable((VscConverterStation) cs);
         } else {
             throw new PowsyblException("Invalid type " + cs.getClass() + " to be immutablized");
+        }
+    }
+
+    static Connectable ofNullableConnectable(Connectable connectable) {
+        if (connectable == null) {
+            return null;
+        }
+
+        switch (connectable.getType()) {
+            case BUSBAR_SECTION:
+                return connectable;
+            case LINE:
+            case TWO_WINDINGS_TRANSFORMER:
+                return ImmutableFactory.ofNullableBranch((Branch) connectable);
+            case THREE_WINDINGS_TRANSFORMER:
+                return ImmutableThreeWindingsTransformer.ofNullable((ThreeWindingsTransformer) connectable);
+            case GENERATOR:
+                return ImmutableGenerator.ofNullable((Generator) connectable);
+            case LOAD:
+                return ImmutableLoad.ofNullable((Load) connectable);
+            case SHUNT_COMPENSATOR:
+                return ImmutableShuntCompensator.ofNullable((ShuntCompensator) connectable);
+            case DANGLING_LINE:
+                return ImmutableDanglingLine.ofNullable((DanglingLine) connectable);
+            case STATIC_VAR_COMPENSATOR:
+                return ImmutableStaticVarCompensator.ofNullable((StaticVarCompensator) connectable);
+            case HVDC_CONVERTER_STATION:
+                return ImmutableFactory.ofNullableHvdcConverterStation((HvdcConverterStation) connectable);
+            default:
+                throw new IllegalArgumentException(connectable.getType().name() + " is not valid to be immutablized to line");
+        }
+    }
+
+    static Branch ofNullableBranch(Branch b) {
+        if (b == null) {
+            return null;
+        }
+        switch (b.getType()) {
+            case LINE:
+                return ImmutableFactory.ofNullableLine((Line) b);
+            case TWO_WINDINGS_TRANSFORMER:
+                return ImmutableTwoWindingsTransformer.ofNullable((TwoWindingsTransformer) b);
+            default:
+                throw new IllegalArgumentException(b.getType().name() + " is not valid to be immutablized to branch");
         }
     }
 

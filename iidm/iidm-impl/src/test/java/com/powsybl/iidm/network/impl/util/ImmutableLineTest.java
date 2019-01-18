@@ -6,17 +6,11 @@
  */
 package com.powsybl.iidm.network.impl.util;
 
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
-import com.powsybl.iidm.network.util.ImmutableHvdcLine;
-import com.powsybl.iidm.network.util.ImmutableLine;
-import com.powsybl.iidm.network.util.ImmutableNetwork;
-import com.powsybl.iidm.network.util.ImmutableTieLine;
+import com.powsybl.iidm.network.util.*;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -48,6 +42,11 @@ public class ImmutableLineTest {
         Line line = network.getLine("NHV1_NHV2_1");
         assertTrue(line instanceof ImmutableLine);
         ImmutableTestHelper.testInvalidMethods(line, INVALID_LINE_METHODS);
+        CurrentLimits currentLimits1 = line.getCurrentLimits1();
+        assertTrue(currentLimits1 instanceof ImmutableCurrentLimits);
+        Set<String> invalidLimmitMethods = new HashSet<>();
+        invalidLimmitMethods.add("setPermanentLimit");
+        ImmutableTestHelper.testInvalidMethods(currentLimits1, invalidLimmitMethods);
     }
 
     @Test

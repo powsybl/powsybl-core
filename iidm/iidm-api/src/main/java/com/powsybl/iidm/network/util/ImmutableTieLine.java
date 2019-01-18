@@ -6,21 +6,28 @@
  */
 package com.powsybl.iidm.network.util;
 
-import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.TieLine;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ImmutableTieLine extends ImmutableLine implements TieLine, Line {
+public final class ImmutableTieLine extends ImmutableLine implements TieLine {
+
+    private static final Map<TieLine, ImmutableTieLine> CACHE = new HashMap<>();
 
     TieLine tieLine;
 
-    protected ImmutableTieLine(TieLine identifiable) {
+    private ImmutableTieLine(TieLine identifiable) {
         super(identifiable);
         this.tieLine = identifiable;
+    }
+
+    static ImmutableTieLine ofNullable(TieLine line) {
+        return null == line ? null : CACHE.computeIfAbsent(line, k -> new ImmutableTieLine(line));
     }
 
     @Override

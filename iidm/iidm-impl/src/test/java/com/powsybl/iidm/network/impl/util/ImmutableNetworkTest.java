@@ -6,10 +6,7 @@
  */
 package com.powsybl.iidm.network.impl.util;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Component;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.util.*;
 import org.junit.Test;
@@ -18,6 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.powsybl.iidm.network.impl.util.ImmutableTestHelper.testInvalidMethods;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -37,6 +35,33 @@ public class ImmutableNetworkTest {
         expectedInvalidMethods.add("newHvdcLine");
         testInvalidMethods(network, expectedInvalidMethods);
 
+        Substation sub = network.getSubstation("P1");
+        assertTrue(sub instanceof ImmutableSubstation);
+        assertSame(network, sub.getNetwork());
+        Set<String> invalidSubMethods = new HashSet<>();
+        invalidSubMethods.add("setTso");
+        invalidSubMethods.add("setCountry");
+        invalidSubMethods.add("newVoltageLevel");
+        invalidSubMethods.add("newTwoWindingsTransformer");
+        invalidSubMethods.add("newThreeWindingsTransformer");
+        invalidSubMethods.add("addGeographicalTag");
+        testInvalidMethods(sub, invalidSubMethods);
+
+        VoltageLevel vl = network.getVoltageLevel("VLGEN");
+        assertTrue(vl instanceof ImmutableVoltageLevel);
+        assertSame(sub, vl.getSubstation());
+        Set<String> invalidVlMethods = new HashSet<>();
+        invalidVlMethods.add("setNominalV");
+        invalidVlMethods.add("setLowVoltageLimit");
+        invalidVlMethods.add("setHighVoltageLimit");
+        invalidVlMethods.add("newGenerator");
+        invalidVlMethods.add("newLoad");
+        invalidVlMethods.add("newShuntCompensator");
+        invalidVlMethods.add("newDanglingLine");
+        invalidVlMethods.add("newStaticVarCompensator");
+        invalidVlMethods.add("newVscConverterStation");
+        invalidVlMethods.add("newLccConverterStation");
+        testInvalidMethods(vl, invalidVlMethods);
 
     }
 
@@ -70,8 +95,6 @@ public class ImmutableNetworkTest {
 
         assertTrue(immutableTerminal.getBusView().getBus() instanceof ImmutableBus);
         assertTrue(immutableTerminal.getBusView().getConnectableBus() instanceof ImmutableBus);
-
-        ImmutableTestHelper.assertElementType(ImmutableTwoWindingsTransformer.class, immutableBus.getTwoWindingsTransformers(), immutableBus.getTwoWindingsTransformerStream());
 
     }
 }

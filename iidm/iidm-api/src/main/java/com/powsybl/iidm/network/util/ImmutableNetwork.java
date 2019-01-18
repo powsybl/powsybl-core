@@ -12,6 +12,8 @@ import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -19,16 +21,18 @@ import java.util.stream.Stream;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> implements Network {
+public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> implements Network {
 
     static final PowsyblException UNMODIFIABLE_EXCEPTION = new PowsyblException("Unmodifiable identifiable");
 
-    public ImmutableNetwork(Network identifiable) {
+    private static final Map<Network, ImmutableNetwork> CACHE = new HashMap<>();
+
+    private ImmutableNetwork(Network identifiable) {
         super(identifiable);
     }
 
     public static ImmutableNetwork of(Network identifiable) {
-        return new ImmutableNetwork(identifiable);
+        return CACHE.computeIfAbsent(identifiable, k -> new ImmutableNetwork(identifiable));
     }
 
     static PowsyblException createUnmodifiableNetworkException() {
@@ -62,7 +66,7 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public VariantManager getVariantManager() {
-        return new ImmutableVariantManager(identifiable.getVariantManager());
+        return ImmutableVariantManager.of(identifiable.getVariantManager());
     }
 
     @Override
@@ -82,12 +86,12 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Iterable<Substation> getSubstations() {
-        return Iterables.transform(identifiable.getSubstations(), ImmutableSubstation::new);
+        return Iterables.transform(identifiable.getSubstations(), ImmutableSubstation::ofNullable);
     }
 
     @Override
     public Stream<Substation> getSubstationStream() {
-        return identifiable.getSubstationStream().map(ImmutableSubstation::new);
+        return identifiable.getSubstationStream().map(ImmutableSubstation::ofNullable);
     }
 
     @Override
@@ -97,7 +101,7 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Iterable<Substation> getSubstations(Country country, String tsoId, String... geographicalTags) {
-        return Iterables.transform(identifiable.getSubstations(country, tsoId, geographicalTags), ImmutableSubstation::new);
+        return Iterables.transform(identifiable.getSubstations(country, tsoId, geographicalTags), ImmutableSubstation::ofNullable);
     }
 
     @Override
@@ -107,12 +111,12 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
-        return Iterables.transform(identifiable.getVoltageLevels(), ImmutableVoltageLevel::new);
+        return Iterables.transform(identifiable.getVoltageLevels(), ImmutableVoltageLevel::ofNullable);
     }
 
     @Override
     public Stream<VoltageLevel> getVoltageLevelStream() {
-        return identifiable.getVoltageLevelStream().map(ImmutableVoltageLevel::new);
+        return identifiable.getVoltageLevelStream().map(ImmutableVoltageLevel::ofNullable);
     }
 
     @Override
@@ -137,17 +141,17 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Branch getBranch(String branchId) {
-        return identifiable.getBranch(branchId);
+        return ImmutableFactory.ofNullableBranch(identifiable.getBranch(branchId));
     }
 
     @Override
     public Iterable<Branch> getBranches() {
-        return identifiable.getBranches();
+        return Iterables.transform(identifiable.getBranches(), ImmutableFactory::ofNullableBranch);
     }
 
     @Override
     public Stream<Branch> getBranchStream() {
-        return identifiable.getBranchStream();
+        return identifiable.getBranchStream().map(ImmutableFactory::ofNullableBranch);
     }
 
     @Override
@@ -177,12 +181,12 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
-        return Iterables.transform(identifiable.getTwoWindingsTransformers(), ImmutableTwoWindingsTransformer::new);
+        return Iterables.transform(identifiable.getTwoWindingsTransformers(), ImmutableTwoWindingsTransformer::ofNullable);
     }
 
     @Override
     public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
-        return identifiable.getTwoWindingsTransformerStream().map(ImmutableTwoWindingsTransformer::new);
+        return identifiable.getTwoWindingsTransformerStream().map(ImmutableTwoWindingsTransformer::ofNullable);
     }
 
     @Override
@@ -197,12 +201,12 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
-        return Iterables.transform(identifiable.getThreeWindingsTransformers(), ImmutableThreeWindingsTransformer::new);
+        return Iterables.transform(identifiable.getThreeWindingsTransformers(), ImmutableThreeWindingsTransformer::ofNullable);
     }
 
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
-        return identifiable.getThreeWindingsTransformerStream().map(ImmutableThreeWindingsTransformer::new);
+        return identifiable.getThreeWindingsTransformerStream().map(ImmutableThreeWindingsTransformer::ofNullable);
     }
 
     @Override
@@ -217,12 +221,12 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Iterable<Generator> getGenerators() {
-        return Iterables.transform(identifiable.getGenerators(), ImmutableGenerator::new);
+        return Iterables.transform(identifiable.getGenerators(), ImmutableGenerator::ofNullable);
     }
 
     @Override
     public Stream<Generator> getGeneratorStream() {
-        return identifiable.getGeneratorStream().map(ImmutableGenerator::new);
+        return identifiable.getGeneratorStream().map(ImmutableGenerator::ofNullable);
     }
 
     @Override
@@ -237,12 +241,12 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Iterable<Load> getLoads() {
-        return Iterables.transform(identifiable.getLoads(), ImmutableLoad::new);
+        return Iterables.transform(identifiable.getLoads(), ImmutableLoad::ofNullable);
     }
 
     @Override
     public Stream<Load> getLoadStream() {
-        return identifiable.getLoadStream().map(ImmutableLoad::new);
+        return identifiable.getLoadStream().map(ImmutableLoad::ofNullable);
     }
 
     @Override
@@ -257,12 +261,12 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Iterable<ShuntCompensator> getShuntCompensators() {
-        return Iterables.transform(identifiable.getShuntCompensators(), ImmutableShuntCompensator::new);
+        return Iterables.transform(identifiable.getShuntCompensators(), ImmutableShuntCompensator::ofNullable);
     }
 
     @Override
     public Stream<ShuntCompensator> getShuntCompensatorStream() {
-        return identifiable.getShuntCompensatorStream().map(ImmutableShuntCompensator::new);
+        return identifiable.getShuntCompensatorStream().map(ImmutableShuntCompensator::ofNullable);
     }
 
     @Override
@@ -277,12 +281,12 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Iterable<DanglingLine> getDanglingLines() {
-        return Iterables.transform(identifiable.getDanglingLines(), ImmutableDanglingLine::new);
+        return Iterables.transform(identifiable.getDanglingLines(), ImmutableDanglingLine::ofNullable);
     }
 
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
-        return identifiable.getDanglingLineStream().map(ImmutableDanglingLine::new);
+        return identifiable.getDanglingLineStream().map(ImmutableDanglingLine::ofNullable);
     }
 
     @Override
@@ -297,12 +301,12 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Iterable<StaticVarCompensator> getStaticVarCompensators() {
-        return Iterables.transform(identifiable.getStaticVarCompensators(), ImmutableStaticVarCompensator::new);
+        return Iterables.transform(identifiable.getStaticVarCompensators(), ImmutableStaticVarCompensator::ofNullable);
     }
 
     @Override
     public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
-        return identifiable.getStaticVarCompensatorStream().map(ImmutableStaticVarCompensator::new);
+        return identifiable.getStaticVarCompensatorStream().map(ImmutableStaticVarCompensator::ofNullable);
     }
 
     @Override
@@ -322,12 +326,12 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Iterable<Switch> getSwitches() {
-        return Iterables.transform(identifiable.getSwitches(), ImmutableSwitch::new);
+        return Iterables.transform(identifiable.getSwitches(), ImmutableSwitch::ofNullable);
     }
 
     @Override
     public Stream<Switch> getSwitchStream() {
-        return identifiable.getSwitchStream().map(ImmutableSwitch::new);
+        return identifiable.getSwitchStream().map(ImmutableSwitch::ofNullable);
     }
 
     @Override
@@ -377,12 +381,12 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Iterable<LccConverterStation> getLccConverterStations() {
-        return Iterables.transform(identifiable.getLccConverterStations(), ImmutableLccConverterStation::new);
+        return Iterables.transform(identifiable.getLccConverterStations(), ImmutableLccConverterStation::ofNullable);
     }
 
     @Override
     public Stream<LccConverterStation> getLccConverterStationStream() {
-        return identifiable.getLccConverterStationStream().map(ImmutableLccConverterStation::new);
+        return identifiable.getLccConverterStationStream().map(ImmutableLccConverterStation::ofNullable);
     }
 
     @Override
@@ -397,12 +401,12 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Iterable<VscConverterStation> getVscConverterStations() {
-        return Iterables.transform(identifiable.getVscConverterStations(), ImmutableVscConverterStation::new);
+        return Iterables.transform(identifiable.getVscConverterStations(), ImmutableVscConverterStation::ofNullable);
     }
 
     @Override
     public Stream<VscConverterStation> getVscConverterStationStream() {
-        return identifiable.getVscConverterStationStream().map(ImmutableVscConverterStation::new);
+        return identifiable.getVscConverterStationStream().map(ImmutableVscConverterStation::ofNullable);
     }
 
     @Override
@@ -417,12 +421,12 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
     @Override
     public Iterable<HvdcLine> getHvdcLines() {
-        return Iterables.transform(identifiable.getHvdcLines(), ImmutableHvdcLine::new);
+        return Iterables.transform(identifiable.getHvdcLines(), ImmutableHvdcLine::ofNullable);
     }
 
     @Override
     public Stream<HvdcLine> getHvdcLineStream() {
-        return identifiable.getHvdcLineStream().map(ImmutableHvdcLine::new);
+        return identifiable.getHvdcLineStream().map(ImmutableHvdcLine::ofNullable);
     }
 
     @Override
@@ -458,22 +462,22 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
 
             @Override
             public Iterable<Bus> getBuses() {
-                return Iterables.transform(busBreakerView.getBuses(), ImmutableBus::new);
+                return Iterables.transform(busBreakerView.getBuses(), ImmutableBus::ofNullable);
             }
 
             @Override
             public Stream<Bus> getBusStream() {
-                return busBreakerView.getBusStream().map(ImmutableBus::new);
+                return busBreakerView.getBusStream().map(ImmutableBus::ofNullable);
             }
 
             @Override
             public Iterable<Switch> getSwitches() {
-                return Iterables.transform(busBreakerView.getSwitches(), ImmutableSwitch::new);
+                return Iterables.transform(busBreakerView.getSwitches(), ImmutableSwitch::ofNullable);
             }
 
             @Override
             public Stream<Switch> getSwitchStream() {
-                return busBreakerView.getSwitchStream().map(ImmutableSwitch::new);
+                return busBreakerView.getSwitchStream().map(ImmutableSwitch::ofNullable);
             }
 
             @Override
@@ -488,17 +492,17 @@ public class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> imp
         return new BusView() {
             @Override
             public Iterable<Bus> getBuses() {
-                return Iterables.transform(identifiable.getBusView().getBuses(), ImmutableBus::new);
+                return Iterables.transform(identifiable.getBusView().getBuses(), ImmutableBus::ofNullable);
             }
 
             @Override
             public Stream<Bus> getBusStream() {
-                return identifiable.getBusView().getBusStream().map(ImmutableBus::new);
+                return identifiable.getBusView().getBusStream().map(ImmutableBus::ofNullable);
             }
 
             @Override
             public Collection<Component> getConnectedComponents() {
-                return identifiable.getBusView().getConnectedComponents().stream().map(ImmutableComponent::new).collect(Collectors.toList());
+                return identifiable.getBusView().getConnectedComponents().stream().map(ImmutableComponent::ofNullable).collect(Collectors.toList());
             }
         };
     }

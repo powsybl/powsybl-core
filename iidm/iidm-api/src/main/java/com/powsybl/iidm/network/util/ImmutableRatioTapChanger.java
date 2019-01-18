@@ -10,22 +10,26 @@ import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.RatioTapChangerStep;
 import com.powsybl.iidm.network.Terminal;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ImmutableRatioTapChanger extends ImmutableTapChanger implements RatioTapChanger {
+public final class ImmutableRatioTapChanger extends ImmutableTapChanger implements RatioTapChanger {
+
+    private static final Map<RatioTapChanger, ImmutableRatioTapChanger> CACHE = new HashMap<>();
 
     RatioTapChanger ratioTapChanger;
 
-    public ImmutableRatioTapChanger(RatioTapChanger tapChanger) {
+    private ImmutableRatioTapChanger(RatioTapChanger tapChanger) {
         super(tapChanger);
         this.ratioTapChanger = tapChanger;
     }
 
-    public static ImmutableRatioTapChanger ofNullable(RatioTapChanger tapChanger) {
-        return tapChanger == null ? null : new ImmutableRatioTapChanger(tapChanger);
+    static ImmutableRatioTapChanger ofNullable(RatioTapChanger tapChanger) {
+        return tapChanger == null ? null : CACHE.computeIfAbsent(tapChanger, k -> new ImmutableRatioTapChanger(tapChanger));
     }
 
     @Override

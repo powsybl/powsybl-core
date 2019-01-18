@@ -8,21 +8,25 @@ package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ImmutableTerminal implements Terminal {
+public final class ImmutableTerminal implements Terminal {
+
+    private static final Map<Terminal, ImmutableTerminal> CACHE = new HashMap<>();
 
     Terminal terminal;
 
-    ImmutableTerminal(Terminal terminal) {
+    private ImmutableTerminal(Terminal terminal) {
         this.terminal = Objects.requireNonNull(terminal);
     }
 
     static ImmutableTerminal ofNullable(Terminal terminal) {
-        return terminal == null ? null : new ImmutableTerminal(terminal);
+        return terminal == null ? null : CACHE.computeIfAbsent(terminal, k -> new ImmutableTerminal(terminal));
     }
 
     Terminal getTerminal() {
@@ -77,30 +81,7 @@ public class ImmutableTerminal implements Terminal {
     @Override
     public Connectable getConnectable() {
         Connectable connectable = terminal.getConnectable();
-        switch (connectable.getType()) {
-            case BUSBAR_SECTION:
-                return connectable;
-            case LINE:
-                return ImmutableFactory.ofNullableLine((Line) connectable);
-            case TWO_WINDINGS_TRANSFORMER:
-                return ImmutableTwoWindingsTransformer.ofNullable((TwoWindingsTransformer) connectable);
-            case THREE_WINDINGS_TRANSFORMER:
-                return ImmutableThreeWindingsTransformer.ofNullable((ThreeWindingsTransformer) connectable);
-            case GENERATOR:
-                return ImmutableGenerator.ofNullable((Generator) connectable);
-            case LOAD:
-                return ImmutableLoad.ofNullable((Load) connectable);
-            case SHUNT_COMPENSATOR:
-                return ImmutableShuntCompensator.ofNullable((ShuntCompensator) connectable);
-            case DANGLING_LINE:
-                return ImmutableDanglingLine.ofNullable((DanglingLine) connectable);
-            case STATIC_VAR_COMPENSATOR:
-                return ImmutableStaticVarCompensator.ofNullable((StaticVarCompensator) connectable);
-            case HVDC_CONVERTER_STATION:
-                return ImmutableFactory.ofNullableHvdcConverterStation((HvdcConverterStation) connectable);
-            default:
-                throw new IllegalArgumentException(connectable.getType().name() + " is not valid to be immutablized");
-        }
+        return ImmutableFactory.ofNullableConnectable(connectable);
     }
 
     @Override
@@ -145,7 +126,6 @@ public class ImmutableTerminal implements Terminal {
 
     @Override
     public void traverse(VoltageLevel.TopologyTraverser traverser) {
-        // TO REVIEW
         terminal.traverse(traverser);
     }
 

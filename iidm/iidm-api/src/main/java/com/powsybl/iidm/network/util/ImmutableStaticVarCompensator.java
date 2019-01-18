@@ -10,20 +10,24 @@ import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ImmutableStaticVarCompensator extends AbstractImmutableIdentifiable<StaticVarCompensator> implements StaticVarCompensator {
+public final class ImmutableStaticVarCompensator extends AbstractImmutableIdentifiable<StaticVarCompensator> implements StaticVarCompensator {
 
-    ImmutableStaticVarCompensator(StaticVarCompensator identifiable) {
+    private static final Map<StaticVarCompensator, ImmutableStaticVarCompensator> CACHE = new HashMap<>();
+
+    private ImmutableStaticVarCompensator(StaticVarCompensator identifiable) {
         super(identifiable);
     }
 
     static ImmutableStaticVarCompensator ofNullable(StaticVarCompensator svc) {
-        return null == svc ? null : new ImmutableStaticVarCompensator(svc);
+        return null == svc ? null : CACHE.computeIfAbsent(svc, k -> new ImmutableStaticVarCompensator(svc));
     }
 
     @Override
