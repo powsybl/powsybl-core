@@ -7,6 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Lists;
 import com.powsybl.iidm.network.*;
 
 import java.util.List;
@@ -378,4 +379,26 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
             }
         }
     }
+
+    @Override
+    public void remove() {
+        VoltageLevels.checkRemovability(this);
+
+        // Remove all connectables
+        List<Connectable> connectables = Lists.newArrayList(getConnectables());
+        for (Connectable connectable : connectables) {
+            connectable.remove();
+        }
+
+        // Remove the topology
+        removeTopology();
+
+        // Remove this voltage level from the network
+        getSubstation().remove(this);
+        getNetwork().getObjectStore().remove(this);
+
+        getNetwork().getListeners().notifyRemoval(this);
+    }
+
+    protected abstract void removeTopology();
 }

@@ -9,10 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.google.common.base.Functions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.*;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.Colors;
 import com.powsybl.math.graph.*;
@@ -880,7 +877,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         int node = ((NodeTerminal) terminal).getNode();
 
-        assert node >= 0 && node < graph.getVertexCount();
+        assert node >= 0 && node < graph.getMaxVertex();
         assert graph.getVertexObject(node) == terminal;
 
         graph.setVertexObject(node, null);
@@ -1027,6 +1024,19 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     @Override
     public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
         variants.allocate(indexes, VariantImpl::new);
+    }
+
+    @Override
+    protected void removeTopology() {
+        removeAllSwitches();
+    }
+
+    private void removeAllSwitches() {
+        for (SwitchImpl s : graph.getEdgesObject()) {
+            getNetwork().getObjectStore().remove(s);
+        }
+        graph.removeAllEdges();
+        switches.clear();
     }
 
     @Override
