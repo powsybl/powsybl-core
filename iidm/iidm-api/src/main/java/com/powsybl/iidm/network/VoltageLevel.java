@@ -963,6 +963,13 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     int getLccConverterStationCount();
 
     /**
+     * Remove this voltage level from the network.
+     */
+    default void remove() {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    /**
      * Visit equipments of the voltage level.
      * @param visitor
      */
