@@ -202,19 +202,4 @@ public final class ImmutableBus extends AbstractImmutableIdentifiable<Bus> imple
         return identifiable;
     }
 
-    @Override
-    public int hashCode() {
-        return identifiable.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        // TO REVIEW
-        // TODO an immutable bus equals noraml bus???
-        if (obj instanceof ImmutableBus) {
-            return identifiable.equals(((ImmutableBus) obj).getBus());
-        }
-        return false;
-    }
-
 }
