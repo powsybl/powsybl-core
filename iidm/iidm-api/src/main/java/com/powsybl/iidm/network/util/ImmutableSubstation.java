@@ -134,6 +134,11 @@ public final class ImmutableSubstation extends AbstractImmutableIdentifiable<Sub
     }
 
     @Override
+    public void remove() {
+        throw ImmutableNetwork.createUnmodifiableNetworkException();
+    }
+
+    @Override
     public boolean hasProperty() {
         return identifiable.hasProperty();
     }

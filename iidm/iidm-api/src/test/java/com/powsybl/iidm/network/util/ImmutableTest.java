@@ -10,10 +10,7 @@ import com.powsybl.iidm.network.*;
 import org.junit.Test;
 import org.mockito.verification.VerificationMode;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -32,12 +29,16 @@ public class ImmutableTest {
     private static final Supplier<Stream<Bus>> MOCK_BUS_STREAM = () -> MOCK_BUS_LIST.stream();
 
     private static final TieLine MOCK_TIELINE = mock(TieLine.class);
+    private static final Line MOCK_LINE = mock(Line.class);
 
     static {
         when(MOCK_TIELINE.isTieLine()).thenReturn(true);
+        when(MOCK_TIELINE.getType()).thenReturn(ConnectableType.LINE);
+        when(MOCK_LINE.isTieLine()).thenReturn(false);
+        when(MOCK_LINE.getType()).thenReturn(ConnectableType.LINE);
     }
 
-    private static final List<Line> MOCK_LINE_LIST = Arrays.asList(MOCK_TIELINE, mock(Line.class));
+    private static final List<Line> MOCK_LINE_LIST = Arrays.asList(MOCK_TIELINE, MOCK_LINE);
     private static final Supplier<Stream<Line>> MOCK_LINE_STREAM = () -> MOCK_LINE_LIST.stream();
 
     private static final List<TwoWindingsTransformer> MOCK_2WT_LIST = Collections.singletonList(mock(TwoWindingsTransformer.class));
@@ -54,6 +55,9 @@ public class ImmutableTest {
 
     private static final List<DanglingLine> MOCK_DDL_LIST = Collections.singletonList(mock(DanglingLine.class));
     private static final Supplier<Stream<DanglingLine>> MOCK_DDL_STREAM = () -> MOCK_DDL_LIST.stream();
+
+    private static final List<Switch> MOCK_SW_LIST = Collections.singletonList(mock(Switch.class));
+    private static final Supplier<Stream<Switch>> MOCK_SW_STREAM = () -> MOCK_SW_LIST.stream();
 
     private static final List<ShuntCompensator> MOCK_SHUNT_LIST = Collections.singletonList(mock(ShuntCompensator.class));
     private static final Supplier<Stream<ShuntCompensator>> MOCK_SHUNT_STREAM = () -> MOCK_SHUNT_LIST.stream();
@@ -179,9 +183,34 @@ public class ImmutableTest {
         verify(delegate, ONCE).isOverloaded(0.9f);
         verify(delegate, ONCE).getOverloadDuration();
 
+        when(delegate.checkPermanentLimit(Branch.Side.ONE)).thenReturn(false);
+        when(delegate.checkPermanentLimit(Branch.Side.ONE, 0.9f)).thenReturn(true);
+        assertFalse(sut.checkPermanentLimit(Branch.Side.ONE));
+        assertTrue(sut.checkPermanentLimit(Branch.Side.ONE, 0.9f));
+        verify(delegate, ONCE).checkPermanentLimit(Branch.Side.ONE);
+        verify(delegate, ONCE).checkPermanentLimit(Branch.Side.ONE, 0.9f);
         when(delegate.checkPermanentLimit1()).thenReturn(false);
         assertFalse(sut.checkPermanentLimit1());
         verify(delegate, ONCE).checkPermanentLimit1();
+        when(delegate.checkPermanentLimit2()).thenReturn(true);
+        assertTrue(sut.checkPermanentLimit2());
+        verify(delegate, ONCE).checkPermanentLimit2();
+
+        Branch.Overload ol1 = mock(Branch.Overload.class);
+        Branch.Overload ol1r = mock(Branch.Overload.class);
+        Branch.Overload ol2 = mock(Branch.Overload.class);
+        Branch.Overload ol2r = mock(Branch.Overload.class);
+        when(delegate.checkTemporaryLimits(Branch.Side.ONE)).thenReturn(ol1);
+        when(delegate.checkTemporaryLimits1()).thenReturn(ol1);
+        when(delegate.checkTemporaryLimits1(0.9f)).thenReturn(ol1r);
+        when(delegate.checkTemporaryLimits2()).thenReturn(ol2);
+        when(delegate.checkTemporaryLimits2(0.9f)).thenReturn(ol2r);
+        assertSame(ol1, sut.checkTemporaryLimits(Branch.Side.ONE));
+        assertSame(ol1, sut.checkTemporaryLimits1());
+        assertSame(ol1r, sut.checkTemporaryLimits1(0.9f));
+        assertSame(ol2, sut.checkTemporaryLimits2());
+        assertSame(ol2r, sut.checkTemporaryLimits2(0.9f));
+
     }
 
     @Test
@@ -193,22 +222,26 @@ public class ImmutableTest {
         try {
             sut.cloneVariant("a", "b");
             fail();
-        } catch (Exception excepted) {
-            assertEquals(excepted.getCause(), ImmutableNetwork.UNMODIFIABLE_EXCEPTION.getCause());
+        } catch (Exception e) {
+            assertEquals("Unmodifiable identifiable", e.getMessage());
         }
         try {
             sut.removeVariant("q");
             fail();
-        } catch (Exception excepted) {
-            assertEquals(excepted.getCause(), ImmutableNetwork.UNMODIFIABLE_EXCEPTION.getCause());
+        } catch (Exception e) {
+            assertEquals("Unmodifiable identifiable", e.getMessage());
         }
-        // TODO
-//        try {
-//            sut.allowVariantMultiThreadAccess(false);
-//            fail();
-//        } catch (Exception excepted) {
-//            assertEquals(excepted.getCause(), ImmutableNetwork.UNMODIFIABLE_EXCEPTION.getCause());
-//        }
+        sut.allowVariantMultiThreadAccess(false);
+        verify(delegate, ONCE).allowVariantMultiThreadAccess(false);
+        assertFalse(sut.isVariantMultiThreadAccessAllowed());
+        verify(delegate, ONCE).isVariantMultiThreadAccessAllowed();
+        when(delegate.getWorkingVariantId()).thenReturn("set");
+        assertEquals("set", sut.getWorkingVariantId());
+        verify(delegate, ONCE).getWorkingVariantId();
+        List<String> ids = Collections.singletonList("vars");
+        when(delegate.getVariantIds()).thenReturn(ids);
+        assertEquals(ids, sut.getVariantIds());
+        verify(delegate, ONCE).getVariantIds();
     }
 
     @Test
@@ -216,24 +249,39 @@ public class ImmutableTest {
         Network delegate = mock(Network.class);
         Network sut = ImmutableNetwork.of(delegate);
 
+        Set<Country> countries = new HashSet<>();
+        countries.add(Country.FR);
+        when(delegate.getCountries()).thenReturn(countries);
+        assertEquals(countries, sut.getCountries());
+        when(delegate.getCountryCount()).thenReturn(1);
+        assertEquals(1, sut.getCountryCount());
+
         when(delegate.getVoltageLevels()).thenReturn(MOCK_VL_LIST);
         when(delegate.getVoltageLevelStream()).thenReturn(MOCK_VL_STREAM.get());
         assertElementType(ImmutableVoltageLevel.class, sut.getVoltageLevels(), sut.getVoltageLevelStream());
 
+        when(delegate.getSubstationCount()).thenReturn(1);
+        assertEquals(1, sut.getSubstationCount());
         when(delegate.getSubstations()).thenReturn(MOCK_SUB_LIST);
         when(delegate.getSubstationStream()).thenReturn(MOCK_SUB_STREAM.get());
         assertElementType(ImmutableSubstation.class, sut.getSubstations(), sut.getSubstationStream());
 
+        when(delegate.getLineCount()).thenReturn(2);
+        assertEquals(2, sut.getLineCount());
         when(delegate.getLines()).thenReturn(MOCK_LINE_LIST);
         when(delegate.getLineStream()).thenReturn(MOCK_LINE_STREAM.get());
         Iterator<Line> iterator = sut.getLines().iterator();
         assertTrue(iterator.next().isTieLine());
         assertFalse(iterator.next().isTieLine());
 
+        when(delegate.getTwoWindingsTransformerCount()).thenReturn(1);
+        assertEquals(1, sut.getTwoWindingsTransformerCount());
         when(delegate.getTwoWindingsTransformers()).thenReturn(MOCK_2WT_LIST);
         when(delegate.getTwoWindingsTransformerStream()).thenReturn(MOCK_2WT_STREAM.get());
         assertElementType(ImmutableTwoWindingsTransformer.class, sut.getTwoWindingsTransformers(), sut.getTwoWindingsTransformerStream());
 
+        when(delegate.getThreeWindingsTransformerCount()).thenReturn(2);
+        assertEquals(2, sut.getThreeWindingsTransformerCount());
         when(delegate.getThreeWindingsTransformers()).thenReturn(MOCK_3WT_LIST);
         when(delegate.getThreeWindingsTransformerStream()).thenReturn(MOCK_3WT_STREAM.get());
         assertElementType(ImmutableThreeWindingsTransformer.class, sut.getThreeWindingsTransformers(), sut.getThreeWindingsTransformerStream());
@@ -242,14 +290,20 @@ public class ImmutableTest {
         when(delegate.getGeneratorStream()).thenReturn(MOCK_GENERATOR_STREAM.get());
         assertElementType(ImmutableGenerator.class, sut.getGenerators(), sut.getGeneratorStream());
 
+        when(delegate.getLoadCount()).thenReturn(1);
+        assertEquals(1, sut.getLoadCount());
         when(delegate.getLoads()).thenReturn(MOCK_LOAD_LIST);
         when(delegate.getLoadStream()).thenReturn(MOCK_LOAD_STREAM.get());
         assertElementType(ImmutableLoad.class, sut.getLoads(), sut.getLoadStream());
 
+        when(delegate.getShuntCompensatorCount()).thenReturn(1);
+        assertEquals(1, sut.getShuntCompensatorCount());
         when(delegate.getShuntCompensators()).thenReturn(MOCK_SHUNT_LIST);
         when(delegate.getShuntCompensatorStream()).thenReturn(MOCK_SHUNT_STREAM.get());
         assertElementType(ImmutableShuntCompensator.class, sut.getShuntCompensators(), sut.getShuntCompensatorStream());
 
+        when(delegate.getDanglingLineCount()).thenReturn(1);
+        assertEquals(1, sut.getDanglingLineCount());
         when(delegate.getDanglingLines()).thenReturn(MOCK_DDL_LIST);
         when(delegate.getDanglingLineStream()).thenReturn(MOCK_DDL_STREAM.get());
         assertElementType(ImmutableDanglingLine.class, sut.getDanglingLines(), sut.getDanglingLineStream());
@@ -258,15 +312,150 @@ public class ImmutableTest {
         when(delegate.getStaticVarCompensatorStream()).thenReturn(MOCK_SVC_STREAM.get());
         assertElementType(ImmutableStaticVarCompensator.class, sut.getStaticVarCompensators(), sut.getStaticVarCompensatorStream());
 
+        when(delegate.getLccConverterStationCount()).thenReturn(1);
+        assertEquals(1, sut.getLccConverterStationCount());
         when(delegate.getLccConverterStations()).thenReturn(MOCK_LCC_LIST);
         when(delegate.getLccConverterStationStream()).thenReturn(MOCK_LCC_STREAM.get());
         assertElementType(ImmutableLccConverterStation.class, sut.getLccConverterStations(), sut.getLccConverterStationStream());
 
+        when(delegate.getVscConverterStationCount()).thenReturn(1);
+        assertEquals(1, sut.getVscConverterStationCount());
         when(delegate.getVscConverterStations()).thenReturn(MOCK_VSC_LIST);
         when(delegate.getVscConverterStationStream()).thenReturn(MOCK_VSC_STREAM.get());
         assertElementType(ImmutableVscConverterStation.class, sut.getVscConverterStations(), sut.getVscConverterStationStream());
 
+        when(delegate.getSwitches()).thenReturn(MOCK_SW_LIST);
+        when(delegate.getSwitchStream()).thenReturn(MOCK_SW_STREAM.get());
+        when(delegate.getSwitchCount()).thenReturn(1);
+        assertEquals(1, sut.getSwitchCount());
+        assertElementType(ImmutableSwitch.class, sut.getSwitches(), sut.getSwitchStream());
     }
+
+    @Test
+    public void testVoltageLevel() {
+        VoltageLevel delegate = mock(VoltageLevel.class);
+        VoltageLevel sut = ImmutableVoltageLevel.ofNullable(delegate);
+
+        when(delegate.getConnectables(Line.class)).thenReturn(MOCK_LINE_LIST);
+        Iterator<Line> iterator = sut.getConnectables(Line.class).iterator();
+        assertTrue(iterator.next().isTieLine());
+        assertFalse(iterator.next().isTieLine());
+
+        when(delegate.getSwitches()).thenReturn(MOCK_SW_LIST);
+        when(delegate.getSwitchCount()).thenReturn(1);
+        assertEquals(1, sut.getSwitchCount());
+        assertTrue(sut.getSwitches().iterator().next() instanceof ImmutableSwitch);
+
+        when(delegate.getLoadCount()).thenReturn(3);
+        assertEquals(3, delegate.getLoadCount());
+        when(delegate.getLoads()).thenReturn(MOCK_LOAD_LIST);
+        when(delegate.getLoadStream()).thenReturn(MOCK_LOAD_STREAM.get());
+        assertElementType(ImmutableLoad.class, sut.getLoads(), sut.getLoadStream());
+
+        when(delegate.getStaticVarCompensators()).thenReturn(MOCK_SVC_LIST);
+        when(delegate.getStaticVarCompensatorStream()).thenReturn(MOCK_SVC_STREAM.get());
+        when(delegate.getStaticVarCompensatorCount()).thenReturn(2);
+        assertEquals(2, sut.getStaticVarCompensatorCount());
+        assertElementType(ImmutableStaticVarCompensator.class, sut.getStaticVarCompensators(), sut.getStaticVarCompensatorStream());
+
+        when(delegate.getShuntCompensatorCount()).thenReturn(1);
+        assertEquals(1, delegate.getShuntCompensatorCount());
+        when(delegate.getShuntCompensators()).thenReturn(MOCK_SHUNT_LIST);
+        when(delegate.getShuntCompensatorStream()).thenReturn(MOCK_SHUNT_STREAM.get());
+        assertElementType(ImmutableShuntCompensator.class, sut.getShuntCompensators(), sut.getShuntCompensatorStream());
+
+        when(delegate.getDanglingLineCount()).thenReturn(1);
+        assertEquals(1, sut.getDanglingLineCount());
+        when(delegate.getDanglingLines()).thenReturn(MOCK_DDL_LIST);
+        when(delegate.getDanglingLineStream()).thenReturn(MOCK_DDL_STREAM.get());
+        assertElementType(ImmutableDanglingLine.class, sut.getDanglingLines(), sut.getDanglingLineStream());
+
+        when(delegate.getLccConverterStationCount()).thenReturn(1);
+        assertEquals(1, sut.getLccConverterStationCount());
+        when(delegate.getLccConverterStations()).thenReturn(MOCK_LCC_LIST);
+        when(delegate.getLccConverterStationStream()).thenReturn(MOCK_LCC_STREAM.get());
+        assertElementType(ImmutableLccConverterStation.class, sut.getLccConverterStations(), sut.getLccConverterStationStream());
+
+        when(delegate.getVscConverterStationCount()).thenReturn(1);
+        assertEquals(1, sut.getVscConverterStationCount());
+        when(delegate.getVscConverterStations()).thenReturn(MOCK_VSC_LIST);
+        when(delegate.getVscConverterStationStream()).thenReturn(MOCK_VSC_STREAM.get());
+        assertElementType(ImmutableVscConverterStation.class, sut.getVscConverterStations(), sut.getVscConverterStationStream());
+
+        VoltageLevel.BusBreakerView delegateBbv = mock(VoltageLevel.BusBreakerView.class);
+        when(delegate.getBusBreakerView()).thenReturn(delegateBbv);
+        when(delegateBbv.getBuses()).thenReturn(MOCK_BUS_LIST);
+        when(delegateBbv.getBusStream()).thenReturn(MOCK_BUS_STREAM.get());
+        assertElementType(ImmutableBus.class, sut.getBusBreakerView().getBuses(), sut.getBusBreakerView().getBusStream());
+
+        Bus b1 = mock(Bus.class);
+        Bus b2 = mock(Bus.class);
+        ImmutableBus bus1 = ImmutableBus.ofNullable(b1);
+        ImmutableBus bus2 = ImmutableBus.ofNullable(b2);
+
+        when(delegateBbv.getSwitches()).thenReturn(MOCK_SW_LIST);
+        when(delegateBbv.getSwitchStream()).thenReturn(MOCK_SW_STREAM.get());
+        when(delegateBbv.getSwitchCount()).thenReturn(1);
+        assertEquals(1, sut.getSwitchCount());
+        assertElementType(ImmutableSwitch.class, sut.getBusBreakerView().getSwitches(), sut.getBusBreakerView().getSwitchStream());
+
+        when(delegateBbv.getBus("bid")).thenReturn(b1);
+        when(delegateBbv.getBus1("bus1")).thenReturn(b1);
+        when(delegateBbv.getBus2("bus2")).thenReturn(b2);
+        assertSame(bus1, sut.getBusBreakerView().getBus("bid"));
+        assertSame(bus1, sut.getBusBreakerView().getBus1("bus1"));
+        assertSame(bus2, sut.getBusBreakerView().getBus2("bus2"));
+        verify(delegateBbv, ONCE).getBus("bid");
+        verify(delegateBbv, ONCE).getBus1("bus1");
+        verify(delegateBbv, ONCE).getBus2("bus2");
+
+        when(delegateBbv.getBuses()).thenReturn(MOCK_BUS_LIST);
+        when(delegateBbv.getBusStream()).thenReturn(MOCK_BUS_STREAM.get());
+        assertElementType(ImmutableBus.class, sut.getBusBreakerView().getBuses(), sut.getBusBreakerView().getBusStream());
+
+        VoltageLevel.NodeBreakerView delegateNbv = mock(VoltageLevel.NodeBreakerView.class);
+        when(sut.getNodeBreakerView()).thenReturn(delegateNbv);
+        when(delegateNbv.getNodeCount()).thenReturn(2);
+        when(delegateNbv.getNode1("s1")).thenReturn(1);
+        when(delegateNbv.getNode2("s2")).thenReturn(2);
+        assertEquals(1, sut.getNodeBreakerView().getNode1("s1"));
+        assertEquals(2, sut.getNodeBreakerView().getNode2("s2"));
+
+        Terminal t1 = mock(Terminal.class);
+        Terminal terminal1 = ImmutableTerminal.ofNullable(t1);
+        Terminal t2 = mock(Terminal.class);
+        Terminal terminal2 = ImmutableTerminal.ofNullable(t2);
+        when(delegateNbv.getTerminal1("s1")).thenReturn(t1);
+        when(delegateNbv.getTerminal2("s2")).thenReturn(t2);
+        assertSame(terminal1, sut.getNodeBreakerView().getTerminal1("s1"));
+        assertSame(terminal2, sut.getNodeBreakerView().getTerminal2("s2"));
+
+        when(delegateNbv.getSwitches()).thenReturn(MOCK_SW_LIST);
+        when(delegateNbv.getSwitchStream()).thenReturn(MOCK_SW_STREAM.get());
+        when(delegateNbv.getSwitchCount()).thenReturn(1);
+        assertEquals(1, sut.getNodeBreakerView().getSwitchCount());
+        assertElementType(ImmutableSwitch.class, sut.getNodeBreakerView().getSwitches(), sut.getNodeBreakerView().getSwitchStream());
+    }
+
+    @Test
+    public void testSubstation() {
+        Substation delegate = mock(Substation.class);
+        Substation sut = ImmutableSubstation.ofNullable(delegate);
+
+        when(delegate.getTwoWindingsTransformerCount()).thenReturn(1);
+        assertEquals(1, sut.getTwoWindingsTransformerCount());
+        when(delegate.getTwoWindingsTransformers()).thenReturn(MOCK_2WT_LIST);
+        when(delegate.getTwoWindingsTransformerStream()).thenReturn(MOCK_2WT_STREAM.get());
+        assertElementType(ImmutableTwoWindingsTransformer.class, sut.getTwoWindingsTransformers(), sut.getTwoWindingsTransformerStream());
+
+        when(delegate.getThreeWindingsTransformerCount()).thenReturn(2);
+        assertEquals(2, sut.getThreeWindingsTransformerCount());
+        when(delegate.getThreeWindingsTransformers()).thenReturn(MOCK_3WT_LIST);
+        when(delegate.getThreeWindingsTransformerStream()).thenReturn(MOCK_3WT_STREAM.get());
+        assertElementType(ImmutableThreeWindingsTransformer.class, sut.getThreeWindingsTransformers(), sut.getThreeWindingsTransformerStream());
+
+    }
+
 
     private static <T extends Identifiable> void assertElementType(Class expectedClazz, Iterable<T> iterable, Stream<T> stream) {
         Iterator<T> iterator = iterable.iterator();

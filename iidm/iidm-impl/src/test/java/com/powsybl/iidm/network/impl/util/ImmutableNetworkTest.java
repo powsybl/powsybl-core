@@ -15,8 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.powsybl.iidm.network.impl.util.ImmutableTestHelper.testInvalidMethods;
-import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -38,14 +37,16 @@ public class ImmutableNetworkTest {
         Substation sub = network.getSubstation("P1");
         assertTrue(sub instanceof ImmutableSubstation);
         assertSame(network, sub.getNetwork());
-        Set<String> invalidSubMethods = new HashSet<>();
+        Set<String> mutalbeMethods = new HashSet<>();
+        mutalbeMethods.add("addGeographicalTag");
+        Set<String> invalidSubMethods = new HashSet<>(mutalbeMethods);
         invalidSubMethods.add("setTso");
         invalidSubMethods.add("setCountry");
         invalidSubMethods.add("newVoltageLevel");
         invalidSubMethods.add("newTwoWindingsTransformer");
         invalidSubMethods.add("newThreeWindingsTransformer");
-        invalidSubMethods.add("addGeographicalTag");
-        testInvalidMethods(sub, invalidSubMethods);
+        invalidSubMethods.add("remove");
+        testInvalidMethods(sub, invalidSubMethods, mutalbeMethods);
 
         VoltageLevel vl = network.getVoltageLevel("VLGEN");
         assertTrue(vl instanceof ImmutableVoltageLevel);
@@ -61,8 +62,48 @@ public class ImmutableNetworkTest {
         invalidVlMethods.add("newStaticVarCompensator");
         invalidVlMethods.add("newVscConverterStation");
         invalidVlMethods.add("newLccConverterStation");
+        invalidVlMethods.add("remove");
         testInvalidMethods(vl, invalidVlMethods);
 
+        VoltageLevel.NodeBreakerView nodeBreakerView = vl.getNodeBreakerView();
+        Set<String> nbvMutableMethods = new HashSet<>();
+        nbvMutableMethods.add("removeSwitch");
+        Set<String> invalidVlNbvMethods = new HashSet<>();
+        invalidVlNbvMethods.add("setNodeCount");
+        invalidVlNbvMethods.add("newSwitch");
+        invalidVlNbvMethods.add("newInternalConnection");
+        invalidVlNbvMethods.add("newBreaker");
+        invalidVlNbvMethods.add("newDisconnector");
+        invalidVlNbvMethods.add("removeSwitch");
+        invalidVlNbvMethods.add("newBusbarSection");
+        testInvalidMethods(nodeBreakerView, invalidVlNbvMethods, nbvMutableMethods);
+
+        VoltageLevel.BusBreakerView busBreakerView = vl.getBusBreakerView();
+        Set<String> bbvMutableMethods = new HashSet<>();
+        bbvMutableMethods.add("removeSwitch");
+        bbvMutableMethods.add("removeAllSwitches");
+        bbvMutableMethods.add("removeBus");
+        bbvMutableMethods.add("removeAllBuses");
+        Set<String> invalidBbvMethods = new HashSet<>(bbvMutableMethods);
+        invalidBbvMethods.add("newBus");
+        invalidBbvMethods.add("newSwitch");
+        testInvalidMethods(busBreakerView, invalidBbvMethods, bbvMutableMethods);
+
+    }
+
+    @Test
+    public void testVariantManager() {
+        Network n = EurostagTutorialExample1Factory.create();
+        Network network = ImmutableNetwork.of(n);
+        n.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "foo");
+        n.getVariantManager().setWorkingVariant("foo");
+
+        try {
+            network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "bar");
+        } catch (Exception e) {
+            assertEquals("Unmodifiable identifiable", e.getMessage());
+        }
+        network.getVariantManager().setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
     }
 
     @Test

@@ -51,7 +51,8 @@ public class ImmutableLineTest {
 
     @Test
     public void testImmutableTieLine() {
-        Network network = ImmutableNetwork.of(NoEquipmentNetworkFactory.createWithTieLine());
+        Network n = NoEquipmentNetworkFactory.createWithTieLine();
+        Network network = ImmutableNetwork.of(n);
         Line line = network.getLine("testTie");
         assertTrue(line.isTieLine());
         assertTrue(line instanceof ImmutableTieLine);
@@ -73,7 +74,8 @@ public class ImmutableLineTest {
 
     @Test
     public void testHvdcLine() {
-        Network network = ImmutableNetwork.of(HvdcTestNetwork.createLcc());
+        Network n = HvdcTestNetwork.createLcc();
+        Network network = ImmutableNetwork.of(n);
         HvdcLine hvdcLine = network.getHvdcLine("L");
         assertTrue(hvdcLine instanceof ImmutableHvdcLine);
         assertTrue(hvdcLine.getNetwork() instanceof ImmutableNetwork);

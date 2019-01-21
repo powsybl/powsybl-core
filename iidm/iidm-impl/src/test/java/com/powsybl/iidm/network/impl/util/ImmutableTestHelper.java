@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl.util;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -27,10 +28,20 @@ public final class ImmutableTestHelper {
 
     private static final String EXPECTED_MESSAGE = "Unmodifiable identifiable";
 
+    private static Stream<Method> getMutableMethods(Stream<Method> allMethods, Set<String> names) {
+        return allMethods.filter(m -> {
+            return isMutableMethods(m) || names.contains(m.getName());
+        });
+    }
+
     public static void testInvalidMethods(Object sut, Set<String> expectedInvalidMethods) {
+        testInvalidMethods(sut, expectedInvalidMethods, Collections.EMPTY_SET);
+    }
+
+    public static void testInvalidMethods(Object sut, Set<String> expectedInvalidMethods, Set<String> nonStandardMutableMethods) {
         Set<String> testedInvalidMethods = new HashSet<>();
         Stream<Method> allMethods = Arrays.asList(sut.getClass().getMethods()).stream();
-        Stream<Method> mutableMethods = allMethods.filter(ImmutableTestHelper::isMutableMethods);
+        Stream<Method> mutableMethods = getMutableMethods(allMethods, nonStandardMutableMethods);
         mutableMethods
                 .forEach(m -> {
                     try {
@@ -74,7 +85,7 @@ public final class ImmutableTestHelper {
     private static boolean isMutableMethods(Method m) {
         String name = m.getName();
         return name.startsWith("set") || name.startsWith("new") || name.equals("remove")
-                || name.equals("connect") || name.equals("disconnect") || name.startsWith("addGeographicalTag");
+                || name.equals("connect") || name.equals("disconnect");
     }
 
     private ImmutableTestHelper() {

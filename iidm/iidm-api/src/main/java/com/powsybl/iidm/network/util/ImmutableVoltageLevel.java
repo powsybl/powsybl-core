@@ -67,6 +67,11 @@ public final class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<V
     }
 
     @Override
+    public void remove() {
+        throw ImmutableNetwork.createUnmodifiableNetworkException();
+    }
+
+    @Override
     public <T extends Connectable> T getConnectable(String id, Class<T> aClass) {
         return (T) ImmutableFactory.ofNullableConnectable(identifiable.getConnectable(id, aClass));
     }
