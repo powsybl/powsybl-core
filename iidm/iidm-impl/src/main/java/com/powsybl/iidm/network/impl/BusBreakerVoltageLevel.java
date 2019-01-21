@@ -830,6 +830,12 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
+    protected void removeTopology() {
+        removeAllSwitches();
+        removeAllBuses();
+    }
+
+    @Override
     public void printTopology() {
         printTopology(System.out, null);
     }
