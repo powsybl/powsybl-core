@@ -85,7 +85,7 @@ public final class NoEquipmentNetworkFactory {
         double xnodeQ = 60.0;
 
         // adder
-        TieLine tieLine = network.newTieLine().setId("testTie")
+        network.newTieLine().setId("testTie")
                 .setName("testNameTie")
                 .setVoltageLevel1("vl1")
                 .setBus1("busA")

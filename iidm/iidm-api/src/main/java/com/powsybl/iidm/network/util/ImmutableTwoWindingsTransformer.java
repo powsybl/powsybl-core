@@ -250,7 +250,7 @@ public final class ImmutableTwoWindingsTransformer extends AbstractImmutableIden
 
     @Override
     public List<? extends Terminal> getTerminals() {
-        return identifiable.getTerminals().stream().map(i -> ImmutableTerminal.ofNullable(i)).collect(Collectors.toList());
+        return identifiable.getTerminals().stream().map(ImmutableTerminal::ofNullable).collect(Collectors.toList());
     }
 
     @Override

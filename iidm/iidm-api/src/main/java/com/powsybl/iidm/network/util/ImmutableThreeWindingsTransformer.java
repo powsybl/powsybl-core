@@ -135,7 +135,7 @@ public final class ImmutableThreeWindingsTransformer extends AbstractImmutableId
 
     @Override
     public List<? extends Terminal> getTerminals() {
-        return identifiable.getTerminals().stream().map(t -> ImmutableTerminal.ofNullable(t)).collect(Collectors.toList());
+        return identifiable.getTerminals().stream().map(ImmutableTerminal::ofNullable).collect(Collectors.toList());
     }
 
     @Override
