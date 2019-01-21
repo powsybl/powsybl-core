@@ -577,6 +577,14 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
+    public HvdcLine getHvdcLine(HvdcConverterStation converterStation) {
+        return getHvdcLineStream()
+                .filter(l -> l.getConverterStation1() == converterStation || l.getConverterStation2() == converterStation)
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
     public int getHvdcLineCount() {
         return objectStore.getAll(HvdcLineImpl.class).size();
     }
