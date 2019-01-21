@@ -1,0 +1,43 @@
+/**
+ * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+package com.powsybl.loadflow.resultscompletion.z0flows;
+
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Terminal;
+
+final class BranchTerminal {
+
+    private BranchTerminal() {
+    }
+
+    static Terminal ofOtherBus(Branch<?> branch, Bus bus) {
+        if (busAtTerminal(branch.getTerminal1()) == bus) {
+            return branch.getTerminal2();
+        } else if (busAtTerminal(branch.getTerminal2()) == bus) {
+            return branch.getTerminal1();
+        }
+        return null;
+    }
+
+    static Terminal ofBus(Branch<?> branch, Bus bus) {
+        if (busAtTerminal(branch.getTerminal1()) == bus) {
+            return branch.getTerminal1();
+        } else if (busAtTerminal(branch.getTerminal2()) == bus) {
+            return branch.getTerminal2();
+        }
+        return null;
+    }
+
+    static Bus busAtTerminal(Terminal t) {
+        if (t.isConnected()) {
+            return t.getBusView().getBus();
+        }
+        return null;
+    }
+}
