@@ -29,6 +29,8 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversion {
 
+    private static final String REGULATING_CONTROL_ENABLED = "regulatingControlEnabled";
+
     public PhaseTapChangerConversion(PropertyBag ptc, Conversion.Context context) {
         super("PhaseTapChanger", ptc, context);
 
@@ -63,7 +65,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                         tx3.getSubstation().getName());
                 // Check if the step is at neutral and regulating control is disabled
                 int position = fromContinuous(p.asDouble("SVtapStep", neutralStep));
-                boolean regulating = p.asBoolean("regulatingControlEnabled", false);
+                boolean regulating = p.asBoolean(REGULATING_CONTROL_ENABLED, false);
                 if (position == neutralStep && !regulating) {
                     String reason = String.format(
                             "%s, but is at neutralStep and regulating control disabled", reason0);
@@ -411,7 +413,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
 
     private void addCurrentFlowRegControl(PhaseTapChangerAdder ptca) {
         Terminal treg = context.terminalMapping().find(p.getId("RegulatingControlTerminal"));
-        boolean regulatingControlEnabled  = p.asBoolean("regulatingControlEnabled", true);
+        boolean regulatingControlEnabled  = p.asBoolean(REGULATING_CONTROL_ENABLED, true);
         double targetV = p.asDouble("regulatingControlTargetValue");
         if (side == 1) {
             targetV *= tx.getRatedU1();
@@ -426,7 +428,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
 
     private void addActivePowerRegControl(PhaseTapChangerAdder ptca) {
         Terminal treg = context.terminalMapping().find(p.getId("RegulatingControlTerminal"));
-        boolean regulatingControlEnabled  = p.asBoolean("regulatingControlEnabled", true);
+        boolean regulatingControlEnabled  = p.asBoolean(REGULATING_CONTROL_ENABLED, true);
         double targetV = -p.asDouble("regulatingControlTargetValue");
         if ((treg.equals(tx.getTerminal1()) && side == 2) || (treg.equals(tx.getTerminal2()) && side == 1)) {
             targetV *= -1;
