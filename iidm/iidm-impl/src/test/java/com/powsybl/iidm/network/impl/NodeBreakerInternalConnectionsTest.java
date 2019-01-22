@@ -1,23 +1,17 @@
 package com.powsybl.iidm.network.impl;
 
-import static org.junit.Assert.assertEquals;
+import com.powsybl.iidm.network.*;
+import gnu.trove.set.TIntSet;
+import gnu.trove.set.hash.TIntHashSet;
+import org.junit.Test;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.junit.Test;
-
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
-
-import gnu.trove.set.TIntSet;
-import gnu.trove.set.hash.TIntHashSet;
+import static com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.InternalConnection;
+import static org.junit.Assert.assertEquals;
 
 public class NodeBreakerInternalConnectionsTest {
 
@@ -27,6 +21,21 @@ public class NodeBreakerInternalConnectionsTest {
         InternalConnections all = new InternalConnections();
         createNetwork(network, all);
         VoltageLevel vl = network.getVoltageLevel("S5 10kV");
+
+        assertEquals(6, vl.getNodeBreakerView().getInternalConnectionCount());
+        List<InternalConnection> internalConnections = vl.getNodeBreakerView().getInternalConnectionStream().collect(Collectors.toList());
+        assertEquals(7, internalConnections.get(0).getNode1());
+        assertEquals(0, internalConnections.get(0).getNode2());
+        assertEquals(6, internalConnections.get(1).getNode1());
+        assertEquals(3, internalConnections.get(1).getNode2());
+        assertEquals(4, internalConnections.get(2).getNode1());
+        assertEquals(3, internalConnections.get(2).getNode2());
+        assertEquals(5, internalConnections.get(3).getNode1());
+        assertEquals(2, internalConnections.get(3).getNode2());
+        assertEquals(9, internalConnections.get(4).getNode1());
+        assertEquals(2, internalConnections.get(4).getNode2());
+        assertEquals(8, internalConnections.get(5).getNode1());
+        assertEquals(1, internalConnections.get(5).getNode2());
 
         InternalConnections foundStoppingAtTerminals = findInternalConnectionsTraverseStoppingAtTerminals(vl);
         // If we stop traversal at terminals
