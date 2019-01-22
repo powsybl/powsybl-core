@@ -348,6 +348,13 @@ public interface VoltageLevel extends Container<VoltageLevel> {
             void add();
         }
 
+        interface InternalConnection {
+
+            int getNode1();
+
+            int getNode2();
+        }
+
         /**
          * Get the number of node.
          */
@@ -372,6 +379,21 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get a builder to create a new switch.
          */
         InternalConnectionAdder newInternalConnection();
+
+        /**
+         * Get internal connection count.
+         */
+        int getInternalConnectionCount();
+
+        /**
+         * Get internal connections.
+         */
+        Iterable<InternalConnection> getInternalConnections();
+
+        /**
+         * Get internal connection stream.
+         */
+        Stream<InternalConnection> getInternalConnectionStream();
 
         /**
          * Get a builder to create a new breaker.
@@ -961,6 +983,13 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * @return LCC converter stations count connected to this voltage level
      */
     int getLccConverterStationCount();
+
+    /**
+     * Remove this voltage level from the network.
+     */
+    default void remove() {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
     /**
      * Visit equipments of the voltage level.
