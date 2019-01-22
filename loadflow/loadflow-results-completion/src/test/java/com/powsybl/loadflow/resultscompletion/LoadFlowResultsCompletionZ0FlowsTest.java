@@ -34,8 +34,24 @@ import com.powsybl.loadflow.validation.ValidationType;
 public class LoadFlowResultsCompletionZ0FlowsTest {
 
     @Test
-    public void testZ0FlowsCompletion() throws Exception {
+    public void originalZ0FlowsCompletion() throws Exception {
         Network network = createNetwork();
+        completeResults(network);
+        assertTrue(validateBuses(network));
+    }
+
+    @Test
+    public void disconnectZ0FlowsCompletion() throws Exception {
+        Network network = createNetwork();
+        disconnectLine(network);
+        completeResults(network);
+        assertTrue(validateBuses(network));
+    }
+
+    @Test
+    public void splitZ0FlowsCompletion() throws Exception {
+        Network network = createNetwork();
+        splitNetwork(network);
         completeResults(network);
         assertTrue(validateBuses(network));
     }
@@ -104,6 +120,9 @@ public class LoadFlowResultsCompletionZ0FlowsTest {
                 .add();
         vl.getBusBreakerView().newBus()
                 .setId("B3.4")
+                .add();
+        vl.getBusBreakerView().newBus()
+                .setId("B3.5")
                 .add();
         Line l = network.newLine()
                 .setId("L1-2")
@@ -280,6 +299,24 @@ public class LoadFlowResultsCompletionZ0FlowsTest {
                 .setB2(0.0 / 2 * zpu)
                 .add();
         l = network.newLine()
+                .setId("L3.2-3.5")
+                .setVoltageLevel1("VL")
+                .setConnectableBus1("B3.2")
+                .setBus1("B3.2")
+                .setVoltageLevel2("VL")
+                .setConnectableBus2("B3.5")
+                .setBus2("B3.5")
+                .setR(0.0 / zpu)
+                .setX(0.0 / zpu)
+                .setG1(0.0 * zpu)
+                .setG2(0.0 * zpu)
+                .setB1(0.0 / 2 * zpu)
+                .setB2(0.0 / 2 * zpu)
+                .add();
+        l.getTerminal2().getBusBreakerView().getBus()
+                .setV(1.01333094 * vbase)
+                .setAngle(Math.toDegrees(-0.00177645));
+        l = network.newLine()
                 .setId("L3.3-3.4")
                 .setVoltageLevel1("VL")
                 .setConnectableBus1("B3.3")
@@ -287,6 +324,21 @@ public class LoadFlowResultsCompletionZ0FlowsTest {
                 .setVoltageLevel2("VL")
                 .setConnectableBus2("B3.4")
                 .setBus2("B3.4")
+                .setR(0.0 / zpu)
+                .setX(0.0 / zpu)
+                .setG1(0.0 * zpu)
+                .setG2(0.0 * zpu)
+                .setB1(0.0 / 2 * zpu)
+                .setB2(0.0 / 2 * zpu)
+                .add();
+        l = network.newLine()
+                .setId("L3.4-3.5")
+                .setVoltageLevel1("VL")
+                .setConnectableBus1("B3.4")
+                .setBus1("B3.4")
+                .setVoltageLevel2("VL")
+                .setConnectableBus2("B3.5")
+                .setBus2("B3.5")
                 .setR(0.0 / zpu)
                 .setX(0.0 / zpu)
                 .setG1(0.0 * zpu)
@@ -330,10 +382,18 @@ public class LoadFlowResultsCompletionZ0FlowsTest {
                 .setId("LD3.4")
                 .setConnectableBus("B3.4")
                 .setBus("B3.4")
-                .setP0(15.0)
-                .setQ0(-100.0)
+                .setP0(10.0)
+                .setQ0(-50.0)
                 .add();
-        ld.getTerminal().setP(15.0).setQ(-100.0);
+        ld.getTerminal().setP(10.0).setQ(-50.0);
+        ld = vl.newLoad()
+                .setId("LD3.5")
+                .setConnectableBus("B3.5")
+                .setBus("B3.5")
+                .setP0(5.0)
+                .setQ0(-50.0)
+                .add();
+        ld.getTerminal().setP(5.0).setQ(-50.0);
         Generator g = vl.newGenerator()
                 .setId("G1")
                 .setConnectableBus("B1")
@@ -398,6 +458,65 @@ public class LoadFlowResultsCompletionZ0FlowsTest {
                 .setCurrentSectionCount(1)
                 .add();
         return network;
+    }
+
+    private void disconnectLine(Network network) {
+        Line l = network.getLine("L3.1-3.2");
+        l.getTerminal1().disconnect();
+        l.getTerminal2().disconnect();
+    }
+
+    private void splitNetwork(Network network) {
+        double vbase = 115.0;
+
+        network.getGenerator("G1")
+                .setTargetP(1.180568)
+                .setTargetQ(18.060835);
+        network.getGenerator("G1").getTerminal().setP(-1.180568).setQ(-18.060835);
+        network.getGenerator("G2")
+                .setTargetP(16.128860)
+                .setTargetQ(-4.462291);
+        network.getGenerator("G2").getTerminal().setP(-16.128860).setQ(4.462291);
+        network.getGenerator("G5")
+                .setTargetP(61.123773)
+                .setTargetQ(-134.882226);
+        network.getGenerator("G5").getTerminal().setP(-61.123773).setQ(134.882226);
+        network.getLine("L1-2")
+                .getTerminal2().getBusBreakerView().getBus()
+                .setAngle(Math.toDegrees(0.02318848));
+        network.getLine("L4-5")
+                .getTerminal1().getBusBreakerView().getBus()
+                .setV(0.99583652 * vbase)
+                .setAngle(Math.toDegrees(0.01323237));
+        network.getLine("L4-5")
+                .getTerminal2().getBusBreakerView().getBus()
+                .setAngle(Math.toDegrees(0.06442617));
+        network.getLine("L3.1-3.3")
+                .getTerminal1().getBusBreakerView().getBus()
+                .setV(0.98359818 * vbase)
+                .setAngle(Math.toDegrees(-0.01808407));
+        network.getLine("L3.1-3.3")
+                .getTerminal2().getBusBreakerView().getBus()
+                .setV(0.98359818 * vbase)
+                .setAngle(Math.toDegrees(-0.01808407));
+        network.getLine("L3.2-3.4")
+                .getTerminal1().getBusBreakerView().getBus()
+                .setV(1.01844096 * vbase)
+                .setAngle(Math.toDegrees(0.06264234));
+        network.getLine("L3.3-3.4")
+                .getTerminal2().getBusBreakerView().getBus()
+                .setV(1.01844096 * vbase)
+                .setAngle(Math.toDegrees(0.06264234));
+        network.getLine("L3.4-3.5")
+                .getTerminal2().getBusBreakerView().getBus()
+                .setV(1.01844096 * vbase)
+                .setAngle(Math.toDegrees(0.06264234));
+        network.getLine("L3.1-3.2").getTerminal1().disconnect();
+        network.getLine("L3.1-3.2").getTerminal2().disconnect();
+        network.getLine("L3.2-3.3").getTerminal1().disconnect();
+        network.getLine("L3.2-3.3").getTerminal2().disconnect();
+        network.getLine("L3.3-3.4").getTerminal1().disconnect();
+        network.getLine("L3.3-3.4").getTerminal2().disconnect();
     }
 
     private ValidationConfig createValidationConfig() {

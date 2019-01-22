@@ -104,6 +104,9 @@ public class Z0FlowFromBusBalance implements TopologyVisitor {
         if (line.equals(this.line)) {
             return;
         }
+        if (!line.getTerminal1().isConnected() || !line.getTerminal2().isConnected()) {
+            return;
+        }
         addFlow(line.getTerminal(side));
     }
 

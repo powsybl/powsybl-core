@@ -34,7 +34,7 @@ final class BranchTerminal {
         return null;
     }
 
-    static Bus busAtTerminal(Terminal t) {
+    private static Bus busAtTerminal(Terminal t) {
         if (t.isConnected()) {
             return t.getBusView().getBus();
         }

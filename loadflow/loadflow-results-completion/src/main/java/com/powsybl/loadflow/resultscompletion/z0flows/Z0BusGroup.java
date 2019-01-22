@@ -10,8 +10,10 @@ package com.powsybl.loadflow.resultscompletion.z0flows;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.jgrapht.alg.interfaces.SpanningTreeAlgorithm.SpanningTree;
 import org.jgrapht.alg.spanning.KruskalMinimumSpanningTree;
@@ -25,8 +27,9 @@ import com.powsybl.iidm.network.Terminal;
 
 public class Z0BusGroup {
 
-    public Z0BusGroup(Bus bus) {
+    public Z0BusGroup(Bus bus, Z0LineChecker z0Line) {
         this.seed = bus;
+        this.z0Line = z0Line;
         buses = new ArrayList<>();
     }
 
@@ -38,17 +41,19 @@ public class Z0BusGroup {
         return buses.size() > 1;
     }
 
-    public void exploreZ0() {
+    public void exploreZ0(Set<Bus> processed) {
         buses.add(seed);
+        processed.add(seed);
         int k = 0;
         while (k < buses.size()) {
             Bus b = buses.get(k);
             b.getLineStream().forEach(line -> {
                 Bus other = other(line, b);
-                if (other != null && isZ0(line, b, other)) {
+                if (other != null && z0Line.isZ0(line, b, other)) {
                     addToGraph(line, b, other);
                     if (!buses.contains(other)) {
                         buses.add(other);
+                        processed.add(other);
                     }
                 }
             });
@@ -70,6 +75,28 @@ public class Z0BusGroup {
         tree = new KruskalMinimumSpanningTree<>(graph).getSpanningTree();
         levels = new ArrayList<>();
         parent = new HashMap<>();
+        Set<Line> processed = new HashSet<>();
+        Map<Bus, List<Z0Edge>> linesInBus = new HashMap<>();
+
+        // Map to iterate once over the edges of the bus
+        tree.getEdges().forEach(e -> {
+            Bus b1 = e.getLine().getTerminal1().getBusView().getBus();
+            Bus b2 = e.getLine().getTerminal2().getBusView().getBus();
+
+            List<Z0Edge> edges = linesInBus.get(b1);
+            if (edges == null) {
+                edges = new ArrayList<>();
+                linesInBus.put(b1, edges);
+            }
+            edges.add(e);
+
+            edges = linesInBus.get(b2);
+            if (edges == null) {
+                edges = new ArrayList<>();
+                linesInBus.put(b2, edges);
+            }
+            edges.add(e);
+        });
 
         // Add root level
         Bus root = buses.get(0);
@@ -79,18 +106,17 @@ public class Z0BusGroup {
         int level = 0;
         while (level < levels.size()) {
             List<Bus> nextLevel = new ArrayList<>();
-            // FIXME(Luma) Iterating over all edges of the tree for each bus
-            levels.get(level).forEach(bus -> tree.getEdges().forEach(e -> {
+            levels.get(level).forEach(bus -> linesInBus.get(bus).forEach(e -> {
                 Bus other = other(e.getLine(), bus);
                 if (other == null) {
                     return;
                 }
-                // FIXME(Luma) containsValue is O(n) in a HashMap
-                if (parent.containsValue(e.getLine())) {
+                if (processed.contains(e.getLine())) {
                     return;
                 }
                 nextLevel.add(other);
                 parent.put(other, e.getLine());
+                processed.add(e.getLine());
             }));
             if (!nextLevel.isEmpty()) {
                 levels.add(nextLevel);
@@ -107,7 +133,8 @@ public class Z0BusGroup {
                 line.getTerminal1().setQ(0.0);
                 line.getTerminal2().setP(0.0);
                 line.getTerminal2().setQ(0.0);
-                if (line.getB1() != 0.0 || line.getB2() != 0.0 || line.getG1() != 0.0 || line.getG2() != 0.0) {
+                if (line.getB1() != 0.0 || line.getB2() != 0.0 || line.getG1() != 0.0
+                        || line.getG2() != 0.0) {
                     LOG.error("Z0 line {} has B1, G1, B2, G2 != 0", line);
                 }
             }
@@ -125,17 +152,6 @@ public class Z0BusGroup {
             });
             level--;
         }
-    }
-
-    // FIXME(Luma) accept the Z0 criteria as a parameter to Z0FlowsCompletion
-    private static boolean isZ0(Line line, Bus b1, Bus b2) {
-        if (LOG.isTraceEnabled()) {
-            LOG.trace(String.format("isZ0 %s; bus1 %6.2f, %6.2f; bus2 %6.2f, %6.2f",
-                    line,
-                    b1.getV(), b1.getAngle(),
-                    b2.getV(), b2.getAngle()));
-        }
-        return b1.getV() == b2.getV() && b1.getAngle() == b2.getAngle();
     }
 
     private Bus other(Line line, Bus bus) {
@@ -156,12 +172,13 @@ public class Z0BusGroup {
         graph.addEdge(b1, b2, new Z0Edge(line));
     }
 
-    private final Bus seed;
-    private final List<Bus> buses;
+    private final Bus                        seed;
+    private final Z0LineChecker              z0Line;
+    private final List<Bus>                  buses;
     private SimpleWeightedGraph<Bus, Z0Edge> graph;
-    private SpanningTree<Z0Edge> tree;
-    private List<List<Bus>> levels;
-    private Map<Bus, Line> parent;
+    private SpanningTree<Z0Edge>             tree;
+    private List<List<Bus>>                  levels;
+    private Map<Bus, Line>                   parent;
 
-    private static final Logger LOG = LoggerFactory.getLogger(Z0BusGroup.class);
+    private static final Logger              LOG = LoggerFactory.getLogger(Z0BusGroup.class);
 }
