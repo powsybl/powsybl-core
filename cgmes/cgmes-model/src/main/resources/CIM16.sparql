@@ -133,6 +133,7 @@ WHERE {
         a cim:Terminal ;
         cim:Terminal.ConductingEquipment ?ConductingEquipment .
     ?ConductingEquipment a ?conductingEquipmentType .
+    OPTIONAL { ?Terminal cim:IdentifiedObject.name ?name }
 }}
 OPTIONAL { GRAPH ?graphSSH {
     ?Terminal cim:ACDCTerminal.connected ?connected

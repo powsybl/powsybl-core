@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.powsybl.cgmes.model.CgmesTerminal;
+import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VoltageLevel;
 
 public class NodeMapping {
@@ -15,15 +16,36 @@ public class NodeMapping {
 
     public int iidmNodeForTerminal(CgmesTerminal t, VoltageLevel vl) {
         int iidmNodeForConductingEquipment = cgmes2iidm.computeIfAbsent(t.id(), id -> add(id, vl));
-        // Add internal connections from terminal to connectivity node if required
+        // Add internal connection from terminal to connectivity node
+        int iidmNodeForConnectivityNode = cgmes2iidm.computeIfAbsent(t.connectivityNode(), id -> add(id, vl));
+
+        // For node-breaker models we create an internal connection between
+        // the terminal and its connectivity node
+        // Because there are some node-breaker models that,
+        // in addition to the information of opened switches also set
+        // the terminal.connected property to false,
+        // we have decided to create fictitious switches to precisely
+        // map this situation to IIDM
+
         if (t.connected()) {
-            int iidmNodeForConnectivityNode = cgmes2iidm.computeIfAbsent(t.connectivityNode(), id -> add(id, vl));
-            // FIXME(Luma): do not add an internal connection if is has already been added
+            // FIXME(Luma): do not add an internal connection if is has already been added?
             vl.getNodeBreakerView().newInternalConnection()
                     .setNode1(iidmNodeForConductingEquipment)
                     .setNode2(iidmNodeForConnectivityNode)
                     .add();
+        } else {
+            vl.getNodeBreakerView().newSwitch()
+                    .setFictitious(true)
+                    // Use the id and name of terminal
+                    .setId(t.id())
+                    .setName(t.name())
+                    .setNode1(iidmNodeForConductingEquipment)
+                    .setNode2(iidmNodeForConnectivityNode)
+                    .setOpen(true)
+                    .setKind(SwitchKind.BREAKER)
+                    .add();
         }
+
         return iidmNodeForConductingEquipment;
     }
 

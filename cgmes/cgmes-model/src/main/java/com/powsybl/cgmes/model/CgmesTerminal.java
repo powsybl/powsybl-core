@@ -5,6 +5,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 public class CgmesTerminal {
     public CgmesTerminal(PropertyBag t) {
         this.id = t.getId(CgmesNames.TERMINAL);
+        this.name = t.get("name");
         this.conductingEquipment = t.getId("ConductingEquipment");
         this.conductingEquipmentType = t.getLocal("conductingEquipmentType");
 
@@ -25,6 +26,10 @@ public class CgmesTerminal {
 
     public String id() {
         return id;
+    }
+
+    public String name() {
+        return name;
     }
 
     public String conductingEquipment() {
@@ -52,6 +57,7 @@ public class CgmesTerminal {
     }
 
     private final String id;
+    private final String name;
     private final String conductingEquipment;
     private final String conductingEquipmentType;
     private final boolean connected;
