@@ -463,7 +463,6 @@ public class LoadFlowResultsCompletionZ0FlowsTest {
     private void disconnectLine(Network network) {
         Line l = network.getLine("L3.1-3.2");
         l.getTerminal1().disconnect();
-        l.getTerminal2().disconnect();
     }
 
     private void splitNetwork(Network network) {
