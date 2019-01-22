@@ -60,6 +60,7 @@ public abstract class AbstractNodeBase<F> {
     public void setDescription(String description) {
         storage.setDescription(info.getId(), description);
         info.setDescription(description);
+        storage.flush();
     }
 
     public ZonedDateTime getCreationDate() {
@@ -153,6 +154,7 @@ public abstract class AbstractNodeBase<F> {
         Objects.requireNonNull(name);
         if (!nodeNameAlreadyExists(name)) {
             storage.renameNode(info.getId(), name);
+            info.setName(name);
             storage.flush();
         } else {
             throw new AfsException("name already exists");

@@ -614,6 +614,15 @@ public interface Network extends Container<Network> {
     HvdcLine getHvdcLine(String id);
 
     /**
+     * Get an HVDC line from a converter station
+     * @param converterStation a HVDC converter station
+     * @return the HVDC line or null if not found
+     */
+    default HvdcLine getHvdcLine(HvdcConverterStation converterStation) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    /**
      * Get a builder to create a new HVDC line.
      * @return a builder to create a new HVDC line
      */
