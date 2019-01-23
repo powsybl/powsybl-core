@@ -192,8 +192,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public PropertyBags terminalLimits() {
-        return namedQuery("terminalLimits");
+    public PropertyBags operationalLimits() {
+        return namedQuery("operationalLimits");
     }
 
     @Override

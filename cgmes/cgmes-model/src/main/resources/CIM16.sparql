@@ -272,7 +272,7 @@ OPTIONAL {
 }
 }
 
-# query: terminalLimits
+# query: operationalLimits
 SELECT *
 WHERE
 { GRAPH ?graph {
@@ -283,18 +283,8 @@ WHERE
     # operational limit sets can also be attached directly to equipments
     UNION
     {
-        ?Equipment a cim:EquivalentBranch .
         ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment .
-    }
-    UNION
-    {
-        ?Equipment a cim:ACLineSegment .
-        ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment .
-    }
-    UNION
-    {
-        ?Equipment a cim:PowerTransformer .
-        ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment .
+        ?Equipment a ?EquipmentClass .
     }
     ?OperationalLimit
         cim:OperationalLimit.OperationalLimitSet ?OperationalLimitSet ;
