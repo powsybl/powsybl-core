@@ -224,7 +224,7 @@ public class CgmesConformity1Catalog {
                         "_f3b56334-4638-49d3-a6a0-3f417422b8f5",
                         "_f9f29835-8a31-4310-9780-b1ad26f3cbb0",
                         "_fa9e0f4d-8a2f-45e1-9e36-3611600d1c94")
-                .terminalLimits("_05b69cbf-0e24-4c98-bd81-9450c751be6f",
+                .operationalLimits("_05b69cbf-0e24-4c98-bd81-9450c751be6f",
                         "_05b69cbf-0e24-4c98-bd81-9450c751be6f1",
                         "_0d6f26df-9f86-4df0-b00c-bfb23870257f",
                         "_0f8bff64-4cfe-4c94-9471-da94b2efcc4f",
@@ -625,7 +625,7 @@ public class CgmesConformity1Catalog {
                         "_fecfd76e-409a-42f1-bc4a-eb538bf07b8f",
                         "_fee53b4a-5459-4c52-9a84-c4c8c5af6c44",
                         "_ff096281-10e6-44c9-af78-8e2829cff084")
-                .terminalLimits("_03f63965-4a6c-48c1-b859-b1247a48a49f",
+                .operationalLimits("_03f63965-4a6c-48c1-b859-b1247a48a49f",
                         "_088eb5f2-e13b-4edf-a30a-ff48b7a8ae41",
                         "_10be2112-5068-4819-b82a-a640e4df11a6",
                         "_1162b24f-783f-4fe9-afce-24bac9cb061a",
@@ -867,7 +867,7 @@ public class CgmesConformity1Catalog {
         m.terminals("_13dcec71-4b02-4c0c-93a7-8e16db4aa0b7",
                 "_67bb74f1-8620-4a32-9d7d-a44092d11d22",
                 "_8171fc34-6891-40e0-92d1-da9f4ba69e26");
-        m.terminalLimits(
+        m.operationalLimits(
                 "_0068a5c1-9212-4366-8e0e-cf621a92a8b7",
                 "_0068a5c1-9212-4366-8e0e-cf621a92a8b71",
                 "_08322f60-4e75-4a00-a4e0-0c55bf588919",
@@ -1011,7 +1011,7 @@ public class CgmesConformity1Catalog {
                 "_84d4dbeb-ef3b-43a1-9a7e-ce5713013498",
                 "_7939fc42-08ef-4ce7-9912-97552a4db39a",
                 "_0d6f26df-9f86-4df0-b00c-bfb23870257f"));
-        m.terminalLimits().removeIf(tl -> tlremove.contains(tl.getId("OperationalLimit")));
+        m.operationalLimits().removeIf(tl -> tlremove.contains(tl.getId("OperationalLimit")));
         m.topologicalNodes("_23b65c6b-2351-4673-89e9-1895c7291543");
         m.transformerEnds(
                 "_3c59d1b0-1ee9-4ca3-9086-4fe102b51b21",
