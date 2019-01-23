@@ -7,6 +7,8 @@
 package com.powsybl.computation;
 
 import java.util.List;
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,14 +16,14 @@ import org.slf4j.LoggerFactory;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ExecutionReport {
+public class DefaultExecutionReport {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExecutionReport.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultExecutionReport.class);
 
     private final List<ExecutionError> errors;
 
-    public ExecutionReport(List<ExecutionError> errors) {
-        this.errors = errors;
+    public DefaultExecutionReport(List<ExecutionError> errors) {
+        this.errors = Objects.requireNonNull(errors);
     }
 
     public List<ExecutionError> getErrors() {
