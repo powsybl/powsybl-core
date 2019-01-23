@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class DefaultExecutionReport {
+public class DefaultExecutionReport implements ExecutionReport {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultExecutionReport.class);
 
@@ -26,10 +26,12 @@ public class DefaultExecutionReport {
         this.errors = Objects.requireNonNull(errors);
     }
 
+    @Override
     public List<ExecutionError> getErrors() {
         return errors;
     }
 
+    @Override
     public void log() {
         if (!errors.isEmpty()) {
             LOGGER.error("{} commands have failed: {}", errors.size(), errors);
