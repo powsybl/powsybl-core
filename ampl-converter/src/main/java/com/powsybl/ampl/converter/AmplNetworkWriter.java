@@ -1476,7 +1476,6 @@ public class AmplNetworkWriter {
                 double vb = t.getVoltageLevel().getNominalV();
 
                 //get 'minQ0 (MVar)' , 'maxQ0 (MVar)'
-                ReactiveLimits rcc = g.getReactiveLimits();
                 Double minQ0 = AmplUtil.getMinQ0(g);
                 Double maxQ0 = AmplUtil.getMaxQ0(g);
 
@@ -1720,7 +1719,7 @@ public class AmplNetworkWriter {
                      new Column("maxQminP (MVar)"),
                      new Column(V_REGUL),
                      new Column(TARGET_V),
-                     new Column("targetQ (MVar)"),
+                     new Column(TARGET_Q),
                      new Column("lossFactor (%PDC)"),
                      new Column(FAULT),
                      new Column(config.getActionType().getLabel()),
