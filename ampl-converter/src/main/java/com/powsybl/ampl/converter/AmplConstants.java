@@ -18,6 +18,7 @@ public final class AmplConstants {
     }
 
     public static final float INVALID_FLOAT_VALUE = -99999f;
+    public static final double INVALID_DOUBLE_VALUE = 99999d;
 
     public static final Locale LOCALE = Locale.US;
 

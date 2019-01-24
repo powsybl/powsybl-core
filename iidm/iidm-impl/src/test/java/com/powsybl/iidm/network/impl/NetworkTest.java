@@ -195,13 +195,13 @@ public class NetworkTest {
         assertEquals(network.getLoadCount(), network.getLoadStream().count());
         assertEquals(Collections.singletonList("LOAD"), mapper.apply(network.getVoltageLevel("VLLOAD").getLoadStream()));
 
-        assertEquals(Collections.singletonList("GEN"), mapper.apply(network.getGeneratorStream()));
+        assertEquals(Arrays.asList("GEN", "GEN2"), mapper.apply(network.getGeneratorStream()));
         assertEquals(network.getGeneratorCount(), network.getGeneratorStream().count());
-        assertEquals(Collections.singletonList("GEN"), mapper.apply(network.getVoltageLevel("VLGEN").getGeneratorStream()));
+        assertEquals(Arrays.asList("GEN", "GEN2"), mapper.apply(network.getVoltageLevel("VLGEN").getGeneratorStream()));
 
         Bus bus = network.getVoltageLevel("VLGEN").getBusView().getBus("VLGEN_0");
         assertEquals(Collections.singletonList("NGEN_NHV1"), mapper.apply(bus.getTwoWindingsTransformerStream()));
-        assertEquals(Collections.singletonList("GEN"), mapper.apply(bus.getGeneratorStream()));
+        assertEquals(Arrays.asList("GEN", "GEN2"), mapper.apply(bus.getGeneratorStream()));
         bus = network.getVoltageLevel("VLHV1").getBusView().getBus("VLHV1_0");
         assertEquals(Arrays.asList("NHV1_NHV2_1", "NHV1_NHV2_2"), mapper.apply(bus.getLineStream()));
         assertEquals(Collections.singletonList("NGEN_NHV1"), mapper.apply(bus.getTwoWindingsTransformerStream()));
@@ -212,11 +212,15 @@ public class NetworkTest {
 
         // SVC
         network = SvcTestCaseFactory.create();
-        assertEquals(Collections.singletonList("SVC2"), mapper.apply(network.getStaticVarCompensatorStream()));
+
+        assertEquals(Arrays.asList("SVC2", "SVC3"), mapper.apply(network.getStaticVarCompensatorStream()));
         assertEquals(network.getStaticVarCompensatorCount(), network.getStaticVarCompensatorStream().count());
-        assertEquals(Collections.singletonList("SVC2"), mapper.apply(network.getVoltageLevel("VL2").getStaticVarCompensatorStream()));
+
+        assertEquals(Arrays.asList("SVC2", "SVC3"), mapper.apply(network.getVoltageLevel("VL2").getStaticVarCompensatorStream()));
+
         bus = network.getVoltageLevel("VL2").getBusView().getBus("VL2_0");
-        assertEquals(Collections.singletonList("SVC2"), mapper.apply(bus.getStaticVarCompensatorStream()));
+
+        assertEquals(Arrays.asList("SVC2", "SVC3"), mapper.apply(bus.getStaticVarCompensatorStream()));
 
         // HVDC
         network = HvdcTestNetwork.createLcc();

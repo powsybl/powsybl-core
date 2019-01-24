@@ -178,6 +178,35 @@ public final class EurostagTutorialExample1Factory {
                 .setMinQ(-9999.99)
                 .setMaxQ(9999.99)
             .add();
+
+        Generator generator2 = vlgen.newGenerator()
+                .setId("GEN2")
+                .setBus(ngen.getId())
+                .setConnectableBus(ngen.getId())
+                .setMinP(-9999.99)
+                .setMaxP(9999.99)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(24.5)
+                .setTargetP(607.0)
+                .setTargetQ(301.0)
+                .add();
+        generator2.newReactiveCapabilityCurve()
+                .beginPoint()
+                .setP(3.0)
+                .setMaxQ(5.0)
+                .setMinQ(4.0)
+                .endPoint()
+                .beginPoint()
+                .setP(0.0)
+                .setMaxQ(7.0)
+                .setMinQ(6.0)
+                .endPoint()
+                .beginPoint()
+                .setP(1.0)
+                .setMaxQ(5.0)
+                .setMinQ(4.0)
+                .endPoint()
+                .add();
         return network;
     }
 
@@ -188,7 +217,7 @@ public final class EurostagTutorialExample1Factory {
         network.getSubstation("P2").setCountry(Country.BE);
 
         network.getVoltageLevel("VLGEN").newGenerator()
-            .setId("GEN2")
+            .setId("GEN3")
             .setBus("NGEN")
             .setConnectableBus("NGEN")
             .setMinP(-9999.99)

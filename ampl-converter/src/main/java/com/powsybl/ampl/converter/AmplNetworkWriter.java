@@ -52,6 +52,7 @@ public class AmplNetworkWriter {
     private static final String DESCRIPTION = "description";
     private static final String SUBSTATION = "substation";
     private static final String TARGET_V = "targetV (pu)";
+    private static final String TARGET_Q = "targetQ (MVar)";
     private static final String CON_BUS = "con. bus";
     private static final String MAXP = "maxP (MW)";
     private static final String V_REGUL = "v regul.";
@@ -1366,6 +1367,7 @@ public class AmplNetworkWriter {
                      new Column("maxB (pu)"),
                      new Column(V_REGUL),
                      new Column(TARGET_V),
+                     new Column(TARGET_Q),
                      new Column(FAULT),
                      new Column(config.getActionType().getLabel()),
                      new Column("id"),
@@ -1398,6 +1400,7 @@ public class AmplNetworkWriter {
                         .writeCell(svc.getBmax() * zb)
                         .writeCell(svc.getRegulationMode().equals(RegulationMode.VOLTAGE))
                         .writeCell(vlSet / vb)
+                        .writeCell(svc.getReactivePowerSetPoint())
                         .writeCell(faultNum)
                         .writeCell(actionNum)
                         .writeCell(id)
@@ -1427,8 +1430,10 @@ public class AmplNetworkWriter {
                      new Column("minP (MW)"),
                      new Column(MAXP),
                      new Column("minQmaxP (MVar)"),
+                     new Column("minQ0 (MVar)"),
                      new Column("minQminP (MVar)"),
                      new Column("maxQmaxP (MVar)"),
+                     new Column("maxQ0 (MVar)"),
                      new Column("maxQminP (MVar)"),
                      new Column(V_REGUL),
                      new Column(TARGET_V),
@@ -1469,6 +1474,12 @@ public class AmplNetworkWriter {
                 double minP = g.getMinP();
                 double maxP = g.getMaxP();
                 double vb = t.getVoltageLevel().getNominalV();
+
+                //get 'minQ0 (MVar)' , 'maxQ0 (MVar)'
+                ReactiveLimits rcc = g.getReactiveLimits();
+                Double minQ0 = AmplUtil.getMinQ0(g);
+                Double maxQ0 = AmplUtil.getMaxQ0(g);
+
                 formatter.writeCell(variantIndex)
                         .writeCell(num)
                         .writeCell(busNum)
@@ -1476,8 +1487,10 @@ public class AmplNetworkWriter {
                         .writeCell(vlNum)
                         .writeCell(minP)
                         .writeCell(maxP)
+                        .writeCell(minQ0)
                         .writeCell(g.getReactiveLimits().getMinQ(maxP))
                         .writeCell(g.getReactiveLimits().getMinQ(minP))
+                        .writeCell(maxQ0)
                         .writeCell(g.getReactiveLimits().getMaxQ(maxP))
                         .writeCell(g.getReactiveLimits().getMaxQ(minP))
                         .writeCell(g.isVoltageRegulatorOn())

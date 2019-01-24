@@ -8,6 +8,13 @@
             <iidm:generator id="GEN" energySource="OTHER" minP="-9999.99" maxP="9999.99" voltageRegulatorOn="true" targetP="607.0" targetV="24.5" targetQ="301.0" bus="NGEN" connectableBus="NGEN">
                 <iidm:minMaxReactiveLimits minQ="-9999.99" maxQ="9999.99"/>
             </iidm:generator>
+            <iidm:generator id="GEN2" energySource="OTHER" minP="-9999.99" maxP="9999.99" voltageRegulatorOn="true" targetP="607.0" targetV="24.5" targetQ="301.0" bus="NGEN" connectableBus="NGEN">
+                <iidm:reactiveCapabilityCurve>
+                    <iidm:point p="0.0" minQ="6.0" maxQ="7.0"/>
+                    <iidm:point p="1.0" minQ="4.0" maxQ="5.0"/>
+                    <iidm:point p="3.0" minQ="4.0" maxQ="5.0"/>
+                </iidm:reactiveCapabilityCurve>
+            </iidm:generator>
         </iidm:voltageLevel>
         <iidm:voltageLevel id="VLHV1" nominalV="380.0" topologyKind="BUS_BREAKER">
             <iidm:busBreakerTopology>

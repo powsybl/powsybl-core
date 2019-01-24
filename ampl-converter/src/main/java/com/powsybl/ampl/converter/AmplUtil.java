@@ -11,8 +11,11 @@ import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public final class AmplUtil {
@@ -99,8 +102,37 @@ public final class AmplUtil {
 
         // HvdcConverterStations
         network.getHvdcConverterStations().forEach(conv ->
-                mapper.newInt(conv.getHvdcType().equals(HvdcType.VSC) ? AmplSubset.VSC_CONVERTER_STATION : AmplSubset.LCC_CONVERTER_STATION,  conv.getId()));
+                mapper.newInt(conv.getHvdcType().equals(HvdcType.VSC) ? AmplSubset.VSC_CONVERTER_STATION : AmplSubset.LCC_CONVERTER_STATION, conv.getId()));
 
+    }
+
+    public static Double getMinQ0(Generator gen) {
+        List<ReactiveCapabilityCurve.Point> point = getReactiveCapabilityCurvePoint(gen);
+        if (!point.isEmpty()) {
+            return point.get(0).getMinQ();
+        }
+        return AmplConstants.INVALID_DOUBLE_VALUE;
+    }
+
+    public static Double getMaxQ0(Generator gen) {
+        List<ReactiveCapabilityCurve.Point> point = getReactiveCapabilityCurvePoint(gen);
+        if (!point.isEmpty()) {
+            return point.get(0).getMaxQ();
+        }
+        return AmplConstants.INVALID_DOUBLE_VALUE;
+    }
+
+    private static List<ReactiveCapabilityCurve.Point> getReactiveCapabilityCurvePoint(Generator gen) {
+        ReactiveLimits reaLim = gen.getReactiveLimits();
+        List<ReactiveCapabilityCurve.Point> points = new ArrayList<>();
+        if (reaLim instanceof ReactiveCapabilityCurve) {
+            ReactiveCapabilityCurve reaCapCurve = (ReactiveCapabilityCurve) reaLim;
+            points = reaCapCurve
+                    .getPoints()
+                    .stream().filter(p -> p.getP() == 0.0)
+                    .collect(Collectors.toList());
+        }
+        return points;
     }
 
     private static void fillLines(StringToIntMapper<AmplSubset> mapper, Network network) {
@@ -168,10 +200,10 @@ public final class AmplUtil {
                 createLimitsIds(mapper, twt.getLeg1().getCurrentLimits(), twt.getId() + AmplConstants.LEG1_SUFFIX, "");
             }
             if (twt.getLeg2().getCurrentLimits() != null) {
-                createLimitsIds(mapper, twt.getLeg2().getCurrentLimits(),  twt.getId() + AmplConstants.LEG2_SUFFIX, "");
+                createLimitsIds(mapper, twt.getLeg2().getCurrentLimits(), twt.getId() + AmplConstants.LEG2_SUFFIX, "");
             }
             if (twt.getLeg3().getCurrentLimits() != null) {
-                createLimitsIds(mapper, twt.getLeg3().getCurrentLimits(),  twt.getId() + AmplConstants.LEG3_SUFFIX, "");
+                createLimitsIds(mapper, twt.getLeg3().getCurrentLimits(), twt.getId() + AmplConstants.LEG3_SUFFIX, "");
             }
         }
     }

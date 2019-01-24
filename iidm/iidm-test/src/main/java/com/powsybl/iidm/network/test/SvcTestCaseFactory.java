@@ -80,6 +80,17 @@ public final class SvcTestCaseFactory {
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
                 .setVoltageSetPoint(390)
                 .add();
+        vl2.newStaticVarCompensator()
+                .setId("SVC3")
+                .setConnectableBus("B2")
+                .setBus("B2")
+                .setBmin(0.0002)
+                .setBmax(0.0008)
+                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setVoltageSetPoint(390)
+                .setReactivePowerSetPoint(350)
+                .add();
+
         network.newLine()
                 .setId("L1")
                 .setVoltageLevel1("VL1")
