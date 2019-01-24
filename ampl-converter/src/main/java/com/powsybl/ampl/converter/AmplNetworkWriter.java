@@ -1438,7 +1438,7 @@ public class AmplNetworkWriter {
                      new Column(V_REGUL),
                      new Column(TARGET_V),
                      new Column("targetP (MW)"),
-                     new Column("targetQ (MVar)"),
+                     new Column(TARGET_Q),
                      new Column(FAULT),
                      new Column(config.getActionType().getLabel()),
                      new Column("id"),
