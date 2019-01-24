@@ -17,19 +17,19 @@ public interface NetworkReducerObserver {
 
     void voltageLevelRemoved(VoltageLevel voltageLevel);
 
-    void lineReduced(Line line, Injection injection);
+    void lineReplaced(Line line, Injection injection);
 
     void lineRemoved(Line line);
 
-    void transformerReduced(TwoWindingsTransformer transformer, Injection injection);
+    void transformerReplaced(TwoWindingsTransformer transformer, Injection injection);
 
     void transformerRemoved(TwoWindingsTransformer transformer);
 
-    void transformerReduced(ThreeWindingsTransformer transformer, Injection injection);
+    void transformerReplaced(ThreeWindingsTransformer transformer, Injection injection);
 
     void transformerRemoved(ThreeWindingsTransformer transformer);
 
-    void hvdcLineReduced(HvdcLine hvdcLine, Injection injection);
+    void hvdcLineReplaced(HvdcLine hvdcLine, Injection injection);
 
     void hvdcLineRemoved(HvdcLine hvdcLine);
 
