@@ -298,6 +298,21 @@ public final class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<V
             }
 
             @Override
+            public int getInternalConnectionCount() {
+                return nbv.getInternalConnectionCount();
+            }
+
+            @Override
+            public Iterable<InternalConnection> getInternalConnections() {
+                return nbv.getInternalConnections();
+            }
+
+            @Override
+            public Stream<InternalConnection> getInternalConnectionStream() {
+                return nbv.getInternalConnectionStream();
+            }
+
+            @Override
             public SwitchAdder newBreaker() {
                 throw ImmutableNetwork.createUnmodifiableNetworkException();
             }
