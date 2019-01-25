@@ -67,7 +67,7 @@ public class YamlPlatformConfigTest {
             }
 
             PlatformConfig config = new PlatformConfig(new YamlModuleConfigRepository(cfgDir.resolve("config.yml")), cfgDir);
-            assertNull(config.getModuleConfigIfExists("module2"));
+            assertFalse(config.getOptionalModuleConfig("module2").isPresent());
             assertFalse(config.getOptionalModuleConfig("module2").isPresent());
             ModuleConfig module1 = config.getModuleConfig("module1");
             assertEquals("a", module1.getStringProperty("s"));

@@ -153,14 +153,6 @@ public class PlatformConfig {
         return repository.getModuleConfig(name).orElseThrow(() -> new PowsyblException("Module " + name + " not found"));
     }
 
-    /**
-     * @deprecated Use {{@link #getOptionalModuleConfig(String)}} instead.
-     */
-    @Deprecated
-    public ModuleConfig getModuleConfigIfExists(String name) {
-        return repository.getModuleConfig(name).orElse(null);
-    }
-
     public Optional<ModuleConfig> getOptionalModuleConfig(String name) {
         return repository.getModuleConfig(name);
     }

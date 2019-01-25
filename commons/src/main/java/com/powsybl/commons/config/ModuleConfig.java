@@ -58,12 +58,6 @@ public interface ModuleConfig {
 
     OptionalInt getOptionalIntProperty(String name);
 
-    /**
-     * @deprecated Use {@link #getOptionalIntProperty(String)}
-     */
-    @Deprecated
-    Optional<Integer> getOptionalIntegerProperty(String name);
-
     int getIntProperty(String name);
 
     int getIntProperty(String name, int defaultValue);

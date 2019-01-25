@@ -6,6 +6,10 @@
  */
 package com.powsybl.loadflow.resultscompletion;
 
+import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Terminal.BusView;
+
 import static org.junit.Assert.assertEquals;
 
 import java.util.stream.Stream;
@@ -15,17 +19,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 
-import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.RatioTapChangerStep;
 import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.StateManager;
-import com.powsybl.iidm.network.StateManagerConstants;
 import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.Terminal.BusView;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg1;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg2or3;
@@ -189,7 +189,6 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(shunt.getTerminal()).thenReturn(shuntTerminal);
         Mockito.when(shunt.getCurrentB()).thenReturn(0.099769);
 
-
         Bus leg1Bus = Mockito.mock(Bus.class);
         Mockito.when(leg1Bus.getV()).thenReturn(412.989001);
         Mockito.when(leg1Bus.getAngle()).thenReturn(-6.78071);
@@ -259,12 +258,13 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(twt3w.getLeg3()).thenReturn(leg3);
 
 
-        StateManager stateManager = Mockito.mock(StateManager.class);
-        Mockito.when(stateManager.getWorkingStateId()).thenReturn(StateManagerConstants.INITIAL_STATE_ID);
+        VariantManager variantManager = Mockito.mock(VariantManager.class);
+        Mockito.when(variantManager.getWorkingVariantId()).thenReturn(VariantManagerConstants.INITIAL_VARIANT_ID);
+
 
         network = Mockito.mock(Network.class);
         Mockito.when(network.getId()).thenReturn("network");
-        Mockito.when(network.getStateManager()).thenReturn(stateManager);
+        Mockito.when(network.getVariantManager()).thenReturn(variantManager);
         Mockito.when(network.getLineStream()).thenAnswer(dummy -> Stream.of(line));
         Mockito.when(network.getTwoWindingsTransformerStream()).thenAnswer(dummy -> Stream.of(transformer));
         Mockito.when(network.getShuntCompensatorStream()).thenAnswer(dummy -> Stream.of(shunt));

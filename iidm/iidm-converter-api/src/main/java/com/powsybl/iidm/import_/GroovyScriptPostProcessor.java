@@ -7,7 +7,6 @@
 package com.powsybl.iidm.import_;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -54,12 +53,9 @@ public class GroovyScriptPostProcessor implements ImportPostProcessor {
 
         Path defaultScript = platformConfig.getConfigDir().resolve(DEFAULT_SCRIPT_NAME);
 
-        ModuleConfig config = platformConfig.getModuleConfigIfExists("groovy-post-processor");
-        if (config != null) {
-            return config.getPathProperty("script", defaultScript);
-        } else {
-            return defaultScript;
-        }
+        return platformConfig.getOptionalModuleConfig("groovy-post-processor")
+                .map(config -> config.getPathProperty("script", defaultScript))
+                .orElse(defaultScript);
     }
 
     @Override
