@@ -130,7 +130,7 @@ public class NodeBreakerTest {
         // Check the 2 switches and the intermediate node have been removed from the topology.
         assertNull(topo.getSwitch("load1Disconnector1"));
         assertNull(topo.getSwitch("load1Breaker1"));
-        assertEquals(5, topo.getNodeCount());
+        assertEquals(6, topo.getNodeCount());
 
         assertNull(network.getSwitch("load1Disconnector1"));
         assertNull(network.getSwitch("load1Breaker1"));

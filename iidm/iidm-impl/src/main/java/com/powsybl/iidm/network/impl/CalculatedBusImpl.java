@@ -8,12 +8,14 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.NodeBreakerVoltageLevel.ConnectedNode;
 
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -24,11 +26,11 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     private boolean valid = true;
 
-    private final List<NodeTerminal> terminals;
+    private final List<ConnectedNode> connectedNodes;
 
-    CalculatedBusImpl(String id, VoltageLevelExt voltageLevel, List<NodeTerminal> terminals) {
+    CalculatedBusImpl(String id, VoltageLevelExt voltageLevel, List<ConnectedNode> connectedNodes) {
         super(id, voltageLevel);
-        this.terminals = Objects.requireNonNull(terminals);
+        this.connectedNodes = Objects.requireNonNull(connectedNodes);
     }
 
     private void checkValidity() {
@@ -45,7 +47,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     public void invalidate() {
         valid = false;
         voltageLevel = null;
-        terminals.clear();
+        connectedNodes.clear();
     }
 
     @Override
@@ -57,30 +59,33 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public int getConnectedTerminalCount() {
         checkValidity();
-        return terminals.size();
+        return getTerminals().size();
     }
 
     @Override
     public Collection<TerminalExt> getConnectedTerminals() {
-        return getTerminals();
+        return getTerminals().stream().map(t -> (TerminalExt) t).collect(Collectors.toList());
     }
 
     @Override
     public Stream<TerminalExt> getConnectedTerminalStream() {
         checkValidity();
-        return terminals.stream().map(Function.identity());
+        return getTerminals().stream().map(Function.identity());
     }
 
     @Override
-    public Collection<TerminalExt> getTerminals() {
+    public Collection<NodeTerminal> getTerminals() {
         checkValidity();
-        return Collections.unmodifiableCollection(terminals);
+        return Collections.unmodifiableCollection(connectedNodes.stream()
+            .filter(n -> n.getNodeTerminal().isPresent())
+            .map(n -> n.getNodeTerminal().get())
+            .collect(Collectors.toList()));
     }
 
     @Override
     public BusExt setV(double v) {
         checkValidity();
-        for (NodeTerminal terminal : terminals) {
+        for (NodeTerminal terminal : getTerminals()) {
             terminal.setV(v);
         }
         return this;
@@ -89,16 +94,16 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public double getV() {
         checkValidity();
-        if (terminals.isEmpty()) {
+        if (getTerminals().isEmpty()) {
             return Double.NaN;
         }
-        return terminals.get(0).getV();
+        return getTerminals().iterator().next().getV();
     }
 
     @Override
     public BusExt setAngle(double angle) {
         checkValidity();
-        for (NodeTerminal terminal : terminals) {
+        for (NodeTerminal terminal : getTerminals()) {
             terminal.setAngle(angle);
         }
         return this;
@@ -107,10 +112,11 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public double getAngle() {
         checkValidity();
+        Collection<NodeTerminal> terminals = getTerminals();
         if (terminals.isEmpty()) {
             return Double.NaN;
         }
-        return terminals.get(0).getAngle();
+        return terminals.iterator().next().getAngle();
     }
 
     @Override
@@ -128,8 +134,8 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public void setConnectedComponentNumber(int connectedComponentNumber) {
         checkValidity();
-        for (NodeTerminal terminal : terminals) {
-            terminal.setConnectedComponentNumber(connectedComponentNumber);
+        for (ConnectedNode node : connectedNodes) {
+            node.setConnectedComponentNumber(connectedComponentNumber);
         }
     }
 
@@ -138,14 +144,14 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
         checkValidity();
         NetworkImpl.ConnectedComponentsManager ccm = voltageLevel.getNetwork().getConnectedComponentsManager();
         ccm.update();
-        return terminals.isEmpty() ? null : ccm.getComponent(terminals.get(0).getConnectedComponentNumber());
+        return ccm.getComponent(connectedNodes.get(0).getConnectedComponentNumber());
     }
 
     @Override
     public void setSynchronousComponentNumber(int componentNumber) {
         checkValidity();
-        for (NodeTerminal terminal : terminals) {
-            terminal.setSynchronousComponentNumber(componentNumber);
+        for (ConnectedNode node : connectedNodes) {
+            node.setSynchronousComponentNumber(componentNumber);
         }
     }
 
@@ -154,7 +160,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
         checkValidity();
         NetworkImpl.SynchronousComponentsManager scm = voltageLevel.getNetwork().getSynchronousComponentsManager();
         scm.update();
-        return terminals.isEmpty() ? null : scm.getComponent(terminals.get(0).getSynchronousComponentNumber());
+        return scm.getComponent(connectedNodes.get(0).getSynchronousComponentNumber());
     }
 
     @Override

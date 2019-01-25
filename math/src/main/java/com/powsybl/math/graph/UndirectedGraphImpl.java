@@ -81,7 +81,7 @@ public class UndirectedGraphImpl<V, E> implements UndirectedGraph<V, E> {
 
         @Override
         public String toString() {
-            return object.toString();
+            return object != null ? object.toString() : null;
         }
 
     }
