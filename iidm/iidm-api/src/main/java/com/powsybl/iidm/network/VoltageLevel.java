@@ -409,7 +409,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get the first node to which a switch is connected.
          *
          * @param switchId the id of the switch
-         * @throws PowsyblException if switch is not found
+         * @throws com.powsybl.commons.PowsyblException if switch is not found
          */
         int getNode1(String switchId);
 
@@ -425,7 +425,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get the terminal corresponding to the {@param node}.
          * May return null.
          *
-         * @throws PowsyblException if node is not found.
+         * @throws com.powsybl.commons.PowsyblException if node is not found.
          */
         Terminal getTerminal(int node);
 
@@ -433,7 +433,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get the first terminal corresponding to the {@param switchId}.
          * May return null.
          *
-         * @throws PowsyblException if switch is not found.
+         * @throws com.powsybl.commons.PowsyblException if switch is not found.
          */
         Terminal getTerminal1(String switchId);
 
@@ -441,7 +441,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get the second terminal corresponding to the {@param switchId}.
          * May return null.
          *
-         * @throws PowsyblException if switch is not found.
+         * @throws com.powsybl.commons.PowsyblException if switch is not found.
          */
         Terminal getTerminal2(String switchId);
 
@@ -836,6 +836,29 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      */
     int getLoadCount();
 
+    /**
+     * @deprecated Use {@link #newShuntCompensator()} instead.
+     */
+    @Deprecated
+    default ShuntCompensatorAdder newShunt() {
+        return newShuntCompensator();
+    }
+
+    /**
+     * @deprecated Use {@link #getShuntCompensators()} instead.
+     */
+    @Deprecated
+    default Iterable<ShuntCompensator> getShunts() {
+        return getShuntCompensators();
+    }
+
+    /**
+     * @deprecated Use {@link #getShuntCompensatorStream()} instead.
+     */
+    @Deprecated
+    default Stream<ShuntCompensator> getShuntStream() {
+        return getShuntCompensatorStream();
+    }
 
     ShuntCompensatorAdder newShuntCompensator();
 

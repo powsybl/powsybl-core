@@ -97,8 +97,26 @@ public interface Bus extends Identifiable<Bus> {
 
     /**
      * Get 2 windings transformer connected to the bus.
+     * @deprecated Use {@link #getTwoWindingsTransformers()} instead.
+     */
+    @Deprecated
+    default Iterable<TwoWindingsTransformer> getTwoWindingTransformers() {
+        return getTwoWindingsTransformers();
+    }
+
+    /**
+     * Get 2 windings transformer connected to the bus.
      */
     Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream();
+
+    /**
+     * Get 2 windings transformer connected to the bus.
+     * @deprecated Use {@link #getTwoWindingsTransformerStream()} instead.
+     */
+    @Deprecated
+    default Stream<TwoWindingsTransformer> getTwoWindingTransformerStream() {
+        return getTwoWindingsTransformerStream();
+    }
 
     /**
      * Get 3 windings transformers connected to the bus.
@@ -107,8 +125,26 @@ public interface Bus extends Identifiable<Bus> {
 
     /**
      * Get 3 windings transformers connected to the bus.
+     * @deprecated Use {@link #getThreeWindingsTransformers()} instead.
+     */
+    @Deprecated
+    default Iterable<ThreeWindingsTransformer> getThreeWindingTransformers() {
+        return getThreeWindingsTransformers();
+    }
+
+    /**
+     * Get 3 windings transformers connected to the bus.
      */
     Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream();
+
+    /**
+     * Get 3 windings transformers connected to the bus.
+     * @deprecated Use {@link #getThreeWindingsTransformerStream()} instead.
+     */
+    @Deprecated
+    default Stream<ThreeWindingsTransformer> getThreeWindingTransformerStream() {
+        return getThreeWindingsTransformerStream();
+    }
 
     /**
      * Get generators connected to the bus.
@@ -129,6 +165,22 @@ public interface Bus extends Identifiable<Bus> {
      * Get loads connected to the bus.
      */
     Stream<Load> getLoadStream();
+
+    /**
+     * @deprecated Use {@link #getShuntCompensators()} instead.
+     */
+    @Deprecated
+    default Iterable<ShuntCompensator> getShunts() {
+        return getShuntCompensators();
+    }
+
+    /**
+     * @deprecated Use {@link #getShuntCompensatorStream()} instead.
+     */
+    @Deprecated
+    default Stream<ShuntCompensator> getShuntStream() {
+        return getShuntCompensatorStream();
+    }
 
     /**
      * Get shunt compensators connected to the bus.

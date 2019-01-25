@@ -24,7 +24,7 @@ import java.util.stream.Stream;
  *
  * <p>Instances of <code>Network</code> are not thread safe except for attributes
  * depending of the variant (always specified in the javadoc) if
- * {@link VariantManager#allowStateMultiThreadAccess(boolean)} is set to true.
+ * {@link VariantManager#allowVariantMultiThreadAccess(boolean)} is set to true.
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @see NetworkFactory
@@ -131,9 +131,7 @@ public interface Network extends Container<Network> {
     /**
      * Get the variant manager of the network.
      */
-    default VariantManager getVariantManager() {
-        throw new UnsupportedOperationException();
-    }
+    VariantManager getVariantManager();
 
     /**
      * Get all countries.
@@ -346,6 +344,38 @@ public interface Network extends Container<Network> {
      * @param id the id the load
      */
     Load getLoad(String id);
+
+    /**
+     * @deprecated Use {@link #getShuntCompensators)} instead.
+     */
+    @Deprecated
+    default Iterable<ShuntCompensator> getShunts() {
+        return getShuntCompensators();
+    }
+
+    /**
+     * @deprecated Use {@link #getShuntCompensatorStream()} instead.
+     */
+    @Deprecated
+    default Stream<ShuntCompensator> getShuntStream() {
+        return getShuntCompensatorStream();
+    }
+
+    /**
+     * @deprecated Use {@link #getShuntCompensatorCount()} instead.
+     */
+    @Deprecated
+    default int getShuntCount() {
+        return getShuntCompensatorCount();
+    }
+
+    /**
+     * @deprecated Use {@link #getShuntCompensator(String)} instead.
+     */
+    @Deprecated
+    default ShuntCompensator getShunt(String id) {
+        return getShuntCompensator(id);
+    }
 
     /**
      * Get all compensator shunts.
