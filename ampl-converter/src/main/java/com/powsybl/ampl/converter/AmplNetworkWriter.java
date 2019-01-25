@@ -119,7 +119,7 @@ public class AmplNetworkWriter {
     }
 
     public static String getTableTitle(Network network, String tableName) {
-        return tableName + " (" + network.getId() + "/" + network.getStateManager().getWorkingStateId() + ")";
+        return tableName + " (" + network.getId() + "/" + network.getVariantManager().getWorkingVariantId() + ")";
     }
 
     private String getTableTitle(String tableName) {

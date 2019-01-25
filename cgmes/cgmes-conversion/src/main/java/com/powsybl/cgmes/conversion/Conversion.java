@@ -40,7 +40,7 @@ import com.powsybl.cgmes.conversion.elements.StaticVarCompensatorConversion;
 import com.powsybl.cgmes.conversion.elements.SubstationConversion;
 import com.powsybl.cgmes.conversion.elements.SwitchConversion;
 import com.powsybl.cgmes.conversion.elements.SynchronousMachineConversion;
-import com.powsybl.cgmes.conversion.elements.TerminalLimitConversion;
+import com.powsybl.cgmes.conversion.elements.OperationalLimitConversion;
 import com.powsybl.cgmes.conversion.elements.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.TwoWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.VoltageLevelConversion;
@@ -141,7 +141,7 @@ public class Conversion {
         convert(cgmes.acDcConverters(), c -> new AcDcConverterConversion(c, context));
         convert(cgmes.dcLineSegments(), l -> new DcLineSegmentConversion(l, context));
 
-        convert(cgmes.terminalLimits(), l -> new TerminalLimitConversion(l, context));
+        convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
 
         return network;
     }
