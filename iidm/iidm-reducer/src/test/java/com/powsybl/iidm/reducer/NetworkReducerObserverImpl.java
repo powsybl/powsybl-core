@@ -19,19 +19,19 @@ public class NetworkReducerObserverImpl extends DefaultNetworkReducerObserver {
 
     private int lineRemovedCount = 0;
 
-    private int lineReducedCount = 0;
+    private int lineReplacedCount = 0;
 
     private int twoWindingsTransformerRemovedCount = 0;
 
-    private int twoWindingsTransformerReducedCount = 0;
+    private int twoWindingsTransformerReplacedCount = 0;
 
     private int threeWindingsTransformerRemovedCount = 0;
 
-    private int threeWindingsTransformerReducedCount = 0;
+    private int threeWindingsTransformerReplacedCount = 0;
 
     private int hvdcLineRemovedCount = 0;
 
-    private int hvdcLineReducedCount = 0;
+    private int hvdcLineReplacedCount = 0;
 
     int getSubstationRemovedCount() {
         return substationRemovedCount;
@@ -45,32 +45,32 @@ public class NetworkReducerObserverImpl extends DefaultNetworkReducerObserver {
         return lineRemovedCount;
     }
 
-    int getLineReducedCount() {
-        return lineReducedCount;
+    int getLineReplacedCount() {
+        return lineReplacedCount;
     }
 
     int getTwoWindingsTransformerRemovedCount() {
         return twoWindingsTransformerRemovedCount;
     }
 
-    int getTwoWindingsTransformerReducedCount() {
-        return twoWindingsTransformerReducedCount;
+    int getTwoWindingsTransformerReplacedCount() {
+        return twoWindingsTransformerReplacedCount;
     }
 
     int getThreeWindingsTransformerRemovedCount() {
         return threeWindingsTransformerRemovedCount;
     }
 
-    int getThreeWindingsTransformerReducedCount() {
-        return threeWindingsTransformerReducedCount;
+    int getThreeWindingsTransformerReplacedCount() {
+        return threeWindingsTransformerReplacedCount;
     }
 
     int getHvdcLineRemovedCount() {
         return hvdcLineRemovedCount;
     }
 
-    int getHvdcLineReducedCount() {
-        return hvdcLineReducedCount;
+    int getHvdcLineReplacedCount() {
+        return hvdcLineReplacedCount;
     }
 
     @Override
@@ -88,10 +88,10 @@ public class NetworkReducerObserverImpl extends DefaultNetworkReducerObserver {
     }
 
     @Override
-    public void lineReduced(Line line, Injection injection) {
-        super.lineReduced(line, injection);
+    public void lineReplaced(Line line, Injection injection) {
+        super.lineReplaced(line, injection);
 
-        lineReducedCount++;
+        lineReplacedCount++;
     }
 
     @Override
@@ -102,10 +102,10 @@ public class NetworkReducerObserverImpl extends DefaultNetworkReducerObserver {
     }
 
     @Override
-    public void transformerReduced(TwoWindingsTransformer transformer, Injection injection) {
-        super.transformerReduced(transformer, injection);
+    public void transformerReplaced(TwoWindingsTransformer transformer, Injection injection) {
+        super.transformerReplaced(transformer, injection);
 
-        twoWindingsTransformerReducedCount++;
+        twoWindingsTransformerReplacedCount++;
     }
 
     @Override
@@ -116,10 +116,10 @@ public class NetworkReducerObserverImpl extends DefaultNetworkReducerObserver {
     }
 
     @Override
-    public void transformerReduced(ThreeWindingsTransformer transformer, Injection injection) {
-        super.transformerReduced(transformer, injection);
+    public void transformerReplaced(ThreeWindingsTransformer transformer, Injection injection) {
+        super.transformerReplaced(transformer, injection);
 
-        threeWindingsTransformerReducedCount++;
+        threeWindingsTransformerReplacedCount++;
     }
 
     @Override
@@ -130,10 +130,10 @@ public class NetworkReducerObserverImpl extends DefaultNetworkReducerObserver {
     }
 
     @Override
-    public void hvdcLineReduced(HvdcLine hvdcLine, Injection injection) {
-        super.hvdcLineReduced(hvdcLine, injection);
+    public void hvdcLineReplaced(HvdcLine hvdcLine, Injection injection) {
+        super.hvdcLineReplaced(hvdcLine, injection);
 
-        hvdcLineReducedCount++;
+        hvdcLineReplacedCount++;
     }
 
     @Override
