@@ -103,4 +103,10 @@ public interface Substation extends Container<Substation> {
      */
     Substation addGeographicalTag(String tag);
 
+    /**
+     * Remove this substation from the network.
+     */
+    default void remove() {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 }

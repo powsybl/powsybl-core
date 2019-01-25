@@ -19,7 +19,7 @@ public class AfsGroovyScriptTest extends AbstractGroovyScriptTest {
 
     @Override
     protected AppStorage createStorage() {
-        return MapDbAppStorage.createHeap("mem");
+        return MapDbAppStorage.createMem("mem");
     }
 
     @Override

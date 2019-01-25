@@ -541,6 +541,14 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
+    public HvdcLine getHvdcLine(HvdcConverterStation converterStation) {
+        return getHvdcLineStream()
+                .filter(l -> l.getConverterStation1() == converterStation || l.getConverterStation2() == converterStation)
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
     public int getHvdcLineCount() {
         return objectStore.getAll(HvdcLineImpl.class).size();
     }
@@ -826,14 +834,14 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         }
 
         // try to find dangling lines couples
-        Map<String, DanglingLine> dl1byXnodeCode = new HashMap<>();
-        for (DanglingLine dl1 : getDanglingLines()) {
-            if (dl1.getUcteXnodeCode() != null) {
-                dl1byXnodeCode.put(dl1.getUcteXnodeCode(), dl1);
-            }
-        }
         List<MergedLine> lines = new ArrayList<>();
         for (DanglingLine dl2 : Lists.newArrayList(other.getDanglingLines())) {
+            Map<String, DanglingLine> dl1byXnodeCode = new HashMap<>();
+            for (DanglingLine dl1 : getDanglingLines()) {
+                if (dl1.getUcteXnodeCode() != null) {
+                    dl1byXnodeCode.put(dl1.getUcteXnodeCode(), dl1);
+                }
+            }
             DanglingLine dl1 = getDanglingLineByTheOther(dl2, dl1byXnodeCode);
             mergeDanglingLines(lines, dl1, dl2);
         }
