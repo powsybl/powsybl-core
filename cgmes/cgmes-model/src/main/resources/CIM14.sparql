@@ -95,7 +95,7 @@ WHERE {
 }}
 }
 
-# query: terminalLimits
+# query: operationalLimits
 SELECT *
 { GRAPH ?graph {
     ?Terminal a cim:Terminal .
