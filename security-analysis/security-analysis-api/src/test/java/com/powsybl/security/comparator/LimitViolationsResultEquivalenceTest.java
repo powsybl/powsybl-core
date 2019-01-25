@@ -20,7 +20,6 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.LimitViolationsResult;
-import org.mockito.Mockito;
 
 /**
  *
@@ -30,7 +29,7 @@ public class LimitViolationsResultEquivalenceTest {
 
     @Test
     public void equivalent() {
-        LimitViolationsResultEquivalence resultEquivalence = new LimitViolationsResultEquivalence(0.1, NullWriter.NULL_WRITER, Mockito.mock(TableFormatterConfig.class));
+        LimitViolationsResultEquivalence resultEquivalence = new LimitViolationsResultEquivalence(0.1, NullWriter.NULL_WRITER, new TableFormatterConfig());
 
         LimitViolation line1Violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.ONE);
         LimitViolation sameLine1Violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.ONE);

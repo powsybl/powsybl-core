@@ -32,10 +32,9 @@ public class TerminalRefTest extends AbstractConverterTest {
         String filename = "terminalRef.xiidm";
 
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-        ImportConfig config = Mockito.mock(ImportConfig.class);
         ImportersLoader loader = new ImportersLoaderList(Collections.singletonList(new XMLImporter(Mockito.mock(PlatformConfig.class))));
 
-        Network network = Importers.loadNetwork(filename, getClass().getResourceAsStream("/" + filename), computationManager, config, null, loader);
+        Network network = Importers.loadNetwork(filename, getClass().getResourceAsStream("/" + filename), computationManager, new ImportConfig(), null, loader);
         assertNotNull(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::read, "/" + filename);
     }

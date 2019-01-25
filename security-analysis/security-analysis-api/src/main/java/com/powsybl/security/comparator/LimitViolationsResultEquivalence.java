@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Objects;
 
 import com.google.common.base.Equivalence;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationsResult;
@@ -25,8 +27,10 @@ public class LimitViolationsResultEquivalence extends Equivalence<LimitViolation
     private final double threshold;
     private SecurityAnalysisResultComparisonWriter comparisonWriter;
 
+    private static final Supplier<TableFormatterConfig> TABLE_FORMATTER_CONFIG = Suppliers.memoize(TableFormatterConfig::load);
+
     public LimitViolationsResultEquivalence(double threshold, Writer writer) {
-        this(threshold, writer, TableFormatterConfig.load());
+        this(threshold, writer, TABLE_FORMATTER_CONFIG.get());
     }
 
     public LimitViolationsResultEquivalence(double threshold, Writer writer, TableFormatterConfig config) {

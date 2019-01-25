@@ -32,7 +32,7 @@ public class SecurityAnalysisResultEquivalenceTest {
 
     @Test
     public void equivalent() {
-        SecurityAnalysisResultEquivalence resultEquivalence = new SecurityAnalysisResultEquivalence(0.1, NullWriter.NULL_WRITER, Mockito.mock(TableFormatterConfig.class));
+        SecurityAnalysisResultEquivalence resultEquivalence = new SecurityAnalysisResultEquivalence(0.1, NullWriter.NULL_WRITER, new TableFormatterConfig());
 
         LimitViolation line1Violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.0, Branch.Side.ONE);
         LimitViolation similarLine1Violation1 = new LimitViolation("NHV1_NHV2_1", LimitViolationType.CURRENT, null, Integer.MAX_VALUE, 1000.0, 0.95f, 1100.09, Branch.Side.ONE);

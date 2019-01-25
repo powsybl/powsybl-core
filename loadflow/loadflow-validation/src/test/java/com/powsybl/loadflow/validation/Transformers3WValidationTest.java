@@ -28,7 +28,7 @@ public class Transformers3WValidationTest extends AbstractValidationTest {
 
     private TwtTestData twtValidationData;
 
-    private final TableFormatterConfig tableFormatterConfig = Mockito.mock(TableFormatterConfig.class);
+    private final TableFormatterConfig tableFormatterConfig = new TableFormatterConfig();
 
     @Before
     public void setUp() {

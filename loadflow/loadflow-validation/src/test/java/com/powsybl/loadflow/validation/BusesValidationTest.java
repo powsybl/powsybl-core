@@ -56,7 +56,7 @@ public class BusesValidationTest extends AbstractValidationTest {
 
     private Bus bus;
 
-    private final TableFormatterConfig config = Mockito.mock(TableFormatterConfig.class);
+    private final TableFormatterConfig config = new TableFormatterConfig();
 
     @Before
     public void setUp() {

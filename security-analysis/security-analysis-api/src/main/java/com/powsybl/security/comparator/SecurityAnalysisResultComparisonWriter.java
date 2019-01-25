@@ -11,6 +11,8 @@ import java.io.Writer;
 import java.util.List;
 import java.util.Objects;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,12 +34,13 @@ public class SecurityAnalysisResultComparisonWriter implements AutoCloseable {
     private static final String EQUIVALENT = "equivalent";
     private static final String DIFFERENT = "different";
     private static final Logger LOGGER = LoggerFactory.getLogger(SecurityAnalysisResultComparisonWriter.class);
+    private static final Supplier<TableFormatterConfig> TABLE_FORMATTER_CONFIG = Suppliers.memoize(TableFormatterConfig::load);
 
     private TableFormatter formatter;
     private String contingency;
 
     public SecurityAnalysisResultComparisonWriter(Writer writer) {
-        this(writer, TableFormatterConfig.load());
+        this(writer, TABLE_FORMATTER_CONFIG.get());
     }
 
     public SecurityAnalysisResultComparisonWriter(Writer writer, TableFormatterConfig config) {

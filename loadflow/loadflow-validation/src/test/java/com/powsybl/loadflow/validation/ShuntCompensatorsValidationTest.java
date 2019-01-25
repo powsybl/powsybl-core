@@ -47,7 +47,7 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
     private Terminal shuntTerminal;
     private BusView shuntBusView;
 
-    private final TableFormatterConfig tableFormatterConfig = Mockito.mock(TableFormatterConfig.class);
+    private final TableFormatterConfig tableFormatterConfig = new TableFormatterConfig();
 
     @Before
     public void setUp() {

@@ -39,7 +39,7 @@ public class NetworksTest {
         }).when(logger).debug(Mockito.anyString(), Mockito.any(), Mockito.any());
 
         Network network = EurostagTutorialExample1Factory.create();
-        Networks.printBalanceSummary("", network, Mockito.mock(TableFormatterConfig.class), logger);
+        Networks.printBalanceSummary("", network, new TableFormatterConfig(), logger);
         assertEquals("Active balance at step '':\n" +
                      "+-----------------------+--------------------------------+----------------------------------+\n" +
                      "|                       | Main CC connected/disconnected | Others CC connected/disconnected |\n" +

@@ -79,7 +79,7 @@ public class CIM1ConverterRatioTapChangerSide2FixTest {
         ValidationConfig validationConfig = createValidationConfig(loadFlowParameters);
 
         Path working = Files.createDirectories(fileSystem.getPath("temp-validation"));
-        boolean rb = ValidationType.BUSES.check(network, validationConfig, Mockito.mock(TableFormatterConfig.class), working);
+        boolean rb = ValidationType.BUSES.check(network, validationConfig, new TableFormatterConfig(), working);
         LOG.info("Bus balance validation for tx-from-microBE-adapted is [{}]", rb);
         assertTrue(rb);
     }

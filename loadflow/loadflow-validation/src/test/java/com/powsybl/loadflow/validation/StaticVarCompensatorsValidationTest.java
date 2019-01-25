@@ -48,7 +48,7 @@ public class StaticVarCompensatorsValidationTest extends AbstractValidationTest 
     private Terminal svcTerminal;
     private StaticVarCompensator svc;
 
-    private final TableFormatterConfig tableFormatterConfig = Mockito.mock(TableFormatterConfig.class);
+    private final TableFormatterConfig tableFormatterConfig = new TableFormatterConfig();
 
     @Before
     public void setUp() {

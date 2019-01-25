@@ -49,7 +49,7 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
     private Terminal genTerminal;
     private Generator generator;
 
-    private final TableFormatterConfig tableFormatterConfig = Mockito.mock(TableFormatterConfig.class);
+    private final TableFormatterConfig tableFormatterConfig = new TableFormatterConfig();
 
     @Before
     public void setUp() {

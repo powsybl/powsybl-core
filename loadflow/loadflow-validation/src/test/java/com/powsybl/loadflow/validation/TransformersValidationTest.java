@@ -50,7 +50,7 @@ public class TransformersValidationTest extends AbstractValidationTest {
     private TwoWindingsTransformer transformer;
     private Bus bus;
 
-    private final TableFormatterConfig tableFormatterConfig = Mockito.mock(TableFormatterConfig.class);
+    private final TableFormatterConfig tableFormatterConfig = new TableFormatterConfig();
 
     @Before
     public void setUp() {

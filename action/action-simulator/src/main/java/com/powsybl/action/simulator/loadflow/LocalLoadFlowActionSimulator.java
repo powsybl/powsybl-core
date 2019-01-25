@@ -14,7 +14,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlowParameters;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,21 +37,6 @@ public class LocalLoadFlowActionSimulator extends LoadFlowActionSimulator {
     public LocalLoadFlowActionSimulator(Network network, Partition partition, LoadFlowActionSimulatorConfig config, boolean applyIfSolved, List<LoadFlowActionSimulatorObserver> observers) throws IOException {
         super(network, new LocalComputationManager(), config, applyIfSolved, observers);
         this.partition = Objects.requireNonNull(partition);
-    }
-
-    @Override
-    public void start(ActionDb actionDb, String... contingencyIds) {
-        start(actionDb, Arrays.asList(contingencyIds));
-    }
-
-    @Override
-    public void start(ActionDb actionDb, List<String> contingencyIds) {
-        start(actionDb, contingencyIds, LOAD_FLOW_PARAMETERS.get());
-    }
-
-    @Override
-    public void start(ActionDb actionDb, List<String> contingencyIds, LoadFlowParameters loadFlowParameters) {
-        start(actionDb, contingencyIds, loadFlowParameters, TABLE_FORMATTER_CONFIG.get());
     }
 
     @Override

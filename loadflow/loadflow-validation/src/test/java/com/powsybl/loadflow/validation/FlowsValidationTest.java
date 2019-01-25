@@ -68,7 +68,7 @@ public class FlowsValidationTest extends AbstractValidationTest {
     private ValidationConfig looseConfigSpecificCompatibility;
     private ValidationConfig strictConfigSpecificCompatibility;
 
-    private final TableFormatterConfig tableFormatterConfig = Mockito.mock(TableFormatterConfig.class);
+    private final TableFormatterConfig tableFormatterConfig = new TableFormatterConfig();
 
     @Before
     public void setUp() {
