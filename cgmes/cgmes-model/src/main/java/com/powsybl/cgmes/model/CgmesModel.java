@@ -56,7 +56,7 @@ public interface CgmesModel {
 
     PropertyBags terminalsCN();
 
-    PropertyBags terminalLimits();
+    PropertyBags operationalLimits();
 
     PropertyBags connectivityNodes();
 
