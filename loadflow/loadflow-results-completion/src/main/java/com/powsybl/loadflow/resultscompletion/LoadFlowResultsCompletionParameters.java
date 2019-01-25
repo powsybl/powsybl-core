@@ -6,12 +6,11 @@
  */
 package com.powsybl.loadflow.resultscompletion;
 
+import com.google.common.collect.ImmutableMap;
+import com.powsybl.commons.config.PlatformConfig;
+
 import java.util.Map;
 import java.util.Objects;
-
-import com.google.common.collect.ImmutableMap;
-import com.powsybl.commons.config.ModuleConfig;
-import com.powsybl.commons.config.PlatformConfig;
 
 /**
  *
@@ -31,14 +30,13 @@ public class LoadFlowResultsCompletionParameters {
 
     public static LoadFlowResultsCompletionParameters load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        float epsilonX = LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT;
-        boolean applyReactanceCorrection = LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT;
-        ModuleConfig config = platformConfig.getModuleConfigIfExists("loadflow-results-completion-parameters");
-        if (config != null) {
-            epsilonX = config.getFloatProperty("epsilon-x", LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT);
-            applyReactanceCorrection = config.getBooleanProperty("apply-reactance-correction", LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT);
-        }
-        return new LoadFlowResultsCompletionParameters(epsilonX, applyReactanceCorrection);
+        return platformConfig.getOptionalModuleConfig("loadflow-results-completion-parameters")
+                .map(config -> {
+                    float epsilonX = config.getFloatProperty("epsilon-x", LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT);
+                    boolean applyReactanceCorrection = config.getBooleanProperty("apply-reactance-correction", LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT);
+                    return new LoadFlowResultsCompletionParameters(epsilonX, applyReactanceCorrection);
+                })
+                .orElseGet(() -> new LoadFlowResultsCompletionParameters(LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT, LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT));
     }
 
     public LoadFlowResultsCompletionParameters(float epsilonX, boolean applyReactanceCorrection) {

@@ -96,11 +96,11 @@ public class SecurityAnalyzer {
         Objects.requireNonNull(contingenciesProvider);
         Objects.requireNonNull(parameters);
 
-        network.getStateManager().allowStateMultiThreadAccess(true);
+        network.getVariantManager().allowVariantMultiThreadAccess(true);
 
         SecurityAnalysis securityAnalysis = securityAnalysisFactory.create(network, filter, computationManager, priority);
         interceptors.forEach(securityAnalysis::addInterceptor);
 
-        return securityAnalysis.run(network.getStateManager().getWorkingStateId(), parameters, contingenciesProvider).join();
+        return securityAnalysis.run(network.getVariantManager().getWorkingVariantId(), parameters, contingenciesProvider).join();
     }
 }

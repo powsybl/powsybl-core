@@ -322,7 +322,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         LOGGER.info("Running loadflow ({})", loadFlow.getName());
         LoadFlowResult result;
         try {
-            result = loadFlow.run(context.getNetwork().getStateManager().getWorkingStateId(), loadFlowParameters).join();
+            result = loadFlow.run(context.getNetwork().getVariantManager().getWorkingVariantId(), loadFlowParameters).join();
         } catch (Exception e) {
             throw new PowsyblException(e);
         }
@@ -419,7 +419,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         LoadFlow testLoadFlow = loadFlowFactory.create(networkForTry, computationManager, 0);
         try {
             observers.forEach(o -> o.beforeTest(context, actionId));
-            LoadFlowResult testResult = testLoadFlow.run(networkForTry.getStateManager().getWorkingStateId(), loadFlowParameters).join();
+            LoadFlowResult testResult = testLoadFlow.run(networkForTry.getVariantManager().getWorkingVariantId(), loadFlowParameters).join();
             observers.forEach(o -> o.afterTest(context, actionId));
             return testResult;
         } catch (Exception e) {
