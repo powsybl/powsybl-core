@@ -24,7 +24,7 @@ public class DefaultNetworkReducerObserver implements NetworkReducerObserver {
     }
 
     @Override
-    public void lineReduced(Line line, Injection injection) {
+    public void lineReplaced(Line line, Injection injection) {
         // Nothing to do
     }
 
@@ -34,7 +34,7 @@ public class DefaultNetworkReducerObserver implements NetworkReducerObserver {
     }
 
     @Override
-    public void transformerReduced(TwoWindingsTransformer transformer, Injection injection) {
+    public void transformerReplaced(TwoWindingsTransformer transformer, Injection injection) {
         // Nothing to do
     }
 
@@ -44,7 +44,7 @@ public class DefaultNetworkReducerObserver implements NetworkReducerObserver {
     }
 
     @Override
-    public void transformerReduced(ThreeWindingsTransformer transformer, Injection injection) {
+    public void transformerReplaced(ThreeWindingsTransformer transformer, Injection injection) {
         // Nothing to do
     }
 
@@ -54,7 +54,7 @@ public class DefaultNetworkReducerObserver implements NetworkReducerObserver {
     }
 
     @Override
-    public void hvdcLineReduced(HvdcLine hvdcLine, Injection injection) {
+    public void hvdcLineReplaced(HvdcLine hvdcLine, Injection injection) {
         // Nothing to do
     }
 
