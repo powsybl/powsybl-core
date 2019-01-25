@@ -6,10 +6,12 @@
  */
 package com.powsybl.sensitivity;
 
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.Tool;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -21,7 +23,7 @@ public class SensitivityComputationToolTest extends AbstractToolTest {
 
     private static final String COMMAND_NAME = "sensitivity-computation";
 
-    private final SensitivityComputationTool tool = new SensitivityComputationTool();
+    private final SensitivityComputationTool tool = new SensitivityComputationTool(Mockito.mock(PlatformConfig.class));
 
     @Override
     @Before
@@ -44,6 +46,11 @@ public class SensitivityComputationToolTest extends AbstractToolTest {
         assertOption(tool.getCommand().getOptions(), "output-format", false, true);
         assertOption(tool.getCommand().getOptions(), "factors-file", true, true);
         assertOption(tool.getCommand().getOptions(), "skip-postproc", false, false);
+    }
+
+    @Test
+    public void test() {
+        assertCommand();
     }
 
     @Test

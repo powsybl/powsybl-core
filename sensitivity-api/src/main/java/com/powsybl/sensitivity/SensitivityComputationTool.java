@@ -9,6 +9,7 @@ package com.powsybl.sensitivity;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ComponentDefaultConfig;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
@@ -43,6 +44,16 @@ public class SensitivityComputationTool implements Tool {
     private static final String OUTPUT_FORMAT_OPTION = "output-format";
     private static final String SKIP_POSTPROC_OPTION = "skip-postproc";
     private static final String FACTORS_FILE_OPTION = "factors-file";
+
+    private final PlatformConfig platformConfig;
+
+    public SensitivityComputationTool() {
+        this(PlatformConfig.defaultConfig());
+    }
+
+    public SensitivityComputationTool(PlatformConfig platformConfig) {
+        this.platformConfig = platformConfig;
+    }
 
     @Override
     public Command getCommand() {
@@ -106,9 +117,9 @@ public class SensitivityComputationTool implements Tool {
         boolean skipPostProc = line.hasOption(SKIP_POSTPROC_OPTION);
         Path outputFile = null;
         String format = null;
-        ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
+        ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load(platformConfig);
 
-        ImportConfig importConfig = (!skipPostProc) ? ImportConfig.load() : new ImportConfig();
+        ImportConfig importConfig = (!skipPostProc) ? ImportConfig.load(platformConfig) : new ImportConfig();
         // process a single network: output-file/output-format options available
         if (line.hasOption(OUTPUT_FILE_OPTION)) {
             outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE_OPTION));
@@ -127,7 +138,7 @@ public class SensitivityComputationTool implements Tool {
         }
         SensitivityComputation sensitivityComputation = defaultConfig.newFactoryImpl(SensitivityComputationFactory.class).create(network, context.getShortTimeExecutionComputationManager(), 0);
 
-        SensitivityComputationParameters params = SensitivityComputationParameters.load();
+        SensitivityComputationParameters params = SensitivityComputationParameters.load(platformConfig);
         String workingStateId = network.getStateManager().getWorkingStateId();
         SensitivityFactorsProviderFactory factorsProviderFactory = defaultConfig.newFactoryImpl(SensitivityFactorsProviderFactory.class);
         SensitivityFactorsProvider factorsProvider = factorsProviderFactory.create(sensitivityFactorsFile);
@@ -143,7 +154,7 @@ public class SensitivityComputationTool implements Tool {
             } else {
                 // To avoid the closing of System.out
                 Writer writer = new OutputStreamWriter(context.getOutputStream());
-                printSensitivityComputationResult(result, writer, new AsciiTableFormatterFactory(), TableFormatterConfig.load());
+                printSensitivityComputationResult(result, writer, new AsciiTableFormatterFactory(), TableFormatterConfig.load(platformConfig));
             }
         }
     }
