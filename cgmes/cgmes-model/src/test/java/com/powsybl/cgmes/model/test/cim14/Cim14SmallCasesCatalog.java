@@ -72,7 +72,7 @@ public class Cim14SmallCasesCatalog {
                         "_GEN_____-GRID____-1_TW_OR_TE", "_GEN______SM_TE",
                         "_GRID____-INF_____-1_AC_TE_EX", "_GRID____-INF_____-1_AC_TE_OR",
                         "_INF______SM_TE")
-                .terminalLimits("_GEN_____-GRID____-1_TW_EX_CL", "_GEN_____-GRID____-1_TW_OR_CL",
+                .operationalLimits("_GEN_____-GRID____-1_TW_EX_CL", "_GEN_____-GRID____-1_TW_OR_CL",
                         "_GRID____-INF_____-1_AC_CL")
                 .topologicalNodes("_GEN______TN", "_GRID_____TN", "_INF______TN")
                 .acLineSegments("_GRID____-INF_____-1_AC")
@@ -118,7 +118,7 @@ public class Cim14SmallCasesCatalog {
                         "_FVALDI11-FVALDI12-A_SW_TE_OR", "_FVALDT11_SM_TE",
                         "_FVERGE11-FVERGE12-A_SW_TE_EX",
                         "_FVERGE11-FVERGE12-A_SW_TE_OR", "_FVERGT11_SM_TE")
-                .terminalLimits("_FP.AND11-FTDPRA11-1_TW_EX_CL", "_FP.AND11-FTDPRA11-1_TW_OR_CL",
+                .operationalLimits("_FP.AND11-FTDPRA11-1_TW_EX_CL", "_FP.AND11-FTDPRA11-1_TW_OR_CL",
                         "_FP.AND11-FVERGE11-1_AC_CL", "_FP.AND11-FVERGE11-2_AC_CL",
                         "_FS.BIS11-FVALDI11-1_AC_CL", "_FS.BIS11-FVALDI11-2_AC_CL",
                         "_FSSV.O11-FP.AND11-1_AC_CL",
@@ -198,7 +198,7 @@ public class Cim14SmallCasesCatalog {
                         "_LOAD__11_EC_TE", "_LOAD__12_EC_TE", "_LOAD__13_EC_TE", "_LOAD__14_EC_TE",
                         "_LOAD___2_EC_TE", "_LOAD___3_EC_TE", "_LOAD___4_EC_TE", "_LOAD___5_EC_TE",
                         "_LOAD___6_EC_TE", "_LOAD___9_EC_TE")
-                .terminalLimits(
+                .operationalLimits(
                         "_BUS___10-BUS___11-1_AC_CL", "_BUS___12-BUS___13-1_AC_CL",
                         "_BUS___13-BUS___14-1_AC_CL", "_BUS____1-BUS____2-1_AC_CL",
                         "_BUS____1-BUS____5-1_AC_CL", "_BUS____2-BUS____3-1_AC_CL",
@@ -364,7 +364,7 @@ public class Cim14SmallCasesCatalog {
                         "_NG7_____-N1043___-1_TW_OR_TE", "_NG8_____-N2032___-1_TW_EX_TE",
                         "_NG8_____-N2032___-1_TW_OR_TE", "_NG9_____-N4011___-1_TW_EX_TE",
                         "_NG9_____-N4011___-1_TW_OR_TE")
-                .terminalLimits(
+                .operationalLimits(
                         "_N1011___-N1013___-1_AC_CL", "_N1011___-N1013___-2_AC_CL",
                         "_N1011___-N4011___-1_TW_EX_CL", "_N1011___-N4011___-1_TW_OR_CL",
                         "_N1012___-N1014___-1_AC_CL", "_N1012___-N1014___-2_AC_CL",

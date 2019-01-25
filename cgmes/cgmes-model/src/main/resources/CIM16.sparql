@@ -272,29 +272,44 @@ OPTIONAL {
 }
 }
 
-# query: terminalLimits
+# query: operationalLimits
 SELECT *
+WHERE
 { GRAPH ?graph {
-    ?Terminal a cim:Terminal .
-    ?OperationalLimitSet cim:OperationalLimitSet.Terminal ?Terminal .
+    {
+        ?Terminal a cim:Terminal .
+        ?OperationalLimitSet cim:OperationalLimitSet.Terminal ?Terminal .
+    }
+    # operational limit sets can also be attached directly to equipments
+    UNION
+    {
+        ?OperationalLimitSet cim:OperationalLimitSet.Equipment ?Equipment .
+        ?Equipment a ?EquipmentClass .
+    }
     ?OperationalLimit
         cim:OperationalLimit.OperationalLimitSet ?OperationalLimitSet ;
         cim:OperationalLimit.OperationalLimitType ?OperationalLimitType .
-        # TODO Assuming here all limits are limits for current
-        #{
+        {
+            ?OperationalLimit a $OperationalLimitSubclass;
             {
                 ?OperationalLimit a cim:CurrentLimit ;
                 cim:CurrentLimit.value ?value .
             }
-            # UNION VoltageLimit, ApparentPowerLimit, ActivePowerLimit, ...
-            #{
-            #    ?OperationalLimit a cim:VoltageLimit ;
-            #    cim:VoltageLimit.value ? value .
-            #}
-        #}
+            UNION
+            {
+                ?OperationalLimit a cim:ApparentPowerLimit ;
+                cim:ApparentPowerLimit.value ?value .
+            }
+            UNION
+            {
+                ?OperationalLimit a cim:VoltageLimit ;
+                cim:VoltageLimit.value ?value .
+            }
+        }
     ?OperationalLimitType
         cim:IdentifiedObject.name ?operationalLimitTypeName .
     OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.direction ?direction }
+    OPTIONAL { ?OperationalLimitType entsoe:OperationalLimitType.limitType ?limitType }
     OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.acceptableDuration ?acceptableDuration }
 }}
 
