@@ -60,7 +60,7 @@ public final class ImmutableFactory {
             case HVDC_CONVERTER_STATION:
                 return ImmutableFactory.ofNullableHvdcConverterStation((HvdcConverterStation) connectable);
             default:
-                throw new IllegalArgumentException(connectable.getType().name() + " is not valid to be immutablized to line");
+                throw new AssertionError(connectable.getType().name() + " is not valid to be immutablized to connectable");
         }
     }
 
@@ -74,7 +74,7 @@ public final class ImmutableFactory {
             case TWO_WINDINGS_TRANSFORMER:
                 return ImmutableTwoWindingsTransformer.ofNullable((TwoWindingsTransformer) b);
             default:
-                throw new IllegalArgumentException(b.getType().name() + " is not valid to be immutablized to branch");
+                throw new AssertionError(b.getType().name() + " is not valid to be immutablized to branch");
         }
     }
 
