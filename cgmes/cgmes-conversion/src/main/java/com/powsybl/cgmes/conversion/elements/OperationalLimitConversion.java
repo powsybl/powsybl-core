@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -75,7 +76,6 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         if (limitSubclass == null || limitSubclass.equals("CurrentLimit")) {
             convertPatlCurrent(value);
         } else if (limitSubclass.equals("ApparentPowerLimit")) {
-            // TODO
             notAssigned();
         } else {
             notAssigned();
@@ -87,24 +87,42 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         // to avoid checking the class of the equipment
         // In terminal mapping insert a CurrentLimitsAdder instead of a Branch.side
         if (terminal != null) {
-            int terminalNumber = context.terminalMapping().number(terminalId);
-            Connectable<?> connectable = terminal.getConnectable();
-            if (connectable instanceof Branch) {
-                Branch<?> b = (Branch<?>) connectable;
-                if (terminalNumber == 1) {
-                    b.newCurrentLimits1().setPermanentLimit(value).add();
-                } else if (terminalNumber == 2) {
-                    b.newCurrentLimits2().setPermanentLimit(value).add();
-                } else {
-                    notAssigned(b);
-                }
-            }
+            convertPatlCurrentTerminal(value);
         } else if (branch != null) {
-            // set limit at both sides
-            branch.newCurrentLimits1().setPermanentLimit(value).add();
-            branch.newCurrentLimits2().setPermanentLimit(value).add();
+            // We should reject the value if the branch is a PowerTransformer
+            if (branch instanceof TwoWindingsTransformer) {
+                context.ignored("CurrentLimit", "Defined for Equipment TwoWindingsTransformer. Should be defined for one Terminal of Two");
+                notAssigned(branch);
+            } else {
+                // Set same limit at both sides
+                branch.newCurrentLimits1().setPermanentLimit(value).add();
+                branch.newCurrentLimits2().setPermanentLimit(value).add();
+            }
         } else if (danglingLine != null) {
             danglingLine.newCurrentLimits().setPermanentLimit(value).add();
+        } else if (aswitch != null) {
+            notAssigned(aswitch);
+        } else {
+            notAssigned();
+        }
+    }
+
+    private void convertPatlCurrentTerminal(double value) {
+        Connectable<?> connectable = terminal.getConnectable();
+        if (connectable instanceof Branch) {
+            int terminalNumber = context.terminalMapping().number(terminalId);
+            Branch<?> b = (Branch<?>) connectable;
+            if (terminalNumber == 1) {
+                b.newCurrentLimits1().setPermanentLimit(value).add();
+            } else if (terminalNumber == 2) {
+                b.newCurrentLimits2().setPermanentLimit(value).add();
+            } else {
+                notAssigned(b);
+            }
+        } else if (connectable instanceof DanglingLine) {
+            ((DanglingLine) connectable).newCurrentLimits().setPermanentLimit(value).add();
+        } else {
+            notAssigned(connectable);
         }
     }
 
