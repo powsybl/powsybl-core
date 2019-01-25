@@ -16,6 +16,8 @@ import org.joda.time.DateTime;
  */
 public final class EurostagTutorialExample1Factory {
 
+    private static final String VLGEN = "VLGEN";
+
     private EurostagTutorialExample1Factory() {
     }
 
@@ -34,7 +36,7 @@ public final class EurostagTutorialExample1Factory {
                 .setGeographicalTags("B")
             .add();
         VoltageLevel vlgen = p1.newVoltageLevel()
-                .setId("VLGEN")
+                .setId(VLGEN)
                 .setNominalV(24.0)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
             .add();
@@ -178,6 +180,14 @@ public final class EurostagTutorialExample1Factory {
                 .setMinQ(-9999.99)
                 .setMaxQ(9999.99)
             .add();
+        return network;
+    }
+
+    public static Network createWithMoreGenerators() {
+        Network network = create();
+
+        VoltageLevel vlgen = network.getVoltageLevel(VLGEN);
+        Bus ngen = vlgen.getBusBreakerView().getBus("NGEN");
 
         Generator generator2 = vlgen.newGenerator()
                 .setId("GEN2")
@@ -207,6 +217,7 @@ public final class EurostagTutorialExample1Factory {
                 .setMinQ(4.0)
                 .endPoint()
                 .add();
+
         return network;
     }
 
@@ -216,8 +227,8 @@ public final class EurostagTutorialExample1Factory {
 
         network.getSubstation("P2").setCountry(Country.BE);
 
-        network.getVoltageLevel("VLGEN").newGenerator()
-            .setId("GEN3")
+        network.getVoltageLevel(VLGEN).newGenerator()
+            .setId("GEN2")
             .setBus("NGEN")
             .setConnectableBus("NGEN")
             .setMinP(-9999.99)

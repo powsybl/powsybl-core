@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
 
 import java.util.Arrays;
-import static com.powsybl.ampl.converter.AmplUtil.*;
 
 import static org.junit.Assert.*;
 
@@ -29,28 +28,14 @@ public class AmplUtilTest {
         StringToIntMapper<AmplSubset> mapper = new StringToIntMapper<>(AmplSubset.class);
         testEmptyMapper(mapper);
 
-        mapper = createMapper(network);
+        mapper = AmplUtil.createMapper(network);
         testFilledMapper(mapper);
 
-        resetNetworkMapping(mapper);
+        AmplUtil.resetNetworkMapping(mapper);
         testEmptyMapper(mapper);
 
-        fillMapper(mapper, network);
+        AmplUtil.fillMapper(mapper, network);
         testFilledMapper(mapper);
-    }
-
-    @Test
-    public void testGetMinQ0Generator() {
-        Network network = EurostagTutorialExample1Factory.create();
-        assertEquals(AmplConstants.INVALID_DOUBLE_VALUE, getMinQ0(network.getGenerator("GEN")), 0.0d);
-        assertEquals(6.0, getMinQ0(network.getGenerator("GEN2")), 0.0d);
-    }
-
-    @Test
-    public void testGetMaxQ0Generator() {
-        Network network = EurostagTutorialExample1Factory.create();
-        assertEquals(AmplConstants.INVALID_DOUBLE_VALUE, getMaxQ0(network.getGenerator("GEN")), 0.0d);
-        assertEquals(7.0, getMaxQ0(network.getGenerator("GEN2")), 0.0d);
     }
 
     private void testEmptyMapper(StringToIntMapper<AmplSubset> mapper) {

@@ -38,10 +38,10 @@ public class StaticVarCompensatorTest {
     public void initialVariantTest() {
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
         assertNotNull(svc);
-        assertEquals(2, network.getStaticVarCompensatorCount());
+        assertEquals(1, network.getStaticVarCompensatorCount());
         assertSame(svc, network.getStaticVarCompensators().iterator().next());
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
-        assertEquals(2, vl2.getStaticVarCompensatorCount());
+        assertEquals(1, vl2.getStaticVarCompensatorCount());
         assertSame(svc, vl2.getStaticVarCompensators().iterator().next());
         assertEquals(0.0002, svc.getBmin(), 0.0);
         assertEquals(0.0008, svc.getBmax(), 0.0);
@@ -55,12 +55,6 @@ public class StaticVarCompensatorTest {
         svc.remove();
         svc = network.getStaticVarCompensator("SVC2");
         assertNull(svc);
-
-        svc = network.getStaticVarCompensator("SVC3");
-        svc.remove();
-        svc = network.getStaticVarCompensator("SVC3");
-        assertNull(svc);
-
         assertEquals(0, network.getStaticVarCompensatorCount());
         assertFalse(network.getStaticVarCompensators().iterator().hasNext());
         VoltageLevel vl2 = network.getVoltageLevel("VL2");
@@ -163,6 +157,6 @@ public class StaticVarCompensatorTest {
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
                 .setVoltageSetPoint(390.0)
                 .setReactivePowerSetPoint(1.0)
-            .add();
+                .add();
     }
 }

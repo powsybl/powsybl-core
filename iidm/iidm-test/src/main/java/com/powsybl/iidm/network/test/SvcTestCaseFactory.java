@@ -80,17 +80,6 @@ public final class SvcTestCaseFactory {
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
                 .setVoltageSetPoint(390)
                 .add();
-        vl2.newStaticVarCompensator()
-                .setId("SVC3")
-                .setConnectableBus("B2")
-                .setBus("B2")
-                .setBmin(0.0002)
-                .setBmax(0.0008)
-                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
-                .setVoltageSetPoint(390)
-                .setReactivePowerSetPoint(350)
-                .add();
-
         network.newLine()
                 .setId("L1")
                 .setVoltageLevel1("VL1")
@@ -106,6 +95,23 @@ public final class SvcTestCaseFactory {
                 .setG2(0.0)
                 .setB2(0.0)
                 .add();
+        return network;
+    }
+
+    public static Network createWithMoreSVCs() {
+        Network network = create();
+
+        network.getVoltageLevel("VL2").newStaticVarCompensator()
+                .setId("SVC3")
+                .setConnectableBus("B2")
+                .setBus("B2")
+                .setBmin(0.0002)
+                .setBmax(0.0008)
+                .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                .setVoltageSetPoint(390)
+                .setReactivePowerSetPoint(350)
+                .add();
+
         return network;
     }
 }
