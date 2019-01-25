@@ -40,17 +40,17 @@ public class NetworksTest {
         Network network = EurostagTutorialExample1Factory.create();
         Networks.printBalanceSummary("", network, logger);
         assertEquals("Active balance at step '':\n" +
-                        "+-----------------------+--------------------------------+----------------------------------+\n" +
-                        "|                       | Main CC connected/disconnected | Others CC connected/disconnected |\n" +
-                        "+-----------------------+--------------------------------+----------------------------------+\n" +
-                        "| Bus count             |               4                |                0                 |\n" +
-                        "| Load count            | 1           | 0                | 0           | 0                  |\n" +
-                        "| Load (MW)             | 600.0       | 0.0              | 0.0         | 0.0                |\n" +
-                        "| Generator count       | 1           | 0                | 0           | 0                  |\n" +
-                        "| Max generation (MW)   | 9999.99     | 0.0              | 0.0         | 0.0                |\n" +
-                        "| Generation (MW)       | 607.0       | 0.0              | 0.0         | 0.0                |\n" +
-                        "| Shunt at nom V (MVar) | 0.0 0.0 (0) | 0.0 0.0 (0)      | 0.0 0.0 (0) | 0.0 0.0 (0)        |\n" +
-                        "+-----------------------+-------------+------------------+-------------+--------------------+" + System.lineSeparator(),
+                     "+-----------------------+--------------------------------+----------------------------------+\n" +
+                     "|                       | Main CC connected/disconnected | Others CC connected/disconnected |\n" +
+                     "+-----------------------+--------------------------------+----------------------------------+\n" +
+                     "| Bus count             |               4                |                0                 |\n" +
+                     "| Load count            | 1           | 0                | 0           | 0                  |\n" +
+                     "| Load (MW)             | 600.0       | 0.0              | 0.0         | 0.0                |\n" +
+                     "| Generator count       | 1           | 0                | 0           | 0                  |\n" +
+                     "| Max generation (MW)   | 9999.99     | 0.0              | 0.0         | 0.0                |\n" +
+                     "| Generation (MW)       | 607.0       | 0.0              | 0.0         | 0.0                |\n" +
+                     "| Shunt at nom V (MVar) | 0.0 0.0 (0) | 0.0 0.0 (0)      | 0.0 0.0 (0) | 0.0 0.0 (0)        |\n" +
+                     "+-----------------------+-------------+------------------+-------------+--------------------+" + System.lineSeparator(),
                 buffer.toString());
     }
 }

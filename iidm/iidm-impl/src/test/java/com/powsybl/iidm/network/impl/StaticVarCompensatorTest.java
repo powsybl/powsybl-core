@@ -157,6 +157,6 @@ public class StaticVarCompensatorTest {
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
                 .setVoltageSetPoint(390.0)
                 .setReactivePowerSetPoint(1.0)
-                .add();
+            .add();
     }
 }
