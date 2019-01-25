@@ -6,12 +6,10 @@
  */
 package com.powsybl.sensitivity;
 
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.Tool;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -23,8 +21,6 @@ public class SensitivityComputationToolTest extends AbstractToolTest {
 
     private static final String COMMAND_NAME = "sensitivity-computation";
 
-    private final SensitivityComputationTool tool = new SensitivityComputationTool(Mockito.mock(PlatformConfig.class));
-
     @Override
     @Before
     public void setUp() throws Exception {
@@ -35,11 +31,12 @@ public class SensitivityComputationToolTest extends AbstractToolTest {
 
     @Override
     protected Iterable<Tool> getTools() {
-        return Collections.singleton(tool);
+        return Collections.singleton(new SensitivityComputationTool(platformConfig));
     }
 
     @Override
     public void assertCommand() {
+        SensitivityComputationTool tool = new SensitivityComputationTool(platformConfig);
         assertCommand(tool.getCommand(), COMMAND_NAME, 5, 2);
         assertOption(tool.getCommand().getOptions(), "case-file", true, true);
         assertOption(tool.getCommand().getOptions(), "output-file", false, true);
