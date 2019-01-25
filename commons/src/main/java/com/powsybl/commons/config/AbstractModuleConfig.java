@@ -14,7 +14,6 @@ import org.joda.time.Interval;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -80,12 +79,6 @@ public abstract class AbstractModuleConfig implements ModuleConfig {
     @Override
     public <E extends Enum<E>> Set<E> getEnumSetProperty(String name, Class<E> clazz, Set<E> defaultValue) {
         return getOptionalEnumSetProperty(name, clazz).orElse(defaultValue);
-    }
-
-    @Override
-    public OptionalInt getOptionalIntProperty(String name) {
-        OptionalInt oi = getOptionalIntProperty(name);
-        return oi.isPresent() ? oi : OptionalInt.empty();
     }
 
     @Override
