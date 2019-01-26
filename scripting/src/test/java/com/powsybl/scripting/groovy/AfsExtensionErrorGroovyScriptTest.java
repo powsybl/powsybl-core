@@ -22,7 +22,7 @@ public class AfsExtensionErrorGroovyScriptTest extends AbstractGroovyScriptTest 
 
     @Override
     protected AppStorage createStorage() {
-        return MapDbAppStorage.createHeap("mem");
+        return MapDbAppStorage.createMem("mem");
     }
 
     @Override

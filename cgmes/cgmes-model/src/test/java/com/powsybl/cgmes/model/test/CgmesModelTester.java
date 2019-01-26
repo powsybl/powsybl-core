@@ -79,7 +79,7 @@ public class CgmesModelTester {
         testPropertyBags(expected.substations(), actual.substations());
         testPropertyBags(expected.voltageLevels(), actual.voltageLevels());
         testPropertyBags(expected.terminals(), actual.terminals());
-        testPropertyBags(expected.terminalLimits(), actual.terminalLimits());
+        testPropertyBags(expected.operationalLimits(), actual.operationalLimits());
         testPropertyBags(expected.topologicalNodes(), actual.topologicalNodes());
         testPropertyBags(expected.switches(), actual.switches());
         testPropertyBags(expected.acLineSegments(), actual.acLineSegments());

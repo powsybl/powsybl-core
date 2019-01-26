@@ -26,7 +26,7 @@ import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.StateManager;
+import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.security.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -93,9 +93,9 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
         @Override
         public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
             Network network = Mockito.mock(Network.class);
-            StateManager stateManager = Mockito.mock(StateManager.class);
-            Mockito.when(stateManager.getWorkingStateId()).thenReturn("s1");
-            Mockito.when(network.getStateManager()).thenReturn(stateManager);
+            VariantManager variantManager = Mockito.mock(VariantManager.class);
+            Mockito.when(variantManager.getWorkingVariantId()).thenReturn("s1");
+            Mockito.when(network.getVariantManager()).thenReturn(variantManager);
             return network;
         }
 
@@ -108,7 +108,7 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
 
     @Override
     protected AppStorage createStorage() {
-        return MapDbAppStorage.createHeap("mem");
+        return MapDbAppStorage.createMem("mem");
     }
 
     @Override

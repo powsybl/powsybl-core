@@ -42,6 +42,7 @@ public class DefaultLimitViolationDetector extends AbstractLimitViolationDetecto
 
         if (LimitViolationUtils.checkPermanentLimit(branch, side, limitReduction, value)) {
             consumer.accept(new LimitViolation(branch.getId(),
+                    branch.getName(),
                     LimitViolationType.CURRENT,
                     null,
                     Integer.MAX_VALUE,
@@ -59,6 +60,7 @@ public class DefaultLimitViolationDetector extends AbstractLimitViolationDetecto
 
         if (currentLimitTypes.contains(Security.CurrentLimitType.TATL) && (overload != null)) {
             consumer.accept(new LimitViolation(branch.getId(),
+                    branch.getName(),
                     LimitViolationType.CURRENT,
                     overload.getPreviousLimitName(),
                     overload.getTemporaryLimit().getAcceptableDuration(),
@@ -75,12 +77,12 @@ public class DefaultLimitViolationDetector extends AbstractLimitViolationDetecto
     public void checkVoltage(Bus bus, double value, Consumer<LimitViolation> consumer) {
         VoltageLevel vl = bus.getVoltageLevel();
         if (!Double.isNaN(vl.getLowVoltageLimit()) && value <= vl.getLowVoltageLimit()) {
-            consumer.accept(new LimitViolation(vl.getId(), LimitViolationType.LOW_VOLTAGE,
+            consumer.accept(new LimitViolation(vl.getId(), vl.getName(), LimitViolationType.LOW_VOLTAGE,
                     vl.getLowVoltageLimit(), limitReduction, value));
         }
 
         if (!Double.isNaN(vl.getHighVoltageLimit()) && value >= vl.getHighVoltageLimit()) {
-            consumer.accept(new LimitViolation(vl.getId(), LimitViolationType.HIGH_VOLTAGE,
+            consumer.accept(new LimitViolation(vl.getId(), vl.getName(), LimitViolationType.HIGH_VOLTAGE,
                     vl.getHighVoltageLimit(), limitReduction, value));
         }
     }

@@ -371,42 +371,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         return objectStore.get(id, LoadImpl.class);
     }
 
-    /**
-     * @deprecated Use {@link #getShuntCompensators)} instead.
-     */
-    @Override
-    @Deprecated
-    public Iterable<ShuntCompensator> getShunts() {
-        return getShuntCompensators();
-    }
-
-    /**
-     * @deprecated Use {@link #getShuntCompensatorStream()} instead.
-     */
-    @Override
-    @Deprecated
-    public Stream<ShuntCompensator> getShuntStream() {
-        return getShuntCompensatorStream();
-    }
-
-    /**
-     * @deprecated Use {@link #getShuntCompensatorCount()} instead.
-     */
-    @Override
-    @Deprecated
-    public int getShuntCount() {
-        return getShuntCompensatorCount();
-    }
-
-    /**
-     * @deprecated Use {@link #getShuntCompensator(String)} instead.
-     */
-    @Override
-    @Deprecated
-    public ShuntCompensatorImpl getShunt(String id) {
-        return getShuntCompensator(id);
-    }
-
     @Override
     public Iterable<ShuntCompensator> getShuntCompensators() {
         return Collections.unmodifiableCollection(objectStore.getAll(ShuntCompensatorImpl.class));
@@ -574,6 +538,14 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     @Override
     public HvdcLine getHvdcLine(String id) {
         return objectStore.get(id, HvdcLineImpl.class);
+    }
+
+    @Override
+    public HvdcLine getHvdcLine(HvdcConverterStation converterStation) {
+        return getHvdcLineStream()
+                .filter(l -> l.getConverterStation1() == converterStation || l.getConverterStation2() == converterStation)
+                .findFirst()
+                .orElse(null);
     }
 
     @Override
