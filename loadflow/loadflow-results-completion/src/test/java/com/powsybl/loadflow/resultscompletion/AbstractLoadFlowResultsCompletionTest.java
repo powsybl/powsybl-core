@@ -275,6 +275,7 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         network = Mockito.mock(Network.class);
         Mockito.when(network.getId()).thenReturn("network");
         Mockito.when(network.getVariantManager()).thenReturn(variantManager);
+        Mockito.when(network.getBusView()).thenReturn(busView);
         Mockito.when(network.getLineStream()).thenAnswer(dummy -> Stream.of(line));
         Mockito.when(network.getTwoWindingsTransformerStream())
                 .thenAnswer(dummy -> Stream.of(transformer));
