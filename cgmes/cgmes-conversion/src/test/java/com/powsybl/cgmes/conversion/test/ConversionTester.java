@@ -118,7 +118,7 @@ public class ConversionTester {
     public Network lastConvertedNetwork() {
         return lastConvertedNetwork;
     }
-    
+
     private void testConversion(Network expected, TestGridModel gm, ComparisonConfig cconfig, String impl)
             throws IOException {
         Properties iparams = importParams == null ? new Properties() : importParams;
