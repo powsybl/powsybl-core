@@ -9,6 +9,8 @@ package com.powsybl.loadflow.validation;
 import java.io.Writer;
 import java.util.Objects;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.ConfigurationException;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
@@ -22,12 +24,13 @@ public final class ValidationUtils {
 
     public static final String VALIDATION_ERROR = "validation error";
     public static final String VALIDATION_WARNING = "validation warning";
+    private static final Supplier<TableFormatterConfig> TABLE_FORMATTER_CONFIG = Suppliers.memoize(TableFormatterConfig::load);
 
     private ValidationUtils() {
     }
 
     public static ValidationWriter createValidationWriter(String id, ValidationConfig validationConfig, Writer writer, ValidationType validationType) {
-        return createValidationWriter(id, validationConfig, TableFormatterConfig.load(), writer, validationType);
+        return createValidationWriter(id, validationConfig, TABLE_FORMATTER_CONFIG.get(), writer, validationType);
     }
 
     public static ValidationWriter createValidationWriter(String id, ValidationConfig validationConfig, TableFormatterConfig tableFormatterConfig, Writer writer, ValidationType validationType) {
