@@ -40,7 +40,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
 
     @Test
     public void writeEurostag() throws IOException {
-        Network network = EurostagTutorialExample1Factory.create();
+        Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
 
         MemDataSource dataSource = new MemDataSource();
         AmplExporter exporter = new AmplExporter();
@@ -81,7 +81,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
 
     @Test
     public void writeSVC() throws IOException {
-        Network network = SvcTestCaseFactory.create();
+        Network network = SvcTestCaseFactory.createWithMoreSVCs();
 
         MemDataSource dataSource = new MemDataSource();
         export(network, dataSource);
