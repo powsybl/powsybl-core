@@ -49,22 +49,27 @@ public class LocalAppFileSystemConfig extends AbstractAppFileSystemConfig<LocalA
     }
 
     public static List<LocalAppFileSystemConfig> load(PlatformConfig platformConfig) {
-        List<LocalAppFileSystemConfig> configs = new ArrayList<>();
-        ModuleConfig moduleConfig = platformConfig.getModuleConfigIfExists("local-app-file-system");
-        if (moduleConfig != null) {
-            load(moduleConfig, OptionalInt.empty(), configs);
-            int maxAdditionalDriveCount = moduleConfig.getIntProperty("max-additional-drive-count", 0);
-            for (int i = 0; i < maxAdditionalDriveCount; i++) {
-                load(moduleConfig, OptionalInt.of(i), configs);
-            }
-        } else {
-            for (Path rootDir : FileSystems.getDefault().getRootDirectories()) {
-                if (Files.isDirectory(rootDir)) {
-                    configs.add(new LocalAppFileSystemConfig(rootDir.toString(), false, rootDir));
-                }
-            }
-        }
-        return configs;
+
+        return platformConfig.getOptionalModuleConfig("local-app-file-system")
+                .map(moduleConfig -> {
+                    List<LocalAppFileSystemConfig> configs = new ArrayList<>();
+                    load(moduleConfig, OptionalInt.empty(), configs);
+                    int maxAdditionalDriveCount = moduleConfig.getIntProperty("max-additional-drive-count", 0);
+                    for (int i = 0; i < maxAdditionalDriveCount; i++) {
+                        load(moduleConfig, OptionalInt.of(i), configs);
+                    }
+                    return configs;
+                })
+                .orElseGet(() -> {
+                    List<LocalAppFileSystemConfig> configs = new ArrayList<>();
+                    for (Path rootDir : FileSystems.getDefault().getRootDirectories()) {
+                        if (Files.isDirectory(rootDir)) {
+                            configs.add(new LocalAppFileSystemConfig(rootDir.toString(), false, rootDir));
+                        }
+                    }
+                    return configs;
+                });
+
     }
 
     private static Path checkRootDir(Path rootDir) {

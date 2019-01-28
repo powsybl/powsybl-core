@@ -6,7 +6,6 @@
  */
 package com.powsybl.computation;
 
-import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.exceptions.UncheckedClassNotFoundException;
 import com.powsybl.commons.exceptions.UncheckedIllegalAccessException;
@@ -46,21 +45,21 @@ public class DefaultComputationManagerConfig {
 
     public static DefaultComputationManagerConfig load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        Class<? extends ComputationManagerFactory> shortTimeExecutionComputationManagerFactoryClass;
-        Class<? extends ComputationManagerFactory> longTimeExecutionComputationManagerFactoryClass;
-        ModuleConfig moduleConfig = platformConfig.getModuleConfigIfExists("default-computation-manager");
-        if (moduleConfig != null) {
-            shortTimeExecutionComputationManagerFactoryClass = moduleConfig.getClassProperty("short-time-execution-computation-manager-factory", ComputationManagerFactory.class);
-            longTimeExecutionComputationManagerFactoryClass = moduleConfig.getClassProperty("long-time-execution-computation-manager-factory", ComputationManagerFactory.class, null);
-        } else {
-            try {
-                shortTimeExecutionComputationManagerFactoryClass = (Class<? extends ComputationManagerFactory>) Class.forName(DEFAULT_SHORT_TIME_EXECUTION_COMPUTATION_MANAGER_FACTORY_CLASS);
-            } catch (ClassNotFoundException e) {
-                throw new UncheckedClassNotFoundException(e);
-            }
-            longTimeExecutionComputationManagerFactoryClass = null;
-        }
-        DefaultComputationManagerConfig config = new DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass, longTimeExecutionComputationManagerFactoryClass);
+        DefaultComputationManagerConfig config = platformConfig.getOptionalModuleConfig("default-computation-manager")
+                .map(moduleConfig -> {
+                    Class<? extends ComputationManagerFactory> shortTimeExecutionComputationManagerFactoryClass = moduleConfig.getClassProperty("short-time-execution-computation-manager-factory", ComputationManagerFactory.class);
+                    Class<? extends ComputationManagerFactory> longTimeExecutionComputationManagerFactoryClass = moduleConfig.getClassProperty("long-time-execution-computation-manager-factory", ComputationManagerFactory.class, null);
+                    return new DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass, longTimeExecutionComputationManagerFactoryClass);
+                })
+                .orElseGet(() -> {
+                    Class<? extends ComputationManagerFactory> shortTimeExecutionComputationManagerFactoryClass;
+                    try {
+                        shortTimeExecutionComputationManagerFactoryClass = (Class<? extends ComputationManagerFactory>) Class.forName(DEFAULT_SHORT_TIME_EXECUTION_COMPUTATION_MANAGER_FACTORY_CLASS);
+                    } catch (ClassNotFoundException e) {
+                        throw new UncheckedClassNotFoundException(e);
+                    }
+                    return new DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass, null);
+                });
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info(config.toString());
         }

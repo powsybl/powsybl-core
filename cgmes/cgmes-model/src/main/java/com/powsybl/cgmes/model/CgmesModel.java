@@ -52,7 +52,7 @@ public interface CgmesModel {
 
     PropertyBags connectivityNodeContainers();
 
-    PropertyBags terminalLimits();
+    PropertyBags operationalLimits();
 
     PropertyBags connectivityNodes();
 

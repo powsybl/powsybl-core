@@ -27,7 +27,7 @@ public final class FakeCgmesModel implements CgmesModel {
     private PropertyBags substations;
     private PropertyBags voltageLevels;
     private PropertyBags terminals;
-    private PropertyBags terminalLimits;
+    private PropertyBags operationalLimits;
     private PropertyBags connectivityNodes;
     private PropertyBags topologicalNodes;
     private PropertyBags busbarSections;
@@ -62,7 +62,7 @@ public final class FakeCgmesModel implements CgmesModel {
         substations = new PropertyBags();
         voltageLevels = new PropertyBags();
         terminals = new PropertyBags();
-        terminalLimits = new PropertyBags();
+        operationalLimits = new PropertyBags();
         connectivityNodes = new PropertyBags();
         topologicalNodes = new PropertyBags();
         busbarSections = new PropertyBags();
@@ -124,8 +124,8 @@ public final class FakeCgmesModel implements CgmesModel {
         return this;
     }
 
-    public FakeCgmesModel terminalLimits(String... ids) {
-        fakeObjectsFromIdentifiers("OperationalLimit", ids, terminalLimits);
+    public FakeCgmesModel operationalLimits(String... ids) {
+        fakeObjectsFromIdentifiers("OperationalLimit", ids, operationalLimits);
         return this;
     }
 
@@ -296,8 +296,8 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
-    public PropertyBags terminalLimits() {
-        return terminalLimits;
+    public PropertyBags operationalLimits() {
+        return operationalLimits;
     }
 
     @Override

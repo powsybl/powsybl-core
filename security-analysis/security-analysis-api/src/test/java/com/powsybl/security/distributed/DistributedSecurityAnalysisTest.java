@@ -16,7 +16,7 @@ import com.powsybl.computation.ExecutionHandler;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.StateManagerConstants;
+import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.SecurityAnalysis;
 import com.powsybl.security.SecurityAnalysisParameters;
@@ -35,10 +35,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -94,7 +91,7 @@ public class DistributedSecurityAnalysisTest {
         ExternalSecurityAnalysisConfig config = new ExternalSecurityAnalysisConfig();
         SecurityAnalysis analysis = new DistributedSecurityAnalysis(config, network, cm, Collections.emptyList(), 5);
 
-        analysis.run(StateManagerConstants.INITIAL_STATE_ID, new SecurityAnalysisParameters(), contingencies);
+        analysis.run(VariantManagerConstants.INITIAL_VARIANT_ID, new SecurityAnalysisParameters(), contingencies);
 
         //Capture the execution handler
         ArgumentCaptor<ExecutionHandler> capt = ArgumentCaptor.forClass(ExecutionHandler.class);
@@ -124,7 +121,7 @@ public class DistributedSecurityAnalysisTest {
         ExternalSecurityAnalysisConfig config = new ExternalSecurityAnalysisConfig();
         SecurityAnalysis analysis = new ExternalSecurityAnalysis(config, network, cm, Collections.emptyList(), 5);
 
-        analysis.run(StateManagerConstants.INITIAL_STATE_ID, new SecurityAnalysisParameters(), contingencies);
+        analysis.run(VariantManagerConstants.INITIAL_VARIANT_ID, new SecurityAnalysisParameters(), contingencies);
 
         //Capture the execution handler
         ArgumentCaptor<ExecutionHandler> capt = ArgumentCaptor.forClass(ExecutionHandler.class);

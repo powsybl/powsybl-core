@@ -16,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Load;
@@ -113,7 +114,7 @@ public class CgmesConformity1NetworkCatalog {
                 .add();
         loadAnvers220.getTerminal().setP(1.0);
         loadAnvers220.getTerminal().setQ(0.0);
-        vlAnvers220.newDanglingLine()
+        DanglingLine be7 = vlAnvers220.newDanglingLine()
                 .setId("_a16b4a6c-70b1-4abf-9a9d-bd0fa47f9fe4")
                 .setName("BE-Line_7")
                 .setConnectableBus(busAnvers220.getId())
@@ -126,7 +127,9 @@ public class CgmesConformity1NetworkCatalog {
                 .setB(2.1677e-5)
                 .setUcteXnodeCode("TN_Border_ST24")
                 .add();
-        vlAnvers220.newDanglingLine()
+        be7.newCurrentLimits().setPermanentLimit(1180).add();
+
+        DanglingLine be1 = vlAnvers220.newDanglingLine()
                 .setId("_17086487-56ba-4979-b8de-064025a6b4da")
                 .setName("BE-Line_1")
                 .setConnectableBus(busAnvers220.getId())
@@ -139,6 +142,8 @@ public class CgmesConformity1NetworkCatalog {
                 .setB(8.2938E-5)
                 .setUcteXnodeCode("TN_Border_ST23")
                 .add();
+        be1.newCurrentLimits().setPermanentLimit(1443).add();
+
         Bus busBrussels225 = vlBrussels225.getBusBreakerView().newBus()
                 .setId("_99b219f3-4593-428b-a4da-124a54630178")
                 .add();
@@ -184,7 +189,7 @@ public class CgmesConformity1NetworkCatalog {
                 .setCurrentSectionCount(1)
                 .add();
         shBrussels380.getTerminal().setQ(-59.058144);
-        vlBrussels380.newDanglingLine()
+        DanglingLine be3 = vlBrussels380.newDanglingLine()
                 .setId("_78736387-5f60-4832-b3fe-d50daf81b0a6")
                 .setName("BE-Line_3")
                 .setConnectableBus(busBrussels380.getId())
@@ -197,7 +202,9 @@ public class CgmesConformity1NetworkCatalog {
                 .setB(1.49854e-4)
                 .setUcteXnodeCode("TN_Border_AL11")
                 .add();
-        vlBrussels380.newDanglingLine()
+        be3.newCurrentLimits().setPermanentLimit(1371).add();
+
+        DanglingLine be5 = vlBrussels380.newDanglingLine()
                 .setId("_b18cd1aa-7808-49b9-a7cf-605eaf07b006")
                 .setName("BE-Line_5")
                 .setConnectableBus(busBrussels380.getId())
@@ -210,7 +217,9 @@ public class CgmesConformity1NetworkCatalog {
                 .setB(6.59734E-5)
                 .setUcteXnodeCode("TN_Border_GY11")
                 .add();
-        vlBrussels380.newDanglingLine()
+        be5.newCurrentLimits().setPermanentLimit(1804).add();
+
+        DanglingLine be4 = vlBrussels380.newDanglingLine()
                 .setId("_ed0c5d75-4a54-43c8-b782-b20d7431630b")
                 .setName("BE-Line_4")
                 .setConnectableBus(busBrussels380.getId())
@@ -223,6 +232,8 @@ public class CgmesConformity1NetworkCatalog {
                 .setB(2.51956e-5)
                 .setUcteXnodeCode("TN_Border_MA11")
                 .add();
+        be4.newCurrentLimits().setPermanentLimit(1226).add();
+
         ShuntCompensator shBrussels110 = vlBrussels110.newShuntCompensator()
                 .setId("_d771118f-36e9-4115-a128-cc3d9ce3e3da")
                 .setName("BE_S1")
