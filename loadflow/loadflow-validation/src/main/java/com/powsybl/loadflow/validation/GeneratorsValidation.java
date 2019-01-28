@@ -40,11 +40,15 @@ public final class GeneratorsValidation {
     }
 
     public static boolean checkGenerators(Network network, ValidationConfig config, Path file) throws IOException {
+        return checkGenerators(network, config, TABLE_FORMATTER_CONFIG.get(), file);
+    }
+
+    public static boolean checkGenerators(Network network, ValidationConfig validationConfig, TableFormatterConfig tableFormatterConfig, Path file) throws IOException {
         Objects.requireNonNull(file);
-        Objects.requireNonNull(config);
+        Objects.requireNonNull(validationConfig);
         Objects.requireNonNull(file);
         try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
-            return checkGenerators(network, config, writer);
+            return checkGenerators(network, validationConfig, tableFormatterConfig, writer);
         }
     }
 

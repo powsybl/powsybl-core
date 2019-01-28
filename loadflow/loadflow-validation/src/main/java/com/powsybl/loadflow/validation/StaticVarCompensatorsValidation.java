@@ -42,11 +42,15 @@ public final class StaticVarCompensatorsValidation {
     }
 
     public static boolean checkSVCs(Network network, ValidationConfig config, Path file) throws IOException {
+        return checkSVCs(network, config, TABLE_FORMATTER_CONFIG.get(), file);
+    }
+
+    public static boolean checkSVCs(Network network, ValidationConfig validationConfig, TableFormatterConfig tableFormatterConfig, Path file) throws IOException {
         Objects.requireNonNull(file);
-        Objects.requireNonNull(config);
+        Objects.requireNonNull(validationConfig);
         Objects.requireNonNull(file);
         try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
-            return checkSVCs(network, config, writer);
+            return checkSVCs(network, validationConfig, tableFormatterConfig, writer);
         }
     }
 

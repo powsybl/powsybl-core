@@ -6,8 +6,17 @@
  */
 package com.powsybl.loadflow.validation;
 
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
+import org.junit.After;
+import org.junit.Before;
+
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  *
@@ -25,5 +34,19 @@ public abstract class AbstractValidationTest {
                                                                          ValidationOutputWriter.CSV_MULTILINE, new LoadFlowParameters(), ValidationConfig.OK_MISSING_VALUES_DEFAULT,
                                                                          ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT, ValidationConfig.COMPARE_RESULTS_DEFAULT,
                                                                          ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
+
+    protected FileSystem fileSystem;
+    protected Path path;
+
+    @Before
+    public void setUp() throws IOException {
+        fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        path = Files.createDirectories(fileSystem.getPath("tmp"));
+    }
+
+    @After
+    public void tearDown() throws IOException {
+        fileSystem.close();
+    }
 
 }

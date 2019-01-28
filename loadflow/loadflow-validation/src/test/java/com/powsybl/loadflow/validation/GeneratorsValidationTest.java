@@ -9,6 +9,7 @@ package com.powsybl.loadflow.validation;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.stream.Stream;
 
 import com.powsybl.commons.io.table.TableFormatterConfig;
@@ -52,7 +53,10 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
     private final TableFormatterConfig tableFormatterConfig = new TableFormatterConfig();
 
     @Before
-    public void setUp() {
+    @Override
+    public void setUp() throws IOException {
+        super.setUp();
+
         Bus genBus = Mockito.mock(Bus.class);
         Mockito.when(genBus.getV()).thenReturn(v);
         Mockito.when(genBus.isInMainConnectedComponent()).thenReturn(mainComponent);
@@ -181,7 +185,7 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
     }
 
     @Test
-    public void checkNetworkGenerators() {
+    public void checkNetworkGenerators() throws IOException {
         Bus genBus1 = Mockito.mock(Bus.class);
         Mockito.when(genBus1.getV()).thenReturn(v);
         Mockito.when(genBus1.isInMainConnectedComponent()).thenReturn(mainComponent);
@@ -216,6 +220,7 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
         Mockito.when(network.getGeneratorStream()).thenAnswer(dummy -> Stream.of(generator, generator1));
 
         assertTrue(GeneratorsValidation.checkGenerators(network, looseConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
+        assertTrue(ValidationType.GENERATORS.check(network, looseConfig, tableFormatterConfig, path));
 
         ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), looseConfig, tableFormatterConfig, NullWriter.NULL_WRITER, ValidationType.GENERATORS);
         assertTrue(ValidationType.GENERATORS.check(network, looseConfig, validationWriter));
@@ -251,6 +256,7 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
         Mockito.when(network.getGeneratorStream()).thenAnswer(dummy -> Stream.of(generator, generator1, generator2));
 
         assertTrue(GeneratorsValidation.checkGenerators(network, looseConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
+        assertTrue(ValidationType.GENERATORS.check(network, looseConfig, tableFormatterConfig, path));
     }
 
 }

@@ -9,6 +9,7 @@ package com.powsybl.loadflow.validation;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.stream.Stream;
 
 import com.powsybl.commons.io.table.TableFormatterConfig;
@@ -51,7 +52,10 @@ public class StaticVarCompensatorsValidationTest extends AbstractValidationTest 
     private final TableFormatterConfig tableFormatterConfig = new TableFormatterConfig();
 
     @Before
-    public void setUp() {
+    @Override
+    public void setUp() throws IOException {
+        super.setUp();
+
         Bus svcBus = Mockito.mock(Bus.class);
         Mockito.when(svcBus.getV()).thenReturn(v);
         Mockito.when(svcBus.isInMainConnectedComponent()).thenReturn(mainComponent);
@@ -180,12 +184,13 @@ public class StaticVarCompensatorsValidationTest extends AbstractValidationTest 
     }
 
     @Test
-    public void checkNetworkSvcs() {
+    public void checkNetworkSvcs() throws IOException {
         Network network = Mockito.mock(Network.class);
         Mockito.when(network.getId()).thenReturn("network");
         Mockito.when(network.getStaticVarCompensatorStream()).thenAnswer(dummy -> Stream.of(svc));
 
         assertTrue(StaticVarCompensatorsValidation.checkSVCs(network, looseConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
+        assertTrue(ValidationType.SVCS.check(network, looseConfig, tableFormatterConfig, path));
 
         ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), looseConfig, tableFormatterConfig, NullWriter.NULL_WRITER, ValidationType.SVCS);
         assertTrue(ValidationType.SVCS.check(network, looseConfig, validationWriter));

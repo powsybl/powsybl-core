@@ -46,12 +46,16 @@ public final class TransformersValidation {
     }
 
     public static boolean checkTransformers(Network network, ValidationConfig config, Path file) throws IOException {
+        return checkTransformers(network, config, TABLE_FORMATTER_CONFIG.get(), file);
+    }
+
+    public static boolean checkTransformers(Network network, ValidationConfig validationConfig, TableFormatterConfig tableFormatterConfig, Path file) throws IOException {
         Objects.requireNonNull(network);
-        Objects.requireNonNull(config);
+        Objects.requireNonNull(validationConfig);
         Objects.requireNonNull(file);
 
         try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
-            return checkTransformers(network, config, writer);
+            return checkTransformers(network, validationConfig, tableFormatterConfig, writer);
         }
     }
 

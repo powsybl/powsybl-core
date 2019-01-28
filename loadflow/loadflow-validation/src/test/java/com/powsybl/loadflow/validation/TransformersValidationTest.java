@@ -9,6 +9,7 @@ package com.powsybl.loadflow.validation;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.stream.Stream;
 
 import com.powsybl.commons.io.table.TableFormatterConfig;
@@ -53,7 +54,9 @@ public class TransformersValidationTest extends AbstractValidationTest {
     private final TableFormatterConfig tableFormatterConfig = new TableFormatterConfig();
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
+        super.setUp();
+
         bus = Mockito.mock(Bus.class);
         Mockito.when(bus.getV()).thenReturn(v);
         Mockito.when(bus.isInMainConnectedComponent()).thenReturn(mainComponent);
@@ -118,11 +121,12 @@ public class TransformersValidationTest extends AbstractValidationTest {
     }
 
     @Test
-    public void checkNetworkTwts() {
+    public void checkNetworkTwts() throws IOException {
         Network network = Mockito.mock(Network.class);
         Mockito.when(network.getId()).thenReturn("network");
         Mockito.when(network.getTwoWindingsTransformerStream()).thenAnswer(dummy -> Stream.of(transformer));
         assertTrue(TransformersValidation.checkTransformers(network, strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER));
+        assertTrue(ValidationType.TWTS.check(network, strictConfig, tableFormatterConfig, path));
 
         ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), strictConfig, tableFormatterConfig, NullWriter.NULL_WRITER, ValidationType.TWTS);
         assertTrue(ValidationType.TWTS.check(network, strictConfig, validationWriter));

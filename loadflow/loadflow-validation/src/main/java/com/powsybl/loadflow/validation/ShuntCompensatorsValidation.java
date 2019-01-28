@@ -41,11 +41,15 @@ public final class ShuntCompensatorsValidation {
     }
 
     public static boolean checkShunts(Network network, ValidationConfig config, Path file) throws IOException {
+        return checkShunts(network, config, TABLE_FORMATTER_CONFIG.get(), file);
+    }
+
+    public static boolean checkShunts(Network network, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Path file) throws IOException {
         Objects.requireNonNull(file);
-        Objects.requireNonNull(config);
+        Objects.requireNonNull(validationConfig);
         Objects.requireNonNull(file);
         try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
-            return checkShunts(network, config, writer);
+            return checkShunts(network, validationConfig, formatterConfig, writer);
         }
     }
 
