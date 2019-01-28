@@ -28,6 +28,7 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
@@ -119,8 +120,17 @@ public class CgmesConformity1ConversionTest {
     }
 
     @Test
-    public void miniNodeBreaker() throws IOException {
-        tester.testConversion(null, actuals.miniNodeBreaker());
+    public void miniNodeBreakerBusBalanceValidation() throws IOException {
+        // This test will check that IIDM buses,
+        // that will be computed by IIDM from CGMES node-breaker ConnectivityNodes,
+        // have proper balances
+        ConversionTester t = new ConversionTester(
+                TripleStoreFactory.onlyDefaultImplementation(),
+                new ComparisonConfig());
+        t.setValidateBusBalances(true);
+        t.testConversion(null, actuals.miniNodeBreaker());
+        t.lastConvertedNetwork().getVoltageLevels()
+                .forEach(vl -> assertEquals(TopologyKind.NODE_BREAKER, vl.getTopologyKind()));
     }
 
     @Test

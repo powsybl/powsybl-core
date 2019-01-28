@@ -7,22 +7,8 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import com.google.common.jimfs.Jimfs;
-import com.powsybl.cgmes.conversion.CgmesExport;
-import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.conversion.CgmesModelExtension;
-import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
-import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.test.TestGridModel;
-import com.powsybl.commons.datasource.FileDataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.xml.XMLExporter;
-import com.powsybl.triplestore.api.TripleStoreFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -32,7 +18,31 @@ import java.util.List;
 import java.util.Properties;
 import java.util.function.Consumer;
 
-import static org.junit.Assert.fail;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.cgmes.conversion.CgmesExport;
+import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.conversion.CgmesModelExtension;
+import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.test.network.compare.Comparison;
+import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.test.TestGridModel;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.xml.XMLExporter;
+import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
+import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
+import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameters;
+import com.powsybl.loadflow.validation.ValidationConfig;
+import com.powsybl.loadflow.validation.ValidationType;
+import com.powsybl.triplestore.api.TripleStoreFactory;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -85,6 +95,10 @@ public class ConversionTester {
         this.testExportImportCgmes = testExportImportCgmes;
     }
 
+    public void setValidateBusBalances(boolean b) {
+        this.validateBusBalances = b;
+    }
+
     public void testConversion(Network expected, TestGridModel gm) throws IOException {
         testConversion(expected, gm, this.networkComparison);
     }
@@ -101,13 +115,17 @@ public class ConversionTester {
         }
     }
 
+    public Network lastConvertedNetwork() {
+        return lastConvertedNetwork;
+    }
+    
     private void testConversion(Network expected, TestGridModel gm, ComparisonConfig cconfig, String impl)
             throws IOException {
         Properties iparams = importParams == null ? new Properties() : importParams;
         iparams.put("storeCgmesModelAsNetworkExtension", "true");
         iparams.put("powsyblTripleStore", impl);
-        // FIXME(Luma) This is to be able to easily compare the topology computed by powsybl
-        // against the topology present in the CGMES model
+        // This is to be able to easily compare the topology computed
+        // by powsybl against the topology present in the CGMES model
         iparams.put("createBusbarSectionForEveryConnectivityNode", "true");
         CgmesImport i = new CgmesImport();
         try (FileSystem fs = Jimfs.newFileSystem()) {
@@ -132,6 +150,10 @@ public class ConversionTester {
             if (testExportImportCgmes) {
                 testExportImportCgmes(network, fs, i, iparams, cconfig);
             }
+            if (validateBusBalances) {
+                validateBusBalances(network);
+            }
+            lastConvertedNetwork = network;
         }
     }
 
@@ -180,6 +202,45 @@ public class ConversionTester {
         new Comparison(expected, actual, config).compare();
     }
 
+    private void validateBusBalances(Network network) throws IOException {
+        // Precision required on bus balances (MVA)
+        double threshold = 0.01;
+        try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
+            ValidationConfig config = loadFlowValidationConfig(fs, threshold);
+            Path working = Files.createDirectories(fs.getPath("lf-validation"));
+
+            computeMissingFlows(network, config.getLoadFlowParameters());
+            assertTrue(ValidationType.BUSES.check(network, config, working));
+        }
+    }
+
+    private ValidationConfig loadFlowValidationConfig(FileSystem fs, double threshold) {
+        InMemoryPlatformConfig pconfig = new InMemoryPlatformConfig(fs);
+        pconfig
+                .createModuleConfig("componentDefaultConfig")
+                .setStringProperty("LoadFlowFactory", LoadFlowFactoryMock.class.getCanonicalName());
+        ValidationConfig config = ValidationConfig.load(pconfig);
+        config.setVerbose(true);
+        config.setThreshold(threshold);
+        config.setOkMissingValues(false);
+        config.setLoadFlowParameters(new LoadFlowParameters());
+        LOG.info("specificCompatibility is {}", config.getLoadFlowParameters().isSpecificCompatibility());
+        return config;
+    }
+
+    private void computeMissingFlows(Network network, LoadFlowParameters lfparams) {
+        float epsilonX = 0;
+        boolean applyXCorrection = false;
+        LoadFlowResultsCompletionParameters p;
+        p = new LoadFlowResultsCompletionParameters(epsilonX, applyXCorrection);
+        LoadFlowResultsCompletion lf = new LoadFlowResultsCompletion(p, lfparams);
+        try {
+            lf.run(network, null);
+        } catch (Exception e) {
+            LOG.error("computeFlows, error {}", e.getMessage());
+        }
+    }
+
     private final Properties importParams;
     private final List<String> tripleStoreImplementations;
     private final ComparisonConfig networkComparison;
@@ -187,8 +248,10 @@ public class ConversionTester {
     private boolean exportXiidm;
     private boolean exportCgmes;
     private boolean testExportImportCgmes;
+    private boolean validateBusBalances;
     private Consumer<String> reportConsumer;
     private boolean strictTopologyTest;
+    private Network lastConvertedNetwork;
 
     private static final Logger LOG = LoggerFactory.getLogger(ConversionTester.class);
 }

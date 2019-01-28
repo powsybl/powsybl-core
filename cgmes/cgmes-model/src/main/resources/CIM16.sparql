@@ -163,6 +163,13 @@ WHERE {
 }}
 OPTIONAL { GRAPH ?graphTPCN {
 	?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode 
+	OPTIONAL { GRAPH ?graphSVT {
+		?SvVoltageT 
+			a cim:SvVoltage ;
+	    	cim:SvVoltage.TopologicalNode ?TopologicalNode ;
+			cim:SvVoltage.v ?v ;
+			cim:SvVoltage.angle ?angle 
+	}}
 }}
 }
 

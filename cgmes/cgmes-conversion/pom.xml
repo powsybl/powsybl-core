@@ -149,5 +149,25 @@
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
+        
+        <!-- To validate bus balances on converted Network -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-loadflow-api</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-loadflow-results-completion</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-loadflow-validation</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
