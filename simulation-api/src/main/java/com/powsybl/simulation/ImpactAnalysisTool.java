@@ -264,7 +264,7 @@ public class ImpactAnalysisTool implements Tool {
         if (network == null) {
             throw new PowsyblException("Case '" + caseFile + "' not found");
         }
-        network.getStateManager().allowStateMultiThreadAccess(true);
+        network.getVariantManager().allowVariantMultiThreadAccess(true);
 
         Multimap<String, SecurityIndex> securityIndexesPerContingency
                 = runImpactAnalysis(network, contingencyIds, context.getShortTimeExecutionComputationManager(),

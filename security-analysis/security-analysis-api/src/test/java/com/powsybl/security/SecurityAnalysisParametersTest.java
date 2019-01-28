@@ -13,6 +13,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Optional;
+
 import static org.junit.Assert.*;
 
 /**
@@ -51,6 +53,7 @@ public class SecurityAnalysisParametersTest {
 
     @Test
     public void testExtensionFromConfig() {
+        Mockito.when(config.getOptionalModuleConfig("load-flow-default-parameters")).thenReturn(Optional.empty());
         SecurityAnalysisParameters parameters = SecurityAnalysisParameters.load(config);
 
         assertEquals(1, parameters.getExtensions().size());

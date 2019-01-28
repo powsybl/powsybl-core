@@ -205,24 +205,6 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
         return super.getLoadStream();
     }
 
-    /**
-     * @deprecated Use {@link #getShuntCompensators()} instead.
-     */
-    @Override
-    @Deprecated
-    public Iterable<ShuntCompensator> getShunts() {
-        return getShuntCompensators();
-    }
-
-    /**
-     * @deprecated Use {@link #getShuntCompensatorStream()} instead.
-     */
-    @Override
-    @Deprecated
-    public Stream<ShuntCompensator> getShuntStream() {
-        return getShuntCompensatorStream();
-    }
-
     @Override
     public Iterable<ShuntCompensator> getShuntCompensators() {
         checkValidity();
