@@ -421,22 +421,34 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             targetV *= tx.getRatedU2();
         }
         ptca.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
-                .setRegulationValue(targetV)
+                .setRegulationValue(regulationValue(targetV, treg))
                 .setRegulating(regulatingControlEnabled)
-                .setRegulationTerminal(treg);
+                .setRegulationTerminal(regTerminal());
     }
 
     private void addActivePowerRegControl(PhaseTapChangerAdder ptca) {
         Terminal treg = context.terminalMapping().find(p.getId("RegulatingControlTerminal"));
         boolean regulatingControlEnabled  = p.asBoolean(REGULATING_CONTROL_ENABLED, true);
         double targetV = -p.asDouble("regulatingControlTargetValue");
-        if ((treg.equals(tx.getTerminal1()) && side == 2) || (treg.equals(tx.getTerminal2()) && side == 1)) {
-            targetV *= -1;
-        }
         ptca.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
-                .setRegulationTerminal(treg)
+                .setRegulationTerminal(regTerminal())
                 .setRegulating(regulatingControlEnabled)
-                .setRegulationValue(targetV);
+                .setRegulationValue(regulationValue(targetV, treg));
+    }
+
+    private double regulationValue(double targetV, Terminal treg) {
+        if ((treg.equals(tx.getTerminal1()) && side == 2) || (treg.equals(tx.getTerminal2()) && side == 1)) {
+            return -targetV;
+        }
+        return targetV;
+    }
+
+    private Terminal regTerminal() {
+        if (side == 1) {
+            return tx.getTerminal1();
+        } else {
+            return tx.getTerminal2();
+        }
     }
 
     private boolean validType() {

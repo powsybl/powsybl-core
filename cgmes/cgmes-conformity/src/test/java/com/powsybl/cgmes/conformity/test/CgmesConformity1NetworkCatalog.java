@@ -795,7 +795,7 @@ public class CgmesConformity1NetworkCatalog {
         ptca.setRegulating(regulating)
                 .setRegulationMode(mode)
                 .setRegulationValue(regulationValue)
-                .setRegulationTerminal(tx.getTerminal2())
+                .setRegulationTerminal(tx.getTerminal1())
                 .add();
     }
 
