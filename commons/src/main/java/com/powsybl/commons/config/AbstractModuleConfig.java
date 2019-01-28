@@ -14,7 +14,6 @@ import org.joda.time.Interval;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -83,19 +82,13 @@ public abstract class AbstractModuleConfig implements ModuleConfig {
     }
 
     @Override
-    public Optional<Integer> getOptionalIntegerProperty(String name) {
-        OptionalInt oi = getOptionalIntProperty(name);
-        return oi.isPresent() ? Optional.of(oi.getAsInt()) : Optional.empty();
-    }
-
-    @Override
     public int getIntProperty(String name) {
-        return getOptionalIntegerProperty(name).orElseThrow(() -> createPropertyNotSetException(name));
+        return getOptionalIntProperty(name).orElseThrow(() -> createPropertyNotSetException(name));
     }
 
     @Override
     public int getIntProperty(String name, int defaultValue) {
-        return getOptionalIntegerProperty(name).orElse(defaultValue);
+        return getOptionalIntProperty(name).orElse(defaultValue);
     }
 
     @Override

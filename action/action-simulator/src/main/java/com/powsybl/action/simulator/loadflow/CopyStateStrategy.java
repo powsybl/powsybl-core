@@ -22,21 +22,21 @@ class CopyStateStrategy implements NetworkCopyStrategy {
 
     CopyStateStrategy(Network network) {
         this.network = Objects.requireNonNull(network);
-        this.stateId = network.getStateManager().getWorkingStateId();
+        this.stateId = network.getVariantManager().getWorkingVariantId();
     }
 
     @Override
     public Network createState(String id) {
         workingStateId = id + "-" + UUID.randomUUID();
-        network.getStateManager().cloneState(stateId, workingStateId);
-        network.getStateManager().setWorkingState(workingStateId);
+        network.getVariantManager().cloneVariant(stateId, workingStateId);
+        network.getVariantManager().setWorkingVariant(workingStateId);
 
         return network;
     }
 
     @Override
     public void removeState() {
-        network.getStateManager().setWorkingState(stateId);
-        network.getStateManager().removeState(workingStateId);
+        network.getVariantManager().setWorkingVariant(stateId);
+        network.getVariantManager().removeVariant(workingStateId);
     }
 }

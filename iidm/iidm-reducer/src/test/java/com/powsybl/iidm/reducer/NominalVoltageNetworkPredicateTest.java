@@ -19,6 +19,8 @@ import static org.junit.Assert.assertEquals;
  */
 public class NominalVoltageNetworkPredicateTest {
 
+    private static final String INVALID_MINIMAL_NOMINAL_VOLTAGE_MESSAGE = "Minimal nominal voltage must be greater or equal to zero";
+
     @Rule
     public final ExpectedException thrown = ExpectedException.none();
 
@@ -37,16 +39,16 @@ public class NominalVoltageNetworkPredicateTest {
         thrown.expectMessage("Minimal nominal voltage is undefined");
         new NominalVoltageNetworkPredicate(Double.NaN, Double.NaN);
 
-        thrown.expectMessage("Minimal nominal voltage must be greater or equal to zero");
+        thrown.expectMessage(INVALID_MINIMAL_NOMINAL_VOLTAGE_MESSAGE);
         new NominalVoltageNetworkPredicate(-400.0, Double.NaN);
 
         thrown.expectMessage("Maximal nominal voltage is undefined");
         new NominalVoltageNetworkPredicate(400.0, Double.NaN);
 
-        thrown.expectMessage("Minimal nominal voltage must be greater or equal to zero");
+        thrown.expectMessage(INVALID_MINIMAL_NOMINAL_VOLTAGE_MESSAGE);
         new NominalVoltageNetworkPredicate(400.0, -400.0);
 
-        thrown.expectMessage("Minimal nominal voltage must be greater or equal to zero");
+        thrown.expectMessage(INVALID_MINIMAL_NOMINAL_VOLTAGE_MESSAGE);
         new NominalVoltageNetworkPredicate(400.0, -400.0);
 
         thrown.expectMessage("Nominal voltage range is empty");

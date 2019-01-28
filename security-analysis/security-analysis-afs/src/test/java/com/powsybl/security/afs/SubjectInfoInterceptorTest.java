@@ -6,10 +6,7 @@
  */
 package com.powsybl.security.afs;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.StateManagerConstants;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
@@ -41,7 +38,7 @@ public class SubjectInfoInterceptorTest {
         assertNull(violation2.getExtension(SubjectInfoExtension.class));
 
         LimitViolationsResult result = new LimitViolationsResult(true, Arrays.asList(violation1, violation2));
-        interceptor.onPreContingencyResult(new RunningContext(network, StateManagerConstants.INITIAL_STATE_ID), result);
+        interceptor.onPreContingencyResult(new RunningContext(network, VariantManagerConstants.INITIAL_VARIANT_ID), result);
 
         SubjectInfoExtension extension1 = violation1.getExtension(SubjectInfoExtension.class);
         assertNotNull(extension1);

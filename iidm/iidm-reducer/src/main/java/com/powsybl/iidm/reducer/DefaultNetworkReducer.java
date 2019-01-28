@@ -120,7 +120,7 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
 
     private void replaceLineByLoad(Line line, VoltageLevel vl, Terminal terminal) {
         Load load = replaceBranchByLoad(line, vl, terminal);
-        observers.forEach(o -> o.lineReduced(line, load));
+        observers.forEach(o -> o.lineReplaced(line, load));
     }
 
     private void replaceLineByDanglingLine(Line line, VoltageLevel vl, Terminal terminal) {
@@ -144,12 +144,12 @@ public class DefaultNetworkReducer extends AbstractNetworkReducer {
                 .setP(terminal.getP())
                 .setQ(terminal.getQ());
 
-        observers.forEach(o -> o.lineReduced(line, dl));
+        observers.forEach(o -> o.lineReplaced(line, dl));
     }
 
     private void replaceTransformerByLoad(TwoWindingsTransformer transformer, VoltageLevel vl, Terminal terminal) {
         Load load = replaceBranchByLoad(transformer, vl, terminal);
-        observers.forEach(o -> o.transformerReduced(transformer, load));
+        observers.forEach(o -> o.transformerReplaced(transformer, load));
     }
 
     private Load replaceBranchByLoad(Branch<?> branch, VoltageLevel vl, Terminal terminal) {

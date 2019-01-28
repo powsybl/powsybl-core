@@ -7,7 +7,6 @@
  */
 package com.powsybl.security;
 
-import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
@@ -59,14 +58,16 @@ public class LimitViolationFilter {
     }
 
     static LimitViolationFilter load(PlatformConfig platformConfig) {
-        LimitViolationFilter filter = new LimitViolationFilter();
-        ModuleConfig moduleConfig = platformConfig.getModuleConfigIfExists("limit-violation-default-filter");
-        if (moduleConfig != null) {
-            filter.setViolationTypes(moduleConfig.getEnumSetProperty("violationTypes", LimitViolationType.class, DEFAULT_VIOLATION_TYPES));
-            filter.setMinBaseVoltage(moduleConfig.getDoubleProperty("minBaseVoltage", DEFAULT_MIN_BASE_VOLTAGE));
-            filter.setCountries(moduleConfig.getEnumSetProperty("countries", Country.class, DEFAULT_COUNTRIES));
-        }
-        return filter;
+
+        return platformConfig.getOptionalModuleConfig("limit-violation-default-filter")
+                .map(moduleConfig -> {
+                    LimitViolationFilter filter = new LimitViolationFilter();
+                    filter.setViolationTypes(moduleConfig.getEnumSetProperty("violationTypes", LimitViolationType.class, DEFAULT_VIOLATION_TYPES));
+                    filter.setMinBaseVoltage(moduleConfig.getDoubleProperty("minBaseVoltage", DEFAULT_MIN_BASE_VOLTAGE));
+                    filter.setCountries(moduleConfig.getEnumSetProperty("countries", Country.class, DEFAULT_COUNTRIES));
+                    return filter;
+                })
+                .orElseGet(LimitViolationFilter::new);
     }
 
     private Set<LimitViolationType> violationTypes;
