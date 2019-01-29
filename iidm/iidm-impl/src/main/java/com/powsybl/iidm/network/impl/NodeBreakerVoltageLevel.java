@@ -1106,12 +1106,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 TerminalExt terminal = graph.getVertexObject(n);
                 if (terminal != null) {
                     AbstractConnectable connectable = terminal.getConnectable();
-
-                    String id = connectable.getId();
-                    id = id.substring(0, id.indexOf('-'));
-                    String name = connectable.getName();
-
-                    String label = n + "\\n" + connectable.getType().toString() + "\\n" + name;
+                    String label = n + "\\n" + connectable.getType().toString() + "\\n" + connectable.getId();
                     node.attr(LABEL_ATTRIBUTE, label);
                     g.node(node);
                 }
@@ -1134,12 +1129,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 TerminalExt terminal = graph.getVertexObject(nodeInt);
                 if (terminal != null) {
                     AbstractConnectable connectable = terminal.getConnectable();
-
-                    String id = connectable.getId();
-                    id = id.substring(0, id.indexOf('-'));
-                    String name = connectable.getName();
-
-                    String label = nodeInt + "\\n" + connectable.getType().toString() + "\\n" + name;
+                    String label = nodeInt + "\\n" + connectable.getType().toString() + "\\n" + connectable.getId();
                     node.attr(LABEL_ATTRIBUTE, label);
                 }
                 node.attr("style", "filled").attr("color", colors[i]);
@@ -1158,10 +1148,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             SwitchImpl aSwitch = graph.getEdgeObject(e);
             if (aSwitch != null) {
                 if (drawSwitchId) {
-                    String sid = aSwitch.getId();
-                    sid = sid.substring(0, sid.indexOf('-'));
-                    String name = aSwitch.getName();
-                    edge.attr(LABEL_ATTRIBUTE, aSwitch.getKind().toString() + "\n" + name).attr("fontsize", "10");
+                    edge.attr(LABEL_ATTRIBUTE, aSwitch.getKind().toString() + "\n" + aSwitch.getId()).attr("fontsize", "10");
                 }
                 edge.attr("style", aSwitch.isOpen() ? "dotted" : "solid");
             }
