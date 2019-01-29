@@ -72,4 +72,11 @@ public class MapDbAppFileSystemConfigTest {
         } catch (Exception ignored) {
         }
     }
+
+    @Test
+    public void loadEmptyTest() {
+        List<MapDbAppFileSystemConfig> configs = MapDbAppFileSystemConfig.load(new InMemoryPlatformConfig(fileSystem));
+        assertNotNull(configs);
+        assertTrue(configs.isEmpty());
+    }
 }
