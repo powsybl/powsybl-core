@@ -176,6 +176,7 @@ public class SecurityAnalysisTool implements Tool {
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Network network = Importers.loadNetwork(caseFile);
+        network.getVariantManager().allowVariantMultiThreadAccess(true);
 
         LimitViolationFilter limitViolationFilter = LimitViolationFilter.load();
         limitViolationFilter.setViolationTypes(limitViolationTypes);
