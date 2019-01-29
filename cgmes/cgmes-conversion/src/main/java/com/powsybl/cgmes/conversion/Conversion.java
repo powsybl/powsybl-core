@@ -255,7 +255,7 @@ public class Conversion {
 
     private void voltageAngles(PropertyBags nodes) {
         if (context.nodeBreaker()) {
-            // FIXME(Luma): we create again one conversion object for every node
+            // TODO(Luma): we create again one conversion object for every node
             // In node-breaker conversion,
             // set (voltage, angle) values after all nodes have been created and connected
             for (PropertyBag n : nodes) {
@@ -268,7 +268,7 @@ public class Conversion {
     }
 
     private void checkShuntCompensators() {
-        // FIXME(Luma): remove this method before pull request,
+        // TODO(Luma): remove this method before pull request,
         // it is here only for debugging purposes
         context.network().getShuntCompensators().forEach(shunt -> {
             Bus bus = shunt.getTerminal().getBusView().getBus();

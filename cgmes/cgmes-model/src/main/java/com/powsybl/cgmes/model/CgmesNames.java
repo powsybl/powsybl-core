@@ -28,6 +28,9 @@ public final class CgmesNames {
 
     public static final String B_PER_SECTION = "bPerSection";
 
+    public static final String VOLTAGE = "v";
+    public static final String ANGLE = "angle";
+
     private CgmesNames() {
     }
 }

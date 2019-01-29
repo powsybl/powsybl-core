@@ -128,7 +128,7 @@ public interface CgmesModel {
 
     String phaseTapChangerForPowerTransformer(String powerTransformerId);
 
-    // FIXME(Luma) refactoring node-breaker conversion temporal
+    // TODO(Luma) refactoring node-breaker conversion temporal
 
     String substation(CgmesTerminal t);
 

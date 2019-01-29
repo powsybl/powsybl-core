@@ -177,7 +177,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         return ts;
     }
 
-    // FIXME(Luma): better caches create an object "Cache" that is final ...
+    // TODO(Luma): better caches create an object "Cache" that is final ...
     // (avoid filling all places with if cached == null...)
     private Map<String, CgmesContainer> computeContainers() {
         Map<String, CgmesContainer> cs = new HashMap<>();

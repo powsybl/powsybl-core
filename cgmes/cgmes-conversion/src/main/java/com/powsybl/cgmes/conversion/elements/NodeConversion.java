@@ -44,12 +44,12 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
             VoltageLevel voltageLevel = context.createSubstationVoltageLevel(id, v);
             newBus(voltageLevel);
         } else {
-            // FIXME(Luma): when the boundary nodes are not converted to IIDM buses
+            // TODO(Luma): when the boundary nodes are not converted to IIDM buses
             // they are not exported (the SV is built from buses of IIDM network)
             // if we try to re-import the exported CGMES, those nodes do not have voltage
-            if (p.containsKey("v") && p.containsKey("angle")) {
-                double v = p.asDouble("v");
-                double angle = p.asDouble("angle");
+            if (p.containsKey(CgmesNames.VOLTAGE) && p.containsKey(CgmesNames.ANGLE)) {
+                double v = p.asDouble(CgmesNames.VOLTAGE);
+                double angle = p.asDouble(CgmesNames.ANGLE);
                 if (valid(v, angle)) {
                     context.boundary().addVoltageAtBoundary(id, v, angle);
                 }
@@ -167,8 +167,8 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
     }
 
     private void setVoltageAngle(Bus bus) {
-        double v = p.asDouble("v");
-        double angle = p.asDouble("angle");
+        double v = p.asDouble(CgmesNames.VOLTAGE);
+        double angle = p.asDouble(CgmesNames.ANGLE);
         if (valid(v, angle)) {
             bus.setV(v);
             bus.setAngle(angle);

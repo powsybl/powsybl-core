@@ -18,7 +18,7 @@ public class CgmesTerminal {
 
         // In some cases the two TopologicalNode's obtained through these
         // two relationships may be different
-        // (FIXME(Luma): missing reference here)
+        // (TODO(Luma): missing reference here)
 
         this.connected = t.asBoolean("connected", false);
         this.flow = new PowerFlow(t, "p", "q");

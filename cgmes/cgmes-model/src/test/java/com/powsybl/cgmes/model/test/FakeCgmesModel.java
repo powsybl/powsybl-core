@@ -291,7 +291,7 @@ public final class FakeCgmesModel implements CgmesModel {
 
     @Override
     public PropertyBags connectivityNodeContainers() {
-        // FIXME(Luma) refactoring node-breaker conversion temporal
+        // TODO(Luma) refactoring node-breaker conversion temporal
         return null;
     }
 

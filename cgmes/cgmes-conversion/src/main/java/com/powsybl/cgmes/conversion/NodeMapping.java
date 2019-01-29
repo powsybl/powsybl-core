@@ -28,7 +28,7 @@ public class NodeMapping {
         // map this situation to IIDM
 
         if (t.connected()) {
-            // FIXME(Luma): do not add an internal connection if is has already been added?
+            // TODO(Luma): do not add an internal connection if is has already been added?
             vl.getNodeBreakerView().newInternalConnection()
                     .setNode1(iidmNodeForConductingEquipment)
                     .setNode2(iidmNodeForConnectivityNode)
