@@ -38,6 +38,11 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
         return true;
     }
 
+    enum VscRegulation {
+        REACTIVE,
+        VOLTAGE
+    }
+
     @Override
     public void convert() {
         Objects.requireNonNull(converterType);
@@ -45,23 +50,29 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
 
         HvdcConverterStation<?> c = null;
         if (converterType.equals(HvdcType.VSC)) {
-            boolean voltageRegulatorOn = p.asBoolean("voltageRegulatorOn", false);
+            VscRegulation vscRegulation = decodeVscRegulation(p.getLocal("qPccControl"));
+            boolean voltageRegulatorOn = false;
+            double voltageSetpoint = 0;
+            double reactivePowerSetpoint = 0;
+            if (vscRegulation == VscRegulation.VOLTAGE) {
+                voltageRegulatorOn = true;
+                voltageSetpoint = p.asDouble("targetUpcc");
+            } else if (vscRegulation == VscRegulation.REACTIVE) {
+                reactivePowerSetpoint = p.asDouble("targetQpcc");
+            }
             VscConverterStationAdder adder = voltageLevel().newVscConverterStation()
-                    .setId(iidmId())
-                    .setName(iidmName())
-                    .setEnsureIdUnicity(false)
                     .setLossFactor((float) lossFactor)
-                    .setVoltageRegulatorOn(voltageRegulatorOn);
+                    .setVoltageRegulatorOn(voltageRegulatorOn)
+                    .setVoltageSetpoint(voltageSetpoint)
+                    .setReactivePowerSetpoint(reactivePowerSetpoint);
             identify(adder);
             connect(adder);
             c = adder.add();
         } else if (converterType.equals(HvdcType.LCC)) {
+            // TODO: There are two modes of control: dcVoltage and activePower
+            // For dcVoltage, setpoint is targetUdc,
+            // For activePower, setpoint is targetPpcc
             LccConverterStationAdder adder = voltageLevel().newLccConverterStation()
-                    .setId(iidmId())
-                    .setName(iidmName())
-                    .setEnsureIdUnicity(false)
-                    .setBus(terminalConnected() ? busId() : null)
-                    .setConnectableBus(busId())
                     .setLossFactor((float) lossFactor)
                     .setPowerFactor((float) 0.8);
             identify(adder);
@@ -69,8 +80,17 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
             c = adder.add();
         }
         Objects.requireNonNull(c);
-        context.dc().map(p, c);
+        context.dc().map(this.id, p, c);
         convertedTerminals(c.getTerminal());
+    }
+
+    private static VscRegulation decodeVscRegulation(String qPccControl) {
+        if (qPccControl.endsWith("voltagePcc")) {
+            return VscRegulation.VOLTAGE;
+        } else if (qPccControl.endsWith("reactivePcc")) {
+            return VscRegulation.REACTIVE;
+        }
+        return null;
     }
 
     private static HvdcType decodeType(String stype) {

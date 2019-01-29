@@ -760,15 +760,27 @@ WHERE {
         cim:IdentifiedObject.name ?name ;
         cim:ACDCConverter.ratedUdc ?ratedUdc .
     ?Terminal cim:Terminal.ConductingEquipment ?ACDCConverter .
-    ?DCTerminal cim:ACDCConverterDCTerminal.DCConductingEquipment ?ACDCConverter .
+    # ?DCTerminal cim:ACDCConverterDCTerminal.DCConductingEquipment ?ACDCConverter .
     VALUES ?type { cim:ACDCConverter cim:CsConverter cim:VsConverter } .
 }}
 # For Current Source Converter
-OPTIONAL { GRAPH ?graphSSH {
-    ?ACDCConverter
-        cim:CsConverter.operatingMode ?operatingMode ;
-        cim:CsConverter.pPccControl ?controlMode .
-}}
+OPTIONAL {
+	?ACDCConverter a cim:CsConverter . 
+   	?ACDCConverter
+       	cim:CsConverter.operatingMode ?operatingMode ;
+       	cim:CsConverter.pPccControl ?controlMode .
+   	OPTIONAL { ?ACDCConverter cim:ACDCConverter.targetUdc ?targetUdc }
+   	OPTIONAL { ?ACDCConverter cim:ACDCConverter.targetPpcc ?targetPpcc }
+}
+# For Voltage Source Converter
+OPTIONAL { 
+	?ACDCConverter a cim:VsConverter . 
+   	?ACDCConverter
+       	cim:VsConverter.qPccControl ?qPccControl ;
+       	cim:VsConverter.pPccControl ?pPccControl .
+   	OPTIONAL { ?ACDCConverter cim:VsConverter.targetQpcc ?targetQpcc }
+   	OPTIONAL { ?ACDCConverter cim:VsConverter.targetUpcc ?targetUpcc }
+}
 }
 
 # query: dcTerminals

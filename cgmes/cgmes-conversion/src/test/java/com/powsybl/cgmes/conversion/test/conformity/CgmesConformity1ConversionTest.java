@@ -194,6 +194,15 @@ public class CgmesConformity1ConversionTest {
         tester.testConversion(null, actuals.smallNodeBreaker());
     }
 
+    @Test
+    public void smallNodeBreakerHvdc() throws IOException {
+        // Small Grid Node Breaker HVDC should be imported without errors
+        Importers.importData("CGMES",
+                actuals.smallNodeBreakerHvdc().dataSource(),
+                null,
+                LocalComputationManager.getDefault());
+    }
+
     private static class TxData {
         TxData(int numEnds, int rtc1, int ptc1, int rtc2, int ptc2) {
             this.numEnds = numEnds;

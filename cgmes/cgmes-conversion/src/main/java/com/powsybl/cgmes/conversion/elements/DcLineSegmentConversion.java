@@ -115,16 +115,32 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
         } else if (rectifier(mode1) && inverter(mode2)) {
             return HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
         } else {
-            invalid(String.format("Unsupported modeling. Converters modes %s %s", mode1, mode2));
-            return null;
+            // FIXME(Luma) For Voltage Source Converter we do not have operatingMode,
+            // So we can only try to determine rectifier and inverter
+            // from the type of control mode defined at the converters
+            if (DEFAULT_CONVERTERS_MODE != null) {
+                pending("Converters modes", String.format("Undefined converters modes %s %s", mode1, mode2));
+                return DEFAULT_CONVERTERS_MODE;
+            } else {
+                invalid(String.format("Unsupported modeling. Converters modes %s %s", mode1, mode2));
+                return null;
+            }
         }
     }
 
     private boolean inverter(String operatingMode) {
+        // FIXME(Luma): VsConverter do not have operatingMode
+        if (operatingMode == null) {
+            return false;
+        }
         return operatingMode.toLowerCase().endsWith("inverter");
     }
 
     private boolean rectifier(String operatingMode) {
+        // FIXME(Luma): VsConverter do not have operatingMode
+        if (operatingMode == null) {
+            return false;
+        }
         return operatingMode.toLowerCase().endsWith("rectifier");
     }
 
@@ -132,4 +148,6 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
     private HvdcConverterStation<?> iconverter2;
     private PropertyBag cconverter1;
     private PropertyBag cconverter2;
+
+    private static final HvdcLine.ConvertersMode DEFAULT_CONVERTERS_MODE = HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
 }
