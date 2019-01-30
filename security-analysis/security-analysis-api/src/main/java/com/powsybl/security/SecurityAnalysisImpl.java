@@ -15,6 +15,7 @@ import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowFactory;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.security.interceptors.CurrentLimitViolationInterceptor;
+import com.powsybl.security.interceptors.RunningContext;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
 import java.util.List;
@@ -60,6 +61,11 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
     @Override
     public boolean removeInterceptor(SecurityAnalysisInterceptor interceptor) {
         return interceptors.remove(interceptor);
+    }
+
+    @Override
+    protected SecurityAnalysisResultBuilder createResultBuilder(String initialWorkingStateId) {
+        return new ConcurrentSecurityAnalysisResultBuilder(violationFilter, new RunningContext(network, initialWorkingStateId), interceptors);
     }
 
     @Override
