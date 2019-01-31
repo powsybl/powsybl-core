@@ -19,6 +19,9 @@ import com.powsybl.triplestore.api.TripleStore;
 import com.powsybl.triplestore.api.TripleStoreException;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
+/**
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ */
 public final class CgmesModelFactory {
 
     private CgmesModelFactory() {

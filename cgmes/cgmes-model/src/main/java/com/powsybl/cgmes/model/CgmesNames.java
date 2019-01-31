@@ -7,6 +7,9 @@
 
 package com.powsybl.cgmes.model;
 
+/**
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ */
 public final class CgmesNames {
 
     public static final String SUBSTATION = "Substation";
