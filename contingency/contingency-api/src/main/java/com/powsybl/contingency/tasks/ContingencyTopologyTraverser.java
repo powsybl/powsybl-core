@@ -33,14 +33,16 @@ final class ContingencyTopologyTraverser {
         terminal.traverse(new VoltageLevel.TopologyTraverser() {
             @Override
             public boolean traverse(Terminal terminal, boolean connected) {
-                boolean traverse = true;
-
-                if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER && connected) {
-                    terminalsToDisconnect.add(terminal);
-                    traverse = false;
+                if (terminal.getVoltageLevel().getTopologyKind() == TopologyKind.BUS_BREAKER) {
+                    // we have no idea what kind of switch it was in the initial node/breaker topology
+                    // so to keep things simple we do not propagate the fault
+                    if (connected) {
+                        terminalsToDisconnect.add(terminal);
+                    }
+                    return false;
                 }
-
-                return traverse;
+                // in node/breaker topology propagation is decided only based on switch position
+                return true;
             }
 
             @Override

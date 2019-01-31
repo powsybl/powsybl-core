@@ -29,6 +29,8 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversion {
 
+    private static final String REGULATING_CONTROL_ENABLED = "regulatingControlEnabled";
+
     public PhaseTapChangerConversion(PropertyBag ptc, Conversion.Context context) {
         super("PhaseTapChanger", ptc, context);
 
@@ -63,7 +65,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                         tx3.getSubstation().getName());
                 // Check if the step is at neutral and regulating control is disabled
                 int position = fromContinuous(p.asDouble("SVtapStep", neutralStep));
-                boolean regulating = p.asBoolean("regulatingControlEnabled", false);
+                boolean regulating = p.asBoolean(REGULATING_CONTROL_ENABLED, false);
                 if (position == neutralStep && !regulating) {
                     String reason = String.format(
                             "%s, but is at neutralStep and regulating control disabled", reason0);
@@ -394,34 +396,58 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
     }
 
     private void addRegulatingControl(PhaseTapChangerAdder ptca) {
-        // TODO How to obtain terminal of corresponding winding ?
-        // Only one transformer end is available for the tap changer
-        String terminal1 = p.getId("Terminal1");
-        String terminal2 = p.getId("Terminal2");
-
-        String regulatingControl = p.getId("RegulatingControl");
+        String regulatingControl = p.getId("TapChangerControl");
         String regulatingControlMode = p.getLocal("regulatingControlMode");
-        double regulatingControlTargetValue = p.asDouble("regulatingControlTargetValue");
-        String regulatingControlTerminal = p.getId("RegulatingControlTerminal");
         if (regulatingControl != null) {
             if (regulatingControlMode.endsWith("currentFlow")) {
-                Terminal treg;
-                if (regulatingControlTerminal.equals(terminal1)) {
-                    treg = tx.getTerminal1();
-                } else if (regulatingControlTerminal.equals(terminal2)) {
-                    treg = tx.getTerminal2();
-                } else {
-                    treg = context.terminalMapping().find(regulatingControlTerminal);
-                }
-                ptca.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
-                        .setRegulationValue(regulatingControlTargetValue)
-                        .setRegulating(true)
-                        .setRegulationTerminal(treg);
+                addCurrentFlowRegControl(ptca);
+            } else if (regulatingControlMode.endsWith("activePower")) {
+                addActivePowerRegControl(ptca);
             } else if (regulatingControlMode.endsWith("fixed")) {
                 // Nothing to do
             } else {
                 ignored(regulatingControlMode, "Unsupported regulating mode");
             }
+        }
+    }
+
+    private void addCurrentFlowRegControl(PhaseTapChangerAdder ptca) {
+        Terminal treg = context.terminalMapping().find(p.getId("RegulatingControlTerminal"));
+        boolean regulatingControlEnabled  = p.asBoolean(REGULATING_CONTROL_ENABLED, true);
+        double targetV = p.asDouble("regulatingControlTargetValue");
+        if (side == 1) {
+            targetV *= tx.getRatedU1();
+        } else {
+            targetV *= tx.getRatedU2();
+        }
+        ptca.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
+                .setRegulationValue(regulationValue(targetV, treg))
+                .setRegulating(regulatingControlEnabled)
+                .setRegulationTerminal(regTerminal());
+    }
+
+    private void addActivePowerRegControl(PhaseTapChangerAdder ptca) {
+        Terminal treg = context.terminalMapping().find(p.getId("RegulatingControlTerminal"));
+        boolean regulatingControlEnabled  = p.asBoolean(REGULATING_CONTROL_ENABLED, true);
+        double targetV = -p.asDouble("regulatingControlTargetValue");
+        ptca.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
+                .setRegulationTerminal(regTerminal())
+                .setRegulating(regulatingControlEnabled)
+                .setRegulationValue(regulationValue(targetV, treg));
+    }
+
+    private double regulationValue(double targetV, Terminal treg) {
+        if ((treg.equals(tx.getTerminal1()) && side == 2) || (treg.equals(tx.getTerminal2()) && side == 1)) {
+            return -targetV;
+        }
+        return targetV;
+    }
+
+    private Terminal regTerminal() {
+        if (side == 1) {
+            return tx.getTerminal1();
+        } else {
+            return tx.getTerminal2();
         }
     }
 

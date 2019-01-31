@@ -43,7 +43,7 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
 
     @Override
     protected AppStorage createStorage() {
-        return MapDbAppStorage.createHeap("mem");
+        return MapDbAppStorage.createMem("mem");
     }
 
     private ImportersLoader createImportersLoader() {

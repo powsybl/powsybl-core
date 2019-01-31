@@ -160,14 +160,6 @@ public class SimulationParameters {
         return faultEventInstant;
     }
 
-    /**
-     * @deprecated Use {@link #getBranchSideOneFaultShortCircuitDuration} and {@link #getBranchSideTwoFaultShortCircuitDuration} instead.
-     */
-    @Deprecated
-    public double getBranchFaultShortCircuitDuration() {
-        return getBranchSideOneFaultShortCircuitDuration();
-    }
-
     public double getBranchSideOneFaultShortCircuitDuration() {
         return branchSideOneFaultShortCircuitDuration;
     }
@@ -220,14 +212,6 @@ public class SimulationParameters {
             }
         }
         return distance != null ? distance : branchShortCircuitDistance;
-    }
-
-    /**
-     * @deprecated Use {@link #getBranchSideOneFaultShortCircuitDuration} and {@link #getBranchSideTwoFaultShortCircuitDuration} instead.
-     */
-    @Deprecated
-    public double getBranchFaultShortCircuitDuration(String contingencyId, String branchId) {
-        return getBranchSideOneFaultShortCircuitDuration(contingencyId, branchId);
     }
 
     public double getBranchSideOneFaultShortCircuitDuration(String contingencyId, String branchId) {
