@@ -31,9 +31,8 @@ public class LoadFlowBasedPhaseShifterOptimizerConfig implements Versionable {
         Objects.requireNonNull(platformConfig);
         ModuleConfig config = platformConfig.getModuleConfig(CONFIG_MODULE_NAME);
         Class<? extends LoadFlowFactory> loadFlowFactoryClass = config.getClassProperty("load-flow-factory", LoadFlowFactory.class);
-        return config.getOptionalStringProperty("version")
-                .map(v -> new LoadFlowBasedPhaseShifterOptimizerConfig(new ConfigVersion(v), loadFlowFactoryClass))
-                .orElseGet(() -> new LoadFlowBasedPhaseShifterOptimizerConfig(loadFlowFactoryClass));
+        String version = config.getOptionalStringProperty("version").orElse(DEFAULT_CONFIG_VERSION);
+        return new LoadFlowBasedPhaseShifterOptimizerConfig(new ConfigVersion(version), loadFlowFactoryClass);
     }
 
     private ConfigVersion version = new ConfigVersion(DEFAULT_CONFIG_VERSION);

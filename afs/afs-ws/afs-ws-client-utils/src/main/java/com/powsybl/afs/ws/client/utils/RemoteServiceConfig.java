@@ -58,9 +58,8 @@ public class RemoteServiceConfig implements Versionable {
             String appName = moduleConfig.getStringProperty("app-name");
             boolean secure = moduleConfig.getBooleanProperty("secure", true);
             int port = moduleConfig.getIntProperty("port", secure ? 443 : 80);
-            return moduleConfig.getOptionalStringProperty("version")
-                    .map(v -> new RemoteServiceConfig(new ConfigVersion(v), hostName, appName, port, secure))
-                    .orElseGet(() -> new RemoteServiceConfig(hostName, appName, port, secure));
+            String version = moduleConfig.getOptionalStringProperty("version").orElse(DEFAULT_CONFIG_VERSION);
+            return new RemoteServiceConfig(new ConfigVersion(version), hostName, appName, port, secure);
         });
     }
 

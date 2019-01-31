@@ -37,18 +37,17 @@ public class ImportConfig implements Versionable {
 
     public static ImportConfig load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        ConfigVersion version = new ConfigVersion(DEFAULT_CONFIG_VERSION);
-        List<String> postProcessors = DEFAULT_POST_PROCESSORS;
-        if (platformConfig.moduleExists(CONFIG_MODULE_NAME)) {
-            ModuleConfig config = platformConfig.getModuleConfig(CONFIG_MODULE_NAME);
-            version = config.hasProperty("version") ? new ConfigVersion(config.getStringProperty("version")) : version;
-            if (version.equalsOrIsNewerThan("1.1")) {
-                postProcessors = config.getStringListProperty("post-processors", DEFAULT_POST_PROCESSORS);
-            } else {
-                postProcessors = config.getStringListProperty("postProcessors", DEFAULT_POST_PROCESSORS);
-            }
+        return platformConfig.getOptionalModuleConfig(CONFIG_MODULE_NAME)
+                .map(ImportConfig::load).orElseGet(() -> new ImportConfig(DEFAULT_POST_PROCESSORS));
+    }
+
+    private static ImportConfig load(ModuleConfig config) {
+        ConfigVersion version = new ConfigVersion(config.getOptionalStringProperty("version").orElse(DEFAULT_CONFIG_VERSION));
+        if (version.equalsOrIsNewerThan("1.1")) {
+            return new ImportConfig(version, config.getStringListProperty("post-processors", DEFAULT_POST_PROCESSORS));
+        } else {
+            return new ImportConfig(version, config.getStringListProperty("postProcessors", DEFAULT_POST_PROCESSORS));
         }
-        return new ImportConfig(version, postProcessors);
     }
 
     public ImportConfig() {

@@ -68,28 +68,29 @@ public class LocalComputationConfig implements Versionable {
 
     public static LocalComputationConfig load(PlatformConfig platformConfig, FileSystem fileSystem) {
         Objects.requireNonNull(platformConfig);
-        ConfigVersion version = new ConfigVersion(DEFAULT_CONFIG_VERSION);
-        Path localDir = getDefaultLocalDir(fileSystem);
-        int availableCore = DEFAULT_AVAILABLE_CORE;
-        if (platformConfig.moduleExists(CONFIG_MODULE_NAME)) {
-            ModuleConfig config = platformConfig.getModuleConfig(CONFIG_MODULE_NAME);
-            version = config.hasProperty("version") ? new ConfigVersion(config.getStringProperty("version")) : version;
-            if (version.equalsOrIsNewerThan("1.1")) {
-                localDir = getTmpDir(config, "tmp-dir")
-                        .orElse(localDir);
-                availableCore = config.getOptionalIntProperty("available-core")
-                        .orElse(availableCore);
-            } else {
-                localDir = getTmpDir(config, "tmpDir")
-                        .orElse(localDir);
-                availableCore = config.getOptionalIntProperty("availableCore")
-                        .orElse(availableCore);
-            }
+        return platformConfig.getOptionalModuleConfig(CONFIG_MODULE_NAME)
+                .map(config -> load(config, fileSystem))
+                .orElseGet(() -> new LocalComputationConfig(getDefaultLocalDir(fileSystem), DEFAULT_AVAILABLE_CORE));
+    }
+
+    private static LocalComputationConfig load(ModuleConfig config, FileSystem fileSystem) {
+        ConfigVersion version = new ConfigVersion(config.getOptionalStringProperty("version").orElse(DEFAULT_CONFIG_VERSION));
+        String tmpDirName;
+        String availableCoreName;
+        if (version.equalsOrIsNewerThan("1.1")) {
+            tmpDirName = "tmp-dir";
+            availableCoreName = "available-core";
+        } else {
+            tmpDirName = "tmpDir";
+            availableCoreName = "availableCore";
         }
+        int availableCore = config.getOptionalIntProperty(availableCoreName).orElse(DEFAULT_AVAILABLE_CORE);
         if (availableCore <= 0) {
             availableCore = Runtime.getRuntime().availableProcessors();
         }
-        return new LocalComputationConfig(version, localDir, availableCore);
+        return new LocalComputationConfig(version,
+                getTmpDir(config, tmpDirName).orElseGet(() -> getDefaultLocalDir(fileSystem)),
+                availableCore);
     }
 
     public LocalComputationConfig(Path localDir) {

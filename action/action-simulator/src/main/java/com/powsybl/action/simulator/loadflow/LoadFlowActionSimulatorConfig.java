@@ -37,9 +37,8 @@ public class LoadFlowActionSimulatorConfig implements Versionable {
         boolean ignorePreContingencyViolations = config.getBooleanProperty("ignore-pre-contingency-violations", false);
         boolean debug = config.getBooleanProperty("debug", false);
         CopyStrategy copyStrategy = config.getEnumProperty("copy-strategy", CopyStrategy.class, CopyStrategy.DEEP);
-        return config.getOptionalStringProperty("version")
-                .map(v -> new LoadFlowActionSimulatorConfig(new ConfigVersion(v), loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations, debug, copyStrategy))
-                .orElseGet(() -> new LoadFlowActionSimulatorConfig(loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations, debug, copyStrategy));
+        String version = config.getOptionalStringProperty("version").orElse(DEFAULT_CONFIG_VERSION);
+        return new LoadFlowActionSimulatorConfig(new ConfigVersion(version), loadFlowFactoryClass, maxIterations, ignorePreContingencyViolations, debug, copyStrategy);
     }
 
     private ConfigVersion version = new ConfigVersion(DEFAULT_CONFIG_VERSION);

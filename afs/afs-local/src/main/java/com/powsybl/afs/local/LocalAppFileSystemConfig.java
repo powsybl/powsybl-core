@@ -52,9 +52,8 @@ public class LocalAppFileSystemConfig extends AbstractAppFileSystemConfig<LocalA
             String driveName = moduleConfig.getStringProperty(driveNameTag.toString());
             boolean remotelyAccessible = moduleConfig.getBooleanProperty(remotelyAccessibleTag.toString(), DEFAULT_REMOTELY_ACCESSIBLE);
             Path rootDir = moduleConfig.getPathProperty(rootDirTag.toString());
-            configs.add(moduleConfig.getOptionalStringProperty("version")
-                    .map(v -> new LocalAppFileSystemConfig(new ConfigVersion(v), driveName, remotelyAccessible, rootDir))
-                    .orElseGet(() -> new LocalAppFileSystemConfig(driveName, remotelyAccessible, rootDir)));
+            String version = moduleConfig.getOptionalStringProperty("version").orElse(DEFAULT_CONFIG_VERSION);
+            configs.add(new LocalAppFileSystemConfig(new ConfigVersion(version), driveName, remotelyAccessible, rootDir));
         }
     }
 

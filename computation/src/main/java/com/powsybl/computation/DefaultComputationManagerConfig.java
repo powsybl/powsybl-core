@@ -59,11 +59,12 @@ public class DefaultComputationManagerConfig implements Versionable {
 
     public static DefaultComputationManagerConfig load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        DefaultComputationManagerConfig config = platformConfig.getOptionalModuleConfig("default-computation-manager")
+        DefaultComputationManagerConfig config = platformConfig.getOptionalModuleConfig(CONFIG_MODULE_NAME)
                 .map(moduleConfig -> {
+                    String version = moduleConfig.getOptionalStringProperty("version").orElse(DEFAULT_CONFIG_VERSION);
                     Class<? extends ComputationManagerFactory> shortTimeExecutionComputationManagerFactoryClass = moduleConfig.getClassProperty("short-time-execution-computation-manager-factory", ComputationManagerFactory.class);
                     Class<? extends ComputationManagerFactory> longTimeExecutionComputationManagerFactoryClass = moduleConfig.getClassProperty("long-time-execution-computation-manager-factory", ComputationManagerFactory.class, null);
-                    return new DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass, longTimeExecutionComputationManagerFactoryClass);
+                    return new DefaultComputationManagerConfig(new ConfigVersion(version), shortTimeExecutionComputationManagerFactoryClass, longTimeExecutionComputationManagerFactoryClass);
                 })
                 .orElseGet(() -> {
                     Class<? extends ComputationManagerFactory> shortTimeExecutionComputationManagerFactoryClass;
