@@ -35,12 +35,19 @@ public class TestGridModelResources extends AbstractTestGridModel {
     @Override
     public ReadOnlyDataSource dataSource() {
         ReadOnlyDataSource ds =  new ResourceDataSource(baseNameFromResourceNames(), resourceSets);
+        /*
         if (LOG.isInfoEnabled()) {
             try {
                 LOG.info("List of names in data source for {} = {}", name(), Arrays.toString(ds.listNames(".*").toArray()));
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
+        }
+        */
+        try {
+            LOG.error("List of names in data source for {} = {}", name(), Arrays.toString(ds.listNames(".*").toArray()));
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
         return ds;
     }

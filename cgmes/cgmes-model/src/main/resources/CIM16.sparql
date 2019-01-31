@@ -524,15 +524,17 @@ WHERE {
             cim:TapChanger.ltcFlag ?ltcFlag ;
             cim:TapChanger.TapChangerControl ?TapChangerControl .
         ?TapChangerControl
-            cim:RegulatingControl.mode ?mode ;
-            cim:RegulatingControl.Terminal ?regulatingControlTerminal .
+            cim:RegulatingControl.mode ?regulatingControlMode ;
+            cim:RegulatingControl.Terminal ?RegulatingControlTerminal .
         OPTIONAL { GRAPH ?graphSSH {
             ?TapChangerControl
                 cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;
                 cim:RegulatingControl.enabled ?regulatingControlEnabled ;
-                cim:RegulatingControl.targetDeadband ?regulatingControlTargetDeadband ;
                 cim:RegulatingControl.targetValueUnitMultiplier ?regulatingControlTargetValueUnitMultiplier ;
                 cim:RegulatingControl.discrete ?regulatingControlDiscrete .
+            OPTIONAL {
+                ?TapChangerControl cim:RegulatingControl.targetDeadband ?regulatingControlTargetDeadband
+            }
         }}
     }
 }}
