@@ -176,6 +176,7 @@ public class SecurityAnalysisTool implements Tool {
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Network network = Importers.loadNetwork(caseFile);
+        network.getVariantManager().allowVariantMultiThreadAccess(true);
 
         LimitViolationFilter limitViolationFilter = LimitViolationFilter.load();
         limitViolationFilter.setViolationTypes(limitViolationTypes);
@@ -213,7 +214,7 @@ public class SecurityAnalysisTool implements Tool {
             interceptors.forEach(securityAnalysis::addInterceptor);
         }
 
-        String currentState = network.getStateManager().getWorkingStateId();
+        String currentState = network.getVariantManager().getWorkingVariantId();
 
         SecurityAnalysisResult result = securityAnalysis.run(currentState, parameters, contingenciesProvider).join();
 

@@ -29,7 +29,6 @@ public interface ComponentDefaultConfig {
                 .orElseGet(() -> platformConfig.getOptionalModuleConfig(Impl.CONFIG_MODULE_NAME_V_1_0)
                         .map(moduleConfig -> new Impl(new ConfigVersion("1.0"), moduleConfig))
                         .orElse(null));
-
     }
 
     class Impl implements ComponentDefaultConfig, Versionable {

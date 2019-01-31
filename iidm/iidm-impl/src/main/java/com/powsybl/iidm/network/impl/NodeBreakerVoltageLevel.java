@@ -15,10 +15,13 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.Colors;
-import com.powsybl.math.graph.*;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
+import com.powsybl.math.graph.GraphUtil;
+import com.powsybl.math.graph.TraverseResult;
+import com.powsybl.math.graph.UndirectedGraph;
+import com.powsybl.math.graph.UndirectedGraphImpl;
 import gnu.trove.list.array.TIntArrayList;
 import org.kohsuke.graphviz.Edge;
 import org.kohsuke.graphviz.Graph;
@@ -36,6 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -629,6 +633,33 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         }
 
         @Override
+        public int getInternalConnectionCount() {
+            return (int) getInternalConnectionStream().count();
+        }
+
+        @Override
+        public Iterable<InternalConnection> getInternalConnections() {
+            return getInternalConnectionStream().collect(Collectors.toList());
+        }
+
+        @Override
+        public Stream<InternalConnection> getInternalConnectionStream() {
+            return Arrays.stream(graph.getEdges())
+                    .filter(e -> graph.getEdgeObject(e) == null)
+                    .mapToObj(e -> new InternalConnection() {
+                        @Override
+                        public int getNode1() {
+                            return graph.getEdgeVertex1(e);
+                        }
+
+                        @Override
+                        public int getNode2() {
+                            return graph.getEdgeVertex2(e);
+                        }
+                    });
+        }
+
+        @Override
         public SwitchAdder newBreaker() {
             return new SwitchAdderImpl(SwitchKind.BREAKER);
         }
@@ -880,7 +911,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         int node = ((NodeTerminal) terminal).getNode();
 
-        assert node >= 0 && node < graph.getVertexCount();
+        assert node >= 0 && node < graph.getMaxVertex();
         assert graph.getVertexObject(node) == terminal;
 
         graph.setVertexObject(node, null);
@@ -1027,6 +1058,19 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     @Override
     public void allocateVariantArrayElement(int[] indexes, final int sourceIndex) {
         variants.allocate(indexes, VariantImpl::new);
+    }
+
+    @Override
+    protected void removeTopology() {
+        removeAllSwitches();
+    }
+
+    private void removeAllSwitches() {
+        for (SwitchImpl s : graph.getEdgesObject()) {
+            getNetwork().getObjectStore().remove(s);
+        }
+        graph.removeAllEdges();
+        switches.clear();
     }
 
     @Override

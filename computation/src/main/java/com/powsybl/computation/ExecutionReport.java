@@ -1,42 +1,29 @@
 /**
- * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package com.powsybl.computation;
 
+import java.io.InputStream;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Optional;
 
 /**
- *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ExecutionReport {
+public interface ExecutionReport {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExecutionReport.class);
+    List<ExecutionError> getErrors();
 
-    private final List<ExecutionError> errors;
+    void log();
 
-    public ExecutionReport(List<ExecutionError> errors) {
-        this.errors = errors;
+    default Optional<InputStream> getStdOut(Command command, int index) {
+        return Optional.empty();
     }
 
-    public List<ExecutionError> getErrors() {
-        return errors;
+    default Optional<InputStream> getStdErr(Command command, int index) {
+        return Optional.empty();
     }
-
-    public void log() {
-        if (!errors.isEmpty()) {
-            LOGGER.error("{} commands have failed: {}", errors.size(), errors);
-            if (LOGGER.isTraceEnabled()) {
-                for (ExecutionError error : errors) {
-                    LOGGER.trace("Command {} exits with code {}", error.getCommand().toString(error.getIndex()), error.getExitCode());
-                }
-            }
-        }
-    }
-
 }

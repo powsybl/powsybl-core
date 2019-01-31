@@ -40,17 +40,18 @@ public class SecurityConfig implements Versionable {
     public static SecurityConfig load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
         return platformConfig.getOptionalModuleConfig(CONFIG_MODULE_NAME)
-                .map(config ->
-                        config.getOptionalStringProperty("version")
-                                .map(v -> new SecurityConfig(new ConfigVersion(v), config.getOptionalLongProperty("token-validity")
-                                        .orElse(DEFAULT_TOKEN_VALIDITY),
-                                        config.getOptionalBooleanProperty("skip-token-validity-check")
-                                                .orElse(DEFAULT_SKIP_TOKEN_VALIDITY_CHECK)))
-                                .orElseGet(() -> new SecurityConfig(config.getOptionalLongProperty("token-validity")
-                                        .orElse(DEFAULT_TOKEN_VALIDITY),
-                                        config.getOptionalBooleanProperty("skip-token-validity-check")
-                                                .orElse(DEFAULT_SKIP_TOKEN_VALIDITY_CHECK))))
-                .orElseGet(() -> new SecurityConfig(DEFAULT_TOKEN_VALIDITY, DEFAULT_SKIP_TOKEN_VALIDITY_CHECK));
+                .map(securityConfig -> {
+                    String version = securityConfig.getOptionalStringProperty("version")
+                            .orElse(DEFAULT_CONFIG_VERSION);
+                    long tokenValidity = securityConfig.getOptionalLongProperty("token-validity")
+                            .orElse(DEFAULT_TOKEN_VALIDITY);
+                    boolean skipTokenValidityCheck = securityConfig.getOptionalBooleanProperty("skip-token-validity-check")
+                            .orElse(DEFAULT_SKIP_TOKEN_VALIDITY_CHECK);
+                    return new SecurityConfig(new ConfigVersion(version), tokenValidity, skipTokenValidityCheck);
+                })
+                .orElseGet(() ->
+                        new SecurityConfig(DEFAULT_TOKEN_VALIDITY, DEFAULT_SKIP_TOKEN_VALIDITY_CHECK)
+                );
     }
 
     public SecurityConfig(long tokenValidity, boolean skipTokenValidityCheck) {

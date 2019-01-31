@@ -8,7 +8,6 @@ package com.powsybl.iidm.import_;
 
 import com.google.auto.service.AutoService;
 import com.google.common.io.CharStreams;
-import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -52,15 +51,13 @@ public class JavaScriptPostProcessor implements ImportPostProcessor {
         Objects.requireNonNull(platformConfig);
 
         Path defaultScript = platformConfig.getConfigDir().resolve(SCRIPT_NAME);
+        printToStdOut = platformConfig.getOptionalModuleConfig("javaScriptPostProcessor")
+                .map(config -> config.getBooleanProperty("printToStdOut", DEFAULT_PRINT_TO_STD_OUT))
+                .orElse(DEFAULT_PRINT_TO_STD_OUT);
 
-        ModuleConfig config = platformConfig.getModuleConfigIfExists("javaScriptPostProcessor");
-        if (config != null) {
-            printToStdOut = config.getBooleanProperty("printToStdOut", DEFAULT_PRINT_TO_STD_OUT);
-            script = config.getPathProperty("script", defaultScript);
-        } else {
-            printToStdOut = DEFAULT_PRINT_TO_STD_OUT;
-            script = defaultScript;
-        }
+        script = platformConfig.getOptionalModuleConfig("javaScriptPostProcessor")
+                .map(config -> config.getPathProperty("script", defaultScript))
+                .orElse(defaultScript);
     }
 
     @Override

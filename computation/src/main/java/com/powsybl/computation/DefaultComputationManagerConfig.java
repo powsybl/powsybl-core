@@ -59,31 +59,25 @@ public class DefaultComputationManagerConfig implements Versionable {
 
     public static DefaultComputationManagerConfig load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-
-        return platformConfig.getOptionalModuleConfig(CONFIG_MODULE_NAME)
+        DefaultComputationManagerConfig config = platformConfig.getOptionalModuleConfig("default-computation-manager")
                 .map(moduleConfig -> {
                     Class<? extends ComputationManagerFactory> shortTimeExecutionComputationManagerFactoryClass = moduleConfig.getClassProperty("short-time-execution-computation-manager-factory", ComputationManagerFactory.class);
                     Class<? extends ComputationManagerFactory> longTimeExecutionComputationManagerFactoryClass = moduleConfig.getClassProperty("long-time-execution-computation-manager-factory", ComputationManagerFactory.class, null);
-                    DefaultComputationManagerConfig config = moduleConfig.getOptionalStringProperty("version")
-                            .map(v -> new DefaultComputationManagerConfig(new ConfigVersion(v), shortTimeExecutionComputationManagerFactoryClass, longTimeExecutionComputationManagerFactoryClass))
-                            .orElseGet(() -> new DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass, longTimeExecutionComputationManagerFactoryClass));
-                    if (LOGGER.isInfoEnabled()) {
-                        LOGGER.info(config.toString());
-                    }
-                    return config;
-                }).orElseGet(() -> {
+                    return new DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass, longTimeExecutionComputationManagerFactoryClass);
+                })
+                .orElseGet(() -> {
                     Class<? extends ComputationManagerFactory> shortTimeExecutionComputationManagerFactoryClass;
                     try {
                         shortTimeExecutionComputationManagerFactoryClass = (Class<? extends ComputationManagerFactory>) Class.forName(DEFAULT_SHORT_TIME_EXECUTION_COMPUTATION_MANAGER_FACTORY_CLASS);
                     } catch (ClassNotFoundException e) {
                         throw new UncheckedClassNotFoundException(e);
                     }
-                    DefaultComputationManagerConfig config = new DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass, null);
-                    if (LOGGER.isInfoEnabled()) {
-                        LOGGER.info(config.toString());
-                    }
-                    return config;
+                    return new DefaultComputationManagerConfig(shortTimeExecutionComputationManagerFactoryClass, null);
                 });
+        if (LOGGER.isInfoEnabled()) {
+            LOGGER.info(config.toString());
+        }
+        return config;
     }
 
     public ComputationManager createShortTimeExecutionComputationManager() {

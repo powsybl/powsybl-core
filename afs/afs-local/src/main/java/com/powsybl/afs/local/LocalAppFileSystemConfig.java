@@ -59,7 +59,6 @@ public class LocalAppFileSystemConfig extends AbstractAppFileSystemConfig<LocalA
     }
 
     public static List<LocalAppFileSystemConfig> load(PlatformConfig platformConfig) {
-
         return platformConfig.getOptionalModuleConfig(CONFIG_MODULE_NAME)
                 .map(moduleConfig -> {
                     List<LocalAppFileSystemConfig> configs = new ArrayList<>();
@@ -69,7 +68,8 @@ public class LocalAppFileSystemConfig extends AbstractAppFileSystemConfig<LocalA
                         load(moduleConfig, OptionalInt.of(i), configs);
                     }
                     return configs;
-                }).orElseGet(() -> {
+                })
+                .orElseGet(() -> {
                     List<LocalAppFileSystemConfig> configs = new ArrayList<>();
                     for (Path rootDir : FileSystems.getDefault().getRootDirectories()) {
                         if (Files.isDirectory(rootDir)) {

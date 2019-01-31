@@ -680,7 +680,7 @@ public class MapDbAppStorage implements AppStorage {
         if (dependencyNodes == null) {
             return Collections.emptySet();
         }
-        return dependencyNodes.stream().map(this::getNodeInfo).collect(Collectors.toSet());
+        return dependencyNodes.stream().map(this::getNodeInfo).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @Override
