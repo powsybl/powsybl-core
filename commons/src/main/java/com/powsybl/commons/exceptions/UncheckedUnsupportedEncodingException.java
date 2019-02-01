@@ -21,7 +21,7 @@ public class UncheckedUnsupportedEncodingException extends RuntimeException {
     }
 
     @Override
-    public UnsupportedEncodingException getCause() {
+    public synchronized UnsupportedEncodingException getCause() {
         return (UnsupportedEncodingException) super.getCause();
     }
 }

@@ -21,7 +21,7 @@ public class UncheckedParserConfigurationException extends RuntimeException {
     }
 
     @Override
-    public ParserConfigurationException getCause() {
+    public synchronized ParserConfigurationException getCause() {
         return (ParserConfigurationException) super.getCause();
     }
 }
