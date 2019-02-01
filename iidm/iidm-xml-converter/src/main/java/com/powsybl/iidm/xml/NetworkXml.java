@@ -14,6 +14,7 @@ import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
+import com.powsybl.commons.xml.SecureXmlUtil;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.anonymizer.Anonymizer;
 import com.powsybl.iidm.anonymizer.SimpleAnonymizer;
@@ -27,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
-import javax.xml.XMLConstants;
 import javax.xml.stream.*;
 import javax.xml.transform.Source;
 import javax.xml.transform.stream.StreamSource;
@@ -93,7 +93,7 @@ public final class NetworkXml {
     }
 
     private static void validate(Source xml, List<Source> additionalSchemas) {
-        SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
+        SchemaFactory factory = SecureXmlUtil.createSchemaFactory();
         Source[] sources = new Source[additionalSchemas.size() + 1];
         sources[0] = new StreamSource(NetworkXml.class.getResourceAsStream("/xsd/" + IIDM_XSD));
         for (int i = 0; i < additionalSchemas.size(); i++) {

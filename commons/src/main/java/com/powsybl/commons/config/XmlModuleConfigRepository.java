@@ -8,6 +8,7 @@ package com.powsybl.commons.config;
 
 import com.powsybl.commons.exceptions.UncheckedParserConfigurationException;
 import com.powsybl.commons.exceptions.UncheckedSaxException;
+import com.powsybl.commons.xml.SecureXmlUtil;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -36,7 +37,7 @@ public class XmlModuleConfigRepository extends AbstractModuleConfigRepository {
         Objects.requireNonNull(xmlConfigFile);
 
         try (InputStream is = Files.newInputStream(xmlConfigFile)) {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilderFactory factory = SecureXmlUtil.createDocumentBuilderFactory();
             factory.setNamespaceAware(true);
             DocumentBuilder builder = factory.newDocumentBuilder();
             Document doc = builder.parse(is);
