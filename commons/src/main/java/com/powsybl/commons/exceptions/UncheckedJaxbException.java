@@ -21,7 +21,7 @@ public class UncheckedJaxbException extends RuntimeException {
     }
 
     @Override
-    public JAXBException getCause() {
+    public synchronized JAXBException getCause() {
         return (JAXBException) super.getCause();
     }
 }
