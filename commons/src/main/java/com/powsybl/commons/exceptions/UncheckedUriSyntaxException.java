@@ -21,7 +21,7 @@ public class UncheckedUriSyntaxException extends RuntimeException {
     }
 
     @Override
-    public URISyntaxException getCause() {
+    public synchronized URISyntaxException getCause() {
         return (URISyntaxException) super.getCause();
     }
 }

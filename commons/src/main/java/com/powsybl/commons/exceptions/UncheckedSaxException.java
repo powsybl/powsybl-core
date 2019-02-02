@@ -21,7 +21,7 @@ public class UncheckedSaxException extends RuntimeException {
     }
 
     @Override
-    public SAXException getCause() {
+    public synchronized SAXException getCause() {
         return (SAXException) super.getCause();
     }
 }
