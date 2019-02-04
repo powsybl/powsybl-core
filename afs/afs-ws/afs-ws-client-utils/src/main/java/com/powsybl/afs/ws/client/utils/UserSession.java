@@ -6,7 +6,7 @@
  */
 package com.powsybl.afs.ws.client.utils;
 
-import com.powsybl.afs.ws.utils.UserProfile;
+import com.powsybl.commons.net.UserProfile;
 
 import java.util.Objects;
 
