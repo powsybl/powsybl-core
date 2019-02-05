@@ -20,7 +20,7 @@ public class UncheckedDeploymentException extends RuntimeException {
     }
 
     @Override
-    public DeploymentException getCause() {
+    public synchronized DeploymentException getCause() {
         return (DeploymentException) super.getCause();
     }
 }
