@@ -4,7 +4,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-
 package com.powsybl.loadflow.resultscompletion.z0flows;
 
 import java.util.ArrayList;
@@ -25,11 +24,14 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Terminal;
 
+/**
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ */
 public class Z0BusGroup {
 
-    public Z0BusGroup(Bus bus, Z0LineChecker z0Line) {
+    public Z0BusGroup(Bus bus, Z0LineChecker z0checker) {
         this.seed = bus;
-        this.z0Line = z0Line;
+        this.z0checker = z0checker;
         buses = new ArrayList<>();
     }
 
@@ -49,7 +51,7 @@ public class Z0BusGroup {
             Bus b = buses.get(k);
             b.getLineStream().forEach(line -> {
                 Bus other = other(line, b);
-                if (other != null && z0Line.isZ0(line, b, other)) {
+                if (other != null && z0checker.isZ0(line)) {
                     addToGraph(line, b, other);
                     if (!buses.contains(other)) {
                         buses.add(other);
@@ -172,13 +174,13 @@ public class Z0BusGroup {
         graph.addEdge(b1, b2, new Z0Edge(line));
     }
 
-    private final Bus                        seed;
-    private final Z0LineChecker              z0Line;
-    private final List<Bus>                  buses;
+    private final Bus seed;
+    private final Z0LineChecker z0checker;
+    private final List<Bus> buses;
     private SimpleWeightedGraph<Bus, Z0Edge> graph;
-    private SpanningTree<Z0Edge>             tree;
-    private List<List<Bus>>                  levels;
-    private Map<Bus, Line>                   parent;
+    private SpanningTree<Z0Edge> tree;
+    private List<List<Bus>> levels;
+    private Map<Bus, Line> parent;
 
-    private static final Logger              LOG = LoggerFactory.getLogger(Z0BusGroup.class);
+    private static final Logger LOG = LoggerFactory.getLogger(Z0BusGroup.class);
 }

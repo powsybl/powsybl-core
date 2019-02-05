@@ -97,8 +97,22 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
             completeTerminalData(twt.getLeg3().getTerminal(), ThreeWindingsTransformer.Side.THREE, twtData);
         });
 
-        Z0LineChecker checker = (Line l, Bus b1, Bus b2) -> b1.getV() == b2.getV() && b1.getAngle() == b2.getAngle();
-        Z0FlowsCompletion z0FlowsCompletion = new Z0FlowsCompletion(network, checker);
+        // A is considered Z0 (null impedance) if and only if
+        // it is connected at both ends and the voltage at end buses are exactly the same
+        Z0LineChecker z0checker = (Line l) -> {
+            if (!l.getTerminal1().isConnected()) {
+                return false;
+            }
+            if (!l.getTerminal2().isConnected()) {
+                return false;
+            }
+            Bus b1 = l.getTerminal1().getBusView().getBus();
+            Bus b2 = l.getTerminal2().getBusView().getBus();
+            Objects.requireNonNull(b1);
+            Objects.requireNonNull(b2);
+            return b1.getV() == b2.getV() && b1.getAngle() == b2.getAngle();
+        };
+        Z0FlowsCompletion z0FlowsCompletion = new Z0FlowsCompletion(network, z0checker);
         z0FlowsCompletion.complete();
     }
 

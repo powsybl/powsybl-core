@@ -4,7 +4,6 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-
 package com.powsybl.loadflow.resultscompletion.z0flows;
 
 import java.util.Objects;
@@ -26,6 +25,9 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TopologyVisitor;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
+/**
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ */
 public class Z0FlowFromBusBalance implements TopologyVisitor {
 
     public Z0FlowFromBusBalance(Bus bus, Line line) {
