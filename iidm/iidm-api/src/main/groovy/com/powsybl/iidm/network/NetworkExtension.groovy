@@ -10,8 +10,8 @@ package com.powsybl.iidm.network
  * @author Chamseddine BENHAMED <chamseddine.benhamed at rte-france.com>
  */
 class NetworkExtension {
-    static Object getShunt(Network self, String name) {
-       self.getShuntCompensator(name)
+    static Object getShunt(Network self, String id) {
+       self.getShuntCompensator(id)
     }
 
     static Object getShunts(Network self) {

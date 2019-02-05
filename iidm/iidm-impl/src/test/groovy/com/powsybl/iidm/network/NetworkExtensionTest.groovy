@@ -55,13 +55,13 @@ class NetworkExtensionTest {
 
     @Test
     void getShuntStreamTest() {
-        assertNotNull(network.getShuntStream())
+        assertEquals(1, network.getShuntStream().count())
     }
 
     @Test
     void getShuntTest() {
         assertNotNull(network.getShunt("SHUNT"))
-        assertEquals(1, network.getShuntCount())
+        assertEquals(6, network.getShunt("SHUNT").getCurrentSectionCount())
     }
 }
 
