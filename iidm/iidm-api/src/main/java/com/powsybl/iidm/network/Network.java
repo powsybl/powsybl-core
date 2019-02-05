@@ -346,38 +346,6 @@ public interface Network extends Container<Network> {
     Load getLoad(String id);
 
     /**
-     * @deprecated Use {@link #getShuntCompensators)} instead.
-     */
-    @Deprecated
-    default Iterable<ShuntCompensator> getShunts() {
-        return getShuntCompensators();
-    }
-
-    /**
-     * @deprecated Use {@link #getShuntCompensatorStream()} instead.
-     */
-    @Deprecated
-    default Stream<ShuntCompensator> getShuntStream() {
-        return getShuntCompensatorStream();
-    }
-
-    /**
-     * @deprecated Use {@link #getShuntCompensatorCount()} instead.
-     */
-    @Deprecated
-    default int getShuntCount() {
-        return getShuntCompensatorCount();
-    }
-
-    /**
-     * @deprecated Use {@link #getShuntCompensator(String)} instead.
-     */
-    @Deprecated
-    default ShuntCompensator getShunt(String id) {
-        return getShuntCompensator(id);
-    }
-
-    /**
      * Get all compensator shunts.
      */
     Iterable<ShuntCompensator> getShuntCompensators();
