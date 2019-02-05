@@ -141,10 +141,7 @@ public class Conversion {
         // network ?
         convert(cgmes.synchronousMachines(), sm -> new SynchronousMachineConversion(sm, context));
 
-        // DC
-        // Converters must be converted first
-        // FIXME(Luma) remove this output
-        System.out.println(cgmes.acDcConverters().tabulateLocals());
+        // DC Converters must be converted first
         convert(cgmes.acDcConverters(), c -> new AcDcConverterConversion(c, context));
         convert(cgmes.dcLineSegments(), l -> new DcLineSegmentConversion(l, context));
 

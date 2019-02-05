@@ -37,15 +37,15 @@ public class DcMapping {
         context.cgmes().dcTerminals().forEach(t -> {
             DcTerminal td = new DcTerminal(
                     t.getId(CgmesNames.DC_TERMINAL),
-                    t.getId("DCConductingEquipment"),
+                    t.getId(DC_CONDUCTING_EQUIPMENT),
                     t.getLocal("dcConductingEquipmentType"),
                     t.asBoolean("connected", false));
             terminals.put(td.id(), td);
 
-            List<String> eqterminals = terminalsForEquipment.get(t.getId("DCConductingEquipment"));
+            List<String> eqterminals = terminalsForEquipment.get(t.getId(DC_CONDUCTING_EQUIPMENT));
             if (eqterminals == null) {
                 eqterminals = new ArrayList<>(2);
-                terminalsForEquipment.put(t.getId("DCConductingEquipment"), eqterminals);
+                terminalsForEquipment.put(t.getId(DC_CONDUCTING_EQUIPMENT), eqterminals);
             }
             eqterminals.add(td.id());
         });
@@ -56,12 +56,11 @@ public class DcMapping {
         });
     }
 
-    public void map(String id, PropertyBag ccgmes, HvdcConverterStation ciidm) {
+    public void map(String id, PropertyBag ccgmes, HvdcConverterStation<?> ciidm) {
         // Store we have found this converted HVDC Converter station at
         // the corresponding DCTopologicalNode for the given CGMES DCTerminal
 
-        // FIXME(Luma): There can be multiple DCTerminals for this DCEquipment
-        // String terminalId = ccgmes.getId(CgmesNames.DC_TERMINAL);
+        // There can be multiple DCTerminals for this DCEquipment
         terminalsForEquipment.get(id).forEach(terminalId -> {
             String dcTopologicalNode = terminals.get(terminalId).topologicalNode();
             addConverterAt(dcTopologicalNode, ciidm, ccgmes);
@@ -73,13 +72,13 @@ public class DcMapping {
         return converters.get(dcTopologicalNode);
     }
 
-    public PropertyBag cgmesConverterFor(HvdcConverterStation converter) {
+    public PropertyBag cgmesConverterFor(HvdcConverterStation<?> converter) {
         return cgmesConverters.get(converter);
     }
 
     public void addConverterAt(
             String dcTopologicalNode,
-            HvdcConverterStation c,
+            HvdcConverterStation<?> c,
             PropertyBag cc) {
         // Check there are only one converter at that node
         if (converters.containsKey(dcTopologicalNode)) {
@@ -167,7 +166,9 @@ public class DcMapping {
 
     private final Context context;
     private final Map<String, DcTerminal> terminals;
-    private final Map<String, HvdcConverterStation> converters;
-    private final Map<HvdcConverterStation, PropertyBag> cgmesConverters;
+    private final Map<String, HvdcConverterStation<?>> converters;
+    private final Map<HvdcConverterStation<?>, PropertyBag> cgmesConverters;
     private final Map<String, List<String>> terminalsForEquipment;
+
+    private static final String DC_CONDUCTING_EQUIPMENT = "DCConductingEquipment";
 }

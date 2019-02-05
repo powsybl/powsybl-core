@@ -115,7 +115,7 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
         } else if (rectifier(mode1) && inverter(mode2)) {
             return HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
         } else {
-            // FIXME(Luma) For Voltage Source Converter we do not have operatingMode,
+            // TODO: For Voltage Source Converter we do not have operatingMode,
             // So we can only try to determine rectifier and inverter
             // from the type of control mode defined at the converters
             if (DEFAULT_CONVERTERS_MODE != null) {
@@ -129,7 +129,7 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
     }
 
     private boolean inverter(String operatingMode) {
-        // FIXME(Luma): VsConverter do not have operatingMode
+        // TODO: VsConverter do not have operatingMode
         if (operatingMode == null) {
             return false;
         }
@@ -137,7 +137,7 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
     }
 
     private boolean rectifier(String operatingMode) {
-        // FIXME(Luma): VsConverter do not have operatingMode
+        // TODO: VsConverter do not have operatingMode
         if (operatingMode == null) {
             return false;
         }
