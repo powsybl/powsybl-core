@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network
 
+import org.junit.Before
 import org.junit.Test
 
 import static org.junit.Assert.assertEquals
@@ -16,24 +17,51 @@ import static org.junit.Assert.assertNull
  * @author Chamseddine BENHAMED <chamseddine.benhamed at rte-france.com>
  */
 class NetworkExtensionTest {
+    private Network network
+    @Before
+    void prepareNetwork(){
+        network = NetworkFactory.create("test", "test")
+        Substation substation = network.newSubstation()
+                .setCountry(Country.AF)
+                .setTso("tso")
+                .setName("sub")
+                .setId("subId")
+                .add();
+        VoltageLevel voltageLevel = substation.newVoltageLevel()
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .setId("bbVL")
+                .setName("bbVL_name")
+                .setNominalV(200.0f)
+                .add()
+        Bus bus = voltageLevel.getBusBreakerView()
+                .newBus()
+                .setName("Bus1")
+                .setId("Bus1")
+                .add()
+        network.getVoltageLevel("bbVL").newShuntCompensator().setId("SHUNT")
+                .setBus("Bus1")
+                .setConnectableBus("Bus1")
+                .setbPerSection(5.0)
+                .setCurrentSectionCount(6)
+                .setMaximumSectionCount(10)
+                .add()
+    }
 
     @Test
     void getShuntsTest() {
-        Network network = NetworkFactory.create("test", "test")
-        assertEquals(network.getShunts().size(),0)
-        assertEquals(network.getShuntCount(),0)
+        assertEquals(1, network.getShunts().size())
+        assertEquals(1, network.getShuntCount())
     }
 
     @Test
     void getShuntStreamTest() {
-        Network network = NetworkFactory.create("test", "test")
         assertNotNull(network.getShuntStream())
     }
 
     @Test
     void getShuntTest() {
-        Network network = NetworkFactory.create("test", "test")
-        assertNull(network.getShunt("shunt1"))
+        assertNotNull(network.getShunt("SHUNT"))
+        assertEquals(1, network.getShuntCount())
     }
 }
 
