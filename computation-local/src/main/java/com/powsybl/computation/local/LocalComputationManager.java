@@ -180,7 +180,7 @@ public class LocalComputationManager implements ComputationManager {
             }
         }
 
-        return new ExecutionReport(errors);
+        return new DefaultExecutionReport(errors);
     }
 
     private void logExecutingCommand(Path workingDir, Command command, int executionIndex) {

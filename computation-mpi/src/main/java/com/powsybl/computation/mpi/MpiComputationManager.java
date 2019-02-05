@@ -232,7 +232,7 @@ public class MpiComputationManager implements ComputationManager {
                 return ctxt;
             });
         } else {
-            ctxt.report = new ExecutionReport(Collections.emptyList());
+            ctxt.report = new DefaultExecutionReport(Collections.emptyList());
             return CompletableFuture.completedFuture(ctxt);
         }
     }

@@ -19,7 +19,7 @@ public class UncheckedIllegalAccessException extends RuntimeException {
     }
 
     @Override
-    public IllegalAccessException getCause() {
+    public synchronized IllegalAccessException getCause() {
         return (IllegalAccessException) super.getCause();
     }
 }

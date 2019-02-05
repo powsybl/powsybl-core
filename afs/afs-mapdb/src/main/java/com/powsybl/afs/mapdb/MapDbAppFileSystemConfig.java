@@ -13,6 +13,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -51,7 +52,7 @@ public class MapDbAppFileSystemConfig extends AbstractAppFileSystemConfig<MapDbA
                     }
                     return configs;
                 })
-                .orElse(null);
+                .orElse(Collections.emptyList());
     }
 
     private static Path checkDbFile(Path dbFile) {

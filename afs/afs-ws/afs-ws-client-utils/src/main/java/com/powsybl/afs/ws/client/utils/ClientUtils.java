@@ -8,7 +8,7 @@ package com.powsybl.afs.ws.client.utils;
 
 import com.powsybl.afs.storage.AfsStorageException;
 import com.powsybl.afs.ws.utils.JsonProvider;
-import com.powsybl.afs.ws.utils.UserProfile;
+import com.powsybl.commons.net.UserProfile;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

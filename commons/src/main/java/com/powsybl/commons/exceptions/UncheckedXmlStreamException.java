@@ -21,7 +21,7 @@ public class UncheckedXmlStreamException extends RuntimeException {
     }
 
     @Override
-    public XMLStreamException getCause() {
+    public synchronized XMLStreamException getCause() {
         return (XMLStreamException) super.getCause();
     }
 }
