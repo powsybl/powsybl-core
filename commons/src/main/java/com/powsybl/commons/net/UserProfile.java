@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.afs.ws.utils;
+package com.powsybl.commons.net;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -34,5 +34,24 @@ public class UserProfile {
 
     public String getLastName() {
         return lastName;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(firstName, lastName);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof UserProfile) {
+            UserProfile profile = (UserProfile) obj;
+            return profile.firstName.equals(firstName) && profile.lastName.equals(lastName);
+        }
+        return false;
+    }
+
+    @Override
+    public String toString() {
+        return "UserProfile(firstName=" + firstName + ", lastName=" + lastName + ")";
     }
 }

@@ -57,6 +57,7 @@ public class LocalSecurityAnalysisRunningService implements SecurityAnalysisRunn
 
             logger.log("Loading network...");
             Network network = aCase.getNetwork();
+            network.getVariantManager().allowVariantMultiThreadAccess(true);
 
             SecurityAnalysis securityAnalysis = factorySupplier.get().create(network, computationManager, 0);
 

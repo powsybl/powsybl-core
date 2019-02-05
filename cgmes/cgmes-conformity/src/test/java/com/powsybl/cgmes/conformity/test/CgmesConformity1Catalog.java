@@ -131,8 +131,8 @@ public class CgmesConformity1Catalog {
     }
 
     public final TestGridModelResources miniNodeBreakerLimitsforEquipment() {
-        String base = ENTSOE_CONFORMITY_1_MODIFIED
-                + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_BaseCase_Complete_v3_Limits_for_Equipment/";
+        String base = ENTSOE_CONFORMITY_1
+                + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_BaseCase_Complete_v3_limits/";
         String baseBoundary = ENTSOE_CONFORMITY_1
                 + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_Boundary_v3/";
         return new TestGridModelResources(
@@ -1071,5 +1071,4 @@ public class CgmesConformity1Catalog {
     }
 
     private static final String ENTSOE_CONFORMITY_1 = "/conformity/cas-1.1.3-data-4.0.3";
-    private static final String ENTSOE_CONFORMITY_1_MODIFIED = "/conformity-modified/cas-1.1.3-data-4.0.3";
 }
