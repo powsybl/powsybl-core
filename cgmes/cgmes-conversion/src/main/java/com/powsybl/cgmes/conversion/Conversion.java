@@ -143,6 +143,8 @@ public class Conversion {
 
         // DC
         // Converters must be converted first
+        // FIXME(Luma) remove this output
+        System.out.println(cgmes.acDcConverters().tabulateLocals());
         convert(cgmes.acDcConverters(), c -> new AcDcConverterConversion(c, context));
         convert(cgmes.dcLineSegments(), l -> new DcLineSegmentConversion(l, context));
 

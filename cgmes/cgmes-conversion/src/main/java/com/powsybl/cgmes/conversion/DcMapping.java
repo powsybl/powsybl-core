@@ -7,7 +7,9 @@
 
 package com.powsybl.cgmes.conversion;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.powsybl.cgmes.model.CgmesNames;
@@ -24,6 +26,7 @@ public class DcMapping {
         terminals = new HashMap<>();
         converters = new HashMap<>();
         cgmesConverters = new HashMap<>();
+        terminalsForEquipment = new HashMap<>();
     }
 
     public void initialize() {
@@ -38,6 +41,13 @@ public class DcMapping {
                     t.getLocal("dcConductingEquipmentType"),
                     t.asBoolean("connected", false));
             terminals.put(td.id(), td);
+
+            List<String> eqterminals = terminalsForEquipment.get(t.getId("DCConductingEquipment"));
+            if (eqterminals == null) {
+                eqterminals = new ArrayList<>(2);
+                terminalsForEquipment.put(t.getId("DCConductingEquipment"), eqterminals);
+            }
+            eqterminals.add(td.id());
         });
         context.cgmes().dcTerminalsTP().forEach(t -> {
             DcTerminal td = terminals.get(t.getId("DCTerminal"));
@@ -46,12 +56,16 @@ public class DcMapping {
         });
     }
 
-    public void map(PropertyBag ccgmes, HvdcConverterStation ciidm) {
+    public void map(String id, PropertyBag ccgmes, HvdcConverterStation ciidm) {
         // Store we have found this converted HVDC Converter station at
         // the corresponding DCTopologicalNode for the given CGMES DCTerminal
-        String terminalId = ccgmes.getId(CgmesNames.DC_TERMINAL);
-        String dcTopologicalNode = terminals.get(terminalId).topologicalNode();
-        addConverterAt(dcTopologicalNode, ciidm, ccgmes);
+
+        // FIXME(Luma): There can be multiple DCTerminals for this DCEquipment
+        // String terminalId = ccgmes.getId(CgmesNames.DC_TERMINAL);
+        terminalsForEquipment.get(id).forEach(terminalId -> {
+            String dcTopologicalNode = terminals.get(terminalId).topologicalNode();
+            addConverterAt(dcTopologicalNode, ciidm, ccgmes);
+        });
     }
 
     public HvdcConverterStation converterAt(String terminalId) {
@@ -155,4 +169,5 @@ public class DcMapping {
     private final Map<String, DcTerminal> terminals;
     private final Map<String, HvdcConverterStation> converters;
     private final Map<HvdcConverterStation, PropertyBag> cgmesConverters;
+    private final Map<String, List<String>> terminalsForEquipment;
 }

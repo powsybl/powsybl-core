@@ -96,6 +96,17 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
 
     private boolean convertToLowImpedanceLine() {
         String vl = switchVoltageLevelId();
+        String vl1 = cgmesVoltageLevelId(1);
+        String vl2 = cgmesVoltageLevelId(2);
+        if (this.id.startsWith("_8e56ead3") && LOG.isInfoEnabled()) {
+            LOG.info("voltage levels for switch {}", this.id);
+            LOG.info("    vl  : {}", vl);
+            LOG.info("    vl1 : {}", vl1);
+            LOG.info("    vl2 : {}", vl2);
+            LOG.info("    cn1 : {}", nodeId(1));
+            LOG.info("    cn2 : {}", nodeId(2));
+            LOG.info("");
+        }
         return !cgmesVoltageLevelId(1).equals(vl) || !cgmesVoltageLevelId(2).equals(vl);
     }
 
