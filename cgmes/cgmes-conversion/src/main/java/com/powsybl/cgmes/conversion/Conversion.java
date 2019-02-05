@@ -142,6 +142,7 @@ public class Conversion {
         convert(cgmes.dcLineSegments(), l -> new DcLineSegmentConversion(l, context));
 
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
+        context.currentLimitsMapping().addAll();
 
         return network;
     }
@@ -312,6 +313,7 @@ public class Conversion {
             terminalMapping = new TerminalMapping();
             tapChangerTransformers = new TapChangerTransformers();
             dcMapping = new DcMapping(this);
+            currentLimitsMapping = new CurrentLimitsMapping();
         }
 
         public CgmesModel cgmes() {
@@ -341,6 +343,10 @@ public class Conversion {
 
         public TerminalMapping terminalMapping() {
             return terminalMapping;
+        }
+
+        public CurrentLimitsMapping currentLimitsMapping() {
+            return currentLimitsMapping;
         }
 
         public TapChangerTransformers tapChangerTransformers() {
@@ -459,6 +465,7 @@ public class Conversion {
         private final TerminalMapping terminalMapping;
         private final TapChangerTransformers tapChangerTransformers;
         private final DcMapping dcMapping;
+        private final CurrentLimitsMapping currentLimitsMapping;
 
         private int countLines;
         private int countLinesWithSvPowerFlowsAtEnds;

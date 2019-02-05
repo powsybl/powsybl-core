@@ -110,7 +110,18 @@ public class CgmesConformity1NetworkCatalog {
                 .setB(2.1677e-5)
                 .setUcteXnodeCode("TN_Border_ST24")
                 .add();
-        be7.newCurrentLimits().setPermanentLimit(1180).add();
+        be7.newCurrentLimits().setPermanentLimit(1180)
+                .beginTemporaryLimit()
+                    .setName("IT20s")
+                    .setValue(1312.0)
+                    .setAcceptableDuration(20)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("IT10s")
+                    .setValue(Double.MAX_VALUE)
+                    .setAcceptableDuration(10)
+                .endTemporaryLimit()
+                .add();
 
         DanglingLine be1 = vlAnvers220.newDanglingLine()
                 .setId("_17086487-56ba-4979-b8de-064025a6b4da")
@@ -125,7 +136,6 @@ public class CgmesConformity1NetworkCatalog {
                 .setB(8.2938E-5)
                 .setUcteXnodeCode("TN_Border_ST23")
                 .add();
-        be1.newCurrentLimits().setPermanentLimit(1443).add();
 
         Bus busBrussels225 = vlBrussels225.getBusBreakerView().newBus()
                 .setId("_99b219f3-4593-428b-a4da-124a54630178")
@@ -185,7 +195,18 @@ public class CgmesConformity1NetworkCatalog {
                 .setB(1.49854e-4)
                 .setUcteXnodeCode("TN_Border_AL11")
                 .add();
-        be3.newCurrentLimits().setPermanentLimit(1371).add();
+        be3.newCurrentLimits().setPermanentLimit(1371)
+                .beginTemporaryLimit()
+                    .setName("IT20s")
+                    .setValue(1443.0)
+                    .setAcceptableDuration(20)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("IT10s")
+                    .setValue(Double.MAX_VALUE)
+                    .setAcceptableDuration(10)
+                .endTemporaryLimit()
+                .add();
 
         DanglingLine be5 = vlBrussels380.newDanglingLine()
                 .setId("_b18cd1aa-7808-49b9-a7cf-605eaf07b006")
@@ -200,7 +221,18 @@ public class CgmesConformity1NetworkCatalog {
                 .setB(6.59734E-5)
                 .setUcteXnodeCode("TN_Border_GY11")
                 .add();
-        be5.newCurrentLimits().setPermanentLimit(1804).add();
+        be5.newCurrentLimits().setPermanentLimit(1804)
+                .beginTemporaryLimit()
+                    .setName("IT20s")
+                    .setValue(1876.0)
+                    .setAcceptableDuration(20)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("IT10s")
+                    .setValue(Double.MAX_VALUE)
+                    .setAcceptableDuration(10)
+                .endTemporaryLimit()
+                .add();
 
         DanglingLine be4 = vlBrussels380.newDanglingLine()
                 .setId("_ed0c5d75-4a54-43c8-b782-b20d7431630b")
@@ -215,7 +247,18 @@ public class CgmesConformity1NetworkCatalog {
                 .setB(2.51956e-5)
                 .setUcteXnodeCode("TN_Border_MA11")
                 .add();
-        be4.newCurrentLimits().setPermanentLimit(1226).add();
+        be4.newCurrentLimits().setPermanentLimit(1226)
+                .beginTemporaryLimit()
+                    .setName("IT20s")
+                    .setValue(1299.0)
+                    .setAcceptableDuration(20)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("IT10s")
+                    .setValue(Double.MAX_VALUE)
+                    .setAcceptableDuration(10)
+                .endTemporaryLimit()
+                .add();
 
         ShuntCompensator shBrussels110 = vlBrussels110.newShuntCompensator()
                 .setId("_d771118f-36e9-4115-a128-cc3d9ce3e3da")
@@ -280,7 +323,18 @@ public class CgmesConformity1NetworkCatalog {
                 .setBus2(busAnvers220.getId())
                 .setVoltageLevel2(vlAnvers220.getId())
                 .add();
-        lineBE2.newCurrentLimits1().setPermanentLimit(1443.0).add();
+        lineBE2.newCurrentLimits1().setPermanentLimit(1443.0)
+                .beginTemporaryLimit()
+                    .setName("IT20s")
+                    .setValue(1574.0)
+                    .setAcceptableDuration(20)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("IT10s")
+                    .setValue(Double.MAX_VALUE)
+                    .setAcceptableDuration(10)
+                .endTemporaryLimit()
+                .add();
         lineBE2.newCurrentLimits2().setPermanentLimit(1443.0).add();
         // expected.newLine()
         // .setId("78736387-5f60-4832-b3fe-d50daf81b0a6")
@@ -307,7 +361,18 @@ public class CgmesConformity1NetworkCatalog {
                 .setBus2(busAnvers220.getId())
                 .setVoltageLevel2(vlAnvers220.getId())
                 .add();
-        lineBE6.newCurrentLimits1().setPermanentLimit(1180.0).add();
+        lineBE6.newCurrentLimits1().setPermanentLimit(1180.0)
+                .beginTemporaryLimit()
+                    .setName("IT20s")
+                    .setValue(1312.0)
+                    .setAcceptableDuration(20)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("IT10s")
+                    .setValue(Double.MAX_VALUE)
+                    .setAcceptableDuration(10)
+                .endTemporaryLimit()
+                .add();
         lineBE6.newCurrentLimits2().setPermanentLimit(1180.0).add();
         {
             double u1 = 110.34375;
@@ -342,7 +407,18 @@ public class CgmesConformity1NetworkCatalog {
                     .setRatedU1(u1)
                     .setRatedU2(u2)
                     .add();
-            tx.newCurrentLimits1().setPermanentLimit(1308.1).add();
+            tx.newCurrentLimits1().setPermanentLimit(1308.1)
+                    .beginTemporaryLimit()
+                        .setName("IT20s")
+                        .setValue(1408.1)
+                        .setAcceptableDuration(20)
+                    .endTemporaryLimit()
+                    .beginTemporaryLimit()
+                        .setName("IT10s")
+                        .setValue(Double.MAX_VALUE)
+                        .setAcceptableDuration(10)
+                    .endTemporaryLimit()
+                    .add();
             tx.newCurrentLimits2().setPermanentLimit(13746.4).add();
             int low = 1;
             int high = 33;
@@ -411,7 +487,18 @@ public class CgmesConformity1NetworkCatalog {
                     .setRatedU1(u1)
                     .setRatedU2(u2)
                     .add();
-            txBE22.newCurrentLimits1().setPermanentLimit(1705.8).add();
+            txBE22.newCurrentLimits1().setPermanentLimit(1705.8)
+                    .beginTemporaryLimit()
+                        .setName("IT20s")
+                        .setValue(1805.8)
+                        .setAcceptableDuration(20)
+                    .endTemporaryLimit()
+                    .beginTemporaryLimit()
+                        .setName("IT10s")
+                        .setValue(Double.MAX_VALUE)
+                        .setAcceptableDuration(10)
+                    .endTemporaryLimit()
+                    .add();
             txBE22.newCurrentLimits2().setPermanentLimit(3411.6).add();
             int low = 1;
             int high = 25;
@@ -474,7 +561,18 @@ public class CgmesConformity1NetworkCatalog {
                     .setRatedU1(u1)
                     .setRatedU2(u2)
                     .add();
-            txBE21.newCurrentLimits1().setPermanentLimit(938.2).add();
+            txBE21.newCurrentLimits1().setPermanentLimit(938.2)
+                    .beginTemporaryLimit()
+                        .setName("IT20s")
+                        .setValue(958.2)
+                        .setAcceptableDuration(20)
+                    .endTemporaryLimit()
+                    .beginTemporaryLimit()
+                        .setName("IT10s")
+                        .setValue(Double.MAX_VALUE)
+                        .setAcceptableDuration(10)
+                    .endTemporaryLimit()
+                    .add();
             txBE21.newCurrentLimits2().setPermanentLimit(3411.6).add();
             int low = 1;
             int high = 25;
@@ -524,7 +622,31 @@ public class CgmesConformity1NetworkCatalog {
 
     public Network microBaseCaseBE() {
         String modelId = "urn:uuid:d400c631-75a0-4c30-8aed-832b0d282e73";
-        return microBE(modelId);
+        Network network = microBE(modelId);
+        DanglingLine be1 = network.getDanglingLine("_17086487-56ba-4979-b8de-064025a6b4da");
+        be1.newCurrentLimits().setPermanentLimit(1443)
+                .beginTemporaryLimit()
+                    .setName("IT30s")
+                    .setValue(1500.0)
+                    .setAcceptableDuration(30)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("IT25s")
+                    .setValue(1550.0)
+                    .setAcceptableDuration(25)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("IT20s")
+                    .setValue(1574.0)
+                    .setAcceptableDuration(20)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("IT10s")
+                    .setValue(Double.MAX_VALUE)
+                    .setAcceptableDuration(10)
+                .endTemporaryLimit()
+                .add();
+        return network;
     }
 
     public Network microType4BE() {
@@ -632,9 +754,10 @@ public class CgmesConformity1NetworkCatalog {
                 .setVoltageLevel2(vlAnvers220.getId())
                 .add();
 
+        /* Take the lowest permanent limit (re CVG) To change ??
         Line lineBE2 = network.getLine("_b58bf21a-096a-4dae-9a01-3f03b60c24c7");
         lineBE2.getCurrentLimits1().setPermanentLimit(2000.0);
-        lineBE2.getCurrentLimits2().setPermanentLimit(2000.0);
+        lineBE2.getCurrentLimits2().setPermanentLimit(2000.0);*/
 
         network.getTwoWindingsTransformer("_e482b89a-fa84-4ea9-8e70-a83d44790957")
                 .getRatioTapChanger().setTapPosition(20);
@@ -685,7 +808,20 @@ public class CgmesConformity1NetworkCatalog {
                 .setQ0(4.958972);
         network.getDanglingLine("_17086487-56ba-4979-b8de-064025a6b4da")
                 .setP0(-89.462903)
-                .setQ0(1.519011);
+                .setQ0(1.519011)
+                .newCurrentLimits()
+                    .setPermanentLimit(1443)
+                    .beginTemporaryLimit()
+                        .setName("IT20s")
+                        .setValue(1574.0)
+                        .setAcceptableDuration(20)
+                    .endTemporaryLimit()
+                    .beginTemporaryLimit()
+                        .setName("IT10s")
+                        .setValue(Double.MAX_VALUE)
+                        .setAcceptableDuration(10)
+                    .endTemporaryLimit()
+                .add();
         network.getDanglingLine("_78736387-5f60-4832-b3fe-d50daf81b0a6")
                 .setP0(-16.452661)
                 .setQ0(64.018020);
@@ -695,6 +831,7 @@ public class CgmesConformity1NetworkCatalog {
         network.getDanglingLine("_ed0c5d75-4a54-43c8-b782-b20d7431630b")
                 .setP0(-11.518775)
                 .setQ0(67.377544);
+
         return network;
     }
 
