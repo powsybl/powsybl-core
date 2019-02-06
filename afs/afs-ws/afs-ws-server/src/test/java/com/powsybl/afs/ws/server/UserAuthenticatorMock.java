@@ -7,7 +7,7 @@
 package com.powsybl.afs.ws.server;
 
 import com.powsybl.afs.ws.server.utils.UserAuthenticator;
-import com.powsybl.afs.ws.utils.UserProfile;
+import com.powsybl.commons.net.UserProfile;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

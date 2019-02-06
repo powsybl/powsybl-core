@@ -21,7 +21,7 @@ public class UncheckedTransformerException extends RuntimeException {
     }
 
     @Override
-    public TransformerException getCause() {
+    public synchronized TransformerException getCause() {
         return (TransformerException) super.getCause();
     }
 }
