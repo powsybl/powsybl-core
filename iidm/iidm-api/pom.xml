@@ -64,8 +64,8 @@
             <artifactId>groovy-all</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.kohsuke</groupId>
-            <artifactId>graphviz-api</artifactId>
+            <groupId>guru.nidi</groupId>
+            <artifactId>graphviz-java</artifactId>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
