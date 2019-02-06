@@ -306,6 +306,7 @@
                     <configuration>
                         <doCheck>false</doCheck>
                         <doUpdate>false</doUpdate>
+                        <revisionOnScmFailure>UNKNOWN_BUILD</revisionOnScmFailure>
                     </configuration>
                 </plugin>
                 <plugin>
