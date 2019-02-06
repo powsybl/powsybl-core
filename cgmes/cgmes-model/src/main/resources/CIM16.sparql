@@ -288,7 +288,8 @@ WHERE
     }
     ?OperationalLimit
         cim:OperationalLimit.OperationalLimitSet ?OperationalLimitSet ;
-        cim:OperationalLimit.OperationalLimitType ?OperationalLimitType .
+        cim:OperationalLimit.OperationalLimitType ?OperationalLimitType ;
+        cim:IdentifiedObject.name ?name .
         {
             ?OperationalLimit a $OperationalLimitSubclass;
             {

@@ -146,12 +146,13 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             context.ignored(OPERATIONAL_LIMIT, "TATL acceptable duration is 10000");
             return;
         }
+        String name = p.getId("name");
         if (adder != null) {
-            context.currentLimitsMapping().addTemporaryLimit(acceptableDuration, value, adder);
+            context.currentLimitsMapping().addTemporaryLimit(name, acceptableDuration, value, adder);
         } else if (adder1 != null) {
             // Should we chose one terminal randomly for branches ???
             // This is what is done in CVG (ignore limits on terminal2)
-            context.currentLimitsMapping().addTemporaryLimit(acceptableDuration, value, adder1);
+            context.currentLimitsMapping().addTemporaryLimit(name, acceptableDuration, value, adder1);
         }
     }
 

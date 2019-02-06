@@ -522,6 +522,7 @@ public class Comparison {
         Iterator<CurrentLimits.TemporaryLimit> actualIt = actual.iterator();
         for (CurrentLimits.TemporaryLimit e : expected) {
             CurrentLimits.TemporaryLimit a = actualIt.next();
+            diff.compare("temporaryLimit", e.getName(), a.getName());
             diff.compare("temporaryLimit", e.getAcceptableDuration(), a.getAcceptableDuration());
             diff.compare("temporaryLimit", e.getValue(), a.getValue());
         }
