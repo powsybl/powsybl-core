@@ -6,6 +6,11 @@
  */
 package com.powsybl.loadflow.resultscompletion.z0flows;
 
+import java.io.IOException;
+import java.io.NotSerializableException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
 import org.jgrapht.graph.DefaultWeightedEdge;
 
 import com.powsybl.iidm.network.Line;
@@ -29,5 +34,14 @@ public class Z0Edge extends DefaultWeightedEdge {
         return line.getX();
     }
 
-    private final Line line;
+    // No serialization
+    private void writeObject(ObjectOutputStream out) throws IOException {
+        throw new NotSerializableException();
+    }
+
+    private void readObject(ObjectInputStream in) throws IOException {
+        throw new NotSerializableException();
+    }
+
+    private final transient Line line;
 }

@@ -239,7 +239,7 @@ public class BranchData {
             computedP2 = Double.NaN;
             computedQ2 = Double.NaN;
         } else {
-            Complex ytr = Complex.ZERO;
+            Complex ytr;
             Complex y1 = new Complex(g1, b1);
             Complex y2 = new Complex(g2, b2);
             Complex a1 = ComplexUtils.polar2Complex(1 / rho1, -alpha1);
@@ -247,9 +247,9 @@ public class BranchData {
             Complex a1cc = a1.conjugate();
             Complex a2cc = a2.conjugate();
 
-            Complex y11 = Complex.ZERO;
+            Complex y11;
             Complex y12 = Complex.ZERO;
-            Complex y22 = Complex.ZERO;
+            Complex y22;
             Complex y21 = Complex.ZERO;
             if (r == 0.0 && x == 0.0) {
                 y11 = y1.multiply(rho1 * rho1);
