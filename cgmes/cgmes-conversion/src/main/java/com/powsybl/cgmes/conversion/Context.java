@@ -20,14 +20,16 @@ import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.triplestore.api.PropertyBag;
 
+import java.util.Objects;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class Context {
     public Context(CgmesModel cgmes, Network network, Config config) {
-        this.cgmes = cgmes;
-        this.network = network;
-        this.config = config;
+        this.cgmes = Objects.requireNonNull(cgmes);
+        this.network = Objects.requireNonNull(network);
+        this.config = Objects.requireNonNull(config);
 
         // Even if the CGMES model is node-breaker,
         // we could decide to ignore the connectivity nodes and
@@ -106,11 +108,13 @@ public class Context {
         return dcMapping;
     }
 
-    public String boundaryVoltageLevelId(String nodeId) {
+    public static String boundaryVoltageLevelId(String nodeId) {
+        Objects.requireNonNull(nodeId);
         return nodeId + "_VL";
     }
 
-    public String boundarySubstationId(String nodeId) {
+    public static String boundarySubstationId(String nodeId) {
+        Objects.requireNonNull(nodeId);
         return nodeId + "_S";
     }
 
@@ -123,6 +127,7 @@ public class Context {
                 .newSubstation()
                 .setId(namingStrategy().getId("Substation", substationId))
                 .setName(substationName)
+                // TODO(mathbagu): Country should be optional. This will be done in another PR.
                 // A non-null country code must be set
                 // This is an arbitrary country code, Bangladesh code BD also matches with
                 // BounDary
@@ -142,6 +147,7 @@ public class Context {
     }
 
     public void anotherLineConversion(ACLineSegmentConversion c) {
+        Objects.requireNonNull(c);
         countLines++;
         if (c.terminalPowerFlow(1).defined() && c.terminalPowerFlow(2).defined()) {
             countLinesWithSvPowerFlowsAtEnds++;
@@ -181,7 +187,7 @@ public class Context {
     }
 
     public void missing(String what, double defaultValue) {
-        LOG.info("Missing {}. Used default value {}", what, defaultValue);
+        LOG.warn("Missing {}. Used default value {}", what, defaultValue);
     }
 
     private final CgmesModel cgmes;

@@ -7,11 +7,7 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -22,8 +18,6 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBags;
-
-import cern.colt.Arrays;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

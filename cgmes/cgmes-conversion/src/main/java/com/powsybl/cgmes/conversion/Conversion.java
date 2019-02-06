@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -290,7 +291,7 @@ public class Conversion {
         context.network().getVoltageLevels().forEach(vl -> {
             String name = vl.getSubstation().getName() + "-" + vl.getName();
             name = name.replace('/', '-');
-            String filename = "/Users/zamarrenolm/temp/temp-cgmes-" + name + ".dot";
+            String filename = Paths.get(System.getProperty("java.io.tmpdir"), "temp-cgmes-" + name + ".dot").toString();
             try {
                 vl.exportTopology(filename);
             } catch (IOException e) {
@@ -349,11 +350,11 @@ public class Conversion {
         }
 
         public boolean createBusbarSectionForEveryConnectivityNode() {
-            return xxxCreateBusbarSectionForEveryConnectivityNode;
+            return createBusbarSectionForEveryConnectivityNode;
         }
 
-        public void xxxSetCreateBusbarSectionForEveryConnectivityNode(boolean b) {
-            xxxCreateBusbarSectionForEveryConnectivityNode = b;
+        public void setCreateBusbarSectionForEveryConnectivityNode(boolean b) {
+            createBusbarSectionForEveryConnectivityNode = b;
         }
 
         private boolean convertBoundary = false;
@@ -361,7 +362,7 @@ public class Conversion {
         private double lowImpedanceLineR = 0.05;
         private double lowImpedanceLineX = 0.05;
 
-        private boolean xxxCreateBusbarSectionForEveryConnectivityNode = false;
+        private boolean createBusbarSectionForEveryConnectivityNode = false;
     }
 
     private final CgmesModel cgmes;

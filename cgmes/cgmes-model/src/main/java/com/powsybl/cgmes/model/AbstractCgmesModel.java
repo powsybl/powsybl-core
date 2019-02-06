@@ -119,10 +119,8 @@ public abstract class AbstractCgmesModel implements CgmesModel {
                 }
             }
         }
-        if (containerId == null) {
-            return null;
-        }
-        return container(containerId);
+
+        return (containerId == null) ? null : container(containerId);
     }
 
     private Map<String, PropertyBags> computeGroupedTransformerEnds() {

@@ -11,6 +11,7 @@ package com.powsybl.cgmes.model;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class CgmesContainer {
+
     CgmesContainer(String voltageLevel, String substation) {
         this.voltageLevel = voltageLevel;
         this.substation = substation;

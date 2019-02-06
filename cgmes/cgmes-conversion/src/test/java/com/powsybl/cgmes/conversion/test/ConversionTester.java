@@ -157,7 +157,7 @@ public class ConversionTester {
         }
     }
 
-    private void testConversionOnlyReport(TestGridModel gm) throws IOException {
+    private void testConversionOnlyReport(TestGridModel gm) {
         String impl = TripleStoreFactory.defaultImplementation();
         CgmesImport i = new CgmesImport();
         Properties params = new Properties();
@@ -231,8 +231,7 @@ public class ConversionTester {
     private void computeMissingFlows(Network network, LoadFlowParameters lfparams) {
         float epsilonX = 0;
         boolean applyXCorrection = false;
-        LoadFlowResultsCompletionParameters p;
-        p = new LoadFlowResultsCompletionParameters(epsilonX, applyXCorrection);
+        LoadFlowResultsCompletionParameters p = new LoadFlowResultsCompletionParameters(epsilonX, applyXCorrection);
         LoadFlowResultsCompletion lf = new LoadFlowResultsCompletion(p, lfparams);
         try {
             lf.run(network, null);

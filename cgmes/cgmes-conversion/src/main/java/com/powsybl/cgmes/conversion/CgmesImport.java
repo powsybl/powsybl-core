@@ -68,7 +68,7 @@ public class CgmesImport implements Importer {
             }
             if (p.containsKey("createBusbarSectionForEveryConnectivityNode")) {
                 String s = p.getProperty("createBusbarSectionForEveryConnectivityNode");
-                config.xxxSetCreateBusbarSectionForEveryConnectivityNode(Boolean.parseBoolean(s));
+                config.setCreateBusbarSectionForEveryConnectivityNode(Boolean.parseBoolean(s));
             }
         }
         Network network = new Conversion(cgmes, config).convertedNetwork();

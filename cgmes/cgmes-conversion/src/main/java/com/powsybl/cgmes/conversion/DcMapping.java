@@ -7,10 +7,7 @@
 
 package com.powsybl.cgmes.conversion;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.HvdcConverterStation;
@@ -42,11 +39,8 @@ public class DcMapping {
                     t.asBoolean("connected", false));
             terminals.put(td.id(), td);
 
-            List<String> eqterminals = terminalsForEquipment.get(t.getId(DC_CONDUCTING_EQUIPMENT));
-            if (eqterminals == null) {
-                eqterminals = new ArrayList<>(2);
-                terminalsForEquipment.put(t.getId(DC_CONDUCTING_EQUIPMENT), eqterminals);
-            }
+            List<String> eqterminals = Optional.ofNullable(terminalsForEquipment.get(t.getId(DC_CONDUCTING_EQUIPMENT))).orElse(new ArrayList<>(2));
+            terminalsForEquipment.put(t.getId(DC_CONDUCTING_EQUIPMENT), eqterminals);
             eqterminals.add(td.id());
         });
         context.cgmes().dcTerminalsTP().forEach(t -> {

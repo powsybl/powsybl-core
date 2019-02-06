@@ -39,7 +39,7 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
     }
 
     enum VscRegulation {
-        REACTIVE,
+        REACTIVE_POWER,
         VOLTAGE
     }
 
@@ -57,7 +57,7 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
             if (vscRegulation == VscRegulation.VOLTAGE) {
                 voltageRegulatorOn = true;
                 voltageSetpoint = p.asDouble("targetUpcc");
-            } else if (vscRegulation == VscRegulation.REACTIVE) {
+            } else if (vscRegulation == VscRegulation.REACTIVE_POWER) {
                 reactivePowerSetpoint = p.asDouble("targetQpcc");
             }
             VscConverterStationAdder adder = voltageLevel().newVscConverterStation()
@@ -88,7 +88,7 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
         if (qPccControl.endsWith("voltagePcc")) {
             return VscRegulation.VOLTAGE;
         } else if (qPccControl.endsWith("reactivePcc")) {
-            return VscRegulation.REACTIVE;
+            return VscRegulation.REACTIVE_POWER;
         }
         return null;
     }

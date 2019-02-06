@@ -9,11 +9,16 @@ package com.powsybl.cgmes.model;
 
 import com.powsybl.triplestore.api.PropertyBag;
 
+import java.util.Objects;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class CgmesTerminal {
+
     public CgmesTerminal(PropertyBag t) {
+        Objects.requireNonNull(t);
+
         this.id = t.getId(CgmesNames.TERMINAL);
         this.name = t.get("name");
         this.conductingEquipment = t.getId("ConductingEquipment");
