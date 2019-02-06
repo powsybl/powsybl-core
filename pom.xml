@@ -165,6 +165,7 @@
         <wildfly.dist.version>11.0.0.Final</wildfly.dist.version>
         <wildflyarquilliancontainerembedded.version>2.1.0.Final</wildflyarquilliancontainerembedded.version>
         <xmlunit.version>2.3.0</xmlunit.version>
+        <xmlapis.version>1.4.01</xmlapis.version>
     </properties>
 
     <build>
@@ -803,6 +804,12 @@
                 <groupId>org.xmlunit</groupId>
                 <artifactId>xmlunit-core</artifactId>
                 <version>${xmlunit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>xml-apis</groupId>
+                <artifactId>xml-apis</artifactId>
+                <version>${xmlapis.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
