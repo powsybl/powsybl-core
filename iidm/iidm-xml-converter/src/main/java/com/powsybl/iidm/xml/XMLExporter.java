@@ -73,6 +73,8 @@ public class XMLExporter implements Exporter {
 
     public static final String THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND = "iidm.export.xml.throw-exception-if-extension-not-found";
 
+    public static final String SEPARATE_BASE_EXTENSIONS_PROPERTY = "iidm.export.base-and-extensions-separately";
+
     @Override
     public String getFormat() {
         return "XIIDM";
@@ -97,22 +99,32 @@ public class XMLExporter implements Exporter {
                 .setAnonymized(Boolean.parseBoolean(parameters.getProperty(ANONYMISED_PROPERTIES, Boolean.FALSE.toString())))
                 .setSkipExtensions(Boolean.parseBoolean(parameters.getProperty(SKIP_EXTENSIONS_PROPERTIES, Boolean.FALSE.toString())))
                 .setTopologyLevel(TopologyLevel.valueOf(parameters.getProperty(TOPOLOGY_LEVEL_PROPERTY, TopologyLevel.NODE_BREAKER.name())))
-                .setThrowExceptionIfExtensionNotFound(Boolean.parseBoolean(parameters.getProperty(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, Boolean.TRUE.toString())));
+                .setThrowExceptionIfExtensionNotFound(Boolean.parseBoolean(parameters.getProperty(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, Boolean.TRUE.toString())))
+                .setSeparateBaseAndExtensions(Boolean.parseBoolean(parameters.getProperty(SEPARATE_BASE_EXTENSIONS_PROPERTY, Boolean.FALSE.toString())));
+
         }
 
         try {
             long startTime = System.currentTimeMillis();
+            Anonymizer anonymizer;
+            try (OutputStream osb = dataSource.newOutputStream(null, "xiidm", false);
+                 BufferedOutputStream bos = new BufferedOutputStream(osb)) {
 
-            try (OutputStream os = dataSource.newOutputStream(null, "xiidm", false);
-                 BufferedOutputStream bos = new BufferedOutputStream(os)) {
-                Anonymizer anonymizer = NetworkXml.write(network, options, bos);
+                if (parameters != null &&  Boolean.parseBoolean(parameters.getProperty(SEPARATE_BASE_EXTENSIONS_PROPERTY, Boolean.FALSE.toString()))) {
+                    try (OutputStream ose = dataSource.newOutputStream("ext", "xiidm", false);
+                         BufferedOutputStream bose = new BufferedOutputStream(ose)) {
+                        anonymizer = NetworkXml.write(network, options, bos, bose);
+                    }
+                } else {
+                    anonymizer = NetworkXml.write(network, options, bos);
+                }
+
                 if (anonymizer != null) {
                     try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dataSource.newOutputStream("_mapping", "csv", false), StandardCharsets.UTF_8))) {
                         anonymizer.write(writer);
                     }
                 }
             }
-
             LOGGER.debug("XIIDM export done in {} ms", System.currentTimeMillis() - startTime);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

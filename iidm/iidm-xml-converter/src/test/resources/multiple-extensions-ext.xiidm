@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" xmlns:bar="http://www.itesla_project.eu/schema/iidm/ext/loadbar/1_0" xmlns:foo="http://www.itesla_project.eu/schema/iidm/ext/loadfoo/1_0">
+    <iidm:extension id="LOAD">
+        <foo:loadFoo/>
+        <bar:loadBar/>
+    </iidm:extension>
+</iidm:network>

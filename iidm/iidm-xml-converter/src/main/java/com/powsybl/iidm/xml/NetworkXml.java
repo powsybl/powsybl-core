@@ -166,7 +166,12 @@ public final class NetworkXml {
         if (extensionXmlSerializer == null) {
             return;
         }
-        XMLStreamWriter writer = context.getWriter();
+        XMLStreamWriter writer;
+        if (context.getExtensionswWriter() != null) {
+            writer = context.getExtensionswWriter();
+        } else {
+            writer = context.getWriter();
+        }
         if (extensionXmlSerializer.hasSubElements()) {
             writer.writeStartElement(extensionXmlSerializer.getNamespaceUri(), extension.getName());
         } else {
@@ -196,12 +201,86 @@ public final class NetworkXml {
             if (!context.isExportedEquipment(identifiable) || extensions.isEmpty()) {
                 continue;
             }
-            context.getWriter().writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
-            context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
-            for (Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
-                writeExtension(extension, context);
+            if (context.getExtensionswWriter() != null) {
+                context.getExtensionswWriter().writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
+                context.getExtensionswWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
+                for (Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
+                    writeExtension(extension, context);
+                }
+                context.getExtensionswWriter().writeEndElement();
+            } else {
+                context.getWriter().writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
+                context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
+                for (Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
+                    writeExtension(extension, context);
+                }
+                context.getWriter().writeEndElement();
             }
-            context.getWriter().writeEndElement();
+        }
+    }
+    public static Anonymizer write(Network n, ExportOptions options, OutputStream osb, OutputStream ose) {
+        try {
+            final XMLStreamWriter writer = createXmlStreamWriter(options, osb);
+            final XMLStreamWriter extensionsWriter = createXmlStreamWriter(options, ose);
+
+            writer.writeStartDocument(StandardCharsets.UTF_8.toString(), "1.0");
+            writer.setPrefix(IIDM_PREFIX, IIDM_URI);
+            writer.writeStartElement(IIDM_URI, NETWORK_ROOT_ELEMENT_NAME);
+            writer.writeNamespace(IIDM_PREFIX, IIDM_URI);
+
+            extensionsWriter.writeStartDocument(StandardCharsets.UTF_8.toString(), "1.0");
+            extensionsWriter.setPrefix(IIDM_PREFIX, IIDM_URI);
+            extensionsWriter.writeStartElement(IIDM_URI, NETWORK_ROOT_ELEMENT_NAME);
+            extensionsWriter.writeNamespace(IIDM_PREFIX, IIDM_URI);
+
+            if (!options.isSkipExtensions()) {
+                writeExtensionNamespaces(n, options, extensionsWriter);
+            }
+
+            writer.writeAttribute("id", n.getId());
+            writer.writeAttribute("caseDate", n.getCaseDate().toString());
+            writer.writeAttribute("forecastDistance", Integer.toString(n.getForecastDistance()));
+            writer.writeAttribute("sourceFormat", n.getSourceFormat());
+            BusFilter filter = BusFilter.create(n, options);
+            Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
+
+            NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, extensionsWriter, options, filter);
+
+            for (Substation s : n.getSubstations()) {
+                SubstationXml.INSTANCE.write(s, null, context);
+            }
+            for (Line l : n.getLines()) {
+                if (!filter.test(l)) {
+                    continue;
+                }
+                if (l.isTieLine()) {
+                    TieLineXml.INSTANCE.write((TieLine) l, n, context);
+                } else {
+                    LineXml.INSTANCE.write(l, n, context);
+                }
+            }
+            for (HvdcLine l : n.getHvdcLines()) {
+                if (!filter.test(l.getConverterStation1()) || !filter.test(l.getConverterStation2())) {
+                    continue;
+                }
+                HvdcLineXml.INSTANCE.write(l, n, context);
+            }
+
+            if (!options.isSkipExtensions()) {
+                // Consider the network has been exported so its extensions will be written also
+                context.addExportedEquipment(n);
+                // write extensions
+                writeExtensions(n, context);
+            }
+
+            writer.writeEndElement();
+            writer.writeEndDocument();
+            extensionsWriter.writeEndElement();
+            extensionsWriter.writeEndDocument();
+
+            return anonymizer;
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
         }
     }
 

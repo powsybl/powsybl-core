@@ -30,6 +30,9 @@ public class ExportOptions {
 
     private boolean throwExceptionIfExtensionNotFound = true;
 
+    private boolean separateBaseAndExtensions = false;
+
+
     public ExportOptions() {
     }
 
@@ -56,6 +59,15 @@ public class ExportOptions {
 
     public ExportOptions setIndent(boolean indent) {
         this.indent = indent;
+        return this;
+    }
+
+    public boolean isSeparateBaseAndExtensions() {
+        return separateBaseAndExtensions;
+    }
+
+    public ExportOptions setSeparateBaseAndExtensions(boolean separateBaseAndExtensions) {
+        this.separateBaseAndExtensions = separateBaseAndExtensions;
         return this;
     }
 
