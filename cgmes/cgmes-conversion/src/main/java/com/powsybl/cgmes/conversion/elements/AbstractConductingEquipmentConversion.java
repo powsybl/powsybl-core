@@ -268,7 +268,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             this.busId = context.namingStrategy().getId("Bus", nodeId);
             if (context.config().convertBoundary()
                     && context.boundary().containsNode(nodeId)) {
-                cgmesVoltageLevelId = context.boundaryVoltageLevelId(nodeId);
+                cgmesVoltageLevelId = Context.boundaryVoltageLevelId(nodeId);
             } else {
                 // cgmesVoltageLevelId may be null if terminal is contained in a Line
                 // (happens in boundaries)
