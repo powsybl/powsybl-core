@@ -7,6 +7,8 @@
 
 package com.powsybl.cgmes.conversion;
 
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,12 +17,8 @@ import com.powsybl.cgmes.conversion.elements.ACLineSegmentConversion;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.triplestore.api.PropertyBag;
-
-import java.util.Objects;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -86,18 +84,6 @@ public class Context {
 
     public SubstationIdMapping substationIdMapping() {
         return substationIdMapping;
-    }
-
-    public String substationNameEqContainer(PropertyBag p) {
-        String eqcId = p.getId("EquipmentContainer");
-        if (eqcId == null) {
-            return null;
-        }
-        Substation substation = network.getSubstation(substationIdMapping().iidm(eqcId));
-        if (substation != null) {
-            return substation.getName();
-        }
-        return eqcId;
     }
 
     public Boundary boundary() {
