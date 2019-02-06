@@ -36,6 +36,7 @@ import com.powsybl.cgmes.conversion.elements.EquivalentBranchConversion;
 import com.powsybl.cgmes.conversion.elements.EquivalentInjectionConversion;
 import com.powsybl.cgmes.conversion.elements.ExternalNetworkInjectionConversion;
 import com.powsybl.cgmes.conversion.elements.NodeConversion;
+import com.powsybl.cgmes.conversion.elements.OperationalLimitConversion;
 import com.powsybl.cgmes.conversion.elements.PhaseTapChangerConversion;
 import com.powsybl.cgmes.conversion.elements.RatioTapChangerConversion;
 import com.powsybl.cgmes.conversion.elements.SeriesCompensatorConversion;
@@ -44,12 +45,10 @@ import com.powsybl.cgmes.conversion.elements.StaticVarCompensatorConversion;
 import com.powsybl.cgmes.conversion.elements.SubstationConversion;
 import com.powsybl.cgmes.conversion.elements.SwitchConversion;
 import com.powsybl.cgmes.conversion.elements.SynchronousMachineConversion;
-import com.powsybl.cgmes.conversion.elements.OperationalLimitConversion;
 import com.powsybl.cgmes.conversion.elements.ThreeWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.TwoWindingsTransformerConversion;
 import com.powsybl.cgmes.conversion.elements.VoltageLevelConversion;
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -149,7 +148,6 @@ public class Conversion {
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
 
         voltageAngles(nodes);
-        checkShuntCompensators();
         if (context.config().debugTopology()) {
             debugTopology();
         }
@@ -265,26 +263,6 @@ public class Conversion {
                 }
             }
         }
-    }
-
-    private void checkShuntCompensators() {
-        // TODO(Luma): remove this method before pull request,
-        // it is here only for debugging purposes
-        context.network().getShuntCompensators().forEach(shunt -> {
-            Bus bus = shunt.getTerminal().getBusView().getBus();
-            if (bus != null) {
-                double v = bus.getV();
-                if (Double.isNaN(v)) {
-                    LOG.info("checkSC voltage NaN {}", bus.getId());
-                } else {
-                    double q = shunt.getTerminal().getQ();
-                    double q1 = -1 * (v * v * shunt.getbPerSection() * shunt.getCurrentSectionCount());
-                    double dq = Math.abs(q - q1);
-                    LOG.info("checkSC Bus {} {}", bus.getId(), v);
-                    LOG.info("checkSC {} {} {} {}", shunt.getId(), String.format("%.5f", dq), q, q1);
-                }
-            }
-        });
     }
 
     private void debugTopology() {
