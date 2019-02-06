@@ -71,7 +71,7 @@ public class CgmesImport implements Importer {
                 config.setCreateBusbarSectionForEveryConnectivityNode(Boolean.parseBoolean(s));
             }
         }
-        Network network = new Conversion(cgmes, config).convertedNetwork();
+        Network network = new Conversion(cgmes, config).convert();
 
         boolean storeCgmesModelAsNetworkExtension = true;
         if (p != null) {

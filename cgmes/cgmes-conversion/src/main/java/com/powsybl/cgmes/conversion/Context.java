@@ -24,10 +24,10 @@ import com.powsybl.iidm.network.VoltageLevel;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class Context {
-    public Context(CgmesModel cgmes, Network network, Config config) {
+    public Context(CgmesModel cgmes, Config config, Network network) {
         this.cgmes = Objects.requireNonNull(cgmes);
-        this.network = Objects.requireNonNull(network);
         this.config = Objects.requireNonNull(config);
+        this.network = Objects.requireNonNull(network);
 
         // Even if the CGMES model is node-breaker,
         // we could decide to ignore the connectivity nodes and
@@ -59,11 +59,6 @@ public class Context {
 
     public boolean nodeBreaker() {
         return nodeBreaker;
-    }
-
-    public void initialize() {
-        substationIdMapping.build();
-        dcMapping.initialize();
     }
 
     public NamingStrategy namingStrategy() {

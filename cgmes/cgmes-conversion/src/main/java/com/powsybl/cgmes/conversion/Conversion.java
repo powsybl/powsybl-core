@@ -65,36 +65,22 @@ public class Conversion {
 
     public Conversion(CgmesModel cgmes, Conversion.Config config) {
         this.cgmes = cgmes;
-
-        String networkId = cgmes.modelId();
-        String sourceFormat = "CGMES";
-        network = NetworkFactory.create(networkId, sourceFormat);
-        context = new Context(cgmes, network, config);
+        this.config = config;
     }
 
     public void report(Consumer<String> out) {
         new ReportTapChangers(cgmes, out).report();
     }
 
-    public Network convertedNetwork() {
+    public Network convert() {
         if (LOG.isDebugEnabled() && cgmes.baseVoltages() != null) {
             LOG.debug(cgmes.baseVoltages().tabulate());
         }
-        context.initialize();
-        network.getProperties().put(NETWORK_PS_CGMES_MODEL_DETAIL,
-                context.nodeBreaker()
-                        ? NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER
-                        : NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH);
+        Network network = createNetwork();
+        Context context = createContext(network);
 
-        DateTime modelScenarioTime = cgmes.scenarioTime();
-        DateTime modelCreated = cgmes.created();
-        long forecastDistance = new Duration(modelCreated, modelScenarioTime).getStandardMinutes();
-        network.setForecastDistance(forecastDistance >= 0 ? (int) forecastDistance : 0);
-        network.setCaseDate(modelScenarioTime);
-        LOG.info("cgmes scenarioTime       : {}", modelScenarioTime);
-        LOG.info("cgmes modelCreated       : {}", modelCreated);
-        LOG.info("network caseDate         : {}", network.getCaseDate());
-        LOG.info("network forecastDistance : {}", network.getForecastDistance());
+        assignNetworkProperties(context);
+
         Function<PropertyBag, AbstractObjectConversion> convf;
 
         convert(cgmes.substations(), s -> new SubstationConversion(s, context));
@@ -106,40 +92,31 @@ public class Conversion {
                 ? "ConnectivityNode"
                 : "TopologicalNode";
         convert(nodes, n -> new NodeConversion(nodeTypeName, n, context));
-
         if (!context.config().createBusbarSectionForEveryConnectivityNode()) {
             convert(cgmes.busBarSections(), bbs -> new BusbarSectionConversion(bbs, context));
         }
+
         convert(cgmes.energyConsumers(), ec -> new EnergyConsumerConversion(ec, context));
         convert(cgmes.energySources(), es -> new EnergySourceConversion(es, context));
-
         convf = eqi -> new EquivalentInjectionConversion(eqi, context);
         convert(cgmes.equivalentInjections(), convf);
-
         convf = eni -> new ExternalNetworkInjectionConversion(eni, context);
         convert(cgmes.externalNetworkInjections(), convf);
-
         convert(cgmes.shuntCompensators(), sh -> new ShuntConversion(sh, context));
-
         convf = svc -> new StaticVarCompensatorConversion(svc, context);
         convert(cgmes.staticVarCompensators(), convf);
-        convert(cgmes.switches(), sw -> new SwitchConversion(sw, context));
-
-        convertACLineSegmentsToLines();
-        convert(cgmes.equivalentBranches(), eqb -> new EquivalentBranchConversion(eqb, context));
-        convert(cgmes.seriesCompensators(), sc -> new SeriesCompensatorConversion(sc, context));
-        convertTransformers();
-        convert(cgmes.ratioTapChangers(), rtc -> new RatioTapChangerConversion(rtc, context));
-        convert(cgmes.phaseTapChangers(), ptc -> new PhaseTapChangerConversion(ptc, context));
-
         convf = asm -> new AsynchronousMachineConversion(asm, context);
         convert(cgmes.asynchronousMachines(), convf);
-
-        // In CIM1 synchronous machines are added AFTER transmission lines and
-        // transformers
-        // Is there a strong reason to wait for these equipment to be added to the
-        // network ?
         convert(cgmes.synchronousMachines(), sm -> new SynchronousMachineConversion(sm, context));
+
+        convert(cgmes.switches(), sw -> new SwitchConversion(sw, context));
+        convertACLineSegmentsToLines(context);
+        convert(cgmes.equivalentBranches(), eqb -> new EquivalentBranchConversion(eqb, context));
+        convert(cgmes.seriesCompensators(), sc -> new SeriesCompensatorConversion(sc, context));
+        convertTransformers(context);
+
+        convert(cgmes.ratioTapChangers(), rtc -> new RatioTapChangerConversion(rtc, context));
+        convert(cgmes.phaseTapChangers(), ptc -> new PhaseTapChangerConversion(ptc, context));
 
         // DC Converters must be converted first
         convert(cgmes.acDcConverters(), c -> new AcDcConverterConversion(c, context));
@@ -147,24 +124,12 @@ public class Conversion {
 
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
 
-        voltageAngles(nodes);
+        voltageAngles(nodes, context);
         if (context.config().debugTopology()) {
-            debugTopology();
+            debugTopology(context);
         }
 
         return network;
-    }
-
-    public CgmesModel cgmes() {
-        return cgmes;
-    }
-
-    public Network network() {
-        return network;
-    }
-
-    public Context context() {
-        return context;
     }
 
     private void convert(
@@ -183,7 +148,36 @@ public class Conversion {
         }
     }
 
-    private void convertACLineSegmentsToLines() {
+    private Network createNetwork() {
+        String networkId = cgmes.modelId();
+        String sourceFormat = "CGMES";
+        return NetworkFactory.create(networkId, sourceFormat);
+    }
+
+    private Context createContext(Network network) {
+        Context context = new Context(cgmes, config, network);
+        context.substationIdMapping().build();
+        context.dc().initialize();
+        return context;
+    }
+
+    private void assignNetworkProperties(Context context) {
+        context.network().getProperties().put(NETWORK_PS_CGMES_MODEL_DETAIL,
+                context.nodeBreaker()
+                        ? NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER
+                        : NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH);
+        DateTime modelScenarioTime = cgmes.scenarioTime();
+        DateTime modelCreated = cgmes.created();
+        long forecastDistance = new Duration(modelCreated, modelScenarioTime).getStandardMinutes();
+        context.network().setForecastDistance(forecastDistance >= 0 ? (int) forecastDistance : 0);
+        context.network().setCaseDate(modelScenarioTime);
+        LOG.info("cgmes scenarioTime       : {}", modelScenarioTime);
+        LOG.info("cgmes modelCreated       : {}", modelCreated);
+        LOG.info("network caseDate         : {}", context.network().getCaseDate());
+        LOG.info("network forecastDistance : {}", context.network().getForecastDistance());
+    }
+
+    private void convertACLineSegmentsToLines(Context context) {
         PropertyBags lines = cgmes.acLineSegments();
 
         // Context stores some statistics about line conversion
@@ -225,7 +219,7 @@ public class Conversion {
         context.endLinesConversion();
     }
 
-    private void convertTransformers() {
+    private void convertTransformers(Context context) {
         cgmes.groupedTransformerEnds().entrySet()
                 .forEach(tends -> {
                     String t = tends.getKey();
@@ -251,7 +245,7 @@ public class Conversion {
                 });
     }
 
-    private void voltageAngles(PropertyBags nodes) {
+    private void voltageAngles(PropertyBags nodes, Context context) {
         if (context.nodeBreaker()) {
             // TODO(Luma): we create again one conversion object for every node
             // In node-breaker conversion,
@@ -265,7 +259,7 @@ public class Conversion {
         }
     }
 
-    private void debugTopology() {
+    private void debugTopology(Context context) {
         context.network().getVoltageLevels().forEach(vl -> {
             String name = vl.getSubstation().getName() + "-" + vl.getName();
             name = name.replace('/', '-');
@@ -344,8 +338,7 @@ public class Conversion {
     }
 
     private final CgmesModel cgmes;
-    private final Network network;
-    private final Context context;
+    private final Config config;
 
     private static final Logger LOG = LoggerFactory.getLogger(Conversion.class);
 
