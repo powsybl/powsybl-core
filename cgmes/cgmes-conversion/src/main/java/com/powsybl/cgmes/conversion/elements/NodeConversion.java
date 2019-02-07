@@ -130,7 +130,16 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
             LOG.error("Can't find a Terminal to obtain a Bus to set Voltage, Angle. ConnectivityNode {}", id);
             return;
         }
-        setVoltageAngle(t.getBusView().getBus());
+        Bus bus = t.getBusView().getBus();
+        if (bus == null) {
+            bus = t.getBusBreakerView().getBus();
+            if (bus == null) {
+                LOG.error("Can't find a Bus from Terminal to set Voltage, Angle. Connectivity Node {}", id);
+                return;
+            }
+            LOG.warn("Can't find a calculated Bus to set Voltage, Angle, but found a configured Bus {}. Connectivity node {}", bus, id);
+        }
+        setVoltageAngle(bus);
     }
 
     private VoltageLevel voltageLevel() {
@@ -170,6 +179,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         double v = p.asDouble(CgmesNames.VOLTAGE);
         double angle = p.asDouble(CgmesNames.ANGLE);
         if (valid(v, angle)) {
+            Objects.requireNonNull(bus);
             bus.setV(v);
             bus.setAngle(angle);
         } else {
