@@ -26,7 +26,7 @@ public class SimpleAnonymizerTest extends AbstractConverterTest {
     private void anonymisationTest(Network network, String xiidmRef, String anonymizedXiidmRef, String anonymizedCsvRef) throws IOException {
         // export with anonymisation on
         Properties properties = new Properties();
-        properties.put(XMLExporter.ANONYMISED_PROPERTIES, "true");
+        properties.put(XMLExporter.ANONYMISED, "true");
         MemDataSource dataSource = new MemDataSource();
         new XMLExporter().export(network, properties, dataSource);
 

@@ -51,24 +51,55 @@ public class ParameterDefaultValueConfig {
     public Object getValue(String format, Parameter parameter) {
         Objects.requireNonNull(format);
         Objects.requireNonNull(parameter);
-        String name = format + "_" + parameter.getName();
         ModuleConfig moduleConfig = getModuleConfig();
         switch (parameter.getType()) {
-            case BOOLEAN: {
-                boolean defaultValue = (Boolean) parameter.getDefaultValue();
-                return moduleConfig != null ? moduleConfig.getBooleanProperty(name, defaultValue) : defaultValue;
-            }
-            case STRING: {
-                String defaultValue = (String) parameter.getDefaultValue();
-                return moduleConfig != null ? moduleConfig.getStringProperty(name, defaultValue) : defaultValue;
-            }
-            case STRING_LIST: {
-                List<String> defaultValue = (List<String>) parameter.getDefaultValue();
-                return moduleConfig != null ? moduleConfig.getStringListProperty(name, defaultValue) : defaultValue;
-            }
+            case BOOLEAN:
+                return getBooleanProperty((boolean) parameter.getDefaultValue(), format, parameter.getNames(), moduleConfig);
+            case STRING:
+                return getStringProperty((String) parameter.getDefaultValue(), format, parameter.getNames(), moduleConfig);
+            case STRING_LIST:
+                return getStringListProperty((List<String>) parameter.getDefaultValue(), format, parameter.getNames(), moduleConfig);
             default:
                 throw new AssertionError();
         }
     }
 
+    private boolean getBooleanProperty(boolean defaultValue, String format, List<String> names, ModuleConfig moduleConfig) {
+        if (moduleConfig != null) {
+            for (String name : names) {
+                Boolean value = moduleConfig.getOptionalBooleanProperty(name)
+                        .orElseGet(() -> moduleConfig.getOptionalBooleanProperty(format + "_" + name).orElse(null));
+                if (value != null) {
+                    return value;
+                }
+            }
+        }
+        return defaultValue;
+    }
+
+    private String getStringProperty(String defaultValue, String format, List<String> names, ModuleConfig moduleConfig) {
+        if (moduleConfig != null) {
+            for (String name : names) {
+                String value = moduleConfig.getOptionalStringProperty(name)
+                        .orElseGet(() -> moduleConfig.getOptionalStringProperty(format + "_" + name).orElse(null));
+                if (value != null) {
+                    return value;
+                }
+            }
+        }
+        return defaultValue;
+    }
+
+    private List<String> getStringListProperty(List<String> defaultValue, String format, List<String> names, ModuleConfig moduleConfig) {
+        if (moduleConfig != null) {
+            for (String name : names) {
+                List<String> value = moduleConfig.getOptionalStringListProperty(name)
+                        .orElseGet(() -> moduleConfig.getOptionalStringListProperty(format + "_" + name).orElse(null));
+                if (value != null) {
+                    return value;
+                }
+            }
+        }
+        return defaultValue;
+    }
 }
