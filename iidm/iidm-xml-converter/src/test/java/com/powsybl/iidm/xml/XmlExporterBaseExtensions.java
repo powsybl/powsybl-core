@@ -6,16 +6,16 @@
  */
 package com.powsybl.iidm.xml;
 
-        import com.powsybl.commons.AbstractConverterTest;
-        import com.powsybl.commons.datasource.MemDataSource;
-        import com.powsybl.iidm.network.Network;
-        import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
-        import org.junit.Test;
+import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
+import org.junit.Test;
 
-        import java.io.ByteArrayInputStream;
-        import java.io.IOException;
-        import java.io.InputStream;
-        import java.util.Properties;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
 
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>

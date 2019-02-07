@@ -116,7 +116,7 @@ public class XMLExporter implements Exporter {
                         anonymizer = NetworkXml.write(network, options, bos, bose);
                     }
                 } else {
-                    anonymizer = NetworkXml.write(network, options, bos);
+                    anonymizer = NetworkXml.write(network, options, bos, null);
                 }
 
                 if (anonymizer != null) {
