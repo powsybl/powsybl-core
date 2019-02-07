@@ -118,7 +118,7 @@ public class CgmesConformity1NetworkCatalog {
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
                     .setName("BE-Line_7 - CL-1")
-                    .setValue(Double.MAX_VALUE)
+                    .setValue(1443.0)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
@@ -203,7 +203,7 @@ public class CgmesConformity1NetworkCatalog {
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
                     .setName("BE-Line_3 - CL-1")
-                    .setValue(Double.MAX_VALUE)
+                    .setValue(1515.0)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
@@ -229,7 +229,7 @@ public class CgmesConformity1NetworkCatalog {
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
                     .setName("BE-Line_5 - CL-1")
-                    .setValue(Double.MAX_VALUE)
+                    .setValue(1948.0)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
@@ -255,7 +255,7 @@ public class CgmesConformity1NetworkCatalog {
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
                     .setName("BE-Line_4 - CL-1")
-                    .setValue(Double.MAX_VALUE)
+                    .setValue(1371.0)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
@@ -331,7 +331,7 @@ public class CgmesConformity1NetworkCatalog {
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
                     .setName("BE-Line_2 - CL-1")
-                    .setValue(Double.MAX_VALUE)
+                    .setValue(1705.0)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
@@ -369,7 +369,7 @@ public class CgmesConformity1NetworkCatalog {
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
                     .setName("BE-Line_6 - CL-1")
-                    .setValue(Double.MAX_VALUE)
+                    .setValue(1443.0)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
@@ -415,7 +415,7 @@ public class CgmesConformity1NetworkCatalog {
                     .endTemporaryLimit()
                     .beginTemporaryLimit()
                         .setName("BE-TR2_3 - CL-1")
-                        .setValue(Double.MAX_VALUE)
+                        .setValue(1508.1)
                         .setAcceptableDuration(10)
                     .endTemporaryLimit()
                     .add();
@@ -618,7 +618,7 @@ public class CgmesConformity1NetworkCatalog {
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
                     .setName("BE-Line_1 - CL-1")
-                    .setValue(Double.MAX_VALUE)
+                    .setValue(1705.0)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
@@ -631,7 +631,7 @@ public class CgmesConformity1NetworkCatalog {
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
                     .setName("BE-TR2_1 - CL-1")
-                    .setValue(Double.MAX_VALUE)
+                    .setValue(998.2)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
@@ -644,7 +644,7 @@ public class CgmesConformity1NetworkCatalog {
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
                     .setName("BE-TR2_2 - CL-1")
-                    .setValue(Double.MAX_VALUE)
+                    .setValue(1905.8)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
@@ -756,11 +756,6 @@ public class CgmesConformity1NetworkCatalog {
                 .setVoltageLevel2(vlAnvers220.getId())
                 .add();
 
-        /* Take the lowest permanent limit (re CVG) To change ??
-        Line lineBE2 = network.getLine("_b58bf21a-096a-4dae-9a01-3f03b60c24c7");
-        lineBE2.getCurrentLimits1().setPermanentLimit(2000.0);
-        lineBE2.getCurrentLimits2().setPermanentLimit(2000.0);*/
-
         network.getTwoWindingsTransformer("_e482b89a-fa84-4ea9-8e70-a83d44790957")
                 .getRatioTapChanger().setTapPosition(20);
 
@@ -791,7 +786,7 @@ public class CgmesConformity1NetworkCatalog {
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
                     .setName("BE-TR2_2 - CL-1")
-                    .setValue(Double.MAX_VALUE)
+                    .setValue(1905.8)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
@@ -824,7 +819,7 @@ public class CgmesConformity1NetworkCatalog {
                 .endTemporaryLimit()
                 .beginTemporaryLimit()
                     .setName("BE-TR2_1 - CL-1")
-                    .setValue(Double.MAX_VALUE)
+                    .setValue(998.2)
                     .setAcceptableDuration(10)
                 .endTemporaryLimit()
                 .add();
@@ -844,7 +839,7 @@ public class CgmesConformity1NetworkCatalog {
                     .endTemporaryLimit()
                     .beginTemporaryLimit()
                         .setName("BE-Line_1 - CL-1")
-                        .setValue(Double.MAX_VALUE)
+                        .setValue(1705.0)
                         .setAcceptableDuration(10)
                     .endTemporaryLimit()
                 .add();

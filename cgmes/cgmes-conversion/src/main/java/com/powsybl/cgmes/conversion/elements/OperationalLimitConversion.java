@@ -106,8 +106,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             if (isPatl()) { // Permanent Admissible Transmission Loading
                 convertPatlCurrent(value);
             } else if (isTatl()) { // Temporary Admissible Transmission Loading
-                int acceptableDuration = (int) p.asDouble("acceptableDuration");
-                convertTatlCurrent(value, acceptableDuration);
+                convertTatlCurrent(value);
             }
         } else if (limitSubclass.equals("ApparentPowerLimit")) {
             notAssigned();
@@ -141,18 +140,26 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         return limitTypeName.equals("TATL") || "LimitTypeKind.tatl".equals(limitType);
     }
 
-    private void convertTatlCurrent(double value, int acceptableDuration) {
+    private void convertTatlCurrent(double value) {
+        int acceptableDuration = (int) p.asDouble("acceptableDuration");
         if (acceptableDuration == 10000) {
             context.ignored(OPERATIONAL_LIMIT, "TATL acceptable duration is 10000");
             return;
         }
         String name = p.getId("name");
         if (adder != null) {
-            context.currentLimitsMapping().addTemporaryLimit(name, acceptableDuration, value, adder);
+            adder.beginTemporaryLimit()
+                    .setName(name)
+                    .setValue(value)
+                    .setAcceptableDuration(acceptableDuration)
+                    .endTemporaryLimit();
         } else if (adder1 != null) {
-            // Should we chose one terminal randomly for branches ???
-            // This is what is done in CVG (ignore limits on terminal2)
-            context.currentLimitsMapping().addTemporaryLimit(name, acceptableDuration, value, adder1);
+            // Should we chose one terminal randomly for branches ? Here by default, we only look at terminal1
+            adder1.beginTemporaryLimit()
+                    .setName(name)
+                    .setValue(value)
+                    .setAcceptableDuration(acceptableDuration)
+                    .endTemporaryLimit();
         }
     }
 
