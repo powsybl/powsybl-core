@@ -34,7 +34,6 @@ public class UcteExporter implements Exporter {
     public void export(Network network, Properties parameters, DataSource dataSource) {
 
         UcteNetwork ucteNetwork = new UcteNetworkImpl();
-        Iterable<Line> lines = network.getLines();
         String[] idInfo = null;
 
         Iterable<Substation> substations = network.getSubstations();
@@ -46,6 +45,7 @@ public class UcteExporter implements Exporter {
             LOGGER.info(" Geographical tags = " + substation.getGeographicalTags().toString());
             LOGGER.info(" Substation country = " + country);
 
+
             Iterable<VoltageLevel> voltageLevels = substation.getVoltageLevels();
             for(VoltageLevel voltageLevel : voltageLevels)
             {
@@ -53,7 +53,26 @@ public class UcteExporter implements Exporter {
                 VoltageLevel.BusBreakerView busBreakerView = voltageLevel.getBusBreakerView();
                 LOGGER.info(" ID = " + voltageLevel.getId());
                 LOGGER.info(" NominalV = " + voltageLevel.getNominalV());
+                LOGGER.info(" Low voltage limit = " + voltageLevel.getLowVoltageLimit());
+                LOGGER.info(" High voltage limit = " + voltageLevel.getHighVoltageLimit());
 
+                int loadCount = voltageLevel.getLoadCount();
+                double p0 = 0;
+                double q0 = 0;
+
+                if(loadCount==1)
+                {
+                    Iterable<Load> loads = voltageLevel.getLoads();
+                    for(Load load : loads)
+                    {
+                        LOGGER.info("-------------LOAD--------------");
+                        LOGGER.info("P0 = " +load.getP0());
+                        LOGGER.info("Q0 = " +load.getQ0());
+                        p0 = load.getP0();
+                        q0 = load.getQ0();
+
+                    }
+                }
 
                 Iterable<Bus> buses = busBreakerView.getBuses();
                 for(Bus bus : buses)
@@ -62,16 +81,26 @@ public class UcteExporter implements Exporter {
                     LOGGER.info(" Bus id = " + bus.getId());
                     LOGGER.info(" Bus name = " + bus.getName());
                     LOGGER.info(" V = " + bus.getV());
-                    UcteNodeCode ucteNodeCode = new UcteNodeCode(UcteCountryCode.valueOf(country),
+                    LOGGER.info(" P = " + bus.getP());
+                    LOGGER.info(" Q = " + bus.getQ());
+                    LOGGER.info(" Angle = " + bus.getAngle());
+
+
+                    UcteNodeCode ucteNodeCode = new UcteNodeCode(
+                            UcteCountryCode.valueOf(country),
                             "TTTTT",
                             iidmVoltageToUcteVoltageLevelCode(voltageLevel.getNominalV()),
-                            '1');
+                            '1'
+                    );
 
-                    UcteNode ucteNode = new UcteNode(ucteNodeCode,
+                    UcteNode ucteNode = new UcteNode(
+                            ucteNodeCode,
                             "",
                             UcteNodeStatus.REAL,
                             UcteNodeTypeCode.PQ,
                             0f,
+                            (float)p0,
+                            (float)q0,
                             0f,
                             0f,
                             0f,
@@ -82,76 +111,60 @@ public class UcteExporter implements Exporter {
                             0f,
                             0f,
                             0f,
-                            0f,
-                            0f,
-                            UctePowerPlantType.C
+                            UctePowerPlantType.N
                     ); //FIXME
                     ucteNetwork.addNode(ucteNode);
                 }
             }
-
-            write(ucteNetwork, FileSystems.getDefault().getPath("","test.uct")); // Fixme: it's just to test
-
         }
 
-//        Stream<Line> lineStream = network.getLineStream();
-//        lineStream.forEach(line -> LOGGER.info(line.getId()));
+        Iterable<Line> lines = network.getLines();
 
-//        int i = 0;
-//        for(Line line : lines)
-//        {
-//            LOGGER.info("ID = " + line.getId()); //Node code 1 + node code 2 + Order code  1-8 10-17 19
-//            LOGGER.info("R = " + String.valueOf(line.getR())); //Resistance position UTCE 23-28
-//            LOGGER.info("X = " +String.valueOf(line.getX())); //Reactance position UTCE 30-35
-//            LOGGER.info("Name = " + line.getName());
-//            LOGGER.info("CurrentLimits1 = " + String.valueOf(line.getCurrentLimits1().getPermanentLimit())); //Current limit I (A) 46-51
-//            LOGGER.info("CurrentLimits2 = " + String.valueOf(line.getCurrentLimits2().getPermanentLimit()));
-//            LOGGER.info("B1 = " + String.valueOf(line.getB1()));
-//            LOGGER.info("B2 = " + String.valueOf(line.getB2()));
-//            LOGGER.info("G1 = " + String.valueOf(line.getG1()));
-//            LOGGER.info("G2 = " + String.valueOf(line.getG2()));
-//
-//            idInfo = line.getId().split(" ");
-//
-//
-//        }
+        LOGGER.info("-----------LINES------------");
+        for(Line line : lines)
+        {
+            LOGGER.info("-----------LINE------------");
+            LOGGER.info("ID = " + line.getId()); //Node code 1 + node code 2 + Order code  1-8 10-17 19
+            LOGGER.info("R = " + String.valueOf(line.getR())); //Resistance position UTCE 23-28
+            LOGGER.info("X = " +String.valueOf(line.getX())); //Reactance position UTCE 30-35
+            LOGGER.info("Name = " + line.getName());
+            LOGGER.info("CurrentLimits1 = " + String.valueOf(line.getCurrentLimits1().getPermanentLimit())); //Current limit I (A) 46-51
+            LOGGER.info("CurrentLimits2 = " + String.valueOf(line.getCurrentLimits2().getPermanentLimit()));
+            LOGGER.info("B1 = " + String.valueOf(line.getB1()));
+            LOGGER.info("B2 = " + String.valueOf(line.getB2()));
+            LOGGER.info("G1 = " + String.valueOf(line.getG1()));
+            LOGGER.info("G2 = " + String.valueOf(line.getG2()));
+//            LOGGER.info(" Line terminal 1 country = " + line.getTerminal1().getVoltageLevel().getSubstation().getCountry());
+//            LOGGER.info(" Line terminal 2 country = " + line.getTerminal2().getVoltageLevel().getSubstation().getCountry());
 
-        Iterable<BusbarSection> busbarSections = network.getBusbarSections();
-        Network.BusBreakerView busBreakerView = network.getBusBreakerView();
-        Iterable<Bus> buses = busBreakerView.getBuses();
+            Terminal terminal1 = line.getTerminal1();
+            Terminal terminal2 = line.getTerminal2();
 
-//        for(Bus bus: buses)
-//        {
-//            LOGGER.info(" Voltage level = " + String.valueOf(bus.getVoltageLevel()));
-//            LOGGER.info(" Bus id = " + bus.getId());
-//            LOGGER.info(" Bus name = " + bus.getName());
-//            LOGGER.info(" V = " + bus.getV());
-//            LOGGER.info(" NominalV = " + bus.getVoltageLevel().getNominalV());
-//        }
+            UcteNodeCode ucteTerminal1NodeCode = new UcteNodeCode(
+                    UcteCountryCode.valueOf(terminal1.getVoltageLevel().getSubstation().getCountry().toString()),
+                    "TTTTT",
+                    iidmVoltageToUcteVoltageLevelCode(terminal1.getVoltageLevel().getNominalV()),
+                    '1'
+            );
+            UcteNodeCode ucteTerminal2NodeCode = new UcteNodeCode(
+                    UcteCountryCode.valueOf(terminal2.getVoltageLevel().getSubstation().getCountry().toString()),
+                    "TTTTT",
+                    iidmVoltageToUcteVoltageLevelCode(terminal2.getVoltageLevel().getNominalV()),
+                    '1'
+            );
 
+            UcteElementId lineId = new UcteElementId(ucteTerminal1NodeCode, ucteTerminal2NodeCode, '1');
+            UcteLine ucteLine = new UcteLine(lineId, UcteElementStatus.REAL_ELEMENT_IN_OPERATION,
+                    (float)line.getR(), (float)line.getX(), (float)line.getB1(), (int)line.getCurrentLimits1().getPermanentLimit(), null);
 
-        UcteNodeCode code1 = new UcteNodeCode(UcteCountryCode.ES, "TTTTT", UcteVoltageLevelCode.VL_220, '1');
+            ucteNetwork.addLine(ucteLine);
+        }
+        write(ucteNetwork, FileSystems.getDefault().getPath("","test.uct")); // FIXME: it's just to test
 
-        UcteNodeCode code2 = new UcteNodeCode(UcteCountryCode.BE, "TTTTT", UcteVoltageLevelCode.VL_380, '1');
-
-//        UcteNode node1 = new UcteNode(UcteNodeCode code, String geographicalName, UcteNodeStatus status, UcteNodeTypeCode typeCode,
-//        float voltageReference, float activeLoad, float reactiveLoad, float activePowerGeneration,
-//        float reactivePowerGeneration, float minimumPermissibleActivePowerGeneration,
-//        float maximumPermissibleActivePowerGeneration, float minimumPermissibleReactivePowerGeneration,
-//        float maximumPermissibleReactivePowerGeneration, float staticOfPrimaryControl,
-//        float nominalPowerPrimaryControl, float threePhaseShortCircuitPower, float xrRatio,
-//        UctePowerPlantType powerPlantType);
-
-//        UcteElementId lineId = new UcteElementId(code1, code2, idInfo[2].charAt(0));
-//        UcteLine ucteLine = new UcteLine(lineId, UcteElementStatus.REAL_ELEMENT_IN_OPERATION,
-//                1.0f, 0.1f, 1e-6f, 1250, null);
-//        ucteNetwork.addLine(ucteLine);
-//
-//        LOGGER.info(ucteNetwork.getLines().toString());
 
     }
 
-    public UcteVoltageLevelCode iidmVoltageToUcteVoltageLevelCode(double nominalV)
+    private UcteVoltageLevelCode iidmVoltageToUcteVoltageLevelCode(double nominalV)
     {
         if(nominalV == 27) {
             return UcteVoltageLevelCode.VL_27;
@@ -186,7 +199,7 @@ public class UcteExporter implements Exporter {
         return null;
     }
 
-    public void write(UcteNetwork network, Path file) {
+    private void write(UcteNetwork network, Path file) {
         try (BufferedWriter bw = Files.newBufferedWriter(file)) {
             new UcteWriter(network).write(bw);
         } catch (IOException e) {
