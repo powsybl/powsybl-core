@@ -34,7 +34,6 @@ public class UcteExporter implements Exporter {
     public void export(Network network, Properties parameters, DataSource dataSource) {
 
         UcteNetwork ucteNetwork = new UcteNetworkImpl();
-        String[] idInfo = null;
 
         Iterable<Substation> substations = network.getSubstations();
 
@@ -85,7 +84,6 @@ public class UcteExporter implements Exporter {
                     LOGGER.info(" Q = " + bus.getQ());
                     LOGGER.info(" Angle = " + bus.getAngle());
 
-
                     UcteNodeCode ucteNodeCode = new UcteNodeCode(
                             UcteCountryCode.valueOf(country),
                             "TTTTT",
@@ -114,6 +112,18 @@ public class UcteExporter implements Exporter {
                             UctePowerPlantType.N
                     ); //FIXME
                     ucteNetwork.addNode(ucteNode);
+
+                    LOGGER.info("-----------GENERATORS--------");
+                    Iterable<Generator> generators = bus.getGenerators();
+                    for(Generator generator : generators)
+                    {
+                        LOGGER.info("-----------GENERATOR--------");
+                        LOGGER.info(generator.getId());
+                        LOGGER.info(generator.getName());
+                        LOGGER.info(generator.getEnergySource().toString());
+
+
+                    }
                 }
             }
         }
