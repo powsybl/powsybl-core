@@ -164,8 +164,8 @@
         <tyrus.version>1.13.1</tyrus.version>
         <wildfly.dist.version>11.0.0.Final</wildfly.dist.version>
         <wildflyarquilliancontainerembedded.version>2.1.0.Final</wildflyarquilliancontainerembedded.version>
-        <xmlunit.version>2.3.0</xmlunit.version>
         <xmlapis.version>1.4.01</xmlapis.version>
+        <xmlunit.version>2.3.0</xmlunit.version>
     </properties>
 
     <build>
