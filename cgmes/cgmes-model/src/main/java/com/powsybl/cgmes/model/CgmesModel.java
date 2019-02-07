@@ -97,6 +97,8 @@ public interface CgmesModel {
 
     PropertyBags asynchronousMachines();
 
+    PropertyBags ratioTapChangerTablesPoints();
+
     PropertyBags ratioTapChangerTable(String tableId);
 
     PropertyBags phaseTapChangerTable(String tableId);

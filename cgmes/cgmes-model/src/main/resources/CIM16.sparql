@@ -465,6 +465,23 @@ WHERE {
     }
 }
 
+# query: ratioTapChangerTablesPoints
+SELECT *
+WHERE {
+    ?RatioTapChangerTablePoint
+        a cim:RatioTapChangerTablePoint ;
+        cim:RatioTapChangerTablePoint.RatioTapChangerTable ?RatioTapChangerTable ;
+        cim:TapChangerTablePoint.ratio ?ratio ;
+        cim:TapChangerTablePoint.step ?step .
+    OPTIONAL {
+        ?RatioTapChangerTablePoint
+            cim:TapChangerTablePoint.r ?r ;
+            cim:TapChangerTablePoint.x ?x ;
+            cim:TapChangerTablePoint.g ?g ;
+            cim:TapChangerTablePoint.b ?b
+    }
+}
+
 # query: phaseTapChangers
 SELECT *
 WHERE {

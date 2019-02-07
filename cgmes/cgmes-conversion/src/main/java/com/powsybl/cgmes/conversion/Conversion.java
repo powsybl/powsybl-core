@@ -10,10 +10,13 @@ package com.powsybl.cgmes.conversion;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -72,13 +75,36 @@ public class Conversion {
         new ReportTapChangers(cgmes, out).report();
     }
 
+    static class Profiling {
+        private final List<String> ops = new ArrayList<>(32);
+        private final Map<String, Long> optime = new HashMap<>(32);
+        private long t0;
+
+        void start() {
+            t0 = System.currentTimeMillis();
+        }
+
+        void end(String op) {
+            assert !optime.containsKey(op);
+            ops.add(op);
+            optime.put(op, System.currentTimeMillis() - t0);
+        }
+
+        void report() {
+            if (LOG.isInfoEnabled()) {
+                ops.forEach(op -> LOG.info(String.format("%-20s : %6d", op, optime.get(op))));
+            }
+        }
+    }
+
     public Network convert() {
+        profiling = new Profiling();
+
         if (LOG.isDebugEnabled() && cgmes.baseVoltages() != null) {
             LOG.debug(cgmes.baseVoltages().tabulate());
         }
         Network network = createNetwork();
         Context context = createContext(network);
-
         assignNetworkProperties(context);
 
         Function<PropertyBag, AbstractObjectConversion> convf;
@@ -129,39 +155,57 @@ public class Conversion {
             debugTopology(context);
         }
 
+        profiling.report();
         return network;
     }
 
     private void convert(
             PropertyBags elements,
             Function<PropertyBag, AbstractObjectConversion> f) {
+        String conversion = null;
+        profiling.start();
         for (PropertyBag element : elements) {
             if (LOG.isDebugEnabled()) {
                 LOG.debug(element.tabulateLocals());
             }
             AbstractObjectConversion c = f.apply(element);
+            if (conversion == null) {
+                conversion = c.getClass().getName();
+                conversion = conversion.substring(conversion.lastIndexOf('.') + 1);
+                conversion = conversion.replace("Conversion", "");
+            }
             if (c.insideBoundary()) {
                 c.convertInsideBoundary();
             } else if (c.valid()) {
                 c.convert();
             }
         }
+        if (conversion != null) {
+            profiling.end(conversion);
+        }
     }
 
     private Network createNetwork() {
+        profiling.start();
         String networkId = cgmes.modelId();
         String sourceFormat = "CGMES";
-        return NetworkFactory.create(networkId, sourceFormat);
+        Network network = NetworkFactory.create(networkId, sourceFormat);
+        profiling.end("createNetwork");
+        return network;
     }
 
     private Context createContext(Network network) {
+        profiling.start();
         Context context = new Context(cgmes, config, network);
         context.substationIdMapping().build();
         context.dc().initialize();
+        context.loadRatioTapChangerTables();
+        profiling.end("createContext");
         return context;
     }
 
     private void assignNetworkProperties(Context context) {
+        profiling.start();
         context.network().getProperties().put(NETWORK_PS_CGMES_MODEL_DETAIL,
                 context.nodeBreaker()
                         ? NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER
@@ -175,9 +219,11 @@ public class Conversion {
         LOG.info("cgmes modelCreated       : {}", modelCreated);
         LOG.info("network caseDate         : {}", context.network().getCaseDate());
         LOG.info("network forecastDistance : {}", context.network().getForecastDistance());
+        profiling.end("networkProperties");
     }
 
     private void convertACLineSegmentsToLines(Context context) {
+        profiling.start();
         PropertyBags lines = cgmes.acLineSegments();
 
         // Context stores some statistics about line conversion
@@ -217,9 +263,11 @@ public class Conversion {
             c.convert();
         });
         context.endLinesConversion();
+        profiling.end("ACLineSegments");
     }
 
     private void convertTransformers(Context context) {
+        profiling.start();
         cgmes.groupedTransformerEnds().entrySet()
                 .forEach(tends -> {
                     String t = tends.getKey();
@@ -243,9 +291,11 @@ public class Conversion {
                         c.convert();
                     }
                 });
+        profiling.end("Transfomers");
     }
 
     private void voltageAngles(PropertyBags nodes, Context context) {
+        profiling.start();
         if (context.nodeBreaker()) {
             // TODO(Luma): we create again one conversion object for every node
             // In node-breaker conversion,
@@ -257,9 +307,11 @@ public class Conversion {
                 }
             }
         }
+        profiling.end("voltageAngles");
     }
 
     private void debugTopology(Context context) {
+        profiling.start();
         context.network().getVoltageLevels().forEach(vl -> {
             String name = vl.getSubstation().getName() + "-" + vl.getName();
             name = name.replace('/', '-');
@@ -270,6 +322,7 @@ public class Conversion {
                 throw new UncheckedIOException(e);
             }
         });
+        profiling.end("debugTopology");
     }
 
     public static class Config {
@@ -339,6 +392,8 @@ public class Conversion {
 
     private final CgmesModel cgmes;
     private final Config config;
+
+    private Profiling profiling;
 
     private static final Logger LOG = LoggerFactory.getLogger(Conversion.class);
 

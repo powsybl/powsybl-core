@@ -7,6 +7,8 @@
 
 package com.powsybl.cgmes.conversion;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import org.slf4j.Logger;
@@ -19,6 +21,7 @@ import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.triplestore.api.PropertyBags;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -43,6 +46,8 @@ public class Context {
         tapChangerTransformers = new TapChangerTransformers();
         dcMapping = new DcMapping(this);
         nodeMapping = new NodeMapping();
+
+        ratioTapChangerTables = new HashMap<>();
     }
 
     public CgmesModel cgmes() {
@@ -97,6 +102,21 @@ public class Context {
     public static String boundarySubstationId(String nodeId) {
         Objects.requireNonNull(nodeId);
         return nodeId + "_S";
+    }
+
+    public void loadRatioTapChangerTables() {
+        PropertyBags rtcpoints = cgmes.ratioTapChangerTablesPoints();
+        if (rtcpoints == null) {
+            return;
+        }
+        rtcpoints.forEach(p -> {
+            String tableId = p.getId("RatioTapChangerTable");
+            ratioTapChangerTables.computeIfAbsent(tableId, tid -> new PropertyBags()).add(p);
+        });
+    }
+
+    public PropertyBags ratioTapChangerTable(String tableId) {
+        return ratioTapChangerTables.get(tableId);
     }
 
     public VoltageLevel createSubstationVoltageLevel(String nodeId, double nominalV) {
@@ -182,6 +202,8 @@ public class Context {
     private final NodeMapping nodeMapping;
     private final TapChangerTransformers tapChangerTransformers;
     private final DcMapping dcMapping;
+
+    private final Map<String, PropertyBags> ratioTapChangerTables;
 
     private int countLines;
     private int countLinesWithSvPowerFlowsAtEnds;

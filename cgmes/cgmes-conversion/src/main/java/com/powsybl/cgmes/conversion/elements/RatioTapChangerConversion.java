@@ -111,7 +111,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
     private void addStepsFromTable(RatioTapChangerAdder rtca) {
         String tableId = p.getId("RatioTapChangerTable");
         LOG.debug("RatioTapChanger {} table {}", id, tableId);
-        PropertyBags table = context.cgmes().ratioTapChangerTable(tableId);
+        PropertyBags table = context.ratioTapChangerTable(tableId);
         Comparator<PropertyBag> byStep = Comparator.comparingInt((PropertyBag p) -> p.asInt("step"));
         table.sort(byStep);
         boolean rtcAtSide1 = rtcAtSide1();

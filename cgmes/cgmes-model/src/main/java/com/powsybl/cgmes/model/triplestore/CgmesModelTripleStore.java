@@ -298,6 +298,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags ratioTapChangerTablesPoints() {
+        return namedQuery("ratioTapChangerTablesPoints");
+    }
+
+    @Override
     public PropertyBags ratioTapChangerTable(String tableId) {
         Objects.requireNonNull(tableId);
         return namedQuery("ratioTapChangerTable", tableId);
