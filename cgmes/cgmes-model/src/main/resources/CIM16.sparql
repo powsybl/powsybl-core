@@ -311,11 +311,12 @@ WHERE {
     ?Terminal1
         a cim:Terminal ;
         cim:Terminal.ConductingEquipment ?ACLineSegment ;
-        cim:ACDCTerminal.sequenceNumber "1" .
+        cim:ACDCTerminal.sequenceNumber ?sequenceNumber1 .
     ?Terminal2
         a cim:Terminal ;
         cim:Terminal.ConductingEquipment ?ACLineSegment ;
-        cim:ACDCTerminal.sequenceNumber "2" .
+        cim:ACDCTerminal.sequenceNumber ?sequenceNumber2 .
+    FILTER ( ?sequenceNumber1 < ?sequenceNumber2 )
 }}
 }
 
@@ -429,6 +430,9 @@ WHERE {
                 cim:RegulatingControl.discrete ?regulatingControlDiscrete .
         }}
     }
+    OPTIONAL {
+    	?RatioTapChanger cim:RatioTapChanger.RatioTapChangerTable ?RatioTapChangerTable 
+    }
 }}
 OPTIONAL { GRAPH ?graphSSH {
     # ??? FIXME Difference between TapChanger.controlEnabled and TapChangerControl.enabled ???
@@ -441,6 +445,24 @@ OPTIONAL { GRAPH ?graphSV {
         cim:SvTapStep.TapChanger ?RatioTapChanger ;
         cim:SvTapStep.position ?SVtapStep
 }}
+}
+
+# query: ratioTapChangerTable
+SELECT *
+WHERE {
+    ?RatioTapChangerTablePoint
+        a cim:RatioTapChangerTablePoint ;
+        cim:RatioTapChangerTablePoint.RatioTapChangerTable ?Table ;
+        cim:TapChangerTablePoint.ratio ?ratio ;
+        cim:TapChangerTablePoint.step ?step .
+    FILTER regex(str(?Table), "{0}")
+    OPTIONAL {
+        ?RatioTapChangerTablePoint
+            cim:TapChangerTablePoint.r ?r ;
+            cim:TapChangerTablePoint.x ?x ;
+            cim:TapChangerTablePoint.g ?g ;
+            cim:TapChangerTablePoint.b ?b
+    }
 }
 
 # query: phaseTapChangers
