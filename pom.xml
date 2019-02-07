@@ -580,6 +580,11 @@
                 <version>${jama.version}</version>
             </dependency>
             <dependency>
+                <groupId>guru.nidi</groupId>
+                <artifactId>graphviz-java</artifactId>
+                <version>${graphvizjava.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>io.jsonwebtoken</groupId>
                 <artifactId>jjwt</artifactId>
                 <version>${jjwt.version}</version>
@@ -707,11 +712,6 @@
                 <groupId>org.jgrapht</groupId>
                 <artifactId>jgrapht-core</artifactId>
                 <version>${jgrapht.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>guru.nidi</groupId>
-                <artifactId>graphviz-java</artifactId>
-                <version>${graphvizjava.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.mapdb</groupId>
