@@ -23,16 +23,24 @@ import com.powsybl.math.graph.TraverseResult;
 import com.powsybl.math.graph.UndirectedGraph;
 import com.powsybl.math.graph.UndirectedGraphImpl;
 import gnu.trove.list.array.TIntArrayList;
-import org.kohsuke.graphviz.Edge;
-import org.kohsuke.graphviz.Graph;
-import org.kohsuke.graphviz.Node;
+import guru.nidi.graphviz.attribute.Color;
+import guru.nidi.graphviz.attribute.Font;
+import guru.nidi.graphviz.attribute.Label;
+import guru.nidi.graphviz.attribute.Style;
+import guru.nidi.graphviz.model.Link;
+import guru.nidi.graphviz.model.MutableGraph;
+import guru.nidi.graphviz.model.MutableNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.UncheckedIOException;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -42,6 +50,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static guru.nidi.graphviz.model.Factory.mutGraph;
+import static guru.nidi.graphviz.model.Factory.mutNode;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -50,7 +61,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NodeBreakerVoltageLevel.class);
 
-    private static final String LABEL_ATTRIBUTE = "label";
+    private static final boolean DRAW_SWITCH_ID = true;
 
     private static final BusChecker CALCULATED_BUS_CHECKER = new CalculatedBusChecker();
 
@@ -1086,73 +1097,92 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
-    public void exportTopology(String filename) throws IOException {
-        try (OutputStream outputStream = new FileOutputStream(filename)) {
-            exportTopology(outputStream);
+    public void exportTopology(Path file) {
+        try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+            exportTopology(writer);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
-    public void exportTopology(OutputStream os) {
-        Graph g = new Graph().id("\"" + NodeBreakerVoltageLevel.this.id + "\"");
-        Map<Integer, Node> intToNode = new HashMap<>();
+    @Override
+    public void exportTopology(Writer writer) {
+        exportTopology(writer, new SecureRandom());
+    }
+
+    @Override
+    public void exportTopology(Writer writer, Random random) {
+        Objects.requireNonNull(writer);
+        Objects.requireNonNull(random);
+
+        MutableGraph gv = mutGraph(NodeBreakerVoltageLevel.this.id);
+        Map<Integer, MutableNode> intToNode = new HashMap<>();
         Multimap<String, Integer> busToNodes =  ArrayListMultimap.create();
         for (int n = 0; n < graph.getVertexCount(); n++) {
-            Node node = new Node().id(Integer.toString(n));
-            intToNode.put(n, node);
             Bus bus = getCalculatedBusBreakerTopology().getBus(n);
             if (bus != null) {
+                MutableNode node = mutNode(Label.of(Integer.toString(n)));
+                intToNode.put(n, node);
                 busToNodes.put(bus.getId(), n);
             } else {
                 TerminalExt terminal = graph.getVertexObject(n);
                 if (terminal != null) {
                     AbstractConnectable connectable = terminal.getConnectable();
                     String label = n + "\\n" + connectable.getType().toString() + "\\n" + connectable.getId();
-                    node.attr(LABEL_ATTRIBUTE, label);
-                    g.node(node);
+                    MutableNode node = mutNode(Label.of(label));
+                    intToNode.put(n, node);
+                    gv.add(node);
                 }
             }
         }
 
-        exportBuses(g, busToNodes, intToNode);
-        exportEdges(g, intToNode);
-        g.writeTo(os);
+        exportBuses(gv, busToNodes, intToNode, random);
+        exportEdges(intToNode);
+
+        try {
+            writer.write(gv.toString());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
-    private void exportBuses(Graph g, Multimap<String, Integer> busToNodes, Map<Integer, Node> intToNode) {
-        String[] colors = Colors.generateColorScale(busToNodes.asMap().keySet().size());
+    private void exportBuses(MutableGraph gv, Multimap<String, Integer> busToNodes, Map<Integer, MutableNode> intToNode,
+                             Random random) {
+        String[] colors = Colors.generateColorScale(busToNodes.asMap().keySet().size(), random);
         int i = 0;
         for (String key : busToNodes.asMap().keySet()) {
-            Graph newBus = new Graph().id("\"" + key + "\"");
-            newBus.attr(LABEL_ATTRIBUTE, key);
+            MutableGraph newBus = mutGraph(key).setCluster(true);
             for (int nodeInt : busToNodes.get(key)) {
-                Node node = intToNode.get(nodeInt);
-                TerminalExt terminal = graph.getVertexObject(nodeInt);
+                MutableNode node = intToNode.get(nodeInt);
+                TerminalExt terminal = this.graph.getVertexObject(nodeInt);
                 if (terminal != null) {
                     AbstractConnectable connectable = terminal.getConnectable();
                     String label = nodeInt + "\\n" + connectable.getType().toString() + "\\n" + connectable.getId();
-                    node.attr(LABEL_ATTRIBUTE, label);
+                    node.setName(label);
                 }
-                node.attr("style", "filled").attr("color", colors[i]);
-                newBus.node(node);
+                node.add(Style.FILLED)
+                        .add(Color.rgb(colors[i]));
+                newBus.add(node);
             }
-            g.subGraph(newBus);
+            gv.add(newBus);
             i++;
         }
     }
 
-    private void exportEdges(Graph g, Map<Integer, Node> intToNode) {
-        boolean drawSwitchId = true;
+    private void exportEdges(Map<Integer, MutableNode> intToNode) {
         for (int e = 0; e < graph.getEdgeCount(); e++) {
-            Edge edge = new Edge(intToNode.get(graph.getEdgeVertex1(e)), intToNode.get(graph.getEdgeVertex2(e))).id(Integer.toString(e));
-
+            MutableNode n1 = intToNode.get(graph.getEdgeVertex1(e));
+            MutableNode n2 = intToNode.get(graph.getEdgeVertex2(e));
+            Link link = n1.linkTo(n2);
             SwitchImpl aSwitch = graph.getEdgeObject(e);
             if (aSwitch != null) {
-                if (drawSwitchId) {
-                    edge.attr(LABEL_ATTRIBUTE, aSwitch.getKind().toString() + "\n" + aSwitch.getId()).attr("fontsize", "10");
+                if (DRAW_SWITCH_ID) {
+                    link = link.with(Label.of(aSwitch.getKind().toString() + "\n" + aSwitch.getId()))
+                            .with(Font.size(10));
                 }
-                edge.attr("style", aSwitch.isOpen() ? "dotted" : "solid");
+                link = link.with(aSwitch.isOpen() ? Style.DOTTED : Style.SOLID);
             }
-            g.edge(edge);
+            n1.addLink(link);
         }
     }
 
