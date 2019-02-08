@@ -142,24 +142,28 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     private void convertTatlCurrent(double value) {
         int acceptableDuration = (int) p.asDouble("acceptableDuration");
-        if (acceptableDuration == 10000) {
+        // We only accept high or absoluteValue (considered as high when
+        // current from the conducting equipment to the terminal) limits
+        if (acceptableDuration != 10000 && !p.getId("direction").equals("low")) {
+            String name = p.getId("name");
+            if (adder != null) {
+                adder.beginTemporaryLimit()
+                        .setName(name)
+                        .setValue(value)
+                        .setAcceptableDuration(acceptableDuration)
+                        .endTemporaryLimit();
+            } else if (adder1 != null) {
+                // Should we chose one terminal randomly for branches ? Here by default, we only look at terminal1
+                adder1.beginTemporaryLimit()
+                        .setName(name)
+                        .setValue(value)
+                        .setAcceptableDuration(acceptableDuration)
+                        .endTemporaryLimit();
+            }
+        } else if (acceptableDuration == 10000) {
             context.ignored(OPERATIONAL_LIMIT, "TATL acceptable duration is 10000");
-            return;
-        }
-        String name = p.getId("name");
-        if (adder != null) {
-            adder.beginTemporaryLimit()
-                    .setName(name)
-                    .setValue(value)
-                    .setAcceptableDuration(acceptableDuration)
-                    .endTemporaryLimit();
-        } else if (adder1 != null) {
-            // Should we chose one terminal randomly for branches ? Here by default, we only look at terminal1
-            adder1.beginTemporaryLimit()
-                    .setName(name)
-                    .setValue(value)
-                    .setAcceptableDuration(acceptableDuration)
-                    .endTemporaryLimit();
+        } else {
+            context.invalid(OPERATIONAL_LIMIT, "TATL is a low limit");
         }
     }
 
