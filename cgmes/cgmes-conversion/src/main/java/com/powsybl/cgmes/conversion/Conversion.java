@@ -7,55 +7,24 @@
 
 package com.powsybl.cgmes.conversion;
 
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Function;
-
-import org.joda.time.DateTime;
-import org.joda.time.Duration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.powsybl.cgmes.conversion.elements.ACLineSegmentConversion;
-import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion;
-import com.powsybl.cgmes.conversion.elements.AbstractObjectConversion;
-import com.powsybl.cgmes.conversion.elements.AcDcConverterConversion;
-import com.powsybl.cgmes.conversion.elements.AsynchronousMachineConversion;
-import com.powsybl.cgmes.conversion.elements.BusbarSectionConversion;
-import com.powsybl.cgmes.conversion.elements.DcLineSegmentConversion;
-import com.powsybl.cgmes.conversion.elements.EnergyConsumerConversion;
-import com.powsybl.cgmes.conversion.elements.EnergySourceConversion;
-import com.powsybl.cgmes.conversion.elements.EquivalentBranchConversion;
-import com.powsybl.cgmes.conversion.elements.EquivalentInjectionConversion;
-import com.powsybl.cgmes.conversion.elements.ExternalNetworkInjectionConversion;
-import com.powsybl.cgmes.conversion.elements.NodeConversion;
-import com.powsybl.cgmes.conversion.elements.OperationalLimitConversion;
-import com.powsybl.cgmes.conversion.elements.PhaseTapChangerConversion;
-import com.powsybl.cgmes.conversion.elements.RatioTapChangerConversion;
-import com.powsybl.cgmes.conversion.elements.SeriesCompensatorConversion;
-import com.powsybl.cgmes.conversion.elements.ShuntConversion;
-import com.powsybl.cgmes.conversion.elements.StaticVarCompensatorConversion;
-import com.powsybl.cgmes.conversion.elements.SubstationConversion;
-import com.powsybl.cgmes.conversion.elements.SwitchConversion;
-import com.powsybl.cgmes.conversion.elements.SynchronousMachineConversion;
-import com.powsybl.cgmes.conversion.elements.ThreeWindingsTransformerConversion;
-import com.powsybl.cgmes.conversion.elements.TwoWindingsTransformerConversion;
-import com.powsybl.cgmes.conversion.elements.VoltageLevelConversion;
+import com.powsybl.cgmes.conversion.elements.*;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+import org.joda.time.DateTime;
+import org.joda.time.Duration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -315,9 +284,9 @@ public class Conversion {
         context.network().getVoltageLevels().forEach(vl -> {
             String name = vl.getSubstation().getName() + "-" + vl.getName();
             name = name.replace('/', '-');
-            String filename = Paths.get(System.getProperty("java.io.tmpdir"), "temp-cgmes-" + name + ".dot").toString();
+            Path file = Paths.get(System.getProperty("java.io.tmpdir"), "temp-cgmes-" + name + ".dot");
             try {
-                vl.exportTopology(filename);
+                vl.exportTopology(file);
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
