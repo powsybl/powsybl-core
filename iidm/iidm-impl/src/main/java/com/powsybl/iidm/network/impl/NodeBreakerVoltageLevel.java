@@ -67,8 +67,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private static final BusChecker CALCULATED_BUS_BREAKER_CHECKER = new CalculatedBusBreakerChecker();
 
-    private static final BusNamingStrategy NAMING_STRATEGY = new NumberedBusNamingStrategy();
-
+    //private static final BusNamingStrategy NAMING_STRATEGY = new NumberedBusNamingStrategy();
+    private static final BusNamingStrategy NAMING_STRATEGY = new LowestNodeNumberBusNamingStrategy();
+    
     private final UndirectedGraphImpl<NodeTerminal, SwitchImpl> graph = new UndirectedGraphImpl<>();
 
     private final Map<String, Integer> switches = new HashMap<>();
@@ -514,6 +515,13 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         String getName(VoltageLevel voltageLevel, TIntArrayList nodes);
     }
 
+    private static class LowestNodeNumberBusNamingStrategy implements BusNamingStrategy {
+        @Override
+        public String getName(VoltageLevel voltageLevel, TIntArrayList nodes) {
+            return voltageLevel.getId() + "_" + nodes.min();
+        }
+    }
+    
     private static class NumberedBusNamingStrategy implements BusNamingStrategy {
 
         private final Map<VoltageLevel, AtomicInteger> counter = new WeakHashMap<>();
