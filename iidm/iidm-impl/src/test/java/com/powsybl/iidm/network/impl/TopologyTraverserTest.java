@@ -7,12 +7,13 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -30,19 +31,23 @@ public class TopologyTraverserTest {
                 .setNominalV(400.0)
                 .setTopologyKind(TopologyKind.NODE_BREAKER)
                 .add();
-        vl1.getNodeBreakerView().setNodeCount(4);
+        vl1.getNodeBreakerView().setNodeCount(5);
         vl1.getNodeBreakerView().newBusbarSection()
                 .setId("BBS1")
                 .setNode(0)
                 .add();
         vl1.newGenerator()
                 .setId("G")
-                .setNode(1)
+                .setNode(4)
                 .setMaxP(100.0)
                 .setMinP(50.0)
                 .setTargetP(100.0)
                 .setTargetV(400.0)
                 .setVoltageRegulatorOn(true)
+                .add();
+        vl1.getNodeBreakerView().newInternalConnection()
+                .setNode1(1)
+                .setNode2(4)
                 .add();
         vl1.getNodeBreakerView().newDisconnector()
                 .setId("BR1")
@@ -178,7 +183,7 @@ public class TopologyTraverserTest {
                 return true;
             }
         });
-        Assert.assertEquals(traversed, Arrays.asList("G", "BBS1", "L1", "L1", "BBS2", "LD"));
+        assertEquals(Arrays.asList("G", "BBS1", "L1", "L1", "BBS2", "LD"), traversed);
     }
 
     @Test
@@ -199,7 +204,7 @@ public class TopologyTraverserTest {
                     return !aSwitch.isOpen() && aSwitch.getKind() != SwitchKind.BREAKER;
                 }
             });
-        Assert.assertEquals(traversed, Arrays.asList("BBS1", "G"));
+        assertEquals(Arrays.asList("BBS1", "G"), traversed);
     }
 
     @Test
@@ -219,6 +224,6 @@ public class TopologyTraverserTest {
                 return true;
             }
         });
-        Assert.assertEquals(traversed, Arrays.asList("G", "BBS1", "L1", "L1", "BBS2", "LD", "L2", "L2", "LD2"));
+        assertEquals(Arrays.asList("G", "BBS1", "L1", "L1", "BBS2", "LD", "L2", "L2", "LD2"), traversed);
     }
 }
