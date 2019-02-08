@@ -73,7 +73,7 @@ public class XMLExporter implements Exporter {
 
     public static final String THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND = "iidm.export.xml.throw-exception-if-extension-not-found";
 
-    public static final String SEPARATE_BASE_EXTENSIONS_PROPERTY = "iidm.export.base-and-extensions-separately";
+    public static final String SEPARATE_BASE_EXTENSIONS_PROPERTY = "iidm.export.xml.base-and-extensions-separately";
 
     @Override
     public String getFormat() {
@@ -109,8 +109,7 @@ public class XMLExporter implements Exporter {
             Anonymizer anonymizer;
             try (OutputStream osb = dataSource.newOutputStream(null, "xiidm", false);
                  BufferedOutputStream bos = new BufferedOutputStream(osb)) {
-
-                if (parameters != null &&  Boolean.parseBoolean(parameters.getProperty(SEPARATE_BASE_EXTENSIONS_PROPERTY, Boolean.FALSE.toString()))) {
+                if (options.isSeparateBaseAndExtensions() && !NetworkXml.getNetworkExtensions(network).isEmpty()) {
                     try (OutputStream ose = dataSource.newOutputStream("ext", "xiidm", false);
                          BufferedOutputStream bose = new BufferedOutputStream(ose)) {
                         anonymizer = NetworkXml.write(network, options, bos, bose);

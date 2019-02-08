@@ -24,18 +24,13 @@ import java.util.Set;
 public class NetworkXmlWriterContext extends ConverterContext implements XmlWriterContext {
 
     private final XMLStreamWriter writer;
-    private final XMLStreamWriter extensionsWriter;
+    private XMLStreamWriter extensionsWriter;
     private final ExportOptions options;
     private final BusFilter filter;
     private final Set<Identifiable> exportedEquipments;
 
     NetworkXmlWriterContext(Anonymizer anonymizer, XMLStreamWriter writer, ExportOptions options, BusFilter filter) {
-        super(anonymizer);
-        this.writer = writer;
-        this.options = options;
-        this.filter = filter;
-        this.extensionsWriter = null;
-        this.exportedEquipments = new HashSet<>();
+        this(anonymizer, writer, null, options, filter);
     }
 
     NetworkXmlWriterContext(Anonymizer anonymizer, XMLStreamWriter writer, XMLStreamWriter extensionsWriter, ExportOptions options, BusFilter filter) {
@@ -62,6 +57,10 @@ public class NetworkXmlWriterContext extends ConverterContext implements XmlWrit
 
     public BusFilter getFilter() {
         return filter;
+    }
+
+    public void setExtensionsWriter(XMLStreamWriter extensionsWriter) {
+        this.extensionsWriter = extensionsWriter;
     }
 
     public Set<Identifiable> getExportedEquipments() {

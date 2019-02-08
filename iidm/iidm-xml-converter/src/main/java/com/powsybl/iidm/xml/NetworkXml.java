@@ -66,8 +66,7 @@ public final class NetworkXml {
 
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 
-    private static final Supplier<ExtensionProviders<ExtensionXmlSerializer>> EXTENSIONS_SUPPLIER
-            = Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionXmlSerializer.class, EXTENSION_CATEGORY_NAME));
+    private static final Supplier<ExtensionProviders<ExtensionXmlSerializer>> EXTENSIONS_SUPPLIER = Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionXmlSerializer.class, EXTENSION_CATEGORY_NAME));
 
     private NetworkXml() {
     }
@@ -82,7 +81,7 @@ public final class NetworkXml {
         return writer;
     }
 
-    private static Set<String> getNetworkExtensions(Network n) {
+    public static Set<String> getNetworkExtensions(Network n) {
         Set<String> extensions = new TreeSet<>();
         for (Identifiable<?> identifiable : n.getIdentifiables()) {
             for (Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
@@ -166,12 +165,7 @@ public final class NetworkXml {
         if (extensionXmlSerializer == null) {
             return;
         }
-        XMLStreamWriter writer;
-        if (context.getExtensionswWriter() != null) {
-            writer = context.getExtensionswWriter();
-        } else {
-            writer = context.getWriter();
-        }
+        XMLStreamWriter writer = getConvenientWriter(context);
         if (extensionXmlSerializer.hasSubElements()) {
             writer.writeStartElement(extensionXmlSerializer.getNamespaceUri(), extension.getName());
         } else {
@@ -193,6 +187,14 @@ public final class NetworkXml {
         return extensionXmlSerializer;
     }
 
+
+    private static XMLStreamWriter getConvenientWriter(NetworkXmlWriterContext context) {
+        if (context.getExtensionswWriter() != null) {
+            return context.getExtensionswWriter();
+        }
+        return context.getWriter();
+    }
+
     private static void writeExtensions(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
 
         for (Identifiable<?> identifiable : n.getIdentifiables()) {
@@ -201,21 +203,12 @@ public final class NetworkXml {
             if (!context.isExportedEquipment(identifiable) || extensions.isEmpty()) {
                 continue;
             }
-            if (context.getExtensionswWriter() != null) {
-                context.getExtensionswWriter().writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
-                context.getExtensionswWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
-                for (Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
-                    writeExtension(extension, context);
-                }
-                context.getExtensionswWriter().writeEndElement();
-            } else {
-                context.getWriter().writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
-                context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
-                for (Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
-                    writeExtension(extension, context);
-                }
-                context.getWriter().writeEndElement();
+            getConvenientWriter(context).writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
+            getConvenientWriter(context).writeAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
+            for (Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
+                writeExtension(extension, context);
             }
+            getConvenientWriter(context).writeEndElement();
         }
     }
 
@@ -248,13 +241,12 @@ public final class NetworkXml {
 
     public static Anonymizer write(Network n, ExportOptions options, OutputStream osb, OutputStream ose) {
         try {
-            final XMLStreamWriter extensionsWriter = initializeWriter(n, ose, options);
             final XMLStreamWriter writer = initializeWriter(n, osb, options);
 
             BusFilter filter = BusFilter.create(n, options);
             Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
 
-            NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, extensionsWriter, options, filter);
+            NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, null, options, filter);
 
             for (Substation s : n.getSubstations()) {
                 SubstationXml.INSTANCE.write(s, null, context);
@@ -276,14 +268,16 @@ public final class NetworkXml {
                 HvdcLineXml.INSTANCE.write(l, n, context);
             }
 
-            if (!options.isSkipExtensions()) {
+            if (!options.isSkipExtensions() && !getNetworkExtensions(n).isEmpty()) {
+                final XMLStreamWriter extensionsWriter = initializeWriter(n, ose, options);
+                context.setExtensionsWriter(extensionsWriter);
                 // Consider the network has been exported so its extensions will be written also
                 context.addExportedEquipment(n);
                 // write extensions
                 writeExtensions(n, context);
+                writeEndElement(extensionsWriter);
             }
             writeEndElement(writer);
-            writeEndElement(extensionsWriter);
 
             return anonymizer;
         } catch (XMLStreamException e) {

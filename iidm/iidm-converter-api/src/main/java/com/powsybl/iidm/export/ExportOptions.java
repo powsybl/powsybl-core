@@ -32,7 +32,6 @@ public class ExportOptions {
 
     private boolean separateBaseAndExtensions = false;
 
-
     public ExportOptions() {
     }
 
