@@ -12,7 +12,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.Converters;
+import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
@@ -320,19 +320,19 @@ public final class Importers {
     }
 
     /**
-     * @deprecated Use {@link Converters#readParameter(String, Properties, Parameter)} instead
+     * @deprecated Use {@link ConversionParameters#readParameter(String, Properties, Parameter)} instead
      */
     @Deprecated
     public static Object readParameter(String format, Properties parameters, Parameter configuredParameter) {
-        return Converters.readParameter(format, parameters, configuredParameter);
+        return ConversionParameters.readParameter(format, parameters, configuredParameter);
     }
 
     /**
-     * @deprecated Use {@link Converters#readParameter(String, Properties, Parameter, ParameterDefaultValueConfig)} instead
+     * @deprecated Use {@link ConversionParameters#readParameter(String, Properties, Parameter, ParameterDefaultValueConfig)} instead
      */
     @Deprecated
     public static Object readParameter(String format, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
-        return Converters.readParameter(format, parameters, configuredParameter, defaultValueConfig);
+        return ConversionParameters.readParameter(format, parameters, configuredParameter, defaultValueConfig);
     }
 
     public static DataSource createDataSource(Path directory, String fileNameOrBaseName) {

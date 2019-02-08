@@ -9,7 +9,7 @@ package com.powsybl.iidm.xml;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.iidm.Converters;
+import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.anonymizer.Anonymizer;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.export.Exporter;
@@ -83,7 +83,7 @@ public class XMLExporter implements Exporter {
     private final ParameterDefaultValueConfig defaultValueConfig;
 
     public XMLExporter() {
-        defaultValueConfig = new ParameterDefaultValueConfig(PlatformConfig.defaultConfig());
+        this(PlatformConfig.defaultConfig());
     }
 
     public XMLExporter(PlatformConfig platformConfig) {
@@ -107,13 +107,13 @@ public class XMLExporter implements Exporter {
         }
 
         ExportOptions options = new ExportOptions()
-                .setIndent((boolean) Converters.readParameter(getFormat(), parameters, INDENT_PARAMETER, defaultValueConfig))
-                .setWithBranchSV((boolean) Converters.readParameter(getFormat(), parameters, WITH_BRANCH_STATE_VARIABLES_PARAMETER, defaultValueConfig))
-                .setOnlyMainCc((boolean) Converters.readParameter(getFormat(), parameters, ONLY_MAIN_CC_PARAMETER, defaultValueConfig))
-                .setAnonymized((boolean) Converters.readParameter(getFormat(), parameters, ANONYMISED_PARAMETER, defaultValueConfig))
-                .setSkipExtensions((boolean) Converters.readParameter(getFormat(), parameters, SKIP_EXTENSIONS_PARAMETER, defaultValueConfig))
-                .setTopologyLevel(TopologyLevel.valueOf((String) Converters.readParameter(getFormat(), parameters, TOPOLOGY_LEVEL_PARAMETER, defaultValueConfig)))
-                .setThrowExceptionIfExtensionNotFound((boolean) Converters.readParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig));
+                .setIndent(ConversionParameters.readBooleanParameter(getFormat(), parameters, INDENT_PARAMETER, defaultValueConfig))
+                .setWithBranchSV(ConversionParameters.readBooleanParameter(getFormat(), parameters, WITH_BRANCH_STATE_VARIABLES_PARAMETER, defaultValueConfig))
+                .setOnlyMainCc(ConversionParameters.readBooleanParameter(getFormat(), parameters, ONLY_MAIN_CC_PARAMETER, defaultValueConfig))
+                .setAnonymized(ConversionParameters.readBooleanParameter(getFormat(), parameters, ANONYMISED_PARAMETER, defaultValueConfig))
+                .setSkipExtensions(ConversionParameters.readBooleanParameter(getFormat(), parameters, SKIP_EXTENSIONS_PARAMETER, defaultValueConfig))
+                .setTopologyLevel(TopologyLevel.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, TOPOLOGY_LEVEL_PARAMETER, defaultValueConfig)))
+                .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig));
 
         try {
             long startTime = System.currentTimeMillis();

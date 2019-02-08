@@ -10,7 +10,7 @@ package com.powsybl.ampl.converter;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.iidm.Converters;
+import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.parameters.Parameter;
@@ -62,8 +62,8 @@ public class AmplExporter implements Exporter {
         Objects.requireNonNull(network);
         Objects.requireNonNull(dataSource);
         try {
-            boolean exportRatioTapChangerVoltageTarget = (boolean) Converters.readParameter(getFormat(), parameters, EXPORT_RATIOTAPCHANGER_VT_PARAMETER, defaultValueConfig);
-            boolean specificCompatibility = (boolean) Converters.readParameter(getFormat(), parameters, SPECIFIC_COMPATIBILITY_PARAMETER, defaultValueConfig);
+            boolean exportRatioTapChangerVoltageTarget = ConversionParameters.readBooleanParameter(getFormat(), parameters, EXPORT_RATIOTAPCHANGER_VT_PARAMETER, defaultValueConfig);
+            boolean specificCompatibility = ConversionParameters.readBooleanParameter(getFormat(), parameters, SPECIFIC_COMPATIBILITY_PARAMETER, defaultValueConfig);
             new AmplNetworkWriter(network, dataSource, new AmplExportConfig(AmplExportConfig.ExportScope.ALL, false, AmplExportConfig.ExportActionType.CURATIVE, exportRatioTapChangerVoltageTarget, specificCompatibility))
                     .write();
         } catch (IOException e) {
