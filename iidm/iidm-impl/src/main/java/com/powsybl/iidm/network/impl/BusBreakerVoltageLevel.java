@@ -10,22 +10,42 @@ import com.google.common.base.Functions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.util.Colors;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.Networks;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.math.graph.TraverseResult;
 import com.powsybl.math.graph.UndirectedGraphImpl;
+import guru.nidi.graphviz.attribute.Color;
+import guru.nidi.graphviz.attribute.Font;
+import guru.nidi.graphviz.attribute.Label;
+import guru.nidi.graphviz.attribute.Style;
+import guru.nidi.graphviz.model.Link;
+import guru.nidi.graphviz.model.MutableGraph;
+import guru.nidi.graphviz.model.MutableNode;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.UncheckedIOException;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
+
+import static guru.nidi.graphviz.model.Factory.mutGraph;
+import static guru.nidi.graphviz.model.Factory.mutNode;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class BusBreakerVoltageLevel extends AbstractVoltageLevel {
+
+    private static final boolean DRAW_SWITCH_ID = false;
 
     private final class SwitchAdderImpl extends AbstractIdentifiableAdder<SwitchAdderImpl> implements BusBreakerView.SwitchAdder {
 
@@ -886,54 +906,74 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
-    public void exportTopology(String filename) throws IOException {
-        try (OutputStream writer = new FileOutputStream(filename)) {
+    public void exportTopology(Path file) throws IOException {
+        try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
             exportTopology(writer);
         }
     }
 
     @Override
-    public void exportTopology(OutputStream outputStream) throws IOException {
-        Writer writer = new OutputStreamWriter(outputStream, "UTF-8");
-        writer.append("graph \"").append(BusBreakerVoltageLevel.this.id).append("\" {\n");
+    public void exportTopology(Writer writer) {
+        exportTopology(writer, new SecureRandom());
+    }
+
+    @Override
+    public void exportTopology(Writer writer, Random random) {
+        Objects.requireNonNull(writer);
+        Objects.requireNonNull(random);
+
+        MutableGraph gv = mutGraph(BusBreakerVoltageLevel.this.id);
+
+        Map<Identifiable, MutableNode> nodes = new HashMap<>();
+        String[] colors = Colors.generateColorScale(graph.getVertexCount(), random);
+        int i = 0;
         for (ConfiguredBus bus : graph.getVerticesObj()) {
-            String label = "BUS\\n" + bus.getId();
-            writer.append("  ").append(bus.getId())
-                        .append(" [label=\"").append(label).append("\"]\n");
+            MutableNode n = mutNode(Label.of("BUS\\n" + bus.getId()))
+                    .add(Style.FILLED)
+                    .add(Color.rgb(colors[i]));
+            gv.add(n);
+            nodes.put(bus, n);
             for (TerminalExt terminal : bus.getTerminals()) {
                 AbstractConnectable connectable = terminal.getConnectable();
-                label = connectable.getType().toString() + "\\n" + connectable.getId();
-                writer.append("  ").append(connectable.getId())
-                        .append(" [label=\"").append(label).append("\"]\n");
+                n = mutNode(Label.of(connectable.getType().toString() + "\\n" + connectable.getId()))
+                        .add(Style.FILLED)
+                        .add(Color.rgb(colors[i]));
+                gv.add(n);
+                nodes.put(connectable, n);
             }
+            i++;
         }
+
         for (ConfiguredBus bus : graph.getVerticesObj()) {
             for (TerminalExt terminal : bus.getTerminals()) {
                 AbstractConnectable connectable = terminal.getConnectable();
-                writer.append("  ").append(bus.getId())
-                    .append(" -- ").append(connectable.getId())
-                    .append(" [").append("style=\"").append(terminal.isConnected() ? "solid" : "dotted").append("\"")
-                    .append("]\n");
+                MutableNode n1 = nodes.get(bus);
+                MutableNode n2 = nodes.get(connectable);
+                n1.addLink(n1.linkTo(n2).with(terminal.isConnected() ? Style.SOLID : Style.DOTTED));
             }
         }
-        boolean drawSwitchId = false;
         for (int e = 0; e < graph.getEdgeCount(); e++) {
             int v1 = graph.getEdgeVertex1(e);
             int v2 = graph.getEdgeVertex2(e);
             SwitchImpl sw = graph.getEdgeObject(e);
             ConfiguredBus bus1 = graph.getVertexObject(v1);
             ConfiguredBus bus2 = graph.getVertexObject(v2);
-            writer.append("  ").append(bus1.getId())
-                    .append(" -- ").append(bus2.getId())
-                    .append(" [");
-            if (drawSwitchId) {
-                writer.append("label=\"").append(sw.getId())
-                        .append("\", fontsize=10");
+            MutableNode n1 = nodes.get(bus1);
+            MutableNode n2 = nodes.get(bus2);
+            Link link = n1.linkTo(n2)
+                    .with(sw.isOpen() ? Style.DOTTED : Style.SOLID);
+            if (DRAW_SWITCH_ID) {
+                link = link.with(Label.of(sw.getId()))
+                        .with(Font.size(10));
             }
-            writer.append("style=\"").append(sw.isOpen() ? "dotted" : "solid").append("\"");
-            writer.append("]\n");
+            n1.addLink(link);
         }
-        writer.append("}\n");
+
+        try {
+            writer.write(gv.toString());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
 }

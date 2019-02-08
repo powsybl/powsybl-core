@@ -1,0 +1,10 @@
+graph "sim1" {
+"VLGEN_0" ["fillcolor"="#7AF385","shape"="ellipse","tooltip"="load=0MW&#13;&#10;max generation=10000MW&#13;&#10;cc=0","fontsize"="10","style"="filled"]
+"VLHV1_0" ["fillcolor"="#7AF385","shape"="ellipse","tooltip"="load=0MW&#13;&#10;max generation=0MW&#13;&#10;cc=0","fontsize"="10","style"="filled"]
+"VLHV2_0" ["fillcolor"="#7AF385","shape"="ellipse","tooltip"="load=0MW&#13;&#10;max generation=0MW&#13;&#10;cc=0","fontsize"="10","style"="filled"]
+"VLLOAD_0" ["fillcolor"="#7AF385","shape"="ellipse","tooltip"="load=600MW&#13;&#10;max generation=0MW&#13;&#10;cc=0","fontsize"="10","style"="filled"]
+"VLGEN_0" -- "VLHV1_0" ["tooltip"="NGEN_NHV1"]
+"VLHV1_0" -- "VLHV2_0" ["tooltip"="NHV1_NHV2_1"]
+"VLHV1_0" -- "VLHV2_0" ["tooltip"="NHV1_NHV2_2"]
+"VLHV2_0" -- "VLLOAD_0" ["tooltip"="NHV2_NLOAD"]
+}
