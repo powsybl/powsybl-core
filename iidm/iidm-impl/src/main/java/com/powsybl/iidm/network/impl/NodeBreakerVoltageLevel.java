@@ -1029,7 +1029,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             graph.traverse(node, (v1, e, v2) -> {
                 SwitchImpl aSwitch = graph.getEdgeObject(e);
                 NodeTerminal otherTerminal = graph.getVertexObject(v2);
-                if (traverser.traverse(aSwitch)) {
+                if (aSwitch == null // internal connection case
+                        || traverser.traverse(aSwitch)) {
                     if (otherTerminal == null) {
                         return TraverseResult.CONTINUE;
                     } else if (traverser.traverse(otherTerminal, true)) {
