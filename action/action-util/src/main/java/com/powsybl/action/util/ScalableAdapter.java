@@ -7,9 +7,7 @@
 package com.powsybl.action.util;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +25,8 @@ class ScalableAdapter extends AbstractScalable {
         Identifiable identifiable = n.getIdentifiable(id);
         if (identifiable instanceof Generator) {
             return new GeneratorScalable(id);
+        } else if (identifiable instanceof Load) {
+            return new LoadScalable(id);
         } else {
             throw new PowsyblException("Unable to create a scalable from " + identifiable.getClass());
         }
@@ -48,8 +48,8 @@ class ScalableAdapter extends AbstractScalable {
     }
 
     @Override
-    public void listGenerators(Network n, List<Generator> generators, List<String> notFoundGenerators) {
-        getScalable(n).listGenerators(n, generators, notFoundGenerators);
+    public void filterInjections(Network network, List<Injection> injections, List<String> notFound) {
+        getScalable(network).filterInjections(network, injections, notFound);
     }
 
     @Override

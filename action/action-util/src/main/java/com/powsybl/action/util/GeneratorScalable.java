@@ -6,10 +6,7 @@
  */
 package com.powsybl.action.util;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,16 +53,16 @@ class GeneratorScalable extends AbstractScalable {
     }
 
     @Override
-    public void listGenerators(Network n, List<Generator> generators, List<String> notFoundGenerators) {
+    public  void filterInjections(Network n, List<Injection> injections, List<String> notFoundInjections) {
         Objects.requireNonNull(n);
-        Objects.requireNonNull(generators);
+        Objects.requireNonNull(injections);
 
-        Generator g = n.getGenerator(id);
-        if (g != null) {
-            generators.add(g);
+        Generator generator = n.getGenerator(id);
+        if (generator != null) {
+            injections.add(generator);
         } else {
-            if (notFoundGenerators != null) {
-                notFoundGenerators.add(id);
+            if (notFoundInjections != null) {
+                notFoundInjections.add(id);
             }
         }
     }

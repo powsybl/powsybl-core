@@ -7,6 +7,7 @@
 package com.powsybl.action.util;
 
 import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Arrays;
@@ -16,25 +17,67 @@ import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Ameni Walha <ameni.walha at rte-france.com>
  */
 public interface Scalable {
 
+    /**
+     * Get the constant active power in MW injected at the network.
+     */
     double initialValue(Network n);
 
+    /**
+     * Set the constant active power to zero.
+     */
     void reset(Network n);
 
+    /**
+     * Get the maximal active power in MW.
+     */
     double maximumValue(Network n);
 
+    /**
+     * @deprecated listGenerators should be replaced by filterInjections
+     */
+    @Deprecated
     void listGenerators(Network n, List<Generator> generators, List<String> notFoundGenerators);
 
+    /**
+     * @deprecated listGenerators should be replaced by filterInjections
+     */
+    @Deprecated
     List<Generator> listGenerators(Network n, List<String> notFoundGenerators);
 
+    /**
+     * @deprecated listGenerators should be replaced by filterInjections
+     */
+    @Deprecated
     List<Generator> listGenerators(Network n);
 
+    /**
+     * If the scalable is an injection present in the network, it's added to the list "injections"
+     * <p>Otherwise,its identifier is added to the "notFound" list </p>
+     */
+    void filterInjections(Network network, List<Injection> injections, List<String> notFound);
+
+    List<Injection> filterInjections(Network network, List<String> notFound);
+
+    List<Injection> filterInjections(Network network);
+
+    /**
+     * @param n network
+     * @param asked value asked to adjust the scalable active power
+     * @return the actual value of the scalable active power adjustment
+     */
     double scale(Network n, double asked);
+
 
     static GeneratorScalable gen(String id) {
         return new GeneratorScalable(id);
+    }
+
+    static LoadScalable load(String id) {
+        return new LoadScalable(id);
     }
 
     static Scalable scalable(String id) {

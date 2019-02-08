@@ -6,7 +6,7 @@
  */
 package com.powsybl.action.util;
 
-import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
@@ -53,12 +53,10 @@ abstract class AbstractCompoundScalable extends AbstractScalable {
     }
 
     @Override
-    public void listGenerators(Network n, List<Generator> generators, List<String> notFoundGenerators) {
-        Objects.requireNonNull(n);
-        Objects.requireNonNull(generators);
-
+    public void filterInjections(Network n, List<Injection> injections, List<String> notFoundInjections) {
         for (Scalable scalable : scalables) {
-            scalable.listGenerators(n, generators, notFoundGenerators);
+            scalable.filterInjections(n, injections, notFoundInjections);
         }
     }
+
 }
