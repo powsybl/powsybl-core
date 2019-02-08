@@ -13,6 +13,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.BranchAdder;
+import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.InjectionAdder;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.Terminal;
@@ -237,8 +238,8 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     void convertedTerminal(String terminalId, Terminal t, int n, PowerFlow f) {
         // Record the mapping between CGMES and IIDM terminals
         context.terminalMapping().add(terminalId, t, n);
-        // Update the power flow at terminal
-        if (f.defined()) {
+        // Update the power flow at terminal. Check that IIDM allows setting it
+        if (f.defined() && setPQAllowed(t)) {
             t.setP(f.p());
             t.setQ(f.q());
         }
@@ -251,6 +252,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             Terminal t = ts[k];
             convertedTerminal(terminalId(n), t, n, powerFlow(n));
         }
+    }
+
+    private boolean setPQAllowed(Terminal t) {
+        return t.getConnectable().getType() != ConnectableType.BUSBAR_SECTION;
     }
 
     private final int numTerminals;
