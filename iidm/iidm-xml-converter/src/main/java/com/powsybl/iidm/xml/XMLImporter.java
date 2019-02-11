@@ -160,26 +160,42 @@ public class XMLImporter implements Importer {
 
     @Override
     public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
-        Objects.requireNonNull(dataSource);
+        return importData(dataSource, null, parameters);
+    }
+
+    public Network importData(ReadOnlyDataSource dataSourceBase, ReadOnlyDataSource dataSourceExtension, Properties parameters) {
+        Objects.requireNonNull(dataSourceBase);
         Network network;
         long startTime = System.currentTimeMillis();
         try {
-            String ext = findExtension(dataSource);
+            String ext = findExtension(dataSourceBase);
             if (ext == null) {
-                throw new PowsyblException("File " + dataSource.getBaseName()
+                throw new PowsyblException("File " + dataSourceBase.getBaseName()
                         + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
             }
             boolean throwExceptionIfExtensionNotFound = (Boolean) Importers.readParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, defaultValueConfig);
             Anonymizer anonymizer = null;
-            if (dataSource.exists(SUFFIX_MAPPING, "csv")) {
+            if (dataSourceBase.exists(SUFFIX_MAPPING, "csv")) {
                 anonymizer = new SimpleAnonymizer();
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(SUFFIX_MAPPING, "csv"), StandardCharsets.UTF_8))) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSourceBase.newInputStream(SUFFIX_MAPPING, "csv"), StandardCharsets.UTF_8))) {
                     anonymizer.read(reader);
                 }
             }
-            try (InputStream is = dataSource.newInputStream(null, ext)) {
-                network = NetworkXml.read(is, new ImportOptions(throwExceptionIfExtensionNotFound), anonymizer);
+            try (InputStream isb = dataSourceBase.newInputStream(null, ext)) {
+                network = NetworkXml.read(isb, new ImportOptions(throwExceptionIfExtensionNotFound), anonymizer);
             }
+
+            if (dataSourceExtension != null) {
+                String extension = findExtension(dataSourceExtension);
+                if (extension == null) {
+                    throw new PowsyblException("File " + dataSourceExtension.getBaseName()
+                            + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
+                }
+                try (InputStream ise = dataSourceExtension.newInputStream(null, extension)) {
+                    network = NetworkXml.readExtensions(network, ise, new ImportOptions(throwExceptionIfExtensionNotFound), anonymizer);
+                }
+            }
+
             LOGGER.debug("XIIDM import done in {} ms", System.currentTimeMillis() - startTime);
         } catch (IOException e) {
             throw new PowsyblException(e);

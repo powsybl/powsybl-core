@@ -60,6 +60,10 @@ public final class NetworkXml {
     static final String NETWORK_ROOT_ELEMENT_NAME = "network";
     private static final String EXTENSION_ELEMENT_NAME = "extension";
     private static final String IIDM_XSD = "iidm.xsd";
+    private static final String CASE_DATE = "caseDate";
+    private static final String FORECAST_DISTANCE = "forecastDistance";
+    private static final String SOURCE_FORMAT = "sourceFormat";
+    private static final String ID = "id";
 
     // cache XMLOutputFactory to improve performance
     private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLOutputFactory::newFactory);
@@ -223,10 +227,10 @@ public final class NetworkXml {
             if (!options.isSkipExtensions()) {
                 writeExtensionNamespaces(n, options, writer);
             }
-            writer.writeAttribute("id", n.getId());
-            writer.writeAttribute("caseDate", n.getCaseDate().toString());
-            writer.writeAttribute("forecastDistance", Integer.toString(n.getForecastDistance()));
-            writer.writeAttribute("sourceFormat", n.getSourceFormat());
+            writer.writeAttribute(ID, n.getId());
+            writer.writeAttribute(CASE_DATE, n.getCaseDate().toString());
+            writer.writeAttribute(FORECAST_DISTANCE, Integer.toString(n.getForecastDistance()));
+            writer.writeAttribute(SOURCE_FORMAT, n.getSourceFormat());
         }
         return writer;
     }
@@ -322,10 +326,10 @@ public final class NetworkXml {
             while (state == XMLStreamReader.COMMENT) {
                 state = reader.next();
             }
-            String id = reader.getAttributeValue(null, "id");
-            DateTime date = DateTime.parse(reader.getAttributeValue(null, "caseDate"));
-            int forecastDistance = XmlUtil.readOptionalIntegerAttribute(reader, "forecastDistance", 0);
-            String sourceFormat = reader.getAttributeValue(null, "sourceFormat");
+            String id = reader.getAttributeValue(null, ID);
+            DateTime date = DateTime.parse(reader.getAttributeValue(null, CASE_DATE));
+            int forecastDistance = XmlUtil.readOptionalIntegerAttribute(reader, FORECAST_DISTANCE, 0);
+            String sourceFormat = reader.getAttributeValue(null, SOURCE_FORMAT);
 
             Network network = NetworkFactory.create(id, sourceFormat);
             network.setCaseDate(date);
@@ -357,7 +361,7 @@ public final class NetworkXml {
                         String id2 = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, "id"));
                         Identifiable identifiable = network.getIdentifiable(id2);
                         if (identifiable == null) {
-                            throw new PowsyblException("Identifiable " + id2 + " not found");
+                            throw new PowsyblException("Identifiable " + id2 + "  not found");
                         }
 
                         readExtensions(identifiable, context, extensionNamesNotFound);
@@ -372,7 +376,7 @@ public final class NetworkXml {
 
             if (!extensionNamesNotFound.isEmpty()) {
                 if (config.isThrowExceptionIfExtensionNotFound()) {
-                    throw new PowsyblException("Extensions " + extensionNamesNotFound + " not found");
+                    throw new PowsyblException("Extensions " + extensionNamesNotFound + " not found !");
                 } else {
                     LOGGER.error("Extensions {} not found", extensionNamesNotFound);
                 }
@@ -397,6 +401,51 @@ public final class NetworkXml {
         return read(xmlFile);
     }
 
+    public static Network readExtensions(Network network, InputStream ise, ImportOptions config, Anonymizer anonymizer) {
+        try {
+            XMLStreamReader reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(ise);
+            int state = reader.next();
+            while (state == XMLStreamReader.COMMENT) {
+                state = reader.next();
+            }
+            String id = reader.getAttributeValue(null, "id");
+            DateTime date = DateTime.parse(reader.getAttributeValue(null, CASE_DATE));
+
+            //verify that the extensions file matchesc with the same network
+            if (!network.getId().equals(id) || !network.getCaseDate().equals(date)) {
+                throw new PowsyblException("Extension file do not match with the base file !");
+            }
+
+            NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader);
+            Set<String> extensionNamesNotFound = new TreeSet<>();
+
+            XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {
+                if (reader.getLocalName() == EXTENSION_ELEMENT_NAME) {
+                    String id2 = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, "id"));
+                    Identifiable identifiable = network.getIdentifiable(id2);
+                    if (identifiable == null) {
+                        throw new PowsyblException("Identifiable " + id2 + " not found");
+                    }
+                    readExtensions(identifiable, context, extensionNamesNotFound);
+                } else {
+                    throw new AssertionError();
+                }
+            });
+
+            context.getEndTasks().forEach(Runnable::run);
+
+            if (!extensionNamesNotFound.isEmpty()) {
+                if (config.isThrowExceptionIfExtensionNotFound()) {
+                    throw new PowsyblException("Extensions " + extensionNamesNotFound + " not found");
+                } else {
+                    LOGGER.error("Extensions {} not found", extensionNamesNotFound);
+                }
+            }
+            return network;
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
+        }
+    }
     private static void readExtensions(Identifiable identifiable, NetworkXmlReaderContext context,
                                        Set<String> extensionNamesNotFound) throws XMLStreamException {
 
