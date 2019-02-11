@@ -9,7 +9,6 @@ package com.powsybl.ucte.converter;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.export.Exporter;
-import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
 import com.powsybl.ucte.network.*;
 import com.powsybl.ucte.network.io.UcteWriter;
@@ -99,12 +98,12 @@ public class UcteExporter implements Exporter {
                     (float)twoWindingsTransformer.getR(),
                     (float)twoWindingsTransformer.getX(),
                     (float)twoWindingsTransformer.getB(),
-                    0,
+                    (int)twoWindingsTransformer.getCurrentLimits2().getPermanentLimit(),
                     twoWindingsTransformer.getName(),
-                    (float)twoWindingsTransformer.getRatedU1(),
                     (float)twoWindingsTransformer.getRatedU2(),
-                    0,
-                    (float)twoWindingsTransformer.getG());
+                    (float)twoWindingsTransformer.getRatedU1(),
+                    100,
+                    (float)twoWindingsTransformer.getG()); //TODO Find a representation for the nominal power
 
             ucteNetwork.addTransformer(ucteTransformer);
         }
@@ -127,7 +126,6 @@ public class UcteExporter implements Exporter {
             LOGGER.info("B2 = {}", String.valueOf(line.getB2()));
             LOGGER.info("G1 = {}", String.valueOf(line.getG1()));
             LOGGER.info("G2 = {}", String.valueOf(line.getG2()));
-
             createLine(ucteNetwork,line);
         }
     }
@@ -199,7 +197,6 @@ public class UcteExporter implements Exporter {
             LOGGER.info(" P = {}", bus.getP());
             LOGGER.info(" Q = {}", bus.getQ());
             LOGGER.info(" Angle = {}", bus.getAngle());
-
             createBus(ucteNetwork, bus);
 
             LOGGER.info("-----------GENERATORS--------");
@@ -220,6 +217,8 @@ public class UcteExporter implements Exporter {
 
             }
 
+
+
             createTwoWindingTransformers(ucteNetwork,bus);
         }
     }
@@ -227,22 +226,40 @@ public class UcteExporter implements Exporter {
     private void createBus(UcteNetwork ucteNetwork, Bus bus)
     {
         VoltageLevel voltageLevel = bus.getVoltageLevel();
-        int loadCount = voltageLevel.getLoadCount();
+        long loadCount = voltageLevel.getLoadStream().count();
+        long generatorCount = bus.getGeneratorStream().count();
         String country = voltageLevel.getSubstation().getCountry().toString();
+
         double p0 = 0;
         double q0 = 0;
+        double activePowerGeneration = 0;
+        double reactivePowerGeneration = 0;
+        double voltageReference = 0;
+        double minimumPermissibleActivePowerGeneration = 0;
+        double maximumPermissibleActivePowerGeneration = 0;
+        double minimumPermissibleReactivePowerGeneration = 0;
+        double maximumPermissibleReactivePowerGeneration = 0;
 
         if(loadCount==1)
         {
-            Iterable<Load> loads = voltageLevel.getLoads();
-            for(Load load : loads)
-            {
-                LOGGER.info("-------------LOAD--------------");
-                LOGGER.info("P0 = {}", load.getP0());
-                LOGGER.info("Q0 = {}", load.getQ0());
-                p0 = load.getP0();
-                q0 = load.getQ0();
-            }
+            Load load = (Load)voltageLevel.getLoadStream().toArray()[0];
+            p0 = load.getP0();
+            q0 = load.getQ0();
+            LOGGER.info("-------------LOAD--------------");
+            LOGGER.info("P0 = {}", p0);
+            LOGGER.info("Q0 = {}", q0);
+        }
+
+        if(generatorCount==1) //the node is a generator
+        {
+            Generator generator = (Generator)bus.getGeneratorStream().toArray()[0];
+            activePowerGeneration = -generator.getTargetP();
+            reactivePowerGeneration = generator.getTargetQ();
+            voltageReference = generator.getTargetV();
+            minimumPermissibleActivePowerGeneration = -generator.getMinP();
+            maximumPermissibleActivePowerGeneration = -generator.getMaxP();
+            minimumPermissibleReactivePowerGeneration = -generator.getReactiveLimits().getMinQ(activePowerGeneration);
+            maximumPermissibleReactivePowerGeneration = -generator.getReactiveLimits().getMaxQ(activePowerGeneration);
         }
 
         UcteNodeCode ucteNodeCode = new UcteNodeCode(
@@ -257,30 +274,30 @@ public class UcteExporter implements Exporter {
                 "",
                 UcteNodeStatus.REAL,
                 UcteNodeTypeCode.PQ,
-                0f,
+                (float)voltageReference,
                 (float)p0,
                 (float)q0,
-                0f,
-                0f,
-                0f,
-                0f,
-                0f,
-                0f,
+                (float)activePowerGeneration,
+                (float)reactivePowerGeneration,
+                (float)minimumPermissibleActivePowerGeneration,
+                (float)maximumPermissibleActivePowerGeneration,
+                (float)minimumPermissibleReactivePowerGeneration,
+                (float)maximumPermissibleReactivePowerGeneration,
                 0f,
                 0f,
                 0f,
                 0f,
                 UctePowerPlantType.N
-        ); //FIXME
+        ); //TODO :
+
         ucteNetwork.addNode(ucteNode);
     }
 
-    private boolean isNotAlreadyCreated(UcteNetwork ucteNetwork, UcteElementId ucteElementId)
-    {
+    private boolean isNotAlreadyCreated(UcteNetwork ucteNetwork, UcteElementId ucteElementId) {
         return ucteNetwork.getTransformer(ucteElementId) == null;
     }
 
-    private UcteVoltageLevelCode iidmVoltageToUcteVoltageLevelCode(double nominalV)
+    UcteVoltageLevelCode iidmVoltageToUcteVoltageLevelCode(double nominalV)
     {
         if(nominalV == 27) {
             return UcteVoltageLevelCode.VL_27;
@@ -315,7 +332,28 @@ public class UcteExporter implements Exporter {
         return null;
     }
 
-    private void write(UcteNetwork network, Path file) {
+    boolean isUcteId(String id) {
+        return id != null &&
+                (id.length()==7 || id.length()==8) &&
+                isUcteCountryCode(id.charAt(0)) &&
+                isVoltageLevel(id.charAt(6));
+    }
+
+    boolean isUcteCountryCode(char character) {
+        try {
+            UcteCountryCode.fromUcteCode(character);
+            return true;
+        }
+        catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
+    boolean isVoltageLevel(char character) {
+        return (int)character >=48 && (int)character <=57;
+    }
+
+    void write(UcteNetwork network, Path file) {
         try (BufferedWriter bw = Files.newBufferedWriter(file)) {
             new UcteWriter(network).write(bw);
         } catch (IOException e) {
