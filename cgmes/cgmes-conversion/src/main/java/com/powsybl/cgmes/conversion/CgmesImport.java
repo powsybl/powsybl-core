@@ -66,8 +66,12 @@ public class CgmesImport implements Importer {
                 String s = p.getProperty("convertBoundary");
                 config.setConvertBoundary(Boolean.parseBoolean(s));
             }
+            if (p.containsKey("createBusbarSectionForEveryConnectivityNode")) {
+                String s = p.getProperty("createBusbarSectionForEveryConnectivityNode");
+                config.setCreateBusbarSectionForEveryConnectivityNode(Boolean.parseBoolean(s));
+            }
         }
-        Network network = new Conversion(cgmes, config).convertedNetwork();
+        Network network = new Conversion(cgmes, config).convert();
 
         boolean storeCgmesModelAsNetworkExtension = true;
         if (p != null) {
