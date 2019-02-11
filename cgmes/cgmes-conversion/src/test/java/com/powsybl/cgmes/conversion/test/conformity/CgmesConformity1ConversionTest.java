@@ -11,10 +11,13 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -25,11 +28,14 @@ import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.computation.local.LocalComputationManager;
 import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
 /**
@@ -201,6 +207,37 @@ public class CgmesConformity1ConversionTest {
                 actuals.smallNodeBreakerHvdc().dataSource(),
                 null,
                 LocalComputationManager.getDefault());
+    }
+
+    @Test
+    // This is to test that we have stable Identifiers for calculated buses
+    // If no topology change has been made, running a LoadFlow (even a Mock LoadFlow)
+    // must produce identical identifiers for calculated buses
+    public void smallNodeBreakerStableBusNaming() throws IOException {
+        Network network = Importers.importData("CGMES",
+                actuals.smallNodeBreaker().dataSource(),
+                null,
+                LocalComputationManager.getDefault());
+
+        // Initial bus identifiers
+        List<String> initialBusIds = network.getBusView().getBusStream()
+                .map(Bus::getId).collect(Collectors.toList());
+
+        // Compute a "mock" LoadFlow and obtain bus identifiers
+        String lfVariantId = "lf";
+        network.getVariantManager()
+                .cloneVariant(network.getVariantManager().getWorkingVariantId(),
+                        lfVariantId);
+        new LoadFlowFactoryMock()
+                .create(network,
+                        new LocalComputationManager(Paths.get("/tmp/kk")),
+                        1)
+                .run(lfVariantId, new LoadFlowParameters()).join();
+        network.getVariantManager().setWorkingVariant(lfVariantId);
+        List<String> afterLoadFlowBusIds = network.getBusView().getBusStream()
+                .map(Bus::getId).collect(Collectors.toList());
+
+        assertEquals(initialBusIds, afterLoadFlowBusIds);
     }
 
     private static class TxData {

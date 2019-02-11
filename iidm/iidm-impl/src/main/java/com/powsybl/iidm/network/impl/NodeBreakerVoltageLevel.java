@@ -6,32 +6,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.google.common.base.Functions;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Multimap;
-import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.util.Colors;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
-import com.powsybl.iidm.network.util.ShortIdDictionary;
-import com.powsybl.math.graph.GraphUtil;
-import com.powsybl.math.graph.TraverseResult;
-import com.powsybl.math.graph.UndirectedGraph;
-import com.powsybl.math.graph.UndirectedGraphImpl;
-import gnu.trove.list.array.TIntArrayList;
-import guru.nidi.graphviz.attribute.Color;
-import guru.nidi.graphviz.attribute.Font;
-import guru.nidi.graphviz.attribute.Label;
-import guru.nidi.graphviz.attribute.Style;
-import guru.nidi.graphviz.model.Link;
-import guru.nidi.graphviz.model.MutableGraph;
-import guru.nidi.graphviz.model.MutableNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static guru.nidi.graphviz.model.Factory.mutGraph;
+import static guru.nidi.graphviz.model.Factory.mutNode;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -41,17 +17,61 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.SecureRandom;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static guru.nidi.graphviz.model.Factory.mutGraph;
-import static guru.nidi.graphviz.model.Factory.mutNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Functions;
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Iterables;
+import com.google.common.collect.Multimap;
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.util.Colors;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.BusAdder;
+import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.BusbarSectionAdder;
+import com.powsybl.iidm.network.ConnectableType;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
+import com.powsybl.iidm.network.util.ShortIdDictionary;
+import com.powsybl.math.graph.GraphUtil;
+import com.powsybl.math.graph.TraverseResult;
+import com.powsybl.math.graph.UndirectedGraph;
+import com.powsybl.math.graph.UndirectedGraphImpl;
+
+import gnu.trove.list.array.TIntArrayList;
+import guru.nidi.graphviz.attribute.Color;
+import guru.nidi.graphviz.attribute.Font;
+import guru.nidi.graphviz.attribute.Label;
+import guru.nidi.graphviz.attribute.Style;
+import guru.nidi.graphviz.model.Link;
+import guru.nidi.graphviz.model.MutableGraph;
+import guru.nidi.graphviz.model.MutableNode;
 
 /**
  *
@@ -67,7 +87,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private static final BusChecker CALCULATED_BUS_BREAKER_CHECKER = new CalculatedBusBreakerChecker();
 
-    //private static final BusNamingStrategy NAMING_STRATEGY = new NumberedBusNamingStrategy();
     private static final BusNamingStrategy NAMING_STRATEGY = new LowestNodeNumberBusNamingStrategy();
 
     private final UndirectedGraphImpl<NodeTerminal, SwitchImpl> graph = new UndirectedGraphImpl<>();
@@ -520,26 +539,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         public String getName(VoltageLevel voltageLevel, TIntArrayList nodes) {
             return voltageLevel.getId() + "_" + nodes.min();
         }
-    }
-
-    private static class NumberedBusNamingStrategy implements BusNamingStrategy {
-
-        private final Map<VoltageLevel, AtomicInteger> counter = new WeakHashMap<>();
-
-        private final Lock lock = new ReentrantLock();
-
-        @Override
-        public String getName(VoltageLevel voltageLevel, TIntArrayList nodes) {
-            AtomicInteger i;
-            lock.lock();
-            try {
-                i = counter.computeIfAbsent(voltageLevel, k -> new AtomicInteger());
-            } finally {
-                lock.unlock();
-            }
-            return voltageLevel.getId() + "_" + i.getAndIncrement();
-        }
-
     }
 
     NodeBreakerVoltageLevel(String id, String name, SubstationImpl substation,
