@@ -16,7 +16,6 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +26,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Properties;
 
@@ -195,9 +193,7 @@ public class XMLImporterTest extends AbstractConverterTest {
     public void importDataFromTwoFiles() {
         ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions-base", new ResourceSet("/", "multiple-extensions-base.xiidm"));
         ReadOnlyDataSource dataSourceExtension = new ResourceDataSource("multiple-extensions-ext", new ResourceSet("/", "multiple-extensions-ext.xiidm"));
-
-        assertNotNull(importer.importData(dataSourceBase, dataSourceExtension, null));
-        Network network = importer.importData(new FileDataSource(Paths.get("/home/benhamedcha/"), "base"), new FileDataSource(Paths.get("/home/benhamedcha/"), "baseext"), null);
-        Network network1 = MultipleExtensionsTestNetworkFactory.create();
+        Network network = importer.importData(dataSourceBase, dataSourceExtension, null);
+        assertNotNull(network);
     }
 }
