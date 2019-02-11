@@ -319,6 +319,18 @@ public final class NetworkXml {
         return read(is, new ImportOptions(), null);
     }
 
+
+    public static void runEndTasks(NetworkXmlReaderContext context, Set<String> extensionNamesNotFound, ImportOptions config) {
+        context.getEndTasks().forEach(Runnable::run);
+
+        if (!extensionNamesNotFound.isEmpty()) {
+            if (config.isThrowExceptionIfExtensionNotFound()) {
+                throw new PowsyblException("Extensions " + extensionNamesNotFound + " not found !");
+            } else {
+                LOGGER.error("Extensions {} not found", extensionNamesNotFound);
+            }
+        }
+    }
     public static Network read(InputStream is, ImportOptions config, Anonymizer anonymizer) {
         try {
             XMLStreamReader reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
@@ -372,16 +384,7 @@ public final class NetworkXml {
                 }
             });
 
-            context.getEndTasks().forEach(Runnable::run);
-
-            if (!extensionNamesNotFound.isEmpty()) {
-                if (config.isThrowExceptionIfExtensionNotFound()) {
-                    throw new PowsyblException("Extensions " + extensionNamesNotFound + " not found !");
-                } else {
-                    LOGGER.error("Extensions {} not found", extensionNamesNotFound);
-                }
-            }
-
+            runEndTasks(context, extensionNamesNotFound, config);
             return network;
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
@@ -420,7 +423,7 @@ public final class NetworkXml {
             Set<String> extensionNamesNotFound = new TreeSet<>();
 
             XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {
-                if (reader.getLocalName() == EXTENSION_ELEMENT_NAME) {
+                if (reader.getLocalName().equals(EXTENSION_ELEMENT_NAME)) {
                     String id2 = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, "id"));
                     Identifiable identifiable = network.getIdentifiable(id2);
                     if (identifiable == null) {
@@ -431,16 +434,7 @@ public final class NetworkXml {
                     throw new AssertionError();
                 }
             });
-
-            context.getEndTasks().forEach(Runnable::run);
-
-            if (!extensionNamesNotFound.isEmpty()) {
-                if (config.isThrowExceptionIfExtensionNotFound()) {
-                    throw new PowsyblException("Extensions " + extensionNamesNotFound + " not found");
-                } else {
-                    LOGGER.error("Extensions {} not found", extensionNamesNotFound);
-                }
-            }
+            runEndTasks(context, extensionNamesNotFound, config);
             return network;
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);

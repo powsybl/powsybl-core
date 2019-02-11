@@ -189,7 +189,7 @@ public class XMLImporter implements Importer {
                 String extension = findExtension(dataSourceExtension);
                 if (extension == null) {
                     throw new PowsyblException("File " + dataSourceExtension.getBaseName()
-                            + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
+                            + "." + String.join("|", EXTENSIONS) + " not found");
                 }
                 try (InputStream ise = dataSourceExtension.newInputStream(null, extension)) {
                     network = NetworkXml.readExtensions(network, ise, new ImportOptions(throwExceptionIfExtensionNotFound), anonymizer);
