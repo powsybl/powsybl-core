@@ -10,8 +10,11 @@ package com.powsybl.cgmes.conversion.elements;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.LineAdder;
+import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -19,7 +22,7 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class SwitchConversion extends AbstractConductingEquipmentConversion {
 
-    public SwitchConversion(PropertyBag sw, Conversion.Context context) {
+    public SwitchConversion(PropertyBag sw, Context context) {
         super("Switch", sw, context, 2);
     }
 
@@ -48,42 +51,62 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
         boolean open = p.asBoolean("open", normalOpen);
         if (convertToLowImpedanceLine()) {
             warnLowImpedanceLineCreated();
-            Line line = context.network().newLine()
-                    .setId(iidmId())
-                    .setName(iidmName())
-                    .setEnsureIdUnicity(false)
-                    .setVoltageLevel1(iidmVoltageLevelId(1))
-                    .setVoltageLevel2(iidmVoltageLevelId(2))
-                    .setBus1(terminalConnected(1) && !open ? busId(1) : null)
-                    .setConnectableBus1(busId(1))
-                    .setBus2(terminalConnected(2) && !open ? busId(2) : null)
-                    .setConnectableBus2(busId(2))
+            LineAdder adder = context.network().newLine()
                     .setR(context.config().lowImpedanceLineR())
                     .setX(context.config().lowImpedanceLineX())
                     .setG1(0)
                     .setB1(0)
                     .setG2(0)
-                    .setB2(0)
-                    .add();
+                    .setB2(0);
+            identify(adder);
+            connect(adder, terminalConnected(1) && !open, terminalConnected(2) && !open);
+            Line line = adder.add();
             convertedTerminals(line.getTerminal1(), line.getTerminal2());
         } else {
-            voltageLevel().getBusBreakerView().newSwitch()
-                    .setId(iidmId())
-                    .setName(iidmName())
-                    .setEnsureIdUnicity(false)
-                    .setBus1(busId(1))
-                    .setBus2(busId(2))
-                    .setOpen(open || !terminalConnected(1) || !terminalConnected(2))
-                    .add();
+            if (context.nodeBreaker()) {
+                VoltageLevel.NodeBreakerView.SwitchAdder adder;
+                adder = voltageLevel().getNodeBreakerView().newSwitch()
+                        .setKind(kind());
+                identify(adder);
+                connect(adder, open);
+                adder.add();
+            } else {
+                VoltageLevel.BusBreakerView.SwitchAdder adder;
+                adder = voltageLevel().getBusBreakerView().newSwitch();
+                identify(adder);
+                connect(adder, open);
+                adder.add();
+            }
         }
     }
 
+    private SwitchKind kind() {
+        String type = p.getLocal("type").toLowerCase();
+        if (type.contains("breaker")) {
+            return SwitchKind.BREAKER;
+        } else if (type.contains("disconnector")) {
+            return SwitchKind.DISCONNECTOR;
+        }
+        return SwitchKind.BREAKER;
+    }
+
     private String switchVoltageLevelId() {
-        return p.getId("VoltageLevel");
+        return context.cgmes().container(p.getId("EquipmentContainer")).voltageLevel();
     }
 
     private boolean convertToLowImpedanceLine() {
         String vl = switchVoltageLevelId();
+        String vl1 = cgmesVoltageLevelId(1);
+        String vl2 = cgmesVoltageLevelId(2);
+        if (this.id.startsWith("_8e56ead3") && LOG.isInfoEnabled()) {
+            LOG.info("voltage levels for switch {}", this.id);
+            LOG.info("    vl  : {}", vl);
+            LOG.info("    vl1 : {}", vl1);
+            LOG.info("    vl2 : {}", vl2);
+            LOG.info("    cn1 : {}", nodeId(1));
+            LOG.info("    cn2 : {}", nodeId(2));
+            LOG.info("");
+        }
         return !cgmesVoltageLevelId(1).equals(vl) || !cgmesVoltageLevelId(2).equals(vl);
     }
 

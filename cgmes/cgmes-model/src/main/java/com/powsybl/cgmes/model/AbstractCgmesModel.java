@@ -13,6 +13,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 /**
@@ -29,6 +33,7 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         return this.properties;
     }
 
+    @Override
     public Map<String, PropertyBags> groupedTransformerEnds() {
         if (cachedGroupedTransformerEnds == null) {
             cachedGroupedTransformerEnds = computeGroupedTransformerEnds();
@@ -62,6 +67,62 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         return powerTransformerPhaseTapChanger.get(powerTransformerId);
     }
 
+    @Override
+    public String substation(CgmesTerminal t) {
+        CgmesContainer c = container(t);
+        if (c == null) {
+            return null;
+        }
+        return c.substation();
+    }
+
+    @Override
+    public String voltageLevel(CgmesTerminal t) {
+        CgmesContainer c = container(t);
+        if (c == null) {
+            return null;
+        }
+        return c.voltageLevel();
+    }
+
+    @Override
+    public CgmesContainer container(String containerId) {
+        if (cachedContainers == null) {
+            cachedContainers = computeContainers();
+        }
+        return cachedContainers.get(containerId);
+    }
+
+    @Override
+    public double nominalVoltage(String baseVoltageId) {
+        if (cachedBaseVoltages == null) {
+            cachedBaseVoltages = new HashMap<>();
+            baseVoltages()
+                    .forEach(bv -> cachedBaseVoltages.put(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage")));
+        }
+        return cachedBaseVoltages.get(baseVoltageId);
+    }
+
+    private CgmesContainer container(CgmesTerminal t) {
+        if (cachedNodes == null) {
+            cachedNodes = computeNodes();
+        }
+        String containerId = null;
+        String nodeId = t.connectivityNode() != null ? t.connectivityNode() : t.topologicalNode();
+        if (nodeId != null) {
+            PropertyBag node = cachedNodes.get(nodeId);
+            if (node != null) {
+                containerId = node.getId("ConnectivityNodeContainer");
+            } else {
+                if (LOG.isWarnEnabled()) {
+                    LOG.warn("Missing node {} from terminal {}", nodeId, t.id());
+                }
+            }
+        }
+
+        return (containerId == null) ? null : container(containerId);
+    }
+
     private Map<String, PropertyBags> computeGroupedTransformerEnds() {
         // Alternative implementation:
         // instead of sorting after building each list,
@@ -93,51 +154,49 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         return gends;
     }
 
+    private Map<String, PropertyBag> computeNodes() {
+        Map<String, PropertyBag> nodes = new HashMap<>();
+        connectivityNodes().forEach(cn -> nodes.put(cn.getId("ConnectivityNode"), cn));
+        topologicalNodes().forEach(tn -> nodes.put(tn.getId("TopologicalNode"), tn));
+        return nodes;
+    }
+
     private Map<String, CgmesTerminal> computeTerminals() {
         Map<String, CgmesTerminal> ts = new HashMap<>();
         conductingEquipmentTerminal = new HashMap<>();
         terminals().forEach(t -> {
-            CgmesTerminal td = new CgmesTerminal(
-                    t.getId(CgmesNames.TERMINAL),
-                    t.getId("ConductingEquipment"),
-                    t.getLocal("conductingEquipmentType"),
-                    t.asBoolean("connected", false),
-                    new PowerFlow(t, "p", "q"));
+            CgmesTerminal td = new CgmesTerminal(t);
+            if (ts.containsKey(td.id())) {
+                return;
+            }
             ts.put(td.id(), td);
             conductingEquipmentTerminal.put(t.getId("ConductingEquipment"), t.getId(CgmesNames.TERMINAL));
         });
-        terminalsTP().forEach(t -> {
-            String tid = t.getId(CgmesNames.TERMINAL);
-            CgmesTerminal td = ts.get(tid);
-            if (td == null) {
-                // Terminal from TopologicalNode is not found in the list of
-                // Terminals linked to a ConductingEquipment
-                String message = "The corresponding object of Terminal from TopologicalNode does not exist in the base model "
-                        + tid;
-                throw new CgmesModelException(message);
-            }
-            td.assignTP(t.getId("TopologicalNode"), t.getId("VoltageLevel"), t.getId("Substation"));
-        });
-        terminalsCN().forEach(t -> {
-            String tid = t.getId(CgmesNames.TERMINAL);
-            CgmesTerminal td = ts.get(tid);
-            if (td == null) {
-                // Terminal from ConnectivityNode is not found in the list of
-                // Terminals linked to a ConductingEquipment
-                String message = "The corresponding object of Terminal from ConnectivityNode does not exist in the base model "
-                        + tid;
-                throw new CgmesModelException(message);
-            }
-            td.assignCN(t.getId("ConnectivityNode"), t.getId("TopologicalNode"), t.getId("VoltageLevel"),
-                    t.getId("Substation"));
-        });
         return ts;
+    }
+
+    // TODO(Luma): better caches create an object "Cache" that is final ...
+    // (avoid filling all places with if cached == null...)
+    private Map<String, CgmesContainer> computeContainers() {
+        Map<String, CgmesContainer> cs = new HashMap<>();
+        connectivityNodeContainers().forEach(c -> {
+            String id = c.getId("ConnectivityNodeContainer");
+            String voltageLevel = c.getId("VoltageLevel");
+            String substation = c.getId("Substation");
+            cs.put(id, new CgmesContainer(voltageLevel, substation));
+        });
+        return cs;
     }
 
     private final Properties properties;
     private Map<String, PropertyBags> cachedGroupedTransformerEnds;
     private Map<String, CgmesTerminal> cachedTerminals;
+    private Map<String, CgmesContainer> cachedContainers;
+    private Map<String, Double> cachedBaseVoltages;
+    private Map<String, PropertyBag> cachedNodes;
     private Map<String, String> conductingEquipmentTerminal;
     private Map<String, String> powerTransformerRatioTapChanger;
     private Map<String, String> powerTransformerPhaseTapChanger;
+
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractCgmesModel.class);
 }

@@ -7,22 +7,25 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
+import java.util.Comparator;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversion {
 
-    public RatioTapChangerConversion(PropertyBag rtc, Conversion.Context context) {
+    public RatioTapChangerConversion(PropertyBag rtc, Context context) {
         super("RatioTapChanger", rtc, context);
 
         tx2 = context.tapChangerTransformers().transformer2(id);
@@ -74,7 +77,11 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
             return;
         }
         rtca.setLowTapPosition(lowStep).setTapPosition(position);
-        addSteps(rtca);
+        if (tabular()) {
+            addStepsFromTable(rtca);
+        } else {
+            addStepsFromStepVoltageIncrement(rtca);
+        }
         String tapChangerControl = p.getId("TapChangerControl");
         if (tapChangerControl != null) {
             addRegulatingControl(rtca);
@@ -101,7 +108,49 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         return null;
     }
 
-    private void addSteps(RatioTapChangerAdder rtca) {
+    private void addStepsFromTable(RatioTapChangerAdder rtca) {
+        String tableId = p.getId("RatioTapChangerTable");
+        LOG.debug("RatioTapChanger {} table {}", id, tableId);
+        PropertyBags table = context.ratioTapChangerTable(tableId);
+        Comparator<PropertyBag> byStep = Comparator.comparingInt((PropertyBag p) -> p.asInt("step"));
+        table.sort(byStep);
+        boolean rtcAtSide1 = rtcAtSide1();
+        for (PropertyBag point : table) {
+            double rho = 1 / point.asDouble("ratio");
+            // When given in RatioTapChangerTablePoint
+            // r, x, g, b of the step are already percentage deviations of nominal values
+            double r = point.asDouble("r", 0);
+            double x = point.asDouble("x", 0);
+            double g = point.asDouble("g", 0);
+            double b = point.asDouble("b", 0);
+            int step = point.asInt("step");
+            // Impedance/admittance deviation is required when tap changer is defined at
+            // side 2
+            // (In IIDM model the ideal ratio is always at side 1, left of impedance)
+            double dz = 0;
+            double dy = 0;
+            if (!rtcAtSide1) {
+                double rho2 = rho * rho;
+                dz = (1 / rho2 - 1) * 100;
+                dy = (rho2 - 1) * 100;
+            }
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("    {} {} {} {} {} {} {} {}", step, rho, r, x, g, b, dz, dy);
+            }
+            // We have to merge previous explicit corrections defined for the tap
+            // with dz, dy that appear when moving ideal ratio to side 1
+            // R' = R * (1 + r/100) * (1 + dz/100) ==> r' = r + dz + r * dz / 100
+            rtca.beginStep()
+                    .setRho(rtcAtSide1 ? rho : 1 / rho)
+                    .setR(r + dz + r * dz / 100)
+                    .setX(x + dz + r * dz / 100)
+                    .setG(g + dy + g * dy / 100)
+                    .setB(b + dy + b * dy / 100)
+                    .endStep();
+        }
+    }
+
+    private void addStepsFromStepVoltageIncrement(RatioTapChangerAdder rtca) {
         boolean rtcAtSide1 = rtcAtSide1();
         if (LOG.isDebugEnabled() && rtcAtSide1) {
             LOG.debug(
@@ -203,6 +252,10 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
             }
         }
         return null;
+    }
+
+    private boolean tabular() {
+        return p.containsKey("RatioTapChangerTable");
     }
 
     private final TwoWindingsTransformer tx2;

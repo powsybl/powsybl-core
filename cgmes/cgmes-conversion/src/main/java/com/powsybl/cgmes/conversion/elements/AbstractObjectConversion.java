@@ -7,28 +7,30 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+
+import java.util.Objects;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public abstract class AbstractObjectConversion {
 
-    public AbstractObjectConversion(String type, PropertyBag properties, Conversion.Context context) {
-        this.type = type;
-        this.p = properties;
+    public AbstractObjectConversion(String type, PropertyBag properties, Context context) {
+        this.type = Objects.requireNonNull(type);
+        this.p = Objects.requireNonNull(properties);
         this.ps = null;
-        this.context = context;
+        this.context = Objects.requireNonNull(context);
     }
 
-    public AbstractObjectConversion(String type, PropertyBags propertiess, Conversion.Context context) {
-        this.type = type;
+    public AbstractObjectConversion(String type, PropertyBags properties, Context context) {
+        this.type = Objects.requireNonNull(type);
         this.p = null;
-        this.ps = propertiess;
-        this.context = context;
+        this.ps = Objects.requireNonNull(properties);
+        this.context = Objects.requireNonNull(context);
     }
 
     public boolean insideBoundary() {
@@ -113,5 +115,5 @@ public abstract class AbstractObjectConversion {
     protected final String type;
     protected final PropertyBag p;
     protected final PropertyBags ps;
-    protected final Conversion.Context context;
+    protected final Context context;
 }
