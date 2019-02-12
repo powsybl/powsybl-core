@@ -7,6 +7,9 @@
 
 package com.powsybl.cgmes.model;
 
+/**
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ */
 public final class CgmesNames {
 
     public static final String SUBSTATION = "Substation";
@@ -27,6 +30,9 @@ public final class CgmesNames {
     public static final String RATED_UDC = "ratedUdc";
 
     public static final String B_PER_SECTION = "bPerSection";
+
+    public static final String VOLTAGE = "v";
+    public static final String ANGLE = "angle";
 
     private CgmesNames() {
     }

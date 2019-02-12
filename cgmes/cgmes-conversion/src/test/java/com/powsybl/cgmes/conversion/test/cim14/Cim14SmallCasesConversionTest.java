@@ -26,7 +26,7 @@ public class Cim14SmallCasesConversionTest {
         actuals = new Cim14SmallCasesCatalog();
         expected = new Cim14SmallCasesNetworkCatalog();
         tester = new ConversionTester(
-                TripleStoreFactory.allImplementations(),
+                TripleStoreFactory.onlyDefaultImplementation(),
                 new ComparisonConfig()
                         .checkNetworkId(false)
                         // Expected cases are read using CIM1Importer, that uses floats to read numbers
