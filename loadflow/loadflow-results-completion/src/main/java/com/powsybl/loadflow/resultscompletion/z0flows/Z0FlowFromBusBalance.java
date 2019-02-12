@@ -31,8 +31,8 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
 public class Z0FlowFromBusBalance implements TopologyVisitor {
 
     public Z0FlowFromBusBalance(Bus bus, Line line) {
-        this.bus = bus;
-        this.line = line;
+        this.bus = Objects.requireNonNull(bus);
+        this.line = Objects.requireNonNull(line);
 
         this.netP = 0.0;
         this.netQ = 0.0;

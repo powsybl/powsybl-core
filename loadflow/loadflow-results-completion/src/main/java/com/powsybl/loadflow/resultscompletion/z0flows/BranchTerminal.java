@@ -10,6 +10,8 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Terminal;
 
+import java.util.Objects;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
@@ -19,6 +21,7 @@ final class BranchTerminal {
     }
 
     static Terminal ofOtherBus(Branch<?> branch, Bus bus) {
+        Objects.requireNonNull(branch);
         if (busAtTerminal(branch.getTerminal1()) == bus) {
             return branch.getTerminal2();
         } else if (busAtTerminal(branch.getTerminal2()) == bus) {
@@ -28,6 +31,7 @@ final class BranchTerminal {
     }
 
     static Terminal ofBus(Branch<?> branch, Bus bus) {
+        Objects.requireNonNull(branch);
         if (busAtTerminal(branch.getTerminal1()) == bus) {
             return branch.getTerminal1();
         } else if (busAtTerminal(branch.getTerminal2()) == bus) {

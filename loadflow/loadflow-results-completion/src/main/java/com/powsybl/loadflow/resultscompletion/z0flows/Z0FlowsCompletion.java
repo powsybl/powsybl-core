@@ -6,10 +6,7 @@
  */
 package com.powsybl.loadflow.resultscompletion.z0flows;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
@@ -22,9 +19,8 @@ import com.powsybl.iidm.network.Network;
 public class Z0FlowsCompletion {
 
     public Z0FlowsCompletion(Network network, Z0LineChecker z0checker) {
-        this.network = network;
-        this.z0checker = z0checker;
-        processed = new HashSet<>();
+        this.network = Objects.requireNonNull(network);
+        this.z0checker = Objects.requireNonNull(z0checker);
     }
 
     public void complete() {
@@ -47,5 +43,5 @@ public class Z0FlowsCompletion {
 
     private final Network network;
     private final Z0LineChecker z0checker;
-    private Set<Bus> processed;
+    private final Set<Bus> processed = new HashSet<>();
 }

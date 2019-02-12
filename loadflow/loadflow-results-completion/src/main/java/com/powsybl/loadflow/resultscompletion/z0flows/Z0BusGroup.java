@@ -6,13 +6,7 @@
  */
 package com.powsybl.loadflow.resultscompletion.z0flows;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.jgrapht.alg.interfaces.SpanningTreeAlgorithm.SpanningTree;
 import org.jgrapht.alg.spanning.KruskalMinimumSpanningTree;
@@ -32,7 +26,6 @@ public class Z0BusGroup {
     public Z0BusGroup(Bus bus, Z0LineChecker z0checker) {
         this.seed = bus;
         this.z0checker = z0checker;
-        buses = new ArrayList<>();
     }
 
     public boolean contains(Bus bus) {
@@ -44,6 +37,8 @@ public class Z0BusGroup {
     }
 
     public void exploreZ0(Set<Bus> processed) {
+        Objects.requireNonNull(processed);
+
         buses.add(seed);
         processed.add(seed);
         int k = 0;
@@ -85,24 +80,13 @@ public class Z0BusGroup {
             Bus b1 = e.getLine().getTerminal1().getBusView().getBus();
             Bus b2 = e.getLine().getTerminal2().getBusView().getBus();
 
-            List<Z0Edge> edges = linesInBus.get(b1);
-            if (edges == null) {
-                edges = new ArrayList<>();
-                linesInBus.put(b1, edges);
-            }
-            edges.add(e);
-
-            edges = linesInBus.get(b2);
-            if (edges == null) {
-                edges = new ArrayList<>();
-                linesInBus.put(b2, edges);
-            }
-            edges.add(e);
+            linesInBus.computeIfAbsent(b1, b -> new ArrayList<>()).add(e);
+            linesInBus.computeIfAbsent(b2, b -> new ArrayList<>()).add(e);
         });
 
         // Add root level
         Bus root = buses.get(0);
-        levels.add(new ArrayList<>(Arrays.asList(root)));
+        levels.add(new ArrayList<>(Collections.singleton(root)));
 
         // Build levels of the tree
         int level = 0;
@@ -156,7 +140,7 @@ public class Z0BusGroup {
         }
     }
 
-    private Bus other(Line line, Bus bus) {
+    private static Bus other(Line line, Bus bus) {
         Terminal t = BranchTerminal.ofOtherBus(line, bus);
         if (t == null) {
             return null;
@@ -176,7 +160,8 @@ public class Z0BusGroup {
 
     private final Bus seed;
     private final Z0LineChecker z0checker;
-    private final List<Bus> buses;
+    private final List<Bus> buses = new ArrayList<>();
+
     private SimpleWeightedGraph<Bus, Z0Edge> graph;
     private SpanningTree<Z0Edge> tree;
     private List<List<Bus>> levels;

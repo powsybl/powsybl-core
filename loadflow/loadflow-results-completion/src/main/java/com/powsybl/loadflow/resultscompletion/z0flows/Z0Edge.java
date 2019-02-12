@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.Objects;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
 
@@ -21,8 +22,7 @@ import com.powsybl.iidm.network.Line;
 public class Z0Edge extends DefaultWeightedEdge {
 
     public Z0Edge(Line line) {
-        super();
-        this.line = line;
+        this.line = Objects.requireNonNull(line);
     }
 
     public Line getLine() {
