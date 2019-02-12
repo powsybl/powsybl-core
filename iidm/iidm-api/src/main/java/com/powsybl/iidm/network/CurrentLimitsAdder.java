@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.commons.PowsyblException;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -21,6 +23,10 @@ public interface CurrentLimitsAdder {
         TemporaryLimitAdder setAcceptableDuration(int duration);
 
         TemporaryLimitAdder setFictitious(boolean fictitious);
+
+        default TemporaryLimitAdder ensureNameUnicity() {
+            throw new PowsyblException("Not implemented");
+        }
 
         CurrentLimitsAdder endTemporaryLimit();
     }

@@ -45,6 +45,8 @@ public class CurrentLimitsAdderImpl<S, O extends CurrentLimitsOwner<S>> implemen
 
         private boolean fictitious = false;
 
+        private boolean ensureNameUnicity = false;
+
         @Override
         public TemporaryLimitAdder setName(String name) {
             this.name = name;
@@ -70,6 +72,12 @@ public class CurrentLimitsAdderImpl<S, O extends CurrentLimitsOwner<S>> implemen
         }
 
         @Override
+        public TemporaryLimitAdder ensureNameUnicity() {
+            this.ensureNameUnicity = true;
+            return this;
+        }
+
+        @Override
         public CurrentLimitsAdder endTemporaryLimit() {
             if (Double.isNaN(value)) {
                 throw new ValidationException(owner, "temporary limit value is not set");
@@ -83,13 +91,28 @@ public class CurrentLimitsAdderImpl<S, O extends CurrentLimitsOwner<S>> implemen
             if (acceptableDuration < 0) {
                 throw new ValidationException(owner, "acceptable duration must be >= 0");
             }
-            if (name == null) {
-                throw new ValidationException(owner, "name is not set");
-            }
+            checkAndGetUniqueName();
             temporaryLimits.put(acceptableDuration, new TemporaryLimitImpl(name, value, acceptableDuration, fictitious));
             return CurrentLimitsAdderImpl.this;
         }
 
+        private void checkAndGetUniqueName() {
+            if (name == null) {
+                throw new ValidationException(owner, "name is not set");
+            }
+            if (ensureNameUnicity && nameExists(name)) {
+                int i = 0;
+                String uniqueName;
+                do {
+                    uniqueName = name + "#" + i++;
+                } while (i < Integer.MAX_VALUE && nameExists(uniqueName));
+                name = uniqueName;
+            }
+        }
+
+        private boolean nameExists(String name) {
+            return temporaryLimits.values().stream().anyMatch(t -> t.getName().equals(name));
+        }
     }
 
     public CurrentLimitsAdderImpl(S side, O owner) {

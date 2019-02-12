@@ -7,7 +7,6 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.iidm.network.*;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.Branch;
@@ -152,13 +151,14 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         int acceptableDuration = (int) p.asDouble("acceptableDuration");
         // We only accept high or absoluteValue (considered as high when
         // current from the conducting equipment to the terminal) limits
-        if (acceptableDuration != 10000 && !p.getId("direction").equals("low")) {
+        if (!p.getId("direction").equals("low")) {
             String name = p.getId("name");
             if (adder != null) {
                 adder.beginTemporaryLimit()
                         .setName(name)
                         .setValue(value)
                         .setAcceptableDuration(acceptableDuration)
+                        .ensureNameUnicity()
                         .endTemporaryLimit();
             } else if (adder1 != null) {
                 // Should we chose one terminal randomly for branches ? Here by default, we only look at terminal1
@@ -166,10 +166,9 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                         .setName(name)
                         .setValue(value)
                         .setAcceptableDuration(acceptableDuration)
+                        .ensureNameUnicity()
                         .endTemporaryLimit();
             }
-        } else if (acceptableDuration == 10000) {
-            context.ignored(OPERATIONAL_LIMIT, "TATL acceptable duration is 10000");
         } else {
             context.invalid(OPERATIONAL_LIMIT, "TATL is a low limit");
         }
