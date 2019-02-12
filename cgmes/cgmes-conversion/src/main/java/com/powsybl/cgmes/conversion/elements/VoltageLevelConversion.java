@@ -46,7 +46,7 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
 
         // Missing elements in the boundary file
         if (Double.isNaN(nominalVoltage)) {
-            String bv = String.format("BaseVoltage %s", baseVoltage); 
+            String bv = String.format("BaseVoltage %s", baseVoltage);
             missing(bv);
             throw new CgmesModelException(String.format("nominalVoltage not found for %s", bv));
         }
