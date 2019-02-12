@@ -21,6 +21,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Properties;
 
 /**
@@ -31,6 +32,8 @@ import java.util.Properties;
 public class UcteExporter implements Exporter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UcteExporter.class);
+
+    HashMap<String,String> iidmIdToUcteId = new HashMap<>();
 
     @Override
     public String getFormat() {
@@ -66,7 +69,6 @@ public class UcteExporter implements Exporter {
             LOGGER.info(" G = {}", String.valueOf(twoWindingsTransformer.getG()));
             LOGGER.info(" RatedU1 = {}", String.valueOf(twoWindingsTransformer.getRatedU1()));
             LOGGER.info(" RatedU2 = {}", String.valueOf(twoWindingsTransformer.getRatedU2()));
-            //LOGGER.info(" RatedU2 = {}", String.valueOf(twoWindingsTransformer.getCurrentLimits1().getPermanentLimit()));
             createTwoWindingTransformer(ucteNetwork,twoWindingsTransformer);
 
         }
@@ -79,12 +81,12 @@ public class UcteExporter implements Exporter {
 
         UcteNodeCode ucteNodeCode = new UcteNodeCode(
                 UcteCountryCode.valueOf(terminal1.getVoltageLevel().getSubstation().getCountry().toString()),
-                generate(5),
+                terminal1.getVoltageLevel().getSubstation().getName(),
                 iidmVoltageToUcteVoltageLevelCode(terminal1.getVoltageLevel().getNominalV()),
                 '1');
         UcteNodeCode ucteNodeCode2 = new UcteNodeCode(
                 UcteCountryCode.valueOf(terminal2.getVoltageLevel().getSubstation().getCountry().toString()),
-                generate(5),
+                terminal2.getVoltageLevel().getSubstation().getName(),
                 iidmVoltageToUcteVoltageLevelCode(terminal2.getVoltageLevel().getNominalV()),
                 '1');
 
@@ -118,7 +120,7 @@ public class UcteExporter implements Exporter {
             LOGGER.info("-----------LINE------------");
             LOGGER.info("ID = {}", line.getId()); //Node code 1 + node code 2 + Order code  1-8 10-17 19
             LOGGER.info("R = {}", String.valueOf(line.getR())); //Resistance position UTCE 23-28
-            LOGGER.info("X = " +String.valueOf(line.getX())); //Reactance position UTCE 30-35
+            LOGGER.info("X = {}", String.valueOf(line.getX())); //Reactance position UTCE 30-35
             LOGGER.info("Name = {}", line.getName());
             LOGGER.info("CurrentLimits1 = {}", String.valueOf(line.getCurrentLimits1().getPermanentLimit())); //Current limit I (A) 46-51
             LOGGER.info("CurrentLimits2 = {}", String.valueOf(line.getCurrentLimits2().getPermanentLimit()));
@@ -140,6 +142,9 @@ public class UcteExporter implements Exporter {
             LOGGER.info("---------------SUBSTATION------------------");
             LOGGER.info(" Geographical tags = {}", substation.getGeographicalTags().toString());
             LOGGER.info(" Substation country = {}", substation.getCountry());
+            LOGGER.info(" Substation Id = {}", substation.getId());
+            LOGGER.info(" Substation name = {}", substation.getName());
+
 
             Iterable<VoltageLevel> voltageLevels = substation.getVoltageLevels();
             for(VoltageLevel voltageLevel : voltageLevels)
@@ -166,13 +171,13 @@ public class UcteExporter implements Exporter {
 
         UcteNodeCode ucteTerminal1NodeCode = new UcteNodeCode(
                 UcteCountryCode.valueOf(terminal1.getVoltageLevel().getSubstation().getCountry().toString()),
-                generate(5),
+                terminal1.getVoltageLevel().getSubstation().getName(),
                 iidmVoltageToUcteVoltageLevelCode(terminal1.getVoltageLevel().getNominalV()),
                 '1'
         );
         UcteNodeCode ucteTerminal2NodeCode = new UcteNodeCode(
                 UcteCountryCode.valueOf(terminal2.getVoltageLevel().getSubstation().getCountry().toString()),
-                generate(5),
+                terminal2.getVoltageLevel().getSubstation().getName(),
                 iidmVoltageToUcteVoltageLevelCode(terminal2.getVoltageLevel().getNominalV()),
                 '1'
         );
@@ -239,6 +244,7 @@ public class UcteExporter implements Exporter {
         double maximumPermissibleActivePowerGeneration = 0;
         double minimumPermissibleReactivePowerGeneration = 0;
         double maximumPermissibleReactivePowerGeneration = 0;
+        UctePowerPlantType uctePowerPlantType = null;
 
         if(loadCount==1)
         {
@@ -260,18 +266,20 @@ public class UcteExporter implements Exporter {
             maximumPermissibleActivePowerGeneration = -generator.getMaxP();
             minimumPermissibleReactivePowerGeneration = -generator.getReactiveLimits().getMinQ(activePowerGeneration);
             maximumPermissibleReactivePowerGeneration = -generator.getReactiveLimits().getMaxQ(activePowerGeneration);
+            uctePowerPlantType = energySourceToUctePowerPlantType(generator.getEnergySource());
+
         }
 
         UcteNodeCode ucteNodeCode = new UcteNodeCode(
                 UcteCountryCode.valueOf(country),
-                generate(5),
+                voltageLevel.getSubstation().getName(),
                 iidmVoltageToUcteVoltageLevelCode(voltageLevel.getNominalV()),
                 '1'
         );
 
         UcteNode ucteNode = new UcteNode(
                 ucteNodeCode,
-                "",
+                voltageLevel.getSubstation().getName(),
                 UcteNodeStatus.REAL,
                 UcteNodeTypeCode.PQ,
                 (float)voltageReference,
@@ -287,9 +295,9 @@ public class UcteExporter implements Exporter {
                 0f,
                 0f,
                 0f,
-                UctePowerPlantType.N
+                null
         ); //TODO :
-
+        ucteNode.setPowerPlantType(uctePowerPlantType);
         ucteNetwork.addNode(ucteNode);
     }
 
@@ -297,8 +305,7 @@ public class UcteExporter implements Exporter {
         return ucteNetwork.getTransformer(ucteElementId) == null;
     }
 
-    UcteVoltageLevelCode iidmVoltageToUcteVoltageLevelCode(double nominalV)
-    {
+    UcteVoltageLevelCode iidmVoltageToUcteVoltageLevelCode(double nominalV) {
         if(nominalV == 27) {
             return UcteVoltageLevelCode.VL_27;
         }
@@ -332,9 +339,36 @@ public class UcteExporter implements Exporter {
         return null;
     }
 
+    UctePowerPlantType energySourceToUctePowerPlantType(EnergySource energySource) {
+        if(EnergySource.HYDRO == energySource) {
+            return UctePowerPlantType.H;
+        }
+        else if(EnergySource.NUCLEAR == energySource) {
+            return UctePowerPlantType.N;
+        }
+        else if(EnergySource.THERMAL == energySource) {
+            return UctePowerPlantType.C;
+        }
+        else if(EnergySource.WIND == energySource){
+            return UctePowerPlantType.W;
+        }
+        else {
+            return UctePowerPlantType.F;
+        }
+    }
+
     boolean isUcteId(String id) {
         return id != null &&
-                (id.length()==7 || id.length()==8) &&
+                id.length() >= 17 &&
+                isUcteNodeId(id.substring(0,8)) &&
+                isUcteNodeId(id.substring(9,17)) &&
+                id.charAt(8) == ' ' &&
+                id.charAt(17) == ' ';
+    }
+
+    boolean isUcteNodeId(String id) {
+        return id != null &&
+                id.length()==8 &&
                 isUcteCountryCode(id.charAt(0)) &&
                 isVoltageLevel(id.charAt(6));
     }
