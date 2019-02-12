@@ -7,8 +7,12 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
+import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.Leg1Adder;
+import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.Leg2or3Adder;
+import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -17,7 +21,7 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public class ThreeWindingsTransformerConversion extends AbstractConductingEquipmentConversion {
 
-    public ThreeWindingsTransformerConversion(PropertyBags ends, Conversion.Context context) {
+    public ThreeWindingsTransformerConversion(PropertyBags ends, Context context) {
         super("PowerTransformer", ends, context);
         winding1 = ends.get(0);
         winding2 = ends.get(1);
@@ -90,37 +94,30 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
         double ir3 = r3 / rho3Square;
         double ix3 = x3 / rho3Square;
 
-        ThreeWindingsTransformer tx = substation().newThreeWindingsTransformer()
-                .setId(context.namingStrategy().getId("Transformer", id))
-                .setName(context.namingStrategy().getName("Transformer", name))
-                .setEnsureIdUnicity(false)
-                .newLeg1()
+        ThreeWindingsTransformerAdder txadder = substation().newThreeWindingsTransformer();
+        identify(txadder);
+
+        LegAdder<Leg1Adder> l1adder = txadder.newLeg1()
                 .setR(ir1)
                 .setX(ix1)
                 .setG(ig1)
                 .setB(ib1)
-                .setRatedU(ratedU1)
-                .setVoltageLevel(iidmVoltageLevelId(1))
-                .setBus(terminalConnected() ? busId(1) : null)
-                .setConnectableBus(busId(1))
-                .add()
-                .newLeg2()
+                .setRatedU(ratedU1);
+        LegAdder<Leg2or3Adder> l2adder = txadder.newLeg2()
                 .setR(ir2)
                 .setX(ix2)
-                .setRatedU(ratedU2)
-                .setVoltageLevel(iidmVoltageLevelId(2))
-                .setBus(terminalConnected(2) ? busId(2) : null)
-                .setConnectableBus(busId(2))
-                .add()
-                .newLeg3()
+                .setRatedU(ratedU2);
+        LegAdder<Leg2or3Adder> l3adder = txadder.newLeg3()
                 .setR(ir3)
                 .setX(ix3)
-                .setRatedU(ratedU3)
-                .setVoltageLevel(iidmVoltageLevelId(3))
-                .setBus(terminalConnected(3) ? busId(3) : null)
-                .setConnectableBus(busId(3))
-                .add()
-                .add();
+                .setRatedU(ratedU3);
+        connect(l1adder, 1);
+        connect(l2adder, 2);
+        connect(l3adder, 3);
+        l1adder.add();
+        l2adder.add();
+        l3adder.add();
+        ThreeWindingsTransformer tx = txadder.add();
 
         convertedTerminals(
                 tx.getLeg1().getTerminal(),

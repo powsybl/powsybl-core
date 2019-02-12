@@ -57,4 +57,16 @@ public class Parameter {
     public Object getDefaultValue() {
         return defaultValue;
     }
+
+    public boolean getBooleanDefaultValue() {
+        return (boolean) defaultValue;
+    }
+
+    public String getStringDefaultValue() {
+        return (String) defaultValue;
+    }
+
+    public List<String> getStringListDefaultValue() {
+        return (List<String>) defaultValue;
+    }
 }

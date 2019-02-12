@@ -12,6 +12,7 @@ import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.CurrentLimits;
 import com.powsybl.iidm.network.DanglingLine;
@@ -165,8 +166,8 @@ public class Comparison {
 
     private void compareBuses(Bus expected, Bus actual) {
         equivalent("VoltageLevel", expected.getVoltageLevel(), actual.getVoltageLevel());
-        compare("v", expected.getV(), actual.getV());
-        compare("angle", expected.getAngle(), actual.getAngle());
+        compare(CgmesNames.VOLTAGE, expected.getV(), actual.getV());
+        compare(CgmesNames.ANGLE, expected.getAngle(), actual.getAngle());
     }
 
     private void compareLoads(Load expected, Load actual) {

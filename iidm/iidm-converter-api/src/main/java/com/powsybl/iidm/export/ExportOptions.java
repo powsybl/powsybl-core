@@ -28,7 +28,7 @@ public class ExportOptions {
 
     private TopologyLevel topologyLevel = TopologyLevel.NODE_BREAKER;
 
-    private boolean throwExceptionIfExtensionNotFound = true;
+    private boolean throwExceptionIfExtensionNotFound = false;
 
     public ExportOptions() {
     }
