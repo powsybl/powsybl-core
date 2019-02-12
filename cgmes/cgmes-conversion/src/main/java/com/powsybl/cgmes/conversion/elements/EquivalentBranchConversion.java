@@ -7,8 +7,9 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -16,7 +17,7 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class EquivalentBranchConversion extends AbstractBranchConversion {
 
-    public EquivalentBranchConversion(PropertyBag b, Conversion.Context context) {
+    public EquivalentBranchConversion(PropertyBag b, Context context) {
         super("EquivalentBranch", b, context);
     }
 
@@ -30,7 +31,8 @@ public class EquivalentBranchConversion extends AbstractBranchConversion {
             // r21 Notes:
             // Resistance from terminal sequence 2 to terminal sequence 1.
             // Used for steady state power flow.
-            // Attribute is optional and represent unbalanced network such as off-nominal phase
+            // Attribute is optional and represent unbalanced network such as off-nominal
+            // phase
             // shifter.
             // If only EquivalentBranch.r is given,
             // then EquivalentBranch.r21 is assumed equal to EquivalentBranch.r.
@@ -41,26 +43,16 @@ public class EquivalentBranchConversion extends AbstractBranchConversion {
         double bch = 0;
         double gch = 0;
 
-        String busId1 = busId(1);
-        String busId2 = busId(2);
-        final Line l = context.network().newLine()
-                .setId(context.namingStrategy().getId("Line", id))
-                .setName(context.namingStrategy().getName("Line", name))
-                .setEnsureIdUnicity(false)
-                .setBus1(terminalConnected(1) ? busId1 : null)
-                .setBus2(terminalConnected(2) ? busId2 : null)
-                .setConnectableBus1(busId1)
-                .setConnectableBus2(busId2)
-                .setVoltageLevel1(iidmVoltageLevelId(1))
-                .setVoltageLevel2(iidmVoltageLevelId(2))
+        final LineAdder adder = context.network().newLine()
                 .setR(r)
                 .setX(x)
                 .setG1(gch / 2)
                 .setG2(gch / 2)
                 .setB1(bch / 2)
-                .setB2(bch / 2)
-                .add();
-
+                .setB2(bch / 2);
+        identify(adder);
+        connect(adder);
+        Line l = adder.add();
         convertedTerminals(l.getTerminal1(), l.getTerminal2());
     }
 }

@@ -9,9 +9,11 @@ package com.powsybl.cgmes.conversion.elements;
 
 import java.util.Objects;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
+import com.powsybl.iidm.network.LccConverterStationAdder;
+import com.powsybl.iidm.network.VscConverterStationAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -19,7 +21,7 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class AcDcConverterConversion extends AbstractConductingEquipmentConversion {
 
-    public AcDcConverterConversion(PropertyBag c, Conversion.Context context) {
+    public AcDcConverterConversion(PropertyBag c, Context context) {
         super("ACDCConverter", c, context);
         converterType = decodeType(p.getLocal("type"));
     }
@@ -36,36 +38,59 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
         return true;
     }
 
+    enum VscRegulation {
+        REACTIVE_POWER,
+        VOLTAGE
+    }
+
     @Override
     public void convert() {
         Objects.requireNonNull(converterType);
         double lossFactor = p.asDouble("lossFactor", 0);
 
-        HvdcConverterStation c = null;
+        HvdcConverterStation<?> c = null;
         if (converterType.equals(HvdcType.VSC)) {
-            boolean xxxvoltageRegulatorOn = p.asBoolean("voltageRegulatorOn", false);
-
-            c = voltageLevel().newVscConverterStation()
-                    .setId(iidmId())
-                    .setName(iidmName())
-                    .setEnsureIdUnicity(false)
+            VscRegulation vscRegulation = decodeVscRegulation(p.getLocal("qPccControl"));
+            boolean voltageRegulatorOn = false;
+            double voltageSetpoint = 0;
+            double reactivePowerSetpoint = 0;
+            if (vscRegulation == VscRegulation.VOLTAGE) {
+                voltageRegulatorOn = true;
+                voltageSetpoint = p.asDouble("targetUpcc");
+            } else if (vscRegulation == VscRegulation.REACTIVE_POWER) {
+                reactivePowerSetpoint = p.asDouble("targetQpcc");
+            }
+            VscConverterStationAdder adder = voltageLevel().newVscConverterStation()
                     .setLossFactor((float) lossFactor)
-                    .setVoltageRegulatorOn(xxxvoltageRegulatorOn)
-                    .add();
+                    .setVoltageRegulatorOn(voltageRegulatorOn)
+                    .setVoltageSetpoint(voltageSetpoint)
+                    .setReactivePowerSetpoint(reactivePowerSetpoint);
+            identify(adder);
+            connect(adder);
+            c = adder.add();
         } else if (converterType.equals(HvdcType.LCC)) {
-            c = voltageLevel().newLccConverterStation()
-                    .setId(iidmId())
-                    .setName(iidmName())
-                    .setEnsureIdUnicity(false)
-                    .setBus(terminalConnected() ? busId() : null)
-                    .setConnectableBus(busId())
+            // TODO: There are two modes of control: dcVoltage and activePower
+            // For dcVoltage, setpoint is targetUdc,
+            // For activePower, setpoint is targetPpcc
+            LccConverterStationAdder adder = voltageLevel().newLccConverterStation()
                     .setLossFactor((float) lossFactor)
-                    .setPowerFactor((float) 0.8)
-                    .add();
+                    .setPowerFactor((float) 0.8);
+            identify(adder);
+            connect(adder);
+            c = adder.add();
         }
         Objects.requireNonNull(c);
-        context.dc().map(p, c);
+        context.dc().map(this.id, p, c);
         convertedTerminals(c.getTerminal());
+    }
+
+    private static VscRegulation decodeVscRegulation(String qPccControl) {
+        if (qPccControl.endsWith("voltagePcc")) {
+            return VscRegulation.VOLTAGE;
+        } else if (qPccControl.endsWith("reactivePcc")) {
+            return VscRegulation.REACTIVE_POWER;
+        }
+        return null;
     }
 
     private static HvdcType decodeType(String stype) {

@@ -7,10 +7,11 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.ShuntCompensatorAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -19,7 +20,7 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public class ShuntConversion extends AbstractConductingEquipmentConversion {
 
-    public ShuntConversion(PropertyBag sh, Conversion.Context context) {
+    public ShuntConversion(PropertyBag sh, Context context) {
         super("ShuntCompensator", sh, context);
     }
 
@@ -51,16 +52,13 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
             bPerSection = bPerSectionFixed;
         }
 
-        ShuntCompensator shunt = voltageLevel().newShuntCompensator()
-                .setId(iidmId())
-                .setName(iidmName())
-                .setEnsureIdUnicity(false)
-                .setBus(terminalConnected() ? busId() : null)
-                .setConnectableBus(busId())
+        ShuntCompensatorAdder adder = voltageLevel().newShuntCompensator()
                 .setCurrentSectionCount(sections)
                 .setbPerSection(bPerSection)
-                .setMaximumSectionCount(maximumSections)
-                .add();
+                .setMaximumSectionCount(maximumSections);
+        identify(adder);
+        connect(adder);
+        ShuntCompensator shunt = adder.add();
 
         // At a shunt terminal, only Q can be set
         PowerFlow f = powerFlow();

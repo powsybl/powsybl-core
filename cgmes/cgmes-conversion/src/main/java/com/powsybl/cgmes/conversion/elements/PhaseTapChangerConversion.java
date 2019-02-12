@@ -14,7 +14,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
@@ -31,7 +31,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
 
     private static final String REGULATING_CONTROL_ENABLED = "regulatingControlEnabled";
 
-    public PhaseTapChangerConversion(PropertyBag ptc, Conversion.Context context) {
+    public PhaseTapChangerConversion(PropertyBag ptc, Context context) {
         super("PhaseTapChanger", ptc, context);
 
         configIsInvertVoltageStepIncrementOutOfPhase = false;

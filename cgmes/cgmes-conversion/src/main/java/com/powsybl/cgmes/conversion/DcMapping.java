@@ -7,8 +7,7 @@
 
 package com.powsybl.cgmes.conversion;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.HvdcConverterStation;
@@ -19,11 +18,12 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class DcMapping {
 
-    public DcMapping(Conversion.Context context) {
+    public DcMapping(Context context) {
         this.context = context;
         terminals = new HashMap<>();
         converters = new HashMap<>();
         cgmesConverters = new HashMap<>();
+        terminalsForEquipment = new HashMap<>();
     }
 
     public void initialize() {
@@ -34,10 +34,14 @@ public class DcMapping {
         context.cgmes().dcTerminals().forEach(t -> {
             DcTerminal td = new DcTerminal(
                     t.getId(CgmesNames.DC_TERMINAL),
-                    t.getId("DCConductingEquipment"),
+                    t.getId(DC_CONDUCTING_EQUIPMENT),
                     t.getLocal("dcConductingEquipmentType"),
                     t.asBoolean("connected", false));
             terminals.put(td.id(), td);
+
+            List<String> eqterminals = Optional.ofNullable(terminalsForEquipment.get(t.getId(DC_CONDUCTING_EQUIPMENT))).orElse(new ArrayList<>(2));
+            terminalsForEquipment.put(t.getId(DC_CONDUCTING_EQUIPMENT), eqterminals);
+            eqterminals.add(td.id());
         });
         context.cgmes().dcTerminalsTP().forEach(t -> {
             DcTerminal td = terminals.get(t.getId("DCTerminal"));
@@ -46,12 +50,15 @@ public class DcMapping {
         });
     }
 
-    public void map(PropertyBag ccgmes, HvdcConverterStation ciidm) {
+    public void map(String id, PropertyBag ccgmes, HvdcConverterStation<?> ciidm) {
         // Store we have found this converted HVDC Converter station at
         // the corresponding DCTopologicalNode for the given CGMES DCTerminal
-        String terminalId = ccgmes.getId(CgmesNames.DC_TERMINAL);
-        String dcTopologicalNode = terminals.get(terminalId).topologicalNode();
-        addConverterAt(dcTopologicalNode, ciidm, ccgmes);
+
+        // There can be multiple DCTerminals for this DCEquipment
+        terminalsForEquipment.get(id).forEach(terminalId -> {
+            String dcTopologicalNode = terminals.get(terminalId).topologicalNode();
+            addConverterAt(dcTopologicalNode, ciidm, ccgmes);
+        });
     }
 
     public HvdcConverterStation converterAt(String terminalId) {
@@ -59,13 +66,13 @@ public class DcMapping {
         return converters.get(dcTopologicalNode);
     }
 
-    public PropertyBag cgmesConverterFor(HvdcConverterStation converter) {
+    public PropertyBag cgmesConverterFor(HvdcConverterStation<?> converter) {
         return cgmesConverters.get(converter);
     }
 
     public void addConverterAt(
             String dcTopologicalNode,
-            HvdcConverterStation c,
+            HvdcConverterStation<?> c,
             PropertyBag cc) {
         // Check there are only one converter at that node
         if (converters.containsKey(dcTopologicalNode)) {
@@ -103,7 +110,7 @@ public class DcMapping {
             this.connected = connected;
         }
 
-        public void tp(String topologicalNode, String substation, Conversion.Context context) {
+        public void tp(String topologicalNode, String substation, Context context) {
             checkAssign(topologicalNode, substation, context);
         }
 
@@ -132,7 +139,7 @@ public class DcMapping {
         }
 
         private void checkAssign(String topologicalNode, String substation,
-                Conversion.Context context) {
+                Context context) {
             checkAssignAttr("topologicalNode", this.topologicalNode, topologicalNode, context);
             this.topologicalNode = topologicalNode;
             checkAssignAttr("substation", this.substation, substation, context);
@@ -140,7 +147,7 @@ public class DcMapping {
         }
 
         private boolean checkAssignAttr(String attribute, String value0, String value1,
-                Conversion.Context context) {
+                Context context) {
             if (value0 == null || value0.equals(value1)) {
                 return true;
             } else {
@@ -151,8 +158,11 @@ public class DcMapping {
         }
     }
 
-    private final Conversion.Context context;
+    private final Context context;
     private final Map<String, DcTerminal> terminals;
-    private final Map<String, HvdcConverterStation> converters;
-    private final Map<HvdcConverterStation, PropertyBag> cgmesConverters;
+    private final Map<String, HvdcConverterStation<?>> converters;
+    private final Map<HvdcConverterStation<?>, PropertyBag> cgmesConverters;
+    private final Map<String, List<String>> terminalsForEquipment;
+
+    private static final String DC_CONDUCTING_EQUIPMENT = "DCConductingEquipment";
 }

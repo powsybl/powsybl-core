@@ -9,12 +9,16 @@ package com.powsybl.loadflow.resultscompletion;
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.util.BranchData;
 import com.powsybl.iidm.network.util.TwtData;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.resultscompletion.z0flows.Z0FlowsCompletion;
+import com.powsybl.loadflow.resultscompletion.z0flows.Z0LineChecker;
 import com.powsybl.loadflow.validation.CandidateComputation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,7 +55,7 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
     @Override
     public void run(Network network, ComputationManager computationManager) {
         Objects.requireNonNull(network);
-        LOGGER.info("Running {} on network {}, state {}", getName(), network.getId(), network.getVariantManager().getWorkingVariantId());
+        LOGGER.info("Running {} on network {}, variant {}", getName(), network.getId(), network.getVariantManager().getWorkingVariantId());
         LOGGER.info("LoadFlowResultsCompletionParameters={}", parameters);
         LOGGER.info("LoadFlowParameters={}", lfParameters);
 
@@ -93,6 +97,23 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
             completeTerminalData(twt.getLeg3().getTerminal(), ThreeWindingsTransformer.Side.THREE, twtData);
         });
 
+        // A line is considered Z0 (null impedance) if and only if
+        // it is connected at both ends and the voltage at end buses are exactly the same
+        Z0LineChecker z0checker = (Line l) -> {
+            if (!l.getTerminal1().isConnected()) {
+                return false;
+            }
+            if (!l.getTerminal2().isConnected()) {
+                return false;
+            }
+            Bus b1 = l.getTerminal1().getBusView().getBus();
+            Bus b2 = l.getTerminal2().getBusView().getBus();
+            Objects.requireNonNull(b1);
+            Objects.requireNonNull(b2);
+            return b1.getV() == b2.getV() && b1.getAngle() == b2.getAngle();
+        };
+        Z0FlowsCompletion z0FlowsCompletion = new Z0FlowsCompletion(network, z0checker);
+        z0FlowsCompletion.complete();
     }
 
     private void completeTerminalData(Terminal terminal, Side side, BranchData branchData) {
