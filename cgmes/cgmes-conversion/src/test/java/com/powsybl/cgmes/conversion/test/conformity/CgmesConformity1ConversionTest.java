@@ -7,36 +7,26 @@
 
 package com.powsybl.cgmes.conversion.test.conformity;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
-
-import java.io.IOException;
-import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.stream.Collectors;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1NetworkCatalog;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
-import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
 import com.powsybl.triplestore.api.TripleStoreFactory;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -141,17 +131,19 @@ public class CgmesConformity1ConversionTest {
 
     @Test
     public void miniNodeBreakerTestLimits() throws IOException {
+        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
+
         // Original test case
         Network network0 = Importers.importData("CGMES",
                 actuals.miniNodeBreaker().dataSource(),
                 null,
-                LocalComputationManager.getDefault());
+                computationManager);
         // The case has been manually modified to have OperationalLimits
         // defined for Equipment
         Network network1 = Importers.importData("CGMES",
                 actuals.miniNodeBreakerLimitsforEquipment().dataSource(),
                 null,
-                LocalComputationManager.getDefault());
+                computationManager);
 
         double tol = 0;
 
@@ -202,11 +194,13 @@ public class CgmesConformity1ConversionTest {
 
     @Test
     public void smallNodeBreakerHvdc() throws IOException {
+        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
+
         // Small Grid Node Breaker HVDC should be imported without errors
         Importers.importData("CGMES",
                 actuals.smallNodeBreakerHvdc().dataSource(),
                 null,
-                LocalComputationManager.getDefault());
+                computationManager);
     }
 
     @Test
@@ -214,10 +208,12 @@ public class CgmesConformity1ConversionTest {
     // If no topology change has been made, running a LoadFlow (even a Mock LoadFlow)
     // must produce identical identifiers for calculated buses
     public void smallNodeBreakerStableBusNaming() throws IOException {
+        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
+
         Network network = Importers.importData("CGMES",
                 actuals.smallNodeBreaker().dataSource(),
                 null,
-                LocalComputationManager.getDefault());
+                computationManager);
 
         // Initial bus identifiers
         List<String> initialBusIds = network.getBusView().getBusStream()
@@ -230,7 +226,7 @@ public class CgmesConformity1ConversionTest {
                         lfVariantId);
         new LoadFlowFactoryMock()
                 .create(network,
-                        new LocalComputationManager(Paths.get("/tmp/kk")),
+                        computationManager,
                         1)
                 .run(lfVariantId, new LoadFlowParameters()).join();
         network.getVariantManager().setWorkingVariant(lfVariantId);
