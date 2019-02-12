@@ -233,55 +233,79 @@ public class BranchData {
     }
 
     private void computeValues() {
-        Complex ytr = new Complex(r, x).reciprocal();
-        Complex y1 = new Complex(g1, b1);
-        Complex y2 = new Complex(g2, b2);
-        Complex a1 = ComplexUtils.polar2Complex(1 / rho1, -alpha1);
-        Complex a2 = ComplexUtils.polar2Complex(1 / rho2, -alpha2);
-        Complex a1cc = a1.conjugate();
-        Complex a2cc = a2.conjugate();
-
-        // If one of the ends is disconnected,
-        // compute the voltage at the disconnected end
-        if (connected1 || !connected2) {
-            computedU1 = u1;
-            computedTheta1 = theta1;
+        if (!connected1 && !connected2) {
+            computedP1 = Double.NaN;
+            computedQ1 = Double.NaN;
+            computedP2 = Double.NaN;
+            computedQ2 = Double.NaN;
         } else {
-            Complex v2 = ComplexUtils.polar2Complex(u2, theta2);
-            Complex v1 = v2.multiply(ytr.divide(a1cc.multiply(a2)).multiply(a1cc.multiply(a1).divide(ytr.add(y1))));
-            computedU1 = v1.abs();
-            computedTheta1 = v1.getArgument();
+            Complex ytr;
+            Complex y1 = new Complex(g1, b1);
+            Complex y2 = new Complex(g2, b2);
+            Complex a1 = ComplexUtils.polar2Complex(1 / rho1, -alpha1);
+            Complex a2 = ComplexUtils.polar2Complex(1 / rho2, -alpha2);
+            Complex a1cc = a1.conjugate();
+            Complex a2cc = a2.conjugate();
+
+            Complex y11;
+            Complex y12 = Complex.ZERO;
+            Complex y22;
+            Complex y21 = Complex.ZERO;
+            if (r == 0.0 && x == 0.0) {
+                y11 = y1.multiply(rho1 * rho1);
+                y22 = y2.multiply(rho2 * rho2);
+            } else {
+                ytr = new Complex(r, x).reciprocal();
+                // Optimization: .divide(a1.multiply(a1.conjugate())) == .multiply(rho1 * rho1)
+                y11 = ytr.add(y1).multiply(rho1 * rho1);
+                y12 = ytr.negate().divide(a1cc.multiply(a2));
+                // Optimization: .divide(a2.multiply(a2.conjugate())) == .multiply(rho2 * rho2)
+                y22 = ytr.add(y2).multiply(rho2 * rho2);
+                y21 = ytr.negate().divide(a1.multiply(a2cc));
+            }
+
+            // If one of the ends is disconnected,
+            // compute the voltage at the disconnected end
+            if (connected1) {
+                computedU1 = u1;
+                computedTheta1 = theta1;
+            } else if (y11.equals(Complex.ZERO)) {
+                // v1 equal v2 if z0 line
+                computedU1 = u2;
+                computedTheta1 = theta2;
+            } else {
+                Complex v2 = ComplexUtils.polar2Complex(u2, theta2);
+                Complex v1 = y12.negate().multiply(v2).divide(y11);
+                computedU1 = v1.abs();
+                computedTheta1 = v1.getArgument();
+            }
+            if (connected2) {
+                computedU2 = u2;
+                computedTheta2 = theta2;
+            } else if (y22.equals(Complex.ZERO)) {
+                computedU2 = u1;
+                computedTheta2 = theta1;
+            } else {
+                Complex v1 = ComplexUtils.polar2Complex(u1, theta1);
+                Complex v2 = y21.negate().multiply(v1).divide(y22);
+                computedU2 = v2.abs();
+                computedTheta2 = v2.getArgument();
+            }
+
+            Complex v1 = ComplexUtils.polar2Complex(computedU1, computedTheta1);
+            Complex v2 = ComplexUtils.polar2Complex(computedU2, computedTheta2);
+
+            Complex i12 = y11.multiply(v1).add(y12.multiply(v2));
+            Complex i21 = y22.multiply(v2).add(y21.multiply(v1));
+
+            Complex s1 = i12.conjugate().multiply(v1);
+            Complex s2 = i21.conjugate().multiply(v2);
+
+            computedP1 = s1.getReal();
+            computedQ1 = s1.getImaginary();
+            computedP2 = s2.getReal();
+            computedQ2 = s2.getImaginary();
         }
-        if (connected2 || !connected1) {
-            computedU2 = u2;
-            computedTheta2 = theta2;
-        } else {
-            Complex v1 = ComplexUtils.polar2Complex(u1, theta1);
-            Complex v2 = v1.multiply(ytr.divide(a2cc.multiply(a1)).multiply(a2cc.multiply(a2).divide(ytr.add(y2))));
-            computedU2 = v2.abs();
-            computedTheta2 = v2.getArgument();
-        }
-
-        Complex v1 = ComplexUtils.polar2Complex(computedU1, computedTheta1);
-        Complex v2 = ComplexUtils.polar2Complex(computedU2, computedTheta2);
-
-        // Optimization: .divide(a1.multiply(a1.conjugate())) == .multiply(rho1 * rho1)
-        Complex y11 = ytr.add(y1).multiply(rho1 * rho1);
-        Complex y12 = ytr.negate().divide(a1cc.multiply(a2));
-        // Optimization: .divide(a2.multiply(a2.conjugate())) == .multiply(rho2 * rho2)
-        Complex y22 = ytr.add(y2).multiply(rho2 * rho2);
-        Complex y21 = ytr.negate().divide(a1.multiply(a2cc));
-
-        Complex i12 = y11.multiply(v1).add(y12.multiply(v2));
-        Complex i21 = y22.multiply(v2).add(y21.multiply(v1));
-
-        Complex s1 = i12.conjugate().multiply(v1);
-        Complex s2 = i21.conjugate().multiply(v2);
-
-        computedP1 = connected1 ? s1.getReal() : Double.NaN;
-        computedQ1 = connected1 ? s1.getImaginary() : Double.NaN;
-        computedP2 = connected2 ? s2.getReal() : Double.NaN;
-        computedQ2 = connected2 ? s2.getImaginary() : Double.NaN;
     }
 
     public String getId() {

@@ -47,8 +47,8 @@ public class BranchDataTest {
         t.branch.end1.connected = false;
         t.expectedFlow2.p = t.expectedFlow1.p;
         t.expectedFlow2.q = t.expectedFlow1.q;
-        t.expectedFlow1.p = Double.NaN;
-        t.expectedFlow1.q = Double.NaN;
+        t.expectedFlow1.p = 0.0;
+        t.expectedFlow1.q = 0.0;
         BranchData b1disconnected = checkTestCase("End 1 disconnected", t);
         assertEquals(expectedU, b1disconnected.getComputedU1(), t.config.toleranceVoltage);
         assertEquals(expectedTheta, b1disconnected.getComputedTheta1(), t.config.toleranceVoltage);
@@ -85,8 +85,8 @@ public class BranchDataTest {
         t.branch.end1.connected = false;
         expectedU = 383.838188;
         expectedTheta = -0.001010;
-        t.expectedFlow1.p = Double.NaN;
-        t.expectedFlow1.q = Double.NaN;
+        t.expectedFlow1.p = 0.0;
+        t.expectedFlow1.q = 0.0;
         t.expectedFlow2.p = 0.02946635;
         t.expectedFlow2.q = -43.611687;
         BranchData b1disconnected = checkTestCase("End 1 disconnected", t);
@@ -115,8 +115,8 @@ public class BranchDataTest {
         t.bus2.u = Double.NaN;
         t.bus2.theta = Double.NaN;
 
-        t.expectedFlow2.p = Double.NaN;
-        t.expectedFlow2.q = Double.NaN;
+        t.expectedFlow2.p = 0.0;
+        t.expectedFlow2.q = 0.0;
         t.expectedFlow1.p = 0.007293;
         t.expectedFlow1.q = -28.952559;
         return t;
@@ -566,8 +566,12 @@ public class BranchDataTest {
     private BranchData checkTestCase(String title, BranchTestCase t) {
         BranchData b = piModelFlows(t);
         logTestCase(title, t, b);
-        assertEquals(t.expectedFlow1.p, b.getComputedP1(), t.config.toleranceFlow);
-        assertEquals(t.expectedFlow1.q, b.getComputedQ1(), t.config.toleranceFlow);
+        if (!Double.isNaN(t.expectedFlow1.p)) {
+            assertEquals(t.expectedFlow1.p, b.getComputedP1(), t.config.toleranceFlow);
+        }
+        if (!Double.isNaN(t.expectedFlow1.q)) {
+            assertEquals(t.expectedFlow1.q, b.getComputedQ1(), t.config.toleranceFlow);
+        }
         if (!Double.isNaN(t.expectedFlow2.p)) {
             assertEquals(t.expectedFlow2.p, b.getComputedP2(), t.config.toleranceFlow);
         }
