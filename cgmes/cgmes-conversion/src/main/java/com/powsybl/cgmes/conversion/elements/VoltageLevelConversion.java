@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -45,11 +46,9 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
 
         // Missing elements in the boundary file
         if (Double.isNaN(nominalVoltage)) {
-            nominalVoltage = (lowVoltageLimit + highVoltageLimit) / 2.0;
-            if (Double.isNaN(nominalVoltage)) {
-                nominalVoltage = Math.PI;
-            }
-            missing(String.format("BaseVoltage %s", baseVoltage), nominalVoltage);
+            String bv = String.format("BaseVoltage %s", baseVoltage);
+            missing(bv);
+            throw new CgmesModelException(String.format("nominalVoltage not found for %s", bv));
         }
 
         VoltageLevel voltageLevel = context.network().getVoltageLevel(iidmId());
