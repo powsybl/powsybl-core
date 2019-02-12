@@ -23,8 +23,8 @@ import java.util.Properties;
 public class XMLImporterExporterBaseEXtensions extends AbstractConverterTest {
     public void importExport(String xiidmBaseRef, String xiidmExtRef) throws IOException {
         Properties properties = new Properties();
-        properties.put(XMLExporter.ANONYMISED_PROPERTIES, "false");
-        properties.put(XMLExporter.SEPARATE_BASE_EXTENSIONS_PROPERTY, "true");
+        properties.put(XMLExporter.ANONYMISED, "false");
+        properties.put(XMLExporter.SEPARATE_BASE_EXTENSIONS, "true");
 
         XMLImporter importer;
         PlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);

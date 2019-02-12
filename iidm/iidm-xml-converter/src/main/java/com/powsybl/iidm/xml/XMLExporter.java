@@ -71,6 +71,7 @@ public class XMLExporter implements Exporter {
     public static final String SKIP_EXTENSIONS = "iidm.export.xml.skip-extensions";
     public static final String TOPOLOGY_LEVEL = "iidm.export.xml.topology-level";
     public static final String THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND = "iidm.export.xml.throw-exception-if-extension-not-found";
+    public static final String SEPARATE_BASE_EXTENSIONS = "iidm.export.xml.base-and-extensions-separately";
 
     private static final Parameter INDENT_PARAMETER = new Parameter(INDENT, ParameterType.BOOLEAN, "Indent export output file", Boolean.TRUE);
     private static final Parameter WITH_BRANCH_STATE_VARIABLES_PARAMETER = new Parameter(WITH_BRANCH_STATE_VARIABLES, ParameterType.BOOLEAN, "Export network with branch state variables", Boolean.TRUE);
@@ -79,7 +80,7 @@ public class XMLExporter implements Exporter {
     private static final Parameter SKIP_EXTENSIONS_PARAMETER = new Parameter(SKIP_EXTENSIONS, ParameterType.BOOLEAN, "Skip exporting the extensions", Boolean.FALSE);
     private static final Parameter TOPOLOGY_LEVEL_PARAMETER = new Parameter(TOPOLOGY_LEVEL, ParameterType.STRING, "Export network in this topology level", "NODE_BREAKER");
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE);
-
+    private static final Parameter SEPARATE_BASE_EXTENSIONS_PARAMETER = new Parameter(SEPARATE_BASE_EXTENSIONS, ParameterType.BOOLEAN, "iidm.export.xml.base-and-extensions-separately", Boolean.FALSE);
     private final ParameterDefaultValueConfig defaultValueConfig;
 
     public XMLExporter() {
@@ -90,7 +91,6 @@ public class XMLExporter implements Exporter {
         defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
     }
 
-    public static final String SEPARATE_BASE_EXTENSIONS_PROPERTY = "iidm.export.xml.base-and-extensions-separately";
 
     @Override
     public String getFormat() {
@@ -116,7 +116,7 @@ public class XMLExporter implements Exporter {
                 .setSkipExtensions(ConversionParameters.readBooleanParameter(getFormat(), parameters, SKIP_EXTENSIONS_PARAMETER, defaultValueConfig))
                 .setTopologyLevel(TopologyLevel.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, TOPOLOGY_LEVEL_PARAMETER, defaultValueConfig)))
                 .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
-                .setSeparateBaseAndExtensions(Boolean.parseBoolean(parameters.getProperty(SEPARATE_BASE_EXTENSIONS_PROPERTY, Boolean.FALSE.toString())));
+                .setSeparateBaseAndExtensions(ConversionParameters.readBooleanParameter(getFormat(), parameters, SEPARATE_BASE_EXTENSIONS_PARAMETER, defaultValueConfig));
 
         try {
             long startTime = System.currentTimeMillis();

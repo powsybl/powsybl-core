@@ -25,8 +25,8 @@ public class XmlExporterBaseExtensions  extends AbstractConverterTest {
 
     public void exporterTestBaseExtensions(Network network, String xiidmBaseRef, String xiidmExtRef) throws IOException {
         Properties properties = new Properties();
-        properties.put(XMLExporter.ANONYMISED_PROPERTIES, "false");
-        properties.put(XMLExporter.SEPARATE_BASE_EXTENSIONS_PROPERTY, "true");
+        properties.put(XMLExporter.ANONYMISED, "false");
+        properties.put(XMLExporter.SEPARATE_BASE_EXTENSIONS, "true");
 
         MemDataSource dataSource = new MemDataSource();
 

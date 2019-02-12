@@ -24,7 +24,7 @@ public class XMLExporterTest  extends AbstractConverterTest {
 
     public void exporterTest(Network network, String xiidmRef) throws IOException {
         Properties properties = new Properties();
-        properties.put(XMLExporter.ANONYMISED_PROPERTIES, "false");
+        properties.put(XMLExporter.ANONYMISED, "false");
         MemDataSource dataSource = new MemDataSource();
         new XMLExporter().export(network, properties, dataSource);
         // check the exported file and compare it to iidm reference file
