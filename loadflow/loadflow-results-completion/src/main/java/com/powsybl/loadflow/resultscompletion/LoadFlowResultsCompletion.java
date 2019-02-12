@@ -97,7 +97,7 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
             completeTerminalData(twt.getLeg3().getTerminal(), ThreeWindingsTransformer.Side.THREE, twtData);
         });
 
-        // A is considered Z0 (null impedance) if and only if
+        // A line is considered Z0 (null impedance) if and only if
         // it is connected at both ends and the voltage at end buses are exactly the same
         Z0LineChecker z0checker = (Line l) -> {
             if (!l.getTerminal1().isConnected()) {
