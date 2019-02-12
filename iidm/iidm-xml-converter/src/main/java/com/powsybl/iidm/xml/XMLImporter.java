@@ -15,11 +15,11 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.anonymizer.Anonymizer;
 import com.powsybl.iidm.anonymizer.SimpleAnonymizer;
 import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.import_.Importer;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
@@ -53,8 +53,10 @@ public class XMLImporter implements Importer {
 
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 
-    private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND
-            = new Parameter("iidm.import.xml.throw-exception-if-extension-not-found", ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE)
+    public static final String THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND = "iidm.import.xml.throw-exception-if-extension-not-found";
+
+    private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER
+            = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE)
                     .addAdditionalNames("throwExceptionIfExtensionNotFound");
 
     private final ParameterDefaultValueConfig defaultValueConfig;
@@ -76,7 +78,7 @@ public class XMLImporter implements Importer {
 
     @Override
     public List<Parameter> getParameters() {
-        return Collections.singletonList(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND);
+        return Collections.singletonList(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER);
     }
 
     @Override
@@ -169,7 +171,7 @@ public class XMLImporter implements Importer {
                 throw new PowsyblException("File " + dataSource.getBaseName()
                         + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
             }
-            boolean throwExceptionIfExtensionNotFound = (Boolean) Importers.readParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, defaultValueConfig);
+            boolean throwExceptionIfExtensionNotFound = ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig);
             Anonymizer anonymizer = null;
             if (dataSource.exists(SUFFIX_MAPPING, "csv")) {
                 anonymizer = new SimpleAnonymizer();

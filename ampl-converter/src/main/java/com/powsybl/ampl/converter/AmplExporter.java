@@ -8,9 +8,14 @@
 package com.powsybl.ampl.converter;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.parameters.Parameter;
+import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
+import com.powsybl.iidm.parameters.ParameterType;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -24,8 +29,23 @@ import java.util.Properties;
 @AutoService(Exporter.class)
 public class AmplExporter implements Exporter {
 
-    public static final String EXPORT_RATIOTAPCHANGER_VT_PROPERTY = "iidm.export.ampl.exportRatioTapChangerVoltageTarget";
-    public static final String SPECIFIC_COMPATIBILITY_PROPERTY = "iidm.export.ampl.specificCompatibility";
+    public static final String EXPORT_RATIOTAPCHANGER_VT = "iidm.export.ampl.export-ratio-tap-changer-voltage-target";
+    public static final String SPECIFIC_COMPATIBILITY = "iidm.export.ampl.specific-compatibility";
+
+    private static final Parameter EXPORT_RATIOTAPCHANGER_VT_PARAMETER = new Parameter(EXPORT_RATIOTAPCHANGER_VT, ParameterType.BOOLEAN, "Export ratio tap changer voltage target", Boolean.FALSE)
+            .addAdditionalNames("iidm.export.ampl.exportRatioTapChangerVoltageTarget");
+    private static final Parameter SPECIFIC_COMPATIBILITY_PARAMETER = new Parameter(SPECIFIC_COMPATIBILITY, ParameterType.BOOLEAN, "Export specific compatibility", Boolean.FALSE)
+            .addAdditionalNames("iidm.export.ampl.specificCompatibility");
+
+    private final ParameterDefaultValueConfig defaultValueConfig;
+
+    public AmplExporter() {
+        this(PlatformConfig.defaultConfig());
+    }
+
+    public AmplExporter(PlatformConfig platformConfig) {
+        defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
+    }
 
     @Override
     public String getFormat() {
@@ -42,12 +62,8 @@ public class AmplExporter implements Exporter {
         Objects.requireNonNull(network);
         Objects.requireNonNull(dataSource);
         try {
-            boolean exportRatioTapChangerVoltageTarget = false;
-            boolean specificCompatibility = false;
-            if (parameters != null) {
-                exportRatioTapChangerVoltageTarget = Boolean.valueOf(parameters.getProperty(EXPORT_RATIOTAPCHANGER_VT_PROPERTY, "false"));
-                specificCompatibility = Boolean.valueOf(parameters.getProperty(SPECIFIC_COMPATIBILITY_PROPERTY, "false"));
-            }
+            boolean exportRatioTapChangerVoltageTarget = ConversionParameters.readBooleanParameter(getFormat(), parameters, EXPORT_RATIOTAPCHANGER_VT_PARAMETER, defaultValueConfig);
+            boolean specificCompatibility = ConversionParameters.readBooleanParameter(getFormat(), parameters, SPECIFIC_COMPATIBILITY_PARAMETER, defaultValueConfig);
             new AmplNetworkWriter(network, dataSource, new AmplExportConfig(AmplExportConfig.ExportScope.ALL, false, AmplExportConfig.ExportActionType.CURATIVE, exportRatioTapChangerVoltageTarget, specificCompatibility))
                     .write();
         } catch (IOException e) {

@@ -9,11 +9,10 @@ package com.powsybl.iidm.import_;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.config.MapModuleConfig;
-import com.powsybl.commons.config.ModuleConfigUtil;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
@@ -320,37 +319,20 @@ public final class Importers {
         }
     }
 
+    /**
+     * @deprecated Use {@link ConversionParameters#readParameter(String, Properties, Parameter)} instead
+     */
+    @Deprecated
     public static Object readParameter(String format, Properties parameters, Parameter configuredParameter) {
-        return readParameter(format, parameters, configuredParameter, ParameterDefaultValueConfig.INSTANCE);
+        return ConversionParameters.readParameter(format, parameters, configuredParameter);
     }
 
+    /**
+     * @deprecated Use {@link ConversionParameters#readParameter(String, Properties, Parameter, ParameterDefaultValueConfig)} instead
+     */
+    @Deprecated
     public static Object readParameter(String format, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
-        Objects.requireNonNull(format);
-        Objects.requireNonNull(configuredParameter);
-        Objects.requireNonNull(defaultValueConfig);
-        Object value = null;
-        // priority on import parameter
-        if (parameters != null) {
-            MapModuleConfig moduleConfig = new MapModuleConfig(parameters);
-            switch (configuredParameter.getType()) {
-                case BOOLEAN:
-                    value = ModuleConfigUtil.getOptionalBooleanProperty(moduleConfig, configuredParameter.getNames()).orElse(null);
-                    break;
-                case STRING:
-                    value = ModuleConfigUtil.getOptionalStringProperty(moduleConfig, configuredParameter.getNames()).orElse(null);
-                    break;
-                case STRING_LIST:
-                    value = ModuleConfigUtil.getOptionalStringListProperty(moduleConfig, configuredParameter.getNames()).orElse(null);
-                    break;
-                default:
-                    throw new AssertionError("Unexpected ParameterType value: " + configuredParameter.getType());
-            }
-        }
-        // if none, use configured parameters
-        if (value == null) {
-            value = defaultValueConfig.getValue(format, configuredParameter);
-        }
-        return value;
+        return ConversionParameters.readParameter(format, parameters, configuredParameter, defaultValueConfig);
     }
 
     public static DataSource createDataSource(Path directory, String fileNameOrBaseName) {
