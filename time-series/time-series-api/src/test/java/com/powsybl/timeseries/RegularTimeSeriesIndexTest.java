@@ -83,6 +83,12 @@ public class RegularTimeSeriesIndexTest {
                                       Duration.ofMinutes(15));
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testContructorErrorPointCount() {
+        RegularTimeSeriesIndex.create(Interval.parse("2000-01-01T00:00:00Z/2100-01-01T00:10:00Z"),
+                                      Duration.ofSeconds(1));
+    }
+
     @Test
     public void testPointCountSimple() {
         //2 data points at 0 and 10

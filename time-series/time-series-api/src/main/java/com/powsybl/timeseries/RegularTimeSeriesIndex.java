@@ -45,6 +45,10 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
         if (spacing > endTime - startTime) {
             throw new IllegalArgumentException("Spacing " + spacing + " is longer than interval " + (endTime - startTime));
         }
+        long computedPointCount = computePointCount(startTime, endTime, spacing);
+        if (computedPointCount > Integer.MAX_VALUE) {
+            throw new IllegalArgumentException("Point Count " + computedPointCount + " is bigger than max allowed value " + Integer.MAX_VALUE);
+        }
         this.startTime = startTime;
         this.endTime = endTime;
         this.spacing = spacing;
@@ -110,9 +114,13 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
         return spacing;
     }
 
+    private long computePointCount(long startTime, long endTime, long spacing) {
+        return Math.round(((double) (endTime - startTime)) / spacing) + 1;
+    }
+
     @Override
     public int getPointCount() {
-        return (int) Math.round(((double) (endTime - startTime)) / spacing) + 1;
+        return (int) computePointCount();
     }
 
     @Override
