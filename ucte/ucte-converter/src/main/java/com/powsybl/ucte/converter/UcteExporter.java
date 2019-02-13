@@ -32,7 +32,7 @@ public class UcteExporter implements Exporter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UcteExporter.class);
 
-    HashMap<String, String> iidmIdToUcteId = new HashMap<>();
+    HashMap<String, UcteNodeCode> iidmIdToUcteId = new HashMap<>();
 
     @Override
     public String getFormat() {
@@ -49,7 +49,6 @@ public class UcteExporter implements Exporter {
 
         UcteNetwork ucteNetwork = createUcteNetwork(network);
         write(ucteNetwork, FileSystems.getDefault().getPath("", "test.uct")); // FIXME: it's just to test
-
 
     }
 
@@ -158,22 +157,19 @@ public class UcteExporter implements Exporter {
         Terminal terminal1 = line.getTerminal1();
         Terminal terminal2 = line.getTerminal2();
 
-        UcteNodeCode ucteTerminal1NodeCode = new UcteNodeCode(
-                UcteCountryCode.valueOf(terminal1.getVoltageLevel().getSubstation().getCountry().toString()),
-                terminal1.getVoltageLevel().getSubstation().getName(),
-                iidmVoltageToUcteVoltageLevelCode(terminal1.getVoltageLevel().getNominalV()),
-                '1'
-        );
-        UcteNodeCode ucteTerminal2NodeCode = new UcteNodeCode(
-                UcteCountryCode.valueOf(terminal2.getVoltageLevel().getSubstation().getCountry().toString()),
-                terminal2.getVoltageLevel().getSubstation().getName(),
-                iidmVoltageToUcteVoltageLevelCode(terminal2.getVoltageLevel().getNominalV()),
-                '1'
-        );
+        UcteNodeCode ucteTerminal1NodeCode = createUcteNodeCode(
+                terminal1.getBusBreakerView().getBus().getId(),
+                terminal1.getVoltageLevel(),
+                terminal1.getVoltageLevel().getSubstation().getCountry().toString());
+
+        UcteNodeCode ucteTerminal2NodeCode = createUcteNodeCode(
+                terminal2.getBusBreakerView().getBus().getId(),
+                terminal2.getVoltageLevel(),
+                terminal2.getVoltageLevel().getSubstation().getCountry().toString());
 
         UcteElementId lineId = new UcteElementId(ucteTerminal1NodeCode, ucteTerminal2NodeCode, '1');
         UcteLine ucteLine = new UcteLine(lineId, UcteElementStatus.REAL_ELEMENT_IN_OPERATION,
-                (float) line.getR(), (float) line.getX(), (float) line.getB1(), (int) line.getCurrentLimits1().getPermanentLimit(), null);
+                (float) line.getR(), (float) line.getX(), (float) line.getB1() + (float) line.getB2(), (int) line.getCurrentLimits1().getPermanentLimit(), null);
 
         ucteNetwork.addLine(ucteLine);
     }
@@ -242,7 +238,7 @@ public class UcteExporter implements Exporter {
         if (generatorCount == 1) { //the node is a generator
             Generator generator = (Generator) bus.getGeneratorStream().toArray()[0];
             activePowerGeneration = -generator.getTargetP();
-            reactivePowerGeneration = generator.getTargetQ();
+            reactivePowerGeneration = -generator.getTargetQ();
             voltageReference = generator.getTargetV();
             minimumPermissibleActivePowerGeneration = -generator.getMinP();
             maximumPermissibleActivePowerGeneration = -generator.getMaxP();
@@ -252,12 +248,7 @@ public class UcteExporter implements Exporter {
 
         }
 
-        UcteNodeCode ucteNodeCode = new UcteNodeCode(
-                UcteCountryCode.valueOf(country),
-                voltageLevel.getSubstation().getName(),
-                iidmVoltageToUcteVoltageLevelCode(voltageLevel.getNominalV()),
-                '1'
-        );
+        UcteNodeCode ucteNodeCode = createUcteNodeCode(bus.getId(), voltageLevel, country);
 
         UcteNode ucteNode = new UcteNode(
                 ucteNodeCode,
@@ -283,7 +274,7 @@ public class UcteExporter implements Exporter {
         ucteNetwork.addNode(ucteNode);
     }
 
-    private boolean isNotAlreadyCreated(UcteNetwork ucteNetwork, UcteElementId ucteElementId) {
+    boolean isNotAlreadyCreated(UcteNetwork ucteNetwork, UcteElementId ucteElementId) {
         return ucteNetwork.getTransformer(ucteElementId) == null;
     }
 
@@ -333,6 +324,27 @@ public class UcteExporter implements Exporter {
         } else {
             return UctePowerPlantType.F;
         }
+    }
+
+    UcteNodeCode createUcteNodeCode(String id, VoltageLevel voltageLevel, String country) {
+        UcteNodeCode ucteNodeCode;
+        if (isUcteNodeId(id)) { // the ID is already an UCTE id
+            ucteNodeCode = new UcteNodeCode(
+                    UcteCountryCode.valueOf(country),
+                    id.substring(1, 6),
+                    iidmVoltageToUcteVoltageLevelCode(voltageLevel.getNominalV()),
+                    id.charAt(7)
+            );
+        } else {
+            ucteNodeCode = new UcteNodeCode(
+                    UcteCountryCode.valueOf(country),
+                    voltageLevel.getSubstation().getName(),
+                    iidmVoltageToUcteVoltageLevelCode(voltageLevel.getNominalV()),
+                    '1'
+            );
+            iidmIdToUcteId.put(id, ucteNodeCode);
+        }
+        return ucteNodeCode;
     }
 
     boolean isUcteId(String id) {

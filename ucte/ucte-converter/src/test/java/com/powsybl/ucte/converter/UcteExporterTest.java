@@ -5,6 +5,8 @@ import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.ucte.network.UcteCountryCode;
+import com.powsybl.ucte.network.UcteNodeCode;
 import com.powsybl.ucte.network.UctePowerPlantType;
 import com.powsybl.ucte.network.UcteVoltageLevelCode;
 import org.junit.Test;
@@ -93,5 +95,13 @@ public class UcteExporterTest {
         assertSame(UcteVoltageLevelCode.VL_750, ucteExporter.iidmVoltageToUcteVoltageLevelCode(750));
         assertSame(null, ucteExporter.iidmVoltageToUcteVoltageLevelCode(15));
         assertNotSame(UcteVoltageLevelCode.VL_27, ucteExporter.iidmVoltageToUcteVoltageLevelCode(330));
+    }
+
+    @Test
+    public void createUcteNodeCodeTest() {
+        ReadOnlyDataSource dataSource = new ResourceDataSource("realCase", new ResourceSet("/", "realCase.uct"));
+        Network network = new UcteImporter().importData(dataSource, null);
+        UcteExporter ucteExporter = new UcteExporter();
+        assertTrue(new UcteNodeCode(UcteCountryCode.ME, "BAR  ", UcteVoltageLevelCode.VL_110, ' ').equals(ucteExporter.createUcteNodeCode("0BAR  5 ", network.getVoltageLevel("0BAR  5"), "ME")));
     }
 }
