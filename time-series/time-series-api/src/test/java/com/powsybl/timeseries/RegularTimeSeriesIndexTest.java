@@ -106,4 +106,12 @@ public class RegularTimeSeriesIndexTest {
             Instant.parse("2009-01-01T00:00:00Z").toEpochMilli(),
             millisInYear).getPointCount());
     }
+
+    @Test
+    public void testPointCountHuge() {
+        // 1 data every 30 seconds for ~30years, ~30years+30s, ~30years+60s
+        assertEquals(30 * 365 * 24 * 120 + 1, new RegularTimeSeriesIndex(0, 30L * 365 * 24 * 60 * 60 * 1000 + 0 * 30 * 1000, 30 * 1000).getPointCount());
+        assertEquals(30 * 365 * 24 * 120 + 2, new RegularTimeSeriesIndex(0, 30L * 365 * 24 * 60 * 60 * 1000 + 1 * 30 * 1000, 30 * 1000).getPointCount());
+        assertEquals(30 * 365 * 24 * 120 + 3, new RegularTimeSeriesIndex(0, 30L * 365 * 24 * 60 * 60 * 1000 + 2 * 30 * 1000, 30 * 1000).getPointCount());
+    }
 }

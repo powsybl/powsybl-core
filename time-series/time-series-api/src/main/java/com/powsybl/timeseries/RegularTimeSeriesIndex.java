@@ -112,7 +112,7 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     @Override
     public int getPointCount() {
-        return Math.round(((float) (endTime - startTime)) / spacing) + 1;
+        return (int) Math.round(((double) (endTime - startTime)) / spacing) + 1;
     }
 
     @Override
