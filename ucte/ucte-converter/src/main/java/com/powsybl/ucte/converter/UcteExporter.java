@@ -25,7 +25,6 @@ import java.util.HashMap;
 import java.util.Properties;
 
 /**
- *
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
  */
 @AutoService(Exporter.class)
@@ -33,7 +32,7 @@ public class UcteExporter implements Exporter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UcteExporter.class);
 
-    HashMap<String,String> iidmIdToUcteId = new HashMap<>();
+    HashMap<String, String> iidmIdToUcteId = new HashMap<>();
 
     @Override
     public String getFormat() {
@@ -49,17 +48,15 @@ public class UcteExporter implements Exporter {
     public void export(Network network, Properties parameters, DataSource dataSource) {
 
         UcteNetwork ucteNetwork = createUcteNetwork(network);
-        write(ucteNetwork, FileSystems.getDefault().getPath("","test.uct")); // FIXME: it's just to test
+        write(ucteNetwork, FileSystems.getDefault().getPath("", "test.uct")); // FIXME: it's just to test
 
 
     }
 
-    private void createTwoWindingTransformers(UcteNetwork ucteNetwork, Bus bus)
-    {
+    private void createTwoWindingTransformers(UcteNetwork ucteNetwork, Bus bus) {
         LOGGER.info("-----------TWO WINDING TRANSFORMERS--------");
         Iterable<TwoWindingsTransformer> twoWindingsTransformers = bus.getTwoWindingsTransformers();
-        for(TwoWindingsTransformer twoWindingsTransformer : twoWindingsTransformers)
-        {
+        for (TwoWindingsTransformer twoWindingsTransformer : twoWindingsTransformers) {
             LOGGER.info("-----------TWO WINDING TRANSFORMER--------");
             LOGGER.info(" Id = {}", twoWindingsTransformer.getId());
             LOGGER.info(" Name = {}", twoWindingsTransformer.getName());
@@ -69,13 +66,12 @@ public class UcteExporter implements Exporter {
             LOGGER.info(" G = {}", String.valueOf(twoWindingsTransformer.getG()));
             LOGGER.info(" RatedU1 = {}", String.valueOf(twoWindingsTransformer.getRatedU1()));
             LOGGER.info(" RatedU2 = {}", String.valueOf(twoWindingsTransformer.getRatedU2()));
-            createTwoWindingTransformer(ucteNetwork,twoWindingsTransformer);
+            createTwoWindingTransformer(ucteNetwork, twoWindingsTransformer);
 
         }
     }
 
-    private void createTwoWindingTransformer(UcteNetwork ucteNetwork, TwoWindingsTransformer twoWindingsTransformer)
-    {
+    private void createTwoWindingTransformer(UcteNetwork ucteNetwork, TwoWindingsTransformer twoWindingsTransformer) {
         Terminal terminal1 = twoWindingsTransformer.getTerminal1();
         Terminal terminal2 = twoWindingsTransformer.getTerminal2();
 
@@ -90,33 +86,30 @@ public class UcteExporter implements Exporter {
                 iidmVoltageToUcteVoltageLevelCode(terminal2.getVoltageLevel().getNominalV()),
                 '1');
 
-        UcteElementId ucteElementId = new UcteElementId(ucteNodeCode,ucteNodeCode2,'1');
+        UcteElementId ucteElementId = new UcteElementId(ucteNodeCode, ucteNodeCode2, '1');
 
-        if(isNotAlreadyCreated(ucteNetwork,ucteElementId))
-        {
+        if (isNotAlreadyCreated(ucteNetwork, ucteElementId)) {
             UcteTransformer ucteTransformer = new UcteTransformer(
                     ucteElementId,
                     UcteElementStatus.fromCode(1),
-                    (float)twoWindingsTransformer.getR(),
-                    (float)twoWindingsTransformer.getX(),
-                    (float)twoWindingsTransformer.getB(),
-                    (int)twoWindingsTransformer.getCurrentLimits2().getPermanentLimit(),
+                    (float) twoWindingsTransformer.getR(),
+                    (float) twoWindingsTransformer.getX(),
+                    (float) twoWindingsTransformer.getB(),
+                    (int) twoWindingsTransformer.getCurrentLimits2().getPermanentLimit(),
                     twoWindingsTransformer.getName(),
-                    (float)twoWindingsTransformer.getRatedU2(),
-                    (float)twoWindingsTransformer.getRatedU1(),
+                    (float) twoWindingsTransformer.getRatedU2(),
+                    (float) twoWindingsTransformer.getRatedU1(),
                     100,
-                    (float)twoWindingsTransformer.getG()); //TODO Find a representation for the nominal power
+                    (float) twoWindingsTransformer.getG()); //TODO Find a representation for the nominal power
 
             ucteNetwork.addTransformer(ucteTransformer);
         }
     }
 
-    private void createLines(UcteNetwork ucteNetwork, Network network)
-    {
+    private void createLines(UcteNetwork ucteNetwork, Network network) {
         LOGGER.info("-----------LINES------------");
         Iterable<Line> lines = network.getLines();
-        for(Line line : lines)
-        {
+        for (Line line : lines) {
             LOGGER.info("-----------LINE------------");
             LOGGER.info("ID = {}", line.getId()); //Node code 1 + node code 2 + Order code  1-8 10-17 19
             LOGGER.info("R = {}", String.valueOf(line.getR())); //Resistance position UTCE 23-28
@@ -128,17 +121,15 @@ public class UcteExporter implements Exporter {
             LOGGER.info("B2 = {}", String.valueOf(line.getB2()));
             LOGGER.info("G1 = {}", String.valueOf(line.getG1()));
             LOGGER.info("G2 = {}", String.valueOf(line.getG2()));
-            createLine(ucteNetwork,line);
+            createLine(ucteNetwork, line);
         }
     }
 
-    private UcteNetwork createUcteNetwork(Network network)
-    {
+    private UcteNetwork createUcteNetwork(Network network) {
 
         UcteNetwork ucteNetwork = new UcteNetworkImpl();
         Iterable<Substation> substations = network.getSubstations();
-        for(Substation substation : substations)
-        {
+        for (Substation substation : substations) {
             LOGGER.info("---------------SUBSTATION------------------");
             LOGGER.info(" Geographical tags = {}", substation.getGeographicalTags().toString());
             LOGGER.info(" Substation country = {}", substation.getCountry());
@@ -147,8 +138,7 @@ public class UcteExporter implements Exporter {
 
 
             Iterable<VoltageLevel> voltageLevels = substation.getVoltageLevels();
-            for(VoltageLevel voltageLevel : voltageLevels)
-            {
+            for (VoltageLevel voltageLevel : voltageLevels) {
                 LOGGER.info("---------------VOLTAGE LEVEL------------------");
                 VoltageLevel.BusBreakerView busBreakerView = voltageLevel.getBusBreakerView();
                 LOGGER.info(" ID = {}", voltageLevel.getId());
@@ -156,7 +146,7 @@ public class UcteExporter implements Exporter {
                 LOGGER.info(" Low voltage limit = {}", voltageLevel.getLowVoltageLimit());
                 LOGGER.info(" High voltage limit = {}", voltageLevel.getHighVoltageLimit());
 
-                createBuses(ucteNetwork,voltageLevel);
+                createBuses(ucteNetwork, voltageLevel);
 
             }
         }
@@ -164,8 +154,7 @@ public class UcteExporter implements Exporter {
         return ucteNetwork;
     }
 
-    private void createLine(UcteNetwork ucteNetwork, Line line)
-    {
+    private void createLine(UcteNetwork ucteNetwork, Line line) {
         Terminal terminal1 = line.getTerminal1();
         Terminal terminal2 = line.getTerminal2();
 
@@ -184,17 +173,15 @@ public class UcteExporter implements Exporter {
 
         UcteElementId lineId = new UcteElementId(ucteTerminal1NodeCode, ucteTerminal2NodeCode, '1');
         UcteLine ucteLine = new UcteLine(lineId, UcteElementStatus.REAL_ELEMENT_IN_OPERATION,
-                (float)line.getR(), (float)line.getX(), (float)line.getB1(), (int)line.getCurrentLimits1().getPermanentLimit(), null);
+                (float) line.getR(), (float) line.getX(), (float) line.getB1(), (int) line.getCurrentLimits1().getPermanentLimit(), null);
 
         ucteNetwork.addLine(ucteLine);
     }
 
-    private void createBuses(UcteNetwork ucteNetwork, VoltageLevel voltageLevel)
-    {
+    private void createBuses(UcteNetwork ucteNetwork, VoltageLevel voltageLevel) {
         VoltageLevel.BusBreakerView busBreakerView = voltageLevel.getBusBreakerView();
         Iterable<Bus> buses = busBreakerView.getBuses();
-        for(Bus bus : buses)
-        {
+        for (Bus bus : buses) {
             LOGGER.info("---------------BUS------------------");
             LOGGER.info(" Bus id = {}", bus.getId());
             LOGGER.info(" Bus name = {}", bus.getName());
@@ -206,8 +193,7 @@ public class UcteExporter implements Exporter {
 
             LOGGER.info("-----------GENERATORS--------");
             Iterable<Generator> generators = bus.getGenerators();
-            for(Generator generator : generators)
-            {
+            for (Generator generator : generators) {
                 LOGGER.info("-----------GENERATOR--------");
                 LOGGER.info(" Id = {}", generator.getId());
                 LOGGER.info(" Name = {}", generator.getName());
@@ -223,13 +209,11 @@ public class UcteExporter implements Exporter {
             }
 
 
-
-            createTwoWindingTransformers(ucteNetwork,bus);
+            createTwoWindingTransformers(ucteNetwork, bus);
         }
     }
 
-    private void createBus(UcteNetwork ucteNetwork, Bus bus)
-    {
+    private void createBus(UcteNetwork ucteNetwork, Bus bus) {
         VoltageLevel voltageLevel = bus.getVoltageLevel();
         long loadCount = voltageLevel.getLoadStream().count();
         long generatorCount = bus.getGeneratorStream().count();
@@ -246,9 +230,8 @@ public class UcteExporter implements Exporter {
         double maximumPermissibleReactivePowerGeneration = 0;
         UctePowerPlantType uctePowerPlantType = null;
 
-        if(loadCount==1)
-        {
-            Load load = (Load)voltageLevel.getLoadStream().toArray()[0];
+        if (loadCount == 1) {
+            Load load = (Load) voltageLevel.getLoadStream().toArray()[0];
             p0 = load.getP0();
             q0 = load.getQ0();
             LOGGER.info("-------------LOAD--------------");
@@ -256,9 +239,8 @@ public class UcteExporter implements Exporter {
             LOGGER.info("Q0 = {}", q0);
         }
 
-        if(generatorCount==1) //the node is a generator
-        {
-            Generator generator = (Generator)bus.getGeneratorStream().toArray()[0];
+        if (generatorCount == 1) { //the node is a generator
+            Generator generator = (Generator) bus.getGeneratorStream().toArray()[0];
             activePowerGeneration = -generator.getTargetP();
             reactivePowerGeneration = generator.getTargetQ();
             voltageReference = generator.getTargetV();
@@ -282,15 +264,15 @@ public class UcteExporter implements Exporter {
                 voltageLevel.getSubstation().getName(),
                 UcteNodeStatus.REAL,
                 UcteNodeTypeCode.PQ,
-                (float)voltageReference,
-                (float)p0,
-                (float)q0,
-                (float)activePowerGeneration,
-                (float)reactivePowerGeneration,
-                (float)minimumPermissibleActivePowerGeneration,
-                (float)maximumPermissibleActivePowerGeneration,
-                (float)minimumPermissibleReactivePowerGeneration,
-                (float)maximumPermissibleReactivePowerGeneration,
+                (float) voltageReference,
+                (float) p0,
+                (float) q0,
+                (float) activePowerGeneration,
+                (float) reactivePowerGeneration,
+                (float) minimumPermissibleActivePowerGeneration,
+                (float) maximumPermissibleActivePowerGeneration,
+                (float) minimumPermissibleReactivePowerGeneration,
+                (float) maximumPermissibleReactivePowerGeneration,
                 0f,
                 0f,
                 0f,
@@ -306,53 +288,49 @@ public class UcteExporter implements Exporter {
     }
 
     UcteVoltageLevelCode iidmVoltageToUcteVoltageLevelCode(double nominalV) {
-        if(nominalV == 27) {
+        if (nominalV == 27) {
             return UcteVoltageLevelCode.VL_27;
         }
-        if(nominalV == 70) {
+        if (nominalV == 70) {
             return UcteVoltageLevelCode.VL_70;
         }
-        if(nominalV == 110) {
+        if (nominalV == 110) {
             return UcteVoltageLevelCode.VL_110;
         }
-        if(nominalV == 120) {
+        if (nominalV == 120) {
             return UcteVoltageLevelCode.VL_120;
         }
-        if(nominalV == 150) {
+        if (nominalV == 150) {
             return UcteVoltageLevelCode.VL_150;
         }
-        if(nominalV == 220) {
+        if (nominalV == 220) {
             return UcteVoltageLevelCode.VL_220;
         }
-        if(nominalV == 330) {
+        if (nominalV == 330) {
             return UcteVoltageLevelCode.VL_330;
         }
-        if(nominalV == 380) {
+        if (nominalV == 380) {
             return UcteVoltageLevelCode.VL_380;
         }
-        if(nominalV == 500) {
+        if (nominalV == 500) {
             return UcteVoltageLevelCode.VL_500;
         }
-        if(nominalV == 750) {
+        if (nominalV == 750) {
             return UcteVoltageLevelCode.VL_750;
         }
         return null;
     }
 
     UctePowerPlantType energySourceToUctePowerPlantType(EnergySource energySource) {
-        if(EnergySource.HYDRO == energySource) {
+        if (EnergySource.HYDRO == energySource) {
             return UctePowerPlantType.H;
-        }
-        else if(EnergySource.NUCLEAR == energySource) {
+        } else if (EnergySource.NUCLEAR == energySource) {
             return UctePowerPlantType.N;
-        }
-        else if(EnergySource.THERMAL == energySource) {
+        } else if (EnergySource.THERMAL == energySource) {
             return UctePowerPlantType.C;
-        }
-        else if(EnergySource.WIND == energySource){
+        } else if (EnergySource.WIND == energySource) {
             return UctePowerPlantType.W;
-        }
-        else {
+        } else {
             return UctePowerPlantType.F;
         }
     }
@@ -360,15 +338,15 @@ public class UcteExporter implements Exporter {
     boolean isUcteId(String id) {
         return id != null &&
                 id.length() >= 17 &&
-                isUcteNodeId(id.substring(0,8)) &&
-                isUcteNodeId(id.substring(9,17)) &&
+                isUcteNodeId(id.substring(0, 8)) &&
+                isUcteNodeId(id.substring(9, 17)) &&
                 id.charAt(8) == ' ' &&
                 id.charAt(17) == ' ';
     }
 
     boolean isUcteNodeId(String id) {
         return id != null &&
-                id.length()==8 &&
+                id.length() == 8 &&
                 isUcteCountryCode(id.charAt(0)) &&
                 isVoltageLevel(id.charAt(6));
     }
@@ -377,14 +355,13 @@ public class UcteExporter implements Exporter {
         try {
             UcteCountryCode.fromUcteCode(character);
             return true;
-        }
-        catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             return false;
         }
     }
 
     boolean isVoltageLevel(char character) {
-        return (int)character >=48 && (int)character <=57;
+        return (int) character >= 48 && (int) character <= 57;
     }
 
     void write(UcteNetwork network, Path file) {
@@ -398,8 +375,8 @@ public class UcteExporter implements Exporter {
     public String generate(int length) {  //FIXME: delete this when you know how to get geographical name
         String chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
         String pass = "";
-        for(int x=0;x<length;x++)   {
-            int i = (int)Math.floor(Math.random() * (chars.length() -1));
+        for (int x = 0; x < length; x++) {
+            int i = (int) Math.floor(Math.random() * (chars.length() - 1));
             pass += chars.charAt(i);
         }
         return pass;

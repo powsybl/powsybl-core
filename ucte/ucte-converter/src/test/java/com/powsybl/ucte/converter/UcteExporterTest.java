@@ -21,7 +21,7 @@ public class UcteExporterTest {
     public void exportUcte() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("realCase", new ResourceSet("/", "realCase.uct"));
         Network network = new UcteImporter().importData(dataSource, null);
-        new UcteExporter().export(network,null, null);
+        new UcteExporter().export(network, null, null);
     }
 
     @Test
@@ -81,17 +81,17 @@ public class UcteExporterTest {
     @Test
     public void iidmVoltageToUcteVoltageLevelCode() {
         UcteExporter ucteExporter = new UcteExporter();
-        assertSame(UcteVoltageLevelCode.VL_27,ucteExporter.iidmVoltageToUcteVoltageLevelCode(27));
-        assertSame(UcteVoltageLevelCode.VL_70,ucteExporter.iidmVoltageToUcteVoltageLevelCode(70));
-        assertSame(UcteVoltageLevelCode.VL_110,ucteExporter.iidmVoltageToUcteVoltageLevelCode(110));
-        assertSame(UcteVoltageLevelCode.VL_120,ucteExporter.iidmVoltageToUcteVoltageLevelCode(120));
-        assertSame(UcteVoltageLevelCode.VL_150,ucteExporter.iidmVoltageToUcteVoltageLevelCode(150));
-        assertSame(UcteVoltageLevelCode.VL_220,ucteExporter.iidmVoltageToUcteVoltageLevelCode(220));
-        assertSame(UcteVoltageLevelCode.VL_330,ucteExporter.iidmVoltageToUcteVoltageLevelCode(330));
-        assertSame(UcteVoltageLevelCode.VL_380,ucteExporter.iidmVoltageToUcteVoltageLevelCode(380));
-        assertSame(UcteVoltageLevelCode.VL_500,ucteExporter.iidmVoltageToUcteVoltageLevelCode(500));
-        assertSame(UcteVoltageLevelCode.VL_750,ucteExporter.iidmVoltageToUcteVoltageLevelCode(750));
-        assertSame(null,ucteExporter.iidmVoltageToUcteVoltageLevelCode(15));
-        assertNotSame(UcteVoltageLevelCode.VL_27,ucteExporter.iidmVoltageToUcteVoltageLevelCode(330));
+        assertSame(UcteVoltageLevelCode.VL_27, ucteExporter.iidmVoltageToUcteVoltageLevelCode(27));
+        assertSame(UcteVoltageLevelCode.VL_70, ucteExporter.iidmVoltageToUcteVoltageLevelCode(70));
+        assertSame(UcteVoltageLevelCode.VL_110, ucteExporter.iidmVoltageToUcteVoltageLevelCode(110));
+        assertSame(UcteVoltageLevelCode.VL_120, ucteExporter.iidmVoltageToUcteVoltageLevelCode(120));
+        assertSame(UcteVoltageLevelCode.VL_150, ucteExporter.iidmVoltageToUcteVoltageLevelCode(150));
+        assertSame(UcteVoltageLevelCode.VL_220, ucteExporter.iidmVoltageToUcteVoltageLevelCode(220));
+        assertSame(UcteVoltageLevelCode.VL_330, ucteExporter.iidmVoltageToUcteVoltageLevelCode(330));
+        assertSame(UcteVoltageLevelCode.VL_380, ucteExporter.iidmVoltageToUcteVoltageLevelCode(380));
+        assertSame(UcteVoltageLevelCode.VL_500, ucteExporter.iidmVoltageToUcteVoltageLevelCode(500));
+        assertSame(UcteVoltageLevelCode.VL_750, ucteExporter.iidmVoltageToUcteVoltageLevelCode(750));
+        assertSame(null, ucteExporter.iidmVoltageToUcteVoltageLevelCode(15));
+        assertNotSame(UcteVoltageLevelCode.VL_27, ucteExporter.iidmVoltageToUcteVoltageLevelCode(330));
     }
 }
