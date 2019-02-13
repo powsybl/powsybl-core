@@ -32,6 +32,14 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     private final long spacing; // in ms
 
+    // computed from the previous fields; startTime and endTime are inclusive,
+    // with rounding to have easier interactions with calendar dates (the
+    // number of milliseconds in a calendar date is not fixed, because of leap
+    // seconds, daylight saving time, and leap years), so if we didn't round
+    // and took the floor or the ceiling, it would give surprising results
+    // between 2 calendar dates.
+    private final int pointCount;
+
     public RegularTimeSeriesIndex(long startTime, long endTime, long spacing) {
         if (startTime < 0) {
             throw new IllegalArgumentException("Bad start time value " + startTime);
@@ -52,6 +60,7 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
         this.startTime = startTime;
         this.endTime = endTime;
         this.spacing = spacing;
+        this.pointCount = (int) computedPointCount;
     }
 
     public static RegularTimeSeriesIndex create(Instant start, Instant end, Duration spacing) {
@@ -120,7 +129,7 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
 
     @Override
     public int getPointCount() {
-        return (int) computePointCount();
+        return pointCount;
     }
 
     @Override
