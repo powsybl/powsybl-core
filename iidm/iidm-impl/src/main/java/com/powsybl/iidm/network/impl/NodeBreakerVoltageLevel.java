@@ -948,7 +948,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     private static boolean isOpenedDisconnector(Switch s) {
-        return s.getKind() == SwitchKind.DISCONNECTOR && s.isOpen();
+        return s != null && s.getKind() == SwitchKind.DISCONNECTOR && s.isOpen();
     }
 
     @Override
@@ -965,7 +965,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             for (int i = 0; i < shortestPath.size(); i++) {
                 int e = shortestPath.get(i);
                 SwitchImpl sw = graph.getEdgeObject(e);
-                if (sw.getKind() == SwitchKind.BREAKER && sw.isOpen()) {
+                if (sw != null && sw.getKind() == SwitchKind.BREAKER && sw.isOpen()) {
                     sw.setOpen(false);
                     connected = true;
                 }
@@ -990,7 +990,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             for (int i = 0; i < path.size(); i++) {
                 int e = path.get(i);
                 SwitchImpl sw = graph.getEdgeObject(e);
-                if (sw.getKind() == SwitchKind.BREAKER) {
+                if (sw != null && sw.getKind() == SwitchKind.BREAKER) {
                     if (!sw.isOpen()) {
                         sw.setOpen(true);
                     }
