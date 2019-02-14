@@ -6,6 +6,11 @@
  */
 package com.powsybl.loadflow.resultscompletion;
 
+import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Branch.Side;
@@ -20,10 +25,6 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.resultscompletion.z0flows.Z0FlowsCompletion;
 import com.powsybl.loadflow.resultscompletion.z0flows.Z0LineChecker;
 import com.powsybl.loadflow.validation.CandidateComputation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Objects;
 
 /**
  *
@@ -110,7 +111,13 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
             Bus b2 = l.getTerminal2().getBusView().getBus();
             Objects.requireNonNull(b1);
             Objects.requireNonNull(b2);
-            return b1.getV() == b2.getV() && b1.getAngle() == b2.getAngle();
+            double threshold = parameters.getZ0ThresholdDiffVoltageAngle();
+            boolean r = Math.abs(b1.getV() - b2.getV()) < threshold
+                    && Math.abs(b1.getAngle() - b2.getAngle()) < threshold;
+            if (r) {
+                LOGGER.debug("Line Z0 {} ({}) dV = {}, dA = {}", l.getName(), l.getId(), Math.abs(b1.getV() - b2.getV()), Math.abs(b1.getAngle() - b2.getAngle()));
+            }
+            return r;
         };
         Z0FlowsCompletion z0FlowsCompletion = new Z0FlowsCompletion(network, z0checker);
         z0FlowsCompletion.complete();
