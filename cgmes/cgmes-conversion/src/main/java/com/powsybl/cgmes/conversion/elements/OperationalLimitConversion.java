@@ -30,7 +30,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private static final String OPERATIONAL_LIMIT_SUBCLASS = "OperationalLimitSubclass";
 
     public OperationalLimitConversion(PropertyBag l, Context context) {
-        super("OperationalLimitSet", l, context);
+        super("OperationalLimit", l, context);
         // Limit can associated to a Terminal or to an Equipment
         terminalId = l.getId("Terminal");
         equipmentId = l.getId("Equipment");
@@ -151,13 +151,13 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         int acceptableDuration = (int) p.asDouble("acceptableDuration");
         // We only accept high or absoluteValue (considered as high when
         // current from the conducting equipment to the terminal) limits
-        if (!p.getId("direction").equals("low")) {
-            String name = p.getId("name");
+        String direction = p.getId("direction");
+        if (direction.endsWith("high") || direction.endsWith("absoluteValue")) {
             if (adder != null) {
                 adder.beginTemporaryLimit()
                         .setName(name)
                         .setValue(value)
-                        .setAcceptableDuration(acceptableDuration)
+                        .setAcceptableDuration(60 * acceptableDuration)
                         .ensureNameUnicity()
                         .endTemporaryLimit();
             } else if (adder1 != null) {
@@ -165,12 +165,14 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 adder1.beginTemporaryLimit()
                         .setName(name)
                         .setValue(value)
-                        .setAcceptableDuration(acceptableDuration)
+                        .setAcceptableDuration(60 * acceptableDuration)
                         .ensureNameUnicity()
                         .endTemporaryLimit();
             }
+        } else if (direction.endsWith("low")) {
+            context.invalid(OPERATIONAL_LIMIT, String.format("TATL %s is a low limit", id));
         } else {
-            context.invalid(OPERATIONAL_LIMIT, "TATL is a low limit");
+            context.invalid(OPERATIONAL_LIMIT, String.format("TATL %s does not have a valid direction", id));
         }
     }
 
