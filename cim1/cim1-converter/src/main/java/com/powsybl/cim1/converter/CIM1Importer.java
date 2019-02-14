@@ -56,7 +56,7 @@ public class CIM1Importer implements Importer, CIM1Constants {
 
     public static final String INVERT_VOLTAGE_STEP_INCREMENT_OUT_OF_PHASE = "iidm.import.cim1.invert-voltage-step-increment-out-of-phase";
     public static final String DEFAULT_COUNTRY = "iidm.import.cim1.default-country";
-    public static final String USE_PSSE_NAMING_STRATEGY = "iidm.import.cim1.default-country";
+    public static final String USE_PSSE_NAMING_STRATEGY = "iidm.import.cim1.use-psse-naming-strategy";
     public static final String SUBSTATION_ID_EXCLUDED_FROM_MAPPING = "iidm.import.cim1.substation-id-excluded-from-mapping";
 
     private static final Parameter INVERT_VOLTAGE_STEP_INCREMENT_OUT_OF_PHASE_PARAMETER

@@ -149,7 +149,7 @@
         <mockito.version>1.10.19</mockito.version>
         <poi.version>3.15</poi.version>
         <protobuf.version>2.5.0</protobuf.version>
-        <rdf4j.version>2.2.2</rdf4j.version>
+        <rdf4j.version>2.4.4</rdf4j.version>
         <resteasy.version>3.1.4.Final</resteasy.version>
         <shrinkwrap-resolver.version>2.2.6</shrinkwrap-resolver.version>
         <sirocco.version>1.0</sirocco.version>
