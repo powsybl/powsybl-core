@@ -86,7 +86,7 @@ public class UcteExporter implements Exporter {
                 terminal2.getVoltageLevel().getSubstation().getCountry().toString()
         );
 
-        UcteElementId ucteElementId = createUcteElementId(ucteNodeCode,ucteNodeCode2,twoWindingsTransformer,terminal1,terminal2);
+        UcteElementId ucteElementId = createUcteElementId(ucteNodeCode, ucteNodeCode2, twoWindingsTransformer, terminal1, terminal2);
 
         if (isNotAlreadyCreated(ucteNetwork, ucteElementId)) {
             UcteTransformer ucteTransformer = new UcteTransformer(
@@ -367,15 +367,13 @@ public class UcteExporter implements Exporter {
                 isVoltageLevel(id.charAt(6));
     }
 
-    UcteElementId createUcteElementId(UcteNodeCode ucteNodeCode, UcteNodeCode ucteNodeCode2, TwoWindingsTransformer twoWindingsTransformer,Terminal terminal1, Terminal terminal2)
-    {
-        if(isUcteNodeId(terminal1.getBusView().getBus().getId()) && isUcteNodeId(terminal2.getBusView().getBus().getId())) {
+    UcteElementId createUcteElementId(UcteNodeCode ucteNodeCode, UcteNodeCode ucteNodeCode2, TwoWindingsTransformer twoWindingsTransformer, Terminal terminal1, Terminal terminal2) {
+        if (isUcteNodeId(terminal1.getBusView().getBus().getId()) && isUcteNodeId(terminal2.getBusView().getBus().getId())) {
             return new UcteElementId(
                     ucteNodeCode,
                     ucteNodeCode2,
                     twoWindingsTransformer.getId().charAt(18));
-        }
-        else {
+        } else {
             return new UcteElementId(
                     ucteNodeCode,
                     ucteNodeCode2,
