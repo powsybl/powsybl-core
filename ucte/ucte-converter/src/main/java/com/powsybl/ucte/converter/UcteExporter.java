@@ -52,7 +52,7 @@ public class UcteExporter implements Exporter {
 
     }
 
-    private void createTwoWindingTransformers(UcteNetwork ucteNetwork, Bus bus) {
+    public void createTwoWindingTransformers(UcteNetwork ucteNetwork, Bus bus) {
         LOGGER.info("-----------TWO WINDING TRANSFORMERS--------");
         Iterable<TwoWindingsTransformer> twoWindingsTransformers = bus.getTwoWindingsTransformers();
         for (TwoWindingsTransformer twoWindingsTransformer : twoWindingsTransformers) {
@@ -102,8 +102,61 @@ public class UcteExporter implements Exporter {
                     100,
                     (float) twoWindingsTransformer.getG()); //TODO Find a representation for the nominal power
 
+            if (twoWindingsTransformer.getRatioTapChanger() != null && twoWindingsTransformer.getPhaseTapChanger() != null) {
+                UctePhaseRegulation uctePhaseRegulation = createRatioTapChanger(twoWindingsTransformer);
+                UcteAngleRegulation ucteAngleRegulation = createPhaseTapChanger(twoWindingsTransformer);
+                UcteRegulation ucteRegulation = new UcteRegulation(ucteElementId, uctePhaseRegulation, ucteAngleRegulation);
+                ucteNetwork.addRegulation(ucteRegulation);
+            }
             ucteNetwork.addTransformer(ucteTransformer);
         }
+    }
+
+    private UctePhaseRegulation createRatioTapChanger(TwoWindingsTransformer twoWindingsTransformer) {
+        LOGGER.info(" --------- RATIO TAP CHANGER ------------");
+        LOGGER.info("TargetV = {}", twoWindingsTransformer.getRatioTapChanger().getTargetV());
+        LOGGER.info("LowTapPosition = {}", twoWindingsTransformer.getRatioTapChanger().getLowTapPosition());
+        LOGGER.info("TapPosition = {}", twoWindingsTransformer.getRatioTapChanger().getTapPosition());
+        LOGGER.info("StepCount = {}", twoWindingsTransformer.getRatioTapChanger().getStepCount());
+        LOGGER.info("HighTapPosition = {}", twoWindingsTransformer.getRatioTapChanger().getHighTapPosition());
+        UctePhaseRegulation uctePhaseRegulation = new UctePhaseRegulation(0.51f,
+                twoWindingsTransformer.getRatioTapChanger().getHighTapPosition(),
+                twoWindingsTransformer.getRatioTapChanger().getTapPosition(),
+                65.4f); //Todo find how to fill DU and u
+        if (!Double.isNaN(twoWindingsTransformer.getRatioTapChanger().getTargetV())) {
+            uctePhaseRegulation.setU((float) twoWindingsTransformer.getRatioTapChanger().getTargetV());
+        }
+        return uctePhaseRegulation;
+    }
+
+    private UcteAngleRegulation createPhaseTapChanger(TwoWindingsTransformer twoWindingsTransformer) {
+        LOGGER.info(" --------- PHASE TAP CHANGER ------------");
+        LOGGER.info("regulationValue = {}", twoWindingsTransformer.getPhaseTapChanger().getRegulationValue());
+        LOGGER.info("LowTapPosition = {}", twoWindingsTransformer.getPhaseTapChanger().getLowTapPosition());
+        LOGGER.info("tapPosition = {}", twoWindingsTransformer.getPhaseTapChanger().getTapPosition());
+        LOGGER.info("StepCount = {}", twoWindingsTransformer.getPhaseTapChanger().getStepCount());
+        LOGGER.info("HighTapPosition= {}", twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition());
+        return new UcteAngleRegulation(2f,
+                3f,
+                twoWindingsTransformer.getPhaseTapChanger().getLowTapPosition(),
+                twoWindingsTransformer.getPhaseTapChanger().getTapPosition(),
+                4f,
+                UcteAngleRegulationType.SYMM); //TODO find how to fill the theta, p and ucteAngleregulation
+//        double dx = i * ucteAngleRegulation.getDu() / 100f * Math.cos(Math.toRadians(ucteAngleRegulation.getTheta()));
+//        double dy = i * ucteAngleRegulation.getDu() / 100f * Math.sin(Math.toRadians(ucteAngleRegulation.getTheta()));
+//        switch (ucteAngleRegulation.getType()) {
+//            case ASYM:
+//                rho = (float) (1 / Math.hypot(dy, 1 + dx));
+//                alpha = (float) Math.toDegrees(Math.atan2(dy, 1 + dx));
+//                break;
+//
+//            case SYMM:
+//                rho = 1f;
+//                alpha = (float) Math.toDegrees(2 * Math.atan2(dy, 2f * (1 + dx)));
+//                break;
+//
+//            default:
+//                throw new AssertionError("Unexpected UcteAngleRegulationType value: " + ucteAngleRegulation.getType());
     }
 
     private void createLines(UcteNetwork ucteNetwork, Network network) {
