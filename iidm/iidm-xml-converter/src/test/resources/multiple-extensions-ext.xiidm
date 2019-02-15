@@ -4,4 +4,7 @@
         <foo:loadFoo/>
         <bar:loadBar/>
     </iidm:extension>
+    <iidm:extension id="LOAD2">
+        <foo:loadFoo/>
+    </iidm:extension>
 </iidm:network>

@@ -30,8 +30,8 @@ public class XMLImporterExporterBaseEXtensions extends AbstractConverterTest {
         PlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
         importer = new XMLImporter(platformConfig);
 
-        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions-base", new ResourceSet("/", xiidmBaseRef));
-        ReadOnlyDataSource dataSourceExtension = new ResourceDataSource("multiple-extensions-ext", new ResourceSet("/", xiidmExtRef));
+        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions-base", new ResourceSet("/", xiidmBaseRef.substring(1, xiidmBaseRef.length())));
+        ReadOnlyDataSource dataSourceExtension = new ResourceDataSource("multiple-extensions-ext", new ResourceSet("/", xiidmExtRef.substring(1, xiidmExtRef.length())));
         Network network = importer.importData(dataSourceBase, dataSourceExtension, null);
 
         MemDataSource dataSource = new MemDataSource();

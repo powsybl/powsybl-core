@@ -6,10 +6,14 @@
                 <iidm:bus id="BUS"/>
             </iidm:busBreakerTopology>
             <iidm:load id="LOAD" loadType="UNDEFINED" p0="0.0" q0="0.0" bus="BUS" connectableBus="BUS"/>
+            <iidm:load id="LOAD2" loadType="UNDEFINED" p0="0.0" q0="0.0" bus="BUS" connectableBus="BUS"/>
         </iidm:voltageLevel>
     </iidm:substation>
     <iidm:extension id="LOAD">
         <foo:loadFoo/>
         <bar:loadBar/>
+    </iidm:extension>
+    <iidm:extension id="LOAD2">
+        <foo:loadFoo/>
     </iidm:extension>
 </iidm:network>

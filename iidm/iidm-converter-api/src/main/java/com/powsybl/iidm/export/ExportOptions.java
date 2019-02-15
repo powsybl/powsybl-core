@@ -32,6 +32,8 @@ public class ExportOptions {
 
     private boolean separateBaseAndExtensions = false;
 
+    private boolean oneFilePerExtensionType = false;
+
     public ExportOptions() {
     }
 
@@ -41,6 +43,10 @@ public class ExportOptions {
         this.onlyMainCc = onlyMainCc;
         this.topologyLevel = Objects.requireNonNull(topologyLevel);
         this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
+    }
+
+    public boolean isOneFilePerExtensionType() {
+        return oneFilePerExtensionType;
     }
 
     public boolean isWithBranchSV() {
@@ -67,6 +73,11 @@ public class ExportOptions {
 
     public ExportOptions setSeparateBaseAndExtensions(boolean separateBaseAndExtensions) {
         this.separateBaseAndExtensions = separateBaseAndExtensions;
+        return this;
+    }
+
+    public ExportOptions setOneFilePerExtensionType(boolean oneFilePerExtensionType) {
+        this.oneFilePerExtensionType = oneFilePerExtensionType;
         return this;
     }
 
