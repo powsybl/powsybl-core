@@ -19,7 +19,7 @@ public class UcteExporterTest {
 
     @Test
     public void exportUcte() {
-        ReadOnlyDataSource dataSource = new ResourceDataSource("countryIssue", new ResourceSet("/", "countryIssue.uct"));
+        ReadOnlyDataSource dataSource = new ResourceDataSource("transformerRegulation", new ResourceSet("/", "transformerRegulation.uct"));
         Network network = new UcteImporter().importData(dataSource, null);
         new UcteExporter().export(network, null, null);
     }
