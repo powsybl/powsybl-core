@@ -116,7 +116,7 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
 
         voltageLevel1.attach(terminal1, false);
         voltageLevel2.attach(terminal2, false);
-        getNetwork().getObjectStore().checkAndAdd(transformer);
+        getNetwork().getIndex().checkAndAdd(transformer);
         getNetwork().getListeners().notifyCreation(transformer);
         return transformer;
 

@@ -87,10 +87,10 @@ public class VariantManagerImplTest {
 
     @Test
     public void test() {
-        ObjectStore objectStore = new ObjectStore();
+        NetworkIndex index = new NetworkIndex();
         IdentifiableMock identifiable1 = new IdentifiableMock("1");
-        objectStore.checkAndAdd(identifiable1);
-        VariantManagerImpl variantManager = new VariantManagerImpl(objectStore);
+        index.checkAndAdd(identifiable1);
+        VariantManagerImpl variantManager = new VariantManagerImpl(index);
         // initial variant test
         assertEquals(1, variantManager.getVariantArraySize());
         assertEquals(Collections.singleton(VariantManagerConstants.INITIAL_VARIANT_ID), variantManager.getVariantIds());

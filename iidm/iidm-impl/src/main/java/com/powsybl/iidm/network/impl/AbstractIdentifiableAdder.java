@@ -49,10 +49,10 @@ abstract class AbstractIdentifiableAdder<T extends AbstractIdentifiableAdder<T>>
         }
         String uniqueId;
         if (ensureIdUnicity) {
-            uniqueId = getNetwork().getObjectStore().getUniqueId(id);
+            uniqueId = getNetwork().getIndex().getUniqueId(id);
         } else {
-            if (getNetwork().getObjectStore().contains(id)) {
-                Identifiable obj = getNetwork().getObjectStore().get(id);
+            if (getNetwork().getIndex().contains(id)) {
+                Identifiable obj = getNetwork().getIndex().get(id);
                 throw new PowsyblException("The network " + getNetwork().getId()
                         + " already contains an object '" + obj.getClass().getSimpleName()
                         + "' with the id '" + id + "'");
