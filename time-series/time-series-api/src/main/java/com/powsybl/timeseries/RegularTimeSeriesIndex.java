@@ -123,7 +123,7 @@ public class RegularTimeSeriesIndex extends AbstractTimeSeriesIndex {
         return spacing;
     }
 
-    private long computePointCount(long startTime, long endTime, long spacing) {
+    private static long computePointCount(long startTime, long endTime, long spacing) {
         return Math.round(((double) (endTime - startTime)) / spacing) + 1;
     }
 
