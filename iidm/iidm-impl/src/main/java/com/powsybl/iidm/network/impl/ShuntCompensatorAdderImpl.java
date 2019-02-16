@@ -66,7 +66,7 @@ class ShuntCompensatorAdderImpl extends AbstractInjectionAdder<ShuntCompensatorA
                                            currentSectionCount);
         shunt.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
-        getNetwork().getObjectStore().checkAndAdd(shunt);
+        getNetwork().getIndex().checkAndAdd(shunt);
         getNetwork().getListeners().notifyCreation(shunt);
         return shunt;
     }
