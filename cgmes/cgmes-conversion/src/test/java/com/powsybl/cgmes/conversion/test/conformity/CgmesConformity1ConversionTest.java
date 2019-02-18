@@ -17,7 +17,6 @@ import java.util.Objects;
 import java.util.Properties;
 
 import com.powsybl.cgmes.conversion.CgmesImport;
-import org.junit.*;
 
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1NetworkCatalog;
@@ -40,12 +39,8 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
