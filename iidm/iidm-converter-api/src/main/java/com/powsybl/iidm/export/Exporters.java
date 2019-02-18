@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A utility class to work with IIDM exporters.
@@ -27,37 +28,44 @@ import java.util.*;
  */
 public final class Exporters {
 
+    private static final ExportersLoader LOADER = new ExportersServiceLoader();
+
     private Exporters() {
     }
 
     /**
      * Get all supported export formats.
      */
+    public static Collection<String> getFormats(ExportersLoader loader) {
+        return loader.loadExporters().stream().map(Exporter::getFormat).collect(Collectors.toSet());
+    }
+
     public static Collection<String> getFormats() {
-        List<String> formats = new ArrayList<>();
-        for (Exporter e : ServiceLoader.load(Exporter.class)) {
-            formats.add(e.getFormat());
-        }
-        return formats;
+        return getFormats(LOADER);
     }
 
     /**
      * Get an exporter.
      *
+     * @param loader the exporters loader
      * @param format the export format
      * @return the exporter if one exists for the given format or
      * <code>null</code> otherwise
      */
-    public static Exporter getExporter(String format) {
+    public static Exporter getExporter(ExportersLoader loader, String format) {
         if (format == null) {
             throw new IllegalArgumentException("format is null");
         }
-        for (Exporter e : ServiceLoader.load(Exporter.class)) {
+        for (Exporter e : loader.loadExporters()) {
             if (format.equals(e.getFormat())) {
                 return e;
             }
         }
         return null;
+    }
+
+    public static Exporter getExporter(String format) {
+        return getExporter(LOADER, format);
     }
 
     public static DataSource createDataSource(Path directory, String fileNameOrBaseName, DataSourceObserver observer) {
@@ -94,30 +102,41 @@ public final class Exporters {
     /**
      * A convenient method to export a model to a given format.
      *
+     * @param loader the exporters loader
      * @param format the export format
      * @param network the model
      * @param parameters some properties to configure the export
      * @param dataSource data source
      */
-    public static void export(String format, Network network, Properties parameters, DataSource dataSource) {
-        Exporter exporter = getExporter(format);
+    public static void export(String format, Network network, Properties parameters, DataSource dataSource, ExportersLoader loader) {
+        Exporter exporter = getExporter(loader, format);
         if (exporter == null) {
             throw new PowsyblException("Export format " + format + " not supported");
         }
         exporter.export(network, parameters, dataSource);
     }
 
+
+    public static void export(String format, Network network, Properties parameters, DataSource dataSource) {
+        export(format, network, parameters, dataSource, LOADER);
+    }
+
     /**
      * A convenient method to export a model to a given format.
      *
+     * @param loader the exporters loader
      * @param format the export format
      * @param network the model
      * @param parameters some properties to configure the export
      * @param directory the output directory where files are generated
      * @param baseName a base name for all generated files
      */
+    public static void export(String format, Network network, Properties parameters, String directory, String baseName, ExportersLoader loader) {
+        export(format, network, parameters, new FileDataSource(Paths.get(directory), baseName), loader);
+    }
+
     public static void export(String format, Network network, Properties parameters, String directory, String baseName) {
-        export(format, network, parameters, new FileDataSource(Paths.get(directory), baseName));
+        export(format, network, parameters, new FileDataSource(Paths.get(directory), baseName), LOADER);
     }
 
 }

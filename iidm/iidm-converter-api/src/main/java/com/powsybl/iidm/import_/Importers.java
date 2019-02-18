@@ -54,7 +54,7 @@ public final class Importers {
      * Get all supported import formats.
      */
     public static Collection<String> getFormats(ImportersLoader loader) {
-        return loader.loadImporters().stream().map(Importer::getFormat).collect(Collectors.toList());
+        return loader.loadImporters().stream().map(Importer::getFormat).collect(Collectors.toSet());
     }
 
     public static Collection<String> getFormats() {

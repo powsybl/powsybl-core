@@ -14,6 +14,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -87,7 +88,7 @@ public class LoadFlowResultsCompletionZ0FlowsTest {
     private boolean validateBuses(Network network) throws IOException {
         ValidationConfig config = createValidationConfig();
         Path working = Files.createDirectories(fileSystem.getPath("temp-validation"));
-        return ValidationType.BUSES.check(network, config, working);
+        return ValidationType.BUSES.check(network, config, new TableFormatterConfig(), working);
     }
 
     private Network createNetwork() {

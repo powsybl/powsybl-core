@@ -12,6 +12,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -28,7 +29,7 @@ public class SimpleAnonymizerTest extends AbstractConverterTest {
         Properties properties = new Properties();
         properties.put(XMLExporter.ANONYMISED, "true");
         MemDataSource dataSource = new MemDataSource();
-        new XMLExporter().export(network, properties, dataSource);
+        new XMLExporter(Mockito.mock(PlatformConfig.class)).export(network, properties, dataSource);
 
         // check we have 2 files, the anonymized IIDM XML and a CSV mapping file and compare to anonymized reference files
         try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
@@ -43,7 +44,7 @@ public class SimpleAnonymizerTest extends AbstractConverterTest {
         // re-import the IIDM XML using the CSV mapping file
         Network network2 = new XMLImporter(platformConfig).importData(dataSource, null);
         MemDataSource dataSource2 = new MemDataSource();
-        new XMLExporter().export(network2, null, dataSource2);
+        new XMLExporter(Mockito.mock(PlatformConfig.class)).export(network2, null, dataSource2);
 
         // check that re-imported IIDM XML has been deanonymized and is equals to reference file
         roundTripXmlTest(network2,

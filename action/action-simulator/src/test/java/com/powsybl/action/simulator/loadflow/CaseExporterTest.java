@@ -8,18 +8,24 @@ package com.powsybl.action.simulator.loadflow;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.export.ExportersLoader;
+import com.powsybl.iidm.export.ExportersLoaderList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.xml.XMLExporter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -37,6 +43,8 @@ public class CaseExporterTest {
 
     private Network network;
 
+    private ExportersLoader loader;
+
     @Before
     public void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
@@ -44,6 +52,8 @@ public class CaseExporterTest {
 
         contingency = new Contingency("contingency");
         network = NetworkFactory.create("id", "test");
+
+        loader = new ExportersLoaderList(Collections.singletonList(new XMLExporter(Mockito.mock(PlatformConfig.class))));
     }
 
     @After
@@ -60,61 +70,61 @@ public class CaseExporterTest {
 
         // stop when loadflow diverges at round 1
         runningContext.setRound(0);
-        exporter.loadFlowConverged(runningContext, null);
+        exporter.loadFlowConverged(runningContext, loader);
         Path path = tmpDir.resolve("basename-N-R0.xiidm.gz");
         assertTrue(Files.exists(path));
         Files.delete(path);
 
         runningContext.setRound(1);
-        exporter.loadFlowDiverged(runningContext);
+        exporter.loadFlowDiverged(runningContext, loader);
         path = tmpDir.resolve("basename-N-R1.xiidm.gz");
         assertTrue(Files.exists(path));
         Files.delete(path);
 
         // stop when no more violations are found at round 0
         runningContext.setRound(0);
-        exporter.loadFlowConverged(runningContext, null);
+        exporter.loadFlowConverged(runningContext, loader);
         path = tmpDir.resolve("basename-N-R0.xiidm.gz");
         assertTrue(Files.exists(path));
         Files.delete(path);
 
-        exporter.noMoreViolations(runningContext);
+        exporter.noMoreViolations(runningContext, loader);
         assertFalse(Files.exists(path));
 
         // stop when no more actions are available at round 0
-        exporter.loadFlowConverged(runningContext, null);
+        exporter.loadFlowConverged(runningContext, loader);
         path = tmpDir.resolve("basename-N-R0.xiidm.gz");
         assertTrue(Files.exists(path));
         Files.delete(path);
 
-        exporter.violationsAnymoreAndNoRulesMatch(runningContext);
+        exporter.violationsAnymoreAndNoRulesMatch(runningContext, loader);
         assertFalse(Files.exists(path));
 
         // stop when max iterations are reached at round 1
-        exporter.loadFlowConverged(runningContext, null);
+        exporter.loadFlowConverged(runningContext, loader);
         path = tmpDir.resolve("basename-N-R0.xiidm.gz");
         assertTrue(Files.exists(path));
         Files.delete(path);
 
         runningContext.setRound(1);
-        exporter.loadFlowConverged(runningContext, null);
+        exporter.loadFlowConverged(runningContext, loader);
         path = tmpDir.resolve("basename-N-R1.xiidm.gz");
         assertTrue(Files.exists(path));
         Files.delete(path);
 
-        exporter.maxIterationsReached(runningContext);
+        exporter.maxIterationsReached(runningContext, loader);
         assertFalse(Files.exists(path));
 
         // Export N-1 state
         RunningContext runningContext1 = new RunningContext(network, contingency);
         runningContext1.setRound(0);
-        exporter.loadFlowConverged(runningContext1, null);
+        exporter.loadFlowConverged(runningContext1, loader);
         path = tmpDir.resolve("basename-contingency-R0.xiidm.gz");
         assertTrue(Files.exists(path));
         Files.delete(path);
 
         runningContext1.setRound(1);
-        exporter.loadFlowDiverged(runningContext1);
+        exporter.loadFlowDiverged(runningContext1, loader);
         path = tmpDir.resolve("basename-contingency-R1.xiidm.gz");
         assertTrue(Files.exists(path));
         Files.delete(path);
@@ -129,58 +139,58 @@ public class CaseExporterTest {
 
         // stop when loadflow diverges at round 1
         runningContext.setRound(0);
-        exporter.loadFlowConverged(runningContext, null);
+        exporter.loadFlowConverged(runningContext, loader);
         Path path = tmpDir.resolve("basename-N-R0.xiidm.gz");
         assertFalse(Files.exists(path));
 
         runningContext.setRound(1);
-        exporter.loadFlowDiverged(runningContext);
+        exporter.loadFlowDiverged(runningContext, loader);
         path = tmpDir.resolve("basename-N-R1.xiidm.gz");
         assertTrue(Files.exists(path));
         Files.delete(path);
 
         // stop when no more violations are found at round 0
         runningContext.setRound(0);
-        exporter.loadFlowConverged(runningContext, null);
+        exporter.loadFlowConverged(runningContext, loader);
         path = tmpDir.resolve("basename-N-R0.xiidm.gz");
         assertFalse(Files.exists(path));
 
-        exporter.noMoreViolations(runningContext);
+        exporter.noMoreViolations(runningContext, loader);
         assertTrue(Files.exists(path));
         Files.delete(path);
 
         // stop when no more actions are available at round 0
-        exporter.loadFlowConverged(runningContext, null);
+        exporter.loadFlowConverged(runningContext, loader);
         path = tmpDir.resolve("basename-N-R0.xiidm.gz");
         assertFalse(Files.exists(path));
 
-        exporter.violationsAnymoreAndNoRulesMatch(runningContext);
+        exporter.violationsAnymoreAndNoRulesMatch(runningContext, loader);
         assertTrue(Files.exists(path));
         Files.delete(path);
 
         // stop when max iterations are reached at round 1
-        exporter.loadFlowConverged(runningContext, null);
+        exporter.loadFlowConverged(runningContext, loader);
         path = tmpDir.resolve("basename-N-R0.xiidm.gz");
         assertFalse(Files.exists(path));
 
         runningContext.setRound(1);
-        exporter.loadFlowConverged(runningContext, null);
+        exporter.loadFlowConverged(runningContext, loader);
         path = tmpDir.resolve("basename-N-R1.xiidm.gz");
         assertFalse(Files.exists(path));
 
-        exporter.maxIterationsReached(runningContext);
+        exporter.maxIterationsReached(runningContext, loader);
         assertTrue(Files.exists(path));
         Files.delete(path);
 
         // Export N-1 state
         RunningContext runningContext1 = new RunningContext(network, contingency);
         runningContext1.setRound(0);
-        exporter.loadFlowConverged(runningContext1, null);
+        exporter.loadFlowConverged(runningContext1, loader);
         path = tmpDir.resolve("basename-contingency-R0.xiidm.gz");
         assertFalse(Files.exists(path));
 
         runningContext1.setRound(1);
-        exporter.loadFlowDiverged(runningContext1);
+        exporter.loadFlowDiverged(runningContext1, loader);
         path = tmpDir.resolve("basename-contingency-R1.xiidm.gz");
         assertTrue(Files.exists(path));
         Files.delete(path);

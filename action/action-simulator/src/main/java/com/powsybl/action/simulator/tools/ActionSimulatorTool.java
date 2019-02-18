@@ -19,6 +19,8 @@ import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.Partition;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.export.Exporters;
+import com.powsybl.iidm.export.ExportersLoader;
+import com.powsybl.iidm.export.ExportersServiceLoader;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.Security;
@@ -58,7 +60,19 @@ import static com.powsybl.tools.ToolConstants.TASK_COUNT;
 @AutoService(Tool.class)
 public class ActionSimulatorTool implements Tool {
 
+    private static final ExportersLoader DEFAULT_EXPORTER_LOADER = new ExportersServiceLoader();
+
     private static final Logger LOGGER = LoggerFactory.getLogger(ActionSimulatorTool.class);
+
+    private final ExportersLoader exportersLoader;
+
+    public ActionSimulatorTool(ExportersLoader loader) {
+        this.exportersLoader = loader;
+    }
+
+    public ActionSimulatorTool() {
+        this(DEFAULT_EXPORTER_LOADER);
+    }
 
     @Override
     public Command getCommand() {
@@ -122,7 +136,7 @@ public class ActionSimulatorTool implements Tool {
                         .argName("CASEFOLDER")
                         .build());
                 options.addOption(Option.builder().longOpt(OUTPUT_CASE_FORMAT)
-                        .desc("output case format " + Exporters.getFormats())
+                        .desc("output case format " + Exporters.getFormats(exportersLoader))
                         .hasArg()
                         .argName("CASEFORMAT")
                         .build());

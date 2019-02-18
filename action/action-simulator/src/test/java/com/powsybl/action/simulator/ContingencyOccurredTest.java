@@ -17,8 +17,6 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
-
 import static org.junit.Assert.assertEquals;
 
 /**
@@ -87,7 +85,7 @@ public class ContingencyOccurredTest extends AbstractLoadFlowRulesEngineTest {
 
     @Test
     public void test() throws Exception {
-        engine.start(actionDb, Collections.singletonList("contingency1"), new LoadFlowParameters(), new TableFormatterConfig(Locale.FRANCE, "inv"));
+        engine.start(actionDb, Collections.singletonList("contingency1"), new LoadFlowParameters(), new TableFormatterConfig());
 
         // check action1 is activated in pre-contingency state and action2 in post-contingency state
         assertEquals(preContActions, Collections.singletonList("action1"));

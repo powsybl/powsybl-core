@@ -29,7 +29,6 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
@@ -200,27 +199,19 @@ public class CgmesConformity1ConversionTest {
     }
 
     @Test
-    public void smallNodeBreakerHvdc() throws IOException {
-        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-
+    public void smallNodeBreakerHvdc() {
         // Small Grid Node Breaker HVDC should be imported without errors
-        Importers.importData("CGMES",
-                actuals.smallNodeBreakerHvdc().dataSource(),
-                null,
-                computationManager);
+        new CgmesImport().importData(actuals.smallNodeBreaker().dataSource(), null);
     }
 
     @Test
     // This is to test that we have stable Identifiers for calculated buses
     // If no topology change has been made, running a LoadFlow (even a Mock LoadFlow)
     // must produce identical identifiers for calculated buses
-    public void smallNodeBreakerStableBusNaming() throws IOException {
+    public void smallNodeBreakerStableBusNaming() {
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
 
-        Network network = Importers.importData("CGMES",
-                actuals.smallNodeBreaker().dataSource(),
-                null,
-                computationManager);
+        Network network = new CgmesImport().importData(actuals.smallNodeBreaker().dataSource(), null);
 
         // Initial bus identifiers
         List<String> initialBusIds = network.getBusView().getBusStream()

@@ -12,7 +12,6 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Locale;
 
 import static org.junit.Assert.assertTrue;
 
@@ -37,7 +36,7 @@ public class SimpleDslTest extends AbstractLoadFlowRulesEngineTest {
     @Test
     public void test() {
         assertTrue(network.getLoad("LOAD").getP0() == 600);
-        engine.start(actionDb, new ArrayList<>(), new LoadFlowParameters(), new TableFormatterConfig(Locale.FRANCE, "inv"));
+        engine.start(actionDb, new ArrayList<>(), new LoadFlowParameters(), new TableFormatterConfig());
         assertTrue(network.getLoad("LOAD").getP0() == 601);
     }
 }

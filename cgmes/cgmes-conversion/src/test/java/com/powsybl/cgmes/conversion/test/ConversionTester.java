@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.function.Consumer;
 
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -211,7 +212,7 @@ public class ConversionTester {
             Path working = Files.createDirectories(fs.getPath("lf-validation"));
 
             computeMissingFlows(network, config.getLoadFlowParameters());
-            assertTrue(ValidationType.BUSES.check(network, config, working));
+            assertTrue(ValidationType.BUSES.check(network, config, new TableFormatterConfig(), working));
         }
     }
 

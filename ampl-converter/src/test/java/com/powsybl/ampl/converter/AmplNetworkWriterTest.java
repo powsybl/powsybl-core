@@ -7,6 +7,7 @@
 package com.powsybl.ampl.converter;
 
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.HvdcLine;
@@ -15,6 +16,7 @@ import com.powsybl.iidm.network.test.*;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -34,7 +36,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
 
     @Test
     public void test() {
-        AmplExporter exporter = new AmplExporter();
+        AmplExporter exporter = new AmplExporter(Mockito.mock(PlatformConfig.class));
         Assert.assertEquals("AMPL", exporter.getFormat());
     }
 
@@ -43,7 +45,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
         Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
 
         MemDataSource dataSource = new MemDataSource();
-        AmplExporter exporter = new AmplExporter();
+        AmplExporter exporter = new AmplExporter(Mockito.mock(PlatformConfig.class));
         exporter.export(network, new Properties(), dataSource);
 
         assertEqualsToRef(dataSource, "_network_substations", "inputs/eurostag-tutorial-example1-substations.txt");
@@ -152,7 +154,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
     }
 
     private static void export(Network network, DataSource dataSource) {
-        AmplExporter exporter = new AmplExporter();
+        AmplExporter exporter = new AmplExporter(Mockito.mock(PlatformConfig.class));
         exporter.export(network, new Properties(), dataSource);
     }
 }

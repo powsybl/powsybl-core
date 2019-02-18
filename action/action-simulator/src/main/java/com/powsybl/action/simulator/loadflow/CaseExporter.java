@@ -11,6 +11,8 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.export.Exporters;
+import com.powsybl.iidm.export.ExportersLoader;
+import com.powsybl.iidm.export.ExportersServiceLoader;
 import com.powsybl.security.LimitViolation;
 
 import java.nio.file.Path;
@@ -35,6 +37,8 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
 
     private final boolean exportEachRound;
 
+    private static final ExportersLoader LOADER = new ExportersServiceLoader();
+
     public CaseExporter(Path outputCaseFolder, String basename, String outputCaseFormat, CompressionFormat compressionFormat, boolean exportEachRound) {
         this.outputCaseFolder = Objects.requireNonNull(outputCaseFolder);
         this.basename = Objects.requireNonNull(basename);
@@ -45,19 +49,27 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
 
     @Override
     public void loadFlowDiverged(RunningContext runningContext) {
-        exportNetwork(runningContext);
+        loadFlowDiverged(runningContext, LOADER);
+    }
+
+    public void loadFlowDiverged(RunningContext runningContext, ExportersLoader loader) {
+        exportNetwork(runningContext, loader);
     }
 
     @Override
     public void loadFlowConverged(RunningContext runningContext, List<LimitViolation> violations) {
+        loadFlowConverged(runningContext, LOADER);
+    }
+
+    public void loadFlowConverged(RunningContext runningContext, ExportersLoader loader) {
         if (exportEachRound) {
-            exportNetwork(runningContext);
+            exportNetwork(runningContext, loader);
         }
     }
 
-    private void exportNetwork(RunningContext context) {
+    private void exportNetwork(RunningContext context, ExportersLoader exportersLoader) {
         DataSource dataSource = DataSourceUtil.createDataSource(outputCaseFolder, getBasename(context.getContingency(), context.getRound()), compressionFormat, null);
-        Exporters.export(outputCaseFormat, context.getNetwork(), new Properties(), dataSource);
+        Exporters.export(outputCaseFormat, context.getNetwork(), new Properties(), dataSource, exportersLoader);
     }
 
     /**
@@ -71,22 +83,34 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
 
     @Override
     public void noMoreViolations(RunningContext runningContext) {
+        noMoreViolations(runningContext, LOADER);
+    }
+
+    public void noMoreViolations(RunningContext runningContext, ExportersLoader loader) {
         if (!exportEachRound) {
-            exportNetwork(runningContext);
+            exportNetwork(runningContext, loader);
         }
     }
 
     @Override
     public void violationsAnymoreAndNoRulesMatch(RunningContext runningContext) {
+        violationsAnymoreAndNoRulesMatch(runningContext, LOADER);
+    }
+
+    public void violationsAnymoreAndNoRulesMatch(RunningContext runningContext, ExportersLoader loader) {
         if (!exportEachRound) {
-            exportNetwork(runningContext);
+            exportNetwork(runningContext, loader);
         }
     }
 
     @Override
     public void maxIterationsReached(RunningContext runningContext) {
+        maxIterationsReached(runningContext, LOADER);
+    }
+
+    public void maxIterationsReached(RunningContext runningContext, ExportersLoader loader) {
         if (!exportEachRound) {
-            exportNetwork(runningContext);
+            exportNetwork(runningContext, loader);
         }
     }
 

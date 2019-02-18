@@ -10,7 +10,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.util.Locale;
 import java.util.Properties;
 import java.util.stream.Stream;
 
@@ -49,7 +48,7 @@ public class ShuntCompensatorsValidationTest extends AbstractValidationTest {
     private Terminal shuntTerminal;
     private BusView shuntBusView;
 
-    private final TableFormatterConfig tableFormatterConfig = new TableFormatterConfig(Locale.FRANCE, "inv");
+    private final TableFormatterConfig tableFormatterConfig = new TableFormatterConfig();
 
     @Before
     @Override

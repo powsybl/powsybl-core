@@ -16,7 +16,6 @@ import org.junit.Test;
 import org.mockito.Mockito;
 
 import java.util.Collections;
-import java.util.Locale;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.times;
@@ -46,7 +45,7 @@ public class AlternativeTest extends AbstractLoadFlowRulesEngineTest {
         double targetP = generator.getTargetP();
         double loadP0 = load.getP0();
 
-        engine.start(actionDb, Collections.singletonList("contingency1"), new LoadFlowParameters(), new TableFormatterConfig(Locale.FRANCE, "inv")); // life = 3
+        engine.start(actionDb, Collections.singletonList("contingency1"), new LoadFlowParameters(), new TableFormatterConfig()); // life = 3
         assertEquals(targetP + 2.0, generator.getTargetP(), 0.0);
         assertEquals(loadP0, load.getP0(), 0.0);
 

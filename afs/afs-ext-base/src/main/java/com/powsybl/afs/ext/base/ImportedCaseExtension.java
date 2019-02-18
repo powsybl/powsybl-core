@@ -10,6 +10,8 @@ import com.google.auto.service.AutoService;
 import com.powsybl.afs.ProjectFileBuildContext;
 import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.ProjectFileExtension;
+import com.powsybl.iidm.export.ExportersLoader;
+import com.powsybl.iidm.export.ExportersServiceLoader;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersServiceLoader;
@@ -26,15 +28,22 @@ public class ImportedCaseExtension implements ProjectFileExtension<ImportedCase,
 
     private final ImportersLoader importersLoader;
 
+    private final ExportersLoader exportersLoader;
+
     private final ImportConfig importConfig;
 
     public ImportedCaseExtension() {
-        this(new ImportersServiceLoader(), ImportConfig.load());
+        this(new ImportersServiceLoader(), ImportConfig.load(), new ExportersServiceLoader());
     }
 
     public ImportedCaseExtension(ImportersLoader importersLoader, ImportConfig importConfig) {
+        this(importersLoader, importConfig, new ExportersServiceLoader());
+    }
+
+    public ImportedCaseExtension(ImportersLoader importersLoader, ImportConfig importConfig, ExportersLoader exportersLoader) {
         this.importersLoader = Objects.requireNonNull(importersLoader);
         this.importConfig = Objects.requireNonNull(importConfig);
+        this.exportersLoader = Objects.requireNonNull(exportersLoader);
     }
 
     @Override
@@ -59,6 +68,6 @@ public class ImportedCaseExtension implements ProjectFileExtension<ImportedCase,
 
     @Override
     public ImportedCaseBuilder createProjectFileBuilder(ProjectFileBuildContext context) {
-        return new ImportedCaseBuilder(context, importersLoader, importConfig);
+        return new ImportedCaseBuilder(context, importersLoader, importConfig, exportersLoader);
     }
 }
