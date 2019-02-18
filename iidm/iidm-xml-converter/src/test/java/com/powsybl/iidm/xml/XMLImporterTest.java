@@ -26,8 +26,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
-import java.util.Arrays;
-import java.util.Properties;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -195,5 +194,31 @@ public class XMLImporterTest extends AbstractConverterTest {
         ReadOnlyDataSource dataSourceExtension = new ResourceDataSource("multiple-extensions-ext", new ResourceSet("/", "multiple-extensions-ext.xiidm"));
         Network network = importer.importData(dataSourceBase, dataSourceExtension, null);
         assertNotNull(network);
+        assertEquals(2, network.getLoad("LOAD").getExtensions().size());
+        assertEquals(1, network.getLoad("LOAD2").getExtensions().size());
+    }
+
+    @Test
+    public void importDataFromMultipleFilesTest1() {
+        List<String> list = Arrays.asList("loadFoo", "loadBar");
+        Set< String> extensions = new HashSet<>(list);
+        Properties options = new Properties();
+        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions-base", new ResourceSet("/", "multiple-extensions-base.xiidm", "loadFoo.xiidm", "loadBar.xiidm"));
+        Network network = importer.importData(dataSourceBase, options, extensions);
+        assertNotNull(network);
+        assertEquals(2, network.getLoad("LOAD").getExtensions().size());
+        assertEquals(1, network.getLoad("LOAD2").getExtensions().size());
+    }
+
+    @Test
+    public void importDataFromMultipleFilesTest2() {
+        List<String> list = Arrays.asList("loadFoo");
+        Set< String> extensions = new HashSet<>(list);
+        Properties options = new Properties();
+        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions-base", new ResourceSet("/", "multiple-extensions-base.xiidm", "loadFoo.xiidm"));
+        Network network = importer.importData(dataSourceBase, options, extensions);
+        assertNotNull(network);
+        assertEquals(1, network.getLoad("LOAD").getExtensions().size());
+        assertEquals(1, network.getLoad("LOAD2").getExtensions().size());
     }
 }

@@ -15,19 +15,18 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
  */
 
-public class XmlExporterBaseOneExtensionPerFile extends AbstractConverterTest {
+public class XmlExporterImporterBaseOneExtensionPerFile extends AbstractConverterTest {
 
-    public void exporterOneFilePerExtensionType(Network network, String xiidmBaseRef) throws IOException {
+    public void exporteImportOneFilePerExtensionType(Network network, String xiidmBaseRef) throws IOException {
         Properties properties = new Properties();
         properties.put(XMLExporter.ONE_FILE_PER_EXTENSION_TYPE, "true");
 
@@ -46,20 +45,26 @@ public class XmlExporterBaseOneExtensionPerFile extends AbstractConverterTest {
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("loadFoo", "xiidm"))) {
             compareXml(getClass().getResourceAsStream("/loadFoo.xiidm"), is);
         }
+
+        List<String> list = Arrays.asList("loadFoo", "loadBar");
+        Set< String> extensions = new HashSet<>(list);
+        XMLImporter importer = new XMLImporter();
+
+        Network n = importer.importData(dataSource, properties, extensions);
+        assertNotNull(n);
+        assertEquals(2, network.getLoad("LOAD").getExtensions().size());
+        assertEquals(1, network.getLoad("LOAD2").getExtensions().size());
+        assertEquals(2, n.getLoad("LOAD").getExtensions().size());
+        assertEquals(1, n.getLoad("LOAD2").getExtensions().size());
+        assertEquals(network.getIdentifiables().size(), n.getIdentifiables().size());
+        assertEquals(network.getSubstationCount(), n.getSubstationCount());
+        assertEquals(network.getVoltageLevelCount(), n.getVoltageLevelCount());
     }
 
-    @Test
-    public void getExtensionsPerTypeTest() {
-        Network n = MultipleExtensionsTestNetworkFactory.create();
-        Map<String, Set<String>> m = NetworkXml.getExtensionsPerType(n);
-        assertEquals(2, m.size());
-        assertEquals("[loadFoo=[LOAD, LOAD2], loadBar=[LOAD]]", m.entrySet().toString());
-
-    }
 
     @Test
     public void test() throws IOException {
-        exporterOneFilePerExtensionType(MultipleExtensionsTestNetworkFactory.create(),
+        exporteImportOneFilePerExtensionType(MultipleExtensionsTestNetworkFactory.create(),
                 "/multiple-extensions-base.xiidm");
     }
 }

@@ -10,6 +10,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.exceptions.UncheckedSaxException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.Extension;
@@ -486,6 +487,18 @@ public final class NetworkXml {
         return read(xmlFile);
     }
 
+
+    // To read extensions from multiple extension files
+    public static Network readExtensions(Network network, ReadOnlyDataSource dataSource, ImportOptions config, Anonymizer anonymizer, Set<String> extensions, String ext) throws IOException {
+        for (String extension : extensions) {
+            try (InputStream ise = dataSource.newInputStream(extension + "." + ext)) {
+                readExtensions(network, ise, config, anonymizer);
+            }
+        }
+        return network;
+    }
+
+    // To read extensions from an extensions file
     public static Network readExtensions(Network network, InputStream ise, ImportOptions config, Anonymizer anonymizer) {
         try {
             XMLStreamReader reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(ise);
@@ -496,7 +509,7 @@ public final class NetworkXml {
             String id = reader.getAttributeValue(null, "id");
             DateTime date = DateTime.parse(reader.getAttributeValue(null, CASE_DATE));
 
-            //verify that the extensions file matchesc with the same network
+            //verify that the extensions file matches with the same network
             if (!network.getId().equals(id) || !network.getCaseDate().equals(date)) {
                 throw new PowsyblException("Extension file do not match with the base file !");
             }
