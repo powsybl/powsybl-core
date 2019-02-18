@@ -114,6 +114,10 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         if (!context.nodeBreaker()) {
             return;
         }
+        // Before trying to find a bus, check that values are valid
+        if (!checkValidVoltageAngle(null)) {
+            return;
+        }
         VoltageLevel vl = voltageLevel();
         Objects.requireNonNull(vl);
         VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
@@ -172,17 +176,16 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
                 .setId(context.namingStrategy().getId("Bus", id))
                 .setName(context.namingStrategy().getName("Bus", name))
                 .add();
-        setVoltageAngle(bus);
+        if (checkValidVoltageAngle(bus)) {
+            setVoltageAngle(bus);
+        }
     }
 
-    private void setVoltageAngle(Bus bus) {
+    private boolean checkValidVoltageAngle(Bus bus) {
         double v = p.asDouble(CgmesNames.VOLTAGE);
         double angle = p.asDouble(CgmesNames.ANGLE);
-        if (valid(v, angle)) {
-            Objects.requireNonNull(bus);
-            bus.setV(v);
-            bus.setAngle(angle);
-        } else {
+        boolean valid = valid(v, angle);
+        if (!valid) {
             String reason = String.format(
                     "v = %f, angle = %f. Node %s",
                     v,
@@ -197,6 +200,15 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
             String message = String.format("%s. %s", reason, location);
             context.invalid("SvVoltage", message);
         }
+        return valid;
+    }
+
+    private void setVoltageAngle(Bus bus) {
+        Objects.requireNonNull(bus);
+        double v = p.asDouble(CgmesNames.VOLTAGE);
+        double angle = p.asDouble(CgmesNames.ANGLE);
+        bus.setV(v);
+        bus.setAngle(angle);
     }
 
     private boolean valid(double v, double angle) {
