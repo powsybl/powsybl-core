@@ -7,9 +7,10 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.LoadAdder;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -18,7 +19,7 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class AsynchronousMachineConversion extends AbstractConductingEquipmentConversion {
 
-    public AsynchronousMachineConversion(PropertyBag asm, Conversion.Context context) {
+    public AsynchronousMachineConversion(PropertyBag asm, Context context) {
         super("AsynchronousMachine", asm, context);
     }
 
@@ -28,18 +29,13 @@ public class AsynchronousMachineConversion extends AbstractConductingEquipmentCo
         // We make no difference based on the type (motor/generator)
         LoadType loadType = id.contains("fict") ? LoadType.FICTITIOUS : LoadType.UNDEFINED;
         PowerFlow f = powerFlow();
-
-        Load load = voltageLevel().newLoad()
-                .setId(iidmId())
-                .setName(iidmName())
-                .setEnsureIdUnicity(false)
-                .setBus(terminalConnected() ? busId() : null)
-                .setConnectableBus(busId())
+        LoadAdder adder = voltageLevel().newLoad()
                 .setP0(f.p())
                 .setQ0(f.q())
-                .setLoadType(loadType)
-                .add();
-
+                .setLoadType(loadType);
+        identify(adder);
+        connect(adder);
+        Load load = adder.add();
         convertedTerminals(load.getTerminal());
     }
 }

@@ -7,11 +7,11 @@
 package com.powsybl.loadflow;
 
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.StateManager;
-import com.powsybl.iidm.network.StateManagerConstants;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VariantManager;
+import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.scripting.groovy.AbstractGroovyScriptTest;
 import com.powsybl.scripting.groovy.GroovyScriptExtension;
-import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.mockito.Mockito;
 
@@ -45,17 +45,17 @@ public class LoadFlowExtensionGroovyScriptTest extends AbstractGroovyScriptTest 
         Mockito.when(loadFlowFactory.create(Mockito.any(Network.class), Mockito.any(ComputationManager.class), Mockito.anyInt()))
                 .thenReturn(loadFlow);
 
-        // create state manager
-        StateManager stateManager = Mockito.mock(StateManager.class);
-        Mockito.when(stateManager.getWorkingStateId())
-                .thenReturn(StateManagerConstants.INITIAL_STATE_ID);
+        // create variant manager
+        VariantManager variantManager = Mockito.mock(VariantManager.class);
+        Mockito.when(variantManager.getWorkingVariantId())
+                .thenReturn(VariantManagerConstants.INITIAL_VARIANT_ID);
 
         // create network mock
         fooNetwork = Mockito.mock(Network.class);
         Mockito.when(fooNetwork.getId())
                 .thenReturn("test");
-        Mockito.when(fooNetwork.getStateManager())
-                .thenReturn(stateManager);
+        Mockito.when(fooNetwork.getVariantManager())
+                .thenReturn(variantManager);
     }
 
     @Override

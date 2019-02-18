@@ -7,7 +7,7 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.DanglingLine;
@@ -22,7 +22,7 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class OperationalLimitConversion extends AbstractIdentifiedObjectConversion {
 
-    public OperationalLimitConversion(PropertyBag l, Conversion.Context context) {
+    public OperationalLimitConversion(PropertyBag l, Context context) {
         super("OperationalLimitSet", l, context);
         // Limit can associated to a Terminal or to an Equipment
         terminalId = l.getId("Terminal");

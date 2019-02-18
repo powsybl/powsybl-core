@@ -7,7 +7,7 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -38,7 +38,7 @@ public final class RegulatingControlConversion {
         private Terminal terminal;
     }
 
-    public static Data convert(PropertyBag p, VoltageLevel vl, Conversion.Context context) {
+    public static Data convert(PropertyBag p, VoltageLevel vl, Context context) {
         Data control = new Data();
 
         boolean regulatingControl = p.containsKey("RegulatingControl");

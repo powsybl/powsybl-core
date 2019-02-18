@@ -9,8 +9,10 @@ package com.powsybl.iidm.network;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.Writer;
+import java.nio.file.Path;
+import java.util.Random;
 import java.util.stream.Stream;
 
 /**
@@ -409,7 +411,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get the first node to which a switch is connected.
          *
          * @param switchId the id of the switch
-         * @throws PowsyblException if switch is not found
+         * @throws com.powsybl.commons.PowsyblException if switch is not found
          */
         int getNode1(String switchId);
 
@@ -425,7 +427,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get the terminal corresponding to the {@param node}.
          * May return null.
          *
-         * @throws PowsyblException if node is not found.
+         * @throws com.powsybl.commons.PowsyblException if node is not found.
          */
         Terminal getTerminal(int node);
 
@@ -433,7 +435,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get the first terminal corresponding to the {@param switchId}.
          * May return null.
          *
-         * @throws PowsyblException if switch is not found.
+         * @throws com.powsybl.commons.PowsyblException if switch is not found.
          */
         Terminal getTerminal1(String switchId);
 
@@ -441,7 +443,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
          * Get the second terminal corresponding to the {@param switchId}.
          * May return null.
          *
-         * @throws PowsyblException if switch is not found.
+         * @throws com.powsybl.commons.PowsyblException if switch is not found.
          */
         Terminal getTerminal2(String switchId);
 
@@ -841,7 +843,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      */
     @Deprecated
     default ShuntCompensatorAdder newShunt() {
-        throw new UnsupportedOperationException("deprecated");
+        return newShuntCompensator();
     }
 
     /**
@@ -849,7 +851,7 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      */
     @Deprecated
     default Iterable<ShuntCompensator> getShunts() {
-        throw new UnsupportedOperationException("deprecated");
+        return getShuntCompensators();
     }
 
     /**
@@ -857,44 +859,25 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      */
     @Deprecated
     default Stream<ShuntCompensator> getShuntStream() {
-        throw new UnsupportedOperationException("deprecated");
+        return getShuntCompensatorStream();
     }
 
-    /**
-     * @deprecated Use {@link #getShuntCompensatorCount()} instead.
-     */
-    @Deprecated
-    default int getShuntCount() {
-        throw new UnsupportedOperationException("deprecated");
-    }
-
-    /**
-     * Get a builder to create a new compensator shunt.
-     */
-    default ShuntCompensatorAdder newShuntCompensator() {
-        throw new UnsupportedOperationException("Not Implemented");
-    }
+    ShuntCompensatorAdder newShuntCompensator();
 
     /**
      * Get compensator shunts.
      */
-    default Iterable<ShuntCompensator> getShuntCompensators() {
-        throw new UnsupportedOperationException("Not Implemented");
-    }
+    Iterable<ShuntCompensator> getShuntCompensators();
 
     /**
      * Get compensator shunts.
      */
-    default Stream<ShuntCompensator> getShuntCompensatorStream() {
-        throw new UnsupportedOperationException("Not Implemented");
-    }
+    Stream<ShuntCompensator> getShuntCompensatorStream();
 
     /**
      * Get shunt count.
      */
-    default int getShuntCompensatorCount() {
-        throw new UnsupportedOperationException("Not Implemented");
-    }
+    int getShuntCompensatorCount();
 
     /**
      * Get a builder to create a new dangling line.
@@ -1038,15 +1021,23 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     /**
      * Export in a file the topology in DOT format (Graphviz).
      *
-     * @param filename the file name
+     * @param file the file
      */
-    void exportTopology(String filename) throws IOException;
+    void exportTopology(Path file) throws IOException;
+
+    /**
+     * Export in a file the topology in DOT format (Graphviz).
+     *
+     * @param writer a writer
+     * @param random pseudo random number generator
+     */
+    void exportTopology(Writer writer, Random random) throws IOException;
 
     /**
      * Export the topology in DOT format (Graphviz).
      *
-     * @param outputStream a writer
+     * @param writer a writer
      */
-    void exportTopology(OutputStream outputStream) throws IOException;
+    void exportTopology(Writer writer) throws IOException;
 
 }

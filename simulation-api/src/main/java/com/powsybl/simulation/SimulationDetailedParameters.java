@@ -81,42 +81,12 @@ public class SimulationDetailedParameters {
             this.shortCircuitSide = shortCircuitSide;
         }
 
-        /**
-         * @deprecated Use {@link #Branch(String, Double, Double, Double, String) } instead.
-         */
-        @Deprecated
-        public Branch(String id, Double sideOneShortCircuitDuration, Double sideTwoShortCircuitDuration, Double shortCircuitDuration, Double shortCircuitDistance, String shortCircuitSide) {
-            this.id = Objects.requireNonNull(id);
-            if ((sideOneShortCircuitDuration != null) && (sideTwoShortCircuitDuration != null)) {
-                this.sideOneShortCircuitDuration = sideOneShortCircuitDuration;
-                this.sideTwoShortCircuitDuration = sideTwoShortCircuitDuration;
-            } else {
-                if (shortCircuitDuration != null) {
-                    this.sideOneShortCircuitDuration = shortCircuitDuration;
-                    this.sideTwoShortCircuitDuration = shortCircuitDuration;
-                } else {
-                    this.sideOneShortCircuitDuration = null;
-                    this.sideTwoShortCircuitDuration = null;
-                }
-            }
-            this.shortCircuitDistance = shortCircuitDistance;
-            this.shortCircuitSide = shortCircuitSide;
-        }
-
         public String getId() {
             return id;
         }
 
         public Double getShortCircuitDistance() {
             return shortCircuitDistance;
-        }
-
-        /**
-         * @deprecated Use {@link #getSideOneShortCircuitDuration} and {@link #getSideTwoShortCircuitDuration} instead.
-         */
-        @Deprecated
-        public Double getShortCircuitDuration() {
-            return getSideOneShortCircuitDuration();
         }
 
         public Double getSideOneShortCircuitDuration() {
@@ -192,7 +162,6 @@ public class SimulationDetailedParameters {
                                 Branch branch = new Branch(xmlsr.getAttributeValue(null, "id"),
                                         parseDoubleIfNotNull(xmlsr.getAttributeValue(null, "sideOneShortCircuitDuration")),
                                         parseDoubleIfNotNull(xmlsr.getAttributeValue(null, "sideTwoShortCircuitDuration")),
-                                        parseDoubleIfNotNull(xmlsr.getAttributeValue(null, "shortCircuitDuration")),
                                         parseDoubleIfNotNull(xmlsr.getAttributeValue(null, "shortCircuitDistance")),
                                         xmlsr.getAttributeValue(null, "shortCircuitSide"));
                                 contingency.getBranches().put(branch.getId(), branch);

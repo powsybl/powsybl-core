@@ -28,17 +28,9 @@ public class ExportOptions {
 
     private TopologyLevel topologyLevel = TopologyLevel.NODE_BREAKER;
 
-    private boolean throwExceptionIfExtensionNotFound = true;
+    private boolean throwExceptionIfExtensionNotFound = false;
 
     public ExportOptions() {
-    }
-
-    /**
-     * @deprecated Use {@link #ExportOptions(boolean, boolean, boolean, TopologyLevel, boolean)} instead.
-     */
-    @Deprecated
-    public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel) {
-        this(withBranchSV, indent, onlyMainCc, topologyLevel, true);
     }
 
     public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound) {

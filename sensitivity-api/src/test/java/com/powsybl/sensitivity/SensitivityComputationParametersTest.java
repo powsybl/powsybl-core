@@ -13,6 +13,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Optional;
+
 import static org.junit.Assert.*;
 
 /**
@@ -52,8 +54,8 @@ public class SensitivityComputationParametersTest {
 
     @Test
     public void testExtensionFromConfig() {
+        Mockito.when(config.getOptionalModuleConfig("load-flow-default-parameters")).thenReturn(Optional.empty());
         SensitivityComputationParameters parameters = SensitivityComputationParameters.load(config);
-
         assertEquals(1, parameters.getExtensions().size());
         assertTrue(parameters.getExtensionByName(DUMMY_EXTENSION_NAME) instanceof DummyExtension);
         assertNotNull(parameters.getExtension(DummyExtension.class));

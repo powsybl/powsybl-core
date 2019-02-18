@@ -109,7 +109,7 @@ public class SimulationParametersConfigTest {
         SimulationParameters parameters = SimulationParameters.load(platformConfig);
         assertEquals(0.40d, parameters.getBranchSideOneFaultShortCircuitDuration(), 0.0d);
         assertEquals(0.40d, parameters.getBranchSideTwoFaultShortCircuitDuration(), 0.0d);
-        assertEquals(0.40d, parameters.getBranchFaultShortCircuitDuration(), 0.0d);
+        assertEquals(0.40d, parameters.getBranchSideOneFaultShortCircuitDuration(), 0.0d);
     }
 
     @Test
@@ -122,7 +122,7 @@ public class SimulationParametersConfigTest {
         SimulationParameters parameters = SimulationParameters.load(platformConfig);
         assertEquals(0.35d, parameters.getBranchSideOneFaultShortCircuitDuration(), 0.0d);
         assertEquals(0.75d, parameters.getBranchSideTwoFaultShortCircuitDuration(), 0.0d);
-        assertEquals(0.35d, parameters.getBranchFaultShortCircuitDuration(), 0.0d);
+        assertEquals(0.35d, parameters.getBranchSideOneFaultShortCircuitDuration(), 0.0d);
     }
 
 

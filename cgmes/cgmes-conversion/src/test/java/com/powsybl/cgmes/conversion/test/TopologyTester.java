@@ -7,11 +7,7 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -33,11 +29,14 @@ public class TopologyTester {
         this.network = n;
     }
 
-    // TODO a topologicalNode contains connectivity nodes linked by non-retained closed switches
+    // TODO a topologicalNode contains connectivity nodes linked by non-retained
+    // closed switches
     // For current validation we are not taking into account the retained flag
-    // When we create the voltage-level connectivity at node-breaker level we will be able to
+    // When we create the voltage-level connectivity at node-breaker level we will
+    // be able to
     // set the retained flag for each switch and this problem will be avoided
-    // For connectivity created at bus-breaker level we can not set the "retained" flag
+    // For connectivity created at bus-breaker level we can not set the "retained"
+    // flag
     public boolean test(boolean strict) {
         // Only makes sense if the network has been obtained
         // from CGMES node-breaker detailed data
@@ -49,88 +48,112 @@ public class TopologyTester {
         Map<String, String> cn2tp = new HashMap<>();
 
         LOG.info("testTopology (strict : {})", strict);
-        LOG.info("    preparing connectivityNodes - topologicalNodes ...");
+        LOG.info("    preparing mapping between CGMES connectivityNodes and topologicalNodes ...");
         PropertyBags cgmescn = cgmes.connectivityNodes();
-        LOG.info("    query for connectivityNodes completed");
+        Set<String> boundary = new HashSet<>();
+        cgmes.boundaryNodes().forEach(bnp -> boundary.add(bnp.getId("Node")));
         cgmescn.forEach(cnp -> {
             String cn = cnp.getId("ConnectivityNode");
-            String tp = cnp.getId("TopologicalNode");
-            tpcns.computeIfAbsent(tp, x -> new HashSet<>()).add(cn);
-            cn2tp.put(cn, tp);
-        });
-        LOG.info("    completed connectivityNodes - topologicalNodes");
-
-        LOG.info("    preparing configuredBuses - mergedBuses ...");
-        Map<String, Set<String>> mbcbs = new HashMap<>();
-        Map<String, String> cb2mb = new HashMap<>();
-        network.getBusBreakerView().getBusStream().forEach(b -> {
-            String cb = b.getId();
-            Bus mbb = b.getVoltageLevel().getBusView().getMergedBus(cb);
-            if (mbb != null) {
-                String mb = mbb.getId();
-                mbcbs.computeIfAbsent(mb, x -> new HashSet<>()).add(cb);
-                cb2mb.put(cb, mb);
+            // Ignore connectivity nodes belonging to boundaries
+            if (!boundary.contains(cn)) {
+                String tp = cnp.getId("TopologicalNode");
+                tpcns.computeIfAbsent(tp, x -> new HashSet<>()).add(cn);
+                cn2tp.put(cn, tp);
             }
         });
-        LOG.info("    completed configuredBuses - mergedBuses");
 
-        // Review all connectivity nodes present in CGMES model
+        LOG.info("    preparing mapping between IIDM busbarSections and mergedBuses ...");
+        Map<String, Set<String>> mbbbss = new HashMap<>();
+        Map<String, String> bbs2mb = new HashMap<>();
+        network.getVoltageLevels().forEach(vl -> {
+            vl.getNodeBreakerView().getBusbarSections().forEach(bbs -> {
+                Bus mb = vl.getBusView().getMergedBus(bbs.getId());
+                if (mb != null) {
+                    mbbbss.computeIfAbsent(mb.getId(), x -> new HashSet<>()).add(bbs.getId());
+                    bbs2mb.put(bbs.getId(), mb.getId());
+                }
+            });
+        });
+
+        // Review all topological nodes present in CGMES model
         int numNodes = 0;
         int numFails = 0;
+        int numWarnings = 0;
         Set<String> badTPs = new HashSet<>();
-        Iterator<Map.Entry<String, String>> k = cn2tp.entrySet().iterator();
-        LOG.info("    analyzing all connectivityNodes ...");
+        Iterator<Map.Entry<String, Set<String>>> k = tpcns.entrySet().iterator();
+        LOG.info("    analyzing all CGMES topologicalNodes ...");
         while (k.hasNext()) {
-            Map.Entry<String, String> cntp = k.next();
-            String cn = cntp.getKey();
-            String tp = cntp.getValue();
-            Set<String> cns = tpcns.get(tp);
+            Map.Entry<String, Set<String>> e = k.next();
+            String tp = e.getKey();
+            Set<String> cns = e.getValue();
+            String cn = cns.iterator().next();
 
-            String cb = cn;
-            String mb = cb2mb.get(cb);
-            Set<String> cbs = mbcbs.get(mb);
+            // For the topology test to be valid,
+            // BusbarSections should have been created in IIDM
+            // for each connectivity node
+            String bbs = cn;
+
+            String mb = bbs2mb.get(bbs);
+            Set<String> bbss = mbbbss.get(mb);
+            boolean hasBbss = bbss != null;
+
+            if (LOG.isInfoEnabled()) {
+                LOG.info("    analyzing topologicalNode {}", tp);
+                LOG.info("        connectivityNodes in same CGMES topologicalNode {} {} {}",
+                        cns.size(),
+                        Arrays.toString(cns.toArray()),
+                        tp);
+                if (hasBbss) {
+                    LOG.info("        busbarSections in same IIDM mergedBus           {} {} {}",
+                            bbss.size(),
+                            Arrays.toString(bbss.toArray()),
+                            mb);
+                }
+            }
 
             numNodes++;
-            if (!cns.equals(cbs)) {
+            if (!cns.equals(bbss)) {
                 if (strict) {
-                    reportTopologyError(cn, cns, cbs);
+                    reportTopologyError(cn, cns, bbss);
+                    numFails++;
                 } else {
                     // All connectivity nodes in the same topological node
-                    // that are not in the set of configured buses must be invalid
+                    // that are not in the set of bus bar sections must be invalid
                     // (they should not have a merged bus)
-                    Set<String> cbs1 = new HashSet<>(cns);
-                    if (cbs != null) {
-                        cbs1.removeAll(cbs);
+                    Set<String> cns1 = new HashSet<>(cns);
+                    if (hasBbss) {
+                        cns1.removeAll(bbss);
                     }
-                    cbs1 = cbs1.stream()
-                            .filter(cb1 -> cb2mb.get(cb1) != null)
+                    cns1 = cns1.stream()
+                            .filter(cn1 -> bbs2mb.get(cn1) != null)
                             .collect(Collectors.toSet());
-                    if (!cbs1.isEmpty()) {
+                    if (!cns1.isEmpty()) {
                         badTPs.add(tp);
-                        if (cbs != null) {
-                            reportTopologyError(cn, cns, cbs, cbs1);
+                        if (hasBbss) {
+                            reportTopologyError(cn, cns, bbss, cns1);
                             numFails++;
                         } else {
-                            reportTopologyWarning(cn, cns, cbs1);
+                            reportTopologyWarning(cn, cns, cns1);
+                            numWarnings++;
                         }
                     }
                 }
             }
         }
-        LOG.info("    completed analyzing all connectivityNodes");
-        if (numFails > 0) {
+        LOG.info("    completed analyzing all {} topologicalNodes", numNodes);
+        if (!badTPs.isEmpty()) {
+            LOG.warn("    bad topologicalNodes : {} / {}", badTPs.size(), numNodes);
+            badTPs.forEach(tp -> LOG.warn("        {}", tp));
+        }
+        if (numFails > 0 || numWarnings > 0) {
             String reason = String.format(
-                    "testTopology. Failed %d of %d connectivityNodes analyzed",
+                    "testTopology. Failed %d, warnings %d of %d topologicalNodes analyzed",
                     numFails,
+                    numWarnings,
                     numNodes);
             LOG.error(reason);
             return false;
         }
-        if (!badTPs.isEmpty()) {
-            LOG.warn("    Bad topologicalNodes : {} / {}", badTPs.size(), tpcns.keySet().size());
-            badTPs.forEach(tp -> LOG.warn("        {}", tp));
-        }
-        LOG.info("testTopology completed");
         return true;
     }
 

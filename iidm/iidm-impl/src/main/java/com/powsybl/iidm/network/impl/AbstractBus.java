@@ -148,27 +148,9 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
         return getConnectables(TwoWindingsTransformer.class);
     }
 
-    /**
-     * @deprecated Use {@link #getTwoWindingsTransformers()} instead.
-     */
-    @Deprecated
-    @Override
-    public Iterable<TwoWindingsTransformer> getTwoWindingTransformers() {
-        return getTwoWindingsTransformers();
-    }
-
     @Override
     public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
         return getConnectableStream(TwoWindingsTransformer.class);
-    }
-
-    /**
-     * @deprecated Use {@link #getTwoWindingsTransformerStream()} instead.
-     */
-    @Deprecated
-    @Override
-    public Stream<TwoWindingsTransformer> getTwoWindingTransformerStream() {
-        return getTwoWindingsTransformerStream();
     }
 
     @Override
@@ -176,28 +158,11 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
         return getConnectables(ThreeWindingsTransformer.class);
     }
 
-    /**
-     * @deprecated Use {@link #getThreeWindingsTransformers()} instead.
-     */
-    @Deprecated
-    @Override
-    public Iterable<ThreeWindingsTransformer> getThreeWindingTransformers() {
-        return getThreeWindingsTransformers();
-    }
-
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
         return getConnectableStream(ThreeWindingsTransformer.class);
     }
 
-    /**
-     * @deprecated Use {@link #getThreeWindingsTransformerStream()} instead.
-     */
-    @Deprecated
-    @Override
-    public Stream<ThreeWindingsTransformer> getThreeWindingTransformerStream() {
-        return getThreeWindingsTransformerStream();
-    }
 
     @Override
     public Iterable<Load> getLoads() {
@@ -207,24 +172,6 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
     @Override
     public Stream<Load> getLoadStream() {
         return getConnectableStream(Load.class);
-    }
-
-    /**
-     * @deprecated Use {@link #getShuntCompensators()} instead.
-     */
-    @Deprecated
-    @Override
-    public Iterable<ShuntCompensator> getShunts() {
-        return getShuntCompensators();
-    }
-
-    /**
-     * @deprecated Use {@link #getShuntCompensatorStream()} instead.
-     */
-    @Deprecated
-    @Override
-    public Stream<ShuntCompensator> getShuntStream() {
-        return getShuntCompensatorStream();
     }
 
     @Override

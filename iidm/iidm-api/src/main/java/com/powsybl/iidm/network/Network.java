@@ -24,7 +24,7 @@ import java.util.stream.Stream;
  *
  * <p>Instances of <code>Network</code> are not thread safe except for attributes
  * depending of the variant (always specified in the javadoc) if
- * {@link VariantManager#allowStateMultiThreadAccess(boolean)} is set to true.
+ * {@link VariantManager#allowVariantMultiThreadAccess(boolean)} is set to true.
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @see NetworkFactory
@@ -131,17 +131,7 @@ public interface Network extends Container<Network> {
     /**
      * Get the variant manager of the network.
      */
-    default VariantManager getVariantManager() {
-        throw new UnsupportedOperationException();
-    }
-
-    /**
-     * @deprecated Use {@link #getVariantManager()} instead.
-     */
-    @Deprecated
-    default StateManager getStateManager() {
-        return getVariantManager();
-    }
+    VariantManager getVariantManager();
 
     /**
      * Get all countries.
@@ -356,68 +346,25 @@ public interface Network extends Container<Network> {
     Load getLoad(String id);
 
     /**
-     * @deprecated Use {@link #getShuntCompensators)} instead.
-     */
-    @Deprecated
-    default Iterable<ShuntCompensator> getShunts() {
-        throw new UnsupportedOperationException("deprecated");
-    }
-
-    /**
-     * @deprecated Use {@link #getShuntCompensatorStream()} instead.
-     */
-    @Deprecated
-    default Stream<ShuntCompensator> getShuntStream() {
-        throw new UnsupportedOperationException("deprecated");
-    }
-
-    /**
-     * @deprecated Use {@link #getShuntCompensatorCount()} instead.
-     */
-    @Deprecated
-    default int getShuntCount() {
-        throw new UnsupportedOperationException("deprecated");
-    }
-
-    /**
-     * @deprecated Use {@link #getShuntCompensator(String)} instead.
-     */
-    @Deprecated
-    default ShuntCompensator getShunt(String id) {
-        throw new UnsupportedOperationException("deprecated");
-    }
-
-    /**
      * Get all compensator shunts.
      */
-    default Iterable<ShuntCompensator> getShuntCompensators() {
-        throw new UnsupportedOperationException("Not Implemented");
-    }
+    Iterable<ShuntCompensator> getShuntCompensators();
 
 
     /**
      * Get all compensator shunts.
      */
-    default Stream<ShuntCompensator> getShuntCompensatorStream() {
-        throw new UnsupportedOperationException("Not Implemented");
-    }
-
+    Stream<ShuntCompensator> getShuntCompensatorStream();
     /**
      * Get the shunt count.
      */
-    default int getShuntCompensatorCount() {
-        throw new UnsupportedOperationException("Not Implemented");
-    }
-
+    int getShuntCompensatorCount();
     /**
      * Get a compensator shunt.
      *
      * @param id the id of the compensator shunt
      */
-    default ShuntCompensator getShuntCompensator(String id) {
-        throw new UnsupportedOperationException("Not Implemented");
-    }
-
+    ShuntCompensator getShuntCompensator(String id);
     /**
      * Get all dangling lines.
      */

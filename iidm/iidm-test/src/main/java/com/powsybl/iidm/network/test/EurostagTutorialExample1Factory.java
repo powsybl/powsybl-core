@@ -16,6 +16,8 @@ import org.joda.time.DateTime;
  */
 public final class EurostagTutorialExample1Factory {
 
+    private static final String VLGEN = "VLGEN";
+
     private EurostagTutorialExample1Factory() {
     }
 
@@ -34,7 +36,7 @@ public final class EurostagTutorialExample1Factory {
                 .setGeographicalTags("B")
             .add();
         VoltageLevel vlgen = p1.newVoltageLevel()
-                .setId("VLGEN")
+                .setId(VLGEN)
                 .setNominalV(24.0)
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
             .add();
@@ -181,13 +183,51 @@ public final class EurostagTutorialExample1Factory {
         return network;
     }
 
+    public static Network createWithMoreGenerators() {
+        Network network = create();
+
+        VoltageLevel vlgen = network.getVoltageLevel(VLGEN);
+        Bus ngen = vlgen.getBusBreakerView().getBus("NGEN");
+
+        Generator generator2 = vlgen.newGenerator()
+                .setId("GEN2")
+                .setBus(ngen.getId())
+                .setConnectableBus(ngen.getId())
+                .setMinP(-9999.99)
+                .setMaxP(9999.99)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(24.5)
+                .setTargetP(607.0)
+                .setTargetQ(301.0)
+                .add();
+        generator2.newReactiveCapabilityCurve()
+                .beginPoint()
+                .setP(3.0)
+                .setMaxQ(5.0)
+                .setMinQ(4.0)
+                .endPoint()
+                .beginPoint()
+                .setP(0.0)
+                .setMaxQ(7.0)
+                .setMinQ(6.0)
+                .endPoint()
+                .beginPoint()
+                .setP(1.0)
+                .setMaxQ(5.0)
+                .setMinQ(4.0)
+                .endPoint()
+                .add();
+
+        return network;
+    }
+
     public static Network createWithCurrentLimits() {
         Network network = EurostagTutorialExample1Factory.create();
         network.setCaseDate(DateTime.parse("2018-01-01T11:00:00+01:00"));
 
         network.getSubstation("P2").setCountry(Country.BE);
 
-        network.getVoltageLevel("VLGEN").newGenerator()
+        network.getVoltageLevel(VLGEN).newGenerator()
             .setId("GEN2")
             .setBus("NGEN")
             .setConnectableBus("NGEN")

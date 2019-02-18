@@ -103,7 +103,8 @@ public class CIM1ConverterRatioTapChangerSide2FixTest {
     private void computeMissingFlows(Network network, LoadFlowParameters loadFlowParameters) {
         float epsilonX = 0f;
         boolean applyXCorrection = false;
-        LoadFlowResultsCompletionParameters p = new LoadFlowResultsCompletionParameters(epsilonX, applyXCorrection);
+        double z0Threshold = 0;
+        LoadFlowResultsCompletionParameters p = new LoadFlowResultsCompletionParameters(epsilonX, applyXCorrection, z0Threshold);
         LoadFlowResultsCompletion lf = new LoadFlowResultsCompletion(p, loadFlowParameters);
         lf.run(network, null);
     }

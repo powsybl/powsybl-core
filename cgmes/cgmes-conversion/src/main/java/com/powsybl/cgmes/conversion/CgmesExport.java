@@ -67,8 +67,8 @@ public class CgmesExport implements Exporter {
         PropertyBags voltages = new PropertyBags();
         for (Bus b : n.getBusBreakerView().getBuses()) {
             PropertyBag p = new PropertyBag(SV_VOLTAGE_PROPERTIES);
-            p.put("angle", fs(b.getAngle()));
-            p.put("v", fs(b.getV()));
+            p.put(CgmesNames.ANGLE, fs(b.getAngle()));
+            p.put(CgmesNames.VOLTAGE, fs(b.getV()));
             p.put("TopologicalNode", topologicalNodeFromBusId(b.getId()));
             voltages.add(p);
         }
@@ -136,7 +136,7 @@ public class CgmesExport implements Exporter {
         return iidmBusId;
     }
 
-    private static final List<String> SV_VOLTAGE_PROPERTIES = Arrays.asList("angle", "v", "TopologicalNode");
+    private static final List<String> SV_VOLTAGE_PROPERTIES = Arrays.asList(CgmesNames.ANGLE, CgmesNames.VOLTAGE, "TopologicalNode");
     private static final List<String> SV_POWERFLOW_PROPERTIES = Arrays.asList("p", "q", CgmesNames.TERMINAL);
     private static final List<String> SV_SHUNTCOMPENSATORSECTIONS_PROPERTIES = Arrays.asList("ShuntCompensator",
             "continuousSections");
