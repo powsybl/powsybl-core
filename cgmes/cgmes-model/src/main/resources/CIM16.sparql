@@ -644,8 +644,10 @@ WHERE {
 { GRAPH ?graph {
     ?SynchronousMachine
         a cim:SynchronousMachine ;
-        cim:RotatingMachine.GeneratingUnit ?GeneratingUnit ;
-        cim:RotatingMachine.ratedS ?ratedS .
+        cim:RotatingMachine.GeneratingUnit ?GeneratingUnit .
+    OPTIONAL {
+    	?SynchronousMachine cim:RotatingMachine.ratedS ?ratedS
+   	}
     ?GeneratingUnit
         a ?generatingUnitType ;
         cim:GeneratingUnit.minOperatingP ?minP ;
@@ -671,12 +673,12 @@ WHERE {
         OPTIONAL { GRAPH ?graphSSH2 {
             ?regulatingControlTerminal cim:ACDCTerminal.connected ?regulatingControlTerminalConnected
         }}
-# TODO SSH may contain following additional attributes:
-#   SynchronousMachine:RotatingMachine.p (should be the same value of GeneratingUnit.initialP ?)
-#   SynchronousMachine:RotatingMachine.q
-#   SynchronousMachine:SynchronousMachine.operatingMode
-#   SynchronousMachine:SynchronousMachine.referencePriority
     }
+    OPTIONAL { GRAPH ?graphSSH3 {
+    	?SynchronousMachine 
+    		cim:RotatingMachine.p ?p ;
+    		cim:RotatingMachine.q ?q 
+    }}
 }}
 }
 

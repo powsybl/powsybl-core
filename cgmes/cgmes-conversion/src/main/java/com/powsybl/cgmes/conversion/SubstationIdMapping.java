@@ -109,7 +109,9 @@ public class SubstationIdMapping {
             String node = context.nodeBreaker() ? t.connectivityNode() : t.topologicalNode();
             if (node != null && !context.boundary().containsNode(node)) {
                 String sid = context.cgmes().substation(t);
-                substationsIds.add(context.namingStrategy().getId(CgmesNames.SUBSTATION, sid));
+                if (sid != null) {
+                    substationsIds.add(context.namingStrategy().getId(CgmesNames.SUBSTATION, sid));
+                }
             }
         }
         return substationsIds;

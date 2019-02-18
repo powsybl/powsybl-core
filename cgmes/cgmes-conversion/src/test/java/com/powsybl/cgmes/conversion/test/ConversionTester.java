@@ -49,7 +49,8 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
  */
 public class ConversionTester {
 
-    public ConversionTester(Properties importParams, List<String> tripleStoreImplementations, ComparisonConfig networkComparison) {
+    public ConversionTester(Properties importParams, List<String> tripleStoreImplementations,
+            ComparisonConfig networkComparison) {
         this.importParams = importParams;
         this.tripleStoreImplementations = tripleStoreImplementations;
         this.networkComparison = networkComparison;
@@ -229,9 +230,10 @@ public class ConversionTester {
     }
 
     private void computeMissingFlows(Network network, LoadFlowParameters lfparams) {
-        float epsilonX = 0;
-        boolean applyXCorrection = false;
-        LoadFlowResultsCompletionParameters p = new LoadFlowResultsCompletionParameters(epsilonX, applyXCorrection);
+        LoadFlowResultsCompletionParameters p = new LoadFlowResultsCompletionParameters(
+                LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT,
+                LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT,
+                LoadFlowResultsCompletionParameters.Z0_THRESHOLD_DIFF_VOLTAGE_ANGLE);
         LoadFlowResultsCompletion lf = new LoadFlowResultsCompletion(p, lfparams);
         try {
             lf.run(network, null);
