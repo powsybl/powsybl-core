@@ -100,12 +100,13 @@ public class CurrentLimitsAdderImpl<S, O extends CurrentLimitsOwner<S>> implemen
             if (name == null) {
                 throw new ValidationException(owner, "name is not set");
             }
-            if (ensureNameUnicity && nameExists(name)) {
+            if (ensureNameUnicity) {
                 int i = 0;
-                String uniqueName;
-                do {
-                    uniqueName = name + "#" + i++;
-                } while (i < Integer.MAX_VALUE && nameExists(uniqueName));
+                String uniqueName = name;
+                while (i < Integer.MAX_VALUE && nameExists(uniqueName)) {
+                    uniqueName = name + "#" + i;
+                    i++;
+                }
                 name = uniqueName;
             }
         }
