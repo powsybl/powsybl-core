@@ -10,10 +10,12 @@ import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.Writer;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.stream.Stream;
 
 /**
@@ -525,13 +527,18 @@ public final class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<V
     }
 
     @Override
-    public void exportTopology(String filename) throws IOException {
-        identifiable.exportTopology(filename);
+    public void exportTopology(Path file) throws IOException {
+        identifiable.exportTopology(file);
     }
 
     @Override
-    public void exportTopology(OutputStream outputStream) throws IOException {
-        identifiable.exportTopology(outputStream);
+    public void exportTopology(Writer writer, Random random) throws IOException {
+        identifiable.exportTopology(writer, random);
+    }
+
+    @Override
+    public void exportTopology(Writer writer) throws IOException {
+        identifiable.exportTopology(writer);
     }
 
     @Override

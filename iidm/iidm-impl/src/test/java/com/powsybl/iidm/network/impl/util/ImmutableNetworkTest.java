@@ -58,6 +58,7 @@ public class ImmutableNetworkTest {
         invalidVlMethods.add("newGenerator");
         invalidVlMethods.add("newLoad");
         invalidVlMethods.add("newShuntCompensator");
+        invalidVlMethods.add("newShunt"); // to remove in the clean voltage level's api commit
         invalidVlMethods.add("newDanglingLine");
         invalidVlMethods.add("newStaticVarCompensator");
         invalidVlMethods.add("newVscConverterStation");
