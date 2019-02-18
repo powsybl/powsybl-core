@@ -8,7 +8,6 @@ package com.powsybl.loadflow.resultscompletion;
 
 import java.util.Objects;
 
-import com.powsybl.loadflow.LoadFlowParameters;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,6 +16,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.import_.ImportPostProcessor;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.LoadFlowParameters;
 
 /**
  *

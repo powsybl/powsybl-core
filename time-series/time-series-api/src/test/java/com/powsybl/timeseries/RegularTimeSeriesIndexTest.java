@@ -82,4 +82,42 @@ public class RegularTimeSeriesIndexTest {
         RegularTimeSeriesIndex.create(Interval.parse("2015-01-01T00:00:00Z/2015-01-01T00:10:00Z"),
                                       Duration.ofMinutes(15));
     }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testContructorErrorPointCount() {
+        RegularTimeSeriesIndex.create(Interval.parse("2000-01-01T00:00:00Z/2100-01-01T00:10:00Z"),
+                                      Duration.ofSeconds(1));
+    }
+
+    @Test
+    public void testPointCountSimple() {
+        //2 data points at 0 and 10
+        assertEquals(2, new RegularTimeSeriesIndex(0, 10, 10).getPointCount());
+    }
+
+    @Test
+    public void testPointCountRounded() {
+        //We allow some imprecision to simplify calendar dates
+        assertEquals(3, new RegularTimeSeriesIndex(0, 19, 10).getPointCount());
+        assertEquals(3, new RegularTimeSeriesIndex(0, 20, 10).getPointCount());
+        assertEquals(3, new RegularTimeSeriesIndex(0, 21, 10).getPointCount());
+        //Concrete example:
+        // 1 data every year for 10 years (rounding hides the year length differences):
+        // millisInYear is not exact because of leap years, but even when taking leap years into account,
+        // the number of seconds in a year in not predictable because of leap seconds.
+        // Still it's a good enough approximation give the correct result.
+        long millisInYear = 365L * 86400 * 1000;
+        assertEquals(10, new RegularTimeSeriesIndex(
+            Instant.parse("2000-01-01T00:00:00Z").toEpochMilli(),
+            Instant.parse("2009-01-01T00:00:00Z").toEpochMilli(),
+            millisInYear).getPointCount());
+    }
+
+    @Test
+    public void testPointCountHuge() {
+        // 1 data every 30 seconds for ~30years, ~30years+30s, ~30years+60s
+        assertEquals(30 * 365 * 24 * 120 + 1, new RegularTimeSeriesIndex(0, 30L * 365 * 24 * 60 * 60 * 1000 + 0 * 30 * 1000, 30 * 1000).getPointCount());
+        assertEquals(30 * 365 * 24 * 120 + 2, new RegularTimeSeriesIndex(0, 30L * 365 * 24 * 60 * 60 * 1000 + 1 * 30 * 1000, 30 * 1000).getPointCount());
+        assertEquals(30 * 365 * 24 * 120 + 3, new RegularTimeSeriesIndex(0, 30L * 365 * 24 * 60 * 60 * 1000 + 2 * 30 * 1000, 30 * 1000).getPointCount());
+    }
 }

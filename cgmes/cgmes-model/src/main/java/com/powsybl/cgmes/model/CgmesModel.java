@@ -13,8 +13,6 @@ import java.util.Properties;
 import java.util.function.Consumer;
 
 import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -52,15 +50,15 @@ public interface CgmesModel {
 
     PropertyBags terminals();
 
-    PropertyBags terminalsTP();
-
-    PropertyBags terminalsCN();
+    PropertyBags connectivityNodeContainers();
 
     PropertyBags operationalLimits();
 
     PropertyBags connectivityNodes();
 
     PropertyBags topologicalNodes();
+
+    PropertyBags busBarSections();
 
     PropertyBags switches();
 
@@ -99,6 +97,10 @@ public interface CgmesModel {
 
     PropertyBags asynchronousMachines();
 
+    PropertyBags ratioTapChangerTablesPoints();
+
+    PropertyBags ratioTapChangerTable(String tableId);
+
     PropertyBags phaseTapChangerTable(String tableId);
 
     PropertyBags acDcConverters();
@@ -130,95 +132,13 @@ public interface CgmesModel {
 
     String phaseTapChangerForPowerTransformer(String powerTransformerId);
 
-    // Terminals
+    // TODO(Luma) refactoring node-breaker conversion temporal
 
-    class CgmesTerminal {
-        private final String id;
-        private final String conductingEquipment;
-        private final String conductingEquipmentType;
-        private final boolean connected;
-        private final PowerFlow flow;
+    String substation(CgmesTerminal t);
 
-        private String connectivityNode;
-        private String topologicalNode;
-        private String voltageLevel;
-        private String substation;
+    String voltageLevel(CgmesTerminal t);
 
-        public CgmesTerminal(
-                String id,
-                String conductingEquipment,
-                String conductingEquipmentType,
-                boolean connected,
-                PowerFlow flow) {
-            this.id = id;
-            this.conductingEquipment = conductingEquipment;
-            this.conductingEquipmentType = conductingEquipmentType;
-            this.connected = connected;
-            this.flow = flow;
-        }
+    CgmesContainer container(String containerId);
 
-        public void assignTP(String topologicalNode, String voltageLevel, String substation) {
-            checkAssign(topologicalNode, voltageLevel, substation);
-        }
-
-        public void assignCN(String connectivityNode, String topologicalNode, String voltageLevel,
-                String substation) {
-            this.connectivityNode = connectivityNode;
-            checkAssign(topologicalNode, voltageLevel, substation);
-        }
-
-        public String id() {
-            return id;
-        }
-
-        public String conductingEquipment() {
-            return conductingEquipment;
-        }
-
-        public String conductingEquipmentType() {
-            return conductingEquipmentType;
-        }
-
-        public String connectivityNode() {
-            return connectivityNode;
-        }
-
-        public String topologicalNode() {
-            return topologicalNode;
-        }
-
-        public String voltageLevel() {
-            return voltageLevel;
-        }
-
-        public String substation() {
-            return substation;
-        }
-
-        public boolean connected() {
-            return connected;
-        }
-
-        public PowerFlow flow() {
-            return flow;
-        }
-
-        private void checkAssign(String topologicalNode, String voltageLevel, String substation) {
-            checkAssignAttr("topologicalNode", this.topologicalNode, topologicalNode);
-            this.topologicalNode = topologicalNode;
-            checkAssignAttr("voltageLevel", this.voltageLevel, voltageLevel);
-            this.voltageLevel = voltageLevel;
-            checkAssignAttr("substation", this.substation, substation);
-            this.substation = substation;
-        }
-
-        private void checkAssignAttr(String attribute, String value0, String value1) {
-            if (value0 == null || value0.equals(value1)) {
-                return;
-            }
-            LOG.warn("Inconsistent values for {}: previous {}, now {}", attribute, value0, value1);
-        }
-
-        private static final Logger LOG = LoggerFactory.getLogger(CgmesModel.class);
-    }
+    double nominalVoltage(String baseVoltageId);
 }

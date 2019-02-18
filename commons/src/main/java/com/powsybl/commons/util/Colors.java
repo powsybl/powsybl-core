@@ -6,7 +6,7 @@
  */
 package com.powsybl.commons.util;
 
-import java.security.SecureRandom;
+import java.util.Objects;
 import java.util.Random;
 
 /**
@@ -16,18 +16,17 @@ public final class Colors {
 
     private static final double GOLDEN_RATIO_CONJUGATE = 0.618033988749895;
 
-    private static final Random RANDOM = new SecureRandom();
-
     private Colors() {
     }
 
-    public static String[] generateColorScale(int n) {
+    public static String[] generateColorScale(int n, Random random) {
         if (n < 0) {
             throw new IllegalArgumentException("Color scale size must be positive");
         }
+        Objects.requireNonNull(random);
         String[] colors = new String[n];
         for (int i = 0; i < n; i++) {
-            double h = RANDOM.nextDouble();
+            double h = random.nextDouble();
             h += GOLDEN_RATIO_CONJUGATE;
             h %= 1;
             long[] rgb = hsvToRgb(h, 0.5, 0.95);

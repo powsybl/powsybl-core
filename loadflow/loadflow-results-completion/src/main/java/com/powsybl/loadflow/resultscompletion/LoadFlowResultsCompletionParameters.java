@@ -20,9 +20,11 @@ public class LoadFlowResultsCompletionParameters {
 
     public static final float EPSILON_X_DEFAULT = 0.1f;
     public static final boolean APPLY_REACTANCE_CORRECTION_DEFAULT = false;
+    public static final double Z0_THRESHOLD_DIFF_VOLTAGE_ANGLE = 1e-6;
 
     private final float epsilonX;
     private final boolean applyReactanceCorrection;
+    private final double z0ThresholdDiffVoltageAngle;
 
     public static LoadFlowResultsCompletionParameters load() {
         return load(PlatformConfig.defaultConfig());
@@ -34,18 +36,20 @@ public class LoadFlowResultsCompletionParameters {
                 .map(config -> {
                     float epsilonX = config.getFloatProperty("epsilon-x", LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT);
                     boolean applyReactanceCorrection = config.getBooleanProperty("apply-reactance-correction", LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT);
-                    return new LoadFlowResultsCompletionParameters(epsilonX, applyReactanceCorrection);
+                    double z0ThresholdDiffVoltageAngle = config.getDoubleProperty("z0-threshold-diff-voltage-angle", LoadFlowResultsCompletionParameters.Z0_THRESHOLD_DIFF_VOLTAGE_ANGLE);
+                    return new LoadFlowResultsCompletionParameters(epsilonX, applyReactanceCorrection, z0ThresholdDiffVoltageAngle);
                 })
-                .orElseGet(() -> new LoadFlowResultsCompletionParameters(LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT, LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT));
+                .orElseGet(() -> new LoadFlowResultsCompletionParameters(LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT, LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT, LoadFlowResultsCompletionParameters.Z0_THRESHOLD_DIFF_VOLTAGE_ANGLE));
     }
 
-    public LoadFlowResultsCompletionParameters(float epsilonX, boolean applyReactanceCorrection) {
+    public LoadFlowResultsCompletionParameters(float epsilonX, boolean applyReactanceCorrection, double z0ThresholdDiffVoltageAngle) {
         this.epsilonX = epsilonX;
         this.applyReactanceCorrection = applyReactanceCorrection;
+        this.z0ThresholdDiffVoltageAngle = z0ThresholdDiffVoltageAngle;
     }
 
     public LoadFlowResultsCompletionParameters() {
-        this(EPSILON_X_DEFAULT, APPLY_REACTANCE_CORRECTION_DEFAULT);
+        this(EPSILON_X_DEFAULT, APPLY_REACTANCE_CORRECTION_DEFAULT, Z0_THRESHOLD_DIFF_VOLTAGE_ANGLE);
     }
 
     public float getEpsilonX() {
@@ -56,9 +60,14 @@ public class LoadFlowResultsCompletionParameters {
         return applyReactanceCorrection;
     }
 
+    public double getZ0ThresholdDiffVoltageAngle() {
+        return z0ThresholdDiffVoltageAngle;
+    }
+
     protected Map<String, Object> toMap() {
         return ImmutableMap.of("epsilonX", epsilonX,
-                               "applyReactanceCorrection", applyReactanceCorrection);
+                               "applyReactanceCorrection", applyReactanceCorrection,
+                               "z0ThresholdDiffVoltageAngle", z0ThresholdDiffVoltageAngle);
     }
 
     @Override
