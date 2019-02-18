@@ -64,7 +64,7 @@ public final class NetworkXml {
     private static final String FORECAST_DISTANCE = "forecastDistance";
     private static final String SOURCE_FORMAT = "sourceFormat";
     private static final String ID = "id";
-    private static final String XIIDM ="xiidm";
+    private static final String XIIDM = "xiidm";
 
     // cache XMLOutputFactory to improve performance
     private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLOutputFactory::newFactory);
