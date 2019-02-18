@@ -42,6 +42,8 @@ public class NetworkXmlWriterContext extends ConverterContext implements XmlWrit
         this.exportedEquipments = new HashSet<>();
     }
 
+
+
     @Override
     public XMLStreamWriter getWriter() {
         return writer;

@@ -57,7 +57,6 @@ public final class NetworkXml {
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkXml.class);
 
     private static final String EXTENSION_CATEGORY_NAME = "network";
-
     static final String NETWORK_ROOT_ELEMENT_NAME = "network";
     private static final String EXTENSION_ELEMENT_NAME = "extension";
     private static final String IIDM_XSD = "iidm.xsd";
@@ -65,6 +64,7 @@ public final class NetworkXml {
     private static final String FORECAST_DISTANCE = "forecastDistance";
     private static final String SOURCE_FORMAT = "sourceFormat";
     private static final String ID = "id";
+    private static final String XIIDM ="xiidm";
 
     // cache XMLOutputFactory to improve performance
     private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLOutputFactory::newFactory);
@@ -86,7 +86,7 @@ public final class NetworkXml {
         return writer;
     }
 
-    public static Set<String> getNetworkExtensions(Network n) {
+    private static Set<String> getNetworkExtensions(Network n) {
         Set<String> extensions = new TreeSet<>();
         for (Identifiable<?> identifiable : n.getIdentifiables()) {
             for (Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
@@ -272,7 +272,7 @@ public final class NetworkXml {
         for (Map.Entry<String, Set<String>> entry : m.entrySet()) {
             String name = entry.getKey();
             Set<String> ids = entry.getValue();
-            try (OutputStream os = dataSource.newOutputStream(name, "xiidm", false);
+            try (OutputStream os = dataSource.newOutputStream(name, XIIDM, false);
                  BufferedOutputStream bos = new BufferedOutputStream(os)) {
                 XMLStreamWriter writer = initializeWriter(n, bos, options);
                 for (String id : ids) {
@@ -315,8 +315,7 @@ public final class NetworkXml {
 
             BusFilter filter = BusFilter.create(n, options);
             Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
-
-            NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, null, options, filter);
+            NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter);
 
             writeBaseNetwork(n, context, filter);
 
@@ -345,6 +344,10 @@ public final class NetworkXml {
         return write(n, options, os, null, null);
     }
 
+    public static Anonymizer write(Network n, ExportOptions options, OutputStream osb, OutputStream ose) {
+        return write(n, options, osb, ose, null);
+    }
+
     public static Anonymizer write(Network n, ExportOptions options, OutputStream os, DataSource dataSource) {
         return write(n, options, os, null, dataSource);
     }
@@ -363,6 +366,29 @@ public final class NetworkXml {
 
     public static Anonymizer write(Network n, Path xmlFile) {
         return write(n, new ExportOptions(), xmlFile);
+    }
+
+    public static void write(Network network, ExportOptions options, DataSource dataSource) throws IOException {
+        Anonymizer anonymizer;
+        try (OutputStream osb = dataSource.newOutputStream(null, XIIDM, false);
+             BufferedOutputStream bos = new BufferedOutputStream(osb)) {
+            if (options.isSeparateBaseAndExtensions() && !getNetworkExtensions(network).isEmpty() && !options.isOneFilePerExtensionType()) {
+                try (OutputStream ose = dataSource.newOutputStream("ext", XIIDM, false);
+                     BufferedOutputStream bose = new BufferedOutputStream(ose)) {
+                    anonymizer = NetworkXml.write(network, options, bos, bose);
+                }
+            } else if (options.isOneFilePerExtensionType() && !getNetworkExtensions(network).isEmpty()) {
+                anonymizer = NetworkXml.write(network, options, bos, dataSource);
+            } else {
+                anonymizer = NetworkXml.write(network, options, bos);
+            }
+
+            if (anonymizer != null) {
+                try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dataSource.newOutputStream("_mapping", "csv", false), StandardCharsets.UTF_8))) {
+                    anonymizer.write(writer);
+                }
+            }
+        }
     }
 
     public static Anonymizer writeAndValidate(Network n, Path xmlFile) {

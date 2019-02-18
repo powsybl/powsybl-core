@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.ConversionParameters;
-import com.powsybl.iidm.anonymizer.Anonymizer;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Network;
@@ -23,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.*;
@@ -123,24 +121,7 @@ public class XMLExporter implements Exporter {
 
         try {
             long startTime = System.currentTimeMillis();
-            Anonymizer anonymizer;
-            try (OutputStream osb = dataSource.newOutputStream(null, "xiidm", false);
-                 BufferedOutputStream bos = new BufferedOutputStream(osb)) {
-                if (options.isSeparateBaseAndExtensions() && !NetworkXml.getNetworkExtensions(network).isEmpty() && !options.isOneFilePerExtensionType()) {
-                    try (OutputStream ose = dataSource.newOutputStream("ext", "xiidm", false);
-                         BufferedOutputStream bose = new BufferedOutputStream(ose)) {
-                        anonymizer = NetworkXml.write(network, options, bos, bose, null);
-                    }
-                } else {
-                    anonymizer = NetworkXml.write(network, options, bos, dataSource);
-                }
-
-                if (anonymizer != null) {
-                    try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dataSource.newOutputStream("_mapping", "csv", false), StandardCharsets.UTF_8))) {
-                        anonymizer.write(writer);
-                    }
-                }
-            }
+            NetworkXml.write(network, options, dataSource);
             LOGGER.debug("XIIDM export done in {} ms", System.currentTimeMillis() - startTime);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

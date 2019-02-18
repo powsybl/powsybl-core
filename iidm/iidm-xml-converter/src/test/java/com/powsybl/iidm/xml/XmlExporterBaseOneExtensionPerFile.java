@@ -39,6 +39,14 @@ public class XmlExporterBaseOneExtensionPerFile extends AbstractConverterTest {
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
             compareXml(getClass().getResourceAsStream(xiidmBaseRef), is);
         }
+
+        try (InputStream is = new ByteArrayInputStream(dataSource.getData("loadBar", "xiidm"))) {
+            compareXml(getClass().getResourceAsStream("/loadBar.xiidm"), is);
+        }
+
+        try (InputStream is = new ByteArrayInputStream(dataSource.getData("loadFoo", "xiidm"))) {
+            compareXml(getClass().getResourceAsStream("/loadFoo.xiidm"), is);
+        }
     }
 
     @Test
