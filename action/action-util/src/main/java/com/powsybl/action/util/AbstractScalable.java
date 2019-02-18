@@ -34,6 +34,10 @@ abstract class AbstractScalable implements Scalable {
         return filterInjections(network, null);
     }
 
+
+    /**
+     * @deprecated listGenerators should be replaced by filterInjections
+     */
     @Deprecated
     public List<Generator> listGenerators(Network n, List<String> notFoundGenerators) {
         List<Generator> generators = new ArrayList<>();
@@ -41,12 +45,17 @@ abstract class AbstractScalable implements Scalable {
         return generators;
     }
 
+    /**
+     * @deprecated listGenerators should be replaced by filterInjections
+     */
     @Deprecated
     public List<Generator> listGenerators(Network n) {
         return listGenerators(n, null);
     }
 
-
+    /**
+     * @deprecated listGenerators should be replaced by filterInjections
+     */
     @Deprecated
     public void listGenerators(Network network, List<Generator> generators, List<String> notFoundGenerators) {
         Objects.requireNonNull(network);
