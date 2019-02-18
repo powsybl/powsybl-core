@@ -13,6 +13,7 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class PreDefinedMethodsTest extends AbstractLoadFlowRulesEngineTest {
     @Override
@@ -33,6 +34,6 @@ public class PreDefinedMethodsTest extends AbstractLoadFlowRulesEngineTest {
 
     @Test
     public void test() throws Exception {
-        engine.start(actionDb, new ArrayList<>(), new LoadFlowParameters(), new TableFormatterConfig());
+        engine.start(actionDb, new ArrayList<>(), new LoadFlowParameters(), new TableFormatterConfig(Locale.FRANCE, "inv"));
     }
 }

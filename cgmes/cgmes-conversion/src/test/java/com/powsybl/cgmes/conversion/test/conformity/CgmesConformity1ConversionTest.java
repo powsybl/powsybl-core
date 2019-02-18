@@ -16,15 +16,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
 
-import org.junit.BeforeClass;
-import org.junit.Test;
+import com.powsybl.cgmes.conversion.CgmesImport;
+import org.junit.*;
 
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1NetworkCatalog;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
-import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
@@ -35,6 +33,7 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class CgmesConformity1ConversionTest {
+
     @BeforeClass
     public static void setUp() {
         actuals = new CgmesConformity1Catalog();
@@ -124,18 +123,12 @@ public class CgmesConformity1ConversionTest {
     }
 
     @Test
-    public void miniNodeBreakerTestLimits() throws IOException {
+    public void miniNodeBreakerTestLimits() {
         // Original test case
-        Network network0 = Importers.importData("CGMES",
-                actuals.miniNodeBreaker().dataSource(),
-                null,
-                LocalComputationManager.getDefault());
+        Network network0 = new CgmesImport().importData(actuals.miniNodeBreaker().dataSource(), null);
         // The case has been manually modified to have OperationalLimits
         // defined for Equipment
-        Network network1 = Importers.importData("CGMES",
-                actuals.miniNodeBreakerLimitsforEquipment().dataSource(),
-                null,
-                LocalComputationManager.getDefault());
+        Network network1 = new CgmesImport().importData(actuals.miniNodeBreakerLimitsforEquipment().dataSource(), null);
 
         double tol = 0;
 

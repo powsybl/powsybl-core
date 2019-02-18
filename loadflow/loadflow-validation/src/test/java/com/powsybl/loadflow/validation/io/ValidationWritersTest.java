@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Locale;
 import java.util.Set;
 
 import com.powsybl.commons.io.table.TableFormatterConfig;
@@ -51,7 +52,7 @@ public class ValidationWritersTest {
     public void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         Path folder = Files.createDirectory(fileSystem.getPath("/folder"));
-        validationWriters = new ValidationWriters("network", usedValidationTypes, folder, config, new TableFormatterConfig());
+        validationWriters = new ValidationWriters("network", usedValidationTypes, folder, config, new TableFormatterConfig(Locale.FRANCE, "inv"));
     }
 
     @Test

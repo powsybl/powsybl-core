@@ -16,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MessageFormatter;
 
+import java.util.Locale;
 import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
@@ -39,7 +40,7 @@ public class NetworksTest {
         }).when(logger).debug(Mockito.anyString(), Mockito.any(), Mockito.any());
 
         Network network = EurostagTutorialExample1Factory.create();
-        Networks.printBalanceSummary("", network, new TableFormatterConfig(), logger);
+        Networks.printBalanceSummary("", network, new TableFormatterConfig(Locale.FRANCE, "inv"), logger);
         assertEquals("Active balance at step '':\n" +
                      "+-----------------------+--------------------------------+----------------------------------+\n" +
                      "|                       | Main CC connected/disconnected | Others CC connected/disconnected |\n" +

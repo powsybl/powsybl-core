@@ -21,6 +21,7 @@ import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.util.Collection;
+import java.util.Locale;
 
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
@@ -66,7 +67,7 @@ public class PluginsInfoTool implements Tool {
         Writer writer = new OutputStreamWriter(context.getOutputStream());
         AsciiTableFormatterFactory asciiTableFormatterFactory = new AsciiTableFormatterFactory();
 
-        try (TableFormatter formatter = asciiTableFormatterFactory.create(writer, "Plugins", new TableFormatterConfig(),
+        try (TableFormatter formatter = asciiTableFormatterFactory.create(writer, "Plugins", new TableFormatterConfig(Locale.FRANCE, "inv"),
                 new Column("Plugin type name"),
                 new Column("Available plugin IDs"))) {
             pluginInfos.forEach(p -> {

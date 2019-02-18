@@ -10,6 +10,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.stream.Stream;
 
 import com.powsybl.commons.io.table.TableFormatterConfig;
@@ -57,7 +58,7 @@ public class BusesValidationTest extends AbstractValidationTest {
 
     private Bus bus;
 
-    private final TableFormatterConfig config = new TableFormatterConfig();
+    private final TableFormatterConfig config = new TableFormatterConfig(Locale.FRANCE, "inv");
 
     @Before
     @Override

@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Locale;
 
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.io.table.TableFormatterConfig;
@@ -79,7 +80,7 @@ public class CIM1ConverterRatioTapChangerSide2FixTest {
         ValidationConfig validationConfig = createValidationConfig(loadFlowParameters);
 
         Path working = Files.createDirectories(fileSystem.getPath("temp-validation"));
-        boolean rb = ValidationType.BUSES.check(network, validationConfig, new TableFormatterConfig(), working);
+        boolean rb = ValidationType.BUSES.check(network, validationConfig, new TableFormatterConfig(Locale.FRANCE, "inv"), working);
         LOG.info("Bus balance validation for tx-from-microBE-adapted is [{}]", rb);
         assertTrue(rb);
     }

@@ -10,6 +10,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.stream.Stream;
 
 import com.powsybl.commons.io.table.TableFormatterConfig;
@@ -29,7 +30,7 @@ public class Transformers3WValidationTest extends AbstractValidationTest {
 
     private TwtTestData twtValidationData;
 
-    private final TableFormatterConfig tableFormatterConfig = new TableFormatterConfig();
+    private final TableFormatterConfig tableFormatterConfig = new TableFormatterConfig(Locale.FRANCE, "inv");
 
     @Before
     public void setUp() throws IOException {

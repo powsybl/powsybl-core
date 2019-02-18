@@ -12,6 +12,7 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -35,6 +36,6 @@ public class PreDefinedConditionTest extends AbstractLoadFlowRulesEngineTest {
 
     @Test
     public void test() {
-        engine.start(actionDb, new ArrayList<>(), new LoadFlowParameters(), new TableFormatterConfig());
+        engine.start(actionDb, new ArrayList<>(), new LoadFlowParameters(), new TableFormatterConfig(Locale.FRANCE, "inv"));
     }
 }

@@ -33,7 +33,7 @@ public class TableFormatterConfigTest {
 
     @Test
     public void testConfig() throws IOException {
-        TableFormatterConfig config = new TableFormatterConfig();
+        TableFormatterConfig config = new TableFormatterConfig(Locale.FRANCE, "inv");
 
         testConfig(config, Locale.getDefault(), ';', "inv", true, true);
 

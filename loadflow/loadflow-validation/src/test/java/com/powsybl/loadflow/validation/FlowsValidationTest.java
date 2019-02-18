@@ -11,6 +11,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Locale;
 import java.util.stream.Stream;
 
 import com.powsybl.commons.io.table.TableFormatterConfig;
@@ -69,7 +70,7 @@ public class FlowsValidationTest extends AbstractValidationTest {
     private ValidationConfig looseConfigSpecificCompatibility;
     private ValidationConfig strictConfigSpecificCompatibility;
 
-    private final TableFormatterConfig tableFormatterConfig = new TableFormatterConfig();
+    private final TableFormatterConfig tableFormatterConfig = new TableFormatterConfig(Locale.FRANCE, "inv");
 
     @Before
     @Override
