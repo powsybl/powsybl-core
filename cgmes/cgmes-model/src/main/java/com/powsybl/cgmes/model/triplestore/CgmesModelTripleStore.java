@@ -68,6 +68,28 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     // Queries
 
     @Override
+    public boolean hasEquipmentCore() {
+        if (queryCatalog.containsKey("modelProfiles")) {
+            PropertyBags r = namedQuery("modelProfiles");
+            if (r == null) {
+                return false;
+            }
+            for (PropertyBag m : r) {
+                String p = m.get("profile");
+                if (p != null && p.contains("/EquipmentCore/")) {
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info("Model contains Equipment Core data profile in model {}", m.get("FullModel"));
+                    }
+                    return true;
+                }
+            }
+        }
+        // If we do not have a query for model profiles we assume equipment core is available
+        // (This covers the case for CIM14 files)
+        return true;
+    }
+
+    @Override
     public boolean isNodeBreaker() {
         // Optimization hint: consider caching the results of the query for model
         // profiles

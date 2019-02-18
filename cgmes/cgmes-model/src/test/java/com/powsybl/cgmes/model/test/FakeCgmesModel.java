@@ -88,6 +88,10 @@ public final class FakeCgmesModel implements CgmesModel {
         numObjectsByType = new PropertyBags();
     }
 
+    public boolean hasEquipmentCore() {
+        return true;
+    }
+
     public FakeCgmesModel modelId(String modelId) {
         this.modelId = modelId;
         return this;
