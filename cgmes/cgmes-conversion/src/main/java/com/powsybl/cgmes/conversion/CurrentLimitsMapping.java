@@ -17,12 +17,13 @@ import java.util.function.Function;
  */
 public class CurrentLimitsMapping {
 
-    private final Map<Terminal, CurrentLimitsAdder> adders;
-    private final Map<CurrentLimitsAdder, Set<Double>> permanentLimits;
+    private static final String PERMANENT_CURRENT_LIMIT = "Permanent Current Limit";
 
-    public CurrentLimitsMapping() {
-        adders = new HashMap<>();
-        permanentLimits = new HashMap<>();
+    private final Context context;
+    private final Map<Terminal, CurrentLimitsAdder> adders = new HashMap<>();
+
+    public CurrentLimitsMapping(Context context) {
+        this.context = context;
     }
 
     public CurrentLimitsAdder computeAdderIfAbsent(Terminal terminal,
@@ -30,20 +31,26 @@ public class CurrentLimitsMapping {
         return adders.computeIfAbsent(terminal, mappingFunction);
     }
 
-    public void addPermanentLimit(double value, CurrentLimitsAdder adder) {
-        permanentLimits.computeIfAbsent(adder, a -> new HashSet<>()).add(value);
-    }
-
-    public void addAll() {
-        fillPermanentLimits();
-        for (Map.Entry<Terminal, CurrentLimitsAdder> entry : adders.entrySet()) {
-            entry.getValue().add();
+    public void addPermanentLimit(double value, CurrentLimitsAdder adder, String terminalId, String equipmentId) {
+        if (Double.isNaN(adder.getPermanentLimit())) {
+            adder.setPermanentLimit(value);
+        } else { // MRA: this can happen for example when several seasons are defined (there is not standard way to indicate the reason)
+            if (terminalId != null) {
+                context.fixed(PERMANENT_CURRENT_LIMIT,
+                        String.format("Several permanent limits defined for Terminal %s. Only the lowest is kept.", terminalId));
+            } else {
+                context.fixed(PERMANENT_CURRENT_LIMIT,
+                        String.format("Several permanent limits defined for Equipment %s. Only the lowest is kept.", equipmentId));
+            }
+            if (value < adder.getPermanentLimit()) {
+                adder.setPermanentLimit(value);
+            }
         }
     }
 
-    private void fillPermanentLimits() {
-        for (Map.Entry<CurrentLimitsAdder, Set<Double>> entry : permanentLimits.entrySet()) {
-            entry.getKey().setPermanentLimit(Collections.min(entry.getValue())); // Only keep the lowest permanent limit. best solution ?
+    public void addAll() {
+        for (Map.Entry<Terminal, CurrentLimitsAdder> entry : adders.entrySet()) {
+            entry.getValue().add();
         }
     }
 }

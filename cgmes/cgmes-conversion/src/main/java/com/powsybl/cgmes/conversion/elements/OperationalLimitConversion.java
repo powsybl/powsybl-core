@@ -130,13 +130,13 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     private void convertPatlCurrent(double value) {
         if (adder != null) {
-            context.currentLimitsMapping().addPermanentLimit(value, adder);
+            context.currentLimitsMapping().addPermanentLimit(value, adder, terminalId, equipmentId);
         } else {
             if (adder1 != null) {
-                context.currentLimitsMapping().addPermanentLimit(value, adder1);
+                context.currentLimitsMapping().addPermanentLimit(value, adder1, terminalId, equipmentId);
             }
             if (adder2 != null) {
-                context.currentLimitsMapping().addPermanentLimit(value, adder2);
+                context.currentLimitsMapping().addPermanentLimit(value, adder2, terminalId, equipmentId);
             }
         }
     }
@@ -152,21 +152,21 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         // We only accept high or absoluteValue (considered as high when
         // current from the conducting equipment to the terminal) limits
         String direction = p.getId("direction");
-        if (direction.endsWith("high") || direction.endsWith("absoluteValue")) {
+
+        // if there is no direction, the limit is considered as absoluteValue (cf. CGMES specification)
+        if (direction == null || direction.endsWith("high") || direction.endsWith("absoluteValue")) {
             if (adder != null) {
                 adder.beginTemporaryLimit()
-                        .setName(name)
+                        .setName(context.namingStrategy().getId("TATL", id))
                         .setValue(value)
                         .setAcceptableDuration(60 * acceptableDuration)
-                        .ensureNameUnicity()
                         .endTemporaryLimit();
             } else if (adder1 != null) {
                 // Should we chose one terminal randomly for branches ? Here by default, we only look at terminal1
                 adder1.beginTemporaryLimit()
-                        .setName(name)
+                        .setName(context.namingStrategy().getId("TATL", id))
                         .setValue(value)
                         .setAcceptableDuration(60 * acceptableDuration)
-                        .ensureNameUnicity()
                         .endTemporaryLimit();
             }
         } else if (direction.endsWith("low")) {
