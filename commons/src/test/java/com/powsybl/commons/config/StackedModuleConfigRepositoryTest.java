@@ -55,7 +55,14 @@ public class StackedModuleConfigRepositoryTest {
     }
 
     @Test
-    public void test() {
+    public void moduleExists() {
+        StackedModuleConfigRepository stackedRepository = new StackedModuleConfigRepository(createRepository2(), createRepository1());
+        assertTrue(stackedRepository.moduleExists("config1"));
+        assertFalse(stackedRepository.moduleExists("config4"));
+    }
+
+    @Test
+    public void getModuleConfig() {
         StackedModuleConfigRepository stackedRepository = new StackedModuleConfigRepository(createRepository2(), createRepository1());
         ModuleConfig config1 = stackedRepository.getModuleConfig("config1").orElse(null);
         assertNotNull(config1);

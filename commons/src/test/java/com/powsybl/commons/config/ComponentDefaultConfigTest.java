@@ -8,9 +8,12 @@ package com.powsybl.commons.config;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.PowsyblException;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -30,6 +33,9 @@ class B implements A {
  */
 public class ComponentDefaultConfigTest {
 
+    @Rule
+    public final ExpectedException expected = ExpectedException.none();
+
     private FileSystem fileSystem;
     private MapModuleConfig moduleConfig;
     private ComponentDefaultConfig config;
@@ -48,24 +54,31 @@ public class ComponentDefaultConfigTest {
     }
 
     @Test
-    public void findFactoryImplClassTest() throws IOException {
+    public void findFactoryImplClassTest() {
         moduleConfig.setClassProperty(A.class.getSimpleName(), B.class);
         assertEquals(B.class, config.findFactoryImplClass(A.class));
     }
 
     @Test
-    public void findFactoryImplClassDefaultTest() throws IOException {
+    public void propertyNotSet() {
+        expected.expect(PowsyblException.class);
+        expected.expectMessage("Property B is not set");
+        config.findFactoryImplClass(B.class);
+    }
+
+    @Test
+    public void findFactoryImplClassDefaultTest() {
         assertEquals(B.class, config.findFactoryImplClass(A.class, B.class));
     }
 
     @Test
-    public void newFactoryImplTest() throws IOException {
+    public void newFactoryImplTest() {
         moduleConfig.setClassProperty(A.class.getSimpleName(), B.class);
         assertTrue(config.newFactoryImpl(A.class) instanceof B);
     }
 
     @Test
-    public void newFactoryImplDefaultTest() throws IOException {
+    public void newFactoryImplDefaultTest() {
         assertTrue(config.newFactoryImpl(A.class, B.class) instanceof B);
     }
 }

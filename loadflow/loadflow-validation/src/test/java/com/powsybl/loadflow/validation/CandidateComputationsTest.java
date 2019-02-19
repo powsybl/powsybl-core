@@ -10,6 +10,7 @@ import com.google.auto.service.AutoService;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -17,7 +18,9 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.loadflow.*;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 import java.io.IOException;
@@ -32,6 +35,9 @@ import static org.junit.Assert.*;
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
 public class CandidateComputationsTest {
+
+    @Rule
+    public ExpectedException expected = ExpectedException.none();
 
     private InMemoryPlatformConfig platformConfig;
     private FileSystem fileSystem;
@@ -125,12 +131,14 @@ public class CandidateComputationsTest {
         }
     }
 
+    private static class PrivateLoadFlowFactory implements LoadFlowFactory {
+        @Override
+        public LoadFlow create(Network network, ComputationManager computationManager, int priority) {
+            return null;
+        }
+    }
 
-    @Test
-    public void runLoadFlowMock() {
-        platformConfig.createModuleConfig("loadflow-validation").setClassProperty("load-flow-factory", LoadFlowFactoryMock.class);
-        platformConfig.createModuleConfig("componentDefaultConfig").setClassProperty("LoadFlowFactory", LoadFlowFactoryMock.class);
-
+    private void run() {
         Network network = EurostagTutorialExample1Factory.create();
 
         CandidateComputation computation = CandidateComputations.getComputation("loadflow").orElseGet(failure());
@@ -139,5 +147,27 @@ public class CandidateComputationsTest {
 
         computation.run(network, Mockito.mock(ComputationManager.class), platformConfig);
         assertEquals(92f, network.getGenerator("GEN").getTerminal().getP(), 0f);
+    }
+
+
+    @Test
+    public void runLoadFlowMock() {
+        platformConfig.createModuleConfig("loadflow-validation").setClassProperty("load-flow-factory", LoadFlowFactoryMock.class);
+        run();
+    }
+
+
+    @Test
+    public void runLoadFlowMockWithComponentDefaultConfig() {
+        platformConfig.createModuleConfig("componentDefaultConfig").setClassProperty("LoadFlowFactory", LoadFlowFactoryMock.class);
+        run();
+    }
+
+    @Test
+    public void failRunLoadFlow() {
+        expected.expect(PowsyblException.class);
+        expected.expectMessage("Could not instantiate load flow factory");
+        platformConfig.createModuleConfig("loadflow-validation").setClassProperty("load-flow-factory", PrivateLoadFlowFactory.class);
+        run();
     }
 }
