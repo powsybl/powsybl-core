@@ -18,11 +18,13 @@ import java.io.*;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -32,7 +34,7 @@ public class ExportersTest {
     @Rule
     public final ExpectedException expected = ExpectedException.none();
 
-    private ExportersLoader exportersLoader = new ExportersLoaderList(Collections.singletonList(new TestExporter()));
+    private ExportersLoader loader = new ExportersLoaderList(Collections.singletonList(new TestExporter()));
     private FileSystem fileSystem;
     private Path tmpDir;
 
@@ -48,23 +50,38 @@ public class ExportersTest {
     }
 
     @Test
+    public void getFormat() {
+        Collection<String> formats = Exporters.getFormats(loader);
+        assertEquals(1, formats.size());
+        assertTrue(formats.contains("TST"));
+    }
+
+    @Test
     public void exportWithNullExporter() {
         expected.expect(PowsyblException.class);
         expected.expectMessage("Export format UNSUPPORTED not supported");
         Exporters.export("UNSUPPORTED", NetworkFactory.create("test", "test"),
-                null, new FileDataSource(tmpDir, "test0.tst"), exportersLoader);
+                null, new FileDataSource(tmpDir, "test0.tst"), loader);
     }
 
     @Test
-    public void createDataSource() {
+    public void createDataSource() throws IOException {
+        Files.createFile(tmpDir.resolve("test1.tst"));
         DataSource ds = Exporters.createDataSource(tmpDir.resolve("test1.tst"));
-        assertNotNull(ds);
+        assertTrue(ds.exists("test1.tst"));
+    }
+
+    @Test
+    public void createDataSourceWhenFileExistsAndIsNotARegularFile() {
+        expected.expect(UncheckedIOException.class);
+        expected.expectMessage("File tmp already exists and is not a regular file");
+        Exporters.createDataSource(tmpDir);
     }
 
     @Test
     public void export() throws IOException {
         Exporters.export("TST", NetworkFactory.create("test", "test"),
-                null, tmpDir.resolve("test2.tst"), exportersLoader);
+                null, tmpDir.resolve("test2.tst"), loader);
         try (BufferedReader reader = Files.newBufferedReader(tmpDir.resolve("test2.tst"))) {
             assertEquals("This is a test", reader.lines().collect(Collectors.joining()));
         }

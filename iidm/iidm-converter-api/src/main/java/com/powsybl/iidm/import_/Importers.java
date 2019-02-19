@@ -61,19 +61,19 @@ public final class Importers {
         return getFormats(LOADER);
     }
 
-    private static Importer wrapImporter(Importer importer, ComputationManager computationManager, ImportConfig config) {
+    private static Importer wrapImporter(ImportersLoader loader, Importer importer, ComputationManager computationManager, ImportConfig config) {
         Objects.requireNonNull(computationManager);
         Objects.requireNonNull(config);
         List<String> postProcessorNames = config.getPostProcessors();
         if (postProcessorNames != null && !postProcessorNames.isEmpty()) {
-            return new ImporterWrapper(importer, computationManager, postProcessorNames);
+            return new ImporterWrapper(loader, importer, computationManager, postProcessorNames);
         }
         return importer;
     }
 
     public static Collection<Importer> list(ImportersLoader loader, ComputationManager computationManager, ImportConfig config) {
         return loader.loadImporters().stream()
-                .map(importer -> wrapImporter(importer, computationManager, config))
+                .map(importer -> wrapImporter(loader, importer, computationManager, config))
                 .collect(Collectors.toList());
     }
 
@@ -96,7 +96,7 @@ public final class Importers {
         Objects.requireNonNull(format);
         for (Importer importer : loader.loadImporters()) {
             if (format.equals(importer.getFormat())) {
-                return wrapImporter(importer, computationManager, config);
+                return wrapImporter(loader, importer, computationManager, config);
             }
         }
         return null;
@@ -124,16 +124,23 @@ public final class Importers {
 
     private static class ImporterWrapper implements Importer {
 
+        private final ImportersLoader loader;
+
         private final Importer importer;
 
         private final ComputationManager computationManager;
 
         private final List<String> names;
 
-        ImporterWrapper(Importer importer, ComputationManager computationManager, List<String> names) {
+        ImporterWrapper(ImportersLoader loader, Importer importer, ComputationManager computationManager, List<String> names) {
+            this.loader = loader;
             this.importer = importer;
             this.computationManager = computationManager;
             this.names = names;
+        }
+
+        ImporterWrapper(Importer importer, ComputationManager computationManager, List<String> names) {
+            this(LOADER, importer, computationManager, names);
         }
 
         public Importer getImporter() {
@@ -169,16 +176,12 @@ public final class Importers {
             throw new PowsyblException("Post processor " + name + " not found");
         }
 
-        private static ImportPostProcessor getPostProcessor(String name) {
-            return getPostProcessor(LOADER, name);
-        }
-
         @Override
         public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
             Network network = importer.importData(dataSource, parameters);
             for (String name : names) {
                 try {
-                    getPostProcessor(name).process(network, computationManager);
+                    getPostProcessor(loader, name).process(network, computationManager);
                 } catch (Exception e) {
                     throw new PowsyblException(e);
                 }
@@ -192,6 +195,10 @@ public final class Importers {
         }
     }
 
+    public static Importer addPostProcessors(ImportersLoader loader, Importer importer, ComputationManager computationManager, String... names) {
+        return new ImporterWrapper(loader, importer, computationManager, Arrays.asList(names));
+    }
+
     public static Importer addPostProcessors(Importer importer, ComputationManager computationManager, String... names) {
         return new ImporterWrapper(importer, computationManager, Arrays.asList(names));
     }
@@ -200,10 +207,13 @@ public final class Importers {
         return new ImporterWrapper(importer, LocalComputationManager.getDefault(), Arrays.asList(names));
     }
 
-    public static Importer setPostProcessors(Importer importer, ComputationManager computationManager, String... names) {
+    public static Importer setPostProcessors(ImportersLoader loader, Importer importer, ComputationManager computationManager, String... names) {
         Importer importer2 = removePostProcessors(importer);
-        addPostProcessors(importer2, computationManager, names);
-        return importer2;
+        return addPostProcessors(loader, importer2, computationManager, names);
+    }
+
+    public static Importer setPostProcessors(Importer importer, ComputationManager computationManager, String... names) {
+        return setPostProcessors(LOADER, importer, computationManager, names);
     }
 
     public static Importer setPostProcessors(Importer importer, String... names) {
