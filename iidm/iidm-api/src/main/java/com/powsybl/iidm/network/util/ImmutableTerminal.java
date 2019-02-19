@@ -6,10 +6,11 @@
  */
 package com.powsybl.iidm.network.util;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.VoltageLevel;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -17,16 +18,13 @@ import java.util.Objects;
  */
 public final class ImmutableTerminal implements Terminal {
 
-    private static final Map<Terminal, ImmutableTerminal> CACHE = new HashMap<>();
+    private final ImmutableCacheIndex cache;
 
-    Terminal terminal;
+    private Terminal terminal;
 
-    private ImmutableTerminal(Terminal terminal) {
+    ImmutableTerminal(Terminal terminal, ImmutableCacheIndex cache) {
         this.terminal = Objects.requireNonNull(terminal);
-    }
-
-    static ImmutableTerminal ofNullable(Terminal terminal) {
-        return terminal == null ? null : CACHE.computeIfAbsent(terminal, k -> new ImmutableTerminal(terminal));
+        this.cache = Objects.requireNonNull(cache);
     }
 
     Terminal getTerminal() {
@@ -35,7 +33,7 @@ public final class ImmutableTerminal implements Terminal {
 
     @Override
     public VoltageLevel getVoltageLevel() {
-        return ImmutableVoltageLevel.ofNullable(terminal.getVoltageLevel());
+        return cache.getVoltageLevel(terminal.getVoltageLevel());
     }
 
     @Override
@@ -48,12 +46,12 @@ public final class ImmutableTerminal implements Terminal {
         return new BusBreakerView() {
             @Override
             public Bus getBus() {
-                return ImmutableBus.ofNullable(terminal.getBusBreakerView().getBus());
+                return cache.getBus(terminal.getBusBreakerView().getBus());
             }
 
             @Override
             public Bus getConnectableBus() {
-                return ImmutableBus.ofNullable(terminal.getBusBreakerView().getConnectableBus());
+                return cache.getBus(terminal.getBusBreakerView().getConnectableBus());
             }
 
             @Override
@@ -68,12 +66,12 @@ public final class ImmutableTerminal implements Terminal {
         return new BusView() {
             @Override
             public Bus getBus() {
-                return ImmutableBus.ofNullable(terminal.getBusView().getBus());
+                return cache.getBus(terminal.getBusView().getBus());
             }
 
             @Override
             public Bus getConnectableBus() {
-                return ImmutableBus.ofNullable(terminal.getBusView().getConnectableBus());
+                return cache.getBus(terminal.getBusView().getConnectableBus());
             }
         };
     }
@@ -81,7 +79,7 @@ public final class ImmutableTerminal implements Terminal {
     @Override
     public Connectable getConnectable() {
         Connectable connectable = terminal.getConnectable();
-        return ImmutableFactory.ofNullableConnectable(connectable);
+        return cache.getConnectable(connectable);
     }
 
     @Override

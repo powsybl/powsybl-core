@@ -10,8 +10,6 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerStep;
 import com.powsybl.iidm.network.Terminal;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -19,17 +17,11 @@ import java.util.Objects;
  */
 public final class ImmutablePhaseTapChanger extends ImmutableTapChanger implements PhaseTapChanger {
 
-    private static final Map<PhaseTapChanger, ImmutablePhaseTapChanger> CACHE = new HashMap<>();
-
     PhaseTapChanger phaseTapChanger;
 
-    private ImmutablePhaseTapChanger(PhaseTapChanger phaseTapChanger) {
-        super(phaseTapChanger);
+    ImmutablePhaseTapChanger(PhaseTapChanger phaseTapChanger, ImmutableCacheIndex cache) {
+        super(phaseTapChanger, cache);
         this.phaseTapChanger = phaseTapChanger;
-    }
-
-    static ImmutablePhaseTapChanger ofNullable(PhaseTapChanger tapChanger) {
-        return tapChanger == null ? null : CACHE.computeIfAbsent(tapChanger, k -> new ImmutablePhaseTapChanger(tapChanger));
     }
 
     @Override

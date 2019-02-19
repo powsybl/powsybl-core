@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.util;
 
+import com.google.common.collect.Sets;
 import com.powsybl.iidm.network.*;
 import org.junit.Test;
 import org.mockito.verification.VerificationMode;
@@ -18,7 +19,7 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 /**
- * This test is to guarant that objects acquired by getter in immutable ojbect are always be wrapped as immutbale
+ * This test is to guarant that objects acquired by getter in immutable object are always be wrapped as immutbale
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 public class ImmutableTest {
@@ -34,6 +35,8 @@ public class ImmutableTest {
     static {
         when(MOCK_TIELINE.isTieLine()).thenReturn(true);
         when(MOCK_TIELINE.getType()).thenReturn(ConnectableType.LINE);
+        when(MOCK_TIELINE.getHalf1()).thenReturn(mock(TieLine.HalfLine.class));
+        when(MOCK_TIELINE.getHalf2()).thenReturn(mock(TieLine.HalfLine.class));
         when(MOCK_LINE.isTieLine()).thenReturn(false);
         when(MOCK_LINE.getType()).thenReturn(ConnectableType.LINE);
     }
@@ -83,8 +86,7 @@ public class ImmutableTest {
     @Test
     public void testBus() {
         Bus delegate = mock(Bus.class);
-        Bus sut = ImmutableBus.ofNullable(delegate);
-        assertSame(sut, ImmutableBus.ofNullable(delegate));
+        Bus sut = new ImmutableBus(delegate, new ImmutableCacheIndex());
 
         when(delegate.getP()).thenReturn(42.0);
         assertEquals(42.0, sut.getP(), 0.0);
@@ -154,7 +156,7 @@ public class ImmutableTest {
     @Test
     public void testComponent() {
         Component delegate = mock(Component.class);
-        Component sut = ImmutableComponent.ofNullable(delegate);
+        Component sut = new ImmutableComponent(delegate, new ImmutableCacheIndex());
 
         when(delegate.getNum()).thenReturn(3);
         when(delegate.getSize()).thenReturn(33);
@@ -171,7 +173,7 @@ public class ImmutableTest {
     @Test
     public void testLine() {
         Line delegate = mock(Line.class);
-        Line sut = ImmutableFactory.ofNullableLine(delegate);
+        Line sut = new ImmutableLine(delegate, new ImmutableCacheIndex());
 
         when(delegate.isOverloaded()).thenReturn(false);
         when(delegate.isOverloaded(0.9f)).thenReturn(true);
@@ -216,7 +218,7 @@ public class ImmutableTest {
     @Test
     public void testVariantManager() {
         VariantManager delegate = mock(VariantManager.class);
-        VariantManager sut = ImmutableVariantManager.of(delegate);
+        VariantManager sut = new ImmutableVariantManager(delegate, new ImmutableCacheIndex());
         sut.setWorkingVariant("set");
         verify(delegate, ONCE).setWorkingVariant("set");
         try {
@@ -238,9 +240,9 @@ public class ImmutableTest {
         when(delegate.getWorkingVariantId()).thenReturn("set");
         assertEquals("set", sut.getWorkingVariantId());
         verify(delegate, ONCE).getWorkingVariantId();
-        List<String> ids = Collections.singletonList("vars");
+        Collection<String> ids = Collections.unmodifiableSet(Sets.newHashSet("vars"));
         when(delegate.getVariantIds()).thenReturn(ids);
-        assertEquals(ids, sut.getVariantIds());
+        assertEquals(ids, new HashSet<>(sut.getVariantIds()));
         verify(delegate, ONCE).getVariantIds();
     }
 
@@ -334,7 +336,8 @@ public class ImmutableTest {
     @Test
     public void testVoltageLevel() {
         VoltageLevel delegate = mock(VoltageLevel.class);
-        VoltageLevel sut = ImmutableVoltageLevel.ofNullable(delegate);
+        ImmutableCacheIndex immutableCacheIndex = new ImmutableCacheIndex();
+        VoltageLevel sut = new ImmutableVoltageLevel(delegate, immutableCacheIndex);
 
         when(delegate.getConnectables(Line.class)).thenReturn(MOCK_LINE_LIST);
         Iterator<Line> iterator = sut.getConnectables(Line.class).iterator();
@@ -347,10 +350,16 @@ public class ImmutableTest {
         assertTrue(sut.getSwitches().iterator().next() instanceof ImmutableSwitch);
 
         when(delegate.getLoadCount()).thenReturn(3);
-        assertEquals(3, delegate.getLoadCount());
+        assertEquals(3, sut.getLoadCount());
         when(delegate.getLoads()).thenReturn(MOCK_LOAD_LIST);
         when(delegate.getLoadStream()).thenReturn(MOCK_LOAD_STREAM.get());
         assertElementType(ImmutableLoad.class, sut.getLoads(), sut.getLoadStream());
+
+        when(delegate.getGeneratorCount()).thenReturn(1);
+        assertEquals(1, sut.getGeneratorCount());
+        when(delegate.getGenerators()).thenReturn(MOCK_GENERATOR_LIST);
+        when(delegate.getGeneratorStream()).thenReturn(MOCK_GENERATOR_STREAM.get());
+        assertElementType(ImmutableGenerator.class, sut.getGenerators(), sut.getGeneratorStream());
 
         when(delegate.getStaticVarCompensators()).thenReturn(MOCK_SVC_LIST);
         when(delegate.getStaticVarCompensatorStream()).thenReturn(MOCK_SVC_STREAM.get());
@@ -359,7 +368,7 @@ public class ImmutableTest {
         assertElementType(ImmutableStaticVarCompensator.class, sut.getStaticVarCompensators(), sut.getStaticVarCompensatorStream());
 
         when(delegate.getShuntCompensatorCount()).thenReturn(1);
-        assertEquals(1, delegate.getShuntCompensatorCount());
+        assertEquals(1, sut.getShuntCompensatorCount());
         when(delegate.getShuntCompensators()).thenReturn(MOCK_SHUNT_LIST);
         when(delegate.getShuntCompensatorStream()).thenReturn(MOCK_SHUNT_STREAM.get());
         assertElementType(ImmutableShuntCompensator.class, sut.getShuntCompensators(), sut.getShuntCompensatorStream());
@@ -390,8 +399,8 @@ public class ImmutableTest {
 
         Bus b1 = mock(Bus.class);
         Bus b2 = mock(Bus.class);
-        ImmutableBus bus1 = ImmutableBus.ofNullable(b1);
-        ImmutableBus bus2 = ImmutableBus.ofNullable(b2);
+        ImmutableBus bus1 = (ImmutableBus) immutableCacheIndex.getBus(b1);
+        ImmutableBus bus2 = (ImmutableBus) immutableCacheIndex.getBus(b2);
 
         when(delegateBbv.getSwitches()).thenReturn(MOCK_SW_LIST);
         when(delegateBbv.getSwitchStream()).thenReturn(MOCK_SW_STREAM.get());
@@ -422,9 +431,9 @@ public class ImmutableTest {
         assertEquals(2, sut.getNodeBreakerView().getNode2("s2"));
 
         Terminal t1 = mock(Terminal.class);
-        Terminal terminal1 = ImmutableTerminal.ofNullable(t1);
+        Terminal terminal1 = immutableCacheIndex.getTerminal(t1);
         Terminal t2 = mock(Terminal.class);
-        Terminal terminal2 = ImmutableTerminal.ofNullable(t2);
+        Terminal terminal2 = immutableCacheIndex.getTerminal(t2);
         when(delegateNbv.getTerminal1("s1")).thenReturn(t1);
         when(delegateNbv.getTerminal2("s2")).thenReturn(t2);
         assertSame(terminal1, sut.getNodeBreakerView().getTerminal1("s1"));
@@ -440,7 +449,7 @@ public class ImmutableTest {
     @Test
     public void testSubstation() {
         Substation delegate = mock(Substation.class);
-        Substation sut = ImmutableSubstation.ofNullable(delegate);
+        Substation sut = new ImmutableSubstation(delegate, new ImmutableCacheIndex());
 
         when(delegate.getTwoWindingsTransformerCount()).thenReturn(1);
         assertEquals(1, sut.getTwoWindingsTransformerCount());

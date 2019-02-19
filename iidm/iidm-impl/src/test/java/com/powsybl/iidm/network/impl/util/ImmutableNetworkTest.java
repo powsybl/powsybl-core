@@ -35,6 +35,8 @@ public class ImmutableNetworkTest {
         testInvalidMethods(network, expectedInvalidMethods);
 
         Substation sub = network.getSubstation("P1");
+        Substation sub2 = network.getSubstation("P1");
+        assertSame(sub, sub2);
         assertTrue(sub instanceof ImmutableSubstation);
         assertSame(network, sub.getNetwork());
         Set<String> mutalbeMethods = new HashSet<>();

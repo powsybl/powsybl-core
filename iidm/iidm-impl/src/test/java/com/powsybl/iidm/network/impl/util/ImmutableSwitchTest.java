@@ -23,6 +23,7 @@ public class ImmutableSwitchTest {
     @Test
     public void testSw() {
         Network n = FictitiousSwitchFactory.create();
+        Switch pppp1 = n.getSwitch("pppp");
         ImmutableNetwork network = ImmutableNetwork.of(n);
         Switch aSwitch = network.getSwitch("AB");
         Set<String> invalidMethods = new HashSet<>();
@@ -30,5 +31,7 @@ public class ImmutableSwitchTest {
         invalidMethods.add("setRetained");
         invalidMethods.add("setFictitious");
         ImmutableTestHelper.testInvalidMethods(aSwitch, invalidMethods);
+
+        Switch pppp = network.getSwitch("pppp");
     }
 }

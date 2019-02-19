@@ -10,9 +10,8 @@ import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.Terminal;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -20,14 +19,11 @@ import java.util.stream.Collectors;
  */
 public final class ImmutableShuntCompensator extends AbstractImmutableIdentifiable<ShuntCompensator> implements ShuntCompensator {
 
-    private static final Map<ShuntCompensator, ImmutableShuntCompensator> CACHE = new HashMap<>();
+    private final ImmutableCacheIndex cache;
 
-    private ImmutableShuntCompensator(ShuntCompensator identifiable) {
+    ImmutableShuntCompensator(ShuntCompensator identifiable, ImmutableCacheIndex cache) {
         super(identifiable);
-    }
-
-    static ImmutableShuntCompensator ofNullable(ShuntCompensator shunt) {
-        return null == shunt ? null : CACHE.computeIfAbsent(shunt, k -> new ImmutableShuntCompensator(shunt));
+        this.cache = Objects.requireNonNull(cache);
     }
 
     @Override
@@ -72,7 +68,7 @@ public final class ImmutableShuntCompensator extends AbstractImmutableIdentifiab
 
     @Override
     public Terminal getTerminal() {
-        return ImmutableTerminal.ofNullable(identifiable.getTerminal());
+        return cache.getTerminal(identifiable.getTerminal());
     }
 
     @Override
@@ -82,7 +78,7 @@ public final class ImmutableShuntCompensator extends AbstractImmutableIdentifiab
 
     @Override
     public List<? extends Terminal> getTerminals() {
-        return identifiable.getTerminals().stream().map(ImmutableTerminal::ofNullable).collect(Collectors.toList());
+        return identifiable.getTerminals().stream().map(cache::getTerminal).collect(Collectors.toList());
     }
 
     @Override

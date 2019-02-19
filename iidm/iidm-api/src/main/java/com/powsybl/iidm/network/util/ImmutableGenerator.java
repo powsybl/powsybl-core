@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -20,12 +21,11 @@ public final class ImmutableGenerator extends AbstractImmutableIdentifiable<Gene
 
     private static final Map<Generator, ImmutableGenerator> CACHE = new HashMap<>();
 
-    private ImmutableGenerator(Generator identifiable) {
-        super(identifiable);
-    }
+    private final ImmutableCacheIndex cache;
 
-    static ImmutableGenerator ofNullable(Generator generator) {
-        return null == generator ? null : CACHE.computeIfAbsent(generator, k -> new ImmutableGenerator(generator));
+    ImmutableGenerator(Generator identifiable, ImmutableCacheIndex cache) {
+        super(identifiable);
+        this.cache = Objects.requireNonNull(cache);
     }
 
     @Override
@@ -70,7 +70,7 @@ public final class ImmutableGenerator extends AbstractImmutableIdentifiable<Gene
 
     @Override
     public Terminal getRegulatingTerminal() {
-        return ImmutableTerminal.ofNullable(identifiable.getRegulatingTerminal());
+        return cache.getTerminal(identifiable.getRegulatingTerminal());
     }
 
     @Override
@@ -120,7 +120,7 @@ public final class ImmutableGenerator extends AbstractImmutableIdentifiable<Gene
 
     @Override
     public Terminal getTerminal() {
-        return ImmutableTerminal.ofNullable(identifiable.getTerminal());
+        return cache.getTerminal(identifiable.getTerminal());
     }
 
     @Override
@@ -130,7 +130,7 @@ public final class ImmutableGenerator extends AbstractImmutableIdentifiable<Gene
 
     @Override
     public List<? extends Terminal> getTerminals() {
-        return identifiable.getTerminals().stream().map(ImmutableTerminal::ofNullable).collect(Collectors.toList());
+        return identifiable.getTerminals().stream().map(cache::getTerminal).collect(Collectors.toList());
     }
 
     @Override

@@ -8,9 +8,7 @@ package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -19,19 +17,19 @@ import java.util.stream.Collectors;
  */
 public final class ImmutableThreeWindingsTransformer extends AbstractImmutableIdentifiable<ThreeWindingsTransformer> implements ThreeWindingsTransformer {
 
-    private static final Map<ThreeWindingsTransformer, ImmutableThreeWindingsTransformer> CACHE = new HashMap<>();
+    private final ImmutableCacheIndex cache;
 
-    private ImmutableThreeWindingsTransformer(ThreeWindingsTransformer identifiable) {
+    private ImmutableLeg2or3 cacheLeg2;
+    private ImmutableLeg2or3 cacheLeg3;
+
+    ImmutableThreeWindingsTransformer(ThreeWindingsTransformer identifiable, ImmutableCacheIndex cache) {
         super(identifiable);
-    }
-
-    static ThreeWindingsTransformer ofNullable(ThreeWindingsTransformer threeWindingsTransformer) {
-        return null == threeWindingsTransformer ? null : CACHE.computeIfAbsent(threeWindingsTransformer, k -> new ImmutableThreeWindingsTransformer(threeWindingsTransformer));
+        this.cache = Objects.requireNonNull(cache);
     }
 
     @Override
     public Terminal getTerminal(Side side) {
-        return ImmutableTerminal.ofNullable(identifiable.getTerminal(side));
+        return cache.getTerminal(identifiable.getTerminal(side));
     }
 
     @Override
@@ -45,7 +43,7 @@ public final class ImmutableThreeWindingsTransformer extends AbstractImmutableId
 
     @Override
     public Substation getSubstation() {
-        return ImmutableSubstation.ofNullable(identifiable.getSubstation());
+        return cache.getSubstation(identifiable.getSubstation());
     }
 
     @Override
@@ -73,7 +71,7 @@ public final class ImmutableThreeWindingsTransformer extends AbstractImmutableId
 
             @Override
             public Terminal getTerminal() {
-                return ImmutableTerminal.ofNullable(identifiable.getLeg1().getTerminal());
+                return cache.getTerminal(identifiable.getLeg1().getTerminal());
             }
 
             @Override
@@ -108,7 +106,7 @@ public final class ImmutableThreeWindingsTransformer extends AbstractImmutableId
 
             @Override
             public CurrentLimits getCurrentLimits() {
-                return ImmutableCurrentLimits.ofNullable(identifiable.getLeg1().getCurrentLimits());
+                return cache.getCurrentLimits(identifiable.getLeg1().getCurrentLimits());
             }
 
             @Override
@@ -120,12 +118,18 @@ public final class ImmutableThreeWindingsTransformer extends AbstractImmutableId
 
     @Override
     public Leg2or3 getLeg2() {
-        return ImmutableLeg2or3.ofNullable(identifiable.getLeg2());
+        if (cacheLeg2 == null) {
+            cacheLeg2 = new ImmutableLeg2or3(identifiable.getLeg2(), cache);
+        }
+        return cacheLeg2;
     }
 
     @Override
     public Leg2or3 getLeg3() {
-        return ImmutableLeg2or3.ofNullable(identifiable.getLeg3());
+        if (cacheLeg3 == null) {
+            cacheLeg3 = new ImmutableLeg2or3(identifiable.getLeg3(), cache);
+        }
+        return cacheLeg3;
     }
 
     @Override
@@ -135,7 +139,7 @@ public final class ImmutableThreeWindingsTransformer extends AbstractImmutableId
 
     @Override
     public List<? extends Terminal> getTerminals() {
-        return identifiable.getTerminals().stream().map(ImmutableTerminal::ofNullable).collect(Collectors.toList());
+        return identifiable.getTerminals().stream().map(cache::getTerminal).collect(Collectors.toList());
     }
 
     @Override
@@ -147,12 +151,11 @@ public final class ImmutableThreeWindingsTransformer extends AbstractImmutableId
 
         Leg2or3 leg;
 
-        ImmutableLeg2or3(Leg2or3 leg) {
-            this.leg = Objects.requireNonNull(leg);
-        }
+        ImmutableCacheIndex cache;
 
-        static ImmutableLeg2or3 ofNullable(Leg2or3 leg) {
-            return null == leg ? null : new ImmutableLeg2or3(leg);
+        ImmutableLeg2or3(Leg2or3 leg, ImmutableCacheIndex cache) {
+            this.leg = Objects.requireNonNull(leg);
+            this.cache = Objects.requireNonNull(cache);
         }
 
         @Override
@@ -162,12 +165,12 @@ public final class ImmutableThreeWindingsTransformer extends AbstractImmutableId
 
         @Override
         public RatioTapChanger getRatioTapChanger() {
-            return ImmutableRatioTapChanger.ofNullable(leg.getRatioTapChanger());
+            return cache.getRatioTapChanger(leg.getRatioTapChanger());
         }
 
         @Override
         public Terminal getTerminal() {
-            return ImmutableTerminal.ofNullable(leg.getTerminal());
+            return cache.getTerminal(leg.getTerminal());
         }
 
         @Override
@@ -202,7 +205,7 @@ public final class ImmutableThreeWindingsTransformer extends AbstractImmutableId
 
         @Override
         public CurrentLimits getCurrentLimits() {
-            return ImmutableCurrentLimits.ofNullable(leg.getCurrentLimits());
+            return cache.getCurrentLimits(leg.getCurrentLimits());
         }
 
         @Override

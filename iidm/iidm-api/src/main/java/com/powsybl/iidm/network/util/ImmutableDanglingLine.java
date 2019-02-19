@@ -8,9 +8,8 @@ package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -18,14 +17,13 @@ import java.util.stream.Collectors;
  */
 public final class ImmutableDanglingLine extends AbstractImmutableIdentifiable<DanglingLine> implements DanglingLine {
 
-    private static final Map<DanglingLine, ImmutableDanglingLine> CACHE = new HashMap<>();
+    private final ImmutableCacheIndex cache;
 
-    private ImmutableDanglingLine(DanglingLine identifiable) {
+    private ImmutableCurrentLimits immutableCurrentLimits;
+
+    ImmutableDanglingLine(DanglingLine identifiable, ImmutableCacheIndex cache) {
         super(identifiable);
-    }
-
-    static ImmutableDanglingLine ofNullable(DanglingLine danglingLine) {
-        return null == danglingLine ? null : CACHE.computeIfAbsent(danglingLine, k -> new ImmutableDanglingLine(danglingLine));
+        this.cache = Objects.requireNonNull(cache);
     }
 
     @Override
@@ -95,7 +93,7 @@ public final class ImmutableDanglingLine extends AbstractImmutableIdentifiable<D
 
     @Override
     public CurrentLimits getCurrentLimits() {
-        return ImmutableCurrentLimits.ofNullable(identifiable.getCurrentLimits());
+        return cache.getCurrentLimits(identifiable.getCurrentLimits());
     }
 
     @Override
@@ -105,7 +103,7 @@ public final class ImmutableDanglingLine extends AbstractImmutableIdentifiable<D
 
     @Override
     public Terminal getTerminal() {
-        return ImmutableTerminal.ofNullable(identifiable.getTerminal());
+        return cache.getTerminal(identifiable.getTerminal());
     }
 
     @Override
@@ -115,7 +113,7 @@ public final class ImmutableDanglingLine extends AbstractImmutableIdentifiable<D
 
     @Override
     public List<? extends Terminal> getTerminals() {
-        return identifiable.getTerminals().stream().map(ImmutableTerminal::ofNullable).collect(Collectors.toList());
+        return identifiable.getTerminals().stream().map(cache::getTerminal).collect(Collectors.toList());
     }
 
     @Override

@@ -18,14 +18,11 @@ import java.util.stream.Stream;
  */
 public final class ImmutableSubstation extends AbstractImmutableIdentifiable<Substation> implements Substation {
 
-    private static final Map<Substation, ImmutableSubstation> CACHE = new HashMap<>();
+    private final ImmutableCacheIndex cache;
 
-    private ImmutableSubstation(Substation identifiable) {
+    ImmutableSubstation(Substation identifiable, ImmutableCacheIndex cache) {
         super(identifiable);
-    }
-
-    static ImmutableSubstation ofNullable(Substation identifiable) {
-        return identifiable == null ? null : CACHE.computeIfAbsent(identifiable, k -> new ImmutableSubstation(identifiable));
+        this.cache = Objects.requireNonNull(cache);
     }
 
     @Override
@@ -60,12 +57,12 @@ public final class ImmutableSubstation extends AbstractImmutableIdentifiable<Sub
 
     @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
-        return Iterables.transform(identifiable.getVoltageLevels(), ImmutableVoltageLevel::ofNullable);
+        return Iterables.transform(identifiable.getVoltageLevels(), cache::getVoltageLevel);
     }
 
     @Override
     public Stream<VoltageLevel> getVoltageLevelStream() {
-        return identifiable.getVoltageLevelStream().map(ImmutableVoltageLevel::ofNullable);
+        return identifiable.getVoltageLevelStream().map(cache::getVoltageLevel);
     }
 
     @Override
@@ -75,12 +72,12 @@ public final class ImmutableSubstation extends AbstractImmutableIdentifiable<Sub
 
     @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
-        return Iterables.transform(identifiable.getTwoWindingsTransformers(), ImmutableTwoWindingsTransformer::ofNullable);
+        return Iterables.transform(identifiable.getTwoWindingsTransformers(), cache::getTwoWindingsTransformer);
     }
 
     @Override
     public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
-        return identifiable.getTwoWindingsTransformerStream().map(ImmutableTwoWindingsTransformer::ofNullable);
+        return identifiable.getTwoWindingsTransformerStream().map(cache::getTwoWindingsTransformer);
     }
 
     @Override
@@ -95,12 +92,12 @@ public final class ImmutableSubstation extends AbstractImmutableIdentifiable<Sub
 
     @Override
     public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
-        return Iterables.transform(identifiable.getThreeWindingsTransformers(), ImmutableThreeWindingsTransformer::ofNullable);
+        return Iterables.transform(identifiable.getThreeWindingsTransformers(), cache::getThreeWindingsTransformer);
     }
 
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
-        return identifiable.getThreeWindingsTransformerStream().map(ImmutableThreeWindingsTransformer::ofNullable);
+        return identifiable.getThreeWindingsTransformerStream().map(cache::getThreeWindingsTransformer);
     }
 
     @Override

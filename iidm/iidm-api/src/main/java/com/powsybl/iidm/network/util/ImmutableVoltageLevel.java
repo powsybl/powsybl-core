@@ -13,8 +13,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Random;
 import java.util.stream.Stream;
 
@@ -23,19 +22,16 @@ import java.util.stream.Stream;
  */
 public final class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<VoltageLevel> implements VoltageLevel {
 
-    private static final Map<VoltageLevel, ImmutableVoltageLevel> CACHE = new HashMap<>();
+    private final ImmutableCacheIndex cache;
 
-    private ImmutableVoltageLevel(VoltageLevel identifiable) {
+    ImmutableVoltageLevel(VoltageLevel identifiable, ImmutableCacheIndex cache) {
         super(identifiable);
-    }
-
-    static ImmutableVoltageLevel ofNullable(VoltageLevel identifiable) {
-        return identifiable == null ? null : CACHE.computeIfAbsent(identifiable, k -> new ImmutableVoltageLevel(identifiable));
+        this.cache = Objects.requireNonNull(cache);
     }
 
     @Override
     public Substation getSubstation() {
-        return ImmutableSubstation.ofNullable(identifiable.getSubstation());
+        return cache.getSubstation(identifiable.getSubstation());
     }
 
     @Override
@@ -75,17 +71,17 @@ public final class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<V
 
     @Override
     public <T extends Connectable> T getConnectable(String id, Class<T> aClass) {
-        return (T) ImmutableFactory.ofNullableConnectable(identifiable.getConnectable(id, aClass));
+        return (T) cache.getConnectable(identifiable.getConnectable(id, aClass));
     }
 
     @Override
     public <T extends Connectable> Iterable<T> getConnectables(Class<T> clazz) {
-        return Iterables.transform(identifiable.getConnectables(clazz), c -> (T) ImmutableFactory.ofNullableConnectable(c));
+        return Iterables.transform(identifiable.getConnectables(clazz), c -> (T) cache.getConnectable(c));
     }
 
     @Override
     public <T extends Connectable> Stream<T> getConnectableStream(Class<T> clazz) {
-        return identifiable.getConnectableStream(clazz).map(c -> (T) ImmutableFactory.ofNullableConnectable(c));
+        return identifiable.getConnectableStream(clazz).map(c -> (T) cache.getConnectable(c));
     }
 
     @Override
@@ -95,12 +91,12 @@ public final class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<V
 
     @Override
     public Iterable<Connectable> getConnectables() {
-        return Iterables.transform(identifiable.getConnectables(), ImmutableFactory::ofNullableConnectable);
+        return Iterables.transform(identifiable.getConnectables(), cache::getConnectable);
     }
 
     @Override
     public Stream<Connectable> getConnectableStream() {
-        return identifiable.getConnectableStream().map(ImmutableFactory::ofNullableConnectable);
+        return identifiable.getConnectableStream().map(cache::getConnectable);
     }
 
     @Override
@@ -115,12 +111,12 @@ public final class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<V
 
     @Override
     public Iterable<Generator> getGenerators() {
-        return Iterables.transform(identifiable.getGenerators(), ImmutableGenerator::ofNullable);
+        return Iterables.transform(identifiable.getGenerators(), cache::getGenerator);
     }
 
     @Override
     public Stream<Generator> getGeneratorStream() {
-        return identifiable.getGeneratorStream().map(ImmutableGenerator::ofNullable);
+        return identifiable.getGeneratorStream().map(cache::getGenerator);
     }
 
     @Override
@@ -135,17 +131,17 @@ public final class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<V
 
     @Override
     public Iterable<Load> getLoads() {
-        return Iterables.transform(identifiable.getLoads(), ImmutableLoad::ofNullable);
+        return Iterables.transform(identifiable.getLoads(), cache::getLoad);
     }
 
     @Override
     public Stream<Load> getLoadStream() {
-        return identifiable.getLoadStream().map(ImmutableLoad::ofNullable);
+        return identifiable.getLoadStream().map(cache::getLoad);
     }
 
     @Override
     public Iterable<Switch> getSwitches() {
-        return Iterables.transform(identifiable.getSwitches(), ImmutableSwitch::ofNullable);
+        return Iterables.transform(identifiable.getSwitches(), cache::getSwitch);
     }
 
     @Override
@@ -165,12 +161,12 @@ public final class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<V
 
     @Override
     public Iterable<ShuntCompensator> getShuntCompensators() {
-        return Iterables.transform(identifiable.getShuntCompensators(), ImmutableShuntCompensator::ofNullable);
+        return Iterables.transform(identifiable.getShuntCompensators(), cache::getShuntCompensator);
     }
 
     @Override
     public Stream<ShuntCompensator> getShuntCompensatorStream() {
-        return identifiable.getShuntCompensatorStream().map(ImmutableShuntCompensator::ofNullable);
+        return identifiable.getShuntCompensatorStream().map(cache::getShuntCompensator);
     }
 
     @Override
@@ -185,12 +181,12 @@ public final class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<V
 
     @Override
     public Iterable<DanglingLine> getDanglingLines() {
-        return Iterables.transform(identifiable.getDanglingLines(), ImmutableDanglingLine::ofNullable);
+        return Iterables.transform(identifiable.getDanglingLines(), cache::getDanglingLine);
     }
 
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
-        return identifiable.getDanglingLineStream().map(ImmutableDanglingLine::ofNullable);
+        return identifiable.getDanglingLineStream().map(cache::getDanglingLine);
     }
 
     @Override
@@ -205,12 +201,12 @@ public final class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<V
 
     @Override
     public Iterable<StaticVarCompensator> getStaticVarCompensators() {
-        return Iterables.transform(identifiable.getStaticVarCompensators(), ImmutableStaticVarCompensator::ofNullable);
+        return Iterables.transform(identifiable.getStaticVarCompensators(), cache::getStaticVarCompensator);
     }
 
     @Override
     public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
-        return identifiable.getStaticVarCompensatorStream().map(ImmutableStaticVarCompensator::ofNullable);
+        return identifiable.getStaticVarCompensatorStream().map(cache::getStaticVarCompensator);
     }
 
     @Override
@@ -225,12 +221,12 @@ public final class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<V
 
     @Override
     public Iterable<VscConverterStation> getVscConverterStations() {
-        return Iterables.transform(identifiable.getVscConverterStations(), ImmutableVscConverterStation::ofNullable);
+        return Iterables.transform(identifiable.getVscConverterStations(), cache::getVscConverterStation);
     }
 
     @Override
     public Stream<VscConverterStation> getVscConverterStationStream() {
-        return identifiable.getVscConverterStationStream().map(ImmutableVscConverterStation::ofNullable);
+        return identifiable.getVscConverterStationStream().map(cache::getVscConverterStation);
     }
 
     @Override
@@ -245,12 +241,12 @@ public final class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<V
 
     @Override
     public Iterable<LccConverterStation> getLccConverterStations() {
-        return Iterables.transform(identifiable.getLccConverterStations(), ImmutableLccConverterStation::ofNullable);
+        return Iterables.transform(identifiable.getLccConverterStations(), cache::getLccConverterStation);
     }
 
     @Override
     public Stream<LccConverterStation> getLccConverterStationStream() {
-        return identifiable.getLccConverterStationStream().map(ImmutableLccConverterStation::ofNullable);
+        return identifiable.getLccConverterStationStream().map(cache::getLccConverterStation);
     }
 
     @Override
@@ -336,32 +332,32 @@ public final class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<V
 
             @Override
             public Terminal getTerminal(int node) {
-                return ImmutableTerminal.ofNullable(nbv.getTerminal(node));
+                return cache.getTerminal(nbv.getTerminal(node));
             }
 
             @Override
             public Terminal getTerminal1(String switchId) {
-                return ImmutableTerminal.ofNullable(nbv.getTerminal1(switchId));
+                return cache.getTerminal(nbv.getTerminal1(switchId));
             }
 
             @Override
             public Terminal getTerminal2(String switchId) {
-                return ImmutableTerminal.ofNullable(nbv.getTerminal2(switchId));
+                return cache.getTerminal(nbv.getTerminal2(switchId));
             }
 
             @Override
             public Switch getSwitch(String switchId) {
-                return ImmutableSwitch.ofNullable(nbv.getSwitch(switchId));
+                return cache.getSwitch(nbv.getSwitch(switchId));
             }
 
             @Override
             public Iterable<Switch> getSwitches() {
-                return Iterables.transform(nbv.getSwitches(), ImmutableSwitch::ofNullable);
+                return Iterables.transform(nbv.getSwitches(), cache::getSwitch);
             }
 
             @Override
             public Stream<Switch> getSwitchStream() {
-                return nbv.getSwitchStream().map(ImmutableSwitch::ofNullable);
+                return nbv.getSwitchStream().map(cache::getSwitch);
             }
 
             @Override
@@ -414,17 +410,17 @@ public final class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<V
 
             @Override
             public Iterable<Bus> getBuses() {
-                return Iterables.transform(bbv.getBuses(), ImmutableBus::ofNullable);
+                return Iterables.transform(bbv.getBuses(), cache::getBus);
             }
 
             @Override
             public Stream<Bus> getBusStream() {
-                return bbv.getBusStream().map(ImmutableBus::ofNullable);
+                return bbv.getBusStream().map(cache::getBus);
             }
 
             @Override
             public Bus getBus(String id) {
-                return ImmutableBus.ofNullable(bbv.getBus(id));
+                return cache.getBus(bbv.getBus(id));
             }
 
             @Override
@@ -444,12 +440,12 @@ public final class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<V
 
             @Override
             public Iterable<Switch> getSwitches() {
-                return Iterables.transform(bbv.getSwitches(), ImmutableSwitch::ofNullable);
+                return Iterables.transform(bbv.getSwitches(), cache::getSwitch);
             }
 
             @Override
             public Stream<Switch> getSwitchStream() {
-                return bbv.getSwitchStream().map(ImmutableSwitch::ofNullable);
+                return bbv.getSwitchStream().map(cache::getSwitch);
             }
 
             @Override
@@ -469,17 +465,17 @@ public final class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<V
 
             @Override
             public Bus getBus1(String switchId) {
-                return ImmutableBus.ofNullable(bbv.getBus1(switchId));
+                return cache.getBus(bbv.getBus1(switchId));
             }
 
             @Override
             public Bus getBus2(String switchId) {
-                return ImmutableBus.ofNullable(bbv.getBus2(switchId));
+                return cache.getBus(bbv.getBus2(switchId));
             }
 
             @Override
             public Switch getSwitch(String switchId) {
-                return ImmutableSwitch.ofNullable(bbv.getSwitch(switchId));
+                return cache.getSwitch(bbv.getSwitch(switchId));
             }
 
             @Override
@@ -496,22 +492,22 @@ public final class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<V
             final BusView busView = identifiable.getBusView();
             @Override
             public Iterable<Bus> getBuses() {
-                return Iterables.transform(busView.getBuses(), ImmutableBus::ofNullable);
+                return Iterables.transform(busView.getBuses(), cache::getBus);
             }
 
             @Override
             public Stream<Bus> getBusStream() {
-                return busView.getBusStream().map(ImmutableBus::ofNullable);
+                return busView.getBusStream().map(cache::getBus);
             }
 
             @Override
             public Bus getBus(String id) {
-                return ImmutableBus.ofNullable(busView.getBus(id));
+                return cache.getBus(busView.getBus(id));
             }
 
             @Override
             public Bus getMergedBus(String configuredBusId) {
-                return ImmutableBus.ofNullable(busView.getMergedBus(configuredBusId));
+                return cache.getBus(busView.getMergedBus(configuredBusId));
             }
         };
     }

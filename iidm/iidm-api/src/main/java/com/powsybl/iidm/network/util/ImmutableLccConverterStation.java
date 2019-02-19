@@ -10,9 +10,8 @@ import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.Terminal;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -20,14 +19,11 @@ import java.util.stream.Collectors;
  */
 public final class ImmutableLccConverterStation extends AbstractImmutableIdentifiable<LccConverterStation> implements LccConverterStation {
 
-    private static final Map<LccConverterStation, ImmutableLccConverterStation> CACHE = new HashMap<>();
+    private final ImmutableCacheIndex cache;
 
-    private ImmutableLccConverterStation(LccConverterStation identifiable) {
+    ImmutableLccConverterStation(LccConverterStation identifiable, ImmutableCacheIndex cache) {
         super(identifiable);
-    }
-
-    static ImmutableLccConverterStation ofNullable(LccConverterStation lcc) {
-        return null == lcc ? null : CACHE.computeIfAbsent(lcc, k -> new ImmutableLccConverterStation(lcc));
+        this.cache = Objects.requireNonNull(cache);
     }
 
     @Override
@@ -57,7 +53,7 @@ public final class ImmutableLccConverterStation extends AbstractImmutableIdentif
 
     @Override
     public Terminal getTerminal() {
-        return ImmutableTerminal.ofNullable(identifiable.getTerminal());
+        return cache.getTerminal(identifiable.getTerminal());
     }
 
     @Override
@@ -67,7 +63,7 @@ public final class ImmutableLccConverterStation extends AbstractImmutableIdentif
 
     @Override
     public List<? extends Terminal> getTerminals() {
-        return identifiable.getTerminals().stream().map(ImmutableTerminal::ofNullable).collect(Collectors.toList());
+        return identifiable.getTerminals().stream().map(cache::getTerminal).collect(Collectors.toList());
     }
 
     @Override

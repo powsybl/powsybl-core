@@ -18,8 +18,11 @@ public class ImmutableTapChanger {
 
     TapChanger tapChanger;
 
-    ImmutableTapChanger(TapChanger tapChanger) {
+    private final ImmutableCacheIndex cache;
+
+    ImmutableTapChanger(TapChanger tapChanger, ImmutableCacheIndex cache) {
         this.tapChanger = Objects.requireNonNull(tapChanger);
+        this.cache = Objects.requireNonNull(cache);
     }
 
     public int getLowTapPosition() {
@@ -43,7 +46,7 @@ public class ImmutableTapChanger {
     }
 
     public Terminal getRegulationTerminal() {
-        return ImmutableTerminal.ofNullable(tapChanger.getRegulationTerminal());
+        return cache.getTerminal(tapChanger.getRegulationTerminal());
     }
 
     public void remove() {

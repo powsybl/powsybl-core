@@ -10,8 +10,6 @@ import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Component;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -20,16 +18,13 @@ import java.util.stream.Stream;
  */
 public final class ImmutableComponent implements Component {
 
-    private static final Map<Component, ImmutableComponent> CACHE = new HashMap<>();
+    private final ImmutableCacheIndex cache;
 
     private Component component;
 
-    private ImmutableComponent(Component component) {
+    ImmutableComponent(Component component, ImmutableCacheIndex cache) {
         this.component = Objects.requireNonNull(component);
-    }
-
-    static ImmutableComponent ofNullable(Component component) {
-        return component == null ? null : CACHE.computeIfAbsent(component, k -> new ImmutableComponent(component));
+        this.cache = Objects.requireNonNull(cache);
     }
 
     @Override
@@ -44,11 +39,11 @@ public final class ImmutableComponent implements Component {
 
     @Override
     public Iterable<Bus> getBuses() {
-        return Iterables.transform(component.getBuses(), ImmutableBus::ofNullable);
+        return Iterables.transform(component.getBuses(), cache::getBus);
     }
 
     @Override
     public Stream<Bus> getBusStream() {
-        return component.getBusStream().map(ImmutableBus::ofNullable);
+        return component.getBusStream().map(cache::getBus);
     }
 }

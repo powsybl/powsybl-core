@@ -27,6 +27,8 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
     private static final Map<Network, ImmutableNetwork> CACHE = new HashMap<>();
 
+    private final ImmutableCacheIndex cache = new ImmutableCacheIndex();
+
     private ImmutableNetwork(Network identifiable) {
         super(identifiable);
     }
@@ -66,7 +68,7 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
     @Override
     public VariantManager getVariantManager() {
-        return ImmutableVariantManager.of(identifiable.getVariantManager());
+        return cache.getVariantManager(identifiable.getVariantManager());
     }
 
     @Override
@@ -86,12 +88,12 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
     @Override
     public Iterable<Substation> getSubstations() {
-        return Iterables.transform(identifiable.getSubstations(), ImmutableSubstation::ofNullable);
+        return Iterables.transform(identifiable.getSubstations(), cache::getSubstation);
     }
 
     @Override
     public Stream<Substation> getSubstationStream() {
-        return identifiable.getSubstationStream().map(ImmutableSubstation::ofNullable);
+        return identifiable.getSubstationStream().map(cache::getSubstation);
     }
 
     @Override
@@ -101,22 +103,22 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
     @Override
     public Iterable<Substation> getSubstations(Country country, String tsoId, String... geographicalTags) {
-        return Iterables.transform(identifiable.getSubstations(country, tsoId, geographicalTags), ImmutableSubstation::ofNullable);
+        return Iterables.transform(identifiable.getSubstations(country, tsoId, geographicalTags), cache::getSubstation);
     }
 
     @Override
     public Substation getSubstation(String id) {
-        return ImmutableSubstation.ofNullable(identifiable.getSubstation(id));
+        return cache.getSubstation(identifiable.getSubstation(id));
     }
 
     @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
-        return Iterables.transform(identifiable.getVoltageLevels(), ImmutableVoltageLevel::ofNullable);
+        return Iterables.transform(identifiable.getVoltageLevels(), cache::getVoltageLevel);
     }
 
     @Override
     public Stream<VoltageLevel> getVoltageLevelStream() {
-        return identifiable.getVoltageLevelStream().map(ImmutableVoltageLevel::ofNullable);
+        return identifiable.getVoltageLevelStream().map(cache::getVoltageLevel);
     }
 
     @Override
@@ -126,7 +128,7 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
     @Override
     public VoltageLevel getVoltageLevel(String id) {
-        return ImmutableVoltageLevel.ofNullable(identifiable.getVoltageLevel(id));
+        return cache.getVoltageLevel(identifiable.getVoltageLevel(id));
     }
 
     @Override
@@ -136,22 +138,22 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
     @Override
     public Iterable<Line> getLines() {
-        return Iterables.transform(identifiable.getLines(), ImmutableFactory::ofNullableLine);
+        return Iterables.transform(identifiable.getLines(), cache::getLine);
     }
 
     @Override
     public Branch getBranch(String branchId) {
-        return ImmutableFactory.ofNullableBranch(identifiable.getBranch(branchId));
+        return cache.getBranch(identifiable.getBranch(branchId));
     }
 
     @Override
     public Iterable<Branch> getBranches() {
-        return Iterables.transform(identifiable.getBranches(), ImmutableFactory::ofNullableBranch);
+        return Iterables.transform(identifiable.getBranches(), cache::getBranch);
     }
 
     @Override
     public Stream<Branch> getBranchStream() {
-        return identifiable.getBranchStream().map(ImmutableFactory::ofNullableBranch);
+        return identifiable.getBranchStream().map(cache::getBranch);
     }
 
     @Override
@@ -161,7 +163,7 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
     @Override
     public Stream<Line> getLineStream() {
-        return identifiable.getLineStream().map(ImmutableFactory::ofNullableLine);
+        return identifiable.getLineStream().map(cache::getLine);
     }
 
     @Override
@@ -171,7 +173,7 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
     @Override
     public Line getLine(String id) {
-        return ImmutableFactory.ofNullableLine(identifiable.getLine(id));
+        return cache.getLine(identifiable.getLine(id));
     }
 
     @Override
@@ -181,12 +183,12 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
     @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
-        return Iterables.transform(identifiable.getTwoWindingsTransformers(), ImmutableTwoWindingsTransformer::ofNullable);
+        return Iterables.transform(identifiable.getTwoWindingsTransformers(), cache::getTwoWindingsTransformer);
     }
 
     @Override
     public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
-        return identifiable.getTwoWindingsTransformerStream().map(ImmutableTwoWindingsTransformer::ofNullable);
+        return identifiable.getTwoWindingsTransformerStream().map(cache::getTwoWindingsTransformer);
     }
 
     @Override
@@ -196,17 +198,17 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
     @Override
     public TwoWindingsTransformer getTwoWindingsTransformer(String id) {
-        return ImmutableTwoWindingsTransformer.ofNullable(identifiable.getTwoWindingsTransformer(id));
+        return cache.getTwoWindingsTransformer(identifiable.getTwoWindingsTransformer(id));
     }
 
     @Override
     public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
-        return Iterables.transform(identifiable.getThreeWindingsTransformers(), ImmutableThreeWindingsTransformer::ofNullable);
+        return Iterables.transform(identifiable.getThreeWindingsTransformers(), cache::getThreeWindingsTransformer);
     }
 
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
-        return identifiable.getThreeWindingsTransformerStream().map(ImmutableThreeWindingsTransformer::ofNullable);
+        return identifiable.getThreeWindingsTransformerStream().map(cache::getThreeWindingsTransformer);
     }
 
     @Override
@@ -216,17 +218,17 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
     @Override
     public ThreeWindingsTransformer getThreeWindingsTransformer(String id) {
-        return ImmutableThreeWindingsTransformer.ofNullable(identifiable.getThreeWindingsTransformer(id));
+        return cache.getThreeWindingsTransformer(identifiable.getThreeWindingsTransformer(id));
     }
 
     @Override
     public Iterable<Generator> getGenerators() {
-        return Iterables.transform(identifiable.getGenerators(), ImmutableGenerator::ofNullable);
+        return Iterables.transform(identifiable.getGenerators(), cache::getGenerator);
     }
 
     @Override
     public Stream<Generator> getGeneratorStream() {
-        return identifiable.getGeneratorStream().map(ImmutableGenerator::ofNullable);
+        return identifiable.getGeneratorStream().map(cache::getGenerator);
     }
 
     @Override
@@ -236,17 +238,17 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
     @Override
     public Generator getGenerator(String id) {
-        return ImmutableGenerator.ofNullable(identifiable.getGenerator(id));
+        return cache.getGenerator(identifiable.getGenerator(id));
     }
 
     @Override
     public Iterable<Load> getLoads() {
-        return Iterables.transform(identifiable.getLoads(), ImmutableLoad::ofNullable);
+        return Iterables.transform(identifiable.getLoads(), cache::getLoad);
     }
 
     @Override
     public Stream<Load> getLoadStream() {
-        return identifiable.getLoadStream().map(ImmutableLoad::ofNullable);
+        return identifiable.getLoadStream().map(cache::getLoad);
     }
 
     @Override
@@ -256,17 +258,17 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
     @Override
     public Load getLoad(String id) {
-        return ImmutableLoad.ofNullable(identifiable.getLoad(id));
+        return cache.getLoad(identifiable.getLoad(id));
     }
 
     @Override
     public Iterable<ShuntCompensator> getShuntCompensators() {
-        return Iterables.transform(identifiable.getShuntCompensators(), ImmutableShuntCompensator::ofNullable);
+        return Iterables.transform(identifiable.getShuntCompensators(), cache::getShuntCompensator);
     }
 
     @Override
     public Stream<ShuntCompensator> getShuntCompensatorStream() {
-        return identifiable.getShuntCompensatorStream().map(ImmutableShuntCompensator::ofNullable);
+        return identifiable.getShuntCompensatorStream().map(cache::getShuntCompensator);
     }
 
     @Override
@@ -276,17 +278,17 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
     @Override
     public ShuntCompensator getShuntCompensator(String id) {
-        return ImmutableShuntCompensator.ofNullable(identifiable.getShuntCompensator(id));
+        return cache.getShuntCompensator(identifiable.getShuntCompensator(id));
     }
 
     @Override
     public Iterable<DanglingLine> getDanglingLines() {
-        return Iterables.transform(identifiable.getDanglingLines(), ImmutableDanglingLine::ofNullable);
+        return Iterables.transform(identifiable.getDanglingLines(), cache::getDanglingLine);
     }
 
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
-        return identifiable.getDanglingLineStream().map(ImmutableDanglingLine::ofNullable);
+        return identifiable.getDanglingLineStream().map(cache::getDanglingLine);
     }
 
     @Override
@@ -296,17 +298,17 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
     @Override
     public DanglingLine getDanglingLine(String id) {
-        return ImmutableDanglingLine.ofNullable(identifiable.getDanglingLine(id));
+        return cache.getDanglingLine(identifiable.getDanglingLine(id));
     }
 
     @Override
     public Iterable<StaticVarCompensator> getStaticVarCompensators() {
-        return Iterables.transform(identifiable.getStaticVarCompensators(), ImmutableStaticVarCompensator::ofNullable);
+        return Iterables.transform(identifiable.getStaticVarCompensators(), cache::getStaticVarCompensator);
     }
 
     @Override
     public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
-        return identifiable.getStaticVarCompensatorStream().map(ImmutableStaticVarCompensator::ofNullable);
+        return identifiable.getStaticVarCompensatorStream().map(cache::getStaticVarCompensator);
     }
 
     @Override
@@ -316,22 +318,22 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
     @Override
     public StaticVarCompensator getStaticVarCompensator(String id) {
-        return ImmutableStaticVarCompensator.ofNullable(identifiable.getStaticVarCompensator(id));
+        return cache.getStaticVarCompensator(identifiable.getStaticVarCompensator(id));
     }
 
     @Override
     public Switch getSwitch(String id) {
-        return ImmutableSwitch.ofNullable(identifiable.getSwitch(id));
+        return cache.getSwitch(identifiable.getSwitch(id));
     }
 
     @Override
     public Iterable<Switch> getSwitches() {
-        return Iterables.transform(identifiable.getSwitches(), ImmutableSwitch::ofNullable);
+        return Iterables.transform(identifiable.getSwitches(), cache::getSwitch);
     }
 
     @Override
     public Stream<Switch> getSwitchStream() {
-        return identifiable.getSwitchStream().map(ImmutableSwitch::ofNullable);
+        return identifiable.getSwitchStream().map(cache::getSwitch);
     }
 
     @Override
@@ -361,12 +363,12 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
     @Override
     public Iterable<HvdcConverterStation<?>> getHvdcConverterStations() {
-        return Iterables.transform(identifiable.getHvdcConverterStations(), ImmutableFactory::ofNullableHvdcConverterStation);
+        return Iterables.transform(identifiable.getHvdcConverterStations(), cache::getHvdcConverterStation);
     }
 
     @Override
     public Stream<HvdcConverterStation<?>> getHvdcConverterStationStream() {
-        return identifiable.getHvdcConverterStationStream().map(ImmutableFactory::ofNullableHvdcConverterStation);
+        return identifiable.getHvdcConverterStationStream().map(cache::getHvdcConverterStation);
     }
 
     @Override
@@ -381,12 +383,12 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
     @Override
     public Iterable<LccConverterStation> getLccConverterStations() {
-        return Iterables.transform(identifiable.getLccConverterStations(), ImmutableLccConverterStation::ofNullable);
+        return Iterables.transform(identifiable.getLccConverterStations(), cache::getLccConverterStation);
     }
 
     @Override
     public Stream<LccConverterStation> getLccConverterStationStream() {
-        return identifiable.getLccConverterStationStream().map(ImmutableLccConverterStation::ofNullable);
+        return identifiable.getLccConverterStationStream().map(cache::getLccConverterStation);
     }
 
     @Override
@@ -396,17 +398,17 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
     @Override
     public LccConverterStation getLccConverterStation(String id) {
-        return ImmutableLccConverterStation.ofNullable(identifiable.getLccConverterStation(id));
+        return cache.getLccConverterStation(identifiable.getLccConverterStation(id));
     }
 
     @Override
     public Iterable<VscConverterStation> getVscConverterStations() {
-        return Iterables.transform(identifiable.getVscConverterStations(), ImmutableVscConverterStation::ofNullable);
+        return Iterables.transform(identifiable.getVscConverterStations(), cache::getVscConverterStation);
     }
 
     @Override
     public Stream<VscConverterStation> getVscConverterStationStream() {
-        return identifiable.getVscConverterStationStream().map(ImmutableVscConverterStation::ofNullable);
+        return identifiable.getVscConverterStationStream().map(cache::getVscConverterStation);
     }
 
     @Override
@@ -416,17 +418,17 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
     @Override
     public VscConverterStation getVscConverterStation(String id) {
-        return ImmutableVscConverterStation.ofNullable(identifiable.getVscConverterStation(id));
+        return cache.getVscConverterStation(identifiable.getVscConverterStation(id));
     }
 
     @Override
     public Iterable<HvdcLine> getHvdcLines() {
-        return Iterables.transform(identifiable.getHvdcLines(), ImmutableHvdcLine::ofNullable);
+        return Iterables.transform(identifiable.getHvdcLines(), cache::getHvdcLine);
     }
 
     @Override
     public Stream<HvdcLine> getHvdcLineStream() {
-        return identifiable.getHvdcLineStream().map(ImmutableHvdcLine::ofNullable);
+        return identifiable.getHvdcLineStream().map(cache::getHvdcLine);
     }
 
     @Override
@@ -436,7 +438,7 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
     @Override
     public HvdcLine getHvdcLine(String id) {
-        return ImmutableHvdcLine.ofNullable(identifiable.getHvdcLine(id));
+        return cache.getHvdcLine(identifiable.getHvdcLine(id));
     }
 
     @Override
@@ -462,22 +464,22 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
             @Override
             public Iterable<Bus> getBuses() {
-                return Iterables.transform(busBreakerView.getBuses(), ImmutableBus::ofNullable);
+                return Iterables.transform(busBreakerView.getBuses(), cache::getBus);
             }
 
             @Override
             public Stream<Bus> getBusStream() {
-                return busBreakerView.getBusStream().map(ImmutableBus::ofNullable);
+                return busBreakerView.getBusStream().map(cache::getBus);
             }
 
             @Override
             public Iterable<Switch> getSwitches() {
-                return Iterables.transform(busBreakerView.getSwitches(), ImmutableSwitch::ofNullable);
+                return Iterables.transform(busBreakerView.getSwitches(), cache::getSwitch);
             }
 
             @Override
             public Stream<Switch> getSwitchStream() {
-                return busBreakerView.getSwitchStream().map(ImmutableSwitch::ofNullable);
+                return busBreakerView.getSwitchStream().map(cache::getSwitch);
             }
 
             @Override
@@ -492,17 +494,17 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
         return new BusView() {
             @Override
             public Iterable<Bus> getBuses() {
-                return Iterables.transform(identifiable.getBusView().getBuses(), ImmutableBus::ofNullable);
+                return Iterables.transform(identifiable.getBusView().getBuses(), cache::getBus);
             }
 
             @Override
             public Stream<Bus> getBusStream() {
-                return identifiable.getBusView().getBusStream().map(ImmutableBus::ofNullable);
+                return identifiable.getBusView().getBusStream().map(cache::getBus);
             }
 
             @Override
             public Collection<Component> getConnectedComponents() {
-                return identifiable.getBusView().getConnectedComponents().stream().map(ImmutableComponent::ofNullable).collect(Collectors.toList());
+                return identifiable.getBusView().getConnectedComponents().stream().map(cache::getComponent).collect(Collectors.toList());
             }
         };
     }

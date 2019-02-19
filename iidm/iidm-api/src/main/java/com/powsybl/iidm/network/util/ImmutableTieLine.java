@@ -8,8 +8,6 @@ package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.TieLine;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -17,17 +15,16 @@ import java.util.Objects;
  */
 public final class ImmutableTieLine extends ImmutableLine implements TieLine {
 
-    private static final Map<TieLine, ImmutableTieLine> CACHE = new HashMap<>();
-
     TieLine tieLine;
 
-    private ImmutableTieLine(TieLine identifiable) {
-        super(identifiable);
-        this.tieLine = identifiable;
-    }
+    private final ImmutableHalfLine hl1;
+    private final ImmutableHalfLine hl2;
 
-    static ImmutableTieLine ofNullable(TieLine line) {
-        return null == line ? null : CACHE.computeIfAbsent(line, k -> new ImmutableTieLine(line));
+    ImmutableTieLine(TieLine identifiable, ImmutableCacheIndex cache) {
+        super(identifiable, cache);
+        this.tieLine = identifiable;
+        hl1 = new ImmutableHalfLine(identifiable.getHalf1());
+        hl2 = new ImmutableHalfLine(identifiable.getHalf2());
     }
 
     @Override
@@ -37,12 +34,12 @@ public final class ImmutableTieLine extends ImmutableLine implements TieLine {
 
     @Override
     public HalfLine getHalf1() {
-        return new ImmutableHalfLine(tieLine.getHalf1());
+        return hl1;
     }
 
     @Override
     public HalfLine getHalf2() {
-        return new ImmutableHalfLine(tieLine.getHalf2());
+        return hl2;
     }
 
     public static class ImmutableHalfLine implements HalfLine {

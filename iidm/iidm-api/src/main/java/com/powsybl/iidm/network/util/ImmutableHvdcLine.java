@@ -10,22 +10,18 @@ import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 public final class ImmutableHvdcLine extends AbstractImmutableIdentifiable<HvdcLine> implements HvdcLine {
 
-    private static final Map<HvdcLine, ImmutableHvdcLine> CACHE = new HashMap<>();
+    private final ImmutableCacheIndex cache;
 
-    private ImmutableHvdcLine(HvdcLine identifiable) {
+    ImmutableHvdcLine(HvdcLine identifiable, ImmutableCacheIndex cache) {
         super(identifiable);
-    }
-
-    static ImmutableHvdcLine ofNullable(HvdcLine hvdcLine) {
-        return null == hvdcLine ? null : CACHE.computeIfAbsent(hvdcLine, k -> new ImmutableHvdcLine(hvdcLine));
+        this.cache = Objects.requireNonNull(cache);
     }
 
     @Override
@@ -85,12 +81,12 @@ public final class ImmutableHvdcLine extends AbstractImmutableIdentifiable<HvdcL
 
     @Override
     public HvdcConverterStation<?> getConverterStation1() {
-        return ImmutableFactory.ofNullableHvdcConverterStation(identifiable.getConverterStation1());
+        return cache.getHvdcConverterStation(identifiable.getConverterStation1());
     }
 
     @Override
     public HvdcConverterStation<?> getConverterStation2() {
-        return ImmutableFactory.ofNullableHvdcConverterStation(identifiable.getConverterStation2());
+        return cache.getHvdcConverterStation(identifiable.getConverterStation2());
     }
 
     @Override

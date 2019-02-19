@@ -15,16 +15,10 @@ import java.util.*;
  */
 public final class ImmutableCurrentLimits implements CurrentLimits {
 
-    private static final Map<CurrentLimits, ImmutableCurrentLimits> CACHE = new HashMap<>();
-
     private CurrentLimits currentLimits;
 
-    private ImmutableCurrentLimits(CurrentLimits currentLimits) {
+    ImmutableCurrentLimits(CurrentLimits currentLimits) {
         this.currentLimits = Objects.requireNonNull(currentLimits);
-    }
-
-    static ImmutableCurrentLimits ofNullable(CurrentLimits currentLimits) {
-        return currentLimits == null ? null : CACHE.computeIfAbsent(currentLimits, k -> new ImmutableCurrentLimits(currentLimits));
     }
 
     @Override

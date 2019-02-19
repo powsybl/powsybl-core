@@ -8,9 +8,8 @@ package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -18,19 +17,16 @@ import java.util.stream.Collectors;
  */
 public final class ImmutableTwoWindingsTransformer extends AbstractImmutableIdentifiable<TwoWindingsTransformer> implements TwoWindingsTransformer {
 
-    private static final Map<TwoWindingsTransformer, ImmutableTwoWindingsTransformer> CACHE = new HashMap<>();
+    private final ImmutableCacheIndex cache;
 
-    private ImmutableTwoWindingsTransformer(TwoWindingsTransformer twt) {
+    ImmutableTwoWindingsTransformer(TwoWindingsTransformer twt, ImmutableCacheIndex cache) {
         super(twt);
-    }
-
-    static ImmutableTwoWindingsTransformer ofNullable(TwoWindingsTransformer twt) {
-        return twt == null ? null : CACHE.computeIfAbsent(twt, k -> new ImmutableTwoWindingsTransformer(twt));
+        this.cache = Objects.requireNonNull(cache);
     }
 
     @Override
     public Substation getSubstation() {
-        return ImmutableSubstation.ofNullable(identifiable.getSubstation());
+        return cache.getSubstation(identifiable.getSubstation());
     }
 
     @Override
@@ -100,7 +96,7 @@ public final class ImmutableTwoWindingsTransformer extends AbstractImmutableIden
 
     @Override
     public PhaseTapChanger getPhaseTapChanger() {
-        return ImmutablePhaseTapChanger.ofNullable(identifiable.getPhaseTapChanger());
+        return cache.getPhaseTapChanger(identifiable.getPhaseTapChanger());
     }
 
     @Override
@@ -110,28 +106,28 @@ public final class ImmutableTwoWindingsTransformer extends AbstractImmutableIden
 
     @Override
     public RatioTapChanger getRatioTapChanger() {
-        return ImmutableRatioTapChanger.ofNullable(identifiable.getRatioTapChanger());
+        return cache.getRatioTapChanger(identifiable.getRatioTapChanger());
     }
 
     // branch interfaces
     @Override
     public Terminal getTerminal1() {
-        return ImmutableTerminal.ofNullable(identifiable.getTerminal1());
+        return cache.getTerminal(identifiable.getTerminal1());
     }
 
     @Override
     public Terminal getTerminal2() {
-        return ImmutableTerminal.ofNullable(identifiable.getTerminal2());
+        return cache.getTerminal(identifiable.getTerminal2());
     }
 
     @Override
     public Terminal getTerminal(Side side) {
-        return ImmutableTerminal.ofNullable(identifiable.getTerminal(side));
+        return cache.getTerminal(identifiable.getTerminal(side));
     }
 
     @Override
     public Terminal getTerminal(String voltageLevelId) {
-        return ImmutableTerminal.ofNullable(identifiable.getTerminal(voltageLevelId));
+        return cache.getTerminal(identifiable.getTerminal(voltageLevelId));
     }
 
     @Override
@@ -145,12 +141,12 @@ public final class ImmutableTwoWindingsTransformer extends AbstractImmutableIden
 
     @Override
     public CurrentLimits getCurrentLimits(Side side) {
-        return ImmutableCurrentLimits.ofNullable(identifiable.getCurrentLimits(side));
+        return cache.getCurrentLimits(identifiable.getCurrentLimits(side));
     }
 
     @Override
     public CurrentLimits getCurrentLimits1() {
-        return ImmutableCurrentLimits.ofNullable(identifiable.getCurrentLimits1());
+        return cache.getCurrentLimits(identifiable.getCurrentLimits1());
     }
 
     @Override
@@ -160,7 +156,7 @@ public final class ImmutableTwoWindingsTransformer extends AbstractImmutableIden
 
     @Override
     public CurrentLimits getCurrentLimits2() {
-        return ImmutableCurrentLimits.ofNullable(identifiable.getCurrentLimits2());
+        return cache.getCurrentLimits(identifiable.getCurrentLimits2());
     }
 
     @Override
@@ -250,7 +246,7 @@ public final class ImmutableTwoWindingsTransformer extends AbstractImmutableIden
 
     @Override
     public List<? extends Terminal> getTerminals() {
-        return identifiable.getTerminals().stream().map(ImmutableTerminal::ofNullable).collect(Collectors.toList());
+        return identifiable.getTerminals().stream().map(cache::getTerminal).collect(Collectors.toList());
     }
 
     @Override

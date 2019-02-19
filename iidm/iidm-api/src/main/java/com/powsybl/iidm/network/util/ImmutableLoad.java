@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.Terminal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -23,12 +24,11 @@ public final class ImmutableLoad extends AbstractImmutableIdentifiable<Load> imp
 
     private static final Map<Load, ImmutableLoad> CACHE = new HashMap<>();
 
-    private ImmutableLoad(Load identifiable) {
-        super(identifiable);
-    }
+    private final ImmutableCacheIndex cache;
 
-    static ImmutableLoad ofNullable(Load l) {
-        return null == l ? null : CACHE.computeIfAbsent(l, k -> new ImmutableLoad(l));
+    ImmutableLoad(Load identifiable, ImmutableCacheIndex cache) {
+        super(identifiable);
+        this.cache = Objects.requireNonNull(cache);
     }
 
     @Override
@@ -63,7 +63,7 @@ public final class ImmutableLoad extends AbstractImmutableIdentifiable<Load> imp
 
     @Override
     public Terminal getTerminal() {
-        return ImmutableTerminal.ofNullable(identifiable.getTerminal());
+        return cache.getTerminal(identifiable.getTerminal());
     }
 
     @Override
@@ -73,7 +73,7 @@ public final class ImmutableLoad extends AbstractImmutableIdentifiable<Load> imp
 
     @Override
     public List<? extends Terminal> getTerminals() {
-        return identifiable.getTerminals().stream().map(ImmutableTerminal::ofNullable).collect(Collectors.toList());
+        return identifiable.getTerminals().stream().map(cache::getTerminal).collect(Collectors.toList());
     }
 
     @Override

@@ -10,27 +10,23 @@ import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VoltageLevel;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 public final class ImmutableSwitch extends AbstractImmutableIdentifiable<Switch> implements Switch {
 
-    private static final Map<Switch, ImmutableSwitch> CACHE = new HashMap<>();
+    private final ImmutableCacheIndex cache;
 
-    private ImmutableSwitch(Switch identifiable) {
+    ImmutableSwitch(Switch identifiable, ImmutableCacheIndex cache) {
         super(identifiable);
-    }
-
-    static ImmutableSwitch ofNullable(Switch sw) {
-        return null == sw ? null : CACHE.computeIfAbsent(sw, k -> new ImmutableSwitch(sw));
+        this.cache = Objects.requireNonNull(cache);
     }
 
     @Override
     public VoltageLevel getVoltageLevel() {
-        return ImmutableVoltageLevel.ofNullable(identifiable.getVoltageLevel());
+        return cache.getVoltageLevel(identifiable.getVoltageLevel());
     }
 
     @Override
