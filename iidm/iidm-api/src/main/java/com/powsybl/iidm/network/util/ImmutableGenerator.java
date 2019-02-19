@@ -8,9 +8,7 @@ package com.powsybl.iidm.network.util;
 
 import com.powsybl.iidm.network.*;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -18,8 +16,6 @@ import java.util.stream.Collectors;
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 public final class ImmutableGenerator extends AbstractImmutableIdentifiable<Generator> implements Generator {
-
-    private static final Map<Generator, ImmutableGenerator> CACHE = new HashMap<>();
 
     private final ImmutableCacheIndex cache;
 

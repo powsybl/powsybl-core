@@ -218,7 +218,7 @@ public class ImmutableTest {
     @Test
     public void testVariantManager() {
         VariantManager delegate = mock(VariantManager.class);
-        VariantManager sut = new ImmutableVariantManager(delegate, new ImmutableCacheIndex(mock(Network.class)));
+        VariantManager sut = new ImmutableVariantManager(delegate);
         sut.setWorkingVariant("set");
         verify(delegate, ONCE).setWorkingVariant("set");
         try {

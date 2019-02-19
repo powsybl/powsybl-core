@@ -9,8 +9,6 @@ package com.powsybl.iidm.network.util;
 import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -18,8 +16,6 @@ import java.util.stream.Stream;
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 public final class ImmutableBus extends AbstractImmutableIdentifiable<Bus> implements Bus {
-
-    private static final Map<Bus, ImmutableBus> CACHE = new HashMap<>();
 
     private final ImmutableCacheIndex cache;
 

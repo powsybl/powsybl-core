@@ -11,20 +11,16 @@ import com.powsybl.iidm.network.VariantManager;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public final class ImmutableVariantManager implements VariantManager {
 
-    private final ImmutableCacheIndex cache;
-
     private final VariantManager variantManager;
 
-    ImmutableVariantManager(VariantManager variantManager, ImmutableCacheIndex cache) {
+    ImmutableVariantManager(VariantManager variantManager) {
         this.variantManager = variantManager;
-        this.cache = Objects.requireNonNull(cache);
     }
 
     @Override

@@ -11,9 +11,7 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Terminal;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -21,8 +19,6 @@ import java.util.stream.Collectors;
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 public final class ImmutableLoad extends AbstractImmutableIdentifiable<Load> implements Load {
-
-    private static final Map<Load, ImmutableLoad> CACHE = new HashMap<>();
 
     private final ImmutableCacheIndex cache;
 

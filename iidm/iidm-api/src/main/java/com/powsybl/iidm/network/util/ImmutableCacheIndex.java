@@ -143,7 +143,7 @@ public class ImmutableCacheIndex {
 
     VariantManager getVariantManager(VariantManager variantManager) {
         if (cachedVariantManager == null) {
-            cachedVariantManager = new ImmutableVariantManager(variantManager, this);
+            cachedVariantManager = new ImmutableVariantManager(variantManager);
         }
         return cachedVariantManager;
     }

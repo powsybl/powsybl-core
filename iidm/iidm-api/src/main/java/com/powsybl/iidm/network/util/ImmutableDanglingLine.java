@@ -19,8 +19,6 @@ public final class ImmutableDanglingLine extends AbstractImmutableIdentifiable<D
 
     private final ImmutableCacheIndex cache;
 
-    private ImmutableCurrentLimits immutableCurrentLimits;
-
     ImmutableDanglingLine(DanglingLine identifiable, ImmutableCacheIndex cache) {
         super(identifiable);
         this.cache = Objects.requireNonNull(cache);
