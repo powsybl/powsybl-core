@@ -53,9 +53,7 @@ public final class Exporters {
      * <code>null</code> otherwise
      */
     public static Exporter getExporter(ExportersLoader loader, String format) {
-        if (format == null) {
-            throw new IllegalArgumentException("format is null");
-        }
+        Objects.requireNonNull(format);
         for (Exporter e : loader.loadExporters()) {
             if (format.equals(e.getFormat())) {
                 return e;
@@ -93,11 +91,14 @@ public final class Exporters {
      * @param parameters some properties to configure the export
      * @param file the network file
      */
-    public static void export(String format, Network network, Properties parameters, Path file) {
+    public static void export(String format, Network network, Properties parameters, Path file, ExportersLoader loader) {
         DataSource dataSource = createDataSource(file);
-        export(format, network, parameters, dataSource);
+        export(format, network, parameters, dataSource, loader);
     }
 
+    public static void export(String format, Network network, Properties parameters, Path file) {
+        export(format, network, parameters, file, LOADER);
+    }
 
     /**
      * A convenient method to export a model to a given format.
@@ -124,17 +125,12 @@ public final class Exporters {
     /**
      * A convenient method to export a model to a given format.
      *
-     * @param loader the exporters loader
      * @param format the export format
      * @param network the model
      * @param parameters some properties to configure the export
      * @param directory the output directory where files are generated
      * @param baseName a base name for all generated files
      */
-    public static void export(String format, Network network, Properties parameters, String directory, String baseName, ExportersLoader loader) {
-        export(format, network, parameters, new FileDataSource(Paths.get(directory), baseName), loader);
-    }
-
     public static void export(String format, Network network, Properties parameters, String directory, String baseName) {
         export(format, network, parameters, new FileDataSource(Paths.get(directory), baseName), LOADER);
     }

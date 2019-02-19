@@ -1,0 +1,41 @@
+/**
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.iidm.import_;
+
+import com.google.auto.service.AutoService;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
+
+import java.util.Properties;
+
+/**
+ * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ */
+@AutoService(Importer.class)
+public class TestImporter implements Importer {
+
+    @Override
+    public String getFormat() {
+        return "TST";
+    }
+
+    @Override
+    public String getComment() {
+        return "A Test importer";
+    }
+
+    @Override
+    public boolean exists(ReadOnlyDataSource dataSource) {
+        return true;
+    }
+
+    @Override
+    public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
+        return NetworkFactory.create("test", "test");
+    }
+}
