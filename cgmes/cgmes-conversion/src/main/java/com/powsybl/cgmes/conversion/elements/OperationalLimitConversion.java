@@ -156,18 +156,12 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         // if there is no direction, the limit is considered as absoluteValue (cf. CGMES specification)
         if (direction == null || direction.endsWith("high") || direction.endsWith("absoluteValue")) {
             if (adder != null) {
-                adder.beginTemporaryLimit()
-                        .setName(context.namingStrategy().getId("TATL", id))
-                        .setValue(value)
-                        .setAcceptableDuration(60 * acceptableDuration)
-                        .endTemporaryLimit();
+                context.currentLimitsMapping()
+                        .addTemporaryLimit(context.namingStrategy().getId("TATL", id), value, 60 * acceptableDuration, adder, terminalId, equipmentId);
             } else if (adder1 != null) {
                 // Should we chose one terminal randomly for branches ? Here by default, we only look at terminal1
-                adder1.beginTemporaryLimit()
-                        .setName(context.namingStrategy().getId("TATL", id))
-                        .setValue(value)
-                        .setAcceptableDuration(60 * acceptableDuration)
-                        .endTemporaryLimit();
+                context.currentLimitsMapping()
+                        .addTemporaryLimit(context.namingStrategy().getId("TATL", id), value, 60 * acceptableDuration, adder1, terminalId, equipmentId);
             }
         } else if (direction.endsWith("low")) {
             context.invalid(OPERATIONAL_LIMIT, String.format("TATL %s is a low limit", id));

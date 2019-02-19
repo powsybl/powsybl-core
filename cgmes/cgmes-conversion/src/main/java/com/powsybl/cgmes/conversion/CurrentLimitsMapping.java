@@ -18,6 +18,7 @@ import java.util.function.Function;
 public class CurrentLimitsMapping {
 
     private static final String PERMANENT_CURRENT_LIMIT = "Permanent Current Limit";
+    private static final String TEMPORARY_CURRENT_LIMIT = "Temporary Current Limit";
 
     private final Context context;
     private final Map<Terminal, CurrentLimitsAdder> adders = new HashMap<>();
@@ -44,6 +45,31 @@ public class CurrentLimitsMapping {
             }
             if (value < adder.getPermanentLimit()) {
                 adder.setPermanentLimit(value);
+            }
+        }
+    }
+
+    public void addTemporaryLimit(String name, double value, int acceptableDuration, CurrentLimitsAdder adder, String terminalId, String equipmentId) {
+        if (Double.isNaN(adder.getTemporaryLimit(acceptableDuration))) {
+            adder.beginTemporaryLimit()
+                    .setName(name)
+                    .setValue(value)
+                    .setAcceptableDuration(acceptableDuration)
+                    .endTemporaryLimit();
+        } else { // MRA: this can happen for example when several seasons are defined (there is not standard way to indicate the reason)
+            if (terminalId != null) {
+                context.fixed(TEMPORARY_CURRENT_LIMIT,
+                        String.format("Several temporary limits defined for same acceptable duration %d for Terminal %s. Only the lowest is kept.", acceptableDuration, terminalId));
+            } else {
+                context.fixed(TEMPORARY_CURRENT_LIMIT,
+                        String.format("Several temporary limits defined for same acceptable duration %d for Equipment %s. Only the lowest is kept.", acceptableDuration, equipmentId));
+            }
+            if (value < adder.getTemporaryLimit(acceptableDuration)) {
+                adder.beginTemporaryLimit()
+                        .setName(name)
+                        .setValue(value)
+                        .setAcceptableDuration(acceptableDuration)
+                        .endTemporaryLimit();
             }
         }
     }
