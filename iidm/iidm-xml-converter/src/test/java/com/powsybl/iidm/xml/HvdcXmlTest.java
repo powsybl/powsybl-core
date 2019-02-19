@@ -34,7 +34,7 @@ public class HvdcXmlTest extends AbstractNetworkXmlTest {
 
     @Test
     public void readImmutableLcc() {
-        writeToXmlTest(ImmutableNetwork.of(LCC_NETWORK), LCC_REF);
+        writeToXmlTest(new ImmutableNetwork(LCC_NETWORK), LCC_REF);
     }
 
     @Test
@@ -47,6 +47,6 @@ public class HvdcXmlTest extends AbstractNetworkXmlTest {
 
     @Test
     public void readImmutableVsc() {
-        writeToXmlTest(ImmutableNetwork.of(VSC_NETWORK), VSC_REF);
+        writeToXmlTest(new ImmutableNetwork(VSC_NETWORK), VSC_REF);
     }
 }

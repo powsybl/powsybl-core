@@ -27,7 +27,7 @@ public final class ImmutableSubstation extends AbstractImmutableIdentifiable<Sub
 
     @Override
     public Network getNetwork() {
-        return ImmutableNetwork.of(identifiable.getNetwork());
+        return cache.getNetwork();
     }
 
     @Override

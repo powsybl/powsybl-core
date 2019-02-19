@@ -24,7 +24,7 @@ public class ImmutableSwitchTest {
     public void testSw() {
         Network n = FictitiousSwitchFactory.create();
         Switch pppp1 = n.getSwitch("pppp");
-        ImmutableNetwork network = ImmutableNetwork.of(n);
+        ImmutableNetwork network = new ImmutableNetwork(n);
         Switch aSwitch = network.getSwitch("AB");
         Set<String> invalidMethods = new HashSet<>();
         invalidMethods.add("setOpen");

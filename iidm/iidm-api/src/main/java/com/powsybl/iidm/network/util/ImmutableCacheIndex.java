@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.*;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
@@ -29,7 +30,17 @@ public class ImmutableCacheIndex {
     private final Map<PhaseTapChanger, ImmutablePhaseTapChanger> ptcCacheMap = new HashMap<>();
     private final Map<RatioTapChanger, ImmutableRatioTapChanger> rtcCacheMap = new HashMap<>();
 
+    private final Network network;
+
     private VariantManager cachedVariantManager;
+
+    ImmutableCacheIndex(Network network) {
+        this.network = Objects.requireNonNull(network);
+    }
+
+    Network getNetwork() {
+        return network;
+    }
 
     Substation getSubstation(Substation substation) {
         return substation == null ? null : (ImmutableSubstation) identifiableCacheMap.computeIfAbsent(substation, key -> new ImmutableSubstation((Substation) key, this));

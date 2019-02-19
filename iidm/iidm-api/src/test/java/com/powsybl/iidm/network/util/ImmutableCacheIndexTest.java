@@ -22,7 +22,7 @@ public class ImmutableCacheIndexTest {
 
     @Test
     public void test() {
-        ImmutableCacheIndex cache = new ImmutableCacheIndex();
+        ImmutableCacheIndex cache = new ImmutableCacheIndex(mock(Network.class));
         // mock all types of connectable
         BusbarSection busbarSection = mock(BusbarSection.class);
         when(busbarSection.getType()).thenReturn(BUSBAR_SECTION);

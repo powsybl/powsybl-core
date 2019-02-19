@@ -38,7 +38,7 @@ public class ImmutableLineTest {
 
     @Test
     public void testImmutableLine() {
-        Network network = ImmutableNetwork.of(EurostagTutorialExample1Factory.createWithCurrentLimits());
+        Network network = new ImmutableNetwork(EurostagTutorialExample1Factory.createWithCurrentLimits());
         Line line = network.getLine("NHV1_NHV2_1");
         assertTrue(line instanceof ImmutableLine);
         ImmutableTestHelper.testInvalidMethods(line, INVALID_LINE_METHODS);
@@ -52,7 +52,7 @@ public class ImmutableLineTest {
     @Test
     public void testImmutableTieLine() {
         Network n = NoEquipmentNetworkFactory.createWithTieLine();
-        Network network = ImmutableNetwork.of(n);
+        Network network = new ImmutableNetwork(n);
         Line line = network.getLine("testTie");
         assertTrue(line.isTieLine());
         assertTrue(line instanceof ImmutableTieLine);
@@ -75,7 +75,7 @@ public class ImmutableLineTest {
     @Test
     public void testHvdcLine() {
         Network n = HvdcTestNetwork.createLcc();
-        Network network = ImmutableNetwork.of(n);
+        Network network = new ImmutableNetwork(n);
         HvdcLine hvdcLine = network.getHvdcLine("L");
         assertTrue(hvdcLine instanceof ImmutableHvdcLine);
         assertTrue(hvdcLine.getNetwork() instanceof ImmutableNetwork);

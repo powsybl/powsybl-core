@@ -26,7 +26,7 @@ public final class ImmutableHvdcLine extends AbstractImmutableIdentifiable<HvdcL
 
     @Override
     public Network getNetwork() {
-        return ImmutableNetwork.of(identifiable.getNetwork());
+        return cache.getNetwork();
     }
 
     @Override

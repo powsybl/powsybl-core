@@ -31,7 +31,7 @@ public class FictitiousSwitchTest extends AbstractNetworkXmlTest {
 
     @Test
     public void testReadImmutable() {
-        writeToXmlTest(ImmutableNetwork.of(NETWORK), REF);
+        writeToXmlTest(new ImmutableNetwork(NETWORK), REF);
     }
 
 }

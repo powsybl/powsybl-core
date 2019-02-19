@@ -86,7 +86,7 @@ public class ImmutableTest {
     @Test
     public void testBus() {
         Bus delegate = mock(Bus.class);
-        Bus sut = new ImmutableBus(delegate, new ImmutableCacheIndex());
+        Bus sut = new ImmutableBus(delegate, new ImmutableCacheIndex(mock(Network.class)));
 
         when(delegate.getP()).thenReturn(42.0);
         assertEquals(42.0, sut.getP(), 0.0);
@@ -156,7 +156,7 @@ public class ImmutableTest {
     @Test
     public void testComponent() {
         Component delegate = mock(Component.class);
-        Component sut = new ImmutableComponent(delegate, new ImmutableCacheIndex());
+        Component sut = new ImmutableComponent(delegate, new ImmutableCacheIndex(mock(Network.class)));
 
         when(delegate.getNum()).thenReturn(3);
         when(delegate.getSize()).thenReturn(33);
@@ -173,7 +173,7 @@ public class ImmutableTest {
     @Test
     public void testLine() {
         Line delegate = mock(Line.class);
-        Line sut = new ImmutableLine(delegate, new ImmutableCacheIndex());
+        Line sut = new ImmutableLine(delegate, new ImmutableCacheIndex(mock(Network.class)));
 
         when(delegate.isOverloaded()).thenReturn(false);
         when(delegate.isOverloaded(0.9f)).thenReturn(true);
@@ -218,7 +218,7 @@ public class ImmutableTest {
     @Test
     public void testVariantManager() {
         VariantManager delegate = mock(VariantManager.class);
-        VariantManager sut = new ImmutableVariantManager(delegate, new ImmutableCacheIndex());
+        VariantManager sut = new ImmutableVariantManager(delegate, new ImmutableCacheIndex(mock(Network.class)));
         sut.setWorkingVariant("set");
         verify(delegate, ONCE).setWorkingVariant("set");
         try {
@@ -249,7 +249,7 @@ public class ImmutableTest {
     @Test
     public void testNetwork() {
         Network delegate = mock(Network.class);
-        Network sut = ImmutableNetwork.of(delegate);
+        Network sut = new ImmutableNetwork(delegate);
 
         Set<Country> countries = new HashSet<>();
         countries.add(Country.FR);
@@ -336,7 +336,7 @@ public class ImmutableTest {
     @Test
     public void testVoltageLevel() {
         VoltageLevel delegate = mock(VoltageLevel.class);
-        ImmutableCacheIndex immutableCacheIndex = new ImmutableCacheIndex();
+        ImmutableCacheIndex immutableCacheIndex = new ImmutableCacheIndex(mock(Network.class));
         VoltageLevel sut = new ImmutableVoltageLevel(delegate, immutableCacheIndex);
 
         when(delegate.getConnectables(Line.class)).thenReturn(MOCK_LINE_LIST);
@@ -449,7 +449,7 @@ public class ImmutableTest {
     @Test
     public void testSubstation() {
         Substation delegate = mock(Substation.class);
-        Substation sut = new ImmutableSubstation(delegate, new ImmutableCacheIndex());
+        Substation sut = new ImmutableSubstation(delegate, new ImmutableCacheIndex(mock(Network.class)));
 
         when(delegate.getTwoWindingsTransformerCount()).thenReturn(1);
         assertEquals(1, sut.getTwoWindingsTransformerCount());
