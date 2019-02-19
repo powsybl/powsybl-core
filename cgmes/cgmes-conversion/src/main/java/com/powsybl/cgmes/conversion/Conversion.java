@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.elements.*;
 import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -71,6 +72,10 @@ public class Conversion {
 
         if (LOG.isDebugEnabled() && cgmes.baseVoltages() != null) {
             LOG.debug(cgmes.baseVoltages().tabulate());
+        }
+        // Check that at least we have an EquipmentCore profile
+        if (!cgmes.hasEquipmentCore()) {
+            throw new CgmesModelException("Data source does not contain EquipmentCore data");
         }
         Network network = createNetwork();
         Context context = createContext(network);
