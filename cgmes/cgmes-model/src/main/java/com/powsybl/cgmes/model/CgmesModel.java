@@ -24,6 +24,8 @@ public interface CgmesModel {
 
     Properties getProperties();
 
+    boolean hasEquipmentCore();
+
     String modelId();
 
     String version();
