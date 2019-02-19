@@ -9,26 +9,26 @@ package com.powsybl.iidm.network.util;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.WeakHashMap;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 public class ImmutableCacheIndex {
 
-    private final Map<Identifiable, AbstractImmutableIdentifiable> identifiableCacheMap = new HashMap<>();
+    private final Map<Identifiable, AbstractImmutableIdentifiable> identifiableCacheMap = new WeakHashMap<>();
 
-    private final Map<Component, ImmutableComponent> componentCacheMap = new HashMap<>();
-    private final Map<Terminal, ImmutableTerminal> terminalCacheMap = new HashMap<>();
+    private final Map<Component, ImmutableComponent> componentCacheMap = new WeakHashMap<>();
+    private final Map<Terminal, ImmutableTerminal> terminalCacheMap = new WeakHashMap<>();
 
     // Although currentlimit is not shared, it could be cached in its holder
     // But for reduce complexity(two sides), it is cached here.
-    private final Map<CurrentLimits, ImmutableCurrentLimits> limitsCacheMap = new HashMap<>();
+    private final Map<CurrentLimits, ImmutableCurrentLimits> limitsCacheMap = new WeakHashMap<>();
 
-    private final Map<PhaseTapChanger, ImmutablePhaseTapChanger> ptcCacheMap = new HashMap<>();
-    private final Map<RatioTapChanger, ImmutableRatioTapChanger> rtcCacheMap = new HashMap<>();
+    private final Map<PhaseTapChanger, ImmutablePhaseTapChanger> ptcCacheMap = new WeakHashMap<>();
+    private final Map<RatioTapChanger, ImmutableRatioTapChanger> rtcCacheMap = new WeakHashMap<>();
 
     private final Network network;
 
