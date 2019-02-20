@@ -11,6 +11,8 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.ast.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -25,6 +27,8 @@ import java.util.stream.Stream;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class CalculatedTimeSeries implements DoubleTimeSeries {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(NodeCalc.class);
 
     public static final TimeSeriesNameResolver EMPTY_RESOLVER = new TimeSeriesNameResolver() {
 
@@ -81,13 +85,20 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
     }
 
     private NodeCalc resolve(List<DoubleTimeSeries> timeSeriesList) {
-        NodeCalc simplifiedNodeCalc = NodeCalcSimplifier.simplify(nodeCalc);
+        try {
+            NodeCalc simplifiedNodeCalc = NodeCalcSimplifier.simplify(nodeCalc);
 
-        Map<String, Integer> timeSeriesNums = IntStream.range(0, timeSeriesList.size())
-                .boxed()
-                .collect(Collectors.toMap(i -> timeSeriesList.get(i).getMetadata().getName(),
-                        Function.identity()));
-        return NodeCalcResolver.resolve(simplifiedNodeCalc, timeSeriesNums);
+            Map<String, Integer> timeSeriesNums = IntStream.range(0, timeSeriesList.size())
+                    .boxed()
+                    .collect(Collectors.toMap(i -> timeSeriesList.get(i).getMetadata().getName(),
+                            Function.identity()));
+            return NodeCalcResolver.resolve(simplifiedNodeCalc, timeSeriesNums);
+        } catch (TimeSeriesTooManyRecursionException e) {
+            if (LOGGER.isWarnEnabled()) {
+                LOGGER.warn("Calculated time series '{}' with too many recursions: {}", name, nodeCalc.getDepth());
+            }
+            throw e;
+        }
     }
 
     public static TimeSeriesIndex computeIndex(NodeCalc nodeCalc, TimeSeriesNameResolver resolver) {

@@ -15,7 +15,7 @@ public class NodeCalcPrinter implements NodeCalcVisitor<String, Void> {
 
     public static String print(NodeCalc nodeCalc) {
         Objects.requireNonNull(nodeCalc);
-        return nodeCalc.accept(new NodeCalcPrinter(), null);
+        return NodeCalc.safeAccept(nodeCalc, new NodeCalcPrinter(), null);
     }
 
     @Override

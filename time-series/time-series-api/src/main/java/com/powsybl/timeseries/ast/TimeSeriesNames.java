@@ -18,7 +18,7 @@ public class TimeSeriesNames extends DefaultNodeCalcVisitor<Void, Set<String>> {
     public static Set<String> list(NodeCalc nodeCalc) {
         Objects.requireNonNull(nodeCalc);
         Set<String> timeSeriesNames = new TreeSet<>();
-        nodeCalc.accept(new TimeSeriesNames(), timeSeriesNames);
+        NodeCalc.safeAccept(nodeCalc, new TimeSeriesNames(), timeSeriesNames);
         return timeSeriesNames;
     }
 

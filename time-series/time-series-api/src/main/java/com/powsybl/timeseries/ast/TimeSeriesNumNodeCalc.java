@@ -38,6 +38,11 @@ public class TimeSeriesNumNodeCalc implements NodeCalc {
     }
 
     @Override
+    public int getDepth() {
+        return 1;
+    }
+
+    @Override
     public int hashCode() {
         return Integer.hashCode(timeSeriesNum);
     }

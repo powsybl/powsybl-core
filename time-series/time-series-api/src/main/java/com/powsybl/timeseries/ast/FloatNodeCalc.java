@@ -17,7 +17,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class FloatNodeCalc implements LiteralNodeCalc {
+public class FloatNodeCalc extends AbstractLiteralNodeCalc {
 
     static final String NAME = "float";
 

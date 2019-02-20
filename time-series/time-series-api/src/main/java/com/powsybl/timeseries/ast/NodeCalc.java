@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.TimeSeriesException;
+import com.powsybl.timeseries.TimeSeriesTooManyRecursionException;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -32,6 +33,14 @@ public interface NodeCalc {
             generator.writeEndObject();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
+        }
+    }
+
+    static <R, A> R safeAccept(NodeCalc node, NodeCalcVisitor<R, A> visitor, A arg) {
+        try {
+            return node.accept(visitor, arg);
+        } catch (StackOverflowError error) {
+            throw new TimeSeriesTooManyRecursionException(node, error);
         }
     }
 
@@ -110,4 +119,6 @@ public interface NodeCalc {
         }
         throw createUnexpectedToken(token);
     }
+
+    int getDepth();
 }

@@ -26,4 +26,9 @@ public abstract class AbstractSingleChildNodeCalc implements NodeCalc {
     public void setChild(NodeCalc child) {
         this.child = Objects.requireNonNull(child);
     }
+
+    @Override
+    public int getDepth() {
+        return child.getDepth() + 1;
+    }
 }

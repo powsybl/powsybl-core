@@ -15,7 +15,7 @@ public class NodeCalcSimplifier extends NodeCalcModifier<Void> {
 
     public static NodeCalc simplify(NodeCalc nodeCalc) {
         Objects.requireNonNull(nodeCalc);
-        NodeCalc simplifiedNodeCalc =  nodeCalc.accept(new NodeCalcSimplifier(), null);
+        NodeCalc simplifiedNodeCalc =  NodeCalc.safeAccept(nodeCalc, new NodeCalcSimplifier(), null);
         return simplifiedNodeCalc != null ? simplifiedNodeCalc : nodeCalc;
     }
 }

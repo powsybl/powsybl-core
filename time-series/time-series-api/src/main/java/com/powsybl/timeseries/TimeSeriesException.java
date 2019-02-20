@@ -13,6 +13,10 @@ import com.powsybl.commons.PowsyblException;
  */
 public class TimeSeriesException extends PowsyblException {
 
+    public TimeSeriesException(Throwable throwable) {
+        super(throwable);
+    }
+
     public TimeSeriesException(String msg) {
         super(msg);
     }
