@@ -52,10 +52,26 @@ public class XMLImporter implements Importer {
 
     public static final String THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND = "iidm.import.xml.throw-exception-if-extension-not-found";
 
+    public static final String IMPORT_FROM_BASE_AND_EXTENSIONS_FILES = "iidm.import.xml.import_from_base_and_extensions_files";
+
+    public static final String IMPORT_FROM_BASE_AND_MULTIPLE_EXTENSION_FILES = "iidm.import.xml.import_from_base_and_multiple_extension_files";
+
+    public static final String EXTENSIONS_LIST = "iidm.import.xml.extensions";
+
+
+
+    private static final Parameter IMPORT_FROM_BASE_AND_EXTENSIONS_FILES_PARAMETER
+            = new Parameter(IMPORT_FROM_BASE_AND_EXTENSIONS_FILES, ParameterType.BOOLEAN, "import from base and extensions files", Boolean.FALSE);
+
+    private static final Parameter IMPORT_FROM_BASE_AND_MULTIPLE_EXTENSION_FILES_PARAMETER
+            = new Parameter(IMPORT_FROM_BASE_AND_MULTIPLE_EXTENSION_FILES, ParameterType.BOOLEAN, "import from base and multiple extension files", Boolean.FALSE);
 
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER
             = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE)
                     .addAdditionalNames("throwExceptionIfExtensionNotFound");
+
+    private static final Parameter EXTENSIONS_LIST_PARAMETER
+            = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The list of extension files ", Collections.EMPTY_LIST);
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
@@ -160,54 +176,55 @@ public class XMLImporter implements Importer {
 
     @Override
     public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
-        return importData(dataSource, null, parameters, null);
+        return importData(dataSource, parameters, new ArrayList<String>() {
+        });
     }
 
-    public Network importData(ReadOnlyDataSource dataSource, Properties parameters, Set<String> extensions) {
-        return importData(dataSource, null, parameters, extensions);
-    }
-    public Network importData(ReadOnlyDataSource dataSourceBase, ReadOnlyDataSource dataSourceExt, Properties parameters) {
-        return importData(dataSourceBase, dataSourceExt, parameters, null);
-    }
-
-
-    public Network importData(ReadOnlyDataSource dataSourceBase, ReadOnlyDataSource dataSourceExtension, Properties parameters, Set<String> extensions) {
-        Objects.requireNonNull(dataSourceBase);
+    public Network importData(ReadOnlyDataSource dataSource, Properties parameters, List<String> extensions) {
+        Objects.requireNonNull(dataSource);
         Network network;
+
+        ImportOptions options = new ImportOptions()
+                .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
+                .setImportFromBaseAndExtensionsFiles(ConversionParameters.readBooleanParameter(getFormat(), parameters, IMPORT_FROM_BASE_AND_EXTENSIONS_FILES_PARAMETER, defaultValueConfig))
+                .setImportFromBaseAndMultipleExtensionFiles(ConversionParameters.readBooleanParameter(getFormat(), parameters, IMPORT_FROM_BASE_AND_MULTIPLE_EXTENSION_FILES_PARAMETER, defaultValueConfig))
+                .setExtensions(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig));
+
+
         Anonymizer anonymizer = null;
         long startTime = System.currentTimeMillis();
         try {
-            String ext = findExtension(dataSourceBase);
+            String ext = findExtension(dataSource);
             if (ext == null) {
-                throw new PowsyblException("File " + dataSourceBase.getBaseName()
+                throw new PowsyblException("File " + dataSource.getBaseName()
                         + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
             }
-            boolean throwExceptionIfExtensionNotFound = ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig);
 
-            if (dataSourceBase.exists(SUFFIX_MAPPING, "csv")) {
+            if (dataSource.exists(SUFFIX_MAPPING, "csv")) {
                 anonymizer = new SimpleAnonymizer();
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSourceBase.newInputStream(SUFFIX_MAPPING, "csv"), StandardCharsets.UTF_8))) {
+                try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(SUFFIX_MAPPING, "csv"), StandardCharsets.UTF_8))) {
                     anonymizer.read(reader);
                 }
             }
 
-            try (InputStream isb = dataSourceBase.newInputStream(null, ext)) {
-                network = NetworkXml.read(isb, new ImportOptions(throwExceptionIfExtensionNotFound), anonymizer);
+            //Read the base file
+            try (InputStream isb = dataSource.newInputStream(null, ext)) {
+                network = NetworkXml.read(isb, options, anonymizer);
             }
 
-            if (dataSourceExtension != null) {
+            if (options.isImportFromBaseAndExtensionsFiles()) {
                 // in this case we have to read all extensions from one single file
-                String extension = findExtension(dataSourceExtension);
+                String extension = findExtension(dataSource);
                 if (extension == null) {
-                    throw new PowsyblException("File " + dataSourceExtension.getBaseName()
+                    throw new PowsyblException("File " + dataSource.getBaseName()
                             + "." + String.join("|", EXTENSIONS) + " not found");
                 }
-                try (InputStream ise = dataSourceExtension.newInputStream(null, extension)) {
-                    network = NetworkXml.readExtensions(network, ise, new ImportOptions(), anonymizer);
+                try (InputStream ise = dataSource.newInputStream(extensions.iterator().next() +  "." + extension)) {
+                    network = NetworkXml.readExtensions(network, ise, options, anonymizer);
                 }
-            } else if (extensions != null) {
+            } else if (options.isImportFromBaseAndMultipleExtensionFiles()) {
                 // here we'll read all extensions declared in the extensions set
-                network = NetworkXml.readExtensions(network, dataSourceBase, new ImportOptions(), anonymizer, extensions, ext);
+                network = NetworkXml.readExtensions(network, dataSource, options, anonymizer, extensions, ext);
             }
 
             LOGGER.debug("XIIDM import done in {} ms", System.currentTimeMillis() - startTime);

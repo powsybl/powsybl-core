@@ -46,11 +46,10 @@ public class XmlExporterImporterBaseOneExtensionPerFile extends AbstractConverte
             compareXml(getClass().getResourceAsStream("/loadFoo.xiidm"), is);
         }
 
-        List<String> list = Arrays.asList("loadFoo", "loadBar");
-        Set< String> extensions = new HashSet<>(list);
+        List<String> extensionsList = Arrays.asList("loadFoo", "loadBar");
         XMLImporter importer = new XMLImporter();
 
-        Network n = importer.importData(dataSource, properties, extensions);
+        Network n = importer.importData(dataSource, properties, extensionsList);
         assertNotNull(n);
         assertEquals(2, network.getLoad("LOAD").getExtensions().size());
         assertEquals(1, network.getLoad("LOAD2").getExtensions().size());

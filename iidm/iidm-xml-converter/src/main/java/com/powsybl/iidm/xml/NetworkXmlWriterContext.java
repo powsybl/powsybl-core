@@ -29,16 +29,13 @@ public class NetworkXmlWriterContext extends ConverterContext implements XmlWrit
     private final BusFilter filter;
     private final Set<Identifiable> exportedEquipments;
 
-    NetworkXmlWriterContext(Anonymizer anonymizer, XMLStreamWriter writer, ExportOptions options, BusFilter filter) {
-        this(anonymizer, writer, null, options, filter);
-    }
 
-    NetworkXmlWriterContext(Anonymizer anonymizer, XMLStreamWriter writer, XMLStreamWriter extensionsWriter, ExportOptions options, BusFilter filter) {
+    NetworkXmlWriterContext(Anonymizer anonymizer, XMLStreamWriter writer, ExportOptions options, BusFilter filter) {
         super(anonymizer);
         this.writer = writer;
         this.options = options;
         this.filter = filter;
-        this.extensionsWriter = extensionsWriter;
+        this.extensionsWriter = writer;
         this.exportedEquipments = new HashSet<>();
     }
 

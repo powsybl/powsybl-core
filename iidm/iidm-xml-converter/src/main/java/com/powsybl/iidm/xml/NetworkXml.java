@@ -166,7 +166,7 @@ public final class NetworkXml {
     }
 
     private static void writeExtension(Extension<? extends Identifiable<?>> extension, NetworkXmlWriterContext context) throws XMLStreamException {
-        XMLStreamWriter writer = getConvenientWriter(context);
+        XMLStreamWriter writer = context.getExtensionswWriter();
         writeExtension(extension, context, writer);
     }
 
@@ -197,14 +197,6 @@ public final class NetworkXml {
         return extensionXmlSerializer;
     }
 
-
-    private static XMLStreamWriter getConvenientWriter(NetworkXmlWriterContext context) {
-        if (context.getExtensionswWriter() != null) {
-            return context.getExtensionswWriter();
-        }
-        return context.getWriter();
-    }
-
     public static Map<String, Set<String>> getExtensionsPerType(Network n) {
 
         Map<String, Set<String>> extensionsPerType = new HashMap<>();
@@ -230,12 +222,12 @@ public final class NetworkXml {
             if (!context.isExportedEquipment(identifiable) || extensions.isEmpty()) {
                 continue;
             }
-            getConvenientWriter(context).writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
-            getConvenientWriter(context).writeAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
+            context.getExtensionswWriter().writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
+            context.getExtensionswWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
             for (Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
                 writeExtension(extension, context);
             }
-            getConvenientWriter(context).writeEndElement();
+            context.getExtensionswWriter().writeEndElement();
         }
     }
 
@@ -310,7 +302,7 @@ public final class NetworkXml {
         }
     }
 
-    public static Anonymizer write(Network n, ExportOptions options, OutputStream osb, OutputStream ose, DataSource dataSource) {
+    public static Anonymizer write(Network n, ExportOptions options, OutputStream osb, OutputStream ose, DataSource dataSource) throws IOException {
         try {
             final XMLStreamWriter writer = initializeWriter(n, osb, options);
 
@@ -319,16 +311,18 @@ public final class NetworkXml {
             NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter);
 
             writeBaseNetwork(n, context, filter);
+            // Consider the network has been exported so its extensions will be written also
+            context.addExportedEquipment(n);
 
             if (!options.isSkipExtensions() && !getNetworkExtensions(n).isEmpty()) {
-                final XMLStreamWriter extensionsWriter = initializeWriter(n, ose, options);
-                context.setExtensionsWriter(extensionsWriter);
-                // Consider the network has been exported so its extensions will be written also
-                context.addExportedEquipment(n);
                 // write extensions
                 if (options.isOneFilePerExtensionType()) {
                     writeExtensionsInMultipleFile(n, context, dataSource, options);
                 } else {
+                    final XMLStreamWriter extensionsWriter = initializeWriter(n, ose, options);
+                    if (extensionsWriter != null) {
+                        context.setExtensionsWriter(extensionsWriter);
+                    }
                     writeExtensions(n, context);
                     writeEndElement(extensionsWriter);
                 }
@@ -336,24 +330,24 @@ public final class NetworkXml {
             writeEndElement(writer);
 
             return anonymizer;
-        } catch (XMLStreamException | IOException e) {
-            throw new UncheckedXmlStreamException((XMLStreamException) e);
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
         }
     }
 
-    public static Anonymizer write(Network n, ExportOptions options, OutputStream os) {
+    public static Anonymizer write(Network n, ExportOptions options, OutputStream os) throws IOException {
         return write(n, options, os, null, null);
     }
 
-    public static Anonymizer write(Network n, ExportOptions options, OutputStream osb, OutputStream ose) {
+    public static Anonymizer write(Network n, ExportOptions options, OutputStream osb, OutputStream ose) throws IOException {
         return write(n, options, osb, ose, null);
     }
 
-    public static Anonymizer write(Network n, ExportOptions options, OutputStream os, DataSource dataSource) {
+    public static Anonymizer write(Network n, ExportOptions options, OutputStream os, DataSource dataSource) throws IOException {
         return write(n, options, os, null, dataSource);
     }
 
-    public static Anonymizer write(Network n, OutputStream os) {
+    public static Anonymizer write(Network n, OutputStream os) throws IOException {
         return write(n, new ExportOptions(), os);
     }
 
@@ -489,7 +483,7 @@ public final class NetworkXml {
 
 
     // To read extensions from multiple extension files
-    public static Network readExtensions(Network network, ReadOnlyDataSource dataSource, ImportOptions config, Anonymizer anonymizer, Set<String> extensions, String ext) throws IOException {
+    public static Network readExtensions(Network network, ReadOnlyDataSource dataSource, ImportOptions config, Anonymizer anonymizer, List<String> extensions, String ext) throws IOException {
         for (String extension : extensions) {
             try (InputStream ise = dataSource.newInputStream(extension + "." + ext)) {
                 readExtensions(network, ise, config, anonymizer);
@@ -529,7 +523,6 @@ public final class NetworkXml {
                     throw new AssertionError();
                 }
             });
-            runEndTasks(context, extensionNamesNotFound, config);
             return network;
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);

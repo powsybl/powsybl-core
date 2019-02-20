@@ -16,7 +16,8 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Properties;
+import java.util.*;
+
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
  */
@@ -30,9 +31,11 @@ public class XMLImporterExporterBaseEXtensions extends AbstractConverterTest {
         PlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
         importer = new XMLImporter(platformConfig);
 
-        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions-base", new ResourceSet("/", xiidmBaseRef.substring(1, xiidmBaseRef.length())));
-        ReadOnlyDataSource dataSourceExtension = new ResourceDataSource("multiple-extensions-ext", new ResourceSet("/", xiidmExtRef.substring(1, xiidmExtRef.length())));
-        Network network = importer.importData(dataSourceBase, dataSourceExtension, null);
+        List<String> extensionsList = Arrays.asList("multiple-extensions-ext");
+        Properties options = new Properties();
+
+        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions-base", new ResourceSet("/", xiidmBaseRef.substring(1, xiidmBaseRef.length()), xiidmExtRef.substring(1, xiidmExtRef.length())));
+        Network network = importer.importData(dataSourceBase, options, extensionsList);
 
         MemDataSource dataSource = new MemDataSource();
         new XMLExporter().export(network, properties, dataSource);
