@@ -16,7 +16,7 @@ import java.util.Objects;
  */
 public class NodeCalcTooManyRecursionException extends PowsyblException {
 
-    private final transient NodeCalc nodeCalc;
+    private final NodeCalc nodeCalc;
 
     public NodeCalcTooManyRecursionException(NodeCalc nodeCalc, Throwable cause) {
         super(cause);

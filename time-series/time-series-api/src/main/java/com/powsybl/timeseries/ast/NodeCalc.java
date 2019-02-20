@@ -14,13 +14,14 @@ import com.powsybl.timeseries.TimeSeriesException;
 import com.powsybl.timeseries.NodeCalcTooManyRecursionException;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.io.UncheckedIOException;
 import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public interface NodeCalc {
+public interface NodeCalc extends Serializable {
 
     <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg);
 
