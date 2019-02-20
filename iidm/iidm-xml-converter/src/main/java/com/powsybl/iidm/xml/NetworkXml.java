@@ -203,12 +203,7 @@ public final class NetworkXml {
 
         for (Identifiable<?> identifiable : n.getIdentifiables()) {
             for (Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
-                if (extensionsPerType.containsKey(extension.getName())) {
-                    extensionsPerType.get(extension.getName()).add(identifiable.getId());
-                } else {
-                    extensionsPerType.put(extension.getName(), new HashSet<>());
-                    extensionsPerType.get(extension.getName()).add(identifiable.getId());
-                }
+                extensionsPerType.computeIfAbsent(extension.getName(), key -> new HashSet<>()).add(identifiable.getId());
             }
         }
         return extensionsPerType;

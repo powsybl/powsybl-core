@@ -72,7 +72,6 @@ public class XMLImporterTest extends AbstractConverterTest {
 
     @Before
     public void setUp() throws IOException {
-        fileSystem = Jimfs.newFileSystem(Configuration.unix());
         // create test files
         //   /test0.xiidm
         //   /test1.iidm
@@ -181,11 +180,6 @@ public class XMLImporterTest extends AbstractConverterTest {
 
         Network network2 = importer.importData(new FileDataSource(fileSystem.getPath("/"), "test7"), null);
         assertNotNull(network2.getSubstation("P1"));
-    }
-
-    @After
-    public void tearDown() throws IOException {
-        fileSystem.close();
     }
 
     @Test
