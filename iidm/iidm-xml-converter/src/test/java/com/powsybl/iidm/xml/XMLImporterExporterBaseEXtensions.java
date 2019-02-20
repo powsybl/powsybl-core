@@ -18,27 +18,35 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
+import static org.junit.Assert.assertEquals;
+
+
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
  */
 public class XMLImporterExporterBaseEXtensions extends AbstractConverterTest {
     public void importExport(String xiidmBaseRef, String xiidmExtRef) throws IOException {
-        Properties properties = new Properties();
-        properties.put(XMLExporter.ANONYMISED, "false");
-        properties.put(XMLExporter.SEPARATE_BASE_EXTENSIONS, "true");
+
+        Properties exportProperties = new Properties();
+        exportProperties.put(XMLExporter.SEPARATE_BASE_EXTENSIONS, "true");
 
         XMLImporter importer;
         PlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
         importer = new XMLImporter(platformConfig);
 
+        Properties importProperties = new Properties();
         List<String> extensionsList = Arrays.asList("multiple-extensions-ext");
-        Properties options = new Properties();
+        importProperties.put(XMLImporter.EXTENSIONS_LIST, extensionsList);
+        importProperties.put(XMLImporter.IMPORT_FROM_BASE_AND_EXTENSIONS_FILES, "true");
 
         ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions-base", new ResourceSet("/", xiidmBaseRef.substring(1, xiidmBaseRef.length()), xiidmExtRef.substring(1, xiidmExtRef.length())));
-        Network network = importer.importData(dataSourceBase, options, extensionsList);
+        Network network = importer.importData(dataSourceBase, importProperties, extensionsList);
+
+        assertEquals(2, network.getLoad("LOAD").getExtensions().size());
+        assertEquals(1, network.getLoad("LOAD2").getExtensions().size());
 
         MemDataSource dataSource = new MemDataSource();
-        new XMLExporter().export(network, properties, dataSource);
+        new XMLExporter().export(network, exportProperties, dataSource);
         // check the base exported file and compare it to iidmBaseRef reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
             compareXml(getClass().getResourceAsStream(xiidmBaseRef), is);

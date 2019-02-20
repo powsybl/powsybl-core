@@ -8,6 +8,8 @@ package com.powsybl.iidm.export;
 
 import com.powsybl.iidm.network.TopologyLevel;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -34,15 +36,19 @@ public class ExportOptions {
 
     private boolean oneFilePerExtensionType = false;
 
+    private List<String> extensions = Arrays.asList("ALL");
+
+
     public ExportOptions() {
     }
 
-    public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound) {
+    public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, List<String> extensions) {
         this.withBranchSV = withBranchSV;
         this.indent = indent;
         this.onlyMainCc = onlyMainCc;
         this.topologyLevel = Objects.requireNonNull(topologyLevel);
         this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
+        this.extensions = extensions;
     }
 
     public boolean isOneFilePerExtensionType() {
@@ -117,6 +123,11 @@ public class ExportOptions {
         return this;
     }
 
+    public ExportOptions setExtensions(List<String> extensions) {
+        this.extensions = extensions;
+        return this;
+    }
+
     public boolean isThrowExceptionIfExtensionNotFound() {
         return throwExceptionIfExtensionNotFound;
     }
@@ -124,5 +135,17 @@ public class ExportOptions {
     public ExportOptions setThrowExceptionIfExtensionNotFound(boolean throwException) {
         this.throwExceptionIfExtensionNotFound = throwException;
         return this;
+    }
+
+    public  boolean isInExtensionsList(String str) {
+        return extensions.contains(str);
+    }
+
+    public  boolean isALL() {
+        return extensions.size() == 1 && extensions.get(0).equals("ALL");
+    }
+
+    public boolean isExtensionsEmpty() {
+        return extensions.isEmpty();
     }
 }

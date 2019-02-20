@@ -17,6 +17,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import static org.junit.Assert.assertNotNull;
+
+
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
  */
@@ -33,10 +36,12 @@ public class XmlExporterBaseExtensions  extends AbstractConverterTest {
         new XMLExporter().export(network, properties, dataSource);
         // check the base exported file and compare it to iidmBaseRef reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
+            assertNotNull(is);
             compareXml(getClass().getResourceAsStream(xiidmBaseRef), is);
         }
         // check the exported extensions file and compare it to xiidmExtRef reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("ext", "xiidm"))) {
+            assertNotNull(is);
             compareXml(getClass().getResourceAsStream(xiidmExtRef), is);
         }
     }

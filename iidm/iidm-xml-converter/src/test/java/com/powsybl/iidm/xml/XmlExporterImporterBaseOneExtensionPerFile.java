@@ -27,12 +27,14 @@ import static org.junit.Assert.assertNotNull;
 public class XmlExporterImporterBaseOneExtensionPerFile extends AbstractConverterTest {
 
     public void exporteImportOneFilePerExtensionType(Network network, String xiidmBaseRef) throws IOException {
-        Properties properties = new Properties();
-        properties.put(XMLExporter.ONE_FILE_PER_EXTENSION_TYPE, "true");
+        List<String> extensions = Arrays.asList("loadFoo", "loadBar");
+        Properties exportProperties = new Properties();
+        exportProperties.put(XMLExporter.ONE_FILE_PER_EXTENSION_TYPE, "true");
+        exportProperties.put(XMLExporter.EXTENSIONS_LIST, extensions);
 
         MemDataSource dataSource = new MemDataSource();
 
-        new XMLExporter().export(network, properties, dataSource);
+        new XMLExporter().export(network, exportProperties, dataSource);
         // check the base exported file and compare it to iidmBaseRef reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
             compareXml(getClass().getResourceAsStream(xiidmBaseRef), is);
@@ -47,9 +49,12 @@ public class XmlExporterImporterBaseOneExtensionPerFile extends AbstractConverte
         }
 
         List<String> extensionsList = Arrays.asList("loadFoo", "loadBar");
+        Properties importProperties = new Properties();
+        importProperties.put(XMLImporter.IMPORT_FROM_BASE_AND_MULTIPLE_EXTENSION_FILES, "true");
+        importProperties.put(XMLExporter.EXTENSIONS_LIST, extensions);
         XMLImporter importer = new XMLImporter();
 
-        Network n = importer.importData(dataSource, properties, extensionsList);
+        Network n = importer.importData(dataSource, importProperties, extensionsList);
         assertNotNull(n);
         assertEquals(2, network.getLoad("LOAD").getExtensions().size());
         assertEquals(1, network.getLoad("LOAD2").getExtensions().size());

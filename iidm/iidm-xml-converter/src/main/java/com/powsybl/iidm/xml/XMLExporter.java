@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.util.Collections;
 import java.util.Properties;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.*;
@@ -71,6 +72,8 @@ public class XMLExporter implements Exporter {
     public static final String THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND = "iidm.export.xml.throw-exception-if-extension-not-found";
     public static final String SEPARATE_BASE_EXTENSIONS = "iidm.export.xml.base-and-extensions-separately";
     public static final String ONE_FILE_PER_EXTENSION_TYPE = "iidm.export.xml.one-file-per-extension";
+    public static final String EXTENSIONS_LIST = "iidm.import.xml.extensions";
+
 
     private static final Parameter INDENT_PARAMETER = new Parameter(INDENT, ParameterType.BOOLEAN, "Indent export output file", Boolean.TRUE);
     private static final Parameter WITH_BRANCH_STATE_VARIABLES_PARAMETER = new Parameter(WITH_BRANCH_STATE_VARIABLES, ParameterType.BOOLEAN, "Export network with branch state variables", Boolean.TRUE);
@@ -81,6 +84,7 @@ public class XMLExporter implements Exporter {
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE);
     private static final Parameter SEPARATE_BASE_EXTENSIONS_PARAMETER = new Parameter(SEPARATE_BASE_EXTENSIONS, ParameterType.BOOLEAN, "export the network to base and extensions files", Boolean.FALSE);
     private static final Parameter ONE_FILE_PER_EXTENSION_TYPE_PARAMETER = new Parameter(ONE_FILE_PER_EXTENSION_TYPE, ParameterType.BOOLEAN, "export each extension in a separate file", Boolean.FALSE);
+    private static final Parameter EXTENSIONS_LIST_PARAMETER = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The list of extension files ", Collections.emptyList());
     private final ParameterDefaultValueConfig defaultValueConfig;
 
     public XMLExporter() {
@@ -117,7 +121,8 @@ public class XMLExporter implements Exporter {
                 .setTopologyLevel(TopologyLevel.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, TOPOLOGY_LEVEL_PARAMETER, defaultValueConfig)))
                 .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
                 .setSeparateBaseAndExtensions(ConversionParameters.readBooleanParameter(getFormat(), parameters, SEPARATE_BASE_EXTENSIONS_PARAMETER, defaultValueConfig))
-                .setOneFilePerExtensionType(ConversionParameters.readBooleanParameter(getFormat(), parameters, ONE_FILE_PER_EXTENSION_TYPE_PARAMETER, defaultValueConfig));
+                .setOneFilePerExtensionType(ConversionParameters.readBooleanParameter(getFormat(), parameters, ONE_FILE_PER_EXTENSION_TYPE_PARAMETER, defaultValueConfig))
+                .setExtensions(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig));
 
         try {
             long startTime = System.currentTimeMillis();

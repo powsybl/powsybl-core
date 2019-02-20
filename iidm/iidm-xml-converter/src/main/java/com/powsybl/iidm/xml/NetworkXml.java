@@ -265,16 +265,18 @@ public final class NetworkXml {
         for (Map.Entry<String, Set<String>> entry : m.entrySet()) {
             String name = entry.getKey();
             Set<String> ids = entry.getValue();
-            try (OutputStream os = dataSource.newOutputStream(name, XIIDM, false);
-                 BufferedOutputStream bos = new BufferedOutputStream(os)) {
-                XMLStreamWriter writer = initializeWriter(n, bos, options);
-                for (String id : ids) {
-                    writer.writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
-                    writer.writeAttribute("id", context.getAnonymizer().anonymizeString(id));
-                    writeExtension(n.getIdentifiable(id).getExtensionByName(name), context, writer);
-                    writer.writeEndElement();
+            if (options.isInExtensionsList(name) || options.isALL()) {
+                try (OutputStream os = dataSource.newOutputStream(name, XIIDM, false);
+                     BufferedOutputStream bos = new BufferedOutputStream(os)) {
+                    XMLStreamWriter writer = initializeWriter(n, bos, options);
+                    for (String id : ids) {
+                        writer.writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
+                        writer.writeAttribute("id", context.getAnonymizer().anonymizeString(id));
+                        writeExtension(n.getIdentifiable(id).getExtensionByName(name), context, writer);
+                        writer.writeEndElement();
+                    }
+                    writeEndElement(writer);
                 }
-                writeEndElement(writer);
             }
         }
     }

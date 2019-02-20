@@ -219,7 +219,7 @@ public class XMLImporter implements Importer {
                     throw new PowsyblException("File " + dataSource.getBaseName()
                             + "." + String.join("|", EXTENSIONS) + " not found");
                 }
-                try (InputStream ise = dataSource.newInputStream(extensions.iterator().next() +  "." + extension)) {
+                try (InputStream ise = dataSource.newInputStream(extensions.get(0) +  "." + extension)) {
                     network = NetworkXml.readExtensions(network, ise, anonymizer);
                 }
             } else if (options.isImportFromBaseAndMultipleExtensionFiles()) {
