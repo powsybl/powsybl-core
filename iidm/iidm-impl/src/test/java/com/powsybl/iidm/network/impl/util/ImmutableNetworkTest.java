@@ -24,7 +24,7 @@ public class ImmutableNetworkTest {
 
     @Test
     public void test() {
-        Network network = new ImmutableNetwork(EurostagTutorialExample1Factory.create());
+        Network network = ImmutableNetwork.of(EurostagTutorialExample1Factory.create());
         Set<String> expectedInvalidMethods = new HashSet<>();
         expectedInvalidMethods.add("setForecastDistance");
         expectedInvalidMethods.add("setCaseDate");
@@ -97,7 +97,7 @@ public class ImmutableNetworkTest {
     @Test
     public void testVariantManager() {
         Network n = EurostagTutorialExample1Factory.create();
-        Network network = new ImmutableNetwork(n);
+        Network network = ImmutableNetwork.of(n);
         n.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "foo");
         n.getVariantManager().setWorkingVariant("foo");
 
@@ -116,7 +116,7 @@ public class ImmutableNetworkTest {
         Bus b = t.getBusView().getBus();
         Component c = b.getConnectedComponent();
 
-        Network immutableNetwork = new ImmutableNetwork(n);
+        Network immutableNetwork = ImmutableNetwork.of(n);
         Terminal immutableTerminal = immutableNetwork.getLine("NHV1_NHV2_1").getTerminal1();
         assertTrue(immutableTerminal instanceof ImmutableTerminal);
         Bus immutableBus = immutableTerminal.getBusView().getBus();

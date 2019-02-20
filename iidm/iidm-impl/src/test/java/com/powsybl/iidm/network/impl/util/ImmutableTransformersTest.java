@@ -29,7 +29,7 @@ public class ImmutableTransformersTest {
 
     @Test
     public void testTwoWindingsTransfo() {
-        Network network = new ImmutableNetwork(EurostagTutorialExample1Factory.create());
+        Network network = ImmutableNetwork.of(EurostagTutorialExample1Factory.create());
 
         TwoWindingsTransformer trans2 = network.getTwoWindingsTransformer("NHV2_NLOAD");
         assertTrue(trans2.getSubstation() instanceof ImmutableSubstation);
@@ -50,7 +50,7 @@ public class ImmutableTransformersTest {
 
     @Test
     public void testRatioTapChanger() {
-        Network network = new ImmutableNetwork(EurostagTutorialExample1Factory.create());
+        Network network = ImmutableNetwork.of(EurostagTutorialExample1Factory.create());
         TwoWindingsTransformer trans2 = network.getTwoWindingsTransformer("NHV2_NLOAD");
         RatioTapChanger rtc = trans2.getRatioTapChanger();
         assertTrue(rtc instanceof ImmutableRatioTapChanger);
@@ -79,7 +79,7 @@ public class ImmutableTransformersTest {
 
     @Test
     public void testPhaseTapChanger() {
-        Network network = new ImmutableNetwork(PhaseShifterTestCaseFactory.create());
+        Network network = ImmutableNetwork.of(PhaseShifterTestCaseFactory.create());
         PhaseTapChanger ptc = network.getTwoWindingsTransformer("PS1").getPhaseTapChanger();
         assertTrue(ptc instanceof ImmutablePhaseTapChanger);
         Set<String> expectedPtcInvalidMethods = new HashSet<>();
@@ -102,7 +102,7 @@ public class ImmutableTransformersTest {
 
     @Test
     public void testThreeWindingsTransfo() {
-        Network network = new ImmutableNetwork(ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits());
+        Network network = ImmutableNetwork.of(ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits());
         ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
         assertTrue(twt instanceof ImmutableThreeWindingsTransformer);
 

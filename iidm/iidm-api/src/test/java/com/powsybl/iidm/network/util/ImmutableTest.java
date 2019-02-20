@@ -249,7 +249,7 @@ public class ImmutableTest {
     @Test
     public void testNetwork() {
         Network delegate = mock(Network.class);
-        Network sut = new ImmutableNetwork(delegate);
+        Network sut = ImmutableNetwork.of(delegate);
 
         Set<Country> countries = new HashSet<>();
         countries.add(Country.FR);

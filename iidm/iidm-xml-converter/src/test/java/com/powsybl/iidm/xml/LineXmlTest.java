@@ -33,7 +33,7 @@ public class LineXmlTest extends AbstractNetworkXmlTest {
 
     @Test
     public void readImmutableTieline() {
-        writeToXmlTest(new ImmutableNetwork(TIELINE_NETWORK), TIELINE_REF);
+        writeToXmlTest(ImmutableNetwork.of(TIELINE_NETWORK), TIELINE_REF);
     }
 
     @Test
@@ -45,6 +45,6 @@ public class LineXmlTest extends AbstractNetworkXmlTest {
 
     @Test
     public void readImmutableDanglineLine() {
-        writeToXmlTest(new ImmutableNetwork(DANGLINELINE_NETWORK), DANGLINGLINE_REF);
+        writeToXmlTest(ImmutableNetwork.of(DANGLINELINE_NETWORK), DANGLINGLINE_REF);
     }
 }

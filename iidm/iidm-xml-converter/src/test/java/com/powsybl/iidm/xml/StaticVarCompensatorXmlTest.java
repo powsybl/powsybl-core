@@ -31,6 +31,6 @@ public class StaticVarCompensatorXmlTest extends AbstractNetworkXmlTest {
 
     @Test
     public void readFromImmutable() {
-        writeToXmlTest(new ImmutableNetwork(NETWORK), REF);
+        writeToXmlTest(ImmutableNetwork.of(NETWORK), REF);
     }
 }

@@ -27,7 +27,7 @@ public class ImmutableInjectionTest {
 
     @Test
     public void testGenerator() {
-        ImmutableNetwork network = new ImmutableNetwork(EurostagTutorialExample1Factory.create());
+        ImmutableNetwork network = ImmutableNetwork.of(EurostagTutorialExample1Factory.create());
         Generator generator = network.getGenerator("GEN");
         assertTrue(generator instanceof ImmutableGenerator);
         assertEquals(ConnectableType.GENERATOR, generator.getType());
@@ -48,7 +48,7 @@ public class ImmutableInjectionTest {
 
     @Test
     public void testLoad() {
-        ImmutableNetwork network = new ImmutableNetwork(EurostagTutorialExample1Factory.create());
+        ImmutableNetwork network = ImmutableNetwork.of(EurostagTutorialExample1Factory.create());
         Load load = network.getLoad("LOAD");
         assertTrue(load instanceof ImmutableLoad);
         Set<String> expectedInvalidMethods = new HashSet<>();
@@ -61,7 +61,7 @@ public class ImmutableInjectionTest {
 
     @Test
     public void testDanglingLine() {
-        ImmutableNetwork network = new ImmutableNetwork(NoEquipmentNetworkFactory.createWithDanglingLine());
+        ImmutableNetwork network = ImmutableNetwork.of(NoEquipmentNetworkFactory.createWithDanglingLine());
         DanglingLine dl = network.getDanglingLine("DL");
         assertTrue(dl instanceof ImmutableDanglingLine);
         Set<String> invalidDanglingLineMethods = new HashSet<>(ImmutableTestHelper.RXGB_SETTERS);
@@ -75,7 +75,7 @@ public class ImmutableInjectionTest {
 
     @Test
     public void testSvc() {
-        ImmutableNetwork network = new ImmutableNetwork(SvcTestCaseFactory.create());
+        ImmutableNetwork network = ImmutableNetwork.of(SvcTestCaseFactory.create());
         StaticVarCompensator svc = network.getStaticVarCompensator("SVC2");
         assertTrue(svc instanceof ImmutableStaticVarCompensator);
         Set<String> invalidMethods = new HashSet<>();
@@ -91,7 +91,7 @@ public class ImmutableInjectionTest {
     @Test
     public void testShunt() {
         Network n = HvdcTestNetwork.createLcc();
-        Network network = new ImmutableNetwork(n);
+        Network network = ImmutableNetwork.of(n);
         ShuntCompensator shunt = network.getShuntCompensator("C1_Filter1");
         assertTrue(shunt instanceof ImmutableShuntCompensator);
         Set<String> invalidMethods = new HashSet<>();

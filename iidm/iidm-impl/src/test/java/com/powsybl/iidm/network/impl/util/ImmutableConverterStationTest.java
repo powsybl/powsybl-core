@@ -29,7 +29,7 @@ public class ImmutableConverterStationTest {
 
     @Test
     public void testVsc() {
-        Network network = new ImmutableNetwork(HvdcTestNetwork.createVsc());
+        Network network = ImmutableNetwork.of(HvdcTestNetwork.createVsc());
         VscConverterStation c1 = network.getVscConverterStation("C1");
         assertTrue(c1 instanceof ImmutableVscConverterStation);
         Set<String> invalidVscMethods = new HashSet<>();
@@ -49,7 +49,7 @@ public class ImmutableConverterStationTest {
 
     @Test
     public void testLcc() {
-        Network network = new ImmutableNetwork(HvdcTestNetwork.createLcc());
+        Network network = ImmutableNetwork.of(HvdcTestNetwork.createLcc());
         LccConverterStation c1 = network.getLccConverterStation("C1");
         assertTrue(c1 instanceof ImmutableLccConverterStation);
         Set<String> invalidLccMethods = new HashSet<>();

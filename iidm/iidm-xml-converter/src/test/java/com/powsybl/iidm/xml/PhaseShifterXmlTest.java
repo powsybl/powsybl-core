@@ -31,6 +31,6 @@ public class PhaseShifterXmlTest extends AbstractNetworkXmlTest {
 
     @Test
     public void testWriteToXml() {
-        writeToXmlTest(new ImmutableNetwork(NETWORK), REF);
+        writeToXmlTest(ImmutableNetwork.of(NETWORK), REF);
     }
 }

@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -25,9 +26,13 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
     private final ImmutableCacheIndex cache;
 
-    public ImmutableNetwork(Network identifiable) {
+    private ImmutableNetwork(Network identifiable) {
         super(identifiable);
         cache = new ImmutableCacheIndex(this);
+    }
+
+    public static ImmutableNetwork of(Network network) {
+        return new ImmutableNetwork(Objects.requireNonNull(network));
     }
 
     static PowsyblException createUnmodifiableNetworkException() {

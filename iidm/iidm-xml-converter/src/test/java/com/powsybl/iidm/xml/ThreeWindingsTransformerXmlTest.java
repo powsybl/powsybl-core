@@ -23,7 +23,7 @@ public class ThreeWindingsTransformerXmlTest extends AbstractNetworkXmlTest {
 
     @Test
     public void testReadImmutable() {
-        writeToXmlTest(new ImmutableNetwork(NETWORK), REF);
+        writeToXmlTest(ImmutableNetwork.of(NETWORK), REF);
     }
 
     @Test
