@@ -11,7 +11,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.TimeSeriesException;
-import com.powsybl.timeseries.TimeSeriesTooManyRecursionException;
+import com.powsybl.timeseries.NodeCalcTooManyRecursionException;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -40,7 +40,7 @@ public interface NodeCalc {
         try {
             return node.accept(visitor, arg);
         } catch (StackOverflowError error) {
-            throw new TimeSeriesTooManyRecursionException(node, error);
+            throw new NodeCalcTooManyRecursionException(node, error);
         }
     }
 

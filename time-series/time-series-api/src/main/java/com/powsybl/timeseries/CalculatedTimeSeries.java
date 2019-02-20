@@ -93,11 +93,8 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
                     .collect(Collectors.toMap(i -> timeSeriesList.get(i).getMetadata().getName(),
                             Function.identity()));
             return NodeCalcResolver.resolve(simplifiedNodeCalc, timeSeriesNums);
-        } catch (TimeSeriesTooManyRecursionException e) {
-            if (LOGGER.isWarnEnabled()) {
-                LOGGER.warn("Calculated time series '{}' with too many recursions: {}", name, nodeCalc.getDepth());
-            }
-            throw e;
+        } catch (NodeCalcTooManyRecursionException e) {
+            throw new TimeSeriesException(String.format("Calculated time series '%s' with too many recursions: %d", name, nodeCalc.getDepth()));
         }
     }
 

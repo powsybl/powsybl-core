@@ -13,11 +13,11 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TimeSeriesTooManyRecursionException extends TimeSeriesException {
+public class NodeCalcTooManyRecursionException extends TimeSeriesException {
 
     private final NodeCalc nodeCalc;
 
-    public TimeSeriesTooManyRecursionException(NodeCalc nodeCalc, Throwable cause) {
+    public NodeCalcTooManyRecursionException(NodeCalc nodeCalc, Throwable cause) {
         super(cause);
         this.nodeCalc = Objects.requireNonNull(nodeCalc);
     }

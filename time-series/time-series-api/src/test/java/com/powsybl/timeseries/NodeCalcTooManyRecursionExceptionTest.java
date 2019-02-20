@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class TimeSeriesTooManyRecursionExceptionTest {
+public class NodeCalcTooManyRecursionExceptionTest {
 
     @Test
     public void  test() {
@@ -27,7 +27,7 @@ public class TimeSeriesTooManyRecursionExceptionTest {
         try {
             NodeCalcSimplifier.simplify(node);
             fail();
-        } catch (TimeSeriesTooManyRecursionException e) {
+        } catch (NodeCalcTooManyRecursionException e) {
             assertSame(node, e.getNodeCalc());
             assertEquals(10002, e.getNodeCalc().getDepth());
         }
