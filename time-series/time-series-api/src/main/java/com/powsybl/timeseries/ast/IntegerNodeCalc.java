@@ -17,7 +17,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class IntegerNodeCalc extends AbstractLiteralNodeCalc {
+public class IntegerNodeCalc implements LiteralNodeCalc {
 
     static final String NAME = "integer";
 

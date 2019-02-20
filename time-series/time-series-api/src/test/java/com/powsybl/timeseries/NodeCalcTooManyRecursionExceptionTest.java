@@ -9,7 +9,8 @@ package com.powsybl.timeseries;
 import com.powsybl.timeseries.ast.*;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -21,7 +22,7 @@ public class NodeCalcTooManyRecursionExceptionTest {
         NodeCalc one = new IntegerNodeCalc(1);
         TimeSeriesNameNodeCalc nameNode = new TimeSeriesNameNodeCalc("a");
         NodeCalc node = BinaryOperation.plus(nameNode, one);
-        for (int i = 0; i < 10000; i++) {
+        for (int i = 0; i < 100000; i++) {
             node = BinaryOperation.plus(node, one);
         }
         try {
@@ -29,7 +30,6 @@ public class NodeCalcTooManyRecursionExceptionTest {
             fail();
         } catch (NodeCalcTooManyRecursionException e) {
             assertSame(node, e.getNodeCalc());
-            assertEquals(10002, e.getNodeCalc().getDepth());
         }
     }
 }

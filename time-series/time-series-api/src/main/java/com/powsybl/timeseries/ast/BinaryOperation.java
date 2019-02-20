@@ -174,11 +174,6 @@ public class BinaryOperation implements NodeCalc {
     }
 
     @Override
-    public int getDepth() {
-        return Math.max(left.getDepth(), right.getDepth()) + 1;
-    }
-
-    @Override
     public int hashCode() {
         return left.hashCode() + right.hashCode() + operator.hashCode();
     }

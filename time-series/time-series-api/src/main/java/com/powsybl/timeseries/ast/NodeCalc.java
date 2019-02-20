@@ -121,6 +121,4 @@ public interface NodeCalc {
         }
         throw createUnexpectedToken(token);
     }
-
-    int getDepth();
 }

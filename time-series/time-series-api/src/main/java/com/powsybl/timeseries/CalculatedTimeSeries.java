@@ -94,7 +94,7 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
                             Function.identity()));
             return NodeCalcResolver.resolve(simplifiedNodeCalc, timeSeriesNums);
         } catch (NodeCalcTooManyRecursionException e) {
-            throw new TimeSeriesException(String.format("Calculated time series '%s' with too many recursions: %d", name, nodeCalc.getDepth()));
+            throw new TimeSeriesException(String.format("Calculated time series '%s' with too many recursions", name));
         }
     }
 

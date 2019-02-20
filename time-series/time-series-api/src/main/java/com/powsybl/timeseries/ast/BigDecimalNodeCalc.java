@@ -18,7 +18,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class BigDecimalNodeCalc extends AbstractLiteralNodeCalc {
+public class BigDecimalNodeCalc implements LiteralNodeCalc {
 
     static final String NAME = "bigDecimal";
 

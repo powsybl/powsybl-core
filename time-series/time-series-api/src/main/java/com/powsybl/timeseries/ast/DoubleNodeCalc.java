@@ -17,7 +17,7 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class DoubleNodeCalc extends AbstractLiteralNodeCalc {
+public class DoubleNodeCalc implements LiteralNodeCalc {
 
     static final String NAME = "double";
 
