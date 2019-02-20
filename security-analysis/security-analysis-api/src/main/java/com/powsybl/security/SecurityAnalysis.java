@@ -17,8 +17,6 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface SecurityAnalysis {
 
-    String getId();
-
     void addInterceptor(SecurityAnalysisInterceptor interceptor);
 
     boolean removeInterceptor(SecurityAnalysisInterceptor interceptor);

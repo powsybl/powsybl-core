@@ -6,7 +6,6 @@
  */
 package com.powsybl.security.distributed;
 
-import com.google.auto.service.AutoService;
 import com.powsybl.computation.*;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.iidm.network.Network;
@@ -39,7 +38,6 @@ import static java.util.Objects.requireNonNull;
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
-@AutoService(SecurityAnalysis.class)
 public class ExternalSecurityAnalysis implements SecurityAnalysis {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ExternalSecurityAnalysis.class);
@@ -67,19 +65,6 @@ public class ExternalSecurityAnalysis implements SecurityAnalysis {
     public ExternalSecurityAnalysis(ExternalSecurityAnalysisConfig config, Network network,
                                     ComputationManager computationManager, List<String> extensions, int taskCount) {
         this(config, network, computationManager, extensions, Integer.valueOf(taskCount));
-    }
-
-    public ExternalSecurityAnalysis() {
-        this.config = null;
-        this.network = null;
-        this.computationManager = null;
-        this.extensions = new ArrayList<>();
-        this.taskCount = null;
-    }
-
-    @Override
-    public String getId() {
-        return "externalSecurityAnalysis";
     }
 
     @Override

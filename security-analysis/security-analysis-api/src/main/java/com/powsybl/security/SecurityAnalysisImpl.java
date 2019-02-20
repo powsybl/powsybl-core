@@ -6,7 +6,6 @@
  */
 package com.powsybl.security;
 
-import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
@@ -27,7 +26,6 @@ import java.util.concurrent.CompletableFuture;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
-@AutoService(SecurityAnalysis.class)
 public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
 
     private final ComputationManager computationManager;
@@ -37,11 +35,6 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
     public SecurityAnalysisImpl(Network network, ComputationManager computationManager,
                                 LoadFlowFactory loadFlowFactory) {
         this(network, new LimitViolationFilter(), computationManager, loadFlowFactory);
-    }
-
-    public SecurityAnalysisImpl() {
-        this.computationManager = null;
-        this.loadFlowFactory = null;
     }
 
     public SecurityAnalysisImpl(Network network, LimitViolationFilter filter,
@@ -57,11 +50,6 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
         this.loadFlowFactory = Objects.requireNonNull(loadFlowFactory);
 
         interceptors.add(new CurrentLimitViolationInterceptor());
-    }
-
-    @Override
-    public String getId() {
-        return "securityAnalysis";
     }
 
     @Override

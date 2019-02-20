@@ -41,13 +41,6 @@ public abstract class AbstractSecurityAnalysis implements SecurityAnalysis {
         this.interceptors = new ArrayList<>();
     }
 
-    protected AbstractSecurityAnalysis() {
-        this.network = null;
-        this.violationDetector = null;
-        this.violationFilter = null;
-        this.interceptors = new ArrayList<>();
-    }
-
     @Override
     public void addInterceptor(SecurityAnalysisInterceptor interceptor) {
         interceptors.add(Objects.requireNonNull(interceptor));
