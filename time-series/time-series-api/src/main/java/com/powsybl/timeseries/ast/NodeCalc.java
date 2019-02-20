@@ -37,6 +37,8 @@ public interface NodeCalc {
     }
 
     static <R, A> R safeAccept(NodeCalc node, NodeCalcVisitor<R, A> visitor, A arg) {
+        Objects.requireNonNull(node);
+        Objects.requireNonNull(visitor);
         try {
             return node.accept(visitor, arg);
         } catch (StackOverflowError error) {
