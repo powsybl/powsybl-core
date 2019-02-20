@@ -29,14 +29,6 @@ public interface CurrentLimitsAdder {
         CurrentLimitsAdder endTemporaryLimit();
     }
 
-    default double getTemporaryLimit(int duration) {
-        return Double.NaN;
-    }
-
-    default double getPermanentLimit() {
-        return Double.NaN;
-    }
-
     CurrentLimitsAdder setPermanentLimit(double limit);
 
     TemporaryLimitAdder beginTemporaryLimit();

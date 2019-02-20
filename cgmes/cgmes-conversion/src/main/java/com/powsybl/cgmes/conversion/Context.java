@@ -45,7 +45,6 @@ public class Context {
         terminalMapping = new TerminalMapping();
         tapChangerTransformers = new TapChangerTransformers();
         dcMapping = new DcMapping(this);
-        currentLimitsMapping = new CurrentLimitsMapping(this);
         nodeMapping = new NodeMapping();
 
         ratioTapChangerTables = new HashMap<>();
@@ -85,10 +84,6 @@ public class Context {
 
     public SubstationIdMapping substationIdMapping() {
         return substationIdMapping;
-    }
-
-    public CurrentLimitsMapping currentLimitsMapping() {
-        return currentLimitsMapping;
     }
 
     public Boundary boundary() {
@@ -207,7 +202,6 @@ public class Context {
     private final NodeMapping nodeMapping;
     private final TapChangerTransformers tapChangerTransformers;
     private final DcMapping dcMapping;
-    private final CurrentLimitsMapping currentLimitsMapping;
 
     private final Map<String, PropertyBags> ratioTapChangerTables;
 

@@ -128,16 +128,6 @@ public class CurrentLimitsAdderImpl<S, O extends CurrentLimitsOwner<S>> implemen
     }
 
     @Override
-    public double getPermanentLimit() {
-        return permanentLimit;
-    }
-
-    @Override
-    public double getTemporaryLimit(int duration) {
-        return temporaryLimits.get(duration) == null ? Double.NaN : temporaryLimits.get(duration).getValue();
-    }
-
-    @Override
     public TemporaryLimitAdder beginTemporaryLimit() {
         return new TemporaryLimitAdderImpl();
     }

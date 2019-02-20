@@ -90,6 +90,10 @@ public interface CurrentLimits {
      */
     TemporaryLimit getTemporaryLimit(int acceptableDuration);
 
+    default CurrentLimits setTemporaryLimit(String name, double value, int acceptableDuration, boolean fictitious) {
+        return this;
+    }
+
     /**
      * Get a temporary limit value from its acceptable duration. Return NaN if there is non temporay limit with this
      * acceptable duration.
