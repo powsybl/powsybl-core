@@ -6,8 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
+
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
@@ -16,7 +15,6 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.Network;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,7 +22,6 @@ import org.junit.Test;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.util.*;
 
@@ -35,7 +32,6 @@ import static org.junit.Assert.*;
  */
 public class XMLImporterTest extends AbstractConverterTest {
 
-    private FileSystem fileSystem;
 
     private XMLImporter importer;
 
@@ -72,6 +68,7 @@ public class XMLImporterTest extends AbstractConverterTest {
 
     @Before
     public void setUp() throws IOException {
+        super.setUp();
         // create test files
         //   /test0.xiidm
         //   /test1.iidm
