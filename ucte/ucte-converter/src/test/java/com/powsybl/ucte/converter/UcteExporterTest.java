@@ -1,13 +1,19 @@
 package com.powsybl.ucte.converter;
 
+import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.ucte.network.UcteCountryCode;
+import com.powsybl.ucte.network.UcteNodeCode;
 import com.powsybl.ucte.network.UctePowerPlantType;
 import com.powsybl.ucte.network.UcteVoltageLevelCode;
 import org.junit.Test;
+
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
 
 import static org.junit.Assert.*;
 
@@ -19,9 +25,11 @@ public class UcteExporterTest {
 
     @Test
     public void exportUcte() {
-        ReadOnlyDataSource dataSource = new ResourceDataSource("transformerRegulation", new ResourceSet("/", "transformerRegulation.uct"));
+        ReadOnlyDataSource dataSource = new ResourceDataSource("elementName", new ResourceSet("/", "elementName.uct"));
         Network network = new UcteImporter().importData(dataSource, null);
-        new UcteExporter().export(network, null, null);
+        Path path = FileSystems.getDefault().getPath("./target/");
+        FileDataSource fds = new FileDataSource(path, "test");
+        new UcteExporter().export(network, null, fds);
     }
 
     @Test
@@ -95,11 +103,15 @@ public class UcteExporterTest {
         assertNotSame(UcteVoltageLevelCode.VL_27, ucteExporter.iidmVoltageToUcteVoltageLevelCode(330));
     }
 
-//    @Test //TODO : Fix this test
-//    public void createUcteNodeCodeTest() {
-//        ReadOnlyDataSource dataSource = new ResourceDataSource("countryIssue", new ResourceSet("/", "countryIssue.uct"));
-//        Network network = new UcteImporter().importData(dataSource, null);
-//        UcteExporter ucteExporter = new UcteExporter();
-//        assertTrue(new UcteNodeCode(UcteCountryCode.ME, "BAR  ", UcteVoltageLevelCode.VL_110, ' ').equals(ucteExporter.createUcteNodeCode("0BAR  5 ", network.getVoltageLevel("0BAR  5"), "ME")));
-//    }
+    @Test
+    public void createUcteNodeCodeTest() {
+        ReadOnlyDataSource dataSource = new ResourceDataSource("countryIssue", new ResourceSet("/", "countryIssue.uct"));
+        Network network = new UcteImporter().importData(dataSource, null);
+        UcteExporter ucteExporter = new UcteExporter();
+        assertEquals(new UcteNodeCode(UcteCountryCode.ES, "HORTA", UcteVoltageLevelCode.VL_220, '1'), ucteExporter.createUcteNodeCode("EHORTA21", network.getVoltageLevel("EHORTA2"), "ES"));
+        assertNotEquals(new UcteNodeCode(UcteCountryCode.ES, "HORTA", UcteVoltageLevelCode.VL_110, '1'), ucteExporter.createUcteNodeCode("EHORTA21", network.getVoltageLevel("EHORTA2"), "ES"));
+        assertNotEquals(new UcteNodeCode(UcteCountryCode.ES, "HORT", UcteVoltageLevelCode.VL_220, '1'), ucteExporter.createUcteNodeCode("EHORTA21", network.getVoltageLevel("EHORTA2"), "ES"));
+        assertNotEquals(new UcteNodeCode(UcteCountryCode.BE, "HORTA", UcteVoltageLevelCode.VL_220, '1'), ucteExporter.createUcteNodeCode("EHORTA21", network.getVoltageLevel("EHORTA2"), "ES"));
+
+    }
 }
