@@ -10,7 +10,6 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.iidm.network.*;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Switch;
@@ -43,59 +42,52 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         if (terminalId != null) {
             terminal = context.terminalMapping().find(terminalId);
             if (terminal != null) {
-                createCurrentLimits(terminal);
+                createCurrentLimits(context.terminalMapping().number(terminalId), terminal.getConnectable());
             }
         }
         if (terminal == null && equipmentId != null) {
             // The equipment may be a Branch, a Dangling line, a Switch ...
             Identifiable identifiable = context.network().getIdentifiable(equipmentId);
-            if (identifiable instanceof Branch) {
-                Branch branch = context.network().getBranch(equipmentId);
-                createCurrentLimits(branch);
-            } else if (identifiable instanceof DanglingLine) {
-                DanglingLine danglingLine = context.network().getDanglingLine(equipmentId);
-                createCurrentLimits(danglingLine);
-            } else if (identifiable instanceof Switch) {
-                Switch aswitch = context.network().getSwitch(equipmentId);
-                notAssigned(aswitch);
-            } else {
-                notAssigned();
-            }
+            createCurrentLimits(-1, identifiable);
         }
     }
 
-    private void createCurrentLimits(Terminal terminal) {
-        Connectable<?> connectable = terminal.getConnectable();
-        if (connectable instanceof Branch) {
-            int terminalNumber = context.terminalMapping().number(terminalId);
-            Branch<?> b = (Branch<?>) connectable;
-            if (terminalNumber == 1) {
+    private void createCurrentLimits(int terminalNumber, Branch<?> b) {
+        if (terminalNumber == 1) {
+            currentLimits1 = Optional.ofNullable(b.getCurrentLimits1()).orElseGet(() -> b.newCurrentLimits1().add());
+        } else if (terminalNumber == 2) {
+            currentLimits2 = Optional.ofNullable(b.getCurrentLimits2()).orElseGet(() -> b.newCurrentLimits2().add());
+        } else {
+            notAssigned(b);
+        }
+    }
+
+    private void createCurrentLimits(int terminalNumber, Identifiable<?> identifiable) {
+        if (identifiable instanceof Line) {
+            Branch<?> b = (Branch<?>) identifiable;
+            if (terminalNumber == -1) {
                 currentLimits1 = Optional.ofNullable(b.getCurrentLimits1()).orElseGet(() -> b.newCurrentLimits1().add());
-            } else if (terminalNumber == 2) {
                 currentLimits2 = Optional.ofNullable(b.getCurrentLimits2()).orElseGet(() -> b.newCurrentLimits2().add());
             } else {
-                notAssigned(b);
+                createCurrentLimits(terminalNumber, b);
             }
-        } else if (connectable instanceof DanglingLine) {
-            DanglingLine danglingLine = (DanglingLine) connectable;
+        } else if (identifiable instanceof TwoWindingsTransformer) {
+            Branch<?> b = (Branch<?>) identifiable;
+            if (terminalNumber == -1) {
+                context.ignored(CURRENT_LIMIT, "Defined for Equipment TwoWindingsTransformer. Should be defined for one Terminal of Two");
+                notAssigned(b);
+            } else {
+                createCurrentLimits(terminalNumber, b);
+            }
+        } else if (identifiable instanceof DanglingLine) {
+            DanglingLine danglingLine = (DanglingLine) identifiable;
             currentLimits = Optional.ofNullable(danglingLine.getCurrentLimits()).orElseGet(() -> danglingLine.newCurrentLimits().add());
+        } else if (identifiable instanceof Switch) {
+            Switch aswitch = context.network().getSwitch(equipmentId);
+            notAssigned(aswitch);
         } else {
-            notAssigned(connectable);
+            notAssigned(identifiable);
         }
-    }
-
-    private void createCurrentLimits(Branch branch) {
-        if (branch instanceof TwoWindingsTransformer) {
-            context.ignored(CURRENT_LIMIT, "Defined for Equipment TwoWindingsTransformer. Should be defined for one Terminal of Two");
-            notAssigned(branch);
-        } else {
-            currentLimits1 = Optional.ofNullable(branch.getCurrentLimits1()).orElseGet(() -> branch.newCurrentLimits1().add());
-            currentLimits2 = Optional.ofNullable(branch.getCurrentLimits2()).orElseGet(() -> branch.newCurrentLimits2().add());
-        }
-    }
-
-    private void createCurrentLimits(DanglingLine danglingLine) {
-        currentLimits = Optional.ofNullable(danglingLine.getCurrentLimits()).orElseGet(() -> danglingLine.newCurrentLimits().add());
     }
 
     @Override
