@@ -65,7 +65,7 @@ class LoadAdderImpl extends AbstractInjectionAdder<LoadAdderImpl> implements Loa
         LoadImpl load = new LoadImpl(getNetwork().getRef(), id, getName(), loadType, p0, q0);
         load.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
-        getNetwork().getObjectStore().checkAndAdd(load);
+        getNetwork().getIndex().checkAndAdd(load);
         getNetwork().getListeners().notifyCreation(load);
         return load;
     }

@@ -46,7 +46,7 @@ class BusbarSectionAdderImpl extends AbstractIdentifiableAdder<BusbarSectionAdde
         BusbarSectionImpl section = new BusbarSectionImpl(id, getName());
         section.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
-        getNetwork().getObjectStore().checkAndAdd(section);
+        getNetwork().getIndex().checkAndAdd(section);
         getNetwork().getListeners().notifyCreation(section);
         return section;
     }
