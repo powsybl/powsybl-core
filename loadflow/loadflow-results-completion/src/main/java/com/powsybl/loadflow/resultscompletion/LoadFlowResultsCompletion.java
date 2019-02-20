@@ -6,6 +6,11 @@
  */
 package com.powsybl.loadflow.resultscompletion;
 
+import java.util.Objects;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.auto.service.AutoService;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Branch.Side;
@@ -20,10 +25,6 @@ import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.resultscompletion.z0flows.Z0FlowsCompletion;
 import com.powsybl.loadflow.resultscompletion.z0flows.Z0LineChecker;
 import com.powsybl.loadflow.validation.CandidateComputation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Objects;
 
 /**
  *
@@ -59,13 +60,16 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
         LOGGER.info("LoadFlowResultsCompletionParameters={}", parameters);
         LOGGER.info("LoadFlowParameters={}", lfParameters);
 
-        network.getLineStream().forEach(line -> {
-            BranchData lineData = new BranchData(line,
-                                                 parameters.getEpsilonX(),
-                                                 parameters.isApplyReactanceCorrection());
-            completeTerminalData(line.getTerminal(Side.ONE), Side.ONE, lineData);
-            completeTerminalData(line.getTerminal(Side.TWO), Side.TWO, lineData);
-        });
+        network.getLineStream()
+            // Do not try to compute flows on loops
+            .filter(l -> l.getTerminal1().getBusView().getBus() != l.getTerminal2().getBusView().getBus())
+            .forEach(line -> {
+                BranchData lineData = new BranchData(line,
+                                                     parameters.getEpsilonX(),
+                                                     parameters.isApplyReactanceCorrection());
+                completeTerminalData(line.getTerminal(Side.ONE), Side.ONE, lineData);
+                completeTerminalData(line.getTerminal(Side.TWO), Side.TWO, lineData);
+            });
 
         network.getTwoWindingsTransformerStream().forEach(twt -> {
             BranchData twtData = new BranchData(twt,
@@ -98,7 +102,7 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
         });
 
         // A line is considered Z0 (null impedance) if and only if
-        // it is connected at both ends and the voltage at end buses are exactly the same
+        // it is connected at both ends and the voltage at end buses are the same
         Z0LineChecker z0checker = (Line l) -> {
             if (!l.getTerminal1().isConnected()) {
                 return false;
@@ -110,7 +114,13 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
             Bus b2 = l.getTerminal2().getBusView().getBus();
             Objects.requireNonNull(b1);
             Objects.requireNonNull(b2);
-            return b1.getV() == b2.getV() && b1.getAngle() == b2.getAngle();
+            double threshold = parameters.getZ0ThresholdDiffVoltageAngle();
+            boolean r = Math.abs(b1.getV() - b2.getV()) < threshold
+                    && Math.abs(b1.getAngle() - b2.getAngle()) < threshold;
+            if (r) {
+                LOGGER.debug("Line Z0 {} ({}) dV = {}, dA = {}", l.getName(), l.getId(), Math.abs(b1.getV() - b2.getV()), Math.abs(b1.getAngle() - b2.getAngle()));
+            }
+            return r;
         };
         Z0FlowsCompletion z0FlowsCompletion = new Z0FlowsCompletion(network, z0checker);
         z0FlowsCompletion.complete();

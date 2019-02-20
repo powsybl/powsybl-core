@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.google.common.io.ByteStreams;
+import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
@@ -14,15 +14,12 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.StringWriter;
-import java.nio.charset.StandardCharsets;
 import java.util.Random;
-
-import static org.junit.Assert.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class VoltageLevelExportTest {
+public class VoltageLevelExportTest extends AbstractConverterTest {
 
     @Test
     public void nodeBreakerTest() throws IOException {
@@ -30,8 +27,7 @@ public class VoltageLevelExportTest {
         try (StringWriter writer = new StringWriter()) {
             network.getVoltageLevel("C").exportTopology(writer, new Random(0));
             writer.flush();
-            assertEquals(new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/fictitious-switch-c.dot")), StandardCharsets.UTF_8),
-                         writer.toString());
+            compareTxt(getClass().getResourceAsStream("/fictitious-switch-c.dot"), writer.toString());
         }
     }
 
@@ -41,8 +37,7 @@ public class VoltageLevelExportTest {
         try (StringWriter writer = new StringWriter()) {
             network.getVoltageLevel("VLHV1").exportTopology(writer, new Random(0));
             writer.flush();
-            assertEquals(new String(ByteStreams.toByteArray(getClass().getResourceAsStream("/eurostag-tutorial-example1-vlhv1.dot")), StandardCharsets.UTF_8),
-                         writer.toString());
+            compareTxt(getClass().getResourceAsStream("/eurostag-tutorial-example1-vlhv1.dot"), writer.toString());
         }
     }
 }
