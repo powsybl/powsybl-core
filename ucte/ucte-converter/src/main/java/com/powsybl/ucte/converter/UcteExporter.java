@@ -15,10 +15,8 @@ import com.powsybl.ucte.network.io.UcteWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.UncheckedIOException;
-import java.nio.file.FileSystems;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -46,10 +44,22 @@ public class UcteExporter implements Exporter {
 
     @Override
     public void export(Network network, Properties parameters, DataSource dataSource) {
-
+        if (network == null) {
+            throw new IllegalArgumentException("network is null");
+        }
         UcteNetwork ucteNetwork = createUcteNetwork(network);
-        write(ucteNetwork, FileSystems.getDefault().getPath("", "test.uct")); // FIXME: it's just to test
 
+        try {
+            long startTime = System.currentTimeMillis();
+
+            try (OutputStream os = dataSource.newOutputStream("", "uct", false);
+                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
+                new UcteWriter(ucteNetwork).write(writer);
+                LOGGER.debug("UCTE export done in {} ms", System.currentTimeMillis() - startTime);
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     public void createTwoWindingTransformers(UcteNetwork ucteNetwork, Bus bus) {
@@ -299,7 +309,6 @@ public class UcteExporter implements Exporter {
             minimumPermissibleReactivePowerGeneration = -generator.getReactiveLimits().getMinQ(activePowerGeneration);
             maximumPermissibleReactivePowerGeneration = -generator.getReactiveLimits().getMaxQ(activePowerGeneration);
             uctePowerPlantType = energySourceToUctePowerPlantType(generator.getEnergySource());
-
         }
 
         UcteNodeCode ucteNodeCode = createUcteNodeCode(bus.getId(), voltageLevel, country);
@@ -455,13 +464,4 @@ public class UcteExporter implements Exporter {
         }
     }
 
-    public String generate(int length) {  //FIXME: delete this when you know how to get geographical name
-        String chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
-        String pass = "";
-        for (int x = 0; x < length; x++) {
-            int i = (int) Math.floor(Math.random() * (chars.length() - 1));
-            pass += chars.charAt(i);
-        }
-        return pass;
-    }
 }
