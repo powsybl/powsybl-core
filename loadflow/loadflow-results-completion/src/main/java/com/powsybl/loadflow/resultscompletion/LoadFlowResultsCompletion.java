@@ -60,13 +60,16 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
         LOGGER.info("LoadFlowResultsCompletionParameters={}", parameters);
         LOGGER.info("LoadFlowParameters={}", lfParameters);
 
-        network.getLineStream().forEach(line -> {
-            BranchData lineData = new BranchData(line,
-                                                 parameters.getEpsilonX(),
-                                                 parameters.isApplyReactanceCorrection());
-            completeTerminalData(line.getTerminal(Side.ONE), Side.ONE, lineData);
-            completeTerminalData(line.getTerminal(Side.TWO), Side.TWO, lineData);
-        });
+        network.getLineStream()
+            // Do not try to compute flows on loops
+            .filter(l -> l.getTerminal1().getBusView().getBus() != l.getTerminal2().getBusView().getBus())
+            .forEach(line -> {
+                BranchData lineData = new BranchData(line,
+                                                     parameters.getEpsilonX(),
+                                                     parameters.isApplyReactanceCorrection());
+                completeTerminalData(line.getTerminal(Side.ONE), Side.ONE, lineData);
+                completeTerminalData(line.getTerminal(Side.TWO), Side.TWO, lineData);
+            });
 
         network.getTwoWindingsTransformerStream().forEach(twt -> {
             BranchData twtData = new BranchData(twt,
@@ -99,7 +102,7 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
         });
 
         // A line is considered Z0 (null impedance) if and only if
-        // it is connected at both ends and the voltage at end buses are exactly the same
+        // it is connected at both ends and the voltage at end buses are the same
         Z0LineChecker z0checker = (Line l) -> {
             if (!l.getTerminal1().isConnected()) {
                 return false;
