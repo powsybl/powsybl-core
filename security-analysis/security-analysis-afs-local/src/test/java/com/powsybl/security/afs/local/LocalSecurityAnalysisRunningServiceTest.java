@@ -29,6 +29,10 @@ public class LocalSecurityAnalysisRunningServiceTest extends SecurityAnalysisRun
         @Override
         public SecurityAnalysis create(Network network, ComputationManager computationManager, int priority) {
             return new SecurityAnalysis() {
+                @Override
+                public String getId() {
+                    return "LocalSecurityAnalysisRunningServiceTest";
+                }
 
                 @Override
                 public void addInterceptor(SecurityAnalysisInterceptor interceptor) {
