@@ -483,7 +483,7 @@ public final class NetworkXml {
 
 
     // To read extensions from multiple extension files
-    public static Network readExtensions(Network network, ReadOnlyDataSource dataSource, ImportOptions config, Anonymizer anonymizer, List<String> extensions, String ext) throws IOException {
+    public static Network readExtensions(Network network, ReadOnlyDataSource dataSource, Anonymizer anonymizer, List<String> extensions, String ext) throws IOException {
         for (String extension : extensions) {
             try (InputStream ise = dataSource.newInputStream(extension + "." + ext)) {
                 readExtensions(network, ise, anonymizer);

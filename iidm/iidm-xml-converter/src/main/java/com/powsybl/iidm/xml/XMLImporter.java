@@ -71,7 +71,7 @@ public class XMLImporter implements Importer {
                     .addAdditionalNames("throwExceptionIfExtensionNotFound");
 
     private static final Parameter EXTENSIONS_LIST_PARAMETER
-            = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The list of extension files ", Collections.EMPTY_LIST);
+            = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The list of extension files ", Collections.emptyList());
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
@@ -224,7 +224,7 @@ public class XMLImporter implements Importer {
                 }
             } else if (options.isImportFromBaseAndMultipleExtensionFiles()) {
                 // here we'll read all extensions declared in the extensions set
-                network = NetworkXml.readExtensions(network, dataSource, options, anonymizer, extensions, ext);
+                network = NetworkXml.readExtensions(network, dataSource, anonymizer, extensions, ext);
             }
 
             LOGGER.debug("XIIDM import done in {} ms", System.currentTimeMillis() - startTime);
