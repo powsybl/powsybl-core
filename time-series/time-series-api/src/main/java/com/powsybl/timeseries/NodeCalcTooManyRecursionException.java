@@ -6,6 +6,7 @@
  */
 package com.powsybl.timeseries;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.timeseries.ast.NodeCalc;
 
 import java.util.Objects;
@@ -13,9 +14,9 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NodeCalcTooManyRecursionException extends TimeSeriesException {
+public class NodeCalcTooManyRecursionException extends PowsyblException {
 
-    private final NodeCalc nodeCalc;
+    private final transient NodeCalc nodeCalc;
 
     public NodeCalcTooManyRecursionException(NodeCalc nodeCalc, Throwable cause) {
         super(cause);

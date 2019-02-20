@@ -11,8 +11,6 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.json.JsonUtil;
 import com.powsybl.timeseries.ast.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;
@@ -27,8 +25,6 @@ import java.util.stream.Stream;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class CalculatedTimeSeries implements DoubleTimeSeries {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(NodeCalc.class);
 
     public static final TimeSeriesNameResolver EMPTY_RESOLVER = new TimeSeriesNameResolver() {
 
