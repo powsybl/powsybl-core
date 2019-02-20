@@ -233,7 +233,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     }
 
     private static void addNamespaceForBase(RepositoryConnection cnx, String base) {
-        cnx.setNamespace("data", base + "#");
+        cnx.setNamespace("data", base + "/#");
     }
 
     private Resource context(RepositoryConnection conn, String contextName) {

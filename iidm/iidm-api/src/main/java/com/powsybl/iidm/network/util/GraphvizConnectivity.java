@@ -8,16 +8,24 @@ package com.powsybl.iidm.network.util;
 
 import com.powsybl.commons.util.Colors;
 import com.powsybl.iidm.network.*;
-import org.kohsuke.graphviz.Edge;
-import org.kohsuke.graphviz.Graph;
-import org.kohsuke.graphviz.Node;
+import guru.nidi.graphviz.attribute.*;
+import guru.nidi.graphviz.model.MutableGraph;
+import guru.nidi.graphviz.model.MutableNode;
 
 import java.io.IOException;
-import java.io.OutputStream;
+import java.io.UncheckedIOException;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
+
+import static guru.nidi.graphviz.model.Factory.mutGraph;
+import static guru.nidi.graphviz.model.Factory.mutNode;
 
 /**
  * Example to generate a svg from the dot file:
@@ -31,8 +39,15 @@ public class GraphvizConnectivity {
 
     private final Network network;
 
+    private final Random random;
+
     public GraphvizConnectivity(Network network) {
-        this.network = network;
+        this(network, new SecureRandom());
+    }
+
+    public GraphvizConnectivity(Network network, Random random) {
+        this.network = Objects.requireNonNull(network);
+        this.random = Objects.requireNonNull(random);
     }
 
     private static String getBusId(Bus bus) {
@@ -40,39 +55,44 @@ public class GraphvizConnectivity {
     }
 
     public void write(Path file) throws IOException {
-        try (OutputStream os = Files.newOutputStream(file)) {
-            write(os);
+        try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+            write(writer);
         }
     }
 
-    public void write(OutputStream os) {
-        Graph graph = new Graph().id("\"" +  network.getId() + "\"");
+    public void write(Writer writer) {
+        Objects.requireNonNull(writer);
+        MutableGraph graph = mutGraph(network.getId());
         int maxCC = network.getBusView().getBusStream().mapToInt(b -> b.getConnectedComponent().getNum()).max().getAsInt();
-        String[] colors = Colors.generateColorScale(maxCC + 1);
-        Map<String, Node> nodes = new HashMap<>();
+        String[] colors = Colors.generateColorScale(maxCC + 1, random);
+        Map<String, MutableNode> nodes = new HashMap<>();
         for (Bus b : network.getBusView().getBuses()) {
             long load = Math.round(b.getLoadStream().mapToDouble(Load::getP0).sum());
             long maxGeneration = Math.round(b.getGeneratorStream().mapToDouble(Generator::getMaxP).sum());
             String busId = getBusId(b);
-            Node n = new Node()
-                    .id(busId)
-                    .attr("shape", "oval")
-                    .attr("style", "filled")
-                    .attr("fontsize", "10")
-                    .attr("fillcolor", colors[b.getConnectedComponent().getNum()])
-                    .attr("tooltip", "load=" + load + "MW" + NEWLINE + "max generation=" + maxGeneration + "MW" + NEWLINE + "cc=" + b.getConnectedComponent().getNum());
+            MutableNode n = mutNode(Label.of(busId))
+                    .attrs()
+                    .add(Shape.ELLIPSE)
+                    .add(Style.FILLED)
+                    .add(Font.size(10))
+                    .add(Color.rgb(colors[b.getConnectedComponent().getNum()]).fill())
+                    .add("tooltip", "load=" + load + "MW" + NEWLINE + "max generation=" + maxGeneration + "MW" + NEWLINE + "cc=" + b.getConnectedComponent().getNum());
             nodes.put(busId, n);
-            graph.node(n);
+            graph.add(n);
         }
         for (Branch branch : network.getBranches()) {
             Bus b1 = branch.getTerminal1().getBusView().getBus();
             Bus b2 = branch.getTerminal2().getBusView().getBus();
             if (b1 != null && b2 != null) {
-                Node n1 = nodes.get(getBusId(b1));
-                Node n2 = nodes.get(getBusId(b2));
-                graph.edge(new Edge(n1, n2).attr("tooltip", branch.getName()));
+                MutableNode n1 = nodes.get(getBusId(b1));
+                MutableNode n2 = nodes.get(getBusId(b2));
+                n1.addLink(n1.linkTo(n2).with("tooltip", branch.getName()));
             }
         }
-        graph.writeTo(os);
+        try {
+            writer.write(graph.toString());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }

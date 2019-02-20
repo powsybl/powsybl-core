@@ -28,7 +28,7 @@ public class FakeSubstationsConversionTest {
     public void fakeSubstations() {
         CgmesModel cgmes = new FakeCgmesModel()
                 .substations("Sub1", "Sub2", "Sub3");
-        Network n = new Conversion(cgmes).convertedNetwork();
+        Network n = new Conversion(cgmes).convert();
         List<String> actuals = n.getSubstationStream()
                 .map(Substation::getId)
                 .collect(Collectors.toList());

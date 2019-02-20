@@ -7,8 +7,9 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.StaticVarCompensator;
+import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -16,7 +17,7 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class StaticVarCompensatorConversion extends AbstractConductingEquipmentConversion {
 
-    public StaticVarCompensatorConversion(PropertyBag svc, Conversion.Context context) {
+    public StaticVarCompensatorConversion(PropertyBag svc, Context context) {
         super("StaticVarCompensator", svc, context);
     }
 
@@ -41,20 +42,16 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
             }
         }
 
-        StaticVarCompensator svc = voltageLevel().newStaticVarCompensator()
-                .setId(iidmId())
-                .setName(iidmName())
-                .setEnsureIdUnicity(false)
-                .setBus(terminalConnected() ? busId() : null)
-                .setConnectableBus(busId())
+        StaticVarCompensatorAdder adder = voltageLevel().newStaticVarCompensator()
                 // TODO in IIDM Bmin and Bmax a susceptance,
                 // while CGMES defines the limits as reactances
                 .setBmin(inductiveRating)
                 .setBmax(capacitiveRating)
                 .setVoltageSetPoint(voltageSetPoint)
-                .setRegulationMode(regulationMode)
-                .add();
-
+                .setRegulationMode(regulationMode);
+        identify(adder);
+        connect(adder);
+        StaticVarCompensator svc = adder.add();
         convertedTerminals(svc.getTerminal());
     }
 }

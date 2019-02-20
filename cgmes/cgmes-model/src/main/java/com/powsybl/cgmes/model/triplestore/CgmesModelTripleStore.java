@@ -7,21 +7,27 @@
 
 package com.powsybl.cgmes.model.triplestore;
 
-import com.powsybl.cgmes.model.AbstractCgmesModel;
-import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.cgmes.model.CgmesNamespace;
-import com.powsybl.cgmes.model.Subset;
-import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.triplestore.api.*;
-import org.joda.time.DateTime;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+
+import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.powsybl.cgmes.model.AbstractCgmesModel;
+import com.powsybl.cgmes.model.CgmesModelException;
+import com.powsybl.cgmes.model.CgmesNames;
+import com.powsybl.cgmes.model.CgmesNamespace;
+import com.powsybl.cgmes.model.Subset;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
+import com.powsybl.triplestore.api.QueryCatalog;
+import com.powsybl.triplestore.api.TripleStore;
+import com.powsybl.triplestore.api.TripleStoreException;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -63,11 +69,35 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     // Queries
 
     @Override
+    public boolean hasEquipmentCore() {
+        if (queryCatalog.containsKey(MODEL_PROFILES)) {
+            PropertyBags r = namedQuery(MODEL_PROFILES);
+            if (r == null) {
+                return false;
+            }
+            for (PropertyBag m : r) {
+                String p = m.get("profile");
+                if (p != null && p.contains("/EquipmentCore/")) {
+                    if (LOG.isInfoEnabled()) {
+                        LOG.info("Model contains Equipment Core data profile in model {}",
+                                m.get(CgmesNames.FULL_MODEL));
+                    }
+                    return true;
+                }
+            }
+        }
+        // If we do not have a query for model profiles we assume equipment core is
+        // available
+        // (This covers the case for CIM14 files)
+        return true;
+    }
+
+    @Override
     public boolean isNodeBreaker() {
         // Optimization hint: consider caching the results of the query for model
         // profiles
-        if (queryCatalog.containsKey("modelProfiles")) {
-            PropertyBags r = namedQuery("modelProfiles");
+        if (queryCatalog.containsKey(MODEL_PROFILES)) {
+            PropertyBags r = namedQuery(MODEL_PROFILES);
             if (r == null) {
                 return false;
             }
@@ -182,13 +212,18 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public PropertyBags terminalsTP() {
-        return namedQuery("terminalsTP");
+    public PropertyBags connectivityNodes() {
+        return namedQuery("connectivityNodes");
     }
 
     @Override
-    public PropertyBags terminalsCN() {
-        return namedQuery("terminalsCN");
+    public PropertyBags topologicalNodes() {
+        return namedQuery("topologicalNodes");
+    }
+
+    @Override
+    public PropertyBags connectivityNodeContainers() {
+        return namedQuery("connectivityNodeContainers");
     }
 
     @Override
@@ -197,13 +232,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public PropertyBags connectivityNodes() {
-        return namedQuery("connectivityNodes");
-    }
-
-    @Override
-    public PropertyBags topologicalNodes() {
-        return namedQuery("topologicalNodes");
+    public PropertyBags busBarSections() {
+        return namedQuery("busbarSections");
     }
 
     @Override
@@ -290,6 +320,17 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     @Override
     public PropertyBags asynchronousMachines() {
         return namedQuery("asynchronousMachines");
+    }
+
+    @Override
+    public PropertyBags ratioTapChangerTablesPoints() {
+        return namedQuery("ratioTapChangerTablesPoints");
+    }
+
+    @Override
+    public PropertyBags ratioTapChangerTable(String tableId) {
+        Objects.requireNonNull(tableId);
+        return namedQuery("ratioTapChangerTable", tableId);
     }
 
     @Override
@@ -401,5 +442,6 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     private final TripleStore tripleStore;
     private final QueryCatalog queryCatalog;
 
+    private static final String MODEL_PROFILES = "modelProfiles";
     private static final Logger LOG = LoggerFactory.getLogger(CgmesModelTripleStore.class);
 }

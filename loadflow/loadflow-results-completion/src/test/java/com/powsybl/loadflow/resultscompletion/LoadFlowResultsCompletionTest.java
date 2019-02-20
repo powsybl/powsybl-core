@@ -8,9 +8,9 @@ package com.powsybl.loadflow.resultscompletion;
 
 import static org.junit.Assert.assertEquals;
 
-import com.powsybl.loadflow.LoadFlowParameters;
 import org.junit.Test;
 
+import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.CandidateComputation;
 
 /**

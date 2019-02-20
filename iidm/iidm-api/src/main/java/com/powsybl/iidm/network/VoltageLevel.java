@@ -9,8 +9,10 @@ package com.powsybl.iidm.network;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.Writer;
+import java.nio.file.Path;
+import java.util.Random;
 import java.util.stream.Stream;
 
 /**
@@ -1019,15 +1021,23 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     /**
      * Export in a file the topology in DOT format (Graphviz).
      *
-     * @param filename the file name
+     * @param file the file
      */
-    void exportTopology(String filename) throws IOException;
+    void exportTopology(Path file) throws IOException;
+
+    /**
+     * Export in a file the topology in DOT format (Graphviz).
+     *
+     * @param writer a writer
+     * @param random pseudo random number generator
+     */
+    void exportTopology(Writer writer, Random random) throws IOException;
 
     /**
      * Export the topology in DOT format (Graphviz).
      *
-     * @param outputStream a writer
+     * @param writer a writer
      */
-    void exportTopology(OutputStream outputStream) throws IOException;
+    void exportTopology(Writer writer) throws IOException;
 
 }

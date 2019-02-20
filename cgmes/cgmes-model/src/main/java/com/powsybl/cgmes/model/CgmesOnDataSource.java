@@ -19,6 +19,9 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 
 import static com.powsybl.cgmes.model.CgmesNamespace.*;
 
+/**
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ */
 public class CgmesOnDataSource {
     public CgmesOnDataSource(ReadOnlyDataSource ds) {
         this.dataSource = ds;
