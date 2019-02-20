@@ -186,7 +186,7 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
         }
 
         // Remove this substation from the network
-        getNetwork().getObjectStore().remove(this);
+        getNetwork().getIndex().remove(this);
 
         getNetwork().getListeners().notifyRemoval(this);
     }

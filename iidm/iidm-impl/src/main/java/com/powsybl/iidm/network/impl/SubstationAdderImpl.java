@@ -67,7 +67,7 @@ class SubstationAdderImpl extends AbstractIdentifiableAdder<SubstationAdderImpl>
                 substation.addGeographicalTag(tag);
             }
         }
-        getNetwork().getObjectStore().checkAndAdd(substation);
+        getNetwork().getIndex().checkAndAdd(substation);
         getNetwork().getListeners().notifyCreation(substation);
         return substation;
     }
