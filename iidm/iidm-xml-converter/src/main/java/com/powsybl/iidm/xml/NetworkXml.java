@@ -486,14 +486,14 @@ public final class NetworkXml {
     public static Network readExtensions(Network network, ReadOnlyDataSource dataSource, ImportOptions config, Anonymizer anonymizer, List<String> extensions, String ext) throws IOException {
         for (String extension : extensions) {
             try (InputStream ise = dataSource.newInputStream(extension + "." + ext)) {
-                readExtensions(network, ise, config, anonymizer);
+                readExtensions(network, ise, anonymizer);
             }
         }
         return network;
     }
 
     // To read extensions from an extensions file
-    public static Network readExtensions(Network network, InputStream ise, ImportOptions config, Anonymizer anonymizer) {
+    public static Network readExtensions(Network network, InputStream ise, Anonymizer anonymizer) {
         try {
             XMLStreamReader reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(ise);
             int state = reader.next();

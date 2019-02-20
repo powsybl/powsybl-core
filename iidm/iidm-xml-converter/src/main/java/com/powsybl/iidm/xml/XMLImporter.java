@@ -220,7 +220,7 @@ public class XMLImporter implements Importer {
                             + "." + String.join("|", EXTENSIONS) + " not found");
                 }
                 try (InputStream ise = dataSource.newInputStream(extensions.iterator().next() +  "." + extension)) {
-                    network = NetworkXml.readExtensions(network, ise, options, anonymizer);
+                    network = NetworkXml.readExtensions(network, ise, anonymizer);
                 }
             } else if (options.isImportFromBaseAndMultipleExtensionFiles()) {
                 // here we'll read all extensions declared in the extensions set
