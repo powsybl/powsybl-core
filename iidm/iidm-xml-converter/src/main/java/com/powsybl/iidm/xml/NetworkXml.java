@@ -217,7 +217,7 @@ public final class NetworkXml {
             context.getExtensionswWriter().writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
             context.getExtensionswWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
             for (Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
-                if (options.isInExtensionsList(extension.getName()) || options.isALL()) {
+                if (options.withExtension(extension.getName()) || options.withAllExtensions()) {
                     writeExtension(extension, context);
                 }
             }
@@ -257,7 +257,7 @@ public final class NetworkXml {
         for (Map.Entry<String, Set<String>> entry : m.entrySet()) {
             String name = entry.getKey();
             Set<String> ids = entry.getValue();
-            if (options.isInExtensionsList(name) || options.isALL()) {
+            if (options.withExtension(name) || options.withAllExtensions()) {
                 try (OutputStream os = dataSource.newOutputStream(name, XIIDM, false);
                      BufferedOutputStream bos = new BufferedOutputStream(os)) {
                     XMLStreamWriter writer = initializeWriter(n, bos, options);
@@ -537,7 +537,7 @@ public final class NetworkXml {
             public void onStartElement() throws XMLStreamException {
                 if (topLevel) {
                     String extensionName = context.getReader().getLocalName();
-                    if (!context.getOptions().isInExtensionsList(extensionName)) {
+                    if (!context.getOptions().withExtension(extensionName)) {
                         return;
                     }
 

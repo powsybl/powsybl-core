@@ -31,9 +31,9 @@ public class ExportOptionsTest {
         Set<String> extensionsList = Sets.newHashSet("loadFoo", "loadBar");
         options.setExtensions(extensionsList);
         assertEquals(Boolean.FALSE, options.withNoExtension());
-        assertTrue(options.isInExtensionsList("loadFoo"));
+        assertTrue(options.withExtension("loadFoo"));
 
-        assertFalse(options.isALL());
+        assertFalse(options.withAllExtensions());
         assertEquals(Boolean.FALSE, options.isAnonymized());
         assertEquals(Boolean.TRUE, options.isIndent());
         assertEquals(Boolean.TRUE, options.isWithBranchSV());

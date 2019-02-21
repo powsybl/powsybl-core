@@ -38,12 +38,12 @@ public abstract class AbstractOptions<T> {
         return extensions.isEmpty();
     }
 
-    public  boolean isALL() {
+    public  boolean withAllExtensions() {
         return extensions.size() == 1 && extensions.iterator().next().equals("ALL");
     }
 
-    public  boolean isInExtensionsList(String extensionName) {
-        if (isALL()) {
+    public  boolean withExtension(String extensionName) {
+        if (withAllExtensions()) {
             return Boolean.TRUE;
         }
         return extensions.contains(extensionName);
