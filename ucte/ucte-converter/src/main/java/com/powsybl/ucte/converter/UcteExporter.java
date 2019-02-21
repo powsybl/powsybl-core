@@ -187,7 +187,6 @@ public class UcteExporter implements Exporter {
     }
 
     private UcteNetwork createUcteNetwork(Network network) {
-
         UcteNetwork ucteNetwork = new UcteNetworkImpl();
         Iterable<Substation> substations = network.getSubstations();
         for (Substation substation : substations) {
@@ -196,7 +195,6 @@ public class UcteExporter implements Exporter {
             LOGGER.info(" Substation country = {}", substation.getCountry());
             LOGGER.info(" Substation Id = {}", substation.getId());
             LOGGER.info(" Substation name = {}", substation.getName());
-
 
             Iterable<VoltageLevel> voltageLevels = substation.getVoltageLevels();
             for (VoltageLevel voltageLevel : voltageLevels) {
@@ -208,10 +206,55 @@ public class UcteExporter implements Exporter {
                 LOGGER.info(" High voltage limit = {}", voltageLevel.getHighVoltageLimit());
                 createBuses(ucteNetwork, voltageLevel);
                 createSwitches(ucteNetwork, voltageLevel);
+                voltageLevel.getDanglingLineStream().forEach(danglingLine -> createDanglingLine(ucteNetwork, danglingLine));
             }
         }
         createLines(ucteNetwork, network);
         return ucteNetwork;
+    }
+
+    private void createDanglingLine(UcteNetwork ucteNetwork, DanglingLine danglingLine) {
+        LOGGER.info("-----DANGLING LINE-------");
+        LOGGER.info(" Id = {}", danglingLine.getId());
+        LOGGER.info(" Name = {}", danglingLine.getName());
+        LOGGER.info(" P0 = {}", danglingLine.getP0());
+        LOGGER.info(" Q0 = {}", danglingLine.getQ0());
+        LOGGER.info(" R = {}", danglingLine.getR());
+        LOGGER.info(" X = {}", danglingLine.getX());
+        LOGGER.info(" B = {}", danglingLine.getB());
+        LOGGER.info(" G = {}", danglingLine.getG());
+        LOGGER.info(" UcteXnodeCode = {}", danglingLine.getUcteXnodeCode());
+        ucteNetwork.addNode(new UcteNode(
+                iidmIdToUcteNodeCode(danglingLine.getUcteXnodeCode()),
+                "",
+                UcteNodeStatus.REAL,
+                UcteNodeTypeCode.PQ,
+                0f,
+                (float) danglingLine.getP0(),
+                (float) danglingLine.getQ0(),
+                0f,
+                0f,
+                0f,
+                0f,
+                0f,
+                0f,
+                0f,
+                0f,
+                0f,
+                0f,
+                null
+                ));
+        UcteNodeCode ucteNodeCode1 = iidmIdToUcteNodeCode(danglingLine.getId().substring(0, 8));
+        UcteNodeCode ucteNodeCode2 = iidmIdToUcteNodeCode(danglingLine.getId().substring(9, 17));
+        UcteElementId ucteElementId = new UcteElementId(ucteNodeCode1, ucteNodeCode2, danglingLine.getId().charAt(18));
+        UcteLine ucteLine = new UcteLine(ucteElementId,
+                UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION,
+                (float) danglingLine.getR(),
+                (float) danglingLine.getX(),
+                (float) danglingLine.getB(),
+                (int) danglingLine.getCurrentLimits().getPermanentLimit(),
+                danglingLine.getName());
+        ucteNetwork.addLine(ucteLine);
     }
 
     private void createSwitches(UcteNetwork ucteNetwork, VoltageLevel voltageLevel) {
@@ -229,7 +272,6 @@ public class UcteExporter implements Exporter {
                 UcteNodeCode ucteNodeCode1 = iidmIdToUcteNodeCode(sw.getId().substring(0, 9));
                 UcteNodeCode ucteNodeCode2 = iidmIdToUcteNodeCode(sw.getId().substring(9, 18));
                 UcteElementId ucteElementId = new UcteElementId(ucteNodeCode1, ucteNodeCode2, sw.getId().charAt(18));
-
                 UcteLine ucteLine = new UcteLine(ucteElementId, UcteElementStatus.BUSBAR_COUPLER_IN_OPERATION,
                         0f, 0f, 0f, 0, null);
                 ucteNetwork.addLine(ucteLine);
