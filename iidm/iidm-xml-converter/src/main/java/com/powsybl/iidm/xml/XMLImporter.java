@@ -16,6 +16,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.ConversionParameters;
+import com.powsybl.iidm.ImportExportTypes;
 import com.powsybl.iidm.anonymizer.Anonymizer;
 import com.powsybl.iidm.anonymizer.SimpleAnonymizer;
 import com.powsybl.iidm.import_.ImportOptions;
@@ -52,26 +53,21 @@ public class XMLImporter implements Importer {
 
     public static final String THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND = "iidm.import.xml.throw-exception-if-extension-not-found";
 
-    public static final String IMPORT_FROM_BASE_AND_EXTENSIONS_FILES = "iidm.import.xml.import_from_base_and_extensions_files";
-
-    public static final String IMPORT_FROM_BASE_AND_MULTIPLE_EXTENSION_FILES = "iidm.import.xml.import_from_base_and_multiple_extension_files";
+    public static final String IMPORT_MODE = "iidm.import.xml.import_mode";
 
     public static final String EXTENSIONS_LIST = "iidm.import.xml.extensions";
 
 
 
-    private static final Parameter IMPORT_FROM_BASE_AND_EXTENSIONS_FILES_PARAMETER
-            = new Parameter(IMPORT_FROM_BASE_AND_EXTENSIONS_FILES, ParameterType.BOOLEAN, "import from base and extensions files", Boolean.FALSE);
-
-    private static final Parameter IMPORT_FROM_BASE_AND_MULTIPLE_EXTENSION_FILES_PARAMETER
-            = new Parameter(IMPORT_FROM_BASE_AND_MULTIPLE_EXTENSION_FILES, ParameterType.BOOLEAN, "import from base and multiple extension files", Boolean.FALSE);
+    private static final Parameter IMPORT_MODE_PARAMETER
+            = new Parameter(IMPORT_MODE, ParameterType.STRING, "import mode", String.valueOf(ImportExportTypes.BASE_AND_EXTENSIONS_IN_ONE_SINGLE_FILE));
 
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER
             = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE)
                     .addAdditionalNames("throwExceptionIfExtensionNotFound");
 
     private static final Parameter EXTENSIONS_LIST_PARAMETER
-            = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The list of extension files ", Collections.emptyList());
+            = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The list of extension files ", Arrays.asList("ALL"));
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
@@ -176,19 +172,13 @@ public class XMLImporter implements Importer {
 
     @Override
     public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
-        return importData(dataSource, parameters, new ArrayList<String>() {
-        });
-    }
-
-    public Network importData(ReadOnlyDataSource dataSource, Properties parameters, List<String> extensions) {
         Objects.requireNonNull(dataSource);
         Network network;
 
         ImportOptions options = new ImportOptions()
                 .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
-                .setImportFromBaseAndExtensionsFiles(ConversionParameters.readBooleanParameter(getFormat(), parameters, IMPORT_FROM_BASE_AND_EXTENSIONS_FILES_PARAMETER, defaultValueConfig))
-                .setImportFromBaseAndMultipleExtensionFiles(ConversionParameters.readBooleanParameter(getFormat(), parameters, IMPORT_FROM_BASE_AND_MULTIPLE_EXTENSION_FILES_PARAMETER, defaultValueConfig))
-                .setExtensions(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig));
+                .setMode(ImportExportTypes.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, IMPORT_MODE_PARAMETER, defaultValueConfig)))
+                .setExtensions(new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)));
 
 
         Anonymizer anonymizer = null;
@@ -207,24 +197,19 @@ public class XMLImporter implements Importer {
                 }
             }
 
-            //Read the base file
+            //Read the base file with the extensions declared in the extensions list
             try (InputStream isb = dataSource.newInputStream(null, ext)) {
                 network = NetworkXml.read(isb, options, anonymizer);
             }
 
-            if (options.isImportFromBaseAndExtensionsFiles()) {
+            if (options.isImportFromBaseAndExtensionsFiles() && !options.withNoExtension()) {
                 // in this case we have to read all extensions from one single file
-                String extension = findExtension(dataSource);
-                if (extension == null) {
-                    throw new PowsyblException("File " + dataSource.getBaseName()
-                            + "." + String.join("|", EXTENSIONS) + " not found");
+                try (InputStream ise = dataSource.newInputStream(dataSource.getBaseName() +  "-ext." + ext)) {
+                    network = NetworkXml.readExtensions(network, ise, anonymizer, options);
                 }
-                try (InputStream ise = dataSource.newInputStream(extensions.get(0) +  "." + extension)) {
-                    network = NetworkXml.readExtensions(network, ise, anonymizer);
-                }
-            } else if (options.isImportFromBaseAndMultipleExtensionFiles()) {
+            } else if (options.isImportFromBaseAndMultipleExtensionFiles() && !options.withNoExtension()) {
                 // here we'll read all extensions declared in the extensions set
-                network = NetworkXml.readExtensions(network, dataSource, anonymizer, extensions, ext);
+                network = NetworkXml.readExtensions(network, dataSource, anonymizer, options, ext);
             }
 
             LOGGER.debug("XIIDM import done in {} ms", System.currentTimeMillis() - startTime);

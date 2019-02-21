@@ -6,17 +6,18 @@
  */
 package com.powsybl.iidm.export;
 
+import com.powsybl.iidm.AbstractOptions;
+import com.powsybl.iidm.ImportExportTypes;
 import com.powsybl.iidm.network.TopologyLevel;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class ExportOptions {
+public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     private boolean withBranchSV = true;
 
@@ -26,32 +27,32 @@ public class ExportOptions {
 
     private boolean anonymized = false;
 
-    private boolean skipExtensions = false;
-
     private TopologyLevel topologyLevel = TopologyLevel.NODE_BREAKER;
 
     private boolean throwExceptionIfExtensionNotFound = false;
 
-    private boolean separateBaseAndExtensions = false;
-
-    private boolean oneFilePerExtensionType = false;
-
-    private List<String> extensions = Arrays.asList("ALL");
+    private ImportExportTypes mode = ImportExportTypes.BASE_AND_EXTENSIONS_IN_ONE_SINGLE_FILE;
 
     public ExportOptions() {
     }
 
-    public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, List<String> extensions) {
+    public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, Set<String> extensions) {
+        super(extensions);
         this.withBranchSV = withBranchSV;
         this.indent = indent;
         this.onlyMainCc = onlyMainCc;
         this.topologyLevel = Objects.requireNonNull(topologyLevel);
         this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
-        this.extensions = extensions;
     }
 
-    public boolean isOneFilePerExtensionType() {
-        return oneFilePerExtensionType;
+    public ImportExportTypes getMode() {
+        return mode;
+    }
+
+    @Override
+    public ExportOptions setMode(ImportExportTypes mode) {
+        this.mode = mode;
+        return this;
     }
 
     public boolean isWithBranchSV() {
@@ -69,20 +70,6 @@ public class ExportOptions {
 
     public ExportOptions setIndent(boolean indent) {
         this.indent = indent;
-        return this;
-    }
-
-    public boolean isSeparateBaseAndExtensions() {
-        return separateBaseAndExtensions;
-    }
-
-    public ExportOptions setSeparateBaseAndExtensions(boolean separateBaseAndExtensions) {
-        this.separateBaseAndExtensions = separateBaseAndExtensions;
-        return this;
-    }
-
-    public ExportOptions setOneFilePerExtensionType(boolean oneFilePerExtensionType) {
-        this.oneFilePerExtensionType = oneFilePerExtensionType;
         return this;
     }
 
@@ -104,15 +91,6 @@ public class ExportOptions {
         return this;
     }
 
-    public boolean isSkipExtensions() {
-        return skipExtensions;
-    }
-
-    public ExportOptions setSkipExtensions(boolean skipExtensions) {
-        this.skipExtensions = skipExtensions;
-        return this;
-    }
-
     public TopologyLevel getTopologyLevel() {
         return topologyLevel;
     }
@@ -122,10 +100,12 @@ public class ExportOptions {
         return this;
     }
 
-    public ExportOptions setExtensions(List<String> extensions) {
+    @Override
+    public ExportOptions setExtensions(Set<String> extensions) {
         this.extensions = extensions;
         return this;
     }
+
 
     public boolean isThrowExceptionIfExtensionNotFound() {
         return throwExceptionIfExtensionNotFound;
@@ -136,15 +116,12 @@ public class ExportOptions {
         return this;
     }
 
-    public  boolean isInExtensionsList(String str) {
-        return extensions.contains(str);
+    public boolean isOneFilePerExtensionType() {
+        return this.mode == ImportExportTypes.BASE_AND_ONE_FILE_PER_EXTENSION_TYPE;
     }
 
-    public  boolean isALL() {
-        return extensions.size() == 1 && extensions.get(0).equals("ALL");
+    public boolean isSeparateBaseAndExtensions() {
+        return this.mode == ImportExportTypes.BASE_AND_EXTENSIONS_FILES;
     }
 
-    public boolean isExtensionsEmpty() {
-        return extensions.isEmpty();
-    }
 }

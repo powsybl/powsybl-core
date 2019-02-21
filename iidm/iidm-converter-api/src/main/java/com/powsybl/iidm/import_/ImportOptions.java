@@ -6,62 +6,33 @@
  */
 package com.powsybl.iidm.import_;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.powsybl.iidm.AbstractOptions;
+import com.powsybl.iidm.ImportExportTypes;
+
+import java.util.Set;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class ImportOptions {
+public class ImportOptions extends AbstractOptions<ImportOptions> {
 
     private boolean throwExceptionIfExtensionNotFound = false;
 
-    private boolean importFromBaseAndExtensionsFiles = false;
-
-    private boolean importFromBaseAndMultipleExtensionFiles = false;
-
-    private List<String> extensions = new ArrayList<>();
-
-    public ImportOptions(boolean throwExceptionIfExtensionNotFound, boolean importFromBaseAndExtensionsFiles, boolean importFromBaseAndMultipleExtensionFiles, List<String> extensions) {
+    public ImportOptions(boolean throwExceptionIfExtensionNotFound, ImportExportTypes mode, Set<String> extensions) {
+        super(extensions);
         this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
-        this.importFromBaseAndExtensionsFiles = importFromBaseAndExtensionsFiles;
-        this.importFromBaseAndMultipleExtensionFiles = importFromBaseAndMultipleExtensionFiles;
-        this.extensions = extensions;
+        this.mode = mode;
     }
 
     public ImportOptions() {
+        super();
     }
 
-    public ImportOptions setExtensions(List<String> extensions) {
+    @Override
+    public ImportOptions setExtensions(Set<String> extensions) {
         this.extensions = extensions;
         return this;
-    }
-
-    public ImportOptions setImportFromBaseAndMultipleExtensionFiles(boolean importFromBaseAndMultipleExtensionFiles) {
-        this.importFromBaseAndMultipleExtensionFiles = importFromBaseAndMultipleExtensionFiles;
-        return this;
-    }
-
-    public ImportOptions(boolean throwExceptionIfExtensionNotFound) {
-        this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
-    }
-
-    public ImportOptions setImportFromBaseAndExtensionsFiles(boolean importFromBaseAndExtensionsFiles) {
-        this.importFromBaseAndExtensionsFiles = importFromBaseAndExtensionsFiles;
-        return this;
-    }
-
-    public boolean isThrowExceptionIfExtensionNotFound() {
-        return throwExceptionIfExtensionNotFound;
-    }
-
-    public boolean isImportFromBaseAndExtensionsFiles() {
-        return this.importFromBaseAndExtensionsFiles;
-    }
-
-    public boolean isImportFromBaseAndMultipleExtensionFiles() {
-        return this.importFromBaseAndMultipleExtensionFiles;
     }
 
     public ImportOptions setThrowExceptionIfExtensionNotFound(boolean throwExceptionIfExtensionNotFound) {
@@ -69,8 +40,28 @@ public class ImportOptions {
         return this;
     }
 
-    public boolean isExtensionsEmpty() {
-        return extensions.isEmpty();
+    @Override
+    public ImportOptions setMode(ImportExportTypes mode) {
+        this.mode = mode;
+        return this;
     }
+
+
+    public boolean isThrowExceptionIfExtensionNotFound() {
+        return throwExceptionIfExtensionNotFound;
+    }
+
+    public boolean isImportFromBaseAndExtensionsFiles() {
+        return this.mode == ImportExportTypes.BASE_AND_EXTENSIONS_FILES;
+    }
+
+    public boolean isImportFromBaseAndMultipleExtensionFiles() {
+        return this.mode == ImportExportTypes.BASE_AND_ONE_FILE_PER_EXTENSION_TYPE;
+    }
+
+
+
+
+
 
 }

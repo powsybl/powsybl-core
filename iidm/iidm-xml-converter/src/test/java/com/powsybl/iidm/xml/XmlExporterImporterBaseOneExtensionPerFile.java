@@ -8,6 +8,7 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.iidm.ImportExportTypes;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
 import org.junit.Test;
@@ -29,7 +30,7 @@ public class XmlExporterImporterBaseOneExtensionPerFile extends AbstractConverte
     public void exporteImportOneFilePerExtensionType(Network network, String xiidmBaseRef) throws IOException {
         List<String> extensions = Arrays.asList("loadFoo", "loadBar");
         Properties exportProperties = new Properties();
-        exportProperties.put(XMLExporter.ONE_FILE_PER_EXTENSION_TYPE, "true");
+        exportProperties.put(XMLExporter.EXPORT_MODE, String.valueOf(ImportExportTypes.BASE_AND_ONE_FILE_PER_EXTENSION_TYPE));
         exportProperties.put(XMLExporter.EXTENSIONS_LIST, extensions);
 
         MemDataSource dataSource = new MemDataSource();
@@ -50,11 +51,11 @@ public class XmlExporterImporterBaseOneExtensionPerFile extends AbstractConverte
 
         List<String> extensionsList = Arrays.asList("loadFoo", "loadBar");
         Properties importProperties = new Properties();
-        importProperties.put(XMLImporter.IMPORT_FROM_BASE_AND_MULTIPLE_EXTENSION_FILES, "true");
+        importProperties.put(XMLImporter.IMPORT_MODE, String.valueOf(ImportExportTypes.BASE_AND_ONE_FILE_PER_EXTENSION_TYPE));
         importProperties.put(XMLExporter.EXTENSIONS_LIST, extensions);
         XMLImporter importer = new XMLImporter();
 
-        Network n = importer.importData(dataSource, importProperties, extensionsList);
+        Network n = importer.importData(dataSource, importProperties);
         assertNotNull(n);
         assertEquals(2, network.getLoad("LOAD").getExtensions().size());
         assertEquals(1, network.getLoad("LOAD2").getExtensions().size());
@@ -69,6 +70,6 @@ public class XmlExporterImporterBaseOneExtensionPerFile extends AbstractConverte
     @Test
     public void test() throws IOException {
         exporteImportOneFilePerExtensionType(MultipleExtensionsTestNetworkFactory.create(),
-                "/multiple-extensions-base.xiidm");
+                "/multiple-extensions.xiidm");
     }
 }

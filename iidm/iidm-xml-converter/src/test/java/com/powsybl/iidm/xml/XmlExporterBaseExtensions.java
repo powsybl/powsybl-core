@@ -8,6 +8,7 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.iidm.ImportExportTypes;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
 import org.junit.Test;
@@ -15,6 +16,8 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 import static org.junit.Assert.assertNotNull;
@@ -27,20 +30,22 @@ import static org.junit.Assert.assertNotNull;
 public class XmlExporterBaseExtensions  extends AbstractConverterTest {
 
     public void exporterTestBaseExtensions(Network network, String xiidmBaseRef, String xiidmExtRef) throws IOException {
-        Properties properties = new Properties();
-        properties.put(XMLExporter.ANONYMISED, "false");
-        properties.put(XMLExporter.SEPARATE_BASE_EXTENSIONS, "true");
+        Properties exportProperties = new Properties();
+        exportProperties.put(XMLExporter.ANONYMISED, "false");
+        exportProperties.put(XMLExporter.EXPORT_MODE, String.valueOf(ImportExportTypes.BASE_AND_EXTENSIONS_FILES));
+        List<String> exportExtensionsList = Arrays.asList("ALL");
+        exportProperties.put(XMLExporter.EXTENSIONS_LIST, exportExtensionsList);
 
         MemDataSource dataSource = new MemDataSource();
 
-        new XMLExporter().export(network, properties, dataSource);
+        new XMLExporter().export(network, exportProperties, dataSource);
         // check the base exported file and compare it to iidmBaseRef reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
             assertNotNull(is);
             compareXml(getClass().getResourceAsStream(xiidmBaseRef), is);
         }
         // check the exported extensions file and compare it to xiidmExtRef reference file
-        try (InputStream is = new ByteArrayInputStream(dataSource.getData("ext", "xiidm"))) {
+        try (InputStream is = new ByteArrayInputStream(dataSource.getData("-ext", "xiidm"))) {
             assertNotNull(is);
             compareXml(getClass().getResourceAsStream(xiidmExtRef), is);
         }
@@ -49,7 +54,7 @@ public class XmlExporterBaseExtensions  extends AbstractConverterTest {
     @Test
     public void test() throws IOException {
         exporterTestBaseExtensions(MultipleExtensionsTestNetworkFactory.create(),
-                "/multiple-extensions-base.xiidm",
+                "/multiple-extensions.xiidm",
                 "/multiple-extensions-ext.xiidm");
     }
 }

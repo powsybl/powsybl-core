@@ -8,6 +8,7 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.iidm.ImportExportTypes;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
 import org.junit.Test;
@@ -28,7 +29,7 @@ public class XmlExporterBaseOneExtensionPerFile extends AbstractConverterTest {
     public void exporterOneFilePerExtensionType(Network network, String xiidmBaseRef, List<String> extensionsList) throws IOException {
 
         Properties properties = new Properties();
-        properties.put(XMLExporter.ONE_FILE_PER_EXTENSION_TYPE, "true");
+        properties.put(XMLExporter.EXPORT_MODE, String.valueOf(ImportExportTypes.BASE_AND_ONE_FILE_PER_EXTENSION_TYPE));
         properties.put(XMLExporter.EXTENSIONS_LIST, extensionsList);
 
         MemDataSource dataSource = new MemDataSource();
@@ -53,9 +54,9 @@ public class XmlExporterBaseOneExtensionPerFile extends AbstractConverterTest {
 
 
     @Test(expected = NullPointerException.class)
-    public void test2() throws IOException {
+    public void exportOneExtensionTypeTest() throws IOException {
         List<String> extensionsList = Arrays.asList("loadBar");
-        exporterOneFilePerExtensionType(MultipleExtensionsTestNetworkFactory.create(), "/multiple-extensions-base.xiidm", extensionsList);
+        exporterOneFilePerExtensionType(MultipleExtensionsTestNetworkFactory.create(), "/multiple-extensions.xiidm", extensionsList);
     }
 
 
@@ -68,11 +69,11 @@ public class XmlExporterBaseOneExtensionPerFile extends AbstractConverterTest {
     }
 
     @Test
-    public void test() throws IOException {
+    public void exportAllExtensionsTest() throws IOException {
         List<String> extensionsList = Arrays.asList("loadFoo", "loadBar");
-        exporterOneFilePerExtensionType(MultipleExtensionsTestNetworkFactory.create(), "/multiple-extensions-base.xiidm", extensionsList);
+        exporterOneFilePerExtensionType(MultipleExtensionsTestNetworkFactory.create(), "/multiple-extensions.xiidm", extensionsList);
 
         List<String> extensionsList2 = Arrays.asList("ALL");
-        exporterOneFilePerExtensionType(MultipleExtensionsTestNetworkFactory.create(), "/multiple-extensions-base.xiidm", extensionsList2);
+        exporterOneFilePerExtensionType(MultipleExtensionsTestNetworkFactory.create(), "/multiple-extensions.xiidm", extensionsList2);
     }
 }

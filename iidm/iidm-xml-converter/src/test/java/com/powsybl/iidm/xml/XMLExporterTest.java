@@ -14,6 +14,8 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -25,6 +27,10 @@ public class XMLExporterTest  extends AbstractConverterTest {
     public void exporterTest(Network network, String xiidmRef) throws IOException {
         Properties properties = new Properties();
         properties.put(XMLExporter.ANONYMISED, "false");
+
+        List<String> extensionsList = Arrays.asList("loadFoo", "loadBar");
+        properties.put(XMLExporter.EXTENSIONS_LIST, extensionsList);
+
         MemDataSource dataSource = new MemDataSource();
         new XMLExporter().export(network, properties, dataSource);
         // check the exported file and compare it to iidm reference file
