@@ -10,7 +10,9 @@ import com.powsybl.ucte.network.UcteCountryCode;
 import com.powsybl.ucte.network.UcteNodeCode;
 import com.powsybl.ucte.network.UctePowerPlantType;
 import com.powsybl.ucte.network.UcteVoltageLevelCode;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
@@ -23,8 +25,11 @@ import static org.junit.Assert.*;
 
 public class UcteExporterTest {
 
+    @Rule
+    public final ExpectedException exception = ExpectedException.none();
+
     @Test
-    public void exportUcte() {
+    public void exportUcteTest() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("elementName", new ResourceSet("/", "elementName.uct"));
         Network network = new UcteImporter().importData(dataSource, null);
         Path path = FileSystems.getDefault().getPath("./target/");
@@ -99,8 +104,9 @@ public class UcteExporterTest {
         assertSame(UcteVoltageLevelCode.VL_380, ucteExporter.iidmVoltageToUcteVoltageLevelCode(380));
         assertSame(UcteVoltageLevelCode.VL_500, ucteExporter.iidmVoltageToUcteVoltageLevelCode(500));
         assertSame(UcteVoltageLevelCode.VL_750, ucteExporter.iidmVoltageToUcteVoltageLevelCode(750));
-        assertSame(null, ucteExporter.iidmVoltageToUcteVoltageLevelCode(15));
         assertNotSame(UcteVoltageLevelCode.VL_27, ucteExporter.iidmVoltageToUcteVoltageLevelCode(330));
+        exception.expect(IllegalArgumentException.class);
+        assertSame(new IllegalArgumentException(), ucteExporter.iidmVoltageToUcteVoltageLevelCode(15));
     }
 
     @Test
@@ -113,5 +119,29 @@ public class UcteExporterTest {
         assertNotEquals(new UcteNodeCode(UcteCountryCode.ES, "HORT", UcteVoltageLevelCode.VL_220, '1'), ucteExporter.createUcteNodeCode("EHORTA21", network.getVoltageLevel("EHORTA2"), "ES"));
         assertNotEquals(new UcteNodeCode(UcteCountryCode.BE, "HORTA", UcteVoltageLevelCode.VL_220, '1'), ucteExporter.createUcteNodeCode("EHORTA21", network.getVoltageLevel("EHORTA2"), "ES"));
 
+    }
+
+    @Test
+    public void voltageLevelCodeFromCharTest() {
+        UcteExporter ucteExporter = new UcteExporter();
+        assertSame(UcteVoltageLevelCode.VL_750, ucteExporter.voltageLevelCodeFromChar('0'));
+        assertSame(UcteVoltageLevelCode.VL_500, ucteExporter.voltageLevelCodeFromChar('9'));
+        assertSame(UcteVoltageLevelCode.VL_380, ucteExporter.voltageLevelCodeFromChar('1'));
+        assertSame(UcteVoltageLevelCode.VL_330, ucteExporter.voltageLevelCodeFromChar('8'));
+        assertSame(UcteVoltageLevelCode.VL_220, ucteExporter.voltageLevelCodeFromChar('2'));
+        assertSame(UcteVoltageLevelCode.VL_150, ucteExporter.voltageLevelCodeFromChar('3'));
+        assertSame(UcteVoltageLevelCode.VL_120, ucteExporter.voltageLevelCodeFromChar('4'));
+        assertSame(UcteVoltageLevelCode.VL_110, ucteExporter.voltageLevelCodeFromChar('5'));
+        assertSame(UcteVoltageLevelCode.VL_70, ucteExporter.voltageLevelCodeFromChar('6'));
+        assertSame(UcteVoltageLevelCode.VL_27, ucteExporter.voltageLevelCodeFromChar('7'));
+        exception.expect(IllegalArgumentException.class);
+        assertSame(new IllegalArgumentException(), ucteExporter.voltageLevelCodeFromChar('&'));
+    }
+
+    @Test
+    public void iidmIdToUcteNodeCodeTest() {
+        UcteExporter ucteExporter = new UcteExporter();
+        assertTrue(new UcteNodeCode(UcteCountryCode.ES, "HORTA", UcteVoltageLevelCode.VL_220, '1').equals(
+                ucteExporter.iidmIdToUcteNodeCode("EHORTA21")));
     }
 }
