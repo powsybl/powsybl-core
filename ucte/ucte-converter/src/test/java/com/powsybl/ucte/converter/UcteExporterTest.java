@@ -32,7 +32,7 @@ public class UcteExporterTest {
     public void exportUcteTest() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("elementName", new ResourceSet("/", "elementName.uct"));
         Network network = new UcteImporter().importData(dataSource, null);
-        Path path = FileSystems.getDefault().getPath("./target/");
+        Path path = FileSystems.getDefault().getPath("./");
         FileDataSource fds = new FileDataSource(path, "test");
         new UcteExporter().export(network, null, fds);
     }
