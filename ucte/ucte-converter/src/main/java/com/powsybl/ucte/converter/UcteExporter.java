@@ -17,8 +17,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -208,13 +206,35 @@ public class UcteExporter implements Exporter {
                 LOGGER.info(" NominalV = {}", voltageLevel.getNominalV());
                 LOGGER.info(" Low voltage limit = {}", voltageLevel.getLowVoltageLimit());
                 LOGGER.info(" High voltage limit = {}", voltageLevel.getHighVoltageLimit());
-
                 createBuses(ucteNetwork, voltageLevel);
-
+                createSwitches(ucteNetwork, voltageLevel);
             }
         }
         createLines(ucteNetwork, network);
         return ucteNetwork;
+    }
+
+    private void createSwitches(UcteNetwork ucteNetwork, VoltageLevel voltageLevel) {
+        Iterable<Switch> switchIterator = voltageLevel.getSwitches();
+        for (Switch sw : switchIterator) {
+            LOGGER.info("---------------SWITCH------------------");
+            LOGGER.info("ID = {}", sw.getId());
+            LOGGER.info("Name = {}", sw.getName());
+            LOGGER.info("isOpen = {}", sw.isOpen());
+            LOGGER.info("isRetained = {}", sw.isRetained());
+            LOGGER.info("isFictious = {}", sw.isFictitious());
+            LOGGER.info("kindName = {}", sw.getKind().name());
+            LOGGER.info("kindOrdinal = {}", sw.getKind().ordinal());
+            if (isUcteId(sw.getId())) {
+                UcteNodeCode ucteNodeCode1 = iidmIdToUcteNodeCode(sw.getId().substring(0, 9));
+                UcteNodeCode ucteNodeCode2 = iidmIdToUcteNodeCode(sw.getId().substring(9, 18));
+                UcteElementId ucteElementId = new UcteElementId(ucteNodeCode1, ucteNodeCode2, sw.getId().charAt(18));
+
+                UcteLine ucteLine = new UcteLine(ucteElementId, UcteElementStatus.BUSBAR_COUPLER_IN_OPERATION,
+                        0f, 0f, 0f, 0, null);
+                ucteNetwork.addLine(ucteLine);
+            }
+        }
     }
 
     private void createLine(UcteNetwork ucteNetwork, Line line) {
@@ -267,8 +287,6 @@ public class UcteExporter implements Exporter {
                 LOGGER.info(" ReactiveLimitsOrdinal = {}", String.valueOf(generator.getReactiveLimits().getKind().ordinal()));
 
             }
-
-
             createTwoWindingTransformers(ucteNetwork, bus);
         }
     }
@@ -341,38 +359,65 @@ public class UcteExporter implements Exporter {
         return ucteNetwork.getTransformer(ucteElementId) == null;
     }
 
+    UcteNodeCode iidmIdToUcteNodeCode(String id) {
+        UcteCountryCode ucteCountryCode = UcteCountryCode.fromUcteCode(id.charAt(0));
+        return new UcteNodeCode(
+                ucteCountryCode,
+                id.substring(1, 6),
+                voltageLevelCodeFromChar(id.charAt(6)),
+                id.charAt(7));
+    }
+
+    UcteVoltageLevelCode voltageLevelCodeFromChar(char code) {
+        if (code == '0') {
+            return UcteVoltageLevelCode.VL_750;
+        } else if (code == '1') {
+            return UcteVoltageLevelCode.VL_380;
+        } else if (code == '2') {
+            return UcteVoltageLevelCode.VL_220;
+        } else if (code == '3') {
+            return UcteVoltageLevelCode.VL_150;
+        } else if (code == '4') {
+            return UcteVoltageLevelCode.VL_120;
+        } else if (code == '5') {
+            return UcteVoltageLevelCode.VL_110;
+        } else if (code == '6') {
+            return UcteVoltageLevelCode.VL_70;
+        } else if (code == '7') {
+            return UcteVoltageLevelCode.VL_27;
+        } else if (code == '8') {
+            return UcteVoltageLevelCode.VL_330;
+        } else if (code == '9') {
+            return UcteVoltageLevelCode.VL_500;
+        } else {
+            throw new IllegalArgumentException("This code doesn't refer to a voltage level");
+        }
+    }
+
     UcteVoltageLevelCode iidmVoltageToUcteVoltageLevelCode(double nominalV) {
         if (nominalV == 27) {
             return UcteVoltageLevelCode.VL_27;
-        }
-        if (nominalV == 70) {
+        } else if (nominalV == 70) {
             return UcteVoltageLevelCode.VL_70;
-        }
-        if (nominalV == 110) {
+        } else if (nominalV == 110) {
             return UcteVoltageLevelCode.VL_110;
-        }
-        if (nominalV == 120) {
+        } else if (nominalV == 120) {
             return UcteVoltageLevelCode.VL_120;
-        }
-        if (nominalV == 150) {
+        } else if (nominalV == 150) {
             return UcteVoltageLevelCode.VL_150;
-        }
-        if (nominalV == 220) {
+        } else if (nominalV == 220) {
             return UcteVoltageLevelCode.VL_220;
-        }
-        if (nominalV == 330) {
+        } else if (nominalV == 330) {
             return UcteVoltageLevelCode.VL_330;
-        }
-        if (nominalV == 380) {
+        } else if (nominalV == 380) {
             return UcteVoltageLevelCode.VL_380;
-        }
-        if (nominalV == 500) {
+        } else if (nominalV == 500) {
             return UcteVoltageLevelCode.VL_500;
-        }
-        if (nominalV == 750) {
+        } else if (nominalV == 750) {
             return UcteVoltageLevelCode.VL_750;
+        } else {
+            throw new IllegalArgumentException("This voltage doesn't refer to a voltage level");
         }
-        return null;
     }
 
     UctePowerPlantType energySourceToUctePowerPlantType(EnergySource energySource) {
@@ -454,14 +499,6 @@ public class UcteExporter implements Exporter {
 
     boolean isVoltageLevel(char character) {
         return (int) character >= 48 && (int) character <= 57;
-    }
-
-    void write(UcteNetwork network, Path file) {
-        try (BufferedWriter bw = Files.newBufferedWriter(file)) {
-            new UcteWriter(network).write(bw);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
     }
 
 }
