@@ -22,6 +22,6 @@ public class SecurityAnalysisFactoryPluginInfo extends PluginInfo<SecurityAnalys
 
     @Override
     public String getId(SecurityAnalysisFactory securityAnalysisFactory) {
-        return Objects.requireNonNull(securityAnalysisFactory).getClass().getName();
+        return Objects.requireNonNull(securityAnalysisFactory).getClass().getSimpleName();
     }
 }
