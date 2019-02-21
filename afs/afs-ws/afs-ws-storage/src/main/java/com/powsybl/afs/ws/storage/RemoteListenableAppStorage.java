@@ -9,10 +9,11 @@ package com.powsybl.afs.ws.storage;
 import com.powsybl.afs.storage.ForwardingAppStorage;
 import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.afs.storage.events.AppStorageListener;
-import com.powsybl.commons.exceptions.UncheckedUriSyntaxException;
-import com.powsybl.commons.util.WeakListenerList;
+import com.powsybl.afs.ws.client.utils.RemoteServiceConfig;
 import com.powsybl.afs.ws.client.utils.UncheckedDeploymentException;
 import com.powsybl.afs.ws.utils.AfsRestApi;
+import com.powsybl.commons.exceptions.UncheckedUriSyntaxException;
+import com.powsybl.commons.util.WeakListenerList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +34,7 @@ public class RemoteListenableAppStorage extends ForwardingAppStorage implements 
 
     private final WeakListenerList<AppStorageListener> listeners = new WeakListenerList<>();
 
-    public RemoteListenableAppStorage(RemoteAppStorage storage, URI restUri) {
+    public RemoteListenableAppStorage(RemoteAppStorage storage, RemoteServiceConfig config, URI restUri) {
         super(storage);
 
         URI wsUri = getWebSocketUri(restUri);
@@ -43,10 +44,11 @@ public class RemoteListenableAppStorage extends ForwardingAppStorage implements 
 
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         try {
-            container.connectToServer(new NodeEventClient(storage.getFileSystemName(), listeners), endPointUri);
+            container.connectToServer(new NodeEventClient(storage.getFileSystemName(), listeners, config), endPointUri);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (DeploymentException e) {
+            NodeEventClient.updateCounter();
             throw new UncheckedDeploymentException(e);
         }
     }

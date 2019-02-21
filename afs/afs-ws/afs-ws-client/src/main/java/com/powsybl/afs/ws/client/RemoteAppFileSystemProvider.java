@@ -55,7 +55,7 @@ public class RemoteAppFileSystemProvider implements AppFileSystemProvider {
                 return RemoteAppStorage.getFileSystemNames(uri, context.getToken()).stream()
                         .map(fileSystemName -> {
                             RemoteAppStorage storage = new RemoteAppStorage(fileSystemName, uri, context.getToken());
-                            RemoteListenableAppStorage listenableStorage = new RemoteListenableAppStorage(storage, uri);
+                            RemoteListenableAppStorage listenableStorage = new RemoteListenableAppStorage(storage, config.get(), uri);
                             RemoteTaskMonitor taskMonitor = new RemoteTaskMonitor(fileSystemName, uri, context.getToken());
                             return new AppFileSystem(fileSystemName, true, listenableStorage, taskMonitor);
                         })

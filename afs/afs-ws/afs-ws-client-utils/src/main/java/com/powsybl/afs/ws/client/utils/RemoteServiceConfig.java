@@ -27,6 +27,14 @@ public class RemoteServiceConfig {
 
     private boolean secure;
 
+    private boolean autoreconnect;
+
+    private int reconnectionInitialInterval;
+
+    private int reconnectionIntervalMutiplier;
+
+    private int reconnectionMaxInterval;
+
     public RemoteServiceConfig(String hostName, String appName, int port, boolean secure) {
         this.hostName = Objects.requireNonNull(hostName);
         this.appName = Objects.requireNonNull(appName);
@@ -45,7 +53,18 @@ public class RemoteServiceConfig {
             String appName = moduleConfig.getStringProperty("app-name");
             boolean secure = moduleConfig.getBooleanProperty("secure", true);
             int port = moduleConfig.getIntProperty("port", secure ? 443 : 80);
-            return new RemoteServiceConfig(hostName, appName, port, secure);
+            boolean autoreconnect = moduleConfig.getBooleanProperty("autoreconnect", false);
+            int reconnectionInitialInterval = moduleConfig.getIntProperty("reconnection-initial-interval", 5);
+            int reconnectionIntervalMutiplier = moduleConfig.getIntProperty("reconnection-interval-mutiplier", 2);
+            int reconnectionMaxInterval = moduleConfig.getIntProperty("reconnection-max-interval ", 3600);
+
+            RemoteServiceConfig remoteServiceConfig = new RemoteServiceConfig(hostName, appName, port, secure);
+            remoteServiceConfig.setAutoreconnect(autoreconnect)
+                    .setReconnectionInitialInterval(reconnectionInitialInterval)
+                    .setReconnectionIntervalMutiplier(reconnectionIntervalMutiplier)
+                    .setReconnectionMaxInterval(reconnectionMaxInterval);
+
+            return remoteServiceConfig;
         });
     }
 
@@ -89,6 +108,42 @@ public class RemoteServiceConfig {
 
     public RemoteServiceConfig setSecure(boolean secure) {
         this.secure = secure;
+        return this;
+    }
+
+    public boolean isAutoreconnect() {
+        return autoreconnect;
+    }
+
+    public RemoteServiceConfig setAutoreconnect(boolean autoreconnect) {
+        this.autoreconnect = autoreconnect;
+        return this;
+    }
+
+    public int getReconnectionInitialInterval() {
+        return reconnectionInitialInterval;
+    }
+
+    public RemoteServiceConfig setReconnectionInitialInterval(int reconnectionInitialInterval) {
+        this.reconnectionInitialInterval = reconnectionInitialInterval;
+        return this;
+    }
+
+    public int getReconnectionIntervalMutiplier() {
+        return reconnectionIntervalMutiplier;
+    }
+
+    public RemoteServiceConfig setReconnectionIntervalMutiplier(int reconnectionIntervalMutiplier) {
+        this.reconnectionIntervalMutiplier = reconnectionIntervalMutiplier;
+        return this;
+    }
+
+    public int getReconnectionMaxInterval() {
+        return reconnectionMaxInterval;
+    }
+
+    public RemoteServiceConfig setReconnectionMaxInterval(int reconnectionMaxInterval) {
+        this.reconnectionMaxInterval = reconnectionMaxInterval;
         return this;
     }
 

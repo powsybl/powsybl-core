@@ -8,12 +8,21 @@ package com.powsybl.afs.ws.storage;
 
 import com.powsybl.afs.storage.events.AppStorageListener;
 import com.powsybl.afs.storage.events.NodeEventList;
+import com.powsybl.afs.ws.client.utils.RemoteServiceConfig;
+import com.powsybl.afs.ws.utils.AfsRestApi;
+import com.powsybl.commons.exceptions.UncheckedInterruptedException;
 import com.powsybl.commons.util.WeakListenerList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.websocket.*;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.net.ConnectException;
+import java.net.URI;
 import java.util.Objects;
+
+import static java.lang.Thread.sleep;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -27,9 +36,17 @@ public class NodeEventClient {
 
     private final WeakListenerList<AppStorageListener> listeners;
 
-    public NodeEventClient(String fileSystemName, WeakListenerList<AppStorageListener> listeners) {
+    private final RemoteServiceConfig config;
+
+    private int reconnectionInterval;
+
+    private static int counter = 0;
+
+    public NodeEventClient(String fileSystemName, WeakListenerList<AppStorageListener> listeners, RemoteServiceConfig config) {
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
         this.listeners = Objects.requireNonNull(listeners);
+        this.config = Objects.requireNonNull(config);
+        this.reconnectionInterval = config.getReconnectionInitialInterval();
     }
 
     @OnOpen
@@ -53,7 +70,48 @@ public class NodeEventClient {
     }
 
     @OnClose
-    public void onClose(Session session) {
-        LOGGER.trace("Node event websocket session '{}' closed for file system '{}'", session.getId(), fileSystemName);
+    public void onClose(Session session, CloseReason closeReason) {
+        if (closeReason.getCloseCode().getCode() == 1006) {
+            URI wsUri = null;
+            if (this.reconnectionInterval > config.getReconnectionMaxInterval()) {
+                LOGGER.warn("Node event websocket session '{}' closed for file system '{}'", session.getId(), fileSystemName);
+                return;
+            }
+            if (counter >= 1) {
+                this.reconnectionInterval = this.reconnectionInterval * config.getReconnectionIntervalMutiplier();
+            } else {
+                this.reconnectionInterval = config.getReconnectionInitialInterval();
+            }
+            WebSocketContainer container;
+            try {
+
+                sleep(reconnectionInterval * 1000);
+                wsUri = RemoteListenableAppStorage.getWebSocketUri(config.getRestUri());
+                URI endPointUri = URI.create(wsUri + "/messages/" + AfsRestApi.RESOURCE_ROOT + "/" +
+                        AfsRestApi.VERSION + "/node_events/" + fileSystemName);
+                LOGGER.debug("Connecting to node event websocket at {}", endPointUri);
+                container = ContainerProvider.getWebSocketContainer();
+                container.connectToServer(this, endPointUri);
+                resetComptor();
+            } catch (DeploymentException e) {
+                if (e.getCause().getCause() instanceof ConnectException) {
+                    LOGGER.error(e.getCause().getCause().getMessage(), e);
+                    updateCounter();
+                    this.onClose(session, closeReason);
+                }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            } catch (InterruptedException e) {
+                throw new UncheckedInterruptedException(e);
+            }
+        }
+    }
+
+    public static void updateCounter() {
+        counter = counter + 1;
+    }
+
+    public static void resetComptor() {
+        counter = 0;
     }
 }

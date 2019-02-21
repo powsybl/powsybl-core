@@ -9,6 +9,7 @@ package com.powsybl.afs.ws.server;
 import com.powsybl.afs.storage.AbstractAppStorageTest;
 import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.afs.ws.client.utils.ClientUtils;
+import com.powsybl.afs.ws.client.utils.RemoteServiceConfig;
 import com.powsybl.afs.ws.client.utils.UserSession;
 import com.powsybl.afs.ws.storage.RemoteAppStorage;
 import com.powsybl.afs.ws.storage.RemoteListenableAppStorage;
@@ -49,15 +50,15 @@ public class AppStorageServerTest extends AbstractAppStorageTest {
     @Deployment
     public static WebArchive createTestArchive() {
         File[] filesLib = Maven.configureResolver()
-                               .useLegacyLocalRepo(true)
-                               .withMavenCentralRepo(false)
-                               .withClassPathResolution(true)
-                               .loadPomFromFile("pom.xml")
-                               .importRuntimeDependencies()
-                               .resolve("org.mockito:mockito-all",
-                                        "com.powsybl:powsybl-afs-mapdb")
-                               .withTransitivity()
-                               .asFile();
+                .useLegacyLocalRepo(true)
+                .withMavenCentralRepo(false)
+                .withClassPathResolution(true)
+                .loadPomFromFile("pom.xml")
+                .importRuntimeDependencies()
+                .resolve("org.mockito:mockito-all",
+                        "com.powsybl:powsybl-afs-mapdb")
+                .withTransitivity()
+                .asFile();
 
         return ShrinkWrap.create(WebArchive.class, "afs-ws-server-test.war")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
@@ -82,8 +83,9 @@ public class AppStorageServerTest extends AbstractAppStorageTest {
     @Override
     protected ListenableAppStorage createStorage() {
         URI restUri = getRestUri();
+        RemoteServiceConfig config = new RemoteServiceConfig(restUri.getHost(), "test", restUri.getPort(), true);
         RemoteAppStorage storage = new RemoteAppStorage(AppDataBeanMock.TEST_FS_NAME, restUri, userSession.getToken());
-        return new RemoteListenableAppStorage(storage, restUri);
+        return new RemoteListenableAppStorage(storage, config, restUri);
     }
 
     @Test
