@@ -53,6 +53,7 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
     }
 
+    @Override
     public IidmImportExportMode getMode() {
         return mode;
     }
