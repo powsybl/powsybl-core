@@ -31,12 +31,15 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.security.SecurityAnalysisToolConstants.*;
 import static com.powsybl.tools.ToolConstants.TASK;
 import static com.powsybl.tools.ToolConstants.TASK_COUNT;
 
@@ -46,15 +49,6 @@ import static com.powsybl.tools.ToolConstants.TASK_COUNT;
  */
 @AutoService(Tool.class)
 public class SecurityAnalysisTool implements Tool {
-
-    private static final String CASE_FILE_OPTION = "case-file";
-    private static final String PARAMETERS_FILE = "parameters-file";
-    private static final String LIMIT_TYPES_OPTION = "limit-types";
-    private static final String OUTPUT_FILE_OPTION = "output-file";
-    private static final String OUTPUT_FORMAT_OPTION = "output-format";
-    private static final String CONTINGENCIES_FILE_OPTION = "contingencies-file";
-    private static final String WITH_EXTENSIONS_OPTION = "with-extensions";
-    private static final String EXTERNAL = "external";
 
     @Override
     public Command getCommand() {
@@ -83,7 +77,7 @@ public class SecurityAnalysisTool implements Tool {
                         .argName("FILE")
                         .required()
                         .build());
-                options.addOption(Option.builder().longOpt(PARAMETERS_FILE)
+                options.addOption(Option.builder().longOpt(PARAMETERS_FILE_OPTION)
                         .desc("loadflow parameters as JSON file")
                         .hasArg()
                         .argName("FILE")
@@ -125,6 +119,11 @@ public class SecurityAnalysisTool implements Tool {
                         .build());
                 options.addOption(Option.builder().longOpt(EXTERNAL)
                         .desc("external execution")
+                        .build());
+                options.addOption(Option.builder().longOpt(OUTPUT_LOG_OPTION)
+                        .desc("log output path")
+                        .hasArg()
+                        .argName("FILE")
                         .build());
                 return options;
             }
@@ -193,8 +192,8 @@ public class SecurityAnalysisTool implements Tool {
         }
 
         SecurityAnalysisParameters parameters = SecurityAnalysisParameters.load();
-        if (line.hasOption(PARAMETERS_FILE)) {
-            Path parametersFile = context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE));
+        if (line.hasOption(PARAMETERS_FILE_OPTION)) {
+            Path parametersFile = context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE_OPTION));
             JsonSecurityAnalysisParameters.update(parameters, parametersFile);
         }
 
@@ -216,7 +215,25 @@ public class SecurityAnalysisTool implements Tool {
 
         String currentState = network.getVariantManager().getWorkingVariantId();
 
-        SecurityAnalysisResult result = securityAnalysis.run(currentState, parameters, contingenciesProvider).join();
+        SecurityAnalysisResult result;
+        if (!line.hasOption(OUTPUT_LOG_OPTION)) {
+            result = securityAnalysis.run(currentState, parameters, contingenciesProvider).join();
+        } else {
+            SecurityAnalysisResultWithLog resultWithLog = securityAnalysis.runWithLog(currentState, parameters, contingenciesProvider).join();
+            result = resultWithLog.getResult();
+            resultWithLog.getLog().ifPresent(logFile -> {
+                if (Files.exists(logFile.toPath())) {
+                    Path outlogDest = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_OPTION));
+                    try {
+                        Files.copy(logFile.toPath(), outlogDest);
+                    } catch (IOException e) {
+                        context.getErrorStream().println(e.getMessage());
+                    }
+                } else {
+                    context.getErrorStream().println("Log file '" + logFile + "' not available");
+                }
+            });
+        }
 
         if (!result.getPreContingencyResult().isComputationOk()) {
             context.getErrorStream().println("Pre-contingency state divergence");
