@@ -18,7 +18,6 @@ import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.anonymizer.Anonymizer;
-import com.powsybl.iidm.anonymizer.FakeAnonymizer;
 import com.powsybl.iidm.anonymizer.SimpleAnonymizer;
 import com.powsybl.iidm.export.BusFilter;
 import com.powsybl.iidm.export.ExportOptions;
@@ -195,7 +194,7 @@ public final class NetworkXml {
         return extensionXmlSerializer;
     }
 
-    public static Map<String, Set<String>> getExtensionsPerType(Network n) {
+    public static Map<String, Set<String>> getIdentifiablesPerExtensionType(Network n) {
 
         Map<String, Set<String>> extensionsPerType = new HashMap<>();
 
@@ -218,7 +217,7 @@ public final class NetworkXml {
             context.getExtensionswWriter().writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
             context.getExtensionswWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
             for (Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
-                if (options.withExtension(extension.getName()) || options.withAllExtensions()) {
+                if (options.withExtension(extension.getName())) {
                     writeExtension(extension, context);
                 }
             }
@@ -251,7 +250,7 @@ public final class NetworkXml {
 
     public static void writeExtensionsInMultipleFile(Network n, NetworkXmlWriterContext context, DataSource dataSource, ExportOptions options) throws XMLStreamException, IOException {
         //here we right one extension type  per file
-        Map<String, Set<String>> m = getExtensionsPerType(n);
+        Map<String, Set<String>> m = getIdentifiablesPerExtensionType(n);
 
         for (Map.Entry<String, Set<String>> entry : m.entrySet()) {
             String name = entry.getKey();
@@ -340,7 +339,7 @@ public final class NetworkXml {
 
             if (options.isBaseAndExtensionsInOneSingleFile()) {
                 Anonymizer anonymizer = write(network, options, bosb);
-                if (!(anonymizer instanceof FakeAnonymizer)) {
+                if (options.isAnonymized()) {
                     try (BufferedWriter writer2 = new BufferedWriter(new OutputStreamWriter(dataSource.newOutputStream("_mapping", "csv", false), StandardCharsets.UTF_8))) {
                         anonymizer.write(writer2);
                     }
@@ -368,7 +367,7 @@ public final class NetworkXml {
                 }
             }
 
-            if (!(context.getAnonymizer() instanceof FakeAnonymizer)) {
+            if (options.isAnonymized()) {
                 try (BufferedWriter writer2 = new BufferedWriter(new OutputStreamWriter(dataSource.newOutputStream("_mapping", "csv", false), StandardCharsets.UTF_8))) {
                     context.getAnonymizer().write(writer2);
                 }
@@ -443,7 +442,7 @@ public final class NetworkXml {
                         String id2 = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, "id"));
                         Identifiable identifiable = network.getIdentifiable(id2);
                         if (identifiable == null) {
-                            throw new PowsyblException("Identifiable " + id2 + "  not found");
+                            throw new PowsyblException("Identifiable " + id2 + "not found");
                         }
 
                         readExtensions(identifiable, context, extensionNamesNotFound);
@@ -488,9 +487,6 @@ public final class NetworkXml {
     // To read extensions from an extensions file
     public static Network readExtensions(Network network, InputStream ise, Anonymizer anonymizer, ImportOptions options) {
         try {
-            if (options.withNoExtension()) {
-                return network;
-            }
             XMLStreamReader reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(ise);
             int state = reader.next();
             while (state == XMLStreamReader.COMMENT) {

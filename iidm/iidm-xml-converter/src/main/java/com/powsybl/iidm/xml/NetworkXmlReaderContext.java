@@ -31,6 +31,11 @@ public class NetworkXmlReaderContext extends AbstractConverterContext<ImportOpti
         this.options = Objects.requireNonNull(options);
     }
 
+    public NetworkXmlReaderContext(Anonymizer anonymizer, XMLStreamReader reader) {
+        super(anonymizer);
+        this.reader = Objects.requireNonNull(reader);
+        this.options = new ImportOptions();
+    }
 
     @Override
     public XMLStreamReader getReader() {

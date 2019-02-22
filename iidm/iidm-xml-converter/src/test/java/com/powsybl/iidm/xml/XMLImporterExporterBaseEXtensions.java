@@ -10,7 +10,7 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.*;
-import com.powsybl.iidm.ImportExportTypes;
+import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
@@ -29,7 +29,7 @@ public class XMLImporterExporterBaseEXtensions extends AbstractConverterTest {
     public void importExport(String xiidmBaseRef, String xiidmExtRef) throws IOException {
 
         Properties exportProperties = new Properties();
-        exportProperties.put(XMLExporter.EXPORT_MODE, String.valueOf(ImportExportTypes.BASE_AND_EXTENSIONS_FILES));
+        exportProperties.put(XMLExporter.EXPORT_MODE, String.valueOf(IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE));
         List<String> exportExtensionsList = Arrays.asList("loadFoo", "loadBar");
         exportProperties.put(XMLExporter.EXTENSIONS_LIST, exportExtensionsList);
 
@@ -40,7 +40,7 @@ public class XMLImporterExporterBaseEXtensions extends AbstractConverterTest {
         Properties importProperties = new Properties();
         List<String> extensionsList = Arrays.asList("ALL");
         importProperties.put(XMLImporter.EXTENSIONS_LIST, extensionsList);
-        importProperties.put(XMLImporter.IMPORT_MODE, String.valueOf(ImportExportTypes.BASE_AND_EXTENSIONS_FILES));
+        importProperties.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE));
         ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet("/", xiidmBaseRef.substring(1, xiidmBaseRef.length()), xiidmExtRef.substring(1, xiidmExtRef.length())));
         Network network = importer.importData(dataSourceBase, importProperties);
 

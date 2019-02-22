@@ -8,7 +8,7 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.MemDataSource;
-import com.powsybl.iidm.ImportExportTypes;
+import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
 import org.junit.Test;
@@ -29,7 +29,7 @@ public class XmlExporterBaseOneExtensionPerFile extends AbstractConverterTest {
     public void exporterOneFilePerExtensionType(Network network, String xiidmBaseRef, List<String> extensionsList) throws IOException {
 
         Properties properties = new Properties();
-        properties.put(XMLExporter.EXPORT_MODE, String.valueOf(ImportExportTypes.BASE_AND_ONE_FILE_PER_EXTENSION_TYPE));
+        properties.put(XMLExporter.EXPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
         properties.put(XMLExporter.EXTENSIONS_LIST, extensionsList);
 
         MemDataSource dataSource = new MemDataSource();
@@ -63,7 +63,7 @@ public class XmlExporterBaseOneExtensionPerFile extends AbstractConverterTest {
     @Test
     public void getExtensionsPerTypeTest() {
         Network n = MultipleExtensionsTestNetworkFactory.create();
-        Map<String, Set<String>> m = NetworkXml.getExtensionsPerType(n);
+        Map<String, Set<String>> m = NetworkXml.getIdentifiablesPerExtensionType(n);
         assertEquals(2, m.size());
         assertEquals("[loadFoo=[LOAD, LOAD2], loadBar=[LOAD]]", m.entrySet().toString());
     }

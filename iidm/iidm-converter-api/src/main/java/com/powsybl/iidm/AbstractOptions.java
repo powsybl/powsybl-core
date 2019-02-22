@@ -16,19 +16,20 @@ import java.util.Set;
 public abstract class AbstractOptions<T> {
     protected Set<String> extensions = Sets.newHashSet("ALL");
 
-    protected ImportExportTypes mode = ImportExportTypes.BASE_AND_EXTENSIONS_IN_ONE_SINGLE_FILE;
+    protected IidmImportExportMode mode = IidmImportExportMode.NO_SEPARATED_FILE_FOR_EXTENSIONS;
 
     public AbstractOptions(Set<String> extensions) {
         this.extensions = extensions;
     }
 
     public AbstractOptions() {
-
     }
 
     public abstract T setExtensions(Set<String> extensions);
 
-    public abstract T setMode(ImportExportTypes mode);
+    public abstract T setMode(IidmImportExportMode mode);
+
+    public abstract T addExtension(String extension);
 
     public Set<String> getExtensions() {
         return this.extensions;
@@ -43,10 +44,11 @@ public abstract class AbstractOptions<T> {
     }
 
     public  boolean withExtension(String extensionName) {
-        if (withAllExtensions()) {
-            return Boolean.TRUE;
-        }
-        return extensions.contains(extensionName);
+        return withAllExtensions() || extensions.contains(extensionName);
+    }
+
+    public IidmImportExportMode getMode() {
+        return this.mode;
     }
 
 }

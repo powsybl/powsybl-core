@@ -16,7 +16,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.ConversionParameters;
-import com.powsybl.iidm.ImportExportTypes;
+import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.anonymizer.Anonymizer;
 import com.powsybl.iidm.anonymizer.SimpleAnonymizer;
 import com.powsybl.iidm.import_.ImportOptions;
@@ -60,7 +60,7 @@ public class XMLImporter implements Importer {
 
 
     private static final Parameter IMPORT_MODE_PARAMETER
-            = new Parameter(IMPORT_MODE, ParameterType.STRING, "import mode", String.valueOf(ImportExportTypes.BASE_AND_EXTENSIONS_IN_ONE_SINGLE_FILE));
+            = new Parameter(IMPORT_MODE, ParameterType.STRING, "import mode", String.valueOf(IidmImportExportMode.NO_SEPARATED_FILE_FOR_EXTENSIONS));
 
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER
             = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE)
@@ -177,7 +177,7 @@ public class XMLImporter implements Importer {
 
         ImportOptions options = new ImportOptions()
                 .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
-                .setMode(ImportExportTypes.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, IMPORT_MODE_PARAMETER, defaultValueConfig)))
+                .setMode(IidmImportExportMode.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, IMPORT_MODE_PARAMETER, defaultValueConfig)))
                 .setExtensions(new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)));
 
 
@@ -196,22 +196,26 @@ public class XMLImporter implements Importer {
                     anonymizer.read(reader);
                 }
             }
-
             //Read the base file with the extensions declared in the extensions list
             try (InputStream isb = dataSource.newInputStream(null, ext)) {
                 network = NetworkXml.read(isb, options, anonymizer);
             }
-
-            if (options.isImportFromBaseAndExtensionsFiles() && !options.withNoExtension()) {
-                // in this case we have to read all extensions from one single file
-                try (InputStream ise = dataSource.newInputStream(dataSource.getBaseName() +  "-ext." + ext)) {
-                    network = NetworkXml.readExtensions(network, ise, anonymizer, options);
+            if (!options.withNoExtension()) {
+                switch (options.getMode()) {
+                    case EXTENSIONS_IN_ONE_SEPARATED_FILE:
+                        // in this case we have to read all extensions from one  file
+                        try (InputStream ise = dataSource.newInputStream(dataSource.getBaseName() +  "-ext." + ext)) {
+                            NetworkXml.readExtensions(network, ise, anonymizer, options);
+                        }
+                        break;
+                    case ONE_SEPARATED_FILE_PER_EXTENSION_TYPE:
+                        // here we'll read all extensions declared in the extensions set
+                        NetworkXml.readExtensions(network, dataSource, anonymizer, options, ext);
+                        break;
+                    default:
+                        break;
                 }
-            } else if (options.isImportFromBaseAndMultipleExtensionFiles() && !options.withNoExtension()) {
-                // here we'll read all extensions declared in the extensions set
-                network = NetworkXml.readExtensions(network, dataSource, anonymizer, options, ext);
             }
-
             LOGGER.debug("XIIDM import done in {} ms", System.currentTimeMillis() - startTime);
         } catch (IOException e) {
             throw new PowsyblException(e);

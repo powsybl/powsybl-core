@@ -14,7 +14,7 @@ import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.iidm.ImportExportTypes;
+import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -185,7 +185,7 @@ public class XMLImporterTest extends AbstractConverterTest {
         List<String> extensionsList = Arrays.asList("ALL");
 
         Properties parameters = new Properties();
-        parameters.put(XMLImporter.IMPORT_MODE, String.valueOf(ImportExportTypes.BASE_AND_EXTENSIONS_FILES));
+        parameters.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE));
         parameters.put(XMLImporter.EXTENSIONS_LIST, extensionsList);
 
         ReadOnlyDataSource dataSource = new ResourceDataSource("multiple-extensions", new ResourceSet("/", "multiple-extensions.xiidm", "multiple-extensions-ext.xiidm"));
@@ -201,7 +201,7 @@ public class XMLImporterTest extends AbstractConverterTest {
 
         Properties parameters = new Properties();
 
-        parameters.put(XMLImporter.IMPORT_MODE, String.valueOf(ImportExportTypes.BASE_AND_ONE_FILE_PER_EXTENSION_TYPE));
+        parameters.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
         parameters.put(XMLImporter.EXTENSIONS_LIST, extensionsList);
 
         ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet("/", "multiple-extensions.xiidm", "loadFoo.xiidm", "loadBar.xiidm"));
@@ -216,7 +216,7 @@ public class XMLImporterTest extends AbstractConverterTest {
         List<String> extensionsList = Arrays.asList("loadFoo");
 
         Properties parameters = new Properties();
-        parameters.put(XMLImporter.IMPORT_MODE, String.valueOf(ImportExportTypes.BASE_AND_ONE_FILE_PER_EXTENSION_TYPE));
+        parameters.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
         parameters.put(XMLImporter.EXTENSIONS_LIST, extensionsList);
 
         ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet("/", "multiple-extensions.xiidm", "loadFoo.xiidm"));

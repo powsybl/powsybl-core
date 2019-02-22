@@ -6,8 +6,9 @@
  */
 package com.powsybl.iidm.export;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.AbstractOptions;
-import com.powsybl.iidm.ImportExportTypes;
+import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.network.TopologyLevel;
 
 import java.util.Objects;
@@ -43,13 +44,28 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
     }
 
-    public ImportExportTypes getMode() {
+    public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound) {
+        super();
+        this.withBranchSV = withBranchSV;
+        this.indent = indent;
+        this.onlyMainCc = onlyMainCc;
+        this.topologyLevel = Objects.requireNonNull(topologyLevel);
+        this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
+    }
+
+    public IidmImportExportMode getMode() {
         return mode;
     }
 
     @Override
-    public ExportOptions setMode(ImportExportTypes mode) {
+    public ExportOptions setMode(IidmImportExportMode mode) {
         this.mode = mode;
+        return this;
+    }
+
+    @Override
+    public ExportOptions addExtension(String extension) {
+        this.extensions.add(extension);
         return this;
     }
 
@@ -115,15 +131,27 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     }
 
     public boolean isOneFilePerExtensionType() {
-        return this.mode == ImportExportTypes.BASE_AND_ONE_FILE_PER_EXTENSION_TYPE;
+        return this.mode == IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE;
     }
 
     public boolean isSeparateBaseAndExtensions() {
-        return this.mode == ImportExportTypes.BASE_AND_EXTENSIONS_FILES;
+        return this.mode == IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE;
     }
 
     public boolean isBaseAndExtensionsInOneSingleFile() {
-        return this.mode == ImportExportTypes.BASE_AND_EXTENSIONS_IN_ONE_SINGLE_FILE;
+        return this.mode == IidmImportExportMode.NO_SEPARATED_FILE_FOR_EXTENSIONS;
+    }
+
+    public boolean isSkipExtensions() {
+        return this.extensions.isEmpty();
+    }
+
+    public ExportOptions setSkipExtensions(boolean skipExtensions) {
+        if (!extensions.isEmpty() && skipExtensions) {
+            throw new PowsyblException("Contradictory behavior : You have already passed  a list of extensions");
+        }
+        this.extensions.clear();
+        return this;
     }
 
 }

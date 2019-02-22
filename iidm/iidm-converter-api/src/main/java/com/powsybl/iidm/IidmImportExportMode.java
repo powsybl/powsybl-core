@@ -10,10 +10,10 @@ package com.powsybl.iidm;
  * @author Chamseddine BENHAMED <chamseddine.benhamed at rte-france.com>
  */
 
-public enum ImportExportTypes {
-    BASE_AND_ONE_FILE_PER_EXTENSION_TYPE,
-    BASE_AND_EXTENSIONS_IN_ONE_SINGLE_FILE,
-    BASE_AND_EXTENSIONS_FILES
+public enum IidmImportExportMode {
+    ONE_SEPARATED_FILE_PER_EXTENSION_TYPE,
+    NO_SEPARATED_FILE_FOR_EXTENSIONS,
+    EXTENSIONS_IN_ONE_SEPARATED_FILE
 }
 
 

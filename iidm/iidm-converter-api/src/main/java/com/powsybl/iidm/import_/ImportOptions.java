@@ -7,7 +7,7 @@
 package com.powsybl.iidm.import_;
 
 import com.powsybl.iidm.AbstractOptions;
-import com.powsybl.iidm.ImportExportTypes;
+import com.powsybl.iidm.IidmImportExportMode;
 
 import java.util.Set;
 
@@ -19,7 +19,7 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
 
     private boolean throwExceptionIfExtensionNotFound = false;
 
-    public ImportOptions(boolean throwExceptionIfExtensionNotFound, ImportExportTypes mode, Set<String> extensions) {
+    public ImportOptions(boolean throwExceptionIfExtensionNotFound, IidmImportExportMode mode, Set<String> extensions) {
         super(extensions);
         this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
         this.mode = mode;
@@ -27,6 +27,10 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
 
     public ImportOptions() {
         super();
+    }
+
+    public ImportOptions(boolean throwExceptionIfExtensionNotFound) {
+        this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
     }
 
     @Override
@@ -41,8 +45,14 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
     }
 
     @Override
-    public ImportOptions setMode(ImportExportTypes mode) {
+    public ImportOptions setMode(IidmImportExportMode mode) {
         this.mode = mode;
+        return this;
+    }
+
+    @Override
+    public ImportOptions addExtension(String extension) {
+        this.extensions.add(extension);
         return this;
     }
 
@@ -52,11 +62,11 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
     }
 
     public boolean isImportFromBaseAndExtensionsFiles() {
-        return this.mode == ImportExportTypes.BASE_AND_EXTENSIONS_FILES;
+        return this.mode == IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE;
     }
 
     public boolean isImportFromBaseAndMultipleExtensionFiles() {
-        return this.mode == ImportExportTypes.BASE_AND_ONE_FILE_PER_EXTENSION_TYPE;
+        return this.mode == IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE;
     }
 
 

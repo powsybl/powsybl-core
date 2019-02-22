@@ -7,7 +7,7 @@
 package com.powsybl.iidm.export;
 
 import com.google.common.collect.Sets;
-import com.powsybl.iidm.ImportExportTypes;
+import com.powsybl.iidm.IidmImportExportMode;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -24,7 +24,7 @@ public class ExportOptionsTest {
     @Test
     public void importOptionsTest() throws IOException {
         ExportOptions options = new ExportOptions();
-        options.setMode(ImportExportTypes.BASE_AND_ONE_FILE_PER_EXTENSION_TYPE);
+        options.setMode(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE);
         assertEquals(Boolean.TRUE, options.isOneFilePerExtensionType());
         assertEquals(Boolean.FALSE, options.isSeparateBaseAndExtensions());
 
