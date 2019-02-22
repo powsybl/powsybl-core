@@ -60,7 +60,117 @@ public class UcteExporter implements Exporter {
         }
     }
 
-    public void createTwoWindingTransformers(UcteNetwork ucteNetwork, Bus bus) {
+    private void createTieLine(UcteNetwork ucteNetwork, Line line) {
+        String[] ids  = line.getId().split("\\+");
+        UcteNodeCode ucteNodeCode1 = iidmIdToUcteNodeCode(ids[0].substring(0, 8));
+        UcteNodeCode ucteNodeCode2 = iidmIdToUcteNodeCode(ids[0].substring(9, 17));
+        UcteNodeCode ucteNodeCode3 = iidmIdToUcteNodeCode(ids[1].substring(1, 9));
+        UcteNodeCode ucteNodeCode4 = iidmIdToUcteNodeCode(ids[1].substring(10, 18));
+
+        if (ucteNetwork.getNode(ucteNodeCode1) == null) {
+            ucteNetwork.addNode(
+                    new UcteNode(
+                            ucteNodeCode1,
+                            ucteNodeCode1.getGeographicalSpot(),
+                            UcteNodeStatus.REAL,
+                            UcteNodeTypeCode.PQ,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            null
+                    ));
+        }
+        if (ucteNetwork.getNode(ucteNodeCode2) == null) {
+            ucteNetwork.addNode(
+                    new UcteNode(
+                            ucteNodeCode2,
+                            ucteNodeCode2.getGeographicalSpot(),
+                            UcteNodeStatus.REAL,
+                            UcteNodeTypeCode.PQ,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            null
+                    ));
+        }
+        if (ucteNetwork.getNode(ucteNodeCode3) == null) {
+            ucteNetwork.addNode(
+                    new UcteNode(
+                            ucteNodeCode3,
+                            ucteNodeCode3.getGeographicalSpot(),
+                            UcteNodeStatus.REAL,
+                            UcteNodeTypeCode.PQ,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            null
+                    ));
+        }
+        if (ucteNetwork.getNode(ucteNodeCode4) == null) {
+            ucteNetwork.addNode(
+                    new UcteNode(
+                            ucteNodeCode4,
+                            ucteNodeCode4.getGeographicalSpot(),
+                            UcteNodeStatus.REAL,
+                            UcteNodeTypeCode.PQ,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            0f,
+                            null
+                    ));
+        }
+
+        UcteElementId ucteElementId1 = new UcteElementId(ucteNodeCode1, ucteNodeCode2, ids[0].charAt(18));
+        UcteElementId ucteElementId2 = new UcteElementId(ucteNodeCode3, ucteNodeCode4, ids[1].charAt(18));
+
+        UcteLine ucteLine1 = new UcteLine(ucteElementId1, UcteElementStatus.REAL_ELEMENT_IN_OPERATION, (float) line.getR() / 2, (float) line.getX() / 2, (float) line.getB1(), (int) line.getCurrentLimits1().getPermanentLimit(), "");
+        UcteLine ucteLine2 = new UcteLine(ucteElementId2, UcteElementStatus.REAL_ELEMENT_IN_OPERATION, (float) line.getR() / 2, (float) line.getX() / 2, (float) line.getB1(), (int) line.getCurrentLimits1().getPermanentLimit(), "");
+
+        ucteNetwork.addLine(ucteLine1);
+        ucteNetwork.addLine(ucteLine2);
+    }
+
+    private void createTwoWindingTransformers(UcteNetwork ucteNetwork, Bus bus) {
         LOGGER.info("-----------TWO WINDING TRANSFORMERS--------");
         Iterable<TwoWindingsTransformer> twoWindingsTransformers = bus.getTwoWindingsTransformers();
         for (TwoWindingsTransformer twoWindingsTransformer : twoWindingsTransformers) {
@@ -150,21 +260,6 @@ public class UcteExporter implements Exporter {
                 twoWindingsTransformer.getPhaseTapChanger().getTapPosition(),
                 4f,
                 UcteAngleRegulationType.SYMM); //TODO find how to fill the theta, p and ucteAngleregulation
-//        double dx = i * ucteAngleRegulation.getDu() / 100f * Math.cos(Math.toRadians(ucteAngleRegulation.getTheta()));
-//        double dy = i * ucteAngleRegulation.getDu() / 100f * Math.sin(Math.toRadians(ucteAngleRegulation.getTheta()));
-//        switch (ucteAngleRegulation.getType()) {
-//            case ASYM:
-//                rho = (float) (1 / Math.hypot(dy, 1 + dx));
-//                alpha = (float) Math.toDegrees(Math.atan2(dy, 1 + dx));
-//                break;
-//
-//            case SYMM:
-//                rho = 1f;
-//                alpha = (float) Math.toDegrees(2 * Math.atan2(dy, 2f * (1 + dx)));
-//                break;
-//
-//            default:
-//                throw new AssertionError("Unexpected UcteAngleRegulationType value: " + ucteAngleRegulation.getType());
     }
 
     private void createLines(UcteNetwork ucteNetwork, Network network) {
@@ -191,7 +286,7 @@ public class UcteExporter implements Exporter {
         Iterable<Substation> substations = network.getSubstations();
         for (Substation substation : substations) {
             LOGGER.info("---------------SUBSTATION------------------");
-            LOGGER.info(" Geographical tags = {}", substation.getGeographicalTags().toString());
+            LOGGER.info(" Geographical tags = {}", substation.getGeographicalTags());
             LOGGER.info(" Substation country = {}", substation.getCountry());
             LOGGER.info(" Substation Id = {}", substation.getId());
             LOGGER.info(" Substation name = {}", substation.getName());
@@ -199,7 +294,6 @@ public class UcteExporter implements Exporter {
             Iterable<VoltageLevel> voltageLevels = substation.getVoltageLevels();
             for (VoltageLevel voltageLevel : voltageLevels) {
                 LOGGER.info("---------------VOLTAGE LEVEL------------------");
-                VoltageLevel.BusBreakerView busBreakerView = voltageLevel.getBusBreakerView();
                 LOGGER.info(" ID = {}", voltageLevel.getId());
                 LOGGER.info(" NominalV = {}", voltageLevel.getNominalV());
                 LOGGER.info(" Low voltage limit = {}", voltageLevel.getLowVoltageLimit());
@@ -280,6 +374,11 @@ public class UcteExporter implements Exporter {
     }
 
     private void createLine(UcteNetwork ucteNetwork, Line line) {
+        if (line.getId().contains("+")) {
+            createTieLine(ucteNetwork, line);
+            return;
+        }
+
         Terminal terminal1 = line.getTerminal1();
         Terminal terminal2 = line.getTerminal2();
 
@@ -319,7 +418,7 @@ public class UcteExporter implements Exporter {
                 LOGGER.info("-----------GENERATOR--------");
                 LOGGER.info(" Id = {}", generator.getId());
                 LOGGER.info(" Name = {}", generator.getName());
-                LOGGER.info(" Energy source = {}", generator.getEnergySource().toString());
+                LOGGER.info(" Energy source = {}", generator.getEnergySource());
                 LOGGER.info(" RatedS = {}", String.valueOf(generator.getRatedS()));
                 LOGGER.info(" MaxP = {}", String.valueOf(generator.getMaxP()));
                 LOGGER.info(" MinP = {}", String.valueOf(generator.getMinP()));
