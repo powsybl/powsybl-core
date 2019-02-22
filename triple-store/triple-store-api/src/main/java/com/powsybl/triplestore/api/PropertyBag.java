@@ -88,6 +88,7 @@ public class PropertyBag extends HashMap<String, String> {
         try {
             return Double.parseDouble(get(property));
         } catch (NumberFormatException x) {
+            LOG.warn("Invalid value for property {} : {}", property, get(property));
             return Double.NaN;
         }
     }
