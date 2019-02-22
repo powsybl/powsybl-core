@@ -16,6 +16,7 @@ import org.junit.Test;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -78,7 +79,7 @@ public class ImmutableLineTest {
         Network network = ImmutableNetwork.of(n);
         HvdcLine hvdcLine = network.getHvdcLine("L");
         assertTrue(hvdcLine instanceof ImmutableHvdcLine);
-        assertTrue(hvdcLine.getNetwork() instanceof ImmutableNetwork);
+        assertSame(network, hvdcLine.getNetwork());
         Set<String> expectedInvalidMethods = new HashSet<>();
         expectedInvalidMethods.add("setConvertersMode");
         expectedInvalidMethods.add("setR");
