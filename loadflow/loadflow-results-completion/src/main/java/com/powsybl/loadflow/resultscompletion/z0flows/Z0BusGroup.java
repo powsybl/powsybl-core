@@ -33,7 +33,7 @@ public class Z0BusGroup {
     }
 
     public boolean valid() {
-        return buses.size() > 1 || loops != null && loops.size() > 1;
+        return buses.size() > 1 || loops != null && !loops.isEmpty();
     }
 
     public void exploreZ0(Set<Bus> processed) {
