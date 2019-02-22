@@ -69,8 +69,10 @@ public class NodeEventClient {
         }
     }
 
+
     @OnClose
     public void onClose(Session session, CloseReason closeReason) {
+
         if (closeReason.getCloseCode().getCode() == 1006) {
             URI wsUri = null;
             if (this.reconnectionInterval > config.getReconnectionMaxInterval()) {
@@ -85,7 +87,7 @@ public class NodeEventClient {
             WebSocketContainer container;
             try {
 
-                sleep(reconnectionInterval * 1000);
+                sleep(reconnectionInterval * 1000L);
                 wsUri = RemoteListenableAppStorage.getWebSocketUri(config.getRestUri());
                 URI endPointUri = URI.create(wsUri + "/messages/" + AfsRestApi.RESOURCE_ROOT + "/" +
                         AfsRestApi.VERSION + "/node_events/" + fileSystemName);
@@ -102,6 +104,7 @@ public class NodeEventClient {
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
                 throw new UncheckedInterruptedException(e);
             }
         }
