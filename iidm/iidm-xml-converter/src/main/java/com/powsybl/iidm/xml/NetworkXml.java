@@ -18,6 +18,7 @@ import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.anonymizer.Anonymizer;
+import com.powsybl.iidm.anonymizer.FakeAnonymizer;
 import com.powsybl.iidm.anonymizer.SimpleAnonymizer;
 import com.powsybl.iidm.export.BusFilter;
 import com.powsybl.iidm.export.ExportOptions;
@@ -226,21 +227,19 @@ public final class NetworkXml {
     }
 
     private static XMLStreamWriter initializeWriter(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
-        XMLStreamWriter writer = null;
-        if (os != null) {
-            writer = createXmlStreamWriter(options, os);
-            writer.writeStartDocument(StandardCharsets.UTF_8.toString(), "1.0");
-            writer.setPrefix(IIDM_PREFIX, IIDM_URI);
-            writer.writeStartElement(IIDM_URI, NETWORK_ROOT_ELEMENT_NAME);
-            writer.writeNamespace(IIDM_PREFIX, IIDM_URI);
-            if (!options.withNoExtension()) {
-                writeExtensionNamespaces(n, options, writer);
-            }
-            writer.writeAttribute(ID, n.getId());
-            writer.writeAttribute(CASE_DATE, n.getCaseDate().toString());
-            writer.writeAttribute(FORECAST_DISTANCE, Integer.toString(n.getForecastDistance()));
-            writer.writeAttribute(SOURCE_FORMAT, n.getSourceFormat());
+        XMLStreamWriter writer;
+        writer = createXmlStreamWriter(options, os);
+        writer.writeStartDocument(StandardCharsets.UTF_8.toString(), "1.0");
+        writer.setPrefix(IIDM_PREFIX, IIDM_URI);
+        writer.writeStartElement(IIDM_URI, NETWORK_ROOT_ELEMENT_NAME);
+        writer.writeNamespace(IIDM_PREFIX, IIDM_URI);
+        if (!options.withNoExtension()) {
+            writeExtensionNamespaces(n, options, writer);
         }
+        writer.writeAttribute(ID, n.getId());
+        writer.writeAttribute(CASE_DATE, n.getCaseDate().toString());
+        writer.writeAttribute(FORECAST_DISTANCE, Integer.toString(n.getForecastDistance()));
+        writer.writeAttribute(SOURCE_FORMAT, n.getSourceFormat());
         return writer;
     }
 
@@ -274,7 +273,15 @@ public final class NetworkXml {
         }
     }
 
-    public static void writeBaseNetwork(Network n, NetworkXmlWriterContext context, BusFilter filter) throws XMLStreamException {
+    public static NetworkXmlWriterContext writeBaseNetwork(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
+
+        // create the  writer of the base file
+        final XMLStreamWriter writer = initializeWriter(n, os, options);
+        BusFilter filter = BusFilter.create(n, options);
+        Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
+        NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter);
+        // Consider the network has been exported so its extensions will be written also
+        context.addExportedEquipment(n);
 
         for (Substation s : n.getSubstations()) {
             SubstationXml.INSTANCE.write(s, null, context);
@@ -295,53 +302,23 @@ public final class NetworkXml {
             }
             HvdcLineXml.INSTANCE.write(l, n, context);
         }
+        return context;
     }
 
-    public static Anonymizer write(Network n, ExportOptions options, OutputStream osb, OutputStream ose, DataSource dataSource) throws IOException {
+    public static Anonymizer write(Network n, ExportOptions options, OutputStream os) {
         try {
-            // create the  writer of the base file
-            final XMLStreamWriter writer = initializeWriter(n, osb, options);
-            BusFilter filter = BusFilter.create(n, options);
-            Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
-            NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter);
-
-            writeBaseNetwork(n, context, filter);
-            // Consider the network has been exported so its extensions will be written also
-            context.addExportedEquipment(n);
-
+            NetworkXmlWriterContext context = writeBaseNetwork(n, os, options);
             // write extensions
-            if (!options.withNoExtension() && !getNetworkExtensions(n).isEmpty()) {
-                if (options.isOneFilePerExtensionType()) {
-                    writeExtensionsInMultipleFile(n, context, dataSource, options);
-                } else if (options.isSeparateBaseAndExtensions()) {
-                    final XMLStreamWriter extensionsWriter = initializeWriter(n, ose, options);
-                    context.setExtensionsWriter(extensionsWriter);
-                    writeExtensions(n, context, options);
-                    writeEndElement(extensionsWriter);
-                } else {
-                    writeExtensions(n, context, options);
-                }
-            }
-            writeEndElement(writer);
-            return anonymizer;
+            writeExtensions(n, context, options);
+            writeEndElement(context.getWriter());
+            return context.getAnonymizer();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
     }
 
-    public static Anonymizer write(Network n, ExportOptions options, OutputStream os) throws IOException {
-        return write(n, options, os, null, null);
-    }
 
-    public static Anonymizer write(Network n, ExportOptions options, OutputStream osb, OutputStream ose) throws IOException {
-        return write(n, options, osb, ose, null);
-    }
-
-    public static Anonymizer write(Network n, ExportOptions options, OutputStream os, DataSource dataSource) throws IOException {
-        return write(n, options, os, null, dataSource);
-    }
-
-    public static Anonymizer write(Network n, OutputStream os) throws IOException {
+    public static Anonymizer write(Network n, OutputStream os) {
         return write(n, new ExportOptions(), os);
     }
 
@@ -357,26 +334,48 @@ public final class NetworkXml {
         return write(n, new ExportOptions(), xmlFile);
     }
 
-    public static void write(Network network, ExportOptions options, DataSource dataSource) throws IOException {
-        Anonymizer anonymizer;
+    public static Anonymizer write(Network network, ExportOptions options, DataSource dataSource) throws IOException {
         try (OutputStream osb = dataSource.newOutputStream(null, XIIDM, false);
-             BufferedOutputStream bos = new BufferedOutputStream(osb)) {
-            if (options.isSeparateBaseAndExtensions()  && !options.isOneFilePerExtensionType()) {
-                try (OutputStream ose = dataSource.newOutputStream("-ext", XIIDM, false);
-                     BufferedOutputStream bose = new BufferedOutputStream(ose)) {
-                    anonymizer = NetworkXml.write(network, options, bos, bose);
+             BufferedOutputStream bosb = new BufferedOutputStream(osb)) {
+
+            if (options.isBaseAndExtensionsInOneSingleFile()) {
+                Anonymizer anonymizer = write(network, options, bosb);
+                if (!(anonymizer instanceof FakeAnonymizer)) {
+                    try (BufferedWriter writer2 = new BufferedWriter(new OutputStreamWriter(dataSource.newOutputStream("_mapping", "csv", false), StandardCharsets.UTF_8))) {
+                        anonymizer.write(writer2);
+                    }
                 }
-            } else if (options.isOneFilePerExtensionType()) {
-                anonymizer = NetworkXml.write(network, options, bos, dataSource);
-            } else {
-                anonymizer = NetworkXml.write(network, options, bos);
+                return anonymizer;
             }
 
-            if (anonymizer != null) {
-                try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dataSource.newOutputStream("_mapping", "csv", false), StandardCharsets.UTF_8))) {
-                    anonymizer.write(writer);
+            NetworkXmlWriterContext context = writeBaseNetwork(network, bosb, options);
+            writeEndElement(context.getWriter());
+
+            // write extensions
+            if (!options.withNoExtension() && !getNetworkExtensions(network).isEmpty()) {
+
+                if (options.isSeparateBaseAndExtensions()) {
+                    try (OutputStream ose = dataSource.newOutputStream("-ext", XIIDM, false);
+                         BufferedOutputStream bose = new BufferedOutputStream(ose)) {
+
+                        final XMLStreamWriter extensionsWriter = initializeWriter(network, bose, options);
+                        context.setExtensionsWriter(extensionsWriter);
+                        writeExtensions(network, context, options);
+                        writeEndElement(extensionsWriter);
+                    }
+                } else if (options.isOneFilePerExtensionType()) {
+                    writeExtensionsInMultipleFile(network, context, dataSource, options);
                 }
             }
+
+            if (!(context.getAnonymizer() instanceof FakeAnonymizer)) {
+                try (BufferedWriter writer2 = new BufferedWriter(new OutputStreamWriter(dataSource.newOutputStream("_mapping", "csv", false), StandardCharsets.UTF_8))) {
+                    context.getAnonymizer().write(writer2);
+                }
+            }
+            return context.getAnonymizer();
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
         }
     }
 

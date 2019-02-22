@@ -31,8 +31,6 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     private boolean throwExceptionIfExtensionNotFound = false;
 
-    private ImportExportTypes mode = ImportExportTypes.BASE_AND_EXTENSIONS_IN_ONE_SINGLE_FILE;
-
     public ExportOptions() {
     }
 
@@ -122,6 +120,10 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     public boolean isSeparateBaseAndExtensions() {
         return this.mode == ImportExportTypes.BASE_AND_EXTENSIONS_FILES;
+    }
+
+    public boolean isBaseAndExtensionsInOneSingleFile() {
+        return this.mode == ImportExportTypes.BASE_AND_EXTENSIONS_IN_ONE_SINGLE_FILE;
     }
 
 }

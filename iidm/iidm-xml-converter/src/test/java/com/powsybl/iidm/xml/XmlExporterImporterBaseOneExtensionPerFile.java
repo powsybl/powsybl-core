@@ -33,9 +33,11 @@ public class XmlExporterImporterBaseOneExtensionPerFile extends AbstractConverte
         exportProperties.put(XMLExporter.EXPORT_MODE, String.valueOf(ImportExportTypes.BASE_AND_ONE_FILE_PER_EXTENSION_TYPE));
         exportProperties.put(XMLExporter.EXTENSIONS_LIST, extensions);
 
+
         MemDataSource dataSource = new MemDataSource();
 
         new XMLExporter().export(network, exportProperties, dataSource);
+
         // check the base exported file and compare it to iidmBaseRef reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
             compareXml(getClass().getResourceAsStream(xiidmBaseRef), is);
@@ -52,7 +54,7 @@ public class XmlExporterImporterBaseOneExtensionPerFile extends AbstractConverte
         List<String> extensionsList = Arrays.asList("loadFoo", "loadBar");
         Properties importProperties = new Properties();
         importProperties.put(XMLImporter.IMPORT_MODE, String.valueOf(ImportExportTypes.BASE_AND_ONE_FILE_PER_EXTENSION_TYPE));
-        importProperties.put(XMLExporter.EXTENSIONS_LIST, extensions);
+        importProperties.put(XMLImporter.EXTENSIONS_LIST, extensions);
         XMLImporter importer = new XMLImporter();
 
         Network n = importer.importData(dataSource, importProperties);
