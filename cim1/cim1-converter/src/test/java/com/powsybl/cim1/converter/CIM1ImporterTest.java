@@ -14,7 +14,6 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ZipFileDataSource;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,6 +23,8 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
