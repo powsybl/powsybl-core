@@ -187,7 +187,6 @@ public class NodeEventTest {
                 .testEquals();
     }
 
-
     @Test
     public void timeSeriesClearedTest() throws IOException {
         TimeSeriesCleared cleared = new TimeSeriesCleared("a");

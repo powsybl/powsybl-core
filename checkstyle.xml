@@ -29,6 +29,8 @@
         </module>
         <module name="EmptyLineSeparator">
             <property name="allowNoEmptyLineBetweenFields" value="true"/>
+            <property name="allowMultipleEmptyLines" value="false"/>
+            <property name="allowMultipleEmptyLinesInsideClassMembers" value="false"/>
             <property name="tokens" value="IMPORT, CLASS_DEF, INTERFACE_DEF, STATIC_INIT, INSTANCE_INIT, METHOD_DEF, CTOR_DEF, VARIABLE_DEF"/>
         </module>
         <module name="EmptyStatement"/>

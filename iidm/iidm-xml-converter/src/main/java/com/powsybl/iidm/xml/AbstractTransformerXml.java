@@ -26,7 +26,6 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
     private static final String ELEM_TERMINAL_REF = "terminalRef";
     private static final String ELEM_STEP = "step";
 
-
     protected static void writeTapChangerStep(TapChangerStep<?> tcs, XMLStreamWriter writer) throws XMLStreamException {
         XmlUtil.writeDouble("r", tcs.getR(), writer);
         XmlUtil.writeDouble("x", tcs.getX(), writer);

@@ -206,7 +206,6 @@ public class RunLoadFlowTool implements Tool {
         printLoadFlowResult(result, writer, asciiTableFormatterFactory, TableFormatterConfig.load());
     }
 
-
     private void exportResult(LoadFlowResult result, ToolRunningContext context, Path outputFile, Format format) {
         context.getOutputStream().println("Writing results to '" + outputFile + "'");
         switch (format) {

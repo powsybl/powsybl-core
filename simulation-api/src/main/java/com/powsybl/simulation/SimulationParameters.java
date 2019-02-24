@@ -36,7 +36,6 @@ public class SimulationParameters {
     private static final String BRANCH_SIDE_ONE_FAULT_SHORT_CIRCUIT_PROPERTY_NAME = "branchSideOneFaultShortCircuitDuration";
     private static final String BRANCH_SIDE_TWO_FAULT_SHORT_CIRCUIT_PROPERTY_NAME = "branchSideTwoFaultShortCircuitDuration";
 
-
     private final double preFaultSimulationStopInstant;
 
     private final double faultEventInstant;
