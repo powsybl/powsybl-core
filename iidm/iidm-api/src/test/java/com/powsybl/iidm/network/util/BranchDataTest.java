@@ -239,7 +239,7 @@ public class BranchDataTest {
         t.branch.end2.tap.rho = 0.997829;
         t.branch.end2.tap.alpha = Math.toRadians(-3.77605);
         return t;
-    };
+    }
 
     // Voltage and angle for bus 1 have been taken from Excel documentation
     // with much more precision that the one found in SV data files

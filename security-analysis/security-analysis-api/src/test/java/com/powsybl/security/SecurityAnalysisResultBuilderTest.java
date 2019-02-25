@@ -69,7 +69,6 @@ public class SecurityAnalysisResultBuilderTest {
         Security.checkLimits(network).forEach(builder::addViolation);
         builder.endPreContingency();
 
-
         vl.getBusView().getBusStream().forEach(b -> b.setV(380));
 
         builder.contingency(new Contingency("contingency1")).setComputationOk(true);

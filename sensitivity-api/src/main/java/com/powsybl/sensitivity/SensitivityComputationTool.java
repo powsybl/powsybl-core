@@ -133,7 +133,6 @@ public class SensitivityComputationTool implements Tool {
         SensitivityFactorsProvider factorsProvider = factorsProviderFactory.create(sensitivityFactorsFile);
         SensitivityComputationResults result = sensitivityComputation.run(factorsProvider, workingStateId, params).join();
 
-
         if (!result.isOk()) {
             context.getErrorStream().println("Initial state divergence");
         } else {

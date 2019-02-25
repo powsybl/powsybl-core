@@ -168,6 +168,7 @@ public interface DataChunk<P extends AbstractPoint, A extends DataChunk<P, A>> {
             this.doubleChunks = Objects.requireNonNull(doubleChunks);
             this.stringChunks = Objects.requireNonNull(stringChunks);
         }
+
         private int offset = -1;
         private List<DoubleDataChunk> doubleChunks;
         private List<StringDataChunk> stringChunks;

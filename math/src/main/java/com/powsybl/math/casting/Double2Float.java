@@ -10,7 +10,6 @@ import java.util.Objects;
 
 public final class Double2Float {
 
-
     public static float safeCasting(double d) {
         if (Double.isNaN(d)) {
             return Float.NaN;
