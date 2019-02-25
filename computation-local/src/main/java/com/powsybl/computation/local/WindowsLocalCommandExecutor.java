@@ -27,6 +27,11 @@ public class WindowsLocalCommandExecutor extends AbstractLocalCommandExecutor {
 
     @Override
     public int execute(String program, List<String> args, Path outFile, Path errFile, Path workingDir, Map<String, String> env) throws IOException, InterruptedException {
+        return execute(program, -1, args, outFile, errFile, workingDir, env);
+    }
+
+    @Override
+    public int execute(String program, long timeoutSecondes, List<String> args, Path outFile, Path errFile, Path workingDir, Map<String, String> env) throws IOException, InterruptedException {
         // set TMP and TEMP to working dir to avoid issues
         Map<String, String> env2 = ImmutableMap.<String, String>builder()
                 .putAll(env)
@@ -56,7 +61,7 @@ public class WindowsLocalCommandExecutor extends AbstractLocalCommandExecutor {
                 .add("/c")
                 .add(internalCmd.toString())
                 .build();
-        return execute(cmdLs, workingDir, outFile, errFile);
+        return execute(cmdLs, workingDir, outFile, errFile, timeoutSecondes);
     }
 
     @Override
