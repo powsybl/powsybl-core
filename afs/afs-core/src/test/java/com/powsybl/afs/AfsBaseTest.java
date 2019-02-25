@@ -122,9 +122,7 @@ public class AfsBaseTest {
             dir51.delete();
             fail();
         } catch (AfsException ignored) {
-
         }
-
 
         Folder dir71 = root.createFolder("dir7");
         Project project4 = dir41.createProject("projet4");

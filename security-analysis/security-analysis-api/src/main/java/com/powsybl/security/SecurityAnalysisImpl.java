@@ -90,7 +90,6 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                         violationDetector.checkAll(network, resultBuilder::addViolation);
                         resultBuilder.endPreContingency();
 
-
                         List<Contingency> contingencies = contingenciesProvider.getContingencies(network);
 
                         futures = new CompletableFuture[contingencies.size()];

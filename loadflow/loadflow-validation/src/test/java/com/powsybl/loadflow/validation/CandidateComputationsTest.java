@@ -83,7 +83,6 @@ public class CandidateComputationsTest {
         assertTrue(ImmutableSet.copyOf(CandidateComputations.getComputationsNames()).containsAll(ImmutableSet.of("dummy", "loadflow")));
     }
 
-
     @Test
     public void listComputations() {
         assertTrue(ImmutableSet.copyOf(CandidateComputations.getComputationsNames()).containsAll(ImmutableSet.of("dummy", "loadflow")));
@@ -126,7 +125,6 @@ public class CandidateComputationsTest {
             };
         }
     }
-
 
     @Test
     public void runLoadFlowMock() {

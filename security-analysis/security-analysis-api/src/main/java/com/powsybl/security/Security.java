@@ -489,7 +489,6 @@ public final class Security {
                             .writeEmptyCell()
                             .writeEmptyCell();
 
-
                     for (String action : postContingencyResult.getLimitViolationsResult().getActionsTaken()) {
                         formatter.writeEmptyCell()
                                 .writeEmptyCell()

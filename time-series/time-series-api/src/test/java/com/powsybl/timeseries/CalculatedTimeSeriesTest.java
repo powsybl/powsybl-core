@@ -219,7 +219,6 @@ public class CalculatedTimeSeriesTest {
         CalculatedTimeSeries tsCalc = new CalculatedTimeSeries("ts_calc", BinaryOperation.plus(new TimeSeriesNameNodeCalc("ts"),
                                                                                                new IntegerNodeCalc(1)));
 
-
         // check versions of the data available for the calculated time series
         tsCalc.setTimeSeriesNameResolver(resolver);
         assertEquals(Sets.newHashSet(1), tsCalc.getVersions());

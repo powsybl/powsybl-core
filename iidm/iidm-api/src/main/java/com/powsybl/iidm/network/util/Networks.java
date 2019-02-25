@@ -237,7 +237,6 @@ public final class Networks {
         }
     }
 
-
     private static String writeInTable(ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
         Writer writer = new StringWriter();
         try (AbstractTableFormatter formatter = new AsciiTableFormatter(writer, null,
@@ -317,7 +316,6 @@ public final class Networks {
             logger.trace("Disconnected shunts in other CC: {}", balanceOtherCC.disconnectedShunts);
         }
     }
-
 
     public static void printGeneratorsSetpointDiff(Network network, Logger logger) {
         for (Generator g : network.getGenerators()) {

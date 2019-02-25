@@ -181,7 +181,7 @@ class VariantManagerImpl implements VariantManager {
     public void allowVariantMultiThreadAccess(boolean allow) {
         if (allow) {
             int index = variantContext.getVariantIndex();
-            variantContext = ThreadLocalMultiVariantContext.INSTANCE;
+            variantContext = new ThreadLocalMultiVariantContext();
             variantContext.setVariantIndex(index);
         } else {
             variantContext = new MultiVariantContext(variantContext.getVariantIndex());

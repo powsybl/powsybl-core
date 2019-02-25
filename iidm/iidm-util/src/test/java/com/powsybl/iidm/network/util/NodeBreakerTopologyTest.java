@@ -51,7 +51,6 @@ public class NodeBreakerTopologyTest {
         assertEquals(3, topo.getSwitchCount());
     }
 
-
     @Test
     public void newStandardConnection() throws Exception {
         Network network = NetworkTest1Factory.create();
