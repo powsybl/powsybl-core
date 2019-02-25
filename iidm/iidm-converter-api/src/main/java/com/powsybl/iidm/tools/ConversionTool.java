@@ -41,7 +41,6 @@ public class ConversionTool implements Tool {
     private static final String OUTPUT_FILE = "output-file";
     private static final String GROOVY_SCRIPT = "groovy-script";
 
-
     protected ImportConfig createImportConfig() {
         return ImportConfig.load();
     }
@@ -134,6 +133,4 @@ public class ConversionTool implements Tool {
         });
         exporter.export(network, outputParams, ds2);
     }
-
-
 }
