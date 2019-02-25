@@ -53,6 +53,6 @@ public class ExternalNetworkInjectionConversion extends AbstractConductingEquipm
         connect(adder);
         Generator g = adder.add();
         convertedTerminals(g.getTerminal());
-        ReactiveLimitsConversion.convert(p, g);
+        convertReactiveLimits(g);
     }
 }
