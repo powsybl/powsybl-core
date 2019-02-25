@@ -348,7 +348,6 @@ public class Conversion {
             return true;
         }
 
-
         public boolean createBusbarSectionForEveryConnectivityNode() {
             return createBusbarSectionForEveryConnectivityNode;
         }
