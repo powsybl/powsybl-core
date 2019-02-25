@@ -25,7 +25,7 @@ public final class LoadFlowMatrix {
     private LoadFlowMatrix() {
     }
 
-    private static Logger LOGGER = LoggerFactory.getLogger(LoadFlowMatrix.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(LoadFlowMatrix.class);
 
     private static Bus getBus(Branch b, Branch.Side s) {
         return b.getTerminal(s).getBusView().getBus();
@@ -45,7 +45,7 @@ public final class LoadFlowMatrix {
         Map<Bus, Integer> index = new HashMap<>();
         IntStream.range(0, buses.size()).forEach(i -> index.put(buses.get(i), i));
 
-        SparseStore<Double> a = SparseStore.PRIMITIVE.make(2 * buses.size(), 2 * buses.size());
+        SparseStore<Double> a = SparseStore.PRIMITIVE.make(2L * buses.size(), 2L * buses.size());
 
         Set<Bus> busGenerators = new HashSet<>();
         for (Generator generator : network.getGenerators()) {
@@ -191,7 +191,9 @@ public final class LoadFlowMatrix {
 
         for (Branch branch : network.getBranches()) {
             DcFlowEquations eq = DcFlowEquations.of(branch);
-            LOGGER.info(eq.toString());
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info(eq.toString());
+            }
             branch.getTerminal1().setP(eq.p1());
             branch.getTerminal2().setP(eq.p2());
         }

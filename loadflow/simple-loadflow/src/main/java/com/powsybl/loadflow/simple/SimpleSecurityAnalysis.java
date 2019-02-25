@@ -49,7 +49,7 @@ public class SimpleSecurityAnalysis extends AbstractSecurityAnalysis {
         LoadFlowParameters postContParameters = loadFlowParameters.copy().setVoltageInitMode(LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES);
 
         LoadFlowResult loadFlowResult = loadFlow.run(workingStateId, loadFlowParameters).join();
-        network.getStateManager().setWorkingState(workingStateId);
+        network.getVariantManager().setWorkingVariant(workingStateId);
         SecurityAnalysisResultBuilder resultBuilder = createResultBuilder(workingStateId);
 
         if (!loadFlowResult.isOk()) {
@@ -72,8 +72,8 @@ public class SimpleSecurityAnalysis extends AbstractSecurityAnalysis {
         for (Contingency contingency : contingencies) {
 
             // run one loadflow per contingency
-            network.getStateManager().cloneState(workingStateId, postContStateId);
-            network.getStateManager().setWorkingState(postContStateId);
+            network.getVariantManager().cloneVariant(workingStateId, postContStateId);
+            network.getVariantManager().setWorkingVariant(postContStateId);
 
             // apply the contingency on the network
             contingency.toTask().modify(network, null);
@@ -84,9 +84,9 @@ public class SimpleSecurityAnalysis extends AbstractSecurityAnalysis {
             violationDetector.checkAll(network, resultBuilder::addViolation);
             resultBuilder.endContingency();
 
-            network.getStateManager().removeState(postContStateId);
+            network.getVariantManager().removeVariant(postContStateId);
         }
-        network.getStateManager().setWorkingState(workingStateId);
+        network.getVariantManager().setWorkingVariant(workingStateId);
 
         return CompletableFuture.completedFuture(resultBuilder.build());
     }

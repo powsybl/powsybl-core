@@ -34,7 +34,6 @@ public class BranchCharacteristics {
     protected double a1;
     protected double a2;
 
-
     public BranchCharacteristics(Branch branch) {
         this.branch = Objects.requireNonNull(branch);
         init();

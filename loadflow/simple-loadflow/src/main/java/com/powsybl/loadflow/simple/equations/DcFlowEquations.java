@@ -14,10 +14,15 @@ import com.powsybl.iidm.network.Branch;
 public interface DcFlowEquations {
 
     double p1();
+
     double p2();
+
     double dp1dph1();
+
     double dp1dph2();
+
     double dp2dph1();
+
     double dp2dph2();
 
     static DcFlowEquations of(Branch branch) {

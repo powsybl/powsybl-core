@@ -100,7 +100,7 @@ public class SimpleLoadFlowTest {
         assertEquals(Double.NaN, line2.getTerminal2().getP(), 0);
 
         LoadFlow lf = new SimpleLoadFlowFactory().create(network, null, 0);
-        lf.run(network.getStateManager().getWorkingStateId(), new LoadFlowParameters());
+        lf.run(network.getVariantManager().getWorkingVariantId(), new LoadFlowParameters());
 
         assertEquals(-300, line1.getTerminal1().getP(), 0.01);
         assertEquals(300, line1.getTerminal2().getP(), 0.01);
@@ -111,7 +111,7 @@ public class SimpleLoadFlowTest {
         network.getLine("NHV1_NHV2_1").getTerminal2().disconnect();
 
         lf = new SimpleLoadFlowFactory().create(network, null, 0);
-        lf.run(network.getStateManager().getWorkingStateId(), new LoadFlowParameters());
+        lf.run(network.getVariantManager().getWorkingVariantId(), new LoadFlowParameters());
 
         assertEquals(0, line1.getTerminal1().getP(), 0.01);
         assertEquals(0, line1.getTerminal2().getP(), 0.01);
@@ -121,7 +121,7 @@ public class SimpleLoadFlowTest {
         network.getLoad("LOAD").setP0(450);
 
         lf = new SimpleLoadFlowFactory().create(network, null, 0);
-        lf.run(network.getStateManager().getWorkingStateId(), new LoadFlowParameters());
+        lf.run(network.getVariantManager().getWorkingVariantId(), new LoadFlowParameters());
 
         assertEquals(0, line1.getTerminal1().getP(), 0.01);
         assertEquals(0, line1.getTerminal2().getP(), 0.01);
@@ -139,7 +139,7 @@ public class SimpleLoadFlowTest {
         ContingenciesProvider provider = n -> ImmutableList.of("NHV1_NHV2_1", "NHV1_NHV2_2").stream()
                 .map(id -> new Contingency(id, new BranchContingency(id)))
                 .collect(Collectors.toList());
-        SecurityAnalysisResult res = securityAnalysis.run(network.getStateManager().getWorkingStateId(), new SecurityAnalysisParameters(), provider)
+        SecurityAnalysisResult res = securityAnalysis.run(network.getVariantManager().getWorkingVariantId(), new SecurityAnalysisParameters(), provider)
                 .join();
 
         assertNotNull(res);

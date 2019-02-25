@@ -168,7 +168,6 @@ public class FlowEquations {
         return -y * r1 * r2 * v1 * v2 * Math.sin(ksi + a1 - a2 + ph1 - ph2);
     }
 
-
     @Override
     public String toString() {
         return ImmutableMap.builder()

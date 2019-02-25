@@ -40,7 +40,7 @@ import java.util.concurrent.CompletableFuture;
  */
 public class SimpleLoadFlow implements LoadFlow {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(SimpleLoadFlow.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(SimpleLoadFlow.class);
 
     private final Network network;
 
@@ -51,7 +51,7 @@ public class SimpleLoadFlow implements LoadFlow {
     @Override
     public CompletableFuture<LoadFlowResult> run(String state, LoadFlowParameters loadFlowParameters) {
 
-        network.getStateManager().setWorkingState(state);
+        network.getVariantManager().setWorkingVariant(state);
 
         //initialize phase and voltage
         switch (loadFlowParameters.getVoltageInitMode()) {
