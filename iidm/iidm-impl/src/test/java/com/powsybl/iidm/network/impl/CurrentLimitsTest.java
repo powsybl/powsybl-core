@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
 import org.junit.Test;
+
 import static org.junit.Assert.*;
 
 /**

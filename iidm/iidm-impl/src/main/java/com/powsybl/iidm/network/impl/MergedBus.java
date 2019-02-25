@@ -219,8 +219,6 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
         return Iterables.concat(iterables);
     }
 
-
-
     @Override
     public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
         checkValidity();

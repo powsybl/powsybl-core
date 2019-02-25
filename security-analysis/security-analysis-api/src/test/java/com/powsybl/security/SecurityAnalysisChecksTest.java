@@ -38,7 +38,6 @@ public class SecurityAnalysisChecksTest {
     public void checkCurrentLimits() {
         Line line = network.getLine("NHV1_NHV2_1");
 
-
         List<LimitViolation> violations = new ArrayList<>();
         LimitViolationDetector detector = new DefaultLimitViolationDetector(Collections.singleton(Security.CurrentLimitType.PATL));
         detector.checkCurrent(line, Branch.Side.TWO, 1101, violations::add);

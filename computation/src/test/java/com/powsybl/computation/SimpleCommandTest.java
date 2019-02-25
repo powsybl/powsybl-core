@@ -77,7 +77,6 @@ public class SimpleCommandTest {
         assertEquals(ImmutableList.of("--opt1=val1", "--opt2=val2-3", "--flag2"), cmd1.getArgs(3));
     }
 
-
     @Test(expected = RuntimeException.class)
     public void testErrorTimeout() {
         new SimpleCommandBuilder()

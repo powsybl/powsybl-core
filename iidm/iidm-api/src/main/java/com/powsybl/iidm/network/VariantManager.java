@@ -8,6 +8,7 @@ package com.powsybl.iidm.network;
 
 import java.util.Collection;
 import java.util.List;
+
 /**
  * This class provides methods to manage variants of the network (create and
  * remove a variant, set the working variant, etc).
