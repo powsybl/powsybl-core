@@ -153,7 +153,7 @@ public class DistributedSecurityAnalysis extends ExternalSecurityAnalysis {
             SecurityAnalysisResult re = simpleSubTaskHandler.after(workingDir, report);
             archiveLogs(workingDir);
             compressLogs(workingDir);
-            workingDir.resolve(SA_LOG_TAR).toFile().delete();
+            Files.delete(workingDir.resolve(SA_LOG_TAR));
             return new SecurityAnalysisResultWithLog(re, workingDir.resolve(SA_LOG_TAR_GZ).toFile());
         }
 
