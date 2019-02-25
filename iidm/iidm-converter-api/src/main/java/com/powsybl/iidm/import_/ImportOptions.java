@@ -50,7 +50,6 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
         return this;
     }
 
-
     public boolean isThrowExceptionIfExtensionNotFound() {
         return throwExceptionIfExtensionNotFound;
     }
@@ -62,10 +61,4 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
     public boolean isImportFromBaseAndMultipleExtensionFiles() {
         return this.mode == IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE;
     }
-
-
-
-
-
-
 }

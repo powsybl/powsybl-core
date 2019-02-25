@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
@@ -18,7 +17,6 @@ import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
-
 
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -32,7 +30,6 @@ import static org.junit.Assert.*;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class XMLImporterTest extends AbstractConverterTest {
-
 
     private XMLImporter importer;
 

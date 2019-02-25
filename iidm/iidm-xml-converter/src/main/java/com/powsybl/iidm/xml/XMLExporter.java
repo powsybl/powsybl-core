@@ -73,7 +73,6 @@ public class XMLExporter implements Exporter {
     public static final String EXTENSIONS_LIST = "iidm.import.xml.extensions";
     public static final String SKIP_EXTENSIONS = "iidm.export.xml.skip-extensions";
 
-
     private static final Parameter INDENT_PARAMETER = new Parameter(INDENT, ParameterType.BOOLEAN, "Indent export output file", Boolean.TRUE);
     private static final Parameter WITH_BRANCH_STATE_VARIABLES_PARAMETER = new Parameter(WITH_BRANCH_STATE_VARIABLES, ParameterType.BOOLEAN, "Export network with branch state variables", Boolean.TRUE);
     private static final Parameter ONLY_MAIN_CC_PARAMETER = new Parameter(ONLY_MAIN_CC, ParameterType.BOOLEAN, "Export only main CC", Boolean.FALSE);
@@ -92,7 +91,6 @@ public class XMLExporter implements Exporter {
     public XMLExporter(PlatformConfig platformConfig) {
         defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
     }
-
 
     @Override
     public String getFormat() {

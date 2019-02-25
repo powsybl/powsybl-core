@@ -33,7 +33,6 @@ public class XmlExporterImporterBaseOneExtensionPerFile extends AbstractConverte
         exportProperties.put(XMLExporter.EXPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
         exportProperties.put(XMLExporter.EXTENSIONS_LIST, extensions);
 
-
         MemDataSource dataSource = new MemDataSource();
 
         new XMLExporter().export(network, exportProperties, dataSource);
@@ -67,7 +66,6 @@ public class XmlExporterImporterBaseOneExtensionPerFile extends AbstractConverte
         assertEquals(network.getSubstationCount(), n.getSubstationCount());
         assertEquals(network.getVoltageLevelCount(), n.getVoltageLevelCount());
     }
-
 
     @Test
     public void test() throws IOException {

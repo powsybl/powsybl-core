@@ -57,8 +57,6 @@ public class XMLImporter implements Importer {
 
     public static final String EXTENSIONS_LIST = "iidm.import.xml.extensions";
 
-
-
     private static final Parameter IMPORT_MODE_PARAMETER
             = new Parameter(IMPORT_MODE, ParameterType.STRING, "import mode", String.valueOf(IidmImportExportMode.NO_SEPARATED_FILE_FOR_EXTENSIONS));
 
@@ -179,7 +177,6 @@ public class XMLImporter implements Importer {
                 .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
                 .setMode(IidmImportExportMode.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, IMPORT_MODE_PARAMETER, defaultValueConfig)))
                 .setExtensions(new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)));
-
 
         Anonymizer anonymizer = null;
         long startTime = System.currentTimeMillis();

@@ -44,7 +44,6 @@ public class NetworkXmlReaderContext extends AbstractConverterContext<ImportOpti
         return endTasks;
     }
 
-
     @Override
     public ImportOptions getOptions() {
         return options;

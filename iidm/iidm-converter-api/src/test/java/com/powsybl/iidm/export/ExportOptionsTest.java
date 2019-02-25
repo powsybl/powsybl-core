@@ -67,6 +67,4 @@ public class ExportOptionsTest {
         assertEquals(Boolean.FALSE, options.isThrowExceptionIfExtensionNotFound());
         assertEquals(1, options.getExtensions().size());
     }
-
-
 }

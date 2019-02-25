@@ -52,13 +52,11 @@ public class XmlExporterBaseOneExtensionPerFile extends AbstractConverterTest {
         }
     }
 
-
     @Test(expected = NullPointerException.class)
     public void exportOneExtensionTypeTest() throws IOException {
         List<String> extensionsList = Arrays.asList("loadBar");
         exporterOneFilePerExtensionType(MultipleExtensionsTestNetworkFactory.create(), "/multiple-extensions.xiidm", extensionsList);
     }
-
 
     @Test
     public void getIdentifiablesPerExtensionTypeTest() {

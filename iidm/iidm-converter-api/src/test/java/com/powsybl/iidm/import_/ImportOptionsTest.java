@@ -28,7 +28,6 @@ public class ImportOptionsTest {
         assertEquals(Boolean.TRUE, options.isImportFromBaseAndMultipleExtensionFiles());
         assertEquals(Boolean.FALSE, options.isImportFromBaseAndExtensionsFiles());
 
-
         Set<String> extensionsList = Sets.newHashSet("loadFoo", "loadBar");
         options.setExtensions(extensionsList);
         assertEquals(Boolean.FALSE, options.withNoExtension());
@@ -61,5 +60,4 @@ public class ImportOptionsTest {
         assertEquals(1, options.getExtensions().size());
         assertEquals(Boolean.TRUE, options.withAllExtensions());
     }
-
 }

@@ -165,7 +165,6 @@ public final class NetworkXml {
         }
     }
 
-
     private static void writeExtension(Extension<? extends Identifiable<?>> extension, NetworkXmlWriterContext context) throws XMLStreamException {
         XMLStreamWriter writer = context.getExtensionswWriter();
         ExtensionXmlSerializer extensionXmlSerializer = getExtensionXmlSerializer(context.getOptions(),
@@ -238,7 +237,6 @@ public final class NetworkXml {
         writer.writeAttribute(SOURCE_FORMAT, n.getSourceFormat());
         return writer;
     }
-
 
     private static void writeEndElement(XMLStreamWriter writer) throws XMLStreamException {
         writer.writeEndElement();
@@ -313,7 +311,6 @@ public final class NetworkXml {
         }
     }
 
-
     public static Anonymizer write(Network n, OutputStream os) {
         return write(n, new ExportOptions(), os);
     }
@@ -385,7 +382,6 @@ public final class NetworkXml {
         return read(is, new ImportOptions(), null);
     }
 
-
     public static void runEndTasks(NetworkXmlReaderContext context, Set<String> extensionNamesNotFound, ImportOptions config) {
         context.getEndTasks().forEach(Runnable::run);
 
@@ -397,6 +393,7 @@ public final class NetworkXml {
             }
         }
     }
+
     public static Network read(InputStream is, ImportOptions config, Anonymizer anonymizer) {
         try {
             XMLStreamReader reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);

@@ -119,7 +119,6 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         return this;
     }
 
-
     public boolean isThrowExceptionIfExtensionNotFound() {
         return throwExceptionIfExtensionNotFound;
     }
