@@ -6,7 +6,6 @@
  */
 package com.powsybl.security;
 
-
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.plugins.PluginInfo;
 
