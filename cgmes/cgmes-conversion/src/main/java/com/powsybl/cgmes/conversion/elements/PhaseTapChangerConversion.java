@@ -105,6 +105,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                 .setTapPosition(position);
 
         if (tabular()) {
+            LOG.debug("ACTUAL side {}, tx {}, id {}", side, tx.getId(), id);
             addStepsFromTable(ptca);
         } else {
             double du0 = du0();
@@ -158,9 +159,14 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             // We have to merge previous explicit corrections defined for the tap
             // with dz, dy that appear when moving ideal ratio to side 1
             // R' = R * (1 + r/100) * (1 + dz/100) ==> r' = r + dz + r * dz / 100
+
+            // For alpha and rho: IIDM convention is opposite to CGMES convention
+            // In IIDM, we have V2 = rho * exp(j * alpha) * V1 with PTC on terminal 1 (always)
+            // whereas in CGMES we have V1 = rho * exp(j * alpha) * V2 on terminal 1 and
+            // V2 = rho * exp(j * alpha) * V1 on terminal 2
             ptca.beginStep()
-                    .setAlpha(alpha * (side == 1 ? 1 : -1))
-                    .setRho(side == 1 ? rho : 1 / rho)
+                    .setAlpha(alpha * (side == 1 ? -1 : 1))
+                    .setRho(side == 1 ? 1 / rho : rho)
                     .setR(r + dz + r * dz / 100)
                     .setX(x + dz + r * dz / 100)
                     .setG(g + dy + g * dy / 100)
@@ -415,15 +421,10 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         Terminal treg = context.terminalMapping().find(p.getId("RegulatingControlTerminal"));
         boolean regulatingControlEnabled  = p.asBoolean(REGULATING_CONTROL_ENABLED, true);
         double targetV = p.asDouble("regulatingControlTargetValue");
-        if (side == 1) {
-            targetV *= tx.getRatedU1();
-        } else {
-            targetV *= tx.getRatedU2();
-        }
         ptca.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulationValue(regulationValue(targetV, treg))
                 .setRegulating(regulatingControlEnabled)
-                .setRegulationTerminal(regTerminal());
+                .setRegulationTerminal(treg);
     }
 
     private void addActivePowerRegControl(PhaseTapChangerAdder ptca) {
@@ -431,7 +432,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         boolean regulatingControlEnabled  = p.asBoolean(REGULATING_CONTROL_ENABLED, true);
         double targetV = -p.asDouble("regulatingControlTargetValue");
         ptca.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
-                .setRegulationTerminal(regTerminal())
+                .setRegulationTerminal(treg)
                 .setRegulating(regulatingControlEnabled)
                 .setRegulationValue(regulationValue(targetV, treg));
     }
@@ -441,14 +442,6 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             return -targetV;
         }
         return targetV;
-    }
-
-    private Terminal regTerminal() {
-        if (side == 1) {
-            return tx.getTerminal1();
-        } else {
-            return tx.getTerminal2();
-        }
     }
 
     private boolean validType() {
