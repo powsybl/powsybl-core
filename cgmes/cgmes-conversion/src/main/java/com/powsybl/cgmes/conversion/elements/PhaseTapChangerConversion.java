@@ -130,11 +130,15 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         String tableId = p.getId("PhaseTapChangerTable");
         LOG.debug("PhaseTapChanger {} table {}", id, tableId);
         PropertyBags table = context.cgmes().phaseTapChangerTable(tableId);
+        if (table.isEmpty()) {
+            missing("points for PhaseTapChangerTable " + tableId);
+            return;
+        }
         Comparator<PropertyBag> byStep = Comparator.comparingInt((PropertyBag p) -> p.asInt("step"));
         table.sort(byStep);
         for (PropertyBag point : table) {
             double alpha = point.asDouble("angle");
-            double rho = point.asDouble("ratio");
+            double rho = point.asDouble("ratio", 1.0);
             // When given in PhaseTapChangerTablePoint
             // r, x, g, b of the step are already percentage deviations of nominal values
             double r = point.asDouble("r", 0);

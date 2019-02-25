@@ -543,11 +543,11 @@ WHERE {
         a cim:PhaseTapChangerTablePoint ;
         cim:PhaseTapChangerTablePoint.PhaseTapChangerTable ?Table ;
         cim:PhaseTapChangerTablePoint.angle ?angle ;
-        cim:TapChangerTablePoint.ratio ?ratio ;
         cim:TapChangerTablePoint.step ?step .
     FILTER regex(str(?Table), "{0}")
     OPTIONAL {
         ?PhaseTapChangerTablePoint
+            cim:TapChangerTablePoint.ratio ?ratio ;
             cim:TapChangerTablePoint.r ?r ;
             cim:TapChangerTablePoint.x ?x ;
             cim:TapChangerTablePoint.g ?g ;
