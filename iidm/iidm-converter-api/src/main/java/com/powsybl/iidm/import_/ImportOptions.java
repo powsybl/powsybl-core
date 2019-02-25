@@ -19,12 +19,6 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
 
     private boolean throwExceptionIfExtensionNotFound = false;
 
-    public ImportOptions(boolean throwExceptionIfExtensionNotFound, IidmImportExportMode mode, Set<String> extensions) {
-        super(extensions);
-        this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
-        this.mode = mode;
-    }
-
     public ImportOptions() {
         super();
     }

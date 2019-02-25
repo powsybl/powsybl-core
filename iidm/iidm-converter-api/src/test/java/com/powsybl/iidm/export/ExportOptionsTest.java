@@ -7,10 +7,11 @@
 package com.powsybl.iidm.export;
 
 import com.google.common.collect.Sets;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.IidmImportExportMode;
+import com.powsybl.iidm.network.TopologyLevel;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -22,9 +23,10 @@ import static org.junit.Assert.*;
 public class ExportOptionsTest {
 
     @Test
-    public void importOptionsTest() throws IOException {
+    public void exportOptionsTest() {
         ExportOptions options = new ExportOptions();
         options.setMode(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE);
+        assertEquals(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE, options.getMode());
         assertEquals(Boolean.TRUE, options.isOneFilePerExtensionType());
         assertEquals(Boolean.FALSE, options.isSeparateBaseAndExtensions());
 
@@ -38,6 +40,33 @@ public class ExportOptionsTest {
         assertEquals(Boolean.TRUE, options.isIndent());
         assertEquals(Boolean.TRUE, options.isWithBranchSV());
 
+        options.addExtension("loadTest");
+        assertEquals(3, options.getExtensions().size());
+        assertEquals(Boolean.FALSE, options.isSkipExtensions());
     }
+
+    @Test(expected = PowsyblException.class)
+    public void exportOptionsTest2() {
+        ExportOptions options = new ExportOptions();
+        options.setMode(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE);
+        options.setSkipExtensions(Boolean.TRUE);
+        Set<String> extensionsList = Sets.newHashSet("loadFoo", "loadBar");
+        options.setExtensions(extensionsList);
+    }
+
+    @Test
+    public void exportOptionsTest3() {
+        Set<String> extensionsList = Sets.newHashSet("loadFoo");
+
+        ExportOptions options = new ExportOptions(Boolean.TRUE, Boolean.TRUE, Boolean.FALSE, TopologyLevel.BUS_BREAKER, Boolean.FALSE);
+        options.setExtensions(extensionsList);
+        assertEquals(Boolean.TRUE, options.isWithBranchSV());
+        assertEquals(Boolean.TRUE, options.isIndent());
+        assertEquals(Boolean.FALSE, options.isOnlyMainCc());
+        assertEquals(TopologyLevel.BUS_BREAKER, options.getTopologyLevel());
+        assertEquals(Boolean.FALSE, options.isThrowExceptionIfExtensionNotFound());
+        assertEquals(1, options.getExtensions().size());
+    }
+
 
 }

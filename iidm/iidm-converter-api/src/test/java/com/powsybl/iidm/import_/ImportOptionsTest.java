@@ -10,7 +10,6 @@ import com.google.common.collect.Sets;
 import com.powsybl.iidm.IidmImportExportMode;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
@@ -22,9 +21,10 @@ import static org.junit.Assert.assertEquals;
 public class ImportOptionsTest {
 
     @Test
-    public void importOptionsTest() throws IOException {
+    public void importOptionsTest() {
         ImportOptions options = new ImportOptions();
         options.setMode(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE);
+
         assertEquals(Boolean.TRUE, options.isImportFromBaseAndMultipleExtensionFiles());
         assertEquals(Boolean.FALSE, options.isImportFromBaseAndExtensionsFiles());
 
@@ -32,6 +32,34 @@ public class ImportOptionsTest {
         Set<String> extensionsList = Sets.newHashSet("loadFoo", "loadBar");
         options.setExtensions(extensionsList);
         assertEquals(Boolean.FALSE, options.withNoExtension());
+
+        options.addExtension("loadBar");
+        assertEquals(2, options.getExtensions().size());
+    }
+
+    @Test
+    public void importOptionsTest2() {
+        Set<String> extensionsList = Sets.newHashSet("loadFoo", "loadBar");
+        ImportOptions options = new ImportOptions(Boolean.FALSE);
+        options.setExtensions(extensionsList);
+
+        assertEquals(Boolean.FALSE, options.isThrowExceptionIfExtensionNotFound());
+        assertEquals(Boolean.FALSE, options.isImportFromBaseAndMultipleExtensionFiles());
+        assertEquals(Boolean.FALSE, options.isImportFromBaseAndExtensionsFiles());
+        assertEquals(Boolean.FALSE, options.withNoExtension());
+        assertEquals(2, options.getExtensions().size());
+    }
+
+    @Test
+    public void importOptionsDefaultValues() {
+        ImportOptions options = new ImportOptions(Boolean.FALSE);
+
+        assertEquals(Boolean.FALSE, options.isThrowExceptionIfExtensionNotFound());
+        assertEquals(Boolean.FALSE, options.isImportFromBaseAndMultipleExtensionFiles());
+        assertEquals(Boolean.FALSE, options.isImportFromBaseAndExtensionsFiles());
+        assertEquals(Boolean.FALSE, options.withNoExtension());
+        assertEquals(1, options.getExtensions().size());
+        assertEquals(Boolean.TRUE, options.withAllExtensions());
     }
 
 }

@@ -60,7 +60,7 @@ public class XMLImporterExporterBaseEXtensions extends AbstractConverterTest {
     }
 
     @Test
-    public void test() throws IOException {
+    public void importExportBaseExtensions() throws IOException {
         importExport("/multiple-extensions.xiidm",
                 "/multiple-extensions-ext.xiidm");
     }

@@ -195,9 +195,7 @@ public final class NetworkXml {
     }
 
     public static Map<String, Set<String>> getIdentifiablesPerExtensionType(Network n) {
-
         Map<String, Set<String>> extensionsPerType = new HashMap<>();
-
         for (Identifiable<?> identifiable : n.getIdentifiables()) {
             for (Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
                 extensionsPerType.computeIfAbsent(extension.getName(), key -> new HashSet<>()).add(identifiable.getId());
@@ -209,7 +207,6 @@ public final class NetworkXml {
     private static void writeExtensions(Network n, NetworkXmlWriterContext context, ExportOptions options) throws XMLStreamException {
 
         for (Identifiable<?> identifiable : n.getIdentifiables()) {
-
             Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions();
             if (!context.isExportedEquipment(identifiable) || extensions.isEmpty()) {
                 continue;

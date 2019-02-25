@@ -18,10 +18,6 @@ public abstract class AbstractOptions<T> {
 
     protected IidmImportExportMode mode = IidmImportExportMode.NO_SEPARATED_FILE_FOR_EXTENSIONS;
 
-    public AbstractOptions(Set<String> extensions) {
-        this.extensions = extensions;
-    }
-
     public AbstractOptions() {
     }
 

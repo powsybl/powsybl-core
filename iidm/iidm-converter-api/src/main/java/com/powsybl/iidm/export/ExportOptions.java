@@ -28,20 +28,14 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     private boolean anonymized = false;
 
+    private boolean extensionsExplicitlySet = false;
+
     private TopologyLevel topologyLevel = TopologyLevel.NODE_BREAKER;
 
     private boolean throwExceptionIfExtensionNotFound = false;
 
     public ExportOptions() {
-    }
-
-    public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound, Set<String> extensions) {
-        super(extensions);
-        this.withBranchSV = withBranchSV;
-        this.indent = indent;
-        this.onlyMainCc = onlyMainCc;
-        this.topologyLevel = Objects.requireNonNull(topologyLevel);
-        this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
+        super();
     }
 
     public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound) {
@@ -117,7 +111,11 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     @Override
     public ExportOptions setExtensions(Set<String> extensions) {
+        if (this.extensions.isEmpty()) {
+            throw new PowsyblException("Contradictory behavior: you have already set skipExtensions to true");
+        }
         this.extensions = extensions;
+        this.extensionsExplicitlySet = Boolean.TRUE;
         return this;
     }
 
@@ -143,15 +141,26 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         return this.mode == IidmImportExportMode.NO_SEPARATED_FILE_FOR_EXTENSIONS;
     }
 
+    /**
+     * @deprecated Use {@link #withNoExtension()} instead.
+     */
+    @Deprecated
     public boolean isSkipExtensions() {
         return this.extensions.isEmpty();
     }
 
+    /**
+     * @deprecated Use {@link #setExtensions(Set<String>)} instead.
+     * Pass an empty Set as parameter
+     */
+    @Deprecated
     public ExportOptions setSkipExtensions(boolean skipExtensions) {
-        if (!extensions.isEmpty() && skipExtensions) {
-            throw new PowsyblException("Contradictory behavior : You have already passed  a list of extensions");
+        if (skipExtensions && extensionsExplicitlySet) {
+            throw new PowsyblException("Contradictory behavior: you have already pass an extensions list");
         }
-        this.extensions.clear();
+        if (skipExtensions) {
+            this.extensions.clear();
+        }
         return this;
     }
 

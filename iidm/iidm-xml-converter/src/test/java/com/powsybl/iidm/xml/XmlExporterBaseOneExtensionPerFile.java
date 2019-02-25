@@ -61,7 +61,7 @@ public class XmlExporterBaseOneExtensionPerFile extends AbstractConverterTest {
 
 
     @Test
-    public void getExtensionsPerTypeTest() {
+    public void getIdentifiablesPerExtensionTypeTest() {
         Network n = MultipleExtensionsTestNetworkFactory.create();
         Map<String, Set<String>> m = NetworkXml.getIdentifiablesPerExtensionType(n);
         assertEquals(2, m.size());

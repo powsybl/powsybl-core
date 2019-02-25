@@ -52,7 +52,7 @@ public class XmlExporterBaseExtensions  extends AbstractConverterTest {
     }
 
     @Test
-    public void test() throws IOException {
+    public void exportBaseExtensions() throws IOException {
         exporterTestBaseExtensions(MultipleExtensionsTestNetworkFactory.create(),
                 "/multiple-extensions.xiidm",
                 "/multiple-extensions-ext.xiidm");

@@ -23,9 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Properties;
+import java.util.*;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.*;
 
@@ -83,7 +81,7 @@ public class XMLExporter implements Exporter {
     private static final Parameter TOPOLOGY_LEVEL_PARAMETER = new Parameter(TOPOLOGY_LEVEL, ParameterType.STRING, "Export network in this topology level", "NODE_BREAKER");
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE);
     private static final Parameter EXPORT_MODE_PARAMETER = new Parameter(EXPORT_MODE, ParameterType.STRING, "export each extension in a separate file", String.valueOf(IidmImportExportMode.NO_SEPARATED_FILE_FOR_EXTENSIONS));
-    private static final Parameter EXTENSIONS_LIST_PARAMETER = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The mode of export ", Arrays.asList("ALL"));
+    private static final Parameter EXTENSIONS_LIST_PARAMETER = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The export mode", Collections.singletonList("ALL"));
     private static final Parameter SKIP_EXTENSIONS_PARAMETER = new Parameter(SKIP_EXTENSIONS, ParameterType.BOOLEAN, "Skip exporting the extensions", Boolean.FALSE);
     private final ParameterDefaultValueConfig defaultValueConfig;
 
@@ -111,7 +109,6 @@ public class XMLExporter implements Exporter {
         if (network == null) {
             throw new IllegalArgumentException("network is null");
         }
-
         ExportOptions options = new ExportOptions()
                 .setIndent(ConversionParameters.readBooleanParameter(getFormat(), parameters, INDENT_PARAMETER, defaultValueConfig))
                 .setWithBranchSV(ConversionParameters.readBooleanParameter(getFormat(), parameters, WITH_BRANCH_STATE_VARIABLES_PARAMETER, defaultValueConfig))
@@ -120,8 +117,8 @@ public class XMLExporter implements Exporter {
                 .setTopologyLevel(TopologyLevel.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, TOPOLOGY_LEVEL_PARAMETER, defaultValueConfig)))
                 .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
                 .setMode(IidmImportExportMode.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, EXPORT_MODE_PARAMETER, defaultValueConfig)))
-                .setExtensions(new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)))
-                .setSkipExtensions(ConversionParameters.readBooleanParameter(getFormat(), parameters, SKIP_EXTENSIONS_PARAMETER, defaultValueConfig));
+                .setSkipExtensions(ConversionParameters.readBooleanParameter(getFormat(), parameters, SKIP_EXTENSIONS_PARAMETER, defaultValueConfig))
+                .setExtensions(new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)));
         try {
             long startTime = System.currentTimeMillis();
             NetworkXml.write(network, options, dataSource);
