@@ -131,22 +131,24 @@ public class PropertyBagTest {
         assertEquals(Double.NaN, numbers.asDouble("missingValue"), 1e-15);
     }
 
-    @Test(expected = NumberFormatException.class)
-    public void testBadFloat0() {
+    @Test
+    public void testBadFloatValues() {
+        // Bad values for doubles return a NaN instead of throwing a number format exception
+
+        numbers.put("value", "nan(ind)");
+        assertEquals(Double.NaN, numbers.asDouble("value", -1), 1e-15);
+
+        numbers.put("value", "-nan(ind)");
+        assertEquals(Double.NaN, numbers.asDouble("value", -1), 1e-15);
+
         numbers.put("value", "bad0");
-        numbers.asDouble("value", -1);
-    }
+        assertEquals(Double.NaN, numbers.asDouble("value", -1), 1e-15);
 
-    @Test(expected = NumberFormatException.class)
-    public void testBadFloat1() {
         numbers.put("value", "bad 1");
-        numbers.asDouble("value", -1);
-    }
+        assertEquals(Double.NaN, numbers.asDouble("value", -1), 1e-15);
 
-    @Test(expected = NumberFormatException.class)
-    public void testBadFloat2() {
         numbers.put("value", "2 bad");
-        numbers.asDouble("value", -1);
+        assertEquals(Double.NaN, numbers.asDouble("value", -1), 1e-15);
     }
 
     @Test
@@ -169,7 +171,7 @@ public class PropertyBagTest {
     @Test(expected = NumberFormatException.class)
     public void testBadInt0() {
         ints.put("value", "bad0");
-        ints.asDouble("value", -1);
+        ints.asInt("value", -1);
     }
 
     @Test

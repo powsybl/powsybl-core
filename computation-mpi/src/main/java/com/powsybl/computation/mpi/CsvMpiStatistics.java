@@ -58,6 +58,7 @@ public class CsvMpiStatistics implements MpiStatistics {
             final int jobId;
             final String commandId;
             final Map<String, String> tags;
+
             private JobExecution(int jobId, String commandId, Map<String, String> tags) {
                 this.jobId = jobId;
                 this.commandId = commandId;

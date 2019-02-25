@@ -240,7 +240,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             return this;
         }
 
-
         @Override
         public void add() {
             if (node1 == null) {

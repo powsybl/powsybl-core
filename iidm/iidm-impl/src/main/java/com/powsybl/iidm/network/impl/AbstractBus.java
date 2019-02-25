@@ -163,7 +163,6 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
         return getConnectableStream(ThreeWindingsTransformer.class);
     }
 
-
     @Override
     public Iterable<Load> getLoads() {
         return getConnectables(Load.class);
