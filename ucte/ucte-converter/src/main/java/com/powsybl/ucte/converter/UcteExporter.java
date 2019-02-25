@@ -220,13 +220,23 @@ public class UcteExporter implements Exporter {
                     100,
                     (float) twoWindingsTransformer.getG()); //TODO Find a representation for the nominal power
 
-            if (twoWindingsTransformer.getRatioTapChanger() != null && twoWindingsTransformer.getPhaseTapChanger() != null) {
-                UctePhaseRegulation uctePhaseRegulation = createRatioTapChanger(twoWindingsTransformer);
-                UcteAngleRegulation ucteAngleRegulation = createPhaseTapChanger(twoWindingsTransformer);
-                UcteRegulation ucteRegulation = new UcteRegulation(ucteElementId, uctePhaseRegulation, ucteAngleRegulation);
-                ucteNetwork.addRegulation(ucteRegulation);
-            }
+            createRegulation(ucteNetwork, ucteElementId, twoWindingsTransformer);
             ucteNetwork.addTransformer(ucteTransformer);
+        }
+    }
+
+    void createRegulation(UcteNetwork ucteNetwork, UcteElementId ucteElementId, TwoWindingsTransformer twoWindingsTransformer) {
+        if (twoWindingsTransformer.getRatioTapChanger() != null || twoWindingsTransformer.getPhaseTapChanger() != null) {
+            UctePhaseRegulation uctePhaseRegulation = null;
+            UcteAngleRegulation ucteAngleRegulation = null;
+            if (twoWindingsTransformer.getRatioTapChanger() != null) {
+                uctePhaseRegulation = createRatioTapChanger(twoWindingsTransformer);
+            }
+            if (twoWindingsTransformer.getPhaseTapChanger() != null) {
+                ucteAngleRegulation = createPhaseTapChanger(twoWindingsTransformer);
+            }
+            UcteRegulation ucteRegulation = new UcteRegulation(ucteElementId, uctePhaseRegulation, ucteAngleRegulation);
+            ucteNetwork.addRegulation(ucteRegulation);
         }
     }
 
@@ -237,10 +247,13 @@ public class UcteExporter implements Exporter {
         LOGGER.info("TapPosition = {}", twoWindingsTransformer.getRatioTapChanger().getTapPosition());
         LOGGER.info("StepCount = {}", twoWindingsTransformer.getRatioTapChanger().getStepCount());
         LOGGER.info("HighTapPosition = {}", twoWindingsTransformer.getRatioTapChanger().getHighTapPosition());
-        UctePhaseRegulation uctePhaseRegulation = new UctePhaseRegulation(0.51f,
+
+        float du = (float) calculateDu(twoWindingsTransformer);
+        UctePhaseRegulation uctePhaseRegulation = new UctePhaseRegulation(
+                du,
                 twoWindingsTransformer.getRatioTapChanger().getHighTapPosition(),
                 twoWindingsTransformer.getRatioTapChanger().getTapPosition(),
-                65.4f); //Todo find how to fill DU and u
+                Float.NaN);
         if (!Double.isNaN(twoWindingsTransformer.getRatioTapChanger().getTargetV())) {
             uctePhaseRegulation.setU((float) twoWindingsTransformer.getRatioTapChanger().getTargetV());
         }
@@ -260,6 +273,30 @@ public class UcteExporter implements Exporter {
                 twoWindingsTransformer.getPhaseTapChanger().getTapPosition(),
                 4f,
                 UcteAngleRegulationType.SYMM); //TODO find how to fill the theta, p and ucteAngleregulation
+    }
+
+    double calculateDu(TwoWindingsTransformer twoWindingsTransformer) {
+        double du = 0;
+        boolean passedBy0 = false;
+        for (int i = twoWindingsTransformer.getRatioTapChanger().getLowTapPosition();
+             i < twoWindingsTransformer.getRatioTapChanger().getHighTapPosition();
+             i++) {
+            if (i != 0) {
+                double rho = twoWindingsTransformer.getRatioTapChanger().getStep(i).getRho();
+                du += (100 * (1 / rho - 1)) / i;
+            } else {
+                passedBy0 = true;
+            }
+        }
+        if (passedBy0) {
+            return du /
+                    (twoWindingsTransformer.getRatioTapChanger().getHighTapPosition() -
+                            twoWindingsTransformer.getRatioTapChanger().getLowTapPosition() - 1);
+        } else {
+            return du /
+                    (twoWindingsTransformer.getRatioTapChanger().getHighTapPosition() -
+                            twoWindingsTransformer.getRatioTapChanger().getLowTapPosition());
+        }
     }
 
     private void createLines(UcteNetwork ucteNetwork, Network network) {
