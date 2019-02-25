@@ -99,7 +99,6 @@ public class ParallelLoadFlowActionSimulator {
      */
     private final class SubTaskHandler extends AbstractExecutionHandler<SecurityAnalysisResult> {
 
-
         private final int actualTaskCount;
         private final String script;
         private final List<String> contingencyIds;

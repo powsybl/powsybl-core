@@ -282,16 +282,12 @@ public class ActionSimulatorTool implements Tool {
                 // start simulator
                 actionSimulator.start(actionDb, contingencies);
             }
-
-
         } catch (Exception e) {
             LOGGER.trace(e.toString(), e); // to avoid user screen pollution...
             Throwable rootCause = StackTraceUtils.sanitizeRootCause(e);
             rootCause.printStackTrace(context.getErrorStream());
         }
     }
-
-
 
     private ActionSimulator createActionSimulator(Network network, ToolRunningContext context, CommandLine line,
                                                   LoadFlowActionSimulatorConfig config, boolean applyIfSolved,

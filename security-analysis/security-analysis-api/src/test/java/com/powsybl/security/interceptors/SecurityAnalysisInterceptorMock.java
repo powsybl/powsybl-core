@@ -35,8 +35,6 @@ public class SecurityAnalysisInterceptorMock extends DefaultSecurityAnalysisInte
 
         assertRunningContext(context);
         assertPostContingencyResult(postContingencyResult);
-
-
     }
 
     @Override

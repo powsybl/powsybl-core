@@ -23,7 +23,6 @@ public class ScalableActionTest {
     private Generator g2;
     private Generator g3;
 
-
     @Before
     public void setUp() {
         network = EurostagTutorialExample1Factory.create();

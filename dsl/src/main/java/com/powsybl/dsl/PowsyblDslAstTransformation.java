@@ -19,7 +19,6 @@ import org.codehaus.groovy.transform.GroovyASTTransformation;
 @GroovyASTTransformation
 public class PowsyblDslAstTransformation extends AbstractAstTransformation {
 
-
     private static final boolean DEBUG = false;
 
     public void visit(ASTNode[] nodes, SourceUnit sourceUnit) {

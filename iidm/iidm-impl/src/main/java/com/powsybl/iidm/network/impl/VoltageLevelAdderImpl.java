@@ -90,7 +90,7 @@ class VoltageLevelAdderImpl extends AbstractIdentifiableAdder<VoltageLevelAdderI
             default:
                 throw new AssertionError();
         }
-        getNetwork().getObjectStore().checkAndAdd(voltageLevel);
+        getNetwork().getIndex().checkAndAdd(voltageLevel);
         substation.addVoltageLevel(voltageLevel);
         getNetwork().getListeners().notifyCreation(voltageLevel);
         return voltageLevel;

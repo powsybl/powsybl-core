@@ -138,7 +138,6 @@ public class SecurityAnalysisTool implements Tool {
         };
     }
 
-
     private static Optional<String> getOptionValue(CommandLine line, String option) {
         return line.hasOption(option) ? Optional.of(line.getOptionValue(option)) : Optional.empty();
     }
@@ -196,7 +195,6 @@ public class SecurityAnalysisTool implements Tool {
             Path parametersFile = context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE_OPTION));
             JsonSecurityAnalysisParameters.update(parameters, parametersFile);
         }
-
 
         SecurityAnalysis securityAnalysis;
         if (line.hasOption(EXTERNAL)) {
