@@ -10,14 +10,16 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.StateManagerConstants;
+import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowFactory;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.security.interceptors.CurrentLimitViolationInterceptor;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -75,7 +77,7 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
 
         return loadFlow.run(workingStateId, loadFlowParameters) // run base load flow
                 .thenComposeAsync(loadFlowResult -> {
-                    network.getStateManager().setWorkingState(workingStateId);
+                    network.getVariantManager().setWorkingVariant(workingStateId);
 
                     SecurityAnalysisResultBuilder resultBuilder = createResultBuilder(workingStateId);
 
@@ -87,7 +89,6 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                                 .setComputationOk(true);
                         violationDetector.checkAll(network, resultBuilder::addViolation);
                         resultBuilder.endPreContingency();
-
 
                         List<Contingency> contingencies = contingenciesProvider.getContingencies(network);
 
@@ -102,8 +103,8 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                             // run one loadflow per contingency
                             futures[i] = CompletableFuture
                                     .supplyAsync(() -> {
-                                        network.getStateManager().cloneState(StateManagerConstants.INITIAL_STATE_ID, postContStateId);
-                                        network.getStateManager().setWorkingState(postContStateId);
+                                        network.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, postContStateId);
+                                        network.getVariantManager().setWorkingVariant(postContStateId);
 
                                         // apply the contingency on the network
                                         contingency.toTask().modify(network, computationManager);
@@ -112,14 +113,13 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
                                     }, computationManager.getExecutor())
                                     .thenComposeAsync(aVoid -> loadFlow.run(postContStateId, postContParameters), computationManager.getExecutor())
                                     .handleAsync((lfResult, throwable) -> {
-                                        network.getStateManager().setWorkingState(postContStateId);
+                                        network.getVariantManager().setWorkingVariant(postContStateId);
 
                                         resultBuilder.contingency(contingency)
                                                 .setComputationOk(lfResult.isOk());
                                         violationDetector.checkAll(network, resultBuilder::addViolation);
                                         resultBuilder.endContingency();
-
-                                        network.getStateManager().removeState(postContStateId);
+                                        network.getVariantManager().removeVariant(postContStateId);
 
                                         return null;
                                     }, computationManager.getExecutor());
@@ -134,7 +134,7 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
 
                     return CompletableFuture.allOf(futures)
                         .thenApplyAsync(aVoid -> {
-                            network.getStateManager().setWorkingState(workingStateId);
+                            network.getVariantManager().setWorkingVariant(workingStateId);
                             return resultBuilder.build();
                         });
                 }, computationManager.getExecutor());

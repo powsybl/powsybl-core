@@ -21,17 +21,6 @@ public interface AmplExtensionWriter {
 
     String getName();
 
-    /**
-     * @deprecated Use {@link #write(List, Network, int, StringToIntMapper, DataSource, boolean, AmplExportConfig)} instead.
-     */
-    @Deprecated
-    default void write(List<AmplExtension> extensions, Network network, StringToIntMapper<AmplSubset> mapper,
-            DataSource dataSource, boolean append, AmplExportConfig config) throws IOException {
-        throw new UnsupportedOperationException("deprecated");
-    }
-
-    default void write(List<AmplExtension> extensions, Network network, int variantIndex, StringToIntMapper<AmplSubset> mapper,
-            DataSource dataSource, boolean append, AmplExportConfig config) throws IOException {
-        write(extensions, network, mapper, dataSource, append, config);
-    }
+    void write(List<AmplExtension> extensions, Network network, int variantIndex, StringToIntMapper<AmplSubset> mapper,
+            DataSource dataSource, boolean append, AmplExportConfig config) throws IOException;
 }

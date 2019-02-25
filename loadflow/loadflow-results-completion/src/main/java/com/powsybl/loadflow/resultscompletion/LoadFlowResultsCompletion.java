@@ -6,18 +6,25 @@
  */
 package com.powsybl.loadflow.resultscompletion;
 
-import com.google.auto.service.AutoService;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Branch.Side;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.util.BranchData;
-import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.loadflow.validation.CandidateComputation;
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Objects;
+import com.google.auto.service.AutoService;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.network.Branch.Side;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
+import com.powsybl.iidm.network.util.BranchData;
+import com.powsybl.iidm.network.util.TwtData;
+import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.resultscompletion.z0flows.Z0FlowsCompletion;
+import com.powsybl.loadflow.resultscompletion.z0flows.Z0LineChecker;
+import com.powsybl.loadflow.validation.CandidateComputation;
 
 /**
  *
@@ -49,17 +56,20 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
     @Override
     public void run(Network network, ComputationManager computationManager) {
         Objects.requireNonNull(network);
-        LOGGER.info("Running {} on network {}, state {}", getName(), network.getId(), network.getStateManager().getWorkingStateId());
+        LOGGER.info("Running {} on network {}, variant {}", getName(), network.getId(), network.getVariantManager().getWorkingVariantId());
         LOGGER.info("LoadFlowResultsCompletionParameters={}", parameters);
         LOGGER.info("LoadFlowParameters={}", lfParameters);
 
-        network.getLineStream().forEach(line -> {
-            BranchData lineData = new BranchData(line,
-                                                 parameters.getEpsilonX(),
-                                                 parameters.isApplyReactanceCorrection());
-            completeTerminalData(line.getTerminal(Side.ONE), Side.ONE, lineData);
-            completeTerminalData(line.getTerminal(Side.TWO), Side.TWO, lineData);
-        });
+        network.getLineStream()
+            // Do not try to compute flows on loops
+            .filter(l -> l.getTerminal1().getBusView().getBus() != l.getTerminal2().getBusView().getBus())
+            .forEach(line -> {
+                BranchData lineData = new BranchData(line,
+                                                     parameters.getEpsilonX(),
+                                                     parameters.isApplyReactanceCorrection());
+                completeTerminalData(line.getTerminal(Side.ONE), Side.ONE, lineData);
+                completeTerminalData(line.getTerminal(Side.TWO), Side.TWO, lineData);
+            });
 
         network.getTwoWindingsTransformerStream().forEach(twt -> {
             BranchData twtData = new BranchData(twt,
@@ -82,6 +92,38 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
             }
         });
 
+        network.getThreeWindingsTransformerStream().forEach(twt -> {
+            TwtData twtData = new TwtData(twt,
+                                          parameters.getEpsilonX(),
+                                          parameters.isApplyReactanceCorrection());
+            completeTerminalData(twt.getLeg1().getTerminal(), ThreeWindingsTransformer.Side.ONE, twtData);
+            completeTerminalData(twt.getLeg2().getTerminal(), ThreeWindingsTransformer.Side.TWO, twtData);
+            completeTerminalData(twt.getLeg3().getTerminal(), ThreeWindingsTransformer.Side.THREE, twtData);
+        });
+
+        // A line is considered Z0 (null impedance) if and only if
+        // it is connected at both ends and the voltage at end buses are the same
+        Z0LineChecker z0checker = (Line l) -> {
+            if (!l.getTerminal1().isConnected()) {
+                return false;
+            }
+            if (!l.getTerminal2().isConnected()) {
+                return false;
+            }
+            Bus b1 = l.getTerminal1().getBusView().getBus();
+            Bus b2 = l.getTerminal2().getBusView().getBus();
+            Objects.requireNonNull(b1);
+            Objects.requireNonNull(b2);
+            double threshold = parameters.getZ0ThresholdDiffVoltageAngle();
+            boolean r = Math.abs(b1.getV() - b2.getV()) < threshold
+                    && Math.abs(b1.getAngle() - b2.getAngle()) < threshold;
+            if (r) {
+                LOGGER.debug("Line Z0 {} ({}) dV = {}, dA = {}", l.getName(), l.getId(), Math.abs(b1.getV() - b2.getV()), Math.abs(b1.getAngle() - b2.getAngle()));
+            }
+            return r;
+        };
+        Z0FlowsCompletion z0FlowsCompletion = new Z0FlowsCompletion(network, z0checker);
+        z0FlowsCompletion.complete();
     }
 
     private void completeTerminalData(Terminal terminal, Side side, BranchData branchData) {
@@ -93,6 +135,19 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
             if (Double.isNaN(terminal.getQ())) {
                 LOGGER.debug("Branch {}, Side {}: setting q = {}", branchData.getId(), side, branchData.getComputedQ(side));
                 terminal.setQ(branchData.getComputedQ(side));
+            }
+        }
+    }
+
+    private void completeTerminalData(Terminal terminal, ThreeWindingsTransformer.Side side, TwtData twtData) {
+        if (terminal.isConnected() && terminal.getBusView().getBus().isInMainConnectedComponent()) {
+            if (Double.isNaN(terminal.getP())) {
+                LOGGER.debug("Twt {}, Side {}: setting p = {}", twtData.getId(), side, twtData.getComputedP(side));
+                terminal.setP(twtData.getComputedP(side));
+            }
+            if (Double.isNaN(terminal.getQ())) {
+                LOGGER.debug("Twt {}, Side {}: setting q = {}", twtData.getId(), side, twtData.getComputedQ(side));
+                terminal.setQ(twtData.getComputedQ(side));
             }
         }
     }

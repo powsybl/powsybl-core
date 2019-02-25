@@ -1,0 +1,19 @@
+graph "C" {
+subgraph "cluster_C_0" {
+"0\nBUSBAR_SECTION\nD" ["color"="#7AF385","style"="filled"]
+"1" ["color"="#7AF385","style"="filled"]
+"2\nTWO_WINDINGS_TRANSFORMER\nCI" ["color"="#F37AE1","style"="filled"]
+"3" ["color"="#7AF385","style"="filled"]
+"4\nLINE\nCJ" ["color"="#B2F37A","style"="filled"]
+"0\nBUSBAR_SECTION\nD" -- "1" ["fontsize"="10","style"="solid","label"="DISCONNECTOR\nF"]
+"0\nBUSBAR_SECTION\nD" -- "3" ["fontsize"="10","style"="solid","label"="DISCONNECTOR\nH"]
+"1" -- "2\nTWO_WINDINGS_TRANSFORMER\nCI" ["fontsize"="10","style"="solid","label"="BREAKER\nJ"]
+"3" -- "4\nLINE\nCJ" ["fontsize"="10","style"="solid","label"="BREAKER\nL"]
+}
+subgraph "cluster_C_2" {
+"2\nTWO_WINDINGS_TRANSFORMER\nCI" ["color"="#F37AE1","style"="filled"]
+}
+subgraph "cluster_C_4" {
+"4\nLINE\nCJ" ["color"="#B2F37A","style"="filled"]
+}
+}

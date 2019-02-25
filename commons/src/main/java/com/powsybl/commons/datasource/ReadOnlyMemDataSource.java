@@ -44,7 +44,7 @@ public class ReadOnlyMemDataSource implements ReadOnlyDataSource {
         return data.get(fileName);
     }
 
-    protected void putData(String fileName, InputStream data) {
+    public void putData(String fileName, InputStream data) {
         try {
             putData(fileName, ByteStreams.toByteArray(data));
         } catch (IOException e) {
@@ -52,7 +52,7 @@ public class ReadOnlyMemDataSource implements ReadOnlyDataSource {
         }
     }
 
-    protected void putData(String fileName, byte[] data) {
+    public void putData(String fileName, byte[] data) {
         this.data.put(fileName, data);
     }
 

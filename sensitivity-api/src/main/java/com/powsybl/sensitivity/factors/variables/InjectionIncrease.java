@@ -21,6 +21,7 @@ public class InjectionIncrease extends SensitivityVariable {
 
     @JsonProperty("injectionId")
     private final String injectionId;
+
     /**
      * Constructor
      *

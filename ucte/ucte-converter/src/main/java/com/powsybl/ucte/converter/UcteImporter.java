@@ -857,7 +857,6 @@ public class UcteImporter implements Importer {
 
                 addElementNameProperty(mergeLine, dl1, dl2);
 
-
                 if (dl1.getCurrentLimits() != null) {
                     mergeLine.newCurrentLimits1()
                             .setPermanentLimit(dl1.getCurrentLimits().getPermanentLimit()).add();

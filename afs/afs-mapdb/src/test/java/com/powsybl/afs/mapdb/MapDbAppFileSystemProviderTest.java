@@ -52,7 +52,7 @@ public class MapDbAppFileSystemProviderTest {
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         MapDbAppFileSystemConfig config = new MapDbAppFileSystemConfig("drive", true, dbFile);
         List<AppFileSystem> fileSystems = new MapDbAppFileSystemProvider(Collections.singletonList(config),
-            (name, file) -> MapDbAppStorage.createHeap(name))
+            (name, file) -> MapDbAppStorage.createMem(name))
                 .getFileSystems(new AppFileSystemProviderContext(computationManager, null));
         assertEquals(1, fileSystems.size());
         assertTrue(fileSystems.get(0) instanceof MapDbAppFileSystem);

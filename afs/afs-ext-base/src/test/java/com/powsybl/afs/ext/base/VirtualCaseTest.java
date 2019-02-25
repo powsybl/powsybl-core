@@ -35,7 +35,7 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
 
     @Override
     protected AppStorage createStorage() {
-        return MapDbAppStorage.createHeap("mem");
+        return MapDbAppStorage.createMem("mem");
     }
 
     @Override

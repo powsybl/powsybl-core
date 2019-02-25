@@ -23,7 +23,7 @@ public class SecurityAnalysisResultBuilderTest {
     public void failedResult() {
 
         SecurityAnalysisResultBuilder builder = new SecurityAnalysisResultBuilder(new LimitViolationFilter(),
-                new RunningContext(network, network.getStateManager().getWorkingStateId()));
+                new RunningContext(network, network.getVariantManager().getWorkingVariantId()));
 
         SecurityAnalysisResult res = builder.preContingency().setComputationOk(false).endPreContingency().build();
 
@@ -36,7 +36,7 @@ public class SecurityAnalysisResultBuilderTest {
     public void exceptions() {
 
         SecurityAnalysisResultBuilder builder = new SecurityAnalysisResultBuilder(new LimitViolationFilter(),
-                new RunningContext(network, network.getStateManager().getWorkingStateId()));
+                new RunningContext(network, network.getVariantManager().getWorkingVariantId()));
 
         assertThatIllegalStateException().isThrownBy(() -> builder.build());
 
@@ -59,7 +59,7 @@ public class SecurityAnalysisResultBuilderTest {
     public void completeResult() {
 
         SecurityAnalysisResultBuilder builder = new SecurityAnalysisResultBuilder(new LimitViolationFilter(),
-                new RunningContext(network, network.getStateManager().getWorkingStateId()));
+                new RunningContext(network, network.getVariantManager().getWorkingVariantId()));
 
         VoltageLevel vl = network.getVoltageLevel("VLHV1");
         vl.getBusView().getBusStream().forEach(b -> b.setV(410));
@@ -68,7 +68,6 @@ public class SecurityAnalysisResultBuilderTest {
                 .setComputationOk(true);
         Security.checkLimits(network).forEach(builder::addViolation);
         builder.endPreContingency();
-
 
         vl.getBusView().getBusStream().forEach(b -> b.setV(380));
 

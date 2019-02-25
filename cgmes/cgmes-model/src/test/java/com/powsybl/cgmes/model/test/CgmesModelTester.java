@@ -7,24 +7,19 @@
 
 package com.powsybl.cgmes.model.test;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-
-import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesOnDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStoreFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -36,29 +31,27 @@ public class CgmesModelTester {
     }
 
     public void test() throws IOException {
-        try (FileSystem fs = Jimfs.newFileSystem()) {
-            ReadOnlyDataSource ds = gridModel.dataSourceBasedOn(fs);
+        ReadOnlyDataSource ds = gridModel.dataSource();
 
-            // Check that the case exists
-            // even if we do not have any available triple store implementation
-            // cimNamespace() will throw an exception if no CGMES data is found
-            CgmesOnDataSource cds = new CgmesOnDataSource(ds);
-            cds.cimNamespace();
+        // Check that the case exists
+        // even if we do not have any available triple store implementation
+        // cimNamespace() will throw an exception if no CGMES data is found
+        CgmesOnDataSource cds = new CgmesOnDataSource(ds);
+        cds.cimNamespace();
 
-            List<String> implementations = TripleStoreFactory.allImplementations();
-            assertFalse(implementations.isEmpty());
+        List<String> implementations = TripleStoreFactory.allImplementations();
+        assertFalse(implementations.isEmpty());
 
-            for (String impl : implementations) {
-                CgmesModel actual = load(ds, impl);
-                CgmesModel expected = gridModel.expected();
-                if (expected != null) {
-                    testCompare(gridModel.expected(), actual);
-                } else {
-                    // TODO check that the loaded model is not empty
-                    // Or check that the number of elements for each type is correct
-                    // If complete expected model is not available, at least check
-                    // summary of elements of each type
-                }
+        for (String impl : implementations) {
+            CgmesModel actual = load(ds, impl);
+            CgmesModel expected = gridModel.expected();
+            if (expected != null) {
+                testCompare(gridModel.expected(), actual);
+            } else {
+                // TODO check that the loaded model is not empty
+                // Or check that the number of elements for each type is correct
+                // If complete expected model is not available, at least check
+                // summary of elements of each type
             }
         }
     }
@@ -86,7 +79,7 @@ public class CgmesModelTester {
         testPropertyBags(expected.substations(), actual.substations());
         testPropertyBags(expected.voltageLevels(), actual.voltageLevels());
         testPropertyBags(expected.terminals(), actual.terminals());
-        testPropertyBags(expected.terminalLimits(), actual.terminalLimits());
+        testPropertyBags(expected.operationalLimits(), actual.operationalLimits());
         testPropertyBags(expected.topologicalNodes(), actual.topologicalNodes());
         testPropertyBags(expected.switches(), actual.switches());
         testPropertyBags(expected.acLineSegments(), actual.acLineSegments());

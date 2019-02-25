@@ -12,9 +12,9 @@ import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ComponentDefaultConfig;
-import com.powsybl.tools.Command;
-import com.powsybl.tools.Tool;
-import com.powsybl.tools.ToolRunningContext;
+import com.powsybl.commons.io.table.AbstractTableFormatter;
+import com.powsybl.commons.io.table.AsciiTableFormatter;
+import com.powsybl.commons.io.table.Column;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.ContingenciesProviderFactory;
@@ -23,17 +23,16 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.simulation.securityindexes.SecurityIndex;
 import com.powsybl.simulation.securityindexes.SecurityIndexId;
 import com.powsybl.simulation.securityindexes.SecurityIndexType;
+import com.powsybl.tools.Command;
+import com.powsybl.tools.Tool;
+import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-import org.nocrala.tools.texttablefmt.BorderStyle;
-import org.nocrala.tools.texttablefmt.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.PrintStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -128,21 +127,25 @@ public class ImpactAnalysisTool implements Tool {
     }
 
     private static void prettyPrint(Multimap<String, SecurityIndex> securityIndexesPerContingency, PrintStream out) {
-        Table table = new Table(1 + SecurityIndexType.values().length, BorderStyle.CLASSIC_WIDE);
-        table.addCell("Contingency");
+        List<Column> columns = new ArrayList<>(SecurityIndexType.values().length + 1);
+        columns.add(new Column("Contingency"));
         for (SecurityIndexType securityIndexType : SecurityIndexType.values()) {
-            table.addCell(securityIndexType.toString());
+            columns.add(new Column(securityIndexType.toString()));
         }
+        Column[] arrayColumns = columns.toArray(new Column[0]);
 
-        for (Map.Entry<String, Collection<SecurityIndex>> entry : securityIndexesPerContingency.asMap().entrySet()) {
-            String contingencyId = entry.getKey();
-            table.addCell(contingencyId);
-            for (String str : toRow(entry.getValue())) {
-                table.addCell(str);
+        Writer writer = new OutputStreamWriter(out);
+        try (AbstractTableFormatter formatter = new AsciiTableFormatter(writer, null, arrayColumns)) {
+            for (Map.Entry<String, Collection<SecurityIndex>> entry : securityIndexesPerContingency.asMap().entrySet()) {
+                String contingencyId = entry.getKey();
+                formatter.writeCell(contingencyId);
+                for (String str : toRow(entry.getValue())) {
+                    formatter.writeCell(str);
+                }
             }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
-
-        out.println(table.render());
     }
 
     private static void writeCsv(Multimap<String, SecurityIndex> securityIndexesPerContingency, Path outputCsvFile) throws IOException {
@@ -261,7 +264,7 @@ public class ImpactAnalysisTool implements Tool {
         if (network == null) {
             throw new PowsyblException("Case '" + caseFile + "' not found");
         }
-        network.getStateManager().allowStateMultiThreadAccess(true);
+        network.getVariantManager().allowVariantMultiThreadAccess(true);
 
         Multimap<String, SecurityIndex> securityIndexesPerContingency
                 = runImpactAnalysis(network, contingencyIds, context.getShortTimeExecutionComputationManager(),

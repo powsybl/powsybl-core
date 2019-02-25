@@ -110,7 +110,7 @@ public class HvdcLineAdderImpl extends AbstractIdentifiableAdder<HvdcLineAdderIm
         }
         HvdcLineImpl hvdcLine = new HvdcLineImpl(id, name, r, nominalV, maxP, convertersMode, activePowerSetpoint,
                                                  converterStation1, converterStation2, networkRef);
-        getNetwork().getObjectStore().checkAndAdd(hvdcLine);
+        getNetwork().getIndex().checkAndAdd(hvdcLine);
         getNetwork().getListeners().notifyCreation(hvdcLine);
         return hvdcLine;
     }

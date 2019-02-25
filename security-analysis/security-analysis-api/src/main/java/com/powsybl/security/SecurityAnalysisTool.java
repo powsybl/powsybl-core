@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2016-2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2018, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -42,6 +42,7 @@ import static com.powsybl.tools.ToolConstants.TASK_COUNT;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 @AutoService(Tool.class)
 public class SecurityAnalysisTool implements Tool {
@@ -77,41 +78,41 @@ public class SecurityAnalysisTool implements Tool {
             public Options getOptions() {
                 Options options = new Options();
                 options.addOption(Option.builder().longOpt(CASE_FILE_OPTION)
-                    .desc("the case path")
-                    .hasArg()
-                    .argName("FILE")
-                    .required()
-                    .build());
+                        .desc("the case path")
+                        .hasArg()
+                        .argName("FILE")
+                        .required()
+                        .build());
                 options.addOption(Option.builder().longOpt(PARAMETERS_FILE)
-                    .desc("loadflow parameters as JSON file")
-                    .hasArg()
-                    .argName("FILE")
-                    .build());
+                        .desc("loadflow parameters as JSON file")
+                        .hasArg()
+                        .argName("FILE")
+                        .build());
                 options.addOption(Option.builder().longOpt(LIMIT_TYPES_OPTION)
-                    .desc("limit type filter (all if not set)")
-                    .hasArg()
-                    .argName("LIMIT-TYPES")
-                    .build());
+                        .desc("limit type filter (all if not set)")
+                        .hasArg()
+                        .argName("LIMIT-TYPES")
+                        .build());
                 options.addOption(Option.builder().longOpt(OUTPUT_FILE_OPTION)
-                    .desc("the output path")
-                    .hasArg()
-                    .argName("FILE")
-                    .build());
+                        .desc("the output path")
+                        .hasArg()
+                        .argName("FILE")
+                        .build());
                 options.addOption(Option.builder().longOpt(OUTPUT_FORMAT_OPTION)
-                    .desc("the output format " + SecurityAnalysisResultExporters.getFormats())
-                    .hasArg()
-                    .argName("FORMAT")
-                    .build());
+                        .desc("the output format " + SecurityAnalysisResultExporters.getFormats())
+                        .hasArg()
+                        .argName("FORMAT")
+                        .build());
                 options.addOption(Option.builder().longOpt(CONTINGENCIES_FILE_OPTION)
-                    .desc("the contingencies path")
-                    .hasArg()
-                    .argName("FILE")
-                    .build());
+                        .desc("the contingencies path")
+                        .hasArg()
+                        .argName("FILE")
+                        .build());
                 options.addOption(Option.builder().longOpt(WITH_EXTENSIONS_OPTION)
-                    .desc("the extension list to enable")
-                    .hasArg()
-                    .argName("EXTENSIONS")
-                    .build());
+                        .desc("the extension list to enable")
+                        .hasArg()
+                        .argName("EXTENSIONS")
+                        .build());
                 options.addOption(Option.builder().longOpt(TASK_COUNT)
                         .desc("number of tasks used for parallelization")
                         .hasArg()
@@ -131,13 +132,12 @@ public class SecurityAnalysisTool implements Tool {
             @Override
             public String getUsageFooter() {
                 return String.join(System.lineSeparator(),
-                    "Allowed LIMIT-TYPES values are " + Arrays.toString(LimitViolationType.values()),
-                    "Allowed EXTENSIONS values are " + SecurityAnalysisInterceptors.getExtensionNames()
-                    );
+                        "Allowed LIMIT-TYPES values are " + Arrays.toString(LimitViolationType.values()),
+                        "Allowed EXTENSIONS values are " + SecurityAnalysisInterceptors.getExtensionNames()
+                );
             }
         };
     }
-
 
     private static Optional<String> getOptionValue(CommandLine line, String option) {
         return line.hasOption(option) ? Optional.of(line.getOptionValue(option)) : Optional.empty();
@@ -148,14 +148,14 @@ public class SecurityAnalysisTool implements Tool {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));
 
         Set<LimitViolationType> limitViolationTypes = line.hasOption(LIMIT_TYPES_OPTION)
-            ? Arrays.stream(line.getOptionValue(LIMIT_TYPES_OPTION).split(",")).map(LimitViolationType::valueOf).collect(Collectors.toSet())
-            : EnumSet.allOf(LimitViolationType.class);
+                ? Arrays.stream(line.getOptionValue(LIMIT_TYPES_OPTION).split(",")).map(LimitViolationType::valueOf).collect(Collectors.toSet())
+                : EnumSet.allOf(LimitViolationType.class);
 
         //Required extensions names
         List<String> extensions = getOptionValue(line, WITH_EXTENSIONS_OPTION)
                 .map(s -> Arrays.stream(s.split(","))
-                                .filter(ext -> !ext.isEmpty())
-                                .collect(Collectors.toList()))
+                        .filter(ext -> !ext.isEmpty())
+                        .collect(Collectors.toList()))
                 .orElse(Collections.emptyList());
         Set<SecurityAnalysisInterceptor> interceptors = extensions.stream().map(SecurityAnalysisInterceptors::createInterceptor).collect(Collectors.toSet());
 
@@ -175,12 +175,13 @@ public class SecurityAnalysisTool implements Tool {
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Network network = Importers.loadNetwork(caseFile);
+        network.getVariantManager().allowVariantMultiThreadAccess(true);
 
         LimitViolationFilter limitViolationFilter = LimitViolationFilter.load();
         limitViolationFilter.setViolationTypes(limitViolationTypes);
 
         ContingenciesProvider contingenciesProvider = contingenciesFile != null ?
-            ContingenciesProviders.newDefaultFactory().create(contingenciesFile) : ContingenciesProviders.emptyProvider();
+                ContingenciesProviders.newDefaultFactory().create(contingenciesFile) : ContingenciesProviders.emptyProvider();
 
         ComputationManager computationManager = context.getLongTimeExecutionComputationManager();
 
@@ -195,7 +196,6 @@ public class SecurityAnalysisTool implements Tool {
             Path parametersFile = context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE));
             JsonSecurityAnalysisParameters.update(parameters, parametersFile);
         }
-
 
         SecurityAnalysis securityAnalysis;
         if (line.hasOption(EXTERNAL)) {
@@ -212,21 +212,20 @@ public class SecurityAnalysisTool implements Tool {
             interceptors.forEach(securityAnalysis::addInterceptor);
         }
 
-        String currentState = network.getStateManager().getWorkingStateId();
+        String currentState = network.getVariantManager().getWorkingVariantId();
 
         SecurityAnalysisResult result = securityAnalysis.run(currentState, parameters, contingenciesProvider).join();
 
         if (!result.getPreContingencyResult().isComputationOk()) {
             context.getErrorStream().println("Pre-contingency state divergence");
+        }
+        if (outputFile != null) {
+            context.getOutputStream().println("Writing results to '" + outputFile + "'");
+            SecurityAnalysisResultExporters.export(result, outputFile, format);
         } else {
-            if (outputFile != null) {
-                context.getOutputStream().println("Writing results to '" + outputFile + "'");
-                SecurityAnalysisResultExporters.export(result, outputFile, format);
-            } else {
-                // To avoid the closing of System.out
-                Writer writer = new OutputStreamWriter(context.getOutputStream());
-                Security.print(result, network, writer, new AsciiTableFormatterFactory(), TableFormatterConfig.load());
-            }
+            // To avoid the closing of System.out
+            Writer writer = new OutputStreamWriter(context.getOutputStream());
+            Security.print(result, network, writer, new AsciiTableFormatterFactory(), TableFormatterConfig.load());
         }
     }
 }

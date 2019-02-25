@@ -7,23 +7,26 @@
 
 package com.powsybl.cgmes.conversion.test.conformity;
 
-import static org.junit.Assert.assertEquals;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
-
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1NetworkCatalog;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.*;
+import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
 import com.powsybl.triplestore.api.TripleStoreFactory;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -113,8 +116,70 @@ public class CgmesConformity1ConversionTest {
     }
 
     @Test
-    public void miniNodeBreaker() throws IOException {
-        tester.testConversion(null, actuals.miniNodeBreaker());
+    public void miniNodeBreakerBusBalanceValidation() throws IOException {
+        // This test will check that IIDM buses,
+        // that will be computed by IIDM from CGMES node-breaker ConnectivityNodes,
+        // have proper balances
+        ConversionTester t = new ConversionTester(
+                TripleStoreFactory.onlyDefaultImplementation(),
+                new ComparisonConfig());
+        t.setValidateBusBalances(true);
+        t.testConversion(null, actuals.miniNodeBreaker());
+        t.lastConvertedNetwork().getVoltageLevels()
+                .forEach(vl -> assertEquals(TopologyKind.NODE_BREAKER, vl.getTopologyKind()));
+    }
+
+    @Test
+    public void miniNodeBreakerTestLimits() throws IOException {
+        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
+
+        // Original test case
+        Network network0 = Importers.importData("CGMES",
+                actuals.miniNodeBreaker().dataSource(),
+                null,
+                computationManager);
+        // The case has been manually modified to have OperationalLimits
+        // defined for Equipment
+        Network network1 = Importers.importData("CGMES",
+                actuals.miniNodeBreakerLimitsforEquipment().dataSource(),
+                null,
+                computationManager);
+
+        double tol = 0;
+
+        // 1 - PATL Current defined for an Equipment ACTransmissionLine
+        // Previous limit for one terminal has been modified to refer to the Equipment
+        // In the modified case both ends have to see the same value
+        Line l0 = network0.getLine("_1e7f52a9-21d0-4ebe-9a8a-b29281d5bfc9");
+        Line l1 = network1.getLine("_1e7f52a9-21d0-4ebe-9a8a-b29281d5bfc9");
+        assertEquals(525, l0.getCurrentLimits1().getPermanentLimit(), tol);
+        assertNull(l0.getCurrentLimits2());
+        assertEquals(525, l1.getCurrentLimits1().getPermanentLimit(), tol);
+        assertEquals(525, l1.getCurrentLimits2().getPermanentLimit(), tol);
+
+        // 2 - PATL Current defined for an ACTransmissionLine
+        // that will be mapped to a DanglingLine in IIDM
+        DanglingLine dl0 = network0.getDanglingLine("_f32baf36-7ea3-4b6a-9452-71e7f18779f8");
+        DanglingLine dl1 = network1.getDanglingLine("_f32baf36-7ea3-4b6a-9452-71e7f18779f8");
+        // In network0 limit is defined for the Terminal
+        // In network1 limit is defined for the Equipment
+        // In both cases the limit should be mapped to IIDM
+        assertEquals(1000, dl0.getCurrentLimits().getPermanentLimit(), tol);
+        assertEquals(1000, dl1.getCurrentLimits().getPermanentLimit(), tol);
+
+        // 3 - PATL Current defined for a PowerTransformer, should be rejected
+        TwoWindingsTransformer tx0 = network0.getTwoWindingsTransformer("_ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
+        TwoWindingsTransformer tx1 = network1.getTwoWindingsTransformer("_ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
+        assertEquals(158, tx0.getCurrentLimits1().getPermanentLimit(), tol);
+        assertEquals(1732, tx0.getCurrentLimits2().getPermanentLimit(), tol);
+        assertNull(tx1.getCurrentLimits1());
+        assertEquals(1732, tx1.getCurrentLimits2().getPermanentLimit(), tol);
+
+        // 4 - PATL Current defined for Switch, will be ignored
+        TwoWindingsTransformer tx0s = network0.getTwoWindingsTransformer("_6c89588b-3df5-4120-88e5-26164afb43e9");
+        TwoWindingsTransformer tx1s = network1.getTwoWindingsTransformer("_6c89588b-3df5-4120-88e5-26164afb43e9");
+        assertEquals(1732, tx0s.getCurrentLimits2().getPermanentLimit(), tol);
+        assertNull(tx1s.getCurrentLimits2());
     }
 
     @Test
@@ -125,6 +190,50 @@ public class CgmesConformity1ConversionTest {
     @Test
     public void smallNodeBreaker() throws IOException {
         tester.testConversion(null, actuals.smallNodeBreaker());
+    }
+
+    @Test
+    public void smallNodeBreakerHvdc() throws IOException {
+        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
+
+        // Small Grid Node Breaker HVDC should be imported without errors
+        Importers.importData("CGMES",
+                actuals.smallNodeBreakerHvdc().dataSource(),
+                null,
+                computationManager);
+    }
+
+    @Test
+    // This is to test that we have stable Identifiers for calculated buses
+    // If no topology change has been made, running a LoadFlow (even a Mock LoadFlow)
+    // must produce identical identifiers for calculated buses
+    public void smallNodeBreakerStableBusNaming() throws IOException {
+        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
+
+        Network network = Importers.importData("CGMES",
+                actuals.smallNodeBreaker().dataSource(),
+                null,
+                computationManager);
+
+        // Initial bus identifiers
+        List<String> initialBusIds = network.getBusView().getBusStream()
+                .map(Bus::getId).collect(Collectors.toList());
+
+        // Compute a "mock" LoadFlow and obtain bus identifiers
+        String lfVariantId = "lf";
+        network.getVariantManager()
+                .cloneVariant(network.getVariantManager().getWorkingVariantId(),
+                        lfVariantId);
+        new LoadFlowFactoryMock()
+                .create(network,
+                        computationManager,
+                        1)
+                .run(lfVariantId, new LoadFlowParameters()).join();
+        network.getVariantManager().setWorkingVariant(lfVariantId);
+        List<String> afterLoadFlowBusIds = network.getBusView().getBusStream()
+                .map(Bus::getId).collect(Collectors.toList());
+
+        assertEquals(initialBusIds, afterLoadFlowBusIds);
     }
 
     private static class TxData {

@@ -9,10 +9,10 @@ package com.powsybl.iidm.import_;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.local.LocalComputationManager;
+import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
@@ -319,37 +319,20 @@ public final class Importers {
         }
     }
 
+    /**
+     * @deprecated Use {@link ConversionParameters#readParameter(String, Properties, Parameter)} instead
+     */
+    @Deprecated
     public static Object readParameter(String format, Properties parameters, Parameter configuredParameter) {
-        return readParameter(format, parameters, configuredParameter, ParameterDefaultValueConfig.INSTANCE);
+        return ConversionParameters.readParameter(format, parameters, configuredParameter);
     }
 
+    /**
+     * @deprecated Use {@link ConversionParameters#readParameter(String, Properties, Parameter, ParameterDefaultValueConfig)} instead
+     */
+    @Deprecated
     public static Object readParameter(String format, Properties parameters, Parameter configuredParameter, ParameterDefaultValueConfig defaultValueConfig) {
-        Objects.requireNonNull(format);
-        Objects.requireNonNull(configuredParameter);
-        Objects.requireNonNull(defaultValueConfig);
-        Object value = null;
-        // priority on import parameter
-        if (parameters != null) {
-            MapModuleConfig moduleConfig = new MapModuleConfig(parameters);
-            switch (configuredParameter.getType()) {
-                case BOOLEAN:
-                    value = moduleConfig.getOptionalBooleanProperty(configuredParameter.getName()).orElse(null);
-                    break;
-                case STRING:
-                    value = moduleConfig.getStringProperty(configuredParameter.getName(), null);
-                    break;
-                case STRING_LIST:
-                    value = moduleConfig.getStringListProperty(configuredParameter.getName(), null);
-                    break;
-                default:
-                    throw new AssertionError();
-            }
-        }
-        // if none, use configured parameters
-        if (value == null) {
-            value = defaultValueConfig.getValue(format, configuredParameter);
-        }
-        return value;
+        return ConversionParameters.readParameter(format, parameters, configuredParameter, defaultValueConfig);
     }
 
     public static DataSource createDataSource(Path directory, String fileNameOrBaseName) {
@@ -428,7 +411,8 @@ public final class Importers {
     }
 
     public static Network loadNetwork(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader) {
-        ReadOnlyMemDataSource dataSource = DataSourceUtil.createReadOnlyMemDataSource(filename, data);
+        ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource(DataSourceUtil.getBaseName(filename));
+        dataSource.putData(filename, data);
         Importer importer = findImporter(dataSource, loader, computationManager, config);
         if (importer != null) {
             return importer.importData(dataSource, parameters);
@@ -436,8 +420,12 @@ public final class Importers {
         return null;
     }
 
+    public static Network loadNetwork(String filename, InputStream data, ComputationManager computationManager) {
+        return loadNetwork(filename, data, computationManager, CONFIG.get(), null);
+    }
+
     public static Network loadNetwork(String filename, InputStream data) {
-        return loadNetwork(filename, data, LocalComputationManager.getDefault(), CONFIG.get(), null);
+        return loadNetwork(filename, data, LocalComputationManager.getDefault());
     }
 
 }

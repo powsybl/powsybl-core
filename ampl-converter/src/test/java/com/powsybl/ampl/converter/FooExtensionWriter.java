@@ -31,7 +31,7 @@ public class FooExtensionWriter implements AmplExtensionWriter {
     }
 
     @Override
-    public void write(List<AmplExtension> extensions, Network network,
+    public void write(List<AmplExtension> extensions, Network network, int variantIndex,
             StringToIntMapper<AmplSubset> mapper, DataSource dataSource, boolean append,
             AmplExportConfig config) throws IOException {
         try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("foo-extension", "txt", false), StandardCharsets.UTF_8)) {
@@ -41,6 +41,5 @@ public class FooExtensionWriter implements AmplExtensionWriter {
         }
 
     }
-
 
 }

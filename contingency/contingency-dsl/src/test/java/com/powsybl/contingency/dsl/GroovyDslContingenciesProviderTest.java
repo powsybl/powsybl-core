@@ -91,7 +91,6 @@ public class GroovyDslContingenciesProviderTest {
         assertEquals("c2", contingencies.get(1).getId());
     }
 
-
     private static Set<String> getContingenciesNames(List<Contingency> contingencies) {
         return contingencies.stream().map(Contingency::getId).collect(Collectors.toSet());
     }

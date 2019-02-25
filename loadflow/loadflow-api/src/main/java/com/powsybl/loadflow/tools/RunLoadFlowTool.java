@@ -161,7 +161,7 @@ public class RunLoadFlowTool implements Tool {
             JsonLoadFlowParameters.update(params, parametersFile);
         }
 
-        LoadFlowResult result = loadFlow.run(network.getStateManager().getWorkingStateId(), params).join();
+        LoadFlowResult result = loadFlow.run(network.getVariantManager().getWorkingVariantId(), params).join();
 
         if (outputFile != null) {
             exportResult(result, context, outputFile, format);
@@ -205,7 +205,6 @@ public class RunLoadFlowTool implements Tool {
         AsciiTableFormatterFactory asciiTableFormatterFactory = new AsciiTableFormatterFactory();
         printLoadFlowResult(result, writer, asciiTableFormatterFactory, TableFormatterConfig.load());
     }
-
 
     private void exportResult(LoadFlowResult result, ToolRunningContext context, Path outputFile, Format format) {
         context.getOutputStream().println("Writing results to '" + outputFile + "'");

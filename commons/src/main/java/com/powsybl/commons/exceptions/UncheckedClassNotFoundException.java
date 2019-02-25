@@ -19,7 +19,7 @@ public class UncheckedClassNotFoundException extends RuntimeException {
     }
 
     @Override
-    public ClassNotFoundException getCause() {
+    public synchronized ClassNotFoundException getCause() {
         return (ClassNotFoundException) super.getCause();
     }
 }

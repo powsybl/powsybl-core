@@ -11,11 +11,14 @@ import java.util.List;
 
 import org.apache.commons.math3.complex.Complex;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.DanglingLine;
+import com.powsybl.iidm.network.DanglingLineAdder;
 import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.LineAdder;
+import com.powsybl.iidm.network.TieLineAdder;
 import com.powsybl.iidm.network.util.SV;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -24,7 +27,7 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class ACLineSegmentConversion extends AbstractBranchConversion {
 
-    public ACLineSegmentConversion(PropertyBag line, Conversion.Context context) {
+    public ACLineSegmentConversion(PropertyBag line, Context context) {
         super(CgmesNames.AC_LINE_SEGMENT, line, context);
     }
 
@@ -94,27 +97,17 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         double x = p.asDouble("x");
         double bch = p.asDouble("bch");
         double gch = p.asDouble("gch", 0.0);
-
-        String busId1 = busId(1);
-        String busId2 = busId(2);
-        final Line l = context.network().newLine()
-                .setId(iidmId())
-                .setName(iidmName())
+        final LineAdder adder = context.network().newLine()
                 .setEnsureIdUnicity(false)
-                .setBus1(terminalConnected(1) ? busId1 : null)
-                .setBus2(terminalConnected(2) ? busId2 : null)
-                .setConnectableBus1(busId1)
-                .setConnectableBus2(busId2)
-                .setVoltageLevel1(iidmVoltageLevelId(1))
-                .setVoltageLevel2(iidmVoltageLevelId(2))
                 .setR(r)
                 .setX(x)
                 .setG1(gch / 2)
                 .setG2(gch / 2)
                 .setB1(bch / 2)
-                .setB2(bch / 2)
-                .add();
-
+                .setB2(bch / 2);
+        identify(adder);
+        connect(adder);
+        final Line l = adder.add();
         convertedTerminals(l.getTerminal1(), l.getTerminal2());
     }
 
@@ -131,7 +124,8 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         if (terminalConnected(boundarySide) && context.boundary().hasPowerFlow(boundaryNode)) {
             f = context.boundary().powerFlowAtNode(boundaryNode);
         }
-        // There should be some equipment at boundarySide to model exchange through that point
+        // There should be some equipment at boundarySide to model exchange through that
+        // point
         // But we have observed, for the test case conformity/miniBusBranch,
         // that the ACLineSegment:
         // _5150a037-e241-421f-98b2-fe60e5c90303 XQ1-N1
@@ -145,28 +139,24 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         double x = p.asDouble("x");
         double bch = p.asDouble("bch");
         double gch = p.asDouble("gch", 0.0);
-        boolean connected = terminalConnected(modelSide);
-        DanglingLine dl = voltageLevel(modelSide).newDanglingLine()
-                .setId(iidmId())
-                .setName(iidmName())
+        DanglingLineAdder adder = voltageLevel(modelSide).newDanglingLine()
                 .setEnsureIdUnicity(false)
-                .setBus(connected ? busId(modelSide) : null)
-                .setConnectableBus(busId(modelSide))
                 .setR(r)
                 .setX(x)
                 .setG(gch)
                 .setB(bch)
                 .setUcteXnodeCode(findUcteXnodeCode(boundaryNode))
                 .setP0(f.p())
-                .setQ0(f.q())
-                .add();
-
+                .setQ0(f.q());
+        identify(adder);
+        connect(adder, modelSide);
+        DanglingLine dl = adder.add();
         convertedTerminal(terminalId(modelSide), dl.getTerminal(), 1, powerFlow(modelSide));
 
         // If we do not have power flow at model side and we can compute it,
         // do it and assign the result at the terminal of the dangling line
         if (context.config().computeFlowsAtBoundaryDanglingLines()
-                && connected
+                && terminalConnected(modelSide)
                 && !powerFlow(modelSide).defined()
                 && context.boundary().hasVoltage(boundaryNode)) {
             double v = context.boundary().vAtBoundary(boundaryNode);
@@ -209,10 +199,18 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
             otherEnd = 2;
         }
 
+        String iidmVoltageLevelId1 = iidmVoltageLevelId(thisEnd);
+        String iidmVoltageLevelId2 = otherc.iidmVoltageLevelId(otherEnd);
         boolean mt1connected = terminalConnected(thisEnd);
         boolean mt2connected = otherc.terminalConnected(otherEnd);
         String mbus1 = busId(thisEnd);
         String mbus2 = otherc.busId(otherEnd);
+        int mnode1 = -1;
+        int mnode2 = -1;
+        if (context.nodeBreaker()) {
+            mnode1 = iidmNode(thisEnd);
+            mnode2 = otherc.iidmNode(otherEnd);
+        }
 
         double lineR = p.asDouble("r");
         double lineX = p.asDouble("x");
@@ -245,34 +243,18 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
             pi2.g2 = pi2.g1;
             pi2.b2 = pi2.b1;
             PiModel pim = Quadripole.from(pi1).cascade(Quadripole.from(pi2)).toPiModel();
-            mline = context.network().newLine()
-                    .setId(id1 + " + " + id2)
-                    .setName(name1 + " + " + name2)
-                    .setEnsureIdUnicity(false)
-                    .setBus1(mt1connected ? mbus1 : null)
-                    .setBus2(mt2connected ? mbus2 : null)
-                    .setConnectableBus1(mbus1)
-                    .setConnectableBus2(mbus2)
-                    .setVoltageLevel1(iidmVoltageLevelId(thisEnd))
-                    .setVoltageLevel2(otherc.iidmVoltageLevelId(otherEnd))
+            LineAdder adder = context.network().newLine()
                     .setR(pim.r)
                     .setX(pim.x)
                     .setG1(pim.g1)
                     .setG2(pim.g2)
                     .setB1(pim.b1)
-                    .setB2(pim.b2)
-                    .add();
+                    .setB2(pim.b2);
+            identify(adder, id1 + " + " + id2, name1 + " + " + name2);
+            connect(adder, iidmVoltageLevelId1, mbus1, mt1connected, mnode1, iidmVoltageLevelId2, mbus2, mt2connected, mnode2);
+            mline = adder.add();
         } else {
-            mline = context.network().newTieLine()
-                    .setId(id1 + " + " + id2)
-                    .setName(name1 + " + " + name2)
-                    .setEnsureIdUnicity(false)
-                    .setBus1(mt1connected ? mbus1 : null)
-                    .setBus2(mt2connected ? mbus2 : null)
-                    .setConnectableBus1(mbus1)
-                    .setConnectableBus2(mbus2)
-                    .setVoltageLevel1(iidmVoltageLevelId(thisEnd))
-                    .setVoltageLevel2(otherc.iidmVoltageLevelId(otherEnd))
+            TieLineAdder adder = context.network().newTieLine()
                     .line1()
                     .setId(id1)
                     .setName(name1)
@@ -295,16 +277,13 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
                     .setB2(otherBch / 2)
                     .setXnodeP(0)
                     .setXnodeQ(0)
-                    .setUcteXnodeCode(findUcteXnodeCode(boundaryNode))
-                    .add();
+                    .setUcteXnodeCode(findUcteXnodeCode(boundaryNode));
+            identify(adder, id1 + " + " + id2, name1 + " + " + name2);
+            connect(adder, iidmVoltageLevelId1, mbus1, mt1connected, mnode1, iidmVoltageLevelId2, mbus2, mt2connected, mnode2);
+            mline = adder.add();
         }
-
         convertedTerminal(terminalId(thisEnd), mline.getTerminal1(), 1, powerFlow(thisEnd));
-        convertedTerminal(
-                otherc.terminalId(otherEnd),
-                mline.getTerminal2(),
-                2,
-                otherc.powerFlow(otherEnd));
+        convertedTerminal(otherc.terminalId(otherEnd), mline.getTerminal2(), 2, otherc.powerFlow(otherEnd));
     }
 
     static class PiModel {

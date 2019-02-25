@@ -84,7 +84,6 @@ public class SmallSignalSecurityIndex extends AbstractSecurityIndex {
         }
     }
 
-
     public SmallSignalSecurityIndex(String contingencyId, double gmi, double[] ami, double[][] smi) {
         super(contingencyId, SecurityIndexType.SMALLSIGNAL);
         this.gmi = gmi;
@@ -181,7 +180,6 @@ public class SmallSignalSecurityIndex extends AbstractSecurityIndex {
             this.matrices = matrices;
         }
 
-
         @XmlAttribute
         public String getName() {
             return name;
@@ -214,7 +212,6 @@ public class SmallSignalSecurityIndex extends AbstractSecurityIndex {
             return builder.toString();
         }
     }
-
 
     public static class Matrix {
         private String name;
@@ -250,7 +247,6 @@ public class SmallSignalSecurityIndex extends AbstractSecurityIndex {
             builder.append("]]");
             return builder.toString();
         }
-
 
         @XmlElement(name = "m")
         @XmlJavaTypeAdapter(MatrixAdapter.class)

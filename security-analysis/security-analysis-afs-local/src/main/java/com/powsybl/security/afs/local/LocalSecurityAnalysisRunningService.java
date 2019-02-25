@@ -57,6 +57,7 @@ public class LocalSecurityAnalysisRunningService implements SecurityAnalysisRunn
 
             logger.log("Loading network...");
             Network network = aCase.getNetwork();
+            network.getVariantManager().allowVariantMultiThreadAccess(true);
 
             SecurityAnalysis securityAnalysis = factorySupplier.get().create(network, computationManager, 0);
 
@@ -66,7 +67,7 @@ public class LocalSecurityAnalysisRunningService implements SecurityAnalysisRunn
             }
 
             logger.log("Running security analysis...");
-            securityAnalysis.run(network.getStateManager().getWorkingStateId(), parameters, contingencyListProvider)
+            securityAnalysis.run(network.getVariantManager().getWorkingVariantId(), parameters, contingencyListProvider)
                     .handleAsync((result, throwable) -> {
                         if (throwable == null) {
                             logger.log("Security analysis complete, storing results...");

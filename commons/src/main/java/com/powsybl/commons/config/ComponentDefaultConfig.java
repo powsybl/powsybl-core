@@ -23,7 +23,7 @@ public interface ComponentDefaultConfig {
     }
 
     static ComponentDefaultConfig load(PlatformConfig platformConfig) {
-        return new Impl(platformConfig.getModuleConfigIfExists("componentDefaultConfig"));
+        return new Impl(platformConfig.getOptionalModuleConfig("componentDefaultConfig").orElse(null));
     }
 
     class Impl implements ComponentDefaultConfig {

@@ -7,18 +7,6 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Properties;
-
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conversion.CgmesExport;
 import com.powsybl.cgmes.conversion.CgmesImport;
@@ -31,6 +19,17 @@ import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.TripleStoreFactory;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -46,12 +45,12 @@ public class ImportExportPerformanceTest {
 
     @Test
     public void smallcase1() throws IOException {
-        importExport(TripleStoreFactory.allImplementations(), catalog.small1());
+        importExport(TripleStoreFactory.onlyDefaultImplementation(), catalog.small1());
     }
 
     private void importExport(List<String> tsImpls, TestGridModel gm) throws IOException {
         try (FileSystem fs = Jimfs.newFileSystem()) {
-            ReadOnlyDataSource ds = gm.dataSourceBasedOn(fs);
+            ReadOnlyDataSource ds = gm.dataSource();
 
             int size = tsImpls.size();
             long[] startTimes = new long[size];

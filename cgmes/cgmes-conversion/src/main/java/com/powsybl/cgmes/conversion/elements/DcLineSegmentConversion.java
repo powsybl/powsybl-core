@@ -9,10 +9,11 @@ package com.powsybl.cgmes.conversion.elements;
 
 import java.util.Objects;
 
-import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.network.HvdcLineAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -20,7 +21,7 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion {
 
-    public DcLineSegmentConversion(PropertyBag l, Conversion.Context context) {
+    public DcLineSegmentConversion(PropertyBag l, Context context) {
         super("DCLineSegment", l, context);
 
         iconverter1 = context.dc().converterAt(l.getId("DCTerminal1"));
@@ -49,18 +50,16 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
         double maxP = p * 1.2;
         missing("maxP", maxP);
 
-        context.network().newHvdcLine()
-                .setId(iidmId())
-                .setName(iidmName())
-                .setEnsureIdUnicity(false)
+        HvdcLineAdder adder = context.network().newHvdcLine()
                 .setR(r())
                 .setNominalV(ratedUdc())
                 .setActivePowerSetpoint(p)
                 .setMaxP(maxP)
                 .setConvertersMode(decodeMode())
                 .setConverterStationId1(iconverter1.getId())
-                .setConverterStationId2(iconverter2.getId())
-                .add();
+                .setConverterStationId2(iconverter2.getId());
+        identify(adder);
+        adder.add();
     }
 
     private double r() {
@@ -116,21 +115,39 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
         } else if (rectifier(mode1) && inverter(mode2)) {
             return HvdcLine.ConvertersMode.SIDE_1_RECTIFIER_SIDE_2_INVERTER;
         } else {
-            invalid(String.format("Unsupported modeling. Converters modes %s %s", mode1, mode2));
-            return null;
+            // TODO: For Voltage Source Converter we do not have operatingMode,
+            // So we can only try to determine rectifier and inverter
+            // from the type of control mode defined at the converters
+            if (DEFAULT_CONVERTERS_MODE != null) {
+                pending("Converters modes", String.format("Undefined converters modes %s %s", mode1, mode2));
+                return DEFAULT_CONVERTERS_MODE;
+            } else {
+                invalid(String.format("Unsupported modeling. Converters modes %s %s", mode1, mode2));
+                return null;
+            }
         }
     }
 
     private boolean inverter(String operatingMode) {
+        // TODO: VsConverter do not have operatingMode
+        if (operatingMode == null) {
+            return false;
+        }
         return operatingMode.toLowerCase().endsWith("inverter");
     }
 
     private boolean rectifier(String operatingMode) {
+        // TODO: VsConverter do not have operatingMode
+        if (operatingMode == null) {
+            return false;
+        }
         return operatingMode.toLowerCase().endsWith("rectifier");
     }
 
-    private HvdcConverterStation iconverter1;
-    private HvdcConverterStation iconverter2;
+    private HvdcConverterStation<?> iconverter1;
+    private HvdcConverterStation<?> iconverter2;
     private PropertyBag cconverter1;
     private PropertyBag cconverter2;
+
+    private static final HvdcLine.ConvertersMode DEFAULT_CONVERTERS_MODE = HvdcLine.ConvertersMode.SIDE_1_INVERTER_SIDE_2_RECTIFIER;
 }

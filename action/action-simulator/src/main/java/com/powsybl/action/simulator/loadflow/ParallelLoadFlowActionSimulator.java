@@ -33,6 +33,7 @@ import static com.powsybl.tools.ToolConstants.TASK;
  * submitted to the computation manager.
  *
  * @author Yichen Tang <yichen.tang at rte-france.com>
+ * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public class ParallelLoadFlowActionSimulator {
 
@@ -98,7 +99,6 @@ public class ParallelLoadFlowActionSimulator {
      */
     private final class SubTaskHandler extends AbstractExecutionHandler<SecurityAnalysisResult> {
 
-
         private final int actualTaskCount;
         private final String script;
         private final List<String> contingencyIds;
@@ -122,7 +122,8 @@ public class ParallelLoadFlowActionSimulator {
          * Reads result files and merge them.
          */
         @Override
-        public SecurityAnalysisResult after(Path workingDir, ExecutionReport report) {
+        public SecurityAnalysisResult after(Path workingDir, ExecutionReport report) throws IOException {
+            super.after(workingDir, report);
             LOGGER.debug("End of command execution in {}. ", workingDir);
             List<SecurityAnalysisResult> results = new ArrayList<>();
             for (int taskNum = 0; taskNum < actualTaskCount; taskNum++) {

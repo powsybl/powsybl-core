@@ -57,17 +57,16 @@ GRAPH ?graph2 {
 }
 
 # query: terminals
-# We are assuming here that connectivity node containers will always be voltage levels
 SELECT *
 WHERE {
 { GRAPH ?graph {
     ?Terminal
         a cim:Terminal ;
         cim:Terminal.ConductingEquipment ?ConductingEquipment .
-    ?ConductingEquipment a ?conductingEquipmentType .
+    ?ConductingEquipment a ?conductingEquipmentType
 }}
 { GRAPH ?graphTP {
-    ?Terminal cim:Terminal.connected ?connected .
+    ?Terminal cim:Terminal.connected ?connected
 }}
 OPTIONAL { GRAPH ?graphSV {
     ?SvPowerFlow
@@ -76,26 +75,44 @@ OPTIONAL { GRAPH ?graphSV {
         cim:SvPowerFlow.p ?p ;
         cim:SvPowerFlow.q ?q
 }}
+OPTIONAL { GRAPH ?graphTP2 {
+    ?Terminal cim:Terminal.TopologicalNode ?TopologicalNode
+}}
 }
 
-# query: terminalsTP
-# We are assuming here that connectivity node containers will always be voltage levels
+# query: topologicalNodes
 SELECT *
 WHERE {
-{ GRAPH ?graph {
-    ?Terminal a cim:Terminal
-}}
 { GRAPH ?graphTP {
-    ?Terminal cim:Terminal.TopologicalNode ?TopologicalNode .
-    ?TopologicalNode cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainer
-    BIND ( ?ConnectivityNodeContainer AS ?VoltageLevel )
+    ?TopologicalNode 
+    	cim:IdentifiedObject.name ?name ;
+    	cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainer
 }}
-{ GRAPH ?graph2 {
-    ?VoltageLevel cim:VoltageLevel.MemberOf_Substation ?Substation
+OPTIONAL { GRAPH ?graphSV {
+	?SvVoltage 
+		a cim:SvVoltage ;
+    	cim:SvVoltage.TopologicalNode ?TopologicalNode ;
+		cim:SvVoltage.v ?v ;
+		cim:SvVoltage.angle ?angle 
 }}
 }
 
-# query: terminalLimits
+# query: connectivityNodeContainers
+SELECT *
+WHERE {
+{ GRAPH ?graphEQ {
+    ?ConnectivityNodeContainer a ?connectivityNodeContainerType .
+    VALUES ?connectivityNodeContainerType { cim:VoltageLevel cim:Line } .
+    OPTIONAL {
+        ?ConnectivityNodeContainer
+            a cim:VoltageLevel ;
+            cim:VoltageLevel.MemberOf_Substation ?Substation .
+        BIND ( ?ConnectivityNodeContainer AS ?VoltageLevel )
+    }
+}}
+}
+
+# query: operationalLimits
 SELECT *
 { GRAPH ?graph {
     ?Terminal a cim:Terminal .
@@ -120,30 +137,6 @@ SELECT *
     OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.direction ?direction }
     OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.acceptableDuration ?acceptableDuration }
 }}
-
-# query: topologicalNodes
-SELECT *
-WHERE {
-# Topological nodes that refer to a connectivity node container that is a voltage level
-{ GRAPH ?graphTP {
-    ?TopologicalNode
-        a cim:TopologicalNode ;
-        cim:IdentifiedObject.name ?TopologicalNodeName ;
-        cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainer
-}}
-# TODO other connectivity node containers ... (Lines in Boundaries)
-OPTIONAL { GRAPH ?graphEQ {
-    ?ConnectivityNodeContainer a cim:VoltageLevel
-    BIND ( ?ConnectivityNodeContainer AS ?VoltageLevel )
-}}
-{ GRAPH ?graphSV {
-    ?SvVoltage
-        a cim:SvVoltage ;
-        cim:SvVoltage.TopologicalNode ?TopologicalNode ;
-        cim:SvVoltage.angle ?angle ;
-        cim:SvVoltage.v ?v ;
-}}
-}
 
 # query: switches
 SELECT *

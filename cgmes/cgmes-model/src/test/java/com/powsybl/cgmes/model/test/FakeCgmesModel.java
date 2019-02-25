@@ -9,7 +9,9 @@ import java.util.function.Consumer;
 
 import org.joda.time.DateTime;
 
+import com.powsybl.cgmes.model.CgmesContainer;
 import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.Subset;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -25,9 +27,10 @@ public final class FakeCgmesModel implements CgmesModel {
     private PropertyBags substations;
     private PropertyBags voltageLevels;
     private PropertyBags terminals;
-    private PropertyBags terminalLimits;
+    private PropertyBags operationalLimits;
     private PropertyBags connectivityNodes;
     private PropertyBags topologicalNodes;
+    private PropertyBags busbarSections;
     private PropertyBags switches;
     private PropertyBags acLineSegments;
     private PropertyBags equivalentBranches;
@@ -59,9 +62,10 @@ public final class FakeCgmesModel implements CgmesModel {
         substations = new PropertyBags();
         voltageLevels = new PropertyBags();
         terminals = new PropertyBags();
-        terminalLimits = new PropertyBags();
+        operationalLimits = new PropertyBags();
         connectivityNodes = new PropertyBags();
         topologicalNodes = new PropertyBags();
+        busbarSections = new PropertyBags();
         switches = new PropertyBags();
         acLineSegments = new PropertyBags();
         equivalentBranches = new PropertyBags();
@@ -82,6 +86,10 @@ public final class FakeCgmesModel implements CgmesModel {
         dcLineSegments = new PropertyBags();
         dcTerminals = new PropertyBags();
         numObjectsByType = new PropertyBags();
+    }
+
+    public boolean hasEquipmentCore() {
+        return true;
     }
 
     public FakeCgmesModel modelId(String modelId) {
@@ -120,13 +128,18 @@ public final class FakeCgmesModel implements CgmesModel {
         return this;
     }
 
-    public FakeCgmesModel terminalLimits(String... ids) {
-        fakeObjectsFromIdentifiers("OperationalLimit", ids, terminalLimits);
+    public FakeCgmesModel operationalLimits(String... ids) {
+        fakeObjectsFromIdentifiers("OperationalLimit", ids, operationalLimits);
         return this;
     }
 
     public FakeCgmesModel topologicalNodes(String... ids) {
         fakeObjectsFromIdentifiers("TopologicalNode", ids, topologicalNodes);
+        return this;
+    }
+
+    public FakeCgmesModel busbarSections(String... ids) {
+        fakeObjectsFromIdentifiers("BusbarSection", ids, busbarSections);
         return this;
     }
 
@@ -210,8 +223,7 @@ public final class FakeCgmesModel implements CgmesModel {
         return this;
     }
 
-    private void fakeObjectsFromIdentifiers(String propertyNameId, String[] ids,
-            PropertyBags objects) {
+    private void fakeObjectsFromIdentifiers(String propertyNameId, String[] ids, PropertyBags objects) {
         String[] propertyNames = {propertyNameId};
         for (String id : ids) {
             PropertyBag p = new PropertyBag(Arrays.asList(propertyNames));
@@ -282,18 +294,14 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
-    public PropertyBags terminalsTP() {
+    public PropertyBags connectivityNodeContainers() {
+        // TODO(Luma) refactoring node-breaker conversion temporal
         return null;
     }
 
     @Override
-    public PropertyBags terminalsCN() {
-        return null;
-    }
-
-    @Override
-    public PropertyBags terminalLimits() {
-        return terminalLimits;
+    public PropertyBags operationalLimits() {
+        return operationalLimits;
     }
 
     @Override
@@ -304,6 +312,11 @@ public final class FakeCgmesModel implements CgmesModel {
     @Override
     public PropertyBags topologicalNodes() {
         return topologicalNodes;
+    }
+
+    @Override
+    public PropertyBags busBarSections() {
+        return busbarSections;
     }
 
     @Override
@@ -388,6 +401,18 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags ratioTapChangerTablesPoints() {
+        // FakeCgmesModel does not implement ratio tap changer tables
+        return null;
+    }
+
+    @Override
+    public PropertyBags ratioTapChangerTable(String tableId) {
+        // FakeCgmesModel does not implement ratio tap changer tables
+        return null;
+    }
+
+    @Override
     public PropertyBags phaseTapChangerTable(String tableId) {
         // FakeCgmesModel does not implement phase tap changer tables
         return null;
@@ -462,5 +487,25 @@ public final class FakeCgmesModel implements CgmesModel {
     @Override
     public String phaseTapChangerForPowerTransformer(String powerTransformerId) {
         return null;
+    }
+
+    @Override
+    public String substation(CgmesTerminal t) {
+        return null;
+    }
+
+    @Override
+    public String voltageLevel(CgmesTerminal t) {
+        return null;
+    }
+
+    @Override
+    public CgmesContainer container(String containerId) {
+        return null;
+    }
+
+    @Override
+    public double nominalVoltage(String baseVoltageId) {
+        return Double.NaN;
     }
 }

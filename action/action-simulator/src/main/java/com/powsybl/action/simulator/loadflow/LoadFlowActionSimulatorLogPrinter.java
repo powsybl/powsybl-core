@@ -7,12 +7,13 @@
 package com.powsybl.action.simulator.loadflow;
 
 import com.powsybl.action.dsl.Rule;
+import com.powsybl.commons.io.table.AbstractTableFormatter;
+import com.powsybl.commons.io.table.AsciiTableFormatter;
+import com.powsybl.commons.io.table.Column;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.Security;
-import org.nocrala.tools.texttablefmt.BorderStyle;
-import org.nocrala.tools.texttablefmt.Table;
 
-import java.io.PrintStream;
+import java.io.*;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -68,18 +69,21 @@ public class LoadFlowActionSimulatorLogPrinter extends DefaultLoadFlowActionSimu
             out.println("        Rule '" + rule.getId() + "' evaluated to " + status);
         }
         if (verbose &&  (variables.size() + actions.size() > 0)) {
-            Table table = new Table(2, BorderStyle.CLASSIC_WIDE);
-            table.addCell("Variable");
-            table.addCell("Value");
-            variables.forEach((key, value) -> {
-                table.addCell(key);
-                table.addCell(Objects.toString(value));
-            });
-            actions.forEach((key, value) -> {
-                table.addCell(key + ".actionTaken");
-                table.addCell(value.toString());
-            });
-            out.println(table.render());
+            Writer writer = new OutputStreamWriter(out);
+            try (AbstractTableFormatter formatter = new AsciiTableFormatter(writer, null,
+                         new Column("Variable"),
+                         new Column("Value"))) {
+                for (Map.Entry<String, Object> entry : variables.entrySet()) {
+                    formatter.writeCell(entry.getKey());
+                    formatter.writeCell(Objects.toString(entry.getValue()));
+                }
+                for (Map.Entry<String, Boolean> entry : actions.entrySet()) {
+                    formatter.writeCell(entry.getKey() + ".actionTaken");
+                    formatter.writeCell(entry.getValue());
+                }
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
         }
     }
 

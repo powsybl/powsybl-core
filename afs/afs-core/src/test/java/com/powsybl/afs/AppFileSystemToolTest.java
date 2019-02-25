@@ -34,7 +34,7 @@ public class AppFileSystemToolTest extends AbstractToolTest {
         tool = new AppFileSystemTool() {
             @Override
             protected AppData createAppData(ToolRunningContext context) {
-                AppStorage storage = MapDbAppStorage.createHeap("mem");
+                AppStorage storage = MapDbAppStorage.createMem("mem");
                 AppFileSystem afs = new AppFileSystem("mem", false, storage);
                 AppData appData = new AppData(computationManager, computationManager, Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
                         Collections.emptyList(), Collections.emptyList(), Collections.emptyList());

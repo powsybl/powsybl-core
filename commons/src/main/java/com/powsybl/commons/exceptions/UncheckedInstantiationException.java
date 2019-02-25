@@ -19,7 +19,7 @@ public class UncheckedInstantiationException extends RuntimeException {
     }
 
     @Override
-    public InstantiationException getCause() {
+    public synchronized InstantiationException getCause() {
         return (InstantiationException) super.getCause();
     }
 }

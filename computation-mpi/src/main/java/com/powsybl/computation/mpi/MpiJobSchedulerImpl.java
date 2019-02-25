@@ -568,7 +568,7 @@ class MpiJobSchedulerImpl implements MpiJobScheduler {
     }
 
     private void processCompletedJob(MpiJob job) {
-        ExecutionReport report = new ExecutionReport(job.getErrors());
+        ExecutionReport report = new DefaultExecutionReport(job.getErrors());
         try {
             job.getListener().onEnd(report);
         } catch (Exception e) {

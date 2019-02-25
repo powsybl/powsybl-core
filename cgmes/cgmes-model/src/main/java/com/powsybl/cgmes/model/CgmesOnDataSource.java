@@ -17,6 +17,11 @@ import java.util.stream.Stream;
 
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 
+import static com.powsybl.cgmes.model.CgmesNamespace.*;
+
+/**
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ */
 public class CgmesOnDataSource {
     public CgmesOnDataSource(ReadOnlyDataSource ds) {
         this.dataSource = ds;
@@ -99,12 +104,4 @@ public class CgmesOnDataSource {
             + REGEX_VALID_NAME_IDS
             // Any number of characters and ending with extension .xml
             + ".*\\.XML$";
-
-    // cim14 is the CIM version corresponding to ENTSO-E Profile 1
-    // It is used in this project to explore how to support future CGMES versions
-    // We have sample models in cim14 and we use a different set of queries to obtain data
-
-    private static final String CIM_16_NAMESPACE = "http://iec.ch/TC57/2013/CIM-schema-cim16#";
-    private static final String CIM_14_NAMESPACE = "http://iec.ch/TC57/2009/CIM-schema-cim14#";
-    private static final String RDF_NAMESPACE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#";
 }

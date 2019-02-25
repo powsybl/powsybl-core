@@ -46,6 +46,7 @@
 /iidm/iidm-api/target
 /iidm/iidm-converter-api/target/
 /iidm/iidm-impl/target/
+/iidm/iidm-reducer/target/
 /iidm/iidm-test/target/
 /iidm/iidm-util/target/
 /iidm/iidm-xml-converter/target/

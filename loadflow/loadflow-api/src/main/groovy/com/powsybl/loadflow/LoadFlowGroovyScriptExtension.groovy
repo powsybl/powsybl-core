@@ -48,7 +48,7 @@ class LoadFlowGroovyScriptExtension implements GroovyScriptExtension {
         binding.loadFlow = { Network network, LoadFlowParameters parameters = this.parameters ->
             LoadFlowFactory loadFlowFactory = loadFlowFactorySupplier.get()
             LoadFlow loadFlow = loadFlowFactory.create(network, computationManager, 0)
-            loadFlow.run(network.getStateManager().getWorkingStateId(), parameters).join()
+            loadFlow.run(network.getVariantManager().getWorkingVariantId(), parameters).join()
         }
     }
 }
