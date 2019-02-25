@@ -25,9 +25,7 @@ public class ImportOptionsTest {
         ImportOptions options = new ImportOptions();
         options.setMode(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE);
 
-        assertEquals(Boolean.TRUE, options.isImportFromBaseAndMultipleExtensionFiles());
-        assertEquals(Boolean.FALSE, options.isImportFromBaseAndExtensionsFiles());
-
+        assertEquals(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE, options.getMode());
         Set<String> extensionsList = Sets.newHashSet("loadFoo", "loadBar");
         options.setExtensions(extensionsList);
         assertEquals(Boolean.FALSE, options.withNoExtension());
@@ -43,8 +41,7 @@ public class ImportOptionsTest {
         options.setExtensions(extensionsList);
 
         assertEquals(Boolean.FALSE, options.isThrowExceptionIfExtensionNotFound());
-        assertEquals(Boolean.FALSE, options.isImportFromBaseAndMultipleExtensionFiles());
-        assertEquals(Boolean.FALSE, options.isImportFromBaseAndExtensionsFiles());
+        assertEquals(IidmImportExportMode.NO_SEPARATED_FILE_FOR_EXTENSIONS, options.getMode());
         assertEquals(Boolean.FALSE, options.withNoExtension());
         assertEquals(2, options.getExtensions().size());
     }
@@ -54,8 +51,7 @@ public class ImportOptionsTest {
         ImportOptions options = new ImportOptions(Boolean.FALSE);
 
         assertEquals(Boolean.FALSE, options.isThrowExceptionIfExtensionNotFound());
-        assertEquals(Boolean.FALSE, options.isImportFromBaseAndMultipleExtensionFiles());
-        assertEquals(Boolean.FALSE, options.isImportFromBaseAndExtensionsFiles());
+        assertEquals(IidmImportExportMode.NO_SEPARATED_FILE_FOR_EXTENSIONS, options.getMode());
         assertEquals(Boolean.FALSE, options.withNoExtension());
         assertEquals(1, options.getExtensions().size());
         assertEquals(Boolean.TRUE, options.withAllExtensions());

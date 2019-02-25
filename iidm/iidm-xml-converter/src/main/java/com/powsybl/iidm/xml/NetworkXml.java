@@ -17,6 +17,7 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.anonymizer.Anonymizer;
 import com.powsybl.iidm.anonymizer.SimpleAnonymizer;
 import com.powsybl.iidm.export.BusFilter;
@@ -169,7 +170,11 @@ public final class NetworkXml {
         XMLStreamWriter writer = context.getExtensionswWriter();
         ExtensionXmlSerializer extensionXmlSerializer = getExtensionXmlSerializer(context.getOptions(),
                 extension.getName());
+
         if (extensionXmlSerializer == null) {
+            if (context.getOptions().isThrowExceptionIfExtensionNotFound()) {
+                throw new PowsyblException("XmlSerializer for" + extension.getName() + "not found");
+            }
             return;
         }
         if (extensionXmlSerializer.hasSubElements()) {
@@ -331,7 +336,7 @@ public final class NetworkXml {
         try (OutputStream osb = dataSource.newOutputStream(null, XIIDM, false);
              BufferedOutputStream bosb = new BufferedOutputStream(osb)) {
 
-            if (options.isBaseAndExtensionsInOneSingleFile()) {
+            if (options.getMode() == IidmImportExportMode.NO_SEPARATED_FILE_FOR_EXTENSIONS) {
                 Anonymizer anonymizer = write(network, options, bosb);
                 if (options.isAnonymized()) {
                     try (BufferedWriter writer2 = new BufferedWriter(new OutputStreamWriter(dataSource.newOutputStream("_mapping", "csv", false), StandardCharsets.UTF_8))) {
@@ -347,7 +352,7 @@ public final class NetworkXml {
             // write extensions
             if (!options.withNoExtension() && !getNetworkExtensions(network).isEmpty()) {
 
-                if (options.isSeparateBaseAndExtensions()) {
+                if (options.getMode() == IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE) {
                     try (OutputStream ose = dataSource.newOutputStream("-ext", XIIDM, false);
                          BufferedOutputStream bose = new BufferedOutputStream(ose)) {
 
@@ -356,7 +361,7 @@ public final class NetworkXml {
                         writeExtensions(network, context, options);
                         writeEndElement(extensionsWriter);
                     }
-                } else if (options.isOneFilePerExtensionType()) {
+                } else if (options.getMode() == IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE) {
                     writeExtensionsInMultipleFile(network, context, dataSource, options);
                 }
             }
@@ -380,18 +385,6 @@ public final class NetworkXml {
 
     public static Network read(InputStream is) {
         return read(is, new ImportOptions(), null);
-    }
-
-    public static void runEndTasks(NetworkXmlReaderContext context, Set<String> extensionNamesNotFound, ImportOptions config) {
-        context.getEndTasks().forEach(Runnable::run);
-
-        if (!extensionNamesNotFound.isEmpty()) {
-            if (config.isThrowExceptionIfExtensionNotFound()) {
-                throw new PowsyblException("Extensions " + extensionNamesNotFound + " not found !");
-            } else {
-                LOGGER.error("Extensions {} not found", extensionNamesNotFound);
-            }
-        }
     }
 
     public static Network read(InputStream is, ImportOptions config, Anonymizer anonymizer) {
@@ -436,7 +429,7 @@ public final class NetworkXml {
                         String id2 = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, "id"));
                         Identifiable identifiable = network.getIdentifiable(id2);
                         if (identifiable == null) {
-                            throw new PowsyblException("Identifiable " + id2 + "not found");
+                            throw new PowsyblException("Identifiable " + id2 + " not found");
                         }
 
                         readExtensions(identifiable, context, extensionNamesNotFound);
@@ -446,8 +439,7 @@ public final class NetworkXml {
                         throw new AssertionError();
                 }
             });
-
-            runEndTasks(context, extensionNamesNotFound, config);
+            context.getEndTasks().forEach(Runnable::run);
             return network;
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
@@ -542,6 +534,15 @@ public final class NetworkXml {
                 }
             }
         });
+
+        if (!extensionNamesNotFound.isEmpty()) {
+            if (context.getOptions().isThrowExceptionIfExtensionNotFound()) {
+                throw new PowsyblException("Extensions " + extensionNamesNotFound + " " +
+                        "not found !");
+            } else {
+                LOGGER.error("Extensions {} not found", extensionNamesNotFound);
+            }
+        }
     }
 
     public static void update(Network network, InputStream is) {

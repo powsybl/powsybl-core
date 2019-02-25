@@ -27,8 +27,6 @@ public class ExportOptionsTest {
         ExportOptions options = new ExportOptions();
         options.setMode(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE);
         assertEquals(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE, options.getMode());
-        assertEquals(Boolean.TRUE, options.isOneFilePerExtensionType());
-        assertEquals(Boolean.FALSE, options.isSeparateBaseAndExtensions());
 
         Set<String> extensionsList = Sets.newHashSet("loadFoo", "loadBar");
         options.setExtensions(extensionsList);

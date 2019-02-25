@@ -35,11 +35,9 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     private boolean throwExceptionIfExtensionNotFound = false;
 
     public ExportOptions() {
-        super();
     }
 
     public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound) {
-        super();
         this.withBranchSV = withBranchSV;
         this.indent = indent;
         this.onlyMainCc = onlyMainCc;
@@ -126,18 +124,6 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     public ExportOptions setThrowExceptionIfExtensionNotFound(boolean throwException) {
         this.throwExceptionIfExtensionNotFound = throwException;
         return this;
-    }
-
-    public boolean isOneFilePerExtensionType() {
-        return this.mode == IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE;
-    }
-
-    public boolean isSeparateBaseAndExtensions() {
-        return this.mode == IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE;
-    }
-
-    public boolean isBaseAndExtensionsInOneSingleFile() {
-        return this.mode == IidmImportExportMode.NO_SEPARATED_FILE_FOR_EXTENSIONS;
     }
 
     /**

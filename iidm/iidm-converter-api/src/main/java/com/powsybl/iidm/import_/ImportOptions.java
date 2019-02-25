@@ -20,7 +20,6 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
     private boolean throwExceptionIfExtensionNotFound = false;
 
     public ImportOptions() {
-        super();
     }
 
     public ImportOptions(boolean throwExceptionIfExtensionNotFound) {
@@ -52,13 +51,5 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
 
     public boolean isThrowExceptionIfExtensionNotFound() {
         return throwExceptionIfExtensionNotFound;
-    }
-
-    public boolean isImportFromBaseAndExtensionsFiles() {
-        return this.mode == IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE;
-    }
-
-    public boolean isImportFromBaseAndMultipleExtensionFiles() {
-        return this.mode == IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE;
     }
 }

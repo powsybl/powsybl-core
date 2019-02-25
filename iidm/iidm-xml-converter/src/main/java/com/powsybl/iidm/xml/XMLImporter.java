@@ -213,6 +213,7 @@ public class XMLImporter implements Importer {
                         break;
                 }
             }
+
             LOGGER.debug("XIIDM import done in {} ms", System.currentTimeMillis() - startTime);
         } catch (IOException e) {
             throw new PowsyblException(e);
