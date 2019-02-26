@@ -453,11 +453,11 @@ WHERE {
     ?RatioTapChangerTablePoint
         a cim:RatioTapChangerTablePoint ;
         cim:RatioTapChangerTablePoint.RatioTapChangerTable ?Table ;
-        cim:TapChangerTablePoint.ratio ?ratio ;
         cim:TapChangerTablePoint.step ?step .
     FILTER regex(str(?Table), "{0}")
     OPTIONAL {
         ?RatioTapChangerTablePoint
+            cim:TapChangerTablePoint.ratio ?ratio ;
             cim:TapChangerTablePoint.r ?r ;
             cim:TapChangerTablePoint.x ?x ;
             cim:TapChangerTablePoint.g ?g ;
@@ -471,10 +471,10 @@ WHERE {
     ?RatioTapChangerTablePoint
         a cim:RatioTapChangerTablePoint ;
         cim:RatioTapChangerTablePoint.RatioTapChangerTable ?RatioTapChangerTable ;
-        cim:TapChangerTablePoint.ratio ?ratio ;
         cim:TapChangerTablePoint.step ?step .
     OPTIONAL {
         ?RatioTapChangerTablePoint
+            cim:TapChangerTablePoint.ratio ?ratio ;
             cim:TapChangerTablePoint.r ?r ;
             cim:TapChangerTablePoint.x ?x ;
             cim:TapChangerTablePoint.g ?g ;
