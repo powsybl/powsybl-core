@@ -228,7 +228,9 @@ WHERE
 { GRAPH ?graph {
     {
         ?Terminal a cim:Terminal .
-        ?OperationalLimitSet cim:OperationalLimitSet.Terminal ?Terminal .
+        ?OperationalLimitSet 
+        	cim:OperationalLimitSet.Terminal ?Terminal ;
+        	cim:IdentifiedObject.name ?name
     }
     # operational limit sets can also be attached directly to equipments
     UNION
@@ -406,6 +408,7 @@ WHERE {
 { GRAPH ?graphEQ {
     ?RatioTapChanger
         a cim:RatioTapChanger ;
+        cim:IdentifiedObject.name ?name ;
         cim:TapChanger.lowStep ?lowStep ;
         cim:TapChanger.highStep ?highStep ;
         cim:TapChanger.neutralStep ?neutralStep ;
@@ -489,6 +492,7 @@ WHERE {
 { GRAPH ?graph {
     ?PhaseTapChanger
         a ?phaseTapChangerType ;
+        cim:IdentifiedObject.name ?name ;
         cim:TapChanger.lowStep ?lowStep ;
         cim:TapChanger.highStep ?highStep ;
         cim:TapChanger.neutralStep ?neutralStep ;
