@@ -28,7 +28,7 @@ public class UcteExporter implements Exporter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UcteExporter.class);
 
-    HashMap<String, UcteNodeCode> iidmIdToUcteId = new HashMap<>();
+    private HashMap<String, UcteNodeCode> iidmIdToUcteId = new HashMap<>();
 
     @Override
     public String getFormat() {
@@ -178,11 +178,11 @@ public class UcteExporter implements Exporter {
             LOGGER.info(" Id = {}", twoWindingsTransformer.getId());
             LOGGER.info(" Name = {}", twoWindingsTransformer.getName());
             LOGGER.info(" X = {}", twoWindingsTransformer.getX());
-            LOGGER.info(" R = {}", String.valueOf(twoWindingsTransformer.getR()));
-            LOGGER.info(" B = {}", String.valueOf(twoWindingsTransformer.getB()));
-            LOGGER.info(" G = {}", String.valueOf(twoWindingsTransformer.getG()));
-            LOGGER.info(" RatedU1 = {}", String.valueOf(twoWindingsTransformer.getRatedU1()));
-            LOGGER.info(" RatedU2 = {}", String.valueOf(twoWindingsTransformer.getRatedU2()));
+            LOGGER.info(" R = {}", twoWindingsTransformer.getR());
+            LOGGER.info(" B = {}", twoWindingsTransformer.getB());
+            LOGGER.info(" G = {}", twoWindingsTransformer.getG());
+            LOGGER.info(" RatedU1 = {}", twoWindingsTransformer.getRatedU1());
+            LOGGER.info(" RatedU2 = {}", twoWindingsTransformer.getRatedU2());
             createTwoWindingTransformer(ucteNetwork, twoWindingsTransformer);
 
         }
@@ -225,7 +225,7 @@ public class UcteExporter implements Exporter {
         }
     }
 
-    void createRegulation(UcteNetwork ucteNetwork, UcteElementId ucteElementId, TwoWindingsTransformer twoWindingsTransformer) {
+    private void createRegulation(UcteNetwork ucteNetwork, UcteElementId ucteElementId, TwoWindingsTransformer twoWindingsTransformer) {
         if (twoWindingsTransformer.getRatioTapChanger() != null || twoWindingsTransformer.getPhaseTapChanger() != null) {
             UctePhaseRegulation uctePhaseRegulation = null;
             UcteAngleRegulation ucteAngleRegulation = null;
@@ -305,15 +305,15 @@ public class UcteExporter implements Exporter {
         for (Line line : lines) {
             LOGGER.info("-----------LINE------------");
             LOGGER.info("ID = {}", line.getId()); //Node code 1 + node code 2 + Order code  1-8 10-17 19
-            LOGGER.info("R = {}", String.valueOf(line.getR())); //Resistance position UTCE 23-28
-            LOGGER.info("X = {}", String.valueOf(line.getX())); //Reactance position UTCE 30-35
+            LOGGER.info("R = {}", line.getR()); //Resistance position UTCE 23-28
+            LOGGER.info("X = {}", line.getX()); //Reactance position UTCE 30-35
             LOGGER.info("Name = {}", line.getName());
-            LOGGER.info("CurrentLimits1 = {}", String.valueOf(line.getCurrentLimits1().getPermanentLimit())); //Current limit I (A) 46-51
-            LOGGER.info("CurrentLimits2 = {}", String.valueOf(line.getCurrentLimits2().getPermanentLimit()));
-            LOGGER.info("B1 = {}", String.valueOf(line.getB1()));
-            LOGGER.info("B2 = {}", String.valueOf(line.getB2()));
-            LOGGER.info("G1 = {}", String.valueOf(line.getG1()));
-            LOGGER.info("G2 = {}", String.valueOf(line.getG2()));
+            LOGGER.info("CurrentLimits1 = {}", line.getCurrentLimits1().getPermanentLimit()); //Current limit I (A) 46-51
+            LOGGER.info("CurrentLimits2 = {}", line.getCurrentLimits2().getPermanentLimit());
+            LOGGER.info("B1 = {}", line.getB1());
+            LOGGER.info("B2 = {}", line.getB2());
+            LOGGER.info("G1 = {}", line.getG1());
+            LOGGER.info("G2 = {}", line.getG2());
             createLine(ucteNetwork, line);
         }
     }
@@ -397,7 +397,7 @@ public class UcteExporter implements Exporter {
             LOGGER.info("isOpen = {}", sw.isOpen());
             LOGGER.info("isRetained = {}", sw.isRetained());
             LOGGER.info("isFictious = {}", sw.isFictitious());
-            LOGGER.info("kindName = {}", sw.getKind().name());
+            LOGGER.info("kindName = {}", sw.getKind());
             LOGGER.info("kindOrdinal = {}", sw.getKind().ordinal());
             if (isUcteId(sw.getId())) {
                 UcteNodeCode ucteNodeCode1 = iidmIdToUcteNodeCode(sw.getId().substring(0, 9));
@@ -456,13 +456,13 @@ public class UcteExporter implements Exporter {
                 LOGGER.info(" Id = {}", generator.getId());
                 LOGGER.info(" Name = {}", generator.getName());
                 LOGGER.info(" Energy source = {}", generator.getEnergySource());
-                LOGGER.info(" RatedS = {}", String.valueOf(generator.getRatedS()));
-                LOGGER.info(" MaxP = {}", String.valueOf(generator.getMaxP()));
-                LOGGER.info(" MinP = {}", String.valueOf(generator.getMinP()));
-                LOGGER.info(" TargetP = {}", String.valueOf(generator.getTargetP()));
-                LOGGER.info(" TargetV = {}", String.valueOf(generator.getTargetV()));
-                LOGGER.info(" TargetQ = {}", String.valueOf(generator.getTargetQ()));
-                LOGGER.info(" ReactiveLimitsOrdinal = {}", String.valueOf(generator.getReactiveLimits().getKind().ordinal()));
+                LOGGER.info(" RatedS = {}", generator.getRatedS());
+                LOGGER.info(" MaxP = {}", generator.getMaxP());
+                LOGGER.info(" MinP = {}", generator.getMinP());
+                LOGGER.info(" TargetP = {}", generator.getTargetP());
+                LOGGER.info(" TargetV = {}", generator.getTargetV());
+                LOGGER.info(" TargetQ = {}", generator.getTargetQ());
+                LOGGER.info(" ReactiveLimitsOrdinal = {}", generator.getReactiveLimits().getKind().ordinal());
 
             }
             createTwoWindingTransformers(ucteNetwork, bus);
@@ -528,7 +528,7 @@ public class UcteExporter implements Exporter {
                 0f,
                 0f,
                 null
-        ); //TODO :
+        ); //TODO : PQ ? 4 last field ?
         ucteNode.setPowerPlantType(uctePowerPlantType);
         ucteNetwork.addNode(ucteNode);
     }
@@ -538,12 +538,16 @@ public class UcteExporter implements Exporter {
     }
 
     UcteNodeCode iidmIdToUcteNodeCode(String id) {
-        UcteCountryCode ucteCountryCode = UcteCountryCode.fromUcteCode(id.charAt(0));
-        return new UcteNodeCode(
-                ucteCountryCode,
-                id.substring(1, 6),
-                voltageLevelCodeFromChar(id.charAt(6)),
-                id.charAt(7));
+        if (id.length() >= 8) {
+            UcteCountryCode ucteCountryCode = UcteCountryCode.fromUcteCode(id.charAt(0));
+            return new UcteNodeCode(
+                    ucteCountryCode,
+                    id.substring(1, 6),
+                    voltageLevelCodeFromChar(id.charAt(6)),
+                    id.charAt(7));
+        } else {
+            throw new IllegalArgumentException("The id length must be higher than 7");
+        }
     }
 
     UcteVoltageLevelCode voltageLevelCodeFromChar(char code) {
