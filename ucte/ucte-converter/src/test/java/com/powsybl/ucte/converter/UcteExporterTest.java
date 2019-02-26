@@ -6,10 +6,10 @@ import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.ucte.network.UcteCountryCode;
-import com.powsybl.ucte.network.UcteNodeCode;
-import com.powsybl.ucte.network.UctePowerPlantType;
-import com.powsybl.ucte.network.UcteVoltageLevelCode;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.ucte.network.*;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -25,13 +25,20 @@ import static org.junit.Assert.*;
 
 public class UcteExporterTest {
 
+    private static Network network;
+    private static UcteExporter ucteExporter = new UcteExporter();
+
     @Rule
     public final ExpectedException exception = ExpectedException.none();
 
+    @BeforeClass
+    public static void setUpBeforeClass() {
+        ReadOnlyDataSource dataSource = new ResourceDataSource("transformerRegulation", new ResourceSet("/", "transformerRegulation.uct"));
+        network = new UcteImporter().importData(dataSource, null);
+    }
+
     @Test
     public void exportUcteTest() {
-        ReadOnlyDataSource dataSource = new ResourceDataSource("elementName", new ResourceSet("/", "elementName.uct"));
-        Network network = new UcteImporter().importData(dataSource, null);
         Path path = FileSystems.getDefault().getPath("./");
         FileDataSource fds = new FileDataSource(path, "test");
         new UcteExporter().export(network, null, fds);
@@ -39,7 +46,6 @@ public class UcteExporterTest {
 
     @Test
     public void isUcteCountryCodeTest() {
-        UcteExporter ucteExporter = new UcteExporter();
         assertTrue(ucteExporter.isUcteCountryCode('A'));
         assertTrue(ucteExporter.isUcteCountryCode('1'));
         assertFalse(ucteExporter.isUcteCountryCode('_'));
@@ -48,7 +54,6 @@ public class UcteExporterTest {
 
     @Test
     public void isVoltageLevelTest() {
-        UcteExporter ucteExporter = new UcteExporter();
         assertTrue(ucteExporter.isVoltageLevel('0'));
         assertTrue(ucteExporter.isVoltageLevel('9'));
         assertFalse(ucteExporter.isVoltageLevel('_'));
@@ -57,7 +62,6 @@ public class UcteExporterTest {
 
     @Test
     public void isUcteNodeId() {
-        UcteExporter ucteExporter = new UcteExporter();
         assertTrue(ucteExporter.isUcteNodeId("B_SU1_11"));
         assertTrue(ucteExporter.isUcteNodeId("B_SU1_1 "));
         assertTrue(ucteExporter.isUcteNodeId("7efG8411"));
@@ -68,7 +72,6 @@ public class UcteExporterTest {
 
     @Test
     public void isUcteNodeTest() {
-        UcteExporter ucteExporter = new UcteExporter();
         assertTrue(ucteExporter.isUcteId("F_SU1_11 F_SU1_21 1"));
         assertTrue(ucteExporter.isUcteId("F_SU1_1& F_SU1_21 Z"));
         assertTrue(ucteExporter.isUcteId("Fazert11 F_SU1_21 1"));
@@ -81,7 +84,6 @@ public class UcteExporterTest {
 
     @Test
     public void energySourceToUctePowerPlantTypeTest() {
-        UcteExporter ucteExporter = new UcteExporter();
         assertSame(UctePowerPlantType.H, ucteExporter.energySourceToUctePowerPlantType(EnergySource.HYDRO));
         assertSame(UctePowerPlantType.N, ucteExporter.energySourceToUctePowerPlantType(EnergySource.NUCLEAR));
         assertSame(UctePowerPlantType.C, ucteExporter.energySourceToUctePowerPlantType(EnergySource.THERMAL));
@@ -93,7 +95,6 @@ public class UcteExporterTest {
 
     @Test
     public void iidmVoltageToUcteVoltageLevelCode() {
-        UcteExporter ucteExporter = new UcteExporter();
         assertSame(UcteVoltageLevelCode.VL_27, ucteExporter.iidmVoltageToUcteVoltageLevelCode(27));
         assertSame(UcteVoltageLevelCode.VL_70, ucteExporter.iidmVoltageToUcteVoltageLevelCode(70));
         assertSame(UcteVoltageLevelCode.VL_110, ucteExporter.iidmVoltageToUcteVoltageLevelCode(110));
@@ -123,7 +124,6 @@ public class UcteExporterTest {
 
     @Test
     public void voltageLevelCodeFromCharTest() {
-        UcteExporter ucteExporter = new UcteExporter();
         assertSame(UcteVoltageLevelCode.VL_750, ucteExporter.voltageLevelCodeFromChar('0'));
         assertSame(UcteVoltageLevelCode.VL_500, ucteExporter.voltageLevelCodeFromChar('9'));
         assertSame(UcteVoltageLevelCode.VL_380, ucteExporter.voltageLevelCodeFromChar('1'));
@@ -140,8 +140,60 @@ public class UcteExporterTest {
 
     @Test
     public void iidmIdToUcteNodeCodeTest() {
-        UcteExporter ucteExporter = new UcteExporter();
-        assertTrue(new UcteNodeCode(UcteCountryCode.ES, "HORTA", UcteVoltageLevelCode.VL_220, '1').equals(
-                ucteExporter.iidmIdToUcteNodeCode("EHORTA21")));
+        assertEquals(new UcteNodeCode(UcteCountryCode.ES, "HORTA", UcteVoltageLevelCode.VL_220, '1'),
+                ucteExporter.iidmIdToUcteNodeCode("EHORTA21"));
+        assertNotEquals(new UcteNodeCode(UcteCountryCode.ES, "HORTA", UcteVoltageLevelCode.VL_220, '1'),
+                ucteExporter.iidmIdToUcteNodeCode("EHOARA21"));
+        exception.expect(IllegalArgumentException.class);
+        assertSame(new IllegalArgumentException(), ucteExporter.iidmIdToUcteNodeCode("EHOAA21"));
+    }
+
+    @Test
+    public void calculateDuTest() {
+        assertEquals(
+                2.000000019938067,
+                ucteExporter.calculateDu(network.getTwoWindingsTransformer("0BBBBB5  0AAAAA2  1")),
+                0.0000000000000001);
+        assertNotEquals(
+                2.000000019938066,
+                ucteExporter.calculateDu(network.getTwoWindingsTransformer("0BBBBB5  0AAAAA2  1")),
+                0.0000000000000001);
+    }
+
+    @Test
+    public void isNotAlreadyCreatedTest() {
+        UcteNetwork ucteNetwork = new UcteNetworkImpl();
+        TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer("0BBBBB5  0AAAAA2  1");
+
+        Terminal terminal1 = twoWindingsTransformer.getTerminal1();
+        Terminal terminal2 = twoWindingsTransformer.getTerminal2();
+
+        UcteNodeCode ucteNodeCode1 = new UcteNodeCode(UcteCountryCode.ME, "BBBBB", UcteVoltageLevelCode.VL_110, ' ');
+        UcteNodeCode ucteNodeCode2 = new UcteNodeCode(UcteCountryCode.ME, "AAAAA", UcteVoltageLevelCode.VL_220, ' ');
+
+        UcteElementId ucteElementId = new UcteElementId(ucteNodeCode1, ucteNodeCode2, '1');
+        assertTrue(ucteExporter.isNotAlreadyCreated(ucteNetwork, ucteElementId));
+        ucteNetwork.addTransformer(
+                new UcteTransformer(
+                        ucteElementId, UcteElementStatus.REAL_ELEMENT_IN_OPERATION, 0f, 0f, 0f, 0,
+                null, 0f, 0f, 0f, 0f));
+        assertFalse(ucteExporter.isNotAlreadyCreated(ucteNetwork, ucteElementId));
+    }
+
+    @Test
+    public void createUcteElementIdTest() {
+        TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer("0BBBBB5  0AAAAA2  1");
+
+        Terminal terminal1 = twoWindingsTransformer.getTerminal1();
+        Terminal terminal2 = twoWindingsTransformer.getTerminal2();
+
+        UcteNodeCode ucteNodeCode1 = new UcteNodeCode(UcteCountryCode.ME, "BBBBB", UcteVoltageLevelCode.VL_110, ' ');
+        UcteNodeCode ucteNodeCode2 = new UcteNodeCode(UcteCountryCode.ME, "AAAAA", UcteVoltageLevelCode.VL_220, ' ');
+
+        UcteElementId ucteElementId1 = new UcteElementId(ucteNodeCode1, ucteNodeCode2, '1');
+        UcteElementId ucteElementId2 = new UcteElementId(ucteNodeCode2, ucteNodeCode1, '1');
+
+        assertEquals(ucteElementId1, ucteExporter.createUcteElementId(ucteNodeCode1, ucteNodeCode2, twoWindingsTransformer, terminal1, terminal2));
+        assertNotEquals(ucteElementId2, ucteExporter.createUcteElementId(ucteNodeCode1, ucteNodeCode2, twoWindingsTransformer, terminal1, terminal2));
     }
 }
