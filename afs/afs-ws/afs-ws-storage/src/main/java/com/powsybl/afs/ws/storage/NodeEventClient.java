@@ -40,8 +40,6 @@ public class NodeEventClient {
 
     private int reconnectionInterval;
 
-    private static int counter = 0;
-
     public NodeEventClient(String fileSystemName, WeakListenerList<AppStorageListener> listeners, RemoteServiceConfig config) {
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
         this.listeners = Objects.requireNonNull(listeners);
@@ -69,52 +67,52 @@ public class NodeEventClient {
         }
     }
 
-
     @OnClose
-    public void onClose(Session session, CloseReason closeReason) {
-
-        if (closeReason.getCloseCode().getCode() == 1006) {
-            URI wsUri = null;
-            if (this.reconnectionInterval > config.getReconnectionMaxInterval()) {
-                LOGGER.warn("Node event websocket session '{}' closed for file system '{}'", session.getId(), fileSystemName);
-                return;
-            }
-            if (counter >= 1) {
-                this.reconnectionInterval = this.reconnectionInterval * config.getReconnectionIntervalMutiplier();
-            } else {
-                this.reconnectionInterval = config.getReconnectionInitialInterval();
-            }
-            WebSocketContainer container;
+    public void onClose(Session session) {
+        int counter = 0;
+        boolean toReconnection = true;
+        while (toReconnection) {
+            updateReconnectionInterval(counter);
             try {
-
-                sleep(reconnectionInterval * 1000L);
-                wsUri = RemoteListenableAppStorage.getWebSocketUri(config.getRestUri());
+                URI wsUri = RemoteListenableAppStorage.getWebSocketUri(config.getRestUri());
                 URI endPointUri = URI.create(wsUri + "/messages/" + AfsRestApi.RESOURCE_ROOT + "/" +
                         AfsRestApi.VERSION + "/node_events/" + fileSystemName);
                 LOGGER.debug("Connecting to node event websocket at {}", endPointUri);
-                container = ContainerProvider.getWebSocketContainer();
+                WebSocketContainer container = ContainerProvider.getWebSocketContainer();
                 container.connectToServer(this, endPointUri);
-                resetComptor();
+                toReconnection = false;
+
             } catch (DeploymentException e) {
                 if (e.getCause().getCause() instanceof ConnectException) {
-                    LOGGER.error(e.getCause().getCause().getMessage(), e);
-                    updateCounter();
-                    this.onClose(session, closeReason);
+                    try {
+                        LOGGER.error(e.getCause().getCause().getMessage(), e);
+                        counter = counter + 1;
+                        sleep(this.reconnectionInterval * 1000L);
+                    } catch (InterruptedException e1) {
+                        Thread.currentThread().interrupt();
+                        throw new UncheckedInterruptedException(e1);
+                    }
+
+                } else {
+                    LOGGER.warn("Node event websocket session '{}' closed for file system '{}'", session.getId(), fileSystemName);
+                    return;
                 }
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                throw new UncheckedInterruptedException(e);
             }
         }
     }
 
-    public static void updateCounter() {
-        counter = counter + 1;
+    private void updateReconnectionInterval(int counter) {
+        if (counter > 0) {
+            if (this.reconnectionInterval > config.getReconnectionMaxInterval()) {
+                this.reconnectionInterval = config.getReconnectionMaxInterval();
+            } else {
+                this.reconnectionInterval = this.reconnectionInterval * config.getReconnectionIntervalMutiplier();
+            }
+        } else {
+            this.reconnectionInterval = config.getReconnectionInitialInterval();
+        }
     }
 
-    public static void resetComptor() {
-        counter = 0;
-    }
 }

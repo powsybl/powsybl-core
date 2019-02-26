@@ -48,7 +48,6 @@ public class RemoteListenableAppStorage extends ForwardingAppStorage implements 
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (DeploymentException e) {
-            NodeEventClient.updateCounter();
             throw new UncheckedDeploymentException(e);
         }
     }

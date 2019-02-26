@@ -27,7 +27,7 @@ public class RemoteServiceConfig {
 
     private boolean secure;
 
-    private boolean autoreconnect;
+    private boolean autoreconnectEnabled;
 
     private int reconnectionInitialInterval;
 
@@ -53,13 +53,13 @@ public class RemoteServiceConfig {
             String appName = moduleConfig.getStringProperty("app-name");
             boolean secure = moduleConfig.getBooleanProperty("secure", true);
             int port = moduleConfig.getIntProperty("port", secure ? 443 : 80);
-            boolean autoreconnect = moduleConfig.getBooleanProperty("autoreconnect", false);
+            boolean autoreconnectEnabled = moduleConfig.getBooleanProperty("autoreconnectEnabled", false);
             int reconnectionInitialInterval = moduleConfig.getIntProperty("reconnection-initial-interval", 5);
             int reconnectionIntervalMutiplier = moduleConfig.getIntProperty("reconnection-interval-mutiplier", 2);
             int reconnectionMaxInterval = moduleConfig.getIntProperty("reconnection-max-interval ", 3600);
 
             RemoteServiceConfig remoteServiceConfig = new RemoteServiceConfig(hostName, appName, port, secure);
-            remoteServiceConfig.setAutoreconnect(autoreconnect)
+            remoteServiceConfig.setAutoreconnectEnabled(autoreconnectEnabled)
                     .setReconnectionInitialInterval(reconnectionInitialInterval)
                     .setReconnectionIntervalMutiplier(reconnectionIntervalMutiplier)
                     .setReconnectionMaxInterval(reconnectionMaxInterval);
@@ -111,12 +111,12 @@ public class RemoteServiceConfig {
         return this;
     }
 
-    public boolean isAutoreconnect() {
-        return autoreconnect;
+    public boolean isAutoreconnectEnabled() {
+        return autoreconnectEnabled;
     }
 
-    public RemoteServiceConfig setAutoreconnect(boolean autoreconnect) {
-        this.autoreconnect = autoreconnect;
+    public RemoteServiceConfig setAutoreconnectEnabled(boolean autoreconnectEnabled) {
+        this.autoreconnectEnabled = autoreconnectEnabled;
         return this;
     }
 
