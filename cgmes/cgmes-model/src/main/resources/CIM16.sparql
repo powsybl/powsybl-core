@@ -157,9 +157,10 @@ OPTIONAL { GRAPH ?graphTPT {
 SELECT *
 WHERE {
 { GRAPH ?graphCN2 {
-	?ConnectivityNode
-		cim:IdentifiedObject.name ?name ;
-		cim:ConnectivityNode.ConnectivityNodeContainer ?ConnectivityNodeContainer
+	?ConnectivityNode cim:ConnectivityNode.ConnectivityNodeContainer ?ConnectivityNodeContainer
+	OPTIONAL {
+		?ConnectivityNode cim:IdentifiedObject.name ?name
+	}
 }}
 OPTIONAL { GRAPH ?graphTPCN {
 	?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode 
