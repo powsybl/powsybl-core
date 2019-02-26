@@ -12,7 +12,7 @@ package com.powsybl.iidm;
 
 public enum IidmImportExportMode {
     ONE_SEPARATED_FILE_PER_EXTENSION_TYPE,
-    NO_SEPARATED_FILE_FOR_EXTENSIONS,
+    UNIQUE_FILE,
     EXTENSIONS_IN_ONE_SEPARATED_FILE
 }
 

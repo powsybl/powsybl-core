@@ -336,7 +336,7 @@ public final class NetworkXml {
         try (OutputStream osb = dataSource.newOutputStream(null, XIIDM, false);
              BufferedOutputStream bosb = new BufferedOutputStream(osb)) {
 
-            if (options.getMode() == IidmImportExportMode.NO_SEPARATED_FILE_FOR_EXTENSIONS) {
+            if (options.getMode() == IidmImportExportMode.UNIQUE_FILE) {
                 Anonymizer anonymizer = write(network, options, bosb);
                 if (options.isAnonymized()) {
                     try (BufferedWriter writer2 = new BufferedWriter(new OutputStreamWriter(dataSource.newOutputStream("_mapping", "csv", false), StandardCharsets.UTF_8))) {

@@ -53,12 +53,12 @@ public class XMLImporter implements Importer {
 
     public static final String THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND = "iidm.import.xml.throw-exception-if-extension-not-found";
 
-    public static final String IMPORT_MODE = "iidm.import.xml.import_mode";
+    public static final String IMPORT_MODE = "iidm.import.xml.import-mode";
 
     public static final String EXTENSIONS_LIST = "iidm.import.xml.extensions";
 
     private static final Parameter IMPORT_MODE_PARAMETER
-            = new Parameter(IMPORT_MODE, ParameterType.STRING, "import mode", String.valueOf(IidmImportExportMode.NO_SEPARATED_FILE_FOR_EXTENSIONS));
+            = new Parameter(IMPORT_MODE, ParameterType.STRING, "import mode", String.valueOf(IidmImportExportMode.UNIQUE_FILE));
 
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER
             = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE)

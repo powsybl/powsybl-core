@@ -8,6 +8,7 @@ package com.powsybl.iidm;
 
 import com.google.common.collect.Sets;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -16,7 +17,7 @@ import java.util.Set;
 public abstract class AbstractOptions<T> {
     protected Set<String> extensions = Sets.newHashSet("ALL");
 
-    protected IidmImportExportMode mode = IidmImportExportMode.NO_SEPARATED_FILE_FOR_EXTENSIONS;
+    protected IidmImportExportMode mode = IidmImportExportMode.UNIQUE_FILE;
 
     public AbstractOptions() {
     }

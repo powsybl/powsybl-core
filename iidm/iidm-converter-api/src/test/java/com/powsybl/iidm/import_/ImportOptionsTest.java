@@ -1,5 +1,5 @@
 /**
- * Copyright (c) 2017, RTE (http://www.rte-france.com)
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -41,7 +41,7 @@ public class ImportOptionsTest {
         options.setExtensions(extensionsList);
 
         assertEquals(Boolean.FALSE, options.isThrowExceptionIfExtensionNotFound());
-        assertEquals(IidmImportExportMode.NO_SEPARATED_FILE_FOR_EXTENSIONS, options.getMode());
+        assertEquals(IidmImportExportMode.UNIQUE_FILE, options.getMode());
         assertEquals(Boolean.FALSE, options.withNoExtension());
         assertEquals(2, options.getExtensions().size());
     }
@@ -51,7 +51,7 @@ public class ImportOptionsTest {
         ImportOptions options = new ImportOptions(Boolean.FALSE);
 
         assertEquals(Boolean.FALSE, options.isThrowExceptionIfExtensionNotFound());
-        assertEquals(IidmImportExportMode.NO_SEPARATED_FILE_FOR_EXTENSIONS, options.getMode());
+        assertEquals(IidmImportExportMode.UNIQUE_FILE, options.getMode());
         assertEquals(Boolean.FALSE, options.withNoExtension());
         assertEquals(1, options.getExtensions().size());
         assertEquals(Boolean.TRUE, options.withAllExtensions());
