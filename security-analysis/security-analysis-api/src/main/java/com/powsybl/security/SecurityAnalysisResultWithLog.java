@@ -6,7 +6,6 @@
  */
 package com.powsybl.security;
 
-import java.io.File;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -16,15 +15,20 @@ import java.util.Optional;
 public class SecurityAnalysisResultWithLog {
 
     private final SecurityAnalysisResult result;
-    private Optional<File> log;
+    private Optional<byte[]> logBytes;
 
-    public SecurityAnalysisResultWithLog(SecurityAnalysisResult result, File log) {
+    public SecurityAnalysisResultWithLog(SecurityAnalysisResult result) {
         this.result = Objects.requireNonNull(result);
-        this.log = Optional.ofNullable(log);
+        logBytes = Optional.empty();
     }
 
-    public Optional<File> getLog() {
-        return log;
+    public SecurityAnalysisResultWithLog(SecurityAnalysisResult result, byte[] logBytes) {
+        this.result = Objects.requireNonNull(result);
+        this.logBytes = Optional.ofNullable(logBytes);
+    }
+
+    public Optional<byte[]> getLogBytes() {
+        return logBytes;
     }
 
     public SecurityAnalysisResult getResult() {

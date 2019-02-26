@@ -30,11 +30,9 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.IOUtils;
 
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.file.Files;
+import java.io.*;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -219,16 +217,15 @@ public class SecurityAnalysisTool implements Tool {
         } else {
             SecurityAnalysisResultWithLog resultWithLog = securityAnalysis.runWithLog(currentState, parameters, contingenciesProvider).join();
             result = resultWithLog.getResult();
-            resultWithLog.getLog().ifPresent(logFile -> {
-                if (Files.exists(logFile.toPath())) {
-                    Path outlogDest = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_OPTION));
-                    try {
-                        Files.copy(logFile.toPath(), outlogDest);
-                    } catch (IOException e) {
-                        context.getErrorStream().println(e.getMessage());
-                    }
-                } else {
-                    context.getErrorStream().println("Log file '" + logFile + "' not available");
+            // copy log bytes to file
+            resultWithLog.getLogBytes().ifPresent(logBytes -> {
+                Path outlogDest = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_OPTION));
+                try {
+                    ByteArrayInputStream bis = new ByteArrayInputStream(logBytes);
+                    FileOutputStream fos = new FileOutputStream(outlogDest.toFile());
+                    IOUtils.copy(bis, fos);
+                } catch (IOException e) {
+                    context.getErrorStream().println(e.getMessage());
                 }
             });
         }

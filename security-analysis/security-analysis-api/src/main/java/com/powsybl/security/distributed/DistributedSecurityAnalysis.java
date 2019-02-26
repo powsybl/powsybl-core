@@ -6,6 +6,7 @@
  */
 package com.powsybl.security.distributed;
 
+import com.powsybl.commons.compress.TarHelper;
 import com.powsybl.computation.*;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
@@ -15,15 +16,10 @@ import com.powsybl.security.SecurityAnalysisResult;
 import com.powsybl.security.SecurityAnalysisResultMerger;
 import com.powsybl.security.SecurityAnalysisResultWithLog;
 import com.powsybl.security.json.SecurityAnalysisResultDeserializer;
-import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
-import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
-import org.apache.commons.compress.utils.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.nio.file.Files;
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -127,9 +123,6 @@ public class DistributedSecurityAnalysis extends ExternalSecurityAnalysis {
 
         private SubTaskHandler simpleSubTaskHandler;
 
-        private static final String SA_LOG_TAR = "sa_logs.tar";
-        private static final String SA_LOG_TAR_GZ = SA_LOG_TAR + ".gz";
-
         public SubTaskWithLogHandler(SubTaskHandler subTaskHandler) {
             this.simpleSubTaskHandler = Objects.requireNonNull(subTaskHandler);
         }
@@ -151,45 +144,14 @@ public class DistributedSecurityAnalysis extends ExternalSecurityAnalysis {
         @Override
         public SecurityAnalysisResultWithLog after(Path workingDir, ExecutionReport report) throws IOException {
             SecurityAnalysisResult re = simpleSubTaskHandler.after(workingDir, report);
-            archiveLogs(workingDir);
-            compressLogs(workingDir);
-            Files.delete(workingDir.resolve(SA_LOG_TAR));
-            return new SecurityAnalysisResultWithLog(re, workingDir.resolve(SA_LOG_TAR_GZ).toFile());
-        }
-
-        private void archiveLogs(Path workingDir) throws IOException {
-            try (TarArchiveOutputStream taos = new TarArchiveOutputStream(new FileOutputStream(workingDir.resolve(SA_LOG_TAR).toFile()))) {
-                for (int i = 0; i < simpleSubTaskHandler.actualTaskCount; i++) {
-                    String hadesLogName = getLogOutputName(i);
-                    addFile(taos, workingDir, hadesLogName);
-                    addFile(taos, workingDir, SubTaskHandler.SA_TASK_CMD_ID + "_" + i + ".out");
-                    addFile(taos, workingDir, SubTaskHandler.SA_TASK_CMD_ID + "_" + i + ".err");
-                }
-                taos.flush();
+            List<String> logs = new ArrayList<>();
+            for (int i = 0; i < simpleSubTaskHandler.actualTaskCount; i++) {
+                logs.add(getLogOutputName(i)); // hades log tar gz
+                logs.add(SubTaskHandler.SA_TASK_CMD_ID + "_" + i + ".out");
+                logs.add(SubTaskHandler.SA_TASK_CMD_ID + "_" + i + ".err");
             }
-        }
-
-        private void addFile(TarArchiveOutputStream taos, Path workingDir, String fileName) throws IOException {
-            Path path = workingDir.resolve(fileName);
-            ArchiveEntry archiveEntry = taos.createArchiveEntry(path.toFile(), fileName);
-            taos.putArchiveEntry(archiveEntry);
-            try (InputStream is = Files.newInputStream(path)) {
-                IOUtils.copy(is, taos);
-            }
-            taos.closeArchiveEntry();
-        }
-
-        private void compressLogs(Path workingDir) throws IOException {
-            try (InputStream in = Files.newInputStream(workingDir.resolve(SA_LOG_TAR));
-                 OutputStream fout = Files.newOutputStream(workingDir.resolve(SA_LOG_TAR_GZ));
-                 BufferedOutputStream out = new BufferedOutputStream(fout);
-                 GzipCompressorOutputStream gzOut = new GzipCompressorOutputStream(out)) {
-                final byte[] buffer = new byte[1024];
-                int n = 0;
-                while (-1 != (n = in.read(buffer))) {
-                    gzOut.write(buffer, 0, n);
-                }
-            }
+            byte[] logBytes = TarHelper.archiveFilesToBytes(workingDir, logs);
+            return new SecurityAnalysisResultWithLog(re, logBytes);
         }
     }
 }
