@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.ConnectException;
 import java.net.URI;
+import java.time.Instant;
 import java.util.Objects;
 
 import static java.lang.Thread.sleep;
@@ -71,7 +72,14 @@ public class NodeEventClient {
     public void onClose(Session session) {
         int counter = 0;
         boolean toReconnection = true;
+        long dateInitial = Instant.now().getEpochSecond();
         while (toReconnection) {
+
+            long dateReconnection = Instant.now().getEpochSecond();
+            if (dateReconnection - dateInitial > config.getReconnectionMax()) {
+                LOGGER.warn("Node event websocket session '{}' closed for file system '{}'", session.getId(), fileSystemName);
+                return;
+            }
             updateReconnectionInterval(counter);
             try {
                 URI wsUri = RemoteListenableAppStorage.getWebSocketUri(config.getRestUri());

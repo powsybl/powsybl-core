@@ -35,6 +35,8 @@ public class RemoteServiceConfig {
 
     private int reconnectionMaxInterval;
 
+    private int reconnectionMax;
+
     public RemoteServiceConfig(String hostName, String appName, int port, boolean secure) {
         this.hostName = Objects.requireNonNull(hostName);
         this.appName = Objects.requireNonNull(appName);
@@ -53,16 +55,18 @@ public class RemoteServiceConfig {
             String appName = moduleConfig.getStringProperty("app-name");
             boolean secure = moduleConfig.getBooleanProperty("secure", true);
             int port = moduleConfig.getIntProperty("port", secure ? 443 : 80);
-            boolean autoreconnectEnabled = moduleConfig.getBooleanProperty("autoreconnectEnabled", false);
+            boolean autoreconnectEnabled = moduleConfig.getBooleanProperty("autoreconnect-enabled", false);
             int reconnectionInitialInterval = moduleConfig.getIntProperty("reconnection-initial-interval", 5);
             int reconnectionIntervalMutiplier = moduleConfig.getIntProperty("reconnection-interval-mutiplier", 2);
-            int reconnectionMaxInterval = moduleConfig.getIntProperty("reconnection-max-interval ", 3600);
+            int reconnectionMaxInterval = moduleConfig.getIntProperty("reconnection-max-interval", 3600);
+            int reconnectionMax = moduleConfig.getIntProperty("reconnection-max", Integer.MAX_VALUE);
 
             RemoteServiceConfig remoteServiceConfig = new RemoteServiceConfig(hostName, appName, port, secure);
             remoteServiceConfig.setAutoreconnectEnabled(autoreconnectEnabled)
                     .setReconnectionInitialInterval(reconnectionInitialInterval)
                     .setReconnectionIntervalMutiplier(reconnectionIntervalMutiplier)
-                    .setReconnectionMaxInterval(reconnectionMaxInterval);
+                    .setReconnectionMaxInterval(reconnectionMaxInterval)
+                    .setReconnectionMax(reconnectionMax);
 
             return remoteServiceConfig;
         });
@@ -144,6 +148,15 @@ public class RemoteServiceConfig {
 
     public RemoteServiceConfig setReconnectionMaxInterval(int reconnectionMaxInterval) {
         this.reconnectionMaxInterval = reconnectionMaxInterval;
+        return this;
+    }
+
+    public int getReconnectionMax() {
+        return reconnectionMax;
+    }
+
+    public RemoteServiceConfig setReconnectionMax(int reconnectionMax) {
+        this.reconnectionMax = reconnectionMax;
         return this;
     }
 
