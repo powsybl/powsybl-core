@@ -21,6 +21,17 @@ public class RemoteServiceConfigTest {
         assertEquals("https://host:443/test", config.getRestUri().toString());
         assertEquals("wss://host:443/test", config.getWsUri().toString());
 
+        config.setAutoreconnectEnabled(true)
+                .setReconnectionInitialInterval(3)
+                .setReconnectionIntervalMutiplier(4)
+                .setReconnectionMaxInterval(1800)
+                .setReconnectionMax(100000);
+        assertTrue(config.isAutoreconnectEnabled());
+        assertEquals(3, config.getReconnectionInitialInterval());
+        assertEquals(4, config.getReconnectionIntervalMutiplier());
+        assertEquals(1800, config.getReconnectionMaxInterval());
+        assertEquals(100000, config.getReconnectionMax());
+
         RemoteServiceConfig config2 = new RemoteServiceConfig("host", "test", 80, false);
         assertEquals("http://host:80/test", config2.getRestUri().toString());
         assertEquals("ws://host:80/test", config2.getWsUri().toString());
