@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.parameters;
 
+import com.powsybl.commons.PowsyblException;
+
 import java.util.*;
 
 /**
@@ -28,7 +30,14 @@ public class Parameter {
         names.add(Objects.requireNonNull(name));
         this.type = Objects.requireNonNull(type);
         this.description = Objects.requireNonNull(description);
-        this.defaultValue = Objects.requireNonNull(defaultValue);
+        checkDefaultValue(defaultValue);
+        this.defaultValue = defaultValue;
+    }
+
+    private void checkDefaultValue(Object defaultValue) {
+        if (this.type == ParameterType.BOOLEAN && defaultValue == null) {
+            throw new PowsyblException("With Boolean parameter you are not allowed to pass a null default value");
+        }
     }
 
     public Parameter addAdditionalNames(String... names) {
@@ -69,4 +78,5 @@ public class Parameter {
     public List<String> getStringListDefaultValue() {
         return (List<String>) defaultValue;
     }
+
 }
