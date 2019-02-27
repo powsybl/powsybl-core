@@ -23,12 +23,10 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Objects;
 import java.util.Properties;
+
+import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 
 /**
  *
@@ -42,29 +40,6 @@ public class ConversionTool implements Tool {
     private static final String OUTPUT_FORMAT = "output-format";
     private static final String OUTPUT_FILE = "output-file";
     private static final String GROOVY_SCRIPT = "groovy-script";
-    private static final String IMPORT_PARAMETERS = "import-parameters";
-    private static final String EXPORT_PARAMETERS = "export-parameters";
-
-    private enum OptionType {
-        IMPORT(IMPORT_PARAMETERS, 'I'),
-        EXPORT(EXPORT_PARAMETERS, 'E');
-
-        OptionType(String longOpt, char shortOpt) {
-            this.longOpt = Objects.requireNonNull(longOpt);
-            this.shortOpt = shortOpt;
-        }
-
-        char getShortOpt() {
-            return shortOpt;
-        }
-
-        String getLongOpt() {
-            return longOpt;
-        }
-
-        private final String longOpt;
-        private final char shortOpt;
-    }
 
     protected ImportConfig createImportConfig() {
         return ImportConfig.load();
@@ -110,28 +85,10 @@ public class ConversionTool implements Tool {
                         .argName("OUTPUT_FILE")
                         .required()
                         .build());
-                options.addOption(Option.builder().longOpt(IMPORT_PARAMETERS)
-                        .desc("the importer configuation file")
-                        .hasArg()
-                        .argName("IMPORT_PARAMETERS")
-                        .build());
-                options.addOption(Option.builder("I")
-                        .desc("use value for given importer parameter")
-                        .argName("property=value")
-                        .numberOfArgs(2)
-                        .valueSeparator('=')
-                        .build());
-                options.addOption(Option.builder().longOpt(EXPORT_PARAMETERS)
-                        .desc("the exporter configuration file")
-                        .hasArg()
-                        .argName("EXPORT_PARAMETERS")
-                        .build());
-                options.addOption(Option.builder("E")
-                        .desc("use value for given exporter parameter")
-                        .argName("property=value")
-                        .numberOfArgs(2)
-                        .valueSeparator('=')
-                        .build());
+                options.addOption(createImportParametersFileOption());
+                options.addOption(createImportParameterOption());
+                options.addOption(createExportParametersFileOption());
+                options.addOption(createExportParameterOption());
                 options.addOption(Option.builder().longOpt(GROOVY_SCRIPT)
                         .desc("Groovy script to change the network")
                         .hasArg()
@@ -158,7 +115,7 @@ public class ConversionTool implements Tool {
             throw new PowsyblException("Target format " + outputFormat + " not supported");
         }
 
-        Properties inputParams = readProperties(line, OptionType.IMPORT, context);
+        Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
         Network network = Importers.loadNetwork(context.getFileSystem().getPath(inputFile), context.getShortTimeExecutionComputationManager(), createImportConfig(), inputParams);
 
         if (line.hasOption(GROOVY_SCRIPT)) {
@@ -167,7 +124,7 @@ public class ConversionTool implements Tool {
             new GroovyScriptPostProcessor(groovyScript).process(network, context.getShortTimeExecutionComputationManager());
         }
 
-        Properties outputParams = readProperties(line, OptionType.EXPORT, context);
+        Properties outputParams = readProperties(line, ConversionToolUtils.OptionType.EXPORT, context);
         DataSource ds2 = Exporters.createDataSource(context.getFileSystem().getPath(outputFile), new DefaultDataSourceObserver() {
             @Override
             public void opened(String streamName) {
@@ -175,26 +132,5 @@ public class ConversionTool implements Tool {
             }
         });
         exporter.export(network, outputParams, ds2);
-    }
-
-    private static Properties readProperties(CommandLine line, OptionType optionType, ToolRunningContext context) throws IOException {
-        Properties properties = new Properties();
-
-        // Read the parameters file
-        String filename = line.getOptionValue(optionType.getLongOpt(), null);
-        if (filename != null) {
-            try (InputStream inputStream = Files.newInputStream(context.getFileSystem().getPath(filename))) {
-                if (filename.endsWith(".xml")) {
-                    properties.loadFromXML(inputStream);
-                } else {
-                    properties.load(inputStream);
-                }
-            }
-        }
-
-        // Append parameters from the command line
-        properties.putAll(line.getOptionProperties(Character.toString(optionType.getShortOpt())));
-
-        return properties;
     }
 }
