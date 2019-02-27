@@ -54,26 +54,26 @@ public final class Importers {
      * Get all supported import formats.
      */
     public static Collection<String> getFormats(ImportersLoader loader) {
-        return loader.loadImporters().stream().map(Importer::getFormat).collect(Collectors.toList());
+        return loader.loadImporters().stream().map(Importer::getFormat).collect(Collectors.toSet());
     }
 
     public static Collection<String> getFormats() {
         return getFormats(LOADER);
     }
 
-    private static Importer wrapImporter(Importer importer, ComputationManager computationManager, ImportConfig config) {
+    private static Importer wrapImporter(ImportersLoader loader, Importer importer, ComputationManager computationManager, ImportConfig config) {
         Objects.requireNonNull(computationManager);
         Objects.requireNonNull(config);
         List<String> postProcessorNames = config.getPostProcessors();
         if (postProcessorNames != null && !postProcessorNames.isEmpty()) {
-            return new ImporterWrapper(importer, computationManager, postProcessorNames);
+            return new ImporterWrapper(loader, importer, computationManager, postProcessorNames);
         }
         return importer;
     }
 
     public static Collection<Importer> list(ImportersLoader loader, ComputationManager computationManager, ImportConfig config) {
         return loader.loadImporters().stream()
-                .map(importer -> wrapImporter(importer, computationManager, config))
+                .map(importer -> wrapImporter(loader, importer, computationManager, config))
                 .collect(Collectors.toList());
     }
 
@@ -96,7 +96,7 @@ public final class Importers {
         Objects.requireNonNull(format);
         for (Importer importer : loader.loadImporters()) {
             if (format.equals(importer.getFormat())) {
-                return wrapImporter(importer, computationManager, config);
+                return wrapImporter(loader, importer, computationManager, config);
             }
         }
         return null;
@@ -130,7 +130,10 @@ public final class Importers {
 
         private final List<String> names;
 
-        ImporterWrapper(Importer importer, ComputationManager computationManager, List<String> names) {
+        private final ImportersLoader loader;
+
+        ImporterWrapper(ImportersLoader loader, Importer importer, ComputationManager computationManager, List<String> names) {
+            this.loader = loader;
             this.importer = importer;
             this.computationManager = computationManager;
             this.names = names;
@@ -169,16 +172,12 @@ public final class Importers {
             throw new PowsyblException("Post processor " + name + " not found");
         }
 
-        private static ImportPostProcessor getPostProcessor(String name) {
-            return getPostProcessor(LOADER, name);
-        }
-
         @Override
         public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
             Network network = importer.importData(dataSource, parameters);
             for (String name : names) {
                 try {
-                    getPostProcessor(name).process(network, computationManager);
+                    getPostProcessor(loader, name).process(network, computationManager);
                 } catch (Exception e) {
                     throw new PowsyblException(e);
                 }
@@ -192,18 +191,25 @@ public final class Importers {
         }
     }
 
+    public static Importer addPostProcessors(ImportersLoader loader, Importer importer, ComputationManager computationManager, String... names) {
+        return new ImporterWrapper(loader, importer, computationManager, Arrays.asList(names));
+    }
+
     public static Importer addPostProcessors(Importer importer, ComputationManager computationManager, String... names) {
-        return new ImporterWrapper(importer, computationManager, Arrays.asList(names));
+        return addPostProcessors(LOADER, importer, computationManager, names);
     }
 
     public static Importer addPostProcessors(Importer importer, String... names) {
-        return new ImporterWrapper(importer, LocalComputationManager.getDefault(), Arrays.asList(names));
+        return addPostProcessors(importer, LocalComputationManager.getDefault(), names);
+    }
+
+    public static Importer setPostProcessors(ImportersLoader loader, Importer importer, ComputationManager computationManager, String... names) {
+        Importer importer2 = removePostProcessors(importer);
+        return addPostProcessors(loader, importer2, computationManager, names);
     }
 
     public static Importer setPostProcessors(Importer importer, ComputationManager computationManager, String... names) {
-        Importer importer2 = removePostProcessors(importer);
-        addPostProcessors(importer2, computationManager, names);
-        return importer2;
+        return setPostProcessors(LOADER, importer, computationManager, names);
     }
 
     public static Importer setPostProcessors(Importer importer, String... names) {
@@ -226,12 +232,16 @@ public final class Importers {
      * @param computationManager computation manager to use for default post processors
      * @return the model
      */
-    public static Network importData(String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager) {
-        Importer importer = getImporter(format, computationManager);
+    public static Network importData(ImportersLoader loader, String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager, ImportConfig config) {
+        Importer importer = getImporter(loader, format, computationManager, config);
         if (importer == null) {
             throw new PowsyblException("Import format " + format + " not supported");
         }
         return importer.importData(dataSource, parameters);
+    }
+
+    public static Network importData(String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager) {
+        return importData(LOADER, format, dataSource, parameters, computationManager, CONFIG.get());
     }
 
     public static Network importData(String format, ReadOnlyDataSource dataSource, Properties parameters) {
@@ -249,22 +259,6 @@ public final class Importers {
      */
     public static Network importData(String format, String directory, String baseName, Properties parameters) {
         return importData(format, new FileDataSource(Paths.get(directory), baseName), parameters);
-    }
-
-    public static void importAll(Path dir, Importer importer, boolean parallel, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
-        importAll(dir, importer, parallel, consumer, null);
-    }
-
-    private static void doImport(ReadOnlyDataSource dataSource, Importer importer, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) {
-        try {
-            if (listener != null) {
-                listener.accept(dataSource);
-            }
-            Network network = importer.importData(dataSource, null);
-            consumer.accept(network);
-        } catch (Exception e) {
-            LOGGER.error(e.toString(), e);
-        }
     }
 
     public static void importAll(Path dir, Importer importer, boolean parallel, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
@@ -289,12 +283,8 @@ public final class Importers {
         }
     }
 
-    private static void addDataSource(Path dir, Path file, Importer importer, List<ReadOnlyDataSource> dataSources) {
-        String caseBaseName = DataSourceUtil.getBaseName(file);
-        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(dir, caseBaseName);
-        if (importer.exists(ds)) {
-            dataSources.add(ds);
-        }
+    public static void importAll(Path dir, Importer importer, boolean parallel, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
+        importAll(dir, importer, parallel, consumer, null);
     }
 
     private static void importAll(Path parent, Importer importer, List<ReadOnlyDataSource> dataSources) throws IOException {
@@ -319,6 +309,26 @@ public final class Importers {
         }
     }
 
+    private static void doImport(ReadOnlyDataSource dataSource, Importer importer, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) {
+        try {
+            if (listener != null) {
+                listener.accept(dataSource);
+            }
+            Network network = importer.importData(dataSource, null);
+            consumer.accept(network);
+        } catch (Exception e) {
+            LOGGER.error(e.toString(), e);
+        }
+    }
+
+    private static void addDataSource(Path dir, Path file, Importer importer, List<ReadOnlyDataSource> dataSources) {
+        String caseBaseName = DataSourceUtil.getBaseName(file);
+        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(dir, caseBaseName);
+        if (importer.exists(ds)) {
+            dataSources.add(ds);
+        }
+    }
+
     /**
      * @deprecated Use {@link ConversionParameters#readParameter(String, Properties, Parameter)} instead
      */
@@ -335,10 +345,6 @@ public final class Importers {
         return ConversionParameters.readParameter(format, parameters, configuredParameter, defaultValueConfig);
     }
 
-    public static DataSource createDataSource(Path directory, String fileNameOrBaseName) {
-        return DataSourceUtil.createDataSource(directory, fileNameOrBaseName, null);
-    }
-
     public static DataSource createDataSource(Path file) {
         if (!Files.isRegularFile(file)) {
             throw new PowsyblException("File " + file + " does not exist or is not a regular file");
@@ -347,8 +353,8 @@ public final class Importers {
         return createDataSource(absFile.getParent(), absFile.getFileName().toString());
     }
 
-    public static Importer findImporter(ReadOnlyDataSource dataSource, ComputationManager computationManager) {
-        return findImporter(dataSource, LOADER, computationManager, CONFIG.get());
+    public static DataSource createDataSource(Path directory, String fileNameOrBaseName) {
+        return DataSourceUtil.createDataSource(directory, fileNameOrBaseName, null);
     }
 
     public static Importer findImporter(ReadOnlyDataSource dataSource, ImportersLoader loader, ComputationManager computationManager, ImportConfig config) {
@@ -360,8 +366,8 @@ public final class Importers {
         return null;
     }
 
-    public static Network loadNetwork(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters) {
-        return loadNetwork(file, computationManager, config, parameters, LOADER);
+    public static Importer findImporter(ReadOnlyDataSource dataSource, ComputationManager computationManager) {
+        return findImporter(dataSource, LOADER, computationManager, CONFIG.get());
     }
 
     public static Network loadNetwork(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader) {
@@ -373,6 +379,10 @@ public final class Importers {
         return null;
     }
 
+    public static Network loadNetwork(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters) {
+        return loadNetwork(file, computationManager, config, parameters, LOADER);
+    }
+
     public static Network loadNetwork(Path file) {
         return loadNetwork(file, LocalComputationManager.getDefault(), CONFIG.get(), null);
     }
@@ -381,13 +391,39 @@ public final class Importers {
         return loadNetwork(Paths.get(file));
     }
 
-    public static void loadNetworks(Path dir, boolean parallel, ComputationManager computationManager, ImportConfig config, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
+    public static Network loadNetwork(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader) {
+        ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource(DataSourceUtil.getBaseName(filename));
+        dataSource.putData(filename, data);
+        Importer importer = findImporter(dataSource, loader, computationManager, config);
+        if (importer != null) {
+            return importer.importData(dataSource, parameters);
+        }
+        return null;
+    }
+
+    public static Network loadNetwork(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters) {
+        return loadNetwork(filename, data, computationManager, config, parameters, LOADER);
+    }
+
+    public static Network loadNetwork(String filename, InputStream data, ComputationManager computationManager) {
+        return loadNetwork(filename, data, computationManager, CONFIG.get(), null);
+    }
+
+    public static Network loadNetwork(String filename, InputStream data) {
+        return loadNetwork(filename, data, LocalComputationManager.getDefault());
+    }
+
+    public static void loadNetworks(Path dir, boolean parallel, ImportersLoader loader, ComputationManager computationManager, ImportConfig config, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
         if (!Files.isDirectory(dir)) {
             throw new PowsyblException("Directory " + dir + " does not exist or is not a regular directory");
         }
-        for (Importer importer : Importers.list(computationManager, config)) {
+        for (Importer importer : Importers.list(loader, computationManager, config)) {
             Importers.importAll(dir, importer, parallel, consumer, listener);
         }
+    }
+
+    public static void loadNetworks(Path dir, boolean parallel, ComputationManager computationManager, ImportConfig config, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
+        loadNetworks(dir, parallel, LOADER, computationManager, config, consumer, listener);
     }
 
     public static void loadNetworks(Path dir, boolean parallel, ComputationManager computationManager, ImportConfig config, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
@@ -405,27 +441,4 @@ public final class Importers {
     public static void loadNetworks(Path dir, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
         loadNetworks(dir, false, LocalComputationManager.getDefault(), CONFIG.get(), consumer);
     }
-
-    public static Network loadNetwork(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters) {
-        return loadNetwork(filename, data, computationManager, config, parameters, LOADER);
-    }
-
-    public static Network loadNetwork(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader) {
-        ReadOnlyMemDataSource dataSource = new ReadOnlyMemDataSource(DataSourceUtil.getBaseName(filename));
-        dataSource.putData(filename, data);
-        Importer importer = findImporter(dataSource, loader, computationManager, config);
-        if (importer != null) {
-            return importer.importData(dataSource, parameters);
-        }
-        return null;
-    }
-
-    public static Network loadNetwork(String filename, InputStream data, ComputationManager computationManager) {
-        return loadNetwork(filename, data, computationManager, CONFIG.get(), null);
-    }
-
-    public static Network loadNetwork(String filename, InputStream data) {
-        return loadNetwork(filename, data, LocalComputationManager.getDefault());
-    }
-
 }

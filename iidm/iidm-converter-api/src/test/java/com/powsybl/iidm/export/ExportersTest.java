@@ -1,0 +1,90 @@
+/**
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+package com.powsybl.iidm.export;
+
+import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.iidm.AbstractConvertersTest;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Collection;
+import java.util.Collections;
+
+import static org.junit.Assert.*;
+
+/**
+ * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
+ */
+public class ExportersTest extends AbstractConvertersTest {
+
+    private final Exporter testExporter = new TestExporter();
+    private final ExportersLoader loader = new ExportersLoaderList(Collections.singletonList(testExporter));
+
+    @Test
+    public void getFormats() {
+        Collection<String> formats = Exporters.getFormats(loader);
+        assertEquals(1, formats.size());
+        assertTrue(formats.contains(TEST_FORMAT));
+    }
+
+    @Test
+    public void getExporter() {
+        Exporter exporter = Exporters.getExporter(loader, TEST_FORMAT);
+        assertNotNull(exporter);
+        assertEquals(testExporter, exporter);
+    }
+
+    @Test
+    public void getNullExporter() {
+        Exporter exporter = Exporters.getExporter(loader, UNSUPPORTED_FORMAT);
+        assertNull(exporter);
+    }
+
+    @Test
+    public void createDataSource1() throws IOException {
+        Files.createFile(fileSystem.getPath("/work/foo.tst"));
+        DataSource dataSource = Exporters.createDataSource(fileSystem.getPath("/work/"), "foo", null);
+        assertTrue(dataSource.exists("foo.tst"));
+    }
+
+    @Test
+    public void createDataSource2() throws IOException {
+        Files.createFile(fileSystem.getPath("/work/foo.tst"));
+        DataSource dataSource = Exporters.createDataSource(path, null);
+        assertTrue(dataSource.exists("foo.tst"));
+    }
+
+    @Test
+    public void createDataSource3() throws IOException {
+        Files.createFile(fileSystem.getPath("/work/foo.tst"));
+        DataSource dataSource = Exporters.createDataSource(path);
+        assertTrue(dataSource.exists("foo.tst"));
+    }
+
+    @Test
+    public void failExport() {
+        expected.expect(PowsyblException.class);
+        expected.expectMessage("Export format " + UNSUPPORTED_FORMAT + " not supported");
+        Exporters.export(loader, UNSUPPORTED_FORMAT, null, null, Exporters.createDataSource(path));
+    }
+
+    @Test
+    public void export1() throws IOException {
+        DataSource dataSource = Exporters.createDataSource(path);
+        Exporters.export(loader, TEST_FORMAT, null, null, dataSource);
+        assertEquals(Byte.BYTES, dataSource.newInputStream(null, EXTENSION).read());
+    }
+
+    @Test
+    public void export2() throws IOException {
+        Exporters.export(loader, TEST_FORMAT, null, null, path);
+        DataSource dataSource = Exporters.createDataSource(path);
+        assertEquals(Byte.BYTES, dataSource.newInputStream(null, EXTENSION).read());
+    }
+}
