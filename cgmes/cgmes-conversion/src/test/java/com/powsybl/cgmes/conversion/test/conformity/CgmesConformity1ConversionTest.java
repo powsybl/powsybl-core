@@ -9,10 +9,10 @@ package com.powsybl.cgmes.conversion.test.conformity;
 
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1NetworkCatalog;
+import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
@@ -130,20 +130,12 @@ public class CgmesConformity1ConversionTest {
     }
 
     @Test
-    public void miniNodeBreakerTestLimits() throws IOException {
-        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-
+    public void miniNodeBreakerTestLimits() {
         // Original test case
-        Network network0 = Importers.importData("CGMES",
-                actuals.miniNodeBreaker().dataSource(),
-                null,
-                computationManager);
+        Network network0 = new CgmesImport().importData(actuals.miniNodeBreaker().dataSource(), null);
         // The case has been manually modified to have OperationalLimits
         // defined for Equipment
-        Network network1 = Importers.importData("CGMES",
-                actuals.miniNodeBreakerLimitsforEquipment().dataSource(),
-                null,
-                computationManager);
+        Network network1 = new CgmesImport().importData(actuals.miniNodeBreakerLimitsforEquipment().dataSource(), null);
 
         double tol = 0;
 
@@ -193,27 +185,19 @@ public class CgmesConformity1ConversionTest {
     }
 
     @Test
-    public void smallNodeBreakerHvdc() throws IOException {
-        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-
+    public void smallNodeBreakerHvdc() {
         // Small Grid Node Breaker HVDC should be imported without errors
-        Importers.importData("CGMES",
-                actuals.smallNodeBreakerHvdc().dataSource(),
-                null,
-                computationManager);
+        new CgmesImport().importData(actuals.smallNodeBreakerHvdc().dataSource(), null);
     }
 
     @Test
     // This is to test that we have stable Identifiers for calculated buses
     // If no topology change has been made, running a LoadFlow (even a Mock LoadFlow)
     // must produce identical identifiers for calculated buses
-    public void smallNodeBreakerStableBusNaming() throws IOException {
+    public void smallNodeBreakerStableBusNaming() {
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
 
-        Network network = Importers.importData("CGMES",
-                actuals.smallNodeBreaker().dataSource(),
-                null,
-                computationManager);
+        Network network = new CgmesImport().importData(actuals.smallNodeBreaker().dataSource(), null);
 
         // Initial bus identifiers
         List<String> initialBusIds = network.getBusView().getBusStream()

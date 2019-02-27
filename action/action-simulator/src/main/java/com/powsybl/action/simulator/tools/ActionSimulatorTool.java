@@ -122,7 +122,7 @@ public class ActionSimulatorTool implements Tool {
                         .argName("CASEFOLDER")
                         .build());
                 options.addOption(Option.builder().longOpt(OUTPUT_CASE_FORMAT)
-                        .desc("output case format " + Exporters.getFormats())
+                        .desc("output case format " + getFormats())
                         .hasArg()
                         .argName("CASEFORMAT")
                         .build());
@@ -153,6 +153,10 @@ public class ActionSimulatorTool implements Tool {
                 return null;
             }
         };
+    }
+
+    protected Collection<String> getFormats() {
+        return Exporters.getFormats();
     }
 
     private static LoadFlowActionSimulatorObserver createLogPrinter(ToolRunningContext context, boolean verbose) {

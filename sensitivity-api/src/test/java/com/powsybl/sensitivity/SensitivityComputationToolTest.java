@@ -6,10 +6,13 @@
  */
 package com.powsybl.sensitivity;
 
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.Tool;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -21,7 +24,14 @@ public class SensitivityComputationToolTest extends AbstractToolTest {
 
     private static final String COMMAND_NAME = "sensitivity-computation";
 
-    private final SensitivityComputationTool tool = new SensitivityComputationTool();
+    private final PlatformConfig platformConfig = Mockito.mock(PlatformConfig.class);
+
+    private final SensitivityComputationTool tool = new SensitivityComputationTool() {
+        @Override
+        protected ImportConfig createImportConfig() {
+            return ImportConfig.load(platformConfig);
+        }
+    };
 
     @Override
     @Before

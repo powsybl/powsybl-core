@@ -6,6 +6,9 @@
  */
 package com.powsybl.action.simulator.tools;
 
+import com.powsybl.iidm.export.Exporters;
+import com.powsybl.iidm.export.ExportersLoader;
+import com.powsybl.iidm.export.ExportersLoaderList;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
@@ -17,6 +20,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.Collection;
 import java.util.Collections;
 
 import static org.mockito.Mockito.mock;
@@ -34,7 +38,14 @@ public class ActionSimulatorToolTest extends AbstractToolTest {
 
     private CommandLine commandLine;
 
-    private final ActionSimulatorTool tool = new ActionSimulatorTool();
+    private final ExportersLoader loader = new ExportersLoaderList(Collections.emptyList());
+
+    private final ActionSimulatorTool tool = new ActionSimulatorTool() {
+        @Override
+        protected Collection<String> getFormats() {
+            return Exporters.getFormats(loader);
+        }
+    };
 
     @Override
     protected Iterable<Tool> getTools() {
@@ -43,7 +54,6 @@ public class ActionSimulatorToolTest extends AbstractToolTest {
 
     @Override
     public void assertCommand() {
-        ActionSimulatorTool tool = new ActionSimulatorTool();
         Command command = tool.getCommand();
 
         assertCommand(command, "action-simulator", 13, 2);

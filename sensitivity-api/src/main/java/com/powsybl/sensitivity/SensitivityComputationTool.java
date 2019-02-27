@@ -100,6 +100,10 @@ public class SensitivityComputationTool implements Tool {
         };
     }
 
+    protected ImportConfig createImportConfig() {
+        return ImportConfig.load();
+    }
+
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));
@@ -108,7 +112,7 @@ public class SensitivityComputationTool implements Tool {
         String format = null;
         ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
 
-        ImportConfig importConfig = (!skipPostProc) ? ImportConfig.load() : new ImportConfig();
+        ImportConfig importConfig = (!skipPostProc) ? createImportConfig() : new ImportConfig();
         // process a single network: output-file/output-format options available
         if (line.hasOption(OUTPUT_FILE_OPTION)) {
             outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE_OPTION));

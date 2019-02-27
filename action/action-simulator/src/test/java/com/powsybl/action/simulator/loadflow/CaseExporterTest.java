@@ -8,18 +8,24 @@ package com.powsybl.action.simulator.loadflow;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.contingency.Contingency;
+import com.powsybl.iidm.export.ExportersLoader;
+import com.powsybl.iidm.export.ExportersLoaderList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.xml.XMLExporter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collections;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -37,6 +43,8 @@ public class CaseExporterTest {
 
     private Network network;
 
+    private final ExportersLoader loader = new ExportersLoaderList(Collections.singletonList(new XMLExporter(Mockito.mock(PlatformConfig.class))));
+
     @Before
     public void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
@@ -53,7 +61,7 @@ public class CaseExporterTest {
 
     @Test
     public void testExportEachRound() throws IOException {
-        CaseExporter exporter = new CaseExporter(tmpDir, "basename", "XIIDM", CompressionFormat.GZIP, true);
+        CaseExporter exporter = new CaseExporter(tmpDir, "basename", "XIIDM", CompressionFormat.GZIP, true, loader);
 
         // Export N state
         RunningContext runningContext = new RunningContext(network, null);
@@ -122,7 +130,7 @@ public class CaseExporterTest {
 
     @Test
     public void testExportOnlyLastRound() throws IOException {
-        CaseExporter exporter = new CaseExporter(tmpDir, "basename", "XIIDM", CompressionFormat.GZIP, false);
+        CaseExporter exporter = new CaseExporter(tmpDir, "basename", "XIIDM", CompressionFormat.GZIP, false, loader);
 
         // Export N state
         RunningContext runningContext = new RunningContext(network, null);
