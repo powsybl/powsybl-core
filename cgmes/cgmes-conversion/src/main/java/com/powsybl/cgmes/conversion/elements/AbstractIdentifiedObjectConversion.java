@@ -22,6 +22,9 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
 
         this.id = properties.getId(type);
         this.name = p.get("name");
+        if (this.name == null) {
+            missing("name");
+        }
     }
 
     public AbstractIdentifiedObjectConversion(String type, PropertyBags propertiess, Context context) {
@@ -29,6 +32,9 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
 
         this.id = ps.get(0).getId(type);
         this.name = ps.get(0).get("name");
+        if (this.name == null) {
+            missing("name");
+        }
     }
 
     public String id() {
