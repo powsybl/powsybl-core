@@ -80,7 +80,7 @@ public class XMLExporter implements Exporter {
     private static final Parameter TOPOLOGY_LEVEL_PARAMETER = new Parameter(TOPOLOGY_LEVEL, ParameterType.STRING, "Export network in this topology level", "NODE_BREAKER");
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE);
     private static final Parameter EXPORT_MODE_PARAMETER = new Parameter(EXPORT_MODE, ParameterType.STRING, "export each extension in a separate file", String.valueOf(IidmImportExportMode.UNIQUE_FILE));
-    private static final Parameter EXTENSIONS_LIST_PARAMETER = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The export mode", Collections.singletonList("ALL"));
+    private static final Parameter EXTENSIONS_LIST_PARAMETER = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The export mode", null);
     private static final Parameter SKIP_EXTENSIONS_PARAMETER = new Parameter(SKIP_EXTENSIONS, ParameterType.BOOLEAN, "Skip exporting the extensions", Boolean.FALSE);
     private final ParameterDefaultValueConfig defaultValueConfig;
 
@@ -116,7 +116,7 @@ public class XMLExporter implements Exporter {
                 .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
                 .setMode(IidmImportExportMode.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, EXPORT_MODE_PARAMETER, defaultValueConfig)))
                 .setSkipExtensions(ConversionParameters.readBooleanParameter(getFormat(), parameters, SKIP_EXTENSIONS_PARAMETER, defaultValueConfig))
-                .setExtensions(new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)));
+                .setExtensions(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null);
         try {
             long startTime = System.currentTimeMillis();
             NetworkXml.write(network, options, dataSource);

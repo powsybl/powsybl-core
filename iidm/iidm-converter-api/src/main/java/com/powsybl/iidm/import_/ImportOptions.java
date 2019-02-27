@@ -30,11 +30,7 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
 
     @Override
     public ImportOptions setExtensions(Set<String> extensions) {
-        if (extensions.size() == 1 && extensions.iterator().next().equals("ALL")) {
-            this.extensions = Optional.empty();
-            return this;
-        }
-        this.extensions = Optional.of(extensions);
+        this.extensions = Optional.ofNullable(extensions);
         return this;
     }
 

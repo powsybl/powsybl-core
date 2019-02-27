@@ -255,7 +255,7 @@ public final class NetworkXml {
         for (Map.Entry<String, Set<String>> entry : m.entrySet()) {
             String name = entry.getKey();
             Set<String> ids = entry.getValue();
-            if (options.withExtension(name) || options.withAllExtensions()) {
+            if (options.withExtension(name)) {
                 try (OutputStream os = dataSource.newOutputStream(name, XIIDM, false);
                      BufferedOutputStream bos = new BufferedOutputStream(os)) {
                     XMLStreamWriter writer = initializeWriter(n, bos, options);
@@ -471,6 +471,16 @@ public final class NetworkXml {
                 }
             }
         });
+
+        if (!options.getExtensions().isPresent()) {
+            Set<String> listNames = dataSource.listNames(".*");
+            listNames.remove(dataSource.getBaseName() + "." + ext);
+            for (String fileName : listNames) {
+                try (InputStream ise = dataSource.newInputStream(fileName)) {
+                    readExtensions(network, ise, anonymizer, options);
+                }
+            }
+        }
     }
 
     // To read extensions from an extensions file
@@ -521,7 +531,7 @@ public final class NetworkXml {
             public void onStartElement() throws XMLStreamException {
                 if (topLevel) {
                     String extensionName = context.getReader().getLocalName();
-                    if (context.getOptions().getExtensions().isPresent() && !context.getOptions().withExtension(extensionName)) {
+                    if (!context.getOptions().withExtension(extensionName)) {
                         return;
                     }
 

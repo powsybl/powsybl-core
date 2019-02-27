@@ -124,11 +124,7 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
                 LOGGER.warn("Extensions have already been set as empty. This call will override it.");
             }
         });
-        if (extensions.size() == 1 && extensions.iterator().next().equals("ALL")) {
-            this.extensions = Optional.empty();
-            return this;
-        }
-        this.extensions = Optional.of(extensions);
+        this.extensions = Optional.ofNullable(extensions);
         return this;
     }
 

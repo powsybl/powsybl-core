@@ -40,7 +40,7 @@ public class XMLExporterTest  extends AbstractConverterTest {
     }
 
     @Test
-    public void test() throws IOException {
+    public void exportTest() throws IOException {
         exporterTest(NetworkXmlTest.createEurostagTutorialExample1(),
                 "/eurostag-tutorial-example1.xml");
     }

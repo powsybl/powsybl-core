@@ -38,8 +38,6 @@ public class XMLImporterExporterBaseEXtensions extends AbstractConverterTest {
         importer = new XMLImporter(platformConfig);
 
         Properties importProperties = new Properties();
-        List<String> extensionsList = Arrays.asList("ALL");
-        importProperties.put(XMLImporter.EXTENSIONS_LIST, extensionsList);
         importProperties.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE));
         ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet("/", xiidmBaseRef.substring(1, xiidmBaseRef.length()), xiidmExtRef.substring(1, xiidmExtRef.length())));
         Network network = importer.importData(dataSourceBase, importProperties);

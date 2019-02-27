@@ -16,12 +16,9 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 
 import static org.junit.Assert.assertNotNull;
-
 
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
@@ -33,8 +30,6 @@ public class XmlExporterBaseExtensions  extends AbstractConverterTest {
         Properties exportProperties = new Properties();
         exportProperties.put(XMLExporter.ANONYMISED, "false");
         exportProperties.put(XMLExporter.EXPORT_MODE, String.valueOf(IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE));
-        List<String> exportExtensionsList = Arrays.asList("ALL");
-        exportProperties.put(XMLExporter.EXTENSIONS_LIST, exportExtensionsList);
 
         MemDataSource dataSource = new MemDataSource();
 

@@ -24,7 +24,7 @@ public class Parameter {
     private final Object defaultValue;
 
     public Parameter(String name, ParameterType type, String description, Object defaultValue) {
-        if (!type.getClazz().isAssignableFrom(defaultValue.getClass())) {
+        if (defaultValue != null && !type.getClazz().isAssignableFrom(defaultValue.getClass())) {
             throw new IllegalArgumentException("Bad default value type " + defaultValue.getClass() + ", " + type.getClazz() + " was expected");
         }
         names.add(Objects.requireNonNull(name));

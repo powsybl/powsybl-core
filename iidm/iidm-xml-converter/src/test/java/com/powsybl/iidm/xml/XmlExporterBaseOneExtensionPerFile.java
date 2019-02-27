@@ -70,8 +70,5 @@ public class XmlExporterBaseOneExtensionPerFile extends AbstractConverterTest {
     public void exportAllExtensionsTest() throws IOException {
         List<String> extensionsList = Arrays.asList("loadFoo", "loadBar");
         exporterOneFilePerExtensionType(MultipleExtensionsTestNetworkFactory.create(), "/multiple-extensions.xiidm", extensionsList);
-
-        List<String> extensionsList2 = Arrays.asList("ALL");
-        exporterOneFilePerExtensionType(MultipleExtensionsTestNetworkFactory.create(), "/multiple-extensions.xiidm", extensionsList2);
     }
 }

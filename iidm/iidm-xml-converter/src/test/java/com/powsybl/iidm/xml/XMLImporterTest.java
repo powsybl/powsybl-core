@@ -220,6 +220,18 @@ public class XMLImporterTest extends AbstractConverterTest {
         assertEquals(1, network.getLoad("LOAD2").getExtensions().size());
     }
 
+    @Test
+    public void importDataFromMultipleFilesTest3() {
+        Properties parameters = new Properties();
+        parameters.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
+
+        ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet("/", "multiple-extensions.xiidm", "loadFoo.xiidm"));
+        Network network = importer.importData(dataSourceBase, parameters);
+        assertNotNull(network);
+        assertEquals(1, network.getLoad("LOAD").getExtensions().size());
+        assertEquals(1, network.getLoad("LOAD2").getExtensions().size());
+    }
+
     public Network importFromSingleFile(List<String> extensionsList) {
         Properties parameters = new Properties();
         parameters.put(XMLImporter.EXTENSIONS_LIST, extensionsList);
