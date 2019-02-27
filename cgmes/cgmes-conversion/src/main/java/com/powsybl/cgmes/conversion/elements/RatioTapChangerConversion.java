@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
@@ -109,9 +110,17 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
     }
 
     private void addStepsFromTable(RatioTapChangerAdder rtca) {
-        String tableId = p.getId("RatioTapChangerTable");
+        String tableId = p.getId(CgmesNames.RATIO_TAP_CHANGER_TABLE);
+        if (tableId == null) {
+            missing(CgmesNames.RATIO_TAP_CHANGER_TABLE);
+            return;
+        }
         LOG.debug("RatioTapChanger {} table {}", id, tableId);
         PropertyBags table = context.ratioTapChangerTable(tableId);
+        if (table.isEmpty()) {
+            missing("points for RatioTapChangerTable " + tableId);
+            return;
+        }
         Comparator<PropertyBag> byStep = Comparator.comparingInt((PropertyBag p) -> p.asInt("step"));
         table.sort(byStep);
         boolean rtcAtSide1 = rtcAtSide1();
@@ -255,7 +264,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
     }
 
     private boolean tabular() {
-        return p.containsKey("RatioTapChangerTable");
+        return p.containsKey(CgmesNames.RATIO_TAP_CHANGER_TABLE);
     }
 
     private final TwoWindingsTransformer tx2;

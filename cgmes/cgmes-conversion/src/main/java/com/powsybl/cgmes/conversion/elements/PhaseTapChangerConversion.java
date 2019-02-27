@@ -127,7 +127,11 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
     }
 
     private void addStepsFromTable(PhaseTapChangerAdder ptca) {
-        String tableId = p.getId("PhaseTapChangerTable");
+        String tableId = p.getId(CgmesNames.PHASE_TAP_CHANGER_TABLE);
+        if (tableId == null) {
+            missing(CgmesNames.PHASE_TAP_CHANGER_TABLE);
+            return;
+        }
         LOG.debug("PhaseTapChanger {} table {}", id, tableId);
         PropertyBags table = context.cgmes().phaseTapChangerTable(tableId);
         if (table.isEmpty()) {

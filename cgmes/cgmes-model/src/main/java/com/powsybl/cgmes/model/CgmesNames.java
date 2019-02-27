@@ -36,6 +36,9 @@ public final class CgmesNames {
     public static final String VOLTAGE = "v";
     public static final String ANGLE = "angle";
 
+    public static final String RATIO_TAP_CHANGER_TABLE = "RatioTapChangerTable";
+    public static final String PHASE_TAP_CHANGER_TABLE = "PhaseTapChangerTable";
+
     private CgmesNames() {
     }
 }
