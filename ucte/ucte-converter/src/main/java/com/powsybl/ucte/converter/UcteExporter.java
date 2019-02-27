@@ -32,12 +32,12 @@ public class UcteExporter implements Exporter {
 
     @Override
     public String getFormat() {
-        return "XIIDM";
+        return "UCTE";
     }
 
     @Override
     public String getComment() {
-        return null;
+        return "IIDM to UCTE converter";
     }
 
     @Override
@@ -66,7 +66,6 @@ public class UcteExporter implements Exporter {
         UcteNodeCode ucteNodeCode2 = iidmIdToUcteNodeCode(ids[0].substring(9, 17));
         UcteNodeCode ucteNodeCode3 = iidmIdToUcteNodeCode(ids[1].substring(1, 9));
         UcteNodeCode ucteNodeCode4 = iidmIdToUcteNodeCode(ids[1].substring(10, 18));
-
         if (ucteNetwork.getNode(ucteNodeCode1) == null) {
             ucteNetwork.addNode(
                     new UcteNode(
@@ -74,19 +73,19 @@ public class UcteExporter implements Exporter {
                             ucteNodeCode1.getGeographicalSpot(),
                             UcteNodeStatus.REAL,
                             UcteNodeTypeCode.PQ,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
+                            voltageLevelCodeFromChar(ucteNodeCode1.toString().charAt(6)).getVoltageLevel(),
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
                             null
                     ));
         }
@@ -97,19 +96,19 @@ public class UcteExporter implements Exporter {
                             ucteNodeCode2.getGeographicalSpot(),
                             UcteNodeStatus.REAL,
                             UcteNodeTypeCode.PQ,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
+                            voltageLevelCodeFromChar(ucteNodeCode2.toString().charAt(6)).getVoltageLevel(),
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
                             null
                     ));
         }
@@ -120,19 +119,19 @@ public class UcteExporter implements Exporter {
                             ucteNodeCode3.getGeographicalSpot(),
                             UcteNodeStatus.REAL,
                             UcteNodeTypeCode.PQ,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
+                            voltageLevelCodeFromChar(ucteNodeCode3.toString().charAt(6)).getVoltageLevel(),
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
                             null
                     ));
         }
@@ -143,19 +142,19 @@ public class UcteExporter implements Exporter {
                             ucteNodeCode4.getGeographicalSpot(),
                             UcteNodeStatus.REAL,
                             UcteNodeTypeCode.PQ,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
-                            0f,
+                            voltageLevelCodeFromChar(ucteNodeCode4.toString().charAt(6)).getVoltageLevel(),
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
+                            Float.NaN,
                             null
                     ));
         }
@@ -175,8 +174,8 @@ public class UcteExporter implements Exporter {
         Iterable<TwoWindingsTransformer> twoWindingsTransformers = bus.getTwoWindingsTransformers();
         for (TwoWindingsTransformer twoWindingsTransformer : twoWindingsTransformers) {
             LOGGER.info("-----------TWO WINDING TRANSFORMER--------");
-            LOGGER.info(" Id = {}", twoWindingsTransformer.getId());
-            LOGGER.info(" Name = {}", twoWindingsTransformer.getName());
+            LOGGER.info(" TWT Id = {}", twoWindingsTransformer.getId());
+            LOGGER.info(" TWT Name = {}", twoWindingsTransformer.getName());
             LOGGER.info(" X = {}", twoWindingsTransformer.getX());
             LOGGER.info(" R = {}", twoWindingsTransformer.getR());
             LOGGER.info(" B = {}", twoWindingsTransformer.getB());
@@ -248,7 +247,7 @@ public class UcteExporter implements Exporter {
         LOGGER.info("StepCount = {}", twoWindingsTransformer.getRatioTapChanger().getStepCount());
         LOGGER.info("HighTapPosition = {}", twoWindingsTransformer.getRatioTapChanger().getHighTapPosition());
 
-        float du = (float) calculateDu(twoWindingsTransformer);
+        float du = (float) calculatePhaseDu(twoWindingsTransformer);
         UctePhaseRegulation uctePhaseRegulation = new UctePhaseRegulation(
                 du,
                 twoWindingsTransformer.getRatioTapChanger().getHighTapPosition(),
@@ -275,7 +274,7 @@ public class UcteExporter implements Exporter {
                 UcteAngleRegulationType.SYMM); //TODO find how to fill the theta, p and ucteAngleregulation
     }
 
-    double calculateDu(TwoWindingsTransformer twoWindingsTransformer) {
+    double calculatePhaseDu(TwoWindingsTransformer twoWindingsTransformer) {
         double du = 0;
         boolean passedBy0 = false;
         for (int i = twoWindingsTransformer.getRatioTapChanger().getLowTapPosition();
@@ -298,6 +297,36 @@ public class UcteExporter implements Exporter {
                             twoWindingsTransformer.getRatioTapChanger().getLowTapPosition());
         }
     }
+
+//    double calculateRatioDu(TwoWindingsTransformer twoWindingsTransformer) {
+//        double du = 0;
+//        boolean passedBy0 = false;
+//        for (int i = twoWindingsTransformer.getPhaseTapChanger().getLowTapPosition();
+//             i < -twoWindingsTransformer.getPhaseTapChanger().getLowTapPosition();
+//             i++) {
+//            if (i != 0) {
+//                double rho = twoWindingsTransformer.getPhaseTapChanger().getStep(i).getRho();
+//                du += (100 * (1 / rho - 1)) / i;
+//            } else {
+//                passedBy0 = true;
+//            }
+//        }
+//        if (passedBy0) {
+//            return du /
+//                    (twoWindingsTransformer.getRatioTapChanger().getHighTapPosition() -
+//                            twoWindingsTransformer.getRatioTapChanger().getLowTapPosition() - 1);
+//        } else {
+//            return du /
+//                    (twoWindingsTransformer.getRatioTapChanger().getHighTapPosition() -
+//                            twoWindingsTransformer.getRatioTapChanger().getLowTapPosition());
+//        }
+//    }
+//
+//    double calculateRatioTheta(TwoWindingsTransformer twoWindingsTransformer) {
+//        double theta = 0;
+//
+//    }
+
 
     private void createLines(UcteNetwork ucteNetwork, Network network) {
         LOGGER.info("-----------LINES------------");
@@ -360,21 +389,24 @@ public class UcteExporter implements Exporter {
                 "",
                 UcteNodeStatus.REAL,
                 UcteNodeTypeCode.PQ,
-                0f,
+                voltageLevelCodeFromChar(danglingLine.getUcteXnodeCode().charAt(6)).getVoltageLevel(),
                 (float) danglingLine.getP0(),
                 (float) danglingLine.getQ0(),
-                0f,
-                0f,
-                0f,
-                0f,
-                0f,
-                0f,
-                0f,
-                0f,
-                0f,
-                0f,
+                Float.NaN,
+                Float.NaN,
+                Float.NaN,
+                Float.NaN,
+                Float.NaN,
+                Float.NaN,
+                Float.NaN,
+                Float.NaN,
+                Float.NaN,
+                Float.NaN,
                 null
-                ));
+        ));
+
+
+
         UcteNodeCode ucteNodeCode1 = iidmIdToUcteNodeCode(danglingLine.getId().substring(0, 8));
         UcteNodeCode ucteNodeCode2 = iidmIdToUcteNodeCode(danglingLine.getId().substring(9, 17));
         UcteElementId ucteElementId = new UcteElementId(ucteNodeCode1, ucteNodeCode2, danglingLine.getId().charAt(18));
@@ -523,10 +555,10 @@ public class UcteExporter implements Exporter {
                 (float) maximumPermissibleActivePowerGeneration,
                 (float) minimumPermissibleReactivePowerGeneration,
                 (float) maximumPermissibleReactivePowerGeneration,
-                0f,
-                0f,
-                0f,
-                0f,
+                Float.NaN,
+                Float.NaN,
+                Float.NaN,
+                Float.NaN,
                 null
         ); //TODO : PQ ? 4 last field ?
         ucteNode.setPowerPlantType(uctePowerPlantType);
