@@ -168,19 +168,19 @@ public class Context {
     }
 
     public void ignored(String what, String reason) {
-        LOG.info("Ignored {}. Reason: {}", what, reason);
+        LOG.warn("Ignored {}. Reason: {}", what, reason);
     }
 
     public void pending(String what, String reason) {
-        LOG.debug("PENDING {}. Reason: {}", what, reason);
+        LOG.info("PENDING {}. Reason: {}", what, reason);
     }
 
     public void fixed(String what, String reason) {
-        LOG.info("Fixed {}. Reason: {}", what, reason);
+        LOG.warn("Fixed {}. Reason: {}", what, reason);
     }
 
     public void fixed(String what, String reason, double wrong, double fixed) {
-        LOG.info("Fixed {}. Reason: {}. Wrong {}, fixed {}", what, reason, wrong, fixed);
+        LOG.warn("Fixed {}. Reason: {}. Wrong {}, fixed {}", what, reason, wrong, fixed);
     }
 
     public void missing(String what) {
