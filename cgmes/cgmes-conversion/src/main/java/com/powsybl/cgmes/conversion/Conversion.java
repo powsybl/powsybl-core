@@ -357,7 +357,7 @@ public class Conversion {
         }
 
         private boolean convertBoundary = false;
-        private boolean changeSignForShuntReactivePowerFlowInitialState;
+        private boolean changeSignForShuntReactivePowerFlowInitialState = false;
         private double lowImpedanceLineR = 0.05;
         private double lowImpedanceLineX = 0.05;
 
