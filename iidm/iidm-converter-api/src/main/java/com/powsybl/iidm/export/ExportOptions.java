@@ -6,12 +6,17 @@
  */
 package com.powsybl.iidm.export;
 
+import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.AbstractOptions;
 import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.network.TopologyLevel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -20,6 +25,8 @@ import java.util.Set;
  */
 public class ExportOptions extends AbstractOptions<ExportOptions> {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExportOptions.class);
+
     private boolean withBranchSV = true;
 
     private boolean indent = true;
@@ -27,8 +34,6 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     private boolean onlyMainCc = false;
 
     private boolean anonymized = false;
-
-    private boolean extensionsExplicitlySet = false;
 
     private TopologyLevel topologyLevel = TopologyLevel.NODE_BREAKER;
 
@@ -58,7 +63,11 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     @Override
     public ExportOptions addExtension(String extension) {
-        this.extensions.add(extension);
+        if (extensions.isPresent()) {
+            extensions.get().add(extension);
+        } else {
+            this.extensions = Optional.of(Sets.newHashSet(extension));
+        }
         return this;
     }
 
@@ -109,11 +118,17 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     @Override
     public ExportOptions setExtensions(Set<String> extensions) {
-        if (this.extensions.isEmpty()) {
-            throw new PowsyblException("Contradictory behavior: you have already set skipExtensions to true");
+        // this warning is to prevent people to use setSkipExtensions and setExtensions at the same time
+        this.extensions.ifPresent(e -> {
+            if (e.isEmpty()) {
+                LOGGER.warn("Extensions have already been set as empty. This call will override it.");
+            }
+        });
+        if (extensions.size() == 1 && extensions.iterator().next().equals("ALL")) {
+            this.extensions = Optional.empty();
+            return this;
         }
-        this.extensions = extensions;
-        this.extensionsExplicitlySet = Boolean.TRUE;
+        this.extensions = Optional.of(extensions);
         return this;
     }
 
@@ -131,7 +146,7 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
      */
     @Deprecated
     public boolean isSkipExtensions() {
-        return this.extensions.isEmpty();
+        return withNoExtension();
     }
 
     /**
@@ -140,11 +155,11 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
      */
     @Deprecated
     public ExportOptions setSkipExtensions(boolean skipExtensions) {
-        if (skipExtensions && extensionsExplicitlySet) {
-            throw new PowsyblException("Contradictory behavior: you have already pass an extensions list");
+        if (extensions.isPresent()) {
+            throw new PowsyblException("Contradictory behavior: you have already passed an extensions list");
         }
         if (skipExtensions) {
-            this.extensions.clear();
+            this.extensions = Optional.of(new HashSet<>());
         }
         return this;
     }

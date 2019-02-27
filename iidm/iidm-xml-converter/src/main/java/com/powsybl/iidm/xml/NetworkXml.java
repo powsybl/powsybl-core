@@ -461,13 +461,16 @@ public final class NetworkXml {
 
 
     // To read extensions from multiple extension files
-    public static Network readExtensions(Network network, ReadOnlyDataSource dataSource, Anonymizer anonymizer, ImportOptions options, String ext) throws IOException {
-        for (String extension : options.getExtensions()) {
-            try (InputStream ise = dataSource.newInputStream(extension + "." + ext)) {
-                readExtensions(network, ise, anonymizer, options);
+    public static void readExtensions(Network network, ReadOnlyDataSource dataSource, Anonymizer anonymizer, ImportOptions options, String ext) throws IOException {
+        options.getExtensions().ifPresent(extensions -> {
+            for (String extension : extensions) {
+                try (InputStream ise = dataSource.newInputStream(extension + "." + ext)) {
+                    readExtensions(network, ise, anonymizer, options);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
             }
-        }
-        return network;
+        });
     }
 
     // To read extensions from an extensions file
@@ -518,7 +521,7 @@ public final class NetworkXml {
             public void onStartElement() throws XMLStreamException {
                 if (topLevel) {
                     String extensionName = context.getReader().getLocalName();
-                    if (!context.getOptions().withExtension(extensionName)) {
+                    if (context.getOptions().getExtensions().isPresent() && !context.getOptions().withExtension(extensionName)) {
                         return;
                     }
 

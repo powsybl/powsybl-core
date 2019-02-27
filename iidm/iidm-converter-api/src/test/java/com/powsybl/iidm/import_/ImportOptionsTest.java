@@ -31,7 +31,7 @@ public class ImportOptionsTest {
         assertEquals(Boolean.FALSE, options.withNoExtension());
 
         options.addExtension("loadBar");
-        assertEquals(2, options.getExtensions().size());
+        assertEquals(2, (int) options.getExtensions().map(Set::size).orElse(-1));
     }
 
     @Test
@@ -43,7 +43,7 @@ public class ImportOptionsTest {
         assertEquals(Boolean.FALSE, options.isThrowExceptionIfExtensionNotFound());
         assertEquals(IidmImportExportMode.UNIQUE_FILE, options.getMode());
         assertEquals(Boolean.FALSE, options.withNoExtension());
-        assertEquals(2, options.getExtensions().size());
+        assertEquals(2, (int) options.getExtensions().map(Set::size).orElse(-1));
     }
 
     @Test
@@ -53,7 +53,7 @@ public class ImportOptionsTest {
         assertEquals(Boolean.FALSE, options.isThrowExceptionIfExtensionNotFound());
         assertEquals(IidmImportExportMode.UNIQUE_FILE, options.getMode());
         assertEquals(Boolean.FALSE, options.withNoExtension());
-        assertEquals(1, options.getExtensions().size());
+        assertEquals(-1, (int) options.getExtensions().map(Set::size).orElse(-1));
         assertEquals(Boolean.TRUE, options.withAllExtensions());
     }
 }

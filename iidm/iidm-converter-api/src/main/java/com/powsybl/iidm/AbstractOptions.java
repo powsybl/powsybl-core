@@ -6,8 +6,7 @@
  */
 package com.powsybl.iidm;
 
-import com.google.common.collect.Sets;
-
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -15,7 +14,7 @@ import java.util.Set;
  * @author Chamseddine BENHAMED <chamseddine.benhamed at rte-france.com>
  */
 public abstract class AbstractOptions<T> {
-    protected Set<String> extensions = Sets.newHashSet("ALL");
+    protected Optional<Set<String>> extensions = Optional.empty();
 
     protected IidmImportExportMode mode = IidmImportExportMode.UNIQUE_FILE;
 
@@ -28,20 +27,20 @@ public abstract class AbstractOptions<T> {
 
     public abstract T addExtension(String extension);
 
-    public Set<String> getExtensions() {
+    public Optional<Set<String>> getExtensions() {
         return this.extensions;
     }
 
     public boolean withNoExtension() {
-        return extensions.isEmpty();
+        return extensions.map(Set::isEmpty).orElse(false);
     }
 
     public  boolean withAllExtensions() {
-        return extensions.size() == 1 && extensions.iterator().next().equals("ALL");
+        return !extensions.isPresent();
     }
 
     public  boolean withExtension(String extensionName) {
-        return withAllExtensions() || extensions.contains(extensionName);
+        return withAllExtensions() || extensions.orElse(new HashSet<>()).contains(extensionName);
     }
 
     public IidmImportExportMode getMode() {

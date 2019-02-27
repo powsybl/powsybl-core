@@ -7,11 +7,11 @@
 package com.powsybl.iidm.export;
 
 import com.google.common.collect.Sets;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.network.TopologyLevel;
 import org.junit.Test;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.*;
@@ -39,17 +39,16 @@ public class ExportOptionsTest {
         assertEquals(Boolean.TRUE, options.isWithBranchSV());
 
         options.addExtension("loadTest");
-        assertEquals(3, options.getExtensions().size());
-        assertEquals(Boolean.FALSE, options.isSkipExtensions());
+        assertEquals(3, (int) options.getExtensions().map(Set::size).orElse(-1));
     }
 
-    @Test(expected = PowsyblException.class)
     public void exportOptionsTest2() {
+        Set<String> extensionsList = new HashSet<>();
         ExportOptions options = new ExportOptions();
         options.setMode(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE);
-        options.setSkipExtensions(Boolean.TRUE);
-        Set<String> extensionsList = Sets.newHashSet("loadFoo", "loadBar");
         options.setExtensions(extensionsList);
+        assertEquals(0, (int) options.getExtensions().map(Set::size).orElse(-1));
+
     }
 
     @Test
@@ -63,6 +62,6 @@ public class ExportOptionsTest {
         assertEquals(Boolean.FALSE, options.isOnlyMainCc());
         assertEquals(TopologyLevel.BUS_BREAKER, options.getTopologyLevel());
         assertEquals(Boolean.FALSE, options.isThrowExceptionIfExtensionNotFound());
-        assertEquals(1, options.getExtensions().size());
+        assertEquals(1, (int) options.getExtensions().map(Set::size).orElse(-1));
     }
 }
