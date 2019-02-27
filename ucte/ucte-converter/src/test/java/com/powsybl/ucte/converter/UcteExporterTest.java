@@ -25,7 +25,7 @@ import static org.junit.Assert.*;
 
 public class UcteExporterTest {
 
-    private static Network network;
+    private static Network transfomerRegulationNetwork;
     private static UcteExporter ucteExporter = new UcteExporter();
 
     @Rule
@@ -34,14 +34,19 @@ public class UcteExporterTest {
     @BeforeClass
     public static void setUpBeforeClass() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("transformerRegulation", new ResourceSet("/", "transformerRegulation.uct"));
-        network = new UcteImporter().importData(dataSource, null);
+        transfomerRegulationNetwork = new UcteImporter().importData(dataSource, null);
     }
 
     @Test
     public void exportUcteTest() {
+        ReadOnlyDataSource dataSource = new ResourceDataSource("elementName", new ResourceSet("/", "elementName.uct"));
+        Network network = new UcteImporter().importData(dataSource, null);
         Path path = FileSystems.getDefault().getPath("./");
         FileDataSource fds = new FileDataSource(path, "test");
         new UcteExporter().export(network, null, fds);
+        exception.expect(IllegalArgumentException.class);
+        new UcteExporter().export(null, null, null);
+
     }
 
     @Test
@@ -149,21 +154,21 @@ public class UcteExporterTest {
     }
 
     @Test
-    public void calculateDuTest() {
+    public void calculatePhaseDuTest() {
         assertEquals(
                 2.000000019938067,
-                ucteExporter.calculateDu(network.getTwoWindingsTransformer("0BBBBB5  0AAAAA2  1")),
+                ucteExporter.calculatePhaseDu(transfomerRegulationNetwork.getTwoWindingsTransformer("0BBBBB5  0AAAAA2  1")),
                 0.0000000000000001);
         assertNotEquals(
                 2.000000019938066,
-                ucteExporter.calculateDu(network.getTwoWindingsTransformer("0BBBBB5  0AAAAA2  1")),
+                ucteExporter.calculatePhaseDu(transfomerRegulationNetwork.getTwoWindingsTransformer("0BBBBB5  0AAAAA2  1")),
                 0.0000000000000001);
     }
 
     @Test
     public void isNotAlreadyCreatedTest() {
         UcteNetwork ucteNetwork = new UcteNetworkImpl();
-        TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer("0BBBBB5  0AAAAA2  1");
+        TwoWindingsTransformer twoWindingsTransformer = transfomerRegulationNetwork.getTwoWindingsTransformer("0BBBBB5  0AAAAA2  1");
 
         Terminal terminal1 = twoWindingsTransformer.getTerminal1();
         Terminal terminal2 = twoWindingsTransformer.getTerminal2();
@@ -176,13 +181,13 @@ public class UcteExporterTest {
         ucteNetwork.addTransformer(
                 new UcteTransformer(
                         ucteElementId, UcteElementStatus.REAL_ELEMENT_IN_OPERATION, 0f, 0f, 0f, 0,
-                null, 0f, 0f, 0f, 0f));
+                        null, 0f, 0f, 0f, 0f));
         assertFalse(ucteExporter.isNotAlreadyCreated(ucteNetwork, ucteElementId));
     }
 
     @Test
     public void createUcteElementIdTest() {
-        TwoWindingsTransformer twoWindingsTransformer = network.getTwoWindingsTransformer("0BBBBB5  0AAAAA2  1");
+        TwoWindingsTransformer twoWindingsTransformer = transfomerRegulationNetwork.getTwoWindingsTransformer("0BBBBB5  0AAAAA2  1");
 
         Terminal terminal1 = twoWindingsTransformer.getTerminal1();
         Terminal terminal2 = twoWindingsTransformer.getTerminal2();
@@ -195,5 +200,17 @@ public class UcteExporterTest {
 
         assertEquals(ucteElementId1, ucteExporter.createUcteElementId(ucteNodeCode1, ucteNodeCode2, twoWindingsTransformer, terminal1, terminal2));
         assertNotEquals(ucteElementId2, ucteExporter.createUcteElementId(ucteNodeCode1, ucteNodeCode2, twoWindingsTransformer, terminal1, terminal2));
+    }
+
+    @Test
+    public void getFormatTest() {
+        assertEquals("UCTE", ucteExporter.getFormat());
+        assertNotEquals("IIDM", ucteExporter.getFormat());
+    }
+
+    @Test
+    public void getCommentTest() {
+        assertEquals("IIDM to UCTE converter", ucteExporter.getComment());
+        assertNotEquals("UCTE to IIDM converter", ucteExporter.getComment());
     }
 }
