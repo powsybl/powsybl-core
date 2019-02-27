@@ -19,10 +19,15 @@ import com.google.common.io.ByteStreams;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesOnDataSource;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.parameters.Parameter;
+import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
+import com.powsybl.iidm.parameters.ParameterType;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
 /**
@@ -30,6 +35,37 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
  */
 @AutoService(Importer.class)
 public class CgmesImport implements Importer {
+
+    private static final String CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE
+            = "iidm.import.cgmes.change-sign-for-shunt-reactive-power-flow-initial-state";
+    private static final String CONVERT_BOUNDARY = "iidm.import.cgmes.convert-boundary";
+    private static final String CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE
+            = "iidm.import.cgmes.create-busbar-section-for-every-connectivity-node";
+    private static final String POWSYBL_TRIPLESTORE = "iidm.import.cgmes.powsybl-triplestore";
+    private static final String STORE_CGMES_MODEL_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-model-as-network-extension";
+
+    private static final Parameter CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER
+            = new Parameter(CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE, ParameterType.BOOLEAN, "Change the sign of the reactive power flow for shunt in initial state", Boolean.FALSE)
+                .addAdditionalNames("changeSignForShuntReactivePowerFlowInitialState");
+    private static final Parameter CONVERT_BOUNDARY_PARAMETER = new Parameter(CONVERT_BOUNDARY, ParameterType.BOOLEAN, "Convert boundary during import", Boolean.FALSE)
+            .addAdditionalNames("convertBoundary");
+    private static final Parameter CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER
+            = new Parameter(CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE, ParameterType.BOOLEAN, "Create busbar section for every connectivity node", Boolean.FALSE)
+            .addAdditionalNames("createBusbarSectionForEveryConnectivityNode");
+    private static final Parameter POWSYBL_TRIPLESTORE_PARAMETER = new Parameter(POWSYBL_TRIPLESTORE, ParameterType.STRING, "The triplestore used during the import", TripleStoreFactory.defaultImplementation())
+            .addAdditionalNames("powsyblTripleStore");
+    private static final Parameter STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER = new Parameter(STORE_CGMES_MODEL_AS_NETWORK_EXTENSION, ParameterType.BOOLEAN, "Store the initial CGMES model as a network extension", Boolean.TRUE)
+            .addAdditionalNames("storeCgmesModelAsNetworkExtension");
+
+    private final ParameterDefaultValueConfig defaultValueConfig;
+
+    public CgmesImport(PlatformConfig platformConfig) {
+        this.defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
+    }
+
+    public CgmesImport() {
+        this(PlatformConfig.defaultConfig());
+    }
 
     @Override
     public boolean exists(ReadOnlyDataSource ds) {
@@ -54,30 +90,16 @@ public class CgmesImport implements Importer {
 
     @Override
     public Network importData(ReadOnlyDataSource ds, Properties p) {
-        CgmesModel cgmes = CgmesModelFactory.create(ds, tripleStoreImpl(p));
+        CgmesModel cgmes = CgmesModelFactory.create(ds, ConversionParameters.readStringParameter(getFormat(), p, POWSYBL_TRIPLESTORE_PARAMETER, defaultValueConfig));
 
         Conversion.Config config = new Conversion.Config();
-        if (p != null) {
-            if (p.containsKey("changeSignForShuntReactivePowerFlowInitialState")) {
-                String s = p.getProperty("changeSignForShuntReactivePowerFlowInitialState");
-                config.setChangeSignForShuntReactivePowerFlowInitialState(Boolean.parseBoolean(s));
-            }
-            if (p.containsKey("convertBoundary")) {
-                String s = p.getProperty("convertBoundary");
-                config.setConvertBoundary(Boolean.parseBoolean(s));
-            }
-            if (p.containsKey("createBusbarSectionForEveryConnectivityNode")) {
-                String s = p.getProperty("createBusbarSectionForEveryConnectivityNode");
-                config.setCreateBusbarSectionForEveryConnectivityNode(Boolean.parseBoolean(s));
-            }
-        }
+        config.setChangeSignForShuntReactivePowerFlowInitialState(ConversionParameters.readBooleanParameter(getFormat(), p, CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER, defaultValueConfig));
+        config.setConvertBoundary(ConversionParameters.readBooleanParameter(getFormat(), p, CONVERT_BOUNDARY_PARAMETER, defaultValueConfig));
+        config.setCreateBusbarSectionForEveryConnectivityNode(ConversionParameters.readBooleanParameter(getFormat(), p, CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER, defaultValueConfig));
+
         Network network = new Conversion(cgmes, config).convert();
 
-        boolean storeCgmesModelAsNetworkExtension = true;
-        if (p != null) {
-            storeCgmesModelAsNetworkExtension = Boolean
-                    .parseBoolean(p.getProperty("storeCgmesModelAsNetworkExtension", "true"));
-        }
+        boolean storeCgmesModelAsNetworkExtension = ConversionParameters.readBooleanParameter(getFormat(), p, STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER, defaultValueConfig);
         if (storeCgmesModelAsNetworkExtension) {
             // Store a reference to the original CGMES model inside the IIDM network
             // We could also add listeners to be aware of changes in IIDM data
@@ -110,13 +132,6 @@ public class CgmesImport implements Importer {
                 ByteStreams.copy(is, os);
             }
         }
-    }
-
-    private static String tripleStoreImpl(Properties p) {
-        if (p == null) {
-            return TripleStoreFactory.defaultImplementation();
-        }
-        return p.getProperty("powsyblTripleStore", TripleStoreFactory.defaultImplementation());
     }
 
     private static final String FORMAT = "CGMES";
