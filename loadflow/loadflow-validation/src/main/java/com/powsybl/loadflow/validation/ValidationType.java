@@ -10,6 +10,9 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Objects;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 
@@ -32,28 +35,36 @@ public enum ValidationType {
         this.file = Objects.requireNonNull(file);
     }
 
-    public boolean check(Network network, ValidationConfig config, Path folder) throws IOException {
+    private static final String UNEXPECTED_VALIDATION_TYPE_VALUE = "Unexpected ValidationType value: ";
+
+    private static final Supplier<TableFormatterConfig> TABLE_FORMATTER_CONFIG = Suppliers.memoize(TableFormatterConfig::load);
+
+    public boolean check(Network network, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Path folder) throws IOException {
         Objects.requireNonNull(network);
-        Objects.requireNonNull(config);
+        Objects.requireNonNull(validationConfig);
         Objects.requireNonNull(folder);
         switch (this) {
             case FLOWS:
-                return FlowsValidation.checkFlows(network, config, folder.resolve(file));
+                return FlowsValidation.checkFlows(network, validationConfig, formatterConfig, folder.resolve(file));
             case GENERATORS:
-                return GeneratorsValidation.checkGenerators(network, config, folder.resolve(file));
+                return GeneratorsValidation.checkGenerators(network, validationConfig, formatterConfig, folder.resolve(file));
             case BUSES:
-                return BusesValidation.checkBuses(network, config, folder.resolve(file));
+                return BusesValidation.checkBuses(network, validationConfig, formatterConfig, folder.resolve(file));
             case SVCS:
-                return StaticVarCompensatorsValidation.checkSVCs(network, config, folder.resolve(file));
+                return StaticVarCompensatorsValidation.checkSVCs(network, validationConfig, formatterConfig, folder.resolve(file));
             case SHUNTS:
-                return ShuntCompensatorsValidation.checkShunts(network, config, folder.resolve(file));
+                return ShuntCompensatorsValidation.checkShunts(network, validationConfig, formatterConfig, folder.resolve(file));
             case TWTS:
-                return TransformersValidation.checkTransformers(network, config, folder.resolve(file));
+                return TransformersValidation.checkTransformers(network, validationConfig, formatterConfig, folder.resolve(file));
             case TWTS3W:
-                return Transformers3WValidation.checkTransformers(network, config, folder.resolve(file));
+                return Transformers3WValidation.checkTransformers(network, validationConfig, formatterConfig, folder.resolve(file));
             default:
-                throw new AssertionError("Unexpected ValidationType value: " + this);
+                throw new AssertionError(UNEXPECTED_VALIDATION_TYPE_VALUE + this);
         }
+    }
+
+    public boolean check(Network network, ValidationConfig config, Path folder) throws IOException {
+        return check(network, config, TABLE_FORMATTER_CONFIG.get(), folder);
     }
 
     public boolean check(Network network, ValidationConfig config, ValidationWriter validationWriter) {
@@ -76,7 +87,7 @@ public enum ValidationType {
             case TWTS3W:
                 return Transformers3WValidation.checkTransformers(network, config, validationWriter);
             default:
-                throw new AssertionError("Unexpected ValidationType value: " + this);
+                throw new AssertionError(UNEXPECTED_VALIDATION_TYPE_VALUE + this);
         }
     }
 

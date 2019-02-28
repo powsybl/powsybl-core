@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.util.Networks;
@@ -37,8 +38,9 @@ public class NetworksTest {
             return null;
         }).when(logger).debug(Mockito.anyString(), Mockito.any(), Mockito.any());
 
+        TableFormatterConfig formatterConfig = new TableFormatterConfig();
         Network network = EurostagTutorialExample1Factory.create();
-        Networks.printBalanceSummary("", network, logger);
+        Networks.printBalanceSummary("", network, formatterConfig, logger);
         assertEquals("Active balance at step '':\n" +
                      "+-----------------------+--------------------------------+----------------------------------+\n" +
                      "|                       | Main CC connected/disconnected | Others CC connected/disconnected |\n" +

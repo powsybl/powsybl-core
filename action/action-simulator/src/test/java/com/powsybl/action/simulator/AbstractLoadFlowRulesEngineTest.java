@@ -12,6 +12,7 @@ import com.powsybl.action.simulator.loadflow.DefaultLoadFlowActionSimulatorObser
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulator;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorConfig;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorObserver;
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
@@ -24,6 +25,7 @@ import org.junit.Before;
 import org.mockito.Mockito;
 
 import java.io.InputStreamReader;
+import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -63,7 +65,7 @@ public abstract class AbstractLoadFlowRulesEngineTest {
         GroovyCodeSource src = new GroovyCodeSource(new InputStreamReader(getClass().getResourceAsStream(getDslFile())), "test", GroovyShell.DEFAULT_CODE_BASE);
         actionDb = new ActionDslLoader(src).load(network);
         engine = new LoadFlowActionSimulator(network, computationManager, new LoadFlowActionSimulatorConfig(LoadFlowFactory.class, 3, false, false),
-                applyIfWorks(), observer) {
+                new TableFormatterConfig(), applyIfWorks(), Collections.singletonList(observer)) {
             @Override
             protected LoadFlowFactory newLoadFlowFactory() {
                 return loadFlowFactory;

@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Properties;
 import java.util.function.Consumer;
 
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -207,11 +208,12 @@ public class ConversionTester {
         // Precision required on bus balances (MVA)
         double threshold = 0.01;
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
-            ValidationConfig config = loadFlowValidationConfig(fs, threshold);
+            ValidationConfig validationConfig = loadFlowValidationConfig(fs, threshold);
+            TableFormatterConfig formatterConfig = new TableFormatterConfig();
             Path working = Files.createDirectories(fs.getPath("lf-validation"));
 
-            computeMissingFlows(network, config.getLoadFlowParameters());
-            assertTrue(ValidationType.BUSES.check(network, config, working));
+            computeMissingFlows(network, validationConfig.getLoadFlowParameters());
+            assertTrue(ValidationType.BUSES.check(network, validationConfig, formatterConfig, working));
         }
     }
 

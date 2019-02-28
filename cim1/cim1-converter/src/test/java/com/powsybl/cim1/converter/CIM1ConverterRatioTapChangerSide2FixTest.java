@@ -14,6 +14,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -73,10 +74,11 @@ public class CIM1ConverterRatioTapChangerSide2FixTest {
         LoadFlowParameters loadFlowParameters = new LoadFlowParameters();
         loadFlowParameters.setSpecificCompatibility(true);
         computeMissingFlows(network, loadFlowParameters);
-        ValidationConfig config = createValidationConfig(loadFlowParameters);
+        ValidationConfig validationConfig = createValidationConfig(loadFlowParameters);
+        TableFormatterConfig formatterConfig = new TableFormatterConfig();
 
         Path working = Files.createDirectories(fileSystem.getPath("temp-validation"));
-        boolean rb = ValidationType.BUSES.check(network, config, working);
+        boolean rb = ValidationType.BUSES.check(network, validationConfig, formatterConfig, working);
         LOG.info("Bus balance validation for tx-from-microBE-adapted is [{}]", rb);
         assertTrue(rb);
     }

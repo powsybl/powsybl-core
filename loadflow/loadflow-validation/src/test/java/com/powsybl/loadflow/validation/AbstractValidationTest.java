@@ -6,6 +6,7 @@
  */
 package com.powsybl.loadflow.validation;
 
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
 
@@ -14,6 +15,8 @@ import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
 public abstract class AbstractValidationTest {
+
+    final TableFormatterConfig formatterConfig = new TableFormatterConfig();
 
     protected final ValidationConfig looseConfig = new ValidationConfig(0.1, true, LoadFlowFactoryMock.class, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
                                                                         ValidationConfig.EPSILON_X_DEFAULT, ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT,
