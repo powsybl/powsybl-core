@@ -172,7 +172,7 @@ public class Context {
     }
 
     public void pending(String what, String reason) {
-        LOG.debug("PENDING {}. Reason: {}", what, reason);
+        LOG.info("PENDING {}. Reason: {}", what, reason);
     }
 
     public void fixed(String what, String reason) {

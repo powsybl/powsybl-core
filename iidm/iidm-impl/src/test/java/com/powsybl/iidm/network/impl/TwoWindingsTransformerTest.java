@@ -76,6 +76,8 @@ public class TwoWindingsTransformerTest {
         double ratedU2 = 16.0;
         twoWindingsTransformer.setRatedU2(ratedU2);
         assertEquals(ratedU2, twoWindingsTransformer.getRatedU2(), 0.0);
+
+        assertEquals(substation.getTwoWindingsTransformerStream().count(), substation.getTwoWindingsTransformerCount());
     }
 
     @Test
