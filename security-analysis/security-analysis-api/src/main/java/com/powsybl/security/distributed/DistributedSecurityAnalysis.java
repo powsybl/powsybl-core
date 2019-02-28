@@ -6,7 +6,7 @@
  */
 package com.powsybl.security.distributed;
 
-import com.powsybl.commons.compress.TarHelper;
+import com.powsybl.commons.compress.TarGzHelper;
 import com.powsybl.computation.*;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
@@ -150,7 +150,7 @@ public class DistributedSecurityAnalysis extends ExternalSecurityAnalysis {
                 logs.add(SubTaskHandler.SA_TASK_CMD_ID + "_" + i + ".out");
                 logs.add(SubTaskHandler.SA_TASK_CMD_ID + "_" + i + ".err");
             }
-            byte[] logBytes = TarHelper.archiveFilesToBytes(workingDir, logs);
+            byte[] logBytes = TarGzHelper.archiveFilesToGzBytes(workingDir, logs);
             return new SecurityAnalysisResultWithLog(re, logBytes);
         }
     }

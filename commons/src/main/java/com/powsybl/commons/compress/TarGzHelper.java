@@ -12,34 +12,33 @@ import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.zip.GZIPOutputStream;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public final class TarHelper {
+public final class TarGzHelper {
 
-    public static byte[] archiveFilesToBytes(Path workingDir, List<String> fileNames) {
+    public static byte[] archiveFilesToGzBytes(Path workingDir, List<String> fileNames) {
         // maybe workingDir would be used repeatedly
         String randomId = UUID.randomUUID().toString();
         try {
             String tarFileName = archiveFiles(workingDir, randomId, fileNames);
-            return convertTarFileToBytes(workingDir, tarFileName);
+            byte[] tarFileToBytes = convertTarFileToBytes(workingDir, tarFileName);
+            return compressBytes(tarFileToBytes);
         } catch (IOException e) {
             throw new PowsyblException(e);
         }
     }
 
-    public static byte[] archiveFilesToBytes(Path workingDir, String... fileNames) {
-        return archiveFilesToBytes(workingDir, Arrays.asList(fileNames));
+    public static byte[] archiveFilesToGzBytes(Path workingDir, String... fileNames) {
+        return archiveFilesToGzBytes(workingDir, Arrays.asList(fileNames));
     }
 
     private static String archiveFiles(Path workingDir, String randomId, List<String> files) throws IOException {
@@ -69,6 +68,16 @@ public final class TarHelper {
         return ByteStreams.toByteArray(fis);
     }
 
-    private TarHelper() {
+    private static byte[] compressBytes(byte[] uncompressed) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (OutputStream outStream = new GZIPOutputStream(baos)) {
+            outStream.write(uncompressed);
+        }
+        baos.flush();
+        baos.close();
+        return baos.toByteArray();
+    }
+
+    private TarGzHelper() {
     }
 }
