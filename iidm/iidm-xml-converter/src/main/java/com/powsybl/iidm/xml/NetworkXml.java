@@ -321,8 +321,7 @@ public final class NetworkXml {
     }
 
     private static String getFileExtensionFromPath(Path xmlFile) {
-        String extension = xmlFile.getFileName().toString().split("\\.").length == 1 ? "" : "." + xmlFile.getFileName().toString().split("\\.")[1];
-        return extension;
+        return xmlFile.getFileName().toString().split("\\.").length == 1 ? "" : "." + xmlFile.getFileName().toString().split("\\.")[1];
     }
 
     public static Anonymizer write(Network n, ExportOptions options, Path xmlFile) {
