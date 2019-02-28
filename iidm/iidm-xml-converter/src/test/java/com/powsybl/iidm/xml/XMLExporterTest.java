@@ -8,8 +8,6 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.MemDataSource;
-import com.powsybl.iidm.IidmImportExportMode;
-import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
 import org.junit.Test;
@@ -17,7 +15,6 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
@@ -36,12 +33,6 @@ public class XMLExporterTest  extends AbstractConverterTest {
         try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
             compareXml(getClass().getResourceAsStream(xiidmRef), is);
         }
-    }
-
-    @Test
-    public void exportWithPathTest() {
-        Network network = MultipleExtensionsTestNetworkFactory.create();
-        NetworkXml.write(network, new ExportOptions().setMode(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE), Paths.get("/tmp/toto.xiidm"));
     }
 
     @Test

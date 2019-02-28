@@ -256,7 +256,7 @@ public final class NetworkXml {
             String name = entry.getKey();
             Set<String> ids = entry.getValue();
             if (options.withExtension(name)) {
-                try (OutputStream os = dataSource.newOutputStream(name + ".xiidm", false);
+                try (OutputStream os = dataSource.newOutputStream(n.getName() + "-" +  name + ".xiidm", false);
                      BufferedOutputStream bos = new BufferedOutputStream(os)) {
                     XMLStreamWriter writer = initializeWriter(n, bos, options);
                     for (String id : ids) {
@@ -320,12 +320,16 @@ public final class NetworkXml {
         return write(n, new ExportOptions(), os);
     }
 
+    private static String getFileExtensionFromPath(Path xmlFile) {
+        String extension = xmlFile.getFileName().toString().split("\\.").length == 1 ? "" : "." + xmlFile.getFileName().toString().split("\\.")[1];
+        return extension;
+    }
+
     public static Anonymizer write(Network n, ExportOptions options, Path xmlFile) {
         String fileBaseName = xmlFile.getFileName().toString().split("\\.")[0];
-        String extension = xmlFile.getFileName().toString().split("\\.").length == 1 ? "" : "." + xmlFile.getFileName().toString().split("\\.")[1];
         DataSource dataSource = new FileDataSource(xmlFile.getParent(), fileBaseName);
         try {
-            return write(n, options, dataSource, extension);
+            return write(n, options, dataSource, getFileExtensionFromPath(xmlFile));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -467,7 +471,7 @@ public final class NetworkXml {
     public static void readExtensions(Network network, ReadOnlyDataSource dataSource, Anonymizer anonymizer, ImportOptions options, String ext) throws IOException {
         options.getExtensions().ifPresent(extensions -> {
             for (String extension : extensions) {
-                try (InputStream ise = dataSource.newInputStream(extension + "." + ext)) {
+                try (InputStream ise = dataSource.newInputStream(network.getName() + "-" + extension + "." + ext)) {
                     readExtensions(network, ise, anonymizer, options);
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);

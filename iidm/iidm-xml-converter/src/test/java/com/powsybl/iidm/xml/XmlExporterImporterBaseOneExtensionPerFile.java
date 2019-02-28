@@ -42,12 +42,12 @@ public class XmlExporterImporterBaseOneExtensionPerFile extends AbstractConverte
             compareXml(getClass().getResourceAsStream(xiidmBaseRef), is);
         }
 
-        try (InputStream is = new ByteArrayInputStream(dataSource.getData("loadBar.xiidm"))) {
-            compareXml(getClass().getResourceAsStream("/loadBar.xiidm"), is);
+        try (InputStream is = new ByteArrayInputStream(dataSource.getData("test-loadBar.xiidm"))) {
+            compareXml(getClass().getResourceAsStream("/test-loadBar.xiidm"), is);
         }
 
-        try (InputStream is = new ByteArrayInputStream(dataSource.getData("loadFoo.xiidm"))) {
-            compareXml(getClass().getResourceAsStream("/loadFoo.xiidm"), is);
+        try (InputStream is = new ByteArrayInputStream(dataSource.getData("test-loadFoo.xiidm"))) {
+            compareXml(getClass().getResourceAsStream("/test-loadFoo.xiidm"), is);
         }
 
         Properties importProperties = new Properties();
