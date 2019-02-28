@@ -63,6 +63,6 @@ public class EquivalentInjectionConversion extends AbstractConductingEquipmentCo
         connect(adder);
         Generator g = adder.add();
         convertedTerminals(g.getTerminal());
-        ReactiveLimitsConversion.convert(p, g);
+        convertReactiveLimits(g);
     }
 }
