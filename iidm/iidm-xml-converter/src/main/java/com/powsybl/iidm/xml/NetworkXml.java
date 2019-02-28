@@ -10,6 +10,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.exceptions.UncheckedSaxException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
@@ -66,7 +67,6 @@ public final class NetworkXml {
     private static final String FORECAST_DISTANCE = "forecastDistance";
     private static final String SOURCE_FORMAT = "sourceFormat";
     private static final String ID = "id";
-    private static final String XIIDM = "xiidm";
 
     // cache XMLOutputFactory to improve performance
     private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLOutputFactory::newFactory);
@@ -256,7 +256,7 @@ public final class NetworkXml {
             String name = entry.getKey();
             Set<String> ids = entry.getValue();
             if (options.withExtension(name)) {
-                try (OutputStream os = dataSource.newOutputStream(name, XIIDM, false);
+                try (OutputStream os = dataSource.newOutputStream(name + ".xiidm", false);
                      BufferedOutputStream bos = new BufferedOutputStream(os)) {
                     XMLStreamWriter writer = initializeWriter(n, bos, options);
                     for (String id : ids) {
@@ -321,8 +321,11 @@ public final class NetworkXml {
     }
 
     public static Anonymizer write(Network n, ExportOptions options, Path xmlFile) {
-        try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(xmlFile))) {
-            return write(n, options, os);
+        String fileBaseName = xmlFile.getFileName().toString().split("\\.")[0];
+        String extension = xmlFile.getFileName().toString().split("\\.").length == 1 ? "" : "." + xmlFile.getFileName().toString().split("\\.")[1];
+        DataSource dataSource = new FileDataSource(xmlFile.getParent(), fileBaseName);
+        try {
+            return write(n, options, dataSource, extension);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -332,8 +335,8 @@ public final class NetworkXml {
         return write(n, new ExportOptions(), xmlFile);
     }
 
-    public static Anonymizer write(Network network, ExportOptions options, DataSource dataSource) throws IOException {
-        try (OutputStream osb = dataSource.newOutputStream(null, XIIDM, false);
+    public static Anonymizer write(Network network, ExportOptions options, DataSource dataSource, String dataSourceExt) throws IOException {
+        try (OutputStream osb = dataSource.newOutputStream(dataSource.getBaseName() + "" + dataSourceExt, false);
              BufferedOutputStream bosb = new BufferedOutputStream(osb)) {
 
             if (options.getMode() == IidmImportExportMode.UNIQUE_FILE) {
@@ -353,7 +356,7 @@ public final class NetworkXml {
             if (!options.withNoExtension() && !getNetworkExtensions(network).isEmpty()) {
 
                 if (options.getMode() == IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE) {
-                    try (OutputStream ose = dataSource.newOutputStream("-ext", XIIDM, false);
+                    try (OutputStream ose = dataSource.newOutputStream(dataSource.getBaseName() + "-ext" + dataSourceExt, false);
                          BufferedOutputStream bose = new BufferedOutputStream(ose)) {
 
                         final XMLStreamWriter extensionsWriter = initializeWriter(network, bose, options);

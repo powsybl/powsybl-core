@@ -8,14 +8,16 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.iidm.IidmImportExportMode;
+import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
@@ -28,9 +30,6 @@ public class XMLExporterTest  extends AbstractConverterTest {
         Properties properties = new Properties();
         properties.put(XMLExporter.ANONYMISED, "false");
 
-        List<String> extensionsList = Arrays.asList("loadFoo", "loadBar");
-        properties.put(XMLExporter.EXTENSIONS_LIST, extensionsList);
-
         MemDataSource dataSource = new MemDataSource();
         new XMLExporter().export(network, properties, dataSource);
         // check the exported file and compare it to iidm reference file
@@ -40,8 +39,14 @@ public class XMLExporterTest  extends AbstractConverterTest {
     }
 
     @Test
+    public void exportWithPathTest() {
+        Network network = MultipleExtensionsTestNetworkFactory.create();
+        NetworkXml.write(network, new ExportOptions().setMode(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE), Paths.get("/tmp/toto.xiidm"));
+    }
+
+    @Test
     public void exportTest() throws IOException {
-        exporterTest(NetworkXmlTest.createEurostagTutorialExample1(),
-                "/eurostag-tutorial-example1.xml");
+        exporterTest(MultipleExtensionsTestNetworkFactory.create(),
+                "/multiple-extensions.xml");
     }
 }

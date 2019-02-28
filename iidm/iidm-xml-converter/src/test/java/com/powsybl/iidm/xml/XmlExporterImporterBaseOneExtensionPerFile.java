@@ -42,15 +42,14 @@ public class XmlExporterImporterBaseOneExtensionPerFile extends AbstractConverte
             compareXml(getClass().getResourceAsStream(xiidmBaseRef), is);
         }
 
-        try (InputStream is = new ByteArrayInputStream(dataSource.getData("loadBar", "xiidm"))) {
+        try (InputStream is = new ByteArrayInputStream(dataSource.getData("loadBar.xiidm"))) {
             compareXml(getClass().getResourceAsStream("/loadBar.xiidm"), is);
         }
 
-        try (InputStream is = new ByteArrayInputStream(dataSource.getData("loadFoo", "xiidm"))) {
+        try (InputStream is = new ByteArrayInputStream(dataSource.getData("loadFoo.xiidm"))) {
             compareXml(getClass().getResourceAsStream("/loadFoo.xiidm"), is);
         }
 
-        List<String> extensionsList = Arrays.asList("loadFoo", "loadBar");
         Properties importProperties = new Properties();
         importProperties.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
         importProperties.put(XMLImporter.EXTENSIONS_LIST, extensions);
