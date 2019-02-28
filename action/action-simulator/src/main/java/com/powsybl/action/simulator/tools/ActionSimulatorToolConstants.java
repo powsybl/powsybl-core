@@ -12,6 +12,7 @@ public final class ActionSimulatorToolConstants {
     public static final String CASE_FILE = "case-file";
     public static final String CONTINGENCIES = "contingencies";
     public static final String DSL_FILE = "dsl-file";
+    public static final String PARAMETERS_FILE = "parameters-file";
     public static final String OUTPUT_CASE_FOLDER = "output-case-folder";
     public static final String OUTPUT_CASE_FORMAT = "output-case-format";
     public static final String OUTPUT_COMPRESSION_FORMAT = "output-compression-format";
