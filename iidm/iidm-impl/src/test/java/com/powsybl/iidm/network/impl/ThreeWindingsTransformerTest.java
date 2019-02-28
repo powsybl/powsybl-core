@@ -64,6 +64,8 @@ public class ThreeWindingsTransformerTest {
         assertEquals(substation, transformer.getSubstation());
         assertEquals(ConnectableType.THREE_WINDINGS_TRANSFORMER, transformer.getType());
 
+        assertEquals(substation.getThreeWindingsTransformerStream().count(), substation.getThreeWindingsTransformerCount());
+
         // leg1 adder
         ThreeWindingsTransformer.Leg1 leg1 = transformer.getLeg1();
         assertEquals(1.3, leg1.getR(), 0.0);
