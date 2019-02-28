@@ -186,11 +186,13 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
 
     @Override
     public void fillBuffer(DoubleBuffer buffer, int timeSeriesOffset) {
+        Objects.requireNonNull(buffer);
         forEachMaterializedValueIndex((v, i) -> buffer.put(i + timeSeriesOffset, v));
     }
 
     @Override
     public void fillBuffer(BigDoubleBuffer buffer, long timeSeriesOffset) {
+        Objects.requireNonNull(buffer);
         forEachMaterializedValueIndex((v, i) -> buffer.put(i + timeSeriesOffset, v));
     }
 
