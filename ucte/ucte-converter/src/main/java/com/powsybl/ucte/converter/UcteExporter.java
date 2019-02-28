@@ -61,7 +61,7 @@ public class UcteExporter implements Exporter {
     }
 
     private void createTieLine(UcteNetwork ucteNetwork, Line line) {
-        String[] ids  = line.getId().split("\\+");
+        String[] ids = line.getId().split("\\+");
         UcteNodeCode ucteNodeCode1 = iidmIdToUcteNodeCode(ids[0].substring(0, 8));
         UcteNodeCode ucteNodeCode2 = iidmIdToUcteNodeCode(ids[0].substring(9, 17));
         UcteNodeCode ucteNodeCode3 = iidmIdToUcteNodeCode(ids[1].substring(1, 9));
@@ -298,36 +298,6 @@ public class UcteExporter implements Exporter {
         }
     }
 
-//    double calculateRatioDu(TwoWindingsTransformer twoWindingsTransformer) {
-//        double du = 0;
-//        boolean passedBy0 = false;
-//        for (int i = twoWindingsTransformer.getPhaseTapChanger().getLowTapPosition();
-//             i < -twoWindingsTransformer.getPhaseTapChanger().getLowTapPosition();
-//             i++) {
-//            if (i != 0) {
-//                double rho = twoWindingsTransformer.getPhaseTapChanger().getStep(i).getRho();
-//                du += (100 * (1 / rho - 1)) / i;
-//            } else {
-//                passedBy0 = true;
-//            }
-//        }
-//        if (passedBy0) {
-//            return du /
-//                    (twoWindingsTransformer.getRatioTapChanger().getHighTapPosition() -
-//                            twoWindingsTransformer.getRatioTapChanger().getLowTapPosition() - 1);
-//        } else {
-//            return du /
-//                    (twoWindingsTransformer.getRatioTapChanger().getHighTapPosition() -
-//                            twoWindingsTransformer.getRatioTapChanger().getLowTapPosition());
-//        }
-//    }
-//
-//    double calculateRatioTheta(TwoWindingsTransformer twoWindingsTransformer) {
-//        double theta = 0;
-//
-//    }
-
-
     private void createLines(UcteNetwork ucteNetwork, Network network) {
         LOGGER.info("-----------LINES------------");
         Iterable<Line> lines = network.getLines();
@@ -404,8 +374,6 @@ public class UcteExporter implements Exporter {
                 Float.NaN,
                 null
         ));
-
-
 
         UcteNodeCode ucteNodeCode1 = iidmIdToUcteNodeCode(danglingLine.getId().substring(0, 8));
         UcteNodeCode ucteNodeCode2 = iidmIdToUcteNodeCode(danglingLine.getId().substring(9, 17));
