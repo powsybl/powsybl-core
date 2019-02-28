@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ForkJoinPool;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
@@ -216,7 +217,7 @@ public class LocalComputationManagerTest {
         }
     }
 
-    @Test
+    @Test(expected = CompletionException.class)
     public void hangingIssue() throws IOException {
         LocalCommandExecutor localCommandExecutor = new AbstractLocalCommandExecutor() {
             @Override
