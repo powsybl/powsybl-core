@@ -17,24 +17,16 @@ import java.util.Objects;
  */
 public class ComputationOptionsBuilder {
 
-    private final Map<String, Integer> timeoutMap = new HashMap<>();
+    private final Map<String, Long> timeoutMap = new HashMap<>();
 
     private final Map<String, String> qosMap = new HashMap<>();
 
-    private String qos;
-
-    ComputationOptionsBuilder() {
-
+    public ComputationOptionsBuilder() {
     }
 
-    public ComputationOptionsBuilder setDefaultQos(String qos) {
-        this.qos = Objects.requireNonNull(qos);
-        return this;
-    }
-
-    public ComputationOptionsBuilder setTimeout(String cmdId, int seconds) {
+    public ComputationOptionsBuilder setTimeout(String cmdId, long seconds) {
         Objects.requireNonNull(cmdId);
-        Preconditions.checkArgument(seconds >= 0, "Timeout must be positive.");
+        Preconditions.checkArgument(seconds > 0, "Timeout must be positive.");
         timeoutMap.put(cmdId, seconds);
         return this;
     }
@@ -47,6 +39,6 @@ public class ComputationOptionsBuilder {
     }
 
     public ComputationOptions build() {
-        return new ComputationOptionsImpl(qos, timeoutMap, qosMap);
+        return new ComputationOptionsImpl(timeoutMap, qosMap);
     }
 }

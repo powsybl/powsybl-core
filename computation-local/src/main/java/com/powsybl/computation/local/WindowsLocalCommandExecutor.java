@@ -56,7 +56,7 @@ public class WindowsLocalCommandExecutor extends AbstractLocalCommandExecutor {
                 .add("/c")
                 .add(internalCmd.toString())
                 .build();
-        return execute(cmdLs, workingDir, outFile, errFile);
+        return execute(cmdLs, workingDir, outFile, errFile, -1);
     }
 
     @Override

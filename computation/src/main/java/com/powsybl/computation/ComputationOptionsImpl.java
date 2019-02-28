@@ -13,25 +13,22 @@ import java.util.*;
  */
 public class ComputationOptionsImpl implements ComputationOptions {
 
-    private final Map<String, Integer> timeoutMap;
+    private final Map<String, Long> timeoutMap;
     private final Map<String, String> qosMap;
 
-    private final String qos;
-
-    ComputationOptionsImpl(String qos, Map<String, Integer> timeoutMap, Map<String, String> qosMap) {
-        this.qos = qos;
+    ComputationOptionsImpl(Map<String, Long> timeoutMap, Map<String, String> qosMap) {
         this.timeoutMap = Collections.unmodifiableMap(timeoutMap);
         this.qosMap = Collections.unmodifiableMap(qosMap);
     }
 
     @Override
-    public OptionalInt getTimeout(String cmdId) {
+    public OptionalLong getTimeout(String cmdId) {
         Objects.requireNonNull(cmdId);
-        Integer t = timeoutMap.get(cmdId);
+        Long t = timeoutMap.get(cmdId);
         if (t == null) {
-            return OptionalInt.empty();
+            return OptionalLong.empty();
         } else {
-            return OptionalInt.of(t);
+            return OptionalLong.of(t);
         }
     }
 
@@ -41,9 +38,6 @@ public class ComputationOptionsImpl implements ComputationOptions {
         String qosFromMap = qosMap.get(commandId);
         if (qosFromMap != null) {
             return Optional.of(qosFromMap);
-        }
-        if (qos != null) {
-            return Optional.of(qos);
         }
         return Optional.empty();
     }

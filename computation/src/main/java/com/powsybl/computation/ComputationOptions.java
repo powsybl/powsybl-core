@@ -7,22 +7,22 @@
 package com.powsybl.computation;
 
 import java.util.Optional;
-import java.util.OptionalInt;
+import java.util.OptionalLong;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 public interface ComputationOptions {
 
-    OptionalInt getTimeout(String commandId);
+    OptionalLong getTimeout(String commandId);
 
     Optional<String> getQos(String commandId);
 
     static ComputationOptions empty() {
         return new ComputationOptions() {
             @Override
-            public OptionalInt getTimeout(String commandId) {
-                return OptionalInt.empty();
+            public OptionalLong getTimeout(String commandId) {
+                return OptionalLong.empty();
             }
 
             @Override
