@@ -47,6 +47,8 @@ public class AppStorageServerTest extends AbstractAppStorageTest {
 
     private UserSession userSession;
 
+    private ListenableAppStorage listenableAppStorage;
+
     @Deployment
     public static WebArchive createTestArchive() {
         File[] filesLib = Maven.configureResolver()
@@ -77,6 +79,7 @@ public class AppStorageServerTest extends AbstractAppStorageTest {
     @Override
     public void setUp() throws Exception {
         userSession = ClientUtils.authenticate(getRestUri(), "", "");
+        listenableAppStorage = createStorage();
         super.setUp();
     }
 
@@ -84,6 +87,11 @@ public class AppStorageServerTest extends AbstractAppStorageTest {
     protected ListenableAppStorage createStorage() {
         URI restUri = getRestUri();
         RemoteServiceConfig config = new RemoteServiceConfig(restUri.getHost(), "test", restUri.getPort(), true);
+        config.setAutoreconnectEnabled(true)
+                .setReconnectionInitialInterval(1)
+                .setReconnectionIntervalMutiplier(2)
+                .setReconnectionMaxInterval(6)
+                .setReconnectionMax(600);
         RemoteAppStorage storage = new RemoteAppStorage(AppDataBeanMock.TEST_FS_NAME, restUri, userSession.getToken());
         return new RemoteListenableAppStorage(storage, config, restUri);
     }
@@ -92,5 +100,6 @@ public class AppStorageServerTest extends AbstractAppStorageTest {
     public void getFileSystemNamesTest() {
         List<String> fileSystemNames = RemoteAppStorage.getFileSystemNames(getRestUri(), userSession.getToken());
         assertEquals(Collections.singletonList(AppDataBeanMock.TEST_FS_NAME), fileSystemNames);
+        listenableAppStorage.close();
     }
 }
