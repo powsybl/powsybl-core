@@ -8,6 +8,7 @@ package com.powsybl.timeseries;
 
 import java.nio.DoubleBuffer;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -33,9 +34,18 @@ public class StoredDoubleTimeSeries extends AbstractTimeSeries<DoublePoint, Doub
         return new StoredDoubleTimeSeries(metadata, chunk);
     }
 
+    private void forEachChunk(Consumer<DoubleDataChunk> consumer) {
+        chunks.forEach(consumer);
+    }
+
     @Override
     public void fillBuffer(DoubleBuffer buffer, int timeSeriesOffset) {
-        chunks.forEach(chunk -> chunk.fillBuffer(buffer, timeSeriesOffset));
+        forEachChunk(chunk -> chunk.fillBuffer(buffer, timeSeriesOffset));
+    }
+
+    @Override
+    public void fillBuffer(BigDoubleBuffer buffer, long timeSeriesOffset) {
+        forEachChunk(chunk -> chunk.fillBuffer(buffer, timeSeriesOffset));
     }
 
     @Override
