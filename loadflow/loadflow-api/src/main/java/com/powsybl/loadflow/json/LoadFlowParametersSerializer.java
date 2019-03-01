@@ -17,7 +17,7 @@ import java.io.IOException;
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
-class LoadFlowParametersSerializer extends StdSerializer<LoadFlowParameters> {
+public class LoadFlowParametersSerializer extends StdSerializer<LoadFlowParameters> {
 
     LoadFlowParametersSerializer() {
         super(LoadFlowParameters.class);
