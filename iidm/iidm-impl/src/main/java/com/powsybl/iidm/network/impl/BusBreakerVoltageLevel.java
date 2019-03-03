@@ -623,7 +623,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     void addBus(ConfiguredBus bus) {
-        getNetwork().getObjectStore().checkAndAdd(bus);
+        getNetwork().getIndex().checkAndAdd(bus);
         int v = graph.addVertex();
         graph.setVertexObject(v, bus);
         buses.put(bus.getId(), v);
@@ -648,7 +648,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                         + "' because switch '" + switchId + "' is connected to it");
             }
         }
-        getNetwork().getObjectStore().remove(bus);
+        getNetwork().getIndex().remove(bus);
         int v = buses.remove(bus.getId());
         graph.removeVertex(v);
     }
@@ -664,7 +664,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
             }
         }
         for (ConfiguredBus bus : graph.getVerticesObj()) {
-            getNetwork().getObjectStore().remove(bus);
+            getNetwork().getIndex().remove(bus);
         }
         graph.removeAllVertices();
         buses.clear();
@@ -673,7 +673,7 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     private void addSwitch(SwitchImpl aSwitch, String busId1, String busId2) {
         int v1 = getVertex(busId1, true);
         int v2 = getVertex(busId2, true);
-        getNetwork().getObjectStore().checkAndAdd(aSwitch);
+        getNetwork().getIndex().checkAndAdd(aSwitch);
         int e = graph.addEdge(v1, v2, aSwitch);
         switches.put(aSwitch.getId(), e);
     }
@@ -685,12 +685,12 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
                     + "' not found in substation voltage level '" + id + "'");
         }
         SwitchImpl aSwitch = graph.removeEdge(e);
-        getNetwork().getObjectStore().remove(aSwitch);
+        getNetwork().getIndex().remove(aSwitch);
     }
 
     private void removeAllSwitches() {
         for (SwitchImpl s : graph.getEdgesObject()) {
-            getNetwork().getObjectStore().remove(s);
+            getNetwork().getIndex().remove(s);
         }
         graph.removeAllEdges();
         switches.clear();

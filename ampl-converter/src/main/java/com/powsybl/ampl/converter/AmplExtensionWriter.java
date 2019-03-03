@@ -21,7 +21,6 @@ public interface AmplExtensionWriter {
 
     String getName();
 
-
     void write(List<AmplExtension> extensions, Network network, int variantIndex, StringToIntMapper<AmplSubset> mapper,
             DataSource dataSource, boolean append, AmplExportConfig config) throws IOException;
 }

@@ -10,6 +10,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.commons.io.table.*;
+import com.powsybl.iidm.tools.ConversionToolUtils;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 import com.powsybl.tools.Command;
@@ -37,6 +38,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Properties;
+
+import static com.powsybl.iidm.tools.ConversionToolUtils.*;
+import static com.powsybl.iidm.tools.ConversionToolUtils.createExportParametersFileOption;
 
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
@@ -112,6 +116,10 @@ public class RunLoadFlowTool implements Tool {
                         .hasArg()
                         .argName("FILE")
                         .build());
+                options.addOption(createImportParametersFileOption());
+                options.addOption(createImportParameterOption());
+                options.addOption(createExportParametersFileOption());
+                options.addOption(createExportParameterOption());
                 return options;
             }
 
@@ -149,7 +157,8 @@ public class RunLoadFlowTool implements Tool {
         }
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
-        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), importConfig, null);
+        Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
+        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), importConfig, inputParams);
         if (network == null) {
             throw new PowsyblException("Case '" + caseFile + "' not found");
         }
@@ -172,7 +181,8 @@ public class RunLoadFlowTool implements Tool {
         // exports the modified network to the filesystem, if requested
         if (outputCaseFile != null) {
             String outputCaseFormat = line.getOptionValue(OUTPUT_CASE_FORMAT);
-            Exporters.export(outputCaseFormat, network, new Properties(), outputCaseFile);
+            Properties outputParams = readProperties(line, ConversionToolUtils.OptionType.EXPORT, context);
+            Exporters.export(outputCaseFormat, network, outputParams, outputCaseFile);
         }
     }
 
@@ -205,7 +215,6 @@ public class RunLoadFlowTool implements Tool {
         AsciiTableFormatterFactory asciiTableFormatterFactory = new AsciiTableFormatterFactory();
         printLoadFlowResult(result, writer, asciiTableFormatterFactory, TableFormatterConfig.load());
     }
-
 
     private void exportResult(LoadFlowResult result, ToolRunningContext context, Path outputFile, Format format) {
         context.getOutputStream().println("Writing results to '" + outputFile + "'");
