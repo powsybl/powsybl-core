@@ -24,8 +24,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -217,8 +218,8 @@ public class LocalComputationManagerTest {
         }
     }
 
-    @Test(expected = CompletionException.class)
-    public void hangingIssue() throws IOException {
+    @Test(expected = ExecutionException.class)
+    public void hangingIssue() throws Exception {
         LocalCommandExecutor localCommandExecutor = new AbstractLocalCommandExecutor() {
             @Override
             void nonZeroLog(List<String> cmdLs, int exitCode) {
@@ -237,7 +238,7 @@ public class LocalComputationManagerTest {
                 }
             });
             // check that code is not hanging anymore when a java.lang.Error is thrown inside before
-            result.join();
+            result.get(100, TimeUnit.MILLISECONDS);
         }
     }
 }
