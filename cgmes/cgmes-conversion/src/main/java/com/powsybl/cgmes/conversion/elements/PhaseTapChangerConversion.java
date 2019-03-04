@@ -127,21 +127,29 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
     }
 
     private void addStepsFromTable(PhaseTapChangerAdder ptca) {
-        String tableId = p.getId("PhaseTapChangerTable");
+        String tableId = p.getId(CgmesNames.PHASE_TAP_CHANGER_TABLE);
+        if (tableId == null) {
+            missing(CgmesNames.PHASE_TAP_CHANGER_TABLE);
+            return;
+        }
         LOG.debug("PhaseTapChanger {} table {}", id, tableId);
         PropertyBags table = context.cgmes().phaseTapChangerTable(tableId);
+        if (table.isEmpty()) {
+            missing("points for PhaseTapChangerTable " + tableId);
+            return;
+        }
         Comparator<PropertyBag> byStep = Comparator.comparingInt((PropertyBag p) -> p.asInt("step"));
         table.sort(byStep);
         for (PropertyBag point : table) {
             double alpha = point.asDouble("angle");
-            double rho = point.asDouble("ratio");
+            double rho = point.asDouble("ratio", 1.0);
             // When given in PhaseTapChangerTablePoint
             // r, x, g, b of the step are already percentage deviations of nominal values
-            double r = point.asDouble("r", 0);
-            double x = point.asDouble("x", 0);
-            double g = point.asDouble("g", 0);
-            double b = point.asDouble("b", 0);
             int step = point.asInt("step");
+            double r = fixing(point, "r", 0, tableId, step);
+            double x = fixing(point, "x", 0, tableId, step);
+            double g = fixing(point, "g", 0, tableId, step);
+            double b = fixing(point, "b", 0, tableId, step);
             // Impedance/admittance deviation is required when tap changer is defined at
             // side 2
             // (In IIDM model the ideal ratio is always at side 1, left of impedance)
@@ -167,6 +175,17 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                     .setB(b + dy + b * dy / 100)
                     .endStep();
         }
+    }
+
+    private double fixing(PropertyBag point, String attr, double defaultValue, String tableId, int step) {
+        double value = point.asDouble(attr, defaultValue);
+        if (Double.isNaN(value)) {
+            fixed(
+                "PhaseTapChangerTablePoint " + attr + " for step " + step + " in table " + tableId,
+                "invalid value " + point.get(attr));
+            return defaultValue;
+        }
+        return value;
     }
 
     private double du0() {
