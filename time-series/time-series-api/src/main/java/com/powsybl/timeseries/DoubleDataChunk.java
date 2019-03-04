@@ -14,4 +14,6 @@ import java.nio.DoubleBuffer;
 public interface DoubleDataChunk extends DataChunk<DoublePoint, DoubleDataChunk> {
 
     void fillBuffer(DoubleBuffer buffer, int timeSeriesOffset);
+
+    void fillBuffer(BigDoubleBuffer buffer, long timeSeriesOffset);
 }

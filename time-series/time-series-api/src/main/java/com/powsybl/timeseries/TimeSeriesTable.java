@@ -7,7 +7,6 @@
 package com.powsybl.timeseries;
 
 import com.google.common.base.Stopwatch;
-import com.google.common.math.IntMath;
 import gnu.trove.list.array.TIntArrayList;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
@@ -15,7 +14,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.ByteBuffer;
-import java.nio.DoubleBuffer;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -136,9 +134,9 @@ public class TimeSeriesTable {
 
     private final TimeSeriesNameMap stringTimeSeriesNames = new TimeSeriesNameMap();
 
-    private DoubleBuffer doubleBuffer;
+    private BigDoubleBuffer doubleBuffer;
 
-    private CompactStringBuffer stringBuffer;
+    private BigStringBuffer stringBuffer;
 
     private final Lock initLock = new ReentrantLock();
 
@@ -204,16 +202,16 @@ public class TimeSeriesTable {
             int versionCount = toVersion - fromVersion + 1;
 
             // allocate double buffer
-            int doubleBufferSize = versionCount * doubleTimeSeriesNames.size() * tableIndex.getPointCount();
+            long doubleBufferSize = (long) versionCount * doubleTimeSeriesNames.size() * tableIndex.getPointCount();
             doubleBuffer = createDoubleBuffer(byteBufferAllocator, doubleBufferSize, Double.NaN);
 
             // allocate string buffer
-            int stringBufferSize = versionCount * stringTimeSeriesNames.size() * tableIndex.getPointCount();
-            stringBuffer = new CompactStringBuffer(byteBufferAllocator, stringBufferSize);
+            long stringBufferSize = (long) versionCount * stringTimeSeriesNames.size() * tableIndex.getPointCount();
+            stringBuffer = new BigStringBuffer(byteBufferAllocator, stringBufferSize);
 
             if (LOGGER.isInfoEnabled()) {
                 LOGGER.info("Allocation of {} for time series table",
-                        FileUtils.byteCountToDisplaySize((long) doubleBuffer.capacity() * Double.BYTES + stringBuffer.capacity() * Integer.BYTES));
+                        FileUtils.byteCountToDisplaySize(doubleBuffer.capacity() * Double.BYTES + stringBuffer.capacity() * Integer.BYTES));
             }
 
             // allocate statistics buffer
@@ -242,20 +240,20 @@ public class TimeSeriesTable {
         return tableIndex;
     }
 
-    private static DoubleBuffer createDoubleBuffer(IntFunction<ByteBuffer> byteBufferAllocator, int size) {
-        return byteBufferAllocator.apply(IntMath.checkedMultiply(size, Double.BYTES)).asDoubleBuffer();
+    private static BigDoubleBuffer createDoubleBuffer(IntFunction<ByteBuffer> byteBufferAllocator, long size) {
+        return new BigDoubleBuffer(byteBufferAllocator, size);
     }
 
-    private static DoubleBuffer createDoubleBuffer(IntFunction<ByteBuffer> byteBufferAllocator, int size, double initialValue) {
-        DoubleBuffer doubleBuffer = createDoubleBuffer(byteBufferAllocator, size);
-        for (int i = 0; i < size; i++) {
-            doubleBuffer.put(initialValue);
+    private static BigDoubleBuffer createDoubleBuffer(IntFunction<ByteBuffer> byteBufferAllocator, long size, double initialValue) {
+        BigDoubleBuffer doubleBuffer = createDoubleBuffer(byteBufferAllocator, size);
+        for (long i = 0; i < size; i++) {
+            doubleBuffer.put(i, initialValue);
         }
         return doubleBuffer;
     }
 
-    private int getTimeSeriesOffset(int version, int timeSeriesNum) {
-        return timeSeriesNum * tableIndex.getPointCount() * (toVersion - fromVersion + 1) + (version - fromVersion) * tableIndex.getPointCount();
+    private long getTimeSeriesOffset(int version, int timeSeriesNum) {
+        return (long) timeSeriesNum * tableIndex.getPointCount() * (toVersion - fromVersion + 1) + (version - fromVersion) * tableIndex.getPointCount();
     }
 
     private int getStatisticsIndex(int version, int timeSeriesNum) {
@@ -286,7 +284,7 @@ public class TimeSeriesTable {
         int timeSeriesNum = doubleTimeSeriesNames.getIndex(timeSeries.getMetadata().getName());
 
         // copy data
-        int timeSeriesOffset = getTimeSeriesOffset(version, timeSeriesNum);
+        long timeSeriesOffset = getTimeSeriesOffset(version, timeSeriesNum);
         timeSeries.fillBuffer(doubleBuffer, timeSeriesOffset);
 
         // invalidate statistics
@@ -298,7 +296,7 @@ public class TimeSeriesTable {
         int timeSeriesNum = stringTimeSeriesNames.getIndex(timeSeries.getMetadata().getName());
 
         // copy data
-        int timeSeriesOffset = getTimeSeriesOffset(version, timeSeriesNum);
+        long timeSeriesOffset = getTimeSeriesOffset(version, timeSeriesNum);
         timeSeries.fillBuffer(stringBuffer, timeSeriesOffset);
     }
 
@@ -353,7 +351,7 @@ public class TimeSeriesTable {
         checkVersionIsInRange(version);
         int doubleTimeSeriesNum = checkTimeSeriesNum(timeSeriesNum);
         checkPoint(point);
-        int timeSeriesOffset = getTimeSeriesOffset(version, doubleTimeSeriesNum);
+        long timeSeriesOffset = getTimeSeriesOffset(version, doubleTimeSeriesNum);
         return doubleBuffer.get(timeSeriesOffset + point);
     }
 
@@ -361,7 +359,7 @@ public class TimeSeriesTable {
         checkVersionIsInRange(version);
         int stringTimeSeriesNum = checkTimeSeriesNum(timeSeriesNum);
         checkPoint(point);
-        int timeSeriesOffset = getTimeSeriesOffset(version, stringTimeSeriesNum);
+        long timeSeriesOffset = getTimeSeriesOffset(version, stringTimeSeriesNum);
         return stringBuffer.getString(timeSeriesOffset + point);
     }
 
@@ -390,7 +388,7 @@ public class TimeSeriesTable {
         if (!Double.isNaN(means[statisticsIndex]) && !Double.isNaN(stdDevs[statisticsIndex])) {
             return;
         }
-        int timeSeriesOffset = getTimeSeriesOffset(version, timeSeriesNum);
+        long timeSeriesOffset = getTimeSeriesOffset(version, timeSeriesNum);
 
         double sum = 0;
         int nbPoints = 0;
@@ -483,8 +481,8 @@ public class TimeSeriesTable {
                 if (stdDev2 != 0) {
                     double mean2 = means[statisticsIndex2];
 
-                    int timeSeriesOffset1 = getTimeSeriesOffset(version, timeSeriesNum1);
-                    int timeSeriesOffset2 = getTimeSeriesOffset(version, timeSeriesNum2);
+                    long timeSeriesOffset1 = getTimeSeriesOffset(version, timeSeriesNum1);
+                    long timeSeriesOffset2 = getTimeSeriesOffset(version, timeSeriesNum2);
 
                     for (int point = 0; point < tableIndex.getPointCount(); point++) {
                         double value1 = doubleBuffer.get(timeSeriesOffset1 + point);
@@ -591,7 +589,7 @@ public class TimeSeriesTable {
         for (int i = 0; i < timeSeriesMetadata.size(); i++) {
             TimeSeriesMetadata metadata = timeSeriesMetadata.get(i);
             int timeSeriesNum = timeSeriesIndexDoubleOrString.get(i);
-            int timeSeriesOffset = getTimeSeriesOffset(version, timeSeriesNum);
+            long timeSeriesOffset = getTimeSeriesOffset(version, timeSeriesNum);
             if (metadata.getDataType() == TimeSeriesDataType.DOUBLE) {
                 for (int cachedPoint = 0; cachedPoint < cachedPoints; cachedPoint++) {
                     cache.doubleCache[cachedPoint * doubleTimeSeriesNames.size() + timeSeriesNum] = doubleBuffer.get(timeSeriesOffset + point + cachedPoint);

@@ -6,6 +6,7 @@
  */
 package com.powsybl.security;
 
+import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
@@ -14,6 +15,7 @@ import com.powsybl.loadflow.LoadFlowFactory;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@AutoService(SecurityAnalysisFactory.class)
 public class SecurityAnalysisFactoryImpl implements SecurityAnalysisFactory {
 
     @Override

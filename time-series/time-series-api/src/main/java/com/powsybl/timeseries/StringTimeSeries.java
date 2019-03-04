@@ -8,6 +8,7 @@ package com.powsybl.timeseries;
 
 import java.nio.ByteBuffer;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -33,8 +34,16 @@ public class StringTimeSeries extends AbstractTimeSeries<StringPoint, StringData
         return new StringTimeSeries(metadata, chunk);
     }
 
+    private void forEachChunk(Consumer<StringDataChunk> consumer) {
+        chunks.forEach(consumer);
+    }
+
     public void fillBuffer(CompactStringBuffer buffer, int timeSeriesOffset) {
-        chunks.forEach(chunk -> chunk.fillBuffer(buffer, timeSeriesOffset));
+        forEachChunk(chunk -> chunk.fillBuffer(buffer, timeSeriesOffset));
+    }
+
+    public void fillBuffer(BigStringBuffer buffer, long timeSeriesOffset) {
+        forEachChunk(chunk -> chunk.fillBuffer(buffer, timeSeriesOffset));
     }
 
     public String[] toArray() {

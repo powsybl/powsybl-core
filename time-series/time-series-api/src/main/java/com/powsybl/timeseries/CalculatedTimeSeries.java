@@ -159,8 +159,10 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
         }
     }
 
-    @Override
-    public void fillBuffer(DoubleBuffer buffer, int timeSeriesOffset) {
+    //To remove if we ever get it from somewhere else
+    @FunctionalInterface private interface DoubleIntConsumer { public void accept(double a, int b); }
+
+    private void forEachMaterializedValueIndex(DoubleIntConsumer consumer) {
         if (metadata.getIndex() == InfiniteTimeSeriesIndex.INSTANCE) {
             throw new TimeSeriesException("Impossible to fill buffer because calculated time series has not been synchronized on a finite time index");
         }
@@ -170,16 +172,28 @@ public class CalculatedTimeSeries implements DoubleTimeSeries {
             DoublePoint point = it.next();
             if (prevPoint != null) {
                 for (int i = prevPoint.getIndex(); i < point.getIndex(); i++) {
-                    buffer.put(timeSeriesOffset + i, prevPoint.getValue());
+                    consumer.accept(prevPoint.getValue(), i);
                 }
             }
             prevPoint = point;
         }
         if (prevPoint != null) {
             for (int i = prevPoint.getIndex(); i < metadata.getIndex().getPointCount(); i++) {
-                buffer.put(timeSeriesOffset + i, prevPoint.getValue());
+                consumer.accept(prevPoint.getValue(), i);
             }
         }
+    }
+
+    @Override
+    public void fillBuffer(DoubleBuffer buffer, int timeSeriesOffset) {
+        Objects.requireNonNull(buffer);
+        forEachMaterializedValueIndex((v, i) -> buffer.put(i + timeSeriesOffset, v));
+    }
+
+    @Override
+    public void fillBuffer(BigDoubleBuffer buffer, long timeSeriesOffset) {
+        Objects.requireNonNull(buffer);
+        forEachMaterializedValueIndex((v, i) -> buffer.put(i + timeSeriesOffset, v));
     }
 
     @Override
