@@ -17,7 +17,7 @@ public class CgmesConformity1ModifiedCatalog {
 
     public final TestGridModelResources microGridBaseCaseBERatioPhaseTapChangerTabular() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
-            + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_BE_v2_rtc_ptc_tabular/";
+            + "/MicroGrid/BaseCase/BC_BE_v2_rtc_ptc_tabular/";
         String baseBoundary = ENTSOE_CONFORMITY_1
             + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BD_v2/";
         return new TestGridModelResources(
@@ -34,7 +34,7 @@ public class CgmesConformity1ModifiedCatalog {
 
     public final TestGridModelResources miniNodeBreakerLimitsforEquipment() {
         String base = ENTSOE_CONFORMITY_1_MODIFIED
-            + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_BaseCase_Complete_v3_limits/";
+            + "/MiniGrid/NodeBreaker/BaseCase_Complete_v3_limits/";
         String baseBoundary = ENTSOE_CONFORMITY_1
             + "/MiniGrid/NodeBreaker/CGMES_v2.4.15_MiniGridTestConfiguration_Boundary_v3/";
         return new TestGridModelResources(
