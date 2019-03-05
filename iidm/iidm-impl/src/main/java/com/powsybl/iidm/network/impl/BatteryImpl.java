@@ -7,7 +7,6 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
@@ -24,8 +23,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     private ReactiveLimits reactiveLimits;
 
-    BatteryImpl(Ref<? extends VariantManagerHolder> ref,
-                String id, String name,
+    BatteryImpl(String id, String name,
                 double p0, double q0,
                 double minP, double maxP) {
         super(id, name);
@@ -45,7 +43,6 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     protected String getTypeDescription() {
         return "Battery";
     }
-
 
     @Override
     public double getP0() {
@@ -121,7 +118,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     }
 
     @Override
-    public <RL extends ReactiveLimits> RL getReactiveLimits(Class<RL> type) {
+    public <R extends ReactiveLimits> R getReactiveLimits(Class<R> type) {
         if (type == null) {
             throw new IllegalArgumentException("type is null");
         }

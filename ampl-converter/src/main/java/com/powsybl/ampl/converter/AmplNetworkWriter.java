@@ -54,10 +54,17 @@ public class AmplNetworkWriter {
     private static final String TARGET_V = "targetV (pu)";
     private static final String TARGET_Q = "targetQ (MVar)";
     private static final String CON_BUS = "con. bus";
+    private static final String MINP = "minP (MW)";
     private static final String MAXP = "maxP (MW)";
     private static final String V_REGUL = "v regul.";
     private static final String ACTIVE_POWER = "P (MW)";
     private static final String REACTIVE_POWER = "Q (MVar)";
+    private static final String MIN_Q_MAX_P = "minQmaxP (MVar)";
+    private static final String MIN_Q0 = "minQ0 (MVar)";
+    private static final String MIN_Q_MIN_P = "minQminP (MVar)";
+    private static final String MAX_Q_MAX_P = "maxQmaxP (MVar)";
+    private static final String MAX_Q0 = "maxQ0 (MVar)";
+    private static final String MAX_Q_MIN_P = "maxQminP (MVar)";
 
     private final Network network;
 
@@ -1429,14 +1436,14 @@ public class AmplNetworkWriter {
                      new Column("bus"),
                      new Column(CON_BUS),
                      new Column(SUBSTATION),
-                     new Column("minP (MW)"),
+                     new Column(MINP),
                      new Column(MAXP),
-                     new Column("minQmaxP (MVar)"),
-                     new Column("minQ0 (MVar)"),
-                     new Column("minQminP (MVar)"),
-                     new Column("maxQmaxP (MVar)"),
-                     new Column("maxQ0 (MVar)"),
-                     new Column("maxQminP (MVar)"),
+                     new Column(MIN_Q_MAX_P),
+                     new Column(MIN_Q0),
+                     new Column(MIN_Q_MIN_P),
+                     new Column(MAX_Q_MAX_P),
+                     new Column(MAX_Q0),
+                     new Column(MAX_Q_MIN_P),
                      new Column(V_REGUL),
                      new Column(TARGET_V),
                      new Column("targetP (MW)"),
@@ -1520,16 +1527,16 @@ public class AmplNetworkWriter {
                      new Column("bus"),
                      new Column(CON_BUS),
                      new Column(SUBSTATION),
-                     new Column("minP (MW)"),
+                     new Column(MINP),
                      new Column(MAXP),
                      new Column("p0 (MW)"),
                      new Column("q0 (MW)"),
-                     new Column("minQmaxP (MVar)"),
-                     new Column("minQ0 (MVar)"),
-                     new Column("minQminP (MVar)"),
-                     new Column("maxQmaxP (MVar)"),
-                     new Column("maxQ0 (MVar)"),
-                     new Column("maxQminP (MVar)"),
+                     new Column(MIN_Q_MAX_P),
+                     new Column(MIN_Q0),
+                     new Column(MIN_Q_MIN_P),
+                     new Column(MAX_Q_MAX_P),
+                     new Column(MAX_Q0),
+                     new Column(MAX_Q_MIN_P),
                      new Column(FAULT),
                      new Column(config.getActionType().getLabel()),
                      new Column("id"),
@@ -1540,18 +1547,14 @@ public class AmplNetworkWriter {
             for (Battery b : network.getBatteries()) {
                 Terminal t = b.getTerminal();
                 Bus bus = AmplUtil.getBus(t);
-                String busId = null;
                 int busNum = -1;
                 if (bus != null) {
-                    busId = bus.getId();
                     busNum = mapper.getInt(AmplSubset.BUS, bus.getId());
                 }
-                String conBusId = null;
                 int conBusNum = -1;
                 // take connectable bus if exists
                 Bus conBus = AmplUtil.getConnectableBus(t);
                 if (conBus != null) {
-                    conBusId = conBus.getId();
                     conBusNum = mapper.getInt(AmplSubset.BUS, conBus.getId());
                 }
                 // Always write Batteries
@@ -1793,14 +1796,14 @@ public class AmplNetworkWriter {
                      new Column("bus"),
                      new Column(CON_BUS),
                      new Column(SUBSTATION),
-                     new Column("minP (MW)"),
+                     new Column(MINP),
                      new Column(MAXP),
-                     new Column("minQmaxP (MVar)"),
-                     new Column("minQ0 (MVar)"),
-                     new Column("minQminP (MVar)"),
-                     new Column("maxQmaxP (MVar)"),
-                     new Column("maxQ0 (MVar)"),
-                     new Column("maxQminP (MVar)"),
+                     new Column(MIN_Q_MAX_P),
+                     new Column(MIN_Q0),
+                     new Column(MIN_Q_MIN_P),
+                     new Column(MAX_Q_MAX_P),
+                     new Column(MAX_Q0),
+                     new Column(MAX_Q_MIN_P),
                      new Column(V_REGUL),
                      new Column(TARGET_V),
                      new Column(TARGET_Q),

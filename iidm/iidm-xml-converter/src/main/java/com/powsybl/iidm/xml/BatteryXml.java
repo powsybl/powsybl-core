@@ -59,8 +59,6 @@ class BatteryXml extends AbstractConnectableXml<Battery, BatteryAdder, VoltageLe
         double minP = XmlUtil.readDoubleAttribute(context.getReader(), "minP");
         double maxP = XmlUtil.readDoubleAttribute(context.getReader(), "maxP");
         readNodeOrBus(adder, context);
-        System.out.println(p0);
-        System.out.println(q0);
         Battery b = adder.setP0(p0)
                 .setQ0(q0)
                 .setMinP(minP)
