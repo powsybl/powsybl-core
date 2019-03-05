@@ -15,12 +15,16 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.ucte.network.*;
+import org.apache.commons.io.FileUtils;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.FileSystems;
+import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.Assert.*;
@@ -44,15 +48,24 @@ public class UcteExporterTest {
     }
 
     @Test
-    public void exportUcteTest() {
-        ReadOnlyDataSource dataSource = new ResourceDataSource("elementName", new ResourceSet("/", "elementName.uct"));
+    public void exportUcteTest() throws IOException {
+        ReadOnlyDataSource dataSource = new ResourceDataSource("exportTest", new ResourceSet("/", "exportTest.uct"));
         Network network = new UcteImporter().importData(dataSource, null);
-        Path path = FileSystems.getDefault().getPath("./");
+
+        Path path = FileSystems.getDefault().getPath("./target/");
         FileDataSource fds = new FileDataSource(path, "test");
         new UcteExporter().export(network, null, fds);
+
+        File expectedOutput = FileSystems.getDefault().getPath("./src/test/resources/expectedExport.uct").toFile();
+        File output = FileSystems.getDefault().getPath("./target/test.uct").toFile();
+
+        assertTrue(FileUtils.contentEquals(
+                expectedOutput,
+                output));
+        Files.delete(output.toPath());
+
         exception.expect(IllegalArgumentException.class);
         new UcteExporter().export(null, null, null);
-
     }
 
     @Test
