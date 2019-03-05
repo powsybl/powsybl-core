@@ -7,11 +7,11 @@
 package com.powsybl.afs.storage;
 
 import com.powsybl.afs.storage.events.*;
+import com.powsybl.commons.io.ForwardingOutputStream;
 import com.powsybl.commons.util.WeakListenerList;
 import com.powsybl.timeseries.DoubleDataChunk;
 import com.powsybl.timeseries.StringDataChunk;
 import com.powsybl.timeseries.TimeSeriesMetadata;
-import org.apache.commons.io.output.ProxyOutputStream;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -89,7 +89,7 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
      */
     @Override
     public OutputStream writeBinaryData(String nodeId, String name) {
-        return new ProxyOutputStream(super.writeBinaryData(nodeId, name)) {
+        return new ForwardingOutputStream<OutputStream>(super.writeBinaryData(nodeId, name)) {
             @Override
             public void close() throws IOException {
                 super.close();
