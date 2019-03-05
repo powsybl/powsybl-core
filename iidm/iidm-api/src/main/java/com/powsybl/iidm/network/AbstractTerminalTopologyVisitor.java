@@ -64,6 +64,11 @@ public abstract class AbstractTerminalTopologyVisitor extends DefaultTopologyVis
     }
 
     @Override
+    public void visitBattery(Battery battery) {
+        visitInjection(battery);
+    }
+
+    @Override
     public void visitLoad(Load load) {
         visitInjection(load);
     }

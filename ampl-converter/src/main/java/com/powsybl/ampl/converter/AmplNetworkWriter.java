@@ -87,6 +87,8 @@ public class AmplNetworkWriter {
 
         public final Set<String> generatorIdsToExport = new HashSet<>();
 
+        public final Set<String> batteryIdsToExport = new HashSet<>();
+
         public final Set<String> loadsToExport = new HashSet<>();
 
     }
@@ -120,10 +122,6 @@ public class AmplNetworkWriter {
 
     public static String getTableTitle(Network network, String tableName) {
         return tableName + " (" + network.getId() + "/" + network.getVariantManager().getWorkingVariantId() + ")";
-    }
-
-    private String getTableTitle(String tableName) {
-        return getTableTitle(network, tableName);
     }
 
     private static String getThreeWindingsTransformerMiddleBusId(ThreeWindingsTransformer twt) {
@@ -192,6 +190,21 @@ public class AmplNetworkWriter {
         }
 
         return xNodeCcNum;
+    }
+
+    private static double getPermanentLimit(CurrentLimits limits) {
+        if (limits != null) {
+            return limits.getPermanentLimit();
+        }
+        return Double.NaN;
+    }
+
+    private static boolean isBusExported(AmplExportContext context, String busId) {
+        return busId != null && context.busIdsToExport.contains(busId);
+    }
+
+    private String getTableTitle(String tableName) {
+        return getTableTitle(network, tableName);
     }
 
     private void writeSubstations() throws IOException {
@@ -477,17 +490,6 @@ public class AmplNetworkWriter {
                         .writeCell(xNodeBusId);
             }
         }
-    }
-
-    private static double getPermanentLimit(CurrentLimits limits) {
-        if (limits != null) {
-            return limits.getPermanentLimit();
-        }
-        return Double.NaN;
-    }
-
-    private static boolean isBusExported(AmplExportContext context, String busId) {
-        return busId != null && context.busIdsToExport.contains(busId);
     }
 
     private void writeBranches(AmplExportContext context) throws IOException {
@@ -1506,6 +1508,92 @@ public class AmplNetworkWriter {
         }
     }
 
+    private void writeBatteries(AmplExportContext context) throws IOException {
+        try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_batteries", "txt", append), StandardCharsets.UTF_8);
+             TableFormatter formatter = new AmplDatTableFormatter(writer,
+                     getTableTitle("Batteries"),
+                     AmplConstants.INVALID_FLOAT_VALUE,
+                     !append,
+                     AmplConstants.LOCALE,
+                     new Column(VARIANT),
+                     new Column("num"),
+                     new Column("bus"),
+                     new Column(CON_BUS),
+                     new Column(SUBSTATION),
+                     new Column("minP (MW)"),
+                     new Column(MAXP),
+                     new Column("p0 (MW)"),
+                     new Column("q0 (MW)"),
+                     new Column("minQmaxP (MVar)"),
+                     new Column("minQ0 (MVar)"),
+                     new Column("minQminP (MVar)"),
+                     new Column("maxQmaxP (MVar)"),
+                     new Column("maxQ0 (MVar)"),
+                     new Column("maxQminP (MVar)"),
+                     new Column(FAULT),
+                     new Column(config.getActionType().getLabel()),
+                     new Column("id"),
+                     new Column(DESCRIPTION),
+                     new Column(ACTIVE_POWER),
+                     new Column(REACTIVE_POWER))) {
+            List<String> skipped = new ArrayList<>();
+            for (Battery b : network.getBatteries()) {
+                Terminal t = b.getTerminal();
+                Bus bus = AmplUtil.getBus(t);
+                String busId = null;
+                int busNum = -1;
+                if (bus != null) {
+                    busId = bus.getId();
+                    busNum = mapper.getInt(AmplSubset.BUS, bus.getId());
+                }
+                String conBusId = null;
+                int conBusNum = -1;
+                // take connectable bus if exists
+                Bus conBus = AmplUtil.getConnectableBus(t);
+                if (conBus != null) {
+                    conBusId = conBus.getId();
+                    conBusNum = mapper.getInt(AmplSubset.BUS, conBus.getId());
+                }
+                // Always write Batteries
+
+                String id = b.getId();
+                context.batteryIdsToExport.add(id);
+                int num = mapper.getInt(AmplSubset.BATTERY, id);
+                int vlNum = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, t.getVoltageLevel().getId());
+                double p0 = b.getP0();
+                double q0 = b.getQ0();
+                double minP = b.getMinP();
+                double maxP = b.getMaxP();
+
+                formatter.writeCell(variantIndex)
+                        .writeCell(num)
+                        .writeCell(busNum)
+                        .writeCell(conBusNum != -1 ? conBusNum : busNum)
+                        .writeCell(vlNum)
+                        .writeCell(minP)
+                        .writeCell(maxP)
+                        .writeCell(p0)
+                        .writeCell(q0)
+                        .writeCell(b.getReactiveLimits().getMinQ(maxP))
+                        .writeCell(b.getReactiveLimits().getMinQ(0))
+                        .writeCell(b.getReactiveLimits().getMinQ(minP))
+                        .writeCell(b.getReactiveLimits().getMaxQ(maxP))
+                        .writeCell(b.getReactiveLimits().getMaxQ(0))
+                        .writeCell(b.getReactiveLimits().getMaxQ(minP))
+                        .writeCell(faultNum)
+                        .writeCell(actionNum)
+                        .writeCell(id)
+                        .writeCell(b.getName())
+                        .writeCell(t.getP())
+                        .writeCell(t.getQ());
+                addExtensions(num, b);
+            }
+            if (!skipped.isEmpty()) {
+                LOGGER.trace("Skip batteries {} because not connected and not connectable", skipped);
+            }
+        }
+    }
+
     private void writeTemporaryCurrentLimits(CurrentLimits limits, TableFormatter formatter, String branchId, boolean side1, String sideId) throws IOException {
         int branchNum = mapper.getInt(AmplSubset.BRANCH, branchId);
         for (TemporaryLimit tl : limits.getTemporaryLimits()) {
@@ -1784,6 +1872,7 @@ public class AmplNetworkWriter {
         writeBranches(context);
         writeCurrentLimits();
         writeGenerators(context);
+        writeBatteries(context);
         writeLoads(context);
         writeShunts(context);
         writeStaticVarCompensators();
