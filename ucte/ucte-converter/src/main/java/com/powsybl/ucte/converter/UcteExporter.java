@@ -47,14 +47,9 @@ public class UcteExporter implements Exporter {
         }
         UcteNetwork ucteNetwork = createUcteNetwork(network);
 
-        try {
-            long startTime = System.currentTimeMillis();
-
-            try (OutputStream os = dataSource.newOutputStream("", "uct", false);
-                 BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
-                new UcteWriter(ucteNetwork).write(writer);
-                LOGGER.debug("UCTE export done in {} ms", System.currentTimeMillis() - startTime);
-            }
+        try (OutputStream os = dataSource.newOutputStream("", "uct", false);
+             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
+            new UcteWriter(ucteNetwork).write(writer);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -74,8 +69,8 @@ public class UcteExporter implements Exporter {
                             UcteNodeStatus.REAL,
                             UcteNodeTypeCode.PQ,
                             voltageLevelCodeFromChar(ucteNodeCode1.toString().charAt(6)).getVoltageLevel(),
-                            Float.NaN,
-                            Float.NaN,
+                            0f,
+                            0f,
                             Float.NaN,
                             Float.NaN,
                             Float.NaN,
@@ -97,8 +92,8 @@ public class UcteExporter implements Exporter {
                             UcteNodeStatus.REAL,
                             UcteNodeTypeCode.PQ,
                             voltageLevelCodeFromChar(ucteNodeCode2.toString().charAt(6)).getVoltageLevel(),
-                            Float.NaN,
-                            Float.NaN,
+                            0f,
+                            0f,
                             Float.NaN,
                             Float.NaN,
                             Float.NaN,
@@ -120,8 +115,8 @@ public class UcteExporter implements Exporter {
                             UcteNodeStatus.REAL,
                             UcteNodeTypeCode.PQ,
                             voltageLevelCodeFromChar(ucteNodeCode3.toString().charAt(6)).getVoltageLevel(),
-                            Float.NaN,
-                            Float.NaN,
+                            0f,
+                            0f,
                             Float.NaN,
                             Float.NaN,
                             Float.NaN,
@@ -143,8 +138,8 @@ public class UcteExporter implements Exporter {
                             UcteNodeStatus.REAL,
                             UcteNodeTypeCode.PQ,
                             voltageLevelCodeFromChar(ucteNodeCode4.toString().charAt(6)).getVoltageLevel(),
-                            Float.NaN,
-                            Float.NaN,
+                            0f,
+                            0f,
                             Float.NaN,
                             Float.NaN,
                             Float.NaN,
@@ -283,7 +278,7 @@ public class UcteExporter implements Exporter {
             if (i != 0) {
                 double rho = twoWindingsTransformer.getRatioTapChanger().getStep(i).getRho();
                 du += (100 * (1 / rho - 1)) / i;
-            } else {
+            } else { //i == 0
                 passedBy0 = true;
             }
         }
@@ -354,12 +349,13 @@ public class UcteExporter implements Exporter {
         LOGGER.info(" B = {}", danglingLine.getB());
         LOGGER.info(" G = {}", danglingLine.getG());
         LOGGER.info(" UcteXnodeCode = {}", danglingLine.getUcteXnodeCode());
+
         ucteNetwork.addNode(new UcteNode(
                 iidmIdToUcteNodeCode(danglingLine.getUcteXnodeCode()),
                 "",
                 UcteNodeStatus.REAL,
                 UcteNodeTypeCode.PQ,
-                voltageLevelCodeFromChar(danglingLine.getUcteXnodeCode().charAt(6)).getVoltageLevel(),
+                (float) danglingLine.getTerminal().getVoltageLevel().getNominalV(),
                 (float) danglingLine.getP0(),
                 (float) danglingLine.getQ0(),
                 Float.NaN,
@@ -404,7 +400,7 @@ public class UcteExporter implements Exporter {
                 UcteNodeCode ucteNodeCode2 = iidmIdToUcteNodeCode(sw.getId().substring(9, 18));
                 UcteElementId ucteElementId = new UcteElementId(ucteNodeCode1, ucteNodeCode2, sw.getId().charAt(18));
                 UcteLine ucteLine = new UcteLine(ucteElementId, UcteElementStatus.BUSBAR_COUPLER_IN_OPERATION,
-                        0f, 0f, 0f, 0, null);
+                        Float.NaN, Float.NaN, Float.NaN, null, null); //CurrentLimit for switches are not stored in iidm
                 ucteNetwork.addLine(ucteLine);
             }
         }
@@ -475,21 +471,22 @@ public class UcteExporter implements Exporter {
         long generatorCount = bus.getGeneratorStream().count();
         String country = voltageLevel.getSubstation().getCountry().toString();
 
-        double p0 = 0;
-        double q0 = 0;
-        double activePowerGeneration = 0;
-        double reactivePowerGeneration = 0;
-        double voltageReference = 0;
-        double minimumPermissibleActivePowerGeneration = 0;
-        double maximumPermissibleActivePowerGeneration = 0;
-        double minimumPermissibleReactivePowerGeneration = 0;
-        double maximumPermissibleReactivePowerGeneration = 0;
+        float p0 = 0;
+        float q0 = 0;
+        float activePowerGeneration = 0;
+        float reactivePowerGeneration = 0;
+        float voltageReference = 0;
+        float minimumPermissibleActivePowerGeneration = Float.NaN;
+        float maximumPermissibleActivePowerGeneration = Float.NaN;
+        float minimumPermissibleReactivePowerGeneration = Float.NaN;
+        float maximumPermissibleReactivePowerGeneration = Float.NaN;
+        UcteNodeTypeCode ucteNodeTypeCode = UcteNodeTypeCode.PQ;
         UctePowerPlantType uctePowerPlantType = null;
 
         if (loadCount == 1) {
             Load load = (Load) voltageLevel.getLoadStream().toArray()[0];
-            p0 = load.getP0();
-            q0 = load.getQ0();
+            p0 = (float) load.getP0();
+            q0 = (float) load.getQ0();
             LOGGER.info("-------------LOAD--------------");
             LOGGER.info("P0 = {}", p0);
             LOGGER.info("Q0 = {}", q0);
@@ -497,13 +494,22 @@ public class UcteExporter implements Exporter {
 
         if (generatorCount == 1) { //the node is a generator
             Generator generator = (Generator) bus.getGeneratorStream().toArray()[0];
-            activePowerGeneration = -generator.getTargetP();
-            reactivePowerGeneration = -generator.getTargetQ();
-            voltageReference = generator.getTargetV();
-            minimumPermissibleActivePowerGeneration = -generator.getMinP();
-            maximumPermissibleActivePowerGeneration = -generator.getMaxP();
-            minimumPermissibleReactivePowerGeneration = -generator.getReactiveLimits().getMinQ(activePowerGeneration);
-            maximumPermissibleReactivePowerGeneration = -generator.getReactiveLimits().getMaxQ(activePowerGeneration);
+            activePowerGeneration = (float) -generator.getTargetP();
+            reactivePowerGeneration = (float) -generator.getTargetQ();
+            voltageReference = (float) generator.getTargetV();
+
+            minimumPermissibleActivePowerGeneration = -generator.getMinP() >= 9999 ? Float.NaN : (float) -generator.getMinP();
+            maximumPermissibleActivePowerGeneration = -generator.getMaxP() <= -9999 ? Float.NaN : (float) -generator.getMaxP();
+            minimumPermissibleReactivePowerGeneration =
+                    -generator.getReactiveLimits().getMinQ(activePowerGeneration) >= 9999 ? Float.NaN :
+                            (float) -generator.getReactiveLimits().getMinQ(activePowerGeneration);
+            maximumPermissibleReactivePowerGeneration =
+                    -generator.getReactiveLimits().getMaxQ(activePowerGeneration) <= -9999 ? Float.NaN :
+                            (float) -generator.getReactiveLimits().getMaxQ(activePowerGeneration);
+
+            if (generator.isVoltageRegulatorOn() && generator.getRegulatingTerminal().isConnected()) {
+                ucteNodeTypeCode = UcteNodeTypeCode.PU;
+            }
             uctePowerPlantType = energySourceToUctePowerPlantType(generator.getEnergySource());
         }
 
@@ -513,22 +519,22 @@ public class UcteExporter implements Exporter {
                 ucteNodeCode,
                 voltageLevel.getSubstation().getName(),
                 UcteNodeStatus.REAL,
-                UcteNodeTypeCode.PQ,
-                (float) voltageReference,
-                (float) p0,
-                (float) q0,
-                (float) activePowerGeneration,
-                (float) reactivePowerGeneration,
-                (float) minimumPermissibleActivePowerGeneration,
-                (float) maximumPermissibleActivePowerGeneration,
-                (float) minimumPermissibleReactivePowerGeneration,
-                (float) maximumPermissibleReactivePowerGeneration,
+                ucteNodeTypeCode,
+                voltageReference,
+                p0,
+                q0,
+                activePowerGeneration,
+                reactivePowerGeneration,
+                minimumPermissibleActivePowerGeneration,
+                maximumPermissibleActivePowerGeneration,
+                minimumPermissibleReactivePowerGeneration,
+                maximumPermissibleReactivePowerGeneration,
                 Float.NaN,
                 Float.NaN,
                 Float.NaN,
                 Float.NaN,
                 null
-        ); //TODO : PQ ? 4 last field ?
+        );
         ucteNode.setPowerPlantType(uctePowerPlantType);
         ucteNetwork.addNode(ucteNode);
     }
