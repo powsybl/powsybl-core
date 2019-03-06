@@ -6,10 +6,7 @@
  */
 package com.powsybl.ucte.converter;
 
-import com.powsybl.commons.datasource.FileDataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.datasource.ResourceDataSource;
-import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
@@ -59,9 +56,13 @@ public class UcteExporterTest {
         File expectedOutput = FileSystems.getDefault().getPath("./src/test/resources/expectedExport.uct").toFile();
         File output = FileSystems.getDefault().getPath("./target/test.uct").toFile();
 
-        assertTrue(FileUtils.contentEquals(
+        //MemDataSource mds = new MemDataSource();
+        //mds.newOutputStream("")
+
+        assertTrue(FileUtils.contentEqualsIgnoreEOL(
                 expectedOutput,
-                output));
+                output,
+                null));
         Files.delete(output.toPath());
 
         exception.expect(IllegalArgumentException.class);
