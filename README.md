@@ -8,12 +8,37 @@
 [![MPL-2.0 License](https://img.shields.io/badge/license-MPL_2.0-blue.svg)](https://www.mozilla.org/en-US/MPL/2.0/)
 [![Join the chat at https://gitter.im/powsybl/powsybl-core](https://badges.gitter.im/powsybl/powsybl-core.svg)](https://gitter.im/powsybl/powsybl-core?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
 
-http://www.powsybl.com
+Powsybl (Power System Blocks) is an open source framework written in Java, that makes it easy to write complex software for power systems’ simulations and analysis.
+
+![PowSyBl Logo](https://raw.githubusercontent.com/powsybl/powsybl-gse/master/gse-spi/src/main/resources/images/logo_lfe_powsybl.svg?sanitize=true)
+
+Read more at http://www.powsybl.com !
+
+This project and everyone participating in it is governed by the [PowSyBl Code of Conduct](https://github.com/powsybl/.github/blob/master/CODE_OF_CONDUCT.md). By participating, you are expected to uphold this code. Please report unacceptable behavior to [powsybl.ddl@rte-france.com](mailto:powsybl.ddl@rte-france.com).
+
+## Project Structure
+
+The powsybl-core project provides code and tools to build applications. It is not a standalone project. However, you can still easily explore the project with this repository and experiment by running some code. Alternatively, to build a standalone GUI application, please visit https://github.com/powsybl/powsybl-gse .
 
 ## Environment requirements
-In order to build the project, you need:
+
+Most of the powsybl-core project is written in Java, with additional C++ components. Unless you are actually using the C++ components, it is not needed to build them and you can start to experiment and run code quickly with the [Simple Java Build](#simple-java-build). If you want to use the C++ components, refer to the [Full Project Build](#full-project-build).
+
+## Simple Java Build
+
   * JDK *(1.8 or greater)*
   * Maven *(3.3.9 or greater)*
+
+Simply run
+```
+$ mvn package
+```
+to run all the tests. Modify some existing tests or create your own new tests to experiment with the framework ! If it suits you better, import the project in an IDE and use the IDE to launch your own main classes. If you know java and maven and want to do things manually, you can also use maven directly to compute the classpath of all the project jars and run anything you want with it.
+
+Read [Contributing.md](https://github.com/powsybl/.github/blob/master/CONTRIBUTING.md) for more in-depth explanations on how to run code.
+
+## Full Project Build
+In order to fully build the project, in addition to the java you need:
   * CMake *(2.6 or greater)*
   * Recent C++ compiler (GNU g++ or Clang)
   * OpenMPI *(1.8.3 or greater)*
