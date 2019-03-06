@@ -506,6 +506,12 @@ WHERE {
             cim:PhaseTapChangerNonLinear.voltageStepIncrement ?voltageStepIncrement
     }
     OPTIONAL {
+        ?PhaseTapChanger
+            cim:PhaseTapChangerLinear.xMax ?xMax ;
+            cim:PhaseTapChangerLinear.xMin ?xMin ;
+            cim:PhaseTapChangerLinear.stepPhaseShiftIncrement ?stepPhaseShiftIncrement
+    }
+    OPTIONAL {
         ?PhaseTapChanger cim:PhaseTapChangerTabular.PhaseTapChangerTable ?PhaseTapChangerTable
     }
     OPTIONAL {
@@ -791,6 +797,8 @@ OPTIONAL {
        	cim:CsConverter.pPccControl ?controlMode .
    	OPTIONAL { ?ACDCConverter cim:ACDCConverter.targetUdc ?targetUdc }
    	OPTIONAL { ?ACDCConverter cim:ACDCConverter.targetPpcc ?targetPpcc }
+   	OPTIONAL { ?ACDCConverter cim:ACDCConverter.p ?p }
+   	OPTIONAL { ?ACDCConverter cim:ACDCConverter.q ?q }
 }
 # For Voltage Source Converter
 OPTIONAL { 
