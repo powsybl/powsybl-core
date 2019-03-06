@@ -9,6 +9,7 @@ package com.powsybl.iidm.import_;
 import com.google.common.collect.Sets;
 import com.powsybl.iidm.AbstractOptions;
 import com.powsybl.iidm.IidmImportExportMode;
+import com.powsybl.iidm.IidmImportExportType;
 
 import java.util.Optional;
 import java.util.Set;
@@ -22,6 +23,30 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
     private boolean throwExceptionIfExtensionNotFound = false;
 
     public ImportOptions() {
+    }
+
+    @Override
+    public ImportOptions setImportExportType(IidmImportExportType importExportType) {
+        this.importExportType = importExportType;
+        return this;
+    }
+
+    @Override
+    public ImportOptions setTopo(boolean topo) {
+        this.topo = topo;
+        return this;
+    }
+
+    @Override
+    public ImportOptions setState(boolean state) {
+        this.state = state;
+        return this;
+    }
+
+    @Override
+    public ImportOptions setControl(boolean control) {
+        this.control = control;
+        return this;
     }
 
     public ImportOptions(boolean throwExceptionIfExtensionNotFound) {

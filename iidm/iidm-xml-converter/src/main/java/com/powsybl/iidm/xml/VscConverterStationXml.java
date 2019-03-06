@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.IidmImportExportType;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.VscConverterStationAdder;
@@ -35,12 +36,22 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
 
     @Override
     protected void writeRootElementAttributes(VscConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("voltageRegulatorOn", Boolean.toString(cs.isVoltageRegulatorOn()));
-        XmlUtil.writeFloat("lossFactor", cs.getLossFactor(), context.getWriter());
-        XmlUtil.writeDouble("voltageSetpoint", cs.getVoltageSetpoint(), context.getWriter());
-        XmlUtil.writeDouble("reactivePowerSetpoint", cs.getReactivePowerSetpoint(), context.getWriter());
-        writeNodeOrBus(null, cs.getTerminal(), context);
-        writePQ(null, cs.getTerminal(), context.getWriter());
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.CONTROL) {
+            context.getWriter().writeAttribute("voltageRegulatorOn", Boolean.toString(cs.isVoltageRegulatorOn()));
+        }
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+            XmlUtil.writeFloat("lossFactor", cs.getLossFactor(), context.getWriter());
+        }
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || (context.getTargetFile() == IncrementalIidmFiles.CONTROL)) {
+            XmlUtil.writeDouble("voltageSetpoint", cs.getVoltageSetpoint(), context.getWriter());
+            XmlUtil.writeDouble("reactivePowerSetpoint", cs.getReactivePowerSetpoint(), context.getWriter());
+        }
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.TOPO) {
+            writeNodeOrBus(null, cs.getTerminal(), context);
+        }
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE) {
+            writePQ(null, cs.getTerminal(), context.getWriter());
+        }
     }
 
     @Override

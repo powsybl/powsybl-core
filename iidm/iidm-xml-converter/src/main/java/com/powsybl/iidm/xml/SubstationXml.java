@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.iidm.IidmImportExportType;
 import com.powsybl.iidm.network.*;
 
 import javax.xml.stream.XMLStreamException;
@@ -32,22 +33,49 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
         return true;
     }
 
+    public boolean hasControlElements(Substation s, NetworkXmlWriterContext context) {
+        Iterable<TwoWindingsTransformer> twts = s.getTwoWindingsTransformers();
+        for (TwoWindingsTransformer twt : twts) {
+            if (twt.getRatioTapChanger() != null || twt.getPhaseTapChanger() != null) {
+                return true;
+            }
+        }
+        Iterable<ThreeWindingsTransformer> twts2 = s.getThreeWindingsTransformers();
+        for (ThreeWindingsTransformer twt : twts2) {
+            if (twt.getLeg2().getRatioTapChanger() != null || twt.getLeg3().getRatioTapChanger() != null) {
+                return true;
+            }
+        }
+        for (VoltageLevel vl : s.getVoltageLevels()) {
+            if (VoltageLevelXml.INSTANCE.hasControlElements(vl)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     @Override
     protected void writeRootElementAttributes(Substation s, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("country", context.getAnonymizer().anonymizeCountry(s.getCountry()).toString());
-        if (s.getTso() != null) {
-            context.getWriter().writeAttribute("tso", context.getAnonymizer().anonymizeString(s.getTso()));
-        }
-        if (!s.getGeographicalTags().isEmpty()) {
-            context.getWriter().writeAttribute("geographicalTags", s.getGeographicalTags().stream()
-                    .map(tag -> context.getAnonymizer().anonymizeString(tag))
-                    .collect(Collectors.joining(",")));
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+            context.getWriter().writeAttribute("country", context.getAnonymizer().anonymizeCountry(s.getCountry()).toString());
+            if (s.getTso() != null) {
+                context.getWriter().writeAttribute("tso", context.getAnonymizer().anonymizeString(s.getTso()));
+            }
+            if (!s.getGeographicalTags().isEmpty()) {
+                context.getWriter().writeAttribute("geographicalTags", s.getGeographicalTags().stream()
+                        .map(tag -> context.getAnonymizer().anonymizeString(tag))
+                        .collect(Collectors.joining(",")));
+            }
         }
     }
 
     @Override
     protected void writeSubElements(Substation s, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         for (VoltageLevel vl : s.getVoltageLevels()) {
+            if ((vl.getShuntCompensatorCount() + vl.getGeneratorCount() + vl.getStaticVarCompensatorCount()) == 0 &&
+                    context.getTargetFile() == IncrementalIidmFiles.CONTROL) {
+                continue;
+            }
             VoltageLevelXml.INSTANCE.write(vl, null, context);
         }
         Iterable<TwoWindingsTransformer> twts = s.getTwoWindingsTransformers();

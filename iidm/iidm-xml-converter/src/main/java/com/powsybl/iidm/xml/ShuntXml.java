@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.IidmImportExportType;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorAdder;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -35,11 +36,20 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
 
     @Override
     protected void writeRootElementAttributes(ShuntCompensator sc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("bPerSection", sc.getbPerSection(), context.getWriter());
-        context.getWriter().writeAttribute("maximumSectionCount", Integer.toString(sc.getMaximumSectionCount()));
-        context.getWriter().writeAttribute("currentSectionCount", Integer.toString(sc.getCurrentSectionCount()));
-        writeNodeOrBus(null, sc.getTerminal(), context);
-        writePQ(null, sc.getTerminal(), context.getWriter());
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+            XmlUtil.writeDouble("bPerSection", sc.getbPerSection(), context.getWriter());
+            context.getWriter().writeAttribute("maximumSectionCount", Integer.toString(sc.getMaximumSectionCount()));
+        }
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || (context.getTargetFile() == IncrementalIidmFiles.CONTROL)) {
+            context.getWriter().writeAttribute("currentSectionCount", Integer.toString(sc.getCurrentSectionCount()));
+        }
+
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || (context.getTargetFile() == IncrementalIidmFiles.TOPO)) {
+            writeNodeOrBus(null, sc.getTerminal(), context);
+        }
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE) {
+            writePQ(null, sc.getTerminal(), context.getWriter());
+        }
     }
 
     @Override

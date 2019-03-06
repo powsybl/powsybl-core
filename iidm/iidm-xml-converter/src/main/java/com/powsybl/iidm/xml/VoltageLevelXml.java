@@ -6,7 +6,9 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.google.common.collect.Lists;
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.IidmImportExportType;
 import com.powsybl.iidm.network.*;
 
 import javax.xml.stream.XMLStreamException;
@@ -37,53 +39,72 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         return true;
     }
 
+    public boolean hasControlElements(VoltageLevel vl) {
+        return vl.getGeneratorCount() + vl.getStaticVarCompensatorCount() + vl.getShuntCompensatorCount() +
+                vl.getVscConverterStationCount() > 0;
+    }
+
     @Override
     protected void writeRootElementAttributes(VoltageLevel vl, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("nominalV", vl.getNominalV(), context.getWriter());
-        XmlUtil.writeDouble("lowVoltageLimit", vl.getLowVoltageLimit(), context.getWriter());
-        XmlUtil.writeDouble("highVoltageLimit", vl.getHighVoltageLimit(), context.getWriter());
-
-        TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
-        context.getWriter().writeAttribute("topologyKind", topologyLevel.getTopologyKind().name());
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+            XmlUtil.writeDouble("nominalV", vl.getNominalV(), context.getWriter());
+            XmlUtil.writeDouble("lowVoltageLimit", vl.getLowVoltageLimit(), context.getWriter());
+            XmlUtil.writeDouble("highVoltageLimit", vl.getHighVoltageLimit(), context.getWriter());
+            TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
+            context.getWriter().writeAttribute("topologyKind", topologyLevel.getTopologyKind().name());
+        }
     }
 
     @Override
     protected void writeSubElements(VoltageLevel vl, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
         TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
-        switch (topologyLevel) {
-            case NODE_BREAKER:
-                writeNodeBreakerTopology(vl, context);
-                break;
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.TOPO ||
+                context.getTargetFile() == IncrementalIidmFiles.STATE) {
+            switch (topologyLevel) {
+                case NODE_BREAKER:
+                    writeNodeBreakerTopology(vl, context);
+                    break;
 
-            case BUS_BREAKER:
-                writeBusBreakerTopology(vl, context);
-                break;
+                case BUS_BREAKER:
+                    writeBusBreakerTopology(vl, context);
+                    break;
 
-            case BUS_BRANCH:
-                writeBusBranchTopology(vl, context);
-                break;
+                case BUS_BRANCH:
+                    writeBusBranchTopology(vl, context);
+                    break;
 
-            default:
-                throw new AssertionError("Unexpected TopologyLevel value: " + topologyLevel);
+                default:
+                    throw new AssertionError("Unexpected TopologyLevel value: " + topologyLevel);
+            }
         }
 
-        writeGenerators(vl, context);
-        writeLoads(vl, context);
-        writeShuntCompensators(vl, context);
-        writeDanglingLines(vl, context);
-        writeStaticVarCompensators(vl, context);
+        writeGenerators(vl, context, topologyLevel);
+        writeLoads(vl, context, topologyLevel);
+        writeShuntCompensators(vl, context, topologyLevel);
+        writeDanglingLines(vl, context, topologyLevel);
+        writeStaticVarCompensators(vl, context, topologyLevel);
         writeVscConverterStations(vl, context);
         writeLccConverterStations(vl, context);
     }
 
     private void writeNodeBreakerTopology(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeStartElement(IIDM_URI, NODE_BREAKER_TOPOLOGY_ELEMENT_NAME);
-        context.getWriter().writeAttribute("nodeCount", Integer.toString(vl.getNodeBreakerView().getNodeCount()));
-        for (BusbarSection bs : vl.getNodeBreakerView().getBusbarSections()) {
-            BusbarSectionXml.INSTANCE.write(bs, null, context);
+        if (context.getTargetFile() == IncrementalIidmFiles.TOPO && vl.getNodeBreakerView().getSwitchCount() == 0 ||
+                context.getTargetFile() == IncrementalIidmFiles.STATE && vl.getNodeBreakerView().getBusbarSectionCount() == 0) {
+            return;
         }
-        for (Switch sw : vl.getNodeBreakerView().getSwitches()) {
-            NodeBreakerViewSwitchXml.INSTANCE.write(sw, vl, context);
+        context.getWriter().writeStartElement(IIDM_URI, NODE_BREAKER_TOPOLOGY_ELEMENT_NAME);
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+            context.getWriter().writeAttribute("nodeCount", Integer.toString(vl.getNodeBreakerView().getNodeCount()));
+        }
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE) {
+            for (BusbarSection bs : vl.getNodeBreakerView().getBusbarSections()) {
+                BusbarSectionXml.INSTANCE.write(bs, null, context);
+            }
+        }
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.TOPO) {
+            for (Switch sw : vl.getNodeBreakerView().getSwitches()) {
+                NodeBreakerViewSwitchXml.INSTANCE.write(sw, vl, context);
+            }
         }
         writeNodeBreakerTopologyInternalConnections(vl, context);
         context.getWriter().writeEndElement();
@@ -96,20 +117,28 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void writeBusBreakerTopology(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeStartElement(IIDM_URI, BUS_BREAKER_TOPOLOGY_ELEMENT_NAME);
-        for (Bus b : vl.getBusBreakerView().getBuses()) {
-            if (!context.getFilter().test(b)) {
-                continue;
-            }
-            BusXml.INSTANCE.write(b, null, context);
+        if (context.getTargetFile() == IncrementalIidmFiles.TOPO && vl.getBusBreakerView().getSwitchCount() == 0 ||
+                context.getTargetFile() == IncrementalIidmFiles.STATE && Lists.newArrayList(vl.getBusBreakerView().getBuses()).isEmpty()) {
+            return;
         }
-        for (Switch sw : vl.getBusBreakerView().getSwitches()) {
-            Bus b1 = vl.getBusBreakerView().getBus1(context.getAnonymizer().anonymizeString(sw.getId()));
-            Bus b2 = vl.getBusBreakerView().getBus2(context.getAnonymizer().anonymizeString(sw.getId()));
-            if (!context.getFilter().test(b1) || !context.getFilter().test(b2)) {
-                continue;
+        context.getWriter().writeStartElement(IIDM_URI, BUS_BREAKER_TOPOLOGY_ELEMENT_NAME);
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE) {
+            for (Bus b : vl.getBusBreakerView().getBuses()) {
+                if (!context.getFilter().test(b)) {
+                    continue;
+                }
+                BusXml.INSTANCE.write(b, null, context);
             }
-            BusBreakerViewSwitchXml.INSTANCE.write(sw, vl, context);
+        }
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.TOPO) {
+            for (Switch sw : vl.getBusBreakerView().getSwitches()) {
+                Bus b1 = vl.getBusBreakerView().getBus1(context.getAnonymizer().anonymizeString(sw.getId()));
+                Bus b2 = vl.getBusBreakerView().getBus2(context.getAnonymizer().anonymizeString(sw.getId()));
+                if (!context.getFilter().test(b1) || !context.getFilter().test(b2)) {
+                    continue;
+                }
+                BusBreakerViewSwitchXml.INSTANCE.write(sw, vl, context);
+            }
         }
         context.getWriter().writeEndElement();
     }
@@ -125,7 +154,10 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         context.getWriter().writeEndElement();
     }
 
-    private void writeGenerators(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+    private void writeGenerators(VoltageLevel vl, NetworkXmlWriterContext context, TopologyLevel topologyLevel) throws XMLStreamException {
+        if (context.getTargetFile() == IncrementalIidmFiles.TOPO && topologyLevel == TopologyLevel.NODE_BREAKER) {
+            return;
+        }
         for (Generator g : vl.getGenerators()) {
             if (!context.getFilter().test(g)) {
                 continue;
@@ -134,7 +166,11 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         }
     }
 
-    private void writeLoads(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+    private void writeLoads(VoltageLevel vl, NetworkXmlWriterContext context, TopologyLevel topologyLevel) throws XMLStreamException {
+        if ((context.getTargetFile() == IncrementalIidmFiles.TOPO && topologyLevel == TopologyLevel.NODE_BREAKER) ||
+                (context.getTargetFile() == IncrementalIidmFiles.CONTROL)) {
+            return;
+        }
         for (Load l : vl.getLoads()) {
             if (!context.getFilter().test(l)) {
                 continue;
@@ -143,7 +179,10 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         }
     }
 
-    private void writeShuntCompensators(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+    private void writeShuntCompensators(VoltageLevel vl, NetworkXmlWriterContext context, TopologyLevel topologyLevel) throws XMLStreamException {
+        if (context.getTargetFile() == IncrementalIidmFiles.TOPO && topologyLevel == TopologyLevel.NODE_BREAKER) {
+            return;
+        }
         for (ShuntCompensator sc : vl.getShuntCompensators()) {
             if (!context.getFilter().test(sc)) {
                 continue;
@@ -152,7 +191,11 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         }
     }
 
-    private void writeDanglingLines(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+    private void writeDanglingLines(VoltageLevel vl, NetworkXmlWriterContext context, TopologyLevel topologyLevel) throws XMLStreamException {
+        if ((context.getTargetFile() == IncrementalIidmFiles.TOPO && topologyLevel == TopologyLevel.NODE_BREAKER) ||
+                (context.getTargetFile() == IncrementalIidmFiles.CONTROL)) {
+            return;
+        }
         for (DanglingLine dl : vl.getDanglingLines()) {
             if (!context.getFilter().test(dl)) {
                 continue;
@@ -161,7 +204,11 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         }
     }
 
-    private void writeStaticVarCompensators(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+    private void writeStaticVarCompensators(VoltageLevel vl, NetworkXmlWriterContext context, TopologyLevel topologyLevel) throws XMLStreamException {
+        if ((context.getTargetFile() == IncrementalIidmFiles.TOPO && topologyLevel == TopologyLevel.NODE_BREAKER) ||
+                (context.getTargetFile() == IncrementalIidmFiles.STATE)) {
+            return;
+        }
         for (StaticVarCompensator svc : vl.getStaticVarCompensators()) {
             if (!context.getFilter().test(svc)) {
                 continue;
@@ -180,6 +227,9 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void writeLccConverterStations(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+        if (context.getTargetFile() == IncrementalIidmFiles.CONTROL) {
+            return;
+        }
         for (LccConverterStation cs : vl.getLccConverterStations()) {
             if (!context.getFilter().test(cs)) {
                 continue;

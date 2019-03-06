@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.IidmImportExportType;
 import com.powsybl.iidm.network.*;
 
 import javax.xml.stream.XMLStreamException;
@@ -34,15 +35,19 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         XmlUtil.writeDouble("rho", tcs.getRho(), writer);
     }
 
-    protected static void writeTapChanger(TapChanger<?, ?> tc, XMLStreamWriter writer) throws XMLStreamException {
-        writer.writeAttribute(ATTR_LOW_TAP_POSITION, Integer.toString(tc.getLowTapPosition()));
-        writer.writeAttribute(ATTR_TAP_POSITION, Integer.toString(tc.getTapPosition()));
+    protected static void writeTapChanger(TapChanger<?, ?> tc, NetworkXmlWriterContext context) throws XMLStreamException {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+            context.getWriter().writeAttribute(ATTR_LOW_TAP_POSITION, Integer.toString(tc.getLowTapPosition()));
+        }
+        context.getWriter().writeAttribute(ATTR_TAP_POSITION, Integer.toString(tc.getTapPosition()));
     }
 
     protected static void writeRatioTapChanger(String name, RatioTapChanger rtc, NetworkXmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeStartElement(IIDM_URI, name);
-        writeTapChanger(rtc, context.getWriter());
-        context.getWriter().writeAttribute("loadTapChangingCapabilities", Boolean.toString(rtc.hasLoadTapChangingCapabilities()));
+        writeTapChanger(rtc, context);
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+            context.getWriter().writeAttribute("loadTapChangingCapabilities", Boolean.toString(rtc.hasLoadTapChangingCapabilities()));
+        }
         if (rtc.hasLoadTapChangingCapabilities() || rtc.isRegulating()) {
             context.getWriter().writeAttribute(ATTR_REGULATING, Boolean.toString(rtc.isRegulating()));
         }
@@ -52,10 +57,12 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         if (rtc.getRegulationTerminal() != null) {
             writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }
-        for (int p = rtc.getLowTapPosition(); p <= rtc.getHighTapPosition(); p++) {
-            RatioTapChangerStep rtcs = rtc.getStep(p);
-            context.getWriter().writeEmptyElement(IIDM_URI, ELEM_STEP);
-            writeTapChangerStep(rtcs, context.getWriter());
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+            for (int p = rtc.getLowTapPosition(); p <= rtc.getHighTapPosition(); p++) {
+                RatioTapChangerStep rtcs = rtc.getStep(p);
+                context.getWriter().writeEmptyElement(IIDM_URI, ELEM_STEP);
+                writeTapChangerStep(rtcs, context.getWriter());
+            }
         }
         context.getWriter().writeEndElement();
     }
@@ -120,7 +127,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
 
     protected static void writePhaseTapChanger(String name, PhaseTapChanger ptc, NetworkXmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeStartElement(IIDM_URI, name);
-        writeTapChanger(ptc, context.getWriter());
+        writeTapChanger(ptc, context);
         context.getWriter().writeAttribute("regulationMode", ptc.getRegulationMode().name());
         if (ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP || !Double.isNaN(ptc.getRegulationValue())) {
             XmlUtil.writeDouble("regulationValue", ptc.getRegulationValue(), context.getWriter());
@@ -128,14 +135,16 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         if (ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP || ptc.isRegulating()) {
             context.getWriter().writeAttribute(ATTR_REGULATING, Boolean.toString(ptc.isRegulating()));
         }
-        if (ptc.getRegulationTerminal() != null) {
+        if (ptc.getRegulationTerminal() != null && context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
             writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }
-        for (int p = ptc.getLowTapPosition(); p <= ptc.getHighTapPosition(); p++) {
-            PhaseTapChangerStep ptcs = ptc.getStep(p);
-            context.getWriter().writeEmptyElement(IIDM_URI, ELEM_STEP);
-            writeTapChangerStep(ptcs, context.getWriter());
-            XmlUtil.writeDouble("alpha", ptcs.getAlpha(), context.getWriter());
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+            for (int p = ptc.getLowTapPosition(); p <= ptc.getHighTapPosition(); p++) {
+                PhaseTapChangerStep ptcs = ptc.getStep(p);
+                context.getWriter().writeEmptyElement(IIDM_URI, ELEM_STEP);
+                writeTapChangerStep(ptcs, context.getWriter());
+                XmlUtil.writeDouble("alpha", ptcs.getAlpha(), context.getWriter());
+            }
         }
         context.getWriter().writeEndElement();
     }

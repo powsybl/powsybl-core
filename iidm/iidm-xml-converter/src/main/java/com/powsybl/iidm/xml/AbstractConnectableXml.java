@@ -8,6 +8,7 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.IidmImportExportType;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 
@@ -35,6 +36,9 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
 
     protected static void writeNodeOrBus(Integer index, Terminal t, NetworkXmlWriterContext context) throws XMLStreamException {
         TopologyLevel topologyLevel = TopologyLevel.min(t.getVoltageLevel().getTopologyKind(), context.getOptions().getTopologyLevel());
+        if (context.getOptions().getImportExportType() == IidmImportExportType.INCREMENTAL_IIDM && context.getTargetFile() != IncrementalIidmFiles.TOPO && topologyLevel == TopologyLevel.NODE_BREAKER) {
+            return;
+        }
         switch (topologyLevel) {
             case NODE_BREAKER:
                 writeNode(index, t, context);

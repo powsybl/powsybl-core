@@ -11,6 +11,7 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
 import javax.xml.stream.XMLStreamException;
 
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.IidmImportExportType;
 import com.powsybl.iidm.network.VoltageLevel;
 
 /**
@@ -26,9 +27,11 @@ public class NodeBreakerViewInternalConnectionXml {
     }
 
     protected void write(int node1, int node2, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeEmptyElement(IIDM_URI, getRootElementName());
-        context.getWriter().writeAttribute("node1", Integer.toString(node1));
-        context.getWriter().writeAttribute("node2", Integer.toString(node2));
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+            context.getWriter().writeEmptyElement(IIDM_URI, getRootElementName());
+            context.getWriter().writeAttribute("node1", Integer.toString(node1));
+            context.getWriter().writeAttribute("node2", Integer.toString(node2));
+        }
     }
 
     protected void read(VoltageLevel vl, NetworkXmlReaderContext context) {

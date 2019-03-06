@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.IidmImportExportType;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -24,8 +25,10 @@ public class NodeBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.Nod
     protected void writeRootElementAttributes(Switch s, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         super.writeRootElementAttributes(s, vl, context);
         VoltageLevel.NodeBreakerView v = vl.getNodeBreakerView();
-        context.getWriter().writeAttribute("node1", Integer.toString(v.getNode1(s.getId())));
-        context.getWriter().writeAttribute("node2", Integer.toString(v.getNode2(s.getId())));
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+            context.getWriter().writeAttribute("node1", Integer.toString(v.getNode1(s.getId())));
+            context.getWriter().writeAttribute("node2", Integer.toString(v.getNode2(s.getId())));
+        }
     }
 
     @Override

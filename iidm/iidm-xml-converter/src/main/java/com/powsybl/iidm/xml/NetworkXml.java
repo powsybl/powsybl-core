@@ -273,7 +273,6 @@ public final class NetworkXml {
     }
 
     public static NetworkXmlWriterContext writeBaseNetwork(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
-
         // create the  writer of the base file
         final XMLStreamWriter writer = initializeWriter(n, os, options);
         BusFilter filter = BusFilter.create(n, options);
@@ -336,6 +335,66 @@ public final class NetworkXml {
 
     public static Anonymizer write(Network n, Path xmlFile) {
         return write(n, new ExportOptions(), xmlFile);
+    }
+
+    public static void incrementalWrite(Network n, ExportOptions options, DataSource dataSource) throws IOException {
+        if (options.isTopo()) {
+            try (OutputStream os = dataSource.newOutputStream("TOPO.xiidm", false);
+                 BufferedOutputStream bos = new BufferedOutputStream(os)) {
+                write(n, options, bos, IncrementalIidmFiles.TOPO);
+            }
+        }
+        if (options.isState()) {
+            try (OutputStream os = dataSource.newOutputStream("STATE.xiidm", false);
+                 BufferedOutputStream bos = new BufferedOutputStream(os)) {
+                write(n, options, bos, IncrementalIidmFiles.STATE);
+            }
+        }
+        if (options.isControl()) {
+            try (OutputStream os = dataSource.newOutputStream("CONTROL.xiidm", false);
+                 BufferedOutputStream bos = new BufferedOutputStream(os)) {
+                write(n, options, bos, IncrementalIidmFiles.CONTROL);
+            }
+        }
+    }
+
+    public static void write(Network n, ExportOptions options, OutputStream os, IncrementalIidmFiles targetFile) {
+        // create the  writer of the base file
+        final XMLStreamWriter writer;
+        try {
+            writer = initializeWriter(n, os, options);
+            BusFilter filter = BusFilter.create(n, options);
+            Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
+            NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter);
+            context.setTargetFile(targetFile);
+            for (Substation s : n.getSubstations()) {
+                if (targetFile == IncrementalIidmFiles.CONTROL && !SubstationXml.INSTANCE.hasControlElements(s, context)) {
+                    continue;
+                }
+                SubstationXml.INSTANCE.write(s, null, context);
+            }
+            if (targetFile == IncrementalIidmFiles.STATE) {
+                for (Line l : n.getLines()) {
+                    if (!filter.test(l)) {
+                        continue;
+                    }
+                    if (l.isTieLine()) {
+                        TieLineXml.INSTANCE.write((TieLine) l, n, context);
+                    } else {
+                        LineXml.INSTANCE.write(l, n, context);
+                    }
+                }
+            }
+            for (HvdcLine l : n.getHvdcLines()) {
+                if (!filter.test(l.getConverterStation1()) || !filter.test(l.getConverterStation2())) {
+                    continue;
+                }
+                HvdcLineXml.INSTANCE.write(l, n, context);
+            }
+            writeEndElement(writer);
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
+        }
     }
 
     public static Anonymizer write(Network network, ExportOptions options, DataSource dataSource, String dataSourceExt) throws IOException {

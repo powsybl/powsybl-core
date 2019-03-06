@@ -10,6 +10,7 @@ import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.AbstractOptions;
 import com.powsybl.iidm.IidmImportExportMode;
+import com.powsybl.iidm.IidmImportExportType;
 import com.powsybl.iidm.network.TopologyLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,15 +40,40 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     private boolean throwExceptionIfExtensionNotFound = false;
 
-    public ExportOptions() {
-    }
-
     public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound) {
         this.withBranchSV = withBranchSV;
         this.indent = indent;
         this.onlyMainCc = onlyMainCc;
         this.topologyLevel = Objects.requireNonNull(topologyLevel);
         this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
+    }
+
+    public ExportOptions() {
+
+    }
+
+    @Override
+    public ExportOptions setImportExportType(IidmImportExportType importExportType) {
+        this.importExportType = importExportType;
+        return this;
+    }
+
+    @Override
+    public ExportOptions setTopo(boolean topo) {
+        this.topo = topo;
+        return this;
+    }
+
+    @Override
+    public ExportOptions setState(boolean state) {
+        this.state = state;
+        return this;
+    }
+
+    @Override
+    public ExportOptions setControl(boolean control) {
+        this.control = control;
+        return this;
     }
 
     @Override
@@ -159,5 +185,4 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
         }
         return this;
     }
-
 }

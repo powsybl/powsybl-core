@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.iidm.IidmImportExportType;
 import com.powsybl.iidm.network.IdentifiableAdder;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -32,10 +33,14 @@ abstract class AbstractSwitchXml<A extends IdentifiableAdder<A>> extends Abstrac
 
     @Override
     protected void writeRootElementAttributes(Switch s, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("kind", s.getKind().name());
-        context.getWriter().writeAttribute("retained", Boolean.toString(s.isRetained()));
-        context.getWriter().writeAttribute("open", Boolean.toString(s.isOpen()));
-        if (s.isFictitious()) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+            context.getWriter().writeAttribute("kind", s.getKind().name());
+            context.getWriter().writeAttribute("retained", Boolean.toString(s.isRetained()));
+        }
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.TOPO) {
+            context.getWriter().writeAttribute("open", Boolean.toString(s.isOpen()));
+        }
+        if (s.isFictitious() && context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
             context.getWriter().writeAttribute("fictitious", Boolean.toString(s.isFictitious()));
         }
     }

@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.IidmImportExportType;
 import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.LccConverterStationAdder;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -35,10 +36,16 @@ public class LccConverterStationXml extends AbstractConnectableXml<LccConverterS
 
     @Override
     protected void writeRootElementAttributes(LccConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeFloat("lossFactor", cs.getLossFactor(), context.getWriter());
-        XmlUtil.writeFloat("powerFactor", cs.getPowerFactor(), context.getWriter());
-        writeNodeOrBus(null, cs.getTerminal(), context);
-        writePQ(null, cs.getTerminal(), context.getWriter());
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+            XmlUtil.writeFloat("lossFactor", cs.getLossFactor(), context.getWriter());
+            XmlUtil.writeFloat("powerFactor", cs.getPowerFactor(), context.getWriter());
+        }
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || (context.getTargetFile() == IncrementalIidmFiles.TOPO)) {
+            writeNodeOrBus(null, cs.getTerminal(), context);
+        }
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE) {
+            writePQ(null, cs.getTerminal(), context.getWriter());
+        }
     }
 
     @Override

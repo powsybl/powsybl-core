@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.IidmImportExportType;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.HvdcLineAdder;
 import com.powsybl.iidm.network.Network;
@@ -35,13 +36,19 @@ class HvdcLineXml extends AbstractIdentifiableXml<HvdcLine, HvdcLineAdder, Netwo
 
     @Override
     protected void writeRootElementAttributes(HvdcLine l, Network parent, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("r", l.getR(), context.getWriter());
-        XmlUtil.writeDouble("nominalV", l.getNominalV(), context.getWriter());
-        context.getWriter().writeAttribute("convertersMode", l.getConvertersMode().name());
-        XmlUtil.writeDouble("activePowerSetpoint", l.getActivePowerSetpoint(), context.getWriter());
-        XmlUtil.writeDouble("maxP", l.getMaxP(), context.getWriter());
-        context.getWriter().writeAttribute("converterStation1", l.getConverterStation1().getId());
-        context.getWriter().writeAttribute("converterStation2", l.getConverterStation2().getId());
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+            XmlUtil.writeDouble("r", l.getR(), context.getWriter());
+            XmlUtil.writeDouble("nominalV", l.getNominalV(), context.getWriter());
+            context.getWriter().writeAttribute("convertersMode", l.getConvertersMode().name());
+        }
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.CONTROL) {
+            XmlUtil.writeDouble("activePowerSetpoint", l.getActivePowerSetpoint(), context.getWriter());
+        }
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+            XmlUtil.writeDouble("maxP", l.getMaxP(), context.getWriter());
+            context.getWriter().writeAttribute("converterStation1", l.getConverterStation1().getId());
+            context.getWriter().writeAttribute("converterStation2", l.getConverterStation2().getId());
+        }
     }
 
     @Override

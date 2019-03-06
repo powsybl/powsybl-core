@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.IidmImportExportType;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.iidm.network.Network;
@@ -35,14 +36,19 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
 
     @Override
     protected void writeRootElementAttributes(Line l, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("r", l.getR(), context.getWriter());
-        XmlUtil.writeDouble("x", l.getX(), context.getWriter());
-        XmlUtil.writeDouble("g1", l.getG1(), context.getWriter());
-        XmlUtil.writeDouble("b1", l.getB1(), context.getWriter());
-        XmlUtil.writeDouble("g2", l.getG2(), context.getWriter());
-        XmlUtil.writeDouble("b2", l.getB2(), context.getWriter());
-        writeNodeOrBus(1, l.getTerminal1(), context);
-        writeNodeOrBus(2, l.getTerminal2(), context);
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+            XmlUtil.writeDouble("r", l.getR(), context.getWriter());
+            XmlUtil.writeDouble("x", l.getX(), context.getWriter());
+            XmlUtil.writeDouble("g1", l.getG1(), context.getWriter());
+            XmlUtil.writeDouble("b1", l.getB1(), context.getWriter());
+            XmlUtil.writeDouble("g2", l.getG2(), context.getWriter());
+            XmlUtil.writeDouble("b2", l.getB2(), context.getWriter());
+        }
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+            writeNodeOrBus(1, l.getTerminal1(), context);
+            writeNodeOrBus(2, l.getTerminal2(), context);
+        }
+
         if (context.getOptions().isWithBranchSV()) {
             writePQ(1, l.getTerminal1(), context.getWriter());
             writePQ(2, l.getTerminal2(), context.getWriter());
@@ -51,6 +57,9 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
 
     @Override
     protected void writeSubElements(Line l, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.INCREMENTAL_IIDM) {
+            return;
+        }
         if (l.getCurrentLimits1() != null) {
             writeCurrentLimits(1, l.getCurrentLimits1(), context.getWriter());
         }

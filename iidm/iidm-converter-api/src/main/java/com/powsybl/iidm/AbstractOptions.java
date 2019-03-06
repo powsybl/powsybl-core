@@ -18,8 +18,28 @@ public abstract class AbstractOptions<T> {
 
     protected IidmImportExportMode mode = IidmImportExportMode.UNIQUE_FILE;
 
+    protected IidmImportExportType importExportType = IidmImportExportType.BASIC_IIDM;
+
+    protected boolean topo = true;
+
+    protected boolean state = true;
+
+    protected boolean control = true;
+
     public AbstractOptions() {
     }
+
+    public IidmImportExportType getImportExportType() {
+        return importExportType;
+    }
+
+    public abstract T setImportExportType(IidmImportExportType importExportType);
+
+    public abstract T setTopo(boolean topo);
+
+    public abstract T setState(boolean state);
+
+    public abstract T setControl(boolean control);
 
     public abstract T setExtensions(Set<String> extensions);
 
@@ -47,4 +67,15 @@ public abstract class AbstractOptions<T> {
         return this.mode;
     }
 
+    public boolean isTopo() {
+        return topo;
+    }
+
+    public boolean isState() {
+        return state;
+    }
+
+    public boolean isControl() {
+        return control;
+    }
 }

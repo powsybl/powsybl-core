@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.IidmImportExportType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.TieLineAdder;
@@ -50,19 +51,28 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
 
     @Override
     protected void writeRootElementAttributes(TieLine tl, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("ucteXnodeCode", tl.getUcteXnodeCode());
-        writeNodeOrBus(1, tl.getTerminal1(), context);
-        writeNodeOrBus(2, tl.getTerminal2(), context);
-        if (context.getOptions().isWithBranchSV()) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+            context.getWriter().writeAttribute("ucteXnodeCode", tl.getUcteXnodeCode());
+        }
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.TOPO) {
+            writeNodeOrBus(1, tl.getTerminal1(), context);
+            writeNodeOrBus(2, tl.getTerminal2(), context);
+        }
+        if (context.getOptions().isWithBranchSV() && (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE)) {
             writePQ(1, tl.getTerminal1(), context.getWriter());
             writePQ(2, tl.getTerminal2(), context.getWriter());
         }
-        writeHalf(tl.getHalf1(), context, 1);
-        writeHalf(tl.getHalf2(), context, 2);
+        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+            writeHalf(tl.getHalf1(), context, 1);
+            writeHalf(tl.getHalf2(), context, 2);
+        }
     }
 
     @Override
     protected void writeSubElements(TieLine tl, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.INCREMENTAL_IIDM) {
+            return;
+        }
         if (tl.getCurrentLimits1() != null) {
             writeCurrentLimits(1, tl.getCurrentLimits1(), context.getWriter());
         }

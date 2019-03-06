@@ -28,6 +28,7 @@ public class NetworkXmlWriterContext extends AbstractConverterContext<ExportOpti
     private final ExportOptions options;
     private final BusFilter filter;
     private final Set<Identifiable> exportedEquipments;
+    private IncrementalIidmFiles targetFile;
 
     NetworkXmlWriterContext(Anonymizer anonymizer, XMLStreamWriter writer, ExportOptions options, BusFilter filter) {
         super(anonymizer);
@@ -36,6 +37,14 @@ public class NetworkXmlWriterContext extends AbstractConverterContext<ExportOpti
         this.filter = filter;
         this.extensionsWriter = writer;
         this.exportedEquipments = new HashSet<>();
+    }
+
+    public IncrementalIidmFiles getTargetFile() {
+        return targetFile;
+    }
+
+    public void setTargetFile(IncrementalIidmFiles targetFile) {
+        this.targetFile = targetFile;
     }
 
     @Override
