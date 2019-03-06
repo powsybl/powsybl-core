@@ -28,27 +28,24 @@ public class CompactStringBuffer {
             throw new IllegalArgumentException("Invalid buffer size: " + size);
         }
         this.buffer = byteBufferAllocator.apply(IntMath.checkedMultiply(size, Integer.BYTES)).asIntBuffer();
-        for (int i = 0; i < size; i++) {
-            buffer.put(-1);
-        }
     }
 
     public void putString(int index, String value) {
         int num;
         if (value == null) {
-            num = -1;
+            num = 0;
         } else {
-            num = dict.addIfNotAlreadyExist(value);
+            num = dict.addIfNotAlreadyExist(value) + 1;
         }
         buffer.put(index, num);
     }
 
     public String getString(int index) {
         int num = buffer.get(index);
-        if (num == -1) {
+        if (num == 0) {
             return null;
         } else {
-            return dict.get(num);
+            return dict.get(num - 1);
         }
     }
 

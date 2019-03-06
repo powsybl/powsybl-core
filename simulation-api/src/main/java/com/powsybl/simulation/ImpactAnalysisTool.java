@@ -18,8 +18,10 @@ import com.powsybl.commons.io.table.Column;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.ContingenciesProviderFactory;
+import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.tools.ConversionToolUtils;
 import com.powsybl.simulation.securityindexes.SecurityIndex;
 import com.powsybl.simulation.securityindexes.SecurityIndexId;
 import com.powsybl.simulation.securityindexes.SecurityIndexType;
@@ -38,6 +40,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParameterOption;
+import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParametersFileOption;
+import static com.powsybl.iidm.tools.ConversionToolUtils.readProperties;
 
 /**
  *
@@ -91,6 +97,8 @@ public class ImpactAnalysisTool implements Tool {
                         .hasArg()
                         .argName("FILE")
                         .build());
+                options.addOption(createImportParametersFileOption());
+                options.addOption(createImportParameterOption());
                 return options;
             }
 
@@ -250,17 +258,18 @@ public class ImpactAnalysisTool implements Tool {
         SimulatorFactory simulatorFactory = defaultConfig.newFactoryImpl(SimulatorFactory.class);
 
         if (Files.isRegularFile(caseFile)) {
-            runSingleAnalysis(context, caseFile, outputCsvFile, contingencyIds, contingenciesProvider, simulatorFactory);
+            runSingleAnalysis(line, context, caseFile, outputCsvFile, contingencyIds, contingenciesProvider, simulatorFactory);
         } else if (Files.isDirectory(caseFile)) {
-            runMultipleAnalyses(context, caseFile, outputCsvFile, contingencyIds, contingenciesProvider, simulatorFactory);
+            runMultipleAnalyses(line, context, caseFile, outputCsvFile, contingencyIds, contingenciesProvider, simulatorFactory);
         }
     }
 
-    private void runSingleAnalysis(ToolRunningContext context, Path caseFile, Path outputCsvFile, Set<String> contingencyIds, ContingenciesProvider contingenciesProvider,
+    private void runSingleAnalysis(CommandLine line, ToolRunningContext context, Path caseFile, Path outputCsvFile, Set<String> contingencyIds, ContingenciesProvider contingenciesProvider,
                                    SimulatorFactory simulatorFactory) throws Exception {
         context.getOutputStream().println("loading case " + caseFile + "...");
         // load the network
-        Network network = Importers.loadNetwork(caseFile);
+        Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
+        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
         if (network == null) {
             throw new PowsyblException("Case '" + caseFile + "' not found");
         }
@@ -279,13 +288,14 @@ public class ImpactAnalysisTool implements Tool {
         }
     }
 
-    private void runMultipleAnalyses(ToolRunningContext context, Path caseFile, Path outputCsvFile, Set<String> contingencyIds, ContingenciesProvider contingenciesProvider,
+    private void runMultipleAnalyses(CommandLine line, ToolRunningContext context, Path caseFile, Path outputCsvFile, Set<String> contingencyIds, ContingenciesProvider contingenciesProvider,
                                      SimulatorFactory simulatorFactory) throws Exception {
         if (outputCsvFile == null) {
             throw new PowsyblException("In case of multiple impact analyses, only output to csv file is supported");
         }
         Map<String, Map<SecurityIndexId, SecurityIndex>> securityIndexesPerCase = new LinkedHashMap<>();
-        Importers.loadNetworks(caseFile, false, network -> {
+        Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
+        Importers.loadNetworks(caseFile, false, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams, network -> {
             try {
                 Multimap<String, SecurityIndex> securityIndexesPerContingency
                         = runImpactAnalysis(network, contingencyIds, context.getShortTimeExecutionComputationManager(),

@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
@@ -46,27 +47,27 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
             int side = context.tapChangerTransformers().whichSide(id);
             if (side == 1) {
                 String reason0 = String.format(
-                        "Not supported at end 1 of 3wtx. txId 'name' 'substation': %s '%s' '%s'",
-                        tx3.getId(),
-                        tx3.getName(),
-                        tx3.getSubstation().getName());
+                    "Not supported at end 1 of 3wtx. txId 'name' 'substation': %s '%s' '%s'",
+                    tx3.getId(),
+                    tx3.getName(),
+                    tx3.getSubstation().getName());
                 // Check if the step is at neutral and regulating control is disabled
                 boolean regulating = p.asBoolean("regulatingControlEnabled", false);
                 if (position == neutralStep && !regulating) {
                     ignored(reason0 + ", but is at neutralStep and regulating control disabled");
                 } else {
                     String reason = String.format(
-                            "%s, tap step: %d, regulating control enabled: %b",
-                            reason0,
-                            position,
-                            regulating);
+                        "%s, tap step: %d, regulating control enabled: %b",
+                        reason0,
+                        position,
+                        regulating);
                     invalid(reason);
                 }
                 return false;
             }
         }
         return inRange("defaultStep", neutralStep, lowStep, highStep) &&
-                inRange("position", position, lowStep, highStep);
+            inRange("position", position, lowStep, highStep);
     }
 
     @Override
@@ -109,21 +110,29 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
     }
 
     private void addStepsFromTable(RatioTapChangerAdder rtca) {
-        String tableId = p.getId("RatioTapChangerTable");
+        String tableId = p.getId(CgmesNames.RATIO_TAP_CHANGER_TABLE);
+        if (tableId == null) {
+            missing(CgmesNames.RATIO_TAP_CHANGER_TABLE);
+            return;
+        }
         LOG.debug("RatioTapChanger {} table {}", id, tableId);
         PropertyBags table = context.ratioTapChangerTable(tableId);
+        if (table.isEmpty()) {
+            missing("points for RatioTapChangerTable " + tableId);
+            return;
+        }
         Comparator<PropertyBag> byStep = Comparator.comparingInt((PropertyBag p) -> p.asInt("step"));
         table.sort(byStep);
         boolean rtcAtSide1 = rtcAtSide1();
         for (PropertyBag point : table) {
-            double rho = 1 / point.asDouble("ratio");
+            double rho = 1 / point.asDouble("ratio", 1.0);
             // When given in RatioTapChangerTablePoint
             // r, x, g, b of the step are already percentage deviations of nominal values
-            double r = point.asDouble("r", 0);
-            double x = point.asDouble("x", 0);
-            double g = point.asDouble("g", 0);
-            double b = point.asDouble("b", 0);
             int step = point.asInt("step");
+            double r = fixing(point, "r", 0, tableId, step);
+            double x = fixing(point, "x", 0, tableId, step);
+            double g = fixing(point, "g", 0, tableId, step);
+            double b = fixing(point, "b", 0, tableId, step);
             // Impedance/admittance deviation is required when tap changer is defined at
             // side 2
             // (In IIDM model the ideal ratio is always at side 1, left of impedance)
@@ -141,21 +150,32 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
             // with dz, dy that appear when moving ideal ratio to side 1
             // R' = R * (1 + r/100) * (1 + dz/100) ==> r' = r + dz + r * dz / 100
             rtca.beginStep()
-                    .setRho(rtcAtSide1 ? rho : 1 / rho)
-                    .setR(r + dz + r * dz / 100)
-                    .setX(x + dz + r * dz / 100)
-                    .setG(g + dy + g * dy / 100)
-                    .setB(b + dy + b * dy / 100)
-                    .endStep();
+                .setRho(rtcAtSide1 ? rho : 1 / rho)
+                .setR(r + dz + r * dz / 100)
+                .setX(x + dz + r * dz / 100)
+                .setG(g + dy + g * dy / 100)
+                .setB(b + dy + b * dy / 100)
+                .endStep();
         }
+    }
+
+    private double fixing(PropertyBag point, String attr, double defaultValue, String tableId, int step) {
+        double value = point.asDouble(attr, defaultValue);
+        if (Double.isNaN(value)) {
+            fixed(
+                "RatioTapChangerTablePoint " + attr + " for step " + step + " in table " + tableId,
+                "invalid value " + point.get(attr));
+            return defaultValue;
+        }
+        return value;
     }
 
     private void addStepsFromStepVoltageIncrement(RatioTapChangerAdder rtca) {
         boolean rtcAtSide1 = rtcAtSide1();
         if (LOG.isDebugEnabled() && rtcAtSide1) {
             LOG.debug(
-                    "Transformer {} ratio tap changer moved from side 2 to side 1, impedance/admittance corrections",
-                    tx2.getId());
+                "Transformer {} ratio tap changer moved from side 2 to side 1, impedance/admittance corrections",
+                tx2.getId());
         }
         double stepVoltageIncrement = p.asDouble("stepVoltageIncrement");
         double du = stepVoltageIncrement / 100;
@@ -174,16 +194,16 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
                 dy = (1 / rho2 - 1) * 100;
                 if (LOG.isDebugEnabled()) {
                     LOG.debug(String.format("RTC2to1 corrections  %4d  %12.8f  %12.8f  %12.8f",
-                            step, n * du, dz, dy));
+                        step, n * du, dz, dy));
                 }
             }
             rtca.beginStep()
-                    .setRho(rho)
-                    .setR(dz)
-                    .setX(dz)
-                    .setG(dy)
-                    .setB(dy)
-                    .endStep();
+                .setRho(rho)
+                .setR(dz)
+                .setX(dz)
+                .setG(dy)
+                .setB(dy)
+                .endStep();
         }
     }
 
@@ -229,9 +249,9 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         regulationTerminal = terminal();
 
         rtca.setLoadTapChangingCapabilities(true)
-                .setRegulating(regulating)
-                .setTargetV(targetV)
-                .setRegulationTerminal(regulationTerminal);
+            .setRegulating(regulating)
+            .setTargetV(targetV)
+            .setRegulationTerminal(regulationTerminal);
     }
 
     private Terminal terminal() {
@@ -255,7 +275,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
     }
 
     private boolean tabular() {
-        return p.containsKey("RatioTapChangerTable");
+        return p.containsKey(CgmesNames.RATIO_TAP_CHANGER_TABLE);
     }
 
     private final TwoWindingsTransformer tx2;
