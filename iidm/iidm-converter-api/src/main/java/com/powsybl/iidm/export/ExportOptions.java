@@ -63,10 +63,10 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     @Override
     public ExportOptions addExtension(String extension) {
-        if (extensions.isPresent()) {
-            extensions.get().add(extension);
+        if (extensions != null) {
+            extensions.add(extension);
         } else {
-            this.extensions = Optional.of(Sets.newHashSet(extension));
+            this.extensions = Sets.newHashSet(extension);
         }
         return this;
     }
@@ -119,12 +119,12 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     @Override
     public ExportOptions setExtensions(Set<String> extensions) {
         // this warning is to prevent people to use setSkipExtensions and setExtensions at the same time
-        this.extensions.ifPresent(e -> {
+        Optional.ofNullable(this.extensions).ifPresent(e -> {
             if (e.isEmpty()) {
                 LOGGER.warn("Extensions have already been set as empty. This call will override it.");
             }
         });
-        this.extensions = Optional.ofNullable(extensions);
+        this.extensions = extensions;
         return this;
     }
 
@@ -151,11 +151,11 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
      */
     @Deprecated
     public ExportOptions setSkipExtensions(boolean skipExtensions) {
-        if (extensions.isPresent()) {
+        if (extensions != null) {
             throw new PowsyblException("Contradictory behavior: you have already passed an extensions list");
         }
         if (skipExtensions) {
-            this.extensions = Optional.of(new HashSet<>());
+            this.extensions = new HashSet<>();
         }
         return this;
     }
