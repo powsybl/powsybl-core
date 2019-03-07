@@ -10,9 +10,11 @@ import com.google.auto.service.AutoService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
+import com.powsybl.iidm.tools.ConversionToolUtils;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.io.ValidationWriters;
@@ -33,8 +35,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParameterOption;
+import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParametersFileOption;
+import static com.powsybl.iidm.tools.ConversionToolUtils.readProperties;
 
 /**
  *
@@ -123,6 +130,8 @@ public class ValidationTool implements Tool {
                     .hasArg()
                     .argName("FILE")
                     .build());
+            options.addOption(createImportParametersFileOption());
+            options.addOption(createImportParameterOption());
             return options;
         }
 
@@ -163,7 +172,7 @@ public class ValidationTool implements Tool {
                                     .map(ValidationType::valueOf)
                                     .collect(Collectors.toSet());
         }
-        Network network = loadNetwork(caseFile, context);
+        Network network = loadNetwork(caseFile, line, context);
         if (line.hasOption(GROOVY_SCRIPT)) {
             runGroovyScript(Paths.get(line.getOptionValue(GROOVY_SCRIPT)), network, context);
         }
@@ -190,16 +199,17 @@ public class ValidationTool implements Tool {
                 Preconditions.checkArgument(line.hasOption(COMPARE_CASE_FILE),
                         "Basecases comparison requires to provide a second basecase (option --" + COMPARE_CASE_FILE + ").");
                 Path compareCaseFile = Paths.get(line.getOptionValue(COMPARE_CASE_FILE));
-                Network compareNetwork = loadNetwork(compareCaseFile, context);
+                Network compareNetwork = loadNetwork(compareCaseFile, line, context);
                 context.getOutputStream().println("Running validation on network " + compareNetwork.getId() + " to compare");
                 runValidation(compareNetwork, config, validationTypes, validationWriters, context);
             }
         }
     }
 
-    private Network loadNetwork(Path caseFile, ToolRunningContext context) {
+    private Network loadNetwork(Path caseFile, CommandLine line, ToolRunningContext context) throws IOException {
         context.getOutputStream().println("Loading case " + caseFile);
-        Network network = Importers.loadNetwork(caseFile);
+        Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
+        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
         if (network == null) {
             throw new PowsyblException("Case " + caseFile + " not found");
         }

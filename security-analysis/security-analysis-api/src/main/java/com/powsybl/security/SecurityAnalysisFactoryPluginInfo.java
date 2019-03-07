@@ -4,26 +4,15 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.import_;
+package com.powsybl.security;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.plugins.PluginInfo;
 
-import java.util.Objects;
-
-/**
- *
- * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
- */
 @AutoService(PluginInfo.class)
-public class ImporterPluginInfo extends PluginInfo<Importer> {
+public class SecurityAnalysisFactoryPluginInfo extends PluginInfo<SecurityAnalysisFactory> {
 
-    public ImporterPluginInfo() {
-        super(Importer.class);
-    }
-
-    @Override
-    public String getId(Importer importer) {
-        return Objects.requireNonNull(importer).getFormat();
+    public SecurityAnalysisFactoryPluginInfo() {
+        super(SecurityAnalysisFactory.class);
     }
 }

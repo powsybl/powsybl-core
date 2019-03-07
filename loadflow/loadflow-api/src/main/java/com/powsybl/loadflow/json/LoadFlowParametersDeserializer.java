@@ -22,7 +22,7 @@ import java.util.List;
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
-class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowParameters> {
+public class LoadFlowParametersDeserializer extends StdDeserializer<LoadFlowParameters> {
 
     LoadFlowParametersDeserializer() {
         super(LoadFlowParameters.class);
