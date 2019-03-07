@@ -6,23 +6,26 @@
  */
 package com.powsybl.ucte.converter;
 
-import com.powsybl.commons.datasource.*;
+import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.ucte.network.*;
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.io.File;
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 import static org.junit.Assert.*;
 
@@ -49,21 +52,13 @@ public class UcteExporterTest {
         ReadOnlyDataSource dataSource = new ResourceDataSource("exportTest", new ResourceSet("/", "exportTest.uct"));
         Network network = new UcteImporter().importData(dataSource, null);
 
-        Path path = FileSystems.getDefault().getPath("./target/");
-        FileDataSource fds = new FileDataSource(path, "test");
-        new UcteExporter().export(network, null, fds);
+        MemDataSource exportedDataSource = new MemDataSource();
+        new UcteExporter().export(network, null, exportedDataSource);
 
-        File expectedOutput = FileSystems.getDefault().getPath("./src/test/resources/expectedExport.uct").toFile();
-        File output = FileSystems.getDefault().getPath("./target/test.uct").toFile();
-
-        //MemDataSource mds = new MemDataSource();
-        //mds.newOutputStream("")
-
-        assertTrue(FileUtils.contentEqualsIgnoreEOL(
-                expectedOutput,
-                output,
-                null));
-        Files.delete(output.toPath());
+        try (InputStream exportedData = new ByteArrayInputStream(exportedDataSource.getData(null, "uct"))) {
+            InputStream expectedData = new FileInputStream(FileSystems.getDefault().getPath("./src/test/resources/expectedExport.uct").toFile());
+            assertTrue(IOUtils.contentEquals(expectedData, exportedData));
+        }
 
         exception.expect(IllegalArgumentException.class);
         new UcteExporter().export(null, null, null);
@@ -183,26 +178,6 @@ public class UcteExporterTest {
                 2.000000019938066,
                 ucteExporter.calculatePhaseDu(transfomerRegulationNetwork.getTwoWindingsTransformer("0BBBBB5  0AAAAA2  1")),
                 0.0000000000000001);
-    }
-
-    @Test
-    public void isNotAlreadyCreatedTest() {
-        UcteNetwork ucteNetwork = new UcteNetworkImpl();
-        TwoWindingsTransformer twoWindingsTransformer = transfomerRegulationNetwork.getTwoWindingsTransformer("0BBBBB5  0AAAAA2  1");
-
-        Terminal terminal1 = twoWindingsTransformer.getTerminal1();
-        Terminal terminal2 = twoWindingsTransformer.getTerminal2();
-
-        UcteNodeCode ucteNodeCode1 = new UcteNodeCode(UcteCountryCode.ME, "BBBBB", UcteVoltageLevelCode.VL_110, ' ');
-        UcteNodeCode ucteNodeCode2 = new UcteNodeCode(UcteCountryCode.ME, "AAAAA", UcteVoltageLevelCode.VL_220, ' ');
-
-        UcteElementId ucteElementId = new UcteElementId(ucteNodeCode1, ucteNodeCode2, '1');
-        assertTrue(ucteExporter.isNotAlreadyCreated(ucteNetwork, ucteElementId));
-        ucteNetwork.addTransformer(
-                new UcteTransformer(
-                        ucteElementId, UcteElementStatus.REAL_ELEMENT_IN_OPERATION, 0f, 0f, 0f, 0,
-                        null, 0f, 0f, 0f, 0f));
-        assertFalse(ucteExporter.isNotAlreadyCreated(ucteNetwork, ucteElementId));
     }
 
     @Test
