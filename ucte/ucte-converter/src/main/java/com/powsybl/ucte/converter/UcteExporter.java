@@ -164,22 +164,11 @@ public class UcteExporter implements Exporter {
         ucteNetwork.addLine(ucteLine2);
     }
 
-    private void createTwoWindingTransformers(UcteNetwork ucteNetwork, Bus bus) {
-        LOGGER.info("-----------TWO WINDING TRANSFORMERS--------");
-        Iterable<TwoWindingsTransformer> twoWindingsTransformers = bus.getTwoWindingsTransformers();
-        for (TwoWindingsTransformer twoWindingsTransformer : twoWindingsTransformers) {
-            LOGGER.info("-----------TWO WINDING TRANSFORMER--------");
-            LOGGER.info(" TWT Id = {}", twoWindingsTransformer.getId());
-            LOGGER.info(" TWT Name = {}", twoWindingsTransformer.getName());
-            LOGGER.info(" X = {}", twoWindingsTransformer.getX());
-            LOGGER.info(" R = {}", twoWindingsTransformer.getR());
-            LOGGER.info(" B = {}", twoWindingsTransformer.getB());
-            LOGGER.info(" G = {}", twoWindingsTransformer.getG());
-            LOGGER.info(" RatedU1 = {}", twoWindingsTransformer.getRatedU1());
-            LOGGER.info(" RatedU2 = {}", twoWindingsTransformer.getRatedU2());
-            createTwoWindingTransformer(ucteNetwork, twoWindingsTransformer);
-
-        }
+    private void createTwoWindingTransformers(Network network, UcteNetwork ucteNetwork) {
+        LOGGER.debug("Converting two winding transformers");
+        network.getTwoWindingsTransformerStream()
+                .forEach(twoWindingsTransformer -> createTwoWindingTransformer(ucteNetwork, twoWindingsTransformer));
+        LOGGER.debug("two winding transformers converted");
     }
 
     private void createTwoWindingTransformer(UcteNetwork ucteNetwork, TwoWindingsTransformer twoWindingsTransformer) {
@@ -199,24 +188,22 @@ public class UcteExporter implements Exporter {
         );
 
         UcteElementId ucteElementId = createUcteElementId(ucteNodeCode, ucteNodeCode2, twoWindingsTransformer, terminal1, terminal2);
+        UcteTransformer ucteTransformer = new UcteTransformer(
+                ucteElementId,
+                UcteElementStatus.fromCode(1),
+                (float) twoWindingsTransformer.getR(),
+                (float) twoWindingsTransformer.getX(),
+                (float) twoWindingsTransformer.getB(),
+                (int) twoWindingsTransformer.getCurrentLimits2().getPermanentLimit(),
+                twoWindingsTransformer.getName(),
+                (float) twoWindingsTransformer.getRatedU2(),
+                (float) twoWindingsTransformer.getRatedU1(),
+                100,
+                (float) twoWindingsTransformer.getG()); //TODO Find a representation for the nominal power
 
-        if (isNotAlreadyCreated(ucteNetwork, ucteElementId)) {
-            UcteTransformer ucteTransformer = new UcteTransformer(
-                    ucteElementId,
-                    UcteElementStatus.fromCode(1),
-                    (float) twoWindingsTransformer.getR(),
-                    (float) twoWindingsTransformer.getX(),
-                    (float) twoWindingsTransformer.getB(),
-                    (int) twoWindingsTransformer.getCurrentLimits2().getPermanentLimit(),
-                    twoWindingsTransformer.getName(),
-                    (float) twoWindingsTransformer.getRatedU2(),
-                    (float) twoWindingsTransformer.getRatedU1(),
-                    100,
-                    (float) twoWindingsTransformer.getG()); //TODO Find a representation for the nominal power
+        createRegulation(ucteNetwork, ucteElementId, twoWindingsTransformer);
+        ucteNetwork.addTransformer(ucteTransformer);
 
-            createRegulation(ucteNetwork, ucteElementId, twoWindingsTransformer);
-            ucteNetwork.addTransformer(ucteTransformer);
-        }
     }
 
     private void createRegulation(UcteNetwork ucteNetwork, UcteElementId ucteElementId, TwoWindingsTransformer twoWindingsTransformer) {
@@ -234,13 +221,113 @@ public class UcteExporter implements Exporter {
         }
     }
 
+    private void createThreeWindingTransformers(Network network, UcteNetwork ucteNetwork) {
+        LOGGER.debug("Converting iidm ThreeWindingTransformers");
+        network.getThreeWindingsTransformerStream()
+                .forEach(threeWindingsTransformer -> createThreeWindingTransformer(ucteNetwork, threeWindingsTransformer));
+        LOGGER.debug("iidm ThreeWindingTransformers converted");
+    }
+
+    private void createThreeWindingTransformer(UcteNetwork ucteNetwork, ThreeWindingsTransformer twt) {
+        Terminal t1 = twt.getLeg1().getTerminal();
+        Terminal t2 = twt.getLeg2().getTerminal();
+        Terminal t3 = twt.getLeg3().getTerminal();
+
+        UcteNodeCode fictiveNodeCode = new UcteNodeCode(
+                UcteCountryCode.valueOf(twt.getSubstation().getCountry().toString()),
+                "FICTIVE",
+                UcteVoltageLevelCode.VL_500,
+                '1');
+
+        UcteNode fictiveNode = new UcteNode(
+                fictiveNodeCode,
+                "FICTIVE",
+                UcteNodeStatus.EQUIVALENT,
+                UcteNodeTypeCode.PQ,
+                Float.NaN,
+                Float.NaN,
+                Float.NaN,
+                Float.NaN,
+                Float.NaN,
+                Float.NaN,
+                Float.NaN,
+                Float.NaN,
+                Float.NaN,
+                Float.NaN,
+                Float.NaN,
+                Float.NaN,
+                Float.NaN,
+                null);
+
+        UcteNodeCode ucteNodeCode1 = createUcteNodeCode(
+                t1.getBusBreakerView().getBus().getId(),
+                t1.getVoltageLevel(),
+                t1.getVoltageLevel().getSubstation().getCountry().toString()
+        );
+
+        UcteNodeCode ucteNodeCode2 = createUcteNodeCode(
+                t2.getBusBreakerView().getBus().getId(),
+                t2.getVoltageLevel(),
+                t2.getVoltageLevel().getSubstation().getCountry().toString()
+        );
+
+        UcteNodeCode ucteNodeCode3 = createUcteNodeCode(
+                t3.getBusBreakerView().getBus().getId(),
+                t3.getVoltageLevel(),
+                t3.getVoltageLevel().getSubstation().getCountry().toString()
+        );
+
+        UcteElementId ucteElementId1 = new UcteElementId(ucteNodeCode1, fictiveNodeCode, '1');
+        UcteElementId ucteElementId2 = new UcteElementId(ucteNodeCode2, fictiveNodeCode, '1');
+        UcteElementId ucteElementId3 = new UcteElementId(ucteNodeCode3, fictiveNodeCode, '1');
+
+        UcteTransformer transformer1 = new UcteTransformer(
+                ucteElementId1,
+                UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION,
+                (float) twt.getLeg1().getR(),
+                (float) twt.getLeg1().getX(),
+                (float) twt.getLeg1().getB(),
+                (int) twt.getLeg1().getCurrentLimits().getPermanentLimit(),
+                twt.getName(),
+                (float) twt.getLeg1().getRatedU(),
+                (float) twt.getLeg1().getRatedU(),
+                100,
+                (float) twt.getLeg1().getG());
+
+        UcteTransformer transformer2 = new UcteTransformer(
+                ucteElementId2,
+                UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION,
+                (float) twt.getLeg2().getR(),
+                (float) twt.getLeg2().getX(),
+                (float) twt.getLeg1().getB(),
+                (int) twt.getLeg2().getCurrentLimits().getPermanentLimit(),
+                twt.getName(),
+                (float) twt.getLeg2().getRatedU(),
+                (float) twt.getLeg2().getRatedU(),
+                100,
+                (float) twt.getLeg1().getG());
+
+        UcteTransformer transformer3 = new UcteTransformer(
+                ucteElementId3,
+                UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION,
+                (float) twt.getLeg3().getR(),
+                (float) twt.getLeg3().getX(),
+                (float) twt.getLeg1().getB(),
+                (int) twt.getLeg3().getCurrentLimits().getPermanentLimit(),
+                twt.getName(),
+                (float) twt.getLeg3().getRatedU(),
+                (float) twt.getLeg3().getRatedU(),
+                100,
+                (float) twt.getLeg1().getG());
+
+        ucteNetwork.addNode(fictiveNode);
+        ucteNetwork.addTransformer(transformer1);
+        ucteNetwork.addTransformer(transformer2);
+        ucteNetwork.addTransformer(transformer3);
+    }
+
     private UctePhaseRegulation createRatioTapChanger(TwoWindingsTransformer twoWindingsTransformer) {
-        LOGGER.info(" --------- RATIO TAP CHANGER ------------");
-        LOGGER.info("TargetV = {}", twoWindingsTransformer.getRatioTapChanger().getTargetV());
-        LOGGER.info("LowTapPosition = {}", twoWindingsTransformer.getRatioTapChanger().getLowTapPosition());
-        LOGGER.info("TapPosition = {}", twoWindingsTransformer.getRatioTapChanger().getTapPosition());
-        LOGGER.info("StepCount = {}", twoWindingsTransformer.getRatioTapChanger().getStepCount());
-        LOGGER.info("HighTapPosition = {}", twoWindingsTransformer.getRatioTapChanger().getHighTapPosition());
+        LOGGER.debug("Converting iidm ratio tap changer of transformer {}", twoWindingsTransformer.getId());
 
         float du = (float) calculatePhaseDu(twoWindingsTransformer);
         UctePhaseRegulation uctePhaseRegulation = new UctePhaseRegulation(
@@ -255,12 +342,7 @@ public class UcteExporter implements Exporter {
     }
 
     private UcteAngleRegulation createPhaseTapChanger(TwoWindingsTransformer twoWindingsTransformer) {
-        LOGGER.info(" --------- PHASE TAP CHANGER ------------");
-        LOGGER.info("regulationValue = {}", twoWindingsTransformer.getPhaseTapChanger().getRegulationValue());
-        LOGGER.info("LowTapPosition = {}", twoWindingsTransformer.getPhaseTapChanger().getLowTapPosition());
-        LOGGER.info("tapPosition = {}", twoWindingsTransformer.getPhaseTapChanger().getTapPosition());
-        LOGGER.info("StepCount = {}", twoWindingsTransformer.getPhaseTapChanger().getStepCount());
-        LOGGER.info("HighTapPosition= {}", twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition());
+        LOGGER.debug("Converting iidm Phase tap changer of transformer {}", twoWindingsTransformer.getId());
         return new UcteAngleRegulation(2f,
                 3f,
                 twoWindingsTransformer.getPhaseTapChanger().getLowTapPosition(),
@@ -294,61 +376,28 @@ public class UcteExporter implements Exporter {
     }
 
     private void createLines(UcteNetwork ucteNetwork, Network network) {
-        LOGGER.info("-----------LINES------------");
-        Iterable<Line> lines = network.getLines();
-        for (Line line : lines) {
-            LOGGER.info("-----------LINE------------");
-            LOGGER.info("ID = {}", line.getId()); //Node code 1 + node code 2 + Order code  1-8 10-17 19
-            LOGGER.info("R = {}", line.getR()); //Resistance position UTCE 23-28
-            LOGGER.info("X = {}", line.getX()); //Reactance position UTCE 30-35
-            LOGGER.info("Name = {}", line.getName());
-            LOGGER.info("CurrentLimits1 = {}", line.getCurrentLimits1().getPermanentLimit()); //Current limit I (A) 46-51
-            LOGGER.info("CurrentLimits2 = {}", line.getCurrentLimits2().getPermanentLimit());
-            LOGGER.info("B1 = {}", line.getB1());
-            LOGGER.info("B2 = {}", line.getB2());
-            LOGGER.info("G1 = {}", line.getG1());
-            LOGGER.info("G2 = {}", line.getG2());
-            createLine(ucteNetwork, line);
-        }
+        LOGGER.debug("Converting iidm lines");
+        network.getLineStream().forEach(line -> createLine(ucteNetwork, line));
+        LOGGER.debug("iidm lines converted");
     }
 
     private UcteNetwork createUcteNetwork(Network network) {
         UcteNetwork ucteNetwork = new UcteNetworkImpl();
-        Iterable<Substation> substations = network.getSubstations();
-        for (Substation substation : substations) {
-            LOGGER.info("---------------SUBSTATION------------------");
-            LOGGER.info(" Geographical tags = {}", substation.getGeographicalTags());
-            LOGGER.info(" Substation country = {}", substation.getCountry());
-            LOGGER.info(" Substation Id = {}", substation.getId());
-            LOGGER.info(" Substation name = {}", substation.getName());
-
-            Iterable<VoltageLevel> voltageLevels = substation.getVoltageLevels();
-            for (VoltageLevel voltageLevel : voltageLevels) {
-                LOGGER.info("---------------VOLTAGE LEVEL------------------");
-                LOGGER.info(" ID = {}", voltageLevel.getId());
-                LOGGER.info(" NominalV = {}", voltageLevel.getNominalV());
-                LOGGER.info(" Low voltage limit = {}", voltageLevel.getLowVoltageLimit());
-                LOGGER.info(" High voltage limit = {}", voltageLevel.getHighVoltageLimit());
-                createBuses(ucteNetwork, voltageLevel);
-                createSwitches(ucteNetwork, voltageLevel);
-                voltageLevel.getDanglingLineStream().forEach(danglingLine -> createDanglingLine(ucteNetwork, danglingLine));
-            }
-        }
+        network.getSubstationStream().forEach(substation ->
+                substation.getVoltageLevelStream().forEach(voltageLevel -> {
+                    createBuses(ucteNetwork, voltageLevel);
+                    createTwoWindingTransformers(network, ucteNetwork);
+                    createThreeWindingTransformers(network, ucteNetwork);
+                    createSwitches(ucteNetwork, voltageLevel);
+                    voltageLevel.getDanglingLineStream().forEach(danglingLine -> createDanglingLine(ucteNetwork, danglingLine));
+                })
+        );
         createLines(ucteNetwork, network);
         return ucteNetwork;
     }
 
     private void createDanglingLine(UcteNetwork ucteNetwork, DanglingLine danglingLine) {
-        LOGGER.info("-----DANGLING LINE-------");
-        LOGGER.info(" Id = {}", danglingLine.getId());
-        LOGGER.info(" Name = {}", danglingLine.getName());
-        LOGGER.info(" P0 = {}", danglingLine.getP0());
-        LOGGER.info(" Q0 = {}", danglingLine.getQ0());
-        LOGGER.info(" R = {}", danglingLine.getR());
-        LOGGER.info(" X = {}", danglingLine.getX());
-        LOGGER.info(" B = {}", danglingLine.getB());
-        LOGGER.info(" G = {}", danglingLine.getG());
-        LOGGER.info(" UcteXnodeCode = {}", danglingLine.getUcteXnodeCode());
+        LOGGER.debug("Converting dangling line {}", danglingLine.getId());
 
         ucteNetwork.addNode(new UcteNode(
                 iidmIdToUcteNodeCode(danglingLine.getUcteXnodeCode()),
@@ -387,14 +436,7 @@ public class UcteExporter implements Exporter {
     private void createSwitches(UcteNetwork ucteNetwork, VoltageLevel voltageLevel) {
         Iterable<Switch> switchIterator = voltageLevel.getSwitches();
         for (Switch sw : switchIterator) {
-            LOGGER.info("---------------SWITCH------------------");
-            LOGGER.info("ID = {}", sw.getId());
-            LOGGER.info("Name = {}", sw.getName());
-            LOGGER.info("isOpen = {}", sw.isOpen());
-            LOGGER.info("isRetained = {}", sw.isRetained());
-            LOGGER.info("isFictious = {}", sw.isFictitious());
-            LOGGER.info("kindName = {}", sw.getKind());
-            LOGGER.info("kindOrdinal = {}", sw.getKind().ordinal());
+            LOGGER.debug("Converting switch {}", sw.getId());
             if (isUcteId(sw.getId())) {
                 UcteNodeCode ucteNodeCode1 = iidmIdToUcteNodeCode(sw.getId().substring(0, 9));
                 UcteNodeCode ucteNodeCode2 = iidmIdToUcteNodeCode(sw.getId().substring(9, 18));
@@ -407,6 +449,7 @@ public class UcteExporter implements Exporter {
     }
 
     private void createLine(UcteNetwork ucteNetwork, Line line) {
+        LOGGER.debug("Converting line {}", line.getId());
         if (line.getId().contains("+")) {
             createTieLine(ucteNetwork, line);
             return;
@@ -434,35 +477,10 @@ public class UcteExporter implements Exporter {
 
     private void createBuses(UcteNetwork ucteNetwork, VoltageLevel voltageLevel) {
         VoltageLevel.BusBreakerView busBreakerView = voltageLevel.getBusBreakerView();
-        Iterable<Bus> buses = busBreakerView.getBuses();
-        for (Bus bus : buses) {
-            LOGGER.info("---------------BUS------------------");
-            LOGGER.info(" Bus id = {}", bus.getId());
-            LOGGER.info(" Bus name = {}", bus.getName());
-            LOGGER.info(" V = {}", bus.getV());
-            LOGGER.info(" P = {}", bus.getP());
-            LOGGER.info(" Q = {}", bus.getQ());
-            LOGGER.info(" Angle = {}", bus.getAngle());
+        busBreakerView.getBusStream().forEach(bus -> {
+            LOGGER.debug("Converting bus {}", bus.getId());
             createBus(ucteNetwork, bus);
-
-            LOGGER.info("-----------GENERATORS--------");
-            Iterable<Generator> generators = bus.getGenerators();
-            for (Generator generator : generators) {
-                LOGGER.info("-----------GENERATOR--------");
-                LOGGER.info(" Id = {}", generator.getId());
-                LOGGER.info(" Name = {}", generator.getName());
-                LOGGER.info(" Energy source = {}", generator.getEnergySource());
-                LOGGER.info(" RatedS = {}", generator.getRatedS());
-                LOGGER.info(" MaxP = {}", generator.getMaxP());
-                LOGGER.info(" MinP = {}", generator.getMinP());
-                LOGGER.info(" TargetP = {}", generator.getTargetP());
-                LOGGER.info(" TargetV = {}", generator.getTargetV());
-                LOGGER.info(" TargetQ = {}", generator.getTargetQ());
-                LOGGER.info(" ReactiveLimitsOrdinal = {}", generator.getReactiveLimits().getKind().ordinal());
-
-            }
-            createTwoWindingTransformers(ucteNetwork, bus);
-        }
+        });
     }
 
     private void createBus(UcteNetwork ucteNetwork, Bus bus) {
@@ -487,9 +505,6 @@ public class UcteExporter implements Exporter {
             Load load = (Load) voltageLevel.getLoadStream().toArray()[0];
             p0 = (float) load.getP0();
             q0 = (float) load.getQ0();
-            LOGGER.info("-------------LOAD--------------");
-            LOGGER.info("P0 = {}", p0);
-            LOGGER.info("Q0 = {}", q0);
         }
 
         if (generatorCount == 1) { //the node is a generator
@@ -537,10 +552,6 @@ public class UcteExporter implements Exporter {
         );
         ucteNode.setPowerPlantType(uctePowerPlantType);
         ucteNetwork.addNode(ucteNode);
-    }
-
-    boolean isNotAlreadyCreated(UcteNetwork ucteNetwork, UcteElementId ucteElementId) {
-        return ucteNetwork.getTransformer(ucteElementId) == null;
     }
 
     UcteNodeCode iidmIdToUcteNodeCode(String id) {
