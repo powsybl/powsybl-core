@@ -37,15 +37,16 @@ class ProportionalScalable extends AbstractCompoundScalable {
         this.percentages = Objects.requireNonNull(percentages);
     }
 
+
     @Override
-    public double scale(Network n, double asked) {
+    public double scale(Network n, double asked, ScalingPowerConvention scalingConvention) {
         Objects.requireNonNull(n);
 
         double done = 0;
         for (int i = 0; i < scalables.size(); i++) {
             Scalable s = scalables.get(i);
             double p = percentages.get(i);
-            done += s.scale(n, p / 100 * asked);
+            done += s.scale(n, p / 100 * asked, scalingConvention);
         }
         return done;
     }

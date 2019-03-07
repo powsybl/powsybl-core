@@ -43,13 +43,39 @@ abstract class AbstractCompoundScalable extends AbstractScalable {
 
     @Override
     public double maximumValue(Network n) {
+        return maximumValue(n, ScalingPowerConvention.GENERATOR);
+    }
+
+    @Override
+    public double maximumValue(Network n, ScalingPowerConvention powerConvention) {
         Objects.requireNonNull(n);
 
         double value = 0;
         for (Scalable scalable : scalables) {
-            value += scalable.maximumValue(n);
+            value += scalable.maximumValue(n, powerConvention);
         }
         return value;
+    }
+
+    @Override
+    public double minimumValue(Network n) {
+        return minimumValue(n, ScalingPowerConvention.GENERATOR);
+    }
+
+    @Override
+    public double minimumValue(Network n, ScalingPowerConvention powerConvention) {
+        Objects.requireNonNull(n);
+
+        double value = 0;
+        for (Scalable scalable : scalables) {
+            value += scalable.minimumValue(n, powerConvention);
+        }
+        return value;
+    }
+
+    @Override
+    public double scale(Network n, double asked) {
+        return scale(n, asked, ScalingPowerConvention.GENERATOR);
     }
 
     @Override

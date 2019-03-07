@@ -43,8 +43,13 @@ class ScalableAdapter extends AbstractScalable {
     }
 
     @Override
-    public double maximumValue(Network n) {
-        return getScalable(n).maximumValue(n);
+    public double maximumValue(Network n, ScalingPowerConvention scalingConvention) {
+        return getScalable(n).maximumValue(n, scalingConvention);
+    }
+
+    @Override
+    public double minimumValue(Network n, ScalingPowerConvention scalingConvention) {
+        return getScalable(n).minimumValue(n, scalingConvention);
     }
 
     @Override
@@ -52,8 +57,9 @@ class ScalableAdapter extends AbstractScalable {
         getScalable(network).filterInjections(network, injections, notFound);
     }
 
+
     @Override
-    public double scale(Network n, double asked) {
-        return getScalable(n).scale(n, asked);
+    public double scale(Network n, double asked, ScalingPowerConvention scalingConvention) {
+        return getScalable(n).scale(n, asked, scalingConvention);
     }
 }

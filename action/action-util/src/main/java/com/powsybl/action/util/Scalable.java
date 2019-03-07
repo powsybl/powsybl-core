@@ -22,6 +22,14 @@ import java.util.stream.Collectors;
 public interface Scalable {
 
     /**
+     * By default use Generator convention
+     */
+    enum ScalingPowerConvention {
+        GENERATOR,
+        LOAD,
+    }
+
+    /**
      * Get the constant active power in MW injected at the network.
      */
     double initialValue(Network n);
@@ -33,8 +41,25 @@ public interface Scalable {
 
     /**
      * Get the maximal active power in MW.
+     * Uses Generator convention by default
      */
     double maximumValue(Network n);
+
+    /**
+     * Get the minimal active power in MW.
+     * Uses Generator convention by default
+     */
+    double minimumValue(Network n);
+
+    /**
+     * Get the maximal active power in MW with scaling convention.
+     */
+    double maximumValue(Network n, ScalingPowerConvention scalingConvention);
+
+    /**
+     * Get the minimal active power in MW with scaling convention.
+     */
+    double minimumValue(Network n, ScalingPowerConvention scalingConvention);
 
     /**
      * @deprecated listGenerators should be replaced by filterInjections
@@ -67,17 +92,53 @@ public interface Scalable {
     /**
      * @param n network
      * @param asked value asked to adjust the scalable active power
+     * Uses Generator convention by default
      * @return the actual value of the scalable active power adjustment
      */
     double scale(Network n, double asked);
 
+    /**
+     * @param n network
+     * @param asked value asked to adjust the scalable active power
+     * @return the actual value of the scalable active power adjustment
+     */
+    double scale(Network n, double asked, ScalingPowerConvention scalingConvention);
 
+    /**
+     * @deprecated gen should be replaced by onGenerator
+     */
+    @Deprecated
     static GeneratorScalable gen(String id) {
         return new GeneratorScalable(id);
     }
 
-    static LoadScalable load(String id) {
-        return new LoadScalable(id);
+
+    /**
+     * create GeneratorScalable with id
+     */
+    static GeneratorScalable onGenerator(String id) {
+        return new GeneratorScalable(id);
+    }
+
+    /**
+     * create GeneratorScalable with id, min and max power values for scaling
+     */
+    static GeneratorScalable onGenerator(String id, double minValue, double maxValue) {
+        return new GeneratorScalable(id, minValue, maxValue);
+    }
+
+    /**
+     * create LoadScalable with id
+     */
+    static LoadScalable onLoad(String id) {
+        return new LoadScalable(id); //onLoad
+    }
+
+    /**
+     * create LoadScalable with id, min and max power values for scaling
+     */
+    static LoadScalable onLoad(String id, double minValue, double maxValue) {
+        return new LoadScalable(id, minValue, maxValue);
     }
 
     static Scalable scalable(String id) {

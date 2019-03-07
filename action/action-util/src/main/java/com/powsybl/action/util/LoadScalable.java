@@ -6,6 +6,7 @@
  */
 package com.powsybl.action.util;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,22 +17,38 @@ import java.util.Objects;
 /**
  * @author Ameni Walha <ameni.walha at rte-france.com>
  */
-public class LoadScalable extends AbstractScalable {
+class LoadScalable extends AbstractScalable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadScalable.class);
 
     private final String id;
 
-    private double maxValue = Double.POSITIVE_INFINITY;
+    private final double maxValue;
 
-    public LoadScalable(String id) {
-        this.id = Objects.requireNonNull(id);
+    private final double minValue;
+
+
+    LoadScalable(String id) {
+        this(id, 0., Double.MAX_VALUE);
+
     }
 
-    public LoadScalable(String id, double maxValue) {
-        this.id = Objects.requireNonNull(id);
-        this.maxValue = maxValue;
+    LoadScalable(String id, double maxValue) {
+        this(id, 0., maxValue);
     }
+
+    LoadScalable(String id, double minValue, double maxValue) {
+        this.id = Objects.requireNonNull(id);
+        if (maxValue < minValue) {
+            throw new PowsyblException("Error creating LoadScalable " + id
+                    + " : maxValue should be bigger than minValue");
+        } else {
+            this.minValue = minValue;
+            this.maxValue = maxValue;
+        }
+
+    }
+
 
     @Override
     public double initialValue(Network n) {
@@ -53,11 +70,22 @@ public class LoadScalable extends AbstractScalable {
 
     /**
      * Set a maximum value of active power for the LoadScalable
-     * <p> by default Double.POSITIVE_INFINITY
+     * <p> by default Double.MAX_VALUE
      */
     @Override
-    public double maximumValue(Network n) {
-        return maxValue;
+    public double maximumValue(Network n, ScalingPowerConvention scalingConvention) {
+        return ScalingPowerConvention.LOAD.equals(scalingConvention) ? maxValue : -minValue;
+    }
+
+
+    /**
+     * Set a minimum value of active power for the LoadScalable
+     * <p> by default zero
+     */
+    @Override
+    public double minimumValue(Network n, ScalingPowerConvention scalingConvention) {
+        return ScalingPowerConvention.LOAD.equals(scalingConvention) ? minValue : -maxValue;
+
     }
 
     @Override
@@ -75,32 +103,55 @@ public class LoadScalable extends AbstractScalable {
         }
     }
 
+
+    /**
+     * @param n                 network
+     * @param asked             value asked to adjust the scalable active power
+     * @param scalingConvention
+     * If scalingConvention is LOAD, the load active power increases for positive "asked" and decreases inversely
+     * If scalingConvention is GENERATOR, the load active power decreases for positive "asked" and increases inversely
+     * @return actual value of adjusted active power in accordance with the scaling convention
+     */
     @Override
-    public double scale(Network n, double asked) {
-        //asked and done follow the Generator convention
-        //if asked > 0, P0 decreases and conversely
+    public double scale(Network n, double asked, ScalingPowerConvention scalingConvention) {
+
         Objects.requireNonNull(n);
-
         Load l = n.getLoad(id);
+
         double done = 0;
-        if (l != null) {
-            Terminal t = l.getTerminal();
-            if (!t.isConnected()) {
-                t.connect();
-                LOGGER.info("Connecting {}", l.getId());
-            }
-            done = Math.max(asked, l.getP0() - maximumValue(n));
-            double oldP0 = l.getP0();
-            l.setP0(l.getP0() - done);
-            LOGGER.info("Change active power setpoint of {} from {} to {} ",
-                    l.getId(), oldP0, l.getP0());
-        } else {
+        if (l == null) {
             LOGGER.warn("Load {} not found", id);
+            return done;
         }
+
+        Terminal t = l.getTerminal();
+        if (!t.isConnected()) {
+            t.connect();
+            LOGGER.info("Connecting {}", l.getId());
+        }
+
+        double oldP0 = l.getP0();
+        if (oldP0 < this.minimumValue(n, ScalingPowerConvention.LOAD) || oldP0 > this.maximumValue(n, ScalingPowerConvention.LOAD)) {
+            throw new PowsyblException("Error scaling LoadScalable " + id +
+                    " : Initial P is not in the range [Pmin, Pmax]");
+        }
+
+        double availableDown = oldP0 - minimumValue(n, ScalingPowerConvention.LOAD);
+        double availableUp = maximumValue(n, ScalingPowerConvention.LOAD) - oldP0;
+
+        if (ScalingPowerConvention.LOAD.equals(scalingConvention)) {
+            done = asked > 0 ? Math.min(asked, availableUp) : -Math.min(-asked, availableDown);
+            l.setP0(oldP0 + done);
+        } else {
+
+            done = asked > 0 ? Math.min(asked, availableDown) : -Math.min(-asked, availableUp);
+            l.setP0(oldP0 - done);
+
+        }
+
+        LOGGER.info("Change active power setpoint of {} from {} to {} ",
+                l.getId(), oldP0, l.getP0());
+
         return done;
-
-
     }
-
-
 }

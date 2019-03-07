@@ -6,6 +6,7 @@
  */
 package com.powsybl.action.util;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
@@ -22,19 +23,30 @@ public class LoadScalableTest {
     private Network network;
     private Scalable l1;
     private Scalable l2;
+    private Scalable l3;
+    private Scalable l4;
+    private Scalable.ScalingPowerConvention convention;
 
     @Before
     public void setUp() {
 
         network = createNetwork();
-        l1 = Scalable.load("l1");
+        l1 = Scalable.onLoad("l1");
 
         l2 = new LoadScalable("l1", 110);
+        l3 = new LoadScalable("l1", 20, 100);
+        l4 = new LoadScalable("l1", -10, 100);
+
     }
 
     @Test(expected = NullPointerException.class)
     public void testConstructorThrowWhenIdIsNull() {
         new LoadScalable(null);
+    }
+
+    @Test(expected = PowsyblException.class)
+    public void testConstructorInvalidP() {
+        new LoadScalable("l1", 10, 0);
     }
 
     @Test
@@ -45,21 +57,123 @@ public class LoadScalableTest {
 
     @Test
     public void testMaximumlValue() {
-        assertEquals(Double.POSITIVE_INFINITY, l1.maximumValue(network), 1e-3);
+        assertEquals(Double.MAX_VALUE, l1.maximumValue(network, Scalable.ScalingPowerConvention.LOAD), 0.);
+        assertEquals(-20, l3.maximumValue(network), 0.);
+        assertEquals(-20, l3.maximumValue(network, Scalable.ScalingPowerConvention.GENERATOR), 0.);
+        assertEquals(100, l3.maximumValue(network, Scalable.ScalingPowerConvention.LOAD), 0.);
     }
 
     @Test
-    public void testLoadScale() {
+    public void testMinimumlValue() {
+        assertEquals(0, l1.minimumValue(network, Scalable.ScalingPowerConvention.LOAD), 0.);
+        assertEquals(-100, l3.minimumValue(network), 0.);
+        assertEquals(-100, l3.minimumValue(network, Scalable.ScalingPowerConvention.GENERATOR), 0.);
+        assertEquals(20, l3.minimumValue(network, Scalable.ScalingPowerConvention.LOAD), 0.);
+    }
+
+    @Test
+    public void testLoadScaleGeneratorConvention() {
+
+        //test with ScalingPowerConvention.GENERATOR (by default)
+        convention = Scalable.ScalingPowerConvention.GENERATOR;
+
+        //test with default maxValue = Double.MAX_VALUE and minValue = 0
         Load load = network.getLoad("l1");
         assertEquals(100, load.getP0(), 1e-3);
-        assertEquals(20, l1.scale(network, 20), 1e-3);
-        assertEquals(-40, l1.scale(network, -40), 1e-3);
+        assertEquals(20, l1.scale(network, 20, convention), 1e-3);
+        assertEquals(80, load.getP0(), 1e-3);
+        assertEquals(-40, l1.scale(network, -40, convention), 1e-3);
+        assertEquals(120, load.getP0(), 1e-3);
+
+        //test minValue = 0
+        assertEquals(120, l1.scale(network, 140, convention), 1e-3);
+        assertEquals(0, load.getP0(), 1e-3);
 
         //test with a maximum value
+        l2.reset(network);
+        assertEquals(0, load.getP0(), 1e-3);
+        assertEquals(-40, l2.scale(network, -40, convention), 1e-3);
+        assertEquals(40, load.getP0(), 1e-3);
+        assertEquals(-70, l2.scale(network, -80, convention), 1e-3);
+        assertEquals(110, load.getP0(), 1e-3);
+        assertEquals(110, l2.scale(network, 120, convention), 1e-3);
+        assertEquals(0, load.getP0(), 1e-3);
+        assertEquals(-50, l2.scale(network, -50, convention), 1e-3);
+        assertEquals(50, load.getP0(), 1e-3);
+
+        //test with minValue = 20
+        assertEquals(100, l3.maximumValue(network, Scalable.ScalingPowerConvention.LOAD), 1e-3);
+        assertEquals(20, l3.minimumValue(network, Scalable.ScalingPowerConvention.LOAD), 1e-3);
+        assertEquals(50, load.getP0(), 1e-3);
+
+        assertEquals(30, l3.scale(network, 50, convention), 1e-3);
+        assertEquals(20, load.getP0(), 1e-3);
+
+
+        l3.reset(network);
+        assertEquals(0, load.getP0(), 1e-3);
+        try {
+            l3.scale(network, -40, convention);
+            fail("My method didn't throw when I expected it to");
+        } catch (PowsyblException e) {
+            assertEquals("Error scaling LoadScalable l1 : Initial P is not in the range [Pmin, Pmax]", e.getMessage());
+        }
+
+        //test LoadScalable with negative minValue
+        l4.reset(network);
+        assertEquals(0, load.getP0(), 1e-3);
+        assertEquals(10, l4.scale(network, 20, convention), 1e-3);
+        assertEquals(-10, load.getP0(), 1e-3);
+
+    }
+
+    @Test
+    public void testLoadScaleLoadConvention() {
+
+        //test with ScalingPowerConvention.GENERATOR (by default)
+        convention = Scalable.ScalingPowerConvention.LOAD;
+
+        //test with default maxValue = Double.MAX_VALUE and minValue = 0
+        Load load = network.getLoad("l1");
+        assertEquals(100, load.getP0(), 1e-3);
+        assertEquals(20, l1.scale(network, 20, convention), 1e-3);
         assertEquals(120, load.getP0(), 1e-3);
-        assertEquals(10, l2.scale(network, -40), 1e-3);
-        assertEquals(40, l2.scale(network, 40), 1e-3);
-        assertEquals(-40, l2.scale(network, -50), 1e-3);
+        assertEquals(-40, l1.scale(network, -40, convention), 1e-3);
+        assertEquals(80, load.getP0(), 1e-3);
+
+        //test minValue = 0
+        assertEquals(-80, l1.scale(network, -140, convention), 1e-3);
+        assertEquals(0, load.getP0(), 1e-3);
+
+        //test with a maximum value
+        l2.reset(network);
+        assertEquals(0, load.getP0(), 1e-3);
+        assertEquals(0, l2.scale(network, -40, convention), 1e-3);
+        assertEquals(0, load.getP0(), 1e-3);
+        assertEquals(110, l2.scale(network, 120, convention), 1e-3);
+        assertEquals(110, load.getP0(), 1e-3);
+        assertEquals(-80, l2.scale(network, -80, convention), 1e-3);
+        assertEquals(30, load.getP0(), 1e-3);
+
+        //test with minValue = 20
+        assertEquals(-10, l3.scale(network, -30, convention), 1e-3);
+        assertEquals(20, load.getP0(), 1e-3);
+
+
+        l3.reset(network);
+        assertEquals(0, load.getP0(), 1e-3);
+        try {
+            l3.scale(network, -40, convention);
+            fail("My method didn't throw when I expected it to");
+        } catch (PowsyblException e) {
+            assertEquals("Error scaling LoadScalable l1 : Initial P is not in the range [Pmin, Pmax]", e.getMessage());
+        }
+
+        //test LoadScalable with negative minValue
+        l4.reset(network);
+        assertEquals(0, load.getP0(), 1e-3);
+        assertEquals(-10, l4.scale(network, -20, convention), 1e-3);
+        assertEquals(-10, load.getP0(), 1e-3);
 
     }
 }
