@@ -911,8 +911,10 @@ public class RemoteAppStorage implements AppStorage {
 
     @Override
     public void close() {
-        flush();
-        closed = true;
-        client.close();
+        if (!closed) {
+            flush();
+            client.close();
+            closed = true;
+        }
     }
 }
