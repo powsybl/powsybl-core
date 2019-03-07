@@ -21,10 +21,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import java.io.ByteArrayInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.FileSystems;
 
 import static org.junit.Assert.*;
@@ -54,10 +51,10 @@ public class UcteExporterTest {
 
         MemDataSource exportedDataSource = new MemDataSource();
         new UcteExporter().export(network, null, exportedDataSource);
-
-        try (InputStream exportedData = new ByteArrayInputStream(exportedDataSource.getData(null, "uct"))) {
-            InputStream expectedData = new FileInputStream(FileSystems.getDefault().getPath("./src/test/resources/expectedExport.uct").toFile());
-            assertTrue(IOUtils.contentEquals(expectedData, exportedData));
+        try (Reader exportedData = new InputStreamReader(new ByteArrayInputStream(exportedDataSource.getData(null, "uct")))) {
+            Reader expectedData = new InputStreamReader(
+                    new FileInputStream(FileSystems.getDefault().getPath("./src/test/resources/expectedExport.uct").toFile()));
+            assertTrue(IOUtils.contentEqualsIgnoreEOL(expectedData, exportedData));
         }
 
         exception.expect(IllegalArgumentException.class);
