@@ -39,6 +39,18 @@ public abstract class AbstractOptions<T> {
         return extensions == null;
     }
 
+    public boolean hasAtLeastOneExtension(Set<String> extensions) {
+        if (withAllExtensions()) {
+            return true;
+        }
+        for (String extension : extensions) {
+            if (this.extensions.contains(extension)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public  boolean withExtension(String extensionName) {
         return withAllExtensions() || Optional.ofNullable(extensions).orElse(new HashSet<>()).contains(extensionName);
     }

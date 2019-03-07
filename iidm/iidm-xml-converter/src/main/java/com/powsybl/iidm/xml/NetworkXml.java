@@ -167,7 +167,7 @@ public final class NetworkXml {
     }
 
     private static void writeExtension(Extension<? extends Identifiable<?>> extension, NetworkXmlWriterContext context) throws XMLStreamException {
-        XMLStreamWriter writer = context.getExtensionswWriter();
+        XMLStreamWriter writer = context.getExtensionsWriter();
         ExtensionXmlSerializer extensionXmlSerializer = getExtensionXmlSerializer(context.getOptions(),
                 extension.getName());
 
@@ -198,7 +198,7 @@ public final class NetworkXml {
         return extensionXmlSerializer;
     }
 
-    public static Map<String, Set<String>> getIdentifiablesPerExtensionType(Network n) {
+    static Map<String, Set<String>> getIdentifiablesPerExtensionType(Network n) {
         Map<String, Set<String>> extensionsPerType = new HashMap<>();
         for (Identifiable<?> identifiable : n.getIdentifiables()) {
             for (Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
@@ -208,21 +208,29 @@ public final class NetworkXml {
         return extensionsPerType;
     }
 
+    private static Set<String> getExtensionsName(Collection<? extends Extension<? extends Identifiable<?>>> extensions) {
+        Set<String> extensionsSet = new HashSet<>();
+        for (Extension<? extends Identifiable<?>> extension : extensions) {
+            extensionsSet.add(extension.getName());
+        }
+        return extensionsSet;
+    }
+
     private static void writeExtensions(Network n, NetworkXmlWriterContext context, ExportOptions options) throws XMLStreamException {
 
         for (Identifiable<?> identifiable : n.getIdentifiables()) {
             Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions();
-            if (!context.isExportedEquipment(identifiable) || extensions.isEmpty()) {
+            if (!context.isExportedEquipment(identifiable) || extensions.isEmpty() || !options.hasAtLeastOneExtension(getExtensionsName(extensions))) {
                 continue;
             }
-            context.getExtensionswWriter().writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
-            context.getExtensionswWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
-            for (Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
+            context.getExtensionsWriter().writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
+            context.getExtensionsWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
+            for (Extension<? extends Identifiable<?>> extension : extensions) {
                 if (options.withExtension(extension.getName())) {
                     writeExtension(extension, context);
                 }
             }
-            context.getExtensionswWriter().writeEndElement();
+            context.getExtensionsWriter().writeEndElement();
         }
     }
 
@@ -248,7 +256,7 @@ public final class NetworkXml {
         writer.writeEndDocument();
     }
 
-    public static void writeExtensionsInMultipleFile(Network n, NetworkXmlWriterContext context, DataSource dataSource, ExportOptions options) throws XMLStreamException, IOException {
+    private static void writeExtensionsInMultipleFile(Network n, NetworkXmlWriterContext context, DataSource dataSource, ExportOptions options) throws XMLStreamException, IOException {
         //here we right one extension type  per file
         Map<String, Set<String>> m = getIdentifiablesPerExtensionType(n);
 
@@ -272,7 +280,7 @@ public final class NetworkXml {
         }
     }
 
-    public static NetworkXmlWriterContext writeBaseNetwork(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
+    private static NetworkXmlWriterContext writeBaseNetwork(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
 
         // create the  writer of the base file
         final XMLStreamWriter writer = initializeWriter(n, os, options);
@@ -467,7 +475,7 @@ public final class NetworkXml {
 
 
     // To read extensions from multiple extension files
-    public static void readExtensions(Network network, ReadOnlyDataSource dataSource, Anonymizer anonymizer, ImportOptions options, String ext) throws IOException {
+    static void readExtensions(Network network, ReadOnlyDataSource dataSource, Anonymizer anonymizer, ImportOptions options, String ext) throws IOException {
         options.getExtensions().ifPresent(extensions -> {
             for (String extension : extensions) {
                 try (InputStream ise = dataSource.newInputStream(network.getName() + "-" + extension + "." + ext)) {
@@ -490,7 +498,7 @@ public final class NetworkXml {
     }
 
     // To read extensions from an extensions file
-    public static Network readExtensions(Network network, InputStream ise, Anonymizer anonymizer, ImportOptions options) {
+    static Network readExtensions(Network network, InputStream ise, Anonymizer anonymizer, ImportOptions options) {
         try {
             XMLStreamReader reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(ise);
             int state = reader.next();

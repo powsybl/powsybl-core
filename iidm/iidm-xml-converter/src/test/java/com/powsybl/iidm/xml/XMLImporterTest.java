@@ -14,6 +14,8 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.IidmImportExportMode;
+import com.powsybl.iidm.export.ExportOptions;
+import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,6 +24,7 @@ import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -258,5 +261,14 @@ public class XMLImporterTest extends AbstractConverterTest {
         Network network2 = importFromSingleFile(extensionsList2);
         assertEquals(1, network2.getLoad("LOAD").getExtensions().size());
         assertEquals(1, network2.getLoad("LOAD2").getExtensions().size());
+    }
+
+    @Test
+    public void testing() {
+        Network network = Importers.loadNetwork("/home/benhamedcha/Documents/situ_nicolas.xiidm");
+        ExportOptions options = new ExportOptions()
+                .setMode(IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE);
+        //.addExtension("busbarSectionPosition");
+        NetworkXml.write(network, options, Paths.get("/tmp/a.xiidm"));
     }
 }
