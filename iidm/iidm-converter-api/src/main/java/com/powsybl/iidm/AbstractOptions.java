@@ -14,7 +14,7 @@ import java.util.Set;
  * @author Chamseddine BENHAMED <chamseddine.benhamed at rte-france.com>
  */
 public abstract class AbstractOptions<T> {
-    protected Optional<Set<String>> extensions = Optional.empty();
+    protected Set<String> extensions = null;
 
     protected IidmImportExportMode mode = IidmImportExportMode.UNIQUE_FILE;
 
@@ -48,19 +48,31 @@ public abstract class AbstractOptions<T> {
     public abstract T addExtension(String extension);
 
     public Optional<Set<String>> getExtensions() {
-        return this.extensions;
+        return Optional.ofNullable(extensions);
     }
 
     public boolean withNoExtension() {
-        return extensions.map(Set::isEmpty).orElse(false);
+        return Optional.ofNullable(extensions).map(Set::isEmpty).orElse(false);
     }
 
     public  boolean withAllExtensions() {
-        return !extensions.isPresent();
+        return extensions == null;
+    }
+
+    public boolean hasAtLeastOneExtension(Set<String> extensions) {
+        if (withAllExtensions()) {
+            return true;
+        }
+        for (String extension : extensions) {
+            if (this.extensions.contains(extension)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public  boolean withExtension(String extensionName) {
-        return withAllExtensions() || extensions.orElse(new HashSet<>()).contains(extensionName);
+        return withAllExtensions() || Optional.ofNullable(extensions).orElse(new HashSet<>()).contains(extensionName);
     }
 
     public IidmImportExportMode getMode() {

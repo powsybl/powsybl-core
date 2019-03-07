@@ -57,7 +57,7 @@ public class NetworkXmlWriterContext extends AbstractConverterContext<ExportOpti
         return options;
     }
 
-    public XMLStreamWriter getExtensionswWriter() {
+    public XMLStreamWriter getExtensionsWriter() {
         return extensionsWriter;
     }
 

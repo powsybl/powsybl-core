@@ -11,7 +11,6 @@ import com.powsybl.iidm.AbstractOptions;
 import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.IidmImportExportType;
 
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -55,7 +54,7 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
 
     @Override
     public ImportOptions setExtensions(Set<String> extensions) {
-        this.extensions = Optional.ofNullable(extensions);
+        this.extensions = extensions;
         return this;
     }
 
@@ -72,10 +71,10 @@ public class ImportOptions extends AbstractOptions<ImportOptions> {
 
     @Override
     public ImportOptions addExtension(String extension) {
-        if (extensions.isPresent()) {
-            extensions.get().add(extension);
+        if (extensions != null) {
+            extensions.add(extension);
         } else {
-            this.extensions = Optional.of(Sets.newHashSet(extension));
+            this.extensions = Sets.newHashSet(extension);
         }
         return this;
     }

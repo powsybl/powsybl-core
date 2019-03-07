@@ -17,6 +17,10 @@ public class PluginInfo<T> {
 
     private final String pluginName;
 
+    public PluginInfo(Class<T> pluginClass) {
+        this(pluginClass, pluginClass.getSimpleName());
+    }
+
     public PluginInfo(Class<T> pluginClass, String pluginName) {
         this.pluginClass = Objects.requireNonNull(pluginClass);
         this.pluginName = Objects.requireNonNull(pluginName);
