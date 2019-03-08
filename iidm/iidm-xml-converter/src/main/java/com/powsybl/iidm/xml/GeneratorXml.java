@@ -34,6 +34,16 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
     }
 
     @Override
+    boolean hasStateValues(Generator g) {
+        return isTerminalHavingStateValues(g.getTerminal());
+    }
+
+    @Override
+    boolean hasControlValues(Generator g) {
+        return true;
+    }
+
+    @Override
     protected void writeRootElementAttributes(Generator g, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
             context.getWriter().writeAttribute("energySource", g.getEnergySource().name());
@@ -48,7 +58,7 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
             XmlUtil.writeDouble("targetQ", g.getTargetQ(), context.getWriter());
         }
         if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM ||
-                (context.getOptions().isTopo() && context.getTargetFile() == IncrementalIidmFiles.TOPO)) {
+                (context.getTargetFile() == IncrementalIidmFiles.TOPO)) {
             writeNodeOrBus(null, g.getTerminal(), context);
         }
         if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM ||

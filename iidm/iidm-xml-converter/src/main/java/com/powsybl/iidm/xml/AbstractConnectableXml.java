@@ -30,6 +30,15 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
 
     private static final String CURRENT_LIMITS = "currentLimits";
 
+    abstract boolean hasStateValues(T connectable);
+
+    abstract boolean hasControlValues(T connectable);
+
+    boolean isTerminalHavingStateValues(Terminal t) {
+        return  !(Double.isNaN(t.getP()) && Double.isNaN(t.getQ()));
+
+    }
+
     private static String indexToString(Integer index) {
         return index != null ? index.toString() : "";
     }

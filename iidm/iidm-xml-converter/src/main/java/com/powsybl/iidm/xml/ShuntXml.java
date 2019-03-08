@@ -35,6 +35,16 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
     }
 
     @Override
+    boolean hasControlValues(ShuntCompensator sc) {
+        return true;
+    }
+
+    @Override
+    boolean hasStateValues(ShuntCompensator sc) {
+        return isTerminalHavingStateValues(sc.getTerminal());
+    }
+
+    @Override
     protected void writeRootElementAttributes(ShuntCompensator sc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
             XmlUtil.writeDouble("bPerSection", sc.getbPerSection(), context.getWriter());

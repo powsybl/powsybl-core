@@ -36,6 +36,16 @@ class LoadXml extends AbstractConnectableXml<Load, LoadAdder, VoltageLevel> {
     }
 
     @Override
+    boolean hasControlValues(Load l) {
+        return false;
+    }
+
+    @Override
+    boolean hasStateValues(Load l) {
+        return isTerminalHavingStateValues(l.getTerminal());
+    }
+
+    @Override
     protected void writeRootElementAttributes(Load l, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
             context.getWriter().writeAttribute("loadType", l.getLoadType().name());

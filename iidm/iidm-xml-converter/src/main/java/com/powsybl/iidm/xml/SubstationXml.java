@@ -33,21 +33,42 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
         return true;
     }
 
-    public boolean hasControlElements(Substation s, NetworkXmlWriterContext context) {
+    boolean hasControlValues(Substation s, NetworkXmlWriterContext context) {
         Iterable<TwoWindingsTransformer> twts = s.getTwoWindingsTransformers();
         for (TwoWindingsTransformer twt : twts) {
-            if (twt.getRatioTapChanger() != null || twt.getPhaseTapChanger() != null) {
+            if (TwoWindingsTransformerXml.INSTANCE.hasControlValues(twt)) {
                 return true;
             }
         }
         Iterable<ThreeWindingsTransformer> twts2 = s.getThreeWindingsTransformers();
         for (ThreeWindingsTransformer twt : twts2) {
-            if (twt.getLeg2().getRatioTapChanger() != null || twt.getLeg3().getRatioTapChanger() != null) {
+            if (ThreeWindingsTransformerXml.INSTANCE.hasControlValues(twt)) {
                 return true;
             }
         }
         for (VoltageLevel vl : s.getVoltageLevels()) {
-            if (VoltageLevelXml.INSTANCE.hasControlElements(vl)) {
+            if (VoltageLevelXml.INSTANCE.hasControlValues(vl, context)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    boolean hasStateValues(Substation s, NetworkXmlWriterContext context) {
+        Iterable<TwoWindingsTransformer> twts = s.getTwoWindingsTransformers();
+        for (TwoWindingsTransformer twt : twts) {
+            if (TwoWindingsTransformerXml.INSTANCE.hasStateValues(twt)) {
+                return true;
+            }
+        }
+        Iterable<ThreeWindingsTransformer> twts2 = s.getThreeWindingsTransformers();
+        for (ThreeWindingsTransformer twt : twts2) {
+            if (ThreeWindingsTransformerXml.INSTANCE.hasStateValues(twt)) {
+                return true;
+            }
+        }
+        for (VoltageLevel vl : s.getVoltageLevels()) {
+            if (VoltageLevelXml.INSTANCE.hasStateValues(vl, context)) {
                 return true;
             }
         }
@@ -72,22 +93,26 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
     @Override
     protected void writeSubElements(Substation s, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         for (VoltageLevel vl : s.getVoltageLevels()) {
-            if ((vl.getShuntCompensatorCount() + vl.getGeneratorCount() + vl.getStaticVarCompensatorCount()) == 0 &&
-                    context.getTargetFile() == IncrementalIidmFiles.CONTROL) {
+            if ((!VoltageLevelXml.INSTANCE.hasControlValues(vl, context) && context.getTargetFile() == IncrementalIidmFiles.CONTROL) ||
+                    (!VoltageLevelXml.INSTANCE.hasStateValues(vl, context) && context.getTargetFile() == IncrementalIidmFiles.STATE)) {
                 continue;
             }
             VoltageLevelXml.INSTANCE.write(vl, null, context);
         }
         Iterable<TwoWindingsTransformer> twts = s.getTwoWindingsTransformers();
         for (TwoWindingsTransformer twt : twts) {
-            if (!context.getFilter().test(twt)) {
+            if (!context.getFilter().test(twt) ||
+                    (!TwoWindingsTransformerXml.INSTANCE.hasControlValues(twt) && context.getTargetFile() == IncrementalIidmFiles.CONTROL) ||
+                    (!TwoWindingsTransformerXml.INSTANCE.hasStateValues(twt) && context.getTargetFile() == IncrementalIidmFiles.STATE)) {
                 continue;
             }
             TwoWindingsTransformerXml.INSTANCE.write(twt, null, context);
         }
         Iterable<ThreeWindingsTransformer> twts2 = s.getThreeWindingsTransformers();
         for (ThreeWindingsTransformer twt : twts2) {
-            if (!context.getFilter().test(twt)) {
+            if (!context.getFilter().test(twt) ||
+                    (!ThreeWindingsTransformerXml.INSTANCE.hasControlValues(twt) && context.getTargetFile() == IncrementalIidmFiles.CONTROL) ||
+                    (!ThreeWindingsTransformerXml.INSTANCE.hasStateValues(twt) && context.getTargetFile() == IncrementalIidmFiles.STATE)) {
                 continue;
             }
             ThreeWindingsTransformerXml.INSTANCE.write(twt, null, context);

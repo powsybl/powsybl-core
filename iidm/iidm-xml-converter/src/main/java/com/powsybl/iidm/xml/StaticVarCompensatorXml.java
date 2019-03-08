@@ -34,6 +34,16 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
     }
 
     @Override
+    boolean hasControlValues(StaticVarCompensator svc) {
+        return true;
+    }
+
+    @Override
+    boolean hasStateValues(StaticVarCompensator svc) {
+        return isTerminalHavingStateValues(svc.getTerminal());
+    }
+
+    @Override
     protected void writeRootElementAttributes(StaticVarCompensator svc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
             XmlUtil.writeDouble("bMin", svc.getBmin(), context.getWriter());

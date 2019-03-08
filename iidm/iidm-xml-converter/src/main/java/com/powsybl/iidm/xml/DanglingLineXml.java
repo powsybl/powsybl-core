@@ -35,6 +35,16 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
     }
 
     @Override
+    boolean hasControlValues(DanglingLine l) {
+        return false;
+    }
+
+    @Override
+    boolean hasStateValues(DanglingLine l) {
+        return isTerminalHavingStateValues(l.getTerminal());
+    }
+
+    @Override
     protected void writeRootElementAttributes(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
             XmlUtil.writeDouble("p0", dl.getP0(), context.getWriter());

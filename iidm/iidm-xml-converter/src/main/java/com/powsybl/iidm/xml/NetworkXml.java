@@ -376,12 +376,14 @@ public final class NetworkXml {
             NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter);
             context.setTargetFile(targetFile);
             for (Substation s : n.getSubstations()) {
-                if (targetFile == IncrementalIidmFiles.CONTROL && !SubstationXml.INSTANCE.hasControlElements(s, context)) {
+                if ((targetFile == IncrementalIidmFiles.CONTROL && !SubstationXml.INSTANCE.hasControlValues(s, context)) ||
+                        (targetFile == IncrementalIidmFiles.STATE && !SubstationXml.INSTANCE.hasStateValues(s, context))) {
                     continue;
                 }
                 SubstationXml.INSTANCE.write(s, null, context);
             }
-            if (targetFile == IncrementalIidmFiles.STATE) {
+            if ((targetFile == IncrementalIidmFiles.STATE && context.getOptions().isWithBranchSV()) ||
+                    targetFile == IncrementalIidmFiles.TOPO) {
                 for (Line l : n.getLines()) {
                     if (!filter.test(l)) {
                         continue;
@@ -389,15 +391,19 @@ public final class NetworkXml {
                     if (l.isTieLine()) {
                         TieLineXml.INSTANCE.write((TieLine) l, n, context);
                     } else {
-                        LineXml.INSTANCE.write(l, n, context);
+                        if (targetFile == IncrementalIidmFiles.STATE || LineXml.INSTANCE.hasStateValues(l)) {
+                            LineXml.INSTANCE.write(l, n, context);
+                        }
                     }
                 }
             }
-            for (HvdcLine l : n.getHvdcLines()) {
-                if (!filter.test(l.getConverterStation1()) || !filter.test(l.getConverterStation2())) {
-                    continue;
+            if (targetFile == IncrementalIidmFiles.CONTROL) {
+                for (HvdcLine l : n.getHvdcLines()) {
+                    if (!filter.test(l.getConverterStation1()) || !filter.test(l.getConverterStation2())) {
+                        continue;
+                    }
+                    HvdcLineXml.INSTANCE.write(l, n, context);
                 }
-                HvdcLineXml.INSTANCE.write(l, n, context);
             }
             writeEndElement(writer);
         } catch (XMLStreamException e) {

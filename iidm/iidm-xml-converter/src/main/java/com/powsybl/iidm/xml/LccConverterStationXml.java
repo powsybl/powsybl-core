@@ -35,6 +35,16 @@ public class LccConverterStationXml extends AbstractConnectableXml<LccConverterS
     }
 
     @Override
+    boolean hasControlValues(LccConverterStation cs) {
+        return false;
+    }
+
+    @Override
+    boolean hasStateValues(LccConverterStation cs) {
+        return isTerminalHavingStateValues(cs.getTerminal());
+    }
+
+    @Override
     protected void writeRootElementAttributes(LccConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
             XmlUtil.writeFloat("lossFactor", cs.getLossFactor(), context.getWriter());

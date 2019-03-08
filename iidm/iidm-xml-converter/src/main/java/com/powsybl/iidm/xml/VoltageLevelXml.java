@@ -39,9 +39,192 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         return true;
     }
 
-    public boolean hasControlElements(VoltageLevel vl) {
-        return vl.getGeneratorCount() + vl.getStaticVarCompensatorCount() + vl.getShuntCompensatorCount() +
-                vl.getVscConverterStationCount() > 0;
+    private boolean isGeneratorsHavingControlValues(VoltageLevel vl, NetworkXmlWriterContext context) {
+        for (Generator g : vl.getGenerators()) {
+            if (!context.getFilter().test(g)) {
+                continue;
+            }
+            if (GeneratorXml.INSTANCE.hasControlValues(g)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isShuntCompensatorsHavingControlValues(VoltageLevel vl, NetworkXmlWriterContext context) {
+        for (ShuntCompensator sc : vl.getShuntCompensators()) {
+            if (!context.getFilter().test(sc)) {
+                continue;
+            }
+            if (ShuntXml.INSTANCE.hasControlValues(sc)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isLoadsHavingControlValues(VoltageLevel vl, NetworkXmlWriterContext context) {
+        for (Load l : vl.getLoads()) {
+            if (!context.getFilter().test(l)) {
+                continue;
+            }
+            if (LoadXml.INSTANCE.hasControlValues(l)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isStaticVarCompensatorsHavingControlValues(VoltageLevel vl, NetworkXmlWriterContext context) {
+        for (StaticVarCompensator svc : vl.getStaticVarCompensators()) {
+            if (!context.getFilter().test(svc)) {
+                continue;
+            }
+            if (StaticVarCompensatorXml.INSTANCE.hasControlValues(svc)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isVscConverterStationsHavingControlValues(VoltageLevel vl, NetworkXmlWriterContext context) {
+        for (VscConverterStation cs : vl.getVscConverterStations()) {
+            if (!context.getFilter().test(cs)) {
+                continue;
+            }
+            if (VscConverterStationXml.INSTANCE.hasControlValues(cs))  {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isLccConverterStationsHavingControlValues(VoltageLevel vl, NetworkXmlWriterContext context) {
+        for (LccConverterStation cs : vl.getLccConverterStations()) {
+            if (!context.getFilter().test(cs)) {
+                continue;
+            }
+            if (LccConverterStationXml.INSTANCE.hasControlValues(cs)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isDanglingLinesHavingControlValues(VoltageLevel vl, NetworkXmlWriterContext context) {
+        for (DanglingLine dl : vl.getDanglingLines()) {
+            if (!context.getFilter().test(dl)) {
+                continue;
+            }
+            if (DanglingLineXml.INSTANCE.hasControlValues(dl)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    boolean hasControlValues(VoltageLevel vl, NetworkXmlWriterContext context) {
+        return isGeneratorsHavingControlValues(vl, context) ||
+                isDanglingLinesHavingControlValues(vl, context) ||
+                isShuntCompensatorsHavingControlValues(vl, context) ||
+                isLoadsHavingControlValues(vl, context) ||
+                isStaticVarCompensatorsHavingControlValues(vl, context) ||
+                isVscConverterStationsHavingControlValues(vl, context) ||
+                isLccConverterStationsHavingControlValues(vl, context);
+    }
+
+    private boolean isGeneratorsHavingStateValues(VoltageLevel vl, NetworkXmlWriterContext context) {
+        for (Generator g : vl.getGenerators()) {
+            if (!context.getFilter().test(g)) {
+                continue;
+            }
+            if (GeneratorXml.INSTANCE.hasStateValues(g)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isShuntCompensatorsHavingStateValues(VoltageLevel vl, NetworkXmlWriterContext context) {
+        for (ShuntCompensator sc : vl.getShuntCompensators()) {
+            if (!context.getFilter().test(sc)) {
+                continue;
+            }
+            if (ShuntXml.INSTANCE.hasStateValues(sc)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isLoadsHavingStateValues(VoltageLevel vl, NetworkXmlWriterContext context) {
+        for (Load l : vl.getLoads()) {
+            if (!context.getFilter().test(l)) {
+                continue;
+            }
+            if (LoadXml.INSTANCE.hasStateValues(l)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isStaticVarCompensatorsHavingStateValues(VoltageLevel vl, NetworkXmlWriterContext context) {
+        for (StaticVarCompensator svc : vl.getStaticVarCompensators()) {
+            if (!context.getFilter().test(svc)) {
+                continue;
+            }
+            if (StaticVarCompensatorXml.INSTANCE.hasStateValues(svc)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isVscConverterStationsHavingStateValues(VoltageLevel vl, NetworkXmlWriterContext context) {
+        for (VscConverterStation cs : vl.getVscConverterStations()) {
+            if (!context.getFilter().test(cs)) {
+                continue;
+            }
+            if (VscConverterStationXml.INSTANCE.hasStateValues(cs))  {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isLccConverterStationsHavingStateValues(VoltageLevel vl, NetworkXmlWriterContext context) {
+        for (LccConverterStation cs : vl.getLccConverterStations()) {
+            if (!context.getFilter().test(cs)) {
+                continue;
+            }
+            if (LccConverterStationXml.INSTANCE.hasStateValues(cs)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean isDanglingLinesHavingStateValues(VoltageLevel vl, NetworkXmlWriterContext context) {
+        for (DanglingLine dl : vl.getDanglingLines()) {
+            if (!context.getFilter().test(dl)) {
+                continue;
+            }
+            if (DanglingLineXml.INSTANCE.hasStateValues(dl)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    boolean hasStateValues(VoltageLevel vl, NetworkXmlWriterContext context) {
+        return isGeneratorsHavingStateValues(vl, context) ||
+                isDanglingLinesHavingStateValues(vl, context) ||
+                isShuntCompensatorsHavingStateValues(vl, context) ||
+                isLoadsHavingStateValues(vl, context) ||
+                isStaticVarCompensatorsHavingStateValues(vl, context) ||
+                isVscConverterStationsHavingStateValues(vl, context) ||
+                isLccConverterStationsHavingStateValues(vl, context);
     }
 
     @Override
@@ -159,7 +342,9 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
             return;
         }
         for (Generator g : vl.getGenerators()) {
-            if (!context.getFilter().test(g)) {
+            if (!context.getFilter().test(g) ||
+                    (!GeneratorXml.INSTANCE.hasControlValues(g) && context.getTargetFile() == IncrementalIidmFiles.CONTROL) ||
+                    (!GeneratorXml.INSTANCE.hasStateValues(g) && context.getTargetFile() == IncrementalIidmFiles.STATE)) {
                 continue;
             }
             GeneratorXml.INSTANCE.write(g, vl, context);
@@ -172,7 +357,9 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
             return;
         }
         for (Load l : vl.getLoads()) {
-            if (!context.getFilter().test(l)) {
+            if (!context.getFilter().test(l) ||
+                    (context.getTargetFile() == IncrementalIidmFiles.CONTROL) ||
+                    (!LoadXml.INSTANCE.hasStateValues(l) && context.getTargetFile() == IncrementalIidmFiles.STATE)) {
                 continue;
             }
             LoadXml.INSTANCE.write(l, vl, context);
@@ -184,7 +371,8 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
             return;
         }
         for (ShuntCompensator sc : vl.getShuntCompensators()) {
-            if (!context.getFilter().test(sc)) {
+            if (!context.getFilter().test(sc) ||
+                    (!ShuntXml.INSTANCE.hasStateValues(sc) && context.getTargetFile() == IncrementalIidmFiles.STATE)) {
                 continue;
             }
             ShuntXml.INSTANCE.write(sc, vl, context);
@@ -197,7 +385,9 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
             return;
         }
         for (DanglingLine dl : vl.getDanglingLines()) {
-            if (!context.getFilter().test(dl)) {
+            if (!context.getFilter().test(dl) ||
+                    (context.getTargetFile() == IncrementalIidmFiles.CONTROL) ||
+                    (!DanglingLineXml.INSTANCE.hasStateValues(dl) && context.getTargetFile() == IncrementalIidmFiles.STATE)) {
                 continue;
             }
             DanglingLineXml.INSTANCE.write(dl, vl, context);
@@ -210,7 +400,8 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
             return;
         }
         for (StaticVarCompensator svc : vl.getStaticVarCompensators()) {
-            if (!context.getFilter().test(svc)) {
+            if (!context.getFilter().test(svc) ||
+                    (!StaticVarCompensatorXml.INSTANCE.hasStateValues(svc) && context.getTargetFile() == IncrementalIidmFiles.STATE)) {
                 continue;
             }
             StaticVarCompensatorXml.INSTANCE.write(svc, vl, context);
@@ -219,7 +410,8 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
 
     private void writeVscConverterStations(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         for (VscConverterStation cs : vl.getVscConverterStations()) {
-            if (!context.getFilter().test(cs)) {
+            if (!context.getFilter().test(cs) ||
+                    (!VscConverterStationXml.INSTANCE.hasStateValues(cs) && context.getTargetFile() == IncrementalIidmFiles.STATE)) {
                 continue;
             }
             VscConverterStationXml.INSTANCE.write(cs, vl, context);
@@ -231,7 +423,8 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
             return;
         }
         for (LccConverterStation cs : vl.getLccConverterStations()) {
-            if (!context.getFilter().test(cs)) {
+            if (!context.getFilter().test(cs) ||
+                    (!LccConverterStationXml.INSTANCE.hasStateValues(cs) && context.getTargetFile() == IncrementalIidmFiles.STATE)) {
                 continue;
             }
             LccConverterStationXml.INSTANCE.write(cs, vl, context);

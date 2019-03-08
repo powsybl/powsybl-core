@@ -36,6 +36,16 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     }
 
     @Override
+    boolean hasControlValues(TwoWindingsTransformer twt) {
+        return twt.getRatioTapChanger() != null || twt.getPhaseTapChanger() != null;
+    }
+
+    @Override
+    boolean hasStateValues(TwoWindingsTransformer twt) {
+        return isTerminalHavingStateValues(twt.getTerminal1()) || isTerminalHavingStateValues(twt.getTerminal2());
+    }
+
+    @Override
     protected void writeRootElementAttributes(TwoWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
         if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
             XmlUtil.writeDouble("r", twt.getR(), context.getWriter());

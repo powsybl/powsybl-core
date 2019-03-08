@@ -35,6 +35,16 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
     }
 
     @Override
+    boolean hasStateValues(Line l) {
+        return isTerminalHavingStateValues(l.getTerminal1()) || isTerminalHavingStateValues(l.getTerminal2());
+    }
+
+    @Override
+    boolean hasControlValues(Line l) {
+        return false;
+    }
+
+    @Override
     protected void writeRootElementAttributes(Line l, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
             XmlUtil.writeDouble("r", l.getR(), context.getWriter());
@@ -43,12 +53,9 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
             XmlUtil.writeDouble("b1", l.getB1(), context.getWriter());
             XmlUtil.writeDouble("g2", l.getG2(), context.getWriter());
             XmlUtil.writeDouble("b2", l.getB2(), context.getWriter());
-        }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
             writeNodeOrBus(1, l.getTerminal1(), context);
             writeNodeOrBus(2, l.getTerminal2(), context);
         }
-
         if (context.getOptions().isWithBranchSV()) {
             writePQ(1, l.getTerminal1(), context.getWriter());
             writePQ(2, l.getTerminal2(), context.getWriter());

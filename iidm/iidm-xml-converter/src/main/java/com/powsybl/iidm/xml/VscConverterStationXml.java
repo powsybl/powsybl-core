@@ -35,6 +35,16 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
     }
 
     @Override
+    boolean hasControlValues(VscConverterStation cs) {
+        return true;
+    }
+
+    @Override
+    boolean hasStateValues(VscConverterStation cs) {
+        return isTerminalHavingStateValues(cs.getTerminal());
+    }
+
+    @Override
     protected void writeRootElementAttributes(VscConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.CONTROL) {
             context.getWriter().writeAttribute("voltageRegulatorOn", Boolean.toString(cs.isVoltageRegulatorOn()));

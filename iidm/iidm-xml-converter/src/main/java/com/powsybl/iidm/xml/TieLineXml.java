@@ -34,6 +34,16 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
         return tl.getCurrentLimits1() != null || tl.getCurrentLimits2() != null;
     }
 
+    @Override
+    boolean hasStateValues(TieLine l) {
+        return isTerminalHavingStateValues(l.getTerminal1()) || isTerminalHavingStateValues(l.getTerminal2());
+    }
+
+    @Override
+    boolean hasControlValues(TieLine l) {
+        return false;
+    }
+
     private static void writeHalf(TieLine.HalfLine halfLine, NetworkXmlWriterContext context, int side) throws XMLStreamException {
         context.getWriter().writeAttribute("id_" + side, context.getAnonymizer().anonymizeString(halfLine.getId()));
         if (halfLine.getName() != null) {
