@@ -80,7 +80,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
                 if (p != null && p.contains("/EquipmentCore/")) {
                     if (LOG.isInfoEnabled()) {
                         LOG.info("Model contains Equipment Core data profile in model {}",
-                                m.get(CgmesNames.FULL_MODEL));
+                            m.get(CgmesNames.FULL_MODEL));
                     }
                     return true;
                 }
@@ -90,6 +90,36 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         // available
         // (This covers the case for CIM14 files)
         return true;
+    }
+
+    @Override
+    public boolean hasBoundary() {
+        // The Model has boundary if we are able to find models
+        // that have EquipmentBoundary profile
+        // and models that have TopologyBoundary profile
+        boolean hasEquipmentBoundary = false;
+        boolean hasTopologyBoundary = false;
+        if (queryCatalog.containsKey(MODEL_PROFILES)) {
+            PropertyBags r = namedQuery(MODEL_PROFILES);
+            if (r == null) {
+                return false;
+            }
+            for (PropertyBag m : r) {
+                String p = m.get("profile");
+                String mid = m.get(CgmesNames.FULL_MODEL);
+                if (p != null && p.contains("/EquipmentBoundary/")) {
+                    LOG.info("Model contains EquipmentBoundary data in model {}", mid);
+                    hasEquipmentBoundary = true;
+                }
+                if (p != null && p.contains("/TopologyBoundary/")) {
+                    LOG.info("Model contains TopologyBoundary data in model {}", mid);
+                    hasTopologyBoundary = true;
+                }
+            }
+        }
+        // If we do not have a query for model profiles we assume no boundary exist
+        // (Maybe for CIM14 data sources we should rely on file names ?)
+        return hasEquipmentBoundary && hasTopologyBoundary;
     }
 
     @Override

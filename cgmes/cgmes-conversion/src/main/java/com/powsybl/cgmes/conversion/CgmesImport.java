@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UncheckedIOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -21,6 +23,8 @@ import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.CgmesOnDataSource;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.DataSourceUtil;
+import com.powsybl.commons.datasource.GenericReadOnlyDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.import_.Importer;
@@ -35,29 +39,6 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
  */
 @AutoService(Importer.class)
 public class CgmesImport implements Importer {
-
-    private static final String CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE
-            = "iidm.import.cgmes.change-sign-for-shunt-reactive-power-flow-initial-state";
-    private static final String CONVERT_BOUNDARY = "iidm.import.cgmes.convert-boundary";
-    private static final String CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE
-            = "iidm.import.cgmes.create-busbar-section-for-every-connectivity-node";
-    private static final String POWSYBL_TRIPLESTORE = "iidm.import.cgmes.powsybl-triplestore";
-    private static final String STORE_CGMES_MODEL_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-model-as-network-extension";
-
-    private static final Parameter CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER
-            = new Parameter(CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE, ParameterType.BOOLEAN, "Change the sign of the reactive power flow for shunt in initial state", Boolean.FALSE)
-                .addAdditionalNames("changeSignForShuntReactivePowerFlowInitialState");
-    private static final Parameter CONVERT_BOUNDARY_PARAMETER = new Parameter(CONVERT_BOUNDARY, ParameterType.BOOLEAN, "Convert boundary during import", Boolean.FALSE)
-            .addAdditionalNames("convertBoundary");
-    private static final Parameter CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER
-            = new Parameter(CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE, ParameterType.BOOLEAN, "Create busbar section for every connectivity node", Boolean.FALSE)
-            .addAdditionalNames("createBusbarSectionForEveryConnectivityNode");
-    private static final Parameter POWSYBL_TRIPLESTORE_PARAMETER = new Parameter(POWSYBL_TRIPLESTORE, ParameterType.STRING, "The triplestore used during the import", TripleStoreFactory.defaultImplementation())
-            .addAdditionalNames("powsyblTripleStore");
-    private static final Parameter STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER = new Parameter(STORE_CGMES_MODEL_AS_NETWORK_EXTENSION, ParameterType.BOOLEAN, "Store the initial CGMES model as a network extension", Boolean.TRUE)
-            .addAdditionalNames("storeCgmesModelAsNetworkExtension");
-
-    private final ParameterDefaultValueConfig defaultValueConfig;
 
     public CgmesImport(PlatformConfig platformConfig) {
         this.defaultValueConfig = new ParameterDefaultValueConfig(platformConfig);
@@ -90,22 +71,13 @@ public class CgmesImport implements Importer {
 
     @Override
     public Network importData(ReadOnlyDataSource ds, Properties p) {
-        CgmesModel cgmes = CgmesModelFactory.create(ds, ConversionParameters.readStringParameter(getFormat(), p, POWSYBL_TRIPLESTORE_PARAMETER, defaultValueConfig));
-
-        Conversion.Config config = new Conversion.Config();
-        config.setChangeSignForShuntReactivePowerFlowInitialState(ConversionParameters.readBooleanParameter(getFormat(), p, CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER, defaultValueConfig));
-        config.setConvertBoundary(ConversionParameters.readBooleanParameter(getFormat(), p, CONVERT_BOUNDARY_PARAMETER, defaultValueConfig));
-        config.setCreateBusbarSectionForEveryConnectivityNode(ConversionParameters.readBooleanParameter(getFormat(), p, CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER, defaultValueConfig));
-
-        Network network = new Conversion(cgmes, config).convert();
-
-        boolean storeCgmesModelAsNetworkExtension = ConversionParameters.readBooleanParameter(getFormat(), p, STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER, defaultValueConfig);
-        if (storeCgmesModelAsNetworkExtension) {
+        CgmesModel cgmes = CgmesModelFactory.create(ds, boundary(p), tripleStore(p));
+        Network network = new Conversion(cgmes, config(p)).convert();
+        if (storeCgmesModelAsNetworkExtension(p)) {
             // Store a reference to the original CGMES model inside the IIDM network
             // We could also add listeners to be aware of changes in IIDM data
             network.addExtension(CgmesModelExtension.class, new CgmesModelExtension(cgmes));
         }
-
         return network;
     }
 
@@ -125,16 +97,119 @@ public class CgmesImport implements Importer {
         }
     }
 
+    private ReadOnlyDataSource boundary(Properties p) {
+        Path loc = Paths.get(
+            ConversionParameters.readStringParameter(
+                getFormat(),
+                p,
+                BOUNDARY_LOCATION_PARAMETER,
+                defaultValueConfig));
+        if (!loc.toFile().exists()) {
+            return null;
+        }
+        return new GenericReadOnlyDataSource(loc, DataSourceUtil.getBaseName(loc));
+    }
+
+    private String tripleStore(Properties p) {
+        return ConversionParameters.readStringParameter(
+            getFormat(),
+            p,
+            POWSYBL_TRIPLESTORE_PARAMETER,
+            defaultValueConfig);
+    }
+
+    private Conversion.Config config(Properties p) {
+        Conversion.Config config = new Conversion.Config();
+        config.setChangeSignForShuntReactivePowerFlowInitialState(
+            ConversionParameters.readBooleanParameter(
+                getFormat(),
+                p,
+                CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
+                defaultValueConfig));
+        config.setConvertBoundary(
+            ConversionParameters.readBooleanParameter(
+                getFormat(),
+                p,
+                CONVERT_BOUNDARY_PARAMETER,
+                defaultValueConfig));
+        config.setCreateBusbarSectionForEveryConnectivityNode(
+            ConversionParameters.readBooleanParameter(
+                getFormat(),
+                p,
+                CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
+                defaultValueConfig));
+        return config;
+    }
+
+    private boolean storeCgmesModelAsNetworkExtension(Properties p) {
+        return ConversionParameters.readBooleanParameter(
+            getFormat(),
+            p,
+            STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER,
+            defaultValueConfig);
+    }
+
     private void copyStream(ReadOnlyDataSource from, DataSource to, String fromName, String toName) throws IOException {
         if (from.exists(fromName)) {
             try (InputStream is = from.newInputStream(fromName);
-                    OutputStream os = to.newOutputStream(toName, false)) {
+                OutputStream os = to.newOutputStream(toName, false)) {
                 ByteStreams.copy(is, os);
             }
         }
     }
 
     private static final String FORMAT = "CGMES";
+
+    private static final String CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE = "iidm.import.cgmes.change-sign-for-shunt-reactive-power-flow-initial-state";
+    private static final String CONVERT_BOUNDARY = "iidm.import.cgmes.convert-boundary";
+    private static final String CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE = "iidm.import.cgmes.create-busbar-section-for-every-connectivity-node";
+    private static final String POWSYBL_TRIPLESTORE = "iidm.import.cgmes.powsybl-triplestore";
+    private static final String STORE_CGMES_MODEL_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-model-as-network-extension";
+    private static final String BOUNDARY_LOCATION = "iidm.import.cgmes.boundary-location";
+
+    private static final Parameter CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER = new Parameter(
+        CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE,
+        ParameterType.BOOLEAN,
+        "Change the sign of the reactive power flow for shunt in initial state",
+        Boolean.FALSE)
+            .addAdditionalNames("changeSignForShuntReactivePowerFlowInitialState");
+    private static final Parameter CONVERT_BOUNDARY_PARAMETER = new Parameter(
+        CONVERT_BOUNDARY,
+        ParameterType.BOOLEAN,
+        "Convert boundary during import",
+        Boolean.FALSE)
+            .addAdditionalNames("convertBoundary");
+    private static final Parameter CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER = new Parameter(
+        CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE,
+        ParameterType.BOOLEAN,
+        "Create busbar section for every connectivity node",
+        Boolean.FALSE)
+            .addAdditionalNames("createBusbarSectionForEveryConnectivityNode");
+    private static final Parameter POWSYBL_TRIPLESTORE_PARAMETER = new Parameter(
+        POWSYBL_TRIPLESTORE,
+        ParameterType.STRING,
+        "The triplestore used during the import",
+        TripleStoreFactory.defaultImplementation())
+            .addAdditionalNames("powsyblTripleStore");
+    private static final Parameter STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER = new Parameter(
+        STORE_CGMES_MODEL_AS_NETWORK_EXTENSION,
+        ParameterType.BOOLEAN,
+        "Store the initial CGMES model as a network extension",
+        Boolean.TRUE)
+            .addAdditionalNames("storeCgmesModelAsNetworkExtension");
+    private static final String DEFAULT_BOUNDARY_LOCATION = PlatformConfig
+        .defaultConfig()
+        .getConfigDir()
+        .resolve(FORMAT)
+        .resolve("boundary")
+        .toString();
+    private static final Parameter BOUNDARY_LOCATION_PARAMETER = new Parameter(
+        BOUNDARY_LOCATION,
+        ParameterType.STRING,
+        "The location of boundary files",
+        DEFAULT_BOUNDARY_LOCATION);
+
+    private final ParameterDefaultValueConfig defaultValueConfig;
 
     // TODO Allow this property to be configurable
     // Parameters of importers are only passed to importData method,

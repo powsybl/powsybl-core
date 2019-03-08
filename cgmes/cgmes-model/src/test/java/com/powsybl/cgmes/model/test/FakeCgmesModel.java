@@ -111,6 +111,10 @@ public final class FakeCgmesModel implements CgmesModel {
         return isNodeBreaker;
     }
 
+    public boolean hasBoundary() {
+        return false;
+    }
+
     public FakeCgmesModel substations(String... ids) {
         fakeObjectsFromIdentifiers("Substation", ids, substations);
         // Add a default SubRegion to every substation

@@ -36,6 +36,8 @@ public interface CgmesModel {
 
     boolean isNodeBreaker();
 
+    boolean hasBoundary();
+
     CgmesTerminal terminal(String terminalId);
 
     PropertyBags numObjectsByType();

@@ -98,9 +98,13 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         if (cachedBaseVoltages == null) {
             cachedBaseVoltages = new HashMap<>();
             baseVoltages()
-                    .forEach(bv -> cachedBaseVoltages.put(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage")));
+                .forEach(bv -> cachedBaseVoltages.put(bv.getId("BaseVoltage"), bv.asDouble("nominalVoltage")));
         }
-        return cachedBaseVoltages.get(baseVoltageId);
+        if (cachedBaseVoltages.containsKey(baseVoltageId)) {
+            return cachedBaseVoltages.get(baseVoltageId);
+        } else {
+            return Double.NaN;
+        }
     }
 
     private CgmesContainer container(CgmesTerminal t) {
@@ -131,26 +135,26 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         powerTransformerRatioTapChanger = new HashMap<>();
         powerTransformerPhaseTapChanger = new HashMap<>();
         transformerEnds()
-                .forEach(end -> {
-                    String id = end.getId("PowerTransformer");
-                    PropertyBags ends = gends.computeIfAbsent(id, x -> new PropertyBags());
-                    ends.add(end);
-                    if (end.getId("PhaseTapChanger") != null) {
-                        powerTransformerPhaseTapChanger.put(id, end.getId("PhaseTapChanger"));
-                    } else if (end.getId("RatioTapChanger") != null) {
-                        powerTransformerRatioTapChanger.put(id, end.getId("RatioTapChanger"));
-                    }
-                });
+            .forEach(end -> {
+                String id = end.getId("PowerTransformer");
+                PropertyBags ends = gends.computeIfAbsent(id, x -> new PropertyBags());
+                ends.add(end);
+                if (end.getId("PhaseTapChanger") != null) {
+                    powerTransformerPhaseTapChanger.put(id, end.getId("PhaseTapChanger"));
+                } else if (end.getId("RatioTapChanger") != null) {
+                    powerTransformerRatioTapChanger.put(id, end.getId("RatioTapChanger"));
+                }
+            });
         gends.entrySet()
-                .forEach(tends -> {
-                    PropertyBags tends1 = new PropertyBags(
-                            tends.getValue().stream()
-                                    .sorted(Comparator
-                                            .comparing(WindingType::fromTransformerEnd)
-                                            .thenComparing(end -> end.asInt("endNumber", -1)))
-                                    .collect(Collectors.toList()));
-                    tends.setValue(tends1);
-                });
+            .forEach(tends -> {
+                PropertyBags tends1 = new PropertyBags(
+                    tends.getValue().stream()
+                        .sorted(Comparator
+                            .comparing(WindingType::fromTransformerEnd)
+                            .thenComparing(end -> end.asInt("endNumber", -1)))
+                        .collect(Collectors.toList()));
+                tends.setValue(tends1);
+            });
         return gends;
     }
 
