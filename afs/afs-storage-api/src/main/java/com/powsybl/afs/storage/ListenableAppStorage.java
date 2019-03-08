@@ -13,10 +13,19 @@ import com.powsybl.afs.storage.events.AppStorageListener;
  * A listenable {@link AppStorage}. Listeners will be notified of {@linkplain com.powsybl.afs.storage.events.NodeEvent NodeEvents} happening on the storage:
  * node creation, removal, etc.
  *
+ * WARNING: you will need to keep a reference to your listeners,
+ *          otherwise they may be garbage collected.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface ListenableAppStorage extends AppStorage {
 
+    /**
+     * Add an {@link AppStorageListener} which will be notified of events happening on this storage.
+     *
+     * WARNING: you will need to keep a reference to your listeners,
+     *          otherwise they may be garbage collected.
+     */
     void addListener(AppStorageListener l);
 
     void removeListener(AppStorageListener l);
