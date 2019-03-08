@@ -35,8 +35,10 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
     abstract boolean hasControlValues(T connectable);
 
     boolean isTerminalHavingStateValues(Terminal t) {
-        return  !(Double.isNaN(t.getP()) && Double.isNaN(t.getQ()));
-
+        if ((!Double.isNaN(t.getP()) && t.getP() != Double.NaN) || (!Double.isNaN(t.getP()) && t.getP() != Double.NaN)) {
+            return true;
+        }
+        return false;
     }
 
     private static String indexToString(Integer index) {
@@ -45,7 +47,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
 
     protected static void writeNodeOrBus(Integer index, Terminal t, NetworkXmlWriterContext context) throws XMLStreamException {
         TopologyLevel topologyLevel = TopologyLevel.min(t.getVoltageLevel().getTopologyKind(), context.getOptions().getTopologyLevel());
-        if (context.getOptions().getImportExportType() == IidmImportExportType.INCREMENTAL_IIDM && context.getTargetFile() != IncrementalIidmFiles.TOPO && topologyLevel == TopologyLevel.NODE_BREAKER) {
+        if (context.getTargetFile() == IncrementalIidmFiles.TOPO && topologyLevel == TopologyLevel.NODE_BREAKER) {
             return;
         }
         switch (topologyLevel) {
@@ -62,7 +64,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
                 throw new AssertionError("Unexpected TopologyLevel value: " + topologyLevel);
         }
 
-        if (index != null) {
+        if (index != null && context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
             context.getWriter().writeAttribute("voltageLevelId" + index, context.getAnonymizer().anonymizeString(t.getVoltageLevel().getId()));
         }
     }

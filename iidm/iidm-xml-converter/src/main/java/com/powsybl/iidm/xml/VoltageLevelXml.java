@@ -300,28 +300,24 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void writeBusBreakerTopology(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getTargetFile() == IncrementalIidmFiles.TOPO && vl.getBusBreakerView().getSwitchCount() == 0 ||
-                context.getTargetFile() == IncrementalIidmFiles.STATE && Lists.newArrayList(vl.getBusBreakerView().getBuses()).isEmpty()) {
+        if (context.getTargetFile() == IncrementalIidmFiles.TOPO && (vl.getBusBreakerView().getSwitchCount() == 0 &&
+                Lists.newArrayList(vl.getBusBreakerView().getBuses()).isEmpty())) {
             return;
         }
         context.getWriter().writeStartElement(IIDM_URI, BUS_BREAKER_TOPOLOGY_ELEMENT_NAME);
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE) {
-            for (Bus b : vl.getBusBreakerView().getBuses()) {
-                if (!context.getFilter().test(b)) {
-                    continue;
-                }
-                BusXml.INSTANCE.write(b, null, context);
+        for (Bus b : vl.getBusBreakerView().getBuses()) {
+            if (!context.getFilter().test(b)) {
+                continue;
             }
+            BusXml.INSTANCE.write(b, null, context);
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.TOPO) {
-            for (Switch sw : vl.getBusBreakerView().getSwitches()) {
-                Bus b1 = vl.getBusBreakerView().getBus1(context.getAnonymizer().anonymizeString(sw.getId()));
-                Bus b2 = vl.getBusBreakerView().getBus2(context.getAnonymizer().anonymizeString(sw.getId()));
-                if (!context.getFilter().test(b1) || !context.getFilter().test(b2)) {
-                    continue;
-                }
-                BusBreakerViewSwitchXml.INSTANCE.write(sw, vl, context);
+        for (Switch sw : vl.getBusBreakerView().getSwitches()) {
+            Bus b1 = vl.getBusBreakerView().getBus1(context.getAnonymizer().anonymizeString(sw.getId()));
+            Bus b2 = vl.getBusBreakerView().getBus2(context.getAnonymizer().anonymizeString(sw.getId()));
+            if (!context.getFilter().test(b1) || !context.getFilter().test(b2)) {
+                continue;
             }
+            BusBreakerViewSwitchXml.INSTANCE.write(sw, vl, context);
         }
         context.getWriter().writeEndElement();
     }

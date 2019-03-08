@@ -347,19 +347,19 @@ public final class NetworkXml {
 
     public static void incrementalWrite(Network n, ExportOptions options, DataSource dataSource) throws IOException {
         if (options.isTopo()) {
-            try (OutputStream os = dataSource.newOutputStream("TOPO.xiidm", false);
+            try (OutputStream os = dataSource.newOutputStream(n.getName() + "-TOPO.xiidm", false);
                  BufferedOutputStream bos = new BufferedOutputStream(os)) {
                 write(n, options, bos, IncrementalIidmFiles.TOPO);
             }
         }
         if (options.isState()) {
-            try (OutputStream os = dataSource.newOutputStream("STATE.xiidm", false);
+            try (OutputStream os = dataSource.newOutputStream(n.getName() + "-STATE.xiidm", false);
                  BufferedOutputStream bos = new BufferedOutputStream(os)) {
                 write(n, options, bos, IncrementalIidmFiles.STATE);
             }
         }
         if (options.isControl()) {
-            try (OutputStream os = dataSource.newOutputStream("CONTROL.xiidm", false);
+            try (OutputStream os = dataSource.newOutputStream(n.getName() + "-CONTROL.xiidm", false);
                  BufferedOutputStream bos = new BufferedOutputStream(os)) {
                 write(n, options, bos, IncrementalIidmFiles.CONTROL);
             }
@@ -391,7 +391,8 @@ public final class NetworkXml {
                     if (l.isTieLine()) {
                         TieLineXml.INSTANCE.write((TieLine) l, n, context);
                     } else {
-                        if (targetFile == IncrementalIidmFiles.STATE || LineXml.INSTANCE.hasStateValues(l)) {
+                        if ((targetFile == IncrementalIidmFiles.STATE && LineXml.INSTANCE.hasStateValues(l)) ||
+                                targetFile == IncrementalIidmFiles.TOPO) {
                             LineXml.INSTANCE.write(l, n, context);
                         }
                     }

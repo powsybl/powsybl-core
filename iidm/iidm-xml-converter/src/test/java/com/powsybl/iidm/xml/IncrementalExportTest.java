@@ -8,15 +8,14 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.commons.datasource.FileDataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.datasource.ResourceDataSource;
-import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.IidmImportExportType;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
@@ -32,19 +31,31 @@ public class IncrementalExportTest extends AbstractConverterTest {
         Properties properties = new Properties();
         properties.put(XMLExporter.ANONYMISED, "false");
         properties.put(XMLExporter.IMPORT_EXPORT_TYPE, String.valueOf(IidmImportExportType.INCREMENTAL_IIDM));
-        FileDataSource dataSource = new FileDataSource(Paths.get("/home/benhamedcha/"), "base");
+
+        MemDataSource dataSource = new MemDataSource();
         new XMLExporter().export(network, properties, dataSource);
+
+        try (InputStream is = new ByteArrayInputStream(dataSource.getData("sim1-CONTROL.xiidm"))) {
+            compareXml(getClass().getResourceAsStream("/sim1-CONTROL.xiidm"), is);
+        }
+
+        try (InputStream is = new ByteArrayInputStream(dataSource.getData("sim1-STATE.xiidm"))) {
+            compareXml(getClass().getResourceAsStream("/sim1-STATE.xiidm"), is);
+        }
+
+        try (InputStream is = new ByteArrayInputStream(dataSource.getData("sim1-TOPO.xiidm"))) {
+            compareXml(getClass().getResourceAsStream("/sim1-TOPO.xiidm"), is);
+        }
     }
 
     @Test
-    public void exportTest() throws IOException {
+    public void exportNetworkWithLoadFlow() throws IOException {
         XMLImporter importer = new XMLImporter(new InMemoryPlatformConfig(fileSystem));
         //we want a network without extensions
         List<String> extensionsList = Arrays.asList();
         Properties parameters = new Properties();
         parameters.put(XMLImporter.EXTENSIONS_LIST, extensionsList);
-        //ReadOnlyDataSource dataSourceBase = new ResourceDataSource("multiple-extensions", new ResourceSet("/", "multiple-extensions.xiidm", "test-loadFoo.xiidm"));
-        ReadOnlyDataSource dataSource = new ResourceDataSource("lilleNodeBreaker", new ResourceSet("/", "lilleNodeBreaker.xiidm"));
+        ReadOnlyDataSource dataSource = new ResourceDataSource("eurostag-tutorial1-lf", new ResourceSet("/", "eurostag-tutorial1-lf.xml"));
         Network network = importer.importData(dataSource, parameters);
         exporterTest(network);
     }
