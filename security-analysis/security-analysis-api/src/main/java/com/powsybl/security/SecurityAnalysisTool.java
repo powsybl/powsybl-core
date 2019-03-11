@@ -145,6 +145,45 @@ public class SecurityAnalysisTool implements Tool {
         return line.hasOption(option) ? Optional.of(line.getOptionValue(option)) : Optional.empty();
     }
 
+    private static SecurityAnalysisResult runSecurityAnalysis(CommandLine line, ToolRunningContext context, ContingenciesProvider contingenciesProvider, SecurityAnalysisParameters parameters, SecurityAnalysis securityAnalysis, String currentState) {
+        SecurityAnalysisResult result;
+        if (!line.hasOption(OUTPUT_LOG_OPTION)) {
+            result = securityAnalysis.run(currentState, parameters, contingenciesProvider).join();
+        } else {
+            SecurityAnalysisResultWithLog resultWithLog = securityAnalysis.runWithLog(currentState, parameters, contingenciesProvider).join();
+            result = resultWithLog.getResult();
+            // copy log bytes to file
+            resultWithLog.getLogBytes().ifPresent(logBytes -> {
+                Path outlogDest = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_OPTION));
+                try (ByteArrayInputStream bis = new ByteArrayInputStream(logBytes);
+                     FileOutputStream fos = new FileOutputStream(outlogDest.toFile())) {
+                    IOUtils.copy(bis, fos);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            });
+        }
+        return result;
+    }
+
+    private static  SecurityAnalysis createSecurityAnalysis(CommandLine line, List<String> extensions, Set<SecurityAnalysisInterceptor> interceptors, Network network, LimitViolationFilter limitViolationFilter, ComputationManager computationManager) {
+        SecurityAnalysis securityAnalysis;
+        if (line.hasOption(EXTERNAL)) {
+            Integer taskCount = getOptionValue(line, TASK_COUNT).map(Integer::parseInt).orElse(null);
+            ExternalSecurityAnalysisConfig config = ExternalSecurityAnalysisConfig.load();
+            securityAnalysis = new ExternalSecurityAnalysis(config, network, computationManager, extensions, taskCount);
+        } else if (line.hasOption(TASK_COUNT)) {
+            int taskCount = Integer.parseInt(line.getOptionValue(TASK_COUNT));
+            ExternalSecurityAnalysisConfig config = ExternalSecurityAnalysisConfig.load();
+            securityAnalysis = new DistributedSecurityAnalysis(config, network, computationManager, extensions, taskCount);
+        } else {
+            securityAnalysis = SecurityAnalysisFactories.newDefaultFactory()
+                    .create(network, new DefaultLimitViolationDetector(), limitViolationFilter, computationManager, 0);
+            interceptors.forEach(securityAnalysis::addInterceptor);
+        }
+        return securityAnalysis;
+    }
+
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));
@@ -200,41 +239,11 @@ public class SecurityAnalysisTool implements Tool {
             JsonSecurityAnalysisParameters.update(parameters, parametersFile);
         }
 
-        SecurityAnalysis securityAnalysis;
-        if (line.hasOption(EXTERNAL)) {
-            Integer taskCount = getOptionValue(line, TASK_COUNT).map(Integer::parseInt).orElse(null);
-            ExternalSecurityAnalysisConfig config = ExternalSecurityAnalysisConfig.load();
-            securityAnalysis = new ExternalSecurityAnalysis(config, network, computationManager, extensions, taskCount);
-        } else if (line.hasOption(TASK_COUNT)) {
-            int taskCount = Integer.parseInt(line.getOptionValue(TASK_COUNT));
-            ExternalSecurityAnalysisConfig config = ExternalSecurityAnalysisConfig.load();
-            securityAnalysis = new DistributedSecurityAnalysis(config, network, computationManager, extensions, taskCount);
-        } else {
-            securityAnalysis = SecurityAnalysisFactories.newDefaultFactory()
-                    .create(network, new DefaultLimitViolationDetector(), limitViolationFilter, computationManager, 0);
-            interceptors.forEach(securityAnalysis::addInterceptor);
-        }
+        SecurityAnalysis securityAnalysis = createSecurityAnalysis(line, extensions, interceptors, network, limitViolationFilter, computationManager);
 
         String currentState = network.getVariantManager().getWorkingVariantId();
 
-        SecurityAnalysisResult result;
-        if (!line.hasOption(OUTPUT_LOG_OPTION)) {
-            result = securityAnalysis.run(currentState, parameters, contingenciesProvider).join();
-        } else {
-            SecurityAnalysisResultWithLog resultWithLog = securityAnalysis.runWithLog(currentState, parameters, contingenciesProvider).join();
-            result = resultWithLog.getResult();
-            // copy log bytes to file
-            resultWithLog.getLogBytes().ifPresent(logBytes -> {
-                Path outlogDest = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_OPTION));
-                try {
-                    ByteArrayInputStream bis = new ByteArrayInputStream(logBytes);
-                    FileOutputStream fos = new FileOutputStream(outlogDest.toFile());
-                    IOUtils.copy(bis, fos);
-                } catch (IOException e) {
-                    context.getErrorStream().println(e.getMessage());
-                }
-            });
-        }
+        SecurityAnalysisResult result = runSecurityAnalysis(line, context, contingenciesProvider, parameters, securityAnalysis, currentState);
 
         if (!result.getPreContingencyResult().isComputationOk()) {
             context.getErrorStream().println("Pre-contingency state divergence");

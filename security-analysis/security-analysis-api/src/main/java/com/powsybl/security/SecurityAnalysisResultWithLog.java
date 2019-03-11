@@ -15,20 +15,20 @@ import java.util.Optional;
 public class SecurityAnalysisResultWithLog {
 
     private final SecurityAnalysisResult result;
-    private Optional<byte[]> logBytes;
+
+    private byte[] logBytes;
 
     public SecurityAnalysisResultWithLog(SecurityAnalysisResult result) {
         this.result = Objects.requireNonNull(result);
-        logBytes = Optional.empty();
     }
 
     public SecurityAnalysisResultWithLog(SecurityAnalysisResult result, byte[] logBytes) {
         this.result = Objects.requireNonNull(result);
-        this.logBytes = Optional.ofNullable(logBytes);
+        this.logBytes = logBytes;
     }
 
     public Optional<byte[]> getLogBytes() {
-        return logBytes;
+        return Optional.ofNullable(logBytes);
     }
 
     public SecurityAnalysisResult getResult() {
