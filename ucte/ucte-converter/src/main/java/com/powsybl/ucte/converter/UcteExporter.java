@@ -343,12 +343,12 @@ public class UcteExporter implements Exporter {
 
     private UcteAngleRegulation createPhaseTapChanger(TwoWindingsTransformer twoWindingsTransformer) {
         LOGGER.debug("Converting iidm Phase tap changer of transformer {}", twoWindingsTransformer.getId());
-        return new UcteAngleRegulation(2f,
-                3f,
+        return new UcteAngleRegulation(calculateAngleDu(twoWindingsTransformer),
+                calculateAngleTheta(twoWindingsTransformer),
                 twoWindingsTransformer.getPhaseTapChanger().getLowTapPosition(),
                 twoWindingsTransformer.getPhaseTapChanger().getTapPosition(),
-                4f,
-                UcteAngleRegulationType.SYMM); //TODO find how to fill the theta, p and ucteAngleregulation
+                calculateAngleP(twoWindingsTransformer),
+                UcteAngleRegulationType.SYMM); //TODO SYMM and ASYM
     }
 
     double calculatePhaseDu(TwoWindingsTransformer twoWindingsTransformer) {
@@ -373,6 +373,18 @@ public class UcteExporter implements Exporter {
                     (twoWindingsTransformer.getRatioTapChanger().getHighTapPosition() -
                             twoWindingsTransformer.getRatioTapChanger().getLowTapPosition());
         }
+    }
+
+    float calculateAngleDu(TwoWindingsTransformer twoWindingsTransformer) { //TODO need to find a way to calculate this value
+        return 0;
+    }
+
+    float calculateAngleTheta(TwoWindingsTransformer twoWindingsTransformer) { //TODO need to find a way to calculate this value
+        return 0;
+    }
+
+    float calculateAngleP(TwoWindingsTransformer twoWindingsTransformer) { //TODO need to find a way to calculate this value
+        return 0;
     }
 
     private void createLines(UcteNetwork ucteNetwork, Network network) {
@@ -689,7 +701,8 @@ public class UcteExporter implements Exporter {
 
     boolean isUcteCountryCode(char character) {
         try {
-            UcteCountryCode.fromUcteCode(character);
+            UcteCountryCode ucteCountryCode = UcteCountryCode.fromUcteCode(character);
+            LOGGER.debug("isUcteCountryCode {} : {}", character, ucteCountryCode);
             return true;
         } catch (IllegalArgumentException e) {
             return false;
