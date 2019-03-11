@@ -14,8 +14,8 @@ package com.powsybl.math.matrix;
 public interface MatrixFactory {
 
     /**
-     * Create a matrix with m row and n columns gand provide an estimation of the number of non zero values for internal
-     * capacity reservation.
+     * Create a matrix with m rows and n column. An estimation of the number of non zero values
+     * may be provided for internal capacity reservation.
      *
      * @param m row count
      * @param n column count

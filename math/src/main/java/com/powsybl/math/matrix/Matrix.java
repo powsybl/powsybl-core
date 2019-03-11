@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Interface for all double typed matrix implementation. It has been design to be generic enough to allow dense and
+ * Interface for all double typed matrix implementation. It has been designed to be generic enough to allow dense and
  * sparse matrix implementations. In the case of sparse matrix additional usage constraint could be added and specified
  * in the javadoc for instance in the order a matrix has to be filled.
  *
@@ -42,7 +42,7 @@ public interface Matrix {
     interface ElementHandler {
 
         /**
-         * This method in called for each value of the matrix.
+         * This method is called for each value of the matrix.
          *
          * @param i row index
          * @param j column index
@@ -82,10 +82,10 @@ public interface Matrix {
     LUDecomposition decomposeLU();
 
     /**
-     * Multiply the matrix by another one.
+     * Multiply the matrix by another one (this*other).
      *
      * @param other the other matrix
-     * @return the result of the multiplication of this matrix by other one
+     * @return the result of the multiplication of this matrix by the other one
      */
     Matrix times(Matrix other);
 
