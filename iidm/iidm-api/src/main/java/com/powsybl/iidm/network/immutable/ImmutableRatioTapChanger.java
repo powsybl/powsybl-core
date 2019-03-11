@@ -15,9 +15,9 @@ import java.util.Objects;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public final class ImmutableRatioTapChanger extends ImmutableTapChanger implements RatioTapChanger {
+final class ImmutableRatioTapChanger extends ImmutableTapChanger implements RatioTapChanger {
 
-    RatioTapChanger ratioTapChanger;
+    private final RatioTapChanger ratioTapChanger;
 
     ImmutableRatioTapChanger(RatioTapChanger tapChanger, ImmutableCacheIndex cache) {
         super(tapChanger, cache);

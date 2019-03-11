@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public final class ImmutableShuntCompensator extends AbstractImmutableIdentifiable<ShuntCompensator> implements ShuntCompensator {
+final class ImmutableShuntCompensator extends AbstractImmutableIdentifiable<ShuntCompensator> implements ShuntCompensator {
 
     private final ImmutableCacheIndex cache;
 

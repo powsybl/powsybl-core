@@ -15,7 +15,7 @@ import java.util.Objects;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public final class ImmutableSwitch extends AbstractImmutableIdentifiable<Switch> implements Switch {
+final class ImmutableSwitch extends AbstractImmutableIdentifiable<Switch> implements Switch {
 
     private final ImmutableCacheIndex cache;
 

@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ImmutableLine extends AbstractImmutableIdentifiable<Line> implements Line {
+class ImmutableLine extends AbstractImmutableIdentifiable<Line> implements Line {
 
     private final ImmutableCacheIndex cache;
 

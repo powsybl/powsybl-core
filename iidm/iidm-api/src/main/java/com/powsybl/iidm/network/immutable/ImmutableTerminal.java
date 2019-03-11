@@ -16,11 +16,11 @@ import java.util.Objects;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public final class ImmutableTerminal implements Terminal {
+final class ImmutableTerminal implements Terminal {
+
+    private final Terminal terminal;
 
     private final ImmutableCacheIndex cache;
-
-    private Terminal terminal;
 
     ImmutableTerminal(Terminal terminal, ImmutableCacheIndex cache) {
         this.terminal = Objects.requireNonNull(terminal);

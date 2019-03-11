@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public final class ImmutableTwoWindingsTransformer extends AbstractImmutableIdentifiable<TwoWindingsTransformer> implements TwoWindingsTransformer {
+final class ImmutableTwoWindingsTransformer extends AbstractImmutableIdentifiable<TwoWindingsTransformer> implements TwoWindingsTransformer {
 
     private final ImmutableCacheIndex cache;
 

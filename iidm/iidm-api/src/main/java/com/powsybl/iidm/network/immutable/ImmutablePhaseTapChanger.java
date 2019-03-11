@@ -15,9 +15,9 @@ import java.util.Objects;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public final class ImmutablePhaseTapChanger extends ImmutableTapChanger implements PhaseTapChanger {
+final class ImmutablePhaseTapChanger extends ImmutableTapChanger implements PhaseTapChanger {
 
-    PhaseTapChanger phaseTapChanger;
+    private final PhaseTapChanger phaseTapChanger;
 
     ImmutablePhaseTapChanger(PhaseTapChanger phaseTapChanger, ImmutableCacheIndex cache) {
         super(phaseTapChanger, cache);

@@ -13,7 +13,7 @@ import java.util.*;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public final class ImmutableCurrentLimits implements CurrentLimits {
+final class ImmutableCurrentLimits implements CurrentLimits {
 
     private CurrentLimits currentLimits;
 

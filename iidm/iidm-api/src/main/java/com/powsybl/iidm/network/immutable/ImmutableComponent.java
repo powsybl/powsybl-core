@@ -16,11 +16,11 @@ import java.util.stream.Stream;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public final class ImmutableComponent implements Component {
+final class ImmutableComponent implements Component {
 
     private final ImmutableCacheIndex cache;
 
-    private Component component;
+    private final Component component;
 
     ImmutableComponent(Component component, ImmutableCacheIndex cache) {
         this.component = Objects.requireNonNull(component);

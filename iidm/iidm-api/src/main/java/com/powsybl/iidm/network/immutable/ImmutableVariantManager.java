@@ -15,7 +15,7 @@ import java.util.List;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public final class ImmutableVariantManager implements VariantManager {
+final class ImmutableVariantManager implements VariantManager {
 
     private final VariantManager variantManager;
 

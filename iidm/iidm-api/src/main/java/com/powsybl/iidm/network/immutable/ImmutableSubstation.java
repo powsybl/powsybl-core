@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public final class ImmutableSubstation extends AbstractImmutableIdentifiable<Substation> implements Substation {
+final class ImmutableSubstation extends AbstractImmutableIdentifiable<Substation> implements Substation {
 
     private final ImmutableCacheIndex cache;
 

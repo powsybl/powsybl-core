@@ -462,9 +462,7 @@ public class ImmutableTest {
         when(delegate.getThreeWindingsTransformers()).thenReturn(MOCK_3WT_LIST);
         when(delegate.getThreeWindingsTransformerStream()).thenReturn(MOCK_3WT_STREAM.get());
         assertElementType(ImmutableThreeWindingsTransformer.class, sut.getThreeWindingsTransformers(), sut.getThreeWindingsTransformerStream());
-
     }
-
 
     private static <T extends Identifiable> void assertElementType(Class expectedClazz, Iterable<T> iterable, Stream<T> stream) {
         Iterator<T> iterator = iterable.iterator();

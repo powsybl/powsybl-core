@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public final class ImmutableBus extends AbstractImmutableIdentifiable<Bus> implements Bus {
+final class ImmutableBus extends AbstractImmutableIdentifiable<Bus> implements Bus {
 
     private final ImmutableCacheIndex cache;
 

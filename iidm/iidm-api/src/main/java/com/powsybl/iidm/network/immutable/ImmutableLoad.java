@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public final class ImmutableLoad extends AbstractImmutableIdentifiable<Load> implements Load {
+final class ImmutableLoad extends AbstractImmutableIdentifiable<Load> implements Load {
 
     private final ImmutableCacheIndex cache;
 

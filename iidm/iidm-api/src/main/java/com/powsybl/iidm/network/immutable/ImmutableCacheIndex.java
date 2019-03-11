@@ -16,7 +16,7 @@ import java.util.WeakHashMap;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ImmutableCacheIndex {
+class ImmutableCacheIndex {
 
     private final Map<Identifiable, AbstractImmutableIdentifiable> identifiableCacheMap = new WeakHashMap<>();
 

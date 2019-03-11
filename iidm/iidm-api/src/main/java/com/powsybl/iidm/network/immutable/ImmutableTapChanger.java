@@ -16,7 +16,7 @@ import java.util.Objects;
  */
 public class ImmutableTapChanger {
 
-    TapChanger tapChanger;
+    private final TapChanger tapChanger;
 
     private final ImmutableCacheIndex cache;
 

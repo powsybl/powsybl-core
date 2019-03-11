@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public final class ImmutableGenerator extends AbstractImmutableIdentifiable<Generator> implements Generator {
+final class ImmutableGenerator extends AbstractImmutableIdentifiable<Generator> implements Generator {
 
     private final ImmutableCacheIndex cache;
 

@@ -15,11 +15,12 @@ import java.util.stream.Collectors;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public final class ImmutableThreeWindingsTransformer extends AbstractImmutableIdentifiable<ThreeWindingsTransformer> implements ThreeWindingsTransformer {
+final class ImmutableThreeWindingsTransformer extends AbstractImmutableIdentifiable<ThreeWindingsTransformer> implements ThreeWindingsTransformer {
 
     private final ImmutableCacheIndex cache;
 
     private ImmutableLeg2or3 cacheLeg2;
+
     private ImmutableLeg2or3 cacheLeg3;
 
     ImmutableThreeWindingsTransformer(ThreeWindingsTransformer identifiable, ImmutableCacheIndex cache) {

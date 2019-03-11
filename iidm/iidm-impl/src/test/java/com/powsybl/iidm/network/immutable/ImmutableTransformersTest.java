@@ -4,10 +4,9 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.iidm.network.impl.immutable;
+package com.powsybl.iidm.network.immutable;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.immutable.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.PhaseShifterTestCaseFactory;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
@@ -16,8 +15,8 @@ import org.junit.Test;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.powsybl.iidm.network.impl.immutable.ImmutableTestHelper.RXGB_SETTERS;
-import static com.powsybl.iidm.network.impl.immutable.ImmutableTestHelper.testInvalidMethods;
+import static com.powsybl.iidm.network.immutable.ImmutableTestHelper.RXGB_SETTERS;
+import static com.powsybl.iidm.network.immutable.ImmutableTestHelper.testInvalidMethods;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;

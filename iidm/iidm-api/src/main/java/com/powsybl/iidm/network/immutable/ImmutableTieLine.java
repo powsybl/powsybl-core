@@ -13,11 +13,12 @@ import java.util.Objects;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public final class ImmutableTieLine extends ImmutableLine implements TieLine {
+final class ImmutableTieLine extends ImmutableLine implements TieLine {
 
-    TieLine tieLine;
+    private  final TieLine tieLine;
 
     private final ImmutableHalfLine hl1;
+
     private final ImmutableHalfLine hl2;
 
     ImmutableTieLine(TieLine identifiable, ImmutableCacheIndex cache) {
