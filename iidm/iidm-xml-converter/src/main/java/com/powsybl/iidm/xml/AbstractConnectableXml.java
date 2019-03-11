@@ -35,10 +35,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
     abstract boolean hasControlValues(T connectable);
 
     boolean isTerminalHavingStateValues(Terminal t) {
-        if ((!Double.isNaN(t.getP()) && t.getP() != Double.NaN) || (!Double.isNaN(t.getP()) && t.getP() != Double.NaN)) {
-            return true;
-        }
-        return false;
+        return !Double.isNaN(t.getP())  || !Double.isNaN(t.getQ());
     }
 
     private static String indexToString(Integer index) {

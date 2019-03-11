@@ -366,6 +366,23 @@ public final class NetworkXml {
         }
     }
 
+    private static void writeLines(Network n, NetworkXmlWriterContext  context, IncrementalIidmFiles targetFile, BusFilter filter) throws XMLStreamException {
+        if ((targetFile == IncrementalIidmFiles.STATE && context.getOptions().isWithBranchSV()) ||
+                targetFile == IncrementalIidmFiles.TOPO) {
+            for (Line l : n.getLines()) {
+                if (!filter.test(l)) {
+                    continue;
+                }
+                if (l.isTieLine()) {
+                    TieLineXml.INSTANCE.write((TieLine) l, n, context);
+                } else if ((targetFile == IncrementalIidmFiles.STATE && LineXml.INSTANCE.hasStateValues(l)) ||
+                        targetFile == IncrementalIidmFiles.TOPO) {
+                    LineXml.INSTANCE.write(l, n, context);
+                }
+            }
+        }
+    }
+
     public static void write(Network n, ExportOptions options, OutputStream os, IncrementalIidmFiles targetFile) {
         // create the  writer of the base file
         final XMLStreamWriter writer;
@@ -382,22 +399,7 @@ public final class NetworkXml {
                 }
                 SubstationXml.INSTANCE.write(s, null, context);
             }
-            if ((targetFile == IncrementalIidmFiles.STATE && context.getOptions().isWithBranchSV()) ||
-                    targetFile == IncrementalIidmFiles.TOPO) {
-                for (Line l : n.getLines()) {
-                    if (!filter.test(l)) {
-                        continue;
-                    }
-                    if (l.isTieLine()) {
-                        TieLineXml.INSTANCE.write((TieLine) l, n, context);
-                    } else {
-                        if ((targetFile == IncrementalIidmFiles.STATE && LineXml.INSTANCE.hasStateValues(l)) ||
-                                targetFile == IncrementalIidmFiles.TOPO) {
-                            LineXml.INSTANCE.write(l, n, context);
-                        }
-                    }
-                }
-            }
+            writeLines(n, context, targetFile, filter);
             if (targetFile == IncrementalIidmFiles.CONTROL) {
                 for (HvdcLine l : n.getHvdcLines()) {
                     if (!filter.test(l.getConverterStation1()) || !filter.test(l.getConverterStation2())) {
