@@ -8,7 +8,7 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
-import com.powsybl.iidm.network.util.ImmutableNetwork;
+import com.powsybl.iidm.network.immutable.ImmutableNetwork;
 import org.junit.Test;
 
 import java.io.IOException;
