@@ -84,7 +84,7 @@ class StaticVarCompensatorAdderImpl extends AbstractInjectionAdder<StaticVarComp
                                                                     regulationMode, getNetwork().getRef());
         svc.addTerminal(terminal);
         vl.attach(terminal, false);
-        getNetwork().getObjectStore().checkAndAdd(svc);
+        getNetwork().getIndex().checkAndAdd(svc);
         getNetwork().getListeners().notifyCreation(svc);
         return svc;
     }

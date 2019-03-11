@@ -85,7 +85,12 @@ public class PropertyBag extends HashMap<String, String> {
         if (!containsKey(property)) {
             return defaultValue;
         }
-        return Double.parseDouble(get(property));
+        try {
+            return Double.parseDouble(get(property));
+        } catch (NumberFormatException x) {
+            LOG.warn("Invalid value for property {} : {}", property, get(property));
+            return Double.NaN;
+        }
     }
 
     public boolean asBoolean(String property, boolean defaultValue) {

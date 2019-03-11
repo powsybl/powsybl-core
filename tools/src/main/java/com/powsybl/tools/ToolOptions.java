@@ -101,7 +101,6 @@ public class ToolOptions {
         return getValue(option, s -> E.valueOf(clazz, s));
     }
 
-
     private static List<String> splitCommaSeparatedList(String csl) {
         return Arrays.stream(csl.split(","))
                 .filter(ext -> !ext.isEmpty())

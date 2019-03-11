@@ -6,6 +6,7 @@
  */
 package com.powsybl.contingency.dsl;
 
+import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.contingency.ContingenciesProviderFactory;
@@ -16,6 +17,7 @@ import java.nio.file.Path;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@AutoService(ContingenciesProviderFactory.class)
 public class GroovyDslContingenciesProviderFactory implements ContingenciesProviderFactory {
 
     @Override

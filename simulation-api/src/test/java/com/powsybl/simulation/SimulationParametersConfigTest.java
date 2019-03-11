@@ -99,7 +99,6 @@ public class SimulationParametersConfigTest {
         } catch (PowsyblException e) {
             assertNotNull(e.getMessage());
         }
-
     }
 
     @Test
@@ -124,7 +123,6 @@ public class SimulationParametersConfigTest {
         assertEquals(0.75d, parameters.getBranchSideTwoFaultShortCircuitDuration(), 0.0d);
         assertEquals(0.35d, parameters.getBranchSideOneFaultShortCircuitDuration(), 0.0d);
     }
-
 
     @Test
     public void paramConfigMixed2CompatibilityBranchDurationParameter() throws IOException {

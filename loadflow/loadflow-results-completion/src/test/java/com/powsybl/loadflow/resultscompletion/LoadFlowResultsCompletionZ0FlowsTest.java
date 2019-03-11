@@ -46,7 +46,17 @@ public class LoadFlowResultsCompletionZ0FlowsTest {
     @Test
     public void originalZ0FlowsCompletion() throws Exception {
         Network network = createNetwork();
+
+        Line loop = network.getLine("L1-1");
+        assertTrue(Double.isNaN(loop.getTerminal1().getP()));
+
         completeResults(network);
+
+        assertEquals(0, loop.getTerminal1().getP(), 0);
+        assertEquals(0, loop.getTerminal1().getQ(), 0);
+        assertEquals(0, loop.getTerminal2().getP(), 0);
+        assertEquals(0, loop.getTerminal2().getQ(), 0);
+
         assertTrue(validateBuses(network));
     }
 
@@ -133,6 +143,22 @@ public class LoadFlowResultsCompletionZ0FlowsTest {
                 .add();
         vl.getBusBreakerView().newBus()
                 .setId("B3.5")
+                .add();
+        // Add a loop (a line with same bus at both ends)
+        network.newLine()
+                .setId("L1-1")
+                .setVoltageLevel1("VL")
+                .setBus1("B1")
+                .setConnectableBus1("B1")
+                .setVoltageLevel2("VL")
+                .setBus2("B1")
+                .setConnectableBus2("B1")
+                .setR(10.0)
+                .setX(100.0)
+                .setG1(0.0)
+                .setB1(0.0)
+                .setG2(0.0)
+                .setB2(0.0)
                 .add();
         Line l = network.newLine()
                 .setId("L1-2")
