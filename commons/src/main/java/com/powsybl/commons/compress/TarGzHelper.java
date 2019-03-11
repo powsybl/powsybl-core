@@ -7,7 +7,6 @@
 package com.powsybl.commons.compress;
 
 import com.google.common.io.ByteStreams;
-import com.powsybl.commons.PowsyblException;
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.utils.IOUtils;
@@ -33,7 +32,7 @@ public final class TarGzHelper {
             byte[] tarFileToBytes = convertTarFileToBytes(workingDir, tarFileName);
             return compressBytes(tarFileToBytes);
         } catch (IOException e) {
-            throw new PowsyblException(e);
+            throw new UncheckedIOException(e);
         }
     }
 
