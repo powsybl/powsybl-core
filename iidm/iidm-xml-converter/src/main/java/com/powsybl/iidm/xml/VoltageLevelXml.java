@@ -229,7 +229,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
 
     @Override
     protected void writeRootElementAttributes(VoltageLevel vl, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             XmlUtil.writeDouble("nominalV", vl.getNominalV(), context.getWriter());
             XmlUtil.writeDouble("lowVoltageLimit", vl.getLowVoltageLimit(), context.getWriter());
             XmlUtil.writeDouble("highVoltageLimit", vl.getHighVoltageLimit(), context.getWriter());
@@ -241,7 +241,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     @Override
     protected void writeSubElements(VoltageLevel vl, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
         TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.TOPO ||
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.TOPO ||
                 context.getTargetFile() == IncrementalIidmFiles.STATE) {
             switch (topologyLevel) {
                 case NODE_BREAKER:
@@ -276,15 +276,15 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
             return;
         }
         context.getWriter().writeStartElement(IIDM_URI, NODE_BREAKER_TOPOLOGY_ELEMENT_NAME);
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             context.getWriter().writeAttribute("nodeCount", Integer.toString(vl.getNodeBreakerView().getNodeCount()));
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE) {
             for (BusbarSection bs : vl.getNodeBreakerView().getBusbarSections()) {
                 BusbarSectionXml.INSTANCE.write(bs, null, context);
             }
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.TOPO) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.TOPO) {
             for (Switch sw : vl.getNodeBreakerView().getSwitches()) {
                 NodeBreakerViewSwitchXml.INSTANCE.write(sw, vl, context);
             }

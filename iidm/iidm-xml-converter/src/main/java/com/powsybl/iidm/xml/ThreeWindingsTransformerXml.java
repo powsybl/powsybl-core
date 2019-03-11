@@ -53,7 +53,7 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
 
     @Override
     protected void writeRootElementAttributes(ThreeWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             XmlUtil.writeDouble("r1", twt.getLeg1().getR(), context.getWriter());
             XmlUtil.writeDouble("x1", twt.getLeg1().getX(), context.getWriter());
             XmlUtil.writeDouble("g1", twt.getLeg1().getG(), context.getWriter());
@@ -66,12 +66,12 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
             XmlUtil.writeDouble("x3", twt.getLeg3().getX(), context.getWriter());
             XmlUtil.writeDouble("ratedU3", twt.getLeg3().getRatedU(), context.getWriter());
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM ||  context.getTargetFile() == IncrementalIidmFiles.TOPO) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM ||  context.getTargetFile() == IncrementalIidmFiles.TOPO) {
             writeNodeOrBus(1, twt.getLeg1().getTerminal(), context);
             writeNodeOrBus(2, twt.getLeg2().getTerminal(), context);
             writeNodeOrBus(3, twt.getLeg3().getTerminal(), context);
         }
-        if (context.getOptions().isWithBranchSV() && (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE)) {
+        if (context.getOptions().isWithBranchSV() && (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE)) {
             writePQ(1, twt.getLeg1().getTerminal(), context.getWriter());
             writePQ(2, twt.getLeg2().getTerminal(), context.getWriter());
             writePQ(3, twt.getLeg3().getTerminal(), context.getWriter());

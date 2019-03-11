@@ -36,15 +36,15 @@ class HvdcLineXml extends AbstractIdentifiableXml<HvdcLine, HvdcLineAdder, Netwo
 
     @Override
     protected void writeRootElementAttributes(HvdcLine l, Network parent, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             XmlUtil.writeDouble("r", l.getR(), context.getWriter());
             XmlUtil.writeDouble("nominalV", l.getNominalV(), context.getWriter());
             context.getWriter().writeAttribute("convertersMode", l.getConvertersMode().name());
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.CONTROL) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.CONTROL) {
             XmlUtil.writeDouble("activePowerSetpoint", l.getActivePowerSetpoint(), context.getWriter());
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             XmlUtil.writeDouble("maxP", l.getMaxP(), context.getWriter());
             context.getWriter().writeAttribute("converterStation1", l.getConverterStation1().getId());
             context.getWriter().writeAttribute("converterStation2", l.getConverterStation2().getId());

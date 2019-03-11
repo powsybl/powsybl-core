@@ -40,7 +40,7 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
             context.getWriter().writeEmptyElement(IIDM_URI, getRootElementName());
         }
         context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
-        if (!identifiable.getId().equals(identifiable.getName()) && context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (!identifiable.getId().equals(identifiable.getName()) && context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             context.getWriter().writeAttribute("name", context.getAnonymizer().anonymizeString(identifiable.getName()));
         }
         writeRootElementAttributes(identifiable, parent, context);

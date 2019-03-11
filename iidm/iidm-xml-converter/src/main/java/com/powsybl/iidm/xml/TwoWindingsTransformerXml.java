@@ -47,7 +47,7 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
 
     @Override
     protected void writeRootElementAttributes(TwoWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             XmlUtil.writeDouble("r", twt.getR(), context.getWriter());
             XmlUtil.writeDouble("x", twt.getX(), context.getWriter());
             XmlUtil.writeDouble("g", twt.getG(), context.getWriter());
@@ -55,11 +55,11 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
             XmlUtil.writeDouble("ratedU1", twt.getRatedU1(), context.getWriter());
             XmlUtil.writeDouble("ratedU2", twt.getRatedU2(), context.getWriter());
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM ||  context.getTargetFile() == IncrementalIidmFiles.TOPO) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM ||  context.getTargetFile() == IncrementalIidmFiles.TOPO) {
             writeNodeOrBus(1, twt.getTerminal1(), context);
             writeNodeOrBus(2, twt.getTerminal2(), context);
         }
-        if (context.getOptions().isWithBranchSV() && (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE)) {
+        if (context.getOptions().isWithBranchSV() && (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE)) {
             writePQ(1, twt.getTerminal1(), context.getWriter());
             writePQ(2, twt.getTerminal2(), context.getWriter());
         }

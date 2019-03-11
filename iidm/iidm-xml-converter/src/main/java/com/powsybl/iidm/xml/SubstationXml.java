@@ -77,7 +77,7 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
 
     @Override
     protected void writeRootElementAttributes(Substation s, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             context.getWriter().writeAttribute("country", context.getAnonymizer().anonymizeCountry(s.getCountry()).toString());
             if (s.getTso() != null) {
                 context.getWriter().writeAttribute("tso", context.getAnonymizer().anonymizeString(s.getTso()));

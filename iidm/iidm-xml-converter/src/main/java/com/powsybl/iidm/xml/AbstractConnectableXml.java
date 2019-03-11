@@ -61,7 +61,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
                 throw new AssertionError("Unexpected TopologyLevel value: " + topologyLevel);
         }
 
-        if (index != null && context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (index != null && context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             context.getWriter().writeAttribute("voltageLevelId" + index, context.getAnonymizer().anonymizeString(t.getVoltageLevel().getId()));
         }
     }

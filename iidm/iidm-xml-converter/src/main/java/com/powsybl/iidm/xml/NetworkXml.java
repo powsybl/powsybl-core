@@ -541,7 +541,6 @@ public final class NetworkXml {
         return read(xmlFile);
     }
 
-
     // To read extensions from multiple extension files
     static void readExtensions(Network network, ReadOnlyDataSource dataSource, Anonymizer anonymizer, ImportOptions options, String ext) throws IOException {
         options.getExtensions().ifPresent(extensions -> {
@@ -640,7 +639,15 @@ public final class NetworkXml {
         }
     }
 
+    public static void update(Network network, ImportOptions options, ReadOnlyDataSource dataSource) throws IOException {
+        if (options.isState()) {
+            update(network, dataSource.newInputStream(network.getName() + "-STATE.xiidm"));
+        }
+        // To do
+    }
+
     public static void update(Network network, InputStream is) {
+        // To do
         try {
             XMLStreamReader reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
             reader.next();
@@ -673,6 +680,8 @@ public final class NetworkXml {
                         break;
 
                     case HvdcLineXml.ROOT_ELEMENT_NAME:
+                    case SubstationXml.ROOT_ELEMENT_NAME:
+
                         // Nothing to do
                         break;
 

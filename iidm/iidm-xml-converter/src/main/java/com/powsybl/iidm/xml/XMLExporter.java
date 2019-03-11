@@ -90,7 +90,7 @@ public class XMLExporter implements Exporter {
     private static final Parameter TOPO_PARAMETER = new Parameter(TOPO, ParameterType.BOOLEAN, "export topology parameters in a TOPO file", Boolean.TRUE);
     private static final Parameter STATE_PARAMETER = new Parameter(STATE, ParameterType.BOOLEAN, "export states parameters in a STATE file", Boolean.TRUE);
     private static final Parameter CONTROL_PARAMETER = new Parameter(CONTROL, ParameterType.BOOLEAN, "export control parameters in a CONTROL file", Boolean.TRUE);
-    private static final Parameter IMPORT_EXPORT_TYPE_PARAMETER = new Parameter(IMPORT_EXPORT_TYPE, ParameterType.STRING, "export import type", String.valueOf(IidmImportExportType.BASIC_IIDM));
+    private static final Parameter IMPORT_EXPORT_TYPE_PARAMETER = new Parameter(IMPORT_EXPORT_TYPE, ParameterType.STRING, "export import type", String.valueOf(IidmImportExportType.FULL_IIDM));
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 

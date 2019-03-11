@@ -45,19 +45,19 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
 
     @Override
     protected void writeRootElementAttributes(StaticVarCompensator svc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             XmlUtil.writeDouble("bMin", svc.getBmin(), context.getWriter());
             XmlUtil.writeDouble("bMax", svc.getBmax(), context.getWriter());
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || (context.getTargetFile() == IncrementalIidmFiles.CONTROL)) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || (context.getTargetFile() == IncrementalIidmFiles.CONTROL)) {
             XmlUtil.writeDouble("voltageSetPoint", svc.getVoltageSetPoint(), context.getWriter());
             XmlUtil.writeDouble("reactivePowerSetPoint", svc.getReactivePowerSetPoint(), context.getWriter());
             context.getWriter().writeAttribute("regulationMode", svc.getRegulationMode().name());
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || (context.getTargetFile() == IncrementalIidmFiles.TOPO)) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || (context.getTargetFile() == IncrementalIidmFiles.TOPO)) {
             writeNodeOrBus(null, svc.getTerminal(), context);
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE) {
             writePQ(null, svc.getTerminal(), context.getWriter());
         }
     }

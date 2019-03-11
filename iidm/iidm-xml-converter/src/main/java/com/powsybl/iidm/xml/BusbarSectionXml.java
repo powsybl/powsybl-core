@@ -37,7 +37,7 @@ class BusbarSectionXml extends AbstractIdentifiableXml<BusbarSection, BusbarSect
 
     @Override
     protected void writeRootElementAttributes(BusbarSection bs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             XmlUtil.writeInt("node", bs.getTerminal().getNodeBreakerView().getNode(), context.getWriter());
         }
         XmlUtil.writeDouble("v", bs.getV(), context.getWriter());

@@ -45,23 +45,23 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
 
     @Override
     protected void writeRootElementAttributes(Generator g, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             context.getWriter().writeAttribute("energySource", g.getEnergySource().name());
             XmlUtil.writeDouble("minP", g.getMinP(), context.getWriter());
             XmlUtil.writeDouble("maxP", g.getMaxP(), context.getWriter());
             XmlUtil.writeDouble("ratedS", g.getRatedS(), context.getWriter());
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.CONTROL) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.CONTROL) {
             context.getWriter().writeAttribute("voltageRegulatorOn", Boolean.toString(g.isVoltageRegulatorOn()));
             XmlUtil.writeDouble("targetP", g.getTargetP(), context.getWriter());
             XmlUtil.writeDouble("targetV", g.getTargetV(), context.getWriter());
             XmlUtil.writeDouble("targetQ", g.getTargetQ(), context.getWriter());
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM ||
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM ||
                 (context.getTargetFile() == IncrementalIidmFiles.TOPO)) {
             writeNodeOrBus(null, g.getTerminal(), context);
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM ||
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM ||
                 (context.getOptions().isState() && context.getTargetFile() == IncrementalIidmFiles.STATE)) {
             writePQ(null, g.getTerminal(), context.getWriter());
         }
@@ -74,7 +74,7 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
                                   g.getTerminal().getBusBreakerView().getConnectableBus())) {
             writeTerminalRef(g.getRegulatingTerminal(), context, "regulatingTerminal");
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             ReactiveLimitsXml.INSTANCE.write(g, context);
         }
     }

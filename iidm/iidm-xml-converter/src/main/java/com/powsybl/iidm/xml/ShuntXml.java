@@ -46,18 +46,18 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
 
     @Override
     protected void writeRootElementAttributes(ShuntCompensator sc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             XmlUtil.writeDouble("bPerSection", sc.getbPerSection(), context.getWriter());
             context.getWriter().writeAttribute("maximumSectionCount", Integer.toString(sc.getMaximumSectionCount()));
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || (context.getTargetFile() == IncrementalIidmFiles.CONTROL)) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || (context.getTargetFile() == IncrementalIidmFiles.CONTROL)) {
             context.getWriter().writeAttribute("currentSectionCount", Integer.toString(sc.getCurrentSectionCount()));
         }
 
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || (context.getTargetFile() == IncrementalIidmFiles.TOPO)) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || (context.getTargetFile() == IncrementalIidmFiles.TOPO)) {
             writeNodeOrBus(null, sc.getTerminal(), context);
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE) {
             writePQ(null, sc.getTerminal(), context.getWriter());
         }
     }

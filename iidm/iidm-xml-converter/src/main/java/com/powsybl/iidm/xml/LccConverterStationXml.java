@@ -46,14 +46,14 @@ public class LccConverterStationXml extends AbstractConnectableXml<LccConverterS
 
     @Override
     protected void writeRootElementAttributes(LccConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             XmlUtil.writeFloat("lossFactor", cs.getLossFactor(), context.getWriter());
             XmlUtil.writeFloat("powerFactor", cs.getPowerFactor(), context.getWriter());
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || (context.getTargetFile() == IncrementalIidmFiles.TOPO)) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || (context.getTargetFile() == IncrementalIidmFiles.TOPO)) {
             writeNodeOrBus(null, cs.getTerminal(), context);
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE) {
             writePQ(null, cs.getTerminal(), context.getWriter());
         }
     }

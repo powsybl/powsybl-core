@@ -46,7 +46,7 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
 
     @Override
     protected void writeRootElementAttributes(Line l, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             XmlUtil.writeDouble("r", l.getR(), context.getWriter());
             XmlUtil.writeDouble("x", l.getX(), context.getWriter());
             XmlUtil.writeDouble("g1", l.getG1(), context.getWriter());
@@ -54,7 +54,7 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
             XmlUtil.writeDouble("g2", l.getG2(), context.getWriter());
             XmlUtil.writeDouble("b2", l.getB2(), context.getWriter());
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.TOPO) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.TOPO) {
             writeNodeOrBus(1, l.getTerminal1(), context);
             writeNodeOrBus(2, l.getTerminal2(), context);
         }

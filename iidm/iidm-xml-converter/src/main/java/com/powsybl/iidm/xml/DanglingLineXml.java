@@ -46,7 +46,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
 
     @Override
     protected void writeRootElementAttributes(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             XmlUtil.writeDouble("p0", dl.getP0(), context.getWriter());
             XmlUtil.writeDouble("q0", dl.getQ0(), context.getWriter());
             XmlUtil.writeDouble("r", dl.getR(), context.getWriter());
@@ -57,10 +57,10 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
                 context.getWriter().writeAttribute("ucteXnodeCode", dl.getUcteXnodeCode());
             }
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || (context.getTargetFile() == IncrementalIidmFiles.TOPO)) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || (context.getTargetFile() == IncrementalIidmFiles.TOPO)) {
             writeNodeOrBus(null, dl.getTerminal(), context);
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE) {
             writePQ(null, dl.getTerminal(), context.getWriter());
         }
     }

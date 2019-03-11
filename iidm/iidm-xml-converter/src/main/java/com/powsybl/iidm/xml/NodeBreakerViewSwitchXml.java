@@ -25,7 +25,7 @@ public class NodeBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.Nod
     protected void writeRootElementAttributes(Switch s, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         super.writeRootElementAttributes(s, vl, context);
         VoltageLevel.NodeBreakerView v = vl.getNodeBreakerView();
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             context.getWriter().writeAttribute("node1", Integer.toString(v.getNode1(s.getId())));
             context.getWriter().writeAttribute("node2", Integer.toString(v.getNode2(s.getId())));
         }

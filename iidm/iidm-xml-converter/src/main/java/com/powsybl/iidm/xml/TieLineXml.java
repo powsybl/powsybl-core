@@ -61,18 +61,18 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
 
     @Override
     protected void writeRootElementAttributes(TieLine tl, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             context.getWriter().writeAttribute("ucteXnodeCode", tl.getUcteXnodeCode());
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.TOPO) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.TOPO) {
             writeNodeOrBus(1, tl.getTerminal1(), context);
             writeNodeOrBus(2, tl.getTerminal2(), context);
         }
-        if (context.getOptions().isWithBranchSV() && (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE)) {
+        if (context.getOptions().isWithBranchSV() && (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE)) {
             writePQ(1, tl.getTerminal1(), context.getWriter());
             writePQ(2, tl.getTerminal2(), context.getWriter());
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             writeHalf(tl.getHalf1(), context, 1);
             writeHalf(tl.getHalf2(), context, 2);
         }

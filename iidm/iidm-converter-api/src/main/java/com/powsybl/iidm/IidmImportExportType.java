@@ -12,7 +12,7 @@ package com.powsybl.iidm;
 
 public enum IidmImportExportType {
     INCREMENTAL_IIDM,
-    BASIC_IIDM
+    FULL_IIDM
 }
 
 

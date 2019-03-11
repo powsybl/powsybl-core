@@ -18,7 +18,7 @@ public abstract class AbstractOptions<T> {
 
     protected IidmImportExportMode mode = IidmImportExportMode.UNIQUE_FILE;
 
-    protected IidmImportExportType importExportType = IidmImportExportType.BASIC_IIDM;
+    protected IidmImportExportType importExportType = IidmImportExportType.FULL_IIDM;
 
     protected boolean topo = true;
 

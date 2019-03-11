@@ -47,16 +47,16 @@ class LoadXml extends AbstractConnectableXml<Load, LoadAdder, VoltageLevel> {
 
     @Override
     protected void writeRootElementAttributes(Load l, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             context.getWriter().writeAttribute("loadType", l.getLoadType().name());
             XmlUtil.writeDouble("p0", l.getP0(), context.getWriter());
             XmlUtil.writeDouble("q0", l.getQ0(), context.getWriter());
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM ||
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM ||
                 (context.getOptions().isTopo() && context.getTargetFile() == IncrementalIidmFiles.TOPO)) {
             writeNodeOrBus(null, l.getTerminal(), context);
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM ||
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM ||
                 (context.getOptions().isState() && context.getTargetFile() == IncrementalIidmFiles.STATE)) {
             writePQ(null, l.getTerminal(), context.getWriter());
         }

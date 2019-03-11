@@ -36,7 +36,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
     }
 
     protected static void writeTapChanger(TapChanger<?, ?> tc, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             context.getWriter().writeAttribute(ATTR_LOW_TAP_POSITION, Integer.toString(tc.getLowTapPosition()));
         }
         context.getWriter().writeAttribute(ATTR_TAP_POSITION, Integer.toString(tc.getTapPosition()));
@@ -45,7 +45,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
     protected static void writeRatioTapChanger(String name, RatioTapChanger rtc, NetworkXmlWriterContext context) throws XMLStreamException {
         context.getWriter().writeStartElement(IIDM_URI, name);
         writeTapChanger(rtc, context);
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             context.getWriter().writeAttribute("loadTapChangingCapabilities", Boolean.toString(rtc.hasLoadTapChangingCapabilities()));
         }
         if (rtc.hasLoadTapChangingCapabilities() || rtc.isRegulating()) {
@@ -57,7 +57,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         if (rtc.getRegulationTerminal() != null) {
             writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             for (int p = rtc.getLowTapPosition(); p <= rtc.getHighTapPosition(); p++) {
                 RatioTapChangerStep rtcs = rtc.getStep(p);
                 context.getWriter().writeEmptyElement(IIDM_URI, ELEM_STEP);
@@ -135,10 +135,10 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         if (ptc.getRegulationMode() != PhaseTapChanger.RegulationMode.FIXED_TAP || ptc.isRegulating()) {
             context.getWriter().writeAttribute(ATTR_REGULATING, Boolean.toString(ptc.isRegulating()));
         }
-        if (ptc.getRegulationTerminal() != null && context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (ptc.getRegulationTerminal() != null && context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.BASIC_IIDM) {
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             for (int p = ptc.getLowTapPosition(); p <= ptc.getHighTapPosition(); p++) {
                 PhaseTapChangerStep ptcs = ptc.getStep(p);
                 context.getWriter().writeEmptyElement(IIDM_URI, ELEM_STEP);
