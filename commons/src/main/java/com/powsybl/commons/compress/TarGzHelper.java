@@ -73,7 +73,6 @@ public final class TarGzHelper {
         try (OutputStream outStream = new GZIPOutputStream(baos)) {
             outStream.write(uncompressed);
         } finally {
-            baos.flush();
             baos.close();
         }
         return baos.toByteArray();
