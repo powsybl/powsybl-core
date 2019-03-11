@@ -7,10 +7,17 @@
 package com.powsybl.math.matrix;
 
 /**
+ * Sparse matrix factory.
+ *
+ * @see SparseMatrix
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class SparseMatrixFactory implements MatrixFactory {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SparseMatrix create(int m, int n, int estimatedNonZeroValueCount) {
         return new SparseMatrix(m, n, estimatedNonZeroValueCount);

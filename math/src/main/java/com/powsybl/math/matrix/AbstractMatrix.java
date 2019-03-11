@@ -9,12 +9,22 @@ package com.powsybl.math.matrix;
 import java.util.Objects;
 
 /**
+ * Abstract class for matrix that provides an implementation for common methods.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public abstract class AbstractMatrix implements Matrix {
 
+    /**
+     * Get an estimation of non zero value count.
+     *
+     * @return an estimation of non zero value count
+     */
     protected abstract int getEstimatedNonZeroValueCount();
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Matrix copy(MatrixFactory factory) {
         Objects.requireNonNull(factory);
