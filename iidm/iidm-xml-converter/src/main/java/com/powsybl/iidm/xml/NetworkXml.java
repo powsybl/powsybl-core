@@ -313,6 +313,10 @@ public final class NetworkXml {
     }
 
     public static Anonymizer write(Network n, ExportOptions options, OutputStream os) {
+        if (options.getMode() == IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE ||
+                options.getMode() == IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE) {
+            throw new PowsyblException("You can call this method only with UNIQUE_FILE mode");
+        }
         try {
             NetworkXmlWriterContext context = writeBaseNetwork(n, os, options);
             // write extensions

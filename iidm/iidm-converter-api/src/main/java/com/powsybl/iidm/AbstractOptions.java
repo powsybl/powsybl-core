@@ -18,9 +18,6 @@ public abstract class AbstractOptions<T> {
 
     protected IidmImportExportMode mode = IidmImportExportMode.UNIQUE_FILE;
 
-    public AbstractOptions() {
-    }
-
     public abstract T setExtensions(Set<String> extensions);
 
     public abstract T setMode(IidmImportExportMode mode);
