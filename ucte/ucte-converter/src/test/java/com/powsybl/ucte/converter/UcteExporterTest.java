@@ -6,10 +6,7 @@
  */
 package com.powsybl.ucte.converter;
 
-import com.powsybl.commons.datasource.MemDataSource;
-import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.commons.datasource.ResourceDataSource;
-import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Terminal;
@@ -48,6 +45,10 @@ public class UcteExporterTest {
     public void exportUcteTest() throws IOException {
         ReadOnlyDataSource dataSource = new ResourceDataSource("exportTest", new ResourceSet("/", "exportTest.uct"));
         Network network = new UcteImporter().importData(dataSource, null);
+        addThreeWindingTransformers(network);
+
+        FileDataSource fds = new FileDataSource(FileSystems.getDefault().getPath("./"), "test"); //TODO remove this when ready to merge
+        new UcteExporter().export(network, null, fds); //TODO remove this when ready to merge
 
         MemDataSource exportedDataSource = new MemDataSource();
         new UcteExporter().export(network, null, exportedDataSource);
@@ -59,6 +60,47 @@ public class UcteExporterTest {
 
         exception.expect(IllegalArgumentException.class);
         new UcteExporter().export(null, null, null);
+    }
+
+    private void addThreeWindingTransformers(Network network) {
+        network.getSubstation("F_SU1_").newThreeWindingsTransformer()
+                .setId("3WT")
+                .newLeg1()
+                .setVoltageLevel("F_SU1_1")
+                .setBus("F_SU1_11")
+                .setR(17.424)
+                .setX(1.7424)
+                .setG(0.00573921028466483)
+                .setB(0.000573921028466483)
+                .setRatedU(132.0)
+                .add()
+                .newLeg2()
+                .setVoltageLevel("F_SU1_2")
+                .setBus("F_SU1_21")
+                .setR(1.089)
+                .setX(0.1089)
+                .setRatedU(33.0)
+                .add()
+                .newLeg3()
+                .setVoltageLevel("F_SU1_3")
+                .setBus("F_SU1_31")
+                .setR(0.121)
+                .setX(0.0121)
+                .setRatedU(11.0)
+                .add()
+                .add();
+
+        network.getThreeWindingsTransformer("3WT").getLeg1().newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .add();
+
+        network.getThreeWindingsTransformer("3WT").getLeg2().newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .add();
+
+        network.getThreeWindingsTransformer("3WT").getLeg3().newCurrentLimits()
+                .setPermanentLimit(100.0)
+                .add();
     }
 
     @Test
