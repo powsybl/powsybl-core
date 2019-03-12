@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collections;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -43,7 +42,7 @@ public class CaseExporterTest {
 
     private Network network;
 
-    private final ExportersLoader loader = new ExportersLoaderList(Collections.singletonList(new XMLExporter(Mockito.mock(PlatformConfig.class))));
+    private final ExportersLoader loader = new ExportersLoaderList(new XMLExporter(Mockito.mock(PlatformConfig.class)));
 
     @Before
     public void setUp() throws IOException {

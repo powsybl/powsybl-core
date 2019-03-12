@@ -14,7 +14,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collection;
-import java.util.Collections;
 
 import static org.junit.Assert.*;
 
@@ -24,7 +23,7 @@ import static org.junit.Assert.*;
 public class ExportersTest extends AbstractConvertersTest {
 
     private final Exporter testExporter = new TestExporter();
-    private final ExportersLoader loader = new ExportersLoaderList(Collections.singletonList(testExporter));
+    private final ExportersLoader loader = new ExportersLoaderList(testExporter);
 
     @Test
     public void getFormats() {

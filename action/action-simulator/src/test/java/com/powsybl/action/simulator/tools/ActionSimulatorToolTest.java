@@ -7,7 +7,6 @@
 package com.powsybl.action.simulator.tools;
 
 import com.powsybl.iidm.export.Exporters;
-import com.powsybl.iidm.export.ExportersLoader;
 import com.powsybl.iidm.export.ExportersLoaderList;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.Command;
@@ -38,12 +37,10 @@ public class ActionSimulatorToolTest extends AbstractToolTest {
 
     private CommandLine commandLine;
 
-    private final ExportersLoader loader = new ExportersLoaderList(Collections.emptyList());
-
     private final ActionSimulatorTool tool = new ActionSimulatorTool() {
         @Override
         protected Collection<String> getFormats() {
-            return Exporters.getFormats(loader);
+            return Exporters.getFormats(new ExportersLoaderList());
         }
     };
 

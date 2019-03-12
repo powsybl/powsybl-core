@@ -43,7 +43,7 @@ public final class Importers {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Importers.class);
 
-    private static final ImportersLoader LOADER = new ImportersServiceLoader();
+    private static final Supplier<ImportersLoader> LOADER = Suppliers.memoize(ImportersServiceLoader::new);
 
     private static final Supplier<ImportConfig> CONFIG = Suppliers.memoize(ImportConfig::load);
 
@@ -54,11 +54,12 @@ public final class Importers {
      * Get all supported import formats.
      */
     public static Collection<String> getFormats(ImportersLoader loader) {
+        Objects.requireNonNull(loader);
         return loader.loadImporters().stream().map(Importer::getFormat).collect(Collectors.toSet());
     }
 
     public static Collection<String> getFormats() {
-        return getFormats(LOADER);
+        return getFormats(LOADER.get());
     }
 
     private static Importer wrapImporter(ImportersLoader loader, Importer importer, ComputationManager computationManager, ImportConfig config) {
@@ -78,7 +79,7 @@ public final class Importers {
     }
 
     public static Collection<Importer> list(ComputationManager computationManager, ImportConfig config) {
-        return list(LOADER, computationManager, config);
+        return list(LOADER.get(), computationManager, config);
     }
 
     public static Collection<Importer> list() {
@@ -103,7 +104,7 @@ public final class Importers {
     }
 
     public static Importer getImporter(String format, ComputationManager computationManager, ImportConfig config) {
-        return getImporter(LOADER, format, computationManager, config);
+        return getImporter(LOADER.get(), format, computationManager, config);
     }
 
     public static Importer getImporter(String format, ComputationManager computationManager) {
@@ -119,7 +120,7 @@ public final class Importers {
     }
 
     public static Collection<String> getPostProcessorNames() {
-        return getPostProcessorNames(LOADER);
+        return getPostProcessorNames(LOADER.get());
     }
 
     private static class ImporterWrapper implements Importer {
@@ -196,7 +197,7 @@ public final class Importers {
     }
 
     public static Importer addPostProcessors(Importer importer, ComputationManager computationManager, String... names) {
-        return addPostProcessors(LOADER, importer, computationManager, names);
+        return addPostProcessors(LOADER.get(), importer, computationManager, names);
     }
 
     public static Importer addPostProcessors(Importer importer, String... names) {
@@ -209,7 +210,7 @@ public final class Importers {
     }
 
     public static Importer setPostProcessors(Importer importer, ComputationManager computationManager, String... names) {
-        return setPostProcessors(LOADER, importer, computationManager, names);
+        return setPostProcessors(LOADER.get(), importer, computationManager, names);
     }
 
     public static Importer setPostProcessors(Importer importer, String... names) {
@@ -241,7 +242,7 @@ public final class Importers {
     }
 
     public static Network importData(String format, ReadOnlyDataSource dataSource, Properties parameters, ComputationManager computationManager) {
-        return importData(LOADER, format, dataSource, parameters, computationManager, CONFIG.get());
+        return importData(LOADER.get(), format, dataSource, parameters, computationManager, CONFIG.get());
     }
 
     public static Network importData(String format, ReadOnlyDataSource dataSource, Properties parameters) {
@@ -367,7 +368,7 @@ public final class Importers {
     }
 
     public static Importer findImporter(ReadOnlyDataSource dataSource, ComputationManager computationManager) {
-        return findImporter(dataSource, LOADER, computationManager, CONFIG.get());
+        return findImporter(dataSource, LOADER.get(), computationManager, CONFIG.get());
     }
 
     public static Network loadNetwork(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters, ImportersLoader loader) {
@@ -380,7 +381,7 @@ public final class Importers {
     }
 
     public static Network loadNetwork(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters) {
-        return loadNetwork(file, computationManager, config, parameters, LOADER);
+        return loadNetwork(file, computationManager, config, parameters, LOADER.get());
     }
 
     public static Network loadNetwork(Path file) {
@@ -402,7 +403,7 @@ public final class Importers {
     }
 
     public static Network loadNetwork(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters) {
-        return loadNetwork(filename, data, computationManager, config, parameters, LOADER);
+        return loadNetwork(filename, data, computationManager, config, parameters, LOADER.get());
     }
 
     public static Network loadNetwork(String filename, InputStream data, ComputationManager computationManager) {
@@ -423,7 +424,7 @@ public final class Importers {
     }
 
     public static void loadNetworks(Path dir, boolean parallel, ComputationManager computationManager, ImportConfig config, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
-        loadNetworks(dir, parallel, LOADER, computationManager, config, consumer, listener);
+        loadNetworks(dir, parallel, LOADER.get(), computationManager, config, consumer, listener);
     }
 
     public static void loadNetworks(Path dir, boolean parallel, ComputationManager computationManager, ImportConfig config, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {

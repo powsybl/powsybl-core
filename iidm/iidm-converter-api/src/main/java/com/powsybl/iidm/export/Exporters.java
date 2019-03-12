@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.export;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceObserver;
@@ -28,7 +30,7 @@ import java.util.stream.Collectors;
  */
 public final class Exporters {
 
-    private static final ExportersLoader LOADER = new ExportersServiceLoader();
+    private static final Supplier<ExportersLoader> LOADER = Suppliers.memoize(ExportersServiceLoader::new);
 
     private Exporters() {
     }
@@ -37,11 +39,12 @@ public final class Exporters {
      * Get all supported export formats.
      */
     public static Collection<String> getFormats(ExportersLoader loader) {
+        Objects.requireNonNull(loader);
         return loader.loadExporters().stream().map(Exporter::getFormat).collect(Collectors.toSet());
     }
 
     public static Collection<String> getFormats() {
-        return getFormats(LOADER);
+        return getFormats(LOADER.get());
     }
 
     /**
@@ -62,7 +65,7 @@ public final class Exporters {
     }
 
     public static Exporter getExporter(String format) {
-        return getExporter(LOADER, format);
+        return getExporter(LOADER.get(), format);
     }
 
     public static DataSource createDataSource(Path directory, String fileNameOrBaseName, DataSourceObserver observer) {
@@ -99,7 +102,7 @@ public final class Exporters {
     }
 
     public static void export(String format, Network network, Properties parameters, DataSource dataSource) {
-        export(LOADER, format, network, parameters, dataSource);
+        export(LOADER.get(), format, network, parameters, dataSource);
     }
 
     /**
@@ -116,7 +119,7 @@ public final class Exporters {
     }
 
     public static void export(String format, Network network, Properties parameters, Path file) {
-        export(LOADER, format, network, parameters, file);
+        export(LOADER.get(), format, network, parameters, file);
     }
 
     /**
@@ -133,7 +136,7 @@ public final class Exporters {
     }
 
     public static void export(String format, Network network, Properties parameters, String directory, String baseName) {
-        export(LOADER, format, network, parameters, new FileDataSource(Paths.get(directory), baseName));
+        export(LOADER.get(), format, network, parameters, new FileDataSource(Paths.get(directory), baseName));
     }
 
 }

@@ -27,6 +27,8 @@ import java.util.Properties;
  */
 public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
 
+    private static final ExportersLoader DEFAULT_EXPORTERS_LOADER = new ExportersServiceLoader();
+
     private final Path outputCaseFolder;
 
     private final String basename;
@@ -39,8 +41,6 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
 
     private final ExportersLoader loader;
 
-    private static final ExportersLoader DEFAULT_EXPORTERS_LOADER = new ExportersServiceLoader();
-
     public CaseExporter(Path outputCaseFolder, String basename, String outputCaseFormat, CompressionFormat compressionFormat, boolean exportEachRound) {
         this(outputCaseFolder, basename, outputCaseFormat, compressionFormat, exportEachRound, DEFAULT_EXPORTERS_LOADER);
     }
@@ -51,7 +51,7 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
         this.outputCaseFormat = Objects.requireNonNull(outputCaseFormat);
         this.compressionFormat = compressionFormat;
         this.exportEachRound = exportEachRound;
-        this.loader = loader;
+        this.loader = Objects.requireNonNull(loader);
     }
 
     @Override

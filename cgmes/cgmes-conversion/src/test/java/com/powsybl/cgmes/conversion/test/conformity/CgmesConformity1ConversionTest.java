@@ -26,6 +26,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 /**
@@ -187,7 +188,7 @@ public class CgmesConformity1ConversionTest {
     @Test
     public void smallNodeBreakerHvdc() {
         // Small Grid Node Breaker HVDC should be imported without errors
-        new CgmesImport().importData(actuals.smallNodeBreakerHvdc().dataSource(), null);
+        assertNotNull(new CgmesImport().importData(actuals.smallNodeBreakerHvdc().dataSource(), null));
     }
 
     @Test

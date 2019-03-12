@@ -52,7 +52,7 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
     }
 
     private ExportersLoader createExportersLoader() {
-        return new ExportersLoaderList(Collections.singletonList(new XMLExporter(Mockito.mock(PlatformConfig.class))));
+        return new ExportersLoaderList(new XMLExporter(Mockito.mock(PlatformConfig.class)));
     }
 
     private ImportersLoader createImportersLoader() {
