@@ -26,14 +26,21 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
     @Override
     public void convert() {
         LoadType loadType = id.contains("fict") ? LoadType.FICTITIOUS : LoadType.UNDEFINED;
-        PowerFlow f = powerFlow();
         LoadAdder adder = voltageLevel().newLoad()
-                .setP0(f.p())
-                .setQ0(f.q())
+                .setP0(p0())
+                .setQ0(q0())
                 .setLoadType(loadType);
         identify(adder);
         connect(adder);
         Load load = adder.add();
         convertedTerminals(load.getTerminal());
+    }
+
+    private double p0() {
+        return p.getId("pfixed") != null ? p.asDouble("pfixed") : powerFlow().p();
+    }
+
+    private double q0() {
+        return p.getId("qfixed") != null ? p.asDouble("qfixed") : powerFlow().q();
     }
 }
