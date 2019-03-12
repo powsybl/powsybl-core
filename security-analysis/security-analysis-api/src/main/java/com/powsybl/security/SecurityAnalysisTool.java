@@ -35,6 +35,7 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.IOUtils;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -156,7 +157,7 @@ public class SecurityAnalysisTool implements Tool {
             resultWithLog.getLogBytes().ifPresent(logBytes -> {
                 Path outlogDest = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_OPTION));
                 try (ByteArrayInputStream bis = new ByteArrayInputStream(logBytes);
-                     FileOutputStream fos = new FileOutputStream(outlogDest.toFile())) {
+                     OutputStream fos = Files.newOutputStream(outlogDest)) {
                     IOUtils.copy(bis, fos);
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);

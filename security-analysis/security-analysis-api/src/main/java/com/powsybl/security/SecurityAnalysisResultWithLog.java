@@ -27,6 +27,10 @@ public class SecurityAnalysisResultWithLog {
         this.logBytes = logBytes;
     }
 
+    /**
+     * Gets log file in bytes.
+     * @return an Optional describing the bytes of a .tar.gz log file
+     */
     public Optional<byte[]> getLogBytes() {
         return Optional.ofNullable(logBytes);
     }
