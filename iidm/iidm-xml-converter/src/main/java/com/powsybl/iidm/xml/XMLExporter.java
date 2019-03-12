@@ -119,7 +119,7 @@ public class XMLExporter implements Exporter {
                 .setExtensions(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null);
         try {
             long startTime = System.currentTimeMillis();
-            NetworkXml.write(network, options, dataSource, ".xiidm");
+            NetworkXml.write(network, options, dataSource, "xiidm");
             LOGGER.debug("XIIDM export done in {} ms", System.currentTimeMillis() - startTime);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
