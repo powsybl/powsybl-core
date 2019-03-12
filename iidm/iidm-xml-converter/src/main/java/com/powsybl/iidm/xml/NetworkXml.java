@@ -415,25 +415,7 @@ public final class NetworkXml {
             validateWithExtensions(xmlFile);
             return anonymizer;
         }
-
-        DataSource dataSource = getDataSourceFromPath(xmlFile);
-        String ext = getFileExtensionFromPath(xmlFile);
-
-        if (options.getMode() == IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE) {
-            try (InputStream ise = dataSource.newInputStream(dataSource.getBaseName() + ext)) {
-                validateWithExtensions(ise);
-            }
-            try (InputStream ise = dataSource.newInputStream(dataSource.getBaseName() + "-ext." + ext)) {
-                validateWithExtensions(ise);
-            }
-        } else {
-            Set<String> listNames = dataSource.listNames(".*\\." + ext);
-            for (String fileName : listNames) {
-                try (InputStream ise = dataSource.newInputStream(fileName)) {
-                    validateWithExtensions(ise);
-                }
-            }
-        }
+        validate(xmlFile, options.getMode());
         return anonymizer;
     }
 
@@ -512,7 +494,6 @@ public final class NetworkXml {
         Objects.requireNonNull(dataSource);
         Network network;
         Anonymizer anonymizer = null;
-        String ext = dataSourceExt.isEmpty() ? "" : "." + dataSourceExt;
 
         if (dataSource.exists(SUFFIX_MAPPING, "csv")) {
             anonymizer = new SimpleAnonymizer();
@@ -533,6 +514,7 @@ public final class NetworkXml {
                     }
                     break;
                 case ONE_SEPARATED_FILE_PER_EXTENSION_TYPE:
+                    String ext = dataSourceExt.isEmpty() ? "" : "." + dataSourceExt;
                     // here we'll read all extensions declared in the extensions set
                     readExtensions(network, dataSource, anonymizer, options, ext);
                     break;
@@ -557,16 +539,11 @@ public final class NetworkXml {
         }
     }
 
-    public static Network validateAndRead(Path xmlFile, ImportOptions options) throws IOException {
-        if (options.getMode() == IidmImportExportMode.UNIQUE_FILE) {
-            validateWithExtensions(xmlFile);
-            return read(xmlFile);
-        }
-
+    private static void validate(Path xmlFile, IidmImportExportMode mode) throws IOException {
         DataSource dataSource = getDataSourceFromPath(xmlFile);
         String ext =  getFileExtensionFromPath(xmlFile);
 
-        if (options.getMode() == IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE) {
+        if (mode == IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE) {
             try (InputStream ise = dataSource.newInputStream(dataSource.getBaseName() + ext)) {
                 validateWithExtensions(ise);
             }
@@ -581,6 +558,14 @@ public final class NetworkXml {
                 }
             }
         }
+    }
+
+    public static Network validateAndRead(Path xmlFile, ImportOptions options) throws IOException {
+        if (options.getMode() == IidmImportExportMode.UNIQUE_FILE) {
+            validateWithExtensions(xmlFile);
+            return read(xmlFile);
+        }
+        validate(xmlFile, options.getMode());
         return read(xmlFile, options);
     }
 
