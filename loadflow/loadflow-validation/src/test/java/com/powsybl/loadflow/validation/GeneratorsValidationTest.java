@@ -9,6 +9,7 @@ package com.powsybl.loadflow.validation;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.output.NullWriter;
@@ -49,7 +50,9 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
     private Generator generator;
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
+        super.setUp();
+
         Bus genBus = Mockito.mock(Bus.class);
         Mockito.when(genBus.getV()).thenReturn(v);
         Mockito.when(genBus.isInMainConnectedComponent()).thenReturn(mainComponent);
@@ -178,7 +181,7 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
     }
 
     @Test
-    public void checkNetworkGenerators() {
+    public void checkNetworkGenerators() throws IOException {
         Bus genBus1 = Mockito.mock(Bus.class);
         Mockito.when(genBus1.getV()).thenReturn(v);
         Mockito.when(genBus1.isInMainConnectedComponent()).thenReturn(mainComponent);
@@ -213,6 +216,10 @@ public class GeneratorsValidationTest extends AbstractValidationTest {
         Mockito.when(network.getGeneratorStream()).thenAnswer(dummy -> Stream.of(generator, generator1));
 
         assertTrue(GeneratorsValidation.checkGenerators(network, looseConfig, formatterConfig, NullWriter.NULL_WRITER));
+
+        assertTrue(GeneratorsValidation.checkGenerators(network, looseConfig, formatterConfig, data));
+
+        assertTrue(ValidationType.GENERATORS.check(network, looseConfig, formatterConfig, tmpDir));
 
         ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), looseConfig, formatterConfig, NullWriter.NULL_WRITER, ValidationType.GENERATORS);
         assertTrue(ValidationType.GENERATORS.check(network, looseConfig, validationWriter));

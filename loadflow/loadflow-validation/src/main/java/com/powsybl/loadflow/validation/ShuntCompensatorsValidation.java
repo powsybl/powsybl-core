@@ -43,7 +43,6 @@ public final class ShuntCompensatorsValidation {
         Objects.requireNonNull(file);
         Objects.requireNonNull(validationConfig);
         Objects.requireNonNull(formatterConfig);
-        Objects.requireNonNull(file);
         try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
             return checkShunts(network, validationConfig, formatterConfig, writer);
         }

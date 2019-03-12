@@ -176,7 +176,7 @@ public class ConversionTester {
         String name1 = name.replace('/', '-');
         Path path = Files.createTempDirectory("temp-conversion-" + name1 + "-" + impl + "-");
         XMLExporter xmlExporter = new XMLExporter();
-        // Last component of the path is the name for the exported XML
+        // Last component of the tmpDir is the name for the exported XML
         if (expected != null) {
             xmlExporter.export(expected, null, new FileDataSource(path, "expected"));
         }

@@ -9,6 +9,7 @@ package com.powsybl.loadflow.validation;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.stream.Stream;
 
 import org.apache.commons.io.output.NullWriter;
@@ -56,7 +57,9 @@ public class BusesValidationTest extends AbstractValidationTest {
     private Bus bus;
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
+        super.setUp();
+
         Terminal loadTerminal = Mockito.mock(Terminal.class);
         Mockito.when(loadTerminal.getP()).thenReturn(loadP);
         Mockito.when(loadTerminal.getQ()).thenReturn(loadQ);
@@ -147,7 +150,7 @@ public class BusesValidationTest extends AbstractValidationTest {
     }
 
     @Test
-    public void checkNetworkBuses() {
+    public void checkNetworkBuses() throws IOException {
         Network.BusView networkBusView = Mockito.mock(Network.BusView.class);
         Mockito.when(networkBusView.getBusStream()).thenAnswer(dummy -> Stream.of(bus));
         Network network = Mockito.mock(Network.class);
@@ -156,6 +159,12 @@ public class BusesValidationTest extends AbstractValidationTest {
 
         assertTrue(BusesValidation.checkBuses(network, looseConfig, formatterConfig, NullWriter.NULL_WRITER));
         assertFalse(BusesValidation.checkBuses(network, strictConfig, formatterConfig, NullWriter.NULL_WRITER));
+
+        assertTrue(BusesValidation.checkBuses(network, looseConfig, formatterConfig, data));
+        assertFalse(BusesValidation.checkBuses(network, strictConfig, formatterConfig, data));
+
+        assertTrue(ValidationType.BUSES.check(network, looseConfig, formatterConfig, tmpDir));
+        assertFalse(ValidationType.BUSES.check(network, strictConfig, formatterConfig, tmpDir));
 
         ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), looseConfig, formatterConfig, NullWriter.NULL_WRITER, ValidationType.BUSES);
         assertTrue(ValidationType.BUSES.check(network, looseConfig, validationWriter));
