@@ -26,6 +26,7 @@ import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.network.*;
 import javanet.staxutils.IndentingXMLStreamWriter;
+import org.apache.commons.io.FilenameUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.*;
+import static com.powsybl.iidm.xml.XMLImporter.SUFFIX_MAPPING;
 
 /**
  *
@@ -256,15 +258,16 @@ public final class NetworkXml {
         writer.writeEndDocument();
     }
 
-    private static void writeExtensionsInMultipleFile(Network n, NetworkXmlWriterContext context, DataSource dataSource, ExportOptions options) throws XMLStreamException, IOException {
+    private static void writeExtensionsInMultipleFile(Network n, NetworkXmlWriterContext context, DataSource dataSource, ExportOptions options, String dataSourceExt) throws XMLStreamException, IOException {
         //here we right one extension type  per file
         Map<String, Set<String>> m = getIdentifiablesPerExtensionType(n);
+        String ext = dataSourceExt.isEmpty() ? "" : "." + dataSourceExt;
 
         for (Map.Entry<String, Set<String>> entry : m.entrySet()) {
             String name = entry.getKey();
             Set<String> ids = entry.getValue();
             if (options.withExtension(name)) {
-                try (OutputStream os = dataSource.newOutputStream(n.getName() + "-" +  name + ".xiidm", false);
+                try (OutputStream os = dataSource.newOutputStream(n.getName() + "-" +  name + ext, false);
                      BufferedOutputStream bos = new BufferedOutputStream(os)) {
                     XMLStreamWriter writer = initializeWriter(n, bos, options);
                     for (String id : ids) {
@@ -312,6 +315,10 @@ public final class NetworkXml {
     }
 
     public static Anonymizer write(Network n, ExportOptions options, OutputStream os) {
+        if (options.getMode() == IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE ||
+                options.getMode() == IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE) {
+            throw new PowsyblException("You can call this method only with UNIQUE_FILE mode");
+        }
         try {
             NetworkXmlWriterContext context = writeBaseNetwork(n, os, options);
             // write extensions
@@ -328,14 +335,17 @@ public final class NetworkXml {
     }
 
     private static String getFileExtensionFromPath(Path xmlFile) {
-        return xmlFile.getFileName().toString().split("\\.").length == 1 ? "" : "." + xmlFile.getFileName().toString().split("\\.")[1];
+        return FilenameUtils.getExtension(xmlFile.getFileName().toString());
+    }
+
+    private static DataSource getDataSourceFromPath(Path xmlFile) {
+        String fileBaseName =  FilenameUtils.getBaseName(xmlFile.getFileName().toString());
+        return new FileDataSource(xmlFile.getParent(), fileBaseName);
     }
 
     public static Anonymizer write(Network n, ExportOptions options, Path xmlFile) {
-        String fileBaseName = xmlFile.getFileName().toString().split("\\.")[0];
-        DataSource dataSource = new FileDataSource(xmlFile.getParent(), fileBaseName);
         try {
-            return write(n, options, dataSource, getFileExtensionFromPath(xmlFile));
+            return write(n, options, getDataSourceFromPath(xmlFile), getFileExtensionFromPath(xmlFile));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -415,7 +425,7 @@ public final class NetworkXml {
     }
 
     public static Anonymizer write(Network network, ExportOptions options, DataSource dataSource, String dataSourceExt) throws IOException {
-        try (OutputStream osb = dataSource.newOutputStream(dataSource.getBaseName() + "" + dataSourceExt, false);
+        try (OutputStream osb = dataSource.newOutputStream("", dataSourceExt, false);
              BufferedOutputStream bosb = new BufferedOutputStream(osb)) {
 
             if (options.getMode() == IidmImportExportMode.UNIQUE_FILE) {
@@ -435,7 +445,7 @@ public final class NetworkXml {
             if (!options.withNoExtension() && !getNetworkExtensions(network).isEmpty()) {
 
                 if (options.getMode() == IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE) {
-                    try (OutputStream ose = dataSource.newOutputStream(dataSource.getBaseName() + "-ext" + dataSourceExt, false);
+                    try (OutputStream ose = dataSource.newOutputStream("-ext", dataSourceExt, false);
                          BufferedOutputStream bose = new BufferedOutputStream(ose)) {
 
                         final XMLStreamWriter extensionsWriter = initializeWriter(network, bose, options);
@@ -444,7 +454,7 @@ public final class NetworkXml {
                         writeEndElement(extensionsWriter);
                     }
                 } else if (options.getMode() == IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE) {
-                    writeExtensionsInMultipleFile(network, context, dataSource, options);
+                    writeExtensionsInMultipleFile(network, context, dataSource, options, dataSourceExt);
                 }
             }
 
@@ -460,8 +470,20 @@ public final class NetworkXml {
     }
 
     public static Anonymizer writeAndValidate(Network n, Path xmlFile) {
-        Anonymizer anonymizer = write(n, xmlFile);
-        validateWithExtensions(xmlFile);
+        try {
+            return writeAndValidate(n, new ExportOptions(), xmlFile);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static Anonymizer writeAndValidate(Network n, ExportOptions options, Path xmlFile) throws IOException {
+        Anonymizer anonymizer = write(n, options, xmlFile);
+        if (options.getMode() == IidmImportExportMode.UNIQUE_FILE) {
+            validateWithExtensions(xmlFile);
+            return anonymizer;
+        }
+        validate(xmlFile, options.getMode());
         return anonymizer;
     }
 
@@ -529,23 +551,97 @@ public final class NetworkXml {
     }
 
     public static Network read(Path xmlFile) {
-        try (InputStream is = Files.newInputStream(xmlFile)) {
-            return read(is);
+        try {
+            return read(xmlFile, new ImportOptions());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
+    public static Network read(ReadOnlyDataSource dataSource, ImportOptions options, String dataSourceExt) throws IOException {
+        Objects.requireNonNull(dataSource);
+        Network network;
+        Anonymizer anonymizer = null;
+
+        if (dataSource.exists(SUFFIX_MAPPING, "csv")) {
+            anonymizer = new SimpleAnonymizer();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(SUFFIX_MAPPING, "csv"), StandardCharsets.UTF_8))) {
+                anonymizer.read(reader);
+            }
+        }
+        //Read the base file with the extensions declared in the extensions list
+        try (InputStream isb = dataSource.newInputStream(null, dataSourceExt)) {
+            network = NetworkXml.read(isb, options, anonymizer);
+        }
+        if (!options.withNoExtension()) {
+            switch (options.getMode()) {
+                case EXTENSIONS_IN_ONE_SEPARATED_FILE:
+                    // in this case we have to read all extensions from one  file
+                    try (InputStream ise = dataSource.newInputStream("-ext", dataSourceExt)) {
+                        readExtensions(network, ise, anonymizer, options);
+                    }
+                    break;
+                case ONE_SEPARATED_FILE_PER_EXTENSION_TYPE:
+                    String ext = dataSourceExt.isEmpty() ? "" : "." + dataSourceExt;
+                    // here we'll read all extensions declared in the extensions set
+                    readExtensions(network, dataSource, anonymizer, options, ext);
+                    break;
+                default:
+                    break;
+            }
+        }
+        return network;
+    }
+
+    public static Network read(Path xmlFile, ImportOptions options) throws IOException {
+        DataSource dataSource = getDataSourceFromPath(xmlFile);
+        String ext = getFileExtensionFromPath(xmlFile);
+        return read(dataSource, options, ext);
+    }
+
     public static Network validateAndRead(Path xmlFile) {
-        validateWithExtensions(xmlFile);
-        return read(xmlFile);
+        try {
+            return validateAndRead(xmlFile, new ImportOptions());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private static void validate(Path xmlFile, IidmImportExportMode mode) throws IOException {
+        DataSource dataSource = getDataSourceFromPath(xmlFile);
+        String ext =  getFileExtensionFromPath(xmlFile);
+
+        if (mode == IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE) {
+            try (InputStream ise = dataSource.newInputStream(dataSource.getBaseName() + ext)) {
+                validateWithExtensions(ise);
+            }
+            try (InputStream ise = dataSource.newInputStream(dataSource.getBaseName() + "-ext." + ext)) {
+                validateWithExtensions(ise);
+            }
+        } else {
+            Set<String> listNames = dataSource.listNames(".*\\." + ext);
+            for (String fileName : listNames) {
+                try (InputStream ise = dataSource.newInputStream(fileName)) {
+                    validateWithExtensions(ise);
+                }
+            }
+        }
+    }
+
+    public static Network validateAndRead(Path xmlFile, ImportOptions options) throws IOException {
+        if (options.getMode() == IidmImportExportMode.UNIQUE_FILE) {
+            validateWithExtensions(xmlFile);
+            return read(xmlFile);
+        }
+        validate(xmlFile, options.getMode());
+        return read(xmlFile, options);
     }
 
     // To read extensions from multiple extension files
     static void readExtensions(Network network, ReadOnlyDataSource dataSource, Anonymizer anonymizer, ImportOptions options, String ext) throws IOException {
         options.getExtensions().ifPresent(extensions -> {
             for (String extension : extensions) {
-                try (InputStream ise = dataSource.newInputStream(network.getName() + "-" + extension + "." + ext)) {
+                try (InputStream ise = dataSource.newInputStream(network.getName() + "-" + extension + ext)) {
                     readExtensions(network, ise, anonymizer, options);
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
@@ -554,8 +650,8 @@ public final class NetworkXml {
         });
 
         if (!options.getExtensions().isPresent()) {
-            Set<String> listNames = dataSource.listNames(".*");
-            listNames.remove(dataSource.getBaseName() + "." + ext);
+            Set<String> listNames = dataSource.listNames(".*" + ext);
+            listNames.remove(dataSource.getBaseName() + ext);
             for (String fileName : listNames) {
                 try (InputStream ise = dataSource.newInputStream(fileName)) {
                     readExtensions(network, ise, anonymizer, options);

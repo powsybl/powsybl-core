@@ -134,12 +134,14 @@ public class XMLExporter implements Exporter {
 
         try {
             long startTime = System.currentTimeMillis();
+
             if (options.getImportExportType() == IidmImportExportType.INCREMENTAL_IIDM) {
                 NetworkXml.incrementalWrite(network, options, dataSource);
 
             } else {
-                NetworkXml.write(network, options, dataSource, ".xiidm");
+                NetworkXml.write(network, options, dataSource, "xiidm");
             }
+
             LOGGER.debug("XIIDM export done in {} ms", System.currentTimeMillis() - startTime);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

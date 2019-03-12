@@ -17,8 +17,6 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.IidmImportExportMode;
-import com.powsybl.iidm.anonymizer.Anonymizer;
-import com.powsybl.iidm.anonymizer.SimpleAnonymizer;
 import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
@@ -33,7 +31,6 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
@@ -69,7 +66,7 @@ public class XMLImporter implements Importer {
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
-    private static final String SUFFIX_MAPPING = "_mapping";
+    static final String SUFFIX_MAPPING = "_mapping";
 
     public XMLImporter() {
         this(PlatformConfig.defaultConfig());
@@ -178,7 +175,6 @@ public class XMLImporter implements Importer {
                 .setMode(IidmImportExportMode.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, IMPORT_MODE_PARAMETER, defaultValueConfig)))
                 .setExtensions(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null);
 
-        Anonymizer anonymizer = null;
         long startTime = System.currentTimeMillis();
         try {
             String ext = findExtension(dataSource);
@@ -187,33 +183,7 @@ public class XMLImporter implements Importer {
                         + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
             }
 
-            if (dataSource.exists(SUFFIX_MAPPING, "csv")) {
-                anonymizer = new SimpleAnonymizer();
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(SUFFIX_MAPPING, "csv"), StandardCharsets.UTF_8))) {
-                    anonymizer.read(reader);
-                }
-            }
-            //Read the base file with the extensions declared in the extensions list
-            try (InputStream isb = dataSource.newInputStream(null, ext)) {
-                network = NetworkXml.read(isb, options, anonymizer);
-            }
-            if (!options.withNoExtension()) {
-                switch (options.getMode()) {
-                    case EXTENSIONS_IN_ONE_SEPARATED_FILE:
-                        // in this case we have to read all extensions from one  file
-                        try (InputStream ise = dataSource.newInputStream(dataSource.getBaseName() +  "-ext." + ext)) {
-                            NetworkXml.readExtensions(network, ise, anonymizer, options);
-                        }
-                        break;
-                    case ONE_SEPARATED_FILE_PER_EXTENSION_TYPE:
-                        // here we'll read all extensions declared in the extensions set
-                        NetworkXml.readExtensions(network, dataSource, anonymizer, options, ext);
-                        break;
-                    default:
-                        break;
-                }
-            }
-
+            network = NetworkXml.read(dataSource, options, ext);
             LOGGER.debug("XIIDM import done in {} ms", System.currentTimeMillis() - startTime);
         } catch (IOException e) {
             throw new PowsyblException(e);

@@ -9,6 +9,8 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.IidmImportExportMode;
+import com.powsybl.iidm.export.ExportOptions;
+import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
 import org.junit.Test;
@@ -16,9 +18,11 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
@@ -51,5 +55,17 @@ public class XmlExporterBaseExtensions  extends AbstractConverterTest {
         exporterTestBaseExtensions(MultipleExtensionsTestNetworkFactory.create(),
                 "/multiple-extensions.xiidm",
                 "/multiple-extensions-ext.xiidm");
+    }
+
+    @Test
+    public void validationTest() throws IOException {
+        Path path = Paths.get("/tmp/base.xiidm");
+        IidmImportExportMode mode = IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE;
+        Network network = MultipleExtensionsTestNetworkFactory.create();
+        NetworkXml.writeAndValidate(network, new ExportOptions().setMode(mode), path);
+
+        Network network1 = NetworkXml.validateAndRead(path, new ImportOptions().setMode(mode));
+        assertEquals(network.getExtensions().size(), network1.getExtensions().size());
+        assertEquals(network.getIdentifiables().size(), network1.getIdentifiables().size());
     }
 }
