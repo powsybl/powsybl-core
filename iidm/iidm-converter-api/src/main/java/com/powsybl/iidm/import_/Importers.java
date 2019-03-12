@@ -73,6 +73,7 @@ public final class Importers {
     }
 
     public static Collection<Importer> list(ImportersLoader loader, ComputationManager computationManager, ImportConfig config) {
+        Objects.requireNonNull(loader);
         return loader.loadImporters().stream()
                 .map(importer -> wrapImporter(loader, importer, computationManager, config))
                 .collect(Collectors.toList());
@@ -95,6 +96,7 @@ public final class Importers {
      */
     public static Importer getImporter(ImportersLoader loader, String format, ComputationManager computationManager, ImportConfig config) {
         Objects.requireNonNull(format);
+        Objects.requireNonNull(loader);
         for (Importer importer : loader.loadImporters()) {
             if (format.equals(importer.getFormat())) {
                 return wrapImporter(loader, importer, computationManager, config);
@@ -116,6 +118,7 @@ public final class Importers {
     }
 
     public static Collection<String> getPostProcessorNames(ImportersLoader loader) {
+        Objects.requireNonNull(loader);
         return loader.loadPostProcessors().stream().map(ImportPostProcessor::getName).collect(Collectors.toList());
     }
 
@@ -134,7 +137,7 @@ public final class Importers {
         private final ImportersLoader loader;
 
         ImporterWrapper(ImportersLoader loader, Importer importer, ComputationManager computationManager, List<String> names) {
-            this.loader = loader;
+            this.loader = Objects.requireNonNull(loader);
             this.importer = importer;
             this.computationManager = computationManager;
             this.names = names;
@@ -218,6 +221,7 @@ public final class Importers {
     }
 
     public static Importer removePostProcessors(Importer importer) {
+        Objects.requireNonNull(importer);
         if (importer instanceof ImporterWrapper) {
             return removePostProcessors(((ImporterWrapper) importer).getImporter());
         }
@@ -263,6 +267,7 @@ public final class Importers {
     }
 
     private static void doImport(ReadOnlyDataSource dataSource, Importer importer, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) {
+        Objects.requireNonNull(consumer);
         try {
             if (listener != null) {
                 listener.accept(dataSource);
@@ -274,34 +279,13 @@ public final class Importers {
         }
     }
 
-    public static void importAll(Path dir, Importer importer, boolean parallel, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
-        importAll(dir, importer, parallel, null, consumer, listener);
-    }
-
-    public static void importAll(Path dir, Importer importer, boolean parallel, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
-        List<ReadOnlyDataSource> dataSources = new ArrayList<>();
-        importAll(dir, importer, dataSources);
-        if (parallel) {
-            ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-            try {
-                List<Future<?>> futures = dataSources.stream()
-                        .map(ds -> executor.submit(() -> doImport(ds, importer, parameters, consumer, listener)))
-                        .collect(Collectors.toList());
-                for (Future<?> future : futures) {
-                    future.get();
-                }
-            } finally {
-                executor.shutdownNow();
-            }
-        } else {
-            for (ReadOnlyDataSource dataSource : dataSources) {
-                doImport(dataSource, importer, parameters, consumer, listener);
-            }
+    private static void addDataSource(Path dir, Path file, Importer importer, List<ReadOnlyDataSource> dataSources) {
+        Objects.requireNonNull(importer);
+        String caseBaseName = DataSourceUtil.getBaseName(file);
+        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(dir, caseBaseName);
+        if (importer.exists(ds)) {
+            dataSources.add(ds);
         }
-    }
-
-    public static void importAll(Path dir, Importer importer, boolean parallel, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
-        importAll(dir, importer, parallel, consumer, null);
     }
 
     private static void importAll(Path parent, Importer importer, List<ReadOnlyDataSource> dataSources) throws IOException {
@@ -326,12 +310,34 @@ public final class Importers {
         }
     }
 
-    private static void addDataSource(Path dir, Path file, Importer importer, List<ReadOnlyDataSource> dataSources) {
-        String caseBaseName = DataSourceUtil.getBaseName(file);
-        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(dir, caseBaseName);
-        if (importer.exists(ds)) {
-            dataSources.add(ds);
+    public static void importAll(Path dir, Importer importer, boolean parallel, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
+        List<ReadOnlyDataSource> dataSources = new ArrayList<>();
+        importAll(dir, importer, dataSources);
+        if (parallel) {
+            ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+            try {
+                List<Future<?>> futures = dataSources.stream()
+                        .map(ds -> executor.submit(() -> doImport(ds, importer, parameters, consumer, listener)))
+                        .collect(Collectors.toList());
+                for (Future<?> future : futures) {
+                    future.get();
+                }
+            } finally {
+                executor.shutdownNow();
+            }
+        } else {
+            for (ReadOnlyDataSource dataSource : dataSources) {
+                doImport(dataSource, importer, parameters, consumer, listener);
+            }
         }
+    }
+
+    public static void importAll(Path dir, Importer importer, boolean parallel, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
+        importAll(dir, importer, parallel, null, consumer, listener);
+    }
+
+    public static void importAll(Path dir, Importer importer, boolean parallel, Consumer<Network> consumer) throws IOException, InterruptedException, ExecutionException {
+        importAll(dir, importer, parallel, consumer, null);
     }
 
     /**
@@ -351,6 +357,7 @@ public final class Importers {
     }
 
     public static DataSource createDataSource(Path file) {
+        Objects.requireNonNull(file);
         if (!Files.isRegularFile(file)) {
             throw new PowsyblException("File " + file + " does not exist or is not a regular file");
         }

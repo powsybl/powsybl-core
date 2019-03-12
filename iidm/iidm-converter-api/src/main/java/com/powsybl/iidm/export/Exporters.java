@@ -56,6 +56,7 @@ public final class Exporters {
      */
     public static Exporter getExporter(ExportersLoader loader, String format) {
         Objects.requireNonNull(format);
+        Objects.requireNonNull(loader);
         for (Exporter e : loader.loadExporters()) {
             if (format.equals(e.getFormat())) {
                 return e;
