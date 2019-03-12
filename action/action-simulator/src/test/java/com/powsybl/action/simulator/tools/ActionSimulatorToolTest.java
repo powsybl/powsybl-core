@@ -53,7 +53,7 @@ public class ActionSimulatorToolTest extends AbstractToolTest {
     public void assertCommand() {
         Command command = tool.getCommand();
 
-        assertCommand(command, "action-simulator", 13, 2);
+        assertCommand(command, "action-simulator", 15, 2);
         assertOption(command.getOptions(), "case-file", true, true);
         assertOption(command.getOptions(), "dsl-file", true, true);
         assertOption(command.getOptions(), "contingencies", false, true);

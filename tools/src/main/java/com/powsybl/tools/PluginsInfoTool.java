@@ -21,12 +21,15 @@ import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
  */
 @AutoService(Tool.class)
 public class PluginsInfoTool implements Tool {
+
+    private static final int MAX_IDS_LENGTH = 100;
 
     private static final Command COMMAND = new Command() {
         @Override
@@ -69,14 +72,24 @@ public class PluginsInfoTool implements Tool {
         try (TableFormatter formatter = asciiTableFormatterFactory.create(writer, "Plugins", new TableFormatterConfig(),
                 new Column("Plugin type name"),
                 new Column("Available plugin IDs"))) {
-            pluginInfos.forEach(p -> {
-                try {
+
+            for (PluginInfo p : pluginInfos) {
+                List<String> ids = Plugins.getPluginImplementationsIds(p);
+                String strIds = String.join(", ", ids);
+                if (strIds.length() > MAX_IDS_LENGTH) {
                     formatter.writeCell(p.getPluginName());
-                    formatter.writeCell(String.join(", ", Plugins.getPluginImplementationsIds(p)));
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
+                    formatter.writeCell(ids.get(0));
+                    for (int i = 1; i < ids.size(); ++i) {
+                        formatter.writeEmptyCell();
+                        formatter.writeCell(ids.get(i));
+                    }
+                } else {
+                    formatter.writeCell(p.getPluginName());
+                    formatter.writeCell(strIds);
                 }
-            });
+            }
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 }

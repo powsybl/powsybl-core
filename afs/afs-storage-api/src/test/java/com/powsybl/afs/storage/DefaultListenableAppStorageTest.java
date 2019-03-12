@@ -15,13 +15,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -34,6 +39,8 @@ public class DefaultListenableAppStorageTest {
 
     private AppStorageListener l = eventList -> lastEventList = eventList;
 
+    private AtomicReference<byte[]> data = new AtomicReference<>();
+
     @Before
     public void setUp() {
         AppStorage storage = Mockito.mock(AppStorage.class);
@@ -41,7 +48,17 @@ public class DefaultListenableAppStorageTest {
                 .thenReturn(new NodeInfo("node2", "nodeName", "", "", 0, 0, 0, new NodeGenericMetadata()));
         Mockito.when(storage.deleteNode("node2")).thenReturn("node1");
         Mockito.when(storage.writeBinaryData(Mockito.anyString(), Mockito.anyString()))
-                .thenReturn(new ByteArrayOutputStream());
+                .thenReturn(new ByteArrayOutputStream() {
+                    @Override
+                    public void close() throws IOException {
+                        super.close();
+                        data.set(toByteArray());
+                    }
+                });
+        Mockito.when(storage.readBinaryData(Mockito.anyString(), Mockito.anyString()))
+                .thenAnswer(i -> new ByteArrayInputStream(data.get()));
+
+        Mockito.when(storage.dataExists(Mockito.anyString(), Mockito.anyString())).thenAnswer(i -> data.get() != null);
 
         listenableStorage = new DefaultListenableAppStorage(storage);
         listenableStorage.addListener(l);
@@ -93,5 +110,30 @@ public class DefaultListenableAppStorageTest {
         listenableStorage.clearTimeSeries("node1");
         listenableStorage.flush();
         assertEquals(new NodeEventList(new TimeSeriesCleared("node1")), lastEventList);
+    }
+
+    // data updated event should only be raised once write is finished
+    @Test
+    public void testDataUpdated() throws IOException {
+        AtomicBoolean dataUpdated = new AtomicBoolean(false);
+        AppStorageListener dataListener = eventList -> eventList.getEvents().stream()
+                .filter(e -> e.getType() == NodeEventType.NODE_DATA_UPDATED)
+                .forEach(e -> dataUpdated.set(true));
+
+        listenableStorage.addListener(dataListener);
+
+        try (OutputStream os = listenableStorage.writeBinaryData("node1", "attr")) {
+            listenableStorage.flush();
+            assertFalse(dataUpdated.get());
+            os.write("hello".getBytes(StandardCharsets.UTF_8));
+            listenableStorage.flush();
+            assertFalse(dataUpdated.get());
+        }
+
+        listenableStorage.flush();
+        assertTrue(dataUpdated.get());
+        assertTrue(data.get() != null);
+        assertEquals("hello", new String(data.get(), StandardCharsets.UTF_8));
+        assertTrue(listenableStorage.dataExists("node1", "attr"));
     }
 }
