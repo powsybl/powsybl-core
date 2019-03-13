@@ -26,17 +26,19 @@ public class Profiling {
     private final Map<String, Long> optime = new HashMap<>(32);
     private long t0;
 
-    void start() {
+    public void start() {
         t0 = System.currentTimeMillis();
     }
 
-    void end(String op) {
-        assert !optime.containsKey(op);
+    public void end(String op) {
+        if (optime.containsKey(op)) {
+            throw new IllegalArgumentException("Operation " + op + " already exists");
+        }
         ops.add(op);
         optime.put(op, System.currentTimeMillis() - t0);
     }
 
-    void report() {
+    public void report() {
         if (LOGGER.isInfoEnabled()) {
             ops.forEach(op -> LOGGER.info(String.format("%-20s : %6d", op, optime.get(op))));
         }
