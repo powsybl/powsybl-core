@@ -59,6 +59,22 @@ public class CgmesConformity1Catalog {
                         "MicroGridTestConfiguration_TP_BD.xml"));
     }
 
+    public TestGridModel microGridType4BEOnlyEqTpSsh() {
+        String base = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/Type4_T4/CGMES_v2.4.15_MicroGridTestConfiguration_T4_BE_BB_Complete_v2/";
+        String baseBoundary = ENTSOE_CONFORMITY_1
+                + "/MicroGrid/Type4_T4/CGMES_v2.4.15_MicroGridTestConfiguration_BD_v2/";
+        return new TestGridModelResources(
+                "MicroGrid-Type4-BE",
+                expectedMicroGridType4BE(),
+                new ResourceSet(base,
+                        "MicroGridTestConfiguration_T4_BE_EQ_V2.xml",
+                        "MicroGridTestConfiguration_T4_BE_SSH_V2.xml",
+                        "MicroGridTestConfiguration_T4_BE_TP_V2.xml"),
+                new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
+                        "MicroGridTestConfiguration_TP_BD.xml"));
+    }
+
     public final TestGridModelResources microGridBaseCaseNL() {
         String base = ENTSOE_CONFORMITY_1 + "/MicroGrid/BaseCase/CGMES_v2.4.15_MicroGridTestConfiguration_BC_NL_v2/";
         String baseBoundary = ENTSOE_CONFORMITY_1
