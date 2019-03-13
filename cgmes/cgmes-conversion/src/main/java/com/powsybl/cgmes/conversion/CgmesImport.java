@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion;
 
 import com.google.auto.service.AutoService;
+import com.google.common.collect.ImmutableList;
 import com.google.common.io.ByteStreams;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelFactory;
@@ -65,12 +66,12 @@ public class CgmesImport implements Importer {
     public static final Parameter POST_PROCESSORS_PARAMETER = new Parameter(POST_PROCESSORS, ParameterType.STRING_LIST, "Post processors", Collections.emptyList())
             .addAdditionalNames("postProcessors");
 
-    private static final List<Parameter> PARAMETERS = Arrays.asList(CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
-                                                                    CONVERT_BOUNDARY_PARAMETER,
-                                                                    CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
-                                                                    POWSYBL_TRIPLESTORE_PARAMETER,
-                                                                    STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER,
-                                                                    POST_PROCESSORS_PARAMETER);
+    private static final List<Parameter> PARAMETERS = ImmutableList.of(CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
+                                                                       CONVERT_BOUNDARY_PARAMETER,
+                                                                       CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
+                                                                       POWSYBL_TRIPLESTORE_PARAMETER,
+                                                                       STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER,
+                                                                       POST_PROCESSORS_PARAMETER);
 
     private final Map<String, CgmesImportPostProcessor> postProcessors;
 
