@@ -51,7 +51,13 @@ public interface BatteryAdder extends InjectionAdder<BatteryAdder> {
     BatteryAdder setMaxP(double maxP);
 
     /**
-     * Build the Battery object
+     * Build the Battery object.
+     * This are the checks that are performed before creating the object :
+     *      - p0 is not equal to Double.NaN -> p0 is set
+     *      - q0 is not equal to Double.NaN -> q0 is set
+     *      - minP is not equal to Double.NaN -> minP is set
+     *      - maxP is not equal to Double.NaN -> maxP is set
+     *      - minP is less than maxP
      * @return {@link Battery}
      */
     Battery add();
