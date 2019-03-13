@@ -7,7 +7,6 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.IidmImportExportType;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.BusAdder;
@@ -38,7 +37,7 @@ class BusXml extends AbstractIdentifiableXml<Bus, BusAdder, VoltageLevel> {
     @Override
     protected void writeRootElementAttributes(Bus b, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM ||
-         context.getTargetFile() == IncrementalIidmFiles.STATE) {
+                context.getTargetFile() == IncrementalIidmFiles.STATE) {
             XmlUtil.writeDouble("v", b.getV(), context.getWriter());
             XmlUtil.writeDouble("angle", b.getAngle(), context.getWriter());
         }

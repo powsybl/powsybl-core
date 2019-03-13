@@ -48,7 +48,7 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
         }
         for (VoltageLevel vl : s.getVoltageLevels()) {
             if (VoltageLevelXml.INSTANCE.hasControlValues(vl, context)) {
-                continue;
+                return true;
             }
         }
         return false;

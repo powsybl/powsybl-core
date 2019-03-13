@@ -246,8 +246,8 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     @Override
     protected void writeSubElements(VoltageLevel vl, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
         TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
-        if (topologyLevel == TopologyLevel.NODE_BREAKER && context.getTargetFile() == IncrementalIidmFiles.TOPO ||
-                topologyLevel != TopologyLevel.NODE_BREAKER && context.getTargetFile() == IncrementalIidmFiles.STATE) {
+        if ((topologyLevel == TopologyLevel.NODE_BREAKER && context.getTargetFile() == IncrementalIidmFiles.TOPO) ||
+                (topologyLevel != TopologyLevel.NODE_BREAKER && context.getTargetFile() == IncrementalIidmFiles.STATE)){
             switch (topologyLevel) {
                 case NODE_BREAKER:
                     writeNodeBreakerTopology(vl, context);

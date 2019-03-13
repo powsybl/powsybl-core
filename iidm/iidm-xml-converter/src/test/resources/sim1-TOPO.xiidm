@@ -2,28 +2,14 @@
 <iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" id="sim1" caseDate="2013-01-15T18:45:00.000+01:00" forecastDistance="0" sourceFormat="test">
     <iidm:substation id="P1">
         <iidm:voltageLevel id="VLGEN">
-            <iidm:busBreakerTopology>
-                <iidm:bus id="NGEN"/>
-            </iidm:busBreakerTopology>
             <iidm:generator id="GEN" bus="NGEN" connectableBus="NGEN"></iidm:generator>
         </iidm:voltageLevel>
-        <iidm:voltageLevel id="VLHV1">
-            <iidm:busBreakerTopology>
-                <iidm:bus id="NHV1"/>
-            </iidm:busBreakerTopology>
-        </iidm:voltageLevel>
+        <iidm:voltageLevel id="VLHV1"></iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="NGEN_NHV1" bus1="NGEN" connectableBus1="NGEN" bus2="NHV1" connectableBus2="NHV1"/>
     </iidm:substation>
     <iidm:substation id="P2">
-        <iidm:voltageLevel id="VLHV2">
-            <iidm:busBreakerTopology>
-                <iidm:bus id="NHV2"/>
-            </iidm:busBreakerTopology>
-        </iidm:voltageLevel>
+        <iidm:voltageLevel id="VLHV2"></iidm:voltageLevel>
         <iidm:voltageLevel id="VLLOAD">
-            <iidm:busBreakerTopology>
-                <iidm:bus id="NLOAD"/>
-            </iidm:busBreakerTopology>
             <iidm:load id="LOAD" bus="NLOAD" connectableBus="NLOAD"/>
         </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="NHV2_NLOAD" bus1="NHV2" connectableBus1="NHV2" bus2="NLOAD" connectableBus2="NLOAD"></iidm:twoWindingsTransformer>

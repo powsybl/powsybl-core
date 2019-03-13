@@ -58,7 +58,8 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
             writeNodeOrBus(1, l.getTerminal1(), context);
             writeNodeOrBus(2, l.getTerminal2(), context);
         }
-        if (context.getOptions().isWithBranchSV() && context.getTargetFile() == IncrementalIidmFiles.STATE) {
+        if (context.getOptions().isWithBranchSV() &&
+                (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE)) {
             writePQ(1, l.getTerminal1(), context.getWriter());
             writePQ(2, l.getTerminal2(), context.getWriter());
         }

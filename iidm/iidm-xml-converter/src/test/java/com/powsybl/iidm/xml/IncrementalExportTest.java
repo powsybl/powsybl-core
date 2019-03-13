@@ -46,7 +46,6 @@ public class IncrementalExportTest extends AbstractConverterTest {
             compareXml(getClass().getResourceAsStream("/sim1-TOPO.xiidm"), is);
         }
     }
-
     @Test
     public void exportNetworkWithLoadFlow() throws IOException {
         XMLImporter importer = new XMLImporter(new InMemoryPlatformConfig(fileSystem));
