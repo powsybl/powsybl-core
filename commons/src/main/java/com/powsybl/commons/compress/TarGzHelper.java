@@ -42,7 +42,7 @@ public final class TarGzHelper {
 
     private static String archiveFiles(Path workingDir, String randomId, List<String> files) throws IOException {
         String tmgTarName = "tmp-tar-" + randomId + ".tar";
-        try (TarArchiveOutputStream taos = new TarArchiveOutputStream(new FileOutputStream(workingDir.resolve(tmgTarName).toFile()))) {
+        try (TarArchiveOutputStream taos = new TarArchiveOutputStream(Files.newOutputStream(workingDir.resolve(tmgTarName)))) {
             for (String file : files) {
                 addFile(taos, workingDir, file);
             }
@@ -63,7 +63,7 @@ public final class TarGzHelper {
     }
 
     private static byte[] convertTarFileToBytes(Path workingDir, String tarGzFilename) throws IOException {
-        try (FileInputStream fis = new FileInputStream(workingDir.resolve(tarGzFilename).toFile())) {
+        try (InputStream fis = Files.newInputStream(workingDir.resolve(tarGzFilename))) {
             return ByteStreams.toByteArray(fis);
         }
     }
