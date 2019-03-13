@@ -149,8 +149,8 @@ public class NetworkTest {
         assertEquals(2, network.getSubstationCount());
         assertEquals(2, Iterables.size(network.getVoltageLevels()));
         assertEquals(2, network.getVoltageLevelCount());
-        assertEquals(1, Iterables.size(network.getBatteries()));
-        assertEquals(1, network.getBatteryCount());
+        assertEquals(2, Iterables.size(network.getBatteries()));
+        assertEquals(2, network.getBatteryCount());
 
         // Substation A
         Substation substation1 = network.getSubstation("P1");
@@ -200,7 +200,7 @@ public class NetworkTest {
         assertSame(TopologyKind.BUS_BREAKER, voltageLevel2.getTopologyKind());
 
         Bus bus2 = voltageLevel2.getBusBreakerView().getBus("NBAT");
-        assertEquals(4, bus2.getConnectedTerminalCount());
+        assertEquals(5, bus2.getConnectedTerminalCount());
 
         Battery battery1 = network.getBattery("BAT");
         assertNotNull(battery1);
@@ -210,6 +210,15 @@ public class NetworkTest {
         assertEquals(-9999.99, battery1.getMinP(), 0.0);
         assertEquals(9999.99, battery1.getMaxP(), 0.0);
         assertEquals(bus2.getId(), battery1.getTerminal().getBusBreakerView().getBus().getId());
+
+        Battery battery2 = network.getBattery("BAT2");
+        assertNotNull(battery2);
+        assertEquals("BAT2", battery2.getId());
+        assertEquals(9999.99, battery2.getP0(), 0.0);
+        assertEquals(9999.99, battery2.getQ0(), 0.0);
+        assertEquals(-9999.99, battery2.getMinP(), 0.0);
+        assertEquals(9999.99, battery2.getMaxP(), 0.0);
+        assertEquals(bus2.getId(), battery2.getTerminal().getBusBreakerView().getBus().getId());
 
         Load load1 = network.getLoad("LOAD");
         assertNotNull(load1);
@@ -222,10 +231,10 @@ public class NetworkTest {
         assertEquals(battery1, voltageLevel2.getConnectable("BAT", Battery.class));
         //Stream test
         Function<Stream<? extends Identifiable>, List<String>> mapper = stream -> stream.map(Identifiable::getId).collect(Collectors.toList());
-        assertEquals(Collections.singletonList("BAT"), mapper.apply(network.getBatteryStream()));
+        assertEquals(Arrays.asList("BAT", "BAT2"), mapper.apply(network.getBatteryStream()));
         assertEquals(network.getBatteryCount(), network.getBatteryStream().count());
-        assertEquals(Collections.singletonList("BAT"), mapper.apply(network.getVoltageLevel("VLBAT").getBatteryStream()));
-        assertEquals(Collections.singletonList("BAT"), mapper.apply(bus2.getBatteryStream()));
+        assertEquals(Arrays.asList("BAT", "BAT2"), mapper.apply(network.getVoltageLevel("VLBAT").getBatteryStream()));
+        assertEquals(Arrays.asList("BAT", "BAT2"), mapper.apply(bus2.getBatteryStream()));
     }
 
     @Test

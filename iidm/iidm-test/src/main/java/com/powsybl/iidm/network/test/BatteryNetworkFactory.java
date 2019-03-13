@@ -125,6 +125,29 @@ public final class BatteryNetworkFactory {
                 .add();
         battery.getTerminal().setP(-605);
         battery.getTerminal().setQ(-225);
+        Battery battery2 = vlbat.newBattery()
+                .setId("BAT2")
+                .setBus(nbat.getId())
+                .setConnectableBus(nbat.getId())
+                .setP0(9999.99)
+                .setQ0(9999.99)
+                .setMinP(-9999.99)
+                .setMaxP(9999.99)
+                .add();
+        battery2.newReactiveCapabilityCurve()
+                .beginPoint()
+                .setP(0)
+                .setMinQ(-59.3)
+                .setMaxQ(60.0)
+                .endPoint()
+                .beginPoint()
+                .setP(70.0)
+                .setMinQ(-54.55)
+                .setMaxQ(46.25)
+                .endPoint()
+                .add();
+        battery2.getTerminal().setP(-605);
+        battery2.getTerminal().setQ(-225);
         vlbat.newLoad()
                 .setId("LOAD")
                 .setLoadType(LoadType.UNDEFINED)

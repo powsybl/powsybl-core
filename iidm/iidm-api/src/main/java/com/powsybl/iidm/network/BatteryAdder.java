@@ -26,13 +26,33 @@ package com.powsybl.iidm.network;
  */
 public interface BatteryAdder extends InjectionAdder<BatteryAdder> {
 
+    /**
+     * Set the constant active power in MW.
+     * <p>Depends on the working variant.
+     * @see VariantManager
+     */
     BatteryAdder setP0(double p0);
 
+    /**
+     * Set the constant reactive power in MVar.
+     * <p>Depends on the working variant.
+     * @see VariantManager
+     */
     BatteryAdder setQ0(double q0);
 
+    /**
+     * Set the minimal active power in MW.
+     */
     BatteryAdder setMinP(double minP);
 
+    /**
+     * Set the maximal active power in MW.
+     */
     BatteryAdder setMaxP(double maxP);
 
+    /**
+     * Build the Battery object
+     * @return {@link Battery}
+     */
     Battery add();
 }

@@ -8,7 +8,10 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.BatteryAdder;
 
+import java.util.Objects;
+
 /**
+ * {@inheritDoc}
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
  */
 public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> implements BatteryAdder {
@@ -24,43 +27,64 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
     private double maxP = Double.NaN;
 
     public BatteryAdderImpl(VoltageLevelExt voltageLevel) {
-        this.voltageLevel = voltageLevel;
+        this.voltageLevel = Objects.requireNonNull(voltageLevel);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected NetworkImpl getNetwork() {
         return voltageLevel.getNetwork();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected String getTypeDescription() {
         return "Battery";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public BatteryAdderImpl setP0(double p0) {
         this.p0 = p0;
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public BatteryAdderImpl setQ0(double q0) {
         this.q0 = q0;
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public BatteryAdderImpl setMinP(double minP) {
         this.minP = minP;
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public BatteryAdderImpl setMaxP(double maxP) {
         this.maxP = maxP;
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public BatteryImpl add() {
         String id = checkAndGetUniqueId();

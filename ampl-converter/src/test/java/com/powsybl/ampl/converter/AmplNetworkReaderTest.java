@@ -201,8 +201,6 @@ public class AmplNetworkReaderTest {
 
         assertEquals(12.0, battery.getP0(), 0.0);
         assertEquals(13.0, battery.getQ0(), 0.0);
-        assertEquals(11.0, battery.getMinP(), 0.0);
-        assertEquals(21.0, battery.getMaxP(), 0.0);
         assertEquals(300.0, battery.getTerminal().getP(), 0.0);
         assertEquals(150.0, battery.getTerminal().getQ(), 0.0);
     }

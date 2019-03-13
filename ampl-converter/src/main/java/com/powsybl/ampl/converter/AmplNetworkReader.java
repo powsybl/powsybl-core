@@ -140,7 +140,7 @@ public class AmplNetworkReader {
     }
 
     public AmplNetworkReader readBatteries() throws IOException {
-        read("_batteries", 9, this::readBattery);
+        read("_batteries", 7, this::readBattery);
 
         return this;
     }
@@ -148,12 +148,10 @@ public class AmplNetworkReader {
     private Void readBattery(String[] tokens) {
         int num = Integer.parseInt(tokens[1]);
         int busNum = Integer.parseInt(tokens[2]);
-        double minP = readDouble(tokens[3]);
-        double maxP = readDouble(tokens[4]);
-        double p0 = readDouble(tokens[5]);
-        double q0 = readDouble(tokens[6]);
-        double p = readDouble(tokens[7]);
-        double q = readDouble(tokens[8]);
+        double p0 = readDouble(tokens[3]);
+        double q0 = readDouble(tokens[4]);
+        double p = readDouble(tokens[5]);
+        double q = readDouble(tokens[6]);
 
         String id = mapper.getId(AmplSubset.BATTERY, num);
         Battery b = network.getBattery(id);
@@ -162,9 +160,6 @@ public class AmplNetworkReader {
         }
         b.setP0(p0);
         b.setQ0(q0);
-
-        b.setMinP(minP);
-        b.setMaxP(maxP);
 
         Terminal t = b.getTerminal();
         t.setP(p).setQ(q);

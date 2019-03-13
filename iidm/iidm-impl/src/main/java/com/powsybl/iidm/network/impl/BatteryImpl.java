@@ -9,6 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.*;
 
 /**
+ * {@inheritDoc}
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
  */
 public class BatteryImpl extends AbstractConnectable<Battery> implements Battery, ReactiveLimitsOwner {
@@ -34,21 +35,33 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         reactiveLimits = new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ConnectableType getType() {
         return ConnectableType.BATTERY;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected String getTypeDescription() {
         return "Battery";
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double getP0() {
         return p0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Battery setP0(double p0) {
         ValidationUtil.checkP0(this, p0);
@@ -58,11 +71,17 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double getQ0() {
         return q0;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Battery setQ0(double q0) {
         ValidationUtil.checkQ0(this, q0);
@@ -72,11 +91,17 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double getMinP() {
         return minP;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Battery setMinP(double minP) {
         ValidationUtil.checkMinP(this, minP);
@@ -87,11 +112,17 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double getMaxP() {
         return maxP;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Battery setMaxP(double maxP) {
         ValidationUtil.checkMaxP(this, maxP);
@@ -102,21 +133,33 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public TerminalExt getTerminal() {
         return terminals.get(0);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ReactiveLimits getReactiveLimits() {
         return reactiveLimits;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setReactiveLimits(ReactiveLimits reactiveLimits) {
         this.reactiveLimits = reactiveLimits;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <R extends ReactiveLimits> R getReactiveLimits(Class<R> type) {
         if (type == null) {
@@ -130,11 +173,17 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
         return new ReactiveCapabilityCurveAdderImpl(this);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
         return new MinMaxReactiveLimitsAdderImpl(this);

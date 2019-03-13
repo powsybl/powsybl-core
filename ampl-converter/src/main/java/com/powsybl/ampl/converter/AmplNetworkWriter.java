@@ -65,6 +65,11 @@ public class AmplNetworkWriter {
     private static final String MAX_Q_MAX_P = "maxQmaxP (MVar)";
     private static final String MAX_Q0 = "maxQ0 (MVar)";
     private static final String MAX_Q_MIN_P = "maxQminP (MVar)";
+    private static final String NUM = "num";
+    private static final String BUS = "bus";
+    private static final String P0 = "p0 (MW)";
+    private static final String Q0 = "q0 (MW)";
+    private static final String ID = "id";
 
     private final Network network;
 
@@ -222,7 +227,7 @@ public class AmplNetworkWriter {
                      !append,
                      AmplConstants.LOCALE,
                      new Column(VARIANT),
-                     new Column("num"),
+                     new Column(NUM),
                      new Column("unused1"),
                      new Column("unused2"),
                      new Column("nomV (KV)"),
@@ -231,7 +236,7 @@ public class AmplNetworkWriter {
                      new Column(FAULT),
                      new Column(config.getActionType().getLabel()),
                      new Column("country"),
-                     new Column("id"),
+                     new Column(ID),
                      new Column(DESCRIPTION))) {
             for (VoltageLevel vl : network.getVoltageLevels()) {
                 int num = mapper.getInt(AmplSubset.VOLTAGE_LEVEL, vl.getId());
@@ -347,7 +352,7 @@ public class AmplNetworkWriter {
                      !append,
                      AmplConstants.LOCALE,
                      new Column(VARIANT),
-                     new Column("num"),
+                     new Column(NUM),
                      new Column(SUBSTATION),
                      new Column("cc"),
                      new Column("v (pu)"),
@@ -356,7 +361,7 @@ public class AmplNetworkWriter {
                      new Column("q (MVar)"),
                      new Column(FAULT),
                      new Column(config.getActionType().getLabel()),
-                     new Column("id"))) {
+                     new Column(ID))) {
 
             writeBuses(context, formatter);
 
@@ -507,7 +512,7 @@ public class AmplNetworkWriter {
                      !append,
                      AmplConstants.LOCALE,
                      new Column(VARIANT),
-                     new Column("num"),
+                     new Column(NUM),
                      new Column("bus1"),
                      new Column("bus2"),
                      new Column("3wt num"),
@@ -531,7 +536,7 @@ public class AmplNetworkWriter {
                      new Column("merged"),
                      new Column(FAULT),
                      new Column(config.getActionType().getLabel()),
-                     new Column("id"),
+                     new Column(ID),
                      new Column(DESCRIPTION))) {
 
             writeLines(context, formatter);
@@ -982,7 +987,7 @@ public class AmplNetworkWriter {
                      !append,
                      AmplConstants.LOCALE,
                      new Column(VARIANT),
-                     new Column("num"),
+                     new Column(NUM),
                      new Column("tap"),
                      new Column("var ratio"),
                      new Column("x (pu)"),
@@ -1097,7 +1102,7 @@ public class AmplNetworkWriter {
     private void writeRatioTapChangers() throws IOException {
         List<Column> columns = new ArrayList<>(8);
         columns.add(new Column(VARIANT));
-        columns.add(new Column("num"));
+        columns.add(new Column(NUM));
         columns.add(new Column("tap"));
         columns.add(new Column("table"));
         columns.add(new Column("onLoad"));
@@ -1106,7 +1111,7 @@ public class AmplNetworkWriter {
         }
         columns.add(new Column(FAULT));
         columns.add(new Column(config.getActionType().getLabel()));
-        columns.add(new Column("id"));
+        columns.add(new Column(ID));
         try (Writer writer = new OutputStreamWriter(dataSource.newOutputStream("_network_rtc", "txt", append), StandardCharsets.UTF_8);
              TableFormatter formatter = new AmplDatTableFormatter(writer,
                      getTableTitle("Ratio tap changers"),
@@ -1147,12 +1152,12 @@ public class AmplNetworkWriter {
                      !append,
                      AmplConstants.LOCALE,
                      new Column(VARIANT),
-                     new Column("num"),
+                     new Column(NUM),
                      new Column("tap"),
                      new Column("table"),
                      new Column(FAULT),
                      new Column(config.getActionType().getLabel()),
-                     new Column("id"))) {
+                     new Column(ID))) {
             for (TwoWindingsTransformer twt : network.getTwoWindingsTransformers()) {
                 PhaseTapChanger ptc = twt.getPhaseTapChanger();
                 if (ptc != null) {
@@ -1193,14 +1198,14 @@ public class AmplNetworkWriter {
                      !append,
                      AmplConstants.LOCALE,
                      new Column(VARIANT),
-                     new Column("num"),
-                     new Column("bus"),
+                     new Column(NUM),
+                     new Column(BUS),
                      new Column(SUBSTATION),
-                     new Column("p0 (MW)"),
+                     new Column(P0),
                      new Column("q0 (MVar)"),
                      new Column(FAULT),
                      new Column(config.getActionType().getLabel()),
-                     new Column("id"),
+                     new Column(ID),
                      new Column(DESCRIPTION),
                      new Column("p (MW)"),
                      new Column("q (MVar)"))) {
@@ -1288,8 +1293,8 @@ public class AmplNetworkWriter {
                      !append,
                      AmplConstants.LOCALE,
                      new Column(VARIANT),
-                     new Column("num"),
-                     new Column("bus"),
+                     new Column(NUM),
+                     new Column(BUS),
                      new Column(CON_BUS),
                      new Column(SUBSTATION),
                      new Column("minB (pu)"),
@@ -1298,7 +1303,7 @@ public class AmplNetworkWriter {
                      new Column("b (pu)"),
                      new Column(FAULT),
                      new Column(config.getActionType().getLabel()),
-                     new Column("id"),
+                     new Column(ID),
                      new Column(DESCRIPTION),
                      new Column(ACTIVE_POWER),
                      new Column(REACTIVE_POWER),
@@ -1368,8 +1373,8 @@ public class AmplNetworkWriter {
                      !append,
                      AmplConstants.LOCALE,
                      new Column(VARIANT),
-                     new Column("num"),
-                     new Column("bus"),
+                     new Column(NUM),
+                     new Column(BUS),
                      new Column(CON_BUS),
                      new Column(SUBSTATION),
                      new Column("minB (pu)"),
@@ -1379,7 +1384,7 @@ public class AmplNetworkWriter {
                      new Column(TARGET_Q),
                      new Column(FAULT),
                      new Column(config.getActionType().getLabel()),
-                     new Column("id"),
+                     new Column(ID),
                      new Column(DESCRIPTION),
                      new Column(ACTIVE_POWER),
                      new Column(REACTIVE_POWER))) {
@@ -1432,8 +1437,8 @@ public class AmplNetworkWriter {
                      !append,
                      AmplConstants.LOCALE,
                      new Column(VARIANT),
-                     new Column("num"),
-                     new Column("bus"),
+                     new Column(NUM),
+                     new Column(BUS),
                      new Column(CON_BUS),
                      new Column(SUBSTATION),
                      new Column(MINP),
@@ -1450,7 +1455,7 @@ public class AmplNetworkWriter {
                      new Column(TARGET_Q),
                      new Column(FAULT),
                      new Column(config.getActionType().getLabel()),
-                     new Column("id"),
+                     new Column(ID),
                      new Column(DESCRIPTION),
                      new Column(ACTIVE_POWER),
                      new Column(REACTIVE_POWER))) {
@@ -1523,14 +1528,14 @@ public class AmplNetworkWriter {
                      !append,
                      AmplConstants.LOCALE,
                      new Column(VARIANT),
-                     new Column("num"),
-                     new Column("bus"),
+                     new Column(NUM),
+                     new Column(BUS),
                      new Column(CON_BUS),
                      new Column(SUBSTATION),
+                     new Column(P0),
+                     new Column(Q0),
                      new Column(MINP),
                      new Column(MAXP),
-                     new Column("p0 (MW)"),
-                     new Column("q0 (MW)"),
                      new Column(MIN_Q_MAX_P),
                      new Column(MIN_Q0),
                      new Column(MIN_Q_MIN_P),
@@ -1539,7 +1544,7 @@ public class AmplNetworkWriter {
                      new Column(MAX_Q_MIN_P),
                      new Column(FAULT),
                      new Column(config.getActionType().getLabel()),
-                     new Column("id"),
+                     new Column(ID),
                      new Column(DESCRIPTION),
                      new Column(ACTIVE_POWER),
                      new Column(REACTIVE_POWER))) {
@@ -1547,8 +1552,10 @@ public class AmplNetworkWriter {
             for (Battery b : network.getBatteries()) {
                 Terminal t = b.getTerminal();
                 Bus bus = AmplUtil.getBus(t);
+                String busId = null;
                 int busNum = -1;
                 if (bus != null) {
+                    busId = bus.getId();
                     busNum = mapper.getInt(AmplSubset.BUS, bus.getId());
                 }
                 int conBusNum = -1;
@@ -1557,7 +1564,10 @@ public class AmplNetworkWriter {
                 if (conBus != null) {
                     conBusNum = mapper.getInt(AmplSubset.BUS, conBus.getId());
                 }
-                // Always write Batteries
+                if (!isBusExported(context, busId)) {
+                    skipped.add(b.getId());
+                    continue;
+                }
 
                 String id = b.getId();
                 context.batteryIdsToExport.add(id);
@@ -1573,10 +1583,10 @@ public class AmplNetworkWriter {
                         .writeCell(busNum)
                         .writeCell(conBusNum != -1 ? conBusNum : busNum)
                         .writeCell(vlNum)
-                        .writeCell(minP)
-                        .writeCell(maxP)
                         .writeCell(p0)
                         .writeCell(q0)
+                        .writeCell(minP)
+                        .writeCell(maxP)
                         .writeCell(b.getReactiveLimits().getMinQ(maxP))
                         .writeCell(b.getReactiveLimits().getMinQ(0))
                         .writeCell(b.getReactiveLimits().getMinQ(minP))
@@ -1621,7 +1631,7 @@ public class AmplNetworkWriter {
                      !append,
                      AmplConstants.LOCALE,
                      new Column(VARIANT),
-                     new Column("num"),
+                     new Column(NUM),
                      new Column("branch"),
                      new Column("side"),
                      new Column("limit (A)"),
@@ -1683,7 +1693,7 @@ public class AmplNetworkWriter {
                      !append,
                      AmplConstants.LOCALE,
                      new Column(VARIANT),
-                     new Column("num"),
+                     new Column(NUM),
                      new Column("type"),
                      new Column("converterStation1"),
                      new Column("converterStation2"),
@@ -1694,7 +1704,7 @@ public class AmplNetworkWriter {
                      new Column(MAXP),
                      new Column(FAULT),
                      new Column(config.getActionType().getLabel()),
-                     new Column("id"),
+                     new Column(ID),
                      new Column(DESCRIPTION))) {
             for (HvdcLine hvdcLine : network.getHvdcLines()) {
                 String id = hvdcLine.getId();
@@ -1741,15 +1751,15 @@ public class AmplNetworkWriter {
                      !append,
                      AmplConstants.LOCALE,
                      new Column(VARIANT),
-                     new Column("num"),
-                     new Column("bus"),
+                     new Column(NUM),
+                     new Column(BUS),
                      new Column(CON_BUS),
                      new Column(SUBSTATION),
                      new Column("lossFactor (%PDC)"),
                      new Column("powerFactor"),
                      new Column(FAULT),
                      new Column(config.getActionType().getLabel()),
-                     new Column("id"),
+                     new Column(ID),
                      new Column(DESCRIPTION),
                      new Column(ACTIVE_POWER),
                      new Column(REACTIVE_POWER))) {
@@ -1792,8 +1802,8 @@ public class AmplNetworkWriter {
                      !append,
                      AmplConstants.LOCALE,
                      new Column(VARIANT),
-                     new Column("num"),
-                     new Column("bus"),
+                     new Column(NUM),
+                     new Column(BUS),
                      new Column(CON_BUS),
                      new Column(SUBSTATION),
                      new Column(MINP),
@@ -1810,7 +1820,7 @@ public class AmplNetworkWriter {
                      new Column("lossFactor (%PDC)"),
                      new Column(FAULT),
                      new Column(config.getActionType().getLabel()),
-                     new Column("id"),
+                     new Column(ID),
                      new Column(DESCRIPTION),
                      new Column(ACTIVE_POWER),
                      new Column(REACTIVE_POWER))) {
