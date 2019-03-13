@@ -36,14 +36,13 @@ public class IncrementalUpdateTest extends AbstractConverterTest {
 
     @Test
     public void updateNetworkTest() throws IOException {
-        // To do
         //load networks
         Network network = Importers.loadNetwork("/home/benhamedcha/eurostag.xiidm");
         Network networkLf = Importers.loadNetwork("/home/benhamedcha/eurostag-lf.xiidm");
         assertNotEquals(networkLf.getLine("NHV1_NHV2_2").getTerminal1().getQ(), network.getLine("NHV1_NHV2_2").getTerminal1().getQ());
 
         ReadOnlyDataSource dataSource = new ResourceDataSource("sim1-STATE", new ResourceSet("/", "sim1-STATE.xiidm"));
-        NetworkXml.update(network, new ImportOptions(), dataSource);
+        NetworkXml.update(network, new ImportOptions().setControl(false).setTopo(false), dataSource);
         assertEquals(networkLf.getLine("NHV1_NHV2_2").getTerminal1().getQ(), network.getLine("NHV1_NHV2_2").getTerminal1().getQ(), 0);
 
     }

@@ -404,7 +404,8 @@ public final class NetworkXml {
             context.setTargetFile(targetFile);
             for (Substation s : n.getSubstations()) {
                 if ((targetFile == IncrementalIidmFiles.CONTROL && !SubstationXml.INSTANCE.hasControlValues(s, context)) ||
-                        (targetFile == IncrementalIidmFiles.STATE && !SubstationXml.INSTANCE.hasStateValues(s, context))) {
+                        (targetFile == IncrementalIidmFiles.STATE && !SubstationXml.INSTANCE.hasStateValues(s, context)) ||
+                        targetFile == IncrementalIidmFiles.TOPO && !SubstationXml.INSTANCE.hasTopoValues(s, context)) {
                     continue;
                 }
                 SubstationXml.INSTANCE.write(s, null, context);
@@ -735,15 +736,23 @@ public final class NetworkXml {
         }
     }
 
-    public static void update(Network network, ImportOptions options, ReadOnlyDataSource dataSource) throws IOException {
+    static void update(Network network, ImportOptions options, ReadOnlyDataSource dataSource) throws IOException {
         if (options.isState()) {
-            update(network, dataSource.newInputStream(network.getName() + "-STATE.xiidm"));
+            update(network, dataSource.newInputStream(network.getName() + "-STATE.xiidm"), options);
         }
-        // To do
+        if (options.isControl()) {
+            update(network, dataSource.newInputStream(network.getName() + "-CONTROL.xiidm"), options);
+        }
+        if (options.isTopo()) {
+            update(network, dataSource.newInputStream(network.getName() + "-TOPO.xiidm"), options);
+        }
     }
 
     public static void update(Network network, InputStream is) {
-        // To do
+        update(network, is, new ImportOptions());
+    }
+
+    public static void update(Network network, InputStream is, ImportOptions options) {
         try {
             XMLStreamReader reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
             reader.next();
@@ -777,7 +786,7 @@ public final class NetworkXml {
 
                     case HvdcLineXml.ROOT_ELEMENT_NAME:
                     case SubstationXml.ROOT_ELEMENT_NAME:
-
+                    case "busBreakerTopology":
                         // Nothing to do
                         break;
 
