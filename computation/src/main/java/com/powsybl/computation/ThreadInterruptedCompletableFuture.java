@@ -39,6 +39,7 @@ public class ThreadInterruptedCompletableFuture<R> extends CompletableFuture<R> 
             } catch (InterruptedException e) {
                 LOGGER.warn(e.toString(), e);
                 Thread.currentThread().interrupt();
+                return false;
             }
         }
 

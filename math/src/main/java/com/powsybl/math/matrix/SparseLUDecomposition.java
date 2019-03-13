@@ -10,13 +10,17 @@ import java.nio.ByteBuffer;
 import java.util.UUID;
 
 /**
+ * Sparse matrix LU decomposition.
+ *
+ * @see SparseMatrix
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SparseLUDecomposition implements LUDecomposition {
+class SparseLUDecomposition implements LUDecomposition {
 
     private final String id;
 
-    public SparseLUDecomposition(SparseMatrix matrix) {
+    SparseLUDecomposition(SparseMatrix matrix) {
         if (matrix.getM() != matrix.getN()) {
             throw new IllegalArgumentException("matrix is not square");
         }
@@ -32,16 +36,25 @@ public class SparseLUDecomposition implements LUDecomposition {
 
     private native void solve2(String id, int m, int n, ByteBuffer b);
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void solve(double[] b) {
         solve(id, b);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void solve(DenseMatrix b) {
         solve2(id, b.getM(), b.getN(), b.getBuffer());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void close() {
         release(id);

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.ObjIntConsumer;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -73,16 +74,26 @@ public class CompressedStringDataChunk extends AbstractCompressedDataChunk imple
         return TimeSeriesDataType.STRING;
     }
 
-    @Override
-    public void fillBuffer(CompactStringBuffer buffer, int timeSeriesOffset) {
-        Objects.requireNonNull(buffer);
+    private void forEachMaterializedValueIndex(ObjIntConsumer<String> consumer) {
         int k = 0;
         for (int i = 0; i < stepValues.length; i++) {
             String value = stepValues[i];
             for (int j = 0; j < stepLengths[i]; j++) {
-                buffer.putString(timeSeriesOffset + offset + k++, value);
+                consumer.accept(value, offset + k++);
             }
         }
+    }
+
+    @Override
+    public void fillBuffer(CompactStringBuffer buffer, int timeSeriesOffset) {
+        Objects.requireNonNull(buffer);
+        forEachMaterializedValueIndex((v, i) -> buffer.putString(timeSeriesOffset + i, v));
+    }
+
+    @Override
+    public void fillBuffer(BigStringBuffer buffer, long timeSeriesOffset) {
+        Objects.requireNonNull(buffer);
+        forEachMaterializedValueIndex((v, i) -> buffer.putString(timeSeriesOffset + i, v));
     }
 
     @Override

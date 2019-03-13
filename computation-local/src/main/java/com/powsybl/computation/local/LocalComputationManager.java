@@ -325,8 +325,8 @@ public class LocalComputationManager implements ComputationManager {
                     R result = handler.after(workingDir.toPath(), report);
                     f.complete(result);
                 }
-            } catch (Exception e) {
-                f.completeExceptionally(e);
+            } catch (Throwable t) {
+                f.completeExceptionally(t);
             }
         });
         return f;
