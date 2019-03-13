@@ -22,7 +22,7 @@ import java.util.stream.Stream;
  */
 public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Network> implements Network {
 
-    static final PowsyblException UNMODIFIABLE_EXCEPTION = new PowsyblException("Unmodifiable identifiable");
+    public static final PowsyblException UNMODIFIABLE_EXCEPTION = new PowsyblException("Unmodifiable identifiable");
 
     private final ImmutableCacheIndex cache;
 

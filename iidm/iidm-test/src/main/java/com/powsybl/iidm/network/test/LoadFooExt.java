@@ -14,6 +14,8 @@ import com.powsybl.iidm.network.Load;
  */
 public class LoadFooExt extends AbstractExtension<Load> {
 
+    private String username;
+
     public LoadFooExt(Load load) {
         super(load);
     }
@@ -21,5 +23,13 @@ public class LoadFooExt extends AbstractExtension<Load> {
     @Override
     public String getName() {
         return "loadFoo";
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }

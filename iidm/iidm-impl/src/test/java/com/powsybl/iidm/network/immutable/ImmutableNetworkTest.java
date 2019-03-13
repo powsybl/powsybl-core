@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network.immutable;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.*;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -138,6 +138,36 @@ public class ImmutableNetworkTest {
 
         assertTrue(immutableTerminal.getBusView().getBus() instanceof ImmutableBus);
         assertTrue(immutableTerminal.getBusView().getConnectableBus() instanceof ImmutableBus);
+    }
 
+    @Test
+    public void withExtentsions() {
+        Network network = MultipleExtensionsTestNetworkFactory.create();
+        network.getSubstation("S").addExtension(SubstationShutdownExtension.class, new SubstationShutdownExtension());
+        network.getLoad("LOAD").getExtension(LoadFooExt.class).setUsername("foo");
+        ImmutableNetwork immutableNetwork = ImmutableNetwork.of(network);
+        Load immutableLoad = immutableNetwork.getLoad("LOAD");
+        LoadFooExt immutableExt = immutableLoad.getExtension(LoadFooExt.class);
+        assertEquals("foo", immutableExt.getUsername());
+        try {
+            immutableExt.setUsername("foo");
+            fail();
+        } catch (Exception e) {
+            //ignore
+        }
+        try {
+            immutableLoad.addExtension(LoadBarExt.class, new LoadBarExt(immutableLoad));
+            fail();
+        } catch (Exception e) {
+            // ignore
+        }
+        assertEquals(2, immutableLoad.getExtensions().size());
+        SubstationShutdownExtension sdExt = immutableNetwork.getSubstation("S").getExtensionByName("subShutdownExt");
+        try {
+            sdExt.shutdown();
+            fail();
+        } catch (Exception e) {
+            // ignore
+        }
     }
 }

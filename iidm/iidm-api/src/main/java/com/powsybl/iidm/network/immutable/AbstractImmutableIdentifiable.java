@@ -7,16 +7,20 @@
 package com.powsybl.iidm.network.immutable;
 
 import com.powsybl.commons.extensions.Extension;
+import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.iidm.network.Identifiable;
 
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.stream.Collectors;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 abstract class AbstractImmutableIdentifiable<I extends Identifiable<I>> implements Identifiable<I> {
+
+    protected static ExtensionProviders<ImmutableWrapperExtension> PROVIDERS;
 
     protected final I identifiable;
 
@@ -49,14 +53,26 @@ abstract class AbstractImmutableIdentifiable<I extends Identifiable<I>> implemen
         throw ImmutableNetwork.createUnmodifiableNetworkException();
     }
 
+    private void lazyInitExtProviders() {
+        PROVIDERS = ExtensionProviders.createProvider(ImmutableWrapperExtension.class, AbstractImmutableWrapperExtension.IMMU_WRAPPER_EXT_CATE_NAME);
+    }
+
     @Override
     public <E extends Extension<I>> E getExtension(Class<? super E> type) {
-        return identifiable.getExtension(type);
+        return getExtensionByName(identifiable.getExtension(type).getName());
     }
 
     @Override
     public <E extends Extension<I>> E getExtensionByName(String name) {
-        return identifiable.getExtensionByName(name);
+        if (PROVIDERS == null) {
+            lazyInitExtProviders();
+        }
+        ImmutableWrapperExtension immutableWrapperExtension = PROVIDERS.findProvider(name);
+        if (immutableWrapperExtension != null) {
+            return (E) immutableWrapperExtension.wrap(identifiable.getExtensionByName(name));
+        } else {
+            return identifiable.getExtensionByName(name);
+        }
     }
 
     @Override
@@ -66,6 +82,10 @@ abstract class AbstractImmutableIdentifiable<I extends Identifiable<I>> implemen
 
     @Override
     public <E extends Extension<I>> Collection<E> getExtensions() {
-        return identifiable.getExtensions();
+        return identifiable.getExtensions().stream()
+                .map(e -> e.getName())
+                .map(this::getExtensionByName)
+                .map(e -> (E) e)
+                .collect(Collectors.toList());
     }
 }

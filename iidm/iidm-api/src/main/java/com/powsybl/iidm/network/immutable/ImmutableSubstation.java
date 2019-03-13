@@ -7,10 +7,10 @@
 package com.powsybl.iidm.network.immutable;
 
 import com.google.common.collect.Iterables;
-import com.powsybl.commons.extensions.Extension;
 import com.powsybl.iidm.network.*;
 
-import java.util.*;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -121,47 +121,7 @@ final class ImmutableSubstation extends AbstractImmutableIdentifiable<Substation
     }
 
     @Override
-    public String getId() {
-        return identifiable.getId();
-    }
-
-    @Override
-    public String getName() {
-        return identifiable.getName();
-    }
-
-    @Override
     public void remove() {
         throw ImmutableNetwork.createUnmodifiableNetworkException();
-    }
-
-    @Override
-    public boolean hasProperty() {
-        return identifiable.hasProperty();
-    }
-
-    @Override
-    public Properties getProperties() {
-        return identifiable.getProperties();
-    }
-
-    @Override
-    public <E extends Extension<Substation>> void addExtension(Class<? super E> type, E extension) {
-        throw ImmutableNetwork.createUnmodifiableNetworkException();
-    }
-
-    @Override
-    public <E extends Extension<Substation>> E getExtensionByName(String name) {
-        return identifiable.getExtensionByName(name);
-    }
-
-    @Override
-    public <E extends Extension<Substation>> boolean removeExtension(Class<E> type) {
-        throw ImmutableNetwork.createUnmodifiableNetworkException();
-    }
-
-    @Override
-    public <E extends Extension<Substation>> Collection<E> getExtensions() {
-        return identifiable.getExtensions();
     }
 }
