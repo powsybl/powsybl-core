@@ -104,10 +104,12 @@ public class CgmesImport implements Importer {
                 p,
                 BOUNDARY_LOCATION_PARAMETER,
                 defaultValueConfig));
-        if (!loc.toFile().exists()) {
+        // Check that the Data Source has valid CGMES names
+        ReadOnlyDataSource ds = new GenericReadOnlyDataSource(loc, DataSourceUtil.getBaseName(loc));
+        if ((new CgmesOnDataSource(ds)).names().isEmpty()) {
             return null;
         }
-        return new GenericReadOnlyDataSource(loc, DataSourceUtil.getBaseName(loc));
+        return ds;
     }
 
     private String tripleStore(Properties p) {
