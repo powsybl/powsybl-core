@@ -105,7 +105,8 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
     private void writeVoltageLevels(Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
         for (VoltageLevel vl : s.getVoltageLevels()) {
             if ((!VoltageLevelXml.INSTANCE.hasControlValues(vl, context) && context.getTargetFile() == IncrementalIidmFiles.CONTROL) ||
-                    (!VoltageLevelXml.INSTANCE.hasStateValues(vl, context) && context.getTargetFile() == IncrementalIidmFiles.STATE)) {
+                    (!VoltageLevelXml.INSTANCE.hasStateValues(vl, context) && context.getTargetFile() == IncrementalIidmFiles.STATE) ||
+                    (!VoltageLevelXml.INSTANCE.hasTopoValues(vl, context) && context.getTargetFile() == IncrementalIidmFiles.TOPO)) {
                 continue;
             }
             VoltageLevelXml.INSTANCE.write(vl, null, context);

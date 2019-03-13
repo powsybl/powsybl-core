@@ -14,8 +14,10 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -32,18 +34,19 @@ public class IncrementalExportTest extends AbstractConverterTest {
         properties.put(XMLExporter.IMPORT_EXPORT_TYPE, String.valueOf(IidmImportExportType.INCREMENTAL_IIDM));
 
         MemDataSource dataSource = new MemDataSource();
+        //FileDataSource dataSource = new FileDataSource(Paths.get("/home/benhamedcha"), "test");
         new XMLExporter().export(network, properties, dataSource);
 
-        try (InputStream is = new ByteArrayInputStream(dataSource.getData("sim1-CONTROL.xiidm"))) {
-            compareXml(getClass().getResourceAsStream("/sim1-CONTROL.xiidm"), is);
+        try (InputStream is = new ByteArrayInputStream(dataSource.getData("-CONTROL.xiidm"))) {
+            compareXml(getClass().getResourceAsStream("/Incremental-CONTROL.xiidm"), is);
         }
 
-        try (InputStream is = new ByteArrayInputStream(dataSource.getData("sim1-STATE.xiidm"))) {
-            compareXml(getClass().getResourceAsStream("/sim1-STATE.xiidm"), is);
+        try (InputStream is = new ByteArrayInputStream(dataSource.getData("-STATE.xiidm"))) {
+            compareXml(getClass().getResourceAsStream("/Incremental-STATE.xiidm"), is);
         }
 
-        try (InputStream is = new ByteArrayInputStream(dataSource.getData("sim1-TOPO.xiidm"))) {
-            compareXml(getClass().getResourceAsStream("/sim1-TOPO.xiidm"), is);
+        try (InputStream is = new ByteArrayInputStream(dataSource.getData("-TOPO.xiidm"))) {
+            compareXml(getClass().getResourceAsStream("/Incremental-TOPO.xiidm"), is);
         }
     }
     @Test

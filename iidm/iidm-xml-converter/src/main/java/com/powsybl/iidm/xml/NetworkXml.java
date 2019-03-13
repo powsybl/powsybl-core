@@ -145,6 +145,15 @@ public final class NetworkXml {
         }
     }
 
+    private static void writeExtensionNamespace(ExportOptions options, XMLStreamWriter writer, String extensionName) throws XMLStreamException {
+        ExtensionXmlSerializer extensionXmlSerializer = getExtensionXmlSerializer(options, extensionName);
+        if (extensionXmlSerializer == null) {
+            return;
+        }
+        writer.setPrefix(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri());
+        writer.writeNamespace(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri());
+    }
+
     private static void writeExtensionNamespaces(Network n, ExportOptions options, XMLStreamWriter writer) throws XMLStreamException {
         Set<String> extensionUris = new HashSet<>();
         Set<String> extensionPrefixes = new HashSet<>();
@@ -236,20 +245,42 @@ public final class NetworkXml {
         }
     }
 
-    private static XMLStreamWriter initializeWriter(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
+    private static void writeMainAttributes(Network n, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeAttribute(ID, n.getId());
+        writer.writeAttribute(CASE_DATE, n.getCaseDate().toString());
+        writer.writeAttribute(FORECAST_DISTANCE, Integer.toString(n.getForecastDistance()));
+        writer.writeAttribute(SOURCE_FORMAT, n.getSourceFormat());
+    }
+
+    private static XMLStreamWriter writeStartAttributes(OutputStream os, ExportOptions options) throws XMLStreamException {
         XMLStreamWriter writer;
         writer = createXmlStreamWriter(options, os);
         writer.writeStartDocument(StandardCharsets.UTF_8.toString(), "1.0");
         writer.setPrefix(IIDM_PREFIX, IIDM_URI);
         writer.writeStartElement(IIDM_URI, NETWORK_ROOT_ELEMENT_NAME);
         writer.writeNamespace(IIDM_PREFIX, IIDM_URI);
+        return writer;
+    }
+
+    private static XMLStreamWriter initializeWriter(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
+        XMLStreamWriter writer = writeStartAttributes(os, options);
         if (!options.withNoExtension()) {
             writeExtensionNamespaces(n, options, writer);
         }
-        writer.writeAttribute(ID, n.getId());
-        writer.writeAttribute(CASE_DATE, n.getCaseDate().toString());
-        writer.writeAttribute(FORECAST_DISTANCE, Integer.toString(n.getForecastDistance()));
-        writer.writeAttribute(SOURCE_FORMAT, n.getSourceFormat());
+        writeMainAttributes(n, writer);
+        return writer;
+    }
+
+    private static XMLStreamWriter initializeBaseNetworkWriter(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
+        XMLStreamWriter writer = writeStartAttributes(os, options);
+        writeMainAttributes(n, writer);
+        return writer;
+    }
+
+    private static XMLStreamWriter initializeExtensionFileWriter(Network n, OutputStream os, ExportOptions options, String extensionName) throws XMLStreamException {
+        XMLStreamWriter writer = writeStartAttributes(os, options);
+        writeExtensionNamespace(options, writer, extensionName);
+        writeMainAttributes(n, writer);
         return writer;
     }
 
@@ -267,9 +298,9 @@ public final class NetworkXml {
             String name = entry.getKey();
             Set<String> ids = entry.getValue();
             if (options.withExtension(name)) {
-                try (OutputStream os = dataSource.newOutputStream(n.getName() + "-" +  name + ext, false);
+                try (OutputStream os = dataSource.newOutputStream(dataSource.getBaseName() + "-" +  name + ext, false);
                      BufferedOutputStream bos = new BufferedOutputStream(os)) {
-                    XMLStreamWriter writer = initializeWriter(n, bos, options);
+                    XMLStreamWriter writer = initializeExtensionFileWriter(n, bos, options, name);
                     for (String id : ids) {
                         writer.writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
                         writer.writeAttribute("id", context.getAnonymizer().anonymizeString(id));
@@ -285,7 +316,12 @@ public final class NetworkXml {
 
     private static NetworkXmlWriterContext writeBaseNetwork(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
         // create the  writer of the base file
-        final XMLStreamWriter writer = initializeWriter(n, os, options);
+        XMLStreamWriter writer;
+        if (options.getMode() == IidmImportExportMode.UNIQUE_FILE) {
+            writer = initializeWriter(n, os, options);
+        } else {
+            writer = initializeBaseNetworkWriter(n, os, options);
+        }
         BusFilter filter = BusFilter.create(n, options);
         Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
         NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter);
@@ -357,19 +393,19 @@ public final class NetworkXml {
 
     public static void incrementalWrite(Network n, ExportOptions options, DataSource dataSource) throws IOException {
         if (options.isTopo()) {
-            try (OutputStream os = dataSource.newOutputStream(n.getName() + "-TOPO.xiidm", false);
+            try (OutputStream os = dataSource.newOutputStream(dataSource.getBaseName() + "-TOPO.xiidm", false);
                  BufferedOutputStream bos = new BufferedOutputStream(os)) {
                 write(n, options, bos, IncrementalIidmFiles.TOPO);
             }
         }
         if (options.isState()) {
-            try (OutputStream os = dataSource.newOutputStream(n.getName() + "-STATE.xiidm", false);
+            try (OutputStream os = dataSource.newOutputStream(dataSource.getBaseName() + "-STATE.xiidm", false);
                  BufferedOutputStream bos = new BufferedOutputStream(os)) {
                 write(n, options, bos, IncrementalIidmFiles.STATE);
             }
         }
         if (options.isControl()) {
-            try (OutputStream os = dataSource.newOutputStream(n.getName() + "-CONTROL.xiidm", false);
+            try (OutputStream os = dataSource.newOutputStream(dataSource.getBaseName() + "-CONTROL.xiidm", false);
                  BufferedOutputStream bos = new BufferedOutputStream(os)) {
                 write(n, options, bos, IncrementalIidmFiles.CONTROL);
             }
@@ -531,12 +567,14 @@ public final class NetworkXml {
                         break;
 
                     case EXTENSION_ELEMENT_NAME:
+                        if (config.getMode() != IidmImportExportMode.UNIQUE_FILE) {
+                            LOGGER.warn("Mode isn't UNIQUE_FILE and some extensions was found in the base file!, some extensions may be overwritten later when reading extensions files");
+                        }
                         String id2 = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, "id"));
                         Identifiable identifiable = network.getIdentifiable(id2);
                         if (identifiable == null) {
                             throw new PowsyblException("Identifiable " + id2 + " not found");
                         }
-
                         readExtensions(identifiable, context, extensionNamesNotFound);
                         break;
 
@@ -580,6 +618,8 @@ public final class NetworkXml {
                     // in this case we have to read all extensions from one  file
                     try (InputStream ise = dataSource.newInputStream("-ext", dataSourceExt)) {
                         readExtensions(network, ise, anonymizer, options);
+                    } catch (IOException e) {
+                        LOGGER.warn(String.format("the extensions file wasn't found while importing, please ensure that the file name respect the naming convention baseFileName-ext%s", dataSourceExt));
                     }
                     break;
                 case ONE_SEPARATED_FILE_PER_EXTENSION_TYPE:
@@ -642,10 +682,10 @@ public final class NetworkXml {
     static void readExtensions(Network network, ReadOnlyDataSource dataSource, Anonymizer anonymizer, ImportOptions options, String ext) throws IOException {
         options.getExtensions().ifPresent(extensions -> {
             for (String extension : extensions) {
-                try (InputStream ise = dataSource.newInputStream(network.getName() + "-" + extension + ext)) {
+                try (InputStream ise = dataSource.newInputStream(dataSource.getBaseName() + "-" + extension + ext)) {
                     readExtensions(network, ise, anonymizer, options);
                 } catch (IOException e) {
-                    throw new UncheckedIOException(e);
+                    LOGGER.warn(String.format("the %s extension file is not found despite it was declared in the extensions list", extension));
                 }
             }
         });
@@ -656,6 +696,8 @@ public final class NetworkXml {
             for (String fileName : listNames) {
                 try (InputStream ise = dataSource.newInputStream(fileName)) {
                     readExtensions(network, ise, anonymizer, options);
+                } catch (IOException e) {
+                    LOGGER.warn(String.format("the %s file is not found ", fileName));
                 }
             }
         }
@@ -689,7 +731,7 @@ public final class NetworkXml {
                     }
                     readExtensions(identifiable, context, extensionNamesNotFound);
                 } else {
-                    throw new AssertionError();
+                    throw new PowsyblException("Unexpected element: " +  reader.getLocalName());
                 }
             });
             return network;
@@ -738,13 +780,13 @@ public final class NetworkXml {
 
     static void update(Network network, ImportOptions options, ReadOnlyDataSource dataSource) throws IOException {
         if (options.isState()) {
-            update(network, dataSource.newInputStream(network.getName() + "-STATE.xiidm"), options);
+            update(network, dataSource.newInputStream(dataSource.getBaseName() + "-STATE.xiidm"), options);
         }
         if (options.isControl()) {
-            update(network, dataSource.newInputStream(network.getName() + "-CONTROL.xiidm"), options);
+            update(network, dataSource.newInputStream(dataSource.getBaseName()  + "-CONTROL.xiidm"), options);
         }
         if (options.isTopo()) {
-            update(network, dataSource.newInputStream(network.getName() + "-TOPO.xiidm"), options);
+            update(network, dataSource.newInputStream(dataSource.getBaseName() + "-TOPO.xiidm"), options);
         }
     }
 
@@ -758,6 +800,8 @@ public final class NetworkXml {
             reader.next();
 
             final VoltageLevel[] vl = new VoltageLevel[1];
+            final TwoWindingsTransformer[] twt = new TwoWindingsTransformer[1];
+
 
             XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {
 
@@ -780,8 +824,11 @@ public final class NetworkXml {
                         break;
 
                     case LineXml.ROOT_ELEMENT_NAME:
+                        updateBranch(reader, network);
+                        break;
                     case TwoWindingsTransformerXml.ROOT_ELEMENT_NAME:
                         updateBranch(reader, network);
+                        updateTwoWindingsTransformer(reader, network, twt);
                         break;
 
                     case HvdcLineXml.ROOT_ELEMENT_NAME:
@@ -792,6 +839,9 @@ public final class NetworkXml {
 
                     case ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME:
                         throw new AssertionError();
+                    case "ratioTapChanger":
+                        //updateRatioTapCganger();
+                        break;
 
                     default:
                         throw new AssertionError("Unexpected element: " + reader.getLocalName());
@@ -815,6 +865,14 @@ public final class NetworkXml {
         vl[0] = network.getVoltageLevel(id);
         if (vl[0] == null) {
             throw new PowsyblException("Voltage level '" + id + "' not found");
+        }
+    }
+
+    private static void updateTwoWindingsTransformer(XMLStreamReader reader, Network network, TwoWindingsTransformer[] twt) {
+        String id = reader.getAttributeValue(null, "id");
+        twt[0] = network.getTwoWindingsTransformer(id);
+        if (twt[0] == null) {
+            throw new PowsyblException("Two Windings Transformer '" + id + "' not found");
         }
     }
 

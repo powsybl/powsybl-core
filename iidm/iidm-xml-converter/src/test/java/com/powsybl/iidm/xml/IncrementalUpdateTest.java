@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
@@ -16,6 +17,8 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.Properties;
 
 import static org.junit.Assert.*;
 
@@ -32,8 +35,12 @@ public class IncrementalUpdateTest extends AbstractConverterTest {
         Network networkLf = Importers.loadNetwork("/home/benhamedcha/eurostag-lf.xiidm");
         assertNotEquals(networkLf.getLine("NHV1_NHV2_2").getTerminal1().getQ(), network.getLine("NHV1_NHV2_2").getTerminal1().getQ());
 
-        ReadOnlyDataSource dataSource = new ResourceDataSource("sim1-STATE", new ResourceSet("/", "sim1-STATE.xiidm"));
-        NetworkXml.update(network, new ImportOptions().setControl(false).setTopo(false), dataSource);
+        //ReadOnlyDataSource dataSource = new ResourceDataSource("Incremental-STATE", new ResourceSet("/", "Incremental-STATE.xiidm"));
+        FileDataSource dataSource = new FileDataSource(Paths.get("/home/benhamedcha"), "test");
+
+        NetworkXml.update(network, new ImportOptions().setControl(true).setTopo(false), dataSource);
+        new XMLExporter().export(network, new Properties(), dataSource);
+
         assertEquals(networkLf.getLine("NHV1_NHV2_2").getTerminal1().getQ(), network.getLine("NHV1_NHV2_2").getTerminal1().getQ(), 0);
 
     }
