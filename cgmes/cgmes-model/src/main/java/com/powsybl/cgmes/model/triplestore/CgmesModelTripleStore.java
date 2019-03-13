@@ -76,7 +76,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
                 return false;
             }
             for (PropertyBag m : r) {
-                String p = m.get("profile");
+                String p = m.get(PROFILE);
                 if (p != null && p.contains("/EquipmentCore/")) {
                     if (LOG.isInfoEnabled()) {
                         LOG.info("Model contains Equipment Core data profile in model {}",
@@ -105,7 +105,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
                 return false;
             }
             for (PropertyBag m : r) {
-                String p = m.get("profile");
+                String p = m.get(PROFILE);
                 String mid = m.get(CgmesNames.FULL_MODEL);
                 if (p != null && p.contains("/EquipmentBoundary/")) {
                     LOG.info("Model contains EquipmentBoundary data in model {}", mid);
@@ -132,7 +132,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
                 return false;
             }
             for (PropertyBag m : r) {
-                String p = m.get("profile");
+                String p = m.get(PROFILE);
                 if (p != null && p.contains("/EquipmentOperation/")) {
                     if (LOG.isInfoEnabled()) {
                         LOG.info("Model is considered node-breaker because {} has profile {}", m.get("FullModel"), p);
@@ -473,5 +473,6 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     private final QueryCatalog queryCatalog;
 
     private static final String MODEL_PROFILES = "modelProfiles";
+    private static final String PROFILE = "profile";
     private static final Logger LOG = LoggerFactory.getLogger(CgmesModelTripleStore.class);
 }
