@@ -33,7 +33,11 @@ import java.util.function.Function;
 public class Conversion {
 
     public Conversion(CgmesModel cgmes) {
-        this(cgmes, new Config(), Collections.emptyList());
+        this(cgmes, new Config());
+    }
+
+    public Conversion(CgmesModel cgmes, Conversion.Config config) {
+        this(cgmes, config, Collections.emptyList());
     }
 
     public Conversion(CgmesModel cgmes, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors) {

@@ -63,8 +63,7 @@ public class CgmesImport implements Importer {
             .addAdditionalNames("powsyblTripleStore");
     public static final Parameter STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER = new Parameter(STORE_CGMES_MODEL_AS_NETWORK_EXTENSION, ParameterType.BOOLEAN, "Store the initial CGMES model as a network extension", Boolean.TRUE)
             .addAdditionalNames("storeCgmesModelAsNetworkExtension");
-    public static final Parameter POST_PROCESSORS_PARAMETER = new Parameter(POST_PROCESSORS, ParameterType.STRING_LIST, "Post processors", Collections.emptyList())
-            .addAdditionalNames("postProcessors");
+    public static final Parameter POST_PROCESSORS_PARAMETER = new Parameter(POST_PROCESSORS, ParameterType.STRING_LIST, "Post processors", Collections.emptyList());
 
     private static final List<Parameter> PARAMETERS = ImmutableList.of(CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
                                                                        CONVERT_BOUNDARY_PARAMETER,
@@ -82,8 +81,12 @@ public class CgmesImport implements Importer {
         this.postProcessors = Objects.requireNonNull(postProcessors).stream().collect(Collectors.toMap(CgmesImportPostProcessor::getName, e -> e));
     }
 
+    public CgmesImport(PlatformConfig platformConfig) {
+        this(platformConfig, new ServiceLoaderCache<>(CgmesImportPostProcessor.class).getServices());
+    }
+
     public CgmesImport() {
-        this(PlatformConfig.defaultConfig(), new ServiceLoaderCache<>(CgmesImportPostProcessor.class).getServices());
+        this(PlatformConfig.defaultConfig());
     }
 
     @Override
