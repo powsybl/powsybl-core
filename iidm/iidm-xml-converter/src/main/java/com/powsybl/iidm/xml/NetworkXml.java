@@ -145,6 +145,15 @@ public final class NetworkXml {
         }
     }
 
+    private static void writeExtensionNamespace(ExportOptions options, XMLStreamWriter writer, String extensionName) throws XMLStreamException {
+        ExtensionXmlSerializer extensionXmlSerializer = getExtensionXmlSerializer(options, extensionName);
+        if (extensionXmlSerializer == null) {
+            return;
+        }
+        writer.setPrefix(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri());
+        writer.writeNamespace(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri());
+    }
+
     private static void writeExtensionNamespaces(Network n, ExportOptions options, XMLStreamWriter writer) throws XMLStreamException {
         Set<String> extensionUris = new HashSet<>();
         Set<String> extensionPrefixes = new HashSet<>();
@@ -236,20 +245,42 @@ public final class NetworkXml {
         }
     }
 
-    private static XMLStreamWriter initializeWriter(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
+    private static void writeMainAttributes(Network n, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeAttribute(ID, n.getId());
+        writer.writeAttribute(CASE_DATE, n.getCaseDate().toString());
+        writer.writeAttribute(FORECAST_DISTANCE, Integer.toString(n.getForecastDistance()));
+        writer.writeAttribute(SOURCE_FORMAT, n.getSourceFormat());
+    }
+
+    private static XMLStreamWriter writeStartAttributes(OutputStream os, ExportOptions options) throws XMLStreamException {
         XMLStreamWriter writer;
         writer = createXmlStreamWriter(options, os);
         writer.writeStartDocument(StandardCharsets.UTF_8.toString(), "1.0");
         writer.setPrefix(IIDM_PREFIX, IIDM_URI);
         writer.writeStartElement(IIDM_URI, NETWORK_ROOT_ELEMENT_NAME);
         writer.writeNamespace(IIDM_PREFIX, IIDM_URI);
+        return writer;
+    }
+
+    private static XMLStreamWriter initializeWriter(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
+        XMLStreamWriter writer = writeStartAttributes(os, options);
         if (!options.withNoExtension()) {
             writeExtensionNamespaces(n, options, writer);
         }
-        writer.writeAttribute(ID, n.getId());
-        writer.writeAttribute(CASE_DATE, n.getCaseDate().toString());
-        writer.writeAttribute(FORECAST_DISTANCE, Integer.toString(n.getForecastDistance()));
-        writer.writeAttribute(SOURCE_FORMAT, n.getSourceFormat());
+        writeMainAttributes(n, writer);
+        return writer;
+    }
+
+    private static XMLStreamWriter initializeBaseNetworkWriter(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
+        XMLStreamWriter writer = writeStartAttributes(os, options);
+        writeMainAttributes(n, writer);
+        return writer;
+    }
+
+    private static XMLStreamWriter initializeExtensionFileWriter(Network n, OutputStream os, ExportOptions options, String extensionName) throws XMLStreamException {
+        XMLStreamWriter writer = writeStartAttributes(os, options);
+        writeExtensionNamespace(options, writer, extensionName);
+        writeMainAttributes(n, writer);
         return writer;
     }
 
@@ -267,9 +298,9 @@ public final class NetworkXml {
             String name = entry.getKey();
             Set<String> ids = entry.getValue();
             if (options.withExtension(name)) {
-                try (OutputStream os = dataSource.newOutputStream(n.getName() + "-" +  name + ext, false);
+                try (OutputStream os = dataSource.newOutputStream(dataSource.getBaseName() + "-" +  name + ext, false);
                      BufferedOutputStream bos = new BufferedOutputStream(os)) {
-                    XMLStreamWriter writer = initializeWriter(n, bos, options);
+                    XMLStreamWriter writer = initializeExtensionFileWriter(n, bos, options, name);
                     for (String id : ids) {
                         writer.writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
                         writer.writeAttribute("id", context.getAnonymizer().anonymizeString(id));
@@ -286,7 +317,12 @@ public final class NetworkXml {
     private static NetworkXmlWriterContext writeBaseNetwork(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
 
         // create the  writer of the base file
-        final XMLStreamWriter writer = initializeWriter(n, os, options);
+        XMLStreamWriter writer;
+        if (options.getMode() == IidmImportExportMode.UNIQUE_FILE) {
+            writer = initializeWriter(n, os, options);
+        } else {
+            writer = initializeBaseNetworkWriter(n, os, options);
+        }
         BusFilter filter = BusFilter.create(n, options);
         Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
         NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter);
@@ -573,7 +609,7 @@ public final class NetworkXml {
     static void readExtensions(Network network, ReadOnlyDataSource dataSource, Anonymizer anonymizer, ImportOptions options, String ext) throws IOException {
         options.getExtensions().ifPresent(extensions -> {
             for (String extension : extensions) {
-                try (InputStream ise = dataSource.newInputStream(network.getName() + "-" + extension + ext)) {
+                try (InputStream ise = dataSource.newInputStream(dataSource.getBaseName() + "-" + extension + ext)) {
                     readExtensions(network, ise, anonymizer, options);
                 } catch (IOException e) {
                     throw new UncheckedIOException(e);
