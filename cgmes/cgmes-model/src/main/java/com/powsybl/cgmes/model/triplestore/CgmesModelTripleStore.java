@@ -412,6 +412,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         return tripleStore.query(queryText);
     }
 
+    @Override
     public TripleStore tripleStore() {
         return tripleStore;
     }
