@@ -10,6 +10,8 @@ import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.test.LoadFooExt;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -18,7 +20,7 @@ import java.util.Objects;
 @AutoService(ImmutableWrapperExtension.class)
 public class ImmutableLoadFooExtension extends AbstractImmutableWrapperExtension<Load, LoadFooExt> {
 
-    private Immu immu;
+    private final Map<LoadFooExt, ImmutableLoadFooExt> cache = new HashMap<>();
 
     @Override
     public String getExtensionName() {
@@ -32,13 +34,10 @@ public class ImmutableLoadFooExtension extends AbstractImmutableWrapperExtension
 
     @Override
     public LoadFooExt wrap(LoadFooExt extension) {
-        if (immu == null) {
-            immu = new Immu(extension);
-        }
-        return immu;
+        return cache.computeIfAbsent(extension, k -> new ImmutableLoadFooExt(extension));
     }
 
-    private class Immu extends LoadFooExt {
+    private class ImmutableLoadFooExt extends LoadFooExt {
 
         private LoadFooExt delegate;
 
@@ -57,7 +56,7 @@ public class ImmutableLoadFooExtension extends AbstractImmutableWrapperExtension
             throw ImmutableNetwork.UNMODIFIABLE_EXCEPTION;
         }
 
-        public Immu(LoadFooExt delegate) {
+        public ImmutableLoadFooExt(LoadFooExt delegate) {
             super(delegate.getExtendable());
             this.delegate = Objects.requireNonNull(delegate);
         }
