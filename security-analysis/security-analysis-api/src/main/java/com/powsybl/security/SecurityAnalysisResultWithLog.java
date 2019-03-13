@@ -29,7 +29,7 @@ public class SecurityAnalysisResultWithLog {
 
     /**
      * Gets log file in bytes.
-     * @return an Optional describing the bytes of a .tar.gz log file
+     * @return an Optional describing the zip bytes
      */
     public Optional<byte[]> getLogBytes() {
         return Optional.ofNullable(logBytes);
