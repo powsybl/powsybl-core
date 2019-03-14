@@ -498,12 +498,14 @@ public final class NetworkXml {
                         break;
 
                     case EXTENSION_ELEMENT_NAME:
+                        if (config.getMode() != IidmImportExportMode.UNIQUE_FILE) {
+                            LOGGER.warn("Mode isn't UNIQUE_FILE and some extensions was found in the base file!, some extensions may be overwritten later when reading extensions files");
+                        }
                         String id2 = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, "id"));
                         Identifiable identifiable = network.getIdentifiable(id2);
                         if (identifiable == null) {
                             throw new PowsyblException("Identifiable " + id2 + " not found");
                         }
-
                         readExtensions(identifiable, context, extensionNamesNotFound);
                         break;
 
@@ -547,6 +549,8 @@ public final class NetworkXml {
                     // in this case we have to read all extensions from one  file
                     try (InputStream ise = dataSource.newInputStream("-ext", dataSourceExt)) {
                         readExtensions(network, ise, anonymizer, options);
+                    } catch (IOException e) {
+                        LOGGER.warn(String.format("the extensions file wasn't found while importing, please ensure that the file name respect the naming convention baseFileName-ext%s", dataSourceExt));
                     }
                     break;
                 case ONE_SEPARATED_FILE_PER_EXTENSION_TYPE:
@@ -612,7 +616,7 @@ public final class NetworkXml {
                 try (InputStream ise = dataSource.newInputStream(dataSource.getBaseName() + "-" + extension + ext)) {
                     readExtensions(network, ise, anonymizer, options);
                 } catch (IOException e) {
-                    throw new UncheckedIOException(e);
+                    LOGGER.warn(String.format("the %s extension file is not found despite it was declared in the extensions list", extension));
                 }
             }
         });
@@ -623,6 +627,8 @@ public final class NetworkXml {
             for (String fileName : listNames) {
                 try (InputStream ise = dataSource.newInputStream(fileName)) {
                     readExtensions(network, ise, anonymizer, options);
+                } catch (IOException e) {
+                    LOGGER.warn(String.format("the %s file is not found ", fileName));
                 }
             }
         }
@@ -656,7 +662,7 @@ public final class NetworkXml {
                     }
                     readExtensions(identifiable, context, extensionNamesNotFound);
                 } else {
-                    throw new AssertionError();
+                    throw new PowsyblException("Unexpected element: " +  reader.getLocalName());
                 }
             });
             return network;
