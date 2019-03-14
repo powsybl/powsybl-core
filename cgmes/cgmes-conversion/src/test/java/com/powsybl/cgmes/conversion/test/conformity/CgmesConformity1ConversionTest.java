@@ -107,6 +107,11 @@ public class CgmesConformity1ConversionTest {
     }
 
     @Test
+    public void microGridType4BEOnlyEqTpSsh() throws IOException {
+        tester.testConversion(null, actuals.microGridType4BEOnlyEqTpSsh());
+    }
+
+    @Test
     public void microGridBaseCaseNL() throws IOException {
         tester.testConversion(null, actuals.microGridBaseCaseNL());
     }
