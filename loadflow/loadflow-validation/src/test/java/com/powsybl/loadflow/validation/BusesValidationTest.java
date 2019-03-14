@@ -26,12 +26,12 @@ import com.powsybl.loadflow.validation.io.ValidationWriter;
  */
 public class BusesValidationTest extends AbstractValidationTest {
 
-    private final double loadP = 37.2786;
-    private final double loadQ = 174.38244;
+    private final double loadP = 47.2786;
+    private final double loadQ = 163.38244;
     private final double genP = -2020;
     private final double genQ = 91.54;
-    private final double batP = -2019;
-    private final double batQ = 92.54;
+    private final double batP = -10;
+    private final double batQ = 11;
     private final double shuntP = 0.0;
     private final double shuntQ = 175.8437;
     private final double svcP = 0.0;

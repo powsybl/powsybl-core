@@ -147,8 +147,8 @@ public final class BusesValidation {
         Objects.requireNonNull(id);
         boolean validated = true;
 
-        double incomingP = genP + shuntP + svcP + vscCSP + lineP + danglingLineP + twtP + tltP;
-        double incomingQ = genQ + shuntQ + svcQ + vscCSQ + lineQ + danglingLineQ + twtQ + tltQ;
+        double incomingP = genP + batP + shuntP + svcP + vscCSP + lineP + danglingLineP + twtP + tltP;
+        double incomingQ = genQ + batQ + shuntQ + svcQ + vscCSQ + lineQ + danglingLineQ + twtQ + tltQ;
         if (ValidationUtils.isMainComponent(config, mainComponent)) {
             if (ValidationUtils.areNaN(config, incomingP, loadP) || Math.abs(incomingP + loadP) > config.getThreshold()) {
                 LOGGER.warn("{} {}: {} P {} {}", ValidationType.BUSES, ValidationUtils.VALIDATION_ERROR, id, incomingP, loadP);
@@ -160,7 +160,7 @@ public final class BusesValidation {
             }
         }
         try {
-            busesWriter.write(id, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+            busesWriter.write(id, incomingP, incomingQ, loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
                               lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
