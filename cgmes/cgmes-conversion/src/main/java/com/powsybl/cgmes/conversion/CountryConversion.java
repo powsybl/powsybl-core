@@ -24,10 +24,10 @@ public final class CountryConversion {
             return Optional.empty();
         }
         if (gr.equals("D1")
-                || gr.equals("D2")
-                || gr.equals("D4")
-                || gr.equals("D7")
-                || gr.equals("D8")) {
+            || gr.equals("D2")
+            || gr.equals("D4")
+            || gr.equals("D7")
+            || gr.equals("D8")) {
             return Optional.of(Country.DE);
         }
         try {
@@ -36,14 +36,13 @@ public final class CountryConversion {
             // Ignore
         }
         return Optional.empty();
-
     }
 
     public static Optional<Country> fromSubregionName(String name) {
         if (name == null) {
             return Optional.empty();
         }
-        switch (name) {
+        switch (name.trim().toUpperCase()) {
             case "NO1":
             case "NO2":
             case "NO3":
@@ -71,7 +70,23 @@ public final class CountryConversion {
         }
     }
 
+    public static Optional<Country> fromIsoCode(String iso) {
+        if (iso == null) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.of(Country.valueOf(iso.trim().toUpperCase()));
+        } catch (IllegalArgumentException ignored) {
+            // Ignore
+        }
+        return Optional.empty();
+    }
+
     public static Country defaultCountry() {
         return Country.values()[0];
+    }
+
+    public static Country defaultCountryForBoundary() {
+        return Country.BD;
     }
 }
