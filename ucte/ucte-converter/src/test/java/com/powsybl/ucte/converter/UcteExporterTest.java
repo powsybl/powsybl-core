@@ -44,6 +44,7 @@ public class UcteExporterTest {
     @Test
     public void exportUcteTest() throws IOException {
         ReadOnlyDataSource dataSource = new ResourceDataSource("exportTest", new ResourceSet("/", "exportTest.uct"));
+
         Network network = new UcteImporter().importData(dataSource, null);
         addThreeWindingTransformers(network);
 
@@ -170,14 +171,14 @@ public class UcteExporterTest {
     }
 
     @Test
-    public void createUcteNodeCodeTest() {
+    public void convertUcteNodeCodeTest() {
         ReadOnlyDataSource dataSource = new ResourceDataSource("countryIssue", new ResourceSet("/", "countryIssue.uct"));
         Network network = new UcteImporter().importData(dataSource, null);
         UcteExporter ucteExporter = new UcteExporter();
-        assertEquals(new UcteNodeCode(UcteCountryCode.ES, "HORTA", UcteVoltageLevelCode.VL_220, '1'), ucteExporter.createUcteNodeCode("EHORTA21", network.getVoltageLevel("EHORTA2"), "ES"));
-        assertNotEquals(new UcteNodeCode(UcteCountryCode.ES, "HORTA", UcteVoltageLevelCode.VL_110, '1'), ucteExporter.createUcteNodeCode("EHORTA21", network.getVoltageLevel("EHORTA2"), "ES"));
-        assertNotEquals(new UcteNodeCode(UcteCountryCode.ES, "HORT", UcteVoltageLevelCode.VL_220, '1'), ucteExporter.createUcteNodeCode("EHORTA21", network.getVoltageLevel("EHORTA2"), "ES"));
-        assertNotEquals(new UcteNodeCode(UcteCountryCode.BE, "HORTA", UcteVoltageLevelCode.VL_220, '1'), ucteExporter.createUcteNodeCode("EHORTA21", network.getVoltageLevel("EHORTA2"), "ES"));
+        assertEquals(new UcteNodeCode(UcteCountryCode.ES, "HORTA", UcteVoltageLevelCode.VL_220, '1'), ucteExporter.convertUcteNodeCode("EHORTA21", network.getVoltageLevel("EHORTA2"), "ES"));
+        assertNotEquals(new UcteNodeCode(UcteCountryCode.ES, "HORTA", UcteVoltageLevelCode.VL_110, '1'), ucteExporter.convertUcteNodeCode("EHORTA21", network.getVoltageLevel("EHORTA2"), "ES"));
+        assertNotEquals(new UcteNodeCode(UcteCountryCode.ES, "HORT", UcteVoltageLevelCode.VL_220, '1'), ucteExporter.convertUcteNodeCode("EHORTA21", network.getVoltageLevel("EHORTA2"), "ES"));
+        assertNotEquals(new UcteNodeCode(UcteCountryCode.BE, "HORTA", UcteVoltageLevelCode.VL_220, '1'), ucteExporter.convertUcteNodeCode("EHORTA21", network.getVoltageLevel("EHORTA2"), "ES"));
 
     }
 
@@ -220,7 +221,7 @@ public class UcteExporterTest {
     }
 
     @Test
-    public void createUcteElementIdTest() {
+    public void convertUcteElementIdTest() {
         TwoWindingsTransformer twoWindingsTransformer = transfomerRegulationNetwork.getTwoWindingsTransformer("0BBBBB5  0AAAAA2  1");
 
         Terminal terminal1 = twoWindingsTransformer.getTerminal1();
@@ -232,8 +233,8 @@ public class UcteExporterTest {
         UcteElementId ucteElementId1 = new UcteElementId(ucteNodeCode1, ucteNodeCode2, '1');
         UcteElementId ucteElementId2 = new UcteElementId(ucteNodeCode2, ucteNodeCode1, '1');
 
-        assertEquals(ucteElementId1, ucteExporter.createUcteElementId(ucteNodeCode1, ucteNodeCode2, twoWindingsTransformer, terminal1, terminal2));
-        assertNotEquals(ucteElementId2, ucteExporter.createUcteElementId(ucteNodeCode1, ucteNodeCode2, twoWindingsTransformer, terminal1, terminal2));
+        assertEquals(ucteElementId1, ucteExporter.convertUcteElementId(ucteNodeCode1, ucteNodeCode2, twoWindingsTransformer, terminal1, terminal2));
+        assertNotEquals(ucteElementId2, ucteExporter.convertUcteElementId(ucteNodeCode1, ucteNodeCode2, twoWindingsTransformer, terminal1, terminal2));
     }
 
     @Test
