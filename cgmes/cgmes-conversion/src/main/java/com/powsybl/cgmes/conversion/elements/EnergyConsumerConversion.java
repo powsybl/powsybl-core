@@ -36,10 +36,10 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
     }
 
     private double p0() {
-        return p.getId("pfixed") != null ? p.asDouble("pfixed") : powerFlow().p();
+        return p.containsKey("pfixed") ? p.asDouble("pfixed") : powerFlow().p();
     }
 
     private double q0() {
-        return p.getId("qfixed") != null ? p.asDouble("qfixed") : powerFlow().q();
+        return p.containsKey("qfixed") ? p.asDouble("qfixed") : powerFlow().q();
     }
 }
