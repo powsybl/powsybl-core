@@ -8,6 +8,8 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.BusAdder;
 
+import java.util.Optional;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -33,7 +35,8 @@ class BusAdderImpl extends AbstractIdentifiableAdder<BusAdderImpl> implements Bu
     @Override
     public ConfiguredBus add() {
         String id = checkAndGetUniqueId();
-        ConfiguredBusImpl bus = new ConfiguredBusImpl(id, voltageLevel);
+        String name = Optional.ofNullable(getName()).orElse(id);
+        ConfiguredBusImpl bus = new ConfiguredBusImpl(id, name, voltageLevel);
         voltageLevel.addBus(bus);
         getNetwork().getListeners().notifyCreation(bus);
         return bus;
