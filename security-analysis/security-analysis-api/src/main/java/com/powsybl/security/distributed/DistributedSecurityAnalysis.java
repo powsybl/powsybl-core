@@ -138,7 +138,7 @@ public class DistributedSecurityAnalysis extends ExternalSecurityAnalysis {
         }
 
         private String getLogOutputName(int taskNumber) {
-            return "logs_" + taskNumber + ".xml.gz";
+            return "logs_" + taskNumber + ".zip";
         }
 
         @Override
@@ -146,7 +146,7 @@ public class DistributedSecurityAnalysis extends ExternalSecurityAnalysis {
             SecurityAnalysisResult re = simpleSubTaskHandler.after(workingDir, report);
             List<String> logs = new ArrayList<>();
             for (int i = 0; i < simpleSubTaskHandler.actualTaskCount; i++) {
-                logs.add(getLogOutputName(i)); // hades log tar gz
+                logs.add(getLogOutputName(i)); // hades logs_IDX.zip
                 logs.add(SubTaskHandler.SA_TASK_CMD_ID + "_" + i + ".out");
                 logs.add(SubTaskHandler.SA_TASK_CMD_ID + "_" + i + ".err");
             }

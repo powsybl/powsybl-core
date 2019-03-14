@@ -8,27 +8,48 @@ package com.powsybl.commons.compress;
 
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.compress.utils.IOUtils;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.zip.GZIPInputStream;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 public final class ZipHelper {
 
-    public static byte[] archiveFilesToZipBytes(Path workingDir, List<String> fileNames) {
+    /**
+     * If the file is in .gz(detected by last 3 characters) format, the method decompresses .gz file first.
+     * @param baseDir the base directory contaions files to zip
+     * @param fileNames the files to be added in zip
+     * @return bytes in zip format
+     */
+    public static byte[] archiveFilesToZipBytes(Path baseDir, List<String> fileNames) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try (ZipArchiveOutputStream zos = new ZipArchiveOutputStream(baos)) {
             for (String file : fileNames) {
-                ZipArchiveEntry entry = new ZipArchiveEntry(file);
+                boolean isGzFile = file.endsWith(".GZ") || file.endsWith(".gz");
+                ZipArchiveEntry entry;
+                if (isGzFile) {
+                    entry = new ZipArchiveEntry(file.substring(0, file.length() - 3));
+                } else {
+                    entry = new ZipArchiveEntry(file);
+                }
                 zos.putArchiveEntry(entry);
-                Files.copy(workingDir.resolve(file), zos);
+                InputStream inputStream = null;
+                if (isGzFile) {
+                    inputStream = new GZIPInputStream(Files.newInputStream(baseDir.resolve(file)));
+                } else {
+                    inputStream = Files.newInputStream(baseDir.resolve(file));
+                }
+                IOUtils.copy(inputStream, zos);
                 zos.closeArchiveEntry();
             }
             zos.flush();
