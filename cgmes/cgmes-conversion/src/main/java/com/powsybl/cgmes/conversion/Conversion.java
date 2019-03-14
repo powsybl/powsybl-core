@@ -37,34 +37,17 @@ public class Conversion {
     }
 
     public Conversion(CgmesModel cgmes, Conversion.Config config) {
-        this.cgmes = cgmes;
-        this.config = config;
+        this(cgmes, config, Collections.emptyList());
+    }
+
+    public Conversion(CgmesModel cgmes, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors) {
+        this.cgmes = Objects.requireNonNull(cgmes);
+        this.config = Objects.requireNonNull(config);
+        this.postProcessors = Objects.requireNonNull(postProcessors);
     }
 
     public void report(Consumer<String> out) {
         new ReportTapChangers(cgmes, out).report();
-    }
-
-    static class Profiling {
-        private final List<String> ops = new ArrayList<>(32);
-        private final Map<String, Long> optime = new HashMap<>(32);
-        private long t0;
-
-        void start() {
-            t0 = System.currentTimeMillis();
-        }
-
-        void end(String op) {
-            assert !optime.containsKey(op);
-            ops.add(op);
-            optime.put(op, System.currentTimeMillis() - t0);
-        }
-
-        void report() {
-            if (LOG.isInfoEnabled()) {
-                ops.forEach(op -> LOG.info(String.format("%-20s : %6d", op, optime.get(op))));
-            }
-        }
     }
 
     public Network convert() {
@@ -127,6 +110,11 @@ public class Conversion {
         voltageAngles(nodes, context);
         if (context.config().debugTopology()) {
             debugTopology(context);
+        }
+
+        // apply post-processors
+        for (CgmesImportPostProcessor postProcessor : postProcessors) {
+            postProcessor.process(network, cgmes.tripleStore(), profiling);
         }
 
         profiling.report();
@@ -366,6 +354,7 @@ public class Conversion {
 
     private final CgmesModel cgmes;
     private final Config config;
+    private final List<CgmesImportPostProcessor> postProcessors;
 
     private Profiling profiling;
 
