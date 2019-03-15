@@ -131,18 +131,6 @@ public class UcteExporterTest {
     }
 
     @Test
-    public void isUcteNodeTest() {
-        assertTrue(ucteExporter.isUcteId("F_SU1_11 F_SU1_21 1"));
-        assertTrue(ucteExporter.isUcteId("F_SU1_1& F_SU1_21 Z"));
-        assertTrue(ucteExporter.isUcteId("Fazert11 F_SU1_21 1"));
-        assertFalse(ucteExporter.isUcteId("F_SU1_11F_SU1_21 1"));
-        assertFalse(ucteExporter.isUcteId("F_SU1_11 F_SU1_2"));
-        assertFalse(ucteExporter.isUcteId("F_SU1_1 F_SU1_21 1"));
-        assertFalse(ucteExporter.isUcteId("F_SU1_&1 F_SU1_21 1"));
-        assertFalse(ucteExporter.isUcteId("F_SU1_11TF_SU1_21 1"));
-    }
-
-    @Test
     public void energySourceToUctePowerPlantTypeTest() {
         assertSame(UctePowerPlantType.H, ucteExporter.energySourceToUctePowerPlantType(EnergySource.HYDRO));
         assertSame(UctePowerPlantType.N, ucteExporter.energySourceToUctePowerPlantType(EnergySource.NUCLEAR));
@@ -196,16 +184,6 @@ public class UcteExporterTest {
         assertSame(UcteVoltageLevelCode.VL_27, ucteExporter.voltageLevelCodeFromChar('7'));
         exception.expect(IllegalArgumentException.class);
         assertSame(new IllegalArgumentException(), ucteExporter.voltageLevelCodeFromChar('&'));
-    }
-
-    @Test
-    public void iidmIdToUcteNodeCodeTest() {
-        assertEquals(new UcteNodeCode(UcteCountryCode.ES, "HORTA", UcteVoltageLevelCode.VL_220, '1'),
-                ucteExporter.iidmIdToUcteNodeCode("EHORTA21"));
-        assertNotEquals(new UcteNodeCode(UcteCountryCode.ES, "HORTA", UcteVoltageLevelCode.VL_220, '1'),
-                ucteExporter.iidmIdToUcteNodeCode("EHOARA21"));
-        exception.expect(IllegalArgumentException.class);
-        assertSame(new IllegalArgumentException(), ucteExporter.iidmIdToUcteNodeCode("EHOAA21"));
     }
 
     @Test
