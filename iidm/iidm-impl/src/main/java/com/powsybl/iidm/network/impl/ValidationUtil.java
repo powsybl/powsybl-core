@@ -343,4 +343,10 @@ public final class ValidationUtil {
             throw new ValidationException(validable, "loss factor must be >= 0");
         }
     }
+
+    static void checkCongestionManagement(Validable validable, Boolean congestionManagementOn) {
+        if (congestionManagementOn == null) {
+            throw new ValidationException(validable, "congestion management status is not set");
+        }
+    }
 }

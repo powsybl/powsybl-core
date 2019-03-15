@@ -51,6 +51,11 @@ public interface BatteryAdder extends InjectionAdder<BatteryAdder> {
     BatteryAdder setMaxP(double maxP);
 
     /**
+     * Set the availability for congestion management
+     */
+    BatteryAdder setCongestionManagementOn(boolean congestionManagementOn);
+
+    /**
      * Build the Battery object.
      * This are the checks that are performed before creating the object :
      *      - p0 is not equal to Double.NaN -> p0 is set
@@ -58,6 +63,7 @@ public interface BatteryAdder extends InjectionAdder<BatteryAdder> {
      *      - minP is not equal to Double.NaN -> minP is set
      *      - maxP is not equal to Double.NaN -> maxP is set
      *      - minP is less than maxP
+     *      - congestionManagementOn is not equal to null -> congestionManagementOn is set
      * @return {@link Battery}
      */
     Battery add();

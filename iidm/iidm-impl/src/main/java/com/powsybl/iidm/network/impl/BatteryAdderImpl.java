@@ -12,6 +12,7 @@ import java.util.Objects;
 
 /**
  * {@inheritDoc}
+ *
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
  */
 public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> implements BatteryAdder {
@@ -25,6 +26,8 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
     private double minP = Double.NaN;
 
     private double maxP = Double.NaN;
+
+    private Boolean congestionManagementOn;
 
     public BatteryAdderImpl(VoltageLevelExt voltageLevel) {
         this.voltageLevel = Objects.requireNonNull(voltageLevel);
@@ -85,6 +88,14 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
     /**
      * {@inheritDoc}
      */
+    public BatteryAdderImpl setCongestionManagementOn(boolean congestionManagementOn) {
+        this.congestionManagementOn = congestionManagementOn;
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public BatteryImpl add() {
         String id = checkAndGetUniqueId();
@@ -94,10 +105,13 @@ public class BatteryAdderImpl extends AbstractInjectionAdder<BatteryAdderImpl> i
         ValidationUtil.checkMinP(this, minP);
         ValidationUtil.checkMaxP(this, maxP);
         ValidationUtil.checkActiveLimits(this, minP, maxP);
+        ValidationUtil.checkCongestionManagement(this, congestionManagementOn);
         BatteryImpl battery
-                = new BatteryImpl(id, getName(),
+                = new BatteryImpl(getNetwork().getRef(),
+                id, getName(),
                 p0, q0,
-                minP, maxP);
+                minP, maxP,
+                congestionManagementOn);
         battery.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
         getNetwork().getIndex().checkAndAdd(battery);
