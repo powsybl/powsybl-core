@@ -67,6 +67,36 @@ public enum UcteVoltageLevelCode {
         this.voltageLevel = voltageLevel;
     }
 
+    public static UcteVoltageLevelCode voltageLevelCodeFromChar(char code) {
+        if (code == '0') {
+            return UcteVoltageLevelCode.VL_750;
+        } else if (code == '1') {
+            return UcteVoltageLevelCode.VL_380;
+        } else if (code == '2') {
+            return UcteVoltageLevelCode.VL_220;
+        } else if (code == '3') {
+            return UcteVoltageLevelCode.VL_150;
+        } else if (code == '4') {
+            return UcteVoltageLevelCode.VL_120;
+        } else if (code == '5') {
+            return UcteVoltageLevelCode.VL_110;
+        } else if (code == '6') {
+            return UcteVoltageLevelCode.VL_70;
+        } else if (code == '7') {
+            return UcteVoltageLevelCode.VL_27;
+        } else if (code == '8') {
+            return UcteVoltageLevelCode.VL_330;
+        } else if (code == '9') {
+            return UcteVoltageLevelCode.VL_500;
+        } else {
+            throw new IllegalArgumentException("This code doesn't refer to a voltage level");
+        }
+    }
+
+    public static boolean isVoltageLevel(char character) {
+        return (int) character >= 48 && (int) character <= 57;
+    }
+
     /**
      * Gets the voltage level (kV).
      * @return the voltage level (kV)
