@@ -253,7 +253,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
         if ((topologyLevel == TopologyLevel.NODE_BREAKER && context.getTargetFile() == IncrementalIidmFiles.TOPO) ||
                 (topologyLevel != TopologyLevel.NODE_BREAKER && context.getTargetFile() == IncrementalIidmFiles.STATE) ||
-                context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM){
+                context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             switch (topologyLevel) {
                 case NODE_BREAKER:
                     writeNodeBreakerTopology(vl, context);

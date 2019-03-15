@@ -802,7 +802,6 @@ public final class NetworkXml {
             final VoltageLevel[] vl = new VoltageLevel[1];
             final TwoWindingsTransformer[] twt = new TwoWindingsTransformer[1];
 
-
             XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {
 
                 switch (reader.getLocalName()) {

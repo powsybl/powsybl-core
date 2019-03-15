@@ -14,10 +14,8 @@ import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
@@ -49,6 +47,7 @@ public class IncrementalExportTest extends AbstractConverterTest {
             compareXml(getClass().getResourceAsStream("/Incremental-TOPO.xiidm"), is);
         }
     }
+
     @Test
     public void exportNetworkWithLoadFlow() throws IOException {
         XMLImporter importer = new XMLImporter(new InMemoryPlatformConfig(fileSystem));
