@@ -59,11 +59,10 @@ public class XmlExporterBaseExtensions  extends AbstractConverterTest {
 
     @Test
     public void validationTest() throws IOException {
-        Path path = Paths.get("/tmp/base.xiidm");
+        Path path = tmpDir.resolve("base.xiidm");
         IidmImportExportMode mode = IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE;
         Network network = MultipleExtensionsTestNetworkFactory.create();
         NetworkXml.writeAndValidate(network, new ExportOptions().setMode(mode), path);
-
         Network network1 = NetworkXml.validateAndRead(path, new ImportOptions().setMode(mode));
         assertEquals(network.getExtensions().size(), network1.getExtensions().size());
         assertEquals(network.getIdentifiables().size(), network1.getIdentifiables().size());
