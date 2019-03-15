@@ -207,7 +207,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return terminals[n - 1].voltageLevel;
     }
 
-    Substation substation() {
+    protected Substation substation() {
         String sid = context.cgmes().substation(terminals[0].t);
         return context.network().getSubstation(context.substationIdMapping().iidm(sid));
     }
@@ -267,7 +267,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         }
     }
 
-    void convertedTerminals(Terminal... ts) {
+    protected void convertedTerminals(Terminal... ts) {
         assert ts.length == numTerminals;
         for (int k = 0; k < ts.length; k++) {
             int n = k + 1;

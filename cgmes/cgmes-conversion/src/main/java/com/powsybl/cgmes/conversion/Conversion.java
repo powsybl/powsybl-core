@@ -8,6 +8,8 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.elements.*;
+import com.powsybl.cgmes.conversion.elements.full.ThreeWindingsTransformerFullConversion;
+import com.powsybl.cgmes.conversion.elements.full.TwoWindingsTransformerFullConversion;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Network;
@@ -32,6 +34,8 @@ import java.util.function.Function;
  */
 public class Conversion {
 
+    private static final boolean EXTENDED_CGMES_CONVERSION = true;
+
     public Conversion(CgmesModel cgmes) {
         this(cgmes, new Config());
     }
@@ -46,9 +50,9 @@ public class Conversion {
     }
 
     static class Profiling {
-        private final List<String> ops = new ArrayList<>(32);
+        private final List<String>      ops    = new ArrayList<>(32);
         private final Map<String, Long> optime = new HashMap<>(32);
-        private long t0;
+        private long                    t0;
 
         void start() {
             t0 = System.currentTimeMillis();
@@ -113,10 +117,14 @@ public class Conversion {
         convertACLineSegmentsToLines(context);
         convert(cgmes.equivalentBranches(), eqb -> new EquivalentBranchConversion(eqb, context));
         convert(cgmes.seriesCompensators(), sc -> new SeriesCompensatorConversion(sc, context));
-        convertTransformers(context);
 
-        convert(cgmes.ratioTapChangers(), rtc -> new RatioTapChangerConversion(rtc, context));
-        convert(cgmes.phaseTapChangers(), ptc -> new PhaseTapChangerConversion(ptc, context));
+        if (EXTENDED_CGMES_CONVERSION) {
+            convertFullTransformers(context);
+        } else {
+            convertTransformers(context);
+            convert(cgmes.ratioTapChangers(), rtc -> new RatioTapChangerConversion(rtc, context));
+            convert(cgmes.phaseTapChangers(), ptc -> new PhaseTapChangerConversion(ptc, context));
+        }
 
         // DC Converters must be converted first
         convert(cgmes.acDcConverters(), c -> new AcDcConverterConversion(c, context));
@@ -240,6 +248,44 @@ public class Conversion {
         profiling.end("ACLineSegments");
     }
 
+    private void convertFullTransformers(Context context) {
+        profiling.start();
+        Map<String, PropertyBag> powerTransformerRatioTapChanger = new HashMap<>();
+        Map<String, PropertyBag> powerTransformerPhaseTapChanger = new HashMap<>();
+        cgmes.ratioTapChangers().forEach(ratio -> {
+            String id = ratio.getId("RatioTapChanger");
+            powerTransformerRatioTapChanger.put(id, ratio);
+        });
+        cgmes.phaseTapChangers().forEach(phase -> {
+            String id = phase.getId("PhaseTapChanger");
+            powerTransformerPhaseTapChanger.put(id, phase);
+        });
+        cgmes.groupedTransformerEnds().entrySet()
+                .forEach(tends -> {
+                    String t = tends.getKey();
+                    PropertyBags ends = tends.getValue();
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Transformer {}, {}-winding", t, ends.size());
+                        ends.forEach(e -> LOG.debug(e.tabulateLocals("TransformerEnd")));
+                    }
+                    AbstractConductingEquipmentConversion c = null;
+                    if (ends.size() == 2) {
+                        c = new TwoWindingsTransformerFullConversion(ends, powerTransformerRatioTapChanger, powerTransformerPhaseTapChanger, context);
+                    } else if (ends.size() == 3) {
+                        c = new ThreeWindingsTransformerFullConversion(ends, powerTransformerRatioTapChanger, powerTransformerPhaseTapChanger, context);
+                    } else {
+                        String what = String.format("PowerTransformer %s", t);
+                        String reason = String.format("Has %d ends. Only 2 or 3 ends are supported",
+                                ends.size());
+                        context.invalid(what, reason);
+                    }
+                    if (c != null && c.valid()) {
+                        c.convert();
+                    }
+                });
+        profiling.end("Transfomers");
+    }
+
     private void convertTransformers(Context context) {
         profiling.start();
         cgmes.groupedTransformerEnds().entrySet()
@@ -289,7 +335,8 @@ public class Conversion {
         context.network().getVoltageLevels().forEach(vl -> {
             String name = vl.getSubstation().getName() + "-" + vl.getName();
             name = name.replace('/', '-');
-            Path file = Paths.get(System.getProperty("java.io.tmpdir"), "temp-cgmes-" + name + ".dot");
+            Path file = Paths.get(System.getProperty("java.io.tmpdir"),
+                    "temp-cgmes-" + name + ".dot");
             try {
                 vl.exportTopology(file);
             } catch (IOException e) {
@@ -356,22 +403,23 @@ public class Conversion {
             createBusbarSectionForEveryConnectivityNode = b;
         }
 
-        private boolean convertBoundary = false;
+        private boolean convertBoundary                                 = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
-        private double lowImpedanceLineR = 0.05;
-        private double lowImpedanceLineX = 0.05;
+        private double  lowImpedanceLineR                               = 0.05;
+        private double  lowImpedanceLineX                               = 0.05;
 
-        private boolean createBusbarSectionForEveryConnectivityNode = false;
+        private boolean createBusbarSectionForEveryConnectivityNode     = false;
     }
 
-    private final CgmesModel cgmes;
-    private final Config config;
+    private final CgmesModel    cgmes;
+    private final Config        config;
 
-    private Profiling profiling;
+    private Profiling           profiling;
 
-    private static final Logger LOG = LoggerFactory.getLogger(Conversion.class);
+    private static final Logger LOG                                        = LoggerFactory
+            .getLogger(Conversion.class);
 
-    public static final String NETWORK_PS_CGMES_MODEL_DETAIL = "CGMESModelDetail";
-    public static final String NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH = "bus-branch";
-    public static final String NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER = "node-breaker";
+    public static final String  NETWORK_PS_CGMES_MODEL_DETAIL              = "CGMESModelDetail";
+    public static final String  NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH   = "bus-branch";
+    public static final String  NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER = "node-breaker";
 }
