@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.ServiceLoaderCache;
 
 /**
@@ -35,7 +36,7 @@ public final class TripleStoreFactory {
                 return ts.create();
             }
         }
-        return null;
+        throw new PowsyblException("No implementation available for triple store " + impl);
     }
 
     public static List<String> allImplementations() {
