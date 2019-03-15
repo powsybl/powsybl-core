@@ -9,6 +9,10 @@ package com.powsybl.cgmes.conversion;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.powsybl.cgmes.conversion.elements.AbstractIdentifiedObjectConversion;
 import com.powsybl.iidm.network.Country;
 
 /**
@@ -34,6 +38,7 @@ public final class CountryConversion {
             return Optional.of(Country.valueOf(gr));
         } catch (IllegalArgumentException ignored) {
             // Ignore
+            LOG.warn("{} does not match any Country enum", gr);
         }
         return Optional.empty();
     }
@@ -82,6 +87,16 @@ public final class CountryConversion {
         return Optional.empty();
     }
 
+    public static Country defaultCountry(AbstractIdentifiedObjectConversion c) {
+        LOG.warn("Default country converting {}", c.what());
+        return defaultCountry();
+    }
+
+    public static Country defaultCountryForBoundary(AbstractIdentifiedObjectConversion c) {
+        LOG.warn("Default boundary country converting {}", c.what());
+        return defaultCountryForBoundary();
+    }
+
     public static Country defaultCountry() {
         return Country.values()[0];
     }
@@ -89,4 +104,6 @@ public final class CountryConversion {
     public static Country defaultCountryForBoundary() {
         return Country.BD;
     }
+
+    private static final Logger LOG = LoggerFactory.getLogger(CountryConversion.class);
 }

@@ -45,7 +45,7 @@ public abstract class AbstractObjectConversion {
 
     public abstract void convert();
 
-    protected abstract String what();
+    public abstract String what();
 
     protected abstract String complete(String what);
 

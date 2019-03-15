@@ -84,8 +84,8 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
     private Country boundaryCountryCode() {
         // Selection of country code when ENTSO-E extensions are present
         return CountryConversion.fromIsoCode(p.getLocal("fromEndIsoCode"))
-                .orElse(CountryConversion.fromIsoCode(p.getLocal("toEndIsoCode"))
-                        .orElse(CountryConversion.defaultCountryForBoundary()));
+                .orElseGet(() -> CountryConversion.fromIsoCode(p.getLocal("toEndIsoCode"))
+                        .orElseGet(() -> CountryConversion.defaultCountryForBoundary(this)));
     }
 
     @Override
