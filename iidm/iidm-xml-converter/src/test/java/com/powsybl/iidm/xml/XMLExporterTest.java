@@ -7,6 +7,8 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
@@ -21,14 +23,16 @@ import java.util.Properties;
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
  */
 
-public class XMLExporterTest  extends AbstractConverterTest {
+public class XMLExporterTest extends AbstractConverterTest {
 
     public void exporterTest(Network network, String xiidmRef) throws IOException {
+        PlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+
         Properties properties = new Properties();
         properties.put(XMLExporter.ANONYMISED, "false");
 
         MemDataSource dataSource = new MemDataSource();
-        new XMLExporter().export(network, properties, dataSource);
+        new XMLExporter(platformConfig).export(network, properties, dataSource);
         // check the exported file and compare it to iidm reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
             compareXml(getClass().getResourceAsStream(xiidmRef), is);
