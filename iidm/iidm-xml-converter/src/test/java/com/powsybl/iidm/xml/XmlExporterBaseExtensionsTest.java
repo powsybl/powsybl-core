@@ -27,7 +27,7 @@ import static org.junit.Assert.*;
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
  */
 
-public class XmlExporterBaseExtensions  extends AbstractConverterTest {
+public class XmlExporterBaseExtensionsTest extends AbstractConverterTest {
 
     public void exporterTestBaseExtensions(Network network, String xiidmBaseRef, String xiidmExtRef) throws IOException {
         Properties exportProperties = new Properties();

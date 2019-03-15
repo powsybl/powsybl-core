@@ -25,7 +25,7 @@ import static org.junit.Assert.assertNotNull;
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
  */
 
-public class XmlExporterImporterBaseOneExtensionPerFile extends AbstractConverterTest {
+public class XmlExporterImporterBaseOneExtensionPerFileTest extends AbstractConverterTest {
 
     public void exporteImportOneFilePerExtensionType(Network network, String xiidmBaseRef) throws IOException {
         List<String> extensions = Arrays.asList("loadFoo", "loadBar");

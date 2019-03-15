@@ -24,7 +24,7 @@ import static org.junit.Assert.*;
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
  */
 
-public class XmlExporterBaseOneExtensionPerFile extends AbstractConverterTest {
+public class XmlExporterBaseOneExtensionPerFileTest extends AbstractConverterTest {
 
     public void exporterOneFilePerExtensionType(Network network, String xiidmBaseRef, List<String> extensionsList) throws IOException {
 

@@ -28,7 +28,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
  */
-public class XMLImporterLimits extends AbstractConverterTest {
+public class XMLImporterLimitsTest extends AbstractConverterTest {
     @Test
     public void importExport() throws IOException {
 

@@ -25,7 +25,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
  */
-public class XMLImporterExporterBaseEXtensions extends AbstractConverterTest {
+public class XMLImporterExporterBaseEXtensionsTest extends AbstractConverterTest {
     public void importExport(String xiidmBaseRef, String xiidmExtRef) throws IOException {
 
         Properties exportProperties = new Properties();
