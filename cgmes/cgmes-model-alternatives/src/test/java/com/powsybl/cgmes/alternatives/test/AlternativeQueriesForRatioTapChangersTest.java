@@ -26,7 +26,7 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class AlternativeQueriesForRatioTapChangers {
+public class AlternativeQueriesForRatioTapChangersTest {
 
     @BeforeClass
     public static void setUp() {
@@ -99,5 +99,5 @@ public class AlternativeQueriesForRatioTapChangers {
     private static AlternativeQueriesTester tester;
     private static AlternativeQueriesTester testerNestedGraph;
 
-    private static final Logger LOG = LoggerFactory.getLogger(AlternativeQueriesForRatioTapChangers.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AlternativeQueriesForRatioTapChangersTest.class);
 }
