@@ -17,7 +17,7 @@ import org.junit.rules.ExpectedException;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class GroovySetIdIssue {
+public class GroovySetIdIssueTest {
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
