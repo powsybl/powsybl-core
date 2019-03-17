@@ -12,15 +12,17 @@ import com.powsybl.iidm.anonymizer.FakeAnonymizer;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ConverterContext {
+public abstract class AbstractConverterContext<T> {
 
     private final Anonymizer anonymizer;
 
-    public ConverterContext(Anonymizer anonymizer) {
+    public AbstractConverterContext(Anonymizer anonymizer) {
         this.anonymizer = anonymizer != null ? anonymizer : new FakeAnonymizer();
     }
 
     public Anonymizer getAnonymizer() {
         return anonymizer;
     }
+
+    public abstract T getOptions();
 }
