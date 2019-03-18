@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.function.Consumer;
 
+import com.powsybl.triplestore.api.TripleStore;
 import org.joda.time.DateTime;
 
 import com.powsybl.cgmes.model.CgmesContainer;
@@ -16,6 +17,7 @@ import com.powsybl.cgmes.model.Subset;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+import org.mockito.Mockito;
 
 public final class FakeCgmesModel implements CgmesModel {
     private final Properties properties;
@@ -88,6 +90,11 @@ public final class FakeCgmesModel implements CgmesModel {
         numObjectsByType = new PropertyBags();
     }
 
+    @Override
+    public TripleStore tripleStore() {
+        return Mockito.mock(TripleStore.class);
+    }
+
     public boolean hasEquipmentCore() {
         return true;
     }
@@ -109,6 +116,10 @@ public final class FakeCgmesModel implements CgmesModel {
 
     public boolean isNodeBreaker() {
         return isNodeBreaker;
+    }
+
+    public boolean hasBoundary() {
+        return false;
     }
 
     public FakeCgmesModel substations(String... ids) {
