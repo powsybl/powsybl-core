@@ -7,10 +7,17 @@
 package com.powsybl.math.matrix;
 
 /**
+ * Dense matrix factory.
+ *
+ * @see DenseMatrix
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class DenseMatrixFactory implements MatrixFactory {
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public DenseMatrix create(int m, int n, int estimatedNonZeroValueCount) {
         return new DenseMatrix(m, n);

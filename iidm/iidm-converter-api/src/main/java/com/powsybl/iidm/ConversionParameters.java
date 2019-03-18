@@ -65,7 +65,6 @@ public final class ConversionParameters {
     private static <T> T readParameter(String format, Properties parameters, Parameter configuredParameter, T defaultValue, BiFunction<ModuleConfig, List<String>, Optional<T>> supplier) {
         Objects.requireNonNull(format);
         Objects.requireNonNull(configuredParameter);
-        Objects.requireNonNull(defaultValue);
         T value = null;
         // priority on passed parameters
         if (parameters != null) {
