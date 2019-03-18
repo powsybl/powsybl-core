@@ -36,7 +36,6 @@ if "%~1"=="" ( goto done ) else (
   ) else (
     if "%~1" == "--parallel" (
       set parallel=true
-      shift
       echo WARNING : '--parallel' option not currently supported on Windows
     ) else (
         set args=%args% %1 %2
