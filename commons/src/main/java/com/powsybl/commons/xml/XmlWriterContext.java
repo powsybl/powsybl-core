@@ -14,4 +14,6 @@ import javax.xml.stream.XMLStreamWriter;
 public interface XmlWriterContext {
 
     XMLStreamWriter getWriter();
+
+    XMLStreamWriter getExtensionsWriter();
 }
