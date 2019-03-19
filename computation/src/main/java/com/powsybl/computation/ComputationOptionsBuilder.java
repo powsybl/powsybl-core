@@ -19,6 +19,8 @@ public class ComputationOptionsBuilder {
 
     private final Map<String, Long> timeoutMap = new HashMap<>();
 
+    private final Map<String, Long> deadlineMap = new HashMap<>();
+
     private final Map<String, String> qosMap = new HashMap<>();
 
     public ComputationOptionsBuilder() {
@@ -31,6 +33,13 @@ public class ComputationOptionsBuilder {
         return this;
     }
 
+    public ComputationOptionsBuilder setDeadline(String cmdId, long seconds) {
+        Objects.requireNonNull(cmdId);
+        Preconditions.checkArgument(seconds > 0, "Deadline must be positive.");
+        deadlineMap.put(cmdId, seconds);
+        return this;
+    }
+
     public ComputationOptionsBuilder setQos(String cmdId, String qos) {
         Objects.requireNonNull(cmdId);
         Objects.requireNonNull(qos);
@@ -39,6 +48,6 @@ public class ComputationOptionsBuilder {
     }
 
     public ComputationOptions build() {
-        return new ComputationOptionsImpl(timeoutMap, qosMap);
+        return new ComputationOptionsImpl(timeoutMap, deadlineMap, qosMap);
     }
 }

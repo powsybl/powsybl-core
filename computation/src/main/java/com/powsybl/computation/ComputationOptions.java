@@ -14,7 +14,21 @@ import java.util.OptionalLong;
  */
 public interface ComputationOptions {
 
+    /**
+     * Returns an optional describing the execution time limit in seconds, the waiting time in queue is not inclued. See
+     * differences with {@link #getDeadline(String)}
+     * @param commandId id of {@link Command}
+     * @return an optional describing seconds
+     */
     OptionalLong getTimeout(String commandId);
+
+    /**
+     * Returns an optional describing the total time limmit in seconds, the waiting time in queue is included. See differences
+     * with {@link #getTimeout(String)}
+     * @param commandId id of {@link Command}
+     * @return an optional describing seconds
+     */
+    OptionalLong getDeadline(String commandId);
 
     Optional<String> getQos(String commandId);
 
@@ -22,6 +36,11 @@ public interface ComputationOptions {
         return new ComputationOptions() {
             @Override
             public OptionalLong getTimeout(String commandId) {
+                return OptionalLong.empty();
+            }
+
+            @Override
+            public OptionalLong getDeadline(String commandId) {
                 return OptionalLong.empty();
             }
 

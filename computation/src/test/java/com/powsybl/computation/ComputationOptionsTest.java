@@ -28,9 +28,11 @@ public class ComputationOptionsTest {
         ComputationOptions opts = new ComputationOptionsBuilder()
                 .setTimeout(cmdId, 10)
                 .setQos(cmdId, "p1")
+                .setDeadline(cmdId, 42)
                 .build();
         assertEquals(10, opts.getTimeout(cmdId).orElse(-1));
         assertEquals("p1", opts.getQos(cmdId).orElse("asdf"));
+        assertEquals(42, opts.getDeadline(cmdId).orElse(-1));
     }
 
     @Test

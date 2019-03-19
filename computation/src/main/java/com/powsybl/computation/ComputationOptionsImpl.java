@@ -14,17 +14,32 @@ import java.util.*;
 public class ComputationOptionsImpl implements ComputationOptions {
 
     private final Map<String, Long> timeoutMap;
+
+    private final Map<String, Long> deadlineMap;
+
     private final Map<String, String> qosMap;
 
-    ComputationOptionsImpl(Map<String, Long> timeoutMap, Map<String, String> qosMap) {
+    ComputationOptionsImpl(Map<String, Long> timeoutMap, Map<String, Long> deadlineMap, Map<String, String> qosMap) {
         this.timeoutMap = Collections.unmodifiableMap(timeoutMap);
+        this.deadlineMap = Collections.unmodifiableMap(deadlineMap);
         this.qosMap = Collections.unmodifiableMap(qosMap);
     }
 
     @Override
-    public OptionalLong getTimeout(String cmdId) {
-        Objects.requireNonNull(cmdId);
-        Long t = timeoutMap.get(cmdId);
+    public OptionalLong getTimeout(String commandId) {
+        Objects.requireNonNull(commandId);
+        Long t = timeoutMap.get(commandId);
+        if (t == null) {
+            return OptionalLong.empty();
+        } else {
+            return OptionalLong.of(t);
+        }
+    }
+
+    @Override
+    public OptionalLong getDeadline(String commandId) {
+        Objects.requireNonNull(commandId);
+        Long t = deadlineMap.get(commandId);
         if (t == null) {
             return OptionalLong.empty();
         } else {
