@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NodeCalcToJson {
+public class NodeCalcToJsonTest {
 
     @Test
     public void test() {

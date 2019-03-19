@@ -9,7 +9,10 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.import_.*;
+import com.powsybl.iidm.import_.ImportConfig;
+import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.import_.ImportersLoader;
+import com.powsybl.iidm.import_.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -31,7 +34,6 @@ public class TerminalRefTest extends AbstractConverterTest {
     @Test
     public void roundTripTest() throws IOException {
         String filename = "terminalRef.xiidm";
-
         Network network = Importers.loadNetwork(filename, getClass().getResourceAsStream("/" + filename), computationManager, importConfig, null, loader);
         assertNotNull(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::read, "/" + filename);
