@@ -19,11 +19,6 @@ import com.powsybl.loadflow.validation.ValidationType;
 public class ValidationFormatterCsvMultilineWriterFactory implements ValidationWriterFactory {
 
     @Override
-    public ValidationWriter create(String id, Class<? extends TableFormatterFactory> formatterFactoryClass, Writer writer, boolean verbose, ValidationType validationType, boolean compareResults) {
-        return new ValidationFormatterCsvMultilineWriter(id, formatterFactoryClass, writer, verbose, validationType, compareResults);
-    }
-
-    @Override
     public ValidationWriter create(String id, Class<? extends TableFormatterFactory> formatterFactoryClass, TableFormatterConfig formatterConfig, Writer writer, boolean verbose, ValidationType validationType, boolean compareResults) {
         return new ValidationFormatterCsvMultilineWriter(id, formatterFactoryClass, formatterConfig, writer, verbose, validationType, compareResults);
     }
