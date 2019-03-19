@@ -48,6 +48,7 @@ public class Context {
         nodeMapping = new NodeMapping();
 
         ratioTapChangerTables = new HashMap<>();
+        phaseTapChangerTables = new HashMap<>();
     }
 
     public CgmesModel cgmes() {
@@ -115,8 +116,23 @@ public class Context {
         });
     }
 
+    public void loadPhaseTapChangerTables() {
+        PropertyBags ptcpoints = cgmes.phaseTapChangerTablesPoints();
+        if (ptcpoints == null) {
+            return;
+        }
+        ptcpoints.forEach(p -> {
+            String tableId = p.getId("PhaseTapChangerTable");
+            phaseTapChangerTables.computeIfAbsent(tableId, tid -> new PropertyBags()).add(p);
+        });
+    }
+
     public PropertyBags ratioTapChangerTable(String tableId) {
         return ratioTapChangerTables.get(tableId);
+    }
+
+    public PropertyBags phaseTapChangerTable(String tableId) {
+        return phaseTapChangerTables.get(tableId);
     }
 
     public VoltageLevel createSubstationVoltageLevel(String nodeId, double nominalV) {
@@ -204,6 +220,7 @@ public class Context {
     private final DcMapping dcMapping;
 
     private final Map<String, PropertyBags> ratioTapChangerTables;
+    private final Map<String, PropertyBags> phaseTapChangerTables;
 
     private int countLines;
     private int countLinesWithSvPowerFlowsAtEnds;

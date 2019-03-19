@@ -167,8 +167,8 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             // with dz, dy that appear when moving ideal ratio to side 1
             // R' = R * (1 + r/100) * (1 + dz/100) ==> r' = r + dz + r * dz / 100
             ptca.beginStep()
-                    .setAlpha(alpha * (side == 1 ? 1 : -1))
-                    .setRho(side == 1 ? rho : 1 / rho)
+                    .setAlpha(-1 * (alpha * (side == 1 ? 1 : -1)))
+                    .setRho(1 / (side == 1 ? rho : 1 / rho))
                     .setR(r + dz + r * dz / 100)
                     .setX(x + dz + r * dz / 100)
                     .setG(g + dy + g * dy / 100)
@@ -252,7 +252,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             int n = step - neutralStep;
             double dx = (n * du - du0) * Math.cos(theta);
             double dy = (n * du - du0) * Math.sin(theta);
-            double alpha = Math.atan2(dy, 1 + dx);
+            double alpha = -Math.atan2(dy, 1 + dx);
             double rho = 1 / Math.hypot(dy, 1 + dx);
             alphas.add(alpha);
             rhos.add(rho);

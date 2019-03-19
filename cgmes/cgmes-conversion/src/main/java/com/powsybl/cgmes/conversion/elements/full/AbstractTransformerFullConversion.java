@@ -267,11 +267,13 @@ public abstract class AbstractTransformerFullConversion
         TapChanger nTapChanger = baseCloneTapChanger(tapChanger);
         resetTapChangerRegulation(nTapChanger);
 
+		boolean differentRatios = tapChanger.getSteps().stream().anyMatch(step -> step.getRatio() != 1.0);
+		if (!differentRatios) {
+			return null;
+		}
+
         tapChanger.getSteps().forEach(step -> {
             double ratio = step.getRatio();
-            if (ratio == 1.0) {
-                return;
-            }
 
             nTapChanger.beginStep()
                     .setRatio(ratio)
@@ -285,10 +287,7 @@ public abstract class AbstractTransformerFullConversion
                     .endStep();
 
         });
-        if (nTapChanger.getSteps().size() > 0) { // JAM_TODO me lo he inventado
-            return nTapChanger;
-        }
-        return null;
+        return nTapChanger;
     }
 
     private TapChanger baseCloneTapChanger(TapChanger rtc) {
@@ -374,18 +373,28 @@ public abstract class AbstractTransformerFullConversion
         return step;
     }
 
-    protected RatioConversion moveRatioFrom2To1(double a0, double angle, double r, double x,
-            double g1,
+    protected RatioConversion identityRatioConversion(double r, double x, double g1,
+            double b1, double g2, double b2) {
+        RatioConversion ratio = new RatioConversion();
+		ratio.r = r;
+		ratio.x = x;
+		ratio.g1 = g1;
+		ratio.b1 = b1;
+		ratio.g2 = g2;
+		ratio.b2 = b2;
+        return ratio; 
+    }
+
+    protected RatioConversion moveRatioFrom2To1(double a0, double angle, double r, double x, double g1,
             double b1, double g2, double b2) {
         return moveRatio(a0, angle, r, x, g1, b1, g2, b2);
     }
-
-    protected RatioConversion moveRatioFrom1To2(double a0, double angle, double r, double x,
-            double g1,
+    
+    protected RatioConversion moveRatioFrom1To2(double a0, double angle, double r, double x, double g1,
             double b1, double g2, double b2) {
         return moveRatio(a0, angle, r, x, g1, b1, g2, b2);
     }
-
+    
     private RatioConversion moveRatio(double a0, double angle, double r, double x, double g1,
             double b1, double g2, double b2) {
         RatioConversion ratio = new RatioConversion();
@@ -446,7 +455,8 @@ public abstract class AbstractTransformerFullConversion
             return tc.getSteps().get(0);
         }
         int position = tc.getTapPosition();
-        return tc.getSteps().get(position);
+        int lowPosition = tc.getLowTapPosition();
+        return tc.getSteps().get(position - lowPosition);
     }
 
     // propertyBag
@@ -593,7 +603,10 @@ public abstract class AbstractTransformerFullConversion
 
     private void addTabularPhaseSteps(PropertyBag phaseTapChanger, TapChanger tapChanger,
             String tableId) {
-        PropertyBags table = context.ratioTapChangerTable(tableId);
+        PropertyBags table = context.phaseTapChangerTable(tableId);
+        if (table == null) {
+            return;
+        }
         Comparator<PropertyBag> byStep = Comparator
                 .comparingInt((PropertyBag p) -> p.asInt("step"));
         table.sort(byStep);

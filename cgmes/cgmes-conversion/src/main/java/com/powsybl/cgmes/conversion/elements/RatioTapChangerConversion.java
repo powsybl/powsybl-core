@@ -103,7 +103,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
             } else if (side == 2) {
                 return tx3.getLeg2().newRatioTapChanger();
             } else if (side == 3) {
-                return tx3.getLeg2().newRatioTapChanger();
+                return tx3.getLeg3().newRatioTapChanger();
             }
         }
         return null;

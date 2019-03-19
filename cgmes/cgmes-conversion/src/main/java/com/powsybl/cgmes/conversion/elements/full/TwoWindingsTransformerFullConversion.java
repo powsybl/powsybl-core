@@ -44,16 +44,13 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
         } else {
             ratio0AtEnd1 = true;
         }
+        invertIidmAngle = false;
     }
 
     @Override
     public void convert() {
         double r = r1 + r2;
         double x = x1 + x2;
-        double b1 = this.b1;
-        double b2 = this.b2;
-        double g1 = this.g1;
-        double g2 = this.g2;
 
         TapChanger ratioTapChanger1 = getRatioTapChanger(rtc1, terminal1);
         TapChanger ratioTapChanger2 = getRatioTapChanger(rtc2, terminal2);
@@ -66,18 +63,13 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
         TapChanger ratioTapChanger = combineTapChangers(ratioTapChanger1, nratioTapChanger2);
         TapChanger phaseTapChanger = combineTapChangers(phaseTapChanger1, nphaseTapChanger2);
 
+        RatioConversion rc0 = identityRatioConversion(r, x, g1, b1, g2, b2);
         if (!ratio0AtEnd1) {
             double a0 = ratedU2 / ratedU1;
-            RatioConversion ratio = moveRatioFrom2To1(a0, 0.0, r, x, g1, b1, g2, b2);
-            r = ratio.r;
-            x = ratio.x;
-            b1 = ratio.b1;
-            g1 = ratio.g1;
-            b2 = ratio.b2;
-            g2 = ratio.g2;
+            rc0 = moveRatioFrom2To1(a0, 0.0, r, x, g1, b1, g2, b2);
         }
 
-        setToIidm(ratioTapChanger, phaseTapChanger, r, x, g1, b1, g2, b2);
+        setToIidm(ratioTapChanger, phaseTapChanger, rc0.r, rc0.x, rc0.g1, rc0.b1, rc0.g2, rc0.b2);
     }
 
     private void setToIidm(TapChanger ratioTapChanger, TapChanger phaseTapChanger, double r,
@@ -113,6 +105,10 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
         boolean isLoadTapChangingCapabilities = rtc.isLoadTapChangingCapabilities();
         int lowStep = rtc.getLowTapPosition();
         int position = rtc.getTapPosition();
+        int highStep = lowStep + rtc.getSteps().size() - 1;
+        if (position < lowStep || position > highStep) {
+            return;
+        }
         RatioTapChangerAdder rtca = newRatioTapChanger(tx, terminal);
         rtca.setLowTapPosition(lowStep).setTapPosition((int) position)
                 .setLoadTapChangingCapabilities(isLoadTapChangingCapabilities)
@@ -146,6 +142,10 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
         double regulationValue = ptc.getRegulationValue();
         int lowStep = ptc.getLowTapPosition();
         int position = ptc.getTapPosition();
+        int highStep = lowStep + ptc.getSteps().size() - 1;
+        if (position < lowStep || position > highStep) {
+            return;
+        }
         PhaseTapChangerAdder ptca = newPhaseTapChanger(tx);
         ptca.setLowTapPosition(lowStep).setTapPosition((int) position)
                 .setRegulating(isRegulating).setRegulationTerminal(regulationTerminal)
@@ -153,13 +153,16 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
         ptc.getSteps().forEach(step -> {
             double ratio0 = step.getRatio();
             double angle0 = step.getAngle();
+            if (invertIidmAngle) {
+                angle0 = -1 * angle0;
+            }
             double r0 = step.getR();
             double x0 = step.getX();
             double b0 = step.getB1();
             double g0 = step.getG1();
             ptca.beginStep()
                     .setRho(1 / ratio0)
-                    .setAlpha(angle0)
+                    .setAlpha(-angle0)
                     .setR(r0)
                     .setX(x0)
                     .setB(b0)
@@ -192,21 +195,22 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
         return null;
     }
 
-    private final double        r1;
-    private final double        x1;
-    private final double        b1;
-    private final double        g1;
-    private final double        r2;
-    private final double        x2;
-    private final double        b2;
-    private final double        g2;
-    private final double        ratedU1;
-    private final double        ratedU2;
-    private final boolean       ratio0AtEnd1;
-    private final String        terminal1;
-    private final String        terminal2;
-    private final PropertyBag   rtc1;
-    private final PropertyBag   rtc2;
-    private final PropertyBag   ptc1;
-    private final PropertyBag   ptc2;
+    private final double      r1;
+    private final double      x1;
+    private final double      b1;
+    private final double      g1;
+    private final double      r2;
+    private final double      x2;
+    private final double      b2;
+    private final double      g2;
+    private final double      ratedU1;
+    private final double      ratedU2;
+    private final boolean     ratio0AtEnd1;
+    private final boolean     invertIidmAngle;
+    private final String      terminal1;
+    private final String      terminal2;
+    private final PropertyBag rtc1;
+    private final PropertyBag rtc2;
+    private final PropertyBag ptc1;
+    private final PropertyBag ptc2;
 }

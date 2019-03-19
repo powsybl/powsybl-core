@@ -551,6 +551,21 @@ WHERE {
     OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.b ?b }
 }
 
+# query: phaseTapChangerTablesPoints
+SELECT *
+WHERE {
+    ?PhaseTapChangerTablePoint
+        a cim:PhaseTapChangerTablePoint ;
+        cim:PhaseTapChangerTablePoint.PhaseTapChangerTable ?PhaseTapChangerTable ;
+        cim:PhaseTapChangerTablePoint.angle ?angle ;
+        cim:TapChangerTablePoint.step ?step .
+    OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.ratio ?ratio }
+    OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.r ?r }
+    OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.x ?x }
+    OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.g ?g }
+    OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.b ?b }
+}
+
 # query: energyConsumers
 SELECT *
 WHERE {
