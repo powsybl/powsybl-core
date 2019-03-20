@@ -40,7 +40,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     private String sourceFormat;
 
-    private final ObjectStore objectStore = new ObjectStore();
+    private final NetworkIndex index = new NetworkIndex();
 
     private final VariantManagerImpl variantManager;
 
@@ -105,12 +105,12 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         super(id, name);
         Objects.requireNonNull(sourceFormat, "source format is null");
         this.sourceFormat = sourceFormat;
-        variantManager = new VariantManagerImpl(objectStore);
+        variantManager = new VariantManagerImpl(index);
         variants = new VariantArray<>(ref, VariantImpl::new);
         // add the network the object list as it is a multi variant object
         // and it needs to be notified when and extension or a reduction of
         // the variant array is requested
-        objectStore.checkAndAdd(this);
+        index.checkAndAdd(this);
     }
 
     @Override
@@ -155,8 +155,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         return listeners;
     }
 
-    public ObjectStore getObjectStore() {
-        return objectStore;
+    public NetworkIndex getIndex() {
+        return index;
     }
 
     @Override
@@ -186,17 +186,17 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public Iterable<Substation> getSubstations() {
-        return Collections.unmodifiableCollection(objectStore.getAll(SubstationImpl.class));
+        return Collections.unmodifiableCollection(index.getAll(SubstationImpl.class));
     }
 
     @Override
     public Stream<Substation> getSubstationStream() {
-        return objectStore.getAll(SubstationImpl.class).stream().map(Function.identity());
+        return index.getAll(SubstationImpl.class).stream().map(Function.identity());
     }
 
     @Override
     public int getSubstationCount() {
-        return objectStore.getAll(SubstationImpl.class).size();
+        return index.getAll(SubstationImpl.class).size();
     }
 
     @Override
@@ -206,30 +206,30 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public SubstationImpl getSubstation(String id) {
-        return objectStore.get(id, SubstationImpl.class);
+        return index.get(id, SubstationImpl.class);
     }
 
     @Override
     public Iterable<VoltageLevel> getVoltageLevels() {
-        return Iterables.concat(objectStore.getAll(BusBreakerVoltageLevel.class),
-                                objectStore.getAll(NodeBreakerVoltageLevel.class));
+        return Iterables.concat(index.getAll(BusBreakerVoltageLevel.class),
+                                index.getAll(NodeBreakerVoltageLevel.class));
     }
 
     @Override
     public Stream<VoltageLevel> getVoltageLevelStream() {
-        return Stream.concat(objectStore.getAll(BusBreakerVoltageLevel.class).stream(),
-                objectStore.getAll(NodeBreakerVoltageLevel.class).stream());
+        return Stream.concat(index.getAll(BusBreakerVoltageLevel.class).stream(),
+                index.getAll(NodeBreakerVoltageLevel.class).stream());
     }
 
     @Override
     public int getVoltageLevelCount() {
-        return objectStore.getAll(BusBreakerVoltageLevel.class).size()
-                + objectStore.getAll(NodeBreakerVoltageLevel.class).size();
+        return index.getAll(BusBreakerVoltageLevel.class).size()
+                + index.getAll(NodeBreakerVoltageLevel.class).size();
     }
 
     @Override
     public VoltageLevelExt getVoltageLevel(String id) {
-        return objectStore.get(id, VoltageLevelExt.class);
+        return index.get(id, VoltageLevelExt.class);
     }
 
     @Override
@@ -239,7 +239,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public Iterable<Line> getLines() {
-        return Iterables.concat(objectStore.getAll(LineImpl.class), objectStore.getAll(TieLineImpl.class));
+        return Iterables.concat(index.getAll(LineImpl.class), index.getAll(TieLineImpl.class));
     }
 
     @Override
@@ -269,19 +269,19 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public Stream<Line> getLineStream() {
-        return Stream.concat(objectStore.getAll(LineImpl.class).stream(), objectStore.getAll(TieLineImpl.class).stream());
+        return Stream.concat(index.getAll(LineImpl.class).stream(), index.getAll(TieLineImpl.class).stream());
     }
 
     @Override
     public int getLineCount() {
-        return objectStore.getAll(LineImpl.class).size() + objectStore.getAll(TieLineImpl.class).size();
+        return index.getAll(LineImpl.class).size() + index.getAll(TieLineImpl.class).size();
     }
 
     @Override
     public LineImpl getLine(String id) {
-        LineImpl line = objectStore.get(id, LineImpl.class);
+        LineImpl line = index.get(id, LineImpl.class);
         if (line == null) {
-            line = objectStore.get(id, TieLineImpl.class);
+            line = index.get(id, TieLineImpl.class);
         }
         return line;
     }
@@ -293,182 +293,182 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public Iterable<TwoWindingsTransformer> getTwoWindingsTransformers() {
-        return Collections.unmodifiableCollection(objectStore.getAll(TwoWindingsTransformerImpl.class));
+        return Collections.unmodifiableCollection(index.getAll(TwoWindingsTransformerImpl.class));
     }
 
     @Override
     public Stream<TwoWindingsTransformer> getTwoWindingsTransformerStream() {
-        return objectStore.getAll(TwoWindingsTransformerImpl.class).stream().map(Function.identity());
+        return index.getAll(TwoWindingsTransformerImpl.class).stream().map(Function.identity());
     }
 
     @Override
     public int getTwoWindingsTransformerCount() {
-        return objectStore.getAll(TwoWindingsTransformerImpl.class).size();
+        return index.getAll(TwoWindingsTransformerImpl.class).size();
     }
 
     @Override
     public TwoWindingsTransformer getTwoWindingsTransformer(String id) {
-        return objectStore.get(id, TwoWindingsTransformerImpl.class);
+        return index.get(id, TwoWindingsTransformerImpl.class);
     }
 
     @Override
     public Iterable<ThreeWindingsTransformer> getThreeWindingsTransformers() {
-        return Collections.unmodifiableCollection(objectStore.getAll(ThreeWindingsTransformerImpl.class));
+        return Collections.unmodifiableCollection(index.getAll(ThreeWindingsTransformerImpl.class));
     }
 
     @Override
     public Stream<ThreeWindingsTransformer> getThreeWindingsTransformerStream() {
-        return objectStore.getAll(ThreeWindingsTransformerImpl.class).stream().map(Function.identity());
+        return index.getAll(ThreeWindingsTransformerImpl.class).stream().map(Function.identity());
     }
 
     @Override
     public int getThreeWindingsTransformerCount() {
-        return objectStore.getAll(ThreeWindingsTransformerImpl.class).size();
+        return index.getAll(ThreeWindingsTransformerImpl.class).size();
     }
 
     @Override
     public ThreeWindingsTransformer getThreeWindingsTransformer(String id) {
-        return objectStore.get(id, ThreeWindingsTransformerImpl.class);
+        return index.get(id, ThreeWindingsTransformerImpl.class);
     }
 
     @Override
     public Iterable<Generator> getGenerators() {
-        return Collections.unmodifiableCollection(objectStore.getAll(GeneratorImpl.class));
+        return Collections.unmodifiableCollection(index.getAll(GeneratorImpl.class));
     }
 
     @Override
     public Stream<Generator> getGeneratorStream() {
-        return objectStore.getAll(GeneratorImpl.class).stream().map(Function.identity());
+        return index.getAll(GeneratorImpl.class).stream().map(Function.identity());
     }
 
     @Override
     public int getGeneratorCount() {
-        return objectStore.getAll(GeneratorImpl.class).size();
+        return index.getAll(GeneratorImpl.class).size();
     }
 
     @Override
     public GeneratorImpl getGenerator(String id) {
-        return objectStore.get(id, GeneratorImpl.class);
+        return index.get(id, GeneratorImpl.class);
     }
 
     @Override
     public Iterable<Load> getLoads() {
-        return Collections.unmodifiableCollection(objectStore.getAll(LoadImpl.class));
+        return Collections.unmodifiableCollection(index.getAll(LoadImpl.class));
     }
 
     @Override
     public Stream<Load> getLoadStream() {
-        return objectStore.getAll(LoadImpl.class).stream().map(Function.identity());
+        return index.getAll(LoadImpl.class).stream().map(Function.identity());
     }
 
     @Override
     public int getLoadCount() {
-        return objectStore.getAll(LoadImpl.class).size();
+        return index.getAll(LoadImpl.class).size();
     }
 
     @Override
     public LoadImpl getLoad(String id) {
-        return objectStore.get(id, LoadImpl.class);
+        return index.get(id, LoadImpl.class);
     }
 
     @Override
     public Iterable<ShuntCompensator> getShuntCompensators() {
-        return Collections.unmodifiableCollection(objectStore.getAll(ShuntCompensatorImpl.class));
+        return Collections.unmodifiableCollection(index.getAll(ShuntCompensatorImpl.class));
     }
 
     @Override
     public Stream<ShuntCompensator> getShuntCompensatorStream() {
-        return objectStore.getAll(ShuntCompensatorImpl.class).stream().map(Function.identity());
+        return index.getAll(ShuntCompensatorImpl.class).stream().map(Function.identity());
     }
 
     @Override
     public int getShuntCompensatorCount() {
-        return objectStore.getAll(ShuntCompensatorImpl.class).size();
+        return index.getAll(ShuntCompensatorImpl.class).size();
     }
 
     @Override
     public ShuntCompensatorImpl getShuntCompensator(String id) {
-        return objectStore.get(id, ShuntCompensatorImpl.class);
+        return index.get(id, ShuntCompensatorImpl.class);
     }
 
     @Override
     public Iterable<DanglingLine> getDanglingLines() {
-        return Collections.unmodifiableCollection(objectStore.getAll(DanglingLineImpl.class));
+        return Collections.unmodifiableCollection(index.getAll(DanglingLineImpl.class));
     }
 
     @Override
     public Stream<DanglingLine> getDanglingLineStream() {
-        return objectStore.getAll(DanglingLineImpl.class).stream().map(Function.identity());
+        return index.getAll(DanglingLineImpl.class).stream().map(Function.identity());
     }
 
     @Override
     public int getDanglingLineCount() {
-        return objectStore.getAll(DanglingLineImpl.class).size();
+        return index.getAll(DanglingLineImpl.class).size();
     }
 
     @Override
     public DanglingLineImpl getDanglingLine(String id) {
-        return objectStore.get(id, DanglingLineImpl.class);
+        return index.get(id, DanglingLineImpl.class);
     }
 
     @Override
     public Iterable<StaticVarCompensator> getStaticVarCompensators() {
-        return Collections.unmodifiableCollection(objectStore.getAll(StaticVarCompensatorImpl.class));
+        return Collections.unmodifiableCollection(index.getAll(StaticVarCompensatorImpl.class));
     }
 
     @Override
     public Stream<StaticVarCompensator> getStaticVarCompensatorStream() {
-        return objectStore.getAll(StaticVarCompensatorImpl.class).stream().map(Function.identity());
+        return index.getAll(StaticVarCompensatorImpl.class).stream().map(Function.identity());
     }
 
     @Override
     public int getStaticVarCompensatorCount() {
-        return objectStore.getAll(StaticVarCompensatorImpl.class).size();
+        return index.getAll(StaticVarCompensatorImpl.class).size();
     }
 
     @Override
     public StaticVarCompensatorImpl getStaticVarCompensator(String id) {
-        return objectStore.get(id, StaticVarCompensatorImpl.class);
+        return index.get(id, StaticVarCompensatorImpl.class);
     }
 
     @Override
     public Switch getSwitch(String id) {
-        return objectStore.get(id, SwitchImpl.class);
+        return index.get(id, SwitchImpl.class);
     }
 
     @Override
     public Iterable<Switch> getSwitches() {
-        return Collections.unmodifiableCollection(objectStore.getAll(SwitchImpl.class));
+        return Collections.unmodifiableCollection(index.getAll(SwitchImpl.class));
     }
 
     @Override
     public Stream<Switch> getSwitchStream() {
-        return objectStore.getAll(SwitchImpl.class).stream().map(Function.identity());
+        return index.getAll(SwitchImpl.class).stream().map(Function.identity());
     }
 
     @Override
     public int getSwitchCount() {
-        return objectStore.getAll(SwitchImpl.class).size();
+        return index.getAll(SwitchImpl.class).size();
     }
 
     @Override
     public BusbarSection getBusbarSection(String id) {
-        return objectStore.get(id, BusbarSectionImpl.class);
+        return index.get(id, BusbarSectionImpl.class);
     }
 
     @Override
     public Iterable<BusbarSection> getBusbarSections() {
-        return Collections.unmodifiableCollection(objectStore.getAll(BusbarSectionImpl.class));
+        return Collections.unmodifiableCollection(index.getAll(BusbarSectionImpl.class));
     }
 
     @Override
     public Stream<BusbarSection> getBusbarSectionStream() {
-        return objectStore.getAll(BusbarSectionImpl.class).stream().map(Function.identity());
+        return index.getAll(BusbarSectionImpl.class).stream().map(Function.identity());
     }
 
     @Override
     public int getBusbarSectionCount() {
-        return objectStore.getAll(BusbarSectionImpl.class).size();
+        return index.getAll(BusbarSectionImpl.class).size();
     }
 
     @Override
@@ -497,47 +497,47 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public Iterable<LccConverterStation> getLccConverterStations() {
-        return Collections.unmodifiableCollection(objectStore.getAll(LccConverterStationImpl.class));
+        return Collections.unmodifiableCollection(index.getAll(LccConverterStationImpl.class));
     }
 
     @Override
     public Stream<LccConverterStation> getLccConverterStationStream() {
-        return objectStore.getAll(LccConverterStationImpl.class).stream().map(Function.identity());
+        return index.getAll(LccConverterStationImpl.class).stream().map(Function.identity());
     }
 
     @Override
     public int getLccConverterStationCount() {
-        return objectStore.getAll(LccConverterStationImpl.class).size();
+        return index.getAll(LccConverterStationImpl.class).size();
     }
 
     @Override
     public LccConverterStationImpl getLccConverterStation(String id) {
-        return objectStore.get(id, LccConverterStationImpl.class);
+        return index.get(id, LccConverterStationImpl.class);
     }
 
     @Override
     public Iterable<VscConverterStation> getVscConverterStations() {
-        return Collections.unmodifiableCollection(objectStore.getAll(VscConverterStationImpl.class));
+        return Collections.unmodifiableCollection(index.getAll(VscConverterStationImpl.class));
     }
 
     @Override
     public Stream<VscConverterStation> getVscConverterStationStream() {
-        return objectStore.getAll(VscConverterStationImpl.class).stream().map(Function.identity());
+        return index.getAll(VscConverterStationImpl.class).stream().map(Function.identity());
     }
 
     @Override
     public int getVscConverterStationCount() {
-        return objectStore.getAll(VscConverterStationImpl.class).size();
+        return index.getAll(VscConverterStationImpl.class).size();
     }
 
     @Override
     public VscConverterStationImpl getVscConverterStation(String id) {
-        return objectStore.get(id, VscConverterStationImpl.class);
+        return index.get(id, VscConverterStationImpl.class);
     }
 
     @Override
     public HvdcLine getHvdcLine(String id) {
-        return objectStore.get(id, HvdcLineImpl.class);
+        return index.get(id, HvdcLineImpl.class);
     }
 
     @Override
@@ -550,17 +550,17 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public int getHvdcLineCount() {
-        return objectStore.getAll(HvdcLineImpl.class).size();
+        return index.getAll(HvdcLineImpl.class).size();
     }
 
     @Override
     public Iterable<HvdcLine> getHvdcLines() {
-        return Collections.unmodifiableCollection(objectStore.getAll(HvdcLineImpl.class));
+        return Collections.unmodifiableCollection(index.getAll(HvdcLineImpl.class));
     }
 
     @Override
     public Stream<HvdcLine> getHvdcLineStream() {
-        return objectStore.getAll(HvdcLineImpl.class).stream().map(Function.identity());
+        return index.getAll(HvdcLineImpl.class).stream().map(Function.identity());
     }
 
     @Override
@@ -570,12 +570,12 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public Identifiable<?> getIdentifiable(String id) {
-        return objectStore.get(id, Identifiable.class);
+        return index.get(id, Identifiable.class);
     }
 
     @Override
     public Collection<Identifiable<?>> getIdentifiables() {
-        return objectStore.getAll();
+        return index.getAll();
     }
 
     @Override
@@ -612,17 +612,17 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         }
 
         protected void fillAdjacencyList(Map<String, Integer> id2num, TIntArrayList[] adjacencyList) {
-            for (LineImpl line : Sets.union(network.objectStore.getAll(LineImpl.class), network.objectStore.getAll(TieLineImpl.class))) {
+            for (LineImpl line : Sets.union(network.index.getAll(LineImpl.class), network.index.getAll(TieLineImpl.class))) {
                 BusExt bus1 = line.getTerminal1().getBusView().getBus();
                 BusExt bus2 = line.getTerminal2().getBusView().getBus();
                 addToAdjacencyList(bus1, bus2, id2num, adjacencyList);
             }
-            for (TwoWindingsTransformerImpl transfo : network.objectStore.getAll(TwoWindingsTransformerImpl.class)) {
+            for (TwoWindingsTransformerImpl transfo : network.index.getAll(TwoWindingsTransformerImpl.class)) {
                 BusExt bus1 = transfo.getTerminal1().getBusView().getBus();
                 BusExt bus2 = transfo.getTerminal2().getBusView().getBus();
                 addToAdjacencyList(bus1, bus2, id2num, adjacencyList);
             }
-            for (ThreeWindingsTransformerImpl transfo : network.objectStore.getAll(ThreeWindingsTransformerImpl.class)) {
+            for (ThreeWindingsTransformerImpl transfo : network.index.getAll(ThreeWindingsTransformerImpl.class)) {
                 BusExt bus1 = transfo.getLeg1().getTerminal().getBusView().getBus();
                 BusExt bus2 = transfo.getLeg2().getTerminal().getBusView().getBus();
                 BusExt bus3 = transfo.getLeg3().getTerminal().getBusView().getBus();
@@ -702,7 +702,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         @Override
         protected void fillAdjacencyList(Map<String, Integer> id2num, TIntArrayList[] adjacencyList) {
             super.fillAdjacencyList(id2num, adjacencyList);
-            for (HvdcLineImpl line : network.objectStore.getAll(HvdcLineImpl.class)) {
+            for (HvdcLineImpl line : network.index.getAll(HvdcLineImpl.class)) {
                 BusExt bus1 = line.getConverterStation1().getTerminal().getBusView().getBus();
                 BusExt bus2 = line.getConverterStation2().getTerminal().getBusView().getBus();
                 addToAdjacencyList(bus1, bus2, id2num, adjacencyList);
@@ -797,13 +797,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         return "Network";
     }
 
-    private void setIdEraseName(String id) {
-        objectStore.remove(this);
-        this.id = id;
-        name = null; // reset the name
-        objectStore.checkAndAdd(this);
-    }
-
     @Override
     public void merge(Network other) {
         NetworkImpl otherNetwork = (NetworkImpl) other;
@@ -819,7 +812,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         long start = System.currentTimeMillis();
 
         // check mergeability
-        Multimap<Class<? extends Identifiable>, String> intersection = objectStore.intersection(otherNetwork.objectStore);
+        Multimap<Class<? extends Identifiable>, String> intersection = index.intersection(otherNetwork.index);
         for (Map.Entry<Class<? extends Identifiable>, Collection<String>> entry : intersection.asMap().entrySet()) {
             Class<? extends Identifiable> clazz = entry.getKey();
             if (clazz == DanglingLineImpl.class) { // fine for dangling lines
@@ -846,11 +839,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             mergeDanglingLines(lines, dl1, dl2);
         }
 
-        // do not forget to remove the other network from its store!!!
-        otherNetwork.objectStore.remove(otherNetwork);
+        // do not forget to remove the other network from its index!!!
+        otherNetwork.index.remove(otherNetwork);
 
-        // merge the stores
-        objectStore.merge(otherNetwork.objectStore);
+        // merge the indexes
+        index.merge(otherNetwork.index);
 
         // fix network back reference of the other network objects
         otherNetwork.ref.setRef(ref);
@@ -867,9 +860,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         if (!sourceFormat.equals(otherNetwork.sourceFormat)) {
             sourceFormat = "hybrid";
         }
-
-        // change the network id
-        setIdEraseName(getId() + " + " + otherNetwork.getId());
 
         LOGGER.info("Merging of {} done in {} ms", id, System.currentTimeMillis() - start);
     }

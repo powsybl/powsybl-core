@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.model.CgmesModel.CgmesTerminal;
+import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -29,7 +29,7 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public class SubstationIdMapping {
 
-    public SubstationIdMapping(Conversion.Context context) {
+    public SubstationIdMapping(Context context) {
         this.context = context;
         this.mapping = new HashMap<>();
     }
@@ -88,7 +88,8 @@ public class SubstationIdMapping {
         UndirectedGraph<String, Object> graph = new Pseudograph<>(Object.class);
         for (PropertyBag s : context.cgmes().substations()) {
             String id = s.getId(CgmesNames.SUBSTATION);
-            graph.addVertex(context.namingStrategy().getId(CgmesNames.SUBSTATION, id));
+            String iid = context.namingStrategy().getId(CgmesNames.SUBSTATION, id);
+            graph.addVertex(iid);
         }
         for (PropertyBags tends : context.cgmes().groupedTransformerEnds().values()) {
             List<String> substationsIds = substationsIds(tends);
@@ -107,14 +108,16 @@ public class SubstationIdMapping {
             CgmesTerminal t = context.cgmes().terminal(end.getId(CgmesNames.TERMINAL));
             String node = context.nodeBreaker() ? t.connectivityNode() : t.topologicalNode();
             if (node != null && !context.boundary().containsNode(node)) {
-                String sid = t.substation();
-                substationsIds.add(context.namingStrategy().getId(CgmesNames.SUBSTATION, sid));
+                String sid = context.cgmes().substation(t);
+                if (sid != null) {
+                    substationsIds.add(context.namingStrategy().getId(CgmesNames.SUBSTATION, sid));
+                }
             }
         }
         return substationsIds;
     }
 
-    private final Conversion.Context context;
+    private final Context context;
     private final Map<String, String> mapping;
 
     private static final Logger LOG = LoggerFactory.getLogger(SubstationIdMapping.class);

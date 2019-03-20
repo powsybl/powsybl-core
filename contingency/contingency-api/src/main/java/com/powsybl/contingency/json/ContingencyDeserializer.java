@@ -46,7 +46,6 @@ public class ContingencyDeserializer extends StdDeserializer<Contingency> {
 
         List<Extension<Contingency>> extensions = Collections.emptyList();
 
-
         while (parser.nextToken() != JsonToken.END_OBJECT) {
             switch (parser.getCurrentName()) {
                 case "id":

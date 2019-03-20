@@ -1,0 +1,9 @@
+graph "VLHV1" {
+"BUS\nNHV1" ["color"="#7AF385","style"="filled"]
+"LINE\nNHV1_NHV2_1" ["color"="#7AF385","style"="filled"]
+"LINE\nNHV1_NHV2_2" ["color"="#7AF385","style"="filled"]
+"TWO_WINDINGS_TRANSFORMER\nNGEN_NHV1" ["color"="#7AF385","style"="filled"]
+"BUS\nNHV1" -- "LINE\nNHV1_NHV2_1" ["style"="solid"]
+"BUS\nNHV1" -- "LINE\nNHV1_NHV2_2" ["style"="solid"]
+"BUS\nNHV1" -- "TWO_WINDINGS_TRANSFORMER\nNGEN_NHV1" ["style"="solid"]
+}

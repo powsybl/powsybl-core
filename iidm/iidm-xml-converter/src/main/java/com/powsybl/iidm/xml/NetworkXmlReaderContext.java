@@ -7,8 +7,9 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlReaderContext;
+import com.powsybl.iidm.AbstractConverterContext;
 import com.powsybl.iidm.anonymizer.Anonymizer;
-import com.powsybl.iidm.ConverterContext;
+import com.powsybl.iidm.import_.ImportOptions;
 
 import javax.xml.stream.XMLStreamReader;
 import java.util.ArrayList;
@@ -18,14 +19,20 @@ import java.util.Objects;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NetworkXmlReaderContext extends ConverterContext implements XmlReaderContext {
+public class NetworkXmlReaderContext extends AbstractConverterContext<ImportOptions> implements XmlReaderContext {
 
     private final XMLStreamReader reader;
     private final List<Runnable> endTasks = new ArrayList<>();
+    private final ImportOptions options;
 
-    public NetworkXmlReaderContext(Anonymizer anonymizer, XMLStreamReader reader) {
+    public NetworkXmlReaderContext(Anonymizer anonymizer, XMLStreamReader reader, ImportOptions options) {
         super(anonymizer);
         this.reader = Objects.requireNonNull(reader);
+        this.options = Objects.requireNonNull(options);
+    }
+
+    public NetworkXmlReaderContext(Anonymizer anonymizer, XMLStreamReader reader) {
+        this(anonymizer, reader, new ImportOptions());
     }
 
     @Override
@@ -37,4 +44,8 @@ public class NetworkXmlReaderContext extends ConverterContext implements XmlRead
         return endTasks;
     }
 
+    @Override
+    public ImportOptions getOptions() {
+        return options;
+    }
 }

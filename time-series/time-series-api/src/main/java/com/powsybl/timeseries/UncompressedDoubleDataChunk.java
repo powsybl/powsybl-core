@@ -50,12 +50,25 @@ public class UncompressedDoubleDataChunk extends AbstractUncompressedDataChunk i
         return TimeSeriesDataType.DOUBLE;
     }
 
+    //To remove if we ever get it from somewhere else
+    @FunctionalInterface private interface DoubleIntConsumer { public void accept(double a, int b); }
+
+    private void forEachValueIndex(DoubleIntConsumer consumer) {
+        for (int i = 0; i < values.length; i++) {
+            consumer.accept(values[i], offset + i);
+        }
+    }
+
     @Override
     public void fillBuffer(DoubleBuffer buffer, int timeSeriesOffset) {
         Objects.requireNonNull(buffer);
-        for (int i = 0; i < values.length; i++) {
-            buffer.put(timeSeriesOffset + offset + i, values[i]);
-        }
+        forEachValueIndex((v, i) -> buffer.put(timeSeriesOffset + i, v));
+    }
+
+    @Override
+    public void fillBuffer(BigDoubleBuffer buffer, long timeSeriesOffset) {
+        Objects.requireNonNull(buffer);
+        forEachValueIndex((v, i) -> buffer.put(timeSeriesOffset + i, v));
     }
 
     @Override

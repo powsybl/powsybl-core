@@ -15,11 +15,10 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.anonymizer.Anonymizer;
-import com.powsybl.iidm.anonymizer.SimpleAnonymizer;
+import com.powsybl.iidm.ConversionParameters;
+import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.import_.Importer;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
@@ -32,11 +31,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.events.XMLEvent;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
 import static com.powsybl.iidm.xml.IidmXmlConstants.VERSION;
@@ -53,13 +48,25 @@ public class XMLImporter implements Importer {
 
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 
-    private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND
-            = new Parameter("iidm.import.xml.throw-exception-if-extension-not-found", ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE)
+    public static final String THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND = "iidm.import.xml.throw-exception-if-extension-not-found";
+
+    public static final String IMPORT_MODE = "iidm.import.xml.import-mode";
+
+    public static final String EXTENSIONS_LIST = "iidm.import.xml.extensions";
+
+    private static final Parameter IMPORT_MODE_PARAMETER
+            = new Parameter(IMPORT_MODE, ParameterType.STRING, "import mode", String.valueOf(IidmImportExportMode.UNIQUE_FILE));
+
+    private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER
+            = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE)
                     .addAdditionalNames("throwExceptionIfExtensionNotFound");
+
+    private static final Parameter EXTENSIONS_LIST_PARAMETER
+            = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The list of extension files ", null);
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
-    private static final String SUFFIX_MAPPING = "_mapping";
+    static final String SUFFIX_MAPPING = "_mapping";
 
     public XMLImporter() {
         this(PlatformConfig.defaultConfig());
@@ -76,7 +83,7 @@ public class XMLImporter implements Importer {
 
     @Override
     public List<Parameter> getParameters() {
-        return Collections.singletonList(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND);
+        return Collections.singletonList(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER);
     }
 
     @Override
@@ -162,6 +169,12 @@ public class XMLImporter implements Importer {
     public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
         Objects.requireNonNull(dataSource);
         Network network;
+
+        ImportOptions options = new ImportOptions()
+                .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
+                .setMode(IidmImportExportMode.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, IMPORT_MODE_PARAMETER, defaultValueConfig)))
+                .setExtensions(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null);
+
         long startTime = System.currentTimeMillis();
         try {
             String ext = findExtension(dataSource);
@@ -169,17 +182,8 @@ public class XMLImporter implements Importer {
                 throw new PowsyblException("File " + dataSource.getBaseName()
                         + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
             }
-            boolean throwExceptionIfExtensionNotFound = (Boolean) Importers.readParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, defaultValueConfig);
-            Anonymizer anonymizer = null;
-            if (dataSource.exists(SUFFIX_MAPPING, "csv")) {
-                anonymizer = new SimpleAnonymizer();
-                try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(SUFFIX_MAPPING, "csv"), StandardCharsets.UTF_8))) {
-                    anonymizer.read(reader);
-                }
-            }
-            try (InputStream is = dataSource.newInputStream(null, ext)) {
-                network = NetworkXml.read(is, new ImportOptions(throwExceptionIfExtensionNotFound), anonymizer);
-            }
+
+            network = NetworkXml.read(dataSource, options, ext);
             LOGGER.debug("XIIDM import done in {} ms", System.currentTimeMillis() - startTime);
         } catch (IOException e) {
             throw new PowsyblException(e);

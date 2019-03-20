@@ -24,11 +24,13 @@ import java.util.Properties;
 public class SimpleAnonymizerTest extends AbstractConverterTest {
 
     private void anonymisationTest(Network network, String xiidmRef, String anonymizedXiidmRef, String anonymizedCsvRef) throws IOException {
+        PlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
+
         // export with anonymisation on
         Properties properties = new Properties();
-        properties.put(XMLExporter.ANONYMISED_PROPERTIES, "true");
+        properties.put(XMLExporter.ANONYMISED, "true");
         MemDataSource dataSource = new MemDataSource();
-        new XMLExporter().export(network, properties, dataSource);
+        new XMLExporter(platformConfig).export(network, properties, dataSource);
 
         // check we have 2 files, the anonymized IIDM XML and a CSV mapping file and compare to anonymized reference files
         try (InputStream is = new ByteArrayInputStream(dataSource.getData(null, "xiidm"))) {
@@ -38,12 +40,10 @@ public class SimpleAnonymizerTest extends AbstractConverterTest {
             compareTxt(getClass().getResourceAsStream(anonymizedCsvRef), is);
         }
 
-        PlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
-
         // re-import the IIDM XML using the CSV mapping file
         Network network2 = new XMLImporter(platformConfig).importData(dataSource, null);
         MemDataSource dataSource2 = new MemDataSource();
-        new XMLExporter().export(network2, null, dataSource2);
+        new XMLExporter(platformConfig).export(network2, null, dataSource2);
 
         // check that re-imported IIDM XML has been deanonymized and is equals to reference file
         roundTripXmlTest(network2,

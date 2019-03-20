@@ -8,7 +8,7 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.anonymizer.Anonymizer;
-import com.powsybl.iidm.ConverterContext;
+import com.powsybl.iidm.AbstractConverterContext;
 import com.powsybl.iidm.export.BusFilter;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.Identifiable;
@@ -21,9 +21,10 @@ import java.util.Set;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NetworkXmlWriterContext extends ConverterContext implements XmlWriterContext {
+public class NetworkXmlWriterContext extends AbstractConverterContext<ExportOptions> implements XmlWriterContext {
 
     private final XMLStreamWriter writer;
+    private XMLStreamWriter extensionsWriter;
     private final ExportOptions options;
     private final BusFilter filter;
     private final Set<Identifiable> exportedEquipments;
@@ -33,7 +34,7 @@ public class NetworkXmlWriterContext extends ConverterContext implements XmlWrit
         this.writer = writer;
         this.options = options;
         this.filter = filter;
-
+        this.extensionsWriter = writer;
         this.exportedEquipments = new HashSet<>();
     }
 
@@ -42,12 +43,21 @@ public class NetworkXmlWriterContext extends ConverterContext implements XmlWrit
         return writer;
     }
 
+    @Override
     public ExportOptions getOptions() {
         return options;
     }
 
+    public XMLStreamWriter getExtensionsWriter() {
+        return extensionsWriter;
+    }
+
     public BusFilter getFilter() {
         return filter;
+    }
+
+    public void setExtensionsWriter(XMLStreamWriter extensionsWriter) {
+        this.extensionsWriter = extensionsWriter;
     }
 
     public Set<Identifiable> getExportedEquipments() {

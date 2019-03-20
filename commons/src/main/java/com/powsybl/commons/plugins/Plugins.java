@@ -21,21 +21,20 @@ public final class Plugins {
 
     public static Collection<PluginInfo> getPluginInfos() {
         return new ServiceLoaderCache<>(PluginInfo.class).getServices().stream()
-                .sorted(Comparator.comparing(PluginInfo::getPluginName))
+                .sorted(Comparator.comparing(PluginInfo::getPluginName, String.CASE_INSENSITIVE_ORDER))
                 .collect(Collectors.toList());
     }
 
-    public static <T> PluginInfo<T> getPluginInfoByName(String name) {
+    public static PluginInfo getPluginInfoByName(String name) {
         Objects.requireNonNull(name);
         return new ServiceLoaderCache<>(PluginInfo.class).getServices().stream()
                 .filter(p -> p.getPluginName().equals(name))
                 .findFirst().orElse(null);
     }
 
-    public static <T> Collection<String> getPluginImplementationsIds(PluginInfo<T> pluginInfo) {
+    public static <T> List<String> getPluginImplementationsIds(PluginInfo<T> pluginInfo) {
         Objects.requireNonNull(pluginInfo);
-        List<T> pluginImpls = new ServiceLoaderCache<>(pluginInfo.getPluginClass()).getServices();
-        return pluginImpls.stream()
+        return new ServiceLoaderCache<>(pluginInfo.getPluginClass()).getServices().stream()
                 .map(pluginInfo::getId)
                 .sorted()
                 .collect(Collectors.toList());

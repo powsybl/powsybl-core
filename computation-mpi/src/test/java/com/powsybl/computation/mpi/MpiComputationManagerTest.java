@@ -6,7 +6,6 @@
  */
 package com.powsybl.computation.mpi;
 
-
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.google.protobuf.ByteString;

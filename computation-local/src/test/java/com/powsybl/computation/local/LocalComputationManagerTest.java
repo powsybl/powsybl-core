@@ -23,7 +23,10 @@ import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -215,4 +218,27 @@ public class LocalComputationManagerTest {
         }
     }
 
+    @Test(expected = ExecutionException.class)
+    public void hangingIssue() throws Exception {
+        LocalCommandExecutor localCommandExecutor = new AbstractLocalCommandExecutor() {
+            @Override
+            void nonZeroLog(List<String> cmdLs, int exitCode) {
+            }
+
+            @Override
+            public int execute(String program, List<String> args, Path outFile, Path errFile, Path workingDir, Map<String, String> env) throws IOException, InterruptedException {
+                return 0;
+            }
+        };
+        try (ComputationManager computationManager = new LocalComputationManager(config, localCommandExecutor, ForkJoinPool.commonPool())) {
+            CompletableFuture<Object> result = computationManager.execute(ExecutionEnvironment.createDefault(), new AbstractExecutionHandler<Object>() {
+                @Override
+                public List<CommandExecution> before(Path workingDir) {
+                    throw new AssertionError("Oups");
+                }
+            });
+            // check that code is not hanging anymore when a java.lang.Error is thrown inside before
+            result.get(100, TimeUnit.MILLISECONDS);
+        }
+    }
 }

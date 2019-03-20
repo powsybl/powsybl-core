@@ -37,42 +37,42 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
  */
 public abstract class AbstractLoadFlowResultsCompletionTest {
 
-    protected String lineId = "line";
-    protected double lineP1 = -42.051187;
-    protected double lineQ1 = -19.516002;
-    protected double lineP2 = 42.0684589;
-    protected double lineQ2 = 18.8650876;
-    protected Terminal lineTerminal1;
-    protected Terminal lineTerminal2;
-    protected Line line;
+    protected String                   lineId  = "line";
+    protected double                   lineP1  = -42.051187;
+    protected double                   lineQ1  = -19.516002;
+    protected double                   lineP2  = 42.0684589;
+    protected double                   lineQ2  = 18.8650876;
+    protected Terminal                 lineTerminal1;
+    protected Terminal                 lineTerminal2;
+    protected Line                     line;
 
-    protected String twtId = "twt";
-    protected double twtP1 = 436.548434;
-    protected double twtQ1 = 43.472170;
-    protected double twtP2 = -436.4087165;
-    protected double twtQ2 = 11.837290;
-    protected Terminal twtTerminal1;
-    protected Terminal twtTerminal2;
-    protected TwoWindingsTransformer transformer;
+    protected String                   twtId   = "twt";
+    protected double                   twtP1   = 436.548434;
+    protected double                   twtQ1   = 43.472170;
+    protected double                   twtP2   = -436.4087165;
+    protected double                   twtQ2   = 11.837290;
+    protected Terminal                 twtTerminal1;
+    protected Terminal                 twtTerminal2;
+    protected TwoWindingsTransformer   transformer;
 
-    protected String shuntId = "shunt";
-    protected double shuntQ = -21.2566;
-    protected Terminal shuntTerminal;
-    protected ShuntCompensator shunt;
+    protected String                   shuntId = "shunt";
+    protected double                   shuntQ  = -21.2566;
+    protected Terminal                 shuntTerminal;
+    protected ShuntCompensator         shunt;
 
-    protected String twt3wId = "twt3w";
-    protected double leg1P = 99.218431;
-    protected double leg1Q = 3.304328;
-    protected double leg2P = -216.19819;
-    protected double leg2Q = -85.368180;
-    protected double leg3P = 118;
-    protected double leg3Q = 92.612077;
-    protected Terminal leg1Terminal;
-    protected Terminal leg2Terminal;
-    protected Terminal leg3Terminal;
+    protected String                   twt3wId = "twt3w";
+    protected double                   leg1P   = 99.218431;
+    protected double                   leg1Q   = 3.304328;
+    protected double                   leg2P   = -216.19819;
+    protected double                   leg2Q   = -85.368180;
+    protected double                   leg3P   = 118;
+    protected double                   leg3Q   = 92.612077;
+    protected Terminal                 leg1Terminal;
+    protected Terminal                 leg2Terminal;
+    protected Terminal                 leg3Terminal;
     protected ThreeWindingsTransformer twt3w;
 
-    protected Network network;
+    protected Network                  network;
 
     @Before
     public void setUp() {
@@ -117,6 +117,8 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(line.getB1()).thenReturn(7.44000e-06);
         Mockito.when(line.getB2()).thenReturn(7.44000e-06);
 
+        Mockito.when(lineBus1.getLineStream()).thenAnswer(dummy -> Stream.of(line));
+        Mockito.when(lineBus2.getLineStream()).thenAnswer(dummy -> Stream.of(line));
 
         Bus twtBus1 = Mockito.mock(Bus.class);
         Mockito.when(twtBus1.getV()).thenReturn(408.266);
@@ -130,9 +132,11 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
 
         BusView twtBusView1 = Mockito.mock(BusView.class);
         Mockito.when(twtBusView1.getBus()).thenReturn(twtBus1);
+        Mockito.when(twtBus1.getLineStream()).thenAnswer(dummy -> Stream.empty());
 
         BusView twtBusView2 = Mockito.mock(BusView.class);
         Mockito.when(twtBusView2.getBus()).thenReturn(twtBus2);
+        Mockito.when(twtBus2.getLineStream()).thenAnswer(dummy -> Stream.empty());
 
         twtTerminal1 = Mockito.mock(Terminal.class);
         Mockito.when(twtTerminal1.isConnected()).thenReturn(true);
@@ -174,6 +178,7 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(shuntBus.getV()).thenReturn(14.5965);
         Mockito.when(shuntBus.getAngle()).thenReturn(Math.toDegrees(0));
         Mockito.when(shuntBus.isInMainConnectedComponent()).thenReturn(true);
+        Mockito.when(shuntBus.getLineStream()).thenAnswer(dummy -> Stream.empty());
 
         BusView shuntBusView = Mockito.mock(BusView.class);
         Mockito.when(shuntBusView.getBus()).thenReturn(shuntBus);
@@ -193,6 +198,7 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(leg1Bus.getV()).thenReturn(412.989001);
         Mockito.when(leg1Bus.getAngle()).thenReturn(-6.78071);
         Mockito.when(leg1Bus.isInMainConnectedComponent()).thenReturn(true);
+        Mockito.when(leg1Bus.getLineStream()).thenAnswer(dummy -> Stream.empty());
 
         BusView leg1BusView = Mockito.mock(BusView.class);
         Mockito.when(leg1BusView.getBus()).thenReturn(leg1Bus);
@@ -215,6 +221,7 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(leg2Bus.getV()).thenReturn(224.315268);
         Mockito.when(leg2Bus.getAngle()).thenReturn(-8.77012);
         Mockito.when(leg2Bus.isInMainConnectedComponent()).thenReturn(true);
+        Mockito.when(leg2Bus.getLineStream()).thenAnswer(dummy -> Stream.empty());
 
         BusView leg2BusView = Mockito.mock(BusView.class);
         Mockito.when(leg2BusView.getBus()).thenReturn(leg2Bus);
@@ -235,6 +242,7 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(leg3Bus.getV()).thenReturn(21.987);
         Mockito.when(leg3Bus.getAngle()).thenReturn(-6.6508);
         Mockito.when(leg3Bus.isInMainConnectedComponent()).thenReturn(true);
+        Mockito.when(leg3Bus.getLineStream()).thenAnswer(dummy -> Stream.empty());
 
         BusView leg3BusView = Mockito.mock(BusView.class);
         Mockito.when(leg3BusView.getBus()).thenReturn(leg3Bus);
@@ -257,18 +265,23 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(twt3w.getLeg2()).thenReturn(leg2);
         Mockito.when(twt3w.getLeg3()).thenReturn(leg3);
 
+        Network.BusView busView = Mockito.mock(Network.BusView.class);
+        Mockito.when(busView.getBusStream()).thenAnswer(dummy -> Stream.of(lineBus1, lineBus2,
+                twtBus1, twtBus2, shuntBus, leg1Bus, leg2Bus, leg3Bus));
 
         VariantManager variantManager = Mockito.mock(VariantManager.class);
         Mockito.when(variantManager.getWorkingVariantId()).thenReturn(VariantManagerConstants.INITIAL_VARIANT_ID);
 
-
         network = Mockito.mock(Network.class);
         Mockito.when(network.getId()).thenReturn("network");
         Mockito.when(network.getVariantManager()).thenReturn(variantManager);
+        Mockito.when(network.getBusView()).thenReturn(busView);
         Mockito.when(network.getLineStream()).thenAnswer(dummy -> Stream.of(line));
-        Mockito.when(network.getTwoWindingsTransformerStream()).thenAnswer(dummy -> Stream.of(transformer));
+        Mockito.when(network.getTwoWindingsTransformerStream())
+                .thenAnswer(dummy -> Stream.of(transformer));
         Mockito.when(network.getShuntCompensatorStream()).thenAnswer(dummy -> Stream.of(shunt));
-        Mockito.when(network.getThreeWindingsTransformerStream()).thenAnswer(dummy -> Stream.of(twt3w));
+        Mockito.when(network.getThreeWindingsTransformerStream())
+                .thenAnswer(dummy -> Stream.of(twt3w));
     }
 
     protected void setNanValues() {

@@ -235,7 +235,6 @@ public class UcteReader {
         }
     }
 
-
     private void readExchangeBlock(UcteRecordParser parser, UcteNetwork network) throws IOException {
         LOGGER.warn("E block not supported");
         while (parser.nextLine()) {

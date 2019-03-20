@@ -36,7 +36,9 @@ import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFWriter;
 import org.eclipse.rdf4j.rio.Rio;
+import org.eclipse.rdf4j.rio.helpers.BasicParserSettings;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
+import org.eclipse.rdf4j.rio.helpers.XMLParserSettings;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,6 +63,13 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     public void read(String base, String contextName, InputStream is) {
         try (RepositoryConnection conn = repo.getConnection()) {
             conn.setIsolationLevel(IsolationLevels.NONE);
+
+            // Report invalid identifiers but do not fail
+            // (sometimes RDF identifiers contain spaces or begin with #)
+            // This is the default behavior for other triple store engines (Jena)
+            conn.getParserConfig().addNonFatalError(XMLParserSettings.FAIL_ON_INVALID_NCNAME);
+            conn.getParserConfig().addNonFatalError(BasicParserSettings.VERIFY_URI_SYNTAX);
+
             Resource context = context(conn, contextName);
             // We add data with a context (graph) to keep the source of information
             // When we write we want to keep data split by graph
@@ -233,7 +242,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     }
 
     private static void addNamespaceForBase(RepositoryConnection cnx, String base) {
-        cnx.setNamespace("data", base + "#");
+        cnx.setNamespace("data", base + "/#");
     }
 
     private Resource context(RepositoryConnection conn, String contextName) {

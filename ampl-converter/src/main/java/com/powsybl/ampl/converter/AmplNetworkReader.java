@@ -367,7 +367,6 @@ public class AmplNetworkReader {
         return null;
     }
 
-
     public AmplNetworkReader readStaticVarcompensator() throws IOException {
         read("_static_var_compensators", 6, this::readSvc);
 
@@ -447,7 +446,6 @@ public class AmplNetworkReader {
         VscConverterStation vsc = network.getVscConverterStation(id);
         Terminal t = vsc.getTerminal();
         t.setP(p).setQ(q);
-
 
         vsc.setReactivePowerSetpoint(targetQ);
         vsc.setVoltageRegulatorOn(vregul);

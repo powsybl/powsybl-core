@@ -271,7 +271,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         voltageLevel2.attach(terminal2, false);
         voltageLevel3.attach(terminal3, false);
 
-        getNetwork().getObjectStore().checkAndAdd(transformer);
+        getNetwork().getIndex().checkAndAdd(transformer);
         getNetwork().getListeners().notifyCreation(transformer);
 
         return transformer;

@@ -11,6 +11,8 @@ import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.BiFunction;
 
 /**
  * To override programmatic default value.
@@ -49,26 +51,45 @@ public class ParameterDefaultValueConfig {
     }
 
     public Object getValue(String format, Parameter parameter) {
-        Objects.requireNonNull(format);
         Objects.requireNonNull(parameter);
-        String name = format + "_" + parameter.getName();
-        ModuleConfig moduleConfig = getModuleConfig();
         switch (parameter.getType()) {
-            case BOOLEAN: {
-                boolean defaultValue = (Boolean) parameter.getDefaultValue();
-                return moduleConfig != null ? moduleConfig.getBooleanProperty(name, defaultValue) : defaultValue;
-            }
-            case STRING: {
-                String defaultValue = (String) parameter.getDefaultValue();
-                return moduleConfig != null ? moduleConfig.getStringProperty(name, defaultValue) : defaultValue;
-            }
-            case STRING_LIST: {
-                List<String> defaultValue = (List<String>) parameter.getDefaultValue();
-                return moduleConfig != null ? moduleConfig.getStringListProperty(name, defaultValue) : defaultValue;
-            }
+            case BOOLEAN:
+                return getBooleanValue(format, parameter);
+            case STRING:
+                return getStringValue(format, parameter);
+            case STRING_LIST:
+                return getStringListValue(format, parameter);
             default:
                 throw new AssertionError();
         }
     }
 
+    public boolean getBooleanValue(String format, Parameter parameter) {
+        return getValue(format, parameter.getBooleanDefaultValue(), parameter, ModuleConfig::getOptionalBooleanProperty);
+    }
+
+    public String getStringValue(String format, Parameter parameter) {
+        return getValue(format, parameter.getStringDefaultValue(), parameter, ModuleConfig::getOptionalStringProperty);
+    }
+
+    public List<String> getStringListValue(String format, Parameter parameter) {
+        return getValue(format, parameter.getStringListDefaultValue(), parameter, ModuleConfig::getOptionalStringListProperty);
+    }
+
+    private <T> T getValue(String format, T defaultValue, Parameter parameter, BiFunction<ModuleConfig, String, Optional<T>> supplier) {
+        Objects.requireNonNull(format);
+        Objects.requireNonNull(parameter);
+        ModuleConfig moduleConfig = getModuleConfig();
+
+        if (moduleConfig != null) {
+            for (String name : parameter.getNames()) {
+                T value = supplier.apply(moduleConfig, name)
+                        .orElseGet(() -> supplier.apply(moduleConfig, format + "_" + name).orElse(null));
+                if (value != null) {
+                    return value;
+                }
+            }
+        }
+        return defaultValue;
+    }
 }

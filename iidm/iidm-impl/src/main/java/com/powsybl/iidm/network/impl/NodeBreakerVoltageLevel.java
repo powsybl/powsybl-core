@@ -6,6 +6,38 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import static guru.nidi.graphviz.model.Factory.mutGraph;
+import static guru.nidi.graphviz.model.Factory.mutNode;
+
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.UncheckedIOException;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Functions;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
@@ -15,32 +47,31 @@ import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.Colors;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.BusAdder;
+import com.powsybl.iidm.network.BusbarSection;
+import com.powsybl.iidm.network.BusbarSectionAdder;
+import com.powsybl.iidm.network.ConnectableType;
+import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.network.SwitchKind;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.math.graph.GraphUtil;
 import com.powsybl.math.graph.TraverseResult;
 import com.powsybl.math.graph.UndirectedGraph;
 import com.powsybl.math.graph.UndirectedGraphImpl;
-import gnu.trove.list.array.TIntArrayList;
-import org.kohsuke.graphviz.Edge;
-import org.kohsuke.graphviz.Graph;
-import org.kohsuke.graphviz.Node;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
-import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import gnu.trove.list.array.TIntArrayList;
+import guru.nidi.graphviz.attribute.Color;
+import guru.nidi.graphviz.attribute.Font;
+import guru.nidi.graphviz.attribute.Label;
+import guru.nidi.graphviz.attribute.Style;
+import guru.nidi.graphviz.model.Link;
+import guru.nidi.graphviz.model.MutableGraph;
+import guru.nidi.graphviz.model.MutableNode;
 
 /**
  *
@@ -50,13 +81,13 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(NodeBreakerVoltageLevel.class);
 
-    private static final String LABEL_ATTRIBUTE = "label";
+    private static final boolean DRAW_SWITCH_ID = true;
 
     private static final BusChecker CALCULATED_BUS_CHECKER = new CalculatedBusChecker();
 
     private static final BusChecker CALCULATED_BUS_BREAKER_CHECKER = new CalculatedBusBreakerChecker();
 
-    private static final BusNamingStrategy NAMING_STRATEGY = new NumberedBusNamingStrategy();
+    private static final BusNamingStrategy NAMING_STRATEGY = new LowestNodeNumberBusNamingStrategy();
 
     private final UndirectedGraphImpl<NodeTerminal, SwitchImpl> graph = new UndirectedGraphImpl<>();
 
@@ -168,7 +199,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 throw new ValidationException(this, "kind is not set");
             }
             SwitchImpl aSwitch = new SwitchImpl(NodeBreakerVoltageLevel.this, id, getName(), kind, open, retained, fictitious);
-            getNetwork().getObjectStore().checkAndAdd(aSwitch);
+            getNetwork().getIndex().checkAndAdd(aSwitch);
             int e = graph.addEdge(node1, node2, aSwitch);
             switches.put(id, e);
             invalidateCache();
@@ -208,7 +239,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             this.node2 = node2;
             return this;
         }
-
 
         @Override
         public void add() {
@@ -503,24 +533,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
         String getName(VoltageLevel voltageLevel, TIntArrayList nodes);
     }
 
-    private static class NumberedBusNamingStrategy implements BusNamingStrategy {
-
-        private final Map<VoltageLevel, AtomicInteger> counter = new WeakHashMap<>();
-
-        private final Lock lock = new ReentrantLock();
-
+    private static class LowestNodeNumberBusNamingStrategy implements BusNamingStrategy {
         @Override
         public String getName(VoltageLevel voltageLevel, TIntArrayList nodes) {
-            AtomicInteger i;
-            lock.lock();
-            try {
-                i = counter.computeIfAbsent(voltageLevel, k -> new AtomicInteger());
-            } finally {
-                lock.unlock();
-            }
-            return voltageLevel.getId() + "_" + i.getAndIncrement();
+            return voltageLevel.getId() + "_" + nodes.min();
         }
-
     }
 
     NodeBreakerVoltageLevel(String id, String name, SubstationImpl substation,
@@ -703,7 +720,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             SwitchImpl aSwitch = graph.removeEdge(e);
             clean();
 
-            getNetwork().getObjectStore().remove(aSwitch);
+            getNetwork().getIndex().remove(aSwitch);
             getNetwork().getListeners().notifyRemoval(aSwitch);
         }
 
@@ -729,7 +746,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public BusbarSection getBusbarSection(String id) {
-            return getNetwork().getObjectStore().get(id, BusbarSection.class);
+            return getNetwork().getIndex().get(id, BusbarSection.class);
         }
 
         private com.powsybl.math.graph.Traverser adapt(Traverser t) {
@@ -930,7 +947,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     private static boolean isOpenedDisconnector(Switch s) {
-        return s.getKind() == SwitchKind.DISCONNECTOR && s.isOpen();
+        return s != null && s.getKind() == SwitchKind.DISCONNECTOR && s.isOpen();
     }
 
     @Override
@@ -947,7 +964,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             for (int i = 0; i < shortestPath.size(); i++) {
                 int e = shortestPath.get(i);
                 SwitchImpl sw = graph.getEdgeObject(e);
-                if (sw.getKind() == SwitchKind.BREAKER && sw.isOpen()) {
+                if (sw != null && sw.getKind() == SwitchKind.BREAKER && sw.isOpen()) {
                     sw.setOpen(false);
                     connected = true;
                 }
@@ -972,7 +989,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             for (int i = 0; i < path.size(); i++) {
                 int e = path.get(i);
                 SwitchImpl sw = graph.getEdgeObject(e);
-                if (sw.getKind() == SwitchKind.BREAKER) {
+                if (sw != null && sw.getKind() == SwitchKind.BREAKER) {
                     if (!sw.isOpen()) {
                         sw.setOpen(true);
                     }
@@ -1018,7 +1035,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             graph.traverse(node, (v1, e, v2) -> {
                 SwitchImpl aSwitch = graph.getEdgeObject(e);
                 NodeTerminal otherTerminal = graph.getVertexObject(v2);
-                if (traverser.traverse(aSwitch)) {
+                if (aSwitch == null // internal connection case
+                        || traverser.traverse(aSwitch)) {
                     if (otherTerminal == null) {
                         return TraverseResult.CONTINUE;
                     } else if (traverser.traverse(otherTerminal, true)) {
@@ -1067,7 +1085,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private void removeAllSwitches() {
         for (SwitchImpl s : graph.getEdgesObject()) {
-            getNetwork().getObjectStore().remove(s);
+            getNetwork().getIndex().remove(s);
         }
         graph.removeAllEdges();
         switches.clear();
@@ -1086,73 +1104,92 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     }
 
     @Override
-    public void exportTopology(String filename) throws IOException {
-        try (OutputStream outputStream = new FileOutputStream(filename)) {
-            exportTopology(outputStream);
+    public void exportTopology(Path file) {
+        try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+            exportTopology(writer);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
-    public void exportTopology(OutputStream os) {
-        Graph g = new Graph().id("\"" + NodeBreakerVoltageLevel.this.id + "\"");
-        Map<Integer, Node> intToNode = new HashMap<>();
+    @Override
+    public void exportTopology(Writer writer) {
+        exportTopology(writer, new SecureRandom());
+    }
+
+    @Override
+    public void exportTopology(Writer writer, Random random) {
+        Objects.requireNonNull(writer);
+        Objects.requireNonNull(random);
+
+        MutableGraph gv = mutGraph(NodeBreakerVoltageLevel.this.id);
+        Map<Integer, MutableNode> intToNode = new HashMap<>();
         Multimap<String, Integer> busToNodes =  ArrayListMultimap.create();
         for (int n = 0; n < graph.getVertexCount(); n++) {
-            Node node = new Node().id(Integer.toString(n));
-            intToNode.put(n, node);
             Bus bus = getCalculatedBusBreakerTopology().getBus(n);
             if (bus != null) {
+                MutableNode node = mutNode(Label.of(Integer.toString(n)));
+                intToNode.put(n, node);
                 busToNodes.put(bus.getId(), n);
             } else {
                 TerminalExt terminal = graph.getVertexObject(n);
                 if (terminal != null) {
                     AbstractConnectable connectable = terminal.getConnectable();
                     String label = n + "\\n" + connectable.getType().toString() + "\\n" + connectable.getId();
-                    node.attr(LABEL_ATTRIBUTE, label);
-                    g.node(node);
+                    MutableNode node = mutNode(Label.of(label));
+                    intToNode.put(n, node);
+                    gv.add(node);
                 }
             }
         }
 
-        exportBuses(g, busToNodes, intToNode);
-        exportEdges(g, intToNode);
-        g.writeTo(os);
+        exportBuses(gv, busToNodes, intToNode, random);
+        exportEdges(intToNode);
+
+        try {
+            writer.write(gv.toString());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
-    private void exportBuses(Graph g, Multimap<String, Integer> busToNodes, Map<Integer, Node> intToNode) {
-        String[] colors = Colors.generateColorScale(busToNodes.asMap().keySet().size());
+    private void exportBuses(MutableGraph gv, Multimap<String, Integer> busToNodes, Map<Integer, MutableNode> intToNode,
+                             Random random) {
+        String[] colors = Colors.generateColorScale(busToNodes.asMap().keySet().size(), random);
         int i = 0;
         for (String key : busToNodes.asMap().keySet()) {
-            Graph newBus = new Graph().id("\"" + key + "\"");
-            newBus.attr(LABEL_ATTRIBUTE, key);
+            MutableGraph newBus = mutGraph(key).setCluster(true);
             for (int nodeInt : busToNodes.get(key)) {
-                Node node = intToNode.get(nodeInt);
-                TerminalExt terminal = graph.getVertexObject(nodeInt);
+                MutableNode node = intToNode.get(nodeInt);
+                TerminalExt terminal = this.graph.getVertexObject(nodeInt);
                 if (terminal != null) {
                     AbstractConnectable connectable = terminal.getConnectable();
                     String label = nodeInt + "\\n" + connectable.getType().toString() + "\\n" + connectable.getId();
-                    node.attr(LABEL_ATTRIBUTE, label);
+                    node.setName(label);
                 }
-                node.attr("style", "filled").attr("color", colors[i]);
-                newBus.node(node);
+                node.add(Style.FILLED)
+                        .add(Color.rgb(colors[i]));
+                newBus.add(node);
             }
-            g.subGraph(newBus);
+            gv.add(newBus);
             i++;
         }
     }
 
-    private void exportEdges(Graph g, Map<Integer, Node> intToNode) {
-        boolean drawSwitchId = true;
+    private void exportEdges(Map<Integer, MutableNode> intToNode) {
         for (int e = 0; e < graph.getEdgeCount(); e++) {
-            Edge edge = new Edge(intToNode.get(graph.getEdgeVertex1(e)), intToNode.get(graph.getEdgeVertex2(e))).id(Integer.toString(e));
-
+            MutableNode n1 = intToNode.get(graph.getEdgeVertex1(e));
+            MutableNode n2 = intToNode.get(graph.getEdgeVertex2(e));
+            Link link = n1.linkTo(n2);
             SwitchImpl aSwitch = graph.getEdgeObject(e);
             if (aSwitch != null) {
-                if (drawSwitchId) {
-                    edge.attr(LABEL_ATTRIBUTE, aSwitch.getKind().toString() + "\n" + aSwitch.getId()).attr("fontsize", "10");
+                if (DRAW_SWITCH_ID) {
+                    link = link.with(Label.of(aSwitch.getKind().toString() + "\n" + aSwitch.getId()))
+                            .with(Font.size(10));
                 }
-                edge.attr("style", aSwitch.isOpen() ? "dotted" : "solid");
+                link = link.with(aSwitch.isOpen() ? Style.DOTTED : Style.SOLID);
             }
-            g.edge(edge);
+            n1.addLink(link);
         }
     }
 

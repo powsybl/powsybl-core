@@ -7,7 +7,12 @@
 
 package com.powsybl.cgmes.model;
 
+/**
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ */
 public final class CgmesNames {
+
+    public static final String FULL_MODEL = "FullModel";
 
     public static final String SUBSTATION = "Substation";
     public static final String VOLTAGE_LEVEL = "VoltageLevel";
@@ -27,6 +32,12 @@ public final class CgmesNames {
     public static final String RATED_UDC = "ratedUdc";
 
     public static final String B_PER_SECTION = "bPerSection";
+
+    public static final String VOLTAGE = "v";
+    public static final String ANGLE = "angle";
+
+    public static final String RATIO_TAP_CHANGER_TABLE = "RatioTapChangerTable";
+    public static final String PHASE_TAP_CHANGER_TABLE = "PhaseTapChangerTable";
 
     private CgmesNames() {
     }

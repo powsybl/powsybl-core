@@ -7,11 +7,13 @@
 package com.powsybl.afs.storage;
 
 import com.powsybl.afs.storage.events.*;
+import com.powsybl.commons.io.ForwardingOutputStream;
 import com.powsybl.commons.util.WeakListenerList;
 import com.powsybl.timeseries.DoubleDataChunk;
 import com.powsybl.timeseries.StringDataChunk;
 import com.powsybl.timeseries.TimeSeriesMetadata;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.concurrent.locks.Lock;
@@ -82,11 +84,18 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
         return parentNodeId;
     }
 
+    /**
+     * Return an {@link OutputStream} to underlying storage which will raise a data updated event on close.
+     */
     @Override
     public OutputStream writeBinaryData(String nodeId, String name) {
-        OutputStream os = super.writeBinaryData(nodeId, name);
-        addEvent(new NodeDataUpdated(nodeId, name));
-        return os;
+        return new ForwardingOutputStream<OutputStream>(super.writeBinaryData(nodeId, name)) {
+            @Override
+            public void close() throws IOException {
+                super.close();
+                addEvent(new NodeDataUpdated(nodeId, name));
+            }
+        };
     }
 
     @Override
