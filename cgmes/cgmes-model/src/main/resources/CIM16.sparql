@@ -456,16 +456,13 @@ WHERE {
     ?RatioTapChangerTablePoint
         a cim:RatioTapChangerTablePoint ;
         cim:RatioTapChangerTablePoint.RatioTapChangerTable ?Table ;
-        cim:TapChangerTablePoint.ratio ?ratio ;
         cim:TapChangerTablePoint.step ?step .
     FILTER regex(str(?Table), "{0}")
-    OPTIONAL {
-        ?RatioTapChangerTablePoint
-            cim:TapChangerTablePoint.r ?r ;
-            cim:TapChangerTablePoint.x ?x ;
-            cim:TapChangerTablePoint.g ?g ;
-            cim:TapChangerTablePoint.b ?b
-    }
+    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.ratio ?ratio }
+    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.r ?r } 
+    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.x ?x } 
+    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.g ?g } 
+    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.b ?b }
 }
 
 # query: ratioTapChangerTablesPoints
@@ -474,15 +471,12 @@ WHERE {
     ?RatioTapChangerTablePoint
         a cim:RatioTapChangerTablePoint ;
         cim:RatioTapChangerTablePoint.RatioTapChangerTable ?RatioTapChangerTable ;
-        cim:TapChangerTablePoint.ratio ?ratio ;
         cim:TapChangerTablePoint.step ?step .
-    OPTIONAL {
-        ?RatioTapChangerTablePoint
-            cim:TapChangerTablePoint.r ?r ;
-            cim:TapChangerTablePoint.x ?x ;
-            cim:TapChangerTablePoint.g ?g ;
-            cim:TapChangerTablePoint.b ?b
-    }
+    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.ratio ?ratio }
+    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.r ?r } 
+    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.x ?x } 
+    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.g ?g } 
+    OPTIONAL { ?RatioTapChangerTablePoint cim:TapChangerTablePoint.b ?b }
 }
 
 # query: phaseTapChangers
@@ -547,16 +541,13 @@ WHERE {
         a cim:PhaseTapChangerTablePoint ;
         cim:PhaseTapChangerTablePoint.PhaseTapChangerTable ?Table ;
         cim:PhaseTapChangerTablePoint.angle ?angle ;
-        cim:TapChangerTablePoint.ratio ?ratio ;
         cim:TapChangerTablePoint.step ?step .
     FILTER regex(str(?Table), "{0}")
-    OPTIONAL {
-        ?PhaseTapChangerTablePoint
-            cim:TapChangerTablePoint.r ?r ;
-            cim:TapChangerTablePoint.x ?x ;
-            cim:TapChangerTablePoint.g ?g ;
-            cim:TapChangerTablePoint.b ?b
-    }
+    OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.ratio ?ratio }
+    OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.r ?r }
+    OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.x ?x }
+    OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.g ?g }
+    OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.b ?b }
 }
 
 # query: energyConsumers
@@ -567,7 +558,14 @@ WHERE {
         a ?type ;
         cim:IdentifiedObject.name ?name .
     VALUES ?type { cim:EnergyConsumer cim:ConformLoad cim:NonConformLoad }
-    ?Terminal cim:Terminal.ConductingEquipment ?EnergyConsumer
+    ?Terminal cim:Terminal.ConductingEquipment ?EnergyConsumer .
+    OPTIONAL { ?EnergyConsumer cim:EnergyConsumer.pfixed ?pfixed }
+    OPTIONAL { ?EnergyConsumer cim:EnergyConsumer.qfixed ?qfixed }
+}}
+{ GRAPH ?graphSSH {
+    ?EnergyConsumer
+        cim:EnergyConsumer.p ?p ;
+        cim:EnergyConsumer.q ?q
 }}
 }
 
@@ -599,11 +597,8 @@ WHERE {
         cim:ShuntCompensator.nomU ?nomU .
     VALUES ?type { cim:LinearShuntCompensator cim:NonlinearShuntCompensator } .
     ?Terminal cim:Terminal.ConductingEquipment ?ShuntCompensator .
-    OPTIONAL {
-        ?ShuntCompensator 
-            cim:LinearShuntCompensator.gPerSection ?gPerSection ;
-            cim:LinearShuntCompensator.bPerSection ?bPerSection 
-    }
+    OPTIONAL { ?ShuntCompensator cim:LinearShuntCompensator.gPerSection ?gPerSection }
+    OPTIONAL { ?ShuntCompensator cim:LinearShuntCompensator.bPerSection ?bPerSection } 
     OPTIONAL {
         ?ShuntCompensator cim:RegulatingCondEq.RegulatingControl ?RegulatingControl .
         ?RegulatingControl
@@ -659,11 +654,8 @@ WHERE {
         cim:GeneratingUnit.initialP ?initialP ;
         cim:IdentifiedObject.name ?name .
     ?Terminal cim:Terminal.ConductingEquipment ?SynchronousMachine .
-    OPTIONAL {
-        ?SynchronousMachine
-            cim:SynchronousMachine.minQ ?minQ ;
-            cim:SynchronousMachine.maxQ ?maxQ .
-    }
+    OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.minQ ?minQ }
+    OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.maxQ ?maxQ }
     OPTIONAL {
         ?SynchronousMachine cim:RegulatingCondEq.RegulatingControl ?RegulatingControl .
         ?RegulatingControl
@@ -694,19 +686,11 @@ WHERE {
         a cim:EquivalentInjection ;
         cim:IdentifiedObject.name ?name .
     ?Terminal cim:Terminal.ConductingEquipment ?EquivalentInjection .
-    OPTIONAL {
-        ?EquivalentInjection
-            cim:EquivalentInjection.minP ?minP ;
-            cim:EquivalentInjection.maxP ?maxP
-        }
-    OPTIONAL {
-        ?EquivalentInjection
-            cim:EquivalentInjection.minQ ?minQ ;
-            cim:EquivalentInjection.maxQ ?maxQ .
-    }
-    OPTIONAL {
-        ?EquivalentInjection cim:EquivalentInjection.regulationCapability ?regulationCapability
-    }
+    OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.minP ?minP }
+    OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.maxP ?maxP }
+    OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.minQ ?minQ }
+    OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.maxQ ?maxQ }
+    OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.regulationCapability ?regulationCapability }
 }}
 OPTIONAL { GRAPH ?graphSSH  {
     ?EquivalentInjection
@@ -727,11 +711,8 @@ WHERE {
         cim:ExternalNetworkInjection.minP ?minP ;
         cim:ExternalNetworkInjection.maxP ?maxP .
     ?Terminal cim:Terminal.ConductingEquipment ?ExternalNetworkInjection
-    OPTIONAL {
-        ?ExternalNetworkInjection
-            cim:ExternalNetworkInjection.minQ ?minQ ;
-            cim:ExternalNetworkInjection.maxQ ?maxQ
-    }
+    OPTIONAL { ?ExternalNetworkInjection cim:ExternalNetworkInjection.minQ ?minQ }
+    OPTIONAL { ?ExternalNetworkInjection cim:ExternalNetworkInjection.maxQ ?maxQ }
     OPTIONAL {
         ?ExternalNetworkInjection cim:RegulatingCondEq.RegulatingControl ?RegulatingControl .
         ?RegulatingControl

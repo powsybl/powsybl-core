@@ -12,4 +12,6 @@ package com.powsybl.timeseries;
 public interface StringDataChunk extends DataChunk<StringPoint, StringDataChunk> {
 
     void fillBuffer(CompactStringBuffer buffer, int timeSeriesOffset);
+
+    void fillBuffer(BigStringBuffer buffer, long timeSeriesOffset);
 }

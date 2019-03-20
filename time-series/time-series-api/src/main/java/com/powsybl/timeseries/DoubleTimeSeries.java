@@ -19,6 +19,8 @@ public interface DoubleTimeSeries extends TimeSeries<DoublePoint, DoubleTimeSeri
 
     void fillBuffer(DoubleBuffer buffer, int timeSeriesOffset);
 
+    void fillBuffer(BigDoubleBuffer buffer, long timeSeriesOffset);
+
     double[] toArray();
 
     static Iterator<DoubleMultiPoint> iterator(List<DoubleTimeSeries> timeSeriesList) {

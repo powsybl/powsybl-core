@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Ints;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.impl.util.Ref;
 
@@ -113,9 +114,8 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
 
     @Override
     public int getTwoWindingsTransformerCount() {
-        return voltageLevels.stream()
-                .mapToInt(vl -> vl.getConnectableCount(TwoWindingsTransformer.class))
-                .sum();
+        return Ints.checkedCast(getTwoWindingsTransformerStream()
+                .count());
     }
 
     @Override
@@ -137,9 +137,8 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
 
     @Override
     public int getThreeWindingsTransformerCount() {
-        return voltageLevels.stream()
-                .mapToInt(vl -> vl.getConnectableCount(ThreeWindingsTransformer.class))
-                .sum();
+        return Ints.checkedCast(getThreeWindingsTransformerStream()
+                .count());
     }
 
     @Override

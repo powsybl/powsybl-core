@@ -255,12 +255,12 @@ public final class Importers {
         importAll(dir, importer, parallel, consumer, null);
     }
 
-    private static void doImport(ReadOnlyDataSource dataSource, Importer importer, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) {
+    private static void doImport(ReadOnlyDataSource dataSource, Importer importer, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) {
         try {
             if (listener != null) {
                 listener.accept(dataSource);
             }
-            Network network = importer.importData(dataSource, null);
+            Network network = importer.importData(dataSource, parameters);
             consumer.accept(network);
         } catch (Exception e) {
             LOGGER.error(e.toString(), e);
@@ -268,13 +268,17 @@ public final class Importers {
     }
 
     public static void importAll(Path dir, Importer importer, boolean parallel, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
+        importAll(dir, importer, parallel, null, consumer, listener);
+    }
+
+    public static void importAll(Path dir, Importer importer, boolean parallel, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
         List<ReadOnlyDataSource> dataSources = new ArrayList<>();
         importAll(dir, importer, dataSources);
         if (parallel) {
             ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
             try {
                 List<Future<?>> futures = dataSources.stream()
-                        .map(ds -> executor.submit(() -> doImport(ds, importer, consumer, listener)))
+                        .map(ds -> executor.submit(() -> doImport(ds, importer, parameters, consumer, listener)))
                         .collect(Collectors.toList());
                 for (Future<?> future : futures) {
                     future.get();
@@ -284,7 +288,7 @@ public final class Importers {
             }
         } else {
             for (ReadOnlyDataSource dataSource : dataSources) {
-                doImport(dataSource, importer, consumer, listener);
+                doImport(dataSource, importer, parameters, consumer, listener);
             }
         }
     }
@@ -382,11 +386,15 @@ public final class Importers {
     }
 
     public static void loadNetworks(Path dir, boolean parallel, ComputationManager computationManager, ImportConfig config, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
+        loadNetworks(dir, parallel, computationManager, config, null, consumer, listener);
+    }
+
+    public static void loadNetworks(Path dir, boolean parallel, ComputationManager computationManager, ImportConfig config, Properties parameters, Consumer<Network> consumer, Consumer<ReadOnlyDataSource> listener) throws IOException, InterruptedException, ExecutionException {
         if (!Files.isDirectory(dir)) {
             throw new PowsyblException("Directory " + dir + " does not exist or is not a regular directory");
         }
         for (Importer importer : Importers.list(computationManager, config)) {
-            Importers.importAll(dir, importer, parallel, consumer, listener);
+            Importers.importAll(dir, importer, parallel, parameters, consumer, listener);
         }
     }
 
