@@ -33,6 +33,14 @@ public interface CurrentLimitsAdder {
 
     TemporaryLimitAdder beginTemporaryLimit();
 
+    default double getPermanentLimit() {
+        return Double.NaN;
+    }
+
+    default double getTemporaryLimitValue(int acceptableDuration) {
+        return Double.NaN;
+    }
+
     CurrentLimits add();
 
 }

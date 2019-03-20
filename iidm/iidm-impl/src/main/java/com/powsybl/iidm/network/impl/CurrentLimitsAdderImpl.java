@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -122,9 +123,19 @@ public class CurrentLimitsAdderImpl<S, O extends CurrentLimitsOwner<S>> implemen
     }
 
     @Override
+    public double getPermanentLimit() {
+        return permanentLimit;
+    }
+
+    @Override
     public CurrentLimitsAdder setPermanentLimit(double limit) {
         this.permanentLimit = limit;
         return this;
+    }
+
+    @Override
+    public double getTemporaryLimitValue(int acceptableDuration) {
+        return Optional.ofNullable(temporaryLimits.get(acceptableDuration)).map(TemporaryLimit::getValue).orElse(Double.NaN);
     }
 
     @Override

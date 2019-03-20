@@ -83,19 +83,15 @@ public interface CurrentLimits {
     Collection<TemporaryLimit> getTemporaryLimits();
 
     /**
-     * Get a temporary limit from its acceptable duration. Return null if there is non temporay limit with this
+     * Get a temporary limit from its acceptable duration. Return null if there is non temporary limit with this
      * acceptable duration.
      * @param acceptableDuration acceptable duration in second
      * @return the temporary limit
      */
     TemporaryLimit getTemporaryLimit(int acceptableDuration);
 
-    default CurrentLimits setTemporaryLimit(String name, double value, int acceptableDuration, boolean fictitious) {
-        return this;
-    }
-
     /**
-     * Get a temporary limit value from its acceptable duration. Return NaN if there is non temporay limit with this
+     * Get a temporary limit value from its acceptable duration. Return NaN if there is non temporary limit with this
      * acceptable duration.
      * @param acceptableDuration acceptable duration in second
      * @return the temporary limit value or NaN if there is no temporary limit for this acceptable duration

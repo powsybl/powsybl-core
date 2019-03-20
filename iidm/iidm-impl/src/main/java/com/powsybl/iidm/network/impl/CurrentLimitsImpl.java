@@ -90,12 +90,6 @@ public class CurrentLimitsImpl implements CurrentLimits {
     }
 
     @Override
-    public CurrentLimitsImpl setTemporaryLimit(String name, double value, int acceptableDuration, boolean fictitious) {
-        temporaryLimits.put(acceptableDuration, new TemporaryLimitImpl(name, value, acceptableDuration, fictitious));
-        return this;
-    }
-
-    @Override
     public double getTemporaryLimitValue(int acceptableDuration) {
         TemporaryLimit tl = getTemporaryLimit(acceptableDuration);
         return tl != null ? tl.getValue() : Double.NaN;

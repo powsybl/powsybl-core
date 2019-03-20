@@ -54,9 +54,9 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     private void createCurrentLimits(int terminalNumber, Branch<?> b) {
         if (terminalNumber == 1) {
-            currentLimits1 = Optional.ofNullable(b.getCurrentLimits1()).orElseGet(() -> b.newCurrentLimits1().add());
+            currentLimitsAdder1 = context.currentLimitsMapping().getCurrentLimitsAdder(b.getId() + "_1", b::newCurrentLimits1);
         } else if (terminalNumber == 2) {
-            currentLimits2 = Optional.ofNullable(b.getCurrentLimits2()).orElseGet(() -> b.newCurrentLimits2().add());
+            currentLimitsAdder2 = context.currentLimitsMapping().getCurrentLimitsAdder(b.getId() + "_2", b::newCurrentLimits2);
         } else {
             notAssigned(b);
         }
@@ -66,8 +66,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         if (identifiable instanceof Line) {
             Branch<?> b = (Branch<?>) identifiable;
             if (terminalNumber == -1) {
-                currentLimits1 = Optional.ofNullable(b.getCurrentLimits1()).orElseGet(() -> b.newCurrentLimits1().add());
-                currentLimits2 = Optional.ofNullable(b.getCurrentLimits2()).orElseGet(() -> b.newCurrentLimits2().add());
+                currentLimitsAdder1 = context.currentLimitsMapping().getCurrentLimitsAdder(b.getId() + "_1", b::newCurrentLimits1);
+                currentLimitsAdder2 = context.currentLimitsMapping().getCurrentLimitsAdder(b.getId() + "_2", b::newCurrentLimits2);
             } else {
                 createCurrentLimits(terminalNumber, b);
             }
@@ -81,7 +81,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             }
         } else if (identifiable instanceof DanglingLine) {
             DanglingLine danglingLine = (DanglingLine) identifiable;
-            currentLimits = Optional.ofNullable(danglingLine.getCurrentLimits()).orElseGet(() -> danglingLine.newCurrentLimits().add());
+            currentLimitsAdder = context.currentLimitsMapping().getCurrentLimitsAdder(danglingLine.getId(), danglingLine::newCurrentLimits);
         } else if (identifiable instanceof Switch) {
             Switch aswitch = context.network().getSwitch(equipmentId);
             notAssigned(aswitch);
@@ -92,7 +92,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     @Override
     public boolean valid() {
-        if (currentLimits == null && currentLimits1 == null && currentLimits2 == null) {
+        if (currentLimitsAdder == null && currentLimitsAdder1 == null && currentLimitsAdder2 == null) {
             missing(String.format("Terminal %s or Equipment %s", terminalId, equipmentId));
             return false;
         }
@@ -126,9 +126,9 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         return limitTypeName.equals("PATL") || "LimitTypeKind.patl".equals(limitType);
     }
 
-    private void addPatlCurrent(double value, CurrentLimits currentLimits) {
-        if (Double.isNaN(currentLimits.getPermanentLimit())) {
-            currentLimits.setPermanentLimit(value);
+    private void addPatlCurrent(double value, CurrentLimitsAdder adder) {
+        if (Double.isNaN(adder.getPermanentLimit())) {
+            adder.setPermanentLimit(value);
         } else {
             if (terminalId != null) {
                 context.fixed(PERMANENT_CURRENT_LIMIT,
@@ -137,21 +137,21 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 context.fixed(PERMANENT_CURRENT_LIMIT,
                         String.format("Several permanent limits defined for Equipment %s. Only the lowest is kept.", equipmentId));
             }
-            if (currentLimits.getPermanentLimit() > value) {
-                currentLimits.setPermanentLimit(value);
+            if (adder.getPermanentLimit() > value) {
+                adder.setPermanentLimit(value);
             }
         }
     }
 
     private void convertPatlCurrent(double value) {
-        if (currentLimits != null) {
-            addPatlCurrent(value, currentLimits);
+        if (currentLimitsAdder != null) {
+            addPatlCurrent(value, currentLimitsAdder);
         } else {
-            if (currentLimits1 != null) {
-                addPatlCurrent(value, currentLimits1);
+            if (currentLimitsAdder1 != null) {
+                addPatlCurrent(value, currentLimitsAdder1);
             }
-            if (currentLimits2 != null) {
-                addPatlCurrent(value, currentLimits2);
+            if (currentLimitsAdder2 != null) {
+                addPatlCurrent(value, currentLimitsAdder2);
             }
         }
     }
@@ -162,9 +162,14 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         return limitTypeName.equals("TATL") || "LimitTypeKind.tatl".equals(limitType);
     }
 
-    private void addTatlCurrent(String name, double value, int acceptableDuration, CurrentLimits currentLimits) {
-        if (currentLimits.getTemporaryLimit(acceptableDuration) == null) {
-            currentLimits.setTemporaryLimit(name, value, acceptableDuration, false);
+    private void addTatlCurrent(String name, double value, int acceptableDuration, CurrentLimitsAdder adder) {
+        if (!Double.isNaN(adder.getTemporaryLimitValue(acceptableDuration))) {
+            adder.beginTemporaryLimit()
+                    .setAcceptableDuration(acceptableDuration)
+                    .setName(name)
+                    .setValue(value)
+                    .ensureNameUnicity()
+                    .endTemporaryLimit();
         } else {
             if (terminalId != null) {
                 context.fixed(TEMPORARY_CURRENT_LIMIT,
@@ -173,8 +178,13 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 context.fixed(TEMPORARY_CURRENT_LIMIT,
                         String.format("Several temporary limits defined for same acceptable duration (%d s) for Equipment %s. Only the lowest is kept.", acceptableDuration, equipmentId));
             }
-            if (currentLimits.getTemporaryLimitValue(acceptableDuration) > value) {
-                currentLimits.setTemporaryLimit(name, value, acceptableDuration, false);
+            if (adder.getTemporaryLimitValue(acceptableDuration) > value) {
+                adder.beginTemporaryLimit()
+                        .setAcceptableDuration(acceptableDuration)
+                        .setName(name)
+                        .setValue(value)
+                        .ensureNameUnicity()
+                        .endTemporaryLimit();
             }
         }
     }
@@ -187,11 +197,11 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
         // if there is no direction, the limit is considered as absoluteValue (cf. CGMES specification)
         if (direction == null || direction.endsWith("high") || direction.endsWith("absoluteValue")) {
-            if (currentLimits != null) {
-                addTatlCurrent(context.namingStrategy().getId("TATL", id), value, 60 * acceptableDuration, currentLimits);
-            } else if (currentLimits1 != null) {
+            if (currentLimitsAdder != null) {
+                addTatlCurrent(context.namingStrategy().getId("TATL", id), value, 60 * acceptableDuration, currentLimitsAdder);
+            } else if (currentLimitsAdder1 != null) {
                 // Should we chose one terminal randomly for branches ? Here by default, we only look at terminal1
-                addTatlCurrent(context.namingStrategy().getId("TATL", id), value, 60 * acceptableDuration, currentLimits1);
+                addTatlCurrent(context.namingStrategy().getId("TATL", id), value, 60 * acceptableDuration, currentLimitsAdder1);
             }
         } else if (direction.endsWith("low")) {
             context.invalid(TEMPORARY_CURRENT_LIMIT, String.format("TATL %s is a low limit", id));
@@ -233,7 +243,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private final String terminalId;
     private final String equipmentId;
 
-    private CurrentLimits currentLimits;
-    private CurrentLimits currentLimits1;
-    private CurrentLimits currentLimits2;
+    private CurrentLimitsAdder currentLimitsAdder;
+    private CurrentLimitsAdder currentLimitsAdder1;
+    private CurrentLimitsAdder currentLimitsAdder2;
 }

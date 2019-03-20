@@ -151,33 +151,24 @@ public class CurrentLimitsTest {
         assertTrue(temporaryLimit300.isFictitious());
         assertEquals(1400.0, temporaryLimit300.getValue(), 0.0);
         assertEquals(300, temporaryLimit300.getAcceptableDuration());
-
-        currentLimits.setTemporaryLimit("5' bis", 1500.0, 300, false)
-                .setTemporaryLimit("2'", 1550.0, 120, true);
-        CurrentLimits.TemporaryLimit temporaryLimit300bis = currentLimits.getTemporaryLimit(300);
-        assertEquals("5' bis", temporaryLimit300bis.getName());
-        assertFalse(temporaryLimit300bis.isFictitious());
-        assertEquals(1500.0, temporaryLimit300bis.getValue(), 0.0);
-        assertEquals(300, temporaryLimit300bis.getAcceptableDuration());
-        CurrentLimits.TemporaryLimit temporaryLimit120 = currentLimits.getTemporaryLimit(120);
-        assertEquals("2'", temporaryLimit120.getName());
-        assertTrue(temporaryLimit120.isFictitious());
-        assertEquals(1550.0, temporaryLimit120.getValue(), 0.0);
-        assertEquals(120, temporaryLimit120.getAcceptableDuration());
     }
 
     @Test
     public void ensureNameUnicity() {
         Line line = createNetwork().getLine("L");
-        CurrentLimits currentLimits = line.newCurrentLimits1()
+        CurrentLimitsAdder adder = line.newCurrentLimits1()
                 .setPermanentLimit(100.0)
                 .beginTemporaryLimit()
                     .setName("TL")
                     .setAcceptableDuration(20 * 60)
                     .setValue(1200.0)
                     .ensureNameUnicity()
-                .endTemporaryLimit()
-                .beginTemporaryLimit()
+                .endTemporaryLimit();
+
+        assertEquals(100.0, adder.getPermanentLimit(), 0.0);
+        assertEquals(1200.0, adder.getTemporaryLimitValue(20 * 60), 0.0);
+
+        CurrentLimits currentLimits = adder.beginTemporaryLimit()
                     .setName("TL")
                     .setAcceptableDuration(10 * 60)
                     .setValue(1400.0)
