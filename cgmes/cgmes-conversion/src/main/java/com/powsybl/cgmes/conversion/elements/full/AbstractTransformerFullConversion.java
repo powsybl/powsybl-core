@@ -267,10 +267,10 @@ public abstract class AbstractTransformerFullConversion
         TapChanger nTapChanger = baseCloneTapChanger(tapChanger);
         resetTapChangerRegulation(nTapChanger);
 
-		boolean differentRatios = tapChanger.getSteps().stream().anyMatch(step -> step.getRatio() != 1.0);
-		if (!differentRatios) {
-			return null;
-		}
+        boolean differentRatios = tapChanger.getSteps().stream().anyMatch(step -> step.getRatio() != 1.0);
+        if (!differentRatios) {
+            return null;
+        }
 
         tapChanger.getSteps().forEach(step -> {
             double ratio = step.getRatio();
@@ -376,25 +376,25 @@ public abstract class AbstractTransformerFullConversion
     protected RatioConversion identityRatioConversion(double r, double x, double g1,
             double b1, double g2, double b2) {
         RatioConversion ratio = new RatioConversion();
-		ratio.r = r;
-		ratio.x = x;
-		ratio.g1 = g1;
-		ratio.b1 = b1;
-		ratio.g2 = g2;
-		ratio.b2 = b2;
-        return ratio; 
+        ratio.r = r;
+        ratio.x = x;
+        ratio.g1 = g1;
+        ratio.b1 = b1;
+        ratio.g2 = g2;
+        ratio.b2 = b2;
+        return ratio;
     }
 
     protected RatioConversion moveRatioFrom2To1(double a0, double angle, double r, double x, double g1,
             double b1, double g2, double b2) {
         return moveRatio(a0, angle, r, x, g1, b1, g2, b2);
     }
-    
+
     protected RatioConversion moveRatioFrom1To2(double a0, double angle, double r, double x, double g1,
             double b1, double g2, double b2) {
         return moveRatio(a0, angle, r, x, g1, b1, g2, b2);
     }
-    
+
     private RatioConversion moveRatio(double a0, double angle, double r, double x, double g1,
             double b1, double g2, double b2) {
         RatioConversion ratio = new RatioConversion();

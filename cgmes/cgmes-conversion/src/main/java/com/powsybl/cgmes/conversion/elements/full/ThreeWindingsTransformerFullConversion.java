@@ -54,9 +54,12 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
         TapChanger ratioTapChanger1 = getRatioTapChanger(rtc1, winding1.get(CgmesNames.TERMINAL));
         TapChanger ratioTapChanger2 = getRatioTapChanger(rtc2, winding2.get(CgmesNames.TERMINAL));
         TapChanger ratioTapChanger3 = getRatioTapChanger(rtc3, winding3.get(CgmesNames.TERMINAL));
-        TapChanger phaseTapChanger1 = getPhaseTapChanger(ptc1, winding1.get(CgmesNames.TERMINAL), winding1.asDouble(ratedU), winding1.asDouble("x"));
-        TapChanger phaseTapChanger2 = getPhaseTapChanger(ptc2, winding2.get(CgmesNames.TERMINAL), winding2.asDouble(ratedU), winding2.asDouble("x"));
-        TapChanger phaseTapChanger3 = getPhaseTapChanger(ptc3, winding3.get(CgmesNames.TERMINAL), winding3.asDouble(ratedU), winding3.asDouble("x"));
+        TapChanger phaseTapChanger1 = getPhaseTapChanger(ptc1, winding1.get(CgmesNames.TERMINAL),
+                winding1.asDouble(ratedU), winding1.asDouble("x"));
+        TapChanger phaseTapChanger2 = getPhaseTapChanger(ptc2, winding2.get(CgmesNames.TERMINAL),
+                winding2.asDouble(ratedU), winding2.asDouble("x"));
+        TapChanger phaseTapChanger3 = getPhaseTapChanger(ptc3, winding3.get(CgmesNames.TERMINAL),
+                winding3.asDouble(ratedU), winding3.asDouble("x"));
 
         T3xRotate t3xRotate = rotateThreeWindingsTransformer(winding1, ratioTapChanger1,
                 phaseTapChanger1, ratio0Outside1, ratioPhaseOutside1,
@@ -319,9 +322,9 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
     }
 
     private void setToIidm(TapChanger ratioTapChanger2, TapChanger ratioTapChanger3,
-			double r1, double x1, double g11, double b11, double g12, double b12,
-			double r2, double x2, double g21, double b21, double g22, double b22,
-			double r3, double x3, double g31, double b31, double g32, double b32) {
+            double r1, double x1, double g11, double b11, double g12, double b12,
+            double r2, double x2, double g21, double b21, double g22, double b22,
+            double r3, double x3, double g31, double b31, double g32, double b32) {
 
         // Add shunts g1 = g11 + g21 + g22 + g31 + g33;
         // Add shunts b1 = b11 + b21 + b22 + b31 + b33;
@@ -361,7 +364,7 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
                 tx.getLeg1().getTerminal(),
                 tx.getLeg2().getTerminal(),
                 tx.getLeg3().getTerminal());
-        
+
         setToIidmRatioTapChanger(ratioTapChanger2, tx, terminal2);
         setToIidmRatioTapChanger(ratioTapChanger3, tx, terminal3);
     }
