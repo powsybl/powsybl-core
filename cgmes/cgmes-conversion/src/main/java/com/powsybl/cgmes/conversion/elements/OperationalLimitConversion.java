@@ -17,8 +17,6 @@ import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.triplestore.api.PropertyBag;
 
-import java.util.Optional;
-
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
@@ -42,17 +40,17 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         if (terminalId != null) {
             terminal = context.terminalMapping().find(terminalId);
             if (terminal != null) {
-                createCurrentLimits(context.terminalMapping().number(terminalId), terminal.getConnectable());
+                createCurrentLimitsAdder(context.terminalMapping().number(terminalId), terminal.getConnectable());
             }
         }
         if (terminal == null && equipmentId != null) {
             // The equipment may be a Branch, a Dangling line, a Switch ...
             Identifiable identifiable = context.network().getIdentifiable(equipmentId);
-            createCurrentLimits(-1, identifiable);
+            createCurrentLimitsAdder(-1, identifiable);
         }
     }
 
-    private void createCurrentLimits(int terminalNumber, Branch<?> b) {
+    private void createCurrentLimitsAdder(int terminalNumber, Branch<?> b) {
         if (terminalNumber == 1) {
             currentLimitsAdder1 = context.currentLimitsMapping().getCurrentLimitsAdder(b.getId() + "_1", b::newCurrentLimits1);
         } else if (terminalNumber == 2) {
@@ -62,14 +60,14 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         }
     }
 
-    private void createCurrentLimits(int terminalNumber, Identifiable<?> identifiable) {
+    private void createCurrentLimitsAdder(int terminalNumber, Identifiable<?> identifiable) {
         if (identifiable instanceof Line) {
             Branch<?> b = (Branch<?>) identifiable;
             if (terminalNumber == -1) {
                 currentLimitsAdder1 = context.currentLimitsMapping().getCurrentLimitsAdder(b.getId() + "_1", b::newCurrentLimits1);
                 currentLimitsAdder2 = context.currentLimitsMapping().getCurrentLimitsAdder(b.getId() + "_2", b::newCurrentLimits2);
             } else {
-                createCurrentLimits(terminalNumber, b);
+                createCurrentLimitsAdder(terminalNumber, b);
             }
         } else if (identifiable instanceof TwoWindingsTransformer) {
             Branch<?> b = (Branch<?>) identifiable;
@@ -77,7 +75,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 context.ignored(CURRENT_LIMIT, "Defined for Equipment TwoWindingsTransformer. Should be defined for one Terminal of Two");
                 notAssigned(b);
             } else {
-                createCurrentLimits(terminalNumber, b);
+                createCurrentLimitsAdder(terminalNumber, b);
             }
         } else if (identifiable instanceof DanglingLine) {
             DanglingLine danglingLine = (DanglingLine) identifiable;
@@ -163,7 +161,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private void addTatlCurrent(String name, double value, int acceptableDuration, CurrentLimitsAdder adder) {
-        if (!Double.isNaN(adder.getTemporaryLimitValue(acceptableDuration))) {
+        if (Double.isNaN(adder.getTemporaryLimitValue(acceptableDuration))) {
             adder.beginTemporaryLimit()
                     .setAcceptableDuration(acceptableDuration)
                     .setName(name)
@@ -227,6 +225,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 typeName,
                 subclass,
                 terminalId);
+        context.pending(OPERATIONAL_LIMIT, reason);
         context.pending(OPERATIONAL_LIMIT, reason);
     }
 
