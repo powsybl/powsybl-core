@@ -797,13 +797,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         return "Network";
     }
 
-    private void setIdEraseName(String id) {
-        index.remove(this);
-        this.id = id;
-        name = null; // reset the name
-        index.checkAndAdd(this);
-    }
-
     @Override
     public void merge(Network other) {
         NetworkImpl otherNetwork = (NetworkImpl) other;
@@ -867,9 +860,6 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         if (!sourceFormat.equals(otherNetwork.sourceFormat)) {
             sourceFormat = "hybrid";
         }
-
-        // change the network id
-        setIdEraseName(getId() + " + " + otherNetwork.getId());
 
         LOGGER.info("Merging of {} done in {} ms", id, System.currentTimeMillis() - start);
     }
