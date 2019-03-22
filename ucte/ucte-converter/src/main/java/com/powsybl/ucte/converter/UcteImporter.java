@@ -360,7 +360,7 @@ public class UcteImporter implements Importer {
                     .setBus2(nodeCode2.toString())
                     .setOpen(ucteLine.getStatus() == UcteElementStatus.BUSBAR_COUPLER_OUT_OF_OPERATION)
                     .add();
-
+            couplerSwitch.addExtension(SwitchExt.class, new SwitchExt(couplerSwitch, ucteLine.getCurrentLimit().floatValue()));
             addElementNameProperty(ucteLine, couplerSwitch);
         }
     }
@@ -382,7 +382,7 @@ public class UcteImporter implements Importer {
                 .setBus2(nodeCode2.toString())
                 .setOpen(!connected)
                 .add();
-
+        couplerSwitch.addExtension(SwitchExt.class, new SwitchExt(couplerSwitch, ucteLine.getCurrentLimit().floatValue()));
         addElementNameProperty(ucteLine, couplerSwitch);
     }
 
@@ -887,7 +887,8 @@ public class UcteImporter implements Importer {
                             .setPermanentLimit(dl2.getCurrentLimits().getPermanentLimit()).add();
                 }
 
-                mergeLine.addExtension(MergedXnode.class, new MergedXnode(mergeLine, rdp, xdp, xnodeP1, xnodeQ1, xnodeP2, xnodeQ2, xnodeCode));
+                mergeLine.addExtension(MergedXnode.class, new MergedXnode(mergeLine, rdp, xdp, xnodeP1, xnodeQ1, xnodeP2, xnodeQ2,
+                        dl1.getId(), dl2.getId(), xnodeCode));
 
                 dl1.remove();
                 dl2.remove();

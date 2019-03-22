@@ -28,7 +28,11 @@ public class MergedXnode extends AbstractExtension<Line> {
 
     private double xnodeP2;
 
-    private double xnodeQ2;
+    private double xnodeQ2; //fixme add 2 attributes for lines name
+
+    private String line1Name;
+
+    private String line2Name;
 
     private String code;
 
@@ -40,6 +44,20 @@ public class MergedXnode extends AbstractExtension<Line> {
         this.xnodeQ1 = checkPowerFlow(xnodeQ1);
         this.xnodeP2 = checkPowerFlow(xnodeP2);
         this.xnodeQ2 = checkPowerFlow(xnodeQ2);
+        this.code = Objects.requireNonNull(code);
+    }
+
+    public MergedXnode(Line line, float rdp, float xdp, double xnodeP1, double xnodeQ1, double xnodeP2, double xnodeQ2,
+                       String line1Name, String line2Name, String code) {
+        this.line = Objects.requireNonNull(line);
+        this.rdp = checkDividerPosition(rdp);
+        this.xdp = checkDividerPosition(xdp);
+        this.xnodeP1 = checkPowerFlow(xnodeP1);
+        this.xnodeQ1 = checkPowerFlow(xnodeQ1);
+        this.xnodeP2 = checkPowerFlow(xnodeP2);
+        this.xnodeQ2 = checkPowerFlow(xnodeQ2);
+        this.line1Name = Objects.requireNonNull(line1Name);
+        this.line2Name = Objects.requireNonNull(line2Name);
         this.code = Objects.requireNonNull(code);
     }
 
@@ -118,6 +136,24 @@ public class MergedXnode extends AbstractExtension<Line> {
 
     public MergedXnode setXnodeQ2(double xNodeQ2) {
         this.xnodeQ2 = checkPowerFlow(xNodeQ2);
+        return this;
+    }
+
+    public String getLine1Name() {
+        return line1Name;
+    }
+
+    public MergedXnode setLine1Name(String line1Name) {
+        this.line1Name = Objects.requireNonNull(line1Name);
+        return this;
+    }
+
+    public String getLine2Name() {
+        return line2Name;
+    }
+
+    public MergedXnode setLine2Name(String line2Name) {
+        this.line2Name = Objects.requireNonNull(line2Name);
         return this;
     }
 
