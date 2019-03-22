@@ -124,7 +124,7 @@ public class LimitViolationFilterTest {
         assertEquals(equipmentId, violation.getSubjectId());
         assertEquals(violationType, violation.getLimitType());
         assertEquals(baseVoltage, LimitViolationHelper.getNominalVoltage(violation, network), 0.0);
-        assertEquals(country, LimitViolationHelper.getCountry(violation, network));
+        assertEquals(country, LimitViolationHelper.getCountry(violation, network).orElse(null));
         assertEquals(voltageLevelId, LimitViolationHelper.getVoltageLevelId(violation, network));
     }
 }

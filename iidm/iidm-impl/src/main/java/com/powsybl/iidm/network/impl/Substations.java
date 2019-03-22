@@ -27,7 +27,7 @@ final class Substations {
             return substations;
         }
         return Iterables.filter(substations, substation -> {
-            if (country != null && country != substation.getCountry()) {
+            if (country != null && country != substation.getCountry().orElse(null)) {
                 return false;
             }
             if (tso != null && !tso.equals(substation.getTso())) {

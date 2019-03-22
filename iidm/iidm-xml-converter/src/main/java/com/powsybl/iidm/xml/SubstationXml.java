@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
+import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 
 import javax.xml.stream.XMLStreamException;
@@ -34,7 +35,13 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
 
     @Override
     protected void writeRootElementAttributes(Substation s, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        context.getWriter().writeAttribute("country", context.getAnonymizer().anonymizeCountry(s.getCountry()).toString());
+        s.getCountry().ifPresent(country -> {
+            try {
+                context.getWriter().writeAttribute("country", context.getAnonymizer().anonymizeCountry(country).toString());
+            } catch (XMLStreamException e) {
+                throw new UncheckedXmlStreamException(e);
+            }
+        });
         if (s.getTso() != null) {
             context.getWriter().writeAttribute("tso", context.getAnonymizer().anonymizeString(s.getTso()));
         }
@@ -73,7 +80,10 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
 
     @Override
     protected Substation readRootElementAttributes(SubstationAdder adder, NetworkXmlReaderContext context) {
-        Country country = context.getAnonymizer().deanonymizeCountry(Country.valueOf(context.getReader().getAttributeValue(null, "country")));
+        Country country = null;
+        if (context.getReader().getAttributeValue(null, "country") != null) {
+            country = context.getAnonymizer().deanonymizeCountry(Country.valueOf(context.getReader().getAttributeValue(null, "country")));
+        }
         String tso = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "tso"));
         String geographicalTags = context.getReader().getAttributeValue(null, "geographicalTags");
         if (geographicalTags != null) {

@@ -55,7 +55,7 @@ public class NetworkTest {
         Substation substation1 = network.getSubstation("substation1");
         assertNotNull(substation1);
         assertEquals("substation1", substation1.getId());
-        assertSame(country1, substation1.getCountry());
+        assertSame(country1, substation1.getCountry().orElse(null));
         assertEquals(1, substation1.getGeographicalTags().size());
         assertTrue(substation1.getGeographicalTags().contains("region1"));
         assertEquals(1, Iterables.size(network.getVoltageLevels()));

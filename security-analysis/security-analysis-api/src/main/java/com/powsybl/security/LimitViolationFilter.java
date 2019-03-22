@@ -128,7 +128,7 @@ public class LimitViolationFilter {
         return violations.stream()
             .filter(violation -> accept(violation.getLimitType()))
             .filter(violation -> accept(LimitViolationHelper.getNominalVoltage(violation, network)))
-            .filter(violation -> accept(LimitViolationHelper.getCountry(violation, network)))
+            .filter(violation -> accept(LimitViolationHelper.getCountry(violation, network).orElse(null)))
             .collect(Collectors.toList());
     }
 
