@@ -66,7 +66,7 @@ public class DefaultLimitViolationDetector extends AbstractLimitViolationDetecto
                     overload.getTemporaryLimit().getAcceptableDuration(),
                     overload.getPreviousLimit(),
                     limitReduction,
-                    branch.getTerminal(side).getI(),
+                    value,
                     side));
         } else if (currentLimitTypes.contains(Security.CurrentLimitType.PATL)) {
             checkPermanentLimit(branch, side, value, consumer);
