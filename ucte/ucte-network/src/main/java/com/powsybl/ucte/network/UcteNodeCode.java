@@ -11,6 +11,9 @@ import com.google.common.base.Strings;
 import java.util.Objects;
 import java.util.Optional;
 
+import static com.powsybl.ucte.network.UcteCountryCode.isUcteCountryCode;
+import static com.powsybl.ucte.network.UcteVoltageLevelCode.isVoltageLevel;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -100,7 +103,7 @@ public class UcteNodeCode {
      */
     public static Optional<UcteNodeCode> parseUcteNodeCode(String id) {
         UcteNodeCode ucteNodeCode = null;
-        if (id != null && id.length() == 8 && UcteCountryCode.isUcteCountryCode(id.charAt(0)) && UcteVoltageLevelCode.isVoltageLevel(id.charAt(6))) {
+        if (isUcteNodeId(id)) {
             UcteCountryCode ucteCountryCode = UcteCountryCode.fromUcteCode(id.charAt(0));
             ucteNodeCode = new UcteNodeCode(
                     ucteCountryCode,
@@ -109,6 +112,13 @@ public class UcteNodeCode {
                     id.charAt(7));
         }
         return Optional.ofNullable(ucteNodeCode);
+    }
+
+    public static boolean isUcteNodeId(String id) {
+        return id != null &&
+                id.length() == 8 &&
+                isUcteCountryCode(id.charAt(0)) &&
+                isVoltageLevel(id.charAt(6));
     }
 
     @Override
