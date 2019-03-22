@@ -8,6 +8,7 @@ package com.powsybl.ucte.converter;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.*;
 import com.powsybl.ucte.network.*;
@@ -17,9 +18,15 @@ import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.Properties;
+
+import static com.powsybl.ucte.network.UcteNodeCode.isUcteNodeId;
+import static com.powsybl.ucte.network.UcteNodeCode.parseUcteNodeCode;
+import static com.powsybl.ucte.network.UcteVoltageLevelCode.voltageLevelCodeFromChar;
+import static com.powsybl.ucte.network.UcteVoltageLevelCode.voltageLevelCodeFromIidmVoltage;
 
 /**
  * @author Abdelsalem Hedhili <abdelsalem.hedhili at rte-france.com>
@@ -30,6 +37,7 @@ public class UcteExporter implements Exporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(UcteExporter.class);
 
     private HashMap<String, UcteNodeCode> iidmIdToUcteId = new HashMap<>();
+    private static final String NOT_HANDLED_YET_MESSAGE = "Do not handle yet the case where there is incompatible UcteNodeCode";
 
     @Override
     public String getFormat() {
@@ -57,128 +65,63 @@ public class UcteExporter implements Exporter {
     }
 
     private void convertTieLine(UcteNetwork ucteNetwork, Line line) {
-        String id1 = line.getId().substring(0, 8); //first node line 1
-        String id2 = line.getId().substring(9, 17); //second one line 1
-        String id3 = line.getId().substring(22, 30); //first node line 2
-        String id4 = line.getId().substring(31, 39); //second node line 2
+        if (isUcteTieLineId(line)) {
+            MergedXnode mergedXnode = line.getExtension(MergedXnode.class);
+            String id1 = mergedXnode.getLine1Name().substring(0, 8); //first node line 1
+            String id2 = mergedXnode.getLine1Name().substring(9, 17); //second node line 1
+            String id3 = mergedXnode.getLine2Name().substring(0, 8); //first node line 2
+            String id4 = mergedXnode.getLine2Name().substring(9, 17); //second node line 2
 
-        Optional<UcteNodeCode> optUcteNodeCode1 = UcteNodeCode.parseUcteNodeCode(id1);
-        Optional<UcteNodeCode> optUcteNodeCode2 = UcteNodeCode.parseUcteNodeCode(id2);
-        Optional<UcteNodeCode> optUcteNodeCode3 = UcteNodeCode.parseUcteNodeCode(id3);
-        Optional<UcteNodeCode> optUcteNodeCode4 = UcteNodeCode.parseUcteNodeCode(id4);
+            Optional<UcteNodeCode> optUcteNodeCode1 = parseUcteNodeCode(id1);
+            Optional<UcteNodeCode> optUcteNodeCode2 = parseUcteNodeCode(id2);
+            Optional<UcteNodeCode> optUcteNodeCode3 = parseUcteNodeCode(id3);
+            Optional<UcteNodeCode> optUcteNodeCode4 = parseUcteNodeCode(id4);
 
-        if (optUcteNodeCode1.isPresent() && optUcteNodeCode2.isPresent() && optUcteNodeCode3.isPresent() && optUcteNodeCode4.isPresent()) {
-            UcteNodeCode ucteNodeCode1 = optUcteNodeCode1.get();
-            UcteNodeCode ucteNodeCode2 = optUcteNodeCode2.get();
-            UcteNodeCode ucteNodeCode3 = optUcteNodeCode3.get();
-            UcteNodeCode ucteNodeCode4 = optUcteNodeCode4.get();
+            if (optUcteNodeCode1.isPresent() && optUcteNodeCode2.isPresent() && optUcteNodeCode3.isPresent() && optUcteNodeCode4.isPresent()) {
+                ArrayList<UcteNodeCode> ucteNodeCodeList = new ArrayList<>();
+                ucteNodeCodeList.add(optUcteNodeCode1.get());
+                ucteNodeCodeList.add(optUcteNodeCode2.get());
+                ucteNodeCodeList.add(optUcteNodeCode3.get());
+                ucteNodeCodeList.add(optUcteNodeCode4.get());
 
-            if (ucteNetwork.getNode(ucteNodeCode1) == null) {
-                ucteNetwork.addNode(
-                        new UcteNode(
-                                ucteNodeCode1,
-                                ucteNodeCode1.getGeographicalSpot(),
-                                UcteNodeStatus.REAL,
-                                UcteNodeTypeCode.PQ,
-                                voltageLevelCodeFromChar(ucteNodeCode1.toString().charAt(6)).getVoltageLevel(),
-                                0f,
-                                0f,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                null
-                        ));
+                ucteNodeCodeList.forEach(ucteNodeCode -> {
+                    if (ucteNodeCode.getUcteCountryCode() == UcteCountryCode.XX) {
+                        ucteNetwork.addNode(
+                                new UcteNode(
+                                        ucteNodeCode,
+                                        ucteNodeCode.getGeographicalSpot(),
+                                        UcteNodeStatus.REAL,
+                                        UcteNodeTypeCode.PQ,
+                                        voltageLevelCodeFromChar(ucteNodeCode.toString().charAt(6)).getVoltageLevel(),
+                                        0f,
+                                        0f,
+                                        Float.NaN,
+                                        Float.NaN,
+                                        Float.NaN,
+                                        Float.NaN,
+                                        Float.NaN,
+                                        Float.NaN,
+                                        Float.NaN,
+                                        Float.NaN,
+                                        Float.NaN,
+                                        Float.NaN,
+                                        null
+                                ));
+                    }
+                });
+
+                UcteElementId ucteElementId1 = new UcteElementId(ucteNodeCodeList.get(0), ucteNodeCodeList.get(1), line.getId().charAt(18));
+                UcteElementId ucteElementId2 = new UcteElementId(ucteNodeCodeList.get(2), ucteNodeCodeList.get(3), line.getId().charAt(40));
+
+                UcteLine ucteLine1 = new UcteLine(ucteElementId1, UcteElementStatus.REAL_ELEMENT_IN_OPERATION, (float) line.getR() / 2, (float) line.getX() / 2, (float) line.getB1(), (int) line.getCurrentLimits1().getPermanentLimit(), "");
+                UcteLine ucteLine2 = new UcteLine(ucteElementId2, UcteElementStatus.REAL_ELEMENT_IN_OPERATION, (float) line.getR() / 2, (float) line.getX() / 2, (float) line.getB1(), (int) line.getCurrentLimits1().getPermanentLimit(), "");
+
+                ucteNetwork.addLine(ucteLine1);
+                ucteNetwork.addLine(ucteLine2);
+            } else {
+                LOGGER.warn(NOT_HANDLED_YET_MESSAGE);
             }
-            if (ucteNetwork.getNode(ucteNodeCode2) == null) {
-                ucteNetwork.addNode(
-                        new UcteNode(
-                                ucteNodeCode2,
-                                ucteNodeCode2.getGeographicalSpot(),
-                                UcteNodeStatus.REAL,
-                                UcteNodeTypeCode.PQ,
-                                voltageLevelCodeFromChar(ucteNodeCode2.toString().charAt(6)).getVoltageLevel(),
-                                0f,
-                                0f,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                null
-                        ));
-            }
-            if (ucteNetwork.getNode(ucteNodeCode3) == null) {
-                ucteNetwork.addNode(
-                        new UcteNode(
-                                ucteNodeCode3,
-                                ucteNodeCode3.getGeographicalSpot(),
-                                UcteNodeStatus.REAL,
-                                UcteNodeTypeCode.PQ,
-                                voltageLevelCodeFromChar(ucteNodeCode3.toString().charAt(6)).getVoltageLevel(),
-                                0f,
-                                0f,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                null
-                        ));
-            }
-            if (ucteNetwork.getNode(ucteNodeCode4) == null) {
-                ucteNetwork.addNode(
-                        new UcteNode(
-                                ucteNodeCode4,
-                                ucteNodeCode4.getGeographicalSpot(),
-                                UcteNodeStatus.REAL,
-                                UcteNodeTypeCode.PQ,
-                                voltageLevelCodeFromChar(ucteNodeCode4.toString().charAt(6)).getVoltageLevel(),
-                                0f,
-                                0f,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                Float.NaN,
-                                null
-                        ));
-            }
-
-            UcteElementId ucteElementId1 = new UcteElementId(ucteNodeCode1, ucteNodeCode2, line.getId().charAt(18));
-            UcteElementId ucteElementId2 = new UcteElementId(ucteNodeCode3, ucteNodeCode4, line.getId().charAt(40));
-
-            UcteLine ucteLine1 = new UcteLine(ucteElementId1, UcteElementStatus.REAL_ELEMENT_IN_OPERATION, (float) line.getR() / 2, (float) line.getX() / 2, (float) line.getB1(), (int) line.getCurrentLimits1().getPermanentLimit(), "");
-            UcteLine ucteLine2 = new UcteLine(ucteElementId2, UcteElementStatus.REAL_ELEMENT_IN_OPERATION, (float) line.getR() / 2, (float) line.getX() / 2, (float) line.getB1(), (int) line.getCurrentLimits1().getPermanentLimit(), "");
-
-            ucteNetwork.addLine(ucteLine1);
-            ucteNetwork.addLine(ucteLine2);
-        } else {
-            LOGGER.warn("Do not handle yet the case where there is incompatible UcteNodeCode ");
         }
-
-
     }
 
     private void convertTwoWindingTransformers(Network network, UcteNetwork ucteNetwork) {
@@ -475,7 +418,7 @@ public class UcteExporter implements Exporter {
 
     private void convertDanglingLine(UcteNetwork ucteNetwork, DanglingLine danglingLine) {
         LOGGER.debug("Converting dangling line {}", danglingLine.getId());
-        Optional<UcteNodeCode> optUcteXNodeCode = UcteNodeCode.parseUcteNodeCode(danglingLine.getUcteXnodeCode());
+        Optional<UcteNodeCode> optUcteXNodeCode = parseUcteNodeCode(danglingLine.getUcteXnodeCode());
         if (optUcteXNodeCode.isPresent()) {
             ucteNetwork.addNode(new UcteNode(
                     optUcteXNodeCode.get(),
@@ -498,8 +441,8 @@ public class UcteExporter implements Exporter {
                     null
             ));
             if (danglingLine.getId().length() == 19) { // It's (probably) a ucte id
-                Optional<UcteNodeCode> optUcteNodeCode1 = UcteNodeCode.parseUcteNodeCode(danglingLine.getId().substring(0, 8));
-                Optional<UcteNodeCode> optUcteNodeCode2 = UcteNodeCode.parseUcteNodeCode(danglingLine.getId().substring(9, 17));
+                Optional<UcteNodeCode> optUcteNodeCode1 = parseUcteNodeCode(danglingLine.getId().substring(0, 8));
+                Optional<UcteNodeCode> optUcteNodeCode2 = parseUcteNodeCode(danglingLine.getId().substring(9, 17));
                 if (optUcteNodeCode1.isPresent() && optUcteNodeCode2.isPresent()) {
                     UcteElementId ucteElementId = new UcteElementId(optUcteNodeCode1.get(), optUcteNodeCode2.get(), danglingLine.getId().charAt(18));
                     UcteLine ucteLine = new UcteLine(ucteElementId,
@@ -511,36 +454,43 @@ public class UcteExporter implements Exporter {
                             danglingLine.getName());
                     ucteNetwork.addLine(ucteLine);
                 } else {
-                    LOGGER.warn("Do not handle yet the case where there is incompatible UcteNodeCode");
+                    LOGGER.warn(NOT_HANDLED_YET_MESSAGE);
                 }
             } else {
-                LOGGER.warn("Do not handle yet the case where there is incompatible UcteNodeCode");
+                LOGGER.warn(NOT_HANDLED_YET_MESSAGE);
             }
         }
+
     }
 
     private void convertSwitches(UcteNetwork ucteNetwork, VoltageLevel voltageLevel) {
         Iterable<Switch> switchIterator = voltageLevel.getSwitches();
         for (Switch sw : switchIterator) {
-            LOGGER.info("Converting switch {}", sw.getId());
+            LOGGER.debug("Converting switch {}", sw.getId());
 
-            Optional<UcteNodeCode> optUcteNodeCode1 = UcteNodeCode.parseUcteNodeCode(sw.getId().substring(0, 8));
-            Optional<UcteNodeCode> optUcteNodeCode2 = UcteNodeCode.parseUcteNodeCode(sw.getId().substring(9, 17));
+            Optional<UcteNodeCode> optUcteNodeCode1 = parseUcteNodeCode(sw.getId().substring(0, 8));
+            Optional<UcteNodeCode> optUcteNodeCode2 = parseUcteNodeCode(sw.getId().substring(9, 17));
 
             if (optUcteNodeCode1.isPresent() && optUcteNodeCode2.isPresent()) {
-                LOGGER.info("in");
                 UcteElementId ucteElementId = new UcteElementId(optUcteNodeCode1.get(), optUcteNodeCode2.get(), sw.getId().charAt(18));
                 UcteLine ucteLine = new UcteLine(ucteElementId, UcteElementStatus.BUSBAR_COUPLER_IN_OPERATION,
-                        Float.NaN, Float.NaN, Float.NaN, null, null); //CurrentLimit for switches are not stored in iidm
+                        Float.NaN, Float.NaN, Float.NaN, null, null);
+                if (sw.getExtension(SwitchExt.class) != null) {
+                    ucteLine.setCurrentLimit((int) sw.getExtension(SwitchExt.class).getCurrentLimit());
+                } else {
+                    ucteLine.setCurrentLimit(SwitchExt.DEFAULT_SWICH_MAX_CURRENT);
+                    LOGGER.warn("Switch {}: No current limit, set value to {}", sw.getId(), SwitchExt.DEFAULT_SWICH_MAX_CURRENT);
+                }
                 ucteNetwork.addLine(ucteLine);
             } else {
-                LOGGER.warn("Do not handle yet the case where there is incompatible UcteNodeCode");
+                LOGGER.warn(NOT_HANDLED_YET_MESSAGE);
             }
         }
     }
 
     private void convertLine(UcteNetwork ucteNetwork, Line line) {
-        if (line.getId().length() > 20 && line.getId().charAt(20) == '+') { //it's a tie line FIXME
+        if (line.isTieLine()) {
+            LOGGER.debug("exporting tie line {}", line.getId());
             convertTieLine(ucteNetwork, line);
             return;
         }
@@ -644,58 +594,6 @@ public class UcteExporter implements Exporter {
         ucteNetwork.addNode(ucteNode);
     }
 
-    UcteVoltageLevelCode voltageLevelCodeFromChar(char code) {
-        if (code == '0') {
-            return UcteVoltageLevelCode.VL_750;
-        } else if (code == '1') {
-            return UcteVoltageLevelCode.VL_380;
-        } else if (code == '2') {
-            return UcteVoltageLevelCode.VL_220;
-        } else if (code == '3') {
-            return UcteVoltageLevelCode.VL_150;
-        } else if (code == '4') {
-            return UcteVoltageLevelCode.VL_120;
-        } else if (code == '5') {
-            return UcteVoltageLevelCode.VL_110;
-        } else if (code == '6') {
-            return UcteVoltageLevelCode.VL_70;
-        } else if (code == '7') {
-            return UcteVoltageLevelCode.VL_27;
-        } else if (code == '8') {
-            return UcteVoltageLevelCode.VL_330;
-        } else if (code == '9') {
-            return UcteVoltageLevelCode.VL_500;
-        } else {
-            throw new IllegalArgumentException("This code doesn't refer to a voltage level");
-        }
-    }
-
-    UcteVoltageLevelCode iidmVoltageToUcteVoltageLevelCode(double nominalV) {
-        if (nominalV == 27) {
-            return UcteVoltageLevelCode.VL_27;
-        } else if (nominalV == 70) {
-            return UcteVoltageLevelCode.VL_70;
-        } else if (nominalV == 110) {
-            return UcteVoltageLevelCode.VL_110;
-        } else if (nominalV == 120) {
-            return UcteVoltageLevelCode.VL_120;
-        } else if (nominalV == 150) {
-            return UcteVoltageLevelCode.VL_150;
-        } else if (nominalV == 220) {
-            return UcteVoltageLevelCode.VL_220;
-        } else if (nominalV == 330) {
-            return UcteVoltageLevelCode.VL_330;
-        } else if (nominalV == 380) {
-            return UcteVoltageLevelCode.VL_380;
-        } else if (nominalV == 500) {
-            return UcteVoltageLevelCode.VL_500;
-        } else if (nominalV == 750) {
-            return UcteVoltageLevelCode.VL_750;
-        } else {
-            throw new IllegalArgumentException("This voltage doesn't refer to a voltage level");
-        }
-    }
-
     UctePowerPlantType energySourceToUctePowerPlantType(EnergySource energySource) {
         if (EnergySource.HYDRO == energySource) {
             return UctePowerPlantType.H;
@@ -715,30 +613,19 @@ public class UcteExporter implements Exporter {
         if (iidmIdToUcteId.containsKey(id)) {
             return iidmIdToUcteId.get(id);
         }
-        if (isUcteNodeId(id)) { // the ID is already an UCTE id
-            ucteNodeCode = new UcteNodeCode(
-                    UcteCountryCode.valueOf(country),
-                    id.substring(1, 6),
-                    iidmVoltageToUcteVoltageLevelCode(voltageLevel.getNominalV()),
-                    id.charAt(7)
-            );
+        Optional<UcteNodeCode> optionalUcteNodeCode = parseUcteNodeCode(id);
+        if (optionalUcteNodeCode.isPresent()) { // the ID is already an UCTE id
+            return optionalUcteNodeCode.get();
         } else {
             ucteNodeCode = new UcteNodeCode(
                     UcteCountryCode.valueOf(country),
                     voltageLevel.getSubstation().getName(),
-                    iidmVoltageToUcteVoltageLevelCode(voltageLevel.getNominalV()),
+                    voltageLevelCodeFromIidmVoltage(voltageLevel.getNominalV()),
                     '1'
             );
             iidmIdToUcteId.put(id, ucteNodeCode);
         }
         return ucteNodeCode;
-    }
-
-    boolean isUcteNodeId(String id) {
-        return id != null &&
-                id.length() == 8 &&
-                isUcteCountryCode(id.charAt(0)) &&
-                isVoltageLevel(id.charAt(6));
     }
 
     UcteElementId convertUcteElementId(UcteNodeCode ucteNodeCode, UcteNodeCode ucteNodeCode2, TwoWindingsTransformer twoWindingsTransformer, Terminal terminal1, Terminal terminal2) {
@@ -752,22 +639,21 @@ public class UcteExporter implements Exporter {
             return new UcteElementId(
                     ucteNodeCode,
                     ucteNodeCode2,
-                    '1');
+                    '1'); //Todo : handle order code when it's not data comming from UCTE
         }
     }
 
-    boolean isUcteCountryCode(char character) {
-        try {
-            UcteCountryCode ucteCountryCode = UcteCountryCode.fromUcteCode(character);
-            LOGGER.debug("isUcteCountryCode {} : {}", character, ucteCountryCode);
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
+    boolean isUcteTieLineId(Line line) {
+        return line.getExtension(MergedXnode.class) != null
+                && line.getExtension(MergedXnode.class).getLine1Name() != null
+                && line.getExtension(MergedXnode.class).getLine2Name() != null
+                && line.getExtension(MergedXnode.class).getLine1Name().length() >= 19
+                && line.getExtension(MergedXnode.class).getLine2Name().length() >= 19
+                && isUcteNodeId(line.getExtension(MergedXnode.class).getLine1Name().substring(0, 8))
+                && isUcteNodeId(line.getExtension(MergedXnode.class).getLine1Name().substring(9, 17))
+                && isUcteNodeId(line.getExtension(MergedXnode.class).getLine2Name().substring(0, 8))
+                && isUcteNodeId(line.getExtension(MergedXnode.class).getLine2Name().substring(9, 17));
     }
 
-    boolean isVoltageLevel(char character) {
-        return (int) character >= 48 && (int) character <= 57;
-    }
 
 }
