@@ -94,13 +94,6 @@ public final class CountryConversion {
         return defaultCountry();
     }
 
-    public static Country defaultCountryForBoundary(AbstractIdentifiedObjectConversion c) {
-        if (LOG.isWarnEnabled()) {
-            LOG.warn("Default boundary country converting {}", c.what());
-        }
-        return defaultCountryForBoundary();
-    }
-
     public static Country defaultCountry() {
         return Country.values()[0];
     }
