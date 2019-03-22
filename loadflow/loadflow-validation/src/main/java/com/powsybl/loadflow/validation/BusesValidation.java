@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
@@ -69,11 +68,11 @@ public final class BusesValidation {
         Objects.requireNonNull(busesWriter);
         LOGGER.info("Checking buses of network {}", network.getId());
         return network.getBusView()
-                .getBusStream()
-                .sorted(Comparator.comparing(Bus::getId))
-                .map(bus -> checkBuses(bus, config, busesWriter))
-                .reduce(Boolean::logicalAnd)
-                .orElse(true);
+                      .getBusStream()
+                      .sorted(Comparator.comparing(Bus::getId))
+                      .map(bus -> checkBuses(bus, config, busesWriter))
+                      .reduce(Boolean::logicalAnd)
+                      .orElse(true);
     }
 
     public static boolean checkBuses(Bus bus, ValidationConfig config, Writer writer) {
@@ -85,22 +84,6 @@ public final class BusesValidation {
             return checkBuses(bus, config, bussWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
-        }
-    }
-
-    private static void p(String eqt, Identifiable<?> id, Terminal t) {
-        if (LOGGER.isWarnEnabled()) {
-            LOGGER.warn(String.format("    %-5s  %10.4f  %10.4f  %s",
-                    eqt,
-                    t.getP(),
-                    t.getQ(),
-                    id.getId()));
-        }
-    }
-
-    private static void p(String cat, double p, double q) {
-        if (LOGGER.isWarnEnabled()) {
-            LOGGER.warn(String.format("    %-5s  %10.4f  %10.4f", cat, p, q));
         }
     }
 
@@ -127,48 +110,8 @@ public final class BusesValidation {
         double tltP = bus.getThreeWindingsTransformerStream().map(tlt -> getThreeWindingsTransformerTerminal(tlt, bus)).mapToDouble(Terminal::getP).sum();
         double tltQ = bus.getThreeWindingsTransformerStream().map(tlt -> getThreeWindingsTransformerTerminal(tlt, bus)).mapToDouble(Terminal::getQ).sum();
         boolean mainComponent = bus.isInMainConnectedComponent();
-        // return checkBuses(bus.getId(), loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ,
-        // vscCSP, vscCSQ, lineP, lineQ,
-        // danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, config,
-        // busesWriter);
-        boolean r = checkBuses(bus.getId(), loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ,
-                vscCSP, vscCSQ, lineP, lineQ,
-                danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, config,
-                busesWriter);
-        String ref = "";
-        if (bus.getVoltageLevel() != null) {
-            ref = bus.getVoltageLevel().getName() + ref;
-            if (bus.getVoltageLevel().getSubstation() != null) {
-                ref = bus.getVoltageLevel().getSubstation().getName() + " " + ref;
-            }
-        }
-        boolean debug = ref.contains("BUS  ") || ref.contains("PP_Brussels") || ref.contains("FNOD")
-                || ref.contains("kV") || config.isVerbose();
-        debug = debug || ref.contains("f2b64879");
-        if (!r || debug) {
-            LOGGER.warn("Check {}. Details of {} bus {}, (V,A) = ({}, {})",
-                    r ? "succeeded" : "failed",
-                    ref,
-                    bus.getId(),
-                    bus.getV(),
-                    bus.getAngle());
-            bus.getLoadStream().forEach(l -> p("load", l, l.getTerminal()));
-            bus.getGeneratorStream().forEach(g -> p("gen", g, g.getTerminal()));
-            bus.getLineStream().forEach(l -> p("line", l, getBranchTerminal(l, bus)));
-            bus.getTwoWindingsTransformerStream()
-                    .forEach(t -> p("2wtx", t, getBranchTerminal(t, bus)));
-            bus.getDanglingLineStream().forEach(d -> p("dngl", d, d.getTerminal()));
-            bus.getShuntCompensatorStream().forEach(s -> p("shunt", s, s.getTerminal()));
-            bus.getThreeWindingsTransformerStream()
-                    .forEach(t -> p("3wtx", t, getThreeWindingsTransformerTerminal(t, bus)));
-
-            double incomingP = genP + shuntP + svcP + vscCSP + lineP + danglingLineP + twtP + tltP;
-            double incomingQ = genQ + shuntQ + svcQ + vscCSQ + lineQ + danglingLineQ + twtQ + tltQ;
-            double sump = Math.abs(incomingP + loadP);
-            double sumq = Math.abs(incomingQ + loadQ);
-            p("SUM", sump, sumq);
-        }
-        return r;
+        return checkBuses(bus.getId(), loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ,
+                          danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, config, busesWriter);
     }
 
     private static Terminal getBranchTerminal(Branch branch, Bus bus) {
@@ -198,7 +141,7 @@ public final class BusesValidation {
 
         try (ValidationWriter busesWriter = ValidationUtils.createValidationWriter(id, config, writer, ValidationType.BUSES)) {
             return checkBuses(id, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ,
-                    danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, config, busesWriter);
+                              danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, config, busesWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -224,7 +167,7 @@ public final class BusesValidation {
         }
         try {
             busesWriter.write(id, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                    lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated);
+                              lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

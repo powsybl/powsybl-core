@@ -98,9 +98,5 @@ public final class CountryConversion {
         return Country.values()[0];
     }
 
-    public static Country defaultCountryForBoundary() {
-        return Country.BD;
-    }
-
     private static final Logger LOG = LoggerFactory.getLogger(CountryConversion.class);
 }
