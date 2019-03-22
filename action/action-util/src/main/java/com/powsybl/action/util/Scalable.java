@@ -22,10 +22,21 @@ import java.util.stream.Collectors;
 public interface Scalable {
 
     /**
-     * By default use Generator convention
+     * Sign convention usable for scaling.
      */
-    enum ScalingPowerConvention {
+    enum ScalingConvention {
+        /**
+         * Generator convention means that a positive scale will
+         * imply an increase of generators target power and a decrease
+         * of load consumption.
+         */
         GENERATOR,
+
+        /**
+         * Load convention means that a positive scale will
+         * imply a decrease of generators target power and an increase
+         * of load consumption.
+         */
         LOAD,
     }
 
@@ -53,13 +64,15 @@ public interface Scalable {
 
     /**
      * Get the maximal active power in MW with scaling convention.
+     * @see ScalingConvention
      */
-    double maximumValue(Network n, ScalingPowerConvention scalingConvention);
+    double maximumValue(Network n, ScalingConvention scalingConvention);
 
     /**
      * Get the minimal active power in MW with scaling convention.
+     * @see ScalingConvention
      */
-    double minimumValue(Network n, ScalingPowerConvention scalingConvention);
+    double minimumValue(Network n, ScalingConvention scalingConvention);
 
     /**
      * @deprecated listGenerators should be replaced by filterInjections
@@ -80,29 +93,61 @@ public interface Scalable {
     List<Generator> listGenerators(Network n);
 
     /**
-     * If the scalable is an injection present in the network, it's added to the list "injections"
-     * <p>Otherwise,its identifier is added to the "notFound" list </p>
+     * Scans all the expected injections of the scalable.
+     * If the injection can be found in given network, it is added the the injections list.
+     * Otherwise, its identifier is added to the "notFound" list.
+     *
+     * @param network network
+     * @param injections network injections used in the scalable
+     * @param notFound expected injections not found in the network
      */
     void filterInjections(Network network, List<Injection> injections, List<String> notFound);
 
+
+    /**
+     * Scans all the expected injections of the scalable.
+     * If the injection can be found in given network, it is added the the injections list.
+     * Otherwise, its identifier is added to the "notFound" list.
+     *
+     * @param network network
+     * @param notFound expected injections not found in the network
+     * @return network injections used in the scalable
+     */
     List<Injection> filterInjections(Network network, List<String> notFound);
 
+
+    /**
+     * Scans all the expected injections of the scalable.
+     * If the injection can be found in given network, it is added the the injections list.
+     *
+     * @param network network
+     * @return network injections used in the scalable
+     */
     List<Injection> filterInjections(Network network);
 
     /**
+     * Scale the given network using Generator convention by default.
+     * The actual scaling value may be different to the one asked, if
+     * the Scalable limit is reached.
+     *
      * @param n network
      * @param asked value asked to adjust the scalable active power
-     * Uses Generator convention by default
      * @return the actual value of the scalable active power adjustment
      */
     double scale(Network n, double asked);
 
     /**
+     * Scale the given network.
+     * The actual scaling value may be different to the one asked, if
+     * the Scalable limit is reached.
+     *
      * @param n network
      * @param asked value asked to adjust the scalable active power
+     * @param scalingConvention power convention used for scaling
      * @return the actual value of the scalable active power adjustment
+     * @see ScalingConvention
      */
-    double scale(Network n, double asked, ScalingPowerConvention scalingConvention);
+    double scale(Network n, double asked, ScalingConvention scalingConvention);
 
     /**
      * @deprecated gen should be replaced by onGenerator
@@ -131,7 +176,7 @@ public interface Scalable {
      * create LoadScalable with id
      */
     static LoadScalable onLoad(String id) {
-        return new LoadScalable(id); //onLoad
+        return new LoadScalable(id);
     }
 
     /**

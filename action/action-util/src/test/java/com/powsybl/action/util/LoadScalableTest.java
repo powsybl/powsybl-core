@@ -6,12 +6,14 @@
  */
 package com.powsybl.action.util;
 
+import com.powsybl.action.util.Scalable.ScalingConvention;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import org.junit.Before;
 import org.junit.Test;
 
+import static com.powsybl.action.util.Scalable.ScalingConvention.*;
 import static com.powsybl.action.util.ScalableTestNetwork.createNetwork;
 import static org.junit.Assert.*;
 
@@ -25,7 +27,7 @@ public class LoadScalableTest {
     private Scalable l2;
     private Scalable l3;
     private Scalable l4;
-    private Scalable.ScalingPowerConvention convention;
+    private ScalingConvention convention;
 
     @Before
     public void setUp() {
@@ -54,28 +56,26 @@ public class LoadScalableTest {
         assertEquals(0, l1.initialValue(network), 1e-3);
     }
 
-
     @Test
     public void testMaximumlValue() {
-        assertEquals(Double.MAX_VALUE, l1.maximumValue(network, Scalable.ScalingPowerConvention.LOAD), 0.);
+        assertEquals(Double.MAX_VALUE, l1.maximumValue(network, LOAD), 0.);
         assertEquals(-20, l3.maximumValue(network), 0.);
-        assertEquals(-20, l3.maximumValue(network, Scalable.ScalingPowerConvention.GENERATOR), 0.);
-        assertEquals(100, l3.maximumValue(network, Scalable.ScalingPowerConvention.LOAD), 0.);
+        assertEquals(-20, l3.maximumValue(network, GENERATOR), 0.);
+        assertEquals(100, l3.maximumValue(network, LOAD), 0.);
     }
 
     @Test
     public void testMinimumlValue() {
-        assertEquals(0, l1.minimumValue(network, Scalable.ScalingPowerConvention.LOAD), 0.);
+        assertEquals(0, l1.minimumValue(network, LOAD), 0.);
         assertEquals(-100, l3.minimumValue(network), 0.);
-        assertEquals(-100, l3.minimumValue(network, Scalable.ScalingPowerConvention.GENERATOR), 0.);
-        assertEquals(20, l3.minimumValue(network, Scalable.ScalingPowerConvention.LOAD), 0.);
+        assertEquals(-100, l3.minimumValue(network, GENERATOR), 0.);
+        assertEquals(20, l3.minimumValue(network, LOAD), 0.);
     }
 
     @Test
     public void testLoadScaleGeneratorConvention() {
-
-        //test with ScalingPowerConvention.GENERATOR (by default)
-        convention = Scalable.ScalingPowerConvention.GENERATOR;
+        //test with ScalingConvention.GENERATOR
+        convention = GENERATOR;
 
         //test with default maxValue = Double.MAX_VALUE and minValue = 0
         Load load = network.getLoad("l1");
@@ -102,13 +102,12 @@ public class LoadScalableTest {
         assertEquals(50, load.getP0(), 1e-3);
 
         //test with minValue = 20
-        assertEquals(100, l3.maximumValue(network, Scalable.ScalingPowerConvention.LOAD), 1e-3);
-        assertEquals(20, l3.minimumValue(network, Scalable.ScalingPowerConvention.LOAD), 1e-3);
+        assertEquals(100, l3.maximumValue(network, LOAD), 1e-3);
+        assertEquals(20, l3.minimumValue(network, LOAD), 1e-3);
         assertEquals(50, load.getP0(), 1e-3);
 
         assertEquals(30, l3.scale(network, 50, convention), 1e-3);
         assertEquals(20, load.getP0(), 1e-3);
-
 
         l3.reset(network);
         assertEquals(0, load.getP0(), 1e-3);
@@ -130,8 +129,8 @@ public class LoadScalableTest {
     @Test
     public void testLoadScaleLoadConvention() {
 
-        //test with ScalingPowerConvention.GENERATOR (by default)
-        convention = Scalable.ScalingPowerConvention.LOAD;
+        //test with ScalingConvention.LOAD
+        convention = LOAD;
 
         //test with default maxValue = Double.MAX_VALUE and minValue = 0
         Load load = network.getLoad("l1");
@@ -159,7 +158,6 @@ public class LoadScalableTest {
         assertEquals(-10, l3.scale(network, -30, convention), 1e-3);
         assertEquals(20, load.getP0(), 1e-3);
 
-
         l3.reset(network);
         assertEquals(0, load.getP0(), 1e-3);
         try {
@@ -174,6 +172,5 @@ public class LoadScalableTest {
         assertEquals(0, load.getP0(), 1e-3);
         assertEquals(-10, l4.scale(network, -20, convention), 1e-3);
         assertEquals(-10, load.getP0(), 1e-3);
-
     }
 }

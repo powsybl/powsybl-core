@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Objects;
 
+import static com.powsybl.action.util.Scalable.ScalingConvention.*;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Ameni Walha <ameni.walha at rte-france.com>
@@ -24,28 +26,23 @@ class GeneratorScalable extends AbstractScalable {
 
     private final String id;
 
-    private final double maxValue;
-
     private final double minValue;
 
+    private final double maxValue;
 
     GeneratorScalable(String id) {
         this(id, -Double.MAX_VALUE, Double.MAX_VALUE);
     }
-
 
     GeneratorScalable(String id, double minValue, double maxValue) {
         this.id = Objects.requireNonNull(id);
         if (maxValue < minValue) {
             throw new PowsyblException("Error creating GeneratorScalable " + id
                     + " : maxValue should be bigger than minValue");
-        } else {
-            this.minValue = minValue;
-            this.maxValue = maxValue;
         }
-
+        this.minValue = minValue;
+        this.maxValue = maxValue;
     }
-
 
     @Override
     public double initialValue(Network n) {
@@ -65,15 +62,14 @@ class GeneratorScalable extends AbstractScalable {
         }
     }
 
-
     @Override
-    public double maximumValue(Network n, ScalingPowerConvention scalingPowerConvention) {
+    public double maximumValue(Network n, ScalingConvention scalingConvention) {
         Objects.requireNonNull(n);
-        Objects.requireNonNull(scalingPowerConvention);
+        Objects.requireNonNull(scalingConvention);
 
         Generator g = n.getGenerator(id);
         if (g != null) {
-            return ScalingPowerConvention.GENERATOR.equals(scalingPowerConvention) ? Math.min(g.getMaxP(), maxValue) : -Math.max(g.getMinP(), minValue);
+            return scalingConvention == GENERATOR ? Math.min(g.getMaxP(), maxValue) : -Math.max(g.getMinP(), minValue);
         } else {
             return 0;
         }
@@ -81,12 +77,12 @@ class GeneratorScalable extends AbstractScalable {
     }
 
     @Override
-    public double minimumValue(Network n, ScalingPowerConvention scalingPowerConvention) {
+    public double minimumValue(Network n, ScalingConvention scalingConvention) {
         Objects.requireNonNull(n);
 
         Generator g = n.getGenerator(id);
         if (g != null) {
-            return ScalingPowerConvention.GENERATOR.equals(scalingPowerConvention) ? Math.max(g.getMinP(), minValue) : -Math.min(g.getMaxP(), maxValue);
+            return scalingConvention == GENERATOR ? Math.max(g.getMinP(), minValue) : -Math.min(g.getMaxP(), maxValue);
         } else {
             return 0;
         }
@@ -94,30 +90,26 @@ class GeneratorScalable extends AbstractScalable {
     }
 
     @Override
-    public  void filterInjections(Network n, List<Injection> injections, List<String> notFoundInjections) {
+    public void filterInjections(Network n, List<Injection> injections, List<String> notFoundInjections) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(injections);
 
         Generator generator = n.getGenerator(id);
         if (generator != null) {
             injections.add(generator);
-        } else {
-            if (notFoundInjections != null) {
-                notFoundInjections.add(id);
-            }
+        } else if (notFoundInjections != null) {
+            notFoundInjections.add(id);
         }
     }
 
     /**
-     * @param n                 network
-     * @param asked             value asked to adjust the scalable active power
-     * @param scalingConvention
+     * {@inheritDoc}
+     *
      * If scalingConvention is GENERATOR, the generator active power increases for positive "asked" and decreases inversely
      * If scalingConvention is LOAD, the generator active power decreases for positive "asked" and increases inversely
-     * @return actual value of adjusted active power in accordance with the scaling convention
      */
     @Override
-    public double scale(Network n, double asked, ScalingPowerConvention scalingConvention) {
+    public double scale(Network n, double asked, ScalingConvention scalingConvention) {
         Objects.requireNonNull(n);
 
         Generator g = n.getGenerator(id);
@@ -138,20 +130,17 @@ class GeneratorScalable extends AbstractScalable {
                     " : Initial P is not in the range [Pmin, Pmax]");
         }
 
-        double availableUp = maximumValue(n, ScalingPowerConvention.GENERATOR) - oldTargetP;
-        double availableDown = oldTargetP - minimumValue(n, ScalingPowerConvention.GENERATOR);
+        // We use natural generator convention to compute the limits.
+        // The actual convention is taken into account afterwards.
+        double availableUp = maximumValue(n, GENERATOR) - oldTargetP;
+        double availableDown = oldTargetP - minimumValue(n, GENERATOR);
 
-
-        if (ScalingPowerConvention.GENERATOR.equals(scalingConvention)) {
-
+        if (scalingConvention == GENERATOR) {
             done = asked > 0 ? Math.min(asked, availableUp) : -Math.min(-asked, availableDown);
             g.setTargetP(oldTargetP + done);
-
         } else {
-
             done = asked > 0 ? Math.min(asked, availableDown) : -Math.min(-asked, availableUp);
             g.setTargetP(oldTargetP - done);
-
         }
 
         LOGGER.info("Change active power setpoint of {} from {} to {} (pmax={})",

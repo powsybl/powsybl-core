@@ -6,7 +6,7 @@
  */
 package com.powsybl.action.util;
 
-
+import com.powsybl.action.util.Scalable.ScalingConvention;
 import com.powsybl.iidm.network.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import static com.powsybl.action.util.Scalable.ScalingConvention.*;
 import static com.powsybl.action.util.ScalableTestNetwork.createNetwork;
 import static org.junit.Assert.*;
 
@@ -36,7 +37,7 @@ public class ScalableTest {
     private Scalable unknownGenerator;
     private Scalable unknownLoad;
 
-    private Scalable.ScalingPowerConvention convention;
+    private ScalingConvention convention;
 
     @Before
     public void setUp() {
@@ -93,7 +94,7 @@ public class ScalableTest {
 
     @Test
     public void testMaximumValue() {
-        //By default ScalingPowerConvention.GENERATOR
+        //By default ScalingConvention.GENERATOR
         assertEquals(100.0, g1.maximumValue(network), 0.0);
         assertEquals(80.0, g3.maximumValue(network), 0.0);
         assertEquals(0, l1.maximumValue(network), 0.0);
@@ -111,10 +112,9 @@ public class ScalableTest {
         assertEquals(80, Scalable.proportional(Arrays.asList(70.f, 20.f, 10.f), Arrays.asList(g1, l1, l2)).maximumValue(network), 1e-3);
     }
 
-
     @Test
     public void testMaximumValueLoadConvention() {
-        convention = Scalable.ScalingPowerConvention.LOAD;
+        convention = LOAD;
         assertEquals(0, g1.maximumValue(network, convention), 0.0);
         assertEquals(0, g3.maximumValue(network, convention), 0.0);
         assertEquals(Double.MAX_VALUE, l1.maximumValue(network, convention), 0.0);
@@ -134,7 +134,7 @@ public class ScalableTest {
 
     @Test
     public void testMinimumValue() {
-        //By default ScalingPowerConvention.GENERATOR
+        //By default ScalingConvention.GENERATOR
         assertEquals(0., g1.minimumValue(network), 0.0);
         assertEquals(0.0, g3.minimumValue(network), 0.0);
         assertEquals(-Double.MAX_VALUE, l1.minimumValue(network), 0.0);
@@ -154,7 +154,7 @@ public class ScalableTest {
 
     @Test
     public void testMinimumValueLoadConvention() {
-        convention = Scalable.ScalingPowerConvention.LOAD;
+        convention = LOAD;
         assertEquals(-100., g1.minimumValue(network, convention), 0.0);
         assertEquals(-80.0, g3.minimumValue(network, convention), 0.0);
         assertEquals(0, l1.minimumValue(network, convention), 0.0);
@@ -212,20 +212,16 @@ public class ScalableTest {
         assertEquals(100.0, done, 0.0);
         assertEquals(100.0, network.getGenerator("g1").getTargetP(), 0.0);
 
-
-
         reset();
         done = Scalable.proportional(Arrays.asList(70.f, 20.f, 10.f), Arrays.asList(g1, s, unknownGenerator)).scale(network, 100.0);
         assertEquals(70.0, done, 0.0);
         assertEquals(70.0, network.getGenerator("g1").getTargetP(), 1e-5);
 
-
     }
-
 
     @Test
     public void testProportionalScale() {
-        //By default ScalingPowerConvention.GENERATOR
+        //By default ScalingConvention.GENERATOR
         reset();
         double done = Scalable.proportional(Arrays.asList(70.f, 30.f), Arrays.asList(g1, l1)).scale(network, 100.0);
         assertEquals(70.0, done, 0.0);
@@ -244,7 +240,6 @@ public class ScalableTest {
         assertEquals(80.0, network.getGenerator("g3").getTargetP(), 1e-5);
         assertEquals(-10.0, network.getLoad("l1").getP0(), 1e-5);
 
-
         reset();
         done = Scalable.proportional(Arrays.asList(30.f, 70.f), Arrays.asList(l1, l2)).scale(network, -100.0);
         assertEquals(-80.0, done, 0.0);
@@ -252,10 +247,9 @@ public class ScalableTest {
 
     }
 
-
     @Test
     public void testProportionalScaleLoadConvention() {
-        convention = Scalable.ScalingPowerConvention.LOAD;
+        convention = LOAD;
         reset();
 
         double done = Scalable.proportional(Arrays.asList(70.f, 30.f), Arrays.asList(g1, l1)).scale(network, 100.0, convention);
@@ -281,7 +275,6 @@ public class ScalableTest {
         assertEquals(-50.0, network.getLoad("l1").getP0(), 1e-5);
         assertEquals(10.0, network.getGenerator("g3").getTargetP(), 1e-5);
 
-
         reset();
         done = Scalable.proportional(Arrays.asList(50.f, 50.f), Arrays.asList(l1, l2)).scale(network, 100.0, convention);
         assertEquals(80.0, done, 0.0);
@@ -289,10 +282,9 @@ public class ScalableTest {
 
     }
 
-
     @Test
     public void testStackScale() {
-        //By default ScalingPowerConvention.GENERATOR
+        //By default ScalingConvention.GENERATOR
         Scalable scalable = Scalable.stack(g1, g2);
 
         double done = scalable.scale(network, 150.0);
@@ -336,7 +328,7 @@ public class ScalableTest {
 
     @Test
     public void testStackScaleLoadConvention() {
-        convention = Scalable.ScalingPowerConvention.LOAD;
+        convention = LOAD;
         Scalable scalable = Scalable.stack(g1, g2);
 
         double done = scalable.scale(network, -150.0, convention);
@@ -421,14 +413,11 @@ public class ScalableTest {
 
     }
 
-
-
     @Test
     public void testFilterInjections() {
         Generator generator1 = network.getGenerator("g1");
         Generator generator2 = network.getGenerator("g2");
         Load load1 = network.getLoad("l1");
-
 
         List<Injection> generatorList = g1.filterInjections(network);
         List<Injection> generators = g1.filterInjections(network);
@@ -449,7 +438,6 @@ public class ScalableTest {
         assertEquals(1, notFoundGenerators.size());
         assertEquals("unknown", notFoundGenerators.get(0));
 
-
         generators = new ArrayList<>();
         notFoundGenerators.clear();
         Scalable.stack(g1, g2, unknownGenerator).filterInjections(network, generators, notFoundGenerators);
@@ -459,7 +447,6 @@ public class ScalableTest {
         assertSame(generator2, generators.get(1));
         assertEquals(1, notFoundGenerators.size());
         assertEquals("unknown", notFoundGenerators.get(0));
-
 
         List<Injection> injections = new ArrayList<>();
         List<String> notFoundInjections = new ArrayList<>();

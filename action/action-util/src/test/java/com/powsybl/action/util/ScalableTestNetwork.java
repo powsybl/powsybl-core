@@ -70,7 +70,6 @@ public final class ScalableTestNetwork {
                 .setLoadType(LoadType.UNDEFINED)
                 .add();
 
-
         return network;
     }
 }

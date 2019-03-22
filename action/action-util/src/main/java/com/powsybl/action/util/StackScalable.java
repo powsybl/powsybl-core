@@ -16,6 +16,7 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class StackScalable extends AbstractCompoundScalable {
+    private static final double EPSILON = 1e-5;
 
     StackScalable(Scalable... scalables) {
         this(Arrays.asList(scalables));
@@ -25,15 +26,14 @@ class StackScalable extends AbstractCompoundScalable {
         super(scalables);
     }
 
-
     @Override
-    public double scale(Network n, double asked, ScalingPowerConvention scalingConvention) {
+    public double scale(Network n, double asked, ScalingConvention scalingConvention) {
         Objects.requireNonNull(n);
 
         double done = 0;
         double remaining = asked;
         for (Scalable scalable : scalables) {
-            if (Math.abs(remaining) > 0) {
+            if (Math.abs(remaining) > EPSILON) {
                 double v = scalable.scale(n, remaining, scalingConvention);
                 done += v;
                 remaining -= v;
