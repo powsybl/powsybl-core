@@ -117,30 +117,43 @@ public class CurrentLimitsTest {
     @Test
     public void testSetterGetter() {
         Line line = createNetwork().getLine("L");
-        CurrentLimits currentLimits = line.newCurrentLimits1()
+        CurrentLimitsAdder currentLimitsAdder = line.newCurrentLimits1()
                                         .setPermanentLimit(100.0)
                                             .beginTemporaryLimit()
                                             .setName("20'")
                                             .setAcceptableDuration(20 * 60)
                                             .setValue(1200.0)
-                                        .endTemporaryLimit()
-                                        .beginTemporaryLimit()
-                                            .setName("5'")
-                                            .setAcceptableDuration(5 * 60)
-                                            .setValue(1400.0)
-                                            .setFictitious(true)
-                                        .endTemporaryLimit()
-                                        .beginTemporaryLimit()
-                                            .setName("1'")
-                                            .setAcceptableDuration(60)
-                                            .setValue(1600.0)
-                                        .endTemporaryLimit()
-                                    .add();
+                                        .endTemporaryLimit();
+
+        try {
+            currentLimitsAdder.beginTemporaryLimit()
+                    .setAcceptableDuration(5 * 60)
+                    .setValue(1400.0)
+                    .setFictitious(true)
+                    .endTemporaryLimit();
+            fail();
+        } catch (ValidationException ignored) {
+        }
+
+        CurrentLimits currentLimits = currentLimitsAdder.beginTemporaryLimit()
+                    .setName("5'")
+                    .setAcceptableDuration(5 * 60)
+                    .setValue(1400.0)
+                    .setFictitious(true)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                    .setName("1'")
+                    .setAcceptableDuration(60)
+                    .setValue(1600.0)
+                .endTemporaryLimit()
+                .add();
+
         try {
             currentLimits.setPermanentLimit(-0.5);
             fail();
         } catch (ValidationException ignored) {
         }
+
         currentLimits.setPermanentLimit(1000.0);
         assertEquals(1000.0, currentLimits.getPermanentLimit(), 0.0);
         assertEquals(3, currentLimits.getTemporaryLimits().size());
@@ -177,7 +190,7 @@ public class CurrentLimitsTest {
                 .beginTemporaryLimit()
                     .setName("TL")
                     .setAcceptableDuration(5 * 60)
-                    .setValue(1400.0)
+                    .setValue(1500.0)
                     .ensureNameUnicity()
                 .endTemporaryLimit()
                 .add();
