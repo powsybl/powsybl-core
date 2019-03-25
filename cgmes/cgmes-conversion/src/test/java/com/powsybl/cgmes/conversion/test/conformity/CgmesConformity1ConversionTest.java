@@ -21,13 +21,20 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import com.google.common.collect.ImmutableSet;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1NetworkCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.*;
+
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.TopologyKind;
+
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
 import com.powsybl.triplestore.api.TripleStoreFactory;
@@ -43,14 +50,14 @@ public class CgmesConformity1ConversionTest {
         actuals = new CgmesConformity1Catalog();
         expecteds = new CgmesConformity1NetworkCatalog();
         tester = new ConversionTester(
-                TripleStoreFactory.onlyDefaultImplementation(),
-                new ComparisonConfig());
+            TripleStoreFactory.onlyDefaultImplementation(),
+            new ComparisonConfig());
     }
 
     @Test
     public void microGridBaseCaseBEReport() throws IOException {
         ConversionTester t = new ConversionTester(TripleStoreFactory.onlyDefaultImplementation(),
-                new ComparisonConfig());
+            new ComparisonConfig());
         Map<String, TxData> actual = new HashMap<>();
         t.setOnlyReport(true);
         t.setReportConsumer(line -> {
@@ -75,11 +82,11 @@ public class CgmesConformity1ConversionTest {
     @Test
     public void microGridBaseCaseBERoundtripBoundary() throws IOException {
         Properties importParams = new Properties();
-        importParams.put("convertBoundary", "true");
+        importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
         ConversionTester t = new ConversionTester(
-                importParams,
-                TripleStoreFactory.onlyDefaultImplementation(),
-                new ComparisonConfig());
+            importParams,
+            TripleStoreFactory.onlyDefaultImplementation(),
+            new ComparisonConfig());
         t.setTestExportImportCgmes(true);
         Network expected = null;
         t.testConversion(expected, actuals.microGridBaseCaseBE());
@@ -90,8 +97,8 @@ public class CgmesConformity1ConversionTest {
         // TODO When we convert boundaries values for P0, Q0 at dangling lines
         // are recalculated and we need to increase the tolerance
         ConversionTester t = new ConversionTester(
-                TripleStoreFactory.onlyDefaultImplementation(),
-                new ComparisonConfig().tolerance(1e-5));
+            TripleStoreFactory.onlyDefaultImplementation(),
+            new ComparisonConfig().tolerance(1e-5));
         t.setTestExportImportCgmes(true);
         t.testConversion(expecteds.microBaseCaseBE(), actuals.microGridBaseCaseBE());
     }
@@ -132,12 +139,33 @@ public class CgmesConformity1ConversionTest {
         // that will be computed by IIDM from CGMES node-breaker ConnectivityNodes,
         // have proper balances
         ConversionTester t = new ConversionTester(
-                TripleStoreFactory.onlyDefaultImplementation(),
-                new ComparisonConfig());
+            TripleStoreFactory.onlyDefaultImplementation(),
+            new ComparisonConfig());
         t.setValidateBusBalances(true);
         t.testConversion(null, actuals.miniNodeBreaker());
         t.lastConvertedNetwork().getVoltageLevels()
-                .forEach(vl -> assertEquals(TopologyKind.NODE_BREAKER, vl.getTopologyKind()));
+            .forEach(vl -> assertEquals(TopologyKind.NODE_BREAKER, vl.getTopologyKind()));
+    }
+
+    @Test
+    public void miniNodeBreakerBoundary() throws IOException {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
+        ConversionTester t = new ConversionTester(
+            importParams,
+            TripleStoreFactory.onlyDefaultImplementation(),
+            new ComparisonConfig());
+        Network expected = null;
+        t.testConversion(expected, actuals.microGridBaseCaseBE());
+        assertEquals(
+            ImmutableSet.of(
+                Country.AT,
+                Country.BE,
+                Country.ES,
+                Country.NL),
+            t.lastConvertedNetwork().getSubstationStream()
+                .map(Substation::getCountry)
+                .collect(Collectors.toSet()));
     }
 
     @Test
@@ -154,11 +182,13 @@ public class CgmesConformity1ConversionTest {
     public void smallNodeBreakerHvdc() {
         // Small Grid Node Breaker HVDC should be imported without errors
         assertNotNull(new CgmesImport().importData(actuals.smallNodeBreakerHvdc().dataSource(), null));
+
     }
 
     @Test
     // This is to test that we have stable Identifiers for calculated buses
-    // If no topology change has been made, running a LoadFlow (even a Mock LoadFlow)
+    // If no topology change has been made, running a LoadFlow (even a Mock
+    // LoadFlow)
     // must produce identical identifiers for calculated buses
     public void smallNodeBreakerStableBusNaming() {
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
@@ -167,21 +197,21 @@ public class CgmesConformity1ConversionTest {
 
         // Initial bus identifiers
         List<String> initialBusIds = network.getBusView().getBusStream()
-                .map(Bus::getId).collect(Collectors.toList());
+            .map(Bus::getId).collect(Collectors.toList());
 
         // Compute a "mock" LoadFlow and obtain bus identifiers
         String lfVariantId = "lf";
         network.getVariantManager()
-                .cloneVariant(network.getVariantManager().getWorkingVariantId(),
-                        lfVariantId);
+            .cloneVariant(network.getVariantManager().getWorkingVariantId(),
+                lfVariantId);
         new LoadFlowFactoryMock()
-                .create(network,
-                        computationManager,
-                        1)
-                .run(lfVariantId, new LoadFlowParameters()).join();
+            .create(network,
+                computationManager,
+                1)
+            .run(lfVariantId, new LoadFlowParameters()).join();
         network.getVariantManager().setWorkingVariant(lfVariantId);
         List<String> afterLoadFlowBusIds = network.getBusView().getBusStream()
-                .map(Bus::getId).collect(Collectors.toList());
+            .map(Bus::getId).collect(Collectors.toList());
 
         assertEquals(initialBusIds, afterLoadFlowBusIds);
     }
