@@ -58,7 +58,7 @@ public class CIM1ConverterRatioTapChangerSide2FixTest {
         resourceToDataSource("ENTSO-E_Boundary_Set_EU_EQ.xml", dataSource);
         resourceToDataSource("ENTSO-E_Boundary_Set_EU_TP.xml", dataSource);
 
-        importer = new CIM1Importer();
+        importer = new CIM1Importer(new InMemoryPlatformConfig(fileSystem));
     }
 
     @After
