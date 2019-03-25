@@ -9,8 +9,15 @@ package com.powsybl.timeseries;
 import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
+import java.io.BufferedReader;
+import java.io.StringReader;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -76,5 +83,87 @@ public class TimeSeriesTableTest {
         // test empty table CSV export
         String emptyCsv = new TimeSeriesTable(0, 0, InfiniteTimeSeriesIndex.INSTANCE).toCsvString(';', ZoneId.of("UTC"));
         assertEquals("Time;Version" + System.lineSeparator(), emptyCsv);
+    }
+
+    @Test
+    public void testConcurrent() throws Exception {
+        int threadCount = 16;
+        int padLeftCount = (int) Math.floor(Math.log10(threadCount)) + 1;
+        int timeSeriesLength = 100000;
+        TimeSeriesIndex index = new RegularTimeSeriesIndex(0, timeSeriesLength - 1, 1);
+        TimeSeriesTable table = new TimeSeriesTable(1, 1, index);
+        List<TimeSeries<?, ?>> list = new ArrayList<>();
+        for (int i = 0; i < threadCount; i++) {
+            TimeSeries<?, ?> ts;
+            String name = "ts" + String.format("%0" + padLeftCount + "d", i);
+            if (i < threadCount / 2) {
+                TimeSeriesMetadata metadata = new TimeSeriesMetadata(name, TimeSeriesDataType.DOUBLE, index);
+                ts = new StoredDoubleTimeSeries(metadata);
+            } else {
+                TimeSeriesMetadata metadata = new TimeSeriesMetadata(name, TimeSeriesDataType.STRING, index);
+                ts = new StringTimeSeries(metadata);
+            }
+            list.add(ts);
+        }
+        table.load(1, list); // init time series without data in the table
+
+        CountDownLatch cdl = new CountDownLatch(threadCount);
+        for (int i = 0; i < threadCount; i++) { // load data concurrently
+            final int ii = i;
+            new Thread() {
+                public void run() {
+                    try {
+                        TimeSeries<?, ?> ts;
+                        String name = "ts" + String.format("%0" + padLeftCount + "d", ii);
+                        if (ii < threadCount / 2) {
+                            TimeSeriesMetadata metadata = new TimeSeriesMetadata(name, TimeSeriesDataType.DOUBLE, index);
+                            double[] values = new double[timeSeriesLength];
+                            for (int j = 0; j < timeSeriesLength; j++) {
+                                values[j] = j + ii;
+                            }
+                            ts = new StoredDoubleTimeSeries(metadata, new UncompressedDoubleDataChunk(0, values));
+                        } else {
+                            TimeSeriesMetadata metadata = new TimeSeriesMetadata(name, TimeSeriesDataType.DOUBLE, index);
+                            String[] values = new String[timeSeriesLength];
+                            for (int j = 0; j < timeSeriesLength; j++) {
+                                values[j] = Integer.toString(j + ii);
+                            }
+                            ts = new StringTimeSeries(metadata, new UncompressedStringDataChunk(0, values));
+                        }
+                        table.load(1, Arrays.asList(ts));
+                    } finally {
+                        cdl.countDown();
+                    }
+                }
+            }.start();
+        }
+        cdl.await();
+        String csvString = table.toCsvString(';', ZoneId.systemDefault());
+        List<List<String>> actual = new BufferedReader(new StringReader(csvString))
+            .lines()
+            .skip(1) // header
+            .map(l ->
+                Stream.of(l.split(";"))
+                .skip(2) // date;version
+                .collect(Collectors.toList()))
+            .collect(Collectors.toList());
+        List<List<String>> expected = new ArrayList<>(timeSeriesLength);
+        for (int j = 0; j < timeSeriesLength; j++) {
+            List<String> line = new ArrayList<>(threadCount);
+            for (int i = 0; i < threadCount; i++) {
+                String expectedValue;
+                if (i < threadCount / 2) {
+                    expectedValue = Double.toString(j + i);
+                } else {
+                    expectedValue = Integer.toString(j + i);
+                }
+                line.add(expectedValue);
+            }
+            expected.add(line);
+        }
+        assertEquals("Number of lines", expected.size(), actual.size());
+        for (int i = 0; i < actual.size(); i++) {
+            assertEquals("Line " + i, expected.get(i), actual.get(i));
+        }
     }
 }

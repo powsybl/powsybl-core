@@ -67,7 +67,6 @@ public class NetworkXmlTest extends AbstractConverterTest {
         assertArrayEquals(Files.readAllBytes(file1), Files.readAllBytes(file2));
     }
 
-
     @AutoService(ExtensionXmlSerializer.class)
     public static class BusbarSectionExtXmlSerializer implements ExtensionXmlSerializer<BusbarSection, BusbarSectionExt> {
 

@@ -186,6 +186,7 @@ public interface Bus extends Identifiable<Bus> {
      * Get shunt compensators connected to the bus.
      */
     Iterable<ShuntCompensator> getShuntCompensators();
+
     /**
      * Get shunt compensators connected to the bus.
      */

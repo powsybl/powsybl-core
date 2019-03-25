@@ -199,7 +199,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 throw new ValidationException(this, "kind is not set");
             }
             SwitchImpl aSwitch = new SwitchImpl(NodeBreakerVoltageLevel.this, id, getName(), kind, open, retained, fictitious);
-            getNetwork().getObjectStore().checkAndAdd(aSwitch);
+            getNetwork().getIndex().checkAndAdd(aSwitch);
             int e = graph.addEdge(node1, node2, aSwitch);
             switches.put(id, e);
             invalidateCache();
@@ -239,7 +239,6 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             this.node2 = node2;
             return this;
         }
-
 
         @Override
         public void add() {
@@ -721,7 +720,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             SwitchImpl aSwitch = graph.removeEdge(e);
             clean();
 
-            getNetwork().getObjectStore().remove(aSwitch);
+            getNetwork().getIndex().remove(aSwitch);
             getNetwork().getListeners().notifyRemoval(aSwitch);
         }
 
@@ -747,7 +746,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public BusbarSection getBusbarSection(String id) {
-            return getNetwork().getObjectStore().get(id, BusbarSection.class);
+            return getNetwork().getIndex().get(id, BusbarSection.class);
         }
 
         private com.powsybl.math.graph.Traverser adapt(Traverser t) {
@@ -1086,7 +1085,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private void removeAllSwitches() {
         for (SwitchImpl s : graph.getEdgesObject()) {
-            getNetwork().getObjectStore().remove(s);
+            getNetwork().getIndex().remove(s);
         }
         graph.removeAllEdges();
         switches.clear();

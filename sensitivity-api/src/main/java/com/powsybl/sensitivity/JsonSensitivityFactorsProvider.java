@@ -21,7 +21,9 @@ import java.util.List;
 import java.util.Objects;
 
 public class JsonSensitivityFactorsProvider implements SensitivityFactorsProvider {
-    List<SensitivityFactor> sensitivityFactors;
+
+    private final List<SensitivityFactor> sensitivityFactors;
+
     /**
      * Creates a provider by reading the sensitivity factors from a JSON UTF-8 encoded file.
      */
@@ -45,6 +47,7 @@ public class JsonSensitivityFactorsProvider implements SensitivityFactorsProvide
             throw new UncheckedIOException(e);
         }
     }
+
     @Override
     public List<SensitivityFactor> getFactors(Network network) {
         return sensitivityFactors;

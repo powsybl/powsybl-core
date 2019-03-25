@@ -137,5 +137,4 @@ public class ContingencyJsonTest extends AbstractConverterTest {
         }
     }
 
-
 }

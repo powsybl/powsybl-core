@@ -41,7 +41,7 @@ public class TransformersValidationTest extends AbstractValidationTest {
     private final double targetV = 92.7781;
     private final Side regulatedSide = Side.ONE;
     private final double v = 92.8007;
-    private final double lowV = 88.13;;
+    private final double lowV = 88.13;
     private final double highV = 97.342;
     private final boolean connected = true;
     private final boolean mainComponent = true;

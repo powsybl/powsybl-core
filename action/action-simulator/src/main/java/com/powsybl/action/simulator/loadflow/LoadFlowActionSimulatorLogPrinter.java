@@ -13,7 +13,6 @@ import com.powsybl.commons.io.table.Column;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.Security;
 
-
 import java.io.*;
 import java.util.List;
 import java.util.Map;

@@ -672,6 +672,7 @@ class CIM1Converter implements CIM1Constants {
         RatioTapChangerHolder transfo;
         boolean rtcSide1;
         Map<cim1.model.Terminal, Terminal> terminals;
+
         RatioTapChangerToCreate(cim1.model.RatioTapChanger rtc, RatioTapChangerHolder transfo, boolean rtcSide1, Map<cim1.model.Terminal, Terminal> terminals) {
             this.rtc = rtc;
             this.rtcSide1 = rtcSide1;

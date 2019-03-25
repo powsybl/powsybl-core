@@ -20,40 +20,67 @@ import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
 
 /**
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 public class SecurityAnalysisChecksTest {
 
-    Network network;
+    private Network network;
 
     @Before
     public void setUp() {
-        network = EurostagTutorialExample1Factory.createWithCurrentLimits();
+        network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
     }
 
     @Test
     //test current limit violation
     public void checkCurrentLimits() {
-        Line line = network.getLine("NHV1_NHV2_1");
+        Line line1 = network.getLine("NHV1_NHV2_1");
 
-
+        // Permanent limit violation
         List<LimitViolation> violations = new ArrayList<>();
         LimitViolationDetector detector = new DefaultLimitViolationDetector(Collections.singleton(Security.CurrentLimitType.PATL));
-        detector.checkCurrent(line, Branch.Side.TWO, 1101, violations::add);
+        detector.checkCurrent(line1, Branch.Side.TWO, 1101, violations::add);
 
         Assertions.assertThat(violations)
                 .hasSize(1)
-                .allSatisfy(l -> assertEquals(1100, l.getLimit(), 0d));
+                .allSatisfy(l -> {
+                    assertEquals(1100, l.getLimit(), 0d);
+                    assertEquals(1101, l.getValue(), 0d);
+                    assertSame(Branch.Side.TWO, l.getSide());
+                    assertEquals(Integer.MAX_VALUE, l.getAcceptableDuration());
+                });
 
-        violations = new ArrayList<>();
+        violations.clear();
         detector = new DefaultLimitViolationDetector(Collections.singleton(Security.CurrentLimitType.TATL));
-        detector.checkCurrent(line, Branch.Side.TWO, 1201, violations::add);
+        detector.checkCurrent(line1, Branch.Side.TWO, 1201, violations::add);
 
+        // Temporary limit violation
         Assertions.assertThat(violations)
                 .hasSize(1)
-                .allSatisfy(l -> assertEquals(1200, l.getLimit(), 0d));
+                .allSatisfy(l -> {
+                    assertEquals(1200, l.getLimit(), 0d);
+                    assertEquals(1201, l.getValue(), 0d);
+                    assertSame(Branch.Side.TWO, l.getSide());
+                    assertEquals(60, l.getAcceptableDuration());
+                });
+
+        // Highest temporary limit violation, on side 1
+        Line line2 = network.getLine("NHV1_NHV2_2");
+        violations = new ArrayList<>();
+        detector = new DefaultLimitViolationDetector();
+        detector.checkCurrent(line2, Branch.Side.ONE, 1250, violations::add);
+        Assertions.assertThat(violations)
+                .hasSize(1)
+                .allSatisfy(l -> {
+                    assertEquals(1200, l.getLimit(), 0d);
+                    assertEquals(1250, l.getValue(), 0d);
+                    assertSame(Branch.Side.ONE, l.getSide());
+                    assertEquals(60, l.getAcceptableDuration());
+                });
     }
 
     @Test
@@ -66,17 +93,28 @@ public class SecurityAnalysisChecksTest {
         List<LimitViolation> violations = new ArrayList<>();
         vl.getBusView().getBusStream().forEach(b -> detector.checkVoltage(b, 380, violations::add));
 
-        assertEquals(1, violations.size());
-        LimitViolation violation = violations.get(0);
-        //check that is LimitViolationType.LOW_VOLTAGE limit violation
-        assertEquals(LimitViolationType.LOW_VOLTAGE, violation.getLimitType());
+        Assertions.assertThat(violations)
+                .hasSize(1)
+                .allSatisfy(v -> {
+                    assertEquals(LimitViolationType.LOW_VOLTAGE, v.getLimitType());
+                    assertEquals(400, v.getLimit(), 0d);
+                    assertEquals(380, v.getValue(), 0d);
+                    assertNull(v.getSide());
+                    assertEquals(Integer.MAX_VALUE, v.getAcceptableDuration());
+                });
 
         violations.clear();
         vl.getBusView().getBusStream().forEach(b -> detector.checkVoltage(b, 520, violations::add));
 
-        assertEquals(1, violations.size());
-        violation = violations.get(0);
         //check that is LimitViolationType.HIGH_VOLTAGE limit violation
-        assertEquals(LimitViolationType.HIGH_VOLTAGE, violation.getLimitType());
+        Assertions.assertThat(violations)
+                .hasSize(1)
+                .allSatisfy(v -> {
+                    assertEquals(LimitViolationType.HIGH_VOLTAGE, v.getLimitType());
+                    assertEquals(500, v.getLimit(), 0d);
+                    assertEquals(520, v.getValue(), 0d);
+                    assertNull(v.getSide());
+                    assertEquals(Integer.MAX_VALUE, v.getAcceptableDuration());
+                });
     }
 }

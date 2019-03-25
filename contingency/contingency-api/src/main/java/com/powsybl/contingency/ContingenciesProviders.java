@@ -15,7 +15,6 @@ public final class ContingenciesProviders {
 
     private static ContingenciesProvider emptyProvider = new EmptyContingencyListProvider();
 
-
     private ContingenciesProviders() {
     }
 
