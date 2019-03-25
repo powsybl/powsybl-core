@@ -10,11 +10,7 @@ package com.powsybl.cgmes.conversion.test.conformity;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.junit.BeforeClass;
@@ -162,6 +158,8 @@ public class CgmesConformity1ConversionTest {
                 Country.NL),
             t.lastConvertedNetwork().getSubstationStream()
                 .map(Substation::getCountry)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toSet()));
     }
 

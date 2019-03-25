@@ -26,7 +26,6 @@ import java.util.Set;
 public class Cim14SmallCasesNetworkCatalog {
 
     public Network smallcase1() {
-        Country defaultCountry = Country.AF;
         String sGenGeoTag = "_SGR_1_";
         String sInfGeoTag = "_SGR_1_";
         String genName = "GEN     ";
@@ -35,13 +34,11 @@ public class Cim14SmallCasesNetworkCatalog {
         Substation sGen = network.newSubstation()
                 .setId("_GEN______SS")
                 .setName("GEN     _SS")
-                .setCountry(defaultCountry)
                 .setGeographicalTags(sGenGeoTag)
                 .add();
         Substation sInf = network.newSubstation()
                 .setId("_INF______SS")
                 .setName("INF     _SS")
-                .setCountry(defaultCountry)
                 .setGeographicalTags(sInfGeoTag)
                 .add();
         VoltageLevel vlInf = sInf.newVoltageLevel()

@@ -27,7 +27,7 @@ class CIM1ConverterConfig {
     CIM1ConverterConfig(boolean invertVoltageStepIncrementOutOfPhase, Country defaultCountry,
                         List<String> substationIdExcludedFromMapping, CIM1NamingStrategyFactory namingStrategyFactory) {
         this.invertVoltageStepIncrementOutOfPhase = invertVoltageStepIncrementOutOfPhase;
-        this.defaultCountry = Objects.requireNonNull(defaultCountry);
+        this.defaultCountry = defaultCountry;
         this.substationIdExcludedFromMapping = Objects.requireNonNull(substationIdExcludedFromMapping);
         this.namingStrategyFactory = Objects.requireNonNull(namingStrategyFactory);
     }

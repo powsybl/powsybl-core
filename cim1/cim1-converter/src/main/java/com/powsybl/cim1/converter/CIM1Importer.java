@@ -64,7 +64,7 @@ public class CIM1Importer implements Importer, CIM1Constants {
                 .addAdditionalNames("invertVoltageStepIncrementOutOfPhase");
 
     private static final Parameter DEFAULT_COUNTRY_PARAMETER
-            = new Parameter(DEFAULT_COUNTRY, ParameterType.STRING, "Default country", Country.values()[0].name())
+            = new Parameter(DEFAULT_COUNTRY, ParameterType.STRING, "Default country", null)
                 .addAdditionalNames("defaultCountry");
 
     private static final Parameter USE_PSSE_NAMING_STRATEGY_PARAMETER
@@ -316,7 +316,7 @@ public class CIM1Importer implements Importer, CIM1Constants {
                 }
 
                 boolean invertVoltageStepIncrementOutOfPhase = ConversionParameters.readBooleanParameter(FORMAT, parameters, INVERT_VOLTAGE_STEP_INCREMENT_OUT_OF_PHASE_PARAMETER, defaultValueConfig);
-                Country defaultCountry = Country.valueOf(ConversionParameters.readStringParameter(FORMAT, parameters, DEFAULT_COUNTRY_PARAMETER, defaultValueConfig));
+                Country defaultCountry = Optional.ofNullable(ConversionParameters.readStringParameter(FORMAT, parameters, DEFAULT_COUNTRY_PARAMETER, defaultValueConfig)).map(Country::valueOf).orElse(null);
                 boolean usePsseNamingStrategy = ConversionParameters.readBooleanParameter(FORMAT, parameters, USE_PSSE_NAMING_STRATEGY_PARAMETER, defaultValueConfig);
                 List<String> substationIdExcludedFromMapping = ConversionParameters.readStringListParameter(FORMAT, parameters, SUBSTATION_ID_EXCLUDED_FROM_MAPPING_PARAMETER, defaultValueConfig);
 
