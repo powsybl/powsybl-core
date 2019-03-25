@@ -85,6 +85,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
                     return true;
                 }
             }
+            return false; // If we have a query for model profiles but none of the profiles contains "EquipmentCore", equipment core is not available
         }
         // If we do not have a query for model profiles we assume equipment core is
         // available

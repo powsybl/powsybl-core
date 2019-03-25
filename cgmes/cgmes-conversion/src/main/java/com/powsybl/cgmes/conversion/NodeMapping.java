@@ -7,12 +7,12 @@
 
 package com.powsybl.cgmes.conversion;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VoltageLevel;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -25,9 +25,9 @@ public class NodeMapping {
     }
 
     public int iidmNodeForTerminal(CgmesTerminal t, VoltageLevel vl) {
-        int iidmNodeForConductingEquipment = cgmes2iidm.computeIfAbsent(t.id(), id -> add(id, vl));
+        int iidmNodeForConductingEquipment = cgmes2iidm.computeIfAbsent(t.id(), id -> newNode(vl));
         // Add internal connection from terminal to connectivity node
-        int iidmNodeForConnectivityNode = cgmes2iidm.computeIfAbsent(t.connectivityNode(), id -> add(id, vl));
+        int iidmNodeForConnectivityNode = cgmes2iidm.computeIfAbsent(t.connectivityNode(), id -> newNode(vl));
 
         // For node-breaker models we create an internal connection between
         // the terminal and its connectivity node
@@ -60,14 +60,7 @@ public class NodeMapping {
     }
 
     public int iidmNodeForConnectivityNode(String id, VoltageLevel vl) {
-        return cgmes2iidm.computeIfAbsent(id, k -> add(k, vl));
-    }
-
-    private int add(String id, VoltageLevel vl) {
-        // The identifier id could be a connectivityNode id or a Terminal id
-        int iidmNode = newNode(vl);
-        cgmes2iidm.put(id, iidmNode);
-        return iidmNode;
+        return cgmes2iidm.computeIfAbsent(id, k -> newNode(vl));
     }
 
     private int newNode(VoltageLevel vl) {
