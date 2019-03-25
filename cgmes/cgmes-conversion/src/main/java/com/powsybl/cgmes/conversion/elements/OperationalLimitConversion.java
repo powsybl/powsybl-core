@@ -188,7 +188,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private void convertTatlCurrent(double value) {
-        int acceptableDuration = (int) p.asDouble("acceptableDuration");
+        int acceptableDuration = p.containsKey("acceptableDuration") ? (int) p.asDouble("acceptableDuration") : Integer.MAX_VALUE;
         // We only accept high or absoluteValue (considered as high when
         // current from the conducting equipment to the terminal) limits
         String direction = p.getId("direction");
@@ -196,10 +196,10 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         // if there is no direction, the limit is considered as absoluteValue (cf. CGMES specification)
         if (direction == null || direction.endsWith("high") || direction.endsWith("absoluteValue")) {
             if (currentLimitsAdder != null) {
-                addTatlCurrent(context.namingStrategy().getId("TATL", id), value, 60 * acceptableDuration, currentLimitsAdder);
+                addTatlCurrent(context.namingStrategy().getId("TATL", id), value, acceptableDuration, currentLimitsAdder);
             } else if (currentLimitsAdder1 != null) {
                 // Should we chose one terminal randomly for branches ? Here by default, we only look at terminal1
-                addTatlCurrent(context.namingStrategy().getId("TATL", id), value, 60 * acceptableDuration, currentLimitsAdder1);
+                addTatlCurrent(context.namingStrategy().getId("TATL", id), value, acceptableDuration, currentLimitsAdder1);
             }
         } else if (direction.endsWith("low")) {
             context.invalid(TEMPORARY_CURRENT_LIMIT, String.format("TATL %s is a low limit", id));
