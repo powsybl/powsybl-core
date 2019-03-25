@@ -20,36 +20,16 @@ import static com.powsybl.action.util.Scalable.ScalingConvention.*;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Ameni Walha <ameni.walha at rte-france.com>
  */
-class GeneratorScalable extends AbstractScalable {
+class GeneratorScalable extends AbstractInjectionScalable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GeneratorScalable.class);
 
-    private final String id;
-
-    private final double minValue;
-
-    private final double maxValue;
-
     GeneratorScalable(String id) {
-        this(id, -Double.MAX_VALUE, Double.MAX_VALUE);
+        super(id);
     }
 
     GeneratorScalable(String id, double minValue, double maxValue) {
-        this.id = Objects.requireNonNull(id);
-        if (maxValue < minValue) {
-            throw new PowsyblException("Error creating GeneratorScalable " + id
-                    + " : maxValue should be bigger than minValue");
-        }
-        this.minValue = minValue;
-        this.maxValue = maxValue;
-    }
-
-    @Override
-    public double initialValue(Network n) {
-        Objects.requireNonNull(n);
-
-        Generator g = n.getGenerator(id);
-        return g != null && !Double.isNaN(g.getTerminal().getP()) ? g.getTerminal().getP() : 0;
+        super(id, minValue, maxValue);
     }
 
     @Override
@@ -62,6 +42,11 @@ class GeneratorScalable extends AbstractScalable {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Default value is generator maximum power for GeneratorScalable
+     */
     @Override
     public double maximumValue(Network n, ScalingConvention scalingConvention) {
         Objects.requireNonNull(n);
@@ -73,12 +58,17 @@ class GeneratorScalable extends AbstractScalable {
         } else {
             return 0;
         }
-
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * Default value is generator minimum power for GeneratorScalable
+     */
     @Override
     public double minimumValue(Network n, ScalingConvention scalingConvention) {
         Objects.requireNonNull(n);
+        Objects.requireNonNull(scalingConvention);
 
         Generator g = n.getGenerator(id);
         if (g != null) {
@@ -86,7 +76,6 @@ class GeneratorScalable extends AbstractScalable {
         } else {
             return 0;
         }
-
     }
 
     @Override
@@ -111,6 +100,7 @@ class GeneratorScalable extends AbstractScalable {
     @Override
     public double scale(Network n, double asked, ScalingConvention scalingConvention) {
         Objects.requireNonNull(n);
+        Objects.requireNonNull(scalingConvention);
 
         Generator g = n.getGenerator(id);
         double done = 0;

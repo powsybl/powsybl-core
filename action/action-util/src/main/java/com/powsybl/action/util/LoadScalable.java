@@ -19,39 +19,20 @@ import static com.powsybl.action.util.Scalable.ScalingConvention.*;
 /**
  * @author Ameni Walha <ameni.walha at rte-france.com>
  */
-class LoadScalable extends AbstractScalable {
+class LoadScalable extends AbstractInjectionScalable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LoadScalable.class);
 
-    private final String id;
-
-    private final double minValue;
-
-    private final double maxValue;
-
     LoadScalable(String id) {
-        this(id, 0., Double.MAX_VALUE);
+        super(id, 0., Double.MAX_VALUE);
     }
 
     LoadScalable(String id, double maxValue) {
-        this(id, 0., maxValue);
+        super(id, 0., maxValue);
     }
 
     LoadScalable(String id, double minValue, double maxValue) {
-        this.id = Objects.requireNonNull(id);
-        if (maxValue < minValue) {
-            throw new PowsyblException("Error creating LoadScalable " + id
-                    + " : maxValue should be bigger than minValue");
-        }
-        this.minValue = minValue;
-        this.maxValue = maxValue;
-    }
-
-    @Override
-    public double initialValue(Network n) {
-        Objects.requireNonNull(n);
-        Load l = n.getLoad(id);
-        return l != null && !Double.isNaN(l.getTerminal().getP()) ? l.getTerminal().getP() : 0;
+        super(id, minValue, maxValue);
     }
 
     @Override
@@ -65,22 +46,40 @@ class LoadScalable extends AbstractScalable {
     }
 
     /**
-     * Set a maximum value of active power for the LoadScalable
-     * Default value is Double.MAX_VALUE
+     * {@inheritDoc}
+     *
+     * Default value is Double.MAX_VALUE for LoadScalable
      */
     @Override
     public double maximumValue(Network n, ScalingConvention scalingConvention) {
-        return scalingConvention == LOAD ? maxValue : -minValue;
+        Objects.requireNonNull(n);
+        Objects.requireNonNull(scalingConvention);
+
+        Load l = n.getLoad(id);
+        if (l != null) {
+            return scalingConvention == LOAD ? maxValue : -minValue;
+        } else {
+            return 0;
+        }
     }
 
 
     /**
-     * Set a minimum value of active power for the LoadScalable
-     * Default value is 0
+     * {@inheritDoc}
+     *
+     * Default value is 0 for LoadScalable
      */
     @Override
     public double minimumValue(Network n, ScalingConvention scalingConvention) {
-        return scalingConvention == LOAD ? minValue : -maxValue;
+        Objects.requireNonNull(n);
+        Objects.requireNonNull(scalingConvention);
+
+        Load l = n.getLoad(id);
+        if (l != null) {
+            return scalingConvention == LOAD ? minValue : -maxValue;
+        } else {
+            return 0;
+        }
 
     }
 
