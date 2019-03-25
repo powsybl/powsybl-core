@@ -9,6 +9,10 @@ package com.powsybl.cgmes.conversion;
 
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.powsybl.cgmes.conversion.elements.AbstractIdentifiedObjectConversion;
 import com.powsybl.iidm.network.Country;
 
 /**
@@ -24,26 +28,26 @@ public final class CountryConversion {
             return Optional.empty();
         }
         if (gr.equals("D1")
-                || gr.equals("D2")
-                || gr.equals("D4")
-                || gr.equals("D7")
-                || gr.equals("D8")) {
+            || gr.equals("D2")
+            || gr.equals("D4")
+            || gr.equals("D7")
+            || gr.equals("D8")) {
             return Optional.of(Country.DE);
         }
         try {
             return Optional.of(Country.valueOf(gr));
         } catch (IllegalArgumentException ignored) {
             // Ignore
+            LOG.warn("{} does not match any Country enum", gr);
         }
         return Optional.empty();
-
     }
 
     public static Optional<Country> fromSubregionName(String name) {
         if (name == null) {
             return Optional.empty();
         }
-        switch (name) {
+        switch (name.trim().toUpperCase()) {
             case "NO1":
             case "NO2":
             case "NO3":
@@ -71,7 +75,28 @@ public final class CountryConversion {
         }
     }
 
+    public static Optional<Country> fromIsoCode(String iso) {
+        if (iso == null) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.of(Country.valueOf(iso.trim().toUpperCase()));
+        } catch (IllegalArgumentException ignored) {
+            // Ignore
+        }
+        return Optional.empty();
+    }
+
+    public static Country defaultCountry(AbstractIdentifiedObjectConversion c) {
+        if (LOG.isWarnEnabled()) {
+            LOG.warn("Default country converting {}", c.what());
+        }
+        return defaultCountry();
+    }
+
     public static Country defaultCountry() {
         return Country.values()[0];
     }
+
+    private static final Logger LOG = LoggerFactory.getLogger(CountryConversion.class);
 }

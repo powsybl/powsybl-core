@@ -161,6 +161,8 @@ WHERE {
 	OPTIONAL {
 		?ConnectivityNode cim:IdentifiedObject.name ?name
 	}
+	OPTIONAL { ?ConnectivityNode entsoe:ConnectivityNode.fromEndIsoCode ?fromEndIsoCode }
+	OPTIONAL { ?ConnectivityNode entsoe:ConnectivityNode.toEndIsoCode ?toEndIsoCode }
 }}
 OPTIONAL { GRAPH ?graphTPCN {
 	?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode 
@@ -182,6 +184,8 @@ WHERE {
 		cim:IdentifiedObject.name ?name ;
 		cim:TopologicalNode.BaseVoltage ?BaseVoltage ;
 		cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainer
+	OPTIONAL { ?TopologicalNode entsoe:TopologicalNode.fromEndIsoCode ?fromEndIsoCode }
+	OPTIONAL { ?TopologicalNode entsoe:TopologicalNode.toEndIsoCode ?toEndIsoCode }
 }}
 OPTIONAL { GRAPH ?graphSVT {
 	?SvVoltageT 
