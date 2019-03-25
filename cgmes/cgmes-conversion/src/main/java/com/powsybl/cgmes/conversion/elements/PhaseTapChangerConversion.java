@@ -274,7 +274,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                         (configIsInvertVoltageStepIncrementOutOfPhase ? -1 : 1)
                                 * stepPhaseShiftIncrement);
                 double rho = 1.0;
-                alphas.add(alpha);
+                alphas.add(-alpha);
                 rhos.add(rho);
             }
         } else {
@@ -283,7 +283,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                 double dy = (n * du / 2 - du0) * Math.sin(theta);
                 double alpha = 2 * Math.asin(dy);
                 double rho = 1.0;
-                alphas.add(alpha);
+                alphas.add(-alpha);
                 rhos.add(rho);
 
                 LOG.debug("ACTUAL    n,dy,alpha,rho  {} {} {} {}", n, dy, alpha, rho);
