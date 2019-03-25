@@ -52,6 +52,14 @@ public class SubstationTest {
     }
 
     @Test
+    public void emptyCountry() {
+        Substation s = network.newSubstation()
+                .setId("undefined_country")
+                .add();
+        assertFalse(s.getCountry().isPresent());
+    }
+
+    @Test
     public void addNullTag() {
         thrown.expect(ValidationException.class);
         Substation substation = network.newSubstation()

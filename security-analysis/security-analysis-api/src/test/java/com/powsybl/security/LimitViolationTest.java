@@ -23,18 +23,34 @@ import static org.junit.Assert.assertEquals;
  */
 public class LimitViolationTest {
 
-    private final Network network = EurostagTutorialExample1Factory.createWithCurrentLimits();
+    private final Network network = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
+
+    private static List<Country> getCountries(Network n, List<LimitViolation> violations) {
+        return violations.stream()
+                .map(v -> LimitViolationHelper.getCountry(v, n))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+    }
 
     @Test
     public void testCountry() {
         List<LimitViolation> violations = Security.checkLimits(network);
 
         List<Country> expectedCountries = Arrays.asList(Country.FR, Country.BE, Country.FR, Country.BE, Country.FR);
-        List<Country> countries = violations.stream()
-                .map(v -> LimitViolationHelper.getCountry(v, network))
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
+        List<Country> countries = getCountries(network, violations);
+
+        assertEquals(expectedCountries, countries);
+    }
+
+    @Test
+    public void emptyCountry() {
+        network.getSubstation("P2").setCountry(null);
+
+        List<LimitViolation> violations = Security.checkLimits(network);
+
+        List<Country> expectedCountries = Arrays.asList(Country.FR, Country.FR, Country.FR);
+        List<Country> countries = getCountries(network, violations);
 
         assertEquals(expectedCountries, countries);
     }
