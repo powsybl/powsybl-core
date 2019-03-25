@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Errors;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
@@ -55,7 +56,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             ThreeWindingsTransformer tx3 = context.tapChangerTransformers().transformer3(id);
             if (tx3 == null) {
                 String end = p.getId("TransformerEnd");
-                missing(String.format("PowerTransformer, transformerEnd is %s", end));
+                missing(Errors.Missing.POWER_TRANSFORMER, String.format("PowerTransformer, transformerEnd is %s", end));
                 return false;
             } else {
                 String reason0 = String.format(
@@ -129,13 +130,13 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
     private void addStepsFromTable(PhaseTapChangerAdder ptca) {
         String tableId = p.getId(CgmesNames.PHASE_TAP_CHANGER_TABLE);
         if (tableId == null) {
-            missing(CgmesNames.PHASE_TAP_CHANGER_TABLE);
+            missing(Errors.Missing.PHASE_TAP_CHANGER_TABLE, CgmesNames.PHASE_TAP_CHANGER_TABLE);
             return;
         }
         LOG.debug("PhaseTapChanger {} table {}", id, tableId);
         PropertyBags table = context.cgmes().phaseTapChangerTable(tableId);
         if (table.isEmpty()) {
-            missing("points for PhaseTapChangerTable " + tableId);
+            missing(Errors.Missing.PHASE_TAP_CHANGER_TABLE_POINTS, "points for PhaseTapChangerTable " + tableId);
             return;
         }
         Comparator<PropertyBag> byStep = Comparator.comparingInt((PropertyBag p) -> p.asInt("step"));
@@ -181,6 +182,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         double value = point.asDouble(attr, defaultValue);
         if (Double.isNaN(value)) {
             fixed(
+                Errors.Fixes.PHASE_TAP_CHANGER_TABLE_POINT,
                 "PhaseTapChangerTablePoint " + attr + " for step " + step + " in table " + tableId,
                 "invalid value " + point.get(attr));
             return defaultValue;
@@ -228,7 +230,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             theta = Math.toRadians(windingConnectionAngle);
         } else {
             theta = Math.PI / 2;
-            missing("windingConnnectionAngle", 90);
+            missing(Errors.Missing.WINDING_CONNECTION_ANGLE, "windingConnnectionAngle", 90);
         }
         return theta;
     }

@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.CountryConversion;
+import com.powsybl.cgmes.conversion.Errors;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Bus;
@@ -98,7 +99,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
     @Override
     public boolean valid() {
         if (voltageLevel() == null) {
-            missing(String.format("VoltageLevel %s", p.getId(CgmesNames.VOLTAGE_LEVEL)));
+            missing(Errors.Missing.VOLTAGE_LEVEL, String.format("VoltageLevel %s", p.getId(CgmesNames.VOLTAGE_LEVEL)));
             return false;
         }
         return true;

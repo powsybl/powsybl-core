@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Errors;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.DanglingLine;
@@ -45,7 +46,11 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     @Override
     public boolean valid() {
         if (terminal == null && branch == null && danglingLine == null && aswitch == null) {
-            missing(String.format("Terminal %s or Equipment %s", terminalId, equipmentId));
+            if (terminalId != null) {
+                missing(Errors.Missing.TERMINAL, String.format("Terminal %s", terminalId));
+            } else if (equipmentId != null) {
+                missing(Errors.Missing.EQUIPMENT, String.format("Equipment %s", equipmentId));
+            }
             return false;
         }
         return true;
@@ -91,7 +96,8 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         } else if (branch != null) {
             // We should reject the value if the branch is a PowerTransformer
             if (branch instanceof TwoWindingsTransformer) {
-                context.ignored("CurrentLimit", "Defined for Equipment TwoWindingsTransformer. Should be defined for one Terminal of Two");
+                context.ignored("CurrentLimit",
+                    "Defined for Equipment TwoWindingsTransformer. Should be defined for one Terminal of Two");
                 notAssigned(branch);
             } else {
                 // Set same limit at both sides
@@ -135,14 +141,14 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         String typeName = p.getLocal("operationalLimitTypeName");
         String subclass = p.getLocal("OperationalLimitSubclass");
         String reason = String.format(
-                "Not assigned for %s %s. Limit id, type, typeName, subClass, terminal : %s, %s, %s, %s, %s",
-                eq != null ? className(eq) : "",
-                eq != null ? eq.getId() : "",
-                id,
-                type,
-                typeName,
-                subclass,
-                terminal);
+            "Not assigned for %s %s. Limit id, type, typeName, subClass, terminal : %s, %s, %s, %s, %s",
+            eq != null ? className(eq) : "",
+            eq != null ? eq.getId() : "",
+            id,
+            type,
+            typeName,
+            subclass,
+            terminal);
         context.pending("Operational limit", reason);
     }
 

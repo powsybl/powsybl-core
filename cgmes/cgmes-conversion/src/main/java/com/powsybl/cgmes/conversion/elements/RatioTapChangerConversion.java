@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Errors;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.Terminal;
@@ -112,13 +113,13 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
     private void addStepsFromTable(RatioTapChangerAdder rtca) {
         String tableId = p.getId(CgmesNames.RATIO_TAP_CHANGER_TABLE);
         if (tableId == null) {
-            missing(CgmesNames.RATIO_TAP_CHANGER_TABLE);
+            missing(Errors.Missing.RATIO_TAP_CHANGER_TABLE, CgmesNames.RATIO_TAP_CHANGER_TABLE);
             return;
         }
         LOG.debug("RatioTapChanger {} table {}", id, tableId);
         PropertyBags table = context.ratioTapChangerTable(tableId);
         if (table.isEmpty()) {
-            missing("points for RatioTapChangerTable " + tableId);
+            missing(Errors.Missing.RATIO_TAP_CHANGER_TABLE_POINTS, "points for RatioTapChangerTable " + tableId);
             return;
         }
         Comparator<PropertyBag> byStep = Comparator.comparingInt((PropertyBag p) -> p.asInt("step"));
@@ -163,6 +164,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         double value = point.asDouble(attr, defaultValue);
         if (Double.isNaN(value)) {
             fixed(
+                Errors.Fixes.RATIO_TAP_CHANGER_TABLE_POINT,
                 "RatioTapChangerTablePoint " + attr + " for step " + step + " in table " + tableId,
                 "invalid value " + point.get(attr));
             return defaultValue;

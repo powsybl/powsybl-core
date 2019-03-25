@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
+import com.powsybl.cgmes.conversion.Errors;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
@@ -112,11 +113,12 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     public boolean valid() {
         for (int k = 1; k <= numTerminals; k++) {
             if (nodeId(k) == null) {
-                missing(nodeIdPropertyName() + k);
+                missing(Errors.Missing.NODE_ID, nodeIdPropertyName() + k);
                 return false;
             }
             if (voltageLevel(k) == null) {
-                missing(String.format("VoltageLevel of terminal %d %s (iidm %s)",
+                missing(Errors.Missing.VOLTAGE_LEVEL,
+                    String.format("VoltageLevel of terminal %d %s (iidm %s)",
                         k,
                         cgmesVoltageLevelId(k),
                         iidmVoltageLevelId(k)));
@@ -242,7 +244,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             double maxQ = p.asDouble("maxQ");
             if (minQ > maxQ) {
                 String reason = String.format("minQ > maxQ (%.4f > %.4f)", minQ, maxQ);
-                fixed("reactiveLimits", reason);
+                fixed(Errors.Fixes.REACTIVE_LIMITS, "reactiveLimits", reason);
                 double t = minQ;
                 minQ = maxQ;
                 maxQ = t;

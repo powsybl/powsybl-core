@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
+import com.powsybl.cgmes.conversion.Errors;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -96,20 +97,20 @@ public abstract class AbstractObjectConversion {
         context.pending(complete(what), reason);
     }
 
-    public void fixed(String what, String reason) {
-        context.fixed(complete(what), reason);
+    public void fixed(Errors.Fixes code, String what, String reason) {
+        context.fixed(code, complete(what), reason);
     }
 
     public void fixed(String what, String reason, double wrong, double fixed) {
         context.fixed(complete(what), reason, wrong, fixed);
     }
 
-    public void missing(String what) {
-        context.missing(complete(what));
+    public void missing(Errors.Missing code, String what) {
+        context.missing(code, complete(what));
     }
 
-    public void missing(String what, double defaultValue) {
-        context.missing(complete(what), defaultValue);
+    public void missing(Errors.Missing code, String what, double defaultValue) {
+        context.missing(code, complete(what), defaultValue);
     }
 
     protected final String type;

@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Errors;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.iidm.network.SwitchKind;
@@ -116,7 +117,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
                 switchVoltageLevelId(),
                 cgmesVoltageLevelId(1),
                 cgmesVoltageLevelId(2));
-        fixed("Low impedance line", reason);
+        fixed(Errors.Fixes.SWITCH_AS_LOW_IMPEDANCE_LINE, "Low impedance line", reason);
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(SwitchConversion.class);

@@ -10,6 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 import java.util.Objects;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Errors;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
@@ -33,10 +34,10 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
     @Override
     public boolean valid() {
         if (iconverter1 == null) {
-            missing("Converter1");
+            missing(Errors.Missing.CONVERTER, "Converter1");
         }
         if (iconverter2 == null) {
-            missing("Converter2");
+            missing(Errors.Missing.CONVERTER, "Converter2");
         }
         return iconverter1 != null && iconverter2 != null;
     }
@@ -48,7 +49,7 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
 
         double p = activePowerSetpoint();
         double maxP = p * 1.2;
-        missing("maxP", maxP);
+        missing(Errors.Missing.MAX_P, "maxP", maxP);
 
         HvdcLineAdder adder = context.network().newHvdcLine()
                 .setR(r())
@@ -94,7 +95,7 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
         }
         if (Double.isNaN(p)) {
             p = 0;
-            missing("activePowerSetpoint", p);
+            missing(Errors.Missing.ACTIVE_POWER_SETPOINT, "activePowerSetpoint", p);
         }
         return p;
     }

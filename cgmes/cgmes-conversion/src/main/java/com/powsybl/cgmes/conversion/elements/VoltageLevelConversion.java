@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Errors;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TopologyKind;
@@ -29,9 +30,9 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
     @Override
     public boolean valid() {
         if (substation == null) {
-            missing(String.format("Substation %s (IIDM id: %s)",
-                    cgmesSubstationId,
-                    iidmSubstationId));
+            missing(Errors.Missing.SUBSTATION, String.format("Substation %s (IIDM id: %s)",
+                cgmesSubstationId,
+                iidmSubstationId));
             return false;
         }
         return true;
@@ -47,20 +48,20 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
         // Missing elements in the boundary file
         if (Double.isNaN(nominalVoltage)) {
             String bv = String.format("BaseVoltage %s", baseVoltage);
-            missing(bv);
+            missing(Errors.Missing.BASE_VOLTAGE, bv);
             throw new CgmesModelException(String.format("nominalVoltage not found for %s", bv));
         }
 
         VoltageLevel voltageLevel = context.network().getVoltageLevel(iidmId());
         if (voltageLevel == null) {
             VoltageLevelAdder adder = substation.newVoltageLevel()
-                    .setNominalV(nominalVoltage)
-                    .setTopologyKind(
-                            context.nodeBreaker()
-                                    ? TopologyKind.NODE_BREAKER
-                                    : TopologyKind.BUS_BREAKER)
-                    .setLowVoltageLimit(lowVoltageLimit)
-                    .setHighVoltageLimit(highVoltageLimit);
+                .setNominalV(nominalVoltage)
+                .setTopologyKind(
+                    context.nodeBreaker()
+                        ? TopologyKind.NODE_BREAKER
+                        : TopologyKind.BUS_BREAKER)
+                .setLowVoltageLimit(lowVoltageLimit)
+                .setHighVoltageLimit(highVoltageLimit);
             identify(adder);
             adder.add();
         }

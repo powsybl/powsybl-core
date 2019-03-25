@@ -149,20 +149,20 @@ public class Context {
         LOG.info("PENDING {}. Reason: {}", what, reason);
     }
 
-    public void fixed(String what, String reason) {
-        LOG.warn("Fixed {}. Reason: {}", what, reason);
+    public void fixed(Errors.Fixes code, String what, String reason) {
+        LOG.warn("Fixed {} {}. Reason: {}", code, what, reason);
     }
 
     public void fixed(String what, String reason, double wrong, double fixed) {
         LOG.warn("Fixed {}. Reason: {}. Wrong {}, fixed {}", what, reason, wrong, fixed);
     }
 
-    public void missing(String what) {
-        LOG.warn("Missing {}", what);
+    public void missing(Errors.Missing code, String what) {
+        LOG.warn("Missing {} {}", code, what);
     }
 
-    public void missing(String what, double defaultValue) {
-        LOG.warn("Missing {}. Used default value {}", what, defaultValue);
+    public void missing(Errors.Missing code, String what, double defaultValue) {
+        LOG.warn("Missing {} {}. Used default value {}", code, what, defaultValue);
     }
 
     private final CgmesModel cgmes;
