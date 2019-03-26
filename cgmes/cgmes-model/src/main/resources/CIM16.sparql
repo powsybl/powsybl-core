@@ -697,6 +697,7 @@ WHERE {
     OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.minQ ?minQ }
     OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.maxQ ?maxQ }
     OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.regulationCapability ?regulationCapability }
+    OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.ReactiveCapabilityCurve ?ReactiveCapabilityCurve }
 }}
 OPTIONAL { GRAPH ?graphSSH  {
     ?EquivalentInjection
