@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Optional;
 import java.util.Properties;
 
+import static com.powsybl.ucte.converter.UcteImporter.ELEMENT_NAME_PROPERTY_KEY;
 import static com.powsybl.ucte.network.UcteNodeCode.isUcteNodeId;
 import static com.powsybl.ucte.network.UcteNodeCode.parseUcteNodeCode;
 import static com.powsybl.ucte.network.UcteVoltageLevelCode.voltageLevelCodeFromChar;
@@ -90,7 +91,7 @@ public class UcteExporter implements Exporter {
                                 new UcteNode(
                                         ucteNodeCode,
                                         ucteNodeCode.getGeographicalSpot(),
-                                        UcteNodeStatus.REAL,
+                                        UcteNodeStatus.EQUIVALENT,
                                         UcteNodeTypeCode.PQ,
                                         voltageLevelCodeFromChar(ucteNodeCode.toString().charAt(6)).getVoltageLevel(),
                                         0f,
@@ -110,11 +111,18 @@ public class UcteExporter implements Exporter {
                     }
                 });
 
+                String elementName1 = line.getProperties().containsKey(UcteImporter.ELEMENT_NAME_PROPERTY_KEY + "_1") ?
+                        line.getProperties().getProperty(UcteImporter.ELEMENT_NAME_PROPERTY_KEY + "_1") : null;
+                String elementName2 = line.getProperties().containsKey(UcteImporter.ELEMENT_NAME_PROPERTY_KEY + "_2") ?
+                        line.getProperties().getProperty(UcteImporter.ELEMENT_NAME_PROPERTY_KEY + "_2") : null;
+
                 UcteElementId ucteElementId1 = new UcteElementId(ucteNodeCodeList.get(0), ucteNodeCodeList.get(1), line.getId().charAt(18));
                 UcteElementId ucteElementId2 = new UcteElementId(ucteNodeCodeList.get(2), ucteNodeCodeList.get(3), line.getId().charAt(40));
 
-                UcteLine ucteLine1 = new UcteLine(ucteElementId1, UcteElementStatus.REAL_ELEMENT_IN_OPERATION, (float) line.getR() / 2, (float) line.getX() / 2, (float) line.getB1(), (int) line.getCurrentLimits1().getPermanentLimit(), "");
-                UcteLine ucteLine2 = new UcteLine(ucteElementId2, UcteElementStatus.REAL_ELEMENT_IN_OPERATION, (float) line.getR() / 2, (float) line.getX() / 2, (float) line.getB1(), (int) line.getCurrentLimits1().getPermanentLimit(), "");
+                UcteLine ucteLine1 = new UcteLine(ucteElementId1, UcteElementStatus.REAL_ELEMENT_IN_OPERATION, (float) line.getR() / 2,
+                        (float) line.getX() / 2, (float) line.getB1(), (int) line.getCurrentLimits1().getPermanentLimit(), elementName1);
+                UcteLine ucteLine2 = new UcteLine(ucteElementId2, UcteElementStatus.REAL_ELEMENT_IN_OPERATION, (float) line.getR() / 2,
+                        (float) line.getX() / 2, (float) line.getB1(), (int) line.getCurrentLimits1().getPermanentLimit(), elementName2);
 
                 ucteNetwork.addLine(ucteLine1);
                 ucteNetwork.addLine(ucteLine2);
@@ -148,6 +156,8 @@ public class UcteExporter implements Exporter {
         );
 
         UcteElementId ucteElementId = convertUcteElementId(ucteNodeCode, ucteNodeCode2, twoWindingsTransformer, terminal1, terminal2);
+        String elementName = twoWindingsTransformer.getProperties().containsKey(ELEMENT_NAME_PROPERTY_KEY) ?
+                twoWindingsTransformer.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY) : null;
         UcteTransformer ucteTransformer = new UcteTransformer(
                 ucteElementId,
                 UcteElementStatus.fromCode(1),
@@ -155,7 +165,7 @@ public class UcteExporter implements Exporter {
                 (float) twoWindingsTransformer.getX(),
                 (float) twoWindingsTransformer.getB(),
                 (int) twoWindingsTransformer.getCurrentLimits2().getPermanentLimit(),
-                twoWindingsTransformer.getName(),
+                elementName,
                 (float) twoWindingsTransformer.getRatedU2(),
                 (float) twoWindingsTransformer.getRatedU1(),
                 100,
@@ -258,7 +268,7 @@ public class UcteExporter implements Exporter {
                 twt.getName(),
                 (float) twt.getLeg1().getRatedU(),
                 (float) twt.getLeg1().getRatedU(),
-                100,
+                100, //todo nominal power representation
                 (float) twt.getLeg1().getG());
 
         UcteTransformer transformer2 = new UcteTransformer(
@@ -423,7 +433,7 @@ public class UcteExporter implements Exporter {
             ucteNetwork.addNode(new UcteNode(
                     optUcteXNodeCode.get(),
                     "",
-                    UcteNodeStatus.REAL,
+                    UcteNodeStatus.EQUIVALENT,
                     UcteNodeTypeCode.PQ,
                     (float) danglingLine.getTerminal().getVoltageLevel().getNominalV(),
                     (float) danglingLine.getP0(),
@@ -444,6 +454,8 @@ public class UcteExporter implements Exporter {
                 Optional<UcteNodeCode> optUcteNodeCode1 = parseUcteNodeCode(danglingLine.getId().substring(0, 8));
                 Optional<UcteNodeCode> optUcteNodeCode2 = parseUcteNodeCode(danglingLine.getId().substring(9, 17));
                 if (optUcteNodeCode1.isPresent() && optUcteNodeCode2.isPresent()) {
+                    String elementName = danglingLine.getProperties().containsKey(ELEMENT_NAME_PROPERTY_KEY) ?
+                            danglingLine.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY) : null;
                     UcteElementId ucteElementId = new UcteElementId(optUcteNodeCode1.get(), optUcteNodeCode2.get(), danglingLine.getId().charAt(18));
                     UcteLine ucteLine = new UcteLine(ucteElementId,
                             UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION,
@@ -451,7 +463,7 @@ public class UcteExporter implements Exporter {
                             (float) danglingLine.getX(),
                             (float) danglingLine.getB(),
                             (int) danglingLine.getCurrentLimits().getPermanentLimit(),
-                            danglingLine.getName());
+                            elementName);
                     ucteNetwork.addLine(ucteLine);
                 } else {
                     LOGGER.warn(NOT_HANDLED_YET_MESSAGE);
@@ -471,10 +483,15 @@ public class UcteExporter implements Exporter {
             Optional<UcteNodeCode> optUcteNodeCode1 = parseUcteNodeCode(sw.getId().substring(0, 8));
             Optional<UcteNodeCode> optUcteNodeCode2 = parseUcteNodeCode(sw.getId().substring(9, 17));
 
+            UcteElementStatus switchStatus = sw.isOpen() ? UcteElementStatus.BUSBAR_COUPLER_OUT_OF_OPERATION :
+                    UcteElementStatus.BUSBAR_COUPLER_IN_OPERATION;
+
             if (optUcteNodeCode1.isPresent() && optUcteNodeCode2.isPresent()) {
+                String elementName = sw.getProperties().containsKey(ELEMENT_NAME_PROPERTY_KEY) ?
+                        sw.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY) : null;
                 UcteElementId ucteElementId = new UcteElementId(optUcteNodeCode1.get(), optUcteNodeCode2.get(), sw.getId().charAt(18));
-                UcteLine ucteLine = new UcteLine(ucteElementId, UcteElementStatus.BUSBAR_COUPLER_IN_OPERATION,
-                        Float.NaN, Float.NaN, Float.NaN, null, null);
+                UcteLine ucteLine = new UcteLine(ucteElementId, switchStatus,
+                        Float.NaN, Float.NaN, Float.NaN, null, elementName);
                 if (sw.getExtension(SwitchExt.class) != null) {
                     ucteLine.setCurrentLimit((int) sw.getExtension(SwitchExt.class).getCurrentLimit());
                 } else {
@@ -508,9 +525,13 @@ public class UcteExporter implements Exporter {
                 terminal2.getVoltageLevel(),
                 terminal2.getVoltageLevel().getSubstation().getCountry().toString());
 
+        String elementName = line.getProperties().containsKey(ELEMENT_NAME_PROPERTY_KEY) ?
+                line.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY) : null;
+
         UcteElementId lineId = new UcteElementId(ucteTerminal1NodeCode, ucteTerminal2NodeCode, '1');
         UcteLine ucteLine = new UcteLine(lineId, UcteElementStatus.REAL_ELEMENT_IN_OPERATION,
-                (float) line.getR(), (float) line.getX(), (float) line.getB1() + (float) line.getB2(), (int) line.getCurrentLimits1().getPermanentLimit(), null);
+                (float) line.getR(), (float) line.getX(), (float) line.getB1() + (float) line.getB2(),
+                (int) line.getCurrentLimits1().getPermanentLimit(), elementName);
 
         ucteNetwork.addLine(ucteLine);
     }
@@ -654,6 +675,5 @@ public class UcteExporter implements Exporter {
                 && isUcteNodeId(line.getExtension(MergedXnode.class).getLine2Name().substring(0, 8))
                 && isUcteNodeId(line.getExtension(MergedXnode.class).getLine2Name().substring(9, 17));
     }
-
 
 }
