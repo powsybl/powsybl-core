@@ -252,7 +252,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                     .setMinQ(minQ)
                     .setMaxQ(maxQ)
                     .add();
-        } 
+        }
         // IIDM only accepts one definition between MinMaxReactiveLimits and ReactiveCapabilityCurve,
         // if a component contains both definition we will select the ReactiveCapabilityCurve definition.
         if (p.containsKey("ReactiveCapabilityCurve")) {
