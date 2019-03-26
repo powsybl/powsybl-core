@@ -10,7 +10,6 @@ public class SwitchExt extends AbstractExtension<Switch> {
     private Switch sw;
     private float currentLimit;
 
-
     public SwitchExt(Switch sw, float currentLimit) {
         this.sw = Objects.requireNonNull(sw);
         this.currentLimit = currentLimit;

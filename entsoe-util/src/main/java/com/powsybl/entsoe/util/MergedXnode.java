@@ -28,7 +28,7 @@ public class MergedXnode extends AbstractExtension<Line> {
 
     private double xnodeP2;
 
-    private double xnodeQ2; //fixme add 2 attributes for lines name
+    private double xnodeQ2;
 
     private String line1Name;
 

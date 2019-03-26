@@ -46,7 +46,7 @@ public class UcteImporter implements Importer {
 
     private static final String[] EXTENSIONS = {"uct", "UCT"};
 
-    private static final String ELEMENT_NAME_PROPERTY_KEY = "elementName";
+    static final String ELEMENT_NAME_PROPERTY_KEY = "elementName";
 
     private static float getConductance(UcteTransformer ucteTransfo) {
         float g = 0;
@@ -877,7 +877,6 @@ public class UcteImporter implements Importer {
                         .add();
 
                 addElementNameProperty(mergeLine, dl1, dl2);
-
 
                 if (dl1.getCurrentLimits() != null) {
                     mergeLine.newCurrentLimits1()
