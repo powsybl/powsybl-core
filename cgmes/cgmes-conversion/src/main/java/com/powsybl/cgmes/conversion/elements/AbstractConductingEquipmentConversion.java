@@ -16,6 +16,7 @@ import com.powsybl.iidm.network.BranchAdder;
 import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.InjectionAdder;
+import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
@@ -251,8 +252,26 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
                     .setMinQ(minQ)
                     .setMaxQ(maxQ)
                     .add();
+        } 
+        // IIDM only accepts one definition between MinMaxReactiveLimits and ReactiveCapabilityCurve,
+        // if a component contains both definition we will select the ReactiveCapabilityCurve definition.
+        if (p.containsKey("ReactiveCapabilityCurve")) {
+            String curveId = p.getId("ReactiveCapabilityCurve");
+            ReactiveCapabilityCurveAdder rcca = g.newReactiveCapabilityCurve();
+            PropertyBags curveData = context.reactiveCapabilityCurveData(curveId);
+            curveData.forEach(d -> {
+                double p = d.asDouble("xvalue");
+                double minQ = d.asDouble("y1value");
+                double maxQ = d.asDouble("y2value");
+
+                rcca.beginPoint()
+                        .setP(p)
+                        .setMinQ(minQ)
+                        .setMaxQ(maxQ)
+                        .endPoint();
+            });
+            rcca.add();
         }
-        // TODO Reactive capability curves
     }
 
     // Terminals
@@ -284,10 +303,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     static class TerminalData {
         private final CgmesTerminal t;
-        private final String busId;
-        private final String cgmesVoltageLevelId;
-        private final String iidmVoltageLevelId;
-        private final VoltageLevel voltageLevel;
+        private final String        busId;
+        private final String        cgmesVoltageLevelId;
+        private final String        iidmVoltageLevelId;
+        private final VoltageLevel  voltageLevel;
 
         TerminalData(String terminalPropertyName, PropertyBag p, Context context) {
             t = context.cgmes().terminal(p.getId(terminalPropertyName));
@@ -418,5 +437,5 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     private final TerminalData[] terminals;
-    private final PowerFlow equipmentPowerFlow;
+    private final PowerFlow      equipmentPowerFlow;
 }
