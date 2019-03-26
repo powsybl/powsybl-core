@@ -15,22 +15,24 @@ import java.util.Objects;
  */
 public class NodeInfo {
 
-    private final String id;
+    private String id;
 
     private String name;
 
-    private final String pseudoClass;
+    private String pseudoClass;
 
     private String description = "";
 
-    private final long creationTime;
+    private long creationTime;
 
     private long modificationTime;
 
     private int version;
 
-    private final NodeGenericMetadata genericMetadata;
+    private NodeGenericMetadata genericMetadata;
 
+    public NodeInfo() {
+    }
     public NodeInfo(String id, String name, String pseudoClass, String description, long creationTime, long modificationTime,
                     int version, NodeGenericMetadata genericMetadata) {
         this.id = Objects.requireNonNull(id);

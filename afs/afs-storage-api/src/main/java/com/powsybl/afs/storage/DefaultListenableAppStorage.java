@@ -8,14 +8,20 @@ package com.powsybl.afs.storage;
 
 import com.powsybl.afs.storage.events.*;
 import com.powsybl.commons.util.WeakListenerList;
+
 import com.powsybl.timeseries.DoubleDataChunk;
 import com.powsybl.timeseries.StringDataChunk;
 import com.powsybl.timeseries.TimeSeriesMetadata;
 
 import java.io.OutputStream;
 import java.util.List;
+
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * A storage implementation which adds notification features to another underlying, wrapped, storage.
@@ -23,6 +29,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class DefaultListenableAppStorage extends ForwardingAppStorage implements ListenableAppStorage {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultListenableAppStorage.class);
 
     private final WeakListenerList<AppStorageListener> listeners = new WeakListenerList<>();
 
@@ -30,8 +37,10 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
 
     private final Lock lock = new ReentrantLock();
 
+    private EventSourcing eventSourcing;
     public DefaultListenableAppStorage(AppStorage storage) {
         super(storage);
+        eventSourcing = new EventSourcing();
     }
 
     private void addEvent(NodeEvent event) {
@@ -41,6 +50,7 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
         } finally {
             lock.unlock();
         }
+        eventSourcing.addEvent(event, super.getFileSystemName());
     }
 
     @Override
@@ -164,3 +174,4 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
         listeners.removeAll();
     }
 }
+
