@@ -7,10 +7,12 @@
 package com.powsybl.action.util;
 
 import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -21,14 +23,71 @@ abstract class AbstractScalable implements Scalable {
     }
 
     @Override
+    public List<Injection> filterInjections(Network network, List<String> notFound) {
+        List<Injection> injections = new ArrayList<>();
+        filterInjections(network, injections, notFound);
+        return injections;
+    }
+
+    @Override
+    public List<Injection> filterInjections(Network network) {
+        return filterInjections(network, null);
+    }
+
+
+    /**
+     * @deprecated listGenerators should be replaced by filterInjections
+     */
+    @Deprecated
     public List<Generator> listGenerators(Network n, List<String> notFoundGenerators) {
         List<Generator> generators = new ArrayList<>();
         listGenerators(n, generators, notFoundGenerators);
         return generators;
     }
 
-    @Override
+    /**
+     * @deprecated listGenerators should be replaced by filterInjections
+     */
+    @Deprecated
     public List<Generator> listGenerators(Network n) {
         return listGenerators(n, null);
     }
+
+    /**
+     * @deprecated listGenerators should be replaced by filterInjections
+     */
+    @Deprecated
+    public void listGenerators(Network network, List<Generator> generators, List<String> notFoundGenerators) {
+        Objects.requireNonNull(network);
+        Objects.requireNonNull(generators);
+
+        List<Injection> injections = filterInjections(network, notFoundGenerators);
+
+        for (Injection injection : injections) {
+
+            if (injection instanceof Generator) {
+                generators.add((Generator) injection);
+            } else {
+                if (notFoundGenerators != null) {
+                    notFoundGenerators.add(injection.getId());
+                }
+            }
+        }
+    }
+
+    @Override
+    public double maximumValue(Network n) {
+        return maximumValue(n, ScalingConvention.GENERATOR);
+    }
+
+    @Override
+    public double minimumValue(Network n) {
+        return minimumValue(n, ScalingConvention.GENERATOR);
+    }
+
+    @Override
+    public double scale(Network n, double asked) {
+        return scale(n, asked, ScalingConvention.GENERATOR);
+    }
+
 }

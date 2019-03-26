@@ -70,7 +70,7 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
     }
 
     @Override
-    protected String what() {
+    public String what() {
         if (name != null) {
             return String.format("%s %s (%s)", type, name, id);
         } else {
