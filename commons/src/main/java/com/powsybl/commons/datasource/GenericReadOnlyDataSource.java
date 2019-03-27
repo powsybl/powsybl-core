@@ -10,6 +10,7 @@ package com.powsybl.commons.datasource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Path;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -22,6 +23,7 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
     public GenericReadOnlyDataSource(Path directory, String baseName, DataSourceObserver observer) {
         dataSources = new DataSource[] {
             new FileDataSource(directory, baseName, observer),
+            new ZipFileDataSource(directory),
             new ZipFileDataSource(directory, baseName + ".zip", baseName, observer),
             new GzFileDataSource(directory, baseName, observer),
             new Bzip2FileDataSource(directory, baseName, observer)
@@ -79,6 +81,14 @@ public class GenericReadOnlyDataSource implements ReadOnlyDataSource {
 
     @Override
     public Set<String> listNames(String regex) throws IOException {
-        throw new UnsupportedOperationException("Not implemented");
+        Set<String> names = new HashSet<>();
+        for (ReadOnlyDataSource dataSource : dataSources) {
+            try {
+                names.addAll(dataSource.listNames(regex));
+            } catch (Exception x) {
+                // Nothing
+            }
+        }
+        return names;
     }
 }

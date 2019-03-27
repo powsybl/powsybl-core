@@ -141,7 +141,6 @@ public class XMLExporter implements Exporter {
             } else {
                 NetworkXml.write(network, options, dataSource, "xiidm");
             }
-
             LOGGER.debug("XIIDM export done in {} ms", System.currentTimeMillis() - startTime);
         } catch (IOException e) {
             throw new UncheckedIOException(e);

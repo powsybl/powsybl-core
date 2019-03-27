@@ -21,7 +21,7 @@ import static org.junit.Assert.assertEquals;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class StringTimeSeriesLostColumnsIssue {
+public class StringTimeSeriesLostColumnsIssueTest {
 
     @Test
     public void test() throws IOException {
