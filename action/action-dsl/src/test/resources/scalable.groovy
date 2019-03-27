@@ -21,7 +21,7 @@ action('testCompatible') {
     tasks {
         script {
             variationValue = 15000
-            variation = stack(gen('GEN'), gen('GEN2'), gen('GEN3'))
+            variation = stack(onGenerator('GEN'), onGenerator('GEN2'), onGenerator('GEN3'))
             variation.reset(network)
             variation.scale(network, variationValue)
         }
