@@ -9,7 +9,7 @@
 [![Join the chat at https://gitter.im/powsybl/powsybl-core](https://badges.gitter.im/powsybl/powsybl-core.svg)](https://gitter.im/powsybl/powsybl-core?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Javadocs](https://www.javadoc.io/badge/com.powsybl/powsybl-core.svg?color=blue)](https://www.javadoc.io/doc/com.powsybl/powsybl-core)
 
-PowSyBl (Power System Blocks) is an open source framework written in Java, that makes it easy to write complex software for power systems’ simulations and analysis. Its modular approach allows developers to extend or customize its features.
+PowSyBl (**Pow**er **Sy**stem **Bl**ocks) is an open source framework written in Java, that makes it easy to write complex software for power systems’ simulations and analysis. Its modular approach allows developers to extend or customize its features.
 
 PowSyBl is part of the LF Energy Foundation, a project of The Linux Foundation that supports open source innovation projects within the energy and electricity sectors.
 
@@ -25,7 +25,7 @@ This project and everyone participating in it is governed by the [PowSyBl Code o
 
 This document describes how to build the code of PowSyBl Core. If you just want to run PowSyBl demos, please visit https://www.powsybl.org/ where downloads will be available soon. If you want guidance on how to start building your own application based on PowSyBl, please visit the http://www.powsybl.org/docs/tutorials/ page.
 
-The PowSyBl Core project is not a standalone project. Read on to learn how to modify the core code, be it for fun, for diagnosing bugs, for improving your understanding of the framework, or for preparing pull requests to suggest improvements! PowSyBl Core provides library code to build all kind of applications for power systems: a complete and extendable grid model, support for common exchange formats, APIs for power simulations an analysis, and support for local or distributed computations. For deployment, powsybl-core also provides a iTools, a tool to build cross-platform integrated command line applications. To build cross-platform graphical applications, please visit the PowSyBle GSE repository https://github.com/powsybl/powsybl-gse page.
+The PowSyBl Core project is not a standalone project. Read on to learn how to modify the core code, be it for fun, for diagnosing bugs, for improving your understanding of the framework, or for preparing pull requests to suggest improvements! PowSyBl Core provides library code to build all kinds of applications for power systems: a complete and extendable grid model, support for common exchange formats, APIs for power simulations an analysis, and support for local or distributed computations. For deployment, powsybl-core also provides iTools, a tool to build cross-platform integrated command-line applications. To build cross-platform graphical applications, please visit the PowSyBl GSE repository https://github.com/powsybl/powsybl-gse page.
 
 ## Environment requirements
 
@@ -36,11 +36,12 @@ Most of the powsybl-core project is written in Java, with additional C++ compone
   * JDK *(1.8 or greater)*
   * Maven *(3.3.9 or greater)*
 
-Simply run
+To run all the tests, simply launch the following command from the root of the repository:
 ```
 $ mvn package
 ```
-to run all the tests. Modify some existing tests or create your own new tests to experiment with the framework! If it suits you better, import the project in an IDE and use the IDE to launch your own main classes. If you know java and maven and want to do things manually, you can also use maven directly to compute the classpath of all the project jars and run anything you want with it.
+
+Modify some existing tests or create your own new tests to experiment with the framework! If it suits you better, import the project in an IDE and use the IDE to launch your own main classes. If you know java and maven and want to do things manually, you can also use maven directly to compute the classpath of all the project jars and run anything you want with it.
 
 Read [Contributing.md](https://github.com/powsybl/.github/blob/master/CONTRIBUTING.md) for more in-depth explanations on how to run code.
 
