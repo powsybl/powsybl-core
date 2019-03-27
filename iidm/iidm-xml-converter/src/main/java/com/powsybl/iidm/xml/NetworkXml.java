@@ -315,6 +315,7 @@ public final class NetworkXml {
     }
 
     private static NetworkXmlWriterContext writeBaseNetwork(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
+
         // create the  writer of the base file
         XMLStreamWriter writer;
         if (options.getMode() == IidmImportExportMode.UNIQUE_FILE) {
@@ -548,6 +549,8 @@ public final class NetworkXml {
 
             Set<String> extensionNamesNotFound = new TreeSet<>();
 
+            boolean[] modeWarn = new boolean[1];
+
             XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {
                 switch (reader.getLocalName()) {
                     case SubstationXml.ROOT_ELEMENT_NAME:
@@ -568,7 +571,7 @@ public final class NetworkXml {
 
                     case EXTENSION_ELEMENT_NAME:
                         if (config.getMode() != IidmImportExportMode.UNIQUE_FILE) {
-                            LOGGER.warn("Mode isn't UNIQUE_FILE and some extensions was found in the base file!, some extensions may be overwritten later when reading extensions files");
+                            modeWarn[0] = true;
                         }
                         String id2 = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, "id"));
                         Identifiable identifiable = network.getIdentifiable(id2);
@@ -582,6 +585,11 @@ public final class NetworkXml {
                         throw new AssertionError();
                 }
             });
+
+            if (modeWarn[0]) {
+                LOGGER.warn("Mode isn't UNIQUE_FILE and some extensions was found in the base file!, some extensions may be overwritten later when reading extensions files");
+            }
+
             context.getEndTasks().forEach(Runnable::run);
             return network;
         } catch (XMLStreamException e) {
@@ -619,7 +627,7 @@ public final class NetworkXml {
                     try (InputStream ise = dataSource.newInputStream("-ext", dataSourceExt)) {
                         readExtensions(network, ise, anonymizer, options);
                     } catch (IOException e) {
-                        LOGGER.warn(String.format("the extensions file wasn't found while importing, please ensure that the file name respect the naming convention baseFileName-ext%s", dataSourceExt));
+                        LOGGER.warn(String.format("the extensions file wasn't found while importing, please ensure that the file name respect the naming convention baseFileName-ext.%s", dataSourceExt));
                     }
                     break;
                 case ONE_SEPARATED_FILE_PER_EXTENSION_TYPE:
