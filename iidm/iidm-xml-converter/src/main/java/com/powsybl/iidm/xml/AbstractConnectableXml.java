@@ -34,6 +34,11 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
 
     abstract boolean hasControlValues(T connectable);
 
+    boolean isTerminalHavingTopoValues(Terminal t, NetworkXmlWriterContext  context) {
+        TopologyLevel topologyLevel = TopologyLevel.min(t.getVoltageLevel().getTopologyKind(), context.getOptions().getTopologyLevel());
+        return topologyLevel != TopologyLevel.NODE_BREAKER;
+    }
+
     boolean isTerminalHavingStateValues(Terminal t) {
         return !Double.isNaN(t.getP())  || !Double.isNaN(t.getQ());
     }

@@ -45,6 +45,10 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
         return isTerminalHavingStateValues(twt.getTerminal1()) || isTerminalHavingStateValues(twt.getTerminal2());
     }
 
+    boolean hasTopoValues(TwoWindingsTransformer twt, NetworkXmlWriterContext  context) {
+        return isTerminalHavingTopoValues(twt.getTerminal1(), context) || isTerminalHavingTopoValues(twt.getTerminal2(), context);
+    }
+
     @Override
     protected void writeRootElementAttributes(TwoWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
         if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {

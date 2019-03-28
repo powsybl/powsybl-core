@@ -76,8 +76,15 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
     }
 
     boolean hasTopoValues(Substation s, NetworkXmlWriterContext context) {
-        if (s.getTwoWindingsTransformerCount() + s.getThreeWindingsTransformerCount() > 0) {
-            return true;
+        for (TwoWindingsTransformer twt : s.getTwoWindingsTransformers()) {
+            if (TwoWindingsTransformerXml.INSTANCE.hasTopoValues(twt, context)) {
+                return true;
+            }
+        }
+        for (ThreeWindingsTransformer twt : s.getThreeWindingsTransformers()) {
+            if (ThreeWindingsTransformerXml.INSTANCE.hasTopoValues(twt, context)) {
+                return true;
+            }
         }
         for (VoltageLevel vl : s.getVoltageLevels()) {
             if (VoltageLevelXml.INSTANCE.hasTopoValues(vl, context)) {

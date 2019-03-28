@@ -229,8 +229,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
 
     boolean hasTopoValues(VoltageLevel vl, NetworkXmlWriterContext context) {
         TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
-        if (topologyLevel == TopologyLevel.NODE_BREAKER &&
-                context.getTargetFile() == IncrementalIidmFiles.TOPO && vl.getNodeBreakerView().getSwitchCount() == 0) {
+        if (topologyLevel == TopologyLevel.NODE_BREAKER && vl.getNodeBreakerView().getSwitchCount() == 0) {
             return false;
         }
         return vl.getGeneratorCount() + vl.getLoadCount() + vl.getDanglingLineCount() + vl.getStaticVarCompensatorCount() +

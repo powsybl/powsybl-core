@@ -8,6 +8,7 @@ package com.powsybl.iidm.import_;
 
 import com.google.common.collect.Sets;
 import com.powsybl.iidm.IidmImportExportMode;
+import com.powsybl.iidm.IidmImportExportType;
 import org.junit.Test;
 
 import java.util.Set;
@@ -24,8 +25,12 @@ public class ImportOptionsTest {
     public void importOptionsTest() {
         ImportOptions options = new ImportOptions();
         options.setMode(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE);
-
         assertEquals(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE, options.getMode());
+
+
+        options.setImportExportType(IidmImportExportType.FULL_IIDM);
+        assertEquals(IidmImportExportType.FULL_IIDM, options.getImportExportType());
+
         Set<String> extensionsList = Sets.newHashSet("loadFoo", "loadBar");
         options.setExtensions(extensionsList);
         assertEquals(Boolean.FALSE, options.withNoExtension());
@@ -39,11 +44,22 @@ public class ImportOptionsTest {
         Set<String> extensionsList = Sets.newHashSet("loadFoo", "loadBar");
         ImportOptions options = new ImportOptions(Boolean.FALSE);
         options.setExtensions(extensionsList);
-
         assertEquals(Boolean.FALSE, options.isThrowExceptionIfExtensionNotFound());
         assertEquals(IidmImportExportMode.UNIQUE_FILE, options.getMode());
         assertEquals(Boolean.FALSE, options.withNoExtension());
         assertEquals(2, (int) options.getExtensions().map(Set::size).orElse(-1));
+        assertEquals(IidmImportExportType.FULL_IIDM, options.getImportExportType());
+
+
+
+        options.setImportExportType(IidmImportExportType.INCREMENTAL_IIDM);
+        assertEquals(IidmImportExportType.INCREMENTAL_IIDM, options.getImportExportType());
+        options.setTopo(false);
+        options.setControl(true);
+        options.setState(false);
+        assertEquals(Boolean.TRUE, options.isControl());
+        assertEquals(Boolean.FALSE, options.isState());
+        assertEquals(Boolean.FALSE, options.isTopo());
     }
 
     @Test

@@ -44,6 +44,10 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
         return false;
     }
 
+    boolean hasTopoValues(Line l, NetworkXmlWriterContext  context) {
+        return isTerminalHavingTopoValues(l.getTerminal1(), context) || isTerminalHavingTopoValues(l.getTerminal2(), context);
+    }
+
     @Override
     protected void writeRootElementAttributes(Line l, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
         if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {

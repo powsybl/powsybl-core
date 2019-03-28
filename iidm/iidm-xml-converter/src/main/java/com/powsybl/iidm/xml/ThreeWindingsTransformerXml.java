@@ -8,10 +8,7 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.IidmImportExportType;
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 
 import javax.xml.stream.XMLStreamException;
@@ -49,6 +46,11 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
     boolean hasStateValues(ThreeWindingsTransformer twt) {
         return isTerminalHavingStateValues(twt.getLeg1().getTerminal()) || isTerminalHavingStateValues(twt.getLeg2().getTerminal()) ||
                 isTerminalHavingStateValues(twt.getLeg3().getTerminal());
+    }
+
+    boolean hasTopoValues(ThreeWindingsTransformer twt, NetworkXmlWriterContext  context) {
+        return isTerminalHavingTopoValues(twt.getLeg1().getTerminal(), context) || isTerminalHavingTopoValues(twt.getLeg2().getTerminal(), context) ||
+                isTerminalHavingTopoValues(twt.getLeg3().getTerminal(), context);
     }
 
     @Override
