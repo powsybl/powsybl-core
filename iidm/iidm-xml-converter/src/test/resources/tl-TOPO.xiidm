@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" id="n" caseDate="2019-03-28T16:47:02.826+01:00" forecastDistance="0" sourceFormat="tieline">
+    <iidm:substation id="s1">
+        <iidm:voltageLevel id="vl1">
+            <iidm:generator id="g1" bus="b1" connectableBus="b1"></iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="s2">
+        <iidm:voltageLevel id="vl2">
+            <iidm:load id="ld1" bus="b2" connectableBus="b2"/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:tieLine id="l1 + l2" bus1="b1" connectableBus1="b1" bus2="b2" connectableBus2="b2"/>
+</iidm:network>

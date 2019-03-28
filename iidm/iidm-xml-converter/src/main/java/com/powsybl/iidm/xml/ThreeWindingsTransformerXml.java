@@ -82,6 +82,9 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
 
     @Override
     protected void writeSubElements(ThreeWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
+        if (context.getTargetFile() == IncrementalIidmFiles.TOPO || context.getTargetFile() == IncrementalIidmFiles.STATE) {
+            return;
+        }
         RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
         if (rtc2 != null) {
             writeRatioTapChanger("ratioTapChanger2", rtc2, context);

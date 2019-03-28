@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" id="n" caseDate="2019-03-28T16:47:02.826+01:00" forecastDistance="0" sourceFormat="tieline">
+    <iidm:substation id="s1">
+        <iidm:voltageLevel id="vl1">
+            <iidm:generator id="g1" voltageRegulatorOn="true" targetP="100.0" targetV="400.0"></iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+</iidm:network>

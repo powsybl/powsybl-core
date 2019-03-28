@@ -421,11 +421,13 @@ public final class NetworkXml {
             if (!filter.test(l)) {
                 continue;
             }
-            if (l.isTieLine()) {
-                TieLineXml.INSTANCE.write((TieLine) l, n, context);
-            } else if ((targetFile == IncrementalIidmFiles.STATE && LineXml.INSTANCE.hasStateValues(l)) ||
+            if ((targetFile == IncrementalIidmFiles.STATE && LineXml.INSTANCE.hasStateValues(l)) ||
                     targetFile == IncrementalIidmFiles.TOPO && LineXml.INSTANCE.hasTopoValues(l, context)) {
-                LineXml.INSTANCE.write(l, n, context);
+                if (l.isTieLine()) {
+                    TieLineXml.INSTANCE.write((TieLine) l, n, context);
+                } else {
+                    LineXml.INSTANCE.write(l, n, context);
+                }
             }
         }
     }

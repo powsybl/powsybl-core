@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" id="three-windings-transformer" caseDate="2018-03-05T13:30:30.486+01:00" forecastDistance="0" sourceFormat="test">
+    <iidm:substation id="SUBSTATION">
+        <iidm:voltageLevel id="VL_132">
+            <iidm:load id="LOAD_132" bus="BUS_132" connectableBus="BUS_132"/>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="VL_33">
+            <iidm:load id="LOAD_33" bus="BUS_33" connectableBus="BUS_33"/>
+        </iidm:voltageLevel>
+        <iidm:voltageLevel id="VL_11">
+            <iidm:load id="LOAD_11" bus="BUS_11" connectableBus="BUS_11"/>
+        </iidm:voltageLevel>
+        <iidm:threeWindingsTransformer id="3WT" bus1="BUS_132" connectableBus1="BUS_132" bus2="BUS_33" connectableBus2="BUS_33" bus3="BUS_11" connectableBus3="BUS_11"></iidm:threeWindingsTransformer>
+    </iidm:substation>
+</iidm:network>
