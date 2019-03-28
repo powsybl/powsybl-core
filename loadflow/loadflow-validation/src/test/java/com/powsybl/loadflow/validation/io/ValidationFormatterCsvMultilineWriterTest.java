@@ -20,6 +20,8 @@ import com.powsybl.loadflow.validation.ValidationType;
  */
 public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidationFormatterWriterTest {
 
+    private final ValidationWriterFactory factory = new ValidationFormatterCsvMultilineWriterFactory();
+
     @Override
     protected String getFlowsContent() {
         return String.join(System.lineSeparator(),
@@ -216,7 +218,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
 
     @Override
     protected ValidationWriter getFlowsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults) {
-        return new ValidationFormatterCsvMultilineWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.FLOWS, compareResults);
+        return factory.create("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.FLOWS, compareResults);
     }
 
     @Override
@@ -351,7 +353,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
 
     @Override
     protected ValidationWriter getGeneratorsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults) {
-        return new ValidationFormatterCsvMultilineWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.GENERATORS, compareResults);
+        return factory.create("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.GENERATORS, compareResults);
     }
 
     @Override
@@ -502,7 +504,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
 
     @Override
     protected ValidationWriter getBusesValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults) {
-        return new ValidationFormatterCsvMultilineWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.BUSES, compareResults);
+        return factory.create("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.BUSES, compareResults);
     }
 
     @Override
@@ -621,7 +623,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
 
     @Override
     protected ValidationWriter getSvcsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults) {
-        return new ValidationFormatterCsvMultilineWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.SVCS, compareResults);
+        return factory.create("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.SVCS, compareResults);
     }
 
     @Override
@@ -724,7 +726,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
 
     @Override
     protected ValidationWriter getShuntsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults) {
-        return new ValidationFormatterCsvMultilineWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.SHUNTS, compareResults);
+        return factory.create("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.SHUNTS, compareResults);
     }
 
     @Override
@@ -843,7 +845,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
 
     @Override
     protected ValidationWriter getTwtsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults) {
-        return new ValidationFormatterCsvMultilineWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.TWTS, compareResults);
+        return factory.create("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.TWTS, compareResults);
     }
 
     @Override
@@ -1150,7 +1152,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
 
     @Override
     protected ValidationWriter getTwts3wValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults) {
-        return new ValidationFormatterCsvMultilineWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.TWTS3W, compareResults);
+        return factory.create("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.TWTS3W, compareResults);
     }
 
 }
