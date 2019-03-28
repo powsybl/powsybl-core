@@ -64,6 +64,7 @@ public final class BusesValidation {
     public static boolean checkBuses(Network network, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(validationConfig);
+        Objects.requireNonNull(formatterConfig);
         Objects.requireNonNull(writer);
         try (ValidationWriter busesWriter = ValidationUtils.createValidationWriter(network.getId(), validationConfig, formatterConfig, writer, ValidationType.BUSES)) {
             return checkBuses(network, validationConfig, busesWriter);

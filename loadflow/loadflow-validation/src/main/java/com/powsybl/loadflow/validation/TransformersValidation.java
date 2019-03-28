@@ -50,7 +50,6 @@ public final class TransformersValidation {
         Objects.requireNonNull(validationConfig);
         Objects.requireNonNull(formatterConfig);
         Objects.requireNonNull(file);
-
         try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
             return checkTransformers(network, validationConfig, formatterConfig, writer);
         }
@@ -65,7 +64,6 @@ public final class TransformersValidation {
         Objects.requireNonNull(validationConfig);
         Objects.requireNonNull(formatterConfig);
         Objects.requireNonNull(writer);
-
         try (ValidationWriter twtsWriter = ValidationUtils.createValidationWriter(network.getId(), validationConfig, formatterConfig, writer, ValidationType.TWTS)) {
             return checkTransformers(network, validationConfig, twtsWriter);
         } catch (IOException e) {
@@ -81,7 +79,6 @@ public final class TransformersValidation {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(twtsWriter);
-
         LOGGER.info("Checking transformers of network {}", network.getId());
         return network.getTwoWindingsTransformerStream()
                       .filter(TransformersValidation::filterTwt)
