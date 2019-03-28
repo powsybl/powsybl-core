@@ -161,6 +161,8 @@ WHERE {
 	OPTIONAL {
 		?ConnectivityNode cim:IdentifiedObject.name ?name
 	}
+	OPTIONAL { ?ConnectivityNode entsoe:ConnectivityNode.fromEndIsoCode ?fromEndIsoCode }
+	OPTIONAL { ?ConnectivityNode entsoe:ConnectivityNode.toEndIsoCode ?toEndIsoCode }
 }}
 OPTIONAL { GRAPH ?graphTPCN {
 	?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode 
@@ -182,6 +184,8 @@ WHERE {
 		cim:IdentifiedObject.name ?name ;
 		cim:TopologicalNode.BaseVoltage ?BaseVoltage ;
 		cim:TopologicalNode.ConnectivityNodeContainer ?ConnectivityNodeContainer
+	OPTIONAL { ?TopologicalNode entsoe:TopologicalNode.fromEndIsoCode ?fromEndIsoCode }
+	OPTIONAL { ?TopologicalNode entsoe:TopologicalNode.toEndIsoCode ?toEndIsoCode }
 }}
 OPTIONAL { GRAPH ?graphSVT {
 	?SvVoltageT 
@@ -559,7 +563,14 @@ WHERE {
         a ?type ;
         cim:IdentifiedObject.name ?name .
     VALUES ?type { cim:EnergyConsumer cim:ConformLoad cim:NonConformLoad }
-    ?Terminal cim:Terminal.ConductingEquipment ?EnergyConsumer
+    ?Terminal cim:Terminal.ConductingEquipment ?EnergyConsumer .
+    OPTIONAL { ?EnergyConsumer cim:EnergyConsumer.pfixed ?pfixed }
+    OPTIONAL { ?EnergyConsumer cim:EnergyConsumer.qfixed ?qfixed }
+}}
+{ GRAPH ?graphSSH {
+    ?EnergyConsumer
+        cim:EnergyConsumer.p ?p ;
+        cim:EnergyConsumer.q ?q
 }}
 }
 

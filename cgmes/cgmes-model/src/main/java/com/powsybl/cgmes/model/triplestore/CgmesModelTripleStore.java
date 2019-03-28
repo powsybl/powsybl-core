@@ -76,20 +76,51 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
                 return false;
             }
             for (PropertyBag m : r) {
-                String p = m.get("profile");
+                String p = m.get(PROFILE);
                 if (p != null && p.contains("/EquipmentCore/")) {
                     if (LOG.isInfoEnabled()) {
                         LOG.info("Model contains Equipment Core data profile in model {}",
-                                m.get(CgmesNames.FULL_MODEL));
+                            m.get(CgmesNames.FULL_MODEL));
                     }
                     return true;
                 }
             }
+            return false; // If we have a query for model profiles but none of the profiles contains "EquipmentCore", equipment core is not available
         }
         // If we do not have a query for model profiles we assume equipment core is
         // available
         // (This covers the case for CIM14 files)
         return true;
+    }
+
+    @Override
+    public boolean hasBoundary() {
+        // The Model has boundary if we are able to find models
+        // that have EquipmentBoundary profile
+        // and models that have TopologyBoundary profile
+        boolean hasEquipmentBoundary = false;
+        boolean hasTopologyBoundary = false;
+        if (queryCatalog.containsKey(MODEL_PROFILES)) {
+            PropertyBags r = namedQuery(MODEL_PROFILES);
+            if (r == null) {
+                return false;
+            }
+            for (PropertyBag m : r) {
+                String p = m.get(PROFILE);
+                String mid = m.get(CgmesNames.FULL_MODEL);
+                if (p != null && p.contains("/EquipmentBoundary/")) {
+                    LOG.info("Model contains EquipmentBoundary data in model {}", mid);
+                    hasEquipmentBoundary = true;
+                }
+                if (p != null && p.contains("/TopologyBoundary/")) {
+                    LOG.info("Model contains TopologyBoundary data in model {}", mid);
+                    hasTopologyBoundary = true;
+                }
+            }
+        }
+        // If we do not have a query for model profiles we assume no boundary exist
+        // (Maybe for CIM14 data sources we should rely on file names ?)
+        return hasEquipmentBoundary && hasTopologyBoundary;
     }
 
     @Override
@@ -102,7 +133,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
                 return false;
             }
             for (PropertyBag m : r) {
-                String p = m.get("profile");
+                String p = m.get(PROFILE);
                 if (p != null && p.contains("/EquipmentOperation/")) {
                     if (LOG.isInfoEnabled()) {
                         LOG.info("Model is considered node-breaker because {} has profile {}", m.get("FullModel"), p);
@@ -382,6 +413,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         return tripleStore.query(queryText);
     }
 
+    @Override
     public TripleStore tripleStore() {
         return tripleStore;
     }
@@ -443,5 +475,6 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     private final QueryCatalog queryCatalog;
 
     private static final String MODEL_PROFILES = "modelProfiles";
+    private static final String PROFILE = "profile";
     private static final Logger LOG = LoggerFactory.getLogger(CgmesModelTripleStore.class);
 }

@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class NodeCalcEquals {
+public class NodeCalcEqualsTest {
 
     @Test
     public void integerTest() {

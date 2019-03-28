@@ -22,7 +22,11 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
     protected VoltageLevelExt voltageLevel;
 
     AbstractBus(String id, VoltageLevelExt voltageLevel) {
-        super(id, id);
+        this(id, id, voltageLevel);
+    }
+
+    AbstractBus(String id, String name, VoltageLevelExt voltageLevel) {
+        super(id, name);
         this.voltageLevel = voltageLevel;
     }
 

@@ -87,13 +87,13 @@ public class CompressedStringDataChunk extends AbstractCompressedDataChunk imple
     @Override
     public void fillBuffer(CompactStringBuffer buffer, int timeSeriesOffset) {
         Objects.requireNonNull(buffer);
-        forEachMaterializedValueIndex((v, i) -> buffer.putString(i, v));
+        forEachMaterializedValueIndex((v, i) -> buffer.putString(timeSeriesOffset + i, v));
     }
 
     @Override
     public void fillBuffer(BigStringBuffer buffer, long timeSeriesOffset) {
         Objects.requireNonNull(buffer);
-        forEachMaterializedValueIndex((v, i) -> buffer.putString(i, v));
+        forEachMaterializedValueIndex((v, i) -> buffer.putString(timeSeriesOffset + i, v));
     }
 
     @Override
