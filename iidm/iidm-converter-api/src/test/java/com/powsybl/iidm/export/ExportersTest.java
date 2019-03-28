@@ -43,7 +43,7 @@ public class ExportersTest extends AbstractConvertersTest {
     public void getExporter() {
         Exporter exporter = Exporters.getExporter(loader, TEST_FORMAT);
         assertNotNull(exporter);
-        assertEquals(testExporter, exporter);
+        assertSame(testExporter, exporter);
     }
 
     @Test

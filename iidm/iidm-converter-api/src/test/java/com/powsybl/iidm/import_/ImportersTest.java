@@ -71,7 +71,7 @@ public class ImportersTest extends AbstractConvertersTest {
     public void getImporter() {
         Importer importer = Importers.getImporter(loader, TEST_FORMAT, computationManager, importConfigMock);
         assertNotNull(importer);
-        assertEquals(testImporter, importer);
+        assertSame(testImporter, importer);
     }
 
     @Test

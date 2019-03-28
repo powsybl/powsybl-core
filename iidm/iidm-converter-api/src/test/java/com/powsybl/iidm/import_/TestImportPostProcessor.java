@@ -21,7 +21,7 @@ public class TestImportPostProcessor implements ImportPostProcessor {
     }
 
     @Override
-    public void process(Network network, ComputationManager computationManager) throws Exception {
+    public void process(Network network, ComputationManager computationManager) {
         network.getLoad("LOAD").setLoadType(LoadType.FICTITIOUS);
     }
 }
