@@ -70,6 +70,11 @@ public class LoadFlowActionSimulator implements ActionSimulator {
     }
 
     public LoadFlowActionSimulator(Network network, ComputationManager computationManager, LoadFlowActionSimulatorConfig loadFlowActionSimulatorConfig,
+                                   TableFormatterConfig tableFormatterConfig, boolean applyIfSolvedViolations, LoadFlowActionSimulatorObserver... observers) {
+        this(network, computationManager, loadFlowActionSimulatorConfig, tableFormatterConfig, applyIfSolvedViolations, Arrays.asList(observers));
+    }
+
+    public LoadFlowActionSimulator(Network network, ComputationManager computationManager, LoadFlowActionSimulatorConfig loadFlowActionSimulatorConfig,
                                    TableFormatterConfig tableFormatterConfig, boolean applyIfSolvedViolations, List<LoadFlowActionSimulatorObserver> observers) {
         this.network = Objects.requireNonNull(network);
         this.computationManager = Objects.requireNonNull(computationManager);

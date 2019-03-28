@@ -25,7 +25,6 @@ import org.junit.Before;
 import org.mockito.Mockito;
 
 import java.io.InputStreamReader;
-import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -65,7 +64,7 @@ public abstract class AbstractLoadFlowRulesEngineTest {
         GroovyCodeSource src = new GroovyCodeSource(new InputStreamReader(getClass().getResourceAsStream(getDslFile())), "test", GroovyShell.DEFAULT_CODE_BASE);
         actionDb = new ActionDslLoader(src).load(network);
         engine = new LoadFlowActionSimulator(network, computationManager, new LoadFlowActionSimulatorConfig(LoadFlowFactory.class, 3, false, false),
-                new TableFormatterConfig(), applyIfWorks(), Collections.singletonList(observer)) {
+                new TableFormatterConfig(), applyIfWorks(), observer) {
             @Override
             protected LoadFlowFactory newLoadFlowFactory() {
                 return loadFlowFactory;
