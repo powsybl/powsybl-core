@@ -715,8 +715,8 @@ WHERE {
         a cim:CurveData ;
         cim:CurveData.Curve ?ReactiveCapabilityCurve ;
         cim:CurveData.xvalue ?xvalue ;
-        cim:CurveData.y1value ?y1value ;
-        cim:CurveData.y2value ?y2value .
+        cim:CurveData.y1value ?y1value .
+    OPTIONAL { ?CurveData cim:CurveData.y2value ?y2value }
 }
 
 # query: externalNetworkInjections
