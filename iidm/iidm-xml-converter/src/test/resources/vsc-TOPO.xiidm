@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" id="hvdctest" caseDate="2016-06-27T16:34:55.930+02:00" forecastDistance="0" sourceFormat="test">
+    <iidm:substation id="S1">
+        <iidm:voltageLevel id="VL1">
+            <iidm:vscConverterStation id="C1" bus="B1" connectableBus="B1"></iidm:vscConverterStation>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="S2">
+        <iidm:voltageLevel id="VL2">
+            <iidm:nodeBreakerTopology>
+                <iidm:switch id="DISC_BBS1_BK1" open="false"/>
+                <iidm:switch id="BK1" open="false"/>
+            </iidm:nodeBreakerTopology>
+            <iidm:vscConverterStation id="C2"></iidm:vscConverterStation>
+        </iidm:voltageLevel>
+    </iidm:substation>
+</iidm:network>

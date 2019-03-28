@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" id="hvdctest" caseDate="2016-06-27T16:34:55.930+02:00" forecastDistance="0" sourceFormat="test">
+    <iidm:substation id="S1">
+        <iidm:voltageLevel id="VL1">
+            <iidm:shunt id="C1_Filter1" currentSectionCount="1"/>
+            <iidm:shunt id="C1_Filter2" currentSectionCount="0"/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="S2">
+        <iidm:voltageLevel id="VL2">
+            <iidm:shunt id="C2_Filter1" currentSectionCount="1"/>
+            <iidm:shunt id="C2_Filter2" currentSectionCount="1"/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:hvdcLine id="L" activePowerSetpoint="280.0"/>
+</iidm:network>

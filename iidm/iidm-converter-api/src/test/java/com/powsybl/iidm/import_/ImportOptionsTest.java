@@ -27,7 +27,6 @@ public class ImportOptionsTest {
         options.setMode(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE);
         assertEquals(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE, options.getMode());
 
-
         options.setImportExportType(IidmImportExportType.FULL_IIDM);
         assertEquals(IidmImportExportType.FULL_IIDM, options.getImportExportType());
 
@@ -49,8 +48,6 @@ public class ImportOptionsTest {
         assertEquals(Boolean.FALSE, options.withNoExtension());
         assertEquals(2, (int) options.getExtensions().map(Set::size).orElse(-1));
         assertEquals(IidmImportExportType.FULL_IIDM, options.getImportExportType());
-
-
 
         options.setImportExportType(IidmImportExportType.INCREMENTAL_IIDM);
         assertEquals(IidmImportExportType.INCREMENTAL_IIDM, options.getImportExportType());

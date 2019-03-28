@@ -66,7 +66,9 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
 
     @Override
     protected void writeSubElements(VscConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        ReactiveLimitsXml.INSTANCE.write(cs, context);
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
+            ReactiveLimitsXml.INSTANCE.write(cs, context);
+        }
     }
 
     @Override

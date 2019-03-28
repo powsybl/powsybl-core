@@ -42,13 +42,13 @@ public class ExportOptionsTest {
         assertEquals(3, (int) options.getExtensions().map(Set::size).orElse(-1));
     }
 
+    @Test
     public void exportOptionsTest2() {
         Set<String> extensionsList = new HashSet<>();
         ExportOptions options = new ExportOptions();
         options.setMode(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE);
         options.setExtensions(extensionsList);
         assertEquals(0, (int) options.getExtensions().map(Set::size).orElse(-1));
-
     }
 
     @Test

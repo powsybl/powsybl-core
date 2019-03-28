@@ -11,6 +11,7 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.IidmImportExportType;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -23,29 +24,6 @@ import java.util.Properties;
  */
 
 public class IncrementalExportTest extends AbstractConverterTest {
-
-    private void exporterTest(Network network) throws IOException {
-        Properties properties = new Properties();
-        properties.put(XMLExporter.ANONYMISED, "false");
-        properties.put(XMLExporter.IMPORT_EXPORT_TYPE, String.valueOf(IidmImportExportType.INCREMENTAL_IIDM));
-
-        MemDataSource dataSource = new MemDataSource();
-        //FileDataSource dataSource = new FileDataSource(Paths.get("/home/benhamedcha"), "test");
-        new XMLExporter().export(network, properties, dataSource);
-
-        try (InputStream is = new ByteArrayInputStream(dataSource.getData("-CONTROL.xiidm"))) {
-            compareXml(getClass().getResourceAsStream("/Incremental-CONTROL.xiidm"), is);
-        }
-
-        try (InputStream is = new ByteArrayInputStream(dataSource.getData("-STATE.xiidm"))) {
-            compareXml(getClass().getResourceAsStream("/Incremental-STATE.xiidm"), is);
-        }
-
-        try (InputStream is = new ByteArrayInputStream(dataSource.getData("-TOPO.xiidm"))) {
-            compareXml(getClass().getResourceAsStream("/Incremental-TOPO.xiidm"), is);
-        }
-    }
-
     private Network getEurostagLfNetwork() {
         XMLImporter importer = new XMLImporter(new InMemoryPlatformConfig(fileSystem));
         ReadOnlyDataSource dataSource = new ResourceDataSource("eurostag-tutorial1-lf", new ResourceSet("/", "eurostag-tutorial1-lf.xml"));
@@ -53,8 +31,41 @@ public class IncrementalExportTest extends AbstractConverterTest {
         return network;
     }
 
+    public void incrementalExport(Network network, String prefix) throws IOException {
+        Properties properties;
+        properties = new Properties();
+        properties.put(XMLExporter.ANONYMISED, "false");
+        properties.put(XMLExporter.IMPORT_EXPORT_TYPE, String.valueOf(IidmImportExportType.INCREMENTAL_IIDM));
+        MemDataSource dataSource = new MemDataSource();
+        new XMLExporter().export(network, properties, dataSource);
+
+        try (InputStream is = new ByteArrayInputStream(dataSource.getData("-CONTROL.xiidm"))) {
+            compareXml(getClass().getResourceAsStream("/" + prefix + "-CONTROL.xiidm"), is);
+        }
+        try (InputStream is = new ByteArrayInputStream(dataSource.getData("-STATE.xiidm"))) {
+            compareXml(getClass().getResourceAsStream("/" + prefix + "-STATE.xiidm"), is);
+        }
+        try (InputStream is = new ByteArrayInputStream(dataSource.getData("-TOPO.xiidm"))) {
+            compareXml(getClass().getResourceAsStream("/" + prefix + "-TOPO.xiidm"), is);
+        }
+    }
+
     @Test
     public void exportNetworkWithLoadFlow() throws IOException {
-        exporterTest(getEurostagLfNetwork());
+        Network network = getEurostagLfNetwork();
+        incrementalExport(network, "Incremental");
     }
+
+    @Test
+    public void exportHvdcTestNetworkLcc() throws IOException {
+        Network networkLcc = HvdcTestNetwork.createLcc();
+        incrementalExport(networkLcc, "lcc");
+    }
+
+    @Test
+    public void exportHvdcTestNetworkVsc() throws IOException {
+        Network networkVsc = HvdcTestNetwork.createVsc();
+        incrementalExport(networkVsc, "vsc");
+    }
+
 }

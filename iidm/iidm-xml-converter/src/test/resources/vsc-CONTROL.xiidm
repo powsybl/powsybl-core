@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" id="hvdctest" caseDate="2016-06-27T16:34:55.930+02:00" forecastDistance="0" sourceFormat="test">
+    <iidm:substation id="S1">
+        <iidm:voltageLevel id="VL1">
+            <iidm:vscConverterStation id="C1" voltageRegulatorOn="true" voltageSetpoint="405.0"></iidm:vscConverterStation>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="S2">
+        <iidm:voltageLevel id="VL2">
+            <iidm:vscConverterStation id="C2" voltageRegulatorOn="false" reactivePowerSetpoint="123.0"></iidm:vscConverterStation>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:hvdcLine id="L" activePowerSetpoint="280.0"/>
+</iidm:network>
