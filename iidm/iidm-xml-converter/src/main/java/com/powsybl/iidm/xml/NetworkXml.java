@@ -430,6 +430,17 @@ public final class NetworkXml {
         }
     }
 
+    private static void writeSubstations(Network n, NetworkXmlWriterContext  context, IncrementalIidmFiles targetFile) throws XMLStreamException {
+        for (Substation s : n.getSubstations()) {
+            if ((targetFile == IncrementalIidmFiles.CONTROL && !SubstationXml.INSTANCE.hasControlValues(s, context)) ||
+                    (targetFile == IncrementalIidmFiles.STATE && !SubstationXml.INSTANCE.hasStateValues(s, context)) ||
+                    targetFile == IncrementalIidmFiles.TOPO && !SubstationXml.INSTANCE.hasTopoValues(s, context)) {
+                continue;
+            }
+            SubstationXml.INSTANCE.write(s, null, context);
+        }
+    }
+
     public static void write(Network n, ExportOptions options, OutputStream os, IncrementalIidmFiles targetFile) {
         // create the  writer of the base file
         final XMLStreamWriter writer;
@@ -439,14 +450,7 @@ public final class NetworkXml {
             Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
             NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter);
             context.setTargetFile(targetFile);
-            for (Substation s : n.getSubstations()) {
-                if ((targetFile == IncrementalIidmFiles.CONTROL && !SubstationXml.INSTANCE.hasControlValues(s, context)) ||
-                        (targetFile == IncrementalIidmFiles.STATE && !SubstationXml.INSTANCE.hasStateValues(s, context)) ||
-                        targetFile == IncrementalIidmFiles.TOPO && !SubstationXml.INSTANCE.hasTopoValues(s, context)) {
-                    continue;
-                }
-                SubstationXml.INSTANCE.write(s, null, context);
-            }
+            writeSubstations(n, context, targetFile);
             writeLines(n, context, targetFile, filter);
             if (targetFile == IncrementalIidmFiles.CONTROL) {
                 for (HvdcLine l : n.getHvdcLines()) {
@@ -788,21 +792,18 @@ public final class NetworkXml {
 
     static void update(Network network, ImportOptions options, ReadOnlyDataSource dataSource) throws IOException {
         if (options.isState()) {
-            update(network, dataSource.newInputStream(dataSource.getBaseName() + "-STATE.xiidm"), options);
+            update(network, dataSource.newInputStream(dataSource.getBaseName() + "-STATE.xiidm"));
         }
         if (options.isControl()) {
-            update(network, dataSource.newInputStream(dataSource.getBaseName()  + "-CONTROL.xiidm"), options);
+            update(network, dataSource.newInputStream(dataSource.getBaseName()  + "-CONTROL.xiidm"));
         }
         if (options.isTopo()) {
-            update(network, dataSource.newInputStream(dataSource.getBaseName() + "-TOPO.xiidm"), options);
+            update(network, dataSource.newInputStream(dataSource.getBaseName() + "-TOPO.xiidm"));
         }
     }
 
     public static void update(Network network, InputStream is) {
-        update(network, is, new ImportOptions());
-    }
 
-    public static void update(Network network, InputStream is, ImportOptions options) {
         try {
             XMLStreamReader reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
             reader.next();
@@ -843,12 +844,13 @@ public final class NetworkXml {
                     case "busBreakerTopology":
                         // Nothing to do
                         break;
+                    case "ratioTapChanger":
+                    case "terminalRef":
+                        // to do
+                        break;
 
                     case ThreeWindingsTransformerXml.ROOT_ELEMENT_NAME:
                         throw new AssertionError();
-                    case "ratioTapChanger":
-                        //updateRatioTapCganger();
-                        break;
 
                     default:
                         throw new AssertionError("Unexpected element: " + reader.getLocalName());

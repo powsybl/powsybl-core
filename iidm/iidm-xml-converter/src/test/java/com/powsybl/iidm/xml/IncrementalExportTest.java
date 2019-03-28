@@ -16,8 +16,6 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -26,7 +24,7 @@ import java.util.Properties;
 
 public class IncrementalExportTest extends AbstractConverterTest {
 
-    public void exporterTest(Network network) throws IOException {
+    private void exporterTest(Network network) throws IOException {
         Properties properties = new Properties();
         properties.put(XMLExporter.ANONYMISED, "false");
         properties.put(XMLExporter.IMPORT_EXPORT_TYPE, String.valueOf(IidmImportExportType.INCREMENTAL_IIDM));
@@ -48,15 +46,15 @@ public class IncrementalExportTest extends AbstractConverterTest {
         }
     }
 
+    private Network getEurostagLfNetwork() {
+        XMLImporter importer = new XMLImporter(new InMemoryPlatformConfig(fileSystem));
+        ReadOnlyDataSource dataSource = new ResourceDataSource("eurostag-tutorial1-lf", new ResourceSet("/", "eurostag-tutorial1-lf.xml"));
+        Network network = importer.importData(dataSource, new Properties());
+        return network;
+    }
+
     @Test
     public void exportNetworkWithLoadFlow() throws IOException {
-        XMLImporter importer = new XMLImporter(new InMemoryPlatformConfig(fileSystem));
-        //we want a network without extensions
-        List<String> extensionsList = Arrays.asList();
-        Properties parameters = new Properties();
-        parameters.put(XMLImporter.EXTENSIONS_LIST, extensionsList);
-        ReadOnlyDataSource dataSource = new ResourceDataSource("eurostag-tutorial1-lf", new ResourceSet("/", "eurostag-tutorial1-lf.xml"));
-        Network network = importer.importData(dataSource, parameters);
-        exporterTest(network);
+        exporterTest(getEurostagLfNetwork());
     }
 }
