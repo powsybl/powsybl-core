@@ -137,7 +137,7 @@ public final class Exporters {
     }
 
     public static void export(String format, Network network, Properties parameters, String directory, String baseName) {
-        export(LOADER.get(), format, network, parameters, new FileDataSource(Paths.get(directory), baseName));
+        export(LOADER.get(), format, network, parameters, directory, baseName);
     }
 
 }

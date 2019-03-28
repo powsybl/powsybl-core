@@ -9,10 +9,14 @@ package com.powsybl.iidm.export;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.AbstractConvertersTest;
+
 import org.junit.Test;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
+
 import java.util.Collection;
 
 import static org.junit.Assert.*;
@@ -21,6 +25,9 @@ import static org.junit.Assert.*;
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public class ExportersTest extends AbstractConvertersTest {
+
+    private static final String FOO_TST = "foo.tst";
+    private static final String WORK_FOO_TST = "/work/" + FOO_TST;
 
     private final Exporter testExporter = new TestExporter();
     private final ExportersLoader loader = new ExportersLoaderList(testExporter);
@@ -47,23 +54,23 @@ public class ExportersTest extends AbstractConvertersTest {
 
     @Test
     public void createDataSource1() throws IOException {
-        Files.createFile(fileSystem.getPath("/work/foo.tst"));
+        Files.createFile(fileSystem.getPath(WORK_FOO_TST));
         DataSource dataSource = Exporters.createDataSource(fileSystem.getPath("/work/"), "foo", null);
-        assertTrue(dataSource.exists("foo.tst"));
+        assertTrue(dataSource.exists(FOO_TST));
     }
 
     @Test
     public void createDataSource2() throws IOException {
-        Files.createFile(fileSystem.getPath("/work/foo.tst"));
+        Files.createFile(fileSystem.getPath(WORK_FOO_TST));
         DataSource dataSource = Exporters.createDataSource(path, null);
-        assertTrue(dataSource.exists("foo.tst"));
+        assertTrue(dataSource.exists(FOO_TST));
     }
 
     @Test
     public void createDataSource3() throws IOException {
-        Files.createFile(fileSystem.getPath("/work/foo.tst"));
+        Files.createFile(fileSystem.getPath(WORK_FOO_TST));
         DataSource dataSource = Exporters.createDataSource(path);
-        assertTrue(dataSource.exists("foo.tst"));
+        assertTrue(dataSource.exists(FOO_TST));
     }
 
     @Test
@@ -85,5 +92,14 @@ public class ExportersTest extends AbstractConvertersTest {
         Exporters.export(loader, TEST_FORMAT, null, null, path);
         DataSource dataSource = Exporters.createDataSource(path);
         assertEquals(Byte.BYTES, dataSource.newInputStream(null, EXTENSION).read());
+    }
+
+    @Test
+    public void export3() throws IOException {
+        Path dir = Files.createTempDirectory("tmp-export");
+        Exporters.export(loader, TEST_FORMAT, null, null,  dir.toString(), "tmp");
+        try (InputStream is = Files.newInputStream(dir.resolve("tmp.tst"))) {
+            assertEquals(Byte.BYTES, is.read());
+        }
     }
 }
