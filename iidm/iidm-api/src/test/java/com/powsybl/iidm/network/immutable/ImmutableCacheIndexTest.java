@@ -48,7 +48,8 @@ public class ImmutableCacheIndexTest {
         assertNull(cache.getConnectable(null));
 
         Connectable cacheBs = cache.getConnectable(busbarSection);
-        assertSame(busbarSection, cacheBs);
+        assertTrue(cacheBs instanceof ImmutableBusbarSection);
+        assertSame(cacheBs, cache.getBusbarSection(busbarSection));
 
         Line cacheLine = cache.getLine(line);
         assertTrue(cacheLine instanceof ImmutableLine);

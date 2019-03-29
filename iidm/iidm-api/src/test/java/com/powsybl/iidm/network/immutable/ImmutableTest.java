@@ -26,6 +26,9 @@ public class ImmutableTest {
 
     private static final VerificationMode ONCE = times(1);
 
+    private static final List<BusbarSection> MOCK_BS_LIST = Arrays.asList(mock(BusbarSection.class), mock(BusbarSection.class));
+    private static final Supplier<Stream<BusbarSection>> MOCK_BS_STREAM = () -> MOCK_BS_LIST.stream();
+
     private static final List<Bus> MOCK_BUS_LIST = Arrays.asList(mock(Bus.class), mock(Bus.class));
     private static final Supplier<Stream<Bus>> MOCK_BUS_STREAM = () -> MOCK_BUS_LIST.stream();
 
@@ -331,6 +334,13 @@ public class ImmutableTest {
         when(delegate.getSwitchCount()).thenReturn(1);
         assertEquals(1, sut.getSwitchCount());
         assertElementType(ImmutableSwitch.class, sut.getSwitches(), sut.getSwitchStream());
+
+        when(delegate.getBusbarSections()).thenReturn(MOCK_BS_LIST);
+        when(delegate.getBusbarSectionStream()).thenReturn(MOCK_BS_STREAM.get());
+        when(delegate.getBusbarSectionCount()).thenReturn(3);
+        assertEquals(3, sut.getBusbarSectionCount());
+        assertElementType(ImmutableBusbarSection.class, sut.getBusbarSections(), sut.getBusbarSectionStream());
+
     }
 
     @Test
@@ -444,6 +454,12 @@ public class ImmutableTest {
         when(delegateNbv.getSwitchCount()).thenReturn(1);
         assertEquals(1, sut.getNodeBreakerView().getSwitchCount());
         assertElementType(ImmutableSwitch.class, sut.getNodeBreakerView().getSwitches(), sut.getNodeBreakerView().getSwitchStream());
+
+        when(delegateNbv.getBusbarSections()).thenReturn(MOCK_BS_LIST);
+        when(delegateNbv.getBusbarSectionStream()).thenReturn(MOCK_BS_STREAM.get());
+        when(delegateNbv.getBusbarSectionCount()).thenReturn(3);
+        assertEquals(3, sut.getNodeBreakerView().getBusbarSectionCount());
+        assertElementType(ImmutableBusbarSection.class, sut.getNodeBreakerView().getBusbarSections(), sut.getNodeBreakerView().getBusbarSectionStream());
     }
 
     @Test

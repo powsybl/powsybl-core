@@ -378,12 +378,12 @@ final class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<VoltageL
 
             @Override
             public Iterable<BusbarSection> getBusbarSections() {
-                return nbv.getBusbarSections();
+                return Iterables.transform(nbv.getBusbarSections(), cache::getBusbarSection);
             }
 
             @Override
             public Stream<BusbarSection> getBusbarSectionStream() {
-                return nbv.getBusbarSectionStream();
+                return nbv.getBusbarSectionStream().map(cache::getBusbarSection);
             }
 
             @Override
@@ -393,7 +393,7 @@ final class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<VoltageL
 
             @Override
             public BusbarSection getBusbarSection(String id) {
-                return nbv.getBusbarSection(id);
+                return cache.getBusbarSection(nbv.getBusbarSection(id));
             }
 
             @Override

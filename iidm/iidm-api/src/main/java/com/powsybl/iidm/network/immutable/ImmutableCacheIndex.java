@@ -58,6 +58,10 @@ class ImmutableCacheIndex {
         return twt == null ? null : (ThreeWindingsTransformer) identifiableCacheMap.computeIfAbsent(twt, k -> new ImmutableThreeWindingsTransformer((ThreeWindingsTransformer) k, this));
     }
 
+    BusbarSection getBusbarSection(BusbarSection bs) {
+        return bs == null ? null : (BusbarSection) identifiableCacheMap.computeIfAbsent(bs, k -> new ImmutableBusbarSection((BusbarSection) k, this));
+    }
+
     Bus getBus(Bus bus) {
         return bus == null ? null : (Bus) identifiableCacheMap.computeIfAbsent(bus, k -> new ImmutableBus((Bus) k, this));
     }
@@ -154,7 +158,7 @@ class ImmutableCacheIndex {
         }
         switch (connectable.getType()) {
             case BUSBAR_SECTION:
-                return connectable;
+                return getBusbarSection((BusbarSection) connectable);
             case LINE:
             case TWO_WINDINGS_TRANSFORMER:
                 return getBranch((Branch) connectable);

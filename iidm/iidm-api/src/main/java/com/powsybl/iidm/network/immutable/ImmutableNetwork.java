@@ -341,17 +341,17 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
     @Override
     public BusbarSection getBusbarSection(String id) {
-        return identifiable.getBusbarSection(id);
+        return cache.getBusbarSection(identifiable.getBusbarSection(id));
     }
 
     @Override
     public Iterable<BusbarSection> getBusbarSections() {
-        return identifiable.getBusbarSections();
+        return Iterables.transform(identifiable.getBusbarSections(), cache::getBusbarSection);
     }
 
     @Override
     public Stream<BusbarSection> getBusbarSectionStream() {
-        return identifiable.getBusbarSectionStream();
+        return identifiable.getBusbarSectionStream().map(cache::getBusbarSection);
     }
 
     @Override
