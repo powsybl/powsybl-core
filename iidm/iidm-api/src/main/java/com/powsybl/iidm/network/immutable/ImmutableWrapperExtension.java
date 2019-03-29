@@ -15,6 +15,6 @@ import com.powsybl.commons.extensions.ExtensionProvider;
  */
 public interface ImmutableWrapperExtension<T extends Extendable, E extends Extension<T>> extends ExtensionProvider<T, E> {
 
-    E wrap(E extension);
+    E wrap(E extension, T extendable);
 
 }

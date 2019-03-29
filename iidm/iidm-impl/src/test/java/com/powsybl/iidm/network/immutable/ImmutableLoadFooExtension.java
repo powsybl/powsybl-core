@@ -10,17 +10,11 @@ import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.test.LoadFooExt;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
-
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 @AutoService(ImmutableWrapperExtension.class)
 public class ImmutableLoadFooExtension extends AbstractImmutableWrapperExtension<Load, LoadFooExt> {
-
-    private final Map<LoadFooExt, ImmutableLoadFooExt> cache = new HashMap<>();
 
     @Override
     public String getExtensionName() {
@@ -33,32 +27,27 @@ public class ImmutableLoadFooExtension extends AbstractImmutableWrapperExtension
     }
 
     @Override
-    public LoadFooExt wrap(LoadFooExt extension) {
-        return cache.computeIfAbsent(extension, k -> new ImmutableLoadFooExt(extension));
-    }
+    protected void setImmuter() {
+        immuter = (mutableExt, immuExtendable) -> new LoadFooExt(mutableExt.getExtendable()) {
+            @Override
+            public String getUsername() {
+                return mutableExt.getUsername();
+            }
 
-    private class ImmutableLoadFooExt extends LoadFooExt {
+            @Override
+            public void setUsername(String username) {
+                throw ImmutableNetwork.UNMODIFIABLE_EXCEPTION;
+            }
 
-        private LoadFooExt delegate;
+            @Override
+            public void setExtendable(Load extendable) {
+                throw ImmutableNetwork.UNMODIFIABLE_EXCEPTION;
+            }
 
-        @Override
-        public String getName() {
-            return delegate.getName();
-        }
-
-        @Override
-        public String getUsername() {
-            return delegate.getUsername();
-        }
-
-        @Override
-        public void setUsername(String username) {
-            throw ImmutableNetwork.UNMODIFIABLE_EXCEPTION;
-        }
-
-        public ImmutableLoadFooExt(LoadFooExt delegate) {
-            super(delegate.getExtendable());
-            this.delegate = Objects.requireNonNull(delegate);
-        }
+            @Override
+            public Load getExtendable() {
+                return immuExtendable;
+            }
+        };
     }
 }

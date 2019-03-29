@@ -10,21 +10,13 @@ import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.test.SubstationShutdownExtension;
 
+import java.util.Objects;
+
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 @AutoService(ImmutableWrapperExtension.class)
 public class ImmutableSubstationShutdownExtension extends AbstractImmutableWrapperExtension<Substation, SubstationShutdownExtension> {
-
-    @Override
-    public SubstationShutdownExtension wrap(SubstationShutdownExtension extension) {
-        return new SubstationShutdownExtension() {
-            @Override
-            public void shutdown() {
-                throw ImmutableNetwork.UNMODIFIABLE_EXCEPTION;
-            }
-        };
-    }
 
     @Override
     public String getExtensionName() {
@@ -34,5 +26,51 @@ public class ImmutableSubstationShutdownExtension extends AbstractImmutableWrapp
     @Override
     public Class<? super SubstationShutdownExtension> getExtensionClass() {
         return SubstationShutdownExtension.class;
+    }
+
+    @Override
+    protected void setImmuter() {
+        immuter = (mutableExtension, immutableExtendable) -> {
+            return new SubstationShutdownExtension() {
+                @Override
+                public void shutdown() {
+                    throw ImmutableNetwork.UNMODIFIABLE_EXCEPTION;
+                }
+
+                @Override
+                public Substation getExtendable() {
+                    return immutableExtendable;
+                }
+
+                @Override
+                public void setExtendable(Substation extendable) {
+                    throw ImmutableNetwork.UNMODIFIABLE_EXCEPTION;
+                }
+            };
+        };
+    }
+
+    private static class ImmutableSubstationShutdownExt extends SubstationShutdownExtension {
+
+        private SubstationShutdownExtension delegate;
+
+        public ImmutableSubstationShutdownExt(SubstationShutdownExtension delegate) {
+            this.delegate = Objects.requireNonNull(delegate);
+        }
+
+        @Override
+        public String getName() {
+            return super.getName();
+        }
+
+        @Override
+        public void shutdown() {
+            throw ImmutableNetwork.UNMODIFIABLE_EXCEPTION;
+        }
+
+        @Override
+        public void setExtendable(Substation extendable) {
+            throw ImmutableNetwork.UNMODIFIABLE_EXCEPTION;
+        }
     }
 }

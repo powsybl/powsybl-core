@@ -149,14 +149,21 @@ public class ImmutableNetworkTest {
         Load immutableLoad = immutableNetwork.getLoad("LOAD");
         LoadFooExt immutableExt = immutableLoad.getExtension(LoadFooExt.class);
         assertEquals("foo", immutableExt.getUsername());
+        assertEquals(immutableLoad, immutableExt.getExtendable());
         try {
             immutableExt.setUsername("foo");
             fail();
         } catch (Exception e) {
-            //ignore
+            // ignore
         }
         try {
             immutableLoad.addExtension(LoadBarExt.class, new LoadBarExt(immutableLoad));
+            fail();
+        } catch (Exception e) {
+            // ignore
+        }
+        try {
+            immutableExt.setExtendable(network.getLoad("LOAD"));
             fail();
         } catch (Exception e) {
             // ignore

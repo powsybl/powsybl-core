@@ -69,7 +69,7 @@ abstract class AbstractImmutableIdentifiable<I extends Identifiable<I>> implemen
         }
         ImmutableWrapperExtension immutableWrapperExtension = PROVIDERS.findProvider(name);
         if (immutableWrapperExtension != null) {
-            return (E) immutableWrapperExtension.wrap(identifiable.getExtensionByName(name));
+            return (E) immutableWrapperExtension.wrap(identifiable.getExtensionByName(name), this);
         } else {
             return identifiable.getExtensionByName(name);
         }
