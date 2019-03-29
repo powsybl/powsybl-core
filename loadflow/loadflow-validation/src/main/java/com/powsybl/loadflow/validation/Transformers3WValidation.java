@@ -9,14 +9,10 @@ package com.powsybl.loadflow.validation;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
+
 import java.util.Comparator;
 import java.util.Objects;
 
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,48 +27,17 @@ import com.powsybl.loadflow.validation.io.ValidationWriter;
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public final class Transformers3WValidation {
+public final class Transformers3WValidation extends AbstractTransformersValidation {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Transformers3WValidation.class);
 
-    private static final Supplier<TableFormatterConfig> TABLE_FORMATTER_CONFIG = Suppliers.memoize(TableFormatterConfig::load);
+    public static final Transformers3WValidation INSTANCE = new Transformers3WValidation();
 
     private Transformers3WValidation() {
     }
 
-    public static boolean checkTransformers(Network network, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Path file) throws IOException {
-        Objects.requireNonNull(network);
-        Objects.requireNonNull(validationConfig);
-        Objects.requireNonNull(formatterConfig);
-        Objects.requireNonNull(file);
-
-        try (Writer writer = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
-            return checkTransformers(network, validationConfig, formatterConfig, writer);
-        }
-    }
-
-    public static boolean checkTransformers(Network network, ValidationConfig config, Path file) throws IOException {
-        return checkTransformers(network, config, TABLE_FORMATTER_CONFIG.get(), file);
-    }
-
-    public static boolean checkTransformers(Network network, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
-        Objects.requireNonNull(network);
-        Objects.requireNonNull(validationConfig);
-        Objects.requireNonNull(formatterConfig);
-        Objects.requireNonNull(writer);
-
-        try (ValidationWriter twtsWriter = ValidationUtils.createValidationWriter(network.getId(), validationConfig, formatterConfig, writer, ValidationType.TWTS3W)) {
-            return checkTransformers(network, validationConfig, twtsWriter);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    public static boolean checkTransformers(Network network, ValidationConfig config, Writer writer) {
-        return checkTransformers(network, config, TABLE_FORMATTER_CONFIG.get(), writer);
-    }
-
-    public static boolean checkTransformers(Network network, ValidationConfig config, ValidationWriter twtsWriter) {
+    @Override
+    public boolean checkTransformers(Network network, ValidationConfig config, ValidationWriter twtsWriter) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(twtsWriter);
@@ -85,7 +50,7 @@ public final class Transformers3WValidation {
                 .orElse(true);
     }
 
-    public static boolean checkTransformer(ThreeWindingsTransformer twt, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
+    public boolean checkTransformer(ThreeWindingsTransformer twt, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
         Objects.requireNonNull(twt);
         Objects.requireNonNull(validationConfig);
         Objects.requireNonNull(formatterConfig);
@@ -98,11 +63,11 @@ public final class Transformers3WValidation {
         }
     }
 
-    public static boolean checkTransformer(ThreeWindingsTransformer twt, ValidationConfig config, Writer writer) {
+    public boolean checkTransformer(ThreeWindingsTransformer twt, ValidationConfig config, Writer writer) {
         return checkTransformer(twt, config, TABLE_FORMATTER_CONFIG.get(), writer);
     }
 
-    public static boolean checkTransformer(ThreeWindingsTransformer twt, ValidationConfig validationConfig, ValidationWriter twtsWriter) {
+    public boolean checkTransformer(ThreeWindingsTransformer twt, ValidationConfig validationConfig, ValidationWriter twtsWriter) {
         Objects.requireNonNull(twt);
         Objects.requireNonNull(validationConfig);
         Objects.requireNonNull(twtsWriter);

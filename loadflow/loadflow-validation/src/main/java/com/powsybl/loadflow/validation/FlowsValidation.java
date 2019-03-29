@@ -37,10 +37,12 @@ public final class FlowsValidation {
 
     private static final Supplier<TableFormatterConfig> TABLE_FORMATTER_CONFIG = Suppliers.memoize(TableFormatterConfig::load);
 
+    public static final FlowsValidation INSTANCE = new FlowsValidation();
+
     private FlowsValidation() {
     }
 
-    public static boolean checkFlows(BranchData branch, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
+    public boolean checkFlows(BranchData branch, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
         Objects.requireNonNull(branch);
         Objects.requireNonNull(branch.getId());
         Objects.requireNonNull(validationConfig);
@@ -54,11 +56,11 @@ public final class FlowsValidation {
         }
     }
 
-    public static boolean checkFlows(BranchData branch, ValidationConfig config, Writer writer) {
+    public boolean checkFlows(BranchData branch, ValidationConfig config, Writer writer) {
         return checkFlows(branch, config, TABLE_FORMATTER_CONFIG.get(), writer);
     }
 
-    public static boolean checkFlows(BranchData branch, ValidationConfig config, ValidationWriter flowsWriter) {
+    public boolean checkFlows(BranchData branch, ValidationConfig config, ValidationWriter flowsWriter) {
         Objects.requireNonNull(branch);
         Objects.requireNonNull(branch.getId());
         Objects.requireNonNull(config);
@@ -121,7 +123,7 @@ public final class FlowsValidation {
         return validated;
     }
 
-    public static boolean checkFlows(Line l, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
+    public boolean checkFlows(Line l, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
         Objects.requireNonNull(l);
         Objects.requireNonNull(validationConfig);
         Objects.requireNonNull(formatterConfig);
@@ -134,11 +136,11 @@ public final class FlowsValidation {
         }
     }
 
-    public static boolean checkFlows(Line l, ValidationConfig config, Writer writer) {
+    public boolean checkFlows(Line l, ValidationConfig config, Writer writer) {
         return checkFlows(l, config, TABLE_FORMATTER_CONFIG.get(), writer);
     }
 
-    public static boolean checkFlows(Line l, ValidationConfig config, ValidationWriter flowsWriter) {
+    public boolean checkFlows(Line l, ValidationConfig config, ValidationWriter flowsWriter) {
         Objects.requireNonNull(l);
         Objects.requireNonNull(config);
         Objects.requireNonNull(flowsWriter);
@@ -147,7 +149,7 @@ public final class FlowsValidation {
         return checkFlows(branch, config, flowsWriter);
     }
 
-    public static boolean checkFlows(TwoWindingsTransformer twt, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
+    public boolean checkFlows(TwoWindingsTransformer twt, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
         Objects.requireNonNull(twt);
         Objects.requireNonNull(validationConfig);
         Objects.requireNonNull(formatterConfig);
@@ -160,11 +162,11 @@ public final class FlowsValidation {
         }
     }
 
-    public static boolean checkFlows(TwoWindingsTransformer twt, ValidationConfig config, Writer writer) {
+    public boolean checkFlows(TwoWindingsTransformer twt, ValidationConfig config, Writer writer) {
         return checkFlows(twt, config, TABLE_FORMATTER_CONFIG.get(), writer);
     }
 
-    public static boolean checkFlows(TwoWindingsTransformer twt, ValidationConfig config, ValidationWriter flowsWriter) {
+    public boolean checkFlows(TwoWindingsTransformer twt, ValidationConfig config, ValidationWriter flowsWriter) {
         Objects.requireNonNull(twt);
         Objects.requireNonNull(config);
         Objects.requireNonNull(flowsWriter);
@@ -173,7 +175,7 @@ public final class FlowsValidation {
         return checkFlows(branch, config, flowsWriter);
     }
 
-    public static boolean checkFlows(Network network, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
+    public boolean checkFlows(Network network, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(validationConfig);
         Objects.requireNonNull(formatterConfig);
@@ -186,11 +188,11 @@ public final class FlowsValidation {
         }
     }
 
-    public static boolean checkFlows(Network network, ValidationConfig config, Writer writer) {
+    public boolean checkFlows(Network network, ValidationConfig config, Writer writer) {
         return checkFlows(network, config, TABLE_FORMATTER_CONFIG.get(), writer);
     }
 
-    public static boolean checkFlows(Network network, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Path file) throws IOException {
+    public boolean checkFlows(Network network, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Path file) throws IOException {
         Objects.requireNonNull(network);
         Objects.requireNonNull(validationConfig);
         Objects.requireNonNull(formatterConfig);
@@ -200,11 +202,11 @@ public final class FlowsValidation {
         }
     }
 
-    public static boolean checkFlows(Network network, ValidationConfig config, Path file) throws IOException {
+    public boolean checkFlows(Network network, ValidationConfig config, Path file) throws IOException {
         return checkFlows(network, config, TABLE_FORMATTER_CONFIG.get(), file);
     }
 
-    public static boolean checkFlows(Network network, ValidationConfig config, ValidationWriter flowsWriter) {
+    public boolean checkFlows(Network network, ValidationConfig config, ValidationWriter flowsWriter) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(flowsWriter);

@@ -36,10 +36,12 @@ public final class ShuntCompensatorsValidation {
 
     private static final Supplier<TableFormatterConfig> TABLE_FORMATTER_CONFIG = Suppliers.memoize(TableFormatterConfig::load);
 
+    public static final ShuntCompensatorsValidation INSTANCE = new ShuntCompensatorsValidation();
+
     private ShuntCompensatorsValidation() {
     }
 
-    public static boolean checkShunts(Network network, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Path file) throws IOException {
+    public boolean checkShunts(Network network, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Path file) throws IOException {
         Objects.requireNonNull(file);
         Objects.requireNonNull(validationConfig);
         Objects.requireNonNull(formatterConfig);
@@ -48,11 +50,11 @@ public final class ShuntCompensatorsValidation {
         }
     }
 
-    public static boolean checkShunts(Network network, ValidationConfig config, Path file) throws IOException {
+    public boolean checkShunts(Network network, ValidationConfig config, Path file) throws IOException {
         return checkShunts(network, config, TABLE_FORMATTER_CONFIG.get(), file);
     }
 
-    public static boolean checkShunts(Network network, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
+    public boolean checkShunts(Network network, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(validationConfig);
         Objects.requireNonNull(formatterConfig);
@@ -64,11 +66,11 @@ public final class ShuntCompensatorsValidation {
         }
     }
 
-    public static boolean checkShunts(Network network, ValidationConfig config, Writer writer) {
+    public boolean checkShunts(Network network, ValidationConfig config, Writer writer) {
         return checkShunts(network, config, TABLE_FORMATTER_CONFIG.get(), writer);
     }
 
-    public static boolean checkShunts(Network network, ValidationConfig config, ValidationWriter shuntsWriter) {
+    public boolean checkShunts(Network network, ValidationConfig config, ValidationWriter shuntsWriter) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(shuntsWriter);
@@ -80,7 +82,7 @@ public final class ShuntCompensatorsValidation {
                       .orElse(true);
     }
 
-    public static boolean checkShunts(ShuntCompensator shunt, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
+    public boolean checkShunts(ShuntCompensator shunt, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
         Objects.requireNonNull(shunt);
         Objects.requireNonNull(validationConfig);
         Objects.requireNonNull(formatterConfig);
@@ -93,11 +95,11 @@ public final class ShuntCompensatorsValidation {
         }
     }
 
-    public static boolean checkShunts(ShuntCompensator shunt, ValidationConfig config, Writer writer) {
+    public boolean checkShunts(ShuntCompensator shunt, ValidationConfig config, Writer writer) {
         return checkShunts(shunt, config, TABLE_FORMATTER_CONFIG.get(), writer);
     }
 
-    public static boolean checkShunts(ShuntCompensator shunt, ValidationConfig config, ValidationWriter shuntsWriter) {
+    public boolean checkShunts(ShuntCompensator shunt, ValidationConfig config, ValidationWriter shuntsWriter) {
         Objects.requireNonNull(shunt);
         Objects.requireNonNull(config);
         Objects.requireNonNull(shuntsWriter);
@@ -118,7 +120,7 @@ public final class ShuntCompensatorsValidation {
         return checkShunts(shunt.getId(), p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, config, shuntsWriter);
     }
 
-    public static boolean checkShunts(String id, double p, double q, int currentSectionCount, int maximumSectionCount, double bPerSection,
+    public boolean checkShunts(String id, double p, double q, int currentSectionCount, int maximumSectionCount, double bPerSection,
                                       double v, double qMax, double nominalV, boolean connected, boolean mainComponent, ValidationConfig validationConfig,
                                       TableFormatterConfig formatterConfig, Writer writer) {
         Objects.requireNonNull(id);
@@ -133,14 +135,14 @@ public final class ShuntCompensatorsValidation {
         }
     }
 
-    public static boolean checkShunts(String id, double p, double q, int currentSectionCount, int maximumSectionCount, double bPerSection,
+    public boolean checkShunts(String id, double p, double q, int currentSectionCount, int maximumSectionCount, double bPerSection,
                                       double v, double qMax, double nominalV, boolean connected, boolean mainComponent, ValidationConfig config,
                                       Writer writer) {
         return checkShunts(id, p, q, currentSectionCount, maximumSectionCount, bPerSection, v, qMax, nominalV, connected, mainComponent, config,
                 TABLE_FORMATTER_CONFIG.get(), writer);
     }
 
-    public static boolean checkShunts(String id, double p, double q, int currentSectionCount, int maximumSectionCount, double bPerSection,
+    public boolean checkShunts(String id, double p, double q, int currentSectionCount, int maximumSectionCount, double bPerSection,
                                       double v, double qMax, double nominalV, boolean connected, boolean mainComponent, ValidationConfig config,
                                       ValidationWriter shuntsWriter) {
         boolean validated = true;

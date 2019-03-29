@@ -36,10 +36,12 @@ public final class GeneratorsValidation {
 
     private static final Supplier<TableFormatterConfig> TABLE_FORMATTER_CONFIG = Suppliers.memoize(TableFormatterConfig::load);
 
+    public static final GeneratorsValidation INSTANCE = new GeneratorsValidation();
+
     private GeneratorsValidation() {
     }
 
-    public static boolean checkGenerators(Network network, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Path file) throws IOException {
+    public boolean checkGenerators(Network network, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Path file) throws IOException {
         Objects.requireNonNull(file);
         Objects.requireNonNull(validationConfig);
         Objects.requireNonNull(formatterConfig);
@@ -49,11 +51,11 @@ public final class GeneratorsValidation {
         }
     }
 
-    public static boolean checkGenerators(Network network, ValidationConfig config, Path file) throws IOException {
+    public boolean checkGenerators(Network network, ValidationConfig config, Path file) throws IOException {
         return checkGenerators(network, config, TABLE_FORMATTER_CONFIG.get(), file);
     }
 
-    public static boolean checkGenerators(Network network, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
+    public boolean checkGenerators(Network network, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(validationConfig);
         Objects.requireNonNull(formatterConfig);
@@ -65,11 +67,11 @@ public final class GeneratorsValidation {
         }
     }
 
-    public static boolean checkGenerators(Network network, ValidationConfig config, Writer writer) {
+    public boolean checkGenerators(Network network, ValidationConfig config, Writer writer) {
         return checkGenerators(network, config, TABLE_FORMATTER_CONFIG.get(), writer);
     }
 
-    public static boolean checkGenerators(Network network, ValidationConfig config, ValidationWriter generatorsWriter) {
+    public boolean checkGenerators(Network network, ValidationConfig config, ValidationWriter generatorsWriter) {
         Objects.requireNonNull(network);
         Objects.requireNonNull(config);
         Objects.requireNonNull(generatorsWriter);
@@ -83,7 +85,7 @@ public final class GeneratorsValidation {
                       .orElse(true);
     }
 
-    public static boolean checkGenerators(Generator gen, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
+    public boolean checkGenerators(Generator gen, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
         Objects.requireNonNull(gen);
         Objects.requireNonNull(validationConfig);
         Objects.requireNonNull(formatterConfig);
@@ -96,11 +98,11 @@ public final class GeneratorsValidation {
         }
     }
 
-    public static boolean checkGenerators(Generator gen, ValidationConfig config, Writer writer) {
+    public boolean checkGenerators(Generator gen, ValidationConfig config, Writer writer) {
         return checkGenerators(gen, config, TABLE_FORMATTER_CONFIG.get(), writer);
     }
 
-    public static boolean checkGenerators(Generator gen, ValidationConfig config, ValidationWriter generatorsWriter, BalanceTypeGuesser guesser) {
+    public boolean checkGenerators(Generator gen, ValidationConfig config, ValidationWriter generatorsWriter, BalanceTypeGuesser guesser) {
         Objects.requireNonNull(gen);
         Objects.requireNonNull(config);
         Objects.requireNonNull(generatorsWriter);
@@ -124,7 +126,7 @@ public final class GeneratorsValidation {
                                mainComponent, config, generatorsWriter, guesser);
     }
 
-    public static boolean checkGenerators(String id, double p, double q, double v, double targetP, double targetQ, double targetV,
+    public boolean checkGenerators(String id, double p, double q, double v, double targetP, double targetQ, double targetV,
                                           boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean connected,
                                           boolean mainComponent, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
         Objects.requireNonNull(id);
@@ -140,14 +142,14 @@ public final class GeneratorsValidation {
         }
     }
 
-    public static boolean checkGenerators(String id, double p, double q, double v, double targetP, double targetQ, double targetV,
+    public boolean checkGenerators(String id, double p, double q, double v, double targetP, double targetQ, double targetV,
                                           boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean connected,
                                           boolean mainComponent, ValidationConfig config, Writer writer) {
         return checkGenerators(id, p, q, v, targetP, targetQ, targetV, voltageRegulatorOn, minP, maxP, minQ, maxQ, connected, mainComponent, config,
                 TABLE_FORMATTER_CONFIG.get(), writer);
     }
 
-    public static boolean checkGenerators(String id, double p, double q, double v, double targetP, double targetQ, double targetV,
+    public boolean checkGenerators(String id, double p, double q, double v, double targetP, double targetQ, double targetV,
                                           boolean voltageRegulatorOn, double minP, double maxP, double minQ, double maxQ, boolean connected,
                                           boolean mainComponent, ValidationConfig config, ValidationWriter generatorsWriter, BalanceTypeGuesser guesser) {
         Objects.requireNonNull(id);
