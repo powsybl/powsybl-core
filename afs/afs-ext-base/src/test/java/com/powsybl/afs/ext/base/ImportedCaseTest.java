@@ -15,15 +15,20 @@ import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.iidm.export.ExportersLoader;
+import com.powsybl.iidm.export.ExportersLoaderList;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.xml.XMLExporter;
 import com.powsybl.iidm.xml.XMLImporter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -46,8 +51,12 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
         return MapDbAppStorage.createMem("mem");
     }
 
+    private ExportersLoader createExportersLoader() {
+        return new ExportersLoaderList(new XMLExporter(Mockito.mock(PlatformConfig.class)));
+    }
+
     private ImportersLoader createImportersLoader() {
-        return new ImportersLoaderList(Arrays.asList(new TestImporter(network), new XMLImporter()), Collections.emptyList());
+        return new ImportersLoaderList(Arrays.asList(new TestImporter(network), new XMLImporter(Mockito.mock(PlatformConfig.class))), Collections.emptyList());
     }
 
     @Override
@@ -57,7 +66,7 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
 
     @Override
     protected List<ProjectFileExtension> getProjectFileExtensions() {
-        return ImmutableList.of(new ImportedCaseExtension(createImportersLoader(), new ImportConfig()));
+        return ImmutableList.of(new ImportedCaseExtension(createExportersLoader(), createImportersLoader(), new ImportConfig()));
     }
 
     @Override

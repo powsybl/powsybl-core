@@ -10,9 +10,23 @@ package com.powsybl.cgmes.conversion.test.conformity;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+
 import java.util.*;
+
+import java.nio.file.FileSystem;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Properties;
+
 import java.util.stream.Collectors;
 
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.config.PlatformConfig;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -24,27 +38,42 @@ import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.cgmes.conversion.test.ConversionTester;
 import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.import_.Importers;
+
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TopologyKind;
+
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
 import com.powsybl.triplestore.api.TripleStoreFactory;
+
+import static org.junit.Assert.assertNotNull;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class CgmesConformity1ConversionTest {
+
     @BeforeClass
-    public static void setUp() {
+    public static void setUpBeforeClass() {
         actuals = new CgmesConformity1Catalog();
         expecteds = new CgmesConformity1NetworkCatalog();
         tester = new ConversionTester(
             TripleStoreFactory.onlyDefaultImplementation(),
             new ComparisonConfig());
+    }
+
+    @Before
+    public void setUp() {
+        fileSystem = Jimfs.newFileSystem();
+        platformConfig = new InMemoryPlatformConfig(fileSystem);
+    }
+
+    @After
+    public void tearDown() throws IOException {
+        fileSystem.close();
     }
 
     @Test
@@ -174,14 +203,10 @@ public class CgmesConformity1ConversionTest {
     }
 
     @Test
-    public void smallNodeBreakerHvdc() throws IOException {
-        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-
+    public void smallNodeBreakerHvdc() {
         // Small Grid Node Breaker HVDC should be imported without errors
-        Importers.importData("CGMES",
-            actuals.smallNodeBreakerHvdc().dataSource(),
-            null,
-            computationManager);
+        assertNotNull(new CgmesImport(platformConfig).importData(actuals.smallNodeBreakerHvdc().dataSource(), null));
+
     }
 
     @Test
@@ -189,13 +214,10 @@ public class CgmesConformity1ConversionTest {
     // If no topology change has been made, running a LoadFlow (even a Mock
     // LoadFlow)
     // must produce identical identifiers for calculated buses
-    public void smallNodeBreakerStableBusNaming() throws IOException {
+    public void smallNodeBreakerStableBusNaming() {
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
 
-        Network network = Importers.importData("CGMES",
-            actuals.smallNodeBreaker().dataSource(),
-            null,
-            computationManager);
+        Network network = new CgmesImport(platformConfig).importData(actuals.smallNodeBreaker().dataSource(), null);
 
         // Initial bus identifiers
         List<String> initialBusIds = network.getBusView().getBusStream()
@@ -267,4 +289,7 @@ public class CgmesConformity1ConversionTest {
     private static CgmesConformity1Catalog actuals;
     private static CgmesConformity1NetworkCatalog expecteds;
     private static ConversionTester tester;
+
+    private FileSystem fileSystem;
+    private PlatformConfig platformConfig;
 }

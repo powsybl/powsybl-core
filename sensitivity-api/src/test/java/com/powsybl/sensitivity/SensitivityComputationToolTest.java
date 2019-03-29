@@ -48,16 +48,16 @@ public class SensitivityComputationToolTest extends AbstractToolTest {
 
     @Test
     public void checkFailsWhenNetworkFileNotFound() throws IOException {
-        assertCommand(new String[] {COMMAND_NAME, "--case-file", "wrongFile.uct", "--factors-file", "test.csv"}, 3, "", "");
+        assertCommand(new String[] {COMMAND_NAME, "--case-file", "wrongFile.uct", "--factors-file", "test.csv", "--skip-postproc", "true"}, 3, "", "");
     }
 
     @Test
     public void checkFailsWhenFactorsFileNotFound() throws IOException {
-        assertCommand(new String[] {COMMAND_NAME, "--case-file", "test.uct", "--factors-file", "wrongFile.csv"}, 3, "", "");
+        assertCommand(new String[] {COMMAND_NAME, "--case-file", "test.uct", "--factors-file", "wrongFile.csv", "--skip-postproc", "true"}, 3, "", "");
     }
 
     @Test
     public void checkThrowsWhenOutputFileAndNoFormat() throws IOException {
-        assertCommand(new String[] {COMMAND_NAME, "--case-file", "test.uct", "--factors-file", "test.csv", "--output-file", "out.txt"}, 2, "", "");
+        assertCommand(new String[] {COMMAND_NAME, "--case-file", "test.uct", "--factors-file", "test.csv", "--output-file", "out.txt", "--skip-postproc", "true"}, 2, "", "");
     }
 }

@@ -11,6 +11,8 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.export.Exporters;
+import com.powsybl.iidm.export.ExportersLoader;
+import com.powsybl.iidm.export.ExportersServiceLoader;
 import com.powsybl.security.LimitViolation;
 
 import java.nio.file.Path;
@@ -25,6 +27,8 @@ import java.util.Properties;
  */
 public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
 
+    private static final ExportersLoader DEFAULT_EXPORTERS_LOADER = new ExportersServiceLoader();
+
     private final Path outputCaseFolder;
 
     private final String basename;
@@ -35,12 +39,19 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
 
     private final boolean exportEachRound;
 
+    private final ExportersLoader loader;
+
     public CaseExporter(Path outputCaseFolder, String basename, String outputCaseFormat, CompressionFormat compressionFormat, boolean exportEachRound) {
+        this(outputCaseFolder, basename, outputCaseFormat, compressionFormat, exportEachRound, DEFAULT_EXPORTERS_LOADER);
+    }
+
+    public CaseExporter(Path outputCaseFolder, String basename, String outputCaseFormat, CompressionFormat compressionFormat, boolean exportEachRound, ExportersLoader loader) {
         this.outputCaseFolder = Objects.requireNonNull(outputCaseFolder);
         this.basename = Objects.requireNonNull(basename);
         this.outputCaseFormat = Objects.requireNonNull(outputCaseFormat);
         this.compressionFormat = compressionFormat;
         this.exportEachRound = exportEachRound;
+        this.loader = Objects.requireNonNull(loader);
     }
 
     @Override
@@ -57,7 +68,7 @@ public class CaseExporter extends DefaultLoadFlowActionSimulatorObserver {
 
     private void exportNetwork(RunningContext context) {
         DataSource dataSource = DataSourceUtil.createDataSource(outputCaseFolder, getBasename(context.getContingency(), context.getRound()), compressionFormat, null);
-        Exporters.export(outputCaseFormat, context.getNetwork(), new Properties(), dataSource);
+        Exporters.export(loader, outputCaseFormat, context.getNetwork(), new Properties(), dataSource);
     }
 
     /**
