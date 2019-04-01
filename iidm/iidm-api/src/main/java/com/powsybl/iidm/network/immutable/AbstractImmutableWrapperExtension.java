@@ -11,16 +11,14 @@ import com.powsybl.commons.extensions.Extension;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiFunction;
 
 /**
+ * The subclass should implement the {@link #toImmutable()} method.
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 public abstract class AbstractImmutableWrapperExtension<T extends Extendable, E extends Extension<T>> implements ImmutableWrapperExtension<T, E> {
 
     static final String IMMU_WRAPPER_EXT_CATE_NAME = "ImmutableWrapperExtension";
-
-    protected BiFunction<E, T, E> immuter;
 
     Map<E, E> cache = new HashMap<>();
 
@@ -29,13 +27,16 @@ public abstract class AbstractImmutableWrapperExtension<T extends Extendable, E 
         return IMMU_WRAPPER_EXT_CATE_NAME;
     }
 
-    protected abstract void setImmuter();
-
     @Override
-    public final E wrap(E extension, T extendable) {
-        if (immuter == null) {
-            setImmuter();
-        }
-        return cache.computeIfAbsent(extension, k -> immuter.apply(extension, extendable));
+    public final E wrap(E extension, T immutableExtendable) {
+        return cache.computeIfAbsent(extension, k -> toImmutable(extension, immutableExtendable));
     }
+
+    /**
+     * Convert mutable extension to immutable, given the immutable extendable to bind on immutable extension.
+     * @param extension the mutable extension to be wrapped
+     * @param immutableExtendable the immutable extendable to be binded with the immutable extension
+     * @return Returns an immutable extension
+     */
+    protected abstract E toImmutable(E extension, T immutableExtendable);
 }

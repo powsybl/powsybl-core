@@ -27,8 +27,9 @@ public class ImmutableLoadFooExtension extends AbstractImmutableWrapperExtension
     }
 
     @Override
-    protected void setImmuter() {
-        immuter = (mutableExt, immuExtendable) -> new LoadFooExt(mutableExt.getExtendable()) {
+    protected LoadFooExt toImmutable(LoadFooExt mutableExt, Load immuExtendable) {
+        return new LoadFooExt(immuExtendable) {
+
             @Override
             public String getUsername() {
                 return mutableExt.getUsername();
@@ -42,11 +43,6 @@ public class ImmutableLoadFooExtension extends AbstractImmutableWrapperExtension
             @Override
             public void setExtendable(Load extendable) {
                 throw ImmutableNetwork.UNMODIFIABLE_EXCEPTION;
-            }
-
-            @Override
-            public Load getExtendable() {
-                return immuExtendable;
             }
         };
     }

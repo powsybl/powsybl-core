@@ -13,11 +13,11 @@ import java.util.*;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-final class ImmutableCurrentLimits implements CurrentLimits {
+public final class ImmutableCurrentLimits implements CurrentLimits {
 
     private CurrentLimits currentLimits;
 
-    ImmutableCurrentLimits(CurrentLimits currentLimits) {
+    public ImmutableCurrentLimits(CurrentLimits currentLimits) {
         this.currentLimits = Objects.requireNonNull(currentLimits);
     }
 

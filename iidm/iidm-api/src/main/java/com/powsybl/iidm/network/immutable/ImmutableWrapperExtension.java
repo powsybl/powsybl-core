@@ -11,10 +11,16 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionProvider;
 
 /**
+ * All immutable extension's wrapper should extend {@link AbstractImmutableWrapperExtension}.
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 public interface ImmutableWrapperExtension<T extends Extendable, E extends Extension<T>> extends ExtensionProvider<T, E> {
 
-    E wrap(E extension, T extendable);
+    /**
+     * @param extension the mutable extension to be wrapped
+     * @param immutableExtendable the immutable extendable to be binded with the immutable extension
+     * @return Returns an immutable extension
+     */
+    E wrap(E extension, T immutableExtendable);
 
 }
