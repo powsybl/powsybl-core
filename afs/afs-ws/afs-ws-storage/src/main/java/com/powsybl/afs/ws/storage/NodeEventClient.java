@@ -70,6 +70,14 @@ public class NodeEventClient {
 
     @OnClose
     public void onClose(Session session) {
+        if (config.isAutoreconnectEnabled()) {
+            toReconnectInAfs(session);
+        } else {
+            LOGGER.warn("Node event websocket session '{}' closed for file system '{}'", session.getId(), fileSystemName);
+        }
+    }
+
+    private void toReconnectInAfs(Session session) {
         int counter = 0;
         boolean toReconnection = true;
         long dateInitial = Instant.now().getEpochSecond();
