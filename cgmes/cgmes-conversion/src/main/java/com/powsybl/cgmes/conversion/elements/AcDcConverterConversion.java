@@ -10,7 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 import java.util.Objects;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Errors;
+import com.powsybl.cgmes.conversion.Warnings;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
 import com.powsybl.iidm.network.LccConverterStationAdder;
@@ -33,7 +33,7 @@ public class AcDcConverterConversion extends AbstractConductingEquipmentConversi
             return false;
         }
         if (converterType == null) {
-            invalid(Errors.Invalid.AC_DC_CONVERTER_TYPE, String.format("Type %s", p.getLocal("type")));
+            invalid(Warnings.Invalid.AC_DC_CONVERTER_TYPE, String.format("Type %s", p.getLocal("type")));
             return false;
         }
         return true;

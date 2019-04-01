@@ -247,7 +247,7 @@ public class Conversion {
                         String what = String.format("PowerTransformer %s", t);
                         String reason = String.format("Has %d ends. Only 2 or 3 ends are supported",
                                 ends.size());
-                        context.invalid(Errors.Invalid.CONVERSION_XFMR_ONLY_2_OR_3_ENDS_ARE_SUPPORTED, what, reason);
+                        context.invalid(Warnings.Invalid.CONVERSION_XFMR_ONLY_2_OR_3_ENDS_ARE_SUPPORTED, what, reason);
                     }
                     if (c != null && c.valid()) {
                         c.convert();

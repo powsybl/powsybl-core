@@ -8,7 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Errors;
+import com.powsybl.cgmes.conversion.Warnings;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.EnergySource;
 import com.powsybl.iidm.network.Generator;
@@ -44,7 +44,7 @@ public class EquivalentInjectionConversion extends AbstractConductingEquipmentCo
         if (terminalConnected() && regulationStatus) {
             targetV = p.asDouble("regulationTarget");
             if (targetV == 0) {
-                fixed(Errors.Fixes.EQUIVALENT_INJECTION_REGULATION_TARGET, "regulationTarget", "Target voltage value can not be zero",
+                fixed(Warnings.Fixes.EQUIVALENT_INJECTION_REGULATION_TARGET, "regulationTarget", "Target voltage value can not be zero",
                         targetV, voltageLevel().getNominalV());
                 targetV = voltageLevel().getNominalV();
             }

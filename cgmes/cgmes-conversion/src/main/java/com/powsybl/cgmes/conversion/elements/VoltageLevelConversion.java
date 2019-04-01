@@ -8,7 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Errors;
+import com.powsybl.cgmes.conversion.Warnings;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TopologyKind;
@@ -30,7 +30,7 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
     @Override
     public boolean valid() {
         if (substation == null) {
-            missing(Errors.Missing.VOLTAGE_LEVEL_SUBSTATION, String.format("Substation %s (IIDM id: %s)",
+            missing(Warnings.Missing.VOLTAGE_LEVEL_SUBSTATION, String.format("Substation %s (IIDM id: %s)",
                 cgmesSubstationId,
                 iidmSubstationId));
             return false;
@@ -48,7 +48,7 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
         // Missing elements in the boundary file
         if (Double.isNaN(nominalVoltage)) {
             String bv = String.format("BaseVoltage %s", baseVoltage);
-            missing(Errors.Missing.VOLTAGE_LEVEL_BASE_VOLTAGE, bv);
+            missing(Warnings.Missing.VOLTAGE_LEVEL_BASE_VOLTAGE, bv);
             throw new CgmesModelException(String.format("nominalVoltage not found for %s", bv));
         }
 

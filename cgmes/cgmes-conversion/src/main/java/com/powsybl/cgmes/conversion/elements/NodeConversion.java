@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.CountryConversion;
-import com.powsybl.cgmes.conversion.Errors;
+import com.powsybl.cgmes.conversion.Warnings;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Bus;
@@ -91,7 +91,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
                             String countryCodes = String.format("Country. ISO codes %s %s",
                                     p.getLocal("fromEndIsoCode"),
                                     p.getLocal("toEndIsoCode"));
-                            invalid(Errors.Invalid.NODE_COUNTRY_ISO_CODES, countryCodes);
+                            invalid(Warnings.Invalid.NODE_COUNTRY_ISO_CODES, countryCodes);
                             return new PowsyblException("Invalid " + countryCodes);
                         }));
     }
@@ -99,7 +99,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
     @Override
     public boolean valid() {
         if (voltageLevel() == null) {
-            missing(Errors.Missing.NODE_VOLTAGE_LEVEL, String.format("VoltageLevel %s", p.getId(CgmesNames.VOLTAGE_LEVEL)));
+            missing(Warnings.Missing.NODE_VOLTAGE_LEVEL, String.format("VoltageLevel %s", p.getId(CgmesNames.VOLTAGE_LEVEL)));
             return false;
         }
         return true;
@@ -239,7 +239,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
                             bus.getVoltageLevel().getSubstation().getName(),
                             bus.getVoltageLevel().getName());
             String message = String.format("%s. %s", reason, location);
-            context.invalid(Errors.Invalid.NODE_SV_VOLTAGE, "SvVoltage", message);
+            context.invalid(Warnings.Invalid.NODE_SV_VOLTAGE, "SvVoltage", message);
         }
         return valid;
     }

@@ -137,31 +137,31 @@ public class Context {
                 countLines);
     }
 
-    public void invalid(Errors.Invalid code, String what, String reason) {
+    public void invalid(Warnings.Invalid code, String what, String reason) {
         LOG.warn("Invalid {} {}. Reason: {}", code, what, reason);
     }
 
-    public void ignored(Errors.Ignored code, String what, String reason) {
+    public void ignored(Warnings.Ignored code, String what, String reason) {
         LOG.warn("Ignored {} {}. Reason: {}", code, what, reason);
     }
 
-    public void pending(Errors.Pending code, String what, String reason) {
+    public void pending(Warnings.Pending code, String what, String reason) {
         LOG.warn("PENDING {} {}. Reason: {}", code, what, reason);
     }
 
-    public void fixed(Errors.Fixes code, String what, String reason) {
+    public void fixed(Warnings.Fixes code, String what, String reason) {
         LOG.warn("Fixed {} {}. Reason: {}", code, what, reason);
     }
 
-    public void fixed(Errors.Fixes code, String what, String reason, double wrong, double fixed) {
+    public void fixed(Warnings.Fixes code, String what, String reason, double wrong, double fixed) {
         LOG.warn("Fixed {} {}. Reason: {}. Wrong {}, fixed {}", code, what, reason, wrong, fixed);
     }
 
-    public void missing(Errors.Missing code, String what) {
+    public void missing(Warnings.Missing code, String what) {
         LOG.warn("Missing {} {}", code, what);
     }
 
-    public void missing(Errors.Missing code, String what, double defaultValue) {
+    public void missing(Warnings.Missing code, String what, double defaultValue) {
         LOG.warn("Missing {} {}. Used default value {}", code, what, defaultValue);
     }
 

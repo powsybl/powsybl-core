@@ -10,7 +10,7 @@ package com.powsybl.cgmes.conversion.elements;
 import java.util.Objects;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Errors;
+import com.powsybl.cgmes.conversion.Warnings;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
@@ -34,10 +34,10 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
     @Override
     public boolean valid() {
         if (iconverter1 == null) {
-            missing(Errors.Missing.DC_LINE_SEGMENT_CONVERTER, "Converter1");
+            missing(Warnings.Missing.DC_LINE_SEGMENT_CONVERTER, "Converter1");
         }
         if (iconverter2 == null) {
-            missing(Errors.Missing.DC_LINE_SEGMENT_CONVERTER, "Converter2");
+            missing(Warnings.Missing.DC_LINE_SEGMENT_CONVERTER, "Converter2");
         }
         return iconverter1 != null && iconverter2 != null;
     }
@@ -49,7 +49,7 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
 
         double p = activePowerSetpoint();
         double maxP = p * 1.2;
-        missing(Errors.Missing.DC_LINE_SEGMENT_MAX_P, "maxP", maxP);
+        missing(Warnings.Missing.DC_LINE_SEGMENT_MAX_P, "maxP", maxP);
 
         HvdcLineAdder adder = context.network().newHvdcLine()
                 .setR(r())
@@ -67,7 +67,7 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
         double r = p.asDouble("r", 0);
         if (r < 0) {
             double r1 = 0.1;
-            fixed(Errors.Fixes.DC_LINE_SEGMENT_RESISTANCE, "resistance", "was zero", r, r1);
+            fixed(Warnings.Fixes.DC_LINE_SEGMENT_RESISTANCE, "resistance", "was zero", r, r1);
             r = r1;
         }
         return r;
@@ -78,7 +78,7 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
         double ratedUdc2 = cconverter2.asDouble(CgmesNames.RATED_UDC);
         double ratedUdc = ratedUdc1;
         if (ratedUdc2 != ratedUdc1) {
-            invalid(Errors.Invalid.DC_LINE_SEGMENT_RATED_UDC, CgmesNames.RATED_UDC,
+            invalid(Warnings.Invalid.DC_LINE_SEGMENT_RATED_UDC, CgmesNames.RATED_UDC,
                     String.format("different ratedUdc1, ratedUdc2; use ratedUdc1 by default: %f %f",
                             ratedUdc1,
                             ratedUdc2),
@@ -95,7 +95,7 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
         }
         if (Double.isNaN(p)) {
             p = 0;
-            missing(Errors.Missing.DC_LINE_SEGMENT_ACTIVE_POWER_SETPOINT, "activePowerSetpoint", p);
+            missing(Warnings.Missing.DC_LINE_SEGMENT_ACTIVE_POWER_SETPOINT, "activePowerSetpoint", p);
         }
         return p;
     }
@@ -120,11 +120,11 @@ public class DcLineSegmentConversion extends AbstractIdentifiedObjectConversion 
             // So we can only try to determine rectifier and inverter
             // from the type of control mode defined at the converters
             if (DEFAULT_CONVERTERS_MODE != null) {
-                pending(Errors.Pending.DC_LINE_SEGMENT_CONVERTERS_MODES, "Converters modes",
+                pending(Warnings.Pending.DC_LINE_SEGMENT_CONVERTERS_MODES, "Converters modes",
                         String.format("Undefined converters modes %s %s", mode1, mode2));
                 return DEFAULT_CONVERTERS_MODE;
             } else {
-                invalid(Errors.Invalid.DC_LINE_SEGMENT_UNSUPPORTED_MODELING,
+                invalid(Warnings.Invalid.DC_LINE_SEGMENT_UNSUPPORTED_MODELING,
                         String.format("Unsupported modeling. Converters modes %s %s", mode1, mode2));
                 return null;
             }

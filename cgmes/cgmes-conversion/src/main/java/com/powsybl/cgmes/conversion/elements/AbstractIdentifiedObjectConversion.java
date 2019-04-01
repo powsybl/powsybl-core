@@ -8,7 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Errors;
+import com.powsybl.cgmes.conversion.Warnings;
 import com.powsybl.iidm.network.IdentifiableAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -24,7 +24,7 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
         this.id = properties.getId(type);
         this.name = p.get("name");
         if (this.name == null) {
-            missing(Errors.Missing.ABSTRACT_IDENTIFIED_NAME, "name");
+            missing(Warnings.Missing.ABSTRACT_IDENTIFIED_NAME, "name");
         }
     }
 
@@ -34,7 +34,7 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
         this.id = ps.get(0).getId(type);
         this.name = ps.get(0).get("name");
         if (this.name == null) {
-            missing(Errors.Missing.ABSTRACT_IDENTIFIED_NAME, "name");
+            missing(Warnings.Missing.ABSTRACT_IDENTIFIED_NAME, "name");
         }
     }
 

@@ -8,7 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Errors;
+import com.powsybl.cgmes.conversion.Warnings;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -53,7 +53,7 @@ public final class RegulatingControlConversion {
                 control.targetV = regulatingTargetValue;
                 if (control.targetV == 0 || Double.isNaN(control.targetV)) {
                     String reg = p.getId("RegulatingControl");
-                    context.fixed(Errors.Fixes.REGULATING_CONTROL_TARGET, reg, "Invalid value for regulating target value",
+                    context.fixed(Warnings.Fixes.REGULATING_CONTROL_TARGET, reg, "Invalid value for regulating target value",
                             control.targetV, vl.getNominalV());
                     control.targetV = vl.getNominalV();
                 }

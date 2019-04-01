@@ -81,7 +81,7 @@ public class DcMapping {
                     dcTopologicalNode,
                     c.getId(),
                     converters.get(dcTopologicalNode).getId());
-            context.invalid(Errors.Invalid.DC_MAPPING_HV_DC_CONVERTER_STATION, "HvdcConverterStation", reason);
+            context.invalid(Warnings.Invalid.DC_MAPPING_HV_DC_CONVERTER_STATION, "HvdcConverterStation", reason);
             // TODO what to do? overwrite, preserve first, throw an exception ?
         }
         converters.put(dcTopologicalNode, c);
@@ -152,7 +152,7 @@ public class DcMapping {
                 return true;
             } else {
                 String reason = String.format("Reassign different values: %s, %s", value0, value1);
-                context.invalid(Errors.Invalid.DC_MAPPING_REASSIGN_DIFFERENT_VALUES, attribute, reason);
+                context.invalid(Warnings.Invalid.DC_MAPPING_REASSIGN_DIFFERENT_VALUES, attribute, reason);
                 return false;
             }
         }

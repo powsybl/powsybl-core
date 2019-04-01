@@ -73,7 +73,7 @@ public class SubstationIdMapping {
                 mapping.size(),
                 mapping);
             String reason = "Transformer ends have to be in same substation in IIDM";
-            context.fixed(Errors.Fixes.SUBSTATION_ID_MAPPING, what, reason);
+            context.fixed(Warnings.Fixes.SUBSTATION_ID_MAPPING, what, reason);
         }
     }
 

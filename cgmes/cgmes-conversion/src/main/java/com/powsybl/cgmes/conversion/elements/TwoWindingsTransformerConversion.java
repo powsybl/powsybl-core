@@ -8,7 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Errors;
+import com.powsybl.cgmes.conversion.Warnings;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
@@ -84,7 +84,7 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
         if (rtc1 != null) {
             if (rtc2 != null) {
                 String reason = "Unsupported modeling: two winding transformer with two ratio tap changers";
-                invalid(Errors.Invalid.XFMR2_UNSUPPORTED_MODELING_TWO_RTC, reason);
+                invalid(Warnings.Invalid.XFMR2_UNSUPPORTED_MODELING_TWO_RTC, reason);
                 throw new PowsyblException(
                         String.format("TwoWindingTransformer %s %s", id, reason));
             }
@@ -102,7 +102,7 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
         if (ptc1 != null) {
             if (ptc2 != null) {
                 String reason = "Unsupported modeling: transformer with two phase tap changers";
-                invalid(Errors.Invalid.XFMR2_UNSUPPORTED_MODELING_TWO_PTC, reason);
+                invalid(Warnings.Invalid.XFMR2_UNSUPPORTED_MODELING_TWO_PTC, reason);
                 throw new PowsyblException(
                         String.format("TwoWindingTransformer %s %s", id, reason));
             }
@@ -120,7 +120,7 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
                     "Unsupported modelling: transformer with ratio and tap changer not on the same winding, rtc: %s, ptc: %s",
                     rtc,
                     ptc);
-            invalid(Errors.Invalid.XFMR2_RTC_AND_PTC_ON_DIFFERENT_WINDING, reason);
+            invalid(Warnings.Invalid.XFMR2_RTC_AND_PTC_ON_DIFFERENT_WINDING, reason);
         }
     }
 

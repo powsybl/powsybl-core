@@ -8,7 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Errors;
+import com.powsybl.cgmes.conversion.Warnings;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.ShuntCompensator;
@@ -49,7 +49,7 @@ public class ShuntConversion extends AbstractConductingEquipmentConversion {
         }
         if (bPerSection == 0) {
             float bPerSectionFixed = Float.MIN_VALUE;
-            fixed(Errors.Fixes.SHUNT_B_PER_SECTION, CgmesNames.B_PER_SECTION, "Can not be zero", bPerSection, bPerSectionFixed);
+            fixed(Warnings.Fixes.SHUNT_B_PER_SECTION, CgmesNames.B_PER_SECTION, "Can not be zero", bPerSection, bPerSectionFixed);
             bPerSection = bPerSectionFixed;
         }
 

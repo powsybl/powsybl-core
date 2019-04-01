@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Errors;
+import com.powsybl.cgmes.conversion.Warnings;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.Terminal;
@@ -41,7 +41,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
     @Override
     public boolean valid() {
         if (xfmr2 == null && xfmr3 == null) {
-            invalid(Errors.Invalid.RTC_MISSING_TRANSFORMER, "Missing transformer");
+            invalid(Warnings.Invalid.RTC_MISSING_TRANSFORMER, "Missing transformer");
             return false;
         }
         if (xfmr3 != null) {
@@ -55,7 +55,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
                 // Check if the step is at neutral and regulating control is disabled
                 boolean regulating = p.asBoolean("regulatingControlEnabled", false);
                 if (position == neutralStep && !regulating) {
-                    ignored(Errors.Ignored.RTC_NOT_SUPPORTED_AT_END_1_OF_XFMR3_NEUTRAL_STEP_AND_REGULATING_CONTROL_DISABLED,
+                    ignored(Warnings.Ignored.RTC_NOT_SUPPORTED_AT_END_1_OF_XFMR3_NEUTRAL_STEP_AND_REGULATING_CONTROL_DISABLED,
                             reason0 + ", but is at neutralStep and regulating control disabled");
                 } else {
                     String reason = String.format(
@@ -63,20 +63,20 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
                             reason0,
                             position,
                             regulating);
-                    invalid(Errors.Invalid.RTC_NOT_SUPPORTED_AT_END_1_OF_XFMR3_REGULATING_CONTROL_ENABLED, reason);
+                    invalid(Warnings.Invalid.RTC_NOT_SUPPORTED_AT_END_1_OF_XFMR3_REGULATING_CONTROL_ENABLED, reason);
                 }
                 return false;
             }
         }
-        return inRange(Errors.Invalid.RTC_IN_RANGE_NEUTRAL_STEP, "defaultStep", neutralStep, lowStep, highStep) &&
-                inRange(Errors.Invalid.RTC_IN_RANGE_STEP, "position", position, lowStep, highStep);
+        return inRange(Warnings.Invalid.RTC_IN_RANGE_NEUTRAL_STEP, "defaultStep", neutralStep, lowStep, highStep) &&
+                inRange(Warnings.Invalid.RTC_IN_RANGE_STEP, "position", position, lowStep, highStep);
     }
 
     @Override
     public void convert() {
         RatioTapChangerAdder rtca = adder();
         if (rtca == null) {
-            invalid(Errors.Invalid.RTC_COULD_NOT_CREATE_RATIO_TAP_CHANGER_ADDER, "Could not create ratio tap changer adder");
+            invalid(Warnings.Invalid.RTC_COULD_NOT_CREATE_RATIO_TAP_CHANGER_ADDER, "Could not create ratio tap changer adder");
             return;
         }
         rtca.setLowTapPosition(lowStep).setTapPosition(position);
@@ -114,13 +114,13 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
     private void addStepsFromTable(RatioTapChangerAdder rtca) {
         String tableId = p.getId(CgmesNames.RATIO_TAP_CHANGER_TABLE);
         if (tableId == null) {
-            missing(Errors.Missing.RTC_RATIO_TAP_CHANGER_TABLE, CgmesNames.RATIO_TAP_CHANGER_TABLE);
+            missing(Warnings.Missing.RTC_RATIO_TAP_CHANGER_TABLE, CgmesNames.RATIO_TAP_CHANGER_TABLE);
             return;
         }
         LOG.debug("RatioTapChanger {} table {}", id, tableId);
         PropertyBags table = context.ratioTapChangerTable(tableId);
         if (table.isEmpty()) {
-            missing(Errors.Missing.RTC_RATIO_TAP_CHANGER_TABLE_POINTS, "points for RatioTapChangerTable " + tableId);
+            missing(Warnings.Missing.RTC_RATIO_TAP_CHANGER_TABLE_POINTS, "points for RatioTapChangerTable " + tableId);
             return;
         }
         Comparator<PropertyBag> byStep = Comparator.comparingInt((PropertyBag p) -> p.asInt("step"));
@@ -165,7 +165,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         double value = point.asDouble(attr, defaultValue);
         if (Double.isNaN(value)) {
             fixed(
-                    Errors.Fixes.RTC_RATIO_TAP_CHANGER_TABLE_POINT,
+                    Warnings.Fixes.RTC_RATIO_TAP_CHANGER_TABLE_POINT,
                     "RatioTapChangerTablePoint " + attr + " for step " + step + " in table " + tableId,
                     "invalid value " + point.get(attr));
             return defaultValue;
@@ -228,7 +228,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
             rtca.setLoadTapChangingCapabilities(false);
         } else {
             rtca.setLoadTapChangingCapabilities(false);
-            ignored(Errors.Ignored.RTC_UNSUPPORTED_REGULATION_MODE, mode, "Unsupported regulation mode");
+            ignored(Warnings.Ignored.RTC_UNSUPPORTED_REGULATION_MODE, mode, "Unsupported regulation mode");
         }
     }
 
@@ -239,7 +239,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         double targetV = regulatingControlValue;
         if (targetV <= 0) {
             String reg = p.getId("TapChangerControl");
-            ignored(Errors.Ignored.RTC_REGULATING_CONTROL_BAD_TARGET_VOLTAGE,
+            ignored(Warnings.Ignored.RTC_REGULATING_CONTROL_BAD_TARGET_VOLTAGE,
                     reg, String.format("Regulating control has a bad target voltage %f", targetV));
             regulating = false;
             targetV = Float.NaN;

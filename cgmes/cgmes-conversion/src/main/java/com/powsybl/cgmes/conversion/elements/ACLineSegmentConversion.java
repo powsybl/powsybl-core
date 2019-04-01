@@ -12,7 +12,7 @@ import java.util.List;
 import org.apache.commons.math3.complex.Complex;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Errors;
+import com.powsybl.cgmes.conversion.Warnings;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.DanglingLine;
@@ -40,7 +40,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         // or branch. We only ensure we have nodes at both ends
         for (int k = 1; k <= 2; k++) {
             if (nodeId(k) == null) {
-                missing(Errors.Missing.AC_LINE_SEGMENT_NODE_ID, nodeIdPropertyName() + k);
+                missing(Warnings.Missing.AC_LINE_SEGMENT_NODE_ID, nodeIdPropertyName() + k);
                 return false;
             }
         }
@@ -133,7 +133,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         // ends in a boundary node where there is no other line,
         // does not have energy consumer or equivalent injection
         if (terminalConnected(boundarySide) && !context.boundary().hasPowerFlow(boundaryNode)) {
-            missing(Errors.Missing.AC_LINE_SEGMENT_EQUIPMENT_AT_BOUNDARY, "Equipment for modeling consumption/injection at boundary node");
+            missing(Warnings.Missing.AC_LINE_SEGMENT_EQUIPMENT_AT_BOUNDARY, "Equipment for modeling consumption/injection at boundary node");
         }
 
         double r = p.asDouble("r");

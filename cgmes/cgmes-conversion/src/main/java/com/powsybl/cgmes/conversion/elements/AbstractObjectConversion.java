@@ -9,7 +9,7 @@ package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.ConversionException;
-import com.powsybl.cgmes.conversion.Errors;
+import com.powsybl.cgmes.conversion.Warnings;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -60,7 +60,7 @@ public abstract class AbstractObjectConversion {
         return (int) value;
     }
 
-    public boolean presentMandatoryProperty(Errors.Invalid code, String pname) {
+    public boolean presentMandatoryProperty(Warnings.Invalid code, String pname) {
         if (!p.containsKey(pname)) {
             invalid(code, String.format("Missing property %s", pname));
             return false;
@@ -68,7 +68,7 @@ public abstract class AbstractObjectConversion {
         return true;
     }
 
-    public boolean inRange(Errors.Invalid code, String p, int x, int xmin, int xmax) {
+    public boolean inRange(Warnings.Invalid code, String p, int x, int xmin, int xmax) {
         if (x < xmin || x > xmax) {
             invalid(code, String.format("%s value %d not in range [%d, %d]", p, x, xmin, xmax));
             return false;
@@ -76,40 +76,40 @@ public abstract class AbstractObjectConversion {
         return true;
     }
 
-    public void invalid(Errors.Invalid code, String reason) {
+    public void invalid(Warnings.Invalid code, String reason) {
         context.invalid(code, what(), reason);
     }
 
-    public void ignored(Errors.Ignored code, String reason) {
+    public void ignored(Warnings.Ignored code, String reason) {
         context.ignored(code, what(), reason);
     }
 
-    public void ignored(Errors.Ignored code, String what, String reason) {
+    public void ignored(Warnings.Ignored code, String what, String reason) {
         context.ignored(code, complete(what), reason);
     }
 
-    public void invalid(Errors.Invalid code, String what, String reason, double defaultValue) {
+    public void invalid(Warnings.Invalid code, String what, String reason, double defaultValue) {
         String reason1 = String.format("%s. Used default value %f", reason, defaultValue);
         context.invalid(code, complete(what), reason1);
     }
 
-    public void pending(Errors.Pending code, String what, String reason) {
+    public void pending(Warnings.Pending code, String what, String reason) {
         context.pending(code, complete(what), reason);
     }
 
-    public void fixed(Errors.Fixes code, String what, String reason) {
+    public void fixed(Warnings.Fixes code, String what, String reason) {
         context.fixed(code, complete(what), reason);
     }
 
-    public void fixed(Errors.Fixes code, String what, String reason, double wrong, double fixed) {
+    public void fixed(Warnings.Fixes code, String what, String reason, double wrong, double fixed) {
         context.fixed(code, complete(what), reason, wrong, fixed);
     }
 
-    public void missing(Errors.Missing code, String what) {
+    public void missing(Warnings.Missing code, String what) {
         context.missing(code, complete(what));
     }
 
-    public void missing(Errors.Missing code, String what, double defaultValue) {
+    public void missing(Warnings.Missing code, String what, double defaultValue) {
         context.missing(code, complete(what), defaultValue);
     }
 

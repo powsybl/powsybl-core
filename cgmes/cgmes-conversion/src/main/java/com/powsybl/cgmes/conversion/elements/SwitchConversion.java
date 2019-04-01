@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.Errors;
+import com.powsybl.cgmes.conversion.Warnings;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.iidm.network.SwitchKind;
@@ -33,7 +33,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
             return false;
         }
         if (busId(1).equals(busId(2))) {
-            ignored(Errors.Ignored.SWITCH_SAME_END_BUSES, String.format("end buses are the same bus %s", busId(1)));
+            ignored(Warnings.Ignored.SWITCH_SAME_END_BUSES, String.format("end buses are the same bus %s", busId(1)));
             return false;
         }
         if ((isBoundary(1) || isBoundary(2)) && LOG.isWarnEnabled()) {
@@ -117,7 +117,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
                 switchVoltageLevelId(),
                 cgmesVoltageLevelId(1),
                 cgmesVoltageLevelId(2));
-        fixed(Errors.Fixes.SWITCH_AS_LOW_IMPEDANCE_LINE, "Low impedance line", reason);
+        fixed(Warnings.Fixes.SWITCH_AS_LOW_IMPEDANCE_LINE, "Low impedance line", reason);
     }
 
     private static final Logger LOG = LoggerFactory.getLogger(SwitchConversion.class);
