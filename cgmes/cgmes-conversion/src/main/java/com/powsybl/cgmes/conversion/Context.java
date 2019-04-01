@@ -154,7 +154,7 @@ public class Context {
     }
 
     public void fixed(Errors.Fixes code, String what, String reason, double wrong, double fixed) {
-        LOG.warn("Fixed {} {}. Reason: {}. Wrong {}, fixed {}", what, reason, wrong, fixed);
+        LOG.warn("Fixed {} {}. Reason: {}. Wrong {}, fixed {}", code, what, reason, wrong, fixed);
     }
 
     public void missing(Errors.Missing code, String what) {
