@@ -122,6 +122,4 @@ public class SubstationIdMapping {
 
     private final Context context;
     private final Map<String, String> mapping;
-
-    private static final Logger LOG = LoggerFactory.getLogger(SubstationIdMapping.class);
 }
