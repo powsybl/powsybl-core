@@ -69,8 +69,11 @@ public class SubstationIdMapping {
                     }
                 });
         if (!mapping.isEmpty()) {
-            LOG.warn("Substation id mapping needed for {} substations: {}",
-                    mapping.size(), mapping);
+            String what = String.format("Substation id mapping needed for %s substations: %s",
+                mapping.size(), 
+                mapping);
+            String reason = "Transformer ends have to be in same substation in IIDM";
+            context.fixed(Errors.Fixes.SUBSTATION_ID_MAPPING, what, reason);
         }
     }
 
