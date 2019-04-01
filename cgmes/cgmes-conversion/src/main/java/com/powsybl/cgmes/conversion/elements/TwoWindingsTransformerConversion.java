@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Errors;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
@@ -82,8 +83,8 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
         int rtcSide = 0;
         if (rtc1 != null) {
             if (rtc2 != null) {
-                String reason = "Unsupported modelling: two winding transformer with two ratio tap changers";
-                invalid(reason);
+                String reason = "Unsupported modeling: two winding transformer with two ratio tap changers";
+                invalid(Errors.Invalid.T2X_UNSUPPORTED_MODELING_TWO_RTC, reason);
                 throw new PowsyblException(
                         String.format("TwoWindingTransformer %s %s", id, reason));
             }
@@ -100,8 +101,8 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
         int ptcSide = 0;
         if (ptc1 != null) {
             if (ptc2 != null) {
-                String reason = "Unsupported modelling: transformer with two phase tap changers";
-                invalid(reason);
+                String reason = "Unsupported modeling: transformer with two phase tap changers";
+                invalid(Errors.Invalid.T2X_UNSUPPORTED_MODELING_TWO_PTC, reason);
                 throw new PowsyblException(
                         String.format("TwoWindingTransformer %s %s", id, reason));
             }
@@ -119,7 +120,7 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
                     "Unsupported modelling: transformer with ratio and tap changer not on the same winding, rtc: %s, ptc: %s",
                     rtc,
                     ptc);
-            invalid(reason);
+            invalid(Errors.Invalid.T2X_RTC_AND_PTC_ON_DIFFERENT_WINDING, reason);
         }
     }
 

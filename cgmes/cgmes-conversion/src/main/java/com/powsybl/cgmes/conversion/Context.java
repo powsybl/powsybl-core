@@ -137,12 +137,24 @@ public class Context {
                 countLines);
     }
 
+    public void invalid(Errors.Invalid code, String what, String reason) {
+        LOG.warn("Invalid {} {}. Reason: {}", code, what, reason);
+    }
+
     public void invalid(String what, String reason) {
         LOG.warn("Invalid {}. Reason: {}", what, reason);
     }
 
+    public void ignored(Errors.Ignored code, String what, String reason) {
+        LOG.warn("Ignored {} {}. Reason: {}", code, what, reason);
+    }
+
     public void ignored(String what, String reason) {
         LOG.warn("Ignored {}. Reason: {}", what, reason);
+    }
+
+    public void pending(Errors.Pending code, String what, String reason) {
+        LOG.warn("PENDING {} {}. Reason: {}", code, what, reason);
     }
 
     public void pending(String what, String reason) {
@@ -151,6 +163,10 @@ public class Context {
 
     public void fixed(Errors.Fixes code, String what, String reason) {
         LOG.warn("Fixed {} {}. Reason: {}", code, what, reason);
+    }
+
+    public void fixed(Errors.Fixes code, String what, String reason, double wrong, double fixed) {
+        LOG.warn("Fixed {} {}. Reason: {}. Wrong {}, fixed {}", what, reason, wrong, fixed);
     }
 
     public void fixed(String what, String reason, double wrong, double fixed) {

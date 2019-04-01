@@ -47,9 +47,9 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     public boolean valid() {
         if (terminal == null && branch == null && danglingLine == null && aswitch == null) {
             if (terminalId != null) {
-                missing(Errors.Missing.TERMINAL, String.format("Terminal %s", terminalId));
+                missing(Errors.Missing.OPERATIONAL_LIMIT_TERMINAL, String.format("Terminal %s", terminalId));
             } else if (equipmentId != null) {
-                missing(Errors.Missing.EQUIPMENT, String.format("Equipment %s", equipmentId));
+                missing(Errors.Missing.OPERATIONAL_LIMIT_EQUIPMENT, String.format("Equipment %s", equipmentId));
             }
             return false;
         }
@@ -74,7 +74,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     private void convertPatl() {
         double value = p.asDouble("value");
         if (value <= 0) {
-            context.ignored("Operational limit", "PATL value is <= 0");
+            context.ignored(Errors.Ignored.OPERATIONAL_LIMIT_PATL, "Operational limit", "PATL value is <= 0");
             return;
         }
         String limitSubclass = p.getLocal("OperationalLimitSubclass");
@@ -96,7 +96,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         } else if (branch != null) {
             // We should reject the value if the branch is a PowerTransformer
             if (branch instanceof TwoWindingsTransformer) {
-                context.ignored("CurrentLimit",
+                context.ignored(Errors.Ignored.OPERATIONAL_LIMIT_CURRENT_LIMIT, "CurrentLimit",
                     "Defined for Equipment TwoWindingsTransformer. Should be defined for one Terminal of Two");
                 notAssigned(branch);
             } else {
@@ -149,7 +149,7 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             typeName,
             subclass,
             terminal);
-        context.pending("Operational limit", reason);
+        context.pending(Errors.Pending.OPERATIONAL_LIMIT_LIMIT_NOT_ASSIGNED, "Operational limit", reason);
     }
 
     private static String className(Identifiable<?> o) {

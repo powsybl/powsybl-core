@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Errors;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.LineAdder;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -38,7 +39,7 @@ public class EquivalentBranchConversion extends AbstractBranchConversion {
             // then EquivalentBranch.r21 is assumed equal to EquivalentBranch.r.
             // Usage rule:
             // EquivalentBranch is a result of network reduction prior to the data exchange.
-            invalid("Impedance 21 different of impedance 12 not supported");
+            invalid(Errors.Invalid.EQUIVALENT_BRANCH_ASYMMETRICAL_IMPEDANCE, "Impedance 21 different of impedance 12 not supported");
         }
         double bch = 0;
         double gch = 0;

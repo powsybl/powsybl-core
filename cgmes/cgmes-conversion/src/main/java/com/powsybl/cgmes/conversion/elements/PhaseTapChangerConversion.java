@@ -56,7 +56,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             ThreeWindingsTransformer tx3 = context.tapChangerTransformers().transformer3(id);
             if (tx3 == null) {
                 String end = p.getId("TransformerEnd");
-                missing(Errors.Missing.POWER_TRANSFORMER, String.format("PowerTransformer, transformerEnd is %s", end));
+                missing(Errors.Missing.PTC_POWER_TRANSFORMER, String.format("PowerTransformer, transformerEnd is %s", end));
                 return false;
             } else {
                 String reason0 = String.format(
@@ -70,7 +70,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                 if (position == neutralStep && !regulating) {
                     String reason = String.format(
                             "%s, but is at neutralStep and regulating control disabled", reason0);
-                    ignored(reason);
+                    ignored(Errors.Ignored.PTC_NOT_SUPPORTED_FOR_3WTX, reason);
                 } else {
                     String reason = String.format(
                             "%s, tap step: %d, neutral [low, high]: %d [%d, %d], regulating control enabled: %b",
@@ -80,19 +80,20 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                             lowStep,
                             highStep,
                             regulating);
-                    invalid(reason);
+                    invalid(Errors.Invalid.PTC_NOT_SUPPORTED_FOR_3WTX, reason);
                 }
                 return false;
             }
         }
-        if (!presentMandatoryProperty(CgmesNames.TRANSFORMER_WINDING_RATED_U)) {
+        if (!presentMandatoryProperty(Errors.Invalid.PTC_PRESENT_MANDATORY_PROPERTY_TRANSFORMER_WINDING_RATED_U,
+                CgmesNames.TRANSFORMER_WINDING_RATED_U)) {
             return false;
         }
-        if (!inRange("defaultStep", defaultStep, lowStep, highStep)) {
+        if (!inRange(Errors.Invalid.PTC_IN_RANGE_DEFAULT_STEP, "defaultStep", defaultStep, lowStep, highStep)) {
             return false;
         }
         if (!validType()) {
-            invalid(String.format("Unexpected phaseTapChangerType %s", ptcType));
+            invalid(Errors.Invalid.PTC_UNEXPECTED_PHASE_TAP_CHANGER_TYPE, String.format("Unexpected phaseTapChangerType %s", ptcType));
             return false;
         }
         return true;
@@ -130,13 +131,13 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
     private void addStepsFromTable(PhaseTapChangerAdder ptca) {
         String tableId = p.getId(CgmesNames.PHASE_TAP_CHANGER_TABLE);
         if (tableId == null) {
-            missing(Errors.Missing.PHASE_TAP_CHANGER_TABLE, CgmesNames.PHASE_TAP_CHANGER_TABLE);
+            missing(Errors.Missing.PTC_PHASE_TAP_CHANGER_TABLE, CgmesNames.PHASE_TAP_CHANGER_TABLE);
             return;
         }
         LOG.debug("PhaseTapChanger {} table {}", id, tableId);
         PropertyBags table = context.cgmes().phaseTapChangerTable(tableId);
         if (table.isEmpty()) {
-            missing(Errors.Missing.PHASE_TAP_CHANGER_TABLE_POINTS, "points for PhaseTapChangerTable " + tableId);
+            missing(Errors.Missing.PTC_PHASE_TAP_CHANGER_TABLE_POINTS, "points for PhaseTapChangerTable " + tableId);
             return;
         }
         Comparator<PropertyBag> byStep = Comparator.comparingInt((PropertyBag p) -> p.asInt("step"));
@@ -182,9 +183,9 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         double value = point.asDouble(attr, defaultValue);
         if (Double.isNaN(value)) {
             fixed(
-                Errors.Fixes.PHASE_TAP_CHANGER_TABLE_POINT,
-                "PhaseTapChangerTablePoint " + attr + " for step " + step + " in table " + tableId,
-                "invalid value " + point.get(attr));
+                    Errors.Fixes.PTC_PHASE_TAP_CHANGER_TABLE_POINT,
+                    "PhaseTapChangerTablePoint " + attr + " for step " + step + " in table " + tableId,
+                    "invalid value " + point.get(attr));
             return defaultValue;
         }
         return value;
@@ -216,7 +217,8 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         } else {
             double defaultValue = 1;
             String reason = "Not present or not valid value for voltageStepIncrementOutOfPhase or voltageStepIncrement";
-            invalid("du", reason, defaultValue);
+            invalid(Errors.Invalid.PTC_NOT_VOLTAGE_STEP_INCREMENT_OUT_OF_PHASE_OR_VOLTAGE_STEP_INCREMENT,
+                    "du", reason, defaultValue);
             du = defaultValue / 100;
         }
         return du;
@@ -230,7 +232,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             theta = Math.toRadians(windingConnectionAngle);
         } else {
             theta = Math.PI / 2;
-            missing(Errors.Missing.WINDING_CONNECTION_ANGLE, "windingConnnectionAngle", 90);
+            missing(Errors.Missing.PTC_WINDING_CONNECTION_ANGLE, "windingConnnectionAngle", 90);
         }
         return theta;
     }
@@ -397,7 +399,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             String reason = String.format("Inconsistent xStepMin, xStepMax [%f, %f]",
                     xStepMin,
                     xStepMax);
-            ignored("xStep range", reason);
+            ignored(Errors.Ignored.PTC_INCONSISTENT_X_STEP_MIN_X_STEP_MAX, "xStep range", reason);
         }
 
         xs[0] = xStepMin;
@@ -427,14 +429,15 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             } else if (regulatingControlMode.endsWith("fixed")) {
                 // Nothing to do
             } else {
-                ignored(regulatingControlMode, "Unsupported regulating mode");
+                ignored(Errors.Ignored.PTC_UNSUPPORTED_REGULATION_MODE,
+                        regulatingControlMode, "Unsupported regulating mode");
             }
         }
     }
 
     private void addCurrentFlowRegControl(PhaseTapChangerAdder ptca) {
         Terminal treg = context.terminalMapping().find(p.getId("RegulatingControlTerminal"));
-        boolean regulatingControlEnabled  = p.asBoolean(REGULATING_CONTROL_ENABLED, true);
+        boolean regulatingControlEnabled = p.asBoolean(REGULATING_CONTROL_ENABLED, true);
         double targetV = p.asDouble("regulatingControlTargetValue");
         if (side == 1) {
             targetV *= tx.getRatedU1();
@@ -449,7 +452,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
 
     private void addActivePowerRegControl(PhaseTapChangerAdder ptca) {
         Terminal treg = context.terminalMapping().find(p.getId("RegulatingControlTerminal"));
-        boolean regulatingControlEnabled  = p.asBoolean(REGULATING_CONTROL_ENABLED, true);
+        boolean regulatingControlEnabled = p.asBoolean(REGULATING_CONTROL_ENABLED, true);
         double targetV = -p.asDouble("regulatingControlTargetValue");
         ptca.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
                 .setRegulationTerminal(regTerminal())
@@ -489,14 +492,14 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
     }
 
     private final TwoWindingsTransformer tx;
-    private final String ptcType;
-    private final int lowStep;
-    private final int highStep;
-    private final int neutralStep;
-    private final int defaultStep;
-    private final int side;
+    private final String                 ptcType;
+    private final int                    lowStep;
+    private final int                    highStep;
+    private final int                    neutralStep;
+    private final int                    defaultStep;
+    private final int                    side;
 
-    private boolean configIsInvertVoltageStepIncrementOutOfPhase;
+    private boolean                      configIsInvertVoltageStepIncrementOutOfPhase;
 
-    private static final Logger LOG = LoggerFactory.getLogger(PhaseTapChangerConversion.class);
+    private static final Logger          LOG = LoggerFactory.getLogger(PhaseTapChangerConversion.class);
 }

@@ -24,7 +24,7 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
         this.id = properties.getId(type);
         this.name = p.get("name");
         if (this.name == null) {
-            missing(Errors.Missing.NAME, "name");
+            missing(Errors.Missing.ABSTRACT_IDENTIFIED_NAME, "name");
         }
     }
 
@@ -34,7 +34,7 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
         this.id = ps.get(0).getId(type);
         this.name = ps.get(0).get("name");
         if (this.name == null) {
-            missing(Errors.Missing.NAME, "name");
+            missing(Errors.Missing.ABSTRACT_IDENTIFIED_NAME, "name");
         }
     }
 

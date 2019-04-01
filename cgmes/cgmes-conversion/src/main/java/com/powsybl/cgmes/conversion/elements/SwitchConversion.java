@@ -33,7 +33,7 @@ public class SwitchConversion extends AbstractConductingEquipmentConversion {
             return false;
         }
         if (busId(1).equals(busId(2))) {
-            ignored(String.format("end buses are the same bus %s", busId(1)));
+            ignored(Errors.Ignored.SWITCH_SAME_END_BUSES, String.format("end buses are the same bus %s", busId(1)));
             return false;
         }
         if ((isBoundary(1) || isBoundary(2)) && LOG.isWarnEnabled()) {

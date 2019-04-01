@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Errors;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -24,7 +25,7 @@ public class StaticVarCompensatorConversion extends AbstractConductingEquipmentC
     @Override
     public void convert() {
         double slope = p.asDouble("slope", 0.0);
-        ignored(String.format("Slope %f", slope));
+        ignored(Errors.Ignored.STATIC_VAR_COMPENSATOR_SLOPE, String.format("Slope %f", slope));
 
         double capacitiveRating = p.asDouble("capacitiveRating", 0.0);
         double inductiveRating = p.asDouble("inductiveRating", 0.0);

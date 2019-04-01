@@ -8,6 +8,7 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Errors;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**
@@ -31,11 +32,11 @@ public abstract class AbstractBranchConversion extends AbstractConductingEquipme
         String node2 = nodeId(2);
         if (context.boundary().containsNode(node1)
                 || context.boundary().containsNode(node2)) {
-            invalid("Has " + nodeIdPropertyName() + " on boundary");
+            invalid(Errors.Invalid.ABSTRACT_BRANCH_NODE_ON_BOUNDARY, "Has " + nodeIdPropertyName() + " on boundary");
             return false;
         }
         if (!p.containsKey("r") || !p.containsKey("x")) {
-            invalid("No r,x attributes");
+            invalid(Errors.Invalid.ABSTRACT_BRANCH_NO_R_X, "No r,x attributes");
             return false;
         }
         return true;

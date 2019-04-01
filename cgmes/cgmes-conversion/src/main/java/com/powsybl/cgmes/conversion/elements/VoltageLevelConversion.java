@@ -30,7 +30,7 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
     @Override
     public boolean valid() {
         if (substation == null) {
-            missing(Errors.Missing.SUBSTATION, String.format("Substation %s (IIDM id: %s)",
+            missing(Errors.Missing.VOLTAGE_LEVEL_SUBSTATION, String.format("Substation %s (IIDM id: %s)",
                 cgmesSubstationId,
                 iidmSubstationId));
             return false;
@@ -48,7 +48,7 @@ public class VoltageLevelConversion extends AbstractIdentifiedObjectConversion {
         // Missing elements in the boundary file
         if (Double.isNaN(nominalVoltage)) {
             String bv = String.format("BaseVoltage %s", baseVoltage);
-            missing(Errors.Missing.BASE_VOLTAGE, bv);
+            missing(Errors.Missing.VOLTAGE_LEVEL_BASE_VOLTAGE, bv);
             throw new CgmesModelException(String.format("nominalVoltage not found for %s", bv));
         }
 

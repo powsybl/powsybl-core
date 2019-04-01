@@ -40,7 +40,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         // or branch. We only ensure we have nodes at both ends
         for (int k = 1; k <= 2; k++) {
             if (nodeId(k) == null) {
-                missing(Errors.Missing.NODE_ID, nodeIdPropertyName() + k);
+                missing(Errors.Missing.AC_LINE_SEGMENT_NODE_ID, nodeIdPropertyName() + k);
                 return false;
             }
         }
@@ -133,7 +133,7 @@ public class ACLineSegmentConversion extends AbstractBranchConversion {
         // ends in a boundary node where there is no other line,
         // does not have energy consumer or equivalent injection
         if (terminalConnected(boundarySide) && !context.boundary().hasPowerFlow(boundaryNode)) {
-            missing(Errors.Missing.EQUIPMENT_AT_BOUNDARY, "Equipment for modeling consumption/injection at boundary node");
+            missing(Errors.Missing.AC_LINE_SEGMENT_EQUIPMENT_AT_BOUNDARY, "Equipment for modeling consumption/injection at boundary node");
         }
 
         double r = p.asDouble("r");

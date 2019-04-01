@@ -113,11 +113,11 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     public boolean valid() {
         for (int k = 1; k <= numTerminals; k++) {
             if (nodeId(k) == null) {
-                missing(Errors.Missing.NODE_ID, nodeIdPropertyName() + k);
+                missing(Errors.Missing.ABSTRACT_CONDUCTING_NODE_ID, nodeIdPropertyName() + k);
                 return false;
             }
             if (voltageLevel(k) == null) {
-                missing(Errors.Missing.VOLTAGE_LEVEL,
+                missing(Errors.Missing.ABSTRACT_CONDUCTING_VOLTAGE_LEVEL,
                     String.format("VoltageLevel of terminal %d %s (iidm %s)",
                         k,
                         cgmesVoltageLevelId(k),
@@ -244,7 +244,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             double maxQ = p.asDouble("maxQ");
             if (minQ > maxQ) {
                 String reason = String.format("minQ > maxQ (%.4f > %.4f)", minQ, maxQ);
-                fixed(Errors.Fixes.REACTIVE_LIMITS, "reactiveLimits", reason);
+                fixed(Errors.Fixes.ABSTRACT_CONDUCTING_REACTIVE_LIMITS, "reactiveLimits", reason);
                 double t = minQ;
                 minQ = maxQ;
                 maxQ = t;

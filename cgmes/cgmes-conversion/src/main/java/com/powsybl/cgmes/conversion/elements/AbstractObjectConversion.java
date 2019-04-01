@@ -60,49 +60,49 @@ public abstract class AbstractObjectConversion {
         return (int) value;
     }
 
-    public boolean presentMandatoryProperty(String pname) {
+    public boolean presentMandatoryProperty(Errors.Invalid code, String pname) {
         if (!p.containsKey(pname)) {
-            invalid(String.format("Missing property %s", pname));
+            invalid(code, String.format("Missing property %s", pname));
             return false;
         }
         return true;
     }
 
-    public boolean inRange(String p, int x, int xmin, int xmax) {
+    public boolean inRange(Errors.Invalid code, String p, int x, int xmin, int xmax) {
         if (x < xmin || x > xmax) {
-            invalid(String.format("%s value %d not in range [%d, %d]", p, x, xmin, xmax));
+            invalid(code, String.format("%s value %d not in range [%d, %d]", p, x, xmin, xmax));
             return false;
         }
         return true;
     }
 
-    public void invalid(String reason) {
-        context.invalid(what(), reason);
+    public void invalid(Errors.Invalid code, String reason) {
+        context.invalid(code, what(), reason);
     }
 
-    public void ignored(String reason) {
-        context.ignored(what(), reason);
+    public void ignored(Errors.Ignored code, String reason) {
+        context.ignored(code, what(), reason);
     }
 
-    public void ignored(String what, String reason) {
-        context.ignored(complete(what), reason);
+    public void ignored(Errors.Ignored code, String what, String reason) {
+        context.ignored(code, complete(what), reason);
     }
 
-    public void invalid(String what, String reason, double defaultValue) {
+    public void invalid(Errors.Invalid code, String what, String reason, double defaultValue) {
         String reason1 = String.format("%s. Used default value %f", reason, defaultValue);
-        context.invalid(complete(what), reason1);
+        context.invalid(code, complete(what), reason1);
     }
 
-    public void pending(String what, String reason) {
-        context.pending(complete(what), reason);
+    public void pending(Errors.Pending code, String what, String reason) {
+        context.pending(code, complete(what), reason);
     }
 
     public void fixed(Errors.Fixes code, String what, String reason) {
         context.fixed(code, complete(what), reason);
     }
 
-    public void fixed(String what, String reason, double wrong, double fixed) {
-        context.fixed(complete(what), reason, wrong, fixed);
+    public void fixed(Errors.Fixes code, String what, String reason, double wrong, double fixed) {
+        context.fixed(code, complete(what), reason, wrong, fixed);
     }
 
     public void missing(Errors.Missing code, String what) {
