@@ -18,6 +18,8 @@ import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.export.Exporters;
+import com.powsybl.iidm.export.ExportersLoader;
+import com.powsybl.iidm.export.ExportersServiceLoader;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.Importers;
@@ -43,6 +45,8 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
     private final ProjectFileBuildContext context;
 
+    private final ExportersLoader exportersLoader;
+
     private final ImportersLoader importersLoader;
 
     private final ImportConfig importConfig;
@@ -56,7 +60,12 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
     private final Properties parameters = new Properties();
 
     public ImportedCaseBuilder(ProjectFileBuildContext context, ImportersLoader importersLoader, ImportConfig importConfig) {
+        this(context, new ExportersServiceLoader(), importersLoader, importConfig);
+    }
+
+    public ImportedCaseBuilder(ProjectFileBuildContext context, ExportersLoader exportersLoader, ImportersLoader importersLoader, ImportConfig importConfig) {
         this.context = Objects.requireNonNull(context);
+        this.exportersLoader = Objects.requireNonNull(exportersLoader);
         this.importersLoader = Objects.requireNonNull(importersLoader);
         this.importConfig = Objects.requireNonNull(importConfig);
     }
@@ -100,7 +109,7 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
             name = network.getId();
         }
         DataSource memDataSource = new MemDataSource();
-        Exporters.export("XIIDM", network, null, memDataSource);
+        Exporters.export(exportersLoader, "XIIDM", network, null, memDataSource);
         return withDatasource(memDataSource);
     }
 
