@@ -7,8 +7,6 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
@@ -26,8 +24,6 @@ import java.util.Properties;
 public class XMLExporterTest extends AbstractConverterTest {
 
     public void exporterTest(Network network, String xiidmRef) throws IOException {
-        PlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
-
         Properties properties = new Properties();
         properties.put(XMLExporter.ANONYMISED, "false");
 

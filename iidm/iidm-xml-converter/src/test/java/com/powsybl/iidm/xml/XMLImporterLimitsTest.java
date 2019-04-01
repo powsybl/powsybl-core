@@ -7,8 +7,6 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.network.Network;
@@ -44,14 +42,13 @@ public class XMLImporterLimitsTest extends AbstractConverterTest {
         assertEquals(1, network.getLoad("LOAD2").getExtensions().size());
 
         MemDataSource dataSource = new MemDataSource();
-        new XMLExporter().export(network, exportProperties, dataSource);
+        new XMLExporter(platformConfig).export(network, exportProperties, dataSource);
         // check the base exported file and compare it to iidmBaseRef reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
             compareXml(getClass().getResourceAsStream("/multiple-extensions.xiidm"), is);
         }
 
         XMLImporter importer;
-        PlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
         importer = new XMLImporter(platformConfig);
 
         Properties importProperties = new Properties();

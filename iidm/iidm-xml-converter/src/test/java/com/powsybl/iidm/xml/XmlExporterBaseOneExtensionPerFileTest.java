@@ -33,8 +33,7 @@ public class XmlExporterBaseOneExtensionPerFileTest extends AbstractConverterTes
         properties.put(XMLExporter.EXTENSIONS_LIST, extensionsList);
 
         MemDataSource dataSource = new MemDataSource();
-
-        new XMLExporter().export(network, properties, dataSource);
+        new XMLExporter(platformConfig).export(network, properties, dataSource);
         // check the base exported file and compare it to iidmBaseRef reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
             assertNotNull(is);
