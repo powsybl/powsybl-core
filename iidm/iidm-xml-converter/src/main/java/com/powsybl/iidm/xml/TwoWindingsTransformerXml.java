@@ -21,6 +21,9 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     static final TwoWindingsTransformerXml INSTANCE = new TwoWindingsTransformerXml();
 
     static final String ROOT_ELEMENT_NAME = "twoWindingsTransformer";
+    static final String RATIO_TAP_CHANGER_ELEMENT_NAME = "ratioTapChanger";
+    static final String PHASE_TAP_CHANGER_ELEMENT_NAME = "phaseTapChanger";
+    static final String TERMINAL_REF_ELEMENT_NAME = "terminalRef";
 
     @Override
     protected String getRootElementName() {
@@ -76,11 +79,11 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
         }
         RatioTapChanger rtc = twt.getRatioTapChanger();
         if (rtc != null) {
-            writeRatioTapChanger("ratioTapChanger", rtc, context);
+            writeRatioTapChanger(RATIO_TAP_CHANGER_ELEMENT_NAME, rtc, context);
         }
         PhaseTapChanger ptc = twt.getPhaseTapChanger();
         if (ptc != null) {
-            writePhaseTapChanger("phaseTapChanger", ptc, context);
+            writePhaseTapChanger(PHASE_TAP_CHANGER_ELEMENT_NAME, ptc, context);
         }
         if (context.getOptions().getImportExportType() == IidmImportExportType.INCREMENTAL_IIDM) {
             return;
@@ -131,11 +134,11 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
                     readCurrentLimits(2, twt::newCurrentLimits2, context.getReader());
                     break;
 
-                case "ratioTapChanger":
+                case RATIO_TAP_CHANGER_ELEMENT_NAME:
                     readRatioTapChanger(twt, context);
                     break;
 
-                case "phaseTapChanger":
+                case PHASE_TAP_CHANGER_ELEMENT_NAME:
                     readPhaseTapChanger(twt, context);
                     break;
 

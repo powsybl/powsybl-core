@@ -7,9 +7,19 @@
             </iidm:busBreakerTopology>
             <iidm:generator id="GEN" p="-605.558349609375" q="-225.2825164794922"></iidm:generator>
         </iidm:voltageLevel>
+        <iidm:voltageLevel id="VLHV1">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="NHV1" v="402.1428451538086" angle="0.0"/>
+            </iidm:busBreakerTopology>
+        </iidm:voltageLevel>
         <iidm:twoWindingsTransformer id="NGEN_NHV1" p1="605.558349609375" q1="225.2825164794922" p2="-604.8909301757812" q2="-197.48046875"/>
     </iidm:substation>
     <iidm:substation id="P2">
+        <iidm:voltageLevel id="VLHV2">
+            <iidm:busBreakerTopology>
+                <iidm:bus id="NHV2" v="389.9526763916016" angle="-3.5063576698303223"/>
+            </iidm:busBreakerTopology>
+        </iidm:voltageLevel>
         <iidm:voltageLevel id="VLLOAD">
             <iidm:busBreakerTopology>
                 <iidm:bus id="NLOAD" v="147.57861328125" angle="-9.614486694335938"/>

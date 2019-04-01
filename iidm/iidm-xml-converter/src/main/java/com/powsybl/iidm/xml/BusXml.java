@@ -24,6 +24,10 @@ class BusXml extends AbstractIdentifiableXml<Bus, BusAdder, VoltageLevel> {
 
     static final String ROOT_ELEMENT_NAME = "bus";
 
+    boolean hasStateValues(Bus bus) {
+        return !Double.isNaN(bus.getV())  || !Double.isNaN(bus.getAngle());
+    }
+
     @Override
     protected String getRootElementName() {
         return ROOT_ELEMENT_NAME;

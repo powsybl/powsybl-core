@@ -13,6 +13,7 @@ import com.powsybl.iidm.IidmImportExportType;
 import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -27,28 +28,119 @@ import static org.junit.Assert.assertNotEquals;
  */
 
 public class IncrementalUpdateTest extends AbstractConverterTest {
-
-    private Network getEurostagLfNetwork() {
+    private Network importNetworkFromRessources(String file, String ext) {
         XMLImporter importer = new XMLImporter(new InMemoryPlatformConfig(fileSystem));
-        ReadOnlyDataSource dataSource = new ResourceDataSource("eurostag-tutorial1-lf", new ResourceSet("/", "eurostag-tutorial1-lf.xml"));
-        Network network = importer.importData(dataSource, new Properties());
+        ReadOnlyDataSource dataSource = new ResourceDataSource(file, new ResourceSet("/", file + "." + ext));
+        final Network network = importer.importData(dataSource, new Properties());
         return network;
     }
 
-    @Test
-    public void updateNetworkTest() throws IOException {
-        //load networks
-        Network network = EurostagTutorialExample1Factory.create();
-        Network networkLf = getEurostagLfNetwork();
-        assertNotEquals(networkLf.getLine("NHV1_NHV2_2").getTerminal1().getQ(), network.getLine("NHV1_NHV2_2").getTerminal1().getQ());
+    private Network getEurostagLfNetwork() {
+        return importNetworkFromRessources("eurostag-tutorial1-lf", "xml");
+    }
 
+    private Network getEurostagNetworkWithWrongControlValues() {
+        return importNetworkFromRessources("eurostag-with-wrong-control-values", "xml");
+    }
+
+    private Network getHvdcTestNetworkWithWrongControlValues() {
+        return importNetworkFromRessources("vsc-with-wrong-control-values", "xiidm");
+    }
+
+    @Test
+    public void updateStateValues() throws IOException {
+        //load networks
+        //network without state values
+        Network network = EurostagTutorialExample1Factory.create();
+        //network with state values
+        Network networkLf = getEurostagLfNetwork();
+        //set the same case date
+        network.setCaseDate(networkLf.getCaseDate());
+
+        assertNotEquals(networkLf.getLine("NHV1_NHV2_2").getTerminal1().getP(), network.getLine("NHV1_NHV2_2").getTerminal1().getP(), 0);
+        assertNotEquals(networkLf.getLine("NHV1_NHV2_2").getTerminal1().getQ(), network.getLine("NHV1_NHV2_2").getTerminal1().getQ(), 0);
+        assertNotEquals(networkLf.getVoltageLevel("VLHV2").getBusBreakerView().getBus("NHV2").getV(), network.getVoltageLevel("VLHV2").getBusBreakerView().getBus("NHV2").getV(), 0);
+        assertNotEquals(networkLf.getVoltageLevel("VLHV2").getBusBreakerView().getBus("NHV2").getAngle(), network.getVoltageLevel("VLHV2").getBusBreakerView().getBus("NHV2").getAngle(), 0);
+
+        //To create a data source that contains TOPO.xiidm, STATE.xiidm et CONTROL.xiidm
         MemDataSource dataSource = new MemDataSource();
         Properties properties = new Properties();
         properties.put(XMLExporter.ANONYMISED, "false");
+        //Incremental export for the second network : eurostag with loadflow
         properties.put(XMLExporter.IMPORT_EXPORT_TYPE, String.valueOf(IidmImportExportType.INCREMENTAL_IIDM));
         new XMLExporter().export(networkLf, properties, dataSource);
 
-        NetworkXml.update(network, new ImportOptions().setControl(true).setTopo(false), dataSource);
+        //Update the first network using the state file recently exported
+        NetworkXml.update(network, new ImportOptions().setControl(false).setTopo(false).setState(true), dataSource);
+        assertEquals(networkLf.getLine("NHV1_NHV2_2").getTerminal1().getP(), network.getLine("NHV1_NHV2_2").getTerminal1().getP(), 0);
         assertEquals(networkLf.getLine("NHV1_NHV2_2").getTerminal1().getQ(), network.getLine("NHV1_NHV2_2").getTerminal1().getQ(), 0);
+        assertEquals(networkLf.getVoltageLevel("VLHV2").getBusBreakerView().getBus("NHV2").getV(), network.getVoltageLevel("VLHV2").getBusBreakerView().getBus("NHV2").getV(), 0);
+        assertEquals(networkLf.getVoltageLevel("VLHV2").getBusBreakerView().getBus("NHV2").getAngle(), network.getVoltageLevel("VLHV2").getBusBreakerView().getBus("NHV2").getAngle(), 0);
+    }
+
+    @Test
+    public void updateControlValues1() throws IOException {
+        //testing twoWindingTransformer and generator control values update.
+        //load networks
+        Network network = EurostagTutorialExample1Factory.create();
+        //network without control values
+        Network network2 = getEurostagNetworkWithWrongControlValues();
+        //set the same case date
+        network.setCaseDate(network2.getCaseDate());
+
+        assertNotEquals(network.getGenerator("GEN").getTargetP(), network2.getGenerator("GEN").getTargetP());
+        assertNotEquals(network.getGenerator("GEN").getTargetV(), network2.getGenerator("GEN").getTargetV());
+        assertNotEquals(network.getGenerator("GEN").getTargetQ(), network2.getGenerator("GEN").getTargetQ());
+        assertNotEquals(network.getGenerator("GEN").isVoltageRegulatorOn(), network2.getGenerator("GEN").isVoltageRegulatorOn());
+
+        //To create a data source that contains TOPO.xiidm, STATE.xiidm et CONTROL.xiidm
+        MemDataSource dataSource = new MemDataSource();
+        Properties properties = new Properties();
+        properties.put(XMLExporter.ANONYMISED, "false");
+        properties.put(XMLExporter.TOPO, "false");
+        properties.put(XMLExporter.STATE, "false");
+        new XMLExporter().export(network, properties, dataSource);
+        //Incremental export
+        properties.put(XMLExporter.IMPORT_EXPORT_TYPE, String.valueOf(IidmImportExportType.INCREMENTAL_IIDM));
+        new XMLExporter().export(network, properties, dataSource);
+
+        //Update the network
+        NetworkXml.update(network2, new ImportOptions().setControl(true).setTopo(false).setState(false), dataSource);
+        assertEquals(network.getGenerator("GEN").getTargetP(), network2.getGenerator("GEN").getTargetP(), 0);
+        assertEquals(network.getGenerator("GEN").getTargetV(), network2.getGenerator("GEN").getTargetV(), 0);
+        assertEquals(network.getGenerator("GEN").getTargetQ(), network2.getGenerator("GEN").getTargetQ(), 0);
+        assertEquals(network.getGenerator("GEN").isVoltageRegulatorOn(), network2.getGenerator("GEN").isVoltageRegulatorOn());
+    }
+
+    @Test
+    public void updateControlValues2() throws IOException {
+        //testing VscConverterStation and HvdcLine control values update.
+        //load networks
+        Network network = HvdcTestNetwork.createVsc();
+        //network without control values
+        Network network2 = getHvdcTestNetworkWithWrongControlValues();
+        //set the same case date
+        network.setCaseDate(network2.getCaseDate());
+
+        assertNotEquals(network.getVscConverterStation("C1").getVoltageSetpoint(), network2.getVscConverterStation("C1").getVoltageSetpoint());
+        assertNotEquals(network.getVscConverterStation("C2").getReactivePowerSetpoint(), network2.getVscConverterStation("C2").getReactivePowerSetpoint());
+        assertNotEquals(network.getHvdcLine("L").getActivePowerSetpoint(), network2.getHvdcLine("L").getActivePowerSetpoint());
+
+        //To create a data source that contains TOPO.xiidm, STATE.xiidm et CONTROL.xiidm
+        MemDataSource dataSource = new MemDataSource();
+        Properties properties = new Properties();
+        properties.put(XMLExporter.ANONYMISED, "false");
+        properties.put(XMLExporter.TOPO, "false");
+        properties.put(XMLExporter.STATE, "false");
+        new XMLExporter().export(network, properties, dataSource);
+        //Incremental export
+        properties.put(XMLExporter.IMPORT_EXPORT_TYPE, String.valueOf(IidmImportExportType.INCREMENTAL_IIDM));
+        new XMLExporter().export(network, properties, dataSource);
+
+        //Update the network
+        NetworkXml.update(network2, new ImportOptions().setControl(true).setTopo(false).setState(false), dataSource);
+        assertEquals(network.getVscConverterStation("C1").getVoltageSetpoint(), network2.getVscConverterStation("C1").getVoltageSetpoint(), 0);
+        assertEquals(network.getVscConverterStation("C2").getVoltageSetpoint(), network2.getVscConverterStation("C2").getVoltageSetpoint(), 0);
+        assertEquals(network.getHvdcLine("L").getActivePowerSetpoint(), network2.getHvdcLine("L").getActivePowerSetpoint(), 0);
     }
 }

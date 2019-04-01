@@ -2,9 +2,6 @@
 <iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" id="hvdctest" caseDate="2016-06-27T16:34:55.930+02:00" forecastDistance="0" sourceFormat="test">
     <iidm:substation id="S1">
         <iidm:voltageLevel id="VL1">
-            <iidm:busBreakerTopology>
-                <iidm:bus id="B1"/>
-            </iidm:busBreakerTopology>
             <iidm:shunt id="C1_Filter1" q="25.0"/>
             <iidm:shunt id="C1_Filter2" q="25.0"/>
             <iidm:lccConverterStation id="C1" p="100.0" q="50.0"/>

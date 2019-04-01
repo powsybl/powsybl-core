@@ -217,6 +217,18 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         return false;
     }
 
+    private boolean isBusesHavingStateValues(VoltageLevel vl, NetworkXmlWriterContext context) {
+        for (Bus bus : vl.getBusBreakerView().getBuses()) {
+            if (!context.getFilter().test(bus)) {
+                continue;
+            }
+            if (BusXml.INSTANCE.hasStateValues(bus)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     boolean hasStateValues(VoltageLevel vl, NetworkXmlWriterContext context) {
         return isGeneratorsHavingStateValues(vl, context) ||
                 isDanglingLinesHavingStateValues(vl, context) ||
@@ -224,7 +236,8 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                 isLoadsHavingStateValues(vl, context) ||
                 isStaticVarCompensatorsHavingStateValues(vl, context) ||
                 isVscConverterStationsHavingStateValues(vl, context) ||
-                isLccConverterStationsHavingStateValues(vl, context);
+                isLccConverterStationsHavingStateValues(vl, context) ||
+                isBusesHavingStateValues(vl, context);
     }
 
     boolean hasTopoValues(VoltageLevel vl, NetworkXmlWriterContext context) {
@@ -251,7 +264,8 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     protected void writeSubElements(VoltageLevel vl, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
         TopologyLevel topologyLevel = TopologyLevel.min(vl.getTopologyKind(), context.getOptions().getTopologyLevel());
         if ((topologyLevel == TopologyLevel.NODE_BREAKER && context.getTargetFile() == IncrementalIidmFiles.TOPO) ||
-                (topologyLevel != TopologyLevel.NODE_BREAKER && context.getTargetFile() == IncrementalIidmFiles.STATE) ||
+                (topologyLevel != TopologyLevel.NODE_BREAKER && context.getTargetFile() == IncrementalIidmFiles.STATE &&
+                        isBusesHavingStateValues(vl, context)) ||
                 context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             switch (topologyLevel) {
                 case NODE_BREAKER:
@@ -270,7 +284,6 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                     throw new AssertionError("Unexpected TopologyLevel value: " + topologyLevel);
             }
         }
-
         writeGenerators(vl, context, topologyLevel);
         writeLoads(vl, context, topologyLevel);
         writeShuntCompensators(vl, context, topologyLevel);
