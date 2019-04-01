@@ -70,7 +70,7 @@ public class SubstationIdMapping {
                 });
         if (!mapping.isEmpty()) {
             String what = String.format("Substation id mapping needed for %s substations: %s",
-                mapping.size(), 
+                mapping.size(),
                 mapping);
             String reason = "Transformer ends have to be in same substation in IIDM";
             context.fixed(Errors.Fixes.SUBSTATION_ID_MAPPING, what, reason);
