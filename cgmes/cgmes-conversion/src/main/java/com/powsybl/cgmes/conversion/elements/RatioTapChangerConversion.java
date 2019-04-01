@@ -30,8 +30,8 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
     public RatioTapChangerConversion(PropertyBag rtc, Context context) {
         super("RatioTapChanger", rtc, context);
 
-        tx2 = context.tapChangerTransformers().transformer2(id);
-        tx3 = context.tapChangerTransformers().transformer3(id);
+        xfmr2 = context.tapChangerTransformers().transformer2(id);
+        xfmr3 = context.tapChangerTransformers().transformer3(id);
         lowStep = rtc.asInt("lowStep");
         highStep = rtc.asInt("highStep");
         neutralStep = rtc.asInt("neutralStep");
@@ -40,22 +40,22 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
 
     @Override
     public boolean valid() {
-        if (tx2 == null && tx3 == null) {
+        if (xfmr2 == null && xfmr3 == null) {
             invalid(Errors.Invalid.RTC_MISSING_TRANSFORMER, "Missing transformer");
             return false;
         }
-        if (tx3 != null) {
+        if (xfmr3 != null) {
             int side = context.tapChangerTransformers().whichSide(id);
             if (side == 1) {
                 String reason0 = String.format(
-                        "Not supported at end 1 of 3wtx. txId 'name' 'substation': %s '%s' '%s'",
-                        tx3.getId(),
-                        tx3.getName(),
-                        tx3.getSubstation().getName());
+                        "Not supported at end 1 of Three Windings Transformer. txId 'name' 'substation': %s '%s' '%s'",
+                        xfmr3.getId(),
+                        xfmr3.getName(),
+                        xfmr3.getSubstation().getName());
                 // Check if the step is at neutral and regulating control is disabled
                 boolean regulating = p.asBoolean("regulatingControlEnabled", false);
                 if (position == neutralStep && !regulating) {
-                    ignored(Errors.Ignored.RTC_NOT_SUPPORTED_AT_END_1_OF_3WTX_NEUTRAL_STEP_AND_REGULATING_CONTROL_DISABLED,
+                    ignored(Errors.Ignored.RTC_NOT_SUPPORTED_AT_END_1_OF_XFMR3_NEUTRAL_STEP_AND_REGULATING_CONTROL_DISABLED,
                             reason0 + ", but is at neutralStep and regulating control disabled");
                 } else {
                     String reason = String.format(
@@ -63,7 +63,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
                             reason0,
                             position,
                             regulating);
-                    invalid(Errors.Invalid.RTC_NOT_SUPPORTED_AT_END_1_OF_3WTX_REGULATING_CONTROL_ENABLED, reason);
+                    invalid(Errors.Invalid.RTC_NOT_SUPPORTED_AT_END_1_OF_XFMR3_REGULATING_CONTROL_ENABLED, reason);
                 }
                 return false;
             }
@@ -95,17 +95,17 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
     }
 
     private RatioTapChangerAdder adder() {
-        if (tx2 != null) {
-            return tx2.newRatioTapChanger();
-        } else if (tx3 != null) {
+        if (xfmr2 != null) {
+            return xfmr2.newRatioTapChanger();
+        } else if (xfmr3 != null) {
             int side = context.tapChangerTransformers().whichSide(id);
             if (side == 1) {
                 // No supported in IIDM model
                 return null;
             } else if (side == 2) {
-                return tx3.getLeg2().newRatioTapChanger();
+                return xfmr3.getLeg2().newRatioTapChanger();
             } else if (side == 3) {
-                return tx3.getLeg2().newRatioTapChanger();
+                return xfmr3.getLeg2().newRatioTapChanger();
             }
         }
         return null;
@@ -178,7 +178,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         if (LOG.isDebugEnabled() && rtcAtSide1) {
             LOG.debug(
                     "Transformer {} ratio tap changer moved from side 2 to side 1, impedance/admittance corrections",
-                    tx2.getId());
+                    xfmr2.getId());
         }
         double stepVoltageIncrement = p.asDouble("stepVoltageIncrement");
         double du = stepVoltageIncrement / 100;
@@ -214,7 +214,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         // From CIM1 converter:
         // For 2 winding transformers, rho is 1/(1 + n*du) if rtc is at side 1
         // For 3 winding transformers rho is always 1 + n*du
-        if (tx2 != null) {
+        if (xfmr2 != null) {
             return context.tapChangerTransformers().whichSide(id) == 1;
         }
         return false;
@@ -260,19 +260,19 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
 
     private Terminal terminal() {
         int side = context.tapChangerTransformers().whichSide(id);
-        if (tx2 != null) {
+        if (xfmr2 != null) {
             if (side == 1) {
-                return tx2.getTerminal1();
+                return xfmr2.getTerminal1();
             } else if (side == 2) {
-                return tx2.getTerminal2();
+                return xfmr2.getTerminal2();
             }
-        } else if (tx3 != null) {
+        } else if (xfmr3 != null) {
             if (side == 1) {
                 // invalid
             } else if (side == 2) {
-                return tx3.getLeg2().getTerminal();
+                return xfmr3.getLeg2().getTerminal();
             } else if (side == 3) {
-                return tx3.getLeg3().getTerminal();
+                return xfmr3.getLeg3().getTerminal();
             }
         }
         return null;
@@ -282,8 +282,8 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         return p.containsKey(CgmesNames.RATIO_TAP_CHANGER_TABLE);
     }
 
-    private final TwoWindingsTransformer   tx2;
-    private final ThreeWindingsTransformer tx3;
+    private final TwoWindingsTransformer   xfmr2;
+    private final ThreeWindingsTransformer xfmr3;
     private final int                      lowStep;
     private final int                      highStep;
     private final int                      neutralStep;

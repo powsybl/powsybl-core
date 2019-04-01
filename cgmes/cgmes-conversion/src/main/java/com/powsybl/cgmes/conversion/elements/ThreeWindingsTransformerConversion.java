@@ -37,7 +37,7 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
         if (context.boundary().containsNode(nodeId(1))
                 || context.boundary().containsNode(nodeId(2))
                 || context.boundary().containsNode(nodeId(3))) {
-            invalid(Errors.Invalid.T3X_NOT_SUPPORTED_3WTX_END_POINT_AT_BOUNDARY,
+            invalid(Errors.Invalid.XFMR3_NOT_SUPPORTED_END_POINT_AT_BOUNDARY,
                     "3 windings transformer end point at boundary is not supported");
             return false;
         }
@@ -49,7 +49,7 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
             String name1 = voltageLevel(1).getSubstation().getName();
             String name2 = voltageLevel(2).getSubstation().getName();
             String name3 = voltageLevel(3).getSubstation().getName();
-            invalid(Errors.Invalid.T3X_DIFFERENT_SUBSTATIONS_AT_ENDS,
+            invalid(Errors.Invalid.XFMR3_DIFFERENT_SUBSTATIONS_AT_ENDS,
                     String.format("different substations at ends %s %s %s", name1, name2, name3));
             return false;
         }

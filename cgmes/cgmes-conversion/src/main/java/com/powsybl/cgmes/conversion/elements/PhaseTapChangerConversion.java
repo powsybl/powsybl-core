@@ -60,7 +60,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                 return false;
             } else {
                 String reason0 = String.format(
-                        "Not supported for 3wtx. txId 'name' 'substation': %s '%s' '%s'",
+                        "Not supported for Three Windings Transformer. txId 'name' 'substation': %s '%s' '%s'",
                         tx3.getId(),
                         tx3.getName(),
                         tx3.getSubstation().getName());
@@ -70,7 +70,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                 if (position == neutralStep && !regulating) {
                     String reason = String.format(
                             "%s, but is at neutralStep and regulating control disabled", reason0);
-                    ignored(Errors.Ignored.PTC_NOT_SUPPORTED_FOR_3WTX, reason);
+                    ignored(Errors.Ignored.PTC_NOT_SUPPORTED_FOR_XFMR3, reason);
                 } else {
                     String reason = String.format(
                             "%s, tap step: %d, neutral [low, high]: %d [%d, %d], regulating control enabled: %b",
@@ -80,7 +80,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                             lowStep,
                             highStep,
                             regulating);
-                    invalid(Errors.Invalid.PTC_NOT_SUPPORTED_FOR_3WTX, reason);
+                    invalid(Errors.Invalid.PTC_NOT_SUPPORTED_FOR_XFMR3, reason);
                 }
                 return false;
             }
