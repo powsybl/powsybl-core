@@ -45,10 +45,12 @@ public class ExtensionTest extends AbstractConverterTest {
         assertSame(barExt, foo.getExtension(BarExt.class));
         assertSame(barExt, foo.getExtensionByName("BarExt"));
 
-        foo.removeExtension(FooExt.class);
+        assertTrue(foo.removeExtension(FooExt.class));
+        assertNull(foo.getExtension(FooExt.class));
         assertEquals(1, foo.getExtensions().size());
 
-        foo.removeExtension(BarExt.class);
+        assertTrue(foo.removeExtension(BarExt.class));
+        assertNull(foo.getExtension(BarExt.class));
         assertEquals(0, foo.getExtensions().size());
     }
 

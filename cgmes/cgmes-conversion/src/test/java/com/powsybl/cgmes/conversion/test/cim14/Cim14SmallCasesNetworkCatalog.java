@@ -11,8 +11,10 @@ import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.cgmes.model.test.cim14.Cim14SmallCasesCatalog;
 import com.powsybl.cim1.converter.CIM1Importer;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.*;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -203,7 +205,7 @@ public class Cim14SmallCasesNetworkCatalog {
         if (LOG.isInfoEnabled()) {
             LOG.info("List of names in data source for CIM1Importer = {}", Arrays.toString(names1.toArray()));
         }
-        return new CIM1Importer().importData(ds, null);
+        return new CIM1Importer(Mockito.mock(PlatformConfig.class)).importData(ds, null);
     }
 
     private final Cim14SmallCasesCatalog catalog = new Cim14SmallCasesCatalog();
