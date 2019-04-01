@@ -35,6 +35,8 @@ public abstract class AbstractLoadFlowRulesEngineTest {
 
     protected LoadFlowActionSimulator engine;
 
+    protected final ComputationManager computationManager = Mockito.mock(ComputationManager.class);
+
     protected abstract Network createNetwork();
 
     protected LoadFlowActionSimulatorObserver createObserver() {
@@ -46,7 +48,6 @@ public abstract class AbstractLoadFlowRulesEngineTest {
     @Before
     public void setUp() {
         network = createNetwork();
-        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         LoadFlowActionSimulatorObserver observer = createObserver();
         GroovyCodeSource src = new GroovyCodeSource(new InputStreamReader(getClass().getResourceAsStream(getDslFile())), "test", GroovyShell.DEFAULT_CODE_BASE);
         actionDb = new ActionDslLoader(src).load(network);

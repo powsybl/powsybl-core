@@ -97,6 +97,10 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         return loadFlowActionSimulatorConfig;
     }
 
+    TableFormatterConfig getTableFormatterConfig() {
+        return tableFormatterConfig;
+    }
+
     protected Network getNetwork() {
         return network;
     }

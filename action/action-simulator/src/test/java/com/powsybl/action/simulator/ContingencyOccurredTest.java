@@ -6,11 +6,11 @@
  */
 package com.powsybl.action.simulator;
 
-import com.powsybl.action.simulator.loadflow.DefaultLoadFlowActionSimulatorObserver;
-import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorObserver;
-import com.powsybl.action.simulator.loadflow.RunningContext;
+import com.powsybl.action.simulator.loadflow.*;
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
 import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -84,6 +84,17 @@ public class ContingencyOccurredTest extends AbstractLoadFlowRulesEngineTest {
 
     @Test
     public void test() throws Exception {
+        engine.start(actionDb, "contingency1");
+
+        // check action1 is activated in pre-contingency state and action2 in post-contingency state
+        assertEquals(preContActions, Collections.singletonList("action1"));
+        assertEquals(postContActions, Collections.singletonList("action2"));
+    }
+
+    @Test
+    public void testWithIgnorePreContingencyViolations() {
+        engine = new LoadFlowActionSimulator(network, computationManager, new LoadFlowActionSimulatorConfig(LoadFlowFactoryMock.class, 3, true, false),
+                new TableFormatterConfig(), applyIfWorks(), createObserver());
         engine.start(actionDb, "contingency1");
 
         // check action1 is activated in pre-contingency state and action2 in post-contingency state

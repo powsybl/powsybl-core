@@ -42,6 +42,7 @@ public enum ValidationType {
     public boolean check(Network network, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Path folder) throws IOException {
         Objects.requireNonNull(network);
         Objects.requireNonNull(validationConfig);
+        Objects.requireNonNull(formatterConfig);
         Objects.requireNonNull(folder);
         switch (this) {
             case FLOWS:
