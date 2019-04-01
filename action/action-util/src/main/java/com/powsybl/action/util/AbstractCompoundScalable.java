@@ -6,7 +6,7 @@
  */
 package com.powsybl.action.util;
 
-import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 
 import java.util.List;
@@ -43,22 +43,47 @@ abstract class AbstractCompoundScalable extends AbstractScalable {
 
     @Override
     public double maximumValue(Network n) {
+        return maximumValue(n, ScalingConvention.GENERATOR);
+    }
+
+    @Override
+    public double maximumValue(Network n, ScalingConvention powerConvention) {
         Objects.requireNonNull(n);
+        Objects.requireNonNull(powerConvention);
 
         double value = 0;
         for (Scalable scalable : scalables) {
-            value += scalable.maximumValue(n);
+            value += scalable.maximumValue(n, powerConvention);
         }
         return value;
     }
 
     @Override
-    public void listGenerators(Network n, List<Generator> generators, List<String> notFoundGenerators) {
-        Objects.requireNonNull(n);
-        Objects.requireNonNull(generators);
+    public double minimumValue(Network n) {
+        return minimumValue(n, ScalingConvention.GENERATOR);
+    }
 
+    @Override
+    public double minimumValue(Network n, ScalingConvention powerConvention) {
+        Objects.requireNonNull(n);
+
+        double value = 0;
         for (Scalable scalable : scalables) {
-            scalable.listGenerators(n, generators, notFoundGenerators);
+            value += scalable.minimumValue(n, powerConvention);
+        }
+        return value;
+    }
+
+    @Override
+    public double scale(Network n, double asked) {
+        return scale(n, asked, ScalingConvention.GENERATOR);
+    }
+
+    @Override
+    public void filterInjections(Network n, List<Injection> injections, List<String> notFoundInjections) {
+        for (Scalable scalable : scalables) {
+            scalable.filterInjections(n, injections, notFoundInjections);
         }
     }
+
 }
