@@ -90,6 +90,9 @@ public class PropertyBag extends HashMap<String, String> {
         } catch (NumberFormatException x) {
             LOG.warn("Invalid value for property {} : {}", property, get(property));
             return Double.NaN;
+        } catch (NullPointerException x2) {
+            LOG.warn("Null value for property {}", property);
+            return Double.NaN;
         }
     }
 
