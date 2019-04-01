@@ -16,8 +16,6 @@ import java.util.Map;
 import org.jgrapht.UndirectedGraph;
 import org.jgrapht.alg.ConnectivityInspector;
 import org.jgrapht.graph.Pseudograph;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesTerminal;
