@@ -9,12 +9,16 @@ package com.powsybl.iidm.xml;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.FileDataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.exceptions.UncheckedSaxException;
 import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.extensions.ExtensionProviders;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.anonymizer.Anonymizer;
 import com.powsybl.iidm.anonymizer.SimpleAnonymizer;
 import com.powsybl.iidm.export.BusFilter;
@@ -22,6 +26,7 @@ import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.network.*;
 import javanet.staxutils.IndentingXMLStreamWriter;
+import org.apache.commons.io.FilenameUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +51,7 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.*;
+import static com.powsybl.iidm.xml.XMLImporter.SUFFIX_MAPPING;
 
 /**
  *
@@ -56,18 +62,20 @@ public final class NetworkXml {
     private static final Logger LOGGER = LoggerFactory.getLogger(NetworkXml.class);
 
     private static final String EXTENSION_CATEGORY_NAME = "network";
-
     static final String NETWORK_ROOT_ELEMENT_NAME = "network";
     private static final String EXTENSION_ELEMENT_NAME = "extension";
     private static final String IIDM_XSD = "iidm.xsd";
+    private static final String CASE_DATE = "caseDate";
+    private static final String FORECAST_DISTANCE = "forecastDistance";
+    private static final String SOURCE_FORMAT = "sourceFormat";
+    private static final String ID = "id";
 
     // cache XMLOutputFactory to improve performance
     private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLOutputFactory::newFactory);
 
     private static final Supplier<XMLInputFactory> XML_INPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLInputFactory::newInstance);
 
-    private static final Supplier<ExtensionProviders<ExtensionXmlSerializer>> EXTENSIONS_SUPPLIER
-        = Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionXmlSerializer.class, EXTENSION_CATEGORY_NAME));
+    private static final Supplier<ExtensionProviders<ExtensionXmlSerializer>> EXTENSIONS_SUPPLIER = Suppliers.memoize(() -> ExtensionProviders.createProvider(ExtensionXmlSerializer.class, EXTENSION_CATEGORY_NAME));
 
     private NetworkXml() {
     }
@@ -124,8 +132,8 @@ public final class NetworkXml {
 
     static void validateWithExtensions(InputStream is) {
         List<Source> additionalSchemas = EXTENSIONS_SUPPLIER.get().getProviders().stream()
-            .map(e -> new StreamSource(e.getXsdAsStream()))
-            .collect(Collectors.toList());
+                .map(e -> new StreamSource(e.getXsdAsStream()))
+                .collect(Collectors.toList());
         validate(new StreamSource(is), additionalSchemas);
     }
 
@@ -135,6 +143,15 @@ public final class NetworkXml {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    private static void writeExtensionNamespace(ExportOptions options, XMLStreamWriter writer, String extensionName) throws XMLStreamException {
+        ExtensionXmlSerializer extensionXmlSerializer = getExtensionXmlSerializer(options, extensionName);
+        if (extensionXmlSerializer == null) {
+            return;
+        }
+        writer.setPrefix(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri());
+        writer.writeNamespace(extensionXmlSerializer.getNamespacePrefix(), extensionXmlSerializer.getNamespaceUri());
     }
 
     private static void writeExtensionNamespaces(Network n, ExportOptions options, XMLStreamWriter writer) throws XMLStreamException {
@@ -161,12 +178,16 @@ public final class NetworkXml {
     }
 
     private static void writeExtension(Extension<? extends Identifiable<?>> extension, NetworkXmlWriterContext context) throws XMLStreamException {
+        XMLStreamWriter writer = context.getExtensionsWriter();
         ExtensionXmlSerializer extensionXmlSerializer = getExtensionXmlSerializer(context.getOptions(),
                 extension.getName());
+
         if (extensionXmlSerializer == null) {
+            if (context.getOptions().isThrowExceptionIfExtensionNotFound()) {
+                throw new PowsyblException("XmlSerializer for" + extension.getName() + "not found");
+            }
             return;
         }
-        XMLStreamWriter writer = context.getWriter();
         if (extensionXmlSerializer.hasSubElements()) {
             writer.writeStartElement(extensionXmlSerializer.getNamespaceUri(), extension.getName());
         } else {
@@ -188,76 +209,159 @@ public final class NetworkXml {
         return extensionXmlSerializer;
     }
 
-    private static void writeExtensions(Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+    static Map<String, Set<String>> getIdentifiablesPerExtensionType(Network n) {
+        Map<String, Set<String>> extensionsPerType = new HashMap<>();
+        for (Identifiable<?> identifiable : n.getIdentifiables()) {
+            for (Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
+                extensionsPerType.computeIfAbsent(extension.getName(), key -> new HashSet<>()).add(identifiable.getId());
+            }
+        }
+        return extensionsPerType;
+    }
+
+    private static Set<String> getExtensionsName(Collection<? extends Extension<? extends Identifiable<?>>> extensions) {
+        Set<String> extensionsSet = new HashSet<>();
+        for (Extension<? extends Identifiable<?>> extension : extensions) {
+            extensionsSet.add(extension.getName());
+        }
+        return extensionsSet;
+    }
+
+    private static void writeExtensions(Network n, NetworkXmlWriterContext context, ExportOptions options) throws XMLStreamException {
 
         for (Identifiable<?> identifiable : n.getIdentifiables()) {
-
             Collection<? extends Extension<? extends Identifiable<?>>> extensions = identifiable.getExtensions();
-            if (!context.isExportedEquipment(identifiable) || extensions.isEmpty()) {
+            if (!context.isExportedEquipment(identifiable) || extensions.isEmpty() || !options.hasAtLeastOneExtension(getExtensionsName(extensions))) {
                 continue;
             }
-            context.getWriter().writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
-            context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
-            for (Extension<? extends Identifiable<?>> extension : identifiable.getExtensions()) {
-                writeExtension(extension, context);
+            context.getExtensionsWriter().writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
+            context.getExtensionsWriter().writeAttribute(ID, context.getAnonymizer().anonymizeString(identifiable.getId()));
+            for (Extension<? extends Identifiable<?>> extension : extensions) {
+                if (options.withExtension(extension.getName())) {
+                    writeExtension(extension, context);
+                }
             }
-            context.getWriter().writeEndElement();
+            context.getExtensionsWriter().writeEndElement();
         }
     }
 
+    private static void writeMainAttributes(Network n, XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeAttribute(ID, n.getId());
+        writer.writeAttribute(CASE_DATE, n.getCaseDate().toString());
+        writer.writeAttribute(FORECAST_DISTANCE, Integer.toString(n.getForecastDistance()));
+        writer.writeAttribute(SOURCE_FORMAT, n.getSourceFormat());
+    }
+
+    private static XMLStreamWriter writeStartAttributes(OutputStream os, ExportOptions options) throws XMLStreamException {
+        XMLStreamWriter writer;
+        writer = createXmlStreamWriter(options, os);
+        writer.writeStartDocument(StandardCharsets.UTF_8.toString(), "1.0");
+        writer.setPrefix(IIDM_PREFIX, IIDM_URI);
+        writer.writeStartElement(IIDM_URI, NETWORK_ROOT_ELEMENT_NAME);
+        writer.writeNamespace(IIDM_PREFIX, IIDM_URI);
+        return writer;
+    }
+
+    private static XMLStreamWriter initializeWriter(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
+        XMLStreamWriter writer = writeStartAttributes(os, options);
+        if (!options.withNoExtension()) {
+            writeExtensionNamespaces(n, options, writer);
+        }
+        writeMainAttributes(n, writer);
+        return writer;
+    }
+
+    private static XMLStreamWriter initializeBaseNetworkWriter(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
+        XMLStreamWriter writer = writeStartAttributes(os, options);
+        writeMainAttributes(n, writer);
+        return writer;
+    }
+
+    private static XMLStreamWriter initializeExtensionFileWriter(Network n, OutputStream os, ExportOptions options, String extensionName) throws XMLStreamException {
+        XMLStreamWriter writer = writeStartAttributes(os, options);
+        writeExtensionNamespace(options, writer, extensionName);
+        writeMainAttributes(n, writer);
+        return writer;
+    }
+
+    private static void writeEndElement(XMLStreamWriter writer) throws XMLStreamException {
+        writer.writeEndElement();
+        writer.writeEndDocument();
+    }
+
+    private static void writeExtensionsInMultipleFile(Network n, NetworkXmlWriterContext context, DataSource dataSource, ExportOptions options, String dataSourceExt) throws XMLStreamException, IOException {
+        //here we right one extension type  per file
+        Map<String, Set<String>> m = getIdentifiablesPerExtensionType(n);
+        String ext = dataSourceExt.isEmpty() ? "" : "." + dataSourceExt;
+
+        for (Map.Entry<String, Set<String>> entry : m.entrySet()) {
+            String name = entry.getKey();
+            Set<String> ids = entry.getValue();
+            if (options.withExtension(name)) {
+                try (OutputStream os = dataSource.newOutputStream(dataSource.getBaseName() + "-" +  name + ext, false);
+                     BufferedOutputStream bos = new BufferedOutputStream(os)) {
+                    XMLStreamWriter writer = initializeExtensionFileWriter(n, bos, options, name);
+                    for (String id : ids) {
+                        writer.writeStartElement(IIDM_URI, EXTENSION_ELEMENT_NAME);
+                        writer.writeAttribute("id", context.getAnonymizer().anonymizeString(id));
+                        context.setExtensionsWriter(writer);
+                        writeExtension(n.getIdentifiable(id).getExtensionByName(name), context);
+                        writer.writeEndElement();
+                    }
+                    writeEndElement(writer);
+                }
+            }
+        }
+    }
+
+    private static NetworkXmlWriterContext writeBaseNetwork(Network n, OutputStream os, ExportOptions options) throws XMLStreamException {
+
+        // create the  writer of the base file
+        XMLStreamWriter writer;
+        if (options.getMode() == IidmImportExportMode.UNIQUE_FILE) {
+            writer = initializeWriter(n, os, options);
+        } else {
+            writer = initializeBaseNetworkWriter(n, os, options);
+        }
+        BusFilter filter = BusFilter.create(n, options);
+        Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
+        NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter);
+        // Consider the network has been exported so its extensions will be written also
+        context.addExportedEquipment(n);
+
+        for (Substation s : n.getSubstations()) {
+            SubstationXml.INSTANCE.write(s, null, context);
+        }
+        for (Line l : n.getLines()) {
+            if (!filter.test(l)) {
+                continue;
+            }
+            if (l.isTieLine()) {
+                TieLineXml.INSTANCE.write((TieLine) l, n, context);
+            } else {
+                LineXml.INSTANCE.write(l, n, context);
+            }
+        }
+        for (HvdcLine l : n.getHvdcLines()) {
+            if (!filter.test(l.getConverterStation1()) || !filter.test(l.getConverterStation2())) {
+                continue;
+            }
+            HvdcLineXml.INSTANCE.write(l, n, context);
+        }
+        return context;
+    }
+
     public static Anonymizer write(Network n, ExportOptions options, OutputStream os) {
+        if (options.getMode() == IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE ||
+                options.getMode() == IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE) {
+            throw new PowsyblException("You can call this method only with UNIQUE_FILE mode");
+        }
         try {
-            final XMLStreamWriter writer = createXmlStreamWriter(options, os);
-            writer.writeStartDocument(StandardCharsets.UTF_8.toString(), "1.0");
-
-            writer.setPrefix(IIDM_PREFIX, IIDM_URI);
-            writer.writeStartElement(IIDM_URI, NETWORK_ROOT_ELEMENT_NAME);
-            writer.writeNamespace(IIDM_PREFIX, IIDM_URI);
-
-            if (!options.isSkipExtensions()) {
-                // add additional extension namespaces and check there is no collision between extensions
-                writeExtensionNamespaces(n, options, writer);
-            }
-
-            writer.writeAttribute("id", n.getId());
-            writer.writeAttribute("caseDate", n.getCaseDate().toString());
-            writer.writeAttribute("forecastDistance", Integer.toString(n.getForecastDistance()));
-            writer.writeAttribute("sourceFormat", n.getSourceFormat());
-            BusFilter filter = BusFilter.create(n, options);
-            Anonymizer anonymizer = options.isAnonymized() ? new SimpleAnonymizer() : null;
-            NetworkXmlWriterContext context = new NetworkXmlWriterContext(anonymizer, writer, options, filter);
-            for (Substation s : n.getSubstations()) {
-                SubstationXml.INSTANCE.write(s, null, context);
-            }
-            for (Line l : n.getLines()) {
-                if (!filter.test(l)) {
-                    continue;
-                }
-                if (l.isTieLine()) {
-                    TieLineXml.INSTANCE.write((TieLine) l, n, context);
-                } else {
-                    LineXml.INSTANCE.write(l, n, context);
-                }
-            }
-            for (HvdcLine l : n.getHvdcLines()) {
-                if (!filter.test(l.getConverterStation1()) || !filter.test(l.getConverterStation2())) {
-                    continue;
-                }
-                HvdcLineXml.INSTANCE.write(l, n, context);
-            }
-
-            if (!options.isSkipExtensions()) {
-                // Consider the network has been exported so its extensions will be written also
-                context.addExportedEquipment(n);
-
-                // write extensions
-                writeExtensions(n, context);
-            }
-
-            writer.writeEndElement();
-            writer.writeEndDocument();
-
-            return anonymizer;
+            NetworkXmlWriterContext context = writeBaseNetwork(n, os, options);
+            // write extensions
+            writeExtensions(n, context, options);
+            writeEndElement(context.getWriter());
+            return context.getAnonymizer();
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
         }
@@ -267,9 +371,18 @@ public final class NetworkXml {
         return write(n, new ExportOptions(), os);
     }
 
+    private static String getFileExtensionFromPath(Path xmlFile) {
+        return FilenameUtils.getExtension(xmlFile.getFileName().toString());
+    }
+
+    private static DataSource getDataSourceFromPath(Path xmlFile) {
+        String fileBaseName =  FilenameUtils.getBaseName(xmlFile.getFileName().toString());
+        return new FileDataSource(xmlFile.getParent(), fileBaseName);
+    }
+
     public static Anonymizer write(Network n, ExportOptions options, Path xmlFile) {
-        try (OutputStream os = new BufferedOutputStream(Files.newOutputStream(xmlFile))) {
-            return write(n, options, os);
+        try {
+            return write(n, options, getDataSourceFromPath(xmlFile), getFileExtensionFromPath(xmlFile));
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -279,9 +392,66 @@ public final class NetworkXml {
         return write(n, new ExportOptions(), xmlFile);
     }
 
+    public static Anonymizer write(Network network, ExportOptions options, DataSource dataSource, String dataSourceExt) throws IOException {
+        try (OutputStream osb = dataSource.newOutputStream("", dataSourceExt, false);
+             BufferedOutputStream bosb = new BufferedOutputStream(osb)) {
+
+            if (options.getMode() == IidmImportExportMode.UNIQUE_FILE) {
+                Anonymizer anonymizer = write(network, options, bosb);
+                if (options.isAnonymized()) {
+                    try (BufferedWriter writer2 = new BufferedWriter(new OutputStreamWriter(dataSource.newOutputStream("_mapping", "csv", false), StandardCharsets.UTF_8))) {
+                        anonymizer.write(writer2);
+                    }
+                }
+                return anonymizer;
+            }
+
+            NetworkXmlWriterContext context = writeBaseNetwork(network, bosb, options);
+            writeEndElement(context.getWriter());
+
+            // write extensions
+            if (!options.withNoExtension() && !getNetworkExtensions(network).isEmpty()) {
+
+                if (options.getMode() == IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE) {
+                    try (OutputStream ose = dataSource.newOutputStream("-ext", dataSourceExt, false);
+                         BufferedOutputStream bose = new BufferedOutputStream(ose)) {
+
+                        final XMLStreamWriter extensionsWriter = initializeWriter(network, bose, options);
+                        context.setExtensionsWriter(extensionsWriter);
+                        writeExtensions(network, context, options);
+                        writeEndElement(extensionsWriter);
+                    }
+                } else if (options.getMode() == IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE) {
+                    writeExtensionsInMultipleFile(network, context, dataSource, options, dataSourceExt);
+                }
+            }
+
+            if (options.isAnonymized()) {
+                try (BufferedWriter writer2 = new BufferedWriter(new OutputStreamWriter(dataSource.newOutputStream("_mapping", "csv", false), StandardCharsets.UTF_8))) {
+                    context.getAnonymizer().write(writer2);
+                }
+            }
+            return context.getAnonymizer();
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
+        }
+    }
+
     public static Anonymizer writeAndValidate(Network n, Path xmlFile) {
-        Anonymizer anonymizer = write(n, xmlFile);
-        validateWithExtensions(xmlFile);
+        try {
+            return writeAndValidate(n, new ExportOptions(), xmlFile);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    public static Anonymizer writeAndValidate(Network n, ExportOptions options, Path xmlFile) throws IOException {
+        Anonymizer anonymizer = write(n, options, xmlFile);
+        if (options.getMode() == IidmImportExportMode.UNIQUE_FILE) {
+            validateWithExtensions(xmlFile);
+            return anonymizer;
+        }
+        validate(xmlFile, options.getMode());
         return anonymizer;
     }
 
@@ -296,18 +466,20 @@ public final class NetworkXml {
             while (state == XMLStreamReader.COMMENT) {
                 state = reader.next();
             }
-            String id = reader.getAttributeValue(null, "id");
-            DateTime date = DateTime.parse(reader.getAttributeValue(null, "caseDate"));
-            int forecastDistance = XmlUtil.readOptionalIntegerAttribute(reader, "forecastDistance", 0);
-            String sourceFormat = reader.getAttributeValue(null, "sourceFormat");
+            String id = reader.getAttributeValue(null, ID);
+            DateTime date = DateTime.parse(reader.getAttributeValue(null, CASE_DATE));
+            int forecastDistance = XmlUtil.readOptionalIntegerAttribute(reader, FORECAST_DISTANCE, 0);
+            String sourceFormat = reader.getAttributeValue(null, SOURCE_FORMAT);
 
             Network network = NetworkFactory.create(id, sourceFormat);
             network.setCaseDate(date);
             network.setForecastDistance(forecastDistance);
 
-            NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader);
+            NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, config);
 
             Set<String> extensionNamesNotFound = new TreeSet<>();
+
+            boolean[] modeWarn = new boolean[1];
 
             XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {
                 switch (reader.getLocalName()) {
@@ -328,12 +500,14 @@ public final class NetworkXml {
                         break;
 
                     case EXTENSION_ELEMENT_NAME:
+                        if (config.getMode() != IidmImportExportMode.UNIQUE_FILE) {
+                            modeWarn[0] = true;
+                        }
                         String id2 = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, "id"));
                         Identifiable identifiable = network.getIdentifiable(id2);
                         if (identifiable == null) {
                             throw new PowsyblException("Identifiable " + id2 + " not found");
                         }
-
                         readExtensions(identifiable, context, extensionNamesNotFound);
                         break;
 
@@ -342,16 +516,11 @@ public final class NetworkXml {
                 }
             });
 
-            context.getEndTasks().forEach(Runnable::run);
-
-            if (!extensionNamesNotFound.isEmpty()) {
-                if (config.isThrowExceptionIfExtensionNotFound()) {
-                    throw new PowsyblException("Extensions " + extensionNamesNotFound + " not found");
-                } else {
-                    LOGGER.error("Extensions {} not found", extensionNamesNotFound);
-                }
+            if (modeWarn[0]) {
+                LOGGER.warn("Mode isn't UNIQUE_FILE and some extensions was found in the base file!, some extensions may be overwritten later when reading extensions files");
             }
 
+            context.getEndTasks().forEach(Runnable::run);
             return network;
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
@@ -359,16 +528,154 @@ public final class NetworkXml {
     }
 
     public static Network read(Path xmlFile) {
-        try (InputStream is = Files.newInputStream(xmlFile)) {
-            return read(is);
+        try {
+            return read(xmlFile, new ImportOptions());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
+    public static Network read(ReadOnlyDataSource dataSource, ImportOptions options, String dataSourceExt) throws IOException {
+        Objects.requireNonNull(dataSource);
+        Network network;
+        Anonymizer anonymizer = null;
+
+        if (dataSource.exists(SUFFIX_MAPPING, "csv")) {
+            anonymizer = new SimpleAnonymizer();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(SUFFIX_MAPPING, "csv"), StandardCharsets.UTF_8))) {
+                anonymizer.read(reader);
+            }
+        }
+        //Read the base file with the extensions declared in the extensions list
+        try (InputStream isb = dataSource.newInputStream(null, dataSourceExt)) {
+            network = NetworkXml.read(isb, options, anonymizer);
+        }
+        if (!options.withNoExtension()) {
+            switch (options.getMode()) {
+                case EXTENSIONS_IN_ONE_SEPARATED_FILE:
+                    // in this case we have to read all extensions from one  file
+                    try (InputStream ise = dataSource.newInputStream("-ext", dataSourceExt)) {
+                        readExtensions(network, ise, anonymizer, options);
+                    } catch (IOException e) {
+                        LOGGER.warn(String.format("the extensions file wasn't found while importing, please ensure that the file name respect the naming convention baseFileName-ext.%s", dataSourceExt));
+                    }
+                    break;
+                case ONE_SEPARATED_FILE_PER_EXTENSION_TYPE:
+                    String ext = dataSourceExt.isEmpty() ? "" : "." + dataSourceExt;
+                    // here we'll read all extensions declared in the extensions set
+                    readExtensions(network, dataSource, anonymizer, options, ext);
+                    break;
+                default:
+                    break;
+            }
+        }
+        return network;
+    }
+
+    public static Network read(Path xmlFile, ImportOptions options) throws IOException {
+        DataSource dataSource = getDataSourceFromPath(xmlFile);
+        String ext = getFileExtensionFromPath(xmlFile);
+        return read(dataSource, options, ext);
+    }
+
     public static Network validateAndRead(Path xmlFile) {
-        validateWithExtensions(xmlFile);
-        return read(xmlFile);
+        try {
+            return validateAndRead(xmlFile, new ImportOptions());
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
+    private static void validate(Path xmlFile, IidmImportExportMode mode) throws IOException {
+        DataSource dataSource = getDataSourceFromPath(xmlFile);
+        String ext =  getFileExtensionFromPath(xmlFile);
+
+        if (mode == IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE) {
+            try (InputStream ise = dataSource.newInputStream(dataSource.getBaseName() + ext)) {
+                validateWithExtensions(ise);
+            }
+            try (InputStream ise = dataSource.newInputStream(dataSource.getBaseName() + "-ext." + ext)) {
+                validateWithExtensions(ise);
+            }
+        } else {
+            Set<String> listNames = dataSource.listNames(".*\\." + ext);
+            for (String fileName : listNames) {
+                try (InputStream ise = dataSource.newInputStream(fileName)) {
+                    validateWithExtensions(ise);
+                }
+            }
+        }
+    }
+
+    public static Network validateAndRead(Path xmlFile, ImportOptions options) throws IOException {
+        if (options.getMode() == IidmImportExportMode.UNIQUE_FILE) {
+            validateWithExtensions(xmlFile);
+            return read(xmlFile);
+        }
+        validate(xmlFile, options.getMode());
+        return read(xmlFile, options);
+    }
+
+    // To read extensions from multiple extension files
+    static void readExtensions(Network network, ReadOnlyDataSource dataSource, Anonymizer anonymizer, ImportOptions options, String ext) throws IOException {
+        options.getExtensions().ifPresent(extensions -> {
+            for (String extension : extensions) {
+                try (InputStream ise = dataSource.newInputStream(dataSource.getBaseName() + "-" + extension + ext)) {
+                    readExtensions(network, ise, anonymizer, options);
+                } catch (IOException e) {
+                    LOGGER.warn(String.format("the %s extension file is not found despite it was declared in the extensions list", extension));
+                }
+            }
+        });
+
+        if (!options.getExtensions().isPresent()) {
+            Set<String> listNames = dataSource.listNames(".*" + ext);
+            listNames.remove(dataSource.getBaseName() + ext);
+            for (String fileName : listNames) {
+                try (InputStream ise = dataSource.newInputStream(fileName)) {
+                    readExtensions(network, ise, anonymizer, options);
+                } catch (IOException e) {
+                    LOGGER.warn(String.format("the %s file is not found ", fileName));
+                }
+            }
+        }
+    }
+
+    // To read extensions from an extensions file
+    static Network readExtensions(Network network, InputStream ise, Anonymizer anonymizer, ImportOptions options) {
+        try {
+            XMLStreamReader reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(ise);
+            int state = reader.next();
+            while (state == XMLStreamReader.COMMENT) {
+                state = reader.next();
+            }
+            String id = reader.getAttributeValue(null, "id");
+            DateTime date = DateTime.parse(reader.getAttributeValue(null, CASE_DATE));
+
+            //verify that the extensions file matches with the same network
+            if (!network.getId().equals(id) || !network.getCaseDate().equals(date)) {
+                throw new PowsyblException("Extension file do not match with the base file !");
+            }
+
+            NetworkXmlReaderContext context = new NetworkXmlReaderContext(anonymizer, reader, options);
+            Set<String> extensionNamesNotFound = new TreeSet<>();
+
+            XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {
+                if (reader.getLocalName().equals(EXTENSION_ELEMENT_NAME)) {
+                    String id2 = context.getAnonymizer().deanonymizeString(reader.getAttributeValue(null, "id"));
+                    Identifiable identifiable = network.getIdentifiable(id2);
+                    if (identifiable == null) {
+                        throw new PowsyblException("Identifiable " + id2 + " not found");
+                    }
+                    readExtensions(identifiable, context, extensionNamesNotFound);
+                } else {
+                    throw new PowsyblException("Unexpected element: " +  reader.getLocalName());
+                }
+            });
+            return network;
+        } catch (XMLStreamException e) {
+            throw new UncheckedXmlStreamException(e);
+        }
     }
 
     private static void readExtensions(Identifiable identifiable, NetworkXmlReaderContext context,
@@ -382,6 +689,10 @@ public final class NetworkXml {
             public void onStartElement() throws XMLStreamException {
                 if (topLevel) {
                     String extensionName = context.getReader().getLocalName();
+                    if (!context.getOptions().withExtension(extensionName)) {
+                        return;
+                    }
+
                     ExtensionXmlSerializer extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
                     if (extensionXmlSerializer != null) {
                         Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
@@ -394,6 +705,15 @@ public final class NetworkXml {
                 }
             }
         });
+
+        if (!extensionNamesNotFound.isEmpty()) {
+            if (context.getOptions().isThrowExceptionIfExtensionNotFound()) {
+                throw new PowsyblException("Extensions " + extensionNamesNotFound + " " +
+                        "not found !");
+            } else {
+                LOGGER.error("Extensions {} not found", extensionNamesNotFound);
+            }
+        }
     }
 
     public static void update(Network network, InputStream is) {

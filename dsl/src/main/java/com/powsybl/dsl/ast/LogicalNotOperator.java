@@ -15,7 +15,6 @@ public class LogicalNotOperator extends AbstractUnaryOperatorNode {
         super(child);
     }
 
-
     @Override
     public <R, A> R accept(ExpressionVisitor<R, A> visitor, A arg) {
         return visitor.visitNotOperator(this, arg);

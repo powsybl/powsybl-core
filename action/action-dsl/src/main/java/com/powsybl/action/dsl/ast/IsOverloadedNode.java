@@ -6,9 +6,7 @@
  */
 package com.powsybl.action.dsl.ast;
 
-
 import java.util.List;
-
 
 public class IsOverloadedNode extends AbstractBranchActionExpressionNode {
 

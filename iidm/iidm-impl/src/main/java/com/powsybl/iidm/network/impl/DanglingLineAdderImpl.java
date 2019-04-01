@@ -101,7 +101,7 @@ class DanglingLineAdderImpl extends AbstractInjectionAdder<DanglingLineAdderImpl
         DanglingLineImpl danglingLine = new DanglingLineImpl(getNetwork().getRef(), id, getName(), p0, q0, r, x, g, b, ucteXnodeCode);
         danglingLine.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
-        getNetwork().getObjectStore().checkAndAdd(danglingLine);
+        getNetwork().getIndex().checkAndAdd(danglingLine);
         getNetwork().getListeners().notifyCreation(danglingLine);
         return danglingLine;
     }

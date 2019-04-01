@@ -8,13 +8,13 @@ package com.powsybl.cim1.converter;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ZipFileDataSource;
 import org.apache.commons.io.IOUtils;
 import org.junit.After;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -24,6 +24,8 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Properties;
+
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -81,7 +83,7 @@ public class CIM1ImporterTest {
         copyFile(zdsSplit, "ENTSO-E_Boundary_Set_EU_EQ.xml");
         copyFile(zdsSplit, "ENTSO-E_Boundary_Set_EU_TP.xml");
 
-        importer = new CIM1Importer();
+        importer = new CIM1Importer(new InMemoryPlatformConfig(fileSystem));
     }
 
     @After

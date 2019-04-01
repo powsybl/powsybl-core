@@ -78,7 +78,6 @@ public class ParameterDefaultValueConfig {
 
     private <T> T getValue(String format, T defaultValue, Parameter parameter, BiFunction<ModuleConfig, String, Optional<T>> supplier) {
         Objects.requireNonNull(format);
-        Objects.requireNonNull(defaultValue);
         Objects.requireNonNull(parameter);
         ModuleConfig moduleConfig = getModuleConfig();
 

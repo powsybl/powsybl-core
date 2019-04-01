@@ -28,15 +28,24 @@ public final class CgmesModelFactory {
     }
 
     public static CgmesModelTripleStore create(ReadOnlyDataSource ds, String tripleStoreImpl) {
+        return create(ds, null, tripleStoreImpl);
+    }
+
+    public static CgmesModelTripleStore create(ReadOnlyDataSource ds, ReadOnlyDataSource dsBoundary, String tripleStoreImpl) {
         CgmesOnDataSource cds = new CgmesOnDataSource(ds);
         TripleStore tripleStore = TripleStoreFactory.create(tripleStoreImpl);
         CgmesModelTripleStore cgmes = new CgmesModelTripleStore(cds.cimNamespace(), tripleStore);
-        read(cgmes, cds);
+        read(cgmes, cds, cds.baseName());
+        // Only try to read boundary data from additional sources if the main data
+        // source does not contain boundary info
+        if (!cgmes.hasBoundary() && dsBoundary != null) {
+            // Read boundary using same baseName of the main data
+            read(cgmes, new CgmesOnDataSource(dsBoundary), cds.baseName());
+        }
         return cgmes;
     }
 
-    private static void read(CgmesModelTripleStore cgmes, CgmesOnDataSource cds) {
-        String base = cds.baseName();
+    private static void read(CgmesModelTripleStore cgmes, CgmesOnDataSource cds, String base) {
         for (String name : cds.names()) {
             LOG.info("Reading [{}]", name);
             try (InputStream is = cds.dataSource().newInputStream(name)) {

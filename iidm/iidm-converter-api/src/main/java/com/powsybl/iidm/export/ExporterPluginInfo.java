@@ -17,10 +17,8 @@ import java.util.Objects;
 @AutoService(PluginInfo.class)
 public class ExporterPluginInfo extends PluginInfo<Exporter> {
 
-    private static final String PLUGIN_NAME = "exporter";
-
     public ExporterPluginInfo() {
-        super(Exporter.class, PLUGIN_NAME);
+        super(Exporter.class);
     }
 
     @Override

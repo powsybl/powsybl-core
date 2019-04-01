@@ -11,6 +11,7 @@ import gnu.trove.list.array.TIntArrayList;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.function.ObjIntConsumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -58,12 +59,22 @@ public class UncompressedStringDataChunk extends AbstractUncompressedDataChunk i
         return TimeSeriesDataType.STRING;
     }
 
+    private void forEachValueIndex(ObjIntConsumer<String> consumer) {
+        for (int i = 0; i < values.length; i++) {
+            consumer.accept(values[i], offset + i);
+        }
+    }
+
     @Override
     public void fillBuffer(CompactStringBuffer buffer, int timeSeriesOffset) {
         Objects.requireNonNull(buffer);
-        for (int i = 0; i < values.length; i++) {
-            buffer.putString(timeSeriesOffset + offset + i, values[i]);
-        }
+        forEachValueIndex((v, i) -> buffer.putString(timeSeriesOffset + i, v));
+    }
+
+    @Override
+    public void fillBuffer(BigStringBuffer buffer, long timeSeriesOffset) {
+        Objects.requireNonNull(buffer);
+        forEachValueIndex((v, i) -> buffer.putString(timeSeriesOffset + i, v));
     }
 
     @Override

@@ -100,9 +100,9 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
     @Override
     public <T extends Connectable> T getConnectable(String id, Class<T> aClass) {
-        // the fastest way to get the equipment is to look in the object store
+        // the fastest way to get the equipment is to look in the index
         // and then check if it is connected to this substation
-        T connectable = substation.getNetwork().getObjectStore().get(id, aClass);
+        T connectable = substation.getNetwork().getIndex().get(id, aClass);
         if (connectable == null) {
             return null;
         } else if (connectable instanceof Injection) {
@@ -359,7 +359,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
 
         // Remove this voltage level from the network
         getSubstation().remove(this);
-        getNetwork().getObjectStore().remove(this);
+        getNetwork().getIndex().remove(this);
 
         getNetwork().getListeners().notifyRemoval(this);
     }

@@ -104,7 +104,7 @@ class LineAdderImpl extends AbstractBranchAdder<LineAdderImpl> implements LineAd
         line.addTerminal(terminal2);
         voltageLevel1.attach(terminal1, false);
         voltageLevel2.attach(terminal2, false);
-        network.getObjectStore().checkAndAdd(line);
+        network.getIndex().checkAndAdd(line);
         getNetwork().getListeners().notifyCreation(line);
         return line;
     }

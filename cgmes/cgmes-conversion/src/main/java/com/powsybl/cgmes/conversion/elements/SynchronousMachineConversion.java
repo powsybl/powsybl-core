@@ -59,7 +59,7 @@ public class SynchronousMachineConversion extends AbstractConductingEquipmentCon
         connect(adder);
         Generator g = adder.add();
         convertedTerminals(g.getTerminal());
-        ReactiveLimitsConversion.convert(p, g);
+        convertReactiveLimits(g);
     }
 
     private static EnergySource fromGeneratingUnitType(String gut) {

@@ -10,6 +10,7 @@ import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import org.junit.Test;
 
@@ -87,10 +88,10 @@ public class VariantManagerImplTest {
 
     @Test
     public void test() {
-        ObjectStore objectStore = new ObjectStore();
+        NetworkIndex index = new NetworkIndex();
         IdentifiableMock identifiable1 = new IdentifiableMock("1");
-        objectStore.checkAndAdd(identifiable1);
-        VariantManagerImpl variantManager = new VariantManagerImpl(objectStore);
+        index.checkAndAdd(identifiable1);
+        VariantManagerImpl variantManager = new VariantManagerImpl(index);
         // initial variant test
         assertEquals(1, variantManager.getVariantArraySize());
         assertEquals(Collections.singleton(VariantManagerConstants.INITIAL_VARIANT_ID), variantManager.getVariantIds());
@@ -148,5 +149,26 @@ public class VariantManagerImplTest {
         assertEquals(Collections.singleton(VariantManagerConstants.INITIAL_VARIANT_ID), variantManager.getVariantIds());
         assertEquals(Collections.singleton(0), variantManager.getVariantIndexes());
         assertEquals(2, identifiable1.reducedCount);
+    }
+
+    @Test
+    public void testMultipleNetworks() {
+        NetworkIndex index = new NetworkIndex();
+
+        VariantManager variantManager1 = new VariantManagerImpl(index);
+        variantManager1.allowVariantMultiThreadAccess(true);
+        assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, variantManager1.getWorkingVariantId());
+
+        VariantManager variantManager2 = new VariantManagerImpl(index);
+        variantManager2.allowVariantMultiThreadAccess(true);
+        assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, variantManager1.getWorkingVariantId());
+
+        variantManager1.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "testVariant");
+
+        variantManager1.setWorkingVariant("testVariant");
+        assertEquals("testVariant", variantManager1.getWorkingVariantId());
+
+        //active variant for variant manager 2 should not have changed
+        assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, variantManager2.getWorkingVariantId());
     }
 }

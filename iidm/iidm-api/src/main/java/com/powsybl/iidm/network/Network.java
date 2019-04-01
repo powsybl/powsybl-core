@@ -350,21 +350,23 @@ public interface Network extends Container<Network> {
      */
     Iterable<ShuntCompensator> getShuntCompensators();
 
-
     /**
      * Get all compensator shunts.
      */
     Stream<ShuntCompensator> getShuntCompensatorStream();
+
     /**
      * Get the shunt count.
      */
     int getShuntCompensatorCount();
+
     /**
      * Get a compensator shunt.
      *
      * @param id the id of the compensator shunt
      */
     ShuntCompensator getShuntCompensator(String id);
+
     /**
      * Get all dangling lines.
      */

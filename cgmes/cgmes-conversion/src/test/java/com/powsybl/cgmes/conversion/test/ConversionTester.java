@@ -18,6 +18,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.function.Consumer;
 
+import com.powsybl.commons.config.PlatformConfig;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -128,8 +130,9 @@ public class ConversionTester {
         // This is to be able to easily compare the topology computed
         // by powsybl against the topology present in the CGMES model
         iparams.put("createBusbarSectionForEveryConnectivityNode", "true");
-        CgmesImport i = new CgmesImport();
         try (FileSystem fs = Jimfs.newFileSystem()) {
+            PlatformConfig platformConfig = new InMemoryPlatformConfig(fs);
+            CgmesImport i = new CgmesImport(platformConfig);
             ReadOnlyDataSource ds = gm.dataSource();
             Network network = i.importData(ds, iparams);
             if (network.getSubstationCount() == 0) {
@@ -158,23 +161,26 @@ public class ConversionTester {
         }
     }
 
-    private void testConversionOnlyReport(TestGridModel gm) {
+    private void testConversionOnlyReport(TestGridModel gm) throws IOException {
         String impl = TripleStoreFactory.defaultImplementation();
-        CgmesImport i = new CgmesImport();
-        Properties params = new Properties();
-        params.put("storeCgmesModelAsNetworkExtension", "true");
-        params.put("powsyblTripleStore", impl);
-        ReadOnlyDataSource ds = gm.dataSource();
-        LOG.info("Importer.exists() == {}", i.exists(ds));
-        Network n = i.importData(ds, params);
-        CgmesModel m = n.getExtension(CgmesModelExtension.class).getCgmesModel();
-        new Conversion(m).report(reportConsumer);
+        try (FileSystem fs = Jimfs.newFileSystem()) {
+            PlatformConfig platformConfig = new InMemoryPlatformConfig(fs);
+            CgmesImport i = new CgmesImport(platformConfig);
+            Properties params = new Properties();
+            params.put("storeCgmesModelAsNetworkExtension", "true");
+            params.put("powsyblTripleStore", impl);
+            ReadOnlyDataSource ds = gm.dataSource();
+            LOG.info("Importer.exists() == {}", i.exists(ds));
+            Network n = i.importData(ds, params);
+            CgmesModel m = n.getExtension(CgmesModelExtension.class).getCgmesModel();
+            new Conversion(m).report(reportConsumer);
+        }
     }
 
     private void exportXiidm(String name, String impl, Network expected, Network actual) throws IOException {
         String name1 = name.replace('/', '-');
         Path path = Files.createTempDirectory("temp-conversion-" + name1 + "-" + impl + "-");
-        XMLExporter xmlExporter = new XMLExporter();
+        XMLExporter xmlExporter = new XMLExporter(Mockito.mock(PlatformConfig.class));
         // Last component of the path is the name for the exported XML
         if (expected != null) {
             xmlExporter.export(expected, null, new FileDataSource(path, "expected"));

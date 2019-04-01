@@ -125,7 +125,7 @@ class GeneratorAdderImpl extends AbstractInjectionAdder<GeneratorAdderImpl> impl
                                     ratedS);
         generator.addTerminal(terminal);
         voltageLevel.attach(terminal, false);
-        getNetwork().getObjectStore().checkAndAdd(generator);
+        getNetwork().getIndex().checkAndAdd(generator);
         getNetwork().getListeners().notifyCreation(generator);
         return generator;
     }

@@ -14,6 +14,7 @@ import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.BranchAdder;
 import com.powsybl.iidm.network.ConnectableType;
+import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.InjectionAdder;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.Terminal;
@@ -231,6 +232,27 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     PowerFlow powerFlow(int n) {
         // Could come either from terminal data or from property bag
         return terminalPowerFlow(n).defined() ? terminalPowerFlow(n) : equipmentPowerFlow();
+    }
+
+    // Helpers
+
+    protected void convertReactiveLimits(Generator g) {
+        if (p.containsKey("minQ") && p.containsKey("maxQ")) {
+            double minQ = p.asDouble("minQ");
+            double maxQ = p.asDouble("maxQ");
+            if (minQ > maxQ) {
+                String reason = String.format("minQ > maxQ (%.4f > %.4f)", minQ, maxQ);
+                fixed("reactiveLimits", reason);
+                double t = minQ;
+                minQ = maxQ;
+                maxQ = t;
+            }
+            g.newMinMaxReactiveLimits()
+                    .setMinQ(minQ)
+                    .setMaxQ(maxQ)
+                    .add();
+        }
+        // TODO Reactive capability curves
     }
 
     // Terminals

@@ -217,7 +217,6 @@ public class ConditionDslLoaderTest {
         }
     }
 
-
     private void addCurrentLimitsOnLine1() {
         line1.newCurrentLimits1()
                 .setPermanentLimit(400)
