@@ -25,6 +25,12 @@ import static org.junit.Assert.assertSame;
 public class UncheckedExceptionTest {
 
     @Test
+    public void classCastExceptionTest() {
+        ClassCastException e = new ClassCastException();
+        assertSame(e, new UncheckedClassCastExceptionException(e).getCause());
+    }
+
+    @Test
     public void classNotFoundTest() {
         ClassNotFoundException e = new ClassNotFoundException();
         assertSame(e, new UncheckedClassNotFoundException(e).getCause());
