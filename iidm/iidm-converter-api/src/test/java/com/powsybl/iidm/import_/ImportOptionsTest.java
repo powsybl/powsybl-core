@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 
 /**
@@ -54,9 +54,9 @@ public class ImportOptionsTest {
         options.setTopo(false);
         options.setControl(true);
         options.setState(false);
-        assertEquals(Boolean.TRUE, options.isControl());
-        assertEquals(Boolean.FALSE, options.isState());
-        assertEquals(Boolean.FALSE, options.isTopo());
+        assertTrue(options.isControl());
+        assertFalse(options.isState());
+        assertFalse(options.isTopo());
     }
 
     @Test
