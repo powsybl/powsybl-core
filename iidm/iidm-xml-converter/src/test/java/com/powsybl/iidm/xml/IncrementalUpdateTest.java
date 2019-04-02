@@ -47,6 +47,14 @@ public class IncrementalUpdateTest extends AbstractConverterTest {
         return importNetworkFromRessources("vsc-with-wrong-control-values", "xiidm");
     }
 
+    private Network getHvdcTestNetworkWithWrongTopoValues() {
+        return importNetworkFromRessources("vsc-with-wrong-topo-values", "xiidm");
+    }
+
+    private Network getEurostagNetworkWithWrongTopoValues() {
+        return importNetworkFromRessources("eurostag-tutorial-example1-with-wrong-topo-values", "xml");
+    }
+
     @Test
     public void updateStateValues() throws IOException {
         //load networks
@@ -143,4 +151,86 @@ public class IncrementalUpdateTest extends AbstractConverterTest {
         assertEquals(network.getVscConverterStation("C2").getVoltageSetpoint(), network2.getVscConverterStation("C2").getVoltageSetpoint(), 0);
         assertEquals(network.getHvdcLine("L").getActivePowerSetpoint(), network2.getHvdcLine("L").getActivePowerSetpoint(), 0);
     }
+
+    @Test
+    public void updateTopoValues1() throws IOException {
+        //testing twoWindingTransformer and generator control values update.
+        //load networks
+        Network network = EurostagTutorialExample1Factory.create();
+        //network without control values
+        Network network2 = getEurostagNetworkWithWrongTopoValues();
+        //set the same case date
+        network.setCaseDate(network2.getCaseDate());
+
+        assertNotEquals(network.getGenerator("GEN").getTerminal().getBusBreakerView().getConnectableBus().getName(),
+                network2.getGenerator("GEN").getTerminal().getBusBreakerView().getConnectableBus().getName());
+
+        assertNotEquals(network.getTwoWindingsTransformer("NGEN_NHV1").getTerminal1().getBusBreakerView().getConnectableBus().getName(),
+                network2.getTwoWindingsTransformer("NGEN_NHV1").getTerminal1().getBusBreakerView().getConnectableBus().getName());
+
+        assertNotEquals(network.getTwoWindingsTransformer("NGEN_NHV1").getTerminal2().getBusBreakerView().getConnectableBus().getName(),
+                network2.getTwoWindingsTransformer("NGEN_NHV1").getTerminal2().getBusBreakerView().getConnectableBus().getName());
+
+        //To create a data source that contains TOPO.xiidm, STATE.xiidm et CONTROL.xiidm
+        MemDataSource dataSource = new MemDataSource();
+        Properties properties = new Properties();
+        properties.put(XMLExporter.ANONYMISED, "false");
+        properties.put(XMLExporter.CONTROL, "false");
+        properties.put(XMLExporter.STATE, "false");
+        new XMLExporter().export(network, properties, dataSource);
+        //Incremental export
+        properties.put(XMLExporter.IMPORT_EXPORT_TYPE, String.valueOf(IidmImportExportType.INCREMENTAL_IIDM));
+        new XMLExporter().export(network, properties, dataSource);
+
+        //Update the network
+        NetworkXml.update(network2, new ImportOptions().setControl(false).setTopo(true).setState(false), dataSource);
+
+        assertEquals(network.getGenerator("GEN").getTerminal().getBusBreakerView().getConnectableBus().getName(),
+                network2.getGenerator("GEN").getTerminal().getBusBreakerView().getConnectableBus().getName());
+        assertEquals(network.getTwoWindingsTransformer("NGEN_NHV1").getTerminal1().getBusBreakerView().getConnectableBus().getName(),
+                network2.getTwoWindingsTransformer("NGEN_NHV1").getTerminal1().getBusBreakerView().getConnectableBus().getName());
+
+        assertEquals(network.getTwoWindingsTransformer("NGEN_NHV1").getTerminal2().getBusBreakerView().getConnectableBus().getName(),
+                network2.getTwoWindingsTransformer("NGEN_NHV1").getTerminal2().getBusBreakerView().getConnectableBus().getName());
+    }
+
+    @Test
+    public void updateTopoValues2() throws IOException {
+        //testing VscConverterStation and HvdcLine topo values update.
+        //load networks
+        Network network = HvdcTestNetwork.createVsc();
+        //network without control values
+        Network network2 = getHvdcTestNetworkWithWrongTopoValues();
+        //set the same case date
+        network.setCaseDate(network2.getCaseDate());
+
+        //To create a data source that contains TOPO.xiidm, STATE.xiidm et CONTROL.xiidm
+        MemDataSource dataSource = new MemDataSource();
+        Properties properties = new Properties();
+        properties.put(XMLExporter.ANONYMISED, "false");
+        properties.put(XMLExporter.CONTROL, "false");
+        properties.put(XMLExporter.STATE, "false");
+        new XMLExporter().export(network, properties, dataSource);
+        //Incremental export
+        properties.put(XMLExporter.IMPORT_EXPORT_TYPE, String.valueOf(IidmImportExportType.INCREMENTAL_IIDM));
+        new XMLExporter().export(network, properties, dataSource);
+
+        assertNotEquals(network.getVscConverterStation("C1").getTerminal().getBusBreakerView().getConnectableBus().getName(),
+                network2.getVscConverterStation("C1").getTerminal().getBusBreakerView().getConnectableBus().getName());
+        assertNotEquals(network.getSwitch("DISC_BBS1_BK1").isOpen(),
+                network2.getSwitch("DISC_BBS1_BK1").isOpen());
+        assertNotEquals(network.getSwitch("BK1").isOpen(),
+                network2.getSwitch("BK1").isOpen());
+
+        //Update the network
+        NetworkXml.update(network2, new ImportOptions().setControl(false).setTopo(true).setState(false), dataSource);
+
+        assertEquals(network.getVscConverterStation("C1").getTerminal().getBusBreakerView().getConnectableBus().getName(),
+                network2.getVscConverterStation("C1").getTerminal().getBusBreakerView().getConnectableBus().getName());
+        assertEquals(network.getSwitch("DISC_BBS1_BK1").isOpen(),
+                network2.getSwitch("DISC_BBS1_BK1").isOpen());
+        assertEquals(network.getSwitch("BK1").isOpen(),
+                network2.getSwitch("BK1").isOpen());
+    }
+
 }
