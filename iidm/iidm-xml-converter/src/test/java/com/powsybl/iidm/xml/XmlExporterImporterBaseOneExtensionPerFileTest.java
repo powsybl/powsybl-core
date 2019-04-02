@@ -34,7 +34,7 @@ public class XmlExporterImporterBaseOneExtensionPerFileTest extends AbstractConv
         exportProperties.put(XMLExporter.EXTENSIONS_LIST, extensions);
 
         MemDataSource dataSource = new MemDataSource();
-        new XMLExporter().export(network, exportProperties, dataSource);
+        new XMLExporter(platformConfig).export(network, exportProperties, dataSource);
 
         // check the base exported file and compare it to iidmBaseRef reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
@@ -52,7 +52,7 @@ public class XmlExporterImporterBaseOneExtensionPerFileTest extends AbstractConv
         Properties importProperties = new Properties();
         importProperties.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
         importProperties.put(XMLImporter.EXTENSIONS_LIST, extensions);
-        XMLImporter importer = new XMLImporter();
+        XMLImporter importer = new XMLImporter(platformConfig);
 
         Network n = importer.importData(dataSource, importProperties);
         assertNotNull(n);
