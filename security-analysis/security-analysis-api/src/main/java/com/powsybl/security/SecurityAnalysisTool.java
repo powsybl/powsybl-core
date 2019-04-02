@@ -123,7 +123,7 @@ public class SecurityAnalysisTool implements Tool {
                         .desc("external execution")
                         .build());
                 options.addOption(Option.builder().longOpt(OUTPUT_LOG_OPTION)
-                        .desc("log output path (.tar.gz)")
+                        .desc("log output path (.zip")
                         .hasArg()
                         .argName("FILE")
                         .build());
