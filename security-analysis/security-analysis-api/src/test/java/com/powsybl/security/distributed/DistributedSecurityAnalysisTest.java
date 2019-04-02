@@ -87,20 +87,33 @@ public class DistributedSecurityAnalysisTest {
      */
     @Test
     public void testDistributed() throws IOException {
-
         ExternalSecurityAnalysisConfig config = new ExternalSecurityAnalysisConfig();
         SecurityAnalysis analysis = new DistributedSecurityAnalysis(config, network, cm, Collections.emptyList(), 5);
 
         analysis.run(VariantManagerConstants.INITIAL_VARIANT_ID, new SecurityAnalysisParameters(), contingencies);
 
+        checkInvocationOnExecutionHandler(workingDir);
+        checkWorkingDirContent();
+    }
+
+    @Test
+    public void testDistributedWithLog() throws IOException {
+        ExternalSecurityAnalysisConfig config = new ExternalSecurityAnalysisConfig();
+        SecurityAnalysis analysis = new DistributedSecurityAnalysis(config, network, cm, Collections.emptyList(), 5);
+
+        analysis.runWithLog(VariantManagerConstants.INITIAL_VARIANT_ID, new SecurityAnalysisParameters(), contingencies);
+
+        checkInvocationOnExecutionHandler(workingDir);
+        checkWorkingDirContent();
+    }
+
+    private void checkInvocationOnExecutionHandler(Path workingDir) throws IOException {
         //Capture the execution handler
         ArgumentCaptor<ExecutionHandler> capt = ArgumentCaptor.forClass(ExecutionHandler.class);
         verify(cm, times(1)).execute(any(), capt.capture());
 
         //checks methods of the execution handler
         List<CommandExecution> cmd = capt.getValue().before(workingDir);
-
-        checkWorkingDirContent();
         assertEquals(1, cmd.size());
         assertEquals(5, cmd.get(0).getExecutionCount());
     }
@@ -110,7 +123,6 @@ public class DistributedSecurityAnalysisTest {
         assertTrue(Files.exists(workingDir.resolve("contingencies.groovy")));
         assertTrue(Files.exists(workingDir.resolve("parameters.json")));
     }
-
 
     /**
      * Checks that input files are written to working dir
