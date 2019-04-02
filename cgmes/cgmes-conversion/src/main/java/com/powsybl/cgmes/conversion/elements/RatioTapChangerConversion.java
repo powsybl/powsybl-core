@@ -55,7 +55,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
                 // Check if the step is at neutral and regulating control is disabled
                 boolean regulating = p.asBoolean("regulatingControlEnabled", false);
                 if (position == neutralStep && !regulating) {
-                    ignored(Warnings.Ignored.RTC_NOT_SUPPORTED_AT_END_1_OF_XFMR3_NEUTRAL_STEP_AND_REGULATING_CONTROL_DISABLED,
+                    ignored(Warnings.Ignored.RTC_NEUTRAL_STEP_AND_REGULATING_CONTROL_DISABLED_AT_END_1_OF_XFMR3,
                             reason0 + ", but is at neutralStep and regulating control disabled");
                 } else {
                     String reason = String.format(

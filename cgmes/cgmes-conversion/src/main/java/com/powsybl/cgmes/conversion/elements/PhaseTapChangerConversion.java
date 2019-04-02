@@ -70,7 +70,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                 if (position == neutralStep && !regulating) {
                     String reason = String.format(
                             "%s, but is at neutralStep and regulating control disabled", reason0);
-                    ignored(Warnings.Ignored.PTC_NOT_SUPPORTED_FOR_XFMR3, reason);
+                    ignored(Warnings.Ignored.PTC_NEUTRAL_STEP_AND_REGULATING_CONTROL_DISABLED_FOR_XFMR3, reason);
                 } else {
                     String reason = String.format(
                             "%s, tap step: %d, neutral [low, high]: %d [%d, %d], regulating control enabled: %b",
