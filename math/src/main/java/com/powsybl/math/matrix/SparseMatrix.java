@@ -147,9 +147,10 @@ class SparseMatrix extends AbstractMatrix {
      * {@inheritDoc}
      *
      * <p>
-     * As sparse matrix is stored in CSC format, values have to be filled in column order.
+     * As sparse matrix is stored in CSC format. Columns must be filled in ascending order but values inside a column
+     * may be filled in any order.
      * </p>
-     * @throws PowsyblException if values are not filled in column order.
+     * @throws PowsyblException if values are filled in wrong order.
      */
     @Override
     public void setValue(int i, int j, double value) {
@@ -171,9 +172,10 @@ class SparseMatrix extends AbstractMatrix {
      * {@inheritDoc}
      *
      * <p>
-     * As sparse matrix is stored in CSC format, values have to be filled in column order.
+     * As sparse matrix is stored in CSC format. Columns must be filled in ascending order but values inside a column
+     * may be filled in any order.
      * </p>
-     * @throws PowsyblException if values are not filled in column order.
+     * @throws PowsyblException if values are filled in wrong order.
      */
     @Override
     public void addValue(int i, int j, double value) {
