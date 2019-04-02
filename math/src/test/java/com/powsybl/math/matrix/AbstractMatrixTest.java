@@ -161,7 +161,35 @@ public abstract class AbstractMatrixTest {
         Matrix a2 = a.to(getOtherMatrixFactory());
         Matrix a3 = a2.to(getMatrixFactory());
         assertEquals(a, a3);
-        assertTrue(a.to(getMatrixFactory()) == a);
-        assertTrue(a2.to(getOtherMatrixFactory()) == a2);
+        assertSame(a.to(getMatrixFactory()), a);
+        assertSame(a2.to(getOtherMatrixFactory()), a2);
+    }
+
+    @Test
+    public void testAddValue() {
+        Matrix a = getMatrixFactory().create(2, 2, 2);
+        a.addValue(0, 0, 1d);
+        a.addValue(0, 0, 1d);
+        a.addValue(1, 1, 1d);
+        a.addValue(1, 1, 2d);
+
+        DenseMatrix b = a.toDense();
+        assertEquals(2d, b.getValue(0, 0), 0d);
+        assertEquals(0d, b.getValue(1, 0), 0d);
+        assertEquals(0d, b.getValue(0, 1), 0d);
+        assertEquals(3d, b.getValue(1, 1), 0d);
+    }
+
+    @Test
+    public void testAddValue2() {
+        Matrix a = getMatrixFactory().create(2, 2, 2);
+        a.addValue(0, 0, 1d);
+        a.addValue(0, 1, 1d);
+
+        DenseMatrix b = a.toDense();
+        assertEquals(1d, b.getValue(0, 0), 0d);
+        assertEquals(0d, b.getValue(1, 0), 0d);
+        assertEquals(1d, b.getValue(0, 1), 0d);
+        assertEquals(0d, b.getValue(1, 1), 0d);
     }
 }
