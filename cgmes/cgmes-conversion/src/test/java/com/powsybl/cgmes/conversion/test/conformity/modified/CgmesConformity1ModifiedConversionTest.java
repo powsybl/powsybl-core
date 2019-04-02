@@ -13,19 +13,17 @@ import static org.junit.Assert.assertNull;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 
-import com.google.common.jimfs.Jimfs;
-import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.commons.config.PlatformConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mockito;
 
+import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
-import com.powsybl.computation.ComputationManager;
+import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
@@ -57,8 +55,8 @@ public class CgmesConformity1ModifiedConversionTest {
 
     @Test
     public void microBERatioPhaseTabularTest() throws IOException {
-        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-        Network network = new CgmesImport(platformConfig).importData(catalogModified.microGridBaseCaseBERatioPhaseTapChangerTabular().dataSource(), null);
+        Network network = new CgmesImport(platformConfig)
+            .importData(catalogModified.microGridBaseCaseBERatioPhaseTapChangerTabular().dataSource(), null);
         RatioTapChanger rtc = network.getTwoWindingsTransformer("_b94318f6-6d24-4f56-96b9-df2531ad6543")
             .getRatioTapChanger();
         assertEquals(6, rtc.getStepCount());
@@ -85,25 +83,27 @@ public class CgmesConformity1ModifiedConversionTest {
 
     @Test
     public void miniNodeBreakerTestLimits() throws IOException {
-        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-
         // Original test case
         Network network0 = new CgmesImport(platformConfig).importData(catalog.miniNodeBreaker().dataSource(), null);
         // The case has been manually modified to have OperationalLimits
         // defined for Equipment
-        Network network1 = new CgmesImport(platformConfig).importData(catalogModified.miniNodeBreakerLimitsforEquipment().dataSource(), null);
+        Network network1 = new CgmesImport(platformConfig)
+            .importData(catalogModified.miniNodeBreakerLimitsforEquipment().dataSource(), null);
 
         double tol = 0;
 
         // 1 - PATL Current defined for an Equipment ACTransmissionLine
         // Previous limit for one terminal has been modified to refer to the Equipment
         // In the modified case both ends have to see the same value
+        // 6 - Duplicate limit PATL (lowest value should be kept)
+        // Original value was 525,
+        // In the modified case we created two limits with values 525 and 524
         Line l0 = network0.getLine("_1e7f52a9-21d0-4ebe-9a8a-b29281d5bfc9");
         Line l1 = network1.getLine("_1e7f52a9-21d0-4ebe-9a8a-b29281d5bfc9");
         assertEquals(525, l0.getCurrentLimits1().getPermanentLimit(), tol);
         assertNull(l0.getCurrentLimits2());
-        assertEquals(525, l1.getCurrentLimits1().getPermanentLimit(), tol);
-        assertEquals(525, l1.getCurrentLimits2().getPermanentLimit(), tol);
+        assertEquals(524, l1.getCurrentLimits1().getPermanentLimit(), tol);
+        assertEquals(524, l1.getCurrentLimits2().getPermanentLimit(), tol);
 
         // 2 - PATL Current defined for an ACTransmissionLine
         // that will be mapped to a DanglingLine in IIDM
@@ -128,6 +128,12 @@ public class CgmesConformity1ModifiedConversionTest {
         TwoWindingsTransformer tx1s = network1.getTwoWindingsTransformer("_6c89588b-3df5-4120-88e5-26164afb43e9");
         assertEquals(1732, tx0s.getCurrentLimits2().getPermanentLimit(), tol);
         assertNull(tx1s.getCurrentLimits2());
+
+        // 5 - TATL Current defined multiple times, only last value should be kept
+        assertEquals(735, l0.getCurrentLimits1().getTemporaryLimit(60).getValue(), tol);
+        assertNull(l0.getCurrentLimits2());
+        assertEquals(734, l1.getCurrentLimits1().getTemporaryLimit(60).getValue(), tol);
+        assertEquals(734, l1.getCurrentLimits2().getTemporaryLimit(60).getValue(), tol);
     }
 
     private static CgmesConformity1Catalog catalog;

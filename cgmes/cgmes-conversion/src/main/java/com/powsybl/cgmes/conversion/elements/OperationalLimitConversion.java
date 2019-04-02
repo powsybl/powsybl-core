@@ -228,11 +228,16 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
             if (currentLimitsAdder != null) {
                 addTatlCurrent(context.namingStrategy().getId("TATL", id), value, acceptableDuration,
                     currentLimitsAdder);
-            } else if (currentLimitsAdder1 != null) {
-                // Should we chose one terminal randomly for branches ? Here by default, we only
-                // look at terminal1
-                addTatlCurrent(context.namingStrategy().getId("TATL", id), value, acceptableDuration,
-                    currentLimitsAdder1);
+            } else {
+                // If both adders for terminals have been created, set same value at both
+                if (currentLimitsAdder1 != null) {
+                    addTatlCurrent(context.namingStrategy().getId("TATL", id), value, acceptableDuration,
+                        currentLimitsAdder1);
+                }
+                if (currentLimitsAdder2 != null) {
+                    addTatlCurrent(context.namingStrategy().getId("TATL", id), value, acceptableDuration,
+                        currentLimitsAdder2);
+                }
             }
         } else if (direction.endsWith("low")) {
             context.invalid(Warnings.Invalid.OPERATIONAL_LIMIT_TATL_LOW, TEMPORARY_CURRENT_LIMIT,

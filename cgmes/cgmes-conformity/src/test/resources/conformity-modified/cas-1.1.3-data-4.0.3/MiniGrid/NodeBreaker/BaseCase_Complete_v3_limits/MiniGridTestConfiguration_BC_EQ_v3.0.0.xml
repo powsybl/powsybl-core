@@ -585,6 +585,13 @@
     <cim:OperationalLimit.OperationalLimitType rdf:resource="#_0112c7f1-7523-4339-a285-d941a4a491ec" />
     <cim:CurrentLimit.value>525</cim:CurrentLimit.value>
   </cim:CurrentLimit>
+  <!-- CHANGE 6 Duplicate limit PATL (lowest value should be kept) -->
+  <cim:CurrentLimit rdf:ID="_c158c7c6-05a8-431c-951a-3b5641afbba6">
+    <cim:IdentifiedObject.name>Normal</cim:IdentifiedObject.name>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_b3e74f7e-f257-44f1-a558-39d2476dbc54" />
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_0112c7f1-7523-4339-a285-d941a4a491ec" />
+    <cim:CurrentLimit.value>524</cim:CurrentLimit.value>
+  </cim:CurrentLimit>
   <cim:CurrentLimit rdf:ID="_10be2112-5068-4819-b82a-a640e4df11a6">
     <cim:IdentifiedObject.name>ShortTerm</cim:IdentifiedObject.name>
     <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_b3e74f7e-f257-44f1-a558-39d2476dbc54" />
@@ -596,6 +603,13 @@
     <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_b3e74f7e-f257-44f1-a558-39d2476dbc54" />
     <cim:OperationalLimit.OperationalLimitType rdf:resource="#_ed7c9153-defb-4fff-aa25-85c175e80ca0" />
     <cim:CurrentLimit.value>735</cim:CurrentLimit.value>
+  </cim:CurrentLimit>
+  <!-- CHANGE 5 Duplicated limit TATL (lowest value should be kept) -->
+  <cim:CurrentLimit rdf:ID="_5b545c73-df9c-4d25-bca2-62a57dd0b01c">
+    <cim:IdentifiedObject.name>Emergency</cim:IdentifiedObject.name>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_b3e74f7e-f257-44f1-a558-39d2476dbc54" />
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_ed7c9153-defb-4fff-aa25-85c175e80ca0" />
+    <cim:CurrentLimit.value>734</cim:CurrentLimit.value>
   </cim:CurrentLimit>
   <cim:ACLineSegment rdf:ID="_56757c2b-550e-4843-886a-ed193f6eb21e">
     <cim:IdentifiedObject.description>Line-4</cim:IdentifiedObject.description>
