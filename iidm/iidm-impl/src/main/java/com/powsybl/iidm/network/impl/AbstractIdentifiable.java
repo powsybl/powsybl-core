@@ -15,7 +15,7 @@ import java.util.*;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractExtendable<I> implements Identifiable<I>, Validable {
+abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractExtendable<I> implements Identifiable<I>, Validable, MultiVariantObject {
 
     protected String id;
 
@@ -63,4 +63,35 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
         return id;
     }
 
+    @Override
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        getExtensions().stream()
+                .filter(e -> e instanceof MultiVariantObject)
+                .map(e -> (MultiVariantObject) e)
+                .forEach(e -> e.extendVariantArraySize(initVariantArraySize, number, sourceIndex));
+    }
+
+    @Override
+    public void reduceVariantArraySize(int number) {
+        getExtensions().stream()
+                .filter(e -> e instanceof MultiVariantObject)
+                .map(e -> (MultiVariantObject) e)
+                .forEach(e -> e.reduceVariantArraySize(number));
+    }
+
+    @Override
+    public void deleteVariantArrayElement(int index) {
+        getExtensions().stream()
+                .filter(e -> e instanceof MultiVariantObject)
+                .map(e -> (MultiVariantObject) e)
+                .forEach(e -> e.deleteVariantArrayElement(index));
+    }
+
+    @Override
+    public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+        getExtensions().stream()
+                .filter(e -> e instanceof MultiVariantObject)
+                .map(e -> (MultiVariantObject) e)
+                .forEach(e -> e.allocateVariantArrayElement(indexes, sourceIndex));
+    }
 }
