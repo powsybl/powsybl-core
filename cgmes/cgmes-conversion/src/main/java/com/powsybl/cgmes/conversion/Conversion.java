@@ -106,6 +106,7 @@ public class Conversion {
         convert(cgmes.dcLineSegments(), l -> new DcLineSegmentConversion(l, context));
 
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
+        context.currentLimitsMapping().addAll();
 
         voltageAngles(nodes, context);
         if (context.config().debugTopology()) {
@@ -350,6 +351,7 @@ public class Conversion {
         private double lowImpedanceLineX = 0.05;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
+
     }
 
     private final CgmesModel cgmes;

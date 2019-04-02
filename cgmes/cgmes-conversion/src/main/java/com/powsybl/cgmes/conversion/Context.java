@@ -17,10 +17,7 @@ import org.slf4j.LoggerFactory;
 import com.powsybl.cgmes.conversion.Conversion.Config;
 import com.powsybl.cgmes.conversion.elements.ACLineSegmentConversion;
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.triplestore.api.PropertyBags;
 
 /**
@@ -45,6 +42,7 @@ public class Context {
         terminalMapping = new TerminalMapping();
         tapChangerTransformers = new TapChangerTransformers();
         dcMapping = new DcMapping(this);
+        currentLimitsMapping = new CurrentLimitsMapping();
         nodeMapping = new NodeMapping();
 
         ratioTapChangerTables = new HashMap<>();
@@ -94,6 +92,10 @@ public class Context {
         return dcMapping;
     }
 
+    public CurrentLimitsMapping currentLimitsMapping() {
+        return currentLimitsMapping;
+    }
+
     public static String boundaryVoltageLevelId(String nodeId) {
         Objects.requireNonNull(nodeId);
         return nodeId + "_VL";
@@ -117,29 +119,6 @@ public class Context {
 
     public PropertyBags ratioTapChangerTable(String tableId) {
         return ratioTapChangerTables.get(tableId);
-    }
-
-    public VoltageLevel createSubstationVoltageLevel(String nodeId, double nominalV) {
-        String substationId = boundarySubstationId(nodeId);
-        String vlId = boundaryVoltageLevelId(nodeId);
-        String substationName = "boundary";
-        String vlName = "boundary";
-        return network()
-                .newSubstation()
-                .setId(namingStrategy().getId("Substation", substationId))
-                .setName(substationName)
-                // TODO(mathbagu): Country should be optional. This will be done in another PR.
-                // A non-null country code must be set
-                // This is an arbitrary country code, Bangladesh code BD also matches with
-                // BounDary
-                .setCountry(Country.BD)
-                .add()
-                .newVoltageLevel()
-                .setId(namingStrategy().getId("VoltageLevel", vlId))
-                .setName(vlName)
-                .setNominalV(nominalV)
-                .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
     }
 
     public void startLinesConversion() {
@@ -202,6 +181,7 @@ public class Context {
     private final NodeMapping nodeMapping;
     private final TapChangerTransformers tapChangerTransformers;
     private final DcMapping dcMapping;
+    private final CurrentLimitsMapping currentLimitsMapping;
 
     private final Map<String, PropertyBags> ratioTapChangerTables;
 

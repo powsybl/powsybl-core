@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.import_;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -18,6 +19,10 @@ public class ImportersLoaderList implements ImportersLoader {
     private final List<Importer> importers;
 
     private final List<ImportPostProcessor> importPostProcessors;
+
+    public ImportersLoaderList(Importer... importers) {
+        this(Arrays.asList(importers));
+    }
 
     public ImportersLoaderList(List<Importer> importers) {
         this(importers, Collections.emptyList());

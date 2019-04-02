@@ -104,7 +104,7 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
         }
     }
 
-    private final ImportersLoader importersLoader = new ImportersLoaderList(Collections.singletonList(new ImporterMock()));
+    private final ImportersLoader importersLoader = new ImportersLoaderList(new ImporterMock());
 
     @Override
     protected AppStorage createStorage() {

@@ -7,9 +7,7 @@
 package com.powsybl.action.util;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.*;
 
 import java.util.List;
 import java.util.Objects;
@@ -27,6 +25,8 @@ class ScalableAdapter extends AbstractScalable {
         Identifiable identifiable = n.getIdentifiable(id);
         if (identifiable instanceof Generator) {
             return new GeneratorScalable(id);
+        } else if (identifiable instanceof Load) {
+            return new LoadScalable(id);
         } else {
             throw new PowsyblException("Unable to create a scalable from " + identifiable.getClass());
         }
@@ -43,17 +43,22 @@ class ScalableAdapter extends AbstractScalable {
     }
 
     @Override
-    public double maximumValue(Network n) {
-        return getScalable(n).maximumValue(n);
+    public double maximumValue(Network n, ScalingConvention scalingConvention) {
+        return getScalable(n).maximumValue(n, scalingConvention);
     }
 
     @Override
-    public void listGenerators(Network n, List<Generator> generators, List<String> notFoundGenerators) {
-        getScalable(n).listGenerators(n, generators, notFoundGenerators);
+    public double minimumValue(Network n, ScalingConvention scalingConvention) {
+        return getScalable(n).minimumValue(n, scalingConvention);
     }
 
     @Override
-    public double scale(Network n, double asked) {
-        return getScalable(n).scale(n, asked);
+    public void filterInjections(Network network, List<Injection> injections, List<String> notFound) {
+        getScalable(network).filterInjections(network, injections, notFound);
+    }
+
+    @Override
+    public double scale(Network n, double asked, ScalingConvention scalingConvention) {
+        return getScalable(n).scale(n, asked, scalingConvention);
     }
 }

@@ -10,7 +10,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.ConversionParameters;
-import com.powsybl.iidm.anonymizer.Anonymizer;
+import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Network;
@@ -23,8 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.Properties;
+import java.util.*;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.*;
 
@@ -68,18 +67,21 @@ public class XMLExporter implements Exporter {
     public static final String WITH_BRANCH_STATE_VARIABLES = "iidm.export.xml.with-branch-state-variables";
     public static final String ONLY_MAIN_CC = "iidm.export.xml.only-main-cc";
     public static final String ANONYMISED = "iidm.export.xml.anonymised";
-    public static final String SKIP_EXTENSIONS = "iidm.export.xml.skip-extensions";
     public static final String TOPOLOGY_LEVEL = "iidm.export.xml.topology-level";
     public static final String THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND = "iidm.export.xml.throw-exception-if-extension-not-found";
+    public static final String EXPORT_MODE = "iidm.export.xml.export-mode";
+    public static final String EXTENSIONS_LIST = "iidm.export.xml.extensions";
+    public static final String SKIP_EXTENSIONS = "iidm.export.xml.skip-extensions";
 
     private static final Parameter INDENT_PARAMETER = new Parameter(INDENT, ParameterType.BOOLEAN, "Indent export output file", Boolean.TRUE);
     private static final Parameter WITH_BRANCH_STATE_VARIABLES_PARAMETER = new Parameter(WITH_BRANCH_STATE_VARIABLES, ParameterType.BOOLEAN, "Export network with branch state variables", Boolean.TRUE);
     private static final Parameter ONLY_MAIN_CC_PARAMETER = new Parameter(ONLY_MAIN_CC, ParameterType.BOOLEAN, "Export only main CC", Boolean.FALSE);
     private static final Parameter ANONYMISED_PARAMETER = new Parameter(ANONYMISED, ParameterType.BOOLEAN, "Anonymise exported network", Boolean.FALSE);
-    private static final Parameter SKIP_EXTENSIONS_PARAMETER = new Parameter(SKIP_EXTENSIONS, ParameterType.BOOLEAN, "Skip exporting the extensions", Boolean.FALSE);
     private static final Parameter TOPOLOGY_LEVEL_PARAMETER = new Parameter(TOPOLOGY_LEVEL, ParameterType.STRING, "Export network in this topology level", "NODE_BREAKER");
     private static final Parameter THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER = new Parameter(THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND, ParameterType.BOOLEAN, "Throw exception if extension not found", Boolean.FALSE);
-
+    private static final Parameter EXPORT_MODE_PARAMETER = new Parameter(EXPORT_MODE, ParameterType.STRING, "export each extension in a separate file", String.valueOf(IidmImportExportMode.UNIQUE_FILE));
+    private static final Parameter EXTENSIONS_LIST_PARAMETER = new Parameter(EXTENSIONS_LIST, ParameterType.STRING_LIST, "The export mode", null);
+    private static final Parameter SKIP_EXTENSIONS_PARAMETER = new Parameter(SKIP_EXTENSIONS, ParameterType.BOOLEAN, "Skip exporting the extensions", Boolean.FALSE);
     private final ParameterDefaultValueConfig defaultValueConfig;
 
     public XMLExporter() {
@@ -105,29 +107,19 @@ public class XMLExporter implements Exporter {
         if (network == null) {
             throw new IllegalArgumentException("network is null");
         }
-
         ExportOptions options = new ExportOptions()
                 .setIndent(ConversionParameters.readBooleanParameter(getFormat(), parameters, INDENT_PARAMETER, defaultValueConfig))
                 .setWithBranchSV(ConversionParameters.readBooleanParameter(getFormat(), parameters, WITH_BRANCH_STATE_VARIABLES_PARAMETER, defaultValueConfig))
                 .setOnlyMainCc(ConversionParameters.readBooleanParameter(getFormat(), parameters, ONLY_MAIN_CC_PARAMETER, defaultValueConfig))
                 .setAnonymized(ConversionParameters.readBooleanParameter(getFormat(), parameters, ANONYMISED_PARAMETER, defaultValueConfig))
-                .setSkipExtensions(ConversionParameters.readBooleanParameter(getFormat(), parameters, SKIP_EXTENSIONS_PARAMETER, defaultValueConfig))
                 .setTopologyLevel(TopologyLevel.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, TOPOLOGY_LEVEL_PARAMETER, defaultValueConfig)))
-                .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig));
-
+                .setThrowExceptionIfExtensionNotFound(ConversionParameters.readBooleanParameter(getFormat(), parameters, THROW_EXCEPTION_IF_EXTENSION_NOT_FOUND_PARAMETER, defaultValueConfig))
+                .setMode(IidmImportExportMode.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, EXPORT_MODE_PARAMETER, defaultValueConfig)))
+                .setSkipExtensions(ConversionParameters.readBooleanParameter(getFormat(), parameters, SKIP_EXTENSIONS_PARAMETER, defaultValueConfig))
+                .setExtensions(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig) != null ? new HashSet<>(ConversionParameters.readStringListParameter(getFormat(), parameters, EXTENSIONS_LIST_PARAMETER, defaultValueConfig)) : null);
         try {
             long startTime = System.currentTimeMillis();
-
-            try (OutputStream os = dataSource.newOutputStream(null, "xiidm", false);
-                 BufferedOutputStream bos = new BufferedOutputStream(os)) {
-                Anonymizer anonymizer = NetworkXml.write(network, options, bos);
-                if (anonymizer != null) {
-                    try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(dataSource.newOutputStream("_mapping", "csv", false), StandardCharsets.UTF_8))) {
-                        anonymizer.write(writer);
-                    }
-                }
-            }
-
+            NetworkXml.write(network, options, dataSource, "xiidm");
             LOGGER.debug("XIIDM export done in {} ms", System.currentTimeMillis() - startTime);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
