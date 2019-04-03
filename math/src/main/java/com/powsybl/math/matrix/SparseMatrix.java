@@ -147,24 +147,57 @@ class SparseMatrix extends AbstractMatrix {
      * {@inheritDoc}
      *
      * <p>
-     * As sparse matrix is stored in CSC format, values have to be filled in column order.
+     * As sparse matrix is stored in CSC format. Columns must be filled in ascending order but values inside a column
+     * may be filled in any order.
      * </p>
-     * @throws PowsyblException if values are not filled in column order.
+     * @throws PowsyblException if values are filled in wrong order.
      */
     @Override
-    public void setValue(int m, int n, double value) {
-        if (n == currentColumn) {
+    public void setValue(int i, int j, double value) {
+        if (j == currentColumn) {
             // ok, continue to fill row
-        } else if (n > currentColumn) {
+        } else if (j > currentColumn) {
             // start new column
-            columnStart[n] = values.size();
-            currentColumn = n;
+            columnStart[j] = values.size();
+            currentColumn = j;
         } else {
             throw new PowsyblException("Columns have to be filled in the right order");
         }
         values.add(value);
-        rowIndices.add(m);
+        rowIndices.add(i);
         columnStart[columnStart.length - 1] = values.size();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>
+     * As sparse matrix is stored in CSC format. Columns must be filled in ascending order but values inside a column
+     * may be filled in any order.
+     * </p>
+     * @throws PowsyblException if values are filled in wrong order.
+     */
+    @Override
+    public void addValue(int i, int j, double value) {
+        boolean startNewColumn = false;
+        if (j == currentColumn) {
+            // ok, continue to fill row
+        } else if (j > currentColumn) {
+            // start new column
+            columnStart[j] = values.size();
+            currentColumn = j;
+            startNewColumn = true;
+        } else {
+            throw new PowsyblException("Columns have to be filled in the right order");
+        }
+        if (!startNewColumn && i == rowIndices.get(rowIndices.size() - 1)) {
+            int vi = values.size() - 1;
+            values.set(vi, values.get(vi) + value);
+        } else {
+            values.add(value);
+            rowIndices.add(i);
+            columnStart[columnStart.length - 1] = values.size();
+        }
     }
 
     /**
