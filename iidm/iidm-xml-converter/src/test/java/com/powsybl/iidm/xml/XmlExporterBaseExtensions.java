@@ -30,7 +30,7 @@ import static org.junit.Assert.*;
 
 public class XmlExporterBaseExtensions  extends AbstractConverterTest {
 
-    public void exporterTestBaseExtensions(Network network, String xiidmBaseRef, String xiidmExtRef) throws IOException {
+    private void exporterTestBaseExtensions(Network network, String xiidmBaseRef, String xiidmExtRef) throws IOException {
         Properties exportProperties = new Properties();
         exportProperties.put(XMLExporter.ANONYMISED, "false");
         exportProperties.put(XMLExporter.EXPORT_MODE, String.valueOf(IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE));

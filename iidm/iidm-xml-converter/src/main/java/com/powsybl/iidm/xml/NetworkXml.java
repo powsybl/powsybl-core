@@ -939,7 +939,7 @@ public final class NetworkXml {
             return;
         }
         String regulationMode = reader.getAttributeValue(null, "regulationMode");
-        double regulatingValue = XmlUtil.readOptionalDoubleAttribute(reader, "regulatingValue");
+        double regulatingValue = XmlUtil.readOptionalDoubleAttribute(reader, "regulationValue");
         boolean regulating = XmlUtil.readOptionalBoolAttribute(reader, "regulating", false);
         TwoWindingsTransformer twt = twtTab[0];
         PhaseTapChanger rpc = twt.getPhaseTapChanger();

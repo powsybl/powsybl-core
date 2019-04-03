@@ -414,8 +414,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
     }
 
     private void writeStaticVarCompensators(VoltageLevel vl, NetworkXmlWriterContext context, TopologyLevel topologyLevel) throws XMLStreamException {
-        if ((context.getTargetFile() == IncrementalIidmFiles.TOPO && topologyLevel == TopologyLevel.NODE_BREAKER) ||
-                (context.getTargetFile() == IncrementalIidmFiles.STATE)) {
+        if (context.getTargetFile() == IncrementalIidmFiles.TOPO && topologyLevel == TopologyLevel.NODE_BREAKER) {
             return;
         }
         for (StaticVarCompensator svc : vl.getStaticVarCompensators()) {

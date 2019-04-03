@@ -232,5 +232,4 @@ public class IncrementalUpdateTest extends AbstractConverterTest {
         assertEquals(network.getSwitch("BK1").isOpen(),
                 network2.getSwitch("BK1").isOpen());
     }
-
 }
