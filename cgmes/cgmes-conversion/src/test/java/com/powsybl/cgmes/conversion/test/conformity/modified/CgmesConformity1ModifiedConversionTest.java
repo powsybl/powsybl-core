@@ -94,7 +94,7 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(4, rcc.getPointCount());
         assertEquals(-20, rl.getMinQ(-200), 0.001);
         assertEquals(-20, rl.getMinQ(-201), 0.001);
-        assertEquals(-20 - (180.0/100.0), rl.getMinQ(-199), 0.001);
+        assertEquals(-20 - (180.0 / 100.0), rl.getMinQ(-199), 0.001);
     }
 
     @Test
