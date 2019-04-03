@@ -1025,7 +1025,7 @@
   <cim:OperationalLimitSet rdf:ID="_4de221e3-af50-46de-b0d2-d096fc6bb7fc">
     <cim:IdentifiedObject.name>Ratings</cim:IdentifiedObject.name>
     <!-- CHANGE 4 Limit for Switch <cim:OperationalLimitSet.Terminal rdf:resource="#_912cc25e-78d9-43a6-a77e-b2b7bb76688b" /> -->
-    <cim:OperationalLimitSet.Terminal rdf:resource="#pepe" />
+    <cim:OperationalLimitSet.Equipment rdf:resource="#_d0119330-220f-4ed3-ad3c-f893ad0534fb" />
   </cim:OperationalLimitSet>
   <cim:CurrentLimit rdf:ID="_63551f30-7dda-4ddb-8f27-999f18779da4">
     <cim:IdentifiedObject.name>Normal</cim:IdentifiedObject.name>
@@ -1191,6 +1191,20 @@
     <cim:OperationalLimit.OperationalLimitType rdf:resource="#_ed7c9153-defb-4fff-aa25-85c175e80ca0" />
     <cim:CurrentLimit.value>5773</cim:CurrentLimit.value>
   </cim:CurrentLimit>
+  <!-- CHANGE 7 - TATL for same acceptable duration, limit given for a Terminal -->
+  <cim:CurrentLimit rdf:ID="_5b8bbc1e-6e73-43a2-af19-cefabdc56b55">
+    <cim:IdentifiedObject.name>Emergency</cim:IdentifiedObject.name>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_69d76b84-9655-451f-9101-54b151eb01d3" />
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_ed7c9153-defb-4fff-aa25-85c175e80ca0" />
+    <cim:CurrentLimit.value>5772</cim:CurrentLimit.value>
+  </cim:CurrentLimit>
+  <!-- CHANGE 8 - TATL for same acceptable duration, limit given for a Terminal, value higher -->
+  <cim:CurrentLimit rdf:ID="_5b8bbc1e-6e73-43a2-af19-cefabdc56b56">
+    <cim:IdentifiedObject.name>Emergency</cim:IdentifiedObject.name>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_69d76b84-9655-451f-9101-54b151eb01d3" />
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_ed7c9153-defb-4fff-aa25-85c175e80ca0" />
+    <cim:CurrentLimit.value>5774</cim:CurrentLimit.value>
+  </cim:CurrentLimit>
   <cim:RatioTapChanger rdf:ID="_0522ca48-e644-4d3a-9721-22bb0abd1c8b">
     <cim:IdentifiedObject.name>T1</cim:IdentifiedObject.name>
     <cim:TapChanger.highStep>25</cim:TapChanger.highStep>
@@ -1234,6 +1248,27 @@
     <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_3a070392-4564-4fc8-8b94-34328a589fab" />
     <cim:OperationalLimit.OperationalLimitType rdf:resource="#_0112c7f1-7523-4339-a285-d941a4a491ec" />
     <cim:CurrentLimit.value>753</cim:CurrentLimit.value>
+  </cim:CurrentLimit>
+  <!-- CHANGE 9 PATL for same terminal (lowest value should be kept) -->
+  <cim:CurrentLimit rdf:ID="_9607451a-b19f-4841-93aa-e6757f277b9b">
+    <cim:IdentifiedObject.name>Normal</cim:IdentifiedObject.name>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_3a070392-4564-4fc8-8b94-34328a589fab" />
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_0112c7f1-7523-4339-a285-d941a4a491ec" />
+    <cim:CurrentLimit.value>752</cim:CurrentLimit.value>
+  </cim:CurrentLimit>
+  <!-- CHANGE 10 PATL for same terminal, higher value than original -->
+  <cim:CurrentLimit rdf:ID="_9607451a-b19f-4841-93aa-e6757f277b9c">
+    <cim:IdentifiedObject.name>Normal</cim:IdentifiedObject.name>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_3a070392-4564-4fc8-8b94-34328a589fab" />
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_0112c7f1-7523-4339-a285-d941a4a491ec" />
+    <cim:CurrentLimit.value>754</cim:CurrentLimit.value>
+  </cim:CurrentLimit>
+  <!-- CHANGE 11 A limit with value < 0 -->
+  <cim:CurrentLimit rdf:ID="_9607451a-b19f-4841-93aa-e6757f277b9d">
+    <cim:IdentifiedObject.name>Normal</cim:IdentifiedObject.name>
+    <cim:OperationalLimit.OperationalLimitSet rdf:resource="#_3a070392-4564-4fc8-8b94-34328a589fab" />
+    <cim:OperationalLimit.OperationalLimitType rdf:resource="#_0112c7f1-7523-4339-a285-d941a4a491ec" />
+    <cim:CurrentLimit.value>-750</cim:CurrentLimit.value>
   </cim:CurrentLimit>
   <cim:CurrentLimit rdf:ID="_fafc5f7d-b49f-497c-a4a4-d15df5eb8040">
     <cim:IdentifiedObject.name>ShortTerm</cim:IdentifiedObject.name>

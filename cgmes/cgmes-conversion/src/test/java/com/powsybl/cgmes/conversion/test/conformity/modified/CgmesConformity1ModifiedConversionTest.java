@@ -134,6 +134,21 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNull(l0.getCurrentLimits2());
         assertEquals(734, l1.getCurrentLimits1().getTemporaryLimit(60).getValue(), tol);
         assertEquals(734, l1.getCurrentLimits2().getTemporaryLimit(60).getValue(), tol);
+
+        // 7 - TATL for same acceptable duration, limit given for a Terminal
+        // 8 - TATL for same acceptable duration, limit given for a Terminal, value is
+        // higher than original
+        TwoWindingsTransformer tx0t = network0.getTwoWindingsTransformer("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
+        TwoWindingsTransformer tx1t = network1.getTwoWindingsTransformer("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
+        assertEquals(5773, tx0t.getCurrentLimits2().getTemporaryLimit(60).getValue(), tol);
+        assertEquals(5772, tx1t.getCurrentLimits2().getTemporaryLimit(60).getValue(), tol);
+
+        // 9 - PATL for same terminal (lowest value should be kept)
+        // 10 - PATL for same terminal, higher value than original
+        TwoWindingsTransformer tx0p = network0.getTwoWindingsTransformer("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
+        TwoWindingsTransformer tx1p = network1.getTwoWindingsTransformer("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
+        assertEquals(753, tx0p.getCurrentLimits1().getPermanentLimit(), tol);
+        assertEquals(752, tx1p.getCurrentLimits1().getPermanentLimit(), tol);
     }
 
     private static CgmesConformity1Catalog catalog;

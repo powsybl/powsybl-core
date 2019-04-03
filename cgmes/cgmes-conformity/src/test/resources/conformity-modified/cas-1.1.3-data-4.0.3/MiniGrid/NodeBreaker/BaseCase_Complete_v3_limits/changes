@@ -40,7 +40,7 @@ PowerTransformer _6c89588b-3df5-4120-88e5-26164afb43e9 (T6 on Sub4)
 Assign to Switch _d0119330-220f-4ed3-ad3c-f893ad0534fb (BREAKER18 of T6)
 Should be left unassigned
 
-5 - Add a TATL for same acceptable duration (only lowest value should be kept)
+5 - Add a TATL for same acceptable duration (only lowest value should be kept), limit specified for an Equipment
 
 Duplicate TATL Emergency 
 Acceptable duration 60
@@ -53,4 +53,42 @@ Modified duplicated limit to have value 734
 Duplicate PATL Normal
 OperationalLimitSet _b3e74f7e-f257-44f1-a558-39d2476dbc54
 
+7 - Add a TATL for same acceptable duration, limit given for a Terminal
 
+CurrentLimit _5b8bbc1e-6e73-43a2-af19-cefabdc56b54
+OperationalLimitSet _69d76b84-9655-451f-9101-54b151eb01d3 (acceptableDuration 60)
+ConductingEquipment (PowerTransformer) _813365c3-5be7-4ef0-a0a7-abd1ae6dc174
+Terminal _7fe566b9-6bac-4cd3-8b52-8f46e9ba237d
+Terminal sequenceNumber 1
+
+Previous value 5773
+Copied CurrentLimit with new id _5b8bbc1e-6e73-43a2-af19-cefabdc56b55
+Modified value to 5772
+
+8 - Add a TATL for same acceptable duration, limit given for a Terminal, value is higher than original
+
+Change based on 7 but value is 5774
+CurrentLimit with new id _5b8bbc1e-6e73-43a2-af19-cefabdc56b56
+
+
+9 - PATL for same terminal (lowest value should be kept)
+
+CurrentLimit _9607451a-b19f-4841-93aa-e6757f277b9a
+value 753
+OperationalLimitSet _3a070392-4564-4fc8-8b94-34328a589fab
+Terminal _82611054-72b9-4cb0-8621-e418b8962cb1
+Terminal sequenceNumber 2
+PowerTransformer _813365c3-5be7-4ef0-a0a7-abd1ae6dc174
+
+Copied CurrentLimit with new id _9607451a-b19f-4841-93aa-e6757f277b9b
+value 752
+
+10 - PATL for same terminal, higher value than original
+
+Change based on 9 with value 754
+Current limit with new id _9607451a-b19f-4841-93aa-e6757f277b9c
+
+11 - A limit with value < 0
+
+Change based on 9 and 10, with value -750
+Current limit with new id _9607451a-b19f-4841-93aa-e6757f277b9d
