@@ -7,7 +7,7 @@
 package com.powsybl.iidm.network.impl;
 
 /**
- * An interface implemented by network objets that have attributes depending on
+ * An interface implemented by network objects that have attributes depending on
  * the variant.
  * <p>
  * A class implementing this interface internally manages an array of variants and
@@ -16,14 +16,14 @@ package com.powsybl.iidm.network.impl;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-interface MultiVariantObject {
+public interface MultiVariantObject {
 
     /**
      * Called to extend the variant array.
      *
      * @param initVariantArraySize initial variant array size
      * @param number number of element to add
-     * @param sourceIndex
+     * @param sourceIndex the variant index to use to initialize new variants
      */
     void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex);
 
@@ -42,10 +42,10 @@ interface MultiVariantObject {
     void deleteVariantArrayElement(int index);
 
     /**
-     * Called to allocate a variant array element.
+     * Called to allocate a variant array element. All new variants will be initialize using values of the variant sourceIndex.
      *
      * @param indexes the indexes of the variant array to allocate
-     * @param sourceIndex
+     * @param sourceIndex the variant index to use to initialize new variants
      */
     void allocateVariantArrayElement(int[] indexes, int sourceIndex);
 }

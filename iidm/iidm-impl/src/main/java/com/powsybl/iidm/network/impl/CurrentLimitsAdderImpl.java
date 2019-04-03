@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -45,6 +46,8 @@ public class CurrentLimitsAdderImpl<S, O extends CurrentLimitsOwner<S>> implemen
 
         private boolean fictitious = false;
 
+        private boolean ensureNameUnicity = false;
+
         @Override
         public TemporaryLimitAdder setName(String name) {
             this.name = name;
@@ -70,6 +73,12 @@ public class CurrentLimitsAdderImpl<S, O extends CurrentLimitsOwner<S>> implemen
         }
 
         @Override
+        public TemporaryLimitAdder ensureNameUnicity() {
+            this.ensureNameUnicity = true;
+            return this;
+        }
+
+        @Override
         public CurrentLimitsAdder endTemporaryLimit() {
             if (Double.isNaN(value)) {
                 throw new ValidationException(owner, "temporary limit value is not set");
@@ -83,13 +92,29 @@ public class CurrentLimitsAdderImpl<S, O extends CurrentLimitsOwner<S>> implemen
             if (acceptableDuration < 0) {
                 throw new ValidationException(owner, "acceptable duration must be >= 0");
             }
-            if (name == null) {
-                throw new ValidationException(owner, "name is not set");
-            }
+            checkAndGetUniqueName();
             temporaryLimits.put(acceptableDuration, new TemporaryLimitImpl(name, value, acceptableDuration, fictitious));
             return CurrentLimitsAdderImpl.this;
         }
 
+        private void checkAndGetUniqueName() {
+            if (name == null) {
+                throw new ValidationException(owner, "name is not set");
+            }
+            if (ensureNameUnicity) {
+                int i = 0;
+                String uniqueName = name;
+                while (i < Integer.MAX_VALUE && nameExists(uniqueName)) {
+                    uniqueName = name + "#" + i;
+                    i++;
+                }
+                name = uniqueName;
+            }
+        }
+
+        private boolean nameExists(String name) {
+            return temporaryLimits.values().stream().anyMatch(t -> t.getName().equals(name));
+        }
     }
 
     public CurrentLimitsAdderImpl(S side, O owner) {
@@ -98,9 +123,19 @@ public class CurrentLimitsAdderImpl<S, O extends CurrentLimitsOwner<S>> implemen
     }
 
     @Override
+    public double getPermanentLimit() {
+        return permanentLimit;
+    }
+
+    @Override
     public CurrentLimitsAdder setPermanentLimit(double limit) {
         this.permanentLimit = limit;
         return this;
+    }
+
+    @Override
+    public double getTemporaryLimitValue(int acceptableDuration) {
+        return Optional.ofNullable(temporaryLimits.get(acceptableDuration)).map(TemporaryLimit::getValue).orElse(Double.NaN);
     }
 
     @Override

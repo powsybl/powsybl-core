@@ -986,7 +986,7 @@
 		<cim:IdentifiedObject.name>BE-Line_2 - CL-2</cim:IdentifiedObject.name>
 		<entsoe:IdentifiedObject.shortName>CL-2</entsoe:IdentifiedObject.shortName>
 		<cim:IdentifiedObject.description>Ratings for element BE-Line_2 - Limit</cim:IdentifiedObject.description>
-		<cim:CurrentLimit.value>1443.000000</cim:CurrentLimit.value>
+		<cim:CurrentLimit.value>2000.000000</cim:CurrentLimit.value>
 		<cim:OperationalLimit.OperationalLimitSet rdf:resource="#_7168dee1-15a7-4444-839f-feef071e956d"/>
 		<cim:OperationalLimit.OperationalLimitType rdf:resource="#_3e6aa424-8f24-49a5-bbe0-0868441e25ae"/>
 	</cim:CurrentLimit>

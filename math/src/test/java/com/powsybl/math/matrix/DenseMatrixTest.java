@@ -72,12 +72,4 @@ public class DenseMatrixTest extends AbstractMatrixTest {
         DenseMatrix a3 = a2.toDense();
         assertEquals(a, a3);
     }
-
-    @Test
-    public void testAddValue() {
-        DenseMatrix a = (DenseMatrix) createA(matrixFactory);
-        assertEquals(1d, a.getValue(0, 0), 0d);
-        a.addValue(0, 0, 1d);
-        assertEquals(1d, a.getValue(0, 0), 1d);
-    }
 }
