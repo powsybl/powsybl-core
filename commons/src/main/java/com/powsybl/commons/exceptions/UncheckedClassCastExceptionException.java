@@ -7,12 +7,15 @@
 package com.powsybl.commons.exceptions;
 
 /**
- *
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
  */
 public class UncheckedClassCastExceptionException extends RuntimeException {
 
     private static final long serialVersionUID = 154490417885926671L;
+
+    public UncheckedClassCastExceptionException(String message) {
+        super(message);
+    }
 
     public UncheckedClassCastExceptionException(ClassCastException cause) {
         super(cause);

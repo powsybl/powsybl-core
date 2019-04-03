@@ -13,13 +13,11 @@ import javax.xml.bind.JAXBException;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.transform.TransformerException;
-
 import java.net.URISyntaxException;
 
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class UncheckedExceptionTest {
@@ -28,6 +26,14 @@ public class UncheckedExceptionTest {
     public void classCastExceptionTest() {
         ClassCastException e = new ClassCastException();
         assertSame(e, new UncheckedClassCastExceptionException(e).getCause());
+    }
+
+    @Test
+    public void classCastExceptionMessageTest() {
+        String message = "X of type Z cannot be converted to Y";
+        UncheckedClassCastExceptionException exception = new UncheckedClassCastExceptionException(message);
+        assertEquals(message, exception.getMessage());
+        assertNull(exception.getCause());
     }
 
     @Test
