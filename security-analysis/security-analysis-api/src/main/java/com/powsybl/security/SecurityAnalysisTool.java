@@ -167,7 +167,7 @@ public class SecurityAnalysisTool implements Tool {
         return result;
     }
 
-    private static  SecurityAnalysis createSecurityAnalysis(CommandLine line, List<String> extensions, Set<SecurityAnalysisInterceptor> interceptors, Network network, LimitViolationFilter limitViolationFilter, ComputationManager computationManager) {
+    private static SecurityAnalysis createSecurityAnalysis(CommandLine line, List<String> extensions, Set<SecurityAnalysisInterceptor> interceptors, Network network, LimitViolationFilter limitViolationFilter, ComputationManager computationManager) {
         SecurityAnalysis securityAnalysis;
         if (line.hasOption(EXTERNAL)) {
             Integer taskCount = getOptionValue(line, TASK_COUNT).map(Integer::parseInt).orElse(null);
