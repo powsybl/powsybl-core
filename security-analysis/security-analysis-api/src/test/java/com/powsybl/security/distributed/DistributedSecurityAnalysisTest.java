@@ -33,7 +33,7 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -220,20 +220,14 @@ public class DistributedSecurityAnalysisTest {
         ArgumentCaptor<List> arguList = ArgumentCaptor.forClass(List.class);
         ArgumentCaptor<Path> arguPath = ArgumentCaptor.forClass(Path.class);
         mockStatic(ZipHelper.class);
-        List capList = arguList.capture();
         Path capPath = arguPath.capture();
+        List capList = arguList.capture();
         BDDMockito.when(ZipHelper.archiveFilesToZipBytes(capPath, capList)).thenReturn("b".getBytes());
         // execute
         sut.after(mock(Path.class), executionReport);
 
-        List<String> expectedLogs = new ArrayList<>();
-        expectedLogs.add("logs_0.zip");
-        expectedLogs.add("security-analysis-task_0.out");
-        expectedLogs.add("security-analysis-task_0.err");
-        expectedLogs.add("logs_1.zip");
-        expectedLogs.add("security-analysis-task_1.out");
-        expectedLogs.add("security-analysis-task_1.err");
-        assertEquals(expectedLogs, arguPath.getValue());
+        List<String> expectedLogs = Arrays.asList("logs_0.zip", "security-analysis-task_0.out", "security-analysis-task_0.err", "logs_1.zip", "security-analysis-task_1.out", "security-analysis-task_1.err");
+        assertEquals(expectedLogs, arguList.getValue());
     }
 
 }
