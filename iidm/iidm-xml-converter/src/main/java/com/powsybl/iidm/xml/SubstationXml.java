@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.exceptions.UncheckedXmlStreamException;
 import com.powsybl.iidm.network.*;
 
 import javax.xml.stream.XMLStreamException;
@@ -35,13 +34,9 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
 
     @Override
     protected void writeRootElementAttributes(Substation s, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        s.getCountry().ifPresent(country -> {
-            try {
-                context.getWriter().writeAttribute("country", context.getAnonymizer().anonymizeCountry(country).toString());
-            } catch (XMLStreamException e) {
-                throw new UncheckedXmlStreamException(e);
-            }
-        });
+        if (s.getCountry().isPresent()) {
+            context.getWriter().writeAttribute("country", context.getAnonymizer().anonymizeCountry(s.getCountry().get()).toString());
+        }
         if (s.getTso() != null) {
             context.getWriter().writeAttribute("tso", context.getAnonymizer().anonymizeString(s.getTso()));
         }
