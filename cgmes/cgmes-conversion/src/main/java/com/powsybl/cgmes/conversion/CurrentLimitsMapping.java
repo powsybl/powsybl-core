@@ -18,8 +18,10 @@ import java.util.function.Supplier;
 public class CurrentLimitsMapping {
 
     private final Map<String, CurrentLimitsAdder> adders = new HashMap<>();
+    private final Context context;
 
-    CurrentLimitsMapping() {
+    CurrentLimitsMapping(Context context) {
+        this.context = context;
     }
 
     public CurrentLimitsAdder getCurrentLimitsAdder(String id, Supplier<CurrentLimitsAdder> supplier) {
@@ -27,7 +29,13 @@ public class CurrentLimitsMapping {
     }
 
     void addAll() {
-        adders.values().forEach(CurrentLimitsAdder::add);
+        adders.forEach((key, value) -> {
+            if (Double.isNaN(value.getPermanentLimit())) {
+                context.ignored(String.format("Operational Limit Set of %s", key), "An operational limit set must at least contain one value for permanent limit.");
+                return;
+            }
+            value.add();
+        });
         adders.clear();
     }
 }
