@@ -8,11 +8,10 @@ package com.powsybl.security.distributed;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.compress.ZipHelper;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
-import com.powsybl.computation.CommandExecution;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.computation.ExecutionHandler;
+import com.powsybl.computation.*;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
@@ -20,15 +19,21 @@ import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.SecurityAnalysis;
 import com.powsybl.security.SecurityAnalysisParameters;
+import com.powsybl.security.SecurityAnalysisResult;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.BDDMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -37,10 +42,13 @@ import java.util.stream.IntStream;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
+import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
+@RunWith(PowerMockRunner.class)
+@PrepareForTest(ZipHelper.class)
 public class DistributedSecurityAnalysisTest {
 
     private FileSystem fileSystem;
@@ -188,6 +196,44 @@ public class DistributedSecurityAnalysisTest {
             assertTrue(config.isDebug());
             assertEquals("/path/to/itools", config.getItoolsCommand());
         }
+    }
+
+    @Test
+    public void testSubTaskWithLogHandler() throws IOException {
+        DistributedSecurityAnalysis sa = mock(DistributedSecurityAnalysis.class);
+        DistributedSecurityAnalysis.SubTaskHandler handler = mock(DistributedSecurityAnalysis.SubTaskHandler.class);
+        when(handler.getActualTaskCount()).thenReturn(2);
+        DistributedSecurityAnalysis.SubTaskWithLogHandler sut = sa.new SubTaskWithLogHandler(handler);
+        SecurityAnalysisResult sar = mock(SecurityAnalysisResult.class);
+        ExecutionReport executionReport = new ExecutionReport() {
+            @Override
+            public List<ExecutionError> getErrors() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public void log() {
+
+            }
+        };
+        when(handler.after(any(), any())).thenReturn(sar);
+        ArgumentCaptor<List> arguList = ArgumentCaptor.forClass(List.class);
+        ArgumentCaptor<Path> arguPath = ArgumentCaptor.forClass(Path.class);
+        mockStatic(ZipHelper.class);
+        List capList = arguList.capture();
+        Path capPath = arguPath.capture();
+        BDDMockito.when(ZipHelper.archiveFilesToZipBytes(capPath, capList)).thenReturn("b".getBytes());
+        // execute
+        sut.after(mock(Path.class), executionReport);
+
+        List<String> expectedLogs = new ArrayList<>();
+        expectedLogs.add("logs_0.zip");
+        expectedLogs.add("security-analysis-task_0.out");
+        expectedLogs.add("security-analysis-task_0.err");
+        expectedLogs.add("logs_1.zip");
+        expectedLogs.add("security-analysis-task_1.out");
+        expectedLogs.add("security-analysis-task_1.err");
+        assertEquals(expectedLogs, arguPath.getValue());
     }
 
 }

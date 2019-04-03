@@ -117,9 +117,14 @@ public class DistributedSecurityAnalysis extends ExternalSecurityAnalysis {
                     .option(OUTPUT_FORMAT_OPTION, "JSON");
         }
 
+        int getActualTaskCount() {
+            return actualTaskCount;
+        }
+
     }
 
-    private class SubTaskWithLogHandler extends AbstractExecutionHandler<SecurityAnalysisResultWithLog> {
+    // default access for test
+    class SubTaskWithLogHandler extends AbstractExecutionHandler<SecurityAnalysisResultWithLog> {
 
         private SubTaskHandler simpleSubTaskHandler;
 
@@ -134,7 +139,7 @@ public class DistributedSecurityAnalysis extends ExternalSecurityAnalysis {
             SimpleCommand cmd = simpleSubTaskHandler.baseCmdBuilder()
                     .option(OUTPUT_LOG_OPTION, this::getLogOutputName)
                     .build();
-            return Collections.singletonList(new CommandExecution(cmd, simpleSubTaskHandler.actualTaskCount, 1));
+            return Collections.singletonList(new CommandExecution(cmd, simpleSubTaskHandler.getActualTaskCount(), 1));
         }
 
         private String getLogOutputName(int taskNumber) {
@@ -145,7 +150,7 @@ public class DistributedSecurityAnalysis extends ExternalSecurityAnalysis {
         public SecurityAnalysisResultWithLog after(Path workingDir, ExecutionReport report) throws IOException {
             SecurityAnalysisResult re = simpleSubTaskHandler.after(workingDir, report);
             List<String> logs = new ArrayList<>();
-            for (int i = 0; i < simpleSubTaskHandler.actualTaskCount; i++) {
+            for (int i = 0; i < simpleSubTaskHandler.getActualTaskCount(); i++) {
                 logs.add(getLogOutputName(i)); // hades logs_IDX.zip
                 logs.add(SubTaskHandler.SA_TASK_CMD_ID + "_" + i + ".out");
                 logs.add(SubTaskHandler.SA_TASK_CMD_ID + "_" + i + ".err");
