@@ -29,14 +29,13 @@ for /f "delims=" %%x in (%installDir%\etc\itools.conf) do (
 set args=
 set parallel=false
 :continue
-if "%1"=="" ( goto done ) else (
-  if "%1" == "--config-name" (
+if "%~1"=="" ( goto done ) else (
+  if "%~1" == "--config-name" (
     set powsybl_config_name=%2
     shift
   ) else (
-    if "%1" == "--parallel" (
+    if "%~1" == "--parallel" (
       set parallel=true
-      shift
       echo WARNING : '--parallel' option not currently supported on Windows
     ) else (
         set args=%args% %1 %2

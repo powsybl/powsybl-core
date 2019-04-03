@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.export;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceObserver;
@@ -19,6 +21,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * A utility class to work with IIDM exporters.
@@ -27,18 +30,21 @@ import java.util.*;
  */
 public final class Exporters {
 
+    private static final Supplier<ExportersLoader> LOADER = Suppliers.memoize(ExportersServiceLoader::new);
+
     private Exporters() {
     }
 
     /**
      * Get all supported export formats.
      */
+    public static Collection<String> getFormats(ExportersLoader loader) {
+        Objects.requireNonNull(loader);
+        return loader.loadExporters().stream().map(Exporter::getFormat).collect(Collectors.toSet());
+    }
+
     public static Collection<String> getFormats() {
-        List<String> formats = new ArrayList<>();
-        for (Exporter e : ServiceLoader.load(Exporter.class)) {
-            formats.add(e.getFormat());
-        }
-        return formats;
+        return getFormats(LOADER.get());
     }
 
     /**
@@ -48,16 +54,19 @@ public final class Exporters {
      * @return the exporter if one exists for the given format or
      * <code>null</code> otherwise
      */
-    public static Exporter getExporter(String format) {
-        if (format == null) {
-            throw new IllegalArgumentException("format is null");
-        }
-        for (Exporter e : ServiceLoader.load(Exporter.class)) {
+    public static Exporter getExporter(ExportersLoader loader, String format) {
+        Objects.requireNonNull(format);
+        Objects.requireNonNull(loader);
+        for (Exporter e : loader.loadExporters()) {
             if (format.equals(e.getFormat())) {
                 return e;
             }
         }
         return null;
+    }
+
+    public static Exporter getExporter(String format) {
+        return getExporter(LOADER.get(), format);
     }
 
     public static DataSource createDataSource(Path directory, String fileNameOrBaseName, DataSourceObserver observer) {
@@ -83,13 +92,19 @@ public final class Exporters {
      * @param format the export format
      * @param network the model
      * @param parameters some properties to configure the export
-     * @param file the network file
+     * @param dataSource data source
      */
-    public static void export(String format, Network network, Properties parameters, Path file) {
-        DataSource dataSource = createDataSource(file);
-        export(format, network, parameters, dataSource);
+    public static void export(ExportersLoader loader, String format, Network network, Properties parameters, DataSource dataSource) {
+        Exporter exporter = getExporter(loader, format);
+        if (exporter == null) {
+            throw new PowsyblException("Export format " + format + " not supported");
+        }
+        exporter.export(network, parameters, dataSource);
     }
 
+    public static void export(String format, Network network, Properties parameters, DataSource dataSource) {
+        export(LOADER.get(), format, network, parameters, dataSource);
+    }
 
     /**
      * A convenient method to export a model to a given format.
@@ -97,14 +112,15 @@ public final class Exporters {
      * @param format the export format
      * @param network the model
      * @param parameters some properties to configure the export
-     * @param dataSource data source
+     * @param file the network file
      */
-    public static void export(String format, Network network, Properties parameters, DataSource dataSource) {
-        Exporter exporter = getExporter(format);
-        if (exporter == null) {
-            throw new PowsyblException("Export format " + format + " not supported");
-        }
-        exporter.export(network, parameters, dataSource);
+    public static void export(ExportersLoader loader, String format, Network network, Properties parameters, Path file) {
+        DataSource dataSource = createDataSource(file);
+        export(loader, format, network, parameters, dataSource);
+    }
+
+    public static void export(String format, Network network, Properties parameters, Path file) {
+        export(LOADER.get(), format, network, parameters, file);
     }
 
     /**
@@ -116,8 +132,12 @@ public final class Exporters {
      * @param directory the output directory where files are generated
      * @param baseName a base name for all generated files
      */
+    public static void export(ExportersLoader loader, String format, Network network, Properties parameters, String directory, String baseName) {
+        export(loader, format, network, parameters, new FileDataSource(Paths.get(directory), baseName));
+    }
+
     public static void export(String format, Network network, Properties parameters, String directory, String baseName) {
-        export(format, network, parameters, new FileDataSource(Paths.get(directory), baseName));
+        export(LOADER.get(), format, network, parameters, directory, baseName);
     }
 
 }

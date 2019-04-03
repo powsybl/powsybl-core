@@ -55,6 +55,12 @@ class VariantManagerImpl implements VariantManager {
         return Collections.unmodifiableSet(id2index.keySet());
     }
 
+    /**
+     * Get the size of the variant array
+     * This size is different from the number of variants that also count unused but not released variants.
+     *
+     * @return the size of the variant array
+     */
     int getVariantArraySize() {
         return variantArraySize;
     }

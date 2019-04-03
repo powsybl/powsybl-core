@@ -232,9 +232,7 @@ WHERE
 { GRAPH ?graph {
     {
         ?Terminal a cim:Terminal .
-        ?OperationalLimitSet 
-        	cim:OperationalLimitSet.Terminal ?Terminal ;
-        	cim:IdentifiedObject.name ?name
+        ?OperationalLimitSet cim:OperationalLimitSet.Terminal ?Terminal .
     }
     # operational limit sets can also be attached directly to equipments
     UNION
@@ -244,7 +242,8 @@ WHERE
     }
     ?OperationalLimit
         cim:OperationalLimit.OperationalLimitSet ?OperationalLimitSet ;
-        cim:OperationalLimit.OperationalLimitType ?OperationalLimitType .
+        cim:OperationalLimit.OperationalLimitType ?OperationalLimitType ;
+        cim:IdentifiedObject.name ?name .
         {
             ?OperationalLimit a $OperationalLimitSubclass;
             {
