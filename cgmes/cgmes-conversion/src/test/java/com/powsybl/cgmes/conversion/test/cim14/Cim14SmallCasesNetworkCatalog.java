@@ -7,20 +7,25 @@
 
 package com.powsybl.cgmes.conversion.test.cim14;
 
+import org.mockito.Mockito;
+
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.cgmes.model.test.cim14.Cim14SmallCasesCatalog;
-import com.powsybl.cim1.converter.CIM1Importer;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.network.*;
-import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Set;
+import com.powsybl.commons.datasource.ResourceDataSource;
+import com.powsybl.commons.datasource.ResourceSet;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.xml.XMLImporter;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -35,104 +40,104 @@ public class Cim14SmallCasesNetworkCatalog {
         String genInfName = "INF     ";
         Network network = NetworkFactory.create("unknown", "no-format");
         Substation sGen = network.newSubstation()
-                .setId("_GEN______SS")
-                .setName("GEN     _SS")
-                .setCountry(defaultCountry)
-                .setGeographicalTags(sGenGeoTag)
-                .add();
+            .setId("_GEN______SS")
+            .setName("GEN     _SS")
+            .setCountry(defaultCountry)
+            .setGeographicalTags(sGenGeoTag)
+            .add();
         Substation sInf = network.newSubstation()
-                .setId("_INF______SS")
-                .setName("INF     _SS")
-                .setCountry(defaultCountry)
-                .setGeographicalTags(sInfGeoTag)
-                .add();
+            .setId("_INF______SS")
+            .setName("INF     _SS")
+            .setCountry(defaultCountry)
+            .setGeographicalTags(sInfGeoTag)
+            .add();
         VoltageLevel vlInf = sInf.newVoltageLevel()
-                .setId("_INF______VL")
-                .setName("INF     _VL")
-                .setNominalV(380.0)
-                .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
+            .setId("_INF______VL")
+            .setName("INF     _VL")
+            .setNominalV(380.0)
+            .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .add();
         VoltageLevel vlGrid = sGen.newVoltageLevel()
-                .setId("_GRID_____VL")
-                .setName("GRID    _VL")
-                .setNominalV(380.0)
-                .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
+            .setId("_GRID_____VL")
+            .setName("GRID    _VL")
+            .setNominalV(380.0)
+            .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .add();
         VoltageLevel vlGen = sGen.newVoltageLevel()
-                .setId("_GEN______VL")
-                .setName("GEN     _VL")
-                .setNominalV(21.0)
-                .setTopologyKind(TopologyKind.BUS_BREAKER)
-                .add();
+            .setId("_GEN______VL")
+            .setName("GEN     _VL")
+            .setNominalV(21.0)
+            .setTopologyKind(TopologyKind.BUS_BREAKER)
+            .add();
         Bus busGrid = vlGrid.getBusBreakerView().newBus()
-                .setId("_GRID_____TN")
-                .add();
+            .setId("_GRID_____TN")
+            .add();
         busGrid.setV(419);
         busGrid.setAngle(0);
         Bus busGen = vlGen.getBusBreakerView().newBus()
-                .setId("_GEN______TN")
-                .add();
+            .setId("_GEN______TN")
+            .add();
         busGen.setV(21);
         busGen.setAngle(0);
         Generator gen = vlGen.newGenerator()
-                .setId("_GEN______SM")
-                .setName(genName)
-                .setConnectableBus(busGen.getId())
-                .setBus(busGen.getId())
-                .setMinP(-999)
-                .setMaxP(999)
-                .setTargetP(-0.0)
-                .setTargetQ(-0.0)
-                .setTargetV(21.0)
-                .setVoltageRegulatorOn(true)
-                .add();
+            .setId("_GEN______SM")
+            .setName(genName)
+            .setConnectableBus(busGen.getId())
+            .setBus(busGen.getId())
+            .setMinP(-999)
+            .setMaxP(999)
+            .setTargetP(-0.0)
+            .setTargetQ(-0.0)
+            .setTargetV(21.0)
+            .setVoltageRegulatorOn(true)
+            .add();
         gen.newMinMaxReactiveLimits()
-                .setMinQ(-999)
-                .setMaxQ(999)
-                .add();
+            .setMinQ(-999)
+            .setMaxQ(999)
+            .add();
         gen.getTerminal().setP(0);
         gen.getTerminal().setQ(0);
         gen.setRegulatingTerminal(gen.getTerminal());
         Bus busInf = vlInf.getBusBreakerView().newBus()
-                .setId("_INF______TN")
-                .add();
+            .setId("_INF______TN")
+            .add();
         busInf.setV(419);
         busInf.setAngle(0);
         Generator genInf = vlInf.newGenerator()
-                .setId("_INF______SM")
-                .setName(genInfName)
-                .setConnectableBus(busInf.getId())
-                .setBus(busInf.getId())
-                .setMinP(-999999.0)
-                .setMaxP(999999.0)
-                .setTargetP(-0.0)
-                .setTargetQ(-0.0)
-                .setTargetV(419.0)
-                .setVoltageRegulatorOn(true)
-                .add();
+            .setId("_INF______SM")
+            .setName(genInfName)
+            .setConnectableBus(busInf.getId())
+            .setBus(busInf.getId())
+            .setMinP(-999999.0)
+            .setMaxP(999999.0)
+            .setTargetP(-0.0)
+            .setTargetQ(-0.0)
+            .setTargetV(419.0)
+            .setVoltageRegulatorOn(true)
+            .add();
         genInf.newMinMaxReactiveLimits()
-                .setMinQ(-999999.0)
-                .setMaxQ(999999.0)
-                .add();
+            .setMinQ(-999999.0)
+            .setMaxQ(999999.0)
+            .add();
         genInf.getTerminal().setP(0);
         genInf.getTerminal().setQ(0);
         genInf.setRegulatingTerminal(genInf.getTerminal());
         Line line = network.newLine()
-                .setId("_GRID____-INF_____-1_AC")
-                .setName("GRID    -INF     -1")
-                .setR(0.0)
-                .setX(86.64)
-                .setG1(0.0)
-                .setB1(0.0)
-                .setG2(0.0)
-                .setB2(0.0)
-                .setConnectableBus1(busGrid.getId())
-                .setBus1(busGrid.getId())
-                .setConnectableBus2(busInf.getId())
-                .setBus2(busInf.getId())
-                .setVoltageLevel1(vlGrid.getId())
-                .setVoltageLevel2(vlInf.getId())
-                .add();
+            .setId("_GRID____-INF_____-1_AC")
+            .setName("GRID    -INF     -1")
+            .setR(0.0)
+            .setX(86.64)
+            .setG1(0.0)
+            .setB1(0.0)
+            .setG2(0.0)
+            .setB2(0.0)
+            .setConnectableBus1(busGrid.getId())
+            .setBus1(busGrid.getId())
+            .setConnectableBus2(busInf.getId())
+            .setBus2(busInf.getId())
+            .setVoltageLevel1(vlGrid.getId())
+            .setVoltageLevel2(vlInf.getId())
+            .add();
         line.newCurrentLimits1().setPermanentLimit(9116.06).add();
         {
             double u2 = 419.0;
@@ -152,21 +157,21 @@ public class Cim14SmallCasesNetworkCatalog {
             double g = g1 / rho2 + g2;
             double b = b1 / rho2 + b2;
             TwoWindingsTransformer tx = sGen.newTwoWindingsTransformer()
-                    .setId("_GEN_____-GRID____-1_PT")
-                    .setName("GEN     -GRID    -1")
-                    .setR(r)
-                    .setX(x)
-                    .setG(g)
-                    .setB(b)
-                    .setConnectableBus1(busGen.getId())
-                    .setBus1(busGen.getId())
-                    .setConnectableBus2(busGrid.getId())
-                    .setBus2(busGrid.getId())
-                    .setVoltageLevel1(vlGen.getId())
-                    .setVoltageLevel2(vlGrid.getId())
-                    .setRatedU1(u1)
-                    .setRatedU2(u2)
-                    .add();
+                .setId("_GEN_____-GRID____-1_PT")
+                .setName("GEN     -GRID    -1")
+                .setR(r)
+                .setX(x)
+                .setG(g)
+                .setB(b)
+                .setConnectableBus1(busGen.getId())
+                .setBus1(busGen.getId())
+                .setConnectableBus2(busGrid.getId())
+                .setBus2(busGrid.getId())
+                .setVoltageLevel1(vlGen.getId())
+                .setVoltageLevel2(vlGrid.getId())
+                .setRatedU1(u1)
+                .setRatedU2(u2)
+                .add();
             tx.newCurrentLimits1().setPermanentLimit(13746.4).add();
             tx.newCurrentLimits2().setPermanentLimit(759.671).add();
         }
@@ -175,40 +180,27 @@ public class Cim14SmallCasesNetworkCatalog {
     }
 
     public Network ieee14() {
-        return cimImport(catalog.ieee14());
+        return loadNetwork(catalog.ieee14());
     }
 
     public Network nordic32() {
-        return cimImport(catalog.nordic32());
+        return loadNetwork(catalog.nordic32());
     }
 
     public Network m7buses() {
-        return cimImport(catalog.m7buses());
+        return loadNetwork(catalog.m7buses());
     }
 
     public Network txMicroBEAdapted() {
-        return cimImport(catalog.txMicroBEAdapted());
+        return loadNetwork(catalog.txMicroBEAdapted());
     }
 
-    private Network cimImport(TestGridModel gm) {
-        try {
-            return cimImport1(gm);
-        } catch (IOException e) {
-            throw new PowsyblException("failed to import CIM1 model " + gm.name(), e);
-        }
-    }
-
-    private Network cimImport1(TestGridModel gm) throws IOException {
-        ReadOnlyDataSource ds = gm.dataSource();
-
-        Set<String> names1 = ds.listNames(".*");
-        if (LOG.isInfoEnabled()) {
-            LOG.info("List of names in data source for CIM1Importer = {}", Arrays.toString(names1.toArray()));
-        }
-        return new CIM1Importer(Mockito.mock(PlatformConfig.class)).importData(ds, null);
+    private Network loadNetwork(TestGridModel gm) {
+        XMLImporter xmli = new XMLImporter(Mockito.mock(PlatformConfig.class));
+        ReadOnlyDataSource ds = new ResourceDataSource(gm.name(), new ResourceSet("/cim14", gm.name() + ".xiidm"));
+        Network n = xmli.importData(ds, null);
+        return n;
     }
 
     private final Cim14SmallCasesCatalog catalog = new Cim14SmallCasesCatalog();
-
-    private static final Logger LOG = LoggerFactory.getLogger(Cim14SmallCasesNetworkCatalog.class);
 }
