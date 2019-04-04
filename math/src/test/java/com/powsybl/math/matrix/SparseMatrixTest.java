@@ -6,6 +6,7 @@
  */
 package com.powsybl.math.matrix;
 
+import com.powsybl.commons.PowsyblException;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -55,5 +56,13 @@ public class SparseMatrixTest extends AbstractMatrixTest {
                 "values={1.0, 2.0, 3.0}")
                 + System.lineSeparator();
         assertEquals(expected, print(a, null, null));
+    }
+
+    @Test(expected = PowsyblException.class)
+    public void testWrongColumnOrder() {
+        Matrix a = matrixFactory.create(2, 2, 2);
+        a.setValue(0, 0, 1d);
+        a.setValue(0, 1, 1d);
+        a.setValue(1, 0, 1d);
     }
 }

@@ -15,9 +15,9 @@ import java.util.List;
  */
 public class ImportersServiceLoader implements ImportersLoader {
 
-    private static final ServiceLoaderCache<Importer> IMPORTER_LOADER = new ServiceLoaderCache(Importer.class);
+    private static final ServiceLoaderCache<Importer> IMPORTER_LOADER = new ServiceLoaderCache<>(Importer.class);
 
-    private static final ServiceLoaderCache<ImportPostProcessor> POST_PROCESSOR_LOADER = new ServiceLoaderCache(ImportPostProcessor.class);
+    private static final ServiceLoaderCache<ImportPostProcessor> POST_PROCESSOR_LOADER = new ServiceLoaderCache<>(ImportPostProcessor.class);
 
     @Override
     public List<Importer> loadImporters() {

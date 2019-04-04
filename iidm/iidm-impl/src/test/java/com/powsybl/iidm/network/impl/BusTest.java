@@ -31,9 +31,13 @@ public class BusTest {
         // ConfiguredBus
         Bus bus = voltageLevel.getBusBreakerView()
                     .newBus()
-                    .setName("bus1")
+                    .setName("bus1Name")
                     .setId("bus1")
                 .add();
+
+        assertEquals("bus1", bus.getId());
+        assertEquals("bus1Name", bus.getName());
+
         LccConverterStation lccConverterStation = voltageLevel.newLccConverterStation()
                                                     .setId("lcc")
                                                     .setName("lcc")
