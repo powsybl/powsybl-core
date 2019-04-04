@@ -204,6 +204,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public Iterable<Substation> getSubstations(Country country, String tsoId, String... geographicalTags) {
+        return getSubstations(Optional.ofNullable(country).map(Country::getName).orElse(null), tsoId, geographicalTags);
+    }
+
+    @Override
+    public Iterable<Substation> getSubstations(String country, String tsoId, String... geographicalTags) {
         return Substations.filter(getSubstations(), country, tsoId, geographicalTags);
     }
 

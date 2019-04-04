@@ -77,11 +77,6 @@ public class LimitViolationFilterTest {
             fail();
         } catch (Exception ignored) {
         }
-        try {
-            filter.setCountries(EnumSet.noneOf(Country.class));
-            fail();
-        } catch (Exception ignored) {
-        }
     }
 
     @Test

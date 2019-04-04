@@ -141,6 +141,19 @@ public class NetworkTest {
     }
 
     @Test
+    public void testNetwork1WithoutCountry() {
+        Network network = NetworkTest1Factory.create();
+
+        Substation substation1 = network.getSubstation("substation1");
+        substation1.setCountry(null);
+
+        assertEquals(0, Iterables.size(network.getCountries()));
+        assertEquals(0, network.getCountryCount());
+        assertEquals(1, Iterables.size(network.getSubstations("", "TSO1", "region1")));
+        assertFalse(substation1.getCountry().isPresent());
+    }
+
+    @Test
     public void testVoltageLevelGetConnectable() {
         Network n = EurostagTutorialExample1Factory.create();
         assertNotNull(n.getVoltageLevel("VLLOAD").getConnectable("LOAD", Load.class));
