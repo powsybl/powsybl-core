@@ -50,6 +50,7 @@ public final class ZipHelper {
                     inputStream = Files.newInputStream(baseDir.resolve(file));
                 }
                 IOUtils.copy(inputStream, zos);
+                inputStream.close();
                 zos.closeArchiveEntry();
             }
             zos.flush();

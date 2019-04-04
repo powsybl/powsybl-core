@@ -78,54 +78,49 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
 
     @Test
     public void testRunWithLog() throws Exception {
-        ByteArrayOutputStream bout = new ByteArrayOutputStream();
-        ByteArrayOutputStream berr = new ByteArrayOutputStream();
-        PrintStream out = new PrintStream(bout);
-        PrintStream err = new PrintStream(berr);
-        CommandLine cl = mock(CommandLine.class);
-        ToolRunningContext context = mock(ToolRunningContext.class);
-        when(context.getFileSystem()).thenReturn(fileSystem);
-        when(context.getOutputStream()).thenReturn(out);
-        when(context.getErrorStream()).thenReturn(err);
-        when(cl.getOptionValue("case-file")).thenReturn("network.xml");
-        when(cl.hasOption("limit-types")).thenReturn(false);
-        when(cl.getOptionProperties(any())).thenReturn(new Properties());
-        // tigger runWithLog()
-        when(cl.hasOption("log-file")).thenReturn(true);
-        when(cl.getOptionValue("log-file")).thenReturn("out.zip");
-        ComputationManager cm = mock(ComputationManager.class);
-        when(context.getShortTimeExecutionComputationManager()).thenReturn(cm);
-        when(context.getLongTimeExecutionComputationManager()).thenReturn(cm);
-        mockStatic(Importers.class);
-        ImportConfig config = ImportConfig.load();
-        Network network = mock(Network.class);
-        when(network.getVariantManager()).thenReturn(mock(VariantManager.class));
-        BDDMockito.given(Importers.loadNetwork(any(Path.class), any(ComputationManager.class), any(ImportConfig.class), any(Properties.class))).willReturn(network);
-        mockStatic(SecurityAnalysisFactories.class);
-        SecurityAnalysisFactory saFactory = mock(SecurityAnalysisFactory.class);
-        SecurityAnalysis sa = mock(SecurityAnalysis.class);
-        SecurityAnalysisResult sar = mock(SecurityAnalysisResult.class);
-        LimitViolationsResult preResult = mock(LimitViolationsResult.class);
-        when(sar.getPreContingencyResult()).thenReturn(preResult);
-        SecurityAnalysisResultWithLog sarl = new SecurityAnalysisResultWithLog(sar, "hi".getBytes());
-        when(saFactory.create(any(), any(), any(), any(), anyInt())).thenReturn(sa);
-        BDDMockito.when(SecurityAnalysisFactories.newDefaultFactory()).thenReturn(saFactory);
-        CompletableFuture<SecurityAnalysisResultWithLog> cfSarl = mock(CompletableFuture.class);
-        when(cfSarl.join()).thenReturn(sarl);
-        when(sa.runWithLog(any(), any(), any())).thenReturn(cfSarl);
+        try (ByteArrayOutputStream bout = new ByteArrayOutputStream();
+             ByteArrayOutputStream berr = new ByteArrayOutputStream();
+             PrintStream out = new PrintStream(bout);
+             PrintStream err = new PrintStream(berr);
+             ComputationManager cm = mock(ComputationManager.class)) {
+            CommandLine cl = mock(CommandLine.class);
+            ToolRunningContext context = mock(ToolRunningContext.class);
+            when(context.getFileSystem()).thenReturn(fileSystem);
+            when(context.getOutputStream()).thenReturn(out);
+            when(context.getErrorStream()).thenReturn(err);
+            when(cl.getOptionValue("case-file")).thenReturn("network.xml");
+            when(cl.hasOption("limit-types")).thenReturn(false);
+            when(cl.getOptionProperties(any())).thenReturn(new Properties());
+            // tigger runWithLog()
+            when(cl.hasOption("log-file")).thenReturn(true);
+            when(cl.getOptionValue("log-file")).thenReturn("out.zip");
 
-        // execute
-        tool.run(cl, context);
+            when(context.getShortTimeExecutionComputationManager()).thenReturn(cm);
+            when(context.getLongTimeExecutionComputationManager()).thenReturn(cm);
+            mockStatic(Importers.class);
+            ImportConfig config = new ImportConfig();
+            Network network = mock(Network.class);
+            when(network.getVariantManager()).thenReturn(mock(VariantManager.class));
+            BDDMockito.given(Importers.loadNetwork(any(Path.class), any(ComputationManager.class), any(ImportConfig.class), any(Properties.class))).willReturn(network);
+            mockStatic(SecurityAnalysisFactories.class);
+            SecurityAnalysisFactory saFactory = mock(SecurityAnalysisFactory.class);
+            SecurityAnalysis sa = mock(SecurityAnalysis.class);
+            SecurityAnalysisResult sar = mock(SecurityAnalysisResult.class);
+            LimitViolationsResult preResult = mock(LimitViolationsResult.class);
+            when(sar.getPreContingencyResult()).thenReturn(preResult);
+            SecurityAnalysisResultWithLog sarl = new SecurityAnalysisResultWithLog(sar, "hi".getBytes());
+            when(saFactory.create(any(), any(), any(), any(), anyInt())).thenReturn(sa);
+            BDDMockito.when(SecurityAnalysisFactories.newDefaultFactory()).thenReturn(saFactory);
+            CompletableFuture<SecurityAnalysisResultWithLog> cfSarl = mock(CompletableFuture.class);
+            when(cfSarl.join()).thenReturn(sarl);
+            when(sa.runWithLog(any(), any(), any())).thenReturn(cfSarl);
 
-        // verify that runWithLog() called instead of run();
-        verify(sa, never()).run(any(), any(), any());
-        verify(sa, times(1)).runWithLog(any(), any(), any());
+            // execute
+            tool.run(cl, context);
 
-        // close
-        bout.close();
-        berr.close();
-        out.close();
-        err.close();
-        cm.close();
+            // verify that runWithLog() called instead of run();
+            verify(sa, never()).run(any(), any(), any());
+            verify(sa, times(1)).runWithLog(any(), any(), any());
+        }
     }
 }

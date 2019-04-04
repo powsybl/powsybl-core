@@ -60,8 +60,7 @@ public class ZipHelperTest {
     @Test
     public void test() throws IOException {
         byte[] bytes = ZipHelper.archiveFilesToZipBytes(workingDir, "f1", "f2", "f3.gz");
-        ZipArchiveInputStream zis = new ZipArchiveInputStream(new ByteArrayInputStream(bytes));
-        try {
+        try (ZipArchiveInputStream zis = new ZipArchiveInputStream(new ByteArrayInputStream(bytes))) {
             assertEquals("f1", zis.getNextZipEntry().getName());
             assertEquals("f2", zis.getNextZipEntry().getName());
             assertEquals("f3", zis.getNextZipEntry().getName());
