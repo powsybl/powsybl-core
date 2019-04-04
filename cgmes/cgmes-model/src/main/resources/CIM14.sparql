@@ -339,6 +339,10 @@ WHERE {
             cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;
             cim:RegulatingControl.Terminal ?regulatingControlTerminal ;
             cim:RegulatingControl.mode ?regulatingControlMode .
+            { GRAPH ?graphTP {
+                ?regulatingControlTerminal
+                    cim:Terminal.TopologicalNode ?regTopologicalNode
+            }}
     }
 }}
 }

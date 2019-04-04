@@ -66,6 +66,8 @@ public class Conversion {
 
         Function<PropertyBag, AbstractObjectConversion> convf;
 
+        cgmes.terminals().forEach(p -> context.terminalMapping().buildTopologicalNodesMapping(p));
+
         convert(cgmes.substations(), s -> new SubstationConversion(s, context));
         convert(cgmes.voltageLevels(), vl -> new VoltageLevelConversion(vl, context));
         PropertyBags nodes = context.nodeBreaker()
@@ -107,6 +109,9 @@ public class Conversion {
 
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
         context.currentLimitsMapping().addAll();
+
+        // set all remote regulating terminals
+        context.setAllRemoteRegulatingTerminals();
 
         voltageAngles(nodes, context);
         if (context.config().debugTopology()) {

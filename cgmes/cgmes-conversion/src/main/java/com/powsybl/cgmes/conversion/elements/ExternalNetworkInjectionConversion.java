@@ -37,6 +37,7 @@ public class ExternalNetworkInjectionConversion extends AbstractConductingEquipm
         }
 
         RegulatingControlConversion.Data control = RegulatingControlConversion.convert(
+                iidmId(),
                 p,
                 voltageLevel(),
                 context);
@@ -44,7 +45,6 @@ public class ExternalNetworkInjectionConversion extends AbstractConductingEquipm
                 .setMinP(minP)
                 .setMaxP(maxP)
                 .setVoltageRegulatorOn(control.on())
-                .setRegulatingTerminal(control.terminal())
                 .setTargetP(targetP)
                 .setTargetQ(targetQ)
                 .setTargetV(control.targetV())
