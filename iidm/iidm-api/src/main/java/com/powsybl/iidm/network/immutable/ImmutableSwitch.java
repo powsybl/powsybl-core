@@ -10,18 +10,13 @@ import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.SwitchKind;
 import com.powsybl.iidm.network.VoltageLevel;
 
-import java.util.Objects;
-
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 final class ImmutableSwitch extends AbstractImmutableIdentifiable<Switch> implements Switch {
 
-    private final ImmutableCacheIndex cache;
-
     ImmutableSwitch(Switch identifiable, ImmutableCacheIndex cache) {
-        super(identifiable);
-        this.cache = Objects.requireNonNull(cache);
+        super(identifiable, cache);
     }
 
     @Override

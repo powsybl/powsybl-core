@@ -10,18 +10,13 @@ import com.powsybl.iidm.network.HvdcConverterStation;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 
-import java.util.Objects;
-
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 final class ImmutableHvdcLine extends AbstractImmutableIdentifiable<HvdcLine> implements HvdcLine {
 
-    private final ImmutableCacheIndex cache;
-
     ImmutableHvdcLine(HvdcLine identifiable, ImmutableCacheIndex cache) {
-        super(identifiable);
-        this.cache = Objects.requireNonNull(cache);
+        super(identifiable, cache);
     }
 
     @Override

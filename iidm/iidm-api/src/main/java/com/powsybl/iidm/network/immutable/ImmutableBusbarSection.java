@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Terminal;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -19,11 +18,8 @@ import java.util.stream.Collectors;
  */
 public class ImmutableBusbarSection extends AbstractImmutableIdentifiable<BusbarSection> implements BusbarSection {
 
-    private final ImmutableCacheIndex cache;
-
     ImmutableBusbarSection(BusbarSection identifiable, ImmutableCacheIndex cache) {
-        super(identifiable);
-        this.cache = Objects.requireNonNull(cache);
+        super(identifiable, cache);
     }
 
     @Override

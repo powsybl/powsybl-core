@@ -17,15 +17,12 @@ import java.util.stream.Collectors;
  */
 final class ImmutableThreeWindingsTransformer extends AbstractImmutableIdentifiable<ThreeWindingsTransformer> implements ThreeWindingsTransformer {
 
-    private final ImmutableCacheIndex cache;
-
     private ImmutableLeg2or3 cacheLeg2;
 
     private ImmutableLeg2or3 cacheLeg3;
 
     ImmutableThreeWindingsTransformer(ThreeWindingsTransformer identifiable, ImmutableCacheIndex cache) {
-        super(identifiable);
-        this.cache = Objects.requireNonNull(cache);
+        super(identifiable, cache);
     }
 
     @Override

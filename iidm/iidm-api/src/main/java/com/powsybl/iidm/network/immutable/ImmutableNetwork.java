@@ -24,11 +24,8 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
     public static final PowsyblException UNMODIFIABLE_EXCEPTION = new PowsyblException("Unmodifiable identifiable");
 
-    private final ImmutableCacheIndex cache;
-
     private ImmutableNetwork(Network identifiable) {
         super(identifiable);
-        cache = new ImmutableCacheIndex(this);
     }
 
     public static ImmutableNetwork of(Network network) {

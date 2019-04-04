@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.Terminal;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -19,11 +18,8 @@ import java.util.stream.Collectors;
  */
 final class ImmutableStaticVarCompensator extends AbstractImmutableIdentifiable<StaticVarCompensator> implements StaticVarCompensator {
 
-    private final ImmutableCacheIndex cache;
-
     ImmutableStaticVarCompensator(StaticVarCompensator identifiable, ImmutableCacheIndex cache) {
-        super(identifiable);
-        this.cache = Objects.requireNonNull(cache);
+        super(identifiable, cache);
     }
 
     @Override

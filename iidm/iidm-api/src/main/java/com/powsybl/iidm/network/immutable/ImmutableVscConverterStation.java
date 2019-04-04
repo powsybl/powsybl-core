@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.immutable;
 import com.powsybl.iidm.network.*;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -17,11 +16,8 @@ import java.util.stream.Collectors;
  */
 final class ImmutableVscConverterStation extends AbstractImmutableIdentifiable<VscConverterStation> implements VscConverterStation {
 
-    private final ImmutableCacheIndex cache;
-
     ImmutableVscConverterStation(VscConverterStation identifiable, ImmutableCacheIndex cache) {
-        super(identifiable);
-        this.cache = Objects.requireNonNull(cache);
+        super(identifiable, cache);
     }
 
     @Override

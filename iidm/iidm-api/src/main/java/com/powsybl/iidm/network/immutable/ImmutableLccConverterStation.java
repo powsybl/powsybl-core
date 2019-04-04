@@ -11,7 +11,6 @@ import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.Terminal;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -19,11 +18,8 @@ import java.util.stream.Collectors;
  */
 final class ImmutableLccConverterStation extends AbstractImmutableIdentifiable<LccConverterStation> implements LccConverterStation {
 
-    private final ImmutableCacheIndex cache;
-
     ImmutableLccConverterStation(LccConverterStation identifiable, ImmutableCacheIndex cache) {
-        super(identifiable);
-        this.cache = Objects.requireNonNull(cache);
+        super(identifiable, cache);
     }
 
     @Override

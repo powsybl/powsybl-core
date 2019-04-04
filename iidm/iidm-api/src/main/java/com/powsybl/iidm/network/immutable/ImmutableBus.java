@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.immutable;
 import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
 
-import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
@@ -17,11 +16,8 @@ import java.util.stream.Stream;
  */
 final class ImmutableBus extends AbstractImmutableIdentifiable<Bus> implements Bus {
 
-    private final ImmutableCacheIndex cache;
-
     ImmutableBus(Bus identifiable, ImmutableCacheIndex cache) {
-        super(identifiable);
-        this.cache = Objects.requireNonNull(cache);
+        super(identifiable, cache);
     }
 
     @Override

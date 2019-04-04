@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.immutable;
 import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
 
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -18,11 +17,8 @@ import java.util.stream.Stream;
  */
 final class ImmutableSubstation extends AbstractImmutableIdentifiable<Substation> implements Substation {
 
-    private final ImmutableCacheIndex cache;
-
     ImmutableSubstation(Substation identifiable, ImmutableCacheIndex cache) {
-        super(identifiable);
-        this.cache = Objects.requireNonNull(cache);
+        super(identifiable, cache);
     }
 
     @Override

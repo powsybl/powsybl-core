@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.util.Objects;
 import java.util.Random;
 import java.util.stream.Stream;
 
@@ -23,11 +22,8 @@ import java.util.stream.Stream;
  */
 final class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<VoltageLevel> implements VoltageLevel {
 
-    private final ImmutableCacheIndex cache;
-
     ImmutableVoltageLevel(VoltageLevel identifiable, ImmutableCacheIndex cache) {
-        super(identifiable);
-        this.cache = Objects.requireNonNull(cache);
+        super(identifiable, cache);
     }
 
     @Override

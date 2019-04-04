@@ -24,8 +24,16 @@ abstract class AbstractImmutableIdentifiable<I extends Identifiable<I>> implemen
 
     protected final I identifiable;
 
-    protected AbstractImmutableIdentifiable(I identifiable) {
+    protected final ImmutableCacheIndex cache;
+
+    protected AbstractImmutableIdentifiable(I network) {
+        this.identifiable = network;
+        this.cache = new ImmutableCacheIndex((ImmutableNetwork) this);
+    }
+
+    protected AbstractImmutableIdentifiable(I identifiable, ImmutableCacheIndex cache) {
         this.identifiable = Objects.requireNonNull(identifiable);
+        this.cache = cache;
     }
 
     @Override

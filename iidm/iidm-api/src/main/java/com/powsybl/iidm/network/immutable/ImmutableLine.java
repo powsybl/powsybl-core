@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.immutable;
 import com.powsybl.iidm.network.*;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -17,11 +16,8 @@ import java.util.stream.Collectors;
  */
 class ImmutableLine extends AbstractImmutableIdentifiable<Line> implements Line {
 
-    private final ImmutableCacheIndex cache;
-
     protected ImmutableLine(Line identifiable, ImmutableCacheIndex cache) {
-        super(identifiable);
-        this.cache = Objects.requireNonNull(cache);
+        super(identifiable, cache);
     }
 
     @Override

@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.Terminal;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -20,11 +19,8 @@ import java.util.stream.Collectors;
  */
 final class ImmutableLoad extends AbstractImmutableIdentifiable<Load> implements Load {
 
-    private final ImmutableCacheIndex cache;
-
     ImmutableLoad(Load identifiable, ImmutableCacheIndex cache) {
-        super(identifiable);
-        this.cache = Objects.requireNonNull(cache);
+        super(identifiable, cache);
     }
 
     @Override

@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.immutable;
 import com.powsybl.iidm.network.*;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -17,11 +16,8 @@ import java.util.stream.Collectors;
  */
 final class ImmutableDanglingLine extends AbstractImmutableIdentifiable<DanglingLine> implements DanglingLine {
 
-    private final ImmutableCacheIndex cache;
-
     ImmutableDanglingLine(DanglingLine identifiable, ImmutableCacheIndex cache) {
-        super(identifiable);
-        this.cache = Objects.requireNonNull(cache);
+        super(identifiable, cache);
     }
 
     @Override
