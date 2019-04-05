@@ -43,9 +43,9 @@ public class UcteExporterTest {
 
     @Test
     public void exportUcteTest() throws IOException {
-        ReadOnlyDataSource dataSource = new ResourceDataSource("20100505_0330_FO3_UX3",
-                new ResourceSet("/", "20100505_0330_FO3_UX3.uct"));
-        Network network = new UcteImporter().importData(dataSource, null);
+//        ReadOnlyDataSource dataSource = new ResourceDataSource("20100505_0330_FO3_UX3",
+//                new ResourceSet("/", "20100505_0330_FO3_UX3.uct"));
+//        Network network = new UcteImporter().importData(dataSource, null);
 
         addThreeWindingTransformers(exportTestNetwork);
 
