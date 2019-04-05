@@ -40,6 +40,14 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     private boolean throwExceptionIfExtensionNotFound = false;
 
+    private IidmImportExportType importExportType = IidmImportExportType.FULL_IIDM;
+
+    private boolean topo = true;
+
+    private boolean state = true;
+
+    private boolean control = true;
+
     public ExportOptions(boolean withBranchSV, boolean indent, boolean onlyMainCc, TopologyLevel topologyLevel, boolean throwExceptionIfExtensionNotFound) {
         this.withBranchSV = withBranchSV;
         this.indent = indent;
@@ -52,25 +60,21 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     }
 
-    @Override
     public ExportOptions setImportExportType(IidmImportExportType importExportType) {
         this.importExportType = importExportType;
         return this;
     }
 
-    @Override
     public ExportOptions setTopo(boolean topo) {
         this.topo = topo;
         return this;
     }
 
-    @Override
     public ExportOptions setState(boolean state) {
         this.state = state;
         return this;
     }
 
-    @Override
     public ExportOptions setControl(boolean control) {
         this.control = control;
         return this;
@@ -161,6 +165,22 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     public ExportOptions setThrowExceptionIfExtensionNotFound(boolean throwException) {
         this.throwExceptionIfExtensionNotFound = throwException;
         return this;
+    }
+
+    public IidmImportExportType getImportExportType() {
+        return importExportType;
+    }
+
+    public boolean isTopo() {
+        return topo;
+    }
+
+    public boolean isState() {
+        return state;
+    }
+
+    public boolean isControl() {
+        return control;
     }
 
     /**

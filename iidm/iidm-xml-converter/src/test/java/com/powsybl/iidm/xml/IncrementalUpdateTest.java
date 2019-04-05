@@ -10,7 +10,6 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.IidmImportExportType;
-import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
@@ -74,12 +73,14 @@ public class IncrementalUpdateTest extends AbstractConverterTest {
         MemDataSource dataSource = new MemDataSource();
         Properties properties = new Properties();
         properties.put(XMLExporter.ANONYMISED, "false");
+        properties.put(XMLExporter.TOPO, "false");
+        properties.put(XMLExporter.CONTROL, "false");
         //Incremental export for the second network : eurostag with loadflow
         properties.put(XMLExporter.IMPORT_EXPORT_TYPE, String.valueOf(IidmImportExportType.INCREMENTAL_IIDM));
         new XMLExporter().export(networkLf, properties, dataSource);
 
         //Update the first network using the state file recently exported
-        NetworkXml.update(network, new ImportOptions().setControl(false).setTopo(false).setState(true), dataSource);
+        NetworkXml.update(network, dataSource);
         assertEquals(networkLf.getLine("NHV1_NHV2_2").getTerminal1().getP(), network.getLine("NHV1_NHV2_2").getTerminal1().getP(), 0);
         assertEquals(networkLf.getLine("NHV1_NHV2_2").getTerminal1().getQ(), network.getLine("NHV1_NHV2_2").getTerminal1().getQ(), 0);
         assertEquals(networkLf.getVoltageLevel("VLHV2").getBusBreakerView().getBus("NHV2").getV(), network.getVoltageLevel("VLHV2").getBusBreakerView().getBus("NHV2").getV(), 0);
@@ -113,7 +114,7 @@ public class IncrementalUpdateTest extends AbstractConverterTest {
         new XMLExporter().export(network, properties, dataSource);
 
         //Update the network
-        NetworkXml.update(network2, new ImportOptions().setControl(true).setTopo(false).setState(false), dataSource);
+        NetworkXml.update(network2, dataSource);
         assertEquals(network.getGenerator("GEN").getTargetP(), network2.getGenerator("GEN").getTargetP(), 0);
         assertEquals(network.getGenerator("GEN").getTargetV(), network2.getGenerator("GEN").getTargetV(), 0);
         assertEquals(network.getGenerator("GEN").getTargetQ(), network2.getGenerator("GEN").getTargetQ(), 0);
@@ -146,7 +147,7 @@ public class IncrementalUpdateTest extends AbstractConverterTest {
         new XMLExporter().export(network, properties, dataSource);
 
         //Update the network
-        NetworkXml.update(network2, new ImportOptions().setControl(true).setTopo(false).setState(false), dataSource);
+        NetworkXml.update(network2, dataSource);
         assertEquals(network.getVscConverterStation("C1").getVoltageSetpoint(), network2.getVscConverterStation("C1").getVoltageSetpoint(), 0);
         assertEquals(network.getVscConverterStation("C2").getVoltageSetpoint(), network2.getVscConverterStation("C2").getVoltageSetpoint(), 0);
         assertEquals(network.getHvdcLine("L").getActivePowerSetpoint(), network2.getHvdcLine("L").getActivePowerSetpoint(), 0);
@@ -183,7 +184,7 @@ public class IncrementalUpdateTest extends AbstractConverterTest {
         new XMLExporter().export(network, properties, dataSource);
 
         //Update the network
-        NetworkXml.update(network2, new ImportOptions().setControl(false).setTopo(true).setState(false), dataSource);
+        NetworkXml.update(network2, dataSource);
 
         assertEquals(network.getGenerator("GEN").getTerminal().getBusBreakerView().getConnectableBus().getName(),
                 network2.getGenerator("GEN").getTerminal().getBusBreakerView().getConnectableBus().getName());
@@ -223,7 +224,7 @@ public class IncrementalUpdateTest extends AbstractConverterTest {
                 network2.getSwitch("BK1").isOpen());
 
         //Update the network
-        NetworkXml.update(network2, new ImportOptions().setControl(false).setTopo(true).setState(false), dataSource);
+        NetworkXml.update(network2, dataSource);
 
         assertEquals(network.getVscConverterStation("C1").getTerminal().getBusBreakerView().getConnectableBus().getName(),
                 network2.getVscConverterStation("C1").getTerminal().getBusBreakerView().getConnectableBus().getName());

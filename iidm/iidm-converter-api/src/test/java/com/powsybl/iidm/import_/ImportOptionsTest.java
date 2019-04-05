@@ -8,7 +8,6 @@ package com.powsybl.iidm.import_;
 
 import com.google.common.collect.Sets;
 import com.powsybl.iidm.IidmImportExportMode;
-import com.powsybl.iidm.IidmImportExportType;
 import org.junit.Test;
 
 import java.util.Set;
@@ -27,9 +26,6 @@ public class ImportOptionsTest {
         options.setMode(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE);
         assertEquals(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE, options.getMode());
 
-        options.setImportExportType(IidmImportExportType.FULL_IIDM);
-        assertEquals(IidmImportExportType.FULL_IIDM, options.getImportExportType());
-
         Set<String> extensionsList = Sets.newHashSet("loadFoo", "loadBar");
         options.setExtensions(extensionsList);
         assertEquals(Boolean.FALSE, options.withNoExtension());
@@ -47,16 +43,6 @@ public class ImportOptionsTest {
         assertEquals(IidmImportExportMode.UNIQUE_FILE, options.getMode());
         assertEquals(Boolean.FALSE, options.withNoExtension());
         assertEquals(2, (int) options.getExtensions().map(Set::size).orElse(-1));
-        assertEquals(IidmImportExportType.FULL_IIDM, options.getImportExportType());
-
-        options.setImportExportType(IidmImportExportType.INCREMENTAL_IIDM);
-        assertEquals(IidmImportExportType.INCREMENTAL_IIDM, options.getImportExportType());
-        options.setTopo(false);
-        options.setControl(true);
-        options.setState(false);
-        assertTrue(options.isControl());
-        assertFalse(options.isState());
-        assertFalse(options.isTopo());
     }
 
     @Test

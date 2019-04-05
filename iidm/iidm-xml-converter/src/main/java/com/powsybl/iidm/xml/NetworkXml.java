@@ -69,6 +69,12 @@ public final class NetworkXml {
     private static final String FORECAST_DISTANCE = "forecastDistance";
     private static final String SOURCE_FORMAT = "sourceFormat";
     private static final String ID = "id";
+    private static final String FILE_NOT_FOUND = "%s file is not found";
+    private static final String TOPO_SUFFIX = "-TOPO.xiidm";
+    private static final String STATE_SUFFIX = "-STATE.xiidm";
+    private static final String CONTROL_SUFFIX = "-CONTROL.xiidm";
+
+
 
     // cache XMLOutputFactory to improve performance
     private static final Supplier<XMLOutputFactory> XML_OUTPUT_FACTORY_SUPPLIER = Suppliers.memoize(XMLOutputFactory::newFactory);
@@ -394,19 +400,19 @@ public final class NetworkXml {
 
     public static void incrementalWrite(Network n, ExportOptions options, DataSource dataSource) throws IOException {
         if (options.isTopo()) {
-            try (OutputStream os = dataSource.newOutputStream(dataSource.getBaseName() + "-TOPO.xiidm", false);
+            try (OutputStream os = dataSource.newOutputStream(dataSource.getBaseName() + TOPO_SUFFIX, false);
                  BufferedOutputStream bos = new BufferedOutputStream(os)) {
                 write(n, options, bos, IncrementalIidmFiles.TOPO);
             }
         }
         if (options.isState()) {
-            try (OutputStream os = dataSource.newOutputStream(dataSource.getBaseName() + "-STATE.xiidm", false);
+            try (OutputStream os = dataSource.newOutputStream(dataSource.getBaseName() + STATE_SUFFIX, false);
                  BufferedOutputStream bos = new BufferedOutputStream(os)) {
                 write(n, options, bos, IncrementalIidmFiles.STATE);
             }
         }
         if (options.isControl()) {
-            try (OutputStream os = dataSource.newOutputStream(dataSource.getBaseName() + "-CONTROL.xiidm", false);
+            try (OutputStream os = dataSource.newOutputStream(dataSource.getBaseName() + CONTROL_SUFFIX, false);
                  BufferedOutputStream bos = new BufferedOutputStream(os)) {
                 write(n, options, bos, IncrementalIidmFiles.CONTROL);
             }
@@ -796,15 +802,21 @@ public final class NetworkXml {
         }
     }
 
-    static void update(Network network, ImportOptions options, ReadOnlyDataSource dataSource) throws IOException {
-        if (options.isState()) {
-            update(network, dataSource.newInputStream(dataSource.getBaseName() + "-STATE.xiidm"), IncrementalIidmFiles.STATE);
+    static void update(Network network, ReadOnlyDataSource dataSource) throws IOException {
+        try (InputStream ise = dataSource.newInputStream(dataSource.getBaseName() + STATE_SUFFIX)) {
+            update(network, ise, IncrementalIidmFiles.STATE);
+        } catch (IOException e) {
+            LOGGER.warn(String.format(FILE_NOT_FOUND, dataSource.getBaseName() + STATE_SUFFIX));
         }
-        if (options.isControl()) {
-            update(network, dataSource.newInputStream(dataSource.getBaseName()  + "-CONTROL.xiidm"), IncrementalIidmFiles.CONTROL);
+        try (InputStream ise = dataSource.newInputStream(dataSource.getBaseName() + CONTROL_SUFFIX)) {
+            update(network, ise, IncrementalIidmFiles.CONTROL);
+        } catch (IOException e) {
+            LOGGER.warn(String.format(FILE_NOT_FOUND, dataSource.getBaseName() + CONTROL_SUFFIX));
         }
-        if (options.isTopo()) {
-            update(network, dataSource.newInputStream(dataSource.getBaseName() + "-TOPO.xiidm"), IncrementalIidmFiles.TOPO);
+        try (InputStream ise = dataSource.newInputStream(dataSource.getBaseName() + TOPO_SUFFIX)) {
+            update(network, ise, IncrementalIidmFiles.TOPO);
+        } catch (IOException e) {
+            LOGGER.warn(String.format(FILE_NOT_FOUND, dataSource.getBaseName() + TOPO_SUFFIX));
         }
     }
 
