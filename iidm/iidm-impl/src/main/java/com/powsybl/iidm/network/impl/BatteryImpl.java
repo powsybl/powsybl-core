@@ -24,7 +24,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     private double maxP;
 
-    private ReactiveLimits reactiveLimits;
+    private final ReactiveLimitsHolderImpl reactiveLimits;
 
     // attributes depending on the variant
 
@@ -40,7 +40,8 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         this.q0 = q0;
         this.minP = minP;
         this.maxP = maxP;
-        reactiveLimits = new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE);
+        this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
+
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
         this.congestionManagementOn = new TBooleanArrayList(variantArraySize);
         for (int i = 0; i < variantArraySize; i++) {
@@ -178,7 +179,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public ReactiveLimits getReactiveLimits() {
-        return reactiveLimits;
+        return reactiveLimits.getReactiveLimits();
     }
 
     /**
@@ -186,7 +187,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public void setReactiveLimits(ReactiveLimits reactiveLimits) {
-        this.reactiveLimits = reactiveLimits;
+        this.reactiveLimits.setReactiveLimits(reactiveLimits);
     }
 
     /**
@@ -194,15 +195,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public <R extends ReactiveLimits> R getReactiveLimits(Class<R> type) {
-        if (type == null) {
-            throw new IllegalArgumentException("type is null");
-        }
-        if (type.isInstance(reactiveLimits)) {
-            return type.cast(reactiveLimits);
-        } else {
-            throw new ValidationException(this, "incorrect reactive limits type "
-                    + type.getName() + ", expected " + reactiveLimits.getClass());
-        }
+        return reactiveLimits.getReactiveLimits(type);
     }
 
     /**
