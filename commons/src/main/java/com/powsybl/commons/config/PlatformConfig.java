@@ -97,7 +97,7 @@ public class PlatformConfig {
         } else if (Files.exists(ymlConfigFile)) {
             LOGGER.info("Platform configuration defined by YAML file {}", ymlConfigFile);
             return new YamlModuleConfigRepository(ymlConfigFile);
-        } else if (Files.exists(configDir.resolve(configName + ".xml"))) {
+        } else if (Files.exists(xmlConfigFile)) {
             LOGGER.info("Platform configuration defined by XML file {}", xmlConfigFile);
             return new XmlModuleConfigRepository(xmlConfigFile);
         } else {
