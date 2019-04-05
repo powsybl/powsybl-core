@@ -85,7 +85,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEReativeCapabilityCurve() throws IOException {
+    public void microBEReactiveCapabilityCurve() throws IOException {
         Network network = new CgmesImport(platformConfig)
             .importData(catalogModified.microGridBaseCaseBEReactiveCapabilityCurve().dataSource(), null);
         ReactiveLimits rl = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0").getReactiveLimits();
