@@ -88,19 +88,21 @@ public class PlatformConfig {
      * Reads from yaml file if it exists, else from xml file, else from properties file.
      */
     private static ModuleConfigRepository loadModuleRepository(Path configDir, String configName) {
-        Path yamlConfigFile = configDir.resolve(configName + ".yml");
+        Path yamlConfigFile = configDir.resolve(configName + ".yaml");
+        Path ymlConfigFile = configDir.resolve(configName + ".yml");
+        Path xmlConfigFile = configDir.resolve(configName + ".xml");
         if (Files.exists(yamlConfigFile)) {
             LOGGER.info("Platform configuration defined by YAML file {}", yamlConfigFile);
             return new YamlModuleConfigRepository(yamlConfigFile);
+        } else if (Files.exists(ymlConfigFile)) {
+            LOGGER.info("Platform configuration defined by YAML file {}", ymlConfigFile);
+            return new YamlModuleConfigRepository(ymlConfigFile);
+        } else if (Files.exists(configDir.resolve(configName + ".xml"))) {
+            LOGGER.info("Platform configuration defined by XML file {}", xmlConfigFile);
+            return new XmlModuleConfigRepository(xmlConfigFile);
         } else {
-            Path xmlConfigFile = configDir.resolve(configName + ".xml");
-            if (Files.exists(xmlConfigFile)) {
-                LOGGER.info("Platform configuration defined by XML file {}", xmlConfigFile);
-                return new XmlModuleConfigRepository(xmlConfigFile);
-            } else {
-                LOGGER.info("Platform configuration defined by .properties files of directory {}", configDir);
-                return new PropertiesModuleConfigRepository(configDir);
-            }
+            LOGGER.info("Platform configuration defined by .properties files of directory {}", configDir);
+            return new PropertiesModuleConfigRepository(configDir);
         }
     }
 
