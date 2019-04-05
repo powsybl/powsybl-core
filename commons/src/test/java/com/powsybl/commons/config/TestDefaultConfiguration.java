@@ -23,11 +23,17 @@ public class TestDefaultConfiguration implements DefaultConfiguration {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TestDefaultConfiguration.class);
 
-    @Override
-    public PlatformConfig get() {
-        LOGGER.info("An empty mocked configuration is used for tests");
+    private static final ThreadLocal<PlatformConfig> PLATFORM_CONFIG = ThreadLocal.withInitial(TestDefaultConfiguration::create);
+
+    private static PlatformConfig create() {
         PlatformConfig platformConfig = Mockito.mock(PlatformConfig.class);
         Mockito.when(platformConfig.getOptionalModuleConfig(any(String.class))).thenReturn(Optional.empty());
         return platformConfig;
+    }
+
+    @Override
+    public PlatformConfig get() {
+        LOGGER.info("An empty mocked configuration is used for tests.");
+        return PLATFORM_CONFIG.get();
     }
 }

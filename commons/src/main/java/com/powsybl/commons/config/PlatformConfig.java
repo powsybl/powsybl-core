@@ -27,7 +27,7 @@ public class PlatformConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PlatformConfig.class);
 
-    private static ThreadLocal<PlatformConfig> defaultConfig = ThreadLocal.withInitial(() -> null);
+    private static PlatformConfig defaultConfig;
 
     protected final Path configDir;
 
@@ -38,7 +38,7 @@ public class PlatformConfig {
      */
     @Deprecated
     public static synchronized void setDefaultConfig(PlatformConfig defaultConfig) {
-        PlatformConfig.defaultConfig.set(defaultConfig);
+        PlatformConfig.defaultConfig = defaultConfig;
     }
 
     /**
@@ -124,22 +124,21 @@ public class PlatformConfig {
     }
 
     public static synchronized PlatformConfig defaultConfig() {
-        if (defaultConfig.get() == null) {
-            ServiceLoader<DefaultConfiguration> defaultConfigProvider = ServiceLoader.load(DefaultConfiguration.class);
-            if (Iterables.size(defaultConfigProvider) > 0) {
-                LOGGER.info("A default configuration is generated from an implementation.");
-                defaultConfig.set(Iterables.get(defaultConfigProvider, 0).get());
-            } else {
-                LOGGER.info("A default configuration is generated from a local file.");
-                FileSystem fileSystem = FileSystems.getDefault();
-                Path[] configDirs = getDefaultConfigDirs(fileSystem);
-                String configName = System.getProperty("powsybl.config.name", System.getProperty("itools.config.name", "config"));
-
-                ModuleConfigRepository repository = loadModuleRepository(configDirs, configName);
-                defaultConfig.set(new PlatformConfig(repository, configDirs[0]));
-            }
+        ServiceLoader<DefaultConfiguration> defaultConfigProvider = ServiceLoader.load(DefaultConfiguration.class);
+        if (Iterables.size(defaultConfigProvider) > 0) {
+            LOGGER.info("A default configuration is generated from an implementation.");
+            return Iterables.get(defaultConfigProvider, 0).get();
         }
-        return defaultConfig.get();
+        if (defaultConfig == null) {
+            LOGGER.info("A default configuration is generated from a local file.");
+            FileSystem fileSystem = FileSystems.getDefault();
+            Path[] configDirs = getDefaultConfigDirs(fileSystem);
+            String configName = System.getProperty("powsybl.config.name", System.getProperty("itools.config.name", "config"));
+
+            ModuleConfigRepository repository = loadModuleRepository(configDirs, configName);
+            defaultConfig= new PlatformConfig(repository, configDirs[0]);
+        }
+        return defaultConfig;
     }
 
     public PlatformConfig(ModuleConfigRepository repository) {
