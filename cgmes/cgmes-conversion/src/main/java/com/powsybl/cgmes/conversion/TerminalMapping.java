@@ -53,7 +53,7 @@ public class TerminalMapping {
         return topologicalNodesMapping.get(topologicalNode).contains(cgmesTerminalId);
     }
 
-    public Terminal findFromTopoloficalNode(String topologicalNode) {
+    public Terminal findFromTopologicalNode(String topologicalNode) {
         if (topologicalNodesMapping.containsKey(topologicalNode)) {
             for (String cgmesTerminalId : topologicalNodesMapping.get(topologicalNode)) {
                 if (find(cgmesTerminalId) != null) {

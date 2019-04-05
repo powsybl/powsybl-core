@@ -138,7 +138,7 @@ public class Context {
         Identifiable i = network.getIdentifiable(entry.getKey());
         if (i instanceof Generator) {
             Generator g = (Generator) i;
-            Terminal regTerminal = terminalMapping.findFromTopoloficalNode(entry.getValue());
+            Terminal regTerminal = terminalMapping.findFromTopologicalNode(entry.getValue());
             if (regTerminal == null) {
                 missing(String.format("IIDM terminal for this CGMES topological node: %s", entry.getValue()));
             } else {
