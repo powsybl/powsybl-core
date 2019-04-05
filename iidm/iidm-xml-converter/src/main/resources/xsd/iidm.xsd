@@ -228,7 +228,6 @@
         <xs:complexContent>
             <xs:extension base="iidm:Injection">
                 <xs:sequence>
-                    <xs:element name="regulatingTerminal" minOccurs="0" type="iidm:TerminalRef"/>
                     <xs:choice>
                         <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
                         <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
