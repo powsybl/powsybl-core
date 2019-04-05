@@ -136,7 +136,7 @@ public class PlatformConfig {
             String configName = System.getProperty("powsybl.config.name", System.getProperty("itools.config.name", "config"));
 
             ModuleConfigRepository repository = loadModuleRepository(configDirs, configName);
-            defaultConfig= new PlatformConfig(repository, configDirs[0]);
+            defaultConfig = new PlatformConfig(repository, configDirs[0]);
         }
         return defaultConfig;
     }
