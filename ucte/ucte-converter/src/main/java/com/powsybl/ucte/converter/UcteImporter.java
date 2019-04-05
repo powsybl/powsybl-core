@@ -50,7 +50,6 @@ public class UcteImporter implements Importer {
 
     static final int DEFAULT_SWICH_MAX_CURRENT = 999999;
 
-
     private static float getConductance(UcteTransformer ucteTransfo) {
         float g = 0;
         if (!Float.isNaN(ucteTransfo.getConductance())) {
@@ -936,7 +935,6 @@ public class UcteImporter implements Importer {
                 addElementNameProperty(mergeLine, dl1, dl2);
                 addGeographicalNameProperty(ucteNetwork, mergeLine, dl1, dl2);
                 addReferenceVoltageProperty(ucteNetwork, mergeLine, dl1, dl2);
-
 
                 if (dl1.getCurrentLimits() != null) {
                     mergeLine.newCurrentLimits1()
