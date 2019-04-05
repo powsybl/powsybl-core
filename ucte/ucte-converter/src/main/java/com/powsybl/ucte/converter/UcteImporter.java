@@ -28,10 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.util.Iterator;
-import java.util.Objects;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -46,7 +43,13 @@ public class UcteImporter implements Importer {
 
     private static final String[] EXTENSIONS = {"uct", "UCT"};
 
+    static final String CURRENT_LIMIT_PROPERTY_KEY = "currentLimit";
     static final String ELEMENT_NAME_PROPERTY_KEY = "elementName";
+    static final String GEOGRAPHICAL_NAME_PROPERTY_KEY = "geographicalName";
+    static final String REFERENCE_VOLTAGE = "referenceVoltage";
+
+    static final int DEFAULT_SWICH_MAX_CURRENT = 999999;
+
 
     private static float getConductance(UcteTransformer ucteTransfo) {
         float g = 0;
@@ -93,7 +96,10 @@ public class UcteImporter implements Importer {
 
             Bus bus = voltageLevel.getBusBreakerView().newBus()
                     .setId(ucteNodeCode.toString())
+                    .setV(ucteNode.getVoltageReference())
                     .add();
+
+            addGeographicalNameProperty(ucteNode, bus);
 
             if (isValueValid(ucteNode.getActiveLoad()) || isValueValid(ucteNode.getReactiveLoad())) {
                 createLoad(ucteNode, voltageLevel, bus);
@@ -272,6 +278,7 @@ public class UcteImporter implements Importer {
                 .add();
 
         addElementNameProperty(ucteLine, xNodeDanglingLine);
+        addGeographicalNameProperty(ucteXnode, xNodeDanglingLine);
 
         xNodeDanglingLine.addExtension(Xnode.class, new Xnode(xNodeDanglingLine, ucteXnode.getCode().toString()));
 
@@ -328,6 +335,8 @@ public class UcteImporter implements Importer {
         }
 
         addElementNameProperty(ucteLine, dl);
+        addGeographicalNameProperty(xnode, dl);
+        addReferenceVoltageProperty(xnode, dl);
     }
 
     private static void createCoupler(UcteNetworkExt ucteNetwork, Network network,
@@ -360,7 +369,8 @@ public class UcteImporter implements Importer {
                     .setBus2(nodeCode2.toString())
                     .setOpen(ucteLine.getStatus() == UcteElementStatus.BUSBAR_COUPLER_OUT_OF_OPERATION)
                     .add();
-            couplerSwitch.addExtension(SwitchExt.class, new SwitchExt(couplerSwitch, ucteLine.getCurrentLimit().floatValue()));
+
+            addCurrentLimitProperty(ucteLine, couplerSwitch);
             addElementNameProperty(ucteLine, couplerSwitch);
         }
     }
@@ -382,7 +392,8 @@ public class UcteImporter implements Importer {
                 .setBus2(nodeCode2.toString())
                 .setOpen(!connected)
                 .add();
-        couplerSwitch.addExtension(SwitchExt.class, new SwitchExt(couplerSwitch, ucteLine.getCurrentLimit().floatValue()));
+
+        addCurrentLimitProperty(ucteLine, couplerSwitch);
         addElementNameProperty(ucteLine, couplerSwitch);
     }
 
@@ -782,6 +793,52 @@ public class UcteImporter implements Importer {
         }
     }
 
+    private static void addCurrentLimitProperty(UcteLine ucteLine, Identifiable identifiable) {
+        if (ucteLine.getCurrentLimit() != null) {
+            identifiable.getProperties().setProperty(CURRENT_LIMIT_PROPERTY_KEY, String.valueOf(ucteLine.getCurrentLimit()));
+        }
+    }
+
+    private static void addGeographicalNameProperty(UcteNode ucteNode, Identifiable identifiable) {
+        if (ucteNode.getGeographicalName() != null) {
+            identifiable.getProperties().setProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, ucteNode.getGeographicalName());
+        }
+    }
+
+    private static void addGeographicalNameProperty(UcteNetwork ucteNetwork, TieLine tieLine, DanglingLine dl1, DanglingLine dl2) {
+        Optional<UcteNodeCode> optUcteNodeCode1 = UcteNodeCode.parseUcteNodeCode(dl1.getUcteXnodeCode());
+        Optional<UcteNodeCode> optUcteNodeCode2 = UcteNodeCode.parseUcteNodeCode(dl2.getUcteXnodeCode());
+
+        if (optUcteNodeCode1.isPresent()) {
+            UcteNode ucteNode = ucteNetwork.getNode(optUcteNodeCode1.get());
+            tieLine.getProperties().setProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, ucteNode.getGeographicalName());
+        }
+
+        if (optUcteNodeCode2.isPresent()) {
+            UcteNode ucteNode = ucteNetwork.getNode(optUcteNodeCode2.get());
+            tieLine.getProperties().setProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, ucteNode.getGeographicalName());
+        }
+    }
+
+    private static void addReferenceVoltageProperty(UcteNetwork ucteNetwork, TieLine tieLine, DanglingLine dl1, DanglingLine dl2) {
+        Optional<UcteNodeCode> optUcteNodeCode1 = UcteNodeCode.parseUcteNodeCode(dl1.getUcteXnodeCode());
+        Optional<UcteNodeCode> optUcteNodeCode2 = UcteNodeCode.parseUcteNodeCode(dl2.getUcteXnodeCode());
+
+        if (optUcteNodeCode1.isPresent()) {
+            UcteNode ucteNode = ucteNetwork.getNode(optUcteNodeCode1.get());
+            tieLine.getProperties().setProperty(REFERENCE_VOLTAGE, String.valueOf(ucteNode.getVoltageReference()));
+        }
+
+        if (optUcteNodeCode2.isPresent()) {
+            UcteNode ucteNode = ucteNetwork.getNode(optUcteNodeCode2.get());
+            tieLine.getProperties().setProperty(REFERENCE_VOLTAGE, String.valueOf(ucteNode.getVoltageReference()));
+        }
+    }
+
+    private static void addReferenceVoltageProperty(UcteNode ucteNode, Identifiable identifiable) {
+        identifiable.getProperties().setProperty(REFERENCE_VOLTAGE, String.valueOf(ucteNode.getVoltageReference()));
+    }
+
     @Override
     public String getFormat() {
         return "UCTE";
@@ -820,7 +877,7 @@ public class UcteImporter implements Importer {
         }
     }
 
-    private void mergeXnodeDanglingLines(Network network) {
+    private void mergeXnodeDanglingLines(UcteNetwork ucteNetwork, Network network) {
         Multimap<String, DanglingLine> danglingLinesByXnodeCode = HashMultimap.create();
         for (DanglingLine dl : network.getDanglingLines()) {
             danglingLinesByXnodeCode.put(dl.getExtension(Xnode.class).getCode(), dl);
@@ -877,6 +934,9 @@ public class UcteImporter implements Importer {
                         .add();
 
                 addElementNameProperty(mergeLine, dl1, dl2);
+                addGeographicalNameProperty(ucteNetwork, mergeLine, dl1, dl2);
+                addReferenceVoltageProperty(ucteNetwork, mergeLine, dl1, dl2);
+
 
                 if (dl1.getCurrentLimits() != null) {
                     mergeLine.newCurrentLimits1()
@@ -935,7 +995,7 @@ public class UcteImporter implements Importer {
                 createLines(ucteNetwork, network);
                 createTransformers(ucteNetwork, network, ucteFileName);
 
-                mergeXnodeDanglingLines(network);
+                mergeXnodeDanglingLines(ucteNetwork, network);
 
                 stopwatch.stop();
                 LOGGER.debug("UCTE import done in {} ms", stopwatch.elapsed(TimeUnit.MILLISECONDS));
