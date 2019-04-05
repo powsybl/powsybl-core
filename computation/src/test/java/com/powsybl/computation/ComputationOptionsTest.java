@@ -33,6 +33,11 @@ public class ComputationOptionsTest {
         assertEquals(10, opts.getTimeout(cmdId).orElse(-1));
         assertEquals("p1", opts.getQos(cmdId).orElse("asdf"));
         assertEquals(42, opts.getDeadline(cmdId).orElse(-1));
+        String missingCmd = "missing";
+        assertFalse(opts.getTimeout(missingCmd).isPresent());
+        assertFalse(opts.getQos(missingCmd).isPresent());
+        assertFalse(opts.getDeadline(missingCmd).isPresent());
+
     }
 
     @Test
