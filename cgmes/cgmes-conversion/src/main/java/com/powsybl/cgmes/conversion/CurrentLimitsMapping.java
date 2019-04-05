@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.CurrentLimitsAdder;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
@@ -18,8 +19,10 @@ import java.util.function.Supplier;
 public class CurrentLimitsMapping {
 
     private final Map<String, CurrentLimitsAdder> adders = new HashMap<>();
+    private final Context context;
 
-    CurrentLimitsMapping() {
+    CurrentLimitsMapping(Context context) {
+        this.context = Objects.requireNonNull(context);
     }
 
     public CurrentLimitsAdder getCurrentLimitsAdder(String id, Supplier<CurrentLimitsAdder> supplier) {
@@ -27,7 +30,13 @@ public class CurrentLimitsMapping {
     }
 
     void addAll() {
-        adders.values().forEach(CurrentLimitsAdder::add);
+        for (Map.Entry<String, CurrentLimitsAdder> entry : adders.entrySet()) {
+            if (Double.isNaN(entry.getValue().getPermanentLimit())) {
+                context.ignored(String.format("Operational Limit Set of %s", entry.getKey()), "An operational limit set must at least contain one value for permanent limit.");
+            } else {
+                entry.getValue().add();
+            }
+        }
         adders.clear();
     }
 }
