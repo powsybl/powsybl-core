@@ -15,7 +15,7 @@ public final class Warnings {
     private Warnings() {
         // Do not allow object creation
     }
-    
+
     public enum Fixes {
         ABSTRACT_CONDUCTING_REACTIVE_LIMITS,
         DC_LINE_SEGMENT_RESISTANCE,
