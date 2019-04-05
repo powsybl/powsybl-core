@@ -12,6 +12,8 @@ package com.powsybl.iidm.network;
  */
 public interface BusAdder extends IdentifiableAdder<BusAdder> {
 
+    BusAdder setV(double v);
+
     Bus add();
 
 }
