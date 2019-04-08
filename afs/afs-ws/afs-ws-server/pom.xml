@@ -144,7 +144,6 @@
                     <systemPropertyVariables>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
                         <jboss.socket.binding.port-offset>1000</jboss.socket.binding.port-offset>
-                        <no.user.home>true</no.user.home>
                     </systemPropertyVariables>
                     <redirectTestOutputToFile>false</redirectTestOutputToFile>
                 </configuration>
