@@ -79,10 +79,10 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
 
     @Override
     protected Substation readRootElementAttributes(SubstationAdder adder, NetworkXmlReaderContext context) {
-        Country country = null;
-        if (context.getReader().getAttributeValue(null, COUNTRY) != null) {
-            country = context.getAnonymizer().deanonymizeCountry(Country.valueOf(context.getReader().getAttributeValue(null, COUNTRY)));
-        }
+
+        Country country = Optional.ofNullable(context.getReader().getAttributeValue(null, COUNTRY))
+                .map(c -> context.getAnonymizer().deanonymizeCountry(Country.valueOf(c)))
+                .orElse(null);
         String tso = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "tso"));
         String geographicalTags = context.getReader().getAttributeValue(null, "geographicalTags");
         if (geographicalTags != null) {
