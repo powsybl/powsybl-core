@@ -28,6 +28,7 @@ public class TestDefaultConfiguration implements DefaultConfiguration {
     private static PlatformConfig create() {
         PlatformConfig platformConfig = Mockito.mock(PlatformConfig.class);
         Mockito.when(platformConfig.getOptionalModuleConfig(any(String.class))).thenReturn(Optional.empty());
+        Mockito.when(platformConfig.moduleExists(any(String.class))).thenReturn(false);
         return platformConfig;
     }
 
