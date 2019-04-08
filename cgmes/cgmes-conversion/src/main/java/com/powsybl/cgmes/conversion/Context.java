@@ -42,7 +42,7 @@ public class Context {
         terminalMapping = new TerminalMapping();
         tapChangerTransformers = new TapChangerTransformers();
         dcMapping = new DcMapping(this);
-        currentLimitsMapping = new CurrentLimitsMapping();
+        currentLimitsMapping = new CurrentLimitsMapping(this);
         nodeMapping = new NodeMapping();
 
         ratioTapChangerTables = new HashMap<>();

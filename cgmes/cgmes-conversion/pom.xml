@@ -115,13 +115,6 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-        <!-- To be able to import CIM14 files for comparison -->
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-cim1-converter</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-impl</artifactId>
