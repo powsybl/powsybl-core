@@ -7,8 +7,12 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.import_.ImportersLoader;
+import com.powsybl.iidm.import_.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -22,13 +26,15 @@ import static org.junit.Assert.assertNotNull;
  */
 public class TerminalRefTest extends AbstractConverterTest {
 
+    private final ComputationManager computationManager = Mockito.mock(ComputationManager.class);
+    private final ImportConfig importConfig = Mockito.mock(ImportConfig.class);
+
+    private final ImportersLoader loader = new ImportersLoaderList(new XMLImporter(Mockito.mock(PlatformConfig.class)));
+
     @Test
     public void roundTripTest() throws IOException {
         String filename = "terminalRef.xiidm";
-
-        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-
-        Network network = Importers.loadNetwork(filename, getClass().getResourceAsStream("/" + filename), computationManager);
+        Network network = Importers.loadNetwork(filename, getClass().getResourceAsStream("/" + filename), computationManager, importConfig, null, loader);
         assertNotNull(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::read, "/" + filename);
     }

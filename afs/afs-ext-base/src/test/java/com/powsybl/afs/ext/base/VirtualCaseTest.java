@@ -19,7 +19,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -30,7 +29,7 @@ import static org.junit.Assert.*;
 public class VirtualCaseTest extends AbstractProjectFileTest {
 
     private ImportersLoader createImportersLoader() {
-        return new ImportersLoaderList(Collections.singletonList(new TestImporter(network)), Collections.emptyList());
+        return new ImportersLoaderList(new TestImporter(network));
     }
 
     @Override
