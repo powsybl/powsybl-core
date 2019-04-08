@@ -33,7 +33,7 @@ public class TestDefaultConfiguration implements DefaultConfiguration {
 
     @Override
     public PlatformConfig get() {
-        LOGGER.info("An empty mocked configuration is used for tests.");
+        LOGGER.debug("An empty mocked configuration is used for tests.");
         return PLATFORM_CONFIG.get();
     }
 }

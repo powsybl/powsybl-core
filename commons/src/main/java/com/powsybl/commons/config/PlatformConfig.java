@@ -126,11 +126,12 @@ public class PlatformConfig {
     public static synchronized PlatformConfig defaultConfig() {
         ServiceLoader<DefaultConfiguration> defaultConfigProvider = ServiceLoader.load(DefaultConfiguration.class);
         if (Iterables.size(defaultConfigProvider) > 0) {
-            LOGGER.info("A default configuration is generated from an implementation.");
-            return Iterables.get(defaultConfigProvider, 0).get();
+            DefaultConfiguration defaultConfiguration = Iterables.get(defaultConfigProvider, 0);
+            LOGGER.debug("A default configuration is generated from the following implementation: {}", defaultConfiguration.getClass().getName());
+            return defaultConfiguration.get();
         }
         if (defaultConfig == null) {
-            LOGGER.info("A default configuration is generated from a local file.");
+            LOGGER.debug("A default configuration is generated from a local file.");
             FileSystem fileSystem = FileSystems.getDefault();
             Path[] configDirs = getDefaultConfigDirs(fileSystem);
             String configName = System.getProperty("powsybl.config.name", System.getProperty("itools.config.name", "config"));
