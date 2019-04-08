@@ -660,6 +660,7 @@ WHERE {
     ?Terminal cim:Terminal.ConductingEquipment ?SynchronousMachine .
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.minQ ?minQ }
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.maxQ ?maxQ }
+    OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.InitialReactiveCapabilityCurve ?ReactiveCapabilityCurve }
     OPTIONAL {
         ?SynchronousMachine cim:RegulatingCondEq.RegulatingControl ?RegulatingControl .
         ?RegulatingControl
@@ -695,6 +696,7 @@ WHERE {
     OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.minQ ?minQ }
     OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.maxQ ?maxQ }
     OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.regulationCapability ?regulationCapability }
+    OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.ReactiveCapabilityCurve ?ReactiveCapabilityCurve }
 }}
 OPTIONAL { GRAPH ?graphSSH  {
     ?EquivalentInjection
@@ -703,6 +705,17 @@ OPTIONAL { GRAPH ?graphSSH  {
         cim:EquivalentInjection.regulationStatus ?regulationStatus ;
         cim:EquivalentInjection.regulationTarget ?regulationTarget .
 }}
+}
+
+# query: reactiveCapabilityCurveData
+SELECT *
+WHERE {
+    ?CurveData
+        a cim:CurveData ;
+        cim:CurveData.Curve ?ReactiveCapabilityCurve ;
+        cim:CurveData.xvalue ?xvalue ;
+        cim:CurveData.y1value ?y1value .
+    OPTIONAL { ?CurveData cim:CurveData.y2value ?y2value }
 }
 
 # query: externalNetworkInjections
