@@ -14,7 +14,6 @@ import com.powsybl.security.interceptors.DefaultSecurityAnalysisInterceptor;
 import com.powsybl.security.interceptors.RunningContext;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -42,7 +41,7 @@ public class SubjectInfoInterceptor extends DefaultSecurityAnalysisInterceptor {
                 VoltageLevel vl = (VoltageLevel) identifiable;
                 SubjectInfoExtension subjectInfoExtension = vl.getSubstation().getCountry()
                         .map(country -> new SubjectInfoExtension(country, vl.getNominalV()))
-                        .orElseGet(() -> new SubjectInfoExtension(new HashSet<>(), Collections.singleton(vl.getNominalV())));
+                        .orElseGet(() -> new SubjectInfoExtension(new TreeSet<>(), Collections.singleton(vl.getNominalV())));
                 violation.addExtension(SubjectInfoExtension.class, subjectInfoExtension);
             }
         }

@@ -125,8 +125,7 @@ public class LimitViolationFilter {
         } else if (countries.isEmpty()) {
             return country == null;
         }
-        return countries.contains(country);
-
+        return country != null && countries.contains(country);
     }
 
     private boolean accept(double baseVoltage) {

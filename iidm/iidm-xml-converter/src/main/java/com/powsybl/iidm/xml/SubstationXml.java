@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.*;
 
 import javax.xml.stream.XMLStreamException;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -21,6 +22,8 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
     static final SubstationXml INSTANCE = new SubstationXml();
 
     static final String ROOT_ELEMENT_NAME = "substation";
+
+    private static final String COUNTRY = "country";
 
     @Override
     protected String getRootElementName() {
@@ -34,8 +37,9 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
 
     @Override
     protected void writeRootElementAttributes(Substation s, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (s.getCountry().isPresent()) {
-            context.getWriter().writeAttribute("country", context.getAnonymizer().anonymizeCountry(s.getCountry().get()).toString());
+        Optional<Country> country = s.getCountry();
+        if (country.isPresent()) {
+            context.getWriter().writeAttribute(COUNTRY, context.getAnonymizer().anonymizeCountry(country.get()).toString());
         }
         if (s.getTso() != null) {
             context.getWriter().writeAttribute("tso", context.getAnonymizer().anonymizeString(s.getTso()));
@@ -76,8 +80,8 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
     @Override
     protected Substation readRootElementAttributes(SubstationAdder adder, NetworkXmlReaderContext context) {
         Country country = null;
-        if (context.getReader().getAttributeValue(null, "country") != null) {
-            country = context.getAnonymizer().deanonymizeCountry(Country.valueOf(context.getReader().getAttributeValue(null, "country")));
+        if (context.getReader().getAttributeValue(null, COUNTRY) != null) {
+            country = context.getAnonymizer().deanonymizeCountry(Country.valueOf(context.getReader().getAttributeValue(null, COUNTRY)));
         }
         String tso = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "tso"));
         String geographicalTags = context.getReader().getAttributeValue(null, "geographicalTags");
