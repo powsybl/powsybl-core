@@ -17,7 +17,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class ExternalNetworkInjectionConversion extends AbstractConductingEquipmentConversion {
+public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOwnerConversion {
 
     public ExternalNetworkInjectionConversion(PropertyBag sm, Context context) {
         super("ExternalNetworkInjection", sm, context);

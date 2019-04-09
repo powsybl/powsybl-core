@@ -354,6 +354,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
+    public PropertyBags reactiveCapabilityCurveData() {
+        return namedQuery("reactiveCapabilityCurveData");
+    }
+
+    @Override
     public PropertyBags ratioTapChangerTablesPoints() {
         return namedQuery("ratioTapChangerTablesPoints");
     }
