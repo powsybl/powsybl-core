@@ -108,6 +108,11 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
             // verify that runWithLog() called instead of run();
             verify(sa, never()).run(any(), any(), any());
             verify(sa, times(1)).runWithLog(any(), any(), any());
+
+            when(cl.hasOption("log-file")).thenReturn(false);
+            // execute
+            tool.run(cl, context, mock(ContingenciesProviderFactory.class), saFactory);
+            verify(sa, times(1)).run(any(), any(), any());
         }
     }
 

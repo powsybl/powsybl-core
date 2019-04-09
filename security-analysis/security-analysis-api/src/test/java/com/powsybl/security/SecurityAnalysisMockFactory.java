@@ -40,12 +40,15 @@ public class SecurityAnalysisMockFactory implements SecurityAnalysisFactory {
     private SecurityAnalysis mockSa() {
         mock = mock(SecurityAnalysis.class);
         CompletableFuture<SecurityAnalysisResultWithLog> cfSarl = mock(CompletableFuture.class);
+        CompletableFuture<SecurityAnalysisResult> cfSar = mock(CompletableFuture.class);
         SecurityAnalysisResult sar = mock(SecurityAnalysisResult.class);
         LimitViolationsResult preResult = mock(LimitViolationsResult.class);
         when(sar.getPreContingencyResult()).thenReturn(preResult);
         SecurityAnalysisResultWithLog sarl = new SecurityAnalysisResultWithLog(sar, "hi".getBytes());
         when(cfSarl.join()).thenReturn(sarl);
+        when(cfSar.join()).thenReturn(sar);
         when(mock.runWithLog(any(), any(), any())).thenReturn(cfSarl);
+        when(mock.run(any(), any(), any())).thenReturn(cfSar);
         return mock;
     }
 }
