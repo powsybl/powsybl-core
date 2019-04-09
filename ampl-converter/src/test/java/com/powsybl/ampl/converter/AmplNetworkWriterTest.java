@@ -15,7 +15,6 @@ import com.powsybl.iidm.network.test.*;
 
 import org.junit.Assert;
 import org.junit.Test;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,7 +33,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
 
     @Test
     public void test() {
-        AmplExporter exporter = new AmplExporter();
+        AmplExporter exporter = new AmplExporter(platformConfig);
         Assert.assertEquals("AMPL", exporter.getFormat());
     }
 
@@ -43,7 +42,7 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
         Network network = EurostagTutorialExample1Factory.createWithMoreGenerators();
 
         MemDataSource dataSource = new MemDataSource();
-        AmplExporter exporter = new AmplExporter();
+        AmplExporter exporter = new AmplExporter(platformConfig);
         exporter.export(network, new Properties(), dataSource);
 
         assertEqualsToRef(dataSource, "_network_substations", "inputs/eurostag-tutorial-example1-substations.txt");
@@ -151,8 +150,8 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
         assertEqualsToRef(dataSource, "foo-extension", "inputs/foo-extension.txt");
     }
 
-    private static void export(Network network, DataSource dataSource) {
-        AmplExporter exporter = new AmplExporter();
+    private void export(Network network, DataSource dataSource) {
+        AmplExporter exporter = new AmplExporter(platformConfig);
         exporter.export(network, new Properties(), dataSource);
     }
 }

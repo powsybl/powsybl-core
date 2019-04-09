@@ -22,7 +22,7 @@ import java.util.*;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class VariantManagerImpl implements VariantManager {
+public class VariantManagerImpl implements VariantManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VariantManagerImpl.class);
 
@@ -30,7 +30,7 @@ class VariantManagerImpl implements VariantManager {
 
     private VariantContext variantContext;
 
-    private final ObjectStore objectStore;
+    private final NetworkIndex networkIndex;
 
     private final BiMap<String, Integer> id2index = HashBiMap.create();
 
@@ -38,9 +38,9 @@ class VariantManagerImpl implements VariantManager {
 
     private final Deque<Integer> unusedIndexes = new ArrayDeque<>();
 
-    VariantManagerImpl(ObjectStore objectStore) {
+    VariantManagerImpl(NetworkIndex networkIndex) {
         this.variantContext = new MultiVariantContext(INITIAL_VARIANT_INDEX);
-        this.objectStore = objectStore;
+        this.networkIndex = networkIndex;
         // the network has always a zero index initial variant
         id2index.put(VariantManagerConstants.INITIAL_VARIANT_ID, INITIAL_VARIANT_INDEX);
         variantArraySize = INITIAL_VARIANT_INDEX + 1;
@@ -55,7 +55,13 @@ class VariantManagerImpl implements VariantManager {
         return Collections.unmodifiableSet(id2index.keySet());
     }
 
-    int getVariantArraySize() {
+    /**
+     * Get the size of the variant array
+     * This size is different from the number of variants that also count unused but not released variants.
+     *
+     * @return the size of the variant array
+     */
+    public int getVariantArraySize() {
         return variantArraySize;
     }
 
@@ -88,7 +94,7 @@ class VariantManagerImpl implements VariantManager {
     }
 
     private Iterable<MultiVariantObject> getStafulObjects() {
-        return FluentIterable.from(objectStore.getAll()).filter(MultiVariantObject.class);
+        return FluentIterable.from(networkIndex.getAll()).filter(MultiVariantObject.class);
     }
 
     @Override
@@ -181,7 +187,7 @@ class VariantManagerImpl implements VariantManager {
     public void allowVariantMultiThreadAccess(boolean allow) {
         if (allow) {
             int index = variantContext.getVariantIndex();
-            variantContext = ThreadLocalMultiVariantContext.INSTANCE;
+            variantContext = new ThreadLocalMultiVariantContext();
             variantContext.setVariantIndex(index);
         } else {
             variantContext = new MultiVariantContext(variantContext.getVariantIndex());

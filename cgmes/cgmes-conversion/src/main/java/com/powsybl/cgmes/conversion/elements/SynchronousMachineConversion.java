@@ -32,8 +32,10 @@ public class SynchronousMachineConversion extends AbstractConductingEquipmentCon
         String generatingUnitType = p.getLocal("generatingUnitType");
         PowerFlow f = powerFlow();
 
+        // Default targetP from initial P defined in EQ GeneratingUnit
         double targetP = p.asDouble("initialP", 0);
         double targetQ = 0;
+        // Flow values may come from Terminal or Equipment (SSH RotatingMachine)
         if (f.defined()) {
             targetP = -f.p();
             targetQ = -f.q();
@@ -57,7 +59,7 @@ public class SynchronousMachineConversion extends AbstractConductingEquipmentCon
         connect(adder);
         Generator g = adder.add();
         convertedTerminals(g.getTerminal());
-        ReactiveLimitsConversion.convert(p, g);
+        convertReactiveLimits(g);
     }
 
     private static EnergySource fromGeneratingUnitType(String gut) {

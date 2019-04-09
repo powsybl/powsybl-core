@@ -84,7 +84,6 @@ public final class ValidationUtil {
         }
     }
 
-
     static void checkLoadType(Validable validable, LoadType loadType) {
         if (loadType == null) {
             throw new ValidationException(validable, "load type is null");

@@ -19,7 +19,7 @@ public class UcteNode implements UcteRecord {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UcteNode.class);
 
-    private static final float DEFAULT_POWER_LIMIT = 9999;
+    public static final float DEFAULT_POWER_LIMIT = 9999;
 
     private UcteNodeCode code;
     private String geographicalName;

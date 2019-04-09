@@ -9,6 +9,7 @@ package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.elements.*;
 import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.triplestore.api.PropertyBag;
@@ -36,34 +37,17 @@ public class Conversion {
     }
 
     public Conversion(CgmesModel cgmes, Conversion.Config config) {
-        this.cgmes = cgmes;
-        this.config = config;
+        this(cgmes, config, Collections.emptyList());
+    }
+
+    public Conversion(CgmesModel cgmes, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors) {
+        this.cgmes = Objects.requireNonNull(cgmes);
+        this.config = Objects.requireNonNull(config);
+        this.postProcessors = Objects.requireNonNull(postProcessors);
     }
 
     public void report(Consumer<String> out) {
         new ReportTapChangers(cgmes, out).report();
-    }
-
-    static class Profiling {
-        private final List<String> ops = new ArrayList<>(32);
-        private final Map<String, Long> optime = new HashMap<>(32);
-        private long t0;
-
-        void start() {
-            t0 = System.currentTimeMillis();
-        }
-
-        void end(String op) {
-            assert !optime.containsKey(op);
-            ops.add(op);
-            optime.put(op, System.currentTimeMillis() - t0);
-        }
-
-        void report() {
-            if (LOG.isInfoEnabled()) {
-                ops.forEach(op -> LOG.info(String.format("%-20s : %6d", op, optime.get(op))));
-            }
-        }
     }
 
     public Network convert() {
@@ -71,6 +55,10 @@ public class Conversion {
 
         if (LOG.isDebugEnabled() && cgmes.baseVoltages() != null) {
             LOG.debug(cgmes.baseVoltages().tabulate());
+        }
+        // Check that at least we have an EquipmentCore profile
+        if (!cgmes.hasEquipmentCore()) {
+            throw new CgmesModelException("Data source does not contain EquipmentCore data");
         }
         Network network = createNetwork();
         Context context = createContext(network);
@@ -118,10 +106,16 @@ public class Conversion {
         convert(cgmes.dcLineSegments(), l -> new DcLineSegmentConversion(l, context));
 
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
+        context.currentLimitsMapping().addAll();
 
         voltageAngles(nodes, context);
         if (context.config().debugTopology()) {
             debugTopology(context);
+        }
+
+        // apply post-processors
+        for (CgmesImportPostProcessor postProcessor : postProcessors) {
+            postProcessor.process(network, cgmes.tripleStore(), profiling);
         }
 
         profiling.report();
@@ -352,15 +346,17 @@ public class Conversion {
         }
 
         private boolean convertBoundary = false;
-        private boolean changeSignForShuntReactivePowerFlowInitialState;
+        private boolean changeSignForShuntReactivePowerFlowInitialState = false;
         private double lowImpedanceLineR = 0.05;
         private double lowImpedanceLineX = 0.05;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
+
     }
 
     private final CgmesModel cgmes;
     private final Config config;
+    private final List<CgmesImportPostProcessor> postProcessors;
 
     private Profiling profiling;
 

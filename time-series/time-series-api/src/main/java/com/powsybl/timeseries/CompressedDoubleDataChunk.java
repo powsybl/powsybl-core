@@ -52,16 +52,29 @@ public class CompressedDoubleDataChunk extends AbstractCompressedDataChunk imple
         return TimeSeriesDataType.DOUBLE;
     }
 
-    @Override
-    public void fillBuffer(DoubleBuffer buffer, int timeSeriesOffset) {
-        Objects.requireNonNull(buffer);
+    //To remove if we ever get it from somewhere else
+    @FunctionalInterface private interface DoubleIntConsumer { public void accept(double a, int b); }
+
+    private void forEachMaterializedValueIndex(DoubleIntConsumer consumer) {
         int k = 0;
         for (int i = 0; i < stepValues.length; i++) {
             double value = stepValues[i];
             for (int j = 0; j < stepLengths[i]; j++) {
-                buffer.put(timeSeriesOffset + offset + k++, value);
+                consumer.accept(value, offset + k++);
             }
         }
+    }
+
+    @Override
+    public void fillBuffer(DoubleBuffer buffer, int timeSeriesOffset) {
+        Objects.requireNonNull(buffer);
+        forEachMaterializedValueIndex((v, i) -> buffer.put(timeSeriesOffset + i, v));
+    }
+
+    @Override
+    public void fillBuffer(BigDoubleBuffer buffer, long timeSeriesOffset) {
+        Objects.requireNonNull(buffer);
+        forEachMaterializedValueIndex((v, i) -> buffer.put(timeSeriesOffset + i, v));
     }
 
     @Override

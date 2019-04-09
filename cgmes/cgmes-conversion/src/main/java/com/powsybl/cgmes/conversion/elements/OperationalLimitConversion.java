@@ -7,9 +7,9 @@
 
 package com.powsybl.cgmes.conversion.elements;
 
+import com.powsybl.iidm.network.*;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Switch;
@@ -22,29 +22,75 @@ import com.powsybl.triplestore.api.PropertyBag;
  */
 public class OperationalLimitConversion extends AbstractIdentifiedObjectConversion {
 
+    private static final String CURRENT_LIMIT = "CurrentLimit";
+    private static final String LIMIT_TYPE = "limitType";
+    private static final String OPERATIONAL_LIMIT = "Operational limit";
+    private static final String OPERATIONAL_LIMIT_TYPE_NAME = "operationalLimitTypeName";
+    private static final String OPERATIONAL_LIMIT_SUBCLASS = "OperationalLimitSubclass";
+
+    private static final String PERMANENT_CURRENT_LIMIT = "Permanent Current Limit";
+    private static final String TEMPORARY_CURRENT_LIMIT = "Temporary Current Limit";
+
     public OperationalLimitConversion(PropertyBag l, Context context) {
-        super("OperationalLimitSet", l, context);
+        super("OperationalLimit", l, context);
         // Limit can associated to a Terminal or to an Equipment
         terminalId = l.getId("Terminal");
+        equipmentId = l.getId("Equipment");
+        Terminal terminal = null;
         if (terminalId != null) {
             terminal = context.terminalMapping().find(terminalId);
-        }
-        equipmentId = l.getId("Equipment");
-        if (equipmentId != null) {
-            // The equipment may be a Branch, a Dangling line, a Switch ...
-            branch = context.network().getBranch(equipmentId);
-            if (branch == null) {
-                danglingLine = context.network().getDanglingLine(equipmentId);
-                if (danglingLine == null) {
-                    aswitch = context.network().getSwitch(equipmentId);
-                }
+            if (terminal != null) {
+                createCurrentLimitsAdder(context.terminalMapping().number(terminalId), terminal.getConnectable());
             }
+        }
+        if (terminal == null && equipmentId != null) {
+            // The equipment may be a Branch, a Dangling line, a Switch ...
+            Identifiable identifiable = context.network().getIdentifiable(equipmentId);
+            createCurrentLimitsAdder(-1, identifiable);
+        }
+    }
+
+    private void createCurrentLimitsAdder(int terminalNumber, Branch<?> b) {
+        if (terminalNumber == 1) {
+            currentLimitsAdder1 = context.currentLimitsMapping().getCurrentLimitsAdder(b.getId() + "_1", b::newCurrentLimits1);
+        } else if (terminalNumber == 2) {
+            currentLimitsAdder2 = context.currentLimitsMapping().getCurrentLimitsAdder(b.getId() + "_2", b::newCurrentLimits2);
+        } else {
+            notAssigned(b);
+        }
+    }
+
+    private void createCurrentLimitsAdder(int terminalNumber, Identifiable<?> identifiable) {
+        if (identifiable instanceof Line) {
+            Branch<?> b = (Branch<?>) identifiable;
+            if (terminalNumber == -1) {
+                currentLimitsAdder1 = context.currentLimitsMapping().getCurrentLimitsAdder(b.getId() + "_1", b::newCurrentLimits1);
+                currentLimitsAdder2 = context.currentLimitsMapping().getCurrentLimitsAdder(b.getId() + "_2", b::newCurrentLimits2);
+            } else {
+                createCurrentLimitsAdder(terminalNumber, b);
+            }
+        } else if (identifiable instanceof TwoWindingsTransformer) {
+            Branch<?> b = (Branch<?>) identifiable;
+            if (terminalNumber == -1) {
+                context.ignored(CURRENT_LIMIT, "Defined for Equipment TwoWindingsTransformer. Should be defined for one Terminal of Two");
+                notAssigned(b);
+            } else {
+                createCurrentLimitsAdder(terminalNumber, b);
+            }
+        } else if (identifiable instanceof DanglingLine) {
+            DanglingLine danglingLine = (DanglingLine) identifiable;
+            currentLimitsAdder = context.currentLimitsMapping().getCurrentLimitsAdder(danglingLine.getId(), danglingLine::newCurrentLimits);
+        } else if (identifiable instanceof Switch) {
+            Switch aswitch = context.network().getSwitch(equipmentId);
+            notAssigned(aswitch);
+        } else {
+            notAssigned(identifiable);
         }
     }
 
     @Override
     public boolean valid() {
-        if (terminal == null && branch == null && danglingLine == null && aswitch == null) {
+        if (currentLimitsAdder == null && currentLimitsAdder1 == null && currentLimitsAdder2 == null) {
             missing(String.format("Terminal %s or Equipment %s", terminalId, equipmentId));
             return false;
         }
@@ -53,28 +99,18 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
 
     @Override
     public void convert() {
-        // Permanent Admissible Transmission Loading (PATL)
-        if (isPatl()) {
-            convertPatl();
-        }
-        // ... other types of limits should go here
-    }
-
-    private boolean isPatl() {
-        String limitTypeName = p.getLocal("operationalLimitTypeName");
-        String limitType = p.getLocal("limitType");
-        return limitTypeName.equals("PATL") || "LimitTypeKind.patl".equals(limitType);
-    }
-
-    private void convertPatl() {
         double value = p.asDouble("value");
         if (value <= 0) {
-            context.ignored("Operational limit", "PATL value is <= 0");
+            context.ignored(OPERATIONAL_LIMIT, "value is <= 0");
             return;
         }
-        String limitSubclass = p.getLocal("OperationalLimitSubclass");
-        if (limitSubclass == null || limitSubclass.equals("CurrentLimit")) {
-            convertPatlCurrent(value);
+        String limitSubclass = p.getLocal(OPERATIONAL_LIMIT_SUBCLASS);
+        if (limitSubclass == null || limitSubclass.equals(CURRENT_LIMIT)) {
+            if (isPatl()) { // Permanent Admissible Transmission Loading
+                convertPatlCurrent(value);
+            } else if (isTatl()) { // Temporary Admissible Transmission Loading
+                convertTatlCurrent(value);
+            }
         } else if (limitSubclass.equals("ApparentPowerLimit")) {
             notAssigned();
         } else {
@@ -82,47 +118,93 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
         }
     }
 
-    private void convertPatlCurrent(double value) {
-        // Enhancement: we should be able to use a CurrentLimitsAdder (an owner)
-        // to avoid checking the class of the equipment
-        // In terminal mapping insert a CurrentLimitsAdder instead of a Branch.side
-        if (terminal != null) {
-            convertPatlCurrentTerminal(value);
-        } else if (branch != null) {
-            // We should reject the value if the branch is a PowerTransformer
-            if (branch instanceof TwoWindingsTransformer) {
-                context.ignored("CurrentLimit", "Defined for Equipment TwoWindingsTransformer. Should be defined for one Terminal of Two");
-                notAssigned(branch);
-            } else {
-                // Set same limit at both sides
-                branch.newCurrentLimits1().setPermanentLimit(value).add();
-                branch.newCurrentLimits2().setPermanentLimit(value).add();
-            }
-        } else if (danglingLine != null) {
-            danglingLine.newCurrentLimits().setPermanentLimit(value).add();
-        } else if (aswitch != null) {
-            notAssigned(aswitch);
+    private boolean isPatl() {
+        String limitTypeName = p.getLocal(OPERATIONAL_LIMIT_TYPE_NAME);
+        String limitType = p.getLocal(LIMIT_TYPE);
+        return limitTypeName.equals("PATL") || "LimitTypeKind.patl".equals(limitType);
+    }
+
+    private void addPatlCurrent(double value, CurrentLimitsAdder adder) {
+        if (Double.isNaN(adder.getPermanentLimit())) {
+            adder.setPermanentLimit(value);
         } else {
-            notAssigned();
+            if (terminalId != null) {
+                context.fixed(PERMANENT_CURRENT_LIMIT,
+                        String.format("Several permanent limits defined for Terminal %s. Only the lowest is kept.", terminalId));
+            } else {
+                context.fixed(PERMANENT_CURRENT_LIMIT,
+                        String.format("Several permanent limits defined for Equipment %s. Only the lowest is kept.", equipmentId));
+            }
+            if (adder.getPermanentLimit() > value) {
+                adder.setPermanentLimit(value);
+            }
         }
     }
 
-    private void convertPatlCurrentTerminal(double value) {
-        Connectable<?> connectable = terminal.getConnectable();
-        if (connectable instanceof Branch) {
-            int terminalNumber = context.terminalMapping().number(terminalId);
-            Branch<?> b = (Branch<?>) connectable;
-            if (terminalNumber == 1) {
-                b.newCurrentLimits1().setPermanentLimit(value).add();
-            } else if (terminalNumber == 2) {
-                b.newCurrentLimits2().setPermanentLimit(value).add();
-            } else {
-                notAssigned(b);
-            }
-        } else if (connectable instanceof DanglingLine) {
-            ((DanglingLine) connectable).newCurrentLimits().setPermanentLimit(value).add();
+    private void convertPatlCurrent(double value) {
+        if (currentLimitsAdder != null) {
+            addPatlCurrent(value, currentLimitsAdder);
         } else {
-            notAssigned(connectable);
+            if (currentLimitsAdder1 != null) {
+                addPatlCurrent(value, currentLimitsAdder1);
+            }
+            if (currentLimitsAdder2 != null) {
+                addPatlCurrent(value, currentLimitsAdder2);
+            }
+        }
+    }
+
+    private boolean isTatl() {
+        String limitTypeName = p.getLocal(OPERATIONAL_LIMIT_TYPE_NAME);
+        String limitType = p.getLocal(LIMIT_TYPE);
+        return limitTypeName.equals("TATL") || "LimitTypeKind.tatl".equals(limitType);
+    }
+
+    private void addTatlCurrent(String name, double value, int acceptableDuration, CurrentLimitsAdder adder) {
+        if (Double.isNaN(adder.getTemporaryLimitValue(acceptableDuration))) {
+            adder.beginTemporaryLimit()
+                    .setAcceptableDuration(acceptableDuration)
+                    .setName(name)
+                    .setValue(value)
+                    .ensureNameUnicity()
+                    .endTemporaryLimit();
+        } else {
+            if (terminalId != null) {
+                context.fixed(TEMPORARY_CURRENT_LIMIT,
+                        String.format("Several temporary limits defined for same acceptable duration (%d s) for Terminal %s. Only the lowest is kept.", acceptableDuration, terminalId));
+            } else {
+                context.fixed(TEMPORARY_CURRENT_LIMIT,
+                        String.format("Several temporary limits defined for same acceptable duration (%d s) for Equipment %s. Only the lowest is kept.", acceptableDuration, equipmentId));
+            }
+            if (adder.getTemporaryLimitValue(acceptableDuration) > value) {
+                adder.beginTemporaryLimit()
+                        .setAcceptableDuration(acceptableDuration)
+                        .setName(name)
+                        .setValue(value)
+                        .ensureNameUnicity()
+                        .endTemporaryLimit();
+            }
+        }
+    }
+
+    private void convertTatlCurrent(double value) {
+        int acceptableDuration = p.containsKey("acceptableDuration") ? (int) p.asDouble("acceptableDuration") : Integer.MAX_VALUE;
+        // We only accept high or absoluteValue (considered as high when
+        // current from the conducting equipment to the terminal) limits
+        String direction = p.getId("direction");
+
+        // if there is no direction, the limit is considered as absoluteValue (cf. CGMES specification)
+        if (direction == null || direction.endsWith("high") || direction.endsWith("absoluteValue")) {
+            if (currentLimitsAdder != null) {
+                addTatlCurrent(context.namingStrategy().getId("TATL", id), value, acceptableDuration, currentLimitsAdder);
+            } else if (currentLimitsAdder1 != null) {
+                // Should we chose one terminal randomly for branches ? Here by default, we only look at terminal1
+                addTatlCurrent(context.namingStrategy().getId("TATL", id), value, acceptableDuration, currentLimitsAdder1);
+            }
+        } else if (direction.endsWith("low")) {
+            context.invalid(TEMPORARY_CURRENT_LIMIT, String.format("TATL %s is a low limit", id));
+        } else {
+            context.invalid(TEMPORARY_CURRENT_LIMIT, String.format("TATL %s does not have a valid direction", id));
         }
     }
 
@@ -131,9 +213,9 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private void notAssigned(Identifiable<?> eq) {
-        String type = p.getLocal("limitType");
-        String typeName = p.getLocal("operationalLimitTypeName");
-        String subclass = p.getLocal("OperationalLimitSubclass");
+        String type = p.getLocal(LIMIT_TYPE);
+        String typeName = p.getLocal(OPERATIONAL_LIMIT_TYPE_NAME);
+        String subclass = p.getLocal(OPERATIONAL_LIMIT_SUBCLASS);
         String reason = String.format(
                 "Not assigned for %s %s. Limit id, type, typeName, subClass, terminal : %s, %s, %s, %s, %s",
                 eq != null ? className(eq) : "",
@@ -142,8 +224,9 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
                 type,
                 typeName,
                 subclass,
-                terminal);
-        context.pending("Operational limit", reason);
+                terminalId);
+        context.pending(OPERATIONAL_LIMIT, reason);
+        context.pending(OPERATIONAL_LIMIT, reason);
     }
 
     private static String className(Identifiable<?> o) {
@@ -157,10 +240,9 @@ public class OperationalLimitConversion extends AbstractIdentifiedObjectConversi
     }
 
     private final String terminalId;
-    private Terminal terminal;
-
     private final String equipmentId;
-    private Branch<?> branch;
-    private DanglingLine danglingLine;
-    private Switch aswitch;
+
+    private CurrentLimitsAdder currentLimitsAdder;
+    private CurrentLimitsAdder currentLimitsAdder1;
+    private CurrentLimitsAdder currentLimitsAdder2;
 }

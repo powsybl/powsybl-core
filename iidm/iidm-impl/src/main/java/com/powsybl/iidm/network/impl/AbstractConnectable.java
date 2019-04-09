@@ -43,7 +43,7 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
     @Override
     public void remove() {
         NetworkImpl network = getNetwork();
-        network.getObjectStore().remove(this);
+        network.getIndex().remove(this);
         for (TerminalExt terminal : terminals) {
             VoltageLevelExt vl = terminal.getVoltageLevel();
             vl.detach(terminal);
@@ -58,6 +58,8 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+
         for (TerminalExt t : terminals) {
             t.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         }
@@ -65,6 +67,8 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public void reduceVariantArraySize(int number) {
+        super.reduceVariantArraySize(number);
+
         for (TerminalExt t : terminals) {
             t.reduceVariantArraySize(number);
         }
@@ -72,6 +76,8 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public void deleteVariantArrayElement(int index) {
+        super.deleteVariantArrayElement(index);
+
         for (TerminalExt t : terminals) {
             t.deleteVariantArrayElement(index);
         }
@@ -79,6 +85,8 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
 
     @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+        super.allocateVariantArrayElement(indexes, sourceIndex);
+
         for (TerminalExt t : terminals) {
             t.allocateVariantArrayElement(indexes, sourceIndex);
         }

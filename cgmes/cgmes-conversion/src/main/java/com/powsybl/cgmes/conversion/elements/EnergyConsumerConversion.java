@@ -8,7 +8,6 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadAdder;
 import com.powsybl.iidm.network.LoadType;
@@ -26,14 +25,21 @@ public class EnergyConsumerConversion extends AbstractConductingEquipmentConvers
     @Override
     public void convert() {
         LoadType loadType = id.contains("fict") ? LoadType.FICTITIOUS : LoadType.UNDEFINED;
-        PowerFlow f = powerFlow();
         LoadAdder adder = voltageLevel().newLoad()
-                .setP0(f.p())
-                .setQ0(f.q())
+                .setP0(p0())
+                .setQ0(q0())
                 .setLoadType(loadType);
         identify(adder);
         connect(adder);
         Load load = adder.add();
         convertedTerminals(load.getTerminal());
+    }
+
+    private double p0() {
+        return p.containsKey("pfixed") ? p.asDouble("pfixed") : powerFlow().p();
+    }
+
+    private double q0() {
+        return p.containsKey("qfixed") ? p.asDouble("qfixed") : powerFlow().q();
     }
 }

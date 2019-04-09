@@ -102,7 +102,6 @@ public class LoadFlowParametersTest {
                 LoadFlowParameters.DEFAULT_PHASE_SHIFTER_REGULATION_ON, LoadFlowParameters.DEFAULT_SPECIFIC_COMPATIBILITY);
     }
 
-
     @Test
     public void checkSetters() throws Exception {
         boolean transformerVoltageControlOn = true;
@@ -136,7 +135,6 @@ public class LoadFlowParametersTest {
         checkValues(parametersCloned, parameters.getVoltageInitMode(), parameters.isTransformerVoltageControlOn(),
                 parameters.isNoGeneratorReactiveLimits(), parameters.isPhaseShifterRegulationOn(), parameters.isSpecificCompatibility());
     }
-
 
     @Test
     public void testExtensions() {

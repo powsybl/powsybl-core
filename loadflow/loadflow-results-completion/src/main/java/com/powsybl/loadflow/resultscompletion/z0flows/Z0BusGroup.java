@@ -33,7 +33,7 @@ public class Z0BusGroup {
     }
 
     public boolean valid() {
-        return buses.size() > 1;
+        return buses.size() > 1 || loops != null && !loops.isEmpty();
     }
 
     public void exploreZ0(Set<Bus> processed) {
@@ -47,10 +47,14 @@ public class Z0BusGroup {
             b.getLineStream().forEach(line -> {
                 Bus other = other(line, b);
                 if (other != null && z0checker.isZ0(line)) {
-                    addToGraph(line, b, other);
-                    if (!buses.contains(other)) {
-                        buses.add(other);
-                        processed.add(other);
+                    if (b == other) {
+                        addLoop(line);
+                    } else {
+                        addToGraph(line, b, other);
+                        if (!buses.contains(other)) {
+                            buses.add(other);
+                            processed.add(other);
+                        }
                     }
                 }
             });
@@ -63,12 +67,18 @@ public class Z0BusGroup {
             LOG.warn("Z0 flow group not valid for seed bus {}", seed);
             return;
         }
-        computeTreeFromGraph();
-        assignZeroFlowToEdgesOutsideTree();
-        completeFlowsForEdgesInsideTree();
+        if (loops != null) {
+            assignZeroFlowToLoops();
+        }
+        if (graph != null) {
+            computeTreeFromGraph();
+            assignZeroFlowToEdgesOutsideTree();
+            completeFlowsForEdgesInsideTree();
+        }
     }
 
     private void computeTreeFromGraph() {
+        Objects.requireNonNull(graph);
         tree = new KruskalMinimumSpanningTree<>(graph).getSpanningTree();
         levels = new ArrayList<>();
         parent = new HashMap<>();
@@ -112,19 +122,29 @@ public class Z0BusGroup {
     }
 
     private void assignZeroFlowToEdgesOutsideTree() {
+        Objects.requireNonNull(graph);
         graph.edgeSet().forEach(e -> {
             if (!tree.getEdges().contains(e)) {
-                Line line = e.getLine();
-                line.getTerminal1().setP(0.0);
-                line.getTerminal1().setQ(0.0);
-                line.getTerminal2().setP(0.0);
-                line.getTerminal2().setQ(0.0);
-                if (line.getB1() != 0.0 || line.getB2() != 0.0 || line.getG1() != 0.0
-                        || line.getG2() != 0.0) {
-                    LOG.error("Z0 line {} has B1, G1, B2, G2 != 0", line);
-                }
+                assignZeroFlowTo(e.getLine());
             }
         });
+    }
+
+    private void assignZeroFlowToLoops() {
+        Objects.requireNonNull(loops);
+        loops.forEach(this::assignZeroFlowTo);
+    }
+
+    private void assignZeroFlowTo(Line line) {
+        Objects.requireNonNull(line);
+        line.getTerminal1().setP(0.0);
+        line.getTerminal1().setQ(0.0);
+        line.getTerminal2().setP(0.0);
+        line.getTerminal2().setQ(0.0);
+        if (line.getB1() != 0.0 || line.getB2() != 0.0
+                || line.getG1() != 0.0 || line.getG2() != 0.0) {
+            LOG.error("Z0 line {} has B1, G1, B2, G2 != 0", line);
+        }
     }
 
     private void completeFlowsForEdgesInsideTree() {
@@ -158,6 +178,13 @@ public class Z0BusGroup {
         graph.addEdge(b1, b2, new Z0Edge(line));
     }
 
+    private void addLoop(Line line) {
+        if (loops == null) {
+            loops = new ArrayList<>();
+        }
+        loops.add(line);
+    }
+
     private final Bus seed;
     private final Z0LineChecker z0checker;
     private final List<Bus> buses = new ArrayList<>();
@@ -166,6 +193,9 @@ public class Z0BusGroup {
     private SpanningTree<Z0Edge> tree;
     private List<List<Bus>> levels;
     private Map<Bus, Line> parent;
+
+    // Lines with same bus at both ends
+    private List<Line> loops;
 
     private static final Logger LOG = LoggerFactory.getLogger(Z0BusGroup.class);
 }
