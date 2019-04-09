@@ -12,6 +12,7 @@ import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.Partition;
 import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.contingency.ContingenciesProviderFactory;
 import com.powsybl.contingency.ContingenciesProviders;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
@@ -167,7 +168,8 @@ public class SecurityAnalysisTool implements Tool {
         return result;
     }
 
-    private static SecurityAnalysis createSecurityAnalysis(CommandLine line, List<String> extensions, Set<SecurityAnalysisInterceptor> interceptors, Network network, LimitViolationFilter limitViolationFilter, ComputationManager computationManager) {
+    private static SecurityAnalysis createSecurityAnalysis(CommandLine line, List<String> extensions, Set<SecurityAnalysisInterceptor> interceptors, Network network,
+                                                           LimitViolationFilter limitViolationFilter, ComputationManager computationManager, SecurityAnalysisFactory factory) {
         SecurityAnalysis securityAnalysis;
         if (line.hasOption(EXTERNAL)) {
             Integer taskCount = getOptionValue(line, TASK_COUNT).map(Integer::parseInt).orElse(null);
@@ -178,8 +180,7 @@ public class SecurityAnalysisTool implements Tool {
             ExternalSecurityAnalysisConfig config = ExternalSecurityAnalysisConfig.load();
             securityAnalysis = new DistributedSecurityAnalysis(config, network, computationManager, extensions, taskCount);
         } else {
-            securityAnalysis = SecurityAnalysisFactories.newDefaultFactory()
-                    .create(network, new DefaultLimitViolationDetector(), limitViolationFilter, computationManager, 0);
+            securityAnalysis = factory.create(network, new DefaultLimitViolationDetector(), limitViolationFilter, computationManager, 0);
             interceptors.forEach(securityAnalysis::addInterceptor);
         }
         return securityAnalysis;
@@ -187,6 +188,11 @@ public class SecurityAnalysisTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
+        run(line, context, ContingenciesProviders.newDefaultFactory(), SecurityAnalysisFactories.newDefaultFactory());
+
+    }
+
+    void run(CommandLine line, ToolRunningContext context, ContingenciesProviderFactory cf, SecurityAnalysisFactory factory) throws Exception {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));
 
         Set<LimitViolationType> limitViolationTypes = line.hasOption(LIMIT_TYPES_OPTION)
@@ -224,7 +230,7 @@ public class SecurityAnalysisTool implements Tool {
         limitViolationFilter.setViolationTypes(limitViolationTypes);
 
         ContingenciesProvider contingenciesProvider = contingenciesFile != null ?
-                ContingenciesProviders.newDefaultFactory().create(contingenciesFile) : ContingenciesProviders.emptyProvider();
+                cf.create(contingenciesFile) : ContingenciesProviders.emptyProvider();
 
         ComputationManager computationManager = context.getLongTimeExecutionComputationManager();
 
@@ -240,7 +246,7 @@ public class SecurityAnalysisTool implements Tool {
             JsonSecurityAnalysisParameters.update(parameters, parametersFile);
         }
 
-        SecurityAnalysis securityAnalysis = createSecurityAnalysis(line, extensions, interceptors, network, limitViolationFilter, computationManager);
+        SecurityAnalysis securityAnalysis = createSecurityAnalysis(line, extensions, interceptors, network, limitViolationFilter, computationManager, factory);
 
         String currentState = network.getVariantManager().getWorkingVariantId();
 

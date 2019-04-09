@@ -127,6 +127,7 @@ public class DistributedSecurityAnalysis extends ExternalSecurityAnalysis {
     class SubTaskWithLogHandler extends AbstractExecutionHandler<SecurityAnalysisResultWithLog> {
 
         private SubTaskHandler simpleSubTaskHandler;
+        private List<String> collectedLogsFilename;
 
         public SubTaskWithLogHandler(SubTaskHandler subTaskHandler) {
             this.simpleSubTaskHandler = Objects.requireNonNull(subTaskHandler);
@@ -149,14 +150,18 @@ public class DistributedSecurityAnalysis extends ExternalSecurityAnalysis {
         @Override
         public SecurityAnalysisResultWithLog after(Path workingDir, ExecutionReport report) throws IOException {
             SecurityAnalysisResult re = simpleSubTaskHandler.after(workingDir, report);
-            List<String> logs = new ArrayList<>();
+            collectedLogsFilename = new ArrayList<>();
             for (int i = 0; i < simpleSubTaskHandler.getActualTaskCount(); i++) {
-                logs.add(getLogOutputName(i)); // hades logs_IDX.zip
-                logs.add(SubTaskHandler.SA_TASK_CMD_ID + "_" + i + ".out");
-                logs.add(SubTaskHandler.SA_TASK_CMD_ID + "_" + i + ".err");
+                collectedLogsFilename.add(getLogOutputName(i)); // hades logs_IDX.zip
+                collectedLogsFilename.add(SubTaskHandler.SA_TASK_CMD_ID + "_" + i + ".out");
+                collectedLogsFilename.add(SubTaskHandler.SA_TASK_CMD_ID + "_" + i + ".err");
             }
-            byte[] logBytes = ZipHelper.archiveFilesToZipBytes(workingDir, logs);
+            byte[] logBytes = ZipHelper.archiveFilesToZipBytes(workingDir, collectedLogsFilename);
             return new SecurityAnalysisResultWithLog(re, logBytes);
+        }
+
+        List<String> getCollectedLogsFilename() {
+            return collectedLogsFilename;
         }
     }
 }

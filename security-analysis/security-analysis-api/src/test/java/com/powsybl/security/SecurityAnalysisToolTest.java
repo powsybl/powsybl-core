@@ -6,9 +6,14 @@
  */
 package com.powsybl.security;
 
+import com.powsybl.commons.config.ComponentDefaultConfig;
+import com.powsybl.commons.config.MapModuleConfig;
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.computation.ComputationManager;
+import com.powsybl.contingency.ContingenciesProviderFactory;
 import com.powsybl.iidm.import_.ImportConfig;
-import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManager;
 import com.powsybl.tools.AbstractToolTest;
@@ -17,37 +22,32 @@ import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.BDDMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import org.mockito.Mockito;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.nio.file.Path;
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.Properties;
-import java.util.concurrent.CompletableFuture;
 
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Mockito.*;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest({Importers.class, SecurityAnalysisFactories.class})
 public class SecurityAnalysisToolTest extends AbstractToolTest {
 
     private SecurityAnalysisTool tool;
+    private MapModuleConfig moduleConfig;
+    private ComponentDefaultConfig config;
 
     @Override
     @Before
     public void setUp() throws Exception {
-        tool = new SecurityAnalysisTool();
         super.setUp();
+        tool = new SecurityAnalysisTool();
+        Files.createFile(fileSystem.getPath("network.xml"));
     }
 
     @Override
@@ -97,30 +97,50 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
 
             when(context.getShortTimeExecutionComputationManager()).thenReturn(cm);
             when(context.getLongTimeExecutionComputationManager()).thenReturn(cm);
-            mockStatic(Importers.class);
             ImportConfig config = new ImportConfig();
-            Network network = mock(Network.class);
-            when(network.getVariantManager()).thenReturn(mock(VariantManager.class));
-            BDDMockito.given(Importers.loadNetwork(any(Path.class), any(ComputationManager.class), any(ImportConfig.class), any(Properties.class))).willReturn(network);
-            mockStatic(SecurityAnalysisFactories.class);
-            SecurityAnalysisFactory saFactory = mock(SecurityAnalysisFactory.class);
-            SecurityAnalysis sa = mock(SecurityAnalysis.class);
-            SecurityAnalysisResult sar = mock(SecurityAnalysisResult.class);
-            LimitViolationsResult preResult = mock(LimitViolationsResult.class);
-            when(sar.getPreContingencyResult()).thenReturn(preResult);
-            SecurityAnalysisResultWithLog sarl = new SecurityAnalysisResultWithLog(sar, "hi".getBytes());
-            when(saFactory.create(any(), any(), any(), any(), anyInt())).thenReturn(sa);
-            BDDMockito.when(SecurityAnalysisFactories.newDefaultFactory()).thenReturn(saFactory);
-            CompletableFuture<SecurityAnalysisResultWithLog> cfSarl = mock(CompletableFuture.class);
-            when(cfSarl.join()).thenReturn(sarl);
-            when(sa.runWithLog(any(), any(), any())).thenReturn(cfSarl);
+
+            SecurityAnalysisFactory saFactory = new SecurityAnalysisMockFactory();
+            SecurityAnalysis sa = saFactory.create(null, cm, 1);
 
             // execute
-            tool.run(cl, context);
+            tool.run(cl, context, mock(ContingenciesProviderFactory.class), saFactory);
 
             // verify that runWithLog() called instead of run();
             verify(sa, never()).run(any(), any(), any());
             verify(sa, times(1)).runWithLog(any(), any(), any());
+        }
+    }
+
+    private static class ImporterMock implements Importer {
+
+        static final String FORMAT = "net";
+
+        @Override
+        public String getFormat() {
+            return FORMAT;
+        }
+
+        @Override
+        public String getComment() {
+            return "";
+        }
+
+        @Override
+        public boolean exists(ReadOnlyDataSource dataSource) {
+            return true;
+        }
+
+        @Override
+        public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
+            Network network = Mockito.mock(Network.class);
+            VariantManager variantManager = Mockito.mock(VariantManager.class);
+            Mockito.when(variantManager.getWorkingVariantId()).thenReturn("s1");
+            Mockito.when(network.getVariantManager()).thenReturn(variantManager);
+            return network;
+        }
+
+        @Override
+        public void copy(ReadOnlyDataSource fromDataSource, DataSource toDataSource) {
         }
     }
 }

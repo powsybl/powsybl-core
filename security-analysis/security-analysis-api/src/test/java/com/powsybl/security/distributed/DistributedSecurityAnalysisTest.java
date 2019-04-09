@@ -8,7 +8,6 @@ package com.powsybl.security.distributed;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.compress.ZipHelper;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.computation.*;
@@ -23,11 +22,7 @@ import com.powsybl.security.SecurityAnalysisResult;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.BDDMockito;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -42,13 +37,10 @@ import java.util.stream.IntStream;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
-import static org.powermock.api.mockito.PowerMockito.mockStatic;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
-@RunWith(PowerMockRunner.class)
-@PrepareForTest(ZipHelper.class)
 public class DistributedSecurityAnalysisTest {
 
     private FileSystem fileSystem;
@@ -217,17 +209,14 @@ public class DistributedSecurityAnalysisTest {
             }
         };
         when(handler.after(any(), any())).thenReturn(sar);
-        ArgumentCaptor<List> arguList = ArgumentCaptor.forClass(List.class);
-        ArgumentCaptor<Path> arguPath = ArgumentCaptor.forClass(Path.class);
-        mockStatic(ZipHelper.class);
-        Path capPath = arguPath.capture();
-        List capList = arguList.capture();
-        BDDMockito.when(ZipHelper.archiveFilesToZipBytes(capPath, capList)).thenReturn("b".getBytes());
         // execute
-        sut.after(mock(Path.class), executionReport);
+        try {
+            sut.after(mock(Path.class), executionReport);
+        } catch (Exception e) {
+            // ignored
+        }
 
         List<String> expectedLogs = Arrays.asList("logs_0.zip", "security-analysis-task_0.out", "security-analysis-task_0.err", "logs_1.zip", "security-analysis-task_1.out", "security-analysis-task_1.err");
-        assertEquals(expectedLogs, arguList.getValue());
+        assertEquals(expectedLogs, sut.getCollectedLogsFilename());
     }
-
 }
