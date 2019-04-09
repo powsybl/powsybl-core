@@ -45,11 +45,12 @@ public class Context {
         terminalMapping = new TerminalMapping();
         tapChangerTransformers = new TapChangerTransformers();
         dcMapping = new DcMapping(this);
-        currentLimitsMapping = new CurrentLimitsMapping();
+        currentLimitsMapping = new CurrentLimitsMapping(this);
         nodeMapping = new NodeMapping();
 
         ratioTapChangerTables = new HashMap<>();
         remoteRegulatingTerminals = new HashMap<>();
+        reactiveCapabilityCurveData = new HashMap<>();
     }
 
     public CgmesModel cgmes() {
@@ -108,6 +109,21 @@ public class Context {
     public static String boundarySubstationId(String nodeId) {
         Objects.requireNonNull(nodeId);
         return nodeId + "_S";
+    }
+
+    public void loadReactiveCapabilityCurveData() {
+        PropertyBags rccdata = cgmes.reactiveCapabilityCurveData();
+        if (rccdata == null) {
+            return;
+        }
+        rccdata.forEach(p -> {
+            String curveId = p.getId("ReactiveCapabilityCurve");
+            reactiveCapabilityCurveData.computeIfAbsent(curveId, cid -> new PropertyBags()).add(p);
+        });
+    }
+
+    public PropertyBags reactiveCapabilityCurveData(String curveId) {
+        return reactiveCapabilityCurveData.get(curveId);
     }
 
     public void loadRatioTapChangerTables() {
@@ -214,6 +230,7 @@ public class Context {
 
     private final Map<String, PropertyBags> ratioTapChangerTables;
     private final Map<String, String> remoteRegulatingTerminals;
+    private final Map<String, PropertyBags> reactiveCapabilityCurveData;
 
     private int countLines;
     private int countLinesWithSvPowerFlowsAtEnds;

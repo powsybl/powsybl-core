@@ -17,7 +17,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class SynchronousMachineConversion extends AbstractConductingEquipmentConversion {
+public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerConversion {
 
     public SynchronousMachineConversion(PropertyBag sm, Context context) {
         super("SynchronousMachine", sm, context);

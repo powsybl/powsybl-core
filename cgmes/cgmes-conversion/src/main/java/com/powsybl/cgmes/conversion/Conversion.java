@@ -168,6 +168,7 @@ public class Conversion {
         context.substationIdMapping().build();
         context.dc().initialize();
         context.loadRatioTapChangerTables();
+        context.loadReactiveCapabilityCurveData();
         profiling.end("createContext");
         return context;
     }
