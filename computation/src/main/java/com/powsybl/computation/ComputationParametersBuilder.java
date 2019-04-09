@@ -15,7 +15,7 @@ import java.util.Objects;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ComputationOptionsBuilder {
+public class ComputationParametersBuilder {
 
     private final Map<String, Long> timeoutMap = new HashMap<>();
 
@@ -23,31 +23,31 @@ public class ComputationOptionsBuilder {
 
     private final Map<String, String> qosMap = new HashMap<>();
 
-    public ComputationOptionsBuilder() {
+    public ComputationParametersBuilder() {
     }
 
-    public ComputationOptionsBuilder setTimeout(String cmdId, long seconds) {
+    public ComputationParametersBuilder setTimeout(String cmdId, long seconds) {
         Objects.requireNonNull(cmdId);
         Preconditions.checkArgument(seconds > 0, "Timeout must be positive.");
         timeoutMap.put(cmdId, seconds);
         return this;
     }
 
-    public ComputationOptionsBuilder setDeadline(String cmdId, long seconds) {
+    public ComputationParametersBuilder setDeadline(String cmdId, long seconds) {
         Objects.requireNonNull(cmdId);
         Preconditions.checkArgument(seconds > 0, "Deadline must be positive.");
         deadlineMap.put(cmdId, seconds);
         return this;
     }
 
-    public ComputationOptionsBuilder setQos(String cmdId, String qos) {
+    public ComputationParametersBuilder setQos(String cmdId, String qos) {
         Objects.requireNonNull(cmdId);
         Objects.requireNonNull(qos);
         qosMap.put(cmdId, qos);
         return this;
     }
 
-    public ComputationOptions build() {
-        return new ComputationOptionsImpl(timeoutMap, deadlineMap, qosMap);
+    public ComputationParameters build() {
+        return new ComputationParametersImpl(timeoutMap, deadlineMap, qosMap);
     }
 }

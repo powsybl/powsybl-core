@@ -12,7 +12,7 @@ import java.util.OptionalLong;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public interface ComputationOptions {
+public interface ComputationParameters {
 
     /**
      * Returns an optional describing the execution time limit in seconds, the waiting time in queue is not inclued. See
@@ -32,8 +32,8 @@ public interface ComputationOptions {
 
     Optional<String> getQos(String commandId);
 
-    static ComputationOptions empty() {
-        return new ComputationOptions() {
+    static ComputationParameters empty() {
+        return new ComputationParameters() {
             @Override
             public OptionalLong getTimeout(String commandId) {
                 return OptionalLong.empty();

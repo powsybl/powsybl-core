@@ -13,11 +13,11 @@ import static org.junit.Assert.*;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ComputationOptionsTest {
+public class ComputationParametersTest {
 
     @Test
     public void testEmpty() {
-        ComputationOptions empty = ComputationOptions.empty();
+        ComputationParameters empty = ComputationParameters.empty();
         assertFalse(empty.getTimeout("cmd").isPresent());
         assertFalse(empty.getQos("cmd").isPresent());
     }
@@ -25,7 +25,7 @@ public class ComputationOptionsTest {
     @Test
     public void testBuilder() {
         String cmdId = "cmd";
-        ComputationOptions opts = new ComputationOptionsBuilder()
+        ComputationParameters opts = new ComputationParametersBuilder()
                 .setTimeout(cmdId, 10)
                 .setQos(cmdId, "p1")
                 .setDeadline(cmdId, 42)
@@ -43,7 +43,7 @@ public class ComputationOptionsTest {
     @Test
     public void testInvalid() {
         try {
-            ComputationOptions opts = new ComputationOptionsBuilder()
+            ComputationParameters opts = new ComputationParametersBuilder()
                     .setTimeout("inv", 0)
                     .build();
             fail();

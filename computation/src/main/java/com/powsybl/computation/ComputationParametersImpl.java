@@ -11,7 +11,7 @@ import java.util.*;
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ComputationOptionsImpl implements ComputationOptions {
+public class ComputationParametersImpl implements ComputationParameters {
 
     private final Map<String, Long> timeoutMap;
 
@@ -19,7 +19,7 @@ public class ComputationOptionsImpl implements ComputationOptions {
 
     private final Map<String, String> qosMap;
 
-    ComputationOptionsImpl(Map<String, Long> timeoutMap, Map<String, Long> deadlineMap, Map<String, String> qosMap) {
+    ComputationParametersImpl(Map<String, Long> timeoutMap, Map<String, Long> deadlineMap, Map<String, String> qosMap) {
         this.timeoutMap = Collections.unmodifiableMap(timeoutMap);
         this.deadlineMap = Collections.unmodifiableMap(deadlineMap);
         this.qosMap = Collections.unmodifiableMap(qosMap);
