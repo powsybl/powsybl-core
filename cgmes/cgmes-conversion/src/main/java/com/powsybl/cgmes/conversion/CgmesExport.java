@@ -20,6 +20,8 @@ import com.powsybl.cgmes.model.Subset;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.*;
+import com.powsybl.triplestore.api.CgmesContext;
+import com.powsybl.triplestore.api.CgmesProfile;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -60,7 +62,7 @@ public class CgmesExport implements Exporter {
     }
 
     private void addStateVariables(Network n, CgmesModel cgmes) {
-        String contextName = "SV";
+        CgmesContext context = new CgmesContext(CgmesProfile.SV);
 
         // TODO Add full model data with proper profile (StateVariables)
 
@@ -72,7 +74,7 @@ public class CgmesExport implements Exporter {
             p.put("TopologicalNode", topologicalNodeFromBusId(b.getId()));
             voltages.add(p);
         }
-        cgmes.add(contextName, "SvVoltage", voltages);
+        cgmes.add(context, "SvVoltage", voltages);
 
         PropertyBags powerFlows = new PropertyBags();
         for (Load l : n.getLoads()) {
@@ -84,7 +86,7 @@ public class CgmesExport implements Exporter {
         for (ShuntCompensator s : n.getShuntCompensators()) {
             powerFlows.add(createPowerFlowProperties(cgmes, s.getTerminal()));
         }
-        cgmes.add(contextName, "SvPowerFlow", powerFlows);
+        cgmes.add(context, "SvPowerFlow", powerFlows);
 
         PropertyBags shuntCompensatorSections = new PropertyBags();
         for (ShuntCompensator s : n.getShuntCompensators()) {
@@ -93,7 +95,7 @@ public class CgmesExport implements Exporter {
             p.put("ShuntCompensator", s.getId());
             shuntCompensatorSections.add(p);
         }
-        cgmes.add(contextName, "SvShuntCompensatorSections", shuntCompensatorSections);
+        cgmes.add(context, "SvShuntCompensatorSections", shuntCompensatorSections);
 
         PropertyBags tapSteps = new PropertyBags();
         for (TwoWindingsTransformer t : n.getTwoWindingsTransformers()) {
@@ -110,7 +112,7 @@ public class CgmesExport implements Exporter {
                 tapSteps.add(p);
             }
         }
-        cgmes.add(contextName, "SvTapStep", tapSteps);
+        cgmes.add(context, "SvTapStep", tapSteps);
     }
 
     private PropertyBag createPowerFlowProperties(CgmesModel cgmes, Terminal terminal) {

@@ -9,10 +9,12 @@ package com.powsybl.triplestore.impl.jena;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -38,6 +40,8 @@ import org.apache.jena.vocabulary.RDF;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
+import com.powsybl.triplestore.api.CgmesContext;
+import com.powsybl.triplestore.api.Namespace;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStoreException;
@@ -150,42 +154,67 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void add(String graph, String objType, PropertyBags statements) {
-        String name = null;
-        Iterator<String> k = dataset.listNames();
-        while (k.hasNext()) {
-            String n = k.next();
-            if (n.contains("EQ")) {
-                name = n.replace("EQ", graph);
-                break;
-            }
-        }
+    public void add(CgmesContext cgmesContext, String objNs, String objType, PropertyBags statements) {
+        String context = getContextName(cgmesContext);
 
-        String context = name;
-        Model m = dataset.getNamedModel(context);
-        if (m == null) {
-            m = ModelFactory.createDefaultModel();
-            m.setNsPrefixes(union.getNsPrefixMap());
-        }
+        Model m = getModel(context);
 
         for (PropertyBag statement : statements) {
-            createStatements(m, objType, statement);
+            createStatements(m, objNs, objType, statement);
         }
         dataset.addNamedModel(context, m);
         union = union.union(m);
     }
 
-    private void createStatements(Model m, String objType, PropertyBag statement) {
+    @Override
+    public String add(CgmesContext cgmesContext, String objNs, String objType, PropertyBag properties) {
+        String context = getContextName(cgmesContext);
+        Model m = getModel(context);
+        String id = createStatements(m, objNs, objType, properties);
+        dataset.addNamedModel(context, m);
+        union = union.union(m);
+        return id;
+    }
+
+    private String getContextName(CgmesContext cgmesContext) {
+        String name = null;
+        Iterator<String> k = dataset.listNames();
+        while (k.hasNext()) {
+            String n = k.next();
+            if (n.contains("EQ")) {
+                name = n.replace("EQ", cgmesContext.getProfile().name());
+                break;
+            }
+        }
+        if (name == null) {
+            name = namespaceForContexts() + cgmesContext.getName();
+        }
+        return name;
+    }
+
+    private Model getModel(String context) {
+        Model m = dataset.getNamedModel(context);
+        if (m == null) {
+            m = ModelFactory.createDefaultModel();
+        }
+        if (m.getNsPrefixMap().isEmpty()) {
+            m.setNsPrefixes(union.getNsPrefixMap());
+        }
+        return m;
+    }
+
+    private String createStatements(Model m, String objNs, String objType, PropertyBag statement) {
 
         Resource resource = m.createResource(JenaUUID.generate().asString());
         Property parentPredicate = RDF.type;
-        Resource parentObject = m.createResource(objType);
+        Resource parentObject = m.createResource(objNs + objType);
         Statement parentSt = m.createStatement(resource, parentPredicate, parentObject);
         m.add(parentSt);
 
         List<String> names = statement.propertyNames();
         names.forEach(name -> {
-            Property predicate = m.createProperty(objType + "." + name);
+            String property = statement.isClassProperty(name) ? name : objType + "." + name;
+            Property predicate = m.createProperty(objNs + property);
             Statement st;
             if (statement.isResource(name)) {
                 String namespace = m.getNsPrefixURI(statement.namespacePrefix(name));
@@ -197,6 +226,7 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
             }
             m.add(st);
         });
+        return resource.toString();
     }
 
     private QueryExecution queryExecutionFromQueryText(String query) {
@@ -276,7 +306,23 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
         return namespaceForContexts() + contextName;
     }
 
+    @Override
+    public void addNamespace(String prefix, String namespace) {
+        union.setNsPrefix(prefix, namespace);
+    }
+
+    @Override
+    public List<Namespace> getNamespaces() {
+        List<Namespace> namespaces = new ArrayList<>();
+        Map<String, String> namespacesMap = union.getNsPrefixMap();
+        namespacesMap.keySet().forEach(prefix -> {
+            namespaces.add(new com.powsybl.triplestore.api.Namespace(prefix, namespacesMap.get(prefix)));
+        });
+        return namespaces;
+    }
+
     private final Dataset dataset;
     private Model union;
     private RDFWriter writer;
+
 }

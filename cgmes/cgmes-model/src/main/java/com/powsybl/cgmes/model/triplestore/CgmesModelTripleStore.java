@@ -23,6 +23,7 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.Subset;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.triplestore.api.CgmesContext;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.QueryCatalog;
@@ -440,11 +441,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public void add(String contextName, String type, PropertyBags objects) {
+    public void add(CgmesContext context, String type, PropertyBags objects) {
         try {
-            tripleStore.add(contextName, cimNamespace + type, objects);
+            tripleStore.add(context, cimNamespace, type, objects);
         } catch (TripleStoreException x) {
-            String msg = String.format("Adding objects of type %s to context %s", type, contextName);
+            String msg = String.format("Adding objects of type %s to context %s", type, context.getProfile().name());
             throw new CgmesModelException(msg, x);
         }
     }

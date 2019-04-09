@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -45,6 +46,7 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
+import com.powsybl.triplestore.api.CgmesContext;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStoreException;
@@ -171,38 +173,57 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void add(String graph, String objType, PropertyBags statements) {
+    public void add(CgmesContext cgmesContext, String objNs, String objType, PropertyBags statements) {
         try (RepositoryConnection conn = repo.getConnection()) {
             conn.setIsolationLevel(IsolationLevels.NONE);
 
-            String name = null;
-            RepositoryResult<Resource> ctxs = conn.getContextIDs();
-            while (ctxs.hasNext()) {
-                String ctx = ctxs.next().stringValue();
-                if (ctx.contains("EQ")) {
-                    name = ctx.replace("EQ", graph);
-                    break;
-                }
-            }
+            String name = getContextName(conn, cgmesContext);
 
             Resource context = conn.getValueFactory().createIRI(name);
 
-            statements.forEach(statement -> createStatements(conn, objType, statement, context));
+            statements.forEach(statement -> createStatements(conn, objNs, objType, statement, context));
         }
     }
 
-    private static void createStatements(RepositoryConnection cnx, String objType, PropertyBag statement,
+    @Override
+    public String add(CgmesContext cgmesContext, String objNs, String objType, PropertyBag properties) {
+        try (RepositoryConnection conn = repo.getConnection()) {
+            conn.setIsolationLevel(IsolationLevels.NONE);
+            String name = getContextName(conn, cgmesContext);
+            Resource context = conn.getValueFactory().createIRI(name);
+            return createStatements(conn, objNs, objType, properties, context);
+        }
+    }
+
+    private String getContextName(RepositoryConnection conn, CgmesContext cgmesContext) {
+        String name = null;
+        RepositoryResult<Resource> ctxs = conn.getContextIDs();
+        while (ctxs.hasNext()) {
+            String ctx = ctxs.next().stringValue();
+            if (ctx.contains("EQ")) {
+                name = ctx.replace("EQ", cgmesContext.getProfile().name());
+                break;
+            }
+        }
+        if (name == null) {
+            name = namespaceForContexts() + cgmesContext.getName();
+        }
+        return name;
+    }
+
+    private static String createStatements(RepositoryConnection cnx, String objNs, String objType, PropertyBag statement,
             Resource context) {
         UUID uuid = new UUID();
         IRI resource = uuid.evaluate(cnx.getValueFactory());
         IRI parentPredicate = RDF.TYPE;
-        IRI parentObject = cnx.getValueFactory().createIRI(objType);
+        IRI parentObject = cnx.getValueFactory().createIRI(objNs + objType);
         Statement parentSt = cnx.getValueFactory().createStatement(resource, parentPredicate, parentObject);
         cnx.add(parentSt, context);
 
         List<String> names = statement.propertyNames();
         names.forEach(name -> {
-            IRI predicate = cnx.getValueFactory().createIRI(objType + "." + name);
+            String property = statement.isClassProperty(name) ? name : objType + "." + name;
+            IRI predicate = cnx.getValueFactory().createIRI(objNs + property);
             Statement st;
             if (statement.isResource(name)) {
                 String namespace = cnx.getNamespace(statement.namespacePrefix(name));
@@ -214,6 +235,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
             }
             cnx.add(st, context);
         });
+        return "_" + resource.getLocalName();
     }
 
     private static void write(Model m, OutputStream out) {
@@ -251,7 +273,28 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         return conn.getValueFactory().createIRI(namespaceForContexts(), name1);
     }
 
+    @Override
+    public void addNamespace(String prefix, String namespace) {
+        try (RepositoryConnection conn = repo.getConnection()) {
+            conn.setNamespace(prefix, namespace);
+        }
+    }
+
+    @Override
+    public List<com.powsybl.triplestore.api.Namespace> getNamespaces() {
+        List<com.powsybl.triplestore.api.Namespace> namespaces = new ArrayList<>();
+        try (RepositoryConnection conn = repo.getConnection()) {
+            RepositoryResult<Namespace> ns = conn.getNamespaces();
+            while (ns.hasNext()) {
+                Namespace namespace = ns.next();
+                namespaces.add(new com.powsybl.triplestore.api.Namespace(namespace.getPrefix(), namespace.getName()));
+            }
+        }
+        return namespaces;
+    }
+
     private final Repository repo;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TripleStoreRDF4J.class);
+
 }

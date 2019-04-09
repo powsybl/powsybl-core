@@ -15,6 +15,7 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.Subset;
 import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.triplestore.api.CgmesContext;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import org.mockito.Mockito;
@@ -476,7 +477,7 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
-    public void add(String contextName, String type, PropertyBags objects) {
+    public void add(CgmesContext context, String type, PropertyBags objects) {
         // FakeCgmesModel, no need to implement storage of objects
     }
 

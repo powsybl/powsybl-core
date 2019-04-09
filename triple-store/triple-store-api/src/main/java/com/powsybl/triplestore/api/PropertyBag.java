@@ -7,6 +7,7 @@
 
 package com.powsybl.triplestore.api;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
@@ -173,7 +174,8 @@ public class PropertyBag extends HashMap<String, String> {
     public boolean isResource(String name) {
         // TODO do not rely on property name, use metadata or answer based on value?
         return name.equals("TopologicalNode") || name.equals("Terminal")
-                || name.equals("ShuntCompensator") || name.equals("TapChanger");
+                || name.equals("ShuntCompensator") || name.equals("TapChanger")
+                || resourceNames.contains(name);
     }
 
     public String namespacePrefix(String name) {
@@ -181,8 +183,22 @@ public class PropertyBag extends HashMap<String, String> {
         return NAMESPACE_PREFIX;
     }
 
+    public void setResourceNames(List<String> resourceNames) {
+        this.resourceNames = Objects.requireNonNull(resourceNames);
+    }
+
+    public void setClassPropertyNames(List<String> classPropertyNames) {
+        this.classPropertyNames = Objects.requireNonNull(classPropertyNames);
+    }
+
+    public boolean isClassProperty(String name) {
+        return classPropertyNames.contains(name);
+    }
+
     private final List<String> propertyNames;
     private final boolean removeInitialUnderscoreForIdentifiers;
+    private List<String> resourceNames = new ArrayList<>();
+    private List<String> classPropertyNames = new ArrayList<>();
 
     private static final String NAMESPACE_PREFIX = "data";
     private static final String INDENTATION = "    ";

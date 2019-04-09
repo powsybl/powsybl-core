@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
@@ -50,6 +51,7 @@ import com.bigdata.rdf.sail.BigdataSailRepository;
 import com.bigdata.rdf.store.AbstractTripleStore;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
+import com.powsybl.triplestore.api.CgmesContext;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStoreException;
@@ -247,60 +249,97 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void add(String graph, String objType, PropertyBags statements) {
+    public void add(CgmesContext cgmesContext, String objNs, String objType, PropertyBags statements) {
         RepositoryConnection cnx = null;
         try {
             cnx = repo.getConnection();
-            addStatements(cnx, graph, objType, statements);
+            addStatements(cnx, cgmesContext, objNs, objType, statements);
 
         } catch (RepositoryException x) {
-            throw new TripleStoreException(String.format("Adding statements for graph %s", graph), x);
+            throw new TripleStoreException(String.format("Adding statements for graph %s", cgmesContext.getProfile().name()), x);
         } finally {
             if (cnx != null) {
                 try {
                     cnx.close();
                 } catch (RepositoryException x) {
-                    LOG.error("Adding statements for graph {}. Closing repository connection", graph);
+                    LOG.error("Adding statements for graph {}. Closing repository connection", cgmesContext.getProfile().name());
                 }
             }
         }
     }
 
-    private void addStatements(RepositoryConnection cnx, String graph, String objType, PropertyBags statements)
+    @Override
+    public String add(CgmesContext cgmesContext, String objNs, String objType, PropertyBag properties) {
+        RepositoryConnection cnx = null;
+        try {
+            cnx = repo.getConnection();
+            return addStatement(cnx, cgmesContext, objNs, objType, properties);
+        } catch (RepositoryException x) {
+            throw new TripleStoreException(String.format("Adding statements for graph %s", cgmesContext.getProfile().name()), x);
+        } finally {
+            if (cnx != null) {
+                try {
+                    cnx.close();
+                } catch (RepositoryException x) {
+                    LOG.error("Adding statements for graph {}. Closing repository connection", cgmesContext.getProfile().name());
+                }
+            }
+        }
+    }
+
+    private void addStatements(RepositoryConnection cnx, CgmesContext cgmesContext, String objNs, String objType, PropertyBags statements)
             throws RepositoryException {
 
         cnx.begin();
 
-        String name = null;
-        RepositoryResult<Resource> ctxs = cnx.getContextIDs();
-        while (ctxs.hasNext()) {
-            String ctx = ctxs.next().stringValue();
-            if (ctx.contains("EQ")) {
-                name = ctx.replace("EQ", graph);
-                break;
-            }
-        }
+        String name = getContextName(cnx, cgmesContext);
 
         Resource context = cnx.getValueFactory().createURI(name);
         for (PropertyBag statement : statements) {
-            createStatements(cnx, objType, statement, context);
+            createStatements(cnx, objNs, objType, statement, context);
         }
 
         cnx.commit();
     }
 
-    private static void createStatements(RepositoryConnection cnx, String objType, PropertyBag statement,
+    private String addStatement(RepositoryConnection cnx, CgmesContext cgmesContext, String objNs, String objType, PropertyBag properties) throws RepositoryException {
+        cnx.begin();
+        String name = getContextName(cnx, cgmesContext);
+        Resource context = cnx.getValueFactory().createURI(name);
+        String id = createStatements(cnx, objNs, objType, properties, context);
+        cnx.commit();
+        return id;
+    }
+
+    private String getContextName(RepositoryConnection cnx, CgmesContext cgmesContext) throws RepositoryException {
+        String name = null;
+        RepositoryResult<Resource> ctxs = cnx.getContextIDs();
+        while (ctxs.hasNext()) {
+            String ctx = ctxs.next().stringValue();
+            if (ctx.contains("EQ")) {
+                name = ctx.replace("EQ", cgmesContext.getProfile().name());
+                break;
+            }
+        }
+        if (name == null) {
+            name = namespaceForContexts() + cgmesContext.getName();
+        }
+        return name;
+    }
+
+    private static String createStatements(RepositoryConnection cnx, String objNs, String objType, PropertyBag statement,
             Resource context) {
         try {
             UUID uuid = new UUID();
             URI resource = uuid.evaluate(cnx.getValueFactory());
             URI parentPredicate = RDF.TYPE;
-            Literal parentObject = cnx.getValueFactory().createLiteral(objType);
+            Literal parentObject = cnx.getValueFactory().createLiteral(objNs + objType);
             Statement parentSt = cnx.getValueFactory().createStatement(resource, parentPredicate, parentObject);
             cnx.add(parentSt, context);
 
             for (String name : statement.propertyNames()) {
-                URI predicate = cnx.getValueFactory().createURI(objType + "." + name);
+                String property = statement.isClassProperty(name) ? name : objType + "." + name;
+                URI predicate = cnx.getValueFactory().createURI(objNs + property);
                 Statement st;
                 if (statement.isResource(name)) {
                     String namespace = cnx.getNamespace(statement.namespacePrefix(name));
@@ -312,8 +351,9 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
                 }
                 cnx.add(st, context);
             }
+            return resource.getLocalName();
         } catch (Exception x) {
-            throw new TripleStoreException(String.format("Creating statements for object type %s", objType), x);
+            throw new TripleStoreException(String.format("Creating statements for object type %s", objNs + objType), x);
         }
     }
 
@@ -386,9 +426,54 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         return conn.getValueFactory().createURI(namespaceForContexts(), name1);
     }
 
+    @Override
+    public void addNamespace(String prefix, String namespace) {
+        RepositoryConnection cnx = null;
+        try {
+            cnx = repo.getConnection();
+            cnx.setNamespace(prefix, namespace);
+        } catch (RepositoryException x) {
+            throw new TripleStoreException(String.format("Adding namespace %s", namespace), x);
+        } finally {
+            if (cnx != null) {
+                try {
+                    cnx.close();
+                } catch (RepositoryException x) {
+                    LOG.error(x.getMessage());
+                }
+            }
+        }
+    }
+
+    @Override
+    public List<com.powsybl.triplestore.api.Namespace> getNamespaces() {
+        List<com.powsybl.triplestore.api.Namespace> namespaces = new ArrayList<>();
+        RepositoryConnection cnx = null;
+        try {
+            cnx = repo.getConnection();
+            RepositoryResult<Namespace> ns = cnx.getNamespaces();
+            while (ns.hasNext()) {
+                Namespace namespace = ns.next();
+                namespaces.add(new com.powsybl.triplestore.api.Namespace(namespace.getPrefix(), namespace.getName()));
+            }
+        } catch (RepositoryException x) {
+            throw new TripleStoreException(String.format("Getting namespaces"), x);
+        } finally {
+            if (cnx != null) {
+                try {
+                    cnx.close();
+                } catch (RepositoryException x) {
+                    LOG.error(x.getMessage());
+                }
+            }
+        }
+        return namespaces;
+    }
+
     private final Repository repo;
 
     private static final Logger LOG = LoggerFactory.getLogger(TripleStoreBlazegraph.class);
 
     private static final boolean PRINT_ALL_STATEMENTS = false;
+
 }

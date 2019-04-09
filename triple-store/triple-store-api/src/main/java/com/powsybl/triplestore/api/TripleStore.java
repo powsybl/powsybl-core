@@ -9,6 +9,7 @@ package com.powsybl.triplestore.api;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -33,7 +34,14 @@ public interface TripleStore {
 
     PropertyBags query(String query);
 
-    void add(String contextName, String type, PropertyBags objects);
+    void add(CgmesContext context, String namespace, String type, PropertyBags objects);
+
+    String add(CgmesContext context, String namespace, String type, PropertyBag properties);
 
     Set<String> contextNames();
+
+    void addNamespace(String prefix, String namespace);
+
+    List<Namespace> getNamespaces();
+
 }
