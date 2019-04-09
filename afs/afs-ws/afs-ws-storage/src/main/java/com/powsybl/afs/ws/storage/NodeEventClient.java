@@ -68,9 +68,10 @@ public class NodeEventClient {
     @OnClose
     public void onClose(Session session) {
         if (config.isAutoreconnectEnabled()) {
+            LOGGER.warn("Node event websocket session '{}' closed for file system '{}'. Auto-reconnection is enabled.", session.getId(), fileSystemName);
             toReconnectInAfs(session);
         } else {
-            LOGGER.warn("Node event websocket session '{}' closed for file system '{}'", session.getId(), fileSystemName);
+            LOGGER.error("Node event websocket session '{}' closed for file system '{}'. Auto-reconnection is disabled.", session.getId(), fileSystemName);
         }
     }
 
@@ -78,12 +79,12 @@ public class NodeEventClient {
         int currentReconnectionInterval = config.getReconnectionInitialInterval();
         int counter = 0;
         boolean toReconnection = true;
-        long dateInitial = Instant.now().getEpochSecond();
+        long closedTime = Instant.now().getEpochSecond();
         while (toReconnection) {
 
-            long dateReconnection = Instant.now().getEpochSecond();
-            if (dateReconnection - dateInitial > config.getReconnectionMax()) {
-                LOGGER.error("Node event websocket session '{}' closed for file system '{} with reconnection maximum timeout reached ={}'", session.getId(), fileSystemName, dateReconnection - dateInitial);
+            long currentTime = Instant.now().getEpochSecond();
+            if (currentTime - closedTime > config.getReconnectionMax()) {
+                LOGGER.error("Node event websocket session '{}' closed for file system '{} with reconnection maximum timeout reached ={}'", session.getId(), fileSystemName, currentTime - closedTime);
                 return;
             }
             currentReconnectionInterval = updateReconnectionInterval(counter, currentReconnectionInterval);
@@ -91,16 +92,18 @@ public class NodeEventClient {
                 URI wsUri = RemoteListenableAppStorage.getWebSocketUri(config.getRestUri());
                 URI endPointUri = URI.create(wsUri + "/messages/" + AfsRestApi.RESOURCE_ROOT + "/" +
                         AfsRestApi.VERSION + "/node_events/" + fileSystemName);
-                LOGGER.info("Connecting to node event websocket at {}", endPointUri);
+                LOGGER.info("Trying to reconnect to node event websocket for file system '{}' at {}", fileSystemName, endPointUri);
                 WebSocketContainer container = ContainerProvider.getWebSocketContainer();
                 container.connectToServer(this, endPointUri);
                 toReconnection = false;
+                LOGGER.info("Reconnected successfully to node event websocket for file system '{}' at {}", fileSystemName, endPointUri);
 
             } catch (DeploymentException e) {
                 if (e.getCause().getCause() instanceof ConnectException) {
                     try {
                         LOGGER.warn(e.getCause().getCause().getMessage());
                         counter = counter + 1;
+                        LOGGER.warn("Failed to reconnect to node event websocket for file system {}. Will retry in {} seconds.", fileSystemName, currentReconnectionInterval);
                         sleep(currentReconnectionInterval * 1000L);
                     } catch (InterruptedException e1) {
                         Thread.currentThread().interrupt();
@@ -108,7 +111,7 @@ public class NodeEventClient {
                     }
 
                 } else {
-                    LOGGER.warn("Node event websocket session '{}' closed for file system '{}'", session.getId(), fileSystemName);
+                    LOGGER.error("Node event websocket session '{}' closed for file system '{}'", session.getId(), fileSystemName);
                     return;
                 }
             } catch (IOException e) {
