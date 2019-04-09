@@ -45,12 +45,16 @@ public interface AppStorage extends AutoCloseable {
 
     boolean isWritable(String nodeId);
 
+    boolean isEnable(String nodeId);
+
     /**
      * Gets NodeInfo object for the node with ID {@code nodeId}.
      */
     NodeInfo getNodeInfo(String nodeId);
 
     void setDescription(String nodeId, String description);
+
+    void setEnable(String nodeId, boolean enable);
 
     void updateModificationTime(String nodeId);
 

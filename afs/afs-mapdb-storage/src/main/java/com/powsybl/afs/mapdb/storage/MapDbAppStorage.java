@@ -288,6 +288,15 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     @Override
+    public void setEnable(String nodeId, boolean enable) {
+        UUID nodeUuid = checkNodeId(nodeId);
+        Objects.requireNonNull(enable);
+        NodeInfo nodeInfo = getNodeInfo(nodeId);
+        nodeInfo.setEnable(enable);
+        nodeInfoMap.put(nodeUuid, nodeInfo);
+    }
+
+    @Override
     public void updateModificationTime(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
         NodeInfo nodeInfo = getNodeInfo(nodeId);
@@ -299,6 +308,13 @@ public class MapDbAppStorage implements AppStorage {
     @Override
     public boolean isWritable(String nodeId) {
         return true;
+    }
+
+    @Override
+    public boolean isEnable(String nodeId) {
+        checkNodeId(nodeId);
+        NodeInfo nodeInfo = getNodeInfo(nodeId);
+        return nodeInfo.isEnable();
     }
 
     @Override

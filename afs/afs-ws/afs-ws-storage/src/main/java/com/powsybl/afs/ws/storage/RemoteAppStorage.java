@@ -184,6 +184,25 @@ public class RemoteAppStorage implements AppStorage {
     }
 
     @Override
+    public boolean isEnable(String nodeId) {
+        Objects.requireNonNull(nodeId);
+
+        LOGGER.debug("isEnable(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
+        // PATH : TO BE ADDED
+        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/enable")
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
+                .request(MediaType.TEXT_PLAIN)
+                .header(HttpHeaders.AUTHORIZATION, token)
+                .get();
+        try {
+            return readEntityIfOk(response, Boolean.class);
+        } finally {
+            response.close();
+        }
+    }
+
+    @Override
     public void setDescription(String nodeId, String description) {
         Objects.requireNonNull(nodeId);
         Objects.requireNonNull(description);
@@ -206,6 +225,31 @@ public class RemoteAppStorage implements AppStorage {
         } finally {
             response.close();
         }
+    }
+
+    @Override
+    public void setEnable(String nodeId, boolean enable) {
+        Objects.requireNonNull(nodeId);
+        Objects.requireNonNull(enable);
+        // flush buffer to keep change order
+        changeBuffer.flush();
+
+        LOGGER.debug("setEnable(fileSystemName={}, nodeId={}, enable={})", fileSystemName, nodeId, enable);
+        // PATH : TO BE IMPLEMENTED
+        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/enable")
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, token)
+                .header(HttpHeaders.CONTENT_ENCODING, "gzip")
+                .acceptEncoding("gzip")
+                .put(Entity.text(enable));
+        try {
+            checkOk(response);
+        } finally {
+            response.close();
+        }
+
     }
 
     @Override

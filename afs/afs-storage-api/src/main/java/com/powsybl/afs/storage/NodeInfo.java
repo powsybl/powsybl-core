@@ -29,6 +29,8 @@ public class NodeInfo {
 
     private int version;
 
+    private boolean enable = false;
+
     private final NodeGenericMetadata genericMetadata;
 
     public NodeInfo(String id, String name, String pseudoClass, String description, long creationTime, long modificationTime,
@@ -98,6 +100,15 @@ public class NodeInfo {
 
     public NodeInfo setVersion(int version) {
         this.version = version;
+        return this;
+    }
+
+    public boolean isEnable() {
+        return enable;
+    }
+
+    public NodeInfo setEnable(boolean enable) {
+        this.enable = enable;
         return this;
     }
 

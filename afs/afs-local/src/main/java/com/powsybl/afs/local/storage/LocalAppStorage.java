@@ -194,6 +194,13 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
+    public void setEnable(String nodeId, boolean enable) {
+        Objects.requireNonNull(enable);
+        NodeInfo nodeInfo = getNodeInfo(nodeId);
+        nodeInfo.setEnable(enable);
+    }
+
+    @Override
     public void renameNode(String nodeId, String name) {
         throw new AssertionError();
     }
@@ -261,6 +268,12 @@ public class LocalAppStorage implements AppStorage {
     @Override
     public boolean isWritable(String nodeId) {
         return false;
+    }
+
+    @Override
+    public boolean isEnable(String nodeId) {
+        NodeInfo nodeInfo = getNodeInfo(nodeId);
+        return nodeInfo.isEnable();
     }
 
     @Override
