@@ -33,7 +33,7 @@ public class RemoteServiceConfig {
 
     private int reconnectionIntervalMutiplier;
 
-    private int reconnectionMaxInterval;
+    private int reconnectionTimeout;
 
     private int reconnectionMax;
 
@@ -58,14 +58,14 @@ public class RemoteServiceConfig {
             boolean autoreconnectEnabled = moduleConfig.getBooleanProperty("autoreconnect-enabled", false);
             int reconnectionInitialInterval = moduleConfig.getIntProperty("reconnection-initial-interval", 5);
             int reconnectionIntervalMutiplier = moduleConfig.getIntProperty("reconnection-interval-mutiplier", 2);
-            int reconnectionMaxInterval = moduleConfig.getIntProperty("reconnection-max-interval", 3600);
+            int reconnectionTimeout = moduleConfig.getIntProperty("reconnection-timeout", 3600);
             int reconnectionMax = moduleConfig.getIntProperty("reconnection-max", Integer.MAX_VALUE);
 
             RemoteServiceConfig remoteServiceConfig = new RemoteServiceConfig(hostName, appName, port, secure);
             remoteServiceConfig.setAutoreconnectEnabled(autoreconnectEnabled)
                     .setReconnectionInitialInterval(reconnectionInitialInterval)
                     .setReconnectionIntervalMutiplier(reconnectionIntervalMutiplier)
-                    .setReconnectionMaxInterval(reconnectionMaxInterval)
+                    .setReconnectionTimeout(reconnectionTimeout)
                     .setReconnectionMax(reconnectionMax);
 
             return remoteServiceConfig;
@@ -142,12 +142,12 @@ public class RemoteServiceConfig {
         return this;
     }
 
-    public int getReconnectionMaxInterval() {
-        return reconnectionMaxInterval;
+    public int getReconnectionTimeout() {
+        return reconnectionTimeout;
     }
 
-    public RemoteServiceConfig setReconnectionMaxInterval(int reconnectionMaxInterval) {
-        this.reconnectionMaxInterval = reconnectionMaxInterval;
+    public RemoteServiceConfig setReconnectionTimeout(int reconnectionTimeout) {
+        this.reconnectionTimeout = reconnectionTimeout;
         return this;
     }
 

@@ -39,13 +39,10 @@ public class NodeEventClient {
 
     private final RemoteServiceConfig config;
 
-    private int reconnectionInterval;
-
     public NodeEventClient(String fileSystemName, WeakListenerList<AppStorageListener> listeners, RemoteServiceConfig config) {
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
         this.listeners = Objects.requireNonNull(listeners);
         this.config = Objects.requireNonNull(config);
-        this.reconnectionInterval = config.getReconnectionInitialInterval();
     }
 
     @OnOpen
@@ -78,6 +75,7 @@ public class NodeEventClient {
     }
 
     private void toReconnectInAfs(Session session) {
+        int currentReconnectionInterval = config.getReconnectionInitialInterval();
         int counter = 0;
         boolean toReconnection = true;
         long dateInitial = Instant.now().getEpochSecond();
@@ -85,15 +83,15 @@ public class NodeEventClient {
 
             long dateReconnection = Instant.now().getEpochSecond();
             if (dateReconnection - dateInitial > config.getReconnectionMax()) {
-                LOGGER.warn("Node event websocket session '{}' closed for file system '{}'", session.getId(), fileSystemName);
+                LOGGER.error("Node event websocket session '{}' closed for file system '{} with reconnection maximum timeout reached ={}'", session.getId(), fileSystemName, dateReconnection - dateInitial);
                 return;
             }
-            updateReconnectionInterval(counter);
+            currentReconnectionInterval = updateReconnectionInterval(counter, currentReconnectionInterval);
             try {
                 URI wsUri = RemoteListenableAppStorage.getWebSocketUri(config.getRestUri());
                 URI endPointUri = URI.create(wsUri + "/messages/" + AfsRestApi.RESOURCE_ROOT + "/" +
                         AfsRestApi.VERSION + "/node_events/" + fileSystemName);
-                LOGGER.debug("Connecting to node event websocket at {}", endPointUri);
+                LOGGER.info("Connecting to node event websocket at {}", endPointUri);
                 WebSocketContainer container = ContainerProvider.getWebSocketContainer();
                 container.connectToServer(this, endPointUri);
                 toReconnection = false;
@@ -101,9 +99,9 @@ public class NodeEventClient {
             } catch (DeploymentException e) {
                 if (e.getCause().getCause() instanceof ConnectException) {
                     try {
-                        LOGGER.error(e.getCause().getCause().getMessage(), e);
+                        LOGGER.warn(e.getCause().getCause().getMessage());
                         counter = counter + 1;
-                        sleep(this.reconnectionInterval * 1000L);
+                        sleep(currentReconnectionInterval * 1000L);
                     } catch (InterruptedException e1) {
                         Thread.currentThread().interrupt();
                         throw new UncheckedInterruptedException(e1);
@@ -119,16 +117,17 @@ public class NodeEventClient {
         }
     }
 
-    private void updateReconnectionInterval(int counter) {
+    private int updateReconnectionInterval(int counter, int currentReconnectionInterval) {
+        int currentReconnectionIntervalLocal;
         if (counter > 0) {
-            if (this.reconnectionInterval > config.getReconnectionMaxInterval()) {
-                this.reconnectionInterval = config.getReconnectionMaxInterval();
-            } else {
-                this.reconnectionInterval = this.reconnectionInterval * config.getReconnectionIntervalMutiplier();
+            currentReconnectionIntervalLocal = currentReconnectionInterval * config.getReconnectionIntervalMutiplier();
+            if (currentReconnectionIntervalLocal > config.getReconnectionTimeout()) {
+                currentReconnectionIntervalLocal = config.getReconnectionTimeout();
             }
         } else {
-            this.reconnectionInterval = config.getReconnectionInitialInterval();
+            currentReconnectionIntervalLocal = config.getReconnectionInitialInterval();
         }
+        return currentReconnectionIntervalLocal;
     }
 
 }

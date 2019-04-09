@@ -90,7 +90,7 @@ public class AppStorageServerTest extends AbstractAppStorageTest {
         config.setAutoreconnectEnabled(true)
                 .setReconnectionInitialInterval(1)
                 .setReconnectionIntervalMutiplier(2)
-                .setReconnectionMaxInterval(6)
+                .setReconnectionTimeout(6)
                 .setReconnectionMax(600);
         RemoteAppStorage storage = new RemoteAppStorage(AppDataBeanMock.TEST_FS_NAME, restUri, userSession.getToken());
         return new RemoteListenableAppStorage(storage, config, restUri);
