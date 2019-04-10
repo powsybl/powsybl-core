@@ -71,6 +71,7 @@ public class DifferencesFail implements Differences {
                 current.getId(),
                 expected.getId(),
                 actual.getId());
+        fail();
     }
 
     @Override

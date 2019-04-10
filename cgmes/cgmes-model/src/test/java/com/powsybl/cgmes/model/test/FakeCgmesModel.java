@@ -412,6 +412,12 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
+    public PropertyBags reactiveCapabilityCurveData() {
+        // FakeCgmesModel does not implement reactive capability curve
+        return null;
+    }
+
+    @Override
     public PropertyBags ratioTapChangerTablesPoints() {
         // FakeCgmesModel does not implement ratio tap changer tables
         return null;
