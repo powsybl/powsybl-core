@@ -24,6 +24,10 @@ public interface ComputationManager extends AutoCloseable {
 
     <R> CompletableFuture<R> execute(ExecutionEnvironment environment, ExecutionHandler<R> handler);
 
+    default <R> CompletableFuture<R> execute(ExecutionEnvironment environment, ExecutionHandler<R> handler, ComputationParameters parameters) {
+        return execute(environment, handler);
+    }
+
     ComputationResourcesStatus getResourcesStatus();
 
     Executor getExecutor();
