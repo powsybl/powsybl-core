@@ -8,7 +8,6 @@
 package com.powsybl.cgmes.conversion.elements;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -29,16 +28,11 @@ public final class RegulatingControlConversion {
             return targetV;
         }
 
-        public Terminal terminal() {
-            return terminal;
-        }
-
         private boolean  on;
         private double   targetV = Double.NaN;
-        private Terminal terminal;
     }
 
-    public static Data convert(PropertyBag p, VoltageLevel vl, Context context) {
+    public static Data convert(String idEq, PropertyBag p, VoltageLevel vl, Context context) {
         Data control = new Data();
 
         boolean regulatingControl = p.containsKey("RegulatingControl");
@@ -60,9 +54,11 @@ public final class RegulatingControlConversion {
                 if (regulatingControlEnabled) {
                     control.on = true;
                 }
-                // TODO How to find terminal in Network that corresponds
-                // to the given regulating control terminal in CGMES model
-                control.terminal = context.terminalMapping().find(regulatingTerminalId);
+
+                String topologicalNode = p.getId("regTopologicalNode");
+                if (!context.terminalMapping().areAssociated(p.getId("Terminal"), topologicalNode)) {
+                    context.putRemoteRegulatingTerminal(idEq, topologicalNode);
+                }
             }
         }
 
