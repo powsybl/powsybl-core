@@ -21,7 +21,6 @@ public interface Battery extends Injection<Battery>, ReactiveLimitsHolder {
     /**
      * Get the constant active power in MW.
      * <p>Depends on the working variant.
-     *
      * @see VariantManager
      */
     double getP0();
@@ -29,7 +28,6 @@ public interface Battery extends Injection<Battery>, ReactiveLimitsHolder {
     /**
      * Set the constant active power in MW.
      * <p>Depends on the working variant.
-     *
      * @see VariantManager
      */
     Battery setP0(double p0);
@@ -37,7 +35,6 @@ public interface Battery extends Injection<Battery>, ReactiveLimitsHolder {
     /**
      * Get the constant reactive power in MVar.
      * <p>Depends on the working variant.
-     *
      * @see VariantManager
      */
     double getQ0();
@@ -45,7 +42,6 @@ public interface Battery extends Injection<Battery>, ReactiveLimitsHolder {
     /**
      * Set the constant reactive power in MVar.
      * <p>Depends on the working variant.
-     *
      * @see VariantManager
      */
     Battery setQ0(double q0);
@@ -69,14 +65,4 @@ public interface Battery extends Injection<Battery>, ReactiveLimitsHolder {
      * Set the maximal active power in MW.
      */
     Battery setMaxP(double maxP);
-
-    /**
-     * Get the availability for congestion management
-     */
-    boolean isCongestionManagementOn();
-
-    /**
-     * Set the availability for congestion management
-     */
-    Battery setCongestionManagementOn(boolean congestionManagementOn);
 }

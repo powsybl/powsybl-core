@@ -54,9 +54,6 @@ public class BatteryTest {
         double maxP = 20.0;
         battery.setMaxP(maxP);
         assertEquals(maxP, battery.getMaxP(), 0.0);
-        boolean congestionManagementStatus = false;
-        battery.setCongestionManagementOn(congestionManagementStatus);
-        assertEquals(congestionManagementStatus, battery.isCongestionManagementOn());
 
         assertEquals(ConnectableType.BATTERY, battery.getType());
 
@@ -121,7 +118,6 @@ public class BatteryTest {
                 .setMinP(minP)
                 .setMaxP(maxP)
                 .setBus("NBAT")
-                .setCongestionManagementOn(true)
                 .add();
     }
 }

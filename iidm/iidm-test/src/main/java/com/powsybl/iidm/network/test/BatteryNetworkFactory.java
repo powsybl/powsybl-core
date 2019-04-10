@@ -118,7 +118,6 @@ public final class BatteryNetworkFactory {
                 .setQ0(9999.99)
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setCongestionManagementOn(true)
                 .add();
         battery.newMinMaxReactiveLimits()
                 .setMinQ(-9999.99)
@@ -134,7 +133,6 @@ public final class BatteryNetworkFactory {
                 .setQ0(9999.99)
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setCongestionManagementOn(false)
                 .add();
         battery2.newReactiveCapabilityCurve()
                 .beginPoint()

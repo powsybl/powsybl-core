@@ -6,15 +6,16 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.commons.util.trove.TBooleanArrayList;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.util.Ref;
 
 /**
  * {@inheritDoc}
+ *
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
  */
 public class BatteryImpl extends AbstractConnectable<Battery> implements Battery, ReactiveLimitsOwner {
+
+    private final ReactiveLimitsHolderImpl reactiveLimits;
 
     private double p0;
 
@@ -24,29 +25,13 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     private double maxP;
 
-    private final ReactiveLimitsHolderImpl reactiveLimits;
-
-    // attributes depending on the variant
-
-    private final TBooleanArrayList congestionManagementOn;
-
-    BatteryImpl(Ref<? extends VariantManagerHolder> ref,
-                String id, String name,
-                double p0, double q0,
-                double minP, double maxP,
-                boolean congestionManagementOn) {
+    BatteryImpl(String id, String name, double p0, double q0, double minP, double maxP) {
         super(id, name);
         this.p0 = p0;
         this.q0 = q0;
         this.minP = minP;
         this.maxP = maxP;
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
-
-        int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
-        this.congestionManagementOn = new TBooleanArrayList(variantArraySize);
-        for (int i = 0; i < variantArraySize; i++) {
-            this.congestionManagementOn.add(congestionManagementOn);
-        }
     }
 
     /**
@@ -144,25 +129,6 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         double oldValue = this.maxP;
         this.maxP = maxP;
         notifyUpdate("maxP", oldValue, maxP);
-        return this;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean isCongestionManagementOn() {
-        return congestionManagementOn.get(getNetwork().getVariantIndex());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Battery setCongestionManagementOn(boolean congestionManagementOn) {
-        int variantIndex = getNetwork().getVariantIndex();
-        boolean oldValue = this.congestionManagementOn.set(variantIndex, congestionManagementOn);
-        notifyUpdate("congestionManagementOn", oldValue, congestionManagementOn);
         return this;
     }
 

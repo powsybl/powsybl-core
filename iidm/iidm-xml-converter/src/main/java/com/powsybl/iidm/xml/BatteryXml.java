@@ -38,7 +38,6 @@ class BatteryXml extends AbstractConnectableXml<Battery, BatteryAdder, VoltageLe
         XmlUtil.writeDouble("q0", b.getQ0(), context.getWriter());
         XmlUtil.writeDouble("minP", b.getMinP(), context.getWriter());
         XmlUtil.writeDouble("maxP", b.getMaxP(), context.getWriter());
-        context.getWriter().writeAttribute("congestionManagementOn", Boolean.toString(b.isCongestionManagementOn()));
         writeNodeOrBus(null, b.getTerminal(), context);
         writePQ(null, b.getTerminal(), context.getWriter());
     }
@@ -59,13 +58,11 @@ class BatteryXml extends AbstractConnectableXml<Battery, BatteryAdder, VoltageLe
         double q0 = XmlUtil.readDoubleAttribute(context.getReader(), "q0");
         double minP = XmlUtil.readDoubleAttribute(context.getReader(), "minP");
         double maxP = XmlUtil.readDoubleAttribute(context.getReader(), "maxP");
-        boolean congestionManagementOn = XmlUtil.readBoolAttribute(context.getReader(), "congestionManagementOn");
         readNodeOrBus(adder, context);
         Battery b = adder.setP0(p0)
                 .setQ0(q0)
                 .setMinP(minP)
                 .setMaxP(maxP)
-                .setCongestionManagementOn(congestionManagementOn)
                 .add();
         readPQ(null, b.getTerminal(), context.getReader());
         return b;

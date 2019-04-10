@@ -57,7 +57,6 @@ public class AmplNetworkWriter {
     private static final String MINP = "minP (MW)";
     private static final String MAXP = "maxP (MW)";
     private static final String V_REGUL = "v regul.";
-    private static final String C_MANAGEMENT = "c manag.";
     private static final String ACTIVE_POWER = "P (MW)";
     private static final String REACTIVE_POWER = "Q (MVar)";
     private static final String MIN_Q_MAX_P = "minQmaxP (MVar)";
@@ -1543,7 +1542,6 @@ public class AmplNetworkWriter {
                      new Column(MAX_Q_MAX_P),
                      new Column(MAX_Q0),
                      new Column(MAX_Q_MIN_P),
-                     new Column(C_MANAGEMENT),
                      new Column(FAULT),
                      new Column(config.getActionType().getLabel()),
                      new Column(ID),
@@ -1579,7 +1577,6 @@ public class AmplNetworkWriter {
                 double q0 = b.getQ0();
                 double minP = b.getMinP();
                 double maxP = b.getMaxP();
-                boolean congestionManagementOn = b.isCongestionManagementOn();
 
                 formatter.writeCell(variantIndex)
                         .writeCell(num)
@@ -1596,7 +1593,6 @@ public class AmplNetworkWriter {
                         .writeCell(b.getReactiveLimits().getMaxQ(maxP))
                         .writeCell(b.getReactiveLimits().getMaxQ(0))
                         .writeCell(b.getReactiveLimits().getMaxQ(minP))
-                        .writeCell(congestionManagementOn)
                         .writeCell(faultNum)
                         .writeCell(actionNum)
                         .writeCell(id)

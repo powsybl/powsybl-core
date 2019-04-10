@@ -237,7 +237,6 @@
                 <xs:attribute name="q0" use="required" type="xs:double"/>
                 <xs:attribute name="minP" use="required" type="xs:double"/>
                 <xs:attribute name="maxP" use="required" type="xs:double"/>
-                <xs:attribute name="congestionManagementOn" use="required" type="xs:boolean"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
