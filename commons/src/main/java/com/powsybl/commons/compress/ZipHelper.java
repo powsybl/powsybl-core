@@ -43,14 +43,10 @@ public final class ZipHelper {
                     entry = new ZipArchiveEntry(file);
                 }
                 zos.putArchiveEntry(entry);
-                InputStream inputStream = null;
-                if (isGzFile) {
-                    inputStream = new GZIPInputStream(Files.newInputStream(baseDir.resolve(file)));
-                } else {
-                    inputStream = Files.newInputStream(baseDir.resolve(file));
+                try (InputStream inputStream = isGzFile ? new GZIPInputStream(Files.newInputStream(baseDir.resolve(file)))
+                        : Files.newInputStream(baseDir.resolve(file))) {
+                    IOUtils.copy(inputStream, zos);
                 }
-                IOUtils.copy(inputStream, zos);
-                inputStream.close();
                 zos.closeArchiveEntry();
             }
             zos.flush();
