@@ -12,6 +12,10 @@ import com.powsybl.iidm.network.Terminal;
 import java.util.Objects;
 
 /**
+ * An immutable TapChanger.
+ * It is a read-only object, any modification on it will throw a runtime exception.
+ * @see ImmutablePhaseTapChanger
+ * @see ImmutableRatioTapChanger
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 public class ImmutableTapChanger {
@@ -49,6 +53,10 @@ public class ImmutableTapChanger {
         return cache.getTerminal(tapChanger.getRegulationTerminal());
     }
 
+    /**
+     * Mutative operation is not allowed. It will throw an exception in runtime.
+     * @return
+     */
     public void remove() {
         throw ImmutableNetwork.createUnmodifiableNetworkException();
     }

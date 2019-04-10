@@ -14,6 +14,8 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 /**
+ * An immutable {@link Component}.
+ * It is a read-only object, any modification on it will throw a runtime exception.
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 final class ImmutableComponent implements Component {
@@ -26,22 +28,35 @@ final class ImmutableComponent implements Component {
         this.component = Objects.requireNonNull(component);
         this.cache = Objects.requireNonNull(cache);
     }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getNum() {
         return component.getNum();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getSize() {
         return component.getSize();
     }
 
+    /**
+     * {@inheritDoc}
+     * Buses are wrapped in {@link ImmutableBus}.
+     */
     @Override
     public Iterable<Bus> getBuses() {
         return Iterables.transform(component.getBuses(), cache::getBus);
     }
 
+    /**
+     * {@inheritDoc}
+     * Buses are wrapped in {@link ImmutableBus}.
+     */
     @Override
     public Stream<Bus> getBusStream() {
         return component.getBusStream().map(cache::getBus);

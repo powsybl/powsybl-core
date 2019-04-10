@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 
 /**
  * An immutable {@link Bus}.
- * It is a read-only object, all kinds of modification on it will throw a runtime exception.
+ * It is a read-only object, any modification on it will throw a runtime exception.
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 final class ImmutableBus extends AbstractImmutableIdentifiable<Bus> implements Bus {
@@ -40,7 +40,7 @@ final class ImmutableBus extends AbstractImmutableIdentifiable<Bus> implements B
     }
 
     /**
-     * Mutative operations is not allowed. It will throw an exception in runtime.
+     * Mutative operation is not allowed. It will throw an exception in runtime.
      * @return
      */
     @Override

@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * An immutable {@link Generator}.
+ * It is a read-only object, any modification on it will throw a runtime exception.
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 final class ImmutableGenerator extends AbstractImmutableIdentifiable<Generator> implements Generator {
@@ -20,131 +22,224 @@ final class ImmutableGenerator extends AbstractImmutableIdentifiable<Generator> 
         super(identifiable, cache);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public EnergySource getEnergySource() {
         return identifiable.getEnergySource();
     }
 
+    /**
+     * Mutative operation is not allowed. It will throw an exception in runtime.
+     * @return
+     */
     @Override
     public Generator setEnergySource(EnergySource energySource) {
         throw ImmutableNetwork.createUnmodifiableNetworkException();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double getMaxP() {
         return identifiable.getMaxP();
     }
 
+    /**
+     * Mutative operation is not allowed. It will throw an exception in runtime.
+     * @return
+     */
     @Override
     public Generator setMaxP(double maxP) {
         throw ImmutableNetwork.createUnmodifiableNetworkException();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double getMinP() {
         return identifiable.getMinP();
     }
 
+    /**
+     * Mutative operation is not allowed. It will throw an exception in runtime.
+     * @return
+     */
     @Override
     public Generator setMinP(double minP) {
         throw ImmutableNetwork.createUnmodifiableNetworkException();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isVoltageRegulatorOn() {
         return identifiable.isVoltageRegulatorOn();
     }
 
+    /**
+     * Mutative operation is not allowed. It will throw an exception in runtime.
+     * @return
+     */
     @Override
     public Generator setVoltageRegulatorOn(boolean voltageRegulatorOn) {
         throw ImmutableNetwork.createUnmodifiableNetworkException();
     }
 
+    /**
+     * {@inheritDoc}
+     * @return Returns an {@link ImmutableTerminal}
+     */
     @Override
     public Terminal getRegulatingTerminal() {
         return cache.getTerminal(identifiable.getRegulatingTerminal());
     }
 
+    /**
+     * Mutative operation is not allowed. It will throw an exception in runtime.
+     * @return
+     */
     @Override
     public Generator setRegulatingTerminal(Terminal regulatingTerminal) {
         throw ImmutableNetwork.createUnmodifiableNetworkException();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double getTargetV() {
         return identifiable.getTargetV();
     }
 
+    /**
+     * Mutative operation is not allowed. It will throw an exception in runtime.
+     * @return
+     */
     @Override
     public Generator setTargetV(double targetV) {
         throw ImmutableNetwork.createUnmodifiableNetworkException();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double getTargetP() {
         return identifiable.getTargetP();
     }
 
+    /**
+     * Mutative operation is not allowed. It will throw an exception in runtime.
+     * @return
+     */
     @Override
     public Generator setTargetP(double targetP) {
         throw ImmutableNetwork.createUnmodifiableNetworkException();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double getTargetQ() {
         return identifiable.getTargetQ();
     }
 
+    /**
+     * Mutative operation is not allowed. It will throw an exception in runtime.
+     * @return
+     */
     @Override
     public Generator setTargetQ(double targetQ) {
         throw ImmutableNetwork.createUnmodifiableNetworkException();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public double getRatedS() {
         return identifiable.getRatedS();
     }
 
+    /**
+     * Mutative operation is not allowed. It will throw an exception in runtime.
+     * @return
+     */
     @Override
     public Generator setRatedS(double ratedS) {
         throw ImmutableNetwork.createUnmodifiableNetworkException();
     }
 
+    /**
+     * {@inheritDoc}
+     * @return Returns an {@link ImmutableTerminal}
+     */
     @Override
     public Terminal getTerminal() {
         return cache.getTerminal(identifiable.getTerminal());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ConnectableType getType() {
         return identifiable.getType();
     }
 
+    /**
+     * {@inheritDoc}
+     * Terminals are wrapped in {@link ImmutableTerminal}.
+     */
     @Override
     public List<? extends Terminal> getTerminals() {
         return identifiable.getTerminals().stream().map(cache::getTerminal).collect(Collectors.toList());
     }
 
+    /**
+     * Mutative operation is not allowed. It will throw an exception in runtime.
+     * @return
+     */
     @Override
     public void remove() {
         throw ImmutableNetwork.createUnmodifiableNetworkException();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ReactiveLimits getReactiveLimits() {
         return identifiable.getReactiveLimits();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public <L extends ReactiveLimits> L getReactiveLimits(Class<L> type) {
         return identifiable.getReactiveLimits(type);
     }
 
+    /**
+     * Mutative operation is not allowed. It will throw an exception in runtime.
+     * @return
+     */
     @Override
     public ReactiveCapabilityCurveAdder newReactiveCapabilityCurve() {
         throw ImmutableNetwork.createUnmodifiableNetworkException();
     }
 
+    /**
+     * Mutative operation is not allowed. It will throw an exception in runtime.
+     * @return
+     */
     @Override
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
         throw ImmutableNetwork.createUnmodifiableNetworkException();

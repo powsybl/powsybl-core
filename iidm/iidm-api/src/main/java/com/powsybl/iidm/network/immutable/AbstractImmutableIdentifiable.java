@@ -16,6 +16,7 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 /**
+ * An abstract immutable {@link Identifiable}.
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 abstract class AbstractImmutableIdentifiable<I extends Identifiable<I>> implements Identifiable<I> {
@@ -56,6 +57,10 @@ abstract class AbstractImmutableIdentifiable<I extends Identifiable<I>> implemen
         return identifiable.getProperties();
     }
 
+    /**
+     * Mutative operation is not allowed. It will throw an exception in runtime.
+     * @return
+     */
     @Override
     public <E extends Extension<I>> void addExtension(Class<? super E> type, E extension) {
         throw ImmutableNetwork.createUnmodifiableNetworkException();
@@ -83,6 +88,10 @@ abstract class AbstractImmutableIdentifiable<I extends Identifiable<I>> implemen
         }
     }
 
+    /**
+     * Mutative operation is not allowed. It will throw an exception in runtime.
+     * @return
+     */
     @Override
     public <E extends Extension<I>> boolean removeExtension(Class<E> type) {
         throw ImmutableNetwork.createUnmodifiableNetworkException();

@@ -13,6 +13,8 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * <p>Methods {@link #cloneVariant(String, String)}, {@link #cloneVariant(String, List)}, {@link #removeVariant(String)} are not allowed.</p>
+ * <p>But you can still invoke mutative methods {@link #setWorkingVariant(String)} and {@link #allowVariantMultiThreadAccess(boolean)}.</p>
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 final class ImmutableVariantManager implements VariantManager {
@@ -28,36 +30,60 @@ final class ImmutableVariantManager implements VariantManager {
         return Collections.unmodifiableCollection(variantManager.getVariantIds());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public String getWorkingVariantId() {
         return variantManager.getWorkingVariantId();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setWorkingVariant(String variantId) {
         variantManager.setWorkingVariant(variantId);
     }
 
+    /**
+     * Mutative operation is not allowed. It will throw an exception in runtime.
+     * @return
+     */
     @Override
     public void cloneVariant(String sourceVariantId, List<String> targetVariantIds) {
         throw ImmutableNetwork.createUnmodifiableNetworkException();
     }
 
+    /**
+     * Mutative operation is not allowed. It will throw an exception in runtime.
+     * @return
+     */
     @Override
     public void cloneVariant(String sourceVariantId, String targetVariantId) {
         throw ImmutableNetwork.createUnmodifiableNetworkException();
     }
 
+    /**
+     * Mutative operation is not allowed. It will throw an exception in runtime.
+     * @return
+     */
     @Override
     public void removeVariant(String variantId) {
         throw ImmutableNetwork.createUnmodifiableNetworkException();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void allowVariantMultiThreadAccess(boolean allow) {
         variantManager.allowVariantMultiThreadAccess(allow);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean isVariantMultiThreadAccessAllowed() {
         return variantManager.isVariantMultiThreadAccessAllowed();
