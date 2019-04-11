@@ -143,7 +143,7 @@ public class LocalComputationManager implements ComputationManager {
 
     }
 
-    private ExecutionReport execute(Path workingDir, List<CommandExecution> commandExecutionList, Map<String, String> variables, ExecutionMonitor monitor)
+    private ExecutionReport execute(Path workingDir, List<CommandExecution> commandExecutionList, Map<String, String> variables, ComputationParameters computationParameters, ExecutionMonitor monitor)
             throws InterruptedException {
         // TODO concurrent
         List<ExecutionError> errors = new ArrayList<>();
@@ -158,7 +158,7 @@ public class LocalComputationManager implements ComputationManager {
                             enter();
                             logExecutingCommand(workingDir, command, idx);
                             preProcess(workingDir, command, idx);
-                            int exitValue = process(workingDir, commandExecution, idx, variables);
+                            int exitValue = process(workingDir, commandExecution, idx, variables, computationParameters);
                             postProcess(workingDir, commandExecution, idx, exitValue, errors, monitor);
                         } catch (Exception e) {
                             LOGGER.warn(e.getMessage());
@@ -221,16 +221,18 @@ public class LocalComputationManager implements ComputationManager {
         }
     }
 
-    private int process(Path workingDir, CommandExecution commandExecution, int executionIndex, Map<String, String> variables) throws IOException, InterruptedException {
+    private int process(Path workingDir, CommandExecution commandExecution, int executionIndex, Map<String, String> variables, ComputationParameters computationParameters) throws IOException, InterruptedException {
         Command command = commandExecution.getCommand();
         int exitValue = 0;
+        long timeout = -1;
         Path outFile = workingDir.resolve(command.getId() + "_" + executionIndex + ".out");
         Path errFile = workingDir.resolve(command.getId() + "_" + executionIndex + ".err");
         Map<String, String> executionVariables = CommandExecution.getExecutionVariables(variables, commandExecution);
         switch (command.getType()) {
             case SIMPLE:
                 SimpleCommand simpleCmd = (SimpleCommand) command;
-                exitValue = localCommandExecutor.execute(simpleCmd.getProgram(),
+                timeout = computationParameters.getTimeout(simpleCmd.getId()).orElse(-1);
+                exitValue = localCommandExecutor.execute(simpleCmd.getProgram(), timeout,
                         simpleCmd.getArgs(executionIndex),
                         outFile,
                         errFile,
@@ -238,6 +240,7 @@ public class LocalComputationManager implements ComputationManager {
                         executionVariables);
                 break;
             case GROUP:
+                // TODO timeout for group
                 for (GroupCommand.SubCommand subCmd : ((GroupCommand) command).getSubCommands()) {
                     exitValue = localCommandExecutor.execute(subCmd.getProgram(),
                             subCmd.getArgs(executionIndex),
@@ -312,6 +315,11 @@ public class LocalComputationManager implements ComputationManager {
 
     @Override
     public <R> CompletableFuture<R> execute(ExecutionEnvironment environment, ExecutionHandler<R> handler) {
+        return execute(environment, handler, ComputationParameters.empty());
+    }
+
+    @Override
+    public <R> CompletableFuture<R> execute(ExecutionEnvironment environment, ExecutionHandler<R> handler, ComputationParameters parameters) {
         Objects.requireNonNull(environment);
         Objects.requireNonNull(handler);
         MyCf<R> f = new MyCf<>();
@@ -321,7 +329,7 @@ public class LocalComputationManager implements ComputationManager {
                 try (WorkingDirectory workingDir = new WorkingDirectory(config.getLocalDir(), environment.getWorkingDirPrefix(), environment.isDebug())) {
                     f.setWorkingDir(workingDir.toPath());
                     List<CommandExecution> commandExecutionList = handler.before(workingDir.toPath());
-                    ExecutionReport report = execute(workingDir.toPath(), commandExecutionList, environment.getVariables(), handler::onExecutionCompletion);
+                    ExecutionReport report = execute(workingDir.toPath(), commandExecutionList, environment.getVariables(), parameters, handler::onExecutionCompletion);
                     R result = handler.after(workingDir.toPath(), report);
                     f.complete(result);
                 }

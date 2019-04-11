@@ -48,9 +48,7 @@ public class LocalAppFileSystemProviderTest {
     public void test() {
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         LocalAppFileSystemConfig config = new LocalAppFileSystemConfig("drive", true, fileSystem.getPath("/work"));
-        LocalFileScanner extension = new LocalCaseScanner(new ImportConfig(),
-                                                                            new ImportersLoaderList(Collections.emptyList(),
-                                                                                                    Collections.emptyList()));
+        LocalFileScanner extension = new LocalCaseScanner(new ImportConfig(), new ImportersLoaderList());
         List<AppFileSystem> fileSystems = new LocalAppFileSystemProvider(Collections.singletonList(config),
                                                                          Collections.singletonList(extension),
                                                                          Collections.emptyList())

@@ -7,8 +7,6 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
@@ -87,7 +85,6 @@ public class XMLImporterTest extends AbstractConverterTest {
         }
         writeNetworkWithComment("/test7.xiidm");
 
-        PlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
         importer = new XMLImporter(platformConfig);
     }
 

@@ -221,31 +221,16 @@ public final class EurostagTutorialExample1Factory {
         return network;
     }
 
+    /**
+     * @deprecated Use {@link #createWithFixedCurrentLimits()} instead,
+     *             here current limits do not respect the convention of having
+     *             an infinite value temporary limit, which make overload detection
+     *             malfunction.
+     */
+    @Deprecated
     public static Network createWithCurrentLimits() {
-        Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2018-01-01T11:00:00+01:00"));
-
-        network.getSubstation("P2").setCountry(Country.BE);
-
-        network.getVoltageLevel(VLGEN).newGenerator()
-            .setId("GEN2")
-            .setBus("NGEN")
-            .setConnectableBus("NGEN")
-            .setMinP(-9999.99)
-            .setMaxP(9999.99)
-            .setVoltageRegulatorOn(true)
-            .setTargetV(24.5)
-            .setTargetP(607.0)
-            .setTargetQ(301.0)
-            .add();
-
-        ((Bus) network.getIdentifiable("NHV1")).setV(380).getVoltageLevel().setLowVoltageLimit(400).setHighVoltageLimit(500);
-        ((Bus) network.getIdentifiable("NHV2")).setV(380).getVoltageLevel().setLowVoltageLimit(300).setHighVoltageLimit(500);
-
+        Network network = createWithFixedCurrentLimits();
         Line line = network.getLine("NHV1_NHV2_1");
-        line.getTerminal1().setP(560.0).setQ(550.0);
-        line.getTerminal2().setP(560.0).setQ(550.0);
-        line.newCurrentLimits1().setPermanentLimit(500).add();
         line.newCurrentLimits2()
             .setPermanentLimit(1100)
             .beginTemporaryLimit()
@@ -261,8 +246,6 @@ public final class EurostagTutorialExample1Factory {
             .add();
 
         line = network.getLine("NHV1_NHV2_2");
-        line.getTerminal1().setP(560.0).setQ(550.0);
-        line.getTerminal2().setP(560.0).setQ(550.0);
         line.newCurrentLimits1()
             .setPermanentLimit(1100)
             .beginTemporaryLimit()
@@ -271,6 +254,70 @@ public final class EurostagTutorialExample1Factory {
             .setValue(1200)
             .endTemporaryLimit()
             .add();
+
+        return network;
+    }
+
+    public static Network createWithFixedCurrentLimits() {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.setCaseDate(DateTime.parse("2018-01-01T11:00:00+01:00"));
+
+        network.getSubstation("P2").setCountry(Country.BE);
+
+        network.getVoltageLevel(VLGEN).newGenerator()
+                .setId("GEN2")
+                .setBus("NGEN")
+                .setConnectableBus("NGEN")
+                .setMinP(-9999.99)
+                .setMaxP(9999.99)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(24.5)
+                .setTargetP(607.0)
+                .setTargetQ(301.0)
+                .add();
+
+        ((Bus) network.getIdentifiable("NHV1")).setV(380).getVoltageLevel().setLowVoltageLimit(400).setHighVoltageLimit(500);
+        ((Bus) network.getIdentifiable("NHV2")).setV(380).getVoltageLevel().setLowVoltageLimit(300).setHighVoltageLimit(500);
+
+        Line line = network.getLine("NHV1_NHV2_1");
+        line.getTerminal1().setP(560.0).setQ(550.0);
+        line.getTerminal2().setP(560.0).setQ(550.0);
+        line.newCurrentLimits1().setPermanentLimit(500).add();
+        line.newCurrentLimits2()
+                .setPermanentLimit(1100)
+                .beginTemporaryLimit()
+                .setName("10'")
+                .setAcceptableDuration(10 * 60)
+                .setValue(1200)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("1'")
+                .setAcceptableDuration(60)
+                .setValue(1500)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("N/A")
+                .setAcceptableDuration(0)
+                .setValue(Double.MAX_VALUE)
+                .endTemporaryLimit()
+                .add();
+
+        line = network.getLine("NHV1_NHV2_2");
+        line.getTerminal1().setP(560.0).setQ(550.0);
+        line.getTerminal2().setP(560.0).setQ(550.0);
+        line.newCurrentLimits1()
+                .setPermanentLimit(1100)
+                .beginTemporaryLimit()
+                .setName("20'")
+                .setAcceptableDuration(20 * 60)
+                .setValue(1200)
+                .endTemporaryLimit()
+                .beginTemporaryLimit()
+                .setName("N/A")
+                .setAcceptableDuration(60)
+                .setValue(Double.MAX_VALUE)
+                .endTemporaryLimit()
+                .add();
         line.newCurrentLimits2().setPermanentLimit(500).add();
 
         return network;

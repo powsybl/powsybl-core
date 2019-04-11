@@ -22,7 +22,7 @@ import java.util.*;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class VariantManagerImpl implements VariantManager {
+public class VariantManagerImpl implements VariantManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VariantManagerImpl.class);
 
@@ -55,7 +55,13 @@ class VariantManagerImpl implements VariantManager {
         return Collections.unmodifiableSet(id2index.keySet());
     }
 
-    int getVariantArraySize() {
+    /**
+     * Get the size of the variant array
+     * This size is different from the number of variants that also count unused but not released variants.
+     *
+     * @return the size of the variant array
+     */
+    public int getVariantArraySize() {
         return variantArraySize;
     }
 

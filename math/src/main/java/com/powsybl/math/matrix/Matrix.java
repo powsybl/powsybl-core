@@ -75,6 +75,15 @@ public interface Matrix {
     void setValue(int i, int j, double value);
 
     /**
+     * Add value at row i and column j.
+     *
+     * @param i row index
+     * @param j column index
+     * @param value the value to add
+     */
+    void addValue(int i, int j, double value);
+
+    /**
      * Get LU decomposition utility class for this matrix.
      *
      * @return LU decomposition utility class for this matrix

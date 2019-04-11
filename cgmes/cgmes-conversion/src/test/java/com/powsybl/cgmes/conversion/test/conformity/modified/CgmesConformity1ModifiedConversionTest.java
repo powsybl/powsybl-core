@@ -11,39 +11,55 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.io.IOException;
+import java.nio.file.FileSystem;
 
+import org.junit.After;
+import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mockito;
 
+import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.import_.Importers;
+import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.RatioTapChanger;
+import com.powsybl.iidm.network.ReactiveCapabilityCurve;
+import com.powsybl.iidm.network.ReactiveLimits;
+import com.powsybl.iidm.network.ReactiveLimitsKind;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class CgmesConformity1ModifiedConversionTest {
+
     @BeforeClass
-    public static void setUp() {
+    public static void setUpBeforeClass() {
         catalog = new CgmesConformity1Catalog();
         catalogModified = new CgmesConformity1ModifiedCatalog();
     }
 
+    @Before
+    public void setUp() {
+        fileSystem = Jimfs.newFileSystem();
+        platformConfig = new InMemoryPlatformConfig(fileSystem);
+    }
+
+    @After
+    public void tearDown() throws IOException {
+        fileSystem.close();
+    }
+
     @Test
     public void microBERatioPhaseTabularTest() throws IOException {
-        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-        Network network = Importers.importData("CGMES",
-            catalogModified.microGridBaseCaseBERatioPhaseTapChangerTabular().dataSource(),
-            null,
-            computationManager);
+        Network network = new CgmesImport(platformConfig)
+            .importData(catalogModified.microGridBaseCaseBERatioPhaseTapChangerTabular().dataSource(), null);
         RatioTapChanger rtc = network.getTwoWindingsTransformer("_b94318f6-6d24-4f56-96b9-df2531ad6543")
             .getRatioTapChanger();
         assertEquals(6, rtc.getStepCount());
@@ -69,20 +85,26 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void miniNodeBreakerTestLimits() throws IOException {
-        ComputationManager computationManager = Mockito.mock(ComputationManager.class);
+    public void microBEReactiveCapabilityCurve() throws IOException {
+        Network network = new CgmesImport(platformConfig)
+            .importData(catalogModified.microGridBaseCaseBEReactiveCapabilityCurve().dataSource(), null);
+        ReactiveLimits rl = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0").getReactiveLimits();
+        assertEquals(ReactiveLimitsKind.CURVE, rl.getKind());
+        ReactiveCapabilityCurve rcc = (ReactiveCapabilityCurve) rl;
+        assertEquals(4, rcc.getPointCount());
+        assertEquals(-20, rl.getMinQ(-200), 0.001);
+        assertEquals(-20, rl.getMinQ(-201), 0.001);
+        assertEquals(-20 - (180.0 / 100.0), rl.getMinQ(-199), 0.001);
+    }
 
+    @Test
+    public void miniNodeBreakerTestLimits() throws IOException {
         // Original test case
-        Network network0 = Importers.importData("CGMES",
-            catalog.miniNodeBreaker().dataSource(),
-            null,
-            computationManager);
+        Network network0 = new CgmesImport(platformConfig).importData(catalog.miniNodeBreaker().dataSource(), null);
         // The case has been manually modified to have OperationalLimits
         // defined for Equipment
-        Network network1 = Importers.importData("CGMES",
-            catalogModified.miniNodeBreakerLimitsforEquipment().dataSource(),
-            null,
-            computationManager);
+        Network network1 = new CgmesImport(platformConfig)
+            .importData(catalogModified.miniNodeBreakerLimitsforEquipment().dataSource(), null);
 
         double tol = 0;
 
@@ -123,4 +145,7 @@ public class CgmesConformity1ModifiedConversionTest {
 
     private static CgmesConformity1Catalog catalog;
     private static CgmesConformity1ModifiedCatalog catalogModified;
+
+    private FileSystem fileSystem;
+    private PlatformConfig platformConfig;
 }
