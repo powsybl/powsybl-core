@@ -23,7 +23,7 @@ public interface ComputationParameters {
     OptionalLong getTimeout(String commandId);
 
     /**
-     * Returns an optional describing the total time limmit in seconds, the waiting time in queue is included. See differences
+     * Returns an optional describing the total time limit in seconds, the waiting time in queue is included. See differences
      * with {@link #getTimeout(String)}
      * @param commandId id of {@link Command}
      * @return an optional describing seconds

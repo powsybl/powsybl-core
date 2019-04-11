@@ -7,9 +7,19 @@
 package com.powsybl.computation;
 
 /**
+ * Computation manager factories are in charge of creating instances of {@link ComputationManager}.
+ *
+ * In particular, they may be referenced in configuration to define what computation managers
+ * implementation should be used for computation.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface ComputationManagerFactory {
 
+    /**
+     * Creates a new instance of {@link ComputationManager}.
+     *
+     * @return a new instance of {@link ComputationManager}.
+     */
     ComputationManager create();
 }
