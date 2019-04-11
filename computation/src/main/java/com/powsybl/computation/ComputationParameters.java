@@ -6,13 +6,17 @@
  */
 package com.powsybl.computation;
 
+import com.powsybl.commons.extensions.Extendable;
+import com.powsybl.commons.extensions.Extension;
+
+import java.util.Collections;
 import java.util.Optional;
 import java.util.OptionalLong;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public interface ComputationParameters {
+public interface ComputationParameters extends Extendable<ComputationParameters> {
 
     /**
      * Returns an optional describing the execution time limit in seconds, the waiting time in queue is not inclued. See
@@ -32,22 +36,10 @@ public interface ComputationParameters {
 
     Optional<String> getQos(String commandId);
 
+    /**
+     * @return an empty {@link ComputationParametersImpl}, but it supports plugin. See more {@link Extension}
+     */
     static ComputationParameters empty() {
-        return new ComputationParameters() {
-            @Override
-            public OptionalLong getTimeout(String commandId) {
-                return OptionalLong.empty();
-            }
-
-            @Override
-            public OptionalLong getDeadline(String commandId) {
-                return OptionalLong.empty();
-            }
-
-            @Override
-            public Optional<String> getQos(String commandId) {
-                return Optional.empty();
-            }
-        };
+        return new ComputationParametersImpl(Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
     }
 }

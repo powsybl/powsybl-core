@@ -6,12 +6,14 @@
  */
 package com.powsybl.computation;
 
+import com.powsybl.commons.extensions.AbstractExtendable;
+
 import java.util.*;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ComputationParametersImpl implements ComputationParameters {
+public class ComputationParametersImpl extends AbstractExtendable<ComputationParameters> implements ComputationParameters {
 
     private final Map<String, Long> timeoutMap;
 
