@@ -79,8 +79,8 @@ public class RemoteAppStorage implements AppStorage {
         client = createClient();
 
         webTarget = getWebTarget(client, baseUri)
-                          .register(WriterInterceptorGzipCli.class)
-                          .register(ReaderInterceptorGzip.class);
+                .register(WriterInterceptorGzipCli.class)
+                .register(ReaderInterceptorGzip.class);
 
         changeBuffer = new StorageChangeBuffer(changeSet -> {
             LOGGER.debug("flush(fileSystemName={}, size={})", fileSystemName, changeSet.getChanges().size());
@@ -185,21 +185,8 @@ public class RemoteAppStorage implements AppStorage {
 
     @Override
     public boolean isEnable(String nodeId) {
-        Objects.requireNonNull(nodeId);
-
-        LOGGER.debug("isEnable(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
-        // PATH : TO BE ADDED
-        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/enable")
-                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
-                .resolveTemplate(NODE_ID, nodeId)
-                .request(MediaType.TEXT_PLAIN)
-                .header(HttpHeaders.AUTHORIZATION, token)
-                .get();
-        try {
-            return readEntityIfOk(response, Boolean.class);
-        } finally {
-            response.close();
-        }
+        // to be implemented
+        return false;
     }
 
     @Override
@@ -231,11 +218,12 @@ public class RemoteAppStorage implements AppStorage {
     public void setEnable(String nodeId, boolean enable) {
         Objects.requireNonNull(nodeId);
         Objects.requireNonNull(enable);
+
         // flush buffer to keep change order
         changeBuffer.flush();
 
-        LOGGER.debug("setEnable(fileSystemName={}, nodeId={}, enable={})", fileSystemName, nodeId, enable);
-        // PATH : TO BE IMPLEMENTED
+        LOGGER.debug("setDescription(fileSystemName={}, nodeId={}, enable={})", fileSystemName, nodeId, enable);
+
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/enable")
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .resolveTemplate(NODE_ID, nodeId)
@@ -243,13 +231,12 @@ public class RemoteAppStorage implements AppStorage {
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .header(HttpHeaders.CONTENT_ENCODING, "gzip")
                 .acceptEncoding("gzip")
-                .put(Entity.text(enable));
+                .put(Entity.json(enable));
         try {
             checkOk(response);
         } finally {
             response.close();
         }
-
     }
 
     @Override

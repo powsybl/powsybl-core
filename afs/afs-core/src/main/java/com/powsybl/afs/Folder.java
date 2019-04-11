@@ -91,7 +91,9 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
                     storage.flush();
                     return newFolderInfo;
                 });
-        return new Folder(new FileCreationContext(folderInfo, storage, fileSystem));
+        Folder folder =  new Folder(new FileCreationContext(folderInfo, storage, fileSystem));
+        storage.setEnable(folder.getId(), true);
+        return  folder;
     }
 
     /**
@@ -106,7 +108,9 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
                     storage.flush();
                     return newProjectInfo;
                 });
-        return new Project(new FileCreationContext(projectInfo, storage, fileSystem));
+        Project project = new Project(new FileCreationContext(projectInfo, storage, fileSystem));
+        storage.setEnable(project.getId(), true);
+        return project;
     }
 
     public void archive(Path dir) {

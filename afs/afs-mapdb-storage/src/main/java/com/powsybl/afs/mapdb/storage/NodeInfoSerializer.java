@@ -29,6 +29,7 @@ public class NodeInfoSerializer implements Serializer<NodeInfo>, Serializable {
         out.writeUTF(nodeInfo.getName());
         out.writeUTF(nodeInfo.getPseudoClass());
         out.writeUTF(nodeInfo.getDescription());
+        out.writeBoolean(nodeInfo.isEnable());
         out.writeLong(nodeInfo.getCreationTime());
         out.writeLong(nodeInfo.getModificationTime());
         out.writeInt(nodeInfo.getVersion());
@@ -60,6 +61,7 @@ public class NodeInfoSerializer implements Serializer<NodeInfo>, Serializable {
         String name = input.readUTF();
         String pseudoClass = input.readUTF();
         String description = input.readUTF();
+        boolean enable = input.readBoolean();
         long creationTime = input.readLong();
         long modificationTime = input.readLong();
         int version = input.readInt();
@@ -80,6 +82,6 @@ public class NodeInfoSerializer implements Serializer<NodeInfo>, Serializable {
         for (int i = 0; i < booleanMetadataSize; i++) {
             metadata.setBoolean(input.readUTF(), input.readBoolean());
         }
-        return new NodeInfo(nodeId, name, pseudoClass, description, creationTime, modificationTime, version, metadata);
+        return new NodeInfo(nodeId, name, pseudoClass, description, creationTime, modificationTime, version, metadata, enable);
     }
 }

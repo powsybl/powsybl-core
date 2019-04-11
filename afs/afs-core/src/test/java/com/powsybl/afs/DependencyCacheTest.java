@@ -49,6 +49,7 @@ public class DependencyCacheTest extends AbstractProjectFileTest {
         @Override
         public Tic build() {
             NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, "TIC", "", 0, new NodeGenericMetadata());
+            info.setEnable(true);
             return new Tic(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));
         }
     }
@@ -112,6 +113,7 @@ public class DependencyCacheTest extends AbstractProjectFileTest {
         @Override
         public Tac build() {
             NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), "tac", "TAC", "", 0, new NodeGenericMetadata());
+            info.setEnable(true);
             return new Tac(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));
         }
     }
@@ -156,10 +158,16 @@ public class DependencyCacheTest extends AbstractProjectFileTest {
 
     @Test
     public void test() {
+        afs.getStorage().setEnable(afs.getRootFolder().getId(), true);
         Project project = afs.getRootFolder().createProject("project");
+        afs.getStorage().setEnable(project.getId(), true);
         Tic tic = project.getRootFolder().fileBuilder(TicBuilder.class).setName("tic").build();
         Tic tic2 = project.getRootFolder().fileBuilder(TicBuilder.class).setName("tic2").build();
         Tac tac = project.getRootFolder().fileBuilder(TacBuilder.class).build();
+        afs.getStorage().setEnable(tic.getId(), true);
+        afs.getStorage().setEnable(tic2.getId(), true);
+        afs.getStorage().setEnable(tac.getId(), true);
+
         assertNull(tac.getTicDependency());
         tac.setTicDependency(tic);
         assertNotNull(tac.getTicDependency());

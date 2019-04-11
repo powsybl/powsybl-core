@@ -34,7 +34,9 @@ public class Project extends File {
      */
     public ProjectFolder getRootFolder() {
         NodeInfo rootFolderInfo = storage.getChildNode(info.getId(), ROOT_FOLDER_NAME).orElseThrow(AssertionError::new);
-        return new ProjectFolder(new ProjectFileCreationContext(rootFolderInfo, storage, this));
+        ProjectFolder projectFolder = new ProjectFolder(new ProjectFileCreationContext(rootFolderInfo, storage, this));
+        storage.setEnable(projectFolder.getId(), true);
+        return projectFolder;
     }
 
     ProjectNode createProjectNode(NodeInfo nodeInfo) {
