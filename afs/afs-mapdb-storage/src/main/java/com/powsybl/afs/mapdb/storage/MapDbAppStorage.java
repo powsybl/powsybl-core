@@ -233,6 +233,17 @@ public class MapDbAppStorage implements AppStorage {
         return new AfsStorageException("Node " + nodeUuid + " not found");
     }
 
+    private AfsStorageException createNodeDisabledException(UUID nodeUuid) {
+        return new AfsStorageException("Node " + nodeUuid + " disabled");
+    }
+
+    private void checkEnabled(UUID nodeUuid) {
+        NodeInfo nodeInfo = nodeInfoMap.get(nodeUuid);
+        if (!nodeInfo.isEnable()) {
+            throw createNodeDisabledException(nodeUuid);
+        }
+    }
+
     static UUID checkNodeId(String nodeId) {
         try {
             return UUID.fromString(nodeId);
@@ -261,6 +272,7 @@ public class MapDbAppStorage implements AppStorage {
             rootNodeInfo = createNode(null, name, nodePseudoClass, "", 0, new NodeGenericMetadata());
             rootNodeVar.set(rootNodeInfo);
         }
+        this.setEnable(rootNodeInfo.getId(), true);
         return rootNodeInfo;
     }
 
@@ -324,7 +336,7 @@ public class MapDbAppStorage implements AppStorage {
         if (childNodes == null) {
             throw createNodeNotFoundException(nodeUuid);
         }
-        return childNodes.stream().map(this::getNodeInfo).collect(Collectors.toList());
+        return childNodes.stream().map(this::getNodeInfo).filter(NodeInfo::isEnable).collect(Collectors.toList());
     }
 
     @Override
@@ -332,6 +344,7 @@ public class MapDbAppStorage implements AppStorage {
         UUID parentNodeUuid = checkNodeId(parentString);
         Objects.requireNonNull(name);
         checkNodeExists(parentNodeUuid);
+        checkEnabled(parentNodeUuid);
         UUID childNodeUuid = childNodeMap.get(new NamedLink(parentNodeUuid, name));
         return Optional.ofNullable(childNodeUuid).map(this::getNodeInfo);
     }
@@ -341,7 +354,7 @@ public class MapDbAppStorage implements AppStorage {
         UUID nodeUuid = checkNodeId(nodeId);
         checkNodeExists(nodeUuid);
         UUID parentNodeUuid = parentNodeMap.get(nodeUuid);
-        return Optional.ofNullable(parentNodeUuid).map(this::getNodeInfo);
+        return Optional.ofNullable(parentNodeUuid).map(this::getNodeInfo).filter(NodeInfo::isEnable);
     }
 
     @Override
@@ -702,6 +715,7 @@ public class MapDbAppStorage implements AppStorage {
     @Override
     public Set<NodeDependency> getDependencies(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
+        checkEnabled(nodeUuid);
         List<NamedLink> dependencyNodes = dependencyNodesMap.get(nodeUuid);
         if (dependencyNodes == null) {
             throw createNodeNotFoundException(nodeUuid);

@@ -69,6 +69,8 @@ public class ActionScriptBuilder implements ProjectFileBuilder<ActionScript> {
             throw new UncheckedIOException(e);
         }
 
+        info.setEnable(true);
+
         context.getStorage().flush();
 
         return new ActionScript(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));

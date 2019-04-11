@@ -58,8 +58,11 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
     public void setup() throws IOException {
         super.setup();
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
-        storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "", Case.VERSION,
+        storage.setEnable(rootFolderInfo.getId(), true);
+        NodeInfo nodeInfo = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "", Case.VERSION,
                 new NodeGenericMetadata().setString(Case.FORMAT, TestImporter.FORMAT));
+        storage.setEnable(nodeInfo.getId(), true);
+
     }
 
     @Test
@@ -69,14 +72,18 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
 
         // create project
         Project project = afs.getRootFolder().createProject("project");
+        storage.setEnable(project.getId(), true);
+        storage.setEnable(project.getRootFolder().getId(), true);
 
         // create project folder
         ProjectFolder folder = project.getRootFolder().createFolder("folder");
+        storage.setEnable(folder.getId(), true);
 
         // import case into project
         ImportedCase importedCase = folder.fileBuilder(ImportedCaseBuilder.class)
                 .withCase(aCase)
                 .build();
+        storage.setEnable(importedCase.getId(), true);
 
         // create groovy script
         ModificationScript script = folder.fileBuilder(ModificationScriptBuilder.class)
@@ -84,13 +91,14 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
                 .withType(ScriptType.GROOVY)
                 .withContent("print 'hello'")
                 .build();
-
+        storage.setEnable(script.getId(), true);
         // create virtual by applying groovy script on imported case
         try {
             VirtualCase virtualCase = folder.fileBuilder(VirtualCaseBuilder.class)
                     .withCase(importedCase)
                     .withScript(script)
                     .build();
+            storage.setEnable(virtualCase.getId(), true);
             fail();
         } catch (AfsException ignored) {
         }
@@ -100,6 +108,7 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
                     .withName("network2")
                     .withScript(script)
                     .build();
+            storage.setEnable(virtualCase.getId(), true);
             fail();
         } catch (AfsException ignored) {
         }
@@ -109,6 +118,7 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
                     .withName("network2")
                     .withCase(importedCase)
                     .build();
+            storage.setEnable(virtualCase.getId(), true);
             fail();
         } catch (AfsException ignored) {
         }
@@ -118,7 +128,7 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
                 .withCase(importedCase)
                 .withScript(script)
                 .build();
-
+        storage.setEnable(virtualCase.getId(), true);
         assertEquals("network2", virtualCase.getName());
         assertTrue(virtualCase.getCase().isPresent());
         assertTrue(virtualCase.getScript().isPresent());
@@ -141,12 +151,14 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
                 .withType(ScriptType.GROOVY)
                 .withContent("prin 'hello'")
                 .build();
+        storage.setEnable(scriptWithError.getId(), true);
 
         VirtualCase virtualCaseWithError = folder.fileBuilder(VirtualCaseBuilder.class)
                 .withName("network2")
                 .withCase(importedCase)
                 .withScript(scriptWithError)
                 .build();
+        storage.setEnable(virtualCaseWithError.getId(), true);
 
         try {
             virtualCaseWithError.getNetwork();

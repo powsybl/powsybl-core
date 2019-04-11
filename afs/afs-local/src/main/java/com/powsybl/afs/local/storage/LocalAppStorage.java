@@ -195,9 +195,7 @@ public class LocalAppStorage implements AppStorage {
 
     @Override
     public void setEnable(String nodeId, boolean enable) {
-        Objects.requireNonNull(enable);
-        NodeInfo nodeInfo = getNodeInfo(nodeId);
-        nodeInfo.setEnable(enable);
+        // TO BE IMPLEMENTED
     }
 
     @Override
@@ -272,6 +270,7 @@ public class LocalAppStorage implements AppStorage {
 
     @Override
     public boolean isEnable(String nodeId) {
+        // TO BE IMPLEMENTED
         NodeInfo nodeInfo = getNodeInfo(nodeId);
         return nodeInfo.isEnable();
     }

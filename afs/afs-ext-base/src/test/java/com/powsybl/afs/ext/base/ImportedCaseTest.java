@@ -79,8 +79,10 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
     public void setup() throws IOException {
         super.setup();
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
+        storage.setEnable(rootFolderInfo.getId(), true);
         storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "Test format", Case.VERSION,
                 new NodeGenericMetadata().setString("format", TestImporter.FORMAT));
+        storage.setEnable(storage.getChildNode(rootFolderInfo.getId(), "network").get().getId(), true);
 
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         Files.createFile(fileSystem.getPath("/work/network.tst"));
@@ -97,7 +99,6 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
     @Test
     public void test() {
         Folder root = afs.getRootFolder();
-
         // check case exist
         assertEquals(1, root.getChildren().size());
         assertTrue(root.getChildren().get(0) instanceof Case);
@@ -108,10 +109,14 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
 
         // create project
         Project project = root.createProject("project");
+        storage.setEnable(project.getId(), true);
+        storage.setEnable(project.getRootFolder().getId(), true);
+
         assertNotNull(project);
 
         // create project folder
         ProjectFolder folder = project.getRootFolder().createFolder("folder");
+        storage.setEnable(folder.getId(), true);
         assertTrue(folder.getChildren().isEmpty());
 
         // import case into project
@@ -126,6 +131,7 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
                 .withParameter("param1", "true")
                 .withParameters(ImmutableMap.of("param2", "1"))
                 .build();
+        storage.setEnable(importedCase.getId(), true);
         assertNotNull(importedCase);
         assertFalse(importedCase.isFolder());
         assertNotNull(importedCase.getNetwork());
@@ -158,25 +164,30 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
     @Test
     public void testFile() {
         Folder root = afs.getRootFolder();
-
         // create project
         Project project = root.createProject("project");
+        storage.setEnable(project.getId(), true);
+        storage.setEnable(project.getRootFolder().getId(), true);
+
         assertNotNull(project);
 
         // create project folder
         ProjectFolder folder = project.getRootFolder().createFolder("folder");
+        storage.setEnable(folder.getId(), true);
         assertTrue(folder.getChildren().isEmpty());
 
         ImportedCase importedCase = folder.fileBuilder(ImportedCaseBuilder.class)
                 .withFile(fileSystem.getPath("/work/network.tst"))
                 .withName("test")
                 .build();
+        storage.setEnable(importedCase.getId(), true);
         assertNotNull(importedCase);
         assertEquals("test", importedCase.getName());
 
         ImportedCase importedCase2 = folder.fileBuilder(ImportedCaseBuilder.class)
                 .withFile(fileSystem.getPath("/work/network.tst"))
                 .build();
+        storage.setEnable(importedCase2.getId(), true);
         assertNotNull(importedCase2);
         assertEquals("network", importedCase2.getName());
     }
@@ -184,13 +195,15 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
     @Test
     public void testNetwork() {
         Folder root = afs.getRootFolder();
-
         // create project
         Project project = root.createProject("project");
+        storage.setEnable(project.getId(), true);
+        storage.setEnable(project.getRootFolder().getId(), true);
         assertNotNull(project);
 
         // create project folder
         ProjectFolder folder = project.getRootFolder().createFolder("folder");
+        storage.setEnable(folder.getId(), true);
         assertTrue(folder.getChildren().isEmpty());
 
         Network network = NetworkFactory.create("NetworkID", "scripting");
@@ -199,11 +212,13 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
                 .withNetwork(network)
                 .build();
         assertNotNull(importedCase1);
+        storage.setEnable(importedCase1.getId(), true);
         assertEquals("test", importedCase1.getName());
 
         ImportedCase importedCase2 = folder.fileBuilder(ImportedCaseBuilder.class)
                 .withNetwork(network)
                 .build();
+        storage.setEnable(importedCase2.getId(), true);
         assertNotNull(importedCase2);
         assertEquals("NetworkID", importedCase2.getName());
 
