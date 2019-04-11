@@ -42,6 +42,7 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         }
 
         RegulatingControlConversion.Data control = RegulatingControlConversion.convert(
+                iidmId(),
                 p,
                 voltageLevel(),
                 context);
@@ -49,7 +50,6 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
                 .setMinP(minP)
                 .setMaxP(maxP)
                 .setVoltageRegulatorOn(control.on())
-                .setRegulatingTerminal(control.terminal())
                 .setTargetP(targetP)
                 .setTargetQ(targetQ)
                 .setTargetV(control.targetV())
