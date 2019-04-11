@@ -260,6 +260,11 @@ public class ImmutableTest {
         assertEquals(countries, sut.getCountries());
         when(delegate.getCountryCount()).thenReturn(1);
         assertEquals(1, sut.getCountryCount());
+        try {
+            sut.getCountries().add(Country.CN);
+        } catch (Exception e) {
+            // ignored
+        }
 
         when(delegate.getVoltageLevels()).thenReturn(MOCK_VL_LIST);
         when(delegate.getVoltageLevelStream()).thenReturn(MOCK_VL_STREAM.get());
@@ -478,6 +483,15 @@ public class ImmutableTest {
         when(delegate.getThreeWindingsTransformers()).thenReturn(MOCK_3WT_LIST);
         when(delegate.getThreeWindingsTransformerStream()).thenReturn(MOCK_3WT_STREAM.get());
         assertElementType(ImmutableThreeWindingsTransformer.class, sut.getThreeWindingsTransformers(), sut.getThreeWindingsTransformerStream());
+
+        Set<String> tages = new HashSet<>();
+        tages.add("A");
+        when(delegate.getGeographicalTags()).thenReturn(tages);
+        try {
+            sut.getGeographicalTags().add("B");
+        } catch (Exception e) {
+            // ignored
+        }
     }
 
     private static <T extends Identifiable> void assertElementType(Class expectedClazz, Iterable<T> iterable, Stream<T> stream) {

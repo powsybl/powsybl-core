@@ -28,6 +28,7 @@ final class ImmutableComponent implements Component {
         this.component = Objects.requireNonNull(component);
         this.cache = Objects.requireNonNull(cache);
     }
+
     /**
      * {@inheritDoc}
      */

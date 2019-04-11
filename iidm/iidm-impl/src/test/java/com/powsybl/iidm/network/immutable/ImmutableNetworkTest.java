@@ -23,7 +23,8 @@ public class ImmutableNetworkTest {
 
     @Test
     public void test() {
-        Network network = ImmutableNetwork.of(EurostagTutorialExample1Factory.create());
+        Network n = EurostagTutorialExample1Factory.create();
+        Network network = ImmutableNetwork.of(n);
         Set<String> expectedInvalidMethods = new HashSet<>();
         expectedInvalidMethods.add("setForecastDistance");
         expectedInvalidMethods.add("setCaseDate");
@@ -36,6 +37,8 @@ public class ImmutableNetworkTest {
         Substation sub = network.getSubstation("P1");
         Substation sub2 = network.getSubstation("P1");
         assertSame(sub, sub2);
+        Identifiable<?> p1 = network.getIdentifiable("P1");
+        assertSame(sub, p1);
         assertTrue(sub instanceof ImmutableSubstation);
         assertSame(network, sub.getNetwork());
         Set<String> mutalbeMethods = new HashSet<>();
@@ -52,6 +55,8 @@ public class ImmutableNetworkTest {
         VoltageLevel vl = network.getVoltageLevel("VLGEN");
         assertTrue(vl instanceof ImmutableVoltageLevel);
         assertSame(sub, vl.getSubstation());
+        Identifiable<?> vlgen = network.getIdentifiable("VLGEN");
+        assertSame(vl, vlgen);
         Set<String> invalidVlMethods = new HashSet<>();
         invalidVlMethods.add("setNominalV");
         invalidVlMethods.add("setLowVoltageLimit");
@@ -91,6 +96,7 @@ public class ImmutableNetworkTest {
         invalidBbvMethods.add("newSwitch");
         testInvalidMethods(busBreakerView, invalidBbvMethods, bbvMutableMethods);
 
+        assertEquals(n.getIdentifiables().size(), network.getIdentifiables().size());
     }
 
     @Test
@@ -110,7 +116,7 @@ public class ImmutableNetworkTest {
 
     @Test
     public void testImmutableTerminalAndBus() {
-        Network n = EurostagTutorialExample1Factory.createWithCurrentLimits();
+        Network n = EurostagTutorialExample1Factory.createWithFixedCurrentLimits();
         Terminal t = n.getLine("NHV1_NHV2_1").getTerminal1();
         Bus b = t.getBusView().getBus();
         Component c = b.getConnectedComponent();

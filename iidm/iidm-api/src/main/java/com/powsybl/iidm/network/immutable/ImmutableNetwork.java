@@ -11,9 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -94,9 +92,13 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
         return cache.getVariantManager(identifiable.getVariantManager());
     }
 
+    /**
+     * {@inheritDoc}
+     * @return an unmodifiable set of {@link Country}
+     */
     @Override
     public Set<Country> getCountries() {
-        return identifiable.getCountries();
+        return Collections.unmodifiableSet(new HashSet<>(identifiable.getCountries()));
     }
 
     /**
@@ -745,14 +747,26 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
         throw createUnmodifiableNetworkException();
     }
 
+    /**
+     * {@inheritDoc}
+     * @return an immutable identifiable
+     */
     @Override
     public Identifiable<?> getIdentifiable(String id) {
-        return identifiable.getIdentifiable(id);
+        return cache.getIdentifiable(identifiable.getIdentifiable(id));
     }
 
+    /**
+     * {@inheritDoc}
+     * @return an unmodifiable collections of immutable identifiable objects
+     */
     @Override
     public Collection<Identifiable<?>> getIdentifiables() {
-        return identifiable.getIdentifiables();
+        Set<Identifiable<?>> res = new HashSet<>();
+        for (Identifiable i : identifiable.getIdentifiables()) {
+            res.add(cache.getIdentifiable(i));
+        }
+        return Collections.unmodifiableSet(res);
     }
 
     /**

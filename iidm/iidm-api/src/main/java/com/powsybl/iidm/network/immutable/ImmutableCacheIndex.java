@@ -32,6 +32,8 @@ class ImmutableCacheIndex {
 
     private final Network network;
 
+    private ImmutableNetwork immutableNetwork;
+
     private VariantManager cachedVariantManager;
 
     ImmutableCacheIndex(Network network) {
@@ -40,6 +42,26 @@ class ImmutableCacheIndex {
 
     Network getNetwork() {
         return network;
+    }
+
+    Identifiable getIdentifiable(Identifiable identifiable) {
+        if (identifiable instanceof Substation) {
+            return getSubstation((Substation) identifiable); // container
+        } else if (identifiable instanceof Bus) {
+            return getBus((Bus) identifiable);
+        } else if (identifiable instanceof VoltageLevel) {
+            return getVoltageLevel((VoltageLevel) identifiable); // container
+        } else if (identifiable instanceof Connectable) {
+            return getConnectable((Connectable) identifiable);
+        } else if (identifiable instanceof HvdcLine) {
+            return getHvdcLine((HvdcLine) identifiable);
+        } else if (identifiable instanceof Switch) {
+            return getSwitch((Switch) identifiable);
+        } else if (identifiable instanceof Network) {
+            return network;
+        } else {
+            throw new PowsyblException(identifiable.getClass() + " type is not cached in ImmutableCacheIndex.");
+        }
     }
 
     Substation getSubstation(Substation substation) {

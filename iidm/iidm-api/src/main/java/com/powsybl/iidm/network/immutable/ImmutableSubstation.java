@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.immutable;
 import com.google.common.collect.Iterables;
 import com.powsybl.iidm.network.*;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -163,9 +165,13 @@ final class ImmutableSubstation extends AbstractImmutableIdentifiable<Substation
         return identifiable.getThreeWindingsTransformerCount();
     }
 
+    /**
+     * {@inheritDoc}
+     * @return an unmodifiable set of tag's string
+     */
     @Override
     public Set<String> getGeographicalTags() {
-        return identifiable.getGeographicalTags();
+        return Collections.unmodifiableSet(new HashSet<>(identifiable.getGeographicalTags()));
     }
 
     /**
