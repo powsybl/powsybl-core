@@ -18,7 +18,7 @@ public interface DataSourceUtil {
 
     static String getFileName(String baseName, String suffix, String ext) {
         Objects.requireNonNull(baseName);
-        return baseName + (suffix != null ? suffix : "") + (ext != null ? "." + ext : "");
+        return baseName + (suffix != null ? suffix : "") + (ext == null || ext.isEmpty() ? "" : "." + ext);
     }
 
     static OpenOption[] getOpenOptions(boolean append) {

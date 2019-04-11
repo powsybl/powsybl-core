@@ -6,28 +6,55 @@
  */
 package com.powsybl.iidm.import_;
 
+import com.google.common.collect.Sets;
+import com.powsybl.iidm.AbstractOptions;
+import com.powsybl.iidm.IidmImportExportMode;
+
+import java.util.Set;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class ImportOptions {
+public class ImportOptions extends AbstractOptions<ImportOptions> {
 
-    private boolean throwExceptionIfExtensionNotFound;
+    private boolean throwExceptionIfExtensionNotFound = false;
 
     public ImportOptions() {
-        this(false);
     }
 
     public ImportOptions(boolean throwExceptionIfExtensionNotFound) {
         this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
     }
 
+    @Override
+    public ImportOptions setExtensions(Set<String> extensions) {
+        this.extensions = extensions;
+        return this;
+    }
+
+    public ImportOptions setThrowExceptionIfExtensionNotFound(boolean throwExceptionIfExtensionNotFound) {
+        this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
+        return this;
+    }
+
+    @Override
+    public ImportOptions setMode(IidmImportExportMode mode) {
+        this.mode = mode;
+        return this;
+    }
+
+    @Override
+    public ImportOptions addExtension(String extension) {
+        if (extensions != null) {
+            extensions.add(extension);
+        } else {
+            this.extensions = Sets.newHashSet(extension);
+        }
+        return this;
+    }
+
     public boolean isThrowExceptionIfExtensionNotFound() {
         return throwExceptionIfExtensionNotFound;
     }
-
-    public void setThrowExceptionIfExtensionNotFound(boolean throwExceptionIfExtensionNotFound) {
-        this.throwExceptionIfExtensionNotFound = throwExceptionIfExtensionNotFound;
-    }
-
 }

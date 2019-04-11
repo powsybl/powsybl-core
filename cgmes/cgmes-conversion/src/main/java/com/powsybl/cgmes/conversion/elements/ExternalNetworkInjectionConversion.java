@@ -17,7 +17,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class ExternalNetworkInjectionConversion extends AbstractConductingEquipmentConversion {
+public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOwnerConversion {
 
     public ExternalNetworkInjectionConversion(PropertyBag sm, Context context) {
         super("ExternalNetworkInjection", sm, context);
@@ -37,6 +37,7 @@ public class ExternalNetworkInjectionConversion extends AbstractConductingEquipm
         }
 
         RegulatingControlConversion.Data control = RegulatingControlConversion.convert(
+                iidmId(),
                 p,
                 voltageLevel(),
                 context);
@@ -44,7 +45,6 @@ public class ExternalNetworkInjectionConversion extends AbstractConductingEquipm
                 .setMinP(minP)
                 .setMaxP(maxP)
                 .setVoltageRegulatorOn(control.on())
-                .setRegulatingTerminal(control.terminal())
                 .setTargetP(targetP)
                 .setTargetQ(targetQ)
                 .setTargetV(control.targetV())
@@ -53,6 +53,6 @@ public class ExternalNetworkInjectionConversion extends AbstractConductingEquipm
         connect(adder);
         Generator g = adder.add();
         convertedTerminals(g.getTerminal());
-        ReactiveLimitsConversion.convert(p, g);
+        convertReactiveLimits(g);
     }
 }

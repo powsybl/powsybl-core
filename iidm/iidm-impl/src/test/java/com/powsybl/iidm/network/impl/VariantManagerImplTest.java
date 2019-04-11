@@ -9,8 +9,10 @@ package com.powsybl.iidm.network.impl;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.VariantManagerConstants;
+import com.powsybl.commons.extensions.AbstractExtension;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import gnu.trove.list.array.TDoubleArrayList;
 import org.junit.Test;
 
 import java.util.Collections;
@@ -82,15 +84,73 @@ public class VariantManagerImplTest {
         }
     }
 
+    private static final class LoadExtension extends AbstractExtension<Load> implements MultiVariantObject {
+
+        private final TDoubleArrayList values;
+
+        LoadExtension(Load load, double value) {
+            super(load);
+
+            int variantArraySize = getNetwork().getVariantManager().getVariantArraySize();
+            this.values = new TDoubleArrayList(variantArraySize);
+            for (int i = 0; i < variantArraySize; ++i) {
+                this.values.add(value);
+            }
+        }
+
+        @Override
+        public String getName() {
+            return "load-extension";
+        }
+
+        @Override
+        public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+            values.ensureCapacity(values.size() + number);
+            for (int i = 0; i < number; ++i) {
+                values.add(values.get(sourceIndex));
+            }
+        }
+
+        @Override
+        public void reduceVariantArraySize(int number) {
+            values.remove(values.size() - number, number);
+        }
+
+        @Override
+        public void deleteVariantArrayElement(int index) {
+            // Nothing to do
+        }
+
+        @Override
+        public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+            for (int index : indexes) {
+                values.set(index, values.get(sourceIndex));
+            }
+        }
+
+        double getValue() {
+            return this.values.get(getNetwork().getVariantIndex());
+        }
+
+        LoadExtension setValue(double value) {
+            this.values.set(getNetwork().getVariantIndex(), value);
+            return this;
+        }
+
+        private NetworkImpl getNetwork() {
+            return (NetworkImpl) getExtendable().getTerminal().getVoltageLevel().getSubstation().getNetwork();
+        }
+    }
+
     public VariantManagerImplTest() {
     }
 
     @Test
     public void test() {
-        ObjectStore objectStore = new ObjectStore();
+        NetworkIndex index = new NetworkIndex();
         IdentifiableMock identifiable1 = new IdentifiableMock("1");
-        objectStore.checkAndAdd(identifiable1);
-        VariantManagerImpl variantManager = new VariantManagerImpl(objectStore);
+        index.checkAndAdd(identifiable1);
+        VariantManagerImpl variantManager = new VariantManagerImpl(index);
         // initial variant test
         assertEquals(1, variantManager.getVariantArraySize());
         assertEquals(Collections.singleton(VariantManagerConstants.INITIAL_VARIANT_ID), variantManager.getVariantIds());
@@ -148,5 +208,63 @@ public class VariantManagerImplTest {
         assertEquals(Collections.singleton(VariantManagerConstants.INITIAL_VARIANT_ID), variantManager.getVariantIds());
         assertEquals(Collections.singleton(0), variantManager.getVariantIndexes());
         assertEquals(2, identifiable1.reducedCount);
+    }
+
+    @Test
+    public void testMultipleNetworks() {
+        NetworkIndex index = new NetworkIndex();
+
+        VariantManager variantManager1 = new VariantManagerImpl(index);
+        variantManager1.allowVariantMultiThreadAccess(true);
+        assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, variantManager1.getWorkingVariantId());
+
+        VariantManager variantManager2 = new VariantManagerImpl(index);
+        variantManager2.allowVariantMultiThreadAccess(true);
+        assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, variantManager1.getWorkingVariantId());
+
+        variantManager1.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "testVariant");
+
+        variantManager1.setWorkingVariant("testVariant");
+        assertEquals("testVariant", variantManager1.getWorkingVariantId());
+
+        //active variant for variant manager 2 should not have changed
+        assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, variantManager2.getWorkingVariantId());
+    }
+
+    @Test
+    public void testMultiStateExtensions() {
+        String variante1 = "v1";
+        String variante2 = "v2";
+
+        Network network = EurostagTutorialExample1Factory.create();
+        VariantManager manager = network.getVariantManager();
+
+        Load load = network.getLoad("LOAD");
+        LoadExtension loadExtension = new LoadExtension(load, 100);
+        load.addExtension(LoadExtension.class, loadExtension);
+
+        manager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variante1);
+        manager.setWorkingVariant(variante1);
+
+        assertEquals(100.0, loadExtension.getValue(), 0.0);
+        loadExtension.setValue(200);
+        assertEquals(200.0, loadExtension.getValue(), 0.0);
+
+        manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertEquals(100.0, loadExtension.getValue(), 0.0);
+
+        manager.cloneVariant(variante1, variante2);
+        manager.setWorkingVariant(variante2);
+        assertEquals(200.0, loadExtension.getValue(), 0.0);
+
+        loadExtension.setValue(300);
+        manager.removeVariant(variante1);
+        assertEquals(300.0, loadExtension.getValue(), 0.0);
+
+        manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertEquals(100.0, loadExtension.getValue(), 0.0);
+
+        manager.removeVariant(variante2);
+        assertEquals(100.0, loadExtension.getValue(), 0.0);
     }
 }

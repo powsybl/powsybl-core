@@ -150,7 +150,6 @@ public class ActionExpressionPrinter extends ExpressionPrinter implements Action
         return null;
     }
 
-
     @Override
     public Void visitAllOverloaded(AllOverloadedNode node, Void arg) {
         out.print("allOverloaded(");

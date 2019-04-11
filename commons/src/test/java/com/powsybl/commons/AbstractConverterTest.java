@@ -9,6 +9,8 @@ package com.powsybl.commons;
 import com.google.common.io.ByteStreams;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.config.PlatformConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.xmlunit.builder.DiffBuilder;
@@ -35,11 +37,13 @@ public abstract class AbstractConverterTest {
 
     protected FileSystem fileSystem;
     protected Path tmpDir;
+    protected PlatformConfig platformConfig;
 
     @Before
     public void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         tmpDir = Files.createDirectory(fileSystem.getPath("tmp"));
+        platformConfig = new InMemoryPlatformConfig(fileSystem);
     }
 
     @After

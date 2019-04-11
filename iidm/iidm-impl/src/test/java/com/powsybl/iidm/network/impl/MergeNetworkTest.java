@@ -21,47 +21,51 @@ public class MergeNetworkTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
+    Network merge;
     Network n1;
     Network n2;
 
     @Before
     public void setup() {
+        merge = new NetworkImpl("merge", "merged network", "asdf");
         n1 = new NetworkImpl("n1", "network1", "asdf");
         n2 = new NetworkImpl("n2", "network2", "qwer");
     }
 
     @Test
     public void failMergeIfMultiVariants() {
+        n1.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "Totest");
         thrown.expect(PowsyblException.class);
         thrown.expectMessage("Merging of multi-variants network is not supported");
-        n1.getVariantManager().cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "Totest");
-        n1.merge(n2);
+        merge.merge(n1);
     }
 
     @Test
     public void failMergeWithSameObj() {
         addSubstation(n1, "P1");
         addSubstation(n2, "P1");
+        merge.merge(n1);
         thrown.expect(PowsyblException.class);
         thrown.expectMessage("The following object(s) of type SubstationImpl exist(s) in both networks: [P1]");
-        n1.merge(n2);
+        merge.merge(n2);
     }
 
     @Test
     public void xnodeNonCompatible() {
         addSubstationAndVoltageLevel();
         addDanglingLine("dl", "code", "dl", "deco");
+        merge.merge(n1);
         thrown.expect(PowsyblException.class);
         thrown.expectMessage("Dangling line couple dl have inconsistent Xnodes (code!=deco)");
-        n1.merge(n2);
+        merge.merge(n2);
     }
 
     @Test
     public void testMerge() {
         addSubstationAndVoltageLevel();
         addDanglingLine("dl1", "code", "dl2", "code");
-        n1.merge(n2);
-        assertNotNull(n1.getLine("dl1 + dl2"));
+        merge.merge(n1, n2);
+        assertNotNull(merge.getLine("dl1 + dl2"));
     }
 
     private void addSubstation(Network network, String substationId) {
@@ -130,9 +134,22 @@ public class MergeNetworkTest {
 
     @Test
     public void test() {
-        n1.merge(n2);
-        assertEquals("n1 + n2", n1.getId());
-        assertEquals(n1.getId(), n1.getName());
-        assertEquals("hybrid", n1.getSourceFormat());
+        merge.merge(n1, n2);
+        assertEquals("merge", merge.getId());
+        assertEquals("hybrid", merge.getSourceFormat());
+    }
+
+    @Test
+    public void checkMergingSameFormat() {
+        merge.merge(n1);
+        assertEquals("merge", merge.getId());
+        assertEquals("asdf", merge.getSourceFormat());
+    }
+
+    @Test
+    public void checkMergingDifferentFormat() {
+        merge.merge(n2);
+        assertEquals("merge", merge.getId());
+        assertEquals("hybrid", merge.getSourceFormat());
     }
 }

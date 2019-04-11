@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.function.Consumer;
 
+import com.powsybl.triplestore.api.TripleStore;
 import org.joda.time.DateTime;
 
 import com.powsybl.commons.datasource.DataSource;
@@ -22,7 +23,11 @@ import com.powsybl.triplestore.api.PropertyBags;
  */
 public interface CgmesModel {
 
+    TripleStore tripleStore();
+
     Properties getProperties();
+
+    boolean hasEquipmentCore();
 
     String modelId();
 
@@ -33,6 +38,8 @@ public interface CgmesModel {
     DateTime created();
 
     boolean isNodeBreaker();
+
+    boolean hasBoundary();
 
     CgmesTerminal terminal(String terminalId);
 
@@ -96,6 +103,8 @@ public interface CgmesModel {
     PropertyBags externalNetworkInjections();
 
     PropertyBags asynchronousMachines();
+
+    PropertyBags reactiveCapabilityCurveData();
 
     PropertyBags ratioTapChangerTablesPoints();
 

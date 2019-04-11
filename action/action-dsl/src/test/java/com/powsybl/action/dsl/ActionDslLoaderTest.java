@@ -106,7 +106,6 @@ public class ActionDslLoaderTest {
         someAction.run(network, null);
     }
 
-
     private static <T> ArgumentMatcher<T> matches(Function<T, Boolean> predicate) {
         return new ArgumentMatcher<T>() {
             @Override
@@ -127,7 +126,6 @@ public class ActionDslLoaderTest {
         verify(handler, times(1)).addContingency(argThat(matches(c -> c.getId().equals("contingency2"))));
         verify(handler, times(1)).addRule(argThat(matches(c -> c.getId().equals("rule"))));
     }
-
 
     private void addPhaseShifter() {
         network.getTwoWindingsTransformer("NGEN_NHV1").newPhaseTapChanger()

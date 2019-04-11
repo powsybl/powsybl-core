@@ -57,7 +57,6 @@ public class ToolOptionsTest {
                 .addOption(Option.builder().longOpt("path").hasArg().build())
                 .addOption(Option.builder().longOpt("flag").build());
 
-
         // Check for user value
         String[] args = {"--value", "valueString",
                          "--int", "5",

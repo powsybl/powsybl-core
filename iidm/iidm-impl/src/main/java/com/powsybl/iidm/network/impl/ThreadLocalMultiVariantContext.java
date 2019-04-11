@@ -14,8 +14,6 @@ import com.powsybl.commons.PowsyblException;
  */
 public class ThreadLocalMultiVariantContext implements VariantContext {
 
-    public static final ThreadLocalMultiVariantContext INSTANCE = new ThreadLocalMultiVariantContext();
-
     private final ThreadLocal<Integer> index = ThreadLocal.withInitial(() -> null);
 
     @Override

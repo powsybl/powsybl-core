@@ -12,6 +12,8 @@ package com.powsybl.cgmes.model;
  */
 public final class CgmesNames {
 
+    public static final String FULL_MODEL = "FullModel";
+
     public static final String SUBSTATION = "Substation";
     public static final String VOLTAGE_LEVEL = "VoltageLevel";
     public static final String TERMINAL = "Terminal";
@@ -33,6 +35,9 @@ public final class CgmesNames {
 
     public static final String VOLTAGE = "v";
     public static final String ANGLE = "angle";
+
+    public static final String RATIO_TAP_CHANGER_TABLE = "RatioTapChangerTable";
+    public static final String PHASE_TAP_CHANGER_TABLE = "PhaseTapChangerTable";
 
     private CgmesNames() {
     }

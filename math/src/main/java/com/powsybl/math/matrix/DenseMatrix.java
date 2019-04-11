@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Objects;
 
 /**
+ * Dense matrix implementation based on an array of m * n double values.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class DenseMatrix extends AbstractMatrix {
@@ -68,28 +70,52 @@ public class DenseMatrix extends AbstractMatrix {
         }
     }
 
+    /**
+     * Get value at row i and  column j.
+     *
+     * @param i row index
+     * @param j column index
+     * @return value at row i and column j
+     */
     public double getValue(int i, int j) {
         checkBounds(i, j);
         return buffer.getDouble(j * Double.BYTES * m + i * Double.BYTES);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setValue(int i, int j, double value) {
         checkBounds(i, j);
         buffer.putDouble(j * Double.BYTES * m + i * Double.BYTES, value);
     }
 
+    /**
+     * Increment value at row i and column j.
+     *
+     * @param i row index
+     * @param j column index
+     * @param value increment value
+     */
+    @Override
     public void addValue(int i, int j, double value) {
         checkBounds(i, j);
         int index = j * Double.BYTES * m + i * Double.BYTES;
         buffer.putDouble(index, buffer.getDouble(index) + value);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getM() {
         return m;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getN() {
         return n;
@@ -109,26 +135,40 @@ public class DenseMatrix extends AbstractMatrix {
         }
     }
 
-    double[] getValuesCopy() {
+    private double[] getValuesCopy() {
         double[] values = new double[m * n];
         buffer.asDoubleBuffer().get(values);
         return values;
     }
 
+    /**
+     * Convert to <a href="Jama https://math.nist.gov/javanumerics/jama/">Jama</a> matrix.
+     *
+     * @return a Jama matrix
+     */
     Jama.Matrix toJamaMatrix() {
         return new Jama.Matrix(getValuesCopy(), m);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public LUDecomposition decomposeLU() {
         return new DenseLUDecomposition(toJamaMatrix().lu());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Matrix times(Matrix other) {
         return new DenseMatrix(toJamaMatrix().times(other.toDense().toJamaMatrix()));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void iterateNonZeroValue(ElementHandler handler) {
         Objects.requireNonNull(handler);
@@ -137,6 +177,9 @@ public class DenseMatrix extends AbstractMatrix {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void iterateNonZeroValueOfColumn(int j, ElementHandler handler) {
         for (int i = 0; i < getM(); i++) {
@@ -147,16 +190,25 @@ public class DenseMatrix extends AbstractMatrix {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public DenseMatrix toDense() {
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SparseMatrix toSparse() {
         return (SparseMatrix) to(new SparseMatrixFactory());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Matrix to(MatrixFactory factory) {
         Objects.requireNonNull(factory);
@@ -166,26 +218,25 @@ public class DenseMatrix extends AbstractMatrix {
         return copy(factory);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected int getEstimatedNonZeroValueCount() {
         return getM() * getN();
     }
 
-    @Override
-    public void print() {
-        print(System.out);
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void print(PrintStream out) {
         print(out, null, null);
     }
 
-    @Override
-    public void print(List<String> rowNames, List<String> columnNames) {
-        print(System.out, rowNames, columnNames);
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void print(PrintStream out, List<String> rowNames, List<String> columnNames) {
         int rowNamesWidth = getMaxWidthAmongRowNames(rowNames);
@@ -212,6 +263,9 @@ public class DenseMatrix extends AbstractMatrix {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     private int getMaxWidthAmongRowNames(List<String> rowNames) {
         int rowNamesWidth = 0;
         if (rowNames != null) {
@@ -222,6 +276,9 @@ public class DenseMatrix extends AbstractMatrix {
         return rowNamesWidth;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     private int[] getMaxWidthForEachColumn(List<String> columnNames) {
         int[] width = new int[getN()];
         for (int i = 0; i < getM(); i++) {
@@ -235,11 +292,17 @@ public class DenseMatrix extends AbstractMatrix {
         return width;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         return m + n + buffer.hashCode();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof DenseMatrix) {

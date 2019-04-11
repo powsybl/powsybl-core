@@ -18,13 +18,20 @@ import java.util.List;
 import java.util.Objects;
 
 /**
+ * Sparse matrix implementation in <a href="https://en.wikipedia.org/wiki/Sparse_matrix#Compressed_sparse_column_(CSC_or_CCS)">CSC</a></a> format.
+ * This implementation rely on a native library which is a wrapper around KLU module of
+ * <a href="http://faculty.cse.tamu.edu/davis/suitesparse.html">SuiteSparse</a> project.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SparseMatrix extends AbstractMatrix {
+class SparseMatrix extends AbstractMatrix {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SparseMatrix.class);
 
-    public static final boolean NATIVE_INIT;
+    /**
+     * Flag that indicates if native library has been loaded.
+     */
+    static final boolean NATIVE_INIT;
 
     private static native void nativeInit();
 
@@ -46,15 +53,36 @@ public class SparseMatrix extends AbstractMatrix {
         }
     }
 
+    /**
+     * Row count.
+     */
     private final int m;
+
+    /**
+     * Column count.
+     */
     private final int n;
+
+    /**
+     * Column start index in {@link #values} array.
+     * Length of this vector is the number of column.
+     */
     private final int[] columnStart; // plus value count in the last element
+
+    /**
+     * Row index for each of the {@link #values}.
+     * Length of this vector is the number of values.
+     */
     private final TIntArrayListHack rowIndices;
+
+    /**
+     * Non zero values.
+     */
     private final TDoubleArrayListHack values;
 
     private int currentColumn = -1; // just for matrix filling
 
-    public SparseMatrix(int m, int n, int[] columnStart, int[] rowIndices, double[] values) {
+    SparseMatrix(int m, int n, int[] columnStart, int[] rowIndices, double[] values) {
         this.m = m;
         this.n = n;
         this.columnStart = Objects.requireNonNull(columnStart);
@@ -62,7 +90,7 @@ public class SparseMatrix extends AbstractMatrix {
         this.values = new TDoubleArrayListHack(Objects.requireNonNull(values));
     }
 
-    public SparseMatrix(int m, int n, int estimatedNonZeroValueCount) {
+    SparseMatrix(int m, int n, int estimatedNonZeroValueCount) {
         this.m = m;
         this.n = n;
         columnStart = new int[n + 1];
@@ -72,44 +100,109 @@ public class SparseMatrix extends AbstractMatrix {
         values = new TDoubleArrayListHack(estimatedNonZeroValueCount);
     }
 
+    /**
+     * Get columm start index vector.
+     *
+     * @return columm start index vector
+     */
     int[] getColumnStart() {
         return columnStart;
     }
 
+    /**
+     * Get row index vector.
+     *
+     * @return row index vector
+     */
     int[] getRowIndices() {
         return rowIndices.getData();
     }
 
+    /**
+     * Get non zero value vector.
+     *
+     * @return non zero value vector
+     */
     double[] getValues() {
         return values.getData();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getM() {
         return m;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int getN() {
         return n;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>
+     * As sparse matrix is stored in CSC format. Columns must be filled in ascending order but values inside a column
+     * may be filled in any order.
+     * </p>
+     * @throws PowsyblException if values are filled in wrong order.
+     */
     @Override
-    public void setValue(int m, int n, double value) {
-        if (n == currentColumn) {
+    public void setValue(int i, int j, double value) {
+        if (j == currentColumn) {
             // ok, continue to fill row
-        } else if (n > currentColumn) {
+        } else if (j > currentColumn) {
             // start new column
-            columnStart[n] = values.size();
-            currentColumn = n;
+            columnStart[j] = values.size();
+            currentColumn = j;
         } else {
             throw new PowsyblException("Columns have to be filled in the right order");
         }
         values.add(value);
-        rowIndices.add(m);
+        rowIndices.add(i);
         columnStart[columnStart.length - 1] = values.size();
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * <p>
+     * As sparse matrix is stored in CSC format. Columns must be filled in ascending order but values inside a column
+     * may be filled in any order.
+     * </p>
+     * @throws PowsyblException if values are filled in wrong order.
+     */
+    @Override
+    public void addValue(int i, int j, double value) {
+        boolean startNewColumn = false;
+        if (j == currentColumn) {
+            // ok, continue to fill row
+        } else if (j > currentColumn) {
+            // start new column
+            columnStart[j] = values.size();
+            currentColumn = j;
+            startNewColumn = true;
+        } else {
+            throw new PowsyblException("Columns have to be filled in the right order");
+        }
+        if (!startNewColumn && i == rowIndices.get(rowIndices.size() - 1)) {
+            int vi = values.size() - 1;
+            values.set(vi, values.get(vi) + value);
+        } else {
+            values.add(value);
+            rowIndices.add(i);
+            columnStart[columnStart.length - 1] = values.size();
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public LUDecomposition decomposeLU() {
         checkNativeInit();
@@ -118,6 +211,9 @@ public class SparseMatrix extends AbstractMatrix {
 
     private native SparseMatrix times(int m1, int n1, int[] ap1, int[] ai1, double[] ax1, int m2, int n2, int[] ap2, int[] ai2, double[] ax2);
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Matrix times(Matrix other) {
         checkNativeInit();
@@ -129,6 +225,9 @@ public class SparseMatrix extends AbstractMatrix {
                      o.m, o.n, o.columnStart, o.rowIndices.getData(), o.values.getData());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void iterateNonZeroValue(ElementHandler handler) {
         for (int j = 0; j < n; j++) {
@@ -136,6 +235,9 @@ public class SparseMatrix extends AbstractMatrix {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void iterateNonZeroValueOfColumn(int j, ElementHandler handler) {
         int first = columnStart[j];
@@ -149,16 +251,25 @@ public class SparseMatrix extends AbstractMatrix {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public DenseMatrix toDense() {
         return (DenseMatrix) to(new DenseMatrixFactory());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public SparseMatrix toSparse() {
         return this;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Matrix to(MatrixFactory factory) {
         Objects.requireNonNull(factory);
@@ -168,26 +279,25 @@ public class SparseMatrix extends AbstractMatrix {
         return copy(factory);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     protected int getEstimatedNonZeroValueCount() {
         return values.size();
     }
 
-    @Override
-    public void print() {
-        print(System.out);
-    }
-
-    @Override
-    public void print(List<String> rowNames, List<String> columnNames) {
-        print(System.out, rowNames, columnNames);
-    }
-
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void print(PrintStream out) {
         print(out, null, null);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void print(PrintStream out, List<String> rowNames, List<String> columnNames) {
         out.println("m=" + m);
@@ -197,11 +307,17 @@ public class SparseMatrix extends AbstractMatrix {
         out.println("values=" + values);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public int hashCode() {
         return m + n + Arrays.hashCode(columnStart) + rowIndices.hashCode() + values.hashCode();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof SparseMatrix) {

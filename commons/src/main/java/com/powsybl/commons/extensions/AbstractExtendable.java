@@ -47,7 +47,7 @@ public abstract class AbstractExtendable<T> implements Extendable<T> {
 
         E extension = getExtension(type);
         if (extension != null) {
-            extensions.remove(extension);
+            extensions.remove(type);
             extensionsByName.remove(extension.getName());
             extension.setExtendable(null);
             removed = true;

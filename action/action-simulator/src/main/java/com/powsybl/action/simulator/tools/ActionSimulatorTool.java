@@ -19,8 +19,10 @@ import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.Partition;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.export.Exporters;
+import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.tools.ConversionToolUtils;
 import com.powsybl.security.Security;
 import com.powsybl.security.SecurityAnalysisResult;
 import com.powsybl.security.converter.SecurityAnalysisResultExporters;
@@ -49,6 +51,9 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.powsybl.action.simulator.tools.ActionSimulatorToolConstants.*;
+import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParameterOption;
+import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParametersFileOption;
+import static com.powsybl.iidm.tools.ConversionToolUtils.readProperties;
 import static com.powsybl.tools.ToolConstants.TASK;
 import static com.powsybl.tools.ToolConstants.TASK_COUNT;
 
@@ -122,7 +127,7 @@ public class ActionSimulatorTool implements Tool {
                         .argName("CASEFOLDER")
                         .build());
                 options.addOption(Option.builder().longOpt(OUTPUT_CASE_FORMAT)
-                        .desc("output case format " + Exporters.getFormats())
+                        .desc("output case format " + getFormats())
                         .hasArg()
                         .argName("CASEFORMAT")
                         .build());
@@ -145,6 +150,8 @@ public class ActionSimulatorTool implements Tool {
                         .desc("export case after each round")
                         .required(false)
                         .build());
+                options.addOption(createImportParametersFileOption());
+                options.addOption(createImportParameterOption());
                 return options;
             }
 
@@ -153,6 +160,10 @@ public class ActionSimulatorTool implements Tool {
                 return null;
             }
         };
+    }
+
+    protected Collection<String> getFormats() {
+        return Exporters.getFormats();
     }
 
     private static LoadFlowActionSimulatorObserver createLogPrinter(ToolRunningContext context, boolean verbose) {
@@ -244,7 +255,8 @@ public class ActionSimulatorTool implements Tool {
 
         // load network
         context.getOutputStream().println("Loading network '" + caseFile + "'");
-        Network network = Importers.loadNetwork(caseFile);
+        Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
+        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
 
         try {
             // load actions from Groovy DSL
@@ -282,16 +294,12 @@ public class ActionSimulatorTool implements Tool {
                 // start simulator
                 actionSimulator.start(actionDb, contingencies);
             }
-
-
         } catch (Exception e) {
             LOGGER.trace(e.toString(), e); // to avoid user screen pollution...
             Throwable rootCause = StackTraceUtils.sanitizeRootCause(e);
             rootCause.printStackTrace(context.getErrorStream());
         }
     }
-
-
 
     private ActionSimulator createActionSimulator(Network network, ToolRunningContext context, CommandLine line,
                                                   LoadFlowActionSimulatorConfig config, boolean applyIfSolved,

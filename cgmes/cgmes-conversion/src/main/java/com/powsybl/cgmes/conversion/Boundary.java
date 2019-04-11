@@ -27,6 +27,7 @@ import com.powsybl.triplestore.api.PropertyBags;
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
 public class Boundary {
+
     public Boundary(CgmesModel cgmes) {
         PropertyBags bns = cgmes.boundaryNodes();
         nodesName = new HashMap<>();
@@ -95,7 +96,6 @@ public class Boundary {
     public List<PropertyBag> linesAtNode(String node) {
         return nodesLines.getOrDefault(node, Collections.emptyList());
     }
-
 
     public String nameAtBoundary(String node) {
         return nodesName.containsKey(node) ? nodesName.get(node) : "XnodeCode-unknown";
