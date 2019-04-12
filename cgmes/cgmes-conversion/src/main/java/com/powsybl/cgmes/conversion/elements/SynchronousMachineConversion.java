@@ -17,7 +17,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class SynchronousMachineConversion extends AbstractConductingEquipmentConversion {
+public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerConversion {
 
     public SynchronousMachineConversion(PropertyBag sm, Context context) {
         super("SynchronousMachine", sm, context);
@@ -42,6 +42,7 @@ public class SynchronousMachineConversion extends AbstractConductingEquipmentCon
         }
 
         RegulatingControlConversion.Data control = RegulatingControlConversion.convert(
+                iidmId(),
                 p,
                 voltageLevel(),
                 context);
@@ -49,7 +50,6 @@ public class SynchronousMachineConversion extends AbstractConductingEquipmentCon
                 .setMinP(minP)
                 .setMaxP(maxP)
                 .setVoltageRegulatorOn(control.on())
-                .setRegulatingTerminal(control.terminal())
                 .setTargetP(targetP)
                 .setTargetQ(targetQ)
                 .setTargetV(control.targetV())

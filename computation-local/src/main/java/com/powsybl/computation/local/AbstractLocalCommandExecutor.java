@@ -47,7 +47,7 @@ public abstract class AbstractLocalCommandExecutor implements LocalCommandExecut
         }
     }
 
-    protected int execute(List<String> cmdLs, Path workingDir, Path outFile, Path errFile) throws IOException, InterruptedException {
+    protected int execute(List<String> cmdLs, Path workingDir, Path outFile, Path errFile, long timeout) throws IOException, InterruptedException {
         ProcessBuilder.Redirect outRedirect = ProcessBuilder.Redirect.appendTo(outFile.toFile());
         ProcessBuilder.Redirect errRedirect = ProcessBuilder.Redirect.appendTo(errFile.toFile());
         Process process = new ProcessBuilder(cmdLs)
@@ -55,18 +55,20 @@ public abstract class AbstractLocalCommandExecutor implements LocalCommandExecut
                 .redirectOutput(outRedirect)
                 .redirectError(errRedirect)
                 .start();
+
         try {
             lock.writeLock().lock();
             processMap.put(workingDir, process);
         } finally {
             lock.writeLock().unlock();
         }
-        int exitCode = process.waitFor();
 
-        // to avoid 'too many open files' exception
-        process.getInputStream().close();
-        process.getOutputStream().close();
-        process.getErrorStream().close();
+        int exitCode;
+        if (timeout <= 0) {
+            exitCode = process.waitFor();
+        } else {
+            exitCode = ProcessHelper.runWithTimeout(timeout, process);
+        }
 
         if (exitCode != 0) {
             nonZeroLog(cmdLs, exitCode);

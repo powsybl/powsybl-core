@@ -98,6 +98,7 @@ public class DenseMatrix extends AbstractMatrix {
      * @param j column index
      * @param value increment value
      */
+    @Override
     public void addValue(int i, int j, double value) {
         checkBounds(i, j);
         int index = j * Double.BYTES * m + i * Double.BYTES;

@@ -55,7 +55,6 @@
         <module>ampl-converter</module>
         <module>cgmes</module>
         <module>cim-anonymiser</module>
-        <module>cim1</module>
         <module>commons</module>
         <module>computation</module>
         <module>computation-local</module>
@@ -116,7 +115,7 @@
             ../../../target/jacoco-merge.exec
         </sonar.jacoco.reportPaths>
         <sonar.exclusions>
-            **/cim1/**/*, **/generated/**/*
+            **/generated/**/*
         </sonar.exclusions>
 
         <arquillianbom.version>1.2.0.Final</arquillianbom.version>
@@ -381,9 +380,6 @@
                         <version>${maven.jacoco.version}</version>
                         <configuration>
                             <excludes>
-                                <!-- Exclude CIMv1 generated model -->
-                                <exclude>cim1/**</exclude>
-
                                 <!-- exclude generated classes -->
                                 <exclude>**/generated/**/*</exclude>
                             </excludes>
@@ -424,7 +420,7 @@
                                     <configLocation>checkstyle.xml</configLocation>
                                     <consoleOutput>true</consoleOutput>
                                     <failsOnError>true</failsOnError>
-                                    <excludes>**/generated/**/*,cim1/**</excludes>
+                                    <excludes>**/generated/**/*</excludes>
                                     <includeTestSourceDirectory>true</includeTestSourceDirectory>
                                 </configuration>
                             </execution>
