@@ -11,7 +11,7 @@ import java.util.List;
 /**
  * A single command to be executed, defined by its program name and a list of arguments.
  * The actual values of arguments may depend on the execution number, when several executions are submitted
- * toe a {@link ComputationManager}.
+ * to a {@link ComputationManager}.
  *
  * <p>A timeout for the execution of this command may be specified.
  *
@@ -35,11 +35,14 @@ public interface SimpleCommand extends Command {
     List<String> getArgs(int executionNumber);
 
     /**
+     * @deprecated {@link ComputationParameters#getTimeout} should be used instead.
+     *
      * A timeout in milliseconds for this command execution.
      * If less than zero, the execution time should be considered as unlimited.
      *
      * @return the timeout in milliseconds for this command execution.
      */
+    @Deprecated
     int getTimeout();
 
 }

@@ -37,6 +37,8 @@ public interface ExecutionHandler<R> {
      * Typically, it will copy input data to the specified working directory,
      * and create the command to be executed with those inputs.
      *
+     * <p>If the call throws an exception, no command will be executed.
+     *
      * @param workingDir   the working directory used for this computation. Input data may be written to it.
      * @return             the list of {@link CommandExecution}s to be executed.
      * @throws IOException when an error occurs while wirting to working directory.
@@ -49,10 +51,13 @@ public interface ExecutionHandler<R> {
 
     /**
      * Method called by the {@link ComputationManager} with the working directory and an execution report as parameters,
-     * after the commands have been executed:
+     * after the commands defined by the {@link #before} method have been executed:
      * it is in charge of any postprocessing and of providing the actual computation result.
-     * Typically, it will check that the execution was correctly peformed, then read command results
+     * Typically, it will check that the execution was correctly performed, then read command results
      * from the specified working directory and translate it to a business object.
+     *
+     * <p>That method will not be called in case the call to {@link #before} throws an exception,
+     * or if the execution is cancelled.
      *
      * @param workingDir   the working directory used for this computation. Results may be read from it.
      * @param report       the execution report, in particular reporting command execution errors.

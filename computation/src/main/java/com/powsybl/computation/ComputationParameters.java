@@ -15,7 +15,7 @@ import java.util.OptionalLong;
 public interface ComputationParameters {
 
     /**
-     * Returns an optional describing the execution time limit in seconds, the waiting time in queue is not inclued. See
+     * Returns an optional describing the execution time limit in seconds, the waiting time in queue is not included. See
      * differences with {@link #getDeadline(String)}
      * @param commandId id of {@link Command}
      * @return an optional describing seconds

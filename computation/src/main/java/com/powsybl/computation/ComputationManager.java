@@ -19,10 +19,14 @@ import java.util.concurrent.Executor;
  * <p>Typically, they are used to execute expensive computations through external processes.
  * According to the computation manager implementation, those processes may then be executed on the local host
  * or on a dedicated computation infrastructure which may have better performance or scaling capabilities.
+ * Commands will be executed asynchronously and results accessible through the {@link CompletableFuture}
+ * returned by one of the {@link #execute} method variants. If {@link CompletableFuture#cancel} is called,
+ * the computation manager should try as much as possible to free computation resources used for the
+ * underlying commands execution.
  *
- * <p>In any case, the computation manager should provide a temporary working directory for each submitted execution,
- * where data may be written (in particular before the execution) and read (in particular after the execution).
- * A prefix may be provided through the {@link ExecutionEnvironment}.
+ * <p>The computation manager must provide a temporary working directory for each submitted execution,
+ * where data may be written to (in particular before the execution) and read from (in particular after the execution).
+ * A prefix for this directory may be provided through the {@link ExecutionEnvironment}.
  * Typically, the prefix will be appended with a UUID to ensure working directory uniqueness.
  * If {@link ExecutionEnvironment#isDebug()} is {@literal true}, that working directory will not be discarded,
  * otherwise it may be discarded to ensure a sustainable use of the execution environment.
