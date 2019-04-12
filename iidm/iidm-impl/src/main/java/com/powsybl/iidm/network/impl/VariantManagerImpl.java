@@ -22,7 +22,7 @@ import java.util.*;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class VariantManagerImpl implements VariantManager {
+public class VariantManagerImpl implements VariantManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VariantManagerImpl.class);
 
@@ -61,7 +61,7 @@ class VariantManagerImpl implements VariantManager {
      *
      * @return the size of the variant array
      */
-    int getVariantArraySize() {
+    public int getVariantArraySize() {
         return variantArraySize;
     }
 

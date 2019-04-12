@@ -17,7 +17,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public class EquivalentInjectionConversion extends AbstractConductingEquipmentConversion {
+public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerConversion {
 
     public EquivalentInjectionConversion(PropertyBag sm, Context context) {
         super("EquivalentInjection", sm, context);
