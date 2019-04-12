@@ -22,7 +22,6 @@ public class ComputationParametersTest {
     public void testEmpty() {
         ComputationParameters empty = ComputationParameters.empty();
         assertFalse(empty.getTimeout("cmd").isPresent());
-        assertFalse(empty.getQos("cmd").isPresent());
     }
 
     @Test
@@ -30,15 +29,12 @@ public class ComputationParametersTest {
         String cmdId = "cmd";
         ComputationParameters opts = new ComputationParametersBuilder()
                 .setTimeout(cmdId, 10)
-                .setQos(cmdId, "p1")
                 .setDeadline(cmdId, 42)
                 .build();
         assertEquals(10, opts.getTimeout(cmdId).orElse(-1));
-        assertEquals("p1", opts.getQos(cmdId).orElse("asdf"));
         assertEquals(42, opts.getDeadline(cmdId).orElse(-1));
         String missingCmd = "missing";
         assertFalse(opts.getTimeout(missingCmd).isPresent());
-        assertFalse(opts.getQos(missingCmd).isPresent());
         assertFalse(opts.getDeadline(missingCmd).isPresent());
     }
 

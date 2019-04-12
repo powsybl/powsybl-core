@@ -8,7 +8,10 @@ package com.powsybl.computation;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Objects;
+import java.util.OptionalLong;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
@@ -19,12 +22,9 @@ public class ComputationParametersImpl extends AbstractExtendable<ComputationPar
 
     private final Map<String, Long> deadlineMap;
 
-    private final Map<String, String> qosMap;
-
-    ComputationParametersImpl(Map<String, Long> timeoutMap, Map<String, Long> deadlineMap, Map<String, String> qosMap) {
+    ComputationParametersImpl(Map<String, Long> timeoutMap, Map<String, Long> deadlineMap) {
         this.timeoutMap = Collections.unmodifiableMap(timeoutMap);
         this.deadlineMap = Collections.unmodifiableMap(deadlineMap);
-        this.qosMap = Collections.unmodifiableMap(qosMap);
     }
 
     @Override
@@ -49,13 +49,4 @@ public class ComputationParametersImpl extends AbstractExtendable<ComputationPar
         }
     }
 
-    @Override
-    public Optional<String> getQos(String commandId) {
-        Objects.requireNonNull(commandId);
-        String qosFromMap = qosMap.get(commandId);
-        if (qosFromMap != null) {
-            return Optional.of(qosFromMap);
-        }
-        return Optional.empty();
-    }
 }

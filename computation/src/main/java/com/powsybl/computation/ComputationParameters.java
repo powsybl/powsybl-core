@@ -10,7 +10,6 @@ import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.commons.extensions.Extension;
 
 import java.util.Collections;
-import java.util.Optional;
 import java.util.OptionalLong;
 
 /**
@@ -34,12 +33,10 @@ public interface ComputationParameters extends Extendable<ComputationParameters>
      */
     OptionalLong getDeadline(String commandId);
 
-    Optional<String> getQos(String commandId);
-
     /**
      * @return an empty {@link ComputationParametersImpl}, but it supports plugin. See more {@link Extension}
      */
     static ComputationParameters empty() {
-        return new ComputationParametersImpl(Collections.emptyMap(), Collections.emptyMap(), Collections.emptyMap());
+        return new ComputationParametersImpl(Collections.emptyMap(), Collections.emptyMap());
     }
 }
