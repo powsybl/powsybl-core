@@ -6,7 +6,8 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.immutable.ImmutableNetwork;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import org.junit.Test;
 
@@ -15,13 +16,21 @@ import java.io.IOException;
 /**
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
  */
-public class BatteryXmlTest extends AbstractConverterTest {
+public class BatteryXmlTest extends AbstractNetworkXmlTest {
+
+    private static final Network NETWORK = BatteryNetworkFactory.create();
+    private static final String REF = "/batteryRoundTripRef.xml";
 
     @Test
     public void batteryRoundTripTest() throws IOException {
-        roundTripXmlTest(BatteryNetworkFactory.create(),
+        roundTripXmlTest(NETWORK,
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
-                "/batteryRoundTripRef.xml");
+                REF);
+    }
+
+    @Test
+    public void testReadImmutable() {
+        writeToXmlTest(ImmutableNetwork.of(NETWORK), REF);
     }
 }

@@ -33,6 +33,8 @@ public class ImmutableCacheIndexTest {
         when(twt3.getType()).thenReturn(THREE_WINDINGS_TRANSFORMER);
         Generator gen = mock(Generator.class);
         when(gen.getType()).thenReturn(GENERATOR);
+        Battery bat = mock(Battery.class);
+        when(bat.getType()).thenReturn(BATTERY);
         Load load = mock(Load.class);
         when(load.getType()).thenReturn(LOAD);
         ShuntCompensator shunt = mock(ShuntCompensator.class);
@@ -68,6 +70,10 @@ public class ImmutableCacheIndexTest {
         Generator cacheGen = cache.getGenerator(gen);
         assertTrue(cacheGen instanceof ImmutableGenerator);
         assertSame(cacheGen, cache.getConnectable(gen));
+
+        Battery cacheBat = cache.getBattery(bat);
+        assertTrue(cacheBat instanceof ImmutableBattery);
+        assertSame(cacheBat, cache.getBattery(bat));
 
         Load cacheLoad = cache.getLoad(load);
         assertTrue(cacheLoad instanceof ImmutableLoad);

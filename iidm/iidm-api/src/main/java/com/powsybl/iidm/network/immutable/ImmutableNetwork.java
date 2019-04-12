@@ -393,6 +393,41 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
 
     /**
      * {@inheritDoc}
+     * Batteries are wrapped in {@link ImmutableBattery}.
+     */
+    @Override
+    public Iterable<Battery> getBatteries() {
+        return Iterables.transform(identifiable.getBatteries(), cache::getBattery);
+    }
+
+    /**
+     * {@inheritDoc}
+     * Batteries are wrapped in {@link ImmutableBattery}.
+     */
+    @Override
+    public Stream<Battery> getBatteryStream() {
+        return identifiable.getBatteryStream().map(cache::getBattery);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getBatteryCount() {
+        return identifiable.getBatteryCount();
+    }
+
+    /**
+     * {@inheritDoc}
+     * @return Returns an {@link ImmutableBattery}
+     */
+    @Override
+    public Battery getBattery(String id) {
+        return cache.getBattery(identifiable.getBattery(id));
+    }
+
+    /**
+     * {@inheritDoc}
      * Loads are wrapped in {@link ImmutableLoad}.
      */
     @Override

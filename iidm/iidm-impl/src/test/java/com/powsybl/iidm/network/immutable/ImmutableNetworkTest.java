@@ -62,6 +62,7 @@ public class ImmutableNetworkTest {
         invalidVlMethods.add("setLowVoltageLimit");
         invalidVlMethods.add("setHighVoltageLimit");
         invalidVlMethods.add("newGenerator");
+        invalidVlMethods.add("newBattery");
         invalidVlMethods.add("newLoad");
         invalidVlMethods.add("newShuntCompensator");
         invalidVlMethods.add("newShunt"); // to remove in the clean voltage level's api commit

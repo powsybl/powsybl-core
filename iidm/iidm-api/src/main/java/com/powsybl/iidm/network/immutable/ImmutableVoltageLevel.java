@@ -198,6 +198,41 @@ final class ImmutableVoltageLevel extends AbstractImmutableIdentifiable<VoltageL
      * @return
      */
     @Override
+    public BatteryAdder newBattery() {
+        throw ImmutableNetwork.createUnmodifiableNetworkException();
+    }
+
+    /**
+     * {@inheritDoc}
+     * Batteries are wrapped in {@link ImmutableBattery}.
+     */
+    @Override
+    public Iterable<Battery> getBatteries() {
+        return Iterables.transform(identifiable.getBatteries(), cache::getBattery);
+    }
+
+    /**
+     * {@inheritDoc}
+     * Batteries are wrapped in {@link ImmutableBattery}.
+     */
+    @Override
+    public Stream<Battery> getBatteryStream() {
+        return identifiable.getBatteryStream().map(cache::getBattery);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int getBatteryCount() {
+        return identifiable.getBatteryCount();
+    }
+
+    /**
+     * Mutative operation is not allowed. It will throw an exception in runtime.
+     * @return
+     */
+    @Override
     public LoadAdder newLoad() {
         throw ImmutableNetwork.createUnmodifiableNetworkException();
     }

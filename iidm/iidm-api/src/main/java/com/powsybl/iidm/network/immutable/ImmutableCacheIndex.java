@@ -96,6 +96,10 @@ class ImmutableCacheIndex {
         return load == null ? null : (Load) identifiableCacheMap.computeIfAbsent(load, k -> new ImmutableLoad((Load) k, this));
     }
 
+    Battery getBattery(Battery battery) {
+        return battery == null ? null : (Battery) identifiableCacheMap.computeIfAbsent(battery, k -> new ImmutableBattery((Battery) k, this));
+    }
+
     HvdcLine getHvdcLine(HvdcLine hvdcLine) {
         return hvdcLine == null ? null : (HvdcLine) identifiableCacheMap.computeIfAbsent(hvdcLine, k -> new ImmutableHvdcLine((HvdcLine) k, this));
     }
@@ -188,6 +192,8 @@ class ImmutableCacheIndex {
                 return getThreeWindingsTransformer((ThreeWindingsTransformer) connectable);
             case GENERATOR:
                 return getGenerator((Generator) connectable);
+            case BATTERY:
+                return getBattery((Battery) connectable);
             case LOAD:
                 return getLoad((Load) connectable);
             case SHUNT_COMPENSATOR:

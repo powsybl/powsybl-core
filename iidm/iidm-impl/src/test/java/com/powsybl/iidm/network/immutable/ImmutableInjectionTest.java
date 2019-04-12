@@ -7,10 +7,7 @@
 package com.powsybl.iidm.network.immutable;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.network.test.HvdcTestNetwork;
-import com.powsybl.iidm.network.test.NoEquipmentNetworkFactory;
-import com.powsybl.iidm.network.test.SvcTestCaseFactory;
+import com.powsybl.iidm.network.test.*;
 import org.junit.Test;
 
 import java.util.HashSet;
@@ -43,6 +40,22 @@ public class ImmutableInjectionTest {
         expectedInvalidMethods.add("remove");
         expectedInvalidMethods.addAll(ImmutableTestHelper.NEW_REACTIVE);
         ImmutableTestHelper.testInvalidMethods(generator, expectedInvalidMethods);
+    }
+
+    @Test
+    public void testBattery() {
+        ImmutableNetwork network = ImmutableNetwork.of(BatteryNetworkFactory.create());
+        Battery battery = network.getBattery("BAT");
+        assertTrue(battery instanceof ImmutableBattery);
+        assertEquals(ConnectableType.BATTERY, battery.getType());
+        Set<String> expectedInvalidMethods = new HashSet<>();
+        expectedInvalidMethods.add("setP0");
+        expectedInvalidMethods.add("setQ0");
+        expectedInvalidMethods.add("setMinP");
+        expectedInvalidMethods.add("setMaxP");
+        expectedInvalidMethods.add("remove");
+        expectedInvalidMethods.addAll(ImmutableTestHelper.NEW_REACTIVE);
+        ImmutableTestHelper.testInvalidMethods(battery, expectedInvalidMethods);
     }
 
     @Test

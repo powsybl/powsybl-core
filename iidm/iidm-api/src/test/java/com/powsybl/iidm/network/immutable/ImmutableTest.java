@@ -56,6 +56,9 @@ public class ImmutableTest {
     private static final List<Generator> MOCK_GENERATOR_LIST = Collections.singletonList(mock(Generator.class));
     private static final Supplier<Stream<Generator>> MOCK_GENERATOR_STREAM = () -> MOCK_GENERATOR_LIST.stream();
 
+    private static final List<Battery> MOCK_BATTERY_LIST = Collections.singletonList(mock(Battery.class));
+    private static final Supplier<Stream<Battery>> MOCK_BATTERY_STREAM = () -> MOCK_BATTERY_LIST.stream();
+
     private static final List<Load> MOCK_LOAD_LIST = Collections.singletonList(mock(Load.class));
     private static final Supplier<Stream<Load>> MOCK_LOAD_STREAM = () -> MOCK_LOAD_LIST.stream();
 
@@ -130,6 +133,10 @@ public class ImmutableTest {
         when(delegate.getGenerators()).thenReturn(MOCK_GENERATOR_LIST);
         when(delegate.getGeneratorStream()).thenReturn(MOCK_GENERATOR_STREAM.get());
         assertElementType(ImmutableGenerator.class, sut.getGenerators(), sut.getGeneratorStream());
+
+        when(delegate.getBatteries()).thenReturn(MOCK_BATTERY_LIST);
+        when(delegate.getBatteryStream()).thenReturn(MOCK_BATTERY_STREAM.get());
+        assertElementType(ImmutableBattery.class, sut.getBatteries(), sut.getBatteryStream());
 
         when(delegate.getLoads()).thenReturn(MOCK_LOAD_LIST);
         when(delegate.getLoadStream()).thenReturn(MOCK_LOAD_STREAM.get());
@@ -300,6 +307,12 @@ public class ImmutableTest {
         when(delegate.getGeneratorStream()).thenReturn(MOCK_GENERATOR_STREAM.get());
         assertElementType(ImmutableGenerator.class, sut.getGenerators(), sut.getGeneratorStream());
 
+        when(delegate.getBatteryCount()).thenReturn(5);
+        assertEquals(5, sut.getBatteryCount());
+        when(delegate.getBatteries()).thenReturn(MOCK_BATTERY_LIST);
+        when(delegate.getBatteryStream()).thenReturn(MOCK_BATTERY_STREAM.get());
+        assertElementType(ImmutableBattery.class, sut.getBatteries(), sut.getBatteryStream());
+
         when(delegate.getLoadCount()).thenReturn(1);
         assertEquals(1, sut.getLoadCount());
         when(delegate.getLoads()).thenReturn(MOCK_LOAD_LIST);
@@ -375,6 +388,12 @@ public class ImmutableTest {
         when(delegate.getGenerators()).thenReturn(MOCK_GENERATOR_LIST);
         when(delegate.getGeneratorStream()).thenReturn(MOCK_GENERATOR_STREAM.get());
         assertElementType(ImmutableGenerator.class, sut.getGenerators(), sut.getGeneratorStream());
+
+        when(delegate.getBatteryCount()).thenReturn(4);
+        assertEquals(4, sut.getBatteryCount());
+        when(delegate.getBatteries()).thenReturn(MOCK_BATTERY_LIST);
+        when(delegate.getBatteryStream()).thenReturn(MOCK_BATTERY_STREAM.get());
+        assertElementType(ImmutableBattery.class, sut.getBatteries(), sut.getBatteryStream());
 
         when(delegate.getStaticVarCompensators()).thenReturn(MOCK_SVC_LIST);
         when(delegate.getStaticVarCompensatorStream()).thenReturn(MOCK_SVC_STREAM.get());

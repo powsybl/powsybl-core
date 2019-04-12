@@ -161,6 +161,24 @@ final class ImmutableBus extends AbstractImmutableIdentifiable<Bus> implements B
 
     /**
      * {@inheritDoc}
+     * Batteries are wrapped in {@link ImmutableBattery}.
+     */
+    @Override
+    public Iterable<Battery> getBatteries() {
+        return Iterables.transform(identifiable.getBatteries(), cache::getBattery);
+    }
+
+    /**
+     * {@inheritDoc}
+     * Batteries are wrapped in {@link ImmutableBattery}.
+     */
+    @Override
+    public Stream<Battery> getBatteryStream() {
+        return identifiable.getBatteryStream().map(cache::getBattery);
+    }
+
+    /**
+     * {@inheritDoc}
      * Loads are wrapped in {@link ImmutableLoad}.
      */
     @Override
