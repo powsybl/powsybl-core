@@ -30,7 +30,6 @@ import java.util.stream.Collectors;
 import static com.powsybl.ampl.converter.AmplConstants.DEFAULT_VARIANT_INDEX;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class AmplNetworkReader {
@@ -61,6 +60,16 @@ public class AmplNetworkReader {
 
     private static AmplException createWrongNumberOfColumnException(int expected, int actual) {
         return new AmplException("Wrong number of columns " + actual + ", expected " + expected);
+    }
+
+    private static List<String> parseExceptIfBetweenQuotes(String str) {
+        List<String> tokens = new ArrayList<>();
+        Matcher m = PATTERN.matcher(str);
+        while (m.find()) {
+            String tok = m.group(1).replace("'", "");
+            tokens.add(tok);
+        }
+        return tokens;
     }
 
     private void read(String suffix, int expectedTokenCount, Function<String[], Void> handler) throws IOException {
@@ -124,6 +133,36 @@ public class AmplNetworkReader {
 
         double vb = t.getVoltageLevel().getNominalV();
         g.setTargetV(targetV * vb);
+
+        busConnection(t, busNum);
+
+        return null;
+    }
+
+    public AmplNetworkReader readBatteries() throws IOException {
+        read("_batteries", 7, this::readBattery);
+
+        return this;
+    }
+
+    private Void readBattery(String[] tokens) {
+        int num = Integer.parseInt(tokens[1]);
+        int busNum = Integer.parseInt(tokens[2]);
+        double p0 = readDouble(tokens[3]);
+        double q0 = readDouble(tokens[4]);
+        double p = readDouble(tokens[5]);
+        double q = readDouble(tokens[6]);
+
+        String id = mapper.getId(AmplSubset.BATTERY, num);
+        Battery b = network.getBattery(id);
+        if (b == null) {
+            throw new AmplException("Invalid battery id '" + id + "'");
+        }
+        b.setP0(p0);
+        b.setQ0(q0);
+
+        Terminal t = b.getTerminal();
+        t.setP(p).setQ(q);
 
         busConnection(t, busNum);
 
@@ -495,16 +534,6 @@ public class AmplNetworkReader {
                 t.connect();
             }
         }
-    }
-
-    private static List<String> parseExceptIfBetweenQuotes(String str) {
-        List<String> tokens = new ArrayList<>();
-        Matcher m = PATTERN.matcher(str);
-        while (m.find()) {
-            String tok = m.group(1).replace("'", "");
-            tokens.add(tok);
-        }
-        return tokens;
     }
 
     private float readFloat(String f) {
