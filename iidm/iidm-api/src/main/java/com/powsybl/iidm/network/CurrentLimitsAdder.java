@@ -22,12 +22,24 @@ public interface CurrentLimitsAdder {
 
         TemporaryLimitAdder setFictitious(boolean fictitious);
 
+        default TemporaryLimitAdder ensureNameUnicity() {
+            return this;
+        }
+
         CurrentLimitsAdder endTemporaryLimit();
     }
 
     CurrentLimitsAdder setPermanentLimit(double limit);
 
     TemporaryLimitAdder beginTemporaryLimit();
+
+    default double getPermanentLimit() {
+        return Double.NaN;
+    }
+
+    default double getTemporaryLimitValue(int acceptableDuration) {
+        return Double.NaN;
+    }
 
     CurrentLimits add();
 

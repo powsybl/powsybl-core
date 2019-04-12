@@ -7,8 +7,6 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.network.Network;
@@ -26,6 +24,7 @@ import static org.junit.Assert.assertEquals;
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
  */
 public class XMLImporterExporterBaseEXtensionsTest extends AbstractConverterTest {
+
     public void importExport(String xiidmBaseRef, String xiidmExtRef) throws IOException {
 
         Properties exportProperties = new Properties();
@@ -34,7 +33,6 @@ public class XMLImporterExporterBaseEXtensionsTest extends AbstractConverterTest
         exportProperties.put(XMLExporter.EXTENSIONS_LIST, exportExtensionsList);
 
         XMLImporter importer;
-        PlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
         importer = new XMLImporter(platformConfig);
 
         Properties importProperties = new Properties();
@@ -46,7 +44,7 @@ public class XMLImporterExporterBaseEXtensionsTest extends AbstractConverterTest
         assertEquals(1, network.getLoad("LOAD2").getExtensions().size());
 
         MemDataSource dataSource = new MemDataSource();
-        new XMLExporter().export(network, exportProperties, dataSource);
+        new XMLExporter(platformConfig).export(network, exportProperties, dataSource);
         // check the base exported file and compare it to iidmBaseRef reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
             compareXml(getClass().getResourceAsStream(xiidmBaseRef), is);
