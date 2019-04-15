@@ -8,22 +8,11 @@ package com.powsybl.loadflow.resultscompletion.z0flows;
 
 import java.util.Objects;
 
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.iidm.network.Branch.Side;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.TopologyVisitor;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -126,6 +115,11 @@ public class Z0FlowFromBusBalance implements TopologyVisitor {
     @Override
     public void visitGenerator(Generator generator) {
         addFlow(generator.getTerminal());
+    }
+
+    @Override
+    public void visitBattery(Battery battery) {
+        addFlow(battery.getTerminal());
     }
 
     @Override

@@ -809,6 +809,26 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     int getGeneratorCount();
 
     /**
+     * Get a builder to create a new battery.
+     */
+    BatteryAdder newBattery();
+
+    /**
+     * Get batteries.
+     */
+    Iterable<Battery> getBatteries();
+
+    /**
+     * Get batteries.
+     */
+    Stream<Battery> getBatteryStream();
+
+    /**
+     * Get battery count.
+     */
+    int getBatteryCount();
+
+    /**
      * Get a builder to create a new load.
      */
     LoadAdder newLoad();
