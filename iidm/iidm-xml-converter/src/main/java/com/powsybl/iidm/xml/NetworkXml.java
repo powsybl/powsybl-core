@@ -735,6 +735,7 @@ public final class NetworkXml {
                         break;
 
                     case GeneratorXml.ROOT_ELEMENT_NAME:
+                    case BatteryXml.ROOT_ELEMENT_NAME:
                     case LoadXml.ROOT_ELEMENT_NAME:
                     case ShuntXml.ROOT_ELEMENT_NAME:
                     case DanglingLineXml.ROOT_ELEMENT_NAME:

@@ -12,6 +12,7 @@ import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.Partition;
 import com.powsybl.contingency.ContingenciesProvider;
+import com.powsybl.contingency.ContingenciesProviderFactory;
 import com.powsybl.contingency.ContingenciesProviders;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
@@ -32,16 +33,16 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.IOUtils;
 
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParameterOption;
-import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParametersFileOption;
-import static com.powsybl.iidm.tools.ConversionToolUtils.readProperties;
+import static com.powsybl.iidm.tools.ConversionToolUtils.*;
+import static com.powsybl.security.SecurityAnalysisToolConstants.*;
 import static com.powsybl.tools.ToolConstants.TASK;
 import static com.powsybl.tools.ToolConstants.TASK_COUNT;
 
@@ -51,15 +52,6 @@ import static com.powsybl.tools.ToolConstants.TASK_COUNT;
  */
 @AutoService(Tool.class)
 public class SecurityAnalysisTool implements Tool {
-
-    private static final String CASE_FILE_OPTION = "case-file";
-    private static final String PARAMETERS_FILE = "parameters-file";
-    private static final String LIMIT_TYPES_OPTION = "limit-types";
-    private static final String OUTPUT_FILE_OPTION = "output-file";
-    private static final String OUTPUT_FORMAT_OPTION = "output-format";
-    private static final String CONTINGENCIES_FILE_OPTION = "contingencies-file";
-    private static final String WITH_EXTENSIONS_OPTION = "with-extensions";
-    private static final String EXTERNAL = "external";
 
     @Override
     public Command getCommand() {
@@ -88,7 +80,7 @@ public class SecurityAnalysisTool implements Tool {
                         .argName("FILE")
                         .required()
                         .build());
-                options.addOption(Option.builder().longOpt(PARAMETERS_FILE)
+                options.addOption(Option.builder().longOpt(PARAMETERS_FILE_OPTION)
                         .desc("loadflow parameters as JSON file")
                         .hasArg()
                         .argName("FILE")
@@ -133,6 +125,11 @@ public class SecurityAnalysisTool implements Tool {
                         .build());
                 options.addOption(createImportParametersFileOption());
                 options.addOption(createImportParameterOption());
+                options.addOption(Option.builder().longOpt(OUTPUT_LOG_OPTION)
+                        .desc("log output path (.zip")
+                        .hasArg()
+                        .argName("FILE")
+                        .build());
                 return options;
             }
 
@@ -150,8 +147,52 @@ public class SecurityAnalysisTool implements Tool {
         return line.hasOption(option) ? Optional.of(line.getOptionValue(option)) : Optional.empty();
     }
 
+    private static SecurityAnalysisResult runSecurityAnalysis(CommandLine line, ToolRunningContext context, ContingenciesProvider contingenciesProvider, SecurityAnalysisParameters parameters, SecurityAnalysis securityAnalysis, String currentState) {
+        SecurityAnalysisResult result;
+        if (!line.hasOption(OUTPUT_LOG_OPTION)) {
+            result = securityAnalysis.run(currentState, parameters, contingenciesProvider).join();
+        } else {
+            SecurityAnalysisResultWithLog resultWithLog = securityAnalysis.runWithLog(currentState, parameters, contingenciesProvider).join();
+            result = resultWithLog.getResult();
+            // copy log bytes to file
+            resultWithLog.getLogBytes().ifPresent(logBytes -> {
+                Path outlogDest = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_OPTION));
+                try (ByteArrayInputStream bis = new ByteArrayInputStream(logBytes);
+                     OutputStream fos = Files.newOutputStream(outlogDest)) {
+                    IOUtils.copy(bis, fos);
+                } catch (IOException e) {
+                    throw new UncheckedIOException(e);
+                }
+            });
+        }
+        return result;
+    }
+
+    private static SecurityAnalysis createSecurityAnalysis(CommandLine line, List<String> extensions, Set<SecurityAnalysisInterceptor> interceptors, Network network,
+                                                           LimitViolationFilter limitViolationFilter, ComputationManager computationManager, SecurityAnalysisFactory factory) {
+        SecurityAnalysis securityAnalysis;
+        if (line.hasOption(EXTERNAL)) {
+            Integer taskCount = getOptionValue(line, TASK_COUNT).map(Integer::parseInt).orElse(null);
+            ExternalSecurityAnalysisConfig config = ExternalSecurityAnalysisConfig.load();
+            securityAnalysis = new ExternalSecurityAnalysis(config, network, computationManager, extensions, taskCount);
+        } else if (line.hasOption(TASK_COUNT)) {
+            int taskCount = Integer.parseInt(line.getOptionValue(TASK_COUNT));
+            ExternalSecurityAnalysisConfig config = ExternalSecurityAnalysisConfig.load();
+            securityAnalysis = new DistributedSecurityAnalysis(config, network, computationManager, extensions, taskCount);
+        } else {
+            securityAnalysis = factory.create(network, new DefaultLimitViolationDetector(), limitViolationFilter, computationManager, 0);
+            interceptors.forEach(securityAnalysis::addInterceptor);
+        }
+        return securityAnalysis;
+    }
+
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
+        run(line, context, ContingenciesProviders.newDefaultFactory(), SecurityAnalysisFactories.newDefaultFactory());
+
+    }
+
+    void run(CommandLine line, ToolRunningContext context, ContingenciesProviderFactory cf, SecurityAnalysisFactory factory) throws Exception {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));
 
         Set<LimitViolationType> limitViolationTypes = line.hasOption(LIMIT_TYPES_OPTION)
@@ -189,7 +230,7 @@ public class SecurityAnalysisTool implements Tool {
         limitViolationFilter.setViolationTypes(limitViolationTypes);
 
         ContingenciesProvider contingenciesProvider = contingenciesFile != null ?
-                ContingenciesProviders.newDefaultFactory().create(contingenciesFile) : ContingenciesProviders.emptyProvider();
+                cf.create(contingenciesFile) : ContingenciesProviders.emptyProvider();
 
         ComputationManager computationManager = context.getLongTimeExecutionComputationManager();
 
@@ -200,29 +241,16 @@ public class SecurityAnalysisTool implements Tool {
         }
 
         SecurityAnalysisParameters parameters = SecurityAnalysisParameters.load();
-        if (line.hasOption(PARAMETERS_FILE)) {
-            Path parametersFile = context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE));
+        if (line.hasOption(PARAMETERS_FILE_OPTION)) {
+            Path parametersFile = context.getFileSystem().getPath(line.getOptionValue(PARAMETERS_FILE_OPTION));
             JsonSecurityAnalysisParameters.update(parameters, parametersFile);
         }
 
-        SecurityAnalysis securityAnalysis;
-        if (line.hasOption(EXTERNAL)) {
-            Integer taskCount = getOptionValue(line, TASK_COUNT).map(Integer::parseInt).orElse(null);
-            ExternalSecurityAnalysisConfig config = ExternalSecurityAnalysisConfig.load();
-            securityAnalysis = new ExternalSecurityAnalysis(config, network, computationManager, extensions, taskCount);
-        } else if (line.hasOption(TASK_COUNT)) {
-            int taskCount = Integer.parseInt(line.getOptionValue(TASK_COUNT));
-            ExternalSecurityAnalysisConfig config = ExternalSecurityAnalysisConfig.load();
-            securityAnalysis = new DistributedSecurityAnalysis(config, network, computationManager, extensions, taskCount);
-        } else {
-            securityAnalysis = SecurityAnalysisFactories.newDefaultFactory()
-                    .create(network, new DefaultLimitViolationDetector(), limitViolationFilter, computationManager, 0);
-            interceptors.forEach(securityAnalysis::addInterceptor);
-        }
+        SecurityAnalysis securityAnalysis = createSecurityAnalysis(line, extensions, interceptors, network, limitViolationFilter, computationManager, factory);
 
         String currentState = network.getVariantManager().getWorkingVariantId();
 
-        SecurityAnalysisResult result = securityAnalysis.run(currentState, parameters, contingenciesProvider).join();
+        SecurityAnalysisResult result = runSecurityAnalysis(line, context, contingenciesProvider, parameters, securityAnalysis, currentState);
 
         if (!result.getPreContingencyResult().isComputationOk()) {
             context.getErrorStream().println("Pre-contingency state divergence");

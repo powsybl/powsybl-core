@@ -8,6 +8,7 @@ package com.powsybl.ampl.converter;
 
 import com.powsybl.commons.util.StringToIntMapper;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
 
@@ -38,6 +39,23 @@ public class AmplUtilTest {
         testFilledMapper(mapper);
     }
 
+    @Test
+    public void testBattery() {
+        Network network = BatteryNetworkFactory.create();
+
+        StringToIntMapper<AmplSubset> mapper = new StringToIntMapper<>(AmplSubset.class);
+        testEmptyMapper(mapper);
+
+        mapper = AmplUtil.createMapper(network);
+        assertEquals("BAT", mapper.getId(AmplSubset.BATTERY, 1));
+
+        AmplUtil.resetNetworkMapping(mapper);
+        testEmptyMapper(mapper);
+
+        AmplUtil.fillMapper(mapper, network);
+        assertEquals("BAT", mapper.getId(AmplSubset.BATTERY, 1));
+    }
+
     private void testEmptyMapper(StringToIntMapper<AmplSubset> mapper) {
         try {
             mapper.getId(AmplSubset.VOLTAGE_LEVEL, 1);
@@ -61,6 +79,11 @@ public class AmplUtilTest {
         }
         try {
             mapper.getId(AmplSubset.GENERATOR, 1);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+        try {
+            mapper.getId(AmplSubset.BATTERY, 1);
             fail();
         } catch (IllegalArgumentException ignored) {
         }

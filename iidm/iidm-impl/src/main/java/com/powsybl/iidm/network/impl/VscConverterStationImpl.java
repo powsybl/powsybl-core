@@ -20,7 +20,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     static final String TYPE_DESCRIPTION = "vscConverterStation";
 
-    private ReactiveLimits reactiveLimits;
+    private final ReactiveLimitsHolderImpl reactiveLimits;
 
     private final TBooleanArrayList voltageRegulatorOn;
 
@@ -38,7 +38,7 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         this.voltageRegulatorOn.fill(0, variantArraySize, voltageRegulatorOn);
         this.reactivePowerSetpoint.fill(0, variantArraySize, reactivePowerSetpoint);
         this.voltageSetpoint.fill(0, variantArraySize, voltageSetpoint);
-        this.reactiveLimits = new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE);
+        this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
     }
 
     @Override
@@ -106,25 +106,17 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
 
     @Override
     public void setReactiveLimits(ReactiveLimits reactiveLimits) {
-        this.reactiveLimits = reactiveLimits;
+        this.reactiveLimits.setReactiveLimits(reactiveLimits);
     }
 
     @Override
     public ReactiveLimits getReactiveLimits() {
-        return reactiveLimits;
+        return reactiveLimits.getReactiveLimits();
     }
 
     @Override
     public <RL extends ReactiveLimits> RL getReactiveLimits(Class<RL> type) {
-        if (type == null) {
-            throw new IllegalArgumentException("type is null");
-        }
-        if (type.isInstance(reactiveLimits)) {
-            return type.cast(reactiveLimits);
-        } else {
-            throw new ValidationException(this, "incorrect reactive limits type "
-                    + type.getName() + ", expected " + reactiveLimits.getClass());
-        }
+        return reactiveLimits.getReactiveLimits(type);
     }
 
     @Override

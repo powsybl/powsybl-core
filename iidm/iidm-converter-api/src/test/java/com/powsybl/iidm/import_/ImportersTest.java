@@ -142,7 +142,7 @@ public class ImportersTest extends AbstractConvertersTest {
 
     @Test
     public void importAllParallel() throws InterruptedException, ExecutionException, IOException {
-        List<Boolean> isLoadPresent = new ArrayList<>();
+        List<Boolean> isLoadPresent = Collections.synchronizedList(new ArrayList<>());
         Importers.importAll(fileSystem.getPath(WORK_DIR), testImporter, true, n -> isLoadPresent.add(n.getLoad("LOAD") != null));
         assertEquals(2, isLoadPresent.size());
         isLoadPresent.forEach(Assert::assertTrue);
