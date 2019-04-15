@@ -60,7 +60,7 @@ public class ComputationParametersTest {
         // in quantum computation manager
         QuantumComputationParameters quantumComputationParameters = base.getExtension(QuantumComputationParameters.class);
         assertSame(quantum, quantumComputationParameters);
-        assertTrue(42 == quantumComputationParameters.getAtLeastQubits());
+        assertEquals(42, quantumComputationParameters.getAtLeastQubits());
     }
 
     class QuantumComputationParameters extends AbstractExtension<ComputationParameters> {
@@ -76,7 +76,7 @@ public class ComputationParametersTest {
             return "QuantumComputationParameters";
         }
 
-        public Integer getAtLeastQubits() {
+        public int getAtLeastQubits() {
             return atLeastQubits;
         }
     }

@@ -34,7 +34,7 @@ public interface ComputationParameters extends Extendable<ComputationParameters>
     OptionalLong getDeadline(String commandId);
 
     /**
-     * @return an empty {@link ComputationParametersImpl}, but it supports plugin. See more {@link Extension}
+     * @return an empty {@link ComputationParameters}, but it supports plugin. See more {@link Extension}
      */
     static ComputationParameters empty() {
         return new ComputationParametersImpl(Collections.emptyMap(), Collections.emptyMap());
