@@ -171,7 +171,7 @@ public final class BusesValidation {
                 mainComponent, config, TABLE_FORMATTER_CONFIG.get(), writer);
     }
 
-    public static boolean checkBuses(String id, double loadP, double loadQ, double genP, double genQ, double batP, double batQ, double shuntP,
+    public boolean checkBuses(String id, double loadP, double loadQ, double genP, double genQ, double batP, double batQ, double shuntP,
                                      double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
                                      double danglingLineP, double danglingLineQ, double twtP, double twtQ, double tltP, double tltQ,
                                      boolean mainComponent, ValidationConfig config, ValidationWriter busesWriter) {
