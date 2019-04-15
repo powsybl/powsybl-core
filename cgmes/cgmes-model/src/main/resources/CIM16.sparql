@@ -666,6 +666,10 @@ WHERE {
         ?RegulatingControl
             cim:RegulatingControl.Terminal ?regulatingControlTerminal ;
             cim:RegulatingControl.mode ?regulatingControlMode .
+            { GRAPH ?graphTP {
+                ?regulatingControlTerminal
+                    cim:Terminal.TopologicalNode ?regTopologicalNode
+            }}
         OPTIONAL { GRAPH ?graphSSH1 {
             ?RegulatingControl
                 cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;
@@ -735,6 +739,10 @@ WHERE {
         ?RegulatingControl
             cim:RegulatingControl.Terminal ?regulatingControlTerminal ;
             cim:RegulatingControl.mode ?regulatingControlMode .
+            { GRAPH ?graphTP {
+                ?regulatingControlTerminal
+                    cim:Terminal.TopologicalNode ?regTopologicalNode
+            }}
         OPTIONAL { GRAPH ?graphSSH1 {
             ?RegulatingControl
                 cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;

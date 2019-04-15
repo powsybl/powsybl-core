@@ -11,6 +11,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Terminal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +49,7 @@ public class Context {
         nodeMapping = new NodeMapping();
 
         ratioTapChangerTables = new HashMap<>();
+        remoteRegulatingTerminals = new HashMap<>();
         reactiveCapabilityCurveData = new HashMap<>();
     }
 
@@ -137,6 +141,31 @@ public class Context {
         return ratioTapChangerTables.get(tableId);
     }
 
+    public void putRemoteRegulatingTerminal(String idEq, String topologicalNode) {
+        remoteRegulatingTerminals.put(idEq, topologicalNode);
+    }
+
+    public void setAllRemoteRegulatingTerminals() {
+        remoteRegulatingTerminals.entrySet().removeIf(this::setRegulatingTerminal);
+        remoteRegulatingTerminals.forEach((key, value) -> pending("Regulating terminal", String.format("The setting of the regulating terminal of the equipment %s is not handled.", key)));
+    }
+
+    private boolean setRegulatingTerminal(Map.Entry<String, String> entry) {
+        Identifiable i = network.getIdentifiable(entry.getKey());
+        if (i instanceof Generator) {
+            Generator g = (Generator) i;
+            Terminal regTerminal = terminalMapping.findFromTopologicalNode(entry.getValue());
+            if (regTerminal == null) {
+                missing(String.format("IIDM terminal for this CGMES topological node: %s", entry.getValue()));
+            } else {
+                g.setRegulatingTerminal(regTerminal);
+                return true;
+            }
+        }
+        // TODO add cases for ratioTapChangers and phaseTapChangers
+        return false;
+    }
+
     public void startLinesConversion() {
         countLines = 0;
         countLinesWithSvPowerFlowsAtEnds = 0;
@@ -200,6 +229,7 @@ public class Context {
     private final CurrentLimitsMapping currentLimitsMapping;
 
     private final Map<String, PropertyBags> ratioTapChangerTables;
+    private final Map<String, String> remoteRegulatingTerminals;
     private final Map<String, PropertyBags> reactiveCapabilityCurveData;
 
     private int countLines;

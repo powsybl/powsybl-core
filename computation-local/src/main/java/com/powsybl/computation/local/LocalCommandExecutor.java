@@ -18,6 +18,10 @@ public interface LocalCommandExecutor {
 
     int execute(String program, List<String> args, Path outFile, Path errFile, Path workingDir, Map<String, String> env) throws IOException, InterruptedException;
 
+    default int execute(String program, long timeoutSecondes, List<String> args, Path outFile, Path errFile, Path workingDir, Map<String, String> env) throws IOException, InterruptedException {
+        return execute(program, args, outFile, errFile, workingDir, env);
+    }
+
     // kill -15
     void stop(Path workingDir);
 

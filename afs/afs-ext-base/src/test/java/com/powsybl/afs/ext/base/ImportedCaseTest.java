@@ -80,6 +80,7 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
         super.setup();
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
         storage.setEnable(rootFolderInfo.getId(), true);
+
         NodeInfo nodeInfo = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "Test format", Case.VERSION,
                 new NodeGenericMetadata().setString("format", TestImporter.FORMAT));
         storage.setEnable(nodeInfo.getId(), true);

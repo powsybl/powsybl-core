@@ -109,6 +109,7 @@ public abstract class AbstractAppStorageTest {
         // 2) create a test folder
         NodeInfo testFolderInfo = storage.createNode(rootFolderInfo.getId(), "test", FOLDER_PSEUDO_CLASS, "", 0,
                 new NodeGenericMetadata().setString("k", "v"));
+        storage.setEnable(storage.getChildNode(rootFolderInfo.getId(), "test").get().getId(), true);
         storage.flush();
 
         // check event
@@ -166,6 +167,7 @@ public abstract class AbstractAppStorageTest {
                                          .setInt("i1", 2)
                                          .setBoolean("b1", false));
         NodeInfo testData3Info = storage.createNode(testFolderInfo.getId(), "data3", DATA_FILE_CLASS, "", 0, new NodeGenericMetadata());
+
         storage.setEnable(testDataInfo.getId(), true);
         storage.setEnable(testData2Info.getId(), true);
         storage.setEnable(testData3Info.getId(), true);

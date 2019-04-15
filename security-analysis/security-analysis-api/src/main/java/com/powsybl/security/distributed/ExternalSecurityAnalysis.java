@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import static com.powsybl.security.SecurityAnalysisToolConstants.*;
 import static com.powsybl.tools.ToolConstants.TASK_COUNT;
 import static java.util.Objects.requireNonNull;
 
@@ -149,9 +150,9 @@ public class ExternalSecurityAnalysis implements SecurityAnalysis {
                     .id(id)
                     .program(config.getItoolsCommand())
                     .arg("security-analysis")
-                    .option("case-file", NETWORK_FILE)
-                    .option("contingencies-file", CONTINGENCIES_FILE)
-                    .option("parameters-file", PARAMETERS_FILE);
+                    .option(CASE_FILE_OPTION, NETWORK_FILE)
+                    .option(CONTINGENCIES_FILE_OPTION, CONTINGENCIES_FILE)
+                    .option(PARAMETERS_FILE_OPTION, PARAMETERS_FILE);
             if (!extensions.isEmpty()) {
                 cmdBuilder.option("with-extensions", String.join(",", extensions));
             }
@@ -160,8 +161,8 @@ public class ExternalSecurityAnalysis implements SecurityAnalysis {
 
         protected List<CommandExecution> buildCommandExecution() {
             SimpleCommandBuilder builder = baseCommand("security-analysis")
-                    .option("output-format", "JSON")
-                    .option("output-file", OUTPUT_FILE);
+                    .option(OUTPUT_FILE_OPTION, "JSON")
+                    .option(OUTPUT_FILE_OPTION, OUTPUT_FILE);
             if (taskCount != null) {
                 builder.option(TASK_COUNT, Integer.toString(taskCount));
             }
