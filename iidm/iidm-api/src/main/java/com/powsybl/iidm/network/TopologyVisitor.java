@@ -22,7 +22,9 @@ public interface TopologyVisitor {
 
     void visitGenerator(Generator generator);
 
-    void visitBattery(Battery battery);
+    default void visitBattery(Battery battery) {
+        // Nothing to do
+    }
 
     void visitLoad(Load load);
 
