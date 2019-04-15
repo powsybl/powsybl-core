@@ -84,6 +84,7 @@
                     </xs:choice>
                     <xs:choice minOccurs="0" maxOccurs="unbounded">
                         <xs:element name="generator" type="iidm:Generator"/>
+                        <xs:element name="battery" type="iidm:Battery"/>
                         <xs:element name="load" type="iidm:Load"/>
                         <xs:element name="shunt" type="iidm:ShuntCompensator"/>
                         <xs:element name="danglingLine" type="iidm:DanglingLine"/>
@@ -220,6 +221,22 @@
                 <xs:attribute name="targetP" use="required" type="xs:double"/>
                 <xs:attribute name="targetQ" use="optional" type="xs:double"/>
                 <xs:attribute name="targetV" use="optional" type="xs:double"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="Battery">
+        <xs:complexContent>
+            <xs:extension base="iidm:Injection">
+                <xs:sequence>
+                    <xs:choice>
+                        <xs:element name="reactiveCapabilityCurve" type="iidm:ReactiveCapabilityCurve"/>
+                        <xs:element name="minMaxReactiveLimits" type="iidm:MinMaxReactiveLimits"/>
+                    </xs:choice>
+                </xs:sequence>
+                <xs:attribute name="p0" use="required" type="xs:double"/>
+                <xs:attribute name="q0" use="required" type="xs:double"/>
+                <xs:attribute name="minP" use="required" type="xs:double"/>
+                <xs:attribute name="maxP" use="required" type="xs:double"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>

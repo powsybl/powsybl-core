@@ -22,6 +22,8 @@ public interface TopologyVisitor {
 
     void visitGenerator(Generator generator);
 
+    void visitBattery(Battery battery);
+
     void visitLoad(Load load);
 
     void visitShuntCompensator(ShuntCompensator sc);
