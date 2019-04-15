@@ -383,6 +383,7 @@
                 </executions>
                 <configuration>
                     <packageName>powsybl</packageName>
+                    <archiveName>file1WhitoutZipExtension</archiveName>
                     <javaXmx>8G</javaXmx>
                     <copyToBin>
                         <files>
