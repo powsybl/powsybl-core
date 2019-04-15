@@ -6,8 +6,11 @@
  */
 package com.powsybl.itools;
 
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorOutputStream;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugins.annotations.Mojo;
@@ -15,10 +18,7 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.IOException;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -26,14 +26,16 @@ import java.nio.file.attribute.PosixFileAttributeView;
 import java.nio.file.attribute.PosixFilePermission;
 import java.util.Arrays;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.zip.GZIPOutputStream;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-@Mojo(name = "package-zip", requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
+@Mojo(name = "package", requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class ItoolsPackagerMojo extends AbstractMojo {
 
     @Parameter(readonly = true, defaultValue = "${project}")
@@ -79,31 +81,123 @@ public class ItoolsPackagerMojo extends AbstractMojo {
     @Parameter
     private CopyTo copyToEtc;
 
-    private static void zip(Path dir, Path baseDir, Path zipFilePath) throws IOException {
-        try (ZipArchiveOutputStream zos = new ZipArchiveOutputStream(Files.newOutputStream(zipFilePath))) {
-            Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    ZipArchiveEntry entry = new ZipArchiveEntry(baseDir.relativize(file).toString());
-                    if (Files.isExecutable(file)) {
-                        entry.setUnixMode(0100770);
-                    } else {
-                        entry.setUnixMode(0100660);
-                    }
-                    zos.putArchiveEntry(entry);
-                    Files.copy(file, zos);
-                    zos.closeArchiveEntry();
-                    return FileVisitResult.CONTINUE;
-                }
+    public void createPackage(Path dir, final Path baseDir, String fileName, String packageName) throws IOException {
+        Objects.requireNonNull(dir);
+        Objects.requireNonNull(baseDir);
+        Objects.requireNonNull(fileName);
 
-                @Override
-                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-                    zos.putArchiveEntry(new ZipArchiveEntry(baseDir.relativize(dir).toString() + "/"));
-                    zos.closeArchiveEntry();
-                    return FileVisitResult.CONTINUE;
-                }
-            });
+        String extension = compareFileExtension(fileName);
+        String newFileName = fileName;
+        // invalid extension
+        if (extension.equals("")) {
+            extension = ".zip";
+            newFileName = packageName + extension;
         }
+
+        Path packageFilePath = baseDir.resolve(newFileName);
+        FileOutputStream fos = new FileOutputStream(String.valueOf(packageFilePath));
+
+        getLog().info("Generate package file : " + newFileName);
+
+        switch (extension) {
+            case ".zip":
+                try (ZipArchiveOutputStream zos = new ZipArchiveOutputStream(fos)) {
+                    Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
+                        @Override
+                        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                            ZipArchiveEntry entry = new ZipArchiveEntry(baseDir.relativize(file).toString());
+                            if (Files.isExecutable(file)) {
+                                entry.setUnixMode(0100770);
+                            } else {
+                                entry.setUnixMode(0100660);
+                            }
+                            zos.putArchiveEntry(entry);
+                            Files.copy(file, zos);
+                            zos.closeArchiveEntry();
+                            return FileVisitResult.CONTINUE;
+                        }
+
+                        @Override
+                        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                            zos.putArchiveEntry(new ZipArchiveEntry(baseDir.relativize(dir).toString() + "/"));
+                            zos.closeArchiveEntry();
+                            return FileVisitResult.CONTINUE;
+                        }
+                    });
+                }
+                break;
+
+            case ".tar.gz":
+                try (TarArchiveOutputStream tos = new TarArchiveOutputStream(new GZIPOutputStream(new BufferedOutputStream(fos)))) {
+                    tos.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_STAR); // to store big number in the archive.
+                    tos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU); // to store long file names in the archive.
+
+                    Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
+                        @Override
+                        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                            TarArchiveEntry entry = new TarArchiveEntry(new File(file + "/"));
+                            entry.setName(baseDir.relativize(file).toString());
+                            entry.setSize(file.toFile().length());
+                            entry.setMode(0770);
+                            tos.putArchiveEntry(entry);
+                            Files.copy(file, tos);
+                            tos.closeArchiveEntry();
+
+                            return FileVisitResult.CONTINUE;
+                        }
+
+                        @Override
+                        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                            tos.putArchiveEntry(new TarArchiveEntry(baseDir.relativize(dir).toString() + "/"));
+                            tos.closeArchiveEntry();
+                            return FileVisitResult.CONTINUE;
+                        }
+                    });
+                }
+                break;
+
+            case ".tar.bz2":
+                try (TarArchiveOutputStream tos = new TarArchiveOutputStream(new BZip2CompressorOutputStream(new BufferedOutputStream(fos)))) {
+                    tos.setBigNumberMode(TarArchiveOutputStream.BIGNUMBER_STAR); // to store big number in the archive.
+                    tos.setLongFileMode(TarArchiveOutputStream.LONGFILE_GNU); // to store long file names in the archive.
+
+                    Files.walkFileTree(dir, new SimpleFileVisitor<Path>() {
+                        @Override
+                        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                            TarArchiveEntry entry = new TarArchiveEntry(new File(file + "/"));
+                            entry.setName(baseDir.relativize(file).toString());
+                            entry.setSize(file.toFile().length());
+                            entry.setMode(0770);
+                            tos.putArchiveEntry(entry);
+                            Files.copy(file, tos);
+                            tos.closeArchiveEntry();
+
+                            return FileVisitResult.CONTINUE;
+                        }
+
+                        @Override
+                        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                            tos.putArchiveEntry(new TarArchiveEntry(baseDir.relativize(dir).toString() + "/"));
+                            tos.closeArchiveEntry();
+                            return FileVisitResult.CONTINUE;
+                        }
+                    });
+                }
+                break;
+        }
+    }
+
+    private static String compareFileExtension(String name) {
+        String ext = "";
+        if (name.endsWith(".zip")) {
+            ext = ".zip";
+        } else if (name.endsWith(".tar.gz")) {
+            ext = ".tar.gz";
+        } else if (name.endsWith(".tar.bz2")) {
+            ext = ".tar.bz2";
+        }
+
+        return ext;
     }
 
     private void copyFiles(CopyTo copyTo, Path destDir) {
@@ -194,9 +288,16 @@ public class ItoolsPackagerMojo extends AbstractMojo {
             Files.createDirectories(libDir);
             copyFiles(copyToLib, libDir);
 
-            getLog().info("Zip package");
+            // create package
             String archiveNameNotNull = archiveName != null ? archiveName : packageNameNotNull;
-            zip(packageDir, targetDir, targetDir.resolve(archiveNameNotNull + ".zip"));
+            int lastIndexOf = archiveNameNotNull.lastIndexOf(".");
+            if (lastIndexOf < 0) {
+                // file extension: zip by default
+                archiveNameNotNull += ".zip";
+            }
+
+            createPackage(packageDir, targetDir, archiveNameNotNull, packageNameNotNull);
+
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

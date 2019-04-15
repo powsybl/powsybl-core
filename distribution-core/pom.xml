@@ -377,12 +377,13 @@
                     <execution>
                         <phase>package</phase>
                         <goals>
-                            <goal>package-zip</goal>
+                            <goal>package</goal>
                         </goals>
                     </execution>
                 </executions>
                 <configuration>
                     <packageName>powsybl</packageName>
+                    <archiveName>file1WhitoutZipExtension</archiveName>
                     <javaXmx>8G</javaXmx>
                     <copyToBin>
                         <files>
