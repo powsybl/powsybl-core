@@ -77,7 +77,7 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
                             .endPoint();
                 }
                 rcca.add();
-            } else if (curveData.size() == 1) {
+            } else if (qRanges.size() == 1) {
                 fixed("reactive capability curve", "only one point");
                 Map.Entry<Double, Range<Double>> e = qRanges.entrySet().iterator().next();
                 Range<Double> qRange = e.getValue();
