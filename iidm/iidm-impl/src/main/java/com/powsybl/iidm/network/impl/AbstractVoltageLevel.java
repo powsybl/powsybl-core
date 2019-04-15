@@ -181,6 +181,26 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
     }
 
     @Override
+    public BatteryAdder newBattery() {
+        return new BatteryAdderImpl(this);
+    }
+
+    @Override
+    public Iterable<Battery> getBatteries() {
+        return getConnectables(Battery.class);
+    }
+
+    @Override
+    public Stream<Battery> getBatteryStream() {
+        return getConnectableStream(Battery.class);
+    }
+
+    @Override
+    public int getBatteryCount() {
+        return getConnectableCount(Battery.class);
+    }
+
+    @Override
     public LoadAdder newLoad() {
         return new LoadAdderImpl(this);
     }

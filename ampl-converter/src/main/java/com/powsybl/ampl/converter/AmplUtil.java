@@ -91,6 +91,9 @@ public final class AmplUtil {
         // generators
         network.getGeneratorStream().forEach(g -> mapper.newInt(AmplSubset.GENERATOR, g.getId()));
 
+        // batteries
+        network.getBatteryStream().forEach(g -> mapper.newInt(AmplSubset.BATTERY, g.getId()));
+
         // static var compensators
         network.getStaticVarCompensatorStream().forEach(svc -> mapper.newInt(AmplSubset.STATIC_VAR_COMPENSATOR, svc.getId()));
 
@@ -200,6 +203,7 @@ public final class AmplUtil {
         mapper.reset(AmplSubset.LOAD);
         mapper.reset(AmplSubset.SHUNT);
         mapper.reset(AmplSubset.GENERATOR);
+        mapper.reset(AmplSubset.BATTERY);
         mapper.reset(AmplSubset.TEMPORARY_CURRENT_LIMIT);
         mapper.reset(AmplSubset.THREE_WINDINGS_TRANSFO);
         mapper.reset(AmplSubset.STATIC_VAR_COMPENSATOR);

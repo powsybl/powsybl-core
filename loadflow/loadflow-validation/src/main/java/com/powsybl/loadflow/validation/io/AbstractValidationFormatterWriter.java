@@ -143,32 +143,32 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
                                   boolean validated, GeneratorData generatorData, boolean found, boolean writeValues) throws IOException;
 
     @Override
-    public void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
+    public void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ, double batP, double batQ,
                       double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
                       double danglingLineP, double danglingLineQ, double twtP, double twtQ, double tltP, double tltQ, boolean mainComponent,
                       boolean validated) throws IOException {
         Objects.requireNonNull(busId);
-        BusData emptyBusData = new BusData(busId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+        BusData emptyBusData = new BusData(busId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                                            Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                                            Double.NaN, Double.NaN, false, false);
         if (compareResults) {
             if (preLoadflowValidationCompleted) {
                 boolean found = busesData.containsKey(busId);
                 BusData busData = found ? busesData.get(busId) : emptyBusData;
-                write(busId, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+                write(busId, incomingP, incomingQ, loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
                       lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated, busData, found, true);
                 busesData.remove(busId);
             } else {
-                busesData.put(busId, new BusData(busId, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+                busesData.put(busId, new BusData(busId, incomingP, incomingQ, loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
                                                  lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated));
             }
         } else {
-            write(busId, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ,
+            write(busId, incomingP, incomingQ, loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ,
                   danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated, emptyBusData, false, true);
         }
     }
 
-    protected abstract void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
+    protected abstract void write(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ, double batP, double batQ,
                                   double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
                                   double danglingLineP, double danglingLineQ, double twtP, double twtQ, double tltP, double tltQ, boolean mainComponent,
                                   boolean validated, BusData busData, boolean found, boolean writeValues) throws IOException;
@@ -329,7 +329,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
     private void writeBusesData() {
         busesData.values().forEach(busData -> {
             try {
-                write(busData.busId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
+                write(busData.busId, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                       Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN,
                       Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, false, false, busData, true, false);
             } catch (IOException e) {
@@ -509,6 +509,8 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         final double loadQ;
         final double genP;
         final double genQ;
+        final double batP;
+        final double batQ;
         final double shuntP;
         final double shuntQ;
         final double svcP;
@@ -526,7 +528,7 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
         final boolean mainComponent;
         final boolean validated;
 
-        BusData(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ,
+        BusData(String busId, double incomingP, double incomingQ, double loadP, double loadQ, double genP, double genQ, double batP, double batQ,
                 double shuntP, double shuntQ, double svcP, double svcQ, double vscCSP, double vscCSQ, double lineP, double lineQ,
                 double danglingLineP, double danglingLineQ, double twtP, double twtQ, double tltP, double tltQ, boolean mainComponent,
                 boolean validated) {
@@ -537,6 +539,8 @@ public abstract class AbstractValidationFormatterWriter implements ValidationWri
             this.loadQ = loadQ;
             this.genP = genP;
             this.genQ = genQ;
+            this.batP = batP;
+            this.batQ = batQ;
             this.shuntP = shuntP;
             this.shuntQ = shuntQ;
             this.svcP = svcP;

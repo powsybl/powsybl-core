@@ -72,6 +72,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                     // skip
                     break;
                 case GENERATOR:
+                case BATTERY:
                 case LOAD:
                 case HVDC_CONVERTER_STATION:
                     if (!Double.isNaN(terminal.getP())) {
@@ -102,6 +103,7 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
                     // skip
                     break;
                 case GENERATOR:
+                case BATTERY:
                 case LOAD:
                 case SHUNT_COMPENSATOR:
                 case STATIC_VAR_COMPENSATOR:
@@ -198,6 +200,16 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
     }
 
     @Override
+    public Iterable<Battery> getBatteries() {
+        return getConnectables(Battery.class);
+    }
+
+    @Override
+    public Stream<Battery> getBatteryStream() {
+        return getConnectableStream(Battery.class);
+    }
+
+    @Override
     public Iterable<DanglingLine> getDanglingLines() {
         return getConnectables(DanglingLine.class);
     }
@@ -266,6 +278,10 @@ abstract class AbstractBus extends AbstractIdentifiable<Bus> implements Bus {
 
                 case GENERATOR:
                     visitor.visitGenerator((GeneratorImpl) connectable);
+                    break;
+
+                case BATTERY:
+                    visitor.visitBattery((BatteryImpl) connectable);
                     break;
 
                 case SHUNT_COMPENSATOR:

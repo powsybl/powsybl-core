@@ -862,6 +862,7 @@ public final class NetworkXml {
                         updateStaticVarControlValues(reader, network, targetFile);
                         break;
                     case LoadXml.ROOT_ELEMENT_NAME:
+                    case BatteryXml.ROOT_ELEMENT_NAME:
                     case DanglingLineXml.ROOT_ELEMENT_NAME:
                     case LccConverterStationXml.ROOT_ELEMENT_NAME:
                         updateInjectionTopoValues(reader, network, vl, targetFile);

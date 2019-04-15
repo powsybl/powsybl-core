@@ -352,6 +352,26 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
+    public Iterable<Battery> getBatteries() {
+        return Collections.unmodifiableCollection(index.getAll(BatteryImpl.class));
+    }
+
+    @Override
+    public Stream<Battery> getBatteryStream() {
+        return index.getAll(BatteryImpl.class).stream().map(Function.identity());
+    }
+
+    @Override
+    public int getBatteryCount() {
+        return index.getAll(BatteryImpl.class).size();
+    }
+
+    @Override
+    public BatteryImpl getBattery(String id) {
+        return index.get(id, BatteryImpl.class);
+    }
+
+    @Override
     public Iterable<Load> getLoads() {
         return Collections.unmodifiableCollection(index.getAll(LoadImpl.class));
     }
