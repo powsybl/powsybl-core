@@ -38,6 +38,11 @@ public class DefaultTopologyVisitor implements TopologyVisitor {
     }
 
     @Override
+    public void visitBattery(Battery battery) {
+        // empty default implementation
+    }
+
+    @Override
     public void visitLoad(Load load) {
         // empty default implementation
     }

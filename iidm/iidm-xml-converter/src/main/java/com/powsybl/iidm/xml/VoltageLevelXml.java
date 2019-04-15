@@ -14,7 +14,6 @@ import javax.xml.stream.XMLStreamException;
 import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevelAdder, Substation> {
@@ -68,6 +67,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         }
 
         writeGenerators(vl, context);
+        writeBatteries(vl, context);
         writeLoads(vl, context);
         writeShuntCompensators(vl, context);
         writeDanglingLines(vl, context);
@@ -131,6 +131,15 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                 continue;
             }
             GeneratorXml.INSTANCE.write(g, vl, context);
+        }
+    }
+
+    private void writeBatteries(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+        for (Battery b : vl.getBatteries()) {
+            if (!context.getFilter().test(b)) {
+                continue;
+            }
+            BatteryXml.INSTANCE.write(b, vl, context);
         }
     }
 
@@ -200,11 +209,11 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         double highVoltageLimit = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "highVoltageLimit");
         TopologyKind topologyKind = TopologyKind.valueOf(context.getReader().getAttributeValue(null, "topologyKind"));
         return adder
-            .setNominalV(nominalV)
-            .setLowVoltageLimit(lowVoltageLimit)
-            .setHighVoltageLimit(highVoltageLimit)
-            .setTopologyKind(topologyKind)
-            .add();
+                .setNominalV(nominalV)
+                .setLowVoltageLimit(lowVoltageLimit)
+                .setHighVoltageLimit(highVoltageLimit)
+                .setTopologyKind(topologyKind)
+                .add();
     }
 
     @Override
@@ -253,6 +262,10 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
 
                 case GeneratorXml.ROOT_ELEMENT_NAME:
                     GeneratorXml.INSTANCE.read(vl, context);
+                    break;
+
+                case BatteryXml.ROOT_ELEMENT_NAME:
+                    BatteryXml.INSTANCE.read(vl, context);
                     break;
 
                 case LoadXml.ROOT_ELEMENT_NAME:

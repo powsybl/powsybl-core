@@ -157,6 +157,16 @@ public interface Bus extends Identifiable<Bus> {
     Stream<Generator> getGeneratorStream();
 
     /**
+     * Get batteries connected to the bus.
+     */
+    Iterable<Battery> getBatteries();
+
+    /**
+     * Get batteries connected to the bus.
+     */
+    Stream<Battery> getBatteryStream();
+
+    /**
      * Get loads connected to the bus.
      */
     Iterable<Load> getLoads();

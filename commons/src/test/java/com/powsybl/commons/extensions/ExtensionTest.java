@@ -6,13 +6,21 @@
  */
 package com.powsybl.commons.extensions;
 
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.ser.DefaultSerializerProvider;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.json.JsonUtil;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Collections;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -58,10 +66,14 @@ public class ExtensionTest extends AbstractConverterTest {
     public void testExtensionSupplier() {
         assertNotNull(SUPPLIER.get().findProvider("FooExt"));
         assertNotNull(SUPPLIER.get().findProviderOrThrowException("FooExt"));
+        assertNotNull(SUPPLIER.get().findProvider("BarExt"));
 
-        assertNull(SUPPLIER.get().findProvider("BarExt"));
+        ExtensionProviders<? extends ExtensionJsonSerializer> supplier = ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "test", Collections.singleton("FooExt"));
+        assertNotNull(supplier);
+        assertNotNull(supplier.findProviderOrThrowException("FooExt"));
+        assertNull(supplier.findProvider("BarExt"));
         try {
-            SUPPLIER.get().findProviderOrThrowException("BarExt");
+            supplier.findProviderOrThrowException("BarExt");
             fail();
         } catch (PowsyblException e) {
             // Nothing to do
@@ -69,11 +81,32 @@ public class ExtensionTest extends AbstractConverterTest {
     }
 
     @Test
-    public void testJson() throws IOException {
+    public void testReadJson() throws IOException {
         Foo foo = FooDeserializer.read(getClass().getResourceAsStream("/extensions.json"));
 
         assertEquals(1, foo.getExtensions().size());
         assertNotNull(foo.getExtension(FooExt.class));
         assertNull(foo.getExtension(BarExt.class));
+    }
+
+    @Test
+    public void testWriteJson() throws IOException {
+        Files.createFile(tmpDir.resolve("extensions.json"));
+        ExtensionProviders<? extends ExtensionJsonSerializer> supplier = ExtensionProviders.createProvider(ExtensionJsonSerializer.class, "test", Collections.singleton("FooExt"));
+        Foo foo = new Foo();
+        FooExt fooExt = new FooExt(true);
+        BarExt barExt = new BarExt(false);
+        foo.addExtension(FooExt.class, fooExt);
+        foo.addExtension(BarExt.class, barExt);
+
+        try (JsonGenerator jsonGen = new JsonFactory().createGenerator(Files.newOutputStream(tmpDir.resolve("extensions.json")), JsonEncoding.UTF8)) {
+            jsonGen.writeStartObject();
+            Set<String> notFound = JsonUtil.writeExtensions(foo, jsonGen, new DefaultSerializerProvider.Impl(), supplier);
+            jsonGen.writeEndObject();
+            assertNotNull(notFound);
+            assertFalse(notFound.isEmpty());
+            assertEquals(1, notFound.size());
+            assertTrue(notFound.contains("BarExt"));
+        }
     }
 }
