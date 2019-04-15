@@ -37,34 +37,34 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
         if (p.containsKey("ReactiveCapabilityCurve")) {
             String curveId = p.getId("ReactiveCapabilityCurve");
             PropertyBags curveData = context.reactiveCapabilityCurveData(curveId);
-            if (curveData.size() >= 2) {
 
-                Map<Double, Range<Double>> qRanges = new HashMap<>();
-                curveData.forEach(d -> {
-                    double p = d.asDouble("xvalue");
-                    double minQ = d.asDouble("y1value");
-                    double maxQ = d.asDouble("y2value");
+            Map<Double, Range<Double>> qRanges = new HashMap<>();
+            curveData.forEach(d -> {
+                double p = d.asDouble("xvalue");
+                double minQ = d.asDouble("y1value");
+                double maxQ = d.asDouble("y2value");
 
-                    if (!checkPointValidity(p, minQ, maxQ)) {
-                        return;
-                    }
+                if (!checkPointValidity(p, minQ, maxQ)) {
+                    return;
+                }
 
-                    Range<Double> qRange = fixedMinMaxQ("ReactiveCapabilityCurve Point", minQ, maxQ);
+                Range<Double> qRange = fixedMinMaxQ("ReactiveCapabilityCurve Point", minQ, maxQ);
 
-                    // check if there is a previous point with same p
-                    Range<Double> prev = qRanges.get(p);
-                    if (prev != null) {
-                        if (prev.isConnected(qRange)) {
-                            fixed("reactive capability curve", String.format("point merged with another one with same p (%f)", p));
-                            qRanges.put(p, prev.span(qRange));
-                        } else {
-                            ignored("reactive capability curve point", String.format("another point with same p (%f) and a disconnected reactive range", p));
-                        }
+                // check if there is a previous point with same p
+                Range<Double> prev = qRanges.get(p);
+                if (prev != null) {
+                    if (prev.isConnected(qRange)) {
+                        fixed("reactive capability curve", String.format("point merged with another one with same p (%f)", p));
+                        qRanges.put(p, prev.span(qRange));
                     } else {
-                        qRanges.put(p, qRange);
+                        ignored("reactive capability curve point", String.format("another point with same p (%f) and a disconnected reactive range", p));
                     }
-                });
+                } else {
+                    qRanges.put(p, qRange);
+                }
+            });
 
+            if (qRanges.size() >= 2) {
                 // create curve
                 ReactiveCapabilityCurveAdder rcca = g.newReactiveCapabilityCurve();
                 for (Map.Entry<Double, Range<Double>> e : qRanges.entrySet()) {
@@ -79,28 +79,32 @@ public abstract class AbstractReactiveLimitsOwnerConversion extends AbstractCond
                 rcca.add();
             } else if (curveData.size() == 1) {
                 fixed("reactive capability curve", "only one point");
-                PropertyBag d = curveData.get(0);
-                double p = d.asDouble("xvalue");
-                double minQ = d.asDouble("y1value");
-                double maxQ = d.asDouble("y2value");
-                if (checkPointValidity(p, minQ, maxQ)) {
-                    Range<Double> qRange = fixedMinMaxQ("ReactiveCapabilityCurve Point", minQ, maxQ);
-                    g.newMinMaxReactiveLimits()
+                Map.Entry<Double, Range<Double>> e = qRanges.entrySet().iterator().next();
+                Range<Double> qRange = e.getValue();
+                g.newMinMaxReactiveLimits()
                             .setMinQ(qRange.lowerEndpoint())
                             .setMaxQ(qRange.upperEndpoint())
                             .add();
-                }
             } else {
                 missing("Empty curve");
+                convertMinMaxQ(g);
             }
-        } else if (p.containsKey("minQ") && p.containsKey("maxQ")) {
+        } else {
+            convertMinMaxQ(g);
+        }
+    }
+
+    private void convertMinMaxQ(Generator g) {
+        if (p.containsKey("minQ") && p.containsKey("maxQ")) {
             double minQ = p.asDouble("minQ");
             double maxQ = p.asDouble("maxQ");
             Range<Double> qRange = fixedMinMaxQ("Reactive Limits", minQ, maxQ);
             g.newMinMaxReactiveLimits()
-                .setMinQ(qRange.lowerEndpoint())
-                .setMaxQ(qRange.upperEndpoint())
-                .add();
+                    .setMinQ(qRange.lowerEndpoint())
+                    .setMaxQ(qRange.upperEndpoint())
+                    .add();
+        } else {
+            missing("minQ/maxQ are missing, default to unbounded reactive limits");
         }
     }
 
