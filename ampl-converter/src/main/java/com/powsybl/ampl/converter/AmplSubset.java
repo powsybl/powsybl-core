@@ -23,6 +23,7 @@ public enum AmplSubset implements IntCounter {
     LOAD(1),
     SHUNT(1),
     GENERATOR(1),
+    BATTERY(1),
     TEMPORARY_CURRENT_LIMIT(1),
     THREE_WINDINGS_TRANSFO(1),
     FAULT(1),

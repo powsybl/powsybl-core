@@ -35,6 +35,11 @@ public abstract class AbstractEquipmentTopologyVisitor extends DefaultTopologyVi
     }
 
     @Override
+    public void visitBattery(Battery battery) {
+        visitEquipment(battery);
+    }
+
+    @Override
     public void visitLoad(Load load) {
         visitEquipment(load);
     }
