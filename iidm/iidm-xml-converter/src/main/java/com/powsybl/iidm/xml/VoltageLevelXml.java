@@ -228,6 +228,18 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         return false;
     }
 
+    private boolean isBatteriesHavingStateValues(VoltageLevel vl, NetworkXmlWriterContext context) {
+        for (Battery battery : vl.getBatteries()) {
+            if (!context.getFilter().test(battery)) {
+                continue;
+            }
+            if (BatteryXml.INSTANCE.hasStateValues(battery)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     boolean hasStateValues(VoltageLevel vl, NetworkXmlWriterContext context) {
         return isGeneratorsHavingStateValues(vl, context) ||
                 isDanglingLinesHavingStateValues(vl, context) ||
@@ -236,7 +248,8 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
                 isStaticVarCompensatorsHavingStateValues(vl, context) ||
                 isVscConverterStationsHavingStateValues(vl, context) ||
                 isLccConverterStationsHavingStateValues(vl, context) ||
-                isBusesHavingStateValues(vl, context);
+                isBusesHavingStateValues(vl, context) ||
+                isBatteriesHavingStateValues(vl, context);
     }
 
     boolean hasTopoValues(VoltageLevel vl, NetworkXmlWriterContext context) {
@@ -284,11 +297,11 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
             }
         }
         writeGenerators(vl, context, topologyLevel);
+        writeBatteries(vl, context, topologyLevel);
         writeLoads(vl, context, topologyLevel);
         writeShuntCompensators(vl, context, topologyLevel);
         writeDanglingLines(vl, context, topologyLevel);
         writeStaticVarCompensators(vl, context, topologyLevel);
-        writeBatteries(vl, context);
         writeVscConverterStations(vl, context);
         writeLccConverterStations(vl, context);
     }
@@ -370,7 +383,11 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         }
     }
 
-    private void writeBatteries(VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
+    private void writeBatteries(VoltageLevel vl, NetworkXmlWriterContext context, TopologyLevel topologyLevel) throws XMLStreamException {
+        if ((context.getTargetFile() == IncrementalIidmFiles.TOPO && topologyLevel == TopologyLevel.NODE_BREAKER) ||
+                (context.getTargetFile() == IncrementalIidmFiles.CONTROL)) {
+            return;
+        }
         for (Battery b : vl.getBatteries()) {
             if (!context.getFilter().test(b)) {
                 continue;

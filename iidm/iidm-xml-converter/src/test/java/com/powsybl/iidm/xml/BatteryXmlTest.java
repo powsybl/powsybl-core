@@ -7,16 +7,10 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.commons.datasource.FileDataSource;
-import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import org.junit.Test;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Paths;
-import java.util.Properties;
 
 /**
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
@@ -29,12 +23,5 @@ public class BatteryXmlTest extends AbstractConverterTest {
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
                 "/batteryRoundTripRef.xml");
-    }
-
-    @Test
-    public void test() throws IOException {
-        Properties properties = new Properties();
-        FileDataSource dataSource = new FileDataSource(Paths.get("/home/benhamedcha"), "test");
-        new XMLExporter(platformConfig).export(BatteryNetworkFactory.create(), properties, dataSource);
     }
 }

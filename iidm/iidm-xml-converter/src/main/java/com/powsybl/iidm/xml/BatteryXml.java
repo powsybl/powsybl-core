@@ -7,6 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
+import com.powsybl.iidm.IidmImportExportType;
 import com.powsybl.iidm.network.Battery;
 import com.powsybl.iidm.network.BatteryAdder;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -34,17 +35,27 @@ class BatteryXml extends AbstractConnectableXml<Battery, BatteryAdder, VoltageLe
 
     @Override
     protected void writeRootElementAttributes(Battery b, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        XmlUtil.writeDouble("p0", b.getP0(), context.getWriter());
-        XmlUtil.writeDouble("q0", b.getQ0(), context.getWriter());
-        XmlUtil.writeDouble("minP", b.getMinP(), context.getWriter());
-        XmlUtil.writeDouble("maxP", b.getMaxP(), context.getWriter());
-        writeNodeOrBus(null, b.getTerminal(), context);
-        writePQ(null, b.getTerminal(), context.getWriter());
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
+            XmlUtil.writeDouble("p0", b.getP0(), context.getWriter());
+            XmlUtil.writeDouble("q0", b.getQ0(), context.getWriter());
+            XmlUtil.writeDouble("minP", b.getMinP(), context.getWriter());
+            XmlUtil.writeDouble("maxP", b.getMaxP(), context.getWriter());
+        }
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM ||
+                (context.getOptions().isTopo() && context.getTargetFile() == IncrementalIidmFiles.TOPO)) {
+            writeNodeOrBus(null, b.getTerminal(), context);
+        }
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM ||
+                (context.getOptions().isState() && context.getTargetFile() == IncrementalIidmFiles.STATE)) {
+            writePQ(null, b.getTerminal(), context.getWriter());
+        }
     }
 
     @Override
     protected void writeSubElements(Battery b, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        ReactiveLimitsXml.INSTANCE.write(b, context);
+        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
+            ReactiveLimitsXml.INSTANCE.write(b, context);
+        }
     }
 
     @Override
@@ -85,7 +96,7 @@ class BatteryXml extends AbstractConnectableXml<Battery, BatteryAdder, VoltageLe
 
     @Override
     boolean hasStateValues(Battery battery) {
-        return false;
+        return isTerminalHavingStateValues(battery.getTerminal());
     }
 
     @Override
