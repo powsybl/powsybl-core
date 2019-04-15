@@ -169,7 +169,7 @@ public class NetworkTest {
         Substation substation1 = network.getSubstation("P1");
         assertNotNull(substation1);
         assertEquals("P1", substation1.getId());
-        assertSame(country1, substation1.getCountry());
+        assertSame(country1, substation1.getCountry().orElse(null));
         assertEquals(1, substation1.getGeographicalTags().size());
         assertTrue(substation1.getGeographicalTags().contains("A"));
         assertEquals(1, Iterables.size(substation1.getVoltageLevels()));
@@ -200,7 +200,7 @@ public class NetworkTest {
         Substation substation2 = network.getSubstation("P2");
         assertNotNull(substation2);
         assertEquals("P2", substation2.getId());
-        assertSame(country1, substation2.getCountry());
+        assertSame(country1, substation2.getCountry().orElse(null));
         assertEquals(1, substation2.getGeographicalTags().size());
         assertTrue(substation2.getGeographicalTags().contains("B"));
         assertEquals(1, Iterables.size(substation1.getVoltageLevels()));
