@@ -234,7 +234,7 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     private AfsStorageException createNodeDisabledException(UUID nodeUuid) {
-        return new AfsStorageException("Node " + nodeUuid + " disabled");
+        return new AfsStorageException("Node " + nodeUuid + " is disabled");
     }
 
     private void checkEnabled(UUID nodeUuid) {
@@ -336,6 +336,7 @@ public class MapDbAppStorage implements AppStorage {
         if (childNodes == null) {
             throw createNodeNotFoundException(nodeUuid);
         }
+        checkEnabled(nodeUuid);
         return childNodes.stream().map(this::getNodeInfo).filter(NodeInfo::isEnable).collect(Collectors.toList());
     }
 
@@ -346,7 +347,7 @@ public class MapDbAppStorage implements AppStorage {
         checkNodeExists(parentNodeUuid);
         checkEnabled(parentNodeUuid);
         UUID childNodeUuid = childNodeMap.get(new NamedLink(parentNodeUuid, name));
-        return Optional.ofNullable(childNodeUuid).map(this::getNodeInfo);
+        return Optional.ofNullable(childNodeUuid).map(this::getNodeInfo).filter(NodeInfo::isEnable);
     }
 
     @Override
@@ -395,6 +396,10 @@ public class MapDbAppStorage implements AppStorage {
         UUID nodeUuid = UUID.randomUUID();
         long creationTime = ZonedDateTime.now().toInstant().toEpochMilli();
         NodeInfo nodeInfo = new NodeInfo(nodeUuid.toString(), name, nodePseudoClass, description, creationTime, creationTime, version, genericMetadata);
+        if (nodePseudoClass.equals("folder") || nodePseudoClass.equals("root") ||
+                nodePseudoClass.equals("projectFolder") || nodePseudoClass.equals("project")) {
+            nodeInfo.setEnable(true);
+        }
         nodeInfoMap.put(nodeUuid, nodeInfo);
         dataNamesMap.put(nodeUuid, Collections.emptySet());
         childNodesMap.put(nodeUuid, new ArrayList<>());
@@ -728,6 +733,7 @@ public class MapDbAppStorage implements AppStorage {
     @Override
     public Set<NodeInfo> getBackwardDependencies(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
+        checkEnabled(nodeUuid);
         List<UUID> backwardDependencyNodes = backwardDependencyNodesMap.get(nodeUuid);
         if (backwardDependencyNodes == null) {
             throw createNodeNotFoundException(nodeUuid);

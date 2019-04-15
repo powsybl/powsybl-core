@@ -63,6 +63,12 @@ public abstract class AbstractNodeBase<F> {
         storage.flush();
     }
 
+    public void setEnable(Boolean enable) {
+        storage.setEnable(info.getId(), enable);
+        info.setEnable(enable);
+        storage.flush();
+    }
+
     public ZonedDateTime getCreationDate() {
         return Instant.ofEpochMilli(info.getCreationTime()).atZone(ZoneId.systemDefault());
     }

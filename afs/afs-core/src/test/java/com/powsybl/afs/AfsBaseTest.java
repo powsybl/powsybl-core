@@ -96,9 +96,8 @@ public class AfsBaseTest {
         assertEquals("dir2", mayBeDir2otherWay.getName());
 
         Project project1 = dir2.createProject("project1");
-        afs.getStorage().setEnable(project1.getId(), true);
-
         project1.setDescription("test project");
+        afs.getStorage().setEnable(project1.getId(), true);
         assertNotNull(project1);
         assertEquals("project1", project1.getName());
         assertEquals("test project", project1.getDescription());

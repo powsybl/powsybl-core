@@ -109,7 +109,6 @@ public abstract class AbstractAppStorageTest {
         // 2) create a test folder
         NodeInfo testFolderInfo = storage.createNode(rootFolderInfo.getId(), "test", FOLDER_PSEUDO_CLASS, "", 0,
                 new NodeGenericMetadata().setString("k", "v"));
-        storage.setEnable(storage.getChildNode(rootFolderInfo.getId(), "test").get().getId(), true);
         storage.flush();
 
         // check event
@@ -167,9 +166,9 @@ public abstract class AbstractAppStorageTest {
                                          .setInt("i1", 2)
                                          .setBoolean("b1", false));
         NodeInfo testData3Info = storage.createNode(testFolderInfo.getId(), "data3", DATA_FILE_CLASS, "", 0, new NodeGenericMetadata());
-        storage.setEnable(storage.getChildNode(testFolderInfo.getId(), "data").get().getId(), true);
-        storage.setEnable(storage.getChildNode(testFolderInfo.getId(), "data2").get().getId(), true);
-        storage.setEnable(storage.getChildNode(testFolderInfo.getId(), "data3").get().getId(), true);
+        storage.setEnable(testDataInfo.getId(), true);
+        storage.setEnable(testData2Info.getId(), true);
+        storage.setEnable(testData3Info.getId(), true);
         storage.flush();
 
         // check events
@@ -437,15 +436,15 @@ public abstract class AbstractAppStorageTest {
         // 18) change parent test
         NodeInfo folder1Info = storage.createNode(rootFolderInfo.getId(), "test1", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
         NodeInfo folder2Info = storage.createNode(rootFolderInfo.getId(), "test2", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
-        storage.setEnable(storage.getChildNode(rootFolderInfo.getId(), "test1").get().getId(), true);
-        storage.setEnable(storage.getChildNode(rootFolderInfo.getId(), "test2").get().getId(), true);
+        storage.setEnable(folder1Info.getId(), true);
+        storage.setEnable(folder2Info.getId(), true);
         storage.flush();
 
         discardEvents(2);
 
         // create a file in folder 1
         NodeInfo fileInfo = storage.createNode(folder1Info.getId(), "file", "file-type", "", 0, new NodeGenericMetadata());
-        storage.setEnable(storage.getChildNode(folder1Info.getId(), "file").get().getId(), true);
+        storage.setEnable(fileInfo.getId(), true);
         storage.flush();
 
         discardEvents(1);

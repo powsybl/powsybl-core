@@ -79,7 +79,7 @@ public class ModificationScriptBuilder implements ProjectFileBuilder<Modificatio
             throw new UncheckedIOException(e);
         }
 
-        context.getStorage().setEnable(context.getFolderInfo().getId(), true);
+        context.getStorage().setEnable(info.getId(), true);
 
         context.getStorage().flush();
 

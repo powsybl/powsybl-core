@@ -136,12 +136,15 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
 
         // create network.net
-        storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "", Case.VERSION,
+        NodeInfo caseNode = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "", Case.VERSION,
                 new NodeGenericMetadata().setString(Case.FORMAT, ImporterMock.FORMAT));
 
         // create network2.net
-        storage.createNode(rootFolderInfo.getId(), "network2", Case.PSEUDO_CLASS, "", Case.VERSION,
+        NodeInfo caseNode2 = storage.createNode(rootFolderInfo.getId(), "network2", Case.PSEUDO_CLASS, "", Case.VERSION,
                 new NodeGenericMetadata().setString(Case.FORMAT, ImporterMock.FORMAT));
+        storage.setEnable(caseNode.getId(), true);
+        storage.setEnable(caseNode2.getId(), true);
+
     }
 
     @Test
