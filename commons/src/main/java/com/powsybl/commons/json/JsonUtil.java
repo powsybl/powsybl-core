@@ -172,18 +172,18 @@ public final class JsonUtil {
         }
     }
 
-    public static <T> void writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
+    public static <T> Set<String> writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
                                            SerializerProvider serializerProvider) throws IOException {
-        writeExtensions(extendable, jsonGenerator, serializerProvider, SUPPLIER.get());
+        return writeExtensions(extendable, jsonGenerator, serializerProvider, SUPPLIER.get());
     }
 
-    public static <T> void writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
+    public static <T> Set<String> writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
                                            SerializerProvider serializerProvider,
                                            ExtensionProviders<? extends ExtensionJsonSerializer> supplier) throws IOException {
-        writeExtensions(extendable, jsonGenerator, true, serializerProvider, supplier);
+        return writeExtensions(extendable, jsonGenerator, true, serializerProvider, supplier);
     }
 
-    public static <T> void writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
+    public static <T> Set<String> writeExtensions(Extendable<T> extendable, JsonGenerator jsonGenerator,
                                            boolean headerWanted, SerializerProvider serializerProvider,
                                            ExtensionProviders<? extends ExtensionJsonSerializer> supplier) throws IOException {
         Objects.requireNonNull(extendable);
@@ -192,6 +192,7 @@ public final class JsonUtil {
         Objects.requireNonNull(supplier);
 
         boolean headerDone = false;
+        Set<String> notFound = new HashSet<>();
 
         if (!extendable.getExtensions().isEmpty()) {
             for (Extension<T> extension : extendable.getExtensions()) {
@@ -204,12 +205,15 @@ public final class JsonUtil {
                     }
                     jsonGenerator.writeFieldName(extension.getName());
                     serializer.serialize(extension, jsonGenerator, serializerProvider);
+                } else {
+                    notFound.add(extension.getName());
                 }
             }
             if (headerDone) {
                 jsonGenerator.writeEndObject();
             }
         }
+        return notFound;
     }
 
     public static <T> List<Extension<T>> readExtensions(JsonParser parser, DeserializationContext context) throws IOException {
