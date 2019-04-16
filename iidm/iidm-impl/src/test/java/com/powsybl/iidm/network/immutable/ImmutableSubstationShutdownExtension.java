@@ -41,7 +41,7 @@ public class ImmutableSubstationShutdownExtension extends AbstractImmutableWrapp
 
             @Override
             public void setExtendable(Substation extendable) {
-                throw ImmutableNetwork.UNMODIFIABLE_EXCEPTION;
+                throw UNMODIFIABLE_EXCEPTION;
             }
         };
     }

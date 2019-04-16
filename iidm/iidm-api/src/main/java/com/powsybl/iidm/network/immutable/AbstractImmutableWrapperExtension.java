@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.immutable;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.extensions.Extendable;
 import com.powsybl.commons.extensions.Extension;
 
@@ -17,6 +18,8 @@ import java.util.Map;
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
 public abstract class AbstractImmutableWrapperExtension<T extends Extendable, E extends Extension<T>> implements ImmutableWrapperExtension<T, E> {
+
+    protected static final PowsyblException UNMODIFIABLE_EXCEPTION = new PowsyblException("Unmodifiable extension");
 
     static final String IMMU_WRAPPER_EXT_CATE_NAME = "ImmutableWrapperExtension";
 

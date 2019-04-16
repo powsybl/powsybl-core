@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.immutable;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.CurrentLimits;
 
 import java.util.*;
@@ -37,7 +38,7 @@ public final class ImmutableCurrentLimits implements CurrentLimits {
      */
     @Override
     public CurrentLimits setPermanentLimit(double permanentLimit) {
-        throw ImmutableNetwork.createUnmodifiableNetworkException();
+        throw new PowsyblException("Unmodifiable currentLimits");
     }
 
     /**

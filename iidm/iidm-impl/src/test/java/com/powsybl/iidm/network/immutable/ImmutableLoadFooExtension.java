@@ -37,12 +37,12 @@ public class ImmutableLoadFooExtension extends AbstractImmutableWrapperExtension
 
             @Override
             public void setUsername(String username) {
-                throw ImmutableNetwork.UNMODIFIABLE_EXCEPTION;
+                throw UNMODIFIABLE_EXCEPTION;
             }
 
             @Override
             public void setExtendable(Load extendable) {
-                throw ImmutableNetwork.UNMODIFIABLE_EXCEPTION;
+                throw UNMODIFIABLE_EXCEPTION;
             }
         };
     }

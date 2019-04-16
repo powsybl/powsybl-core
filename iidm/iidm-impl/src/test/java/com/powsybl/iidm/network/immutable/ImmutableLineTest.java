@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network.immutable;
 
+import com.powsybl.commons.TestHelper;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
@@ -39,7 +40,7 @@ public class ImmutableLineTest {
 
     @Test
     public void testImmutableLine() {
-        Network network = ImmutableNetwork.of(EurostagTutorialExample1Factory.createWithCurrentLimits());
+        Network network = ImmutableNetwork.of(EurostagTutorialExample1Factory.createWithFixedCurrentLimits());
         Line line = network.getLine("NHV1_NHV2_1");
         assertTrue(line instanceof ImmutableLine);
         ImmutableTestHelper.testInvalidMethods(line, INVALID_LINE_METHODS);
@@ -47,7 +48,7 @@ public class ImmutableLineTest {
         assertTrue(currentLimits1 instanceof ImmutableCurrentLimits);
         Set<String> invalidLimmitMethods = new HashSet<>();
         invalidLimmitMethods.add("setPermanentLimit");
-        ImmutableTestHelper.testInvalidMethods(currentLimits1, invalidLimmitMethods);
+        TestHelper.assertInvalidInvocation(() -> currentLimits1.setPermanentLimit(1.0), "Unmodifiable currentLimits");
     }
 
     @Test
