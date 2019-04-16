@@ -220,6 +220,7 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     private static final String NODE = "Node ";
+
     @Override
     public String getFileSystemName() {
         return fileSystemName;
