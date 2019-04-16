@@ -87,8 +87,8 @@ public class ContingencyOccurredTest extends AbstractLoadFlowRulesEngineTest {
         engine.start(actionDb, "contingency1");
 
         // check action1 is activated in pre-contingency state and action2 in post-contingency state
-        assertEquals(preContActions, Collections.singletonList("action1"));
-        assertEquals(postContActions, Collections.singletonList("action2"));
+        assertEquals(Collections.singletonList("action1"), preContActions);
+        assertEquals(Collections.singletonList("action2"), postContActions);
     }
 
     @Test
@@ -98,7 +98,7 @@ public class ContingencyOccurredTest extends AbstractLoadFlowRulesEngineTest {
         engine.start(actionDb, "contingency1");
 
         // check action1 is activated in pre-contingency state and action2 in post-contingency state
-        assertEquals(preContActions, Collections.singletonList("action1"));
-        assertEquals(postContActions, Collections.singletonList("action2"));
+        assertEquals(Collections.singletonList("action1"), preContActions);
+        assertEquals(Collections.singletonList("action2"), postContActions);
     }
 }
