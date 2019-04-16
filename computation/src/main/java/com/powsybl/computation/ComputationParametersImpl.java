@@ -18,19 +18,19 @@ import java.util.OptionalLong;
  */
 public class ComputationParametersImpl extends AbstractExtendable<ComputationParameters> implements ComputationParameters {
 
-    private final Map<String, Long> timeoutMap;
+    private final Map<String, Long> timeoutsByCmdId;
 
-    private final Map<String, Long> deadlineMap;
+    private final Map<String, Long> deadlinesByCmdId;
 
-    ComputationParametersImpl(Map<String, Long> timeoutMap, Map<String, Long> deadlineMap) {
-        this.timeoutMap = Collections.unmodifiableMap(timeoutMap);
-        this.deadlineMap = Collections.unmodifiableMap(deadlineMap);
+    ComputationParametersImpl(Map<String, Long> timeoutsByCommandId, Map<String, Long> deadlinesByCommandId) {
+        timeoutsByCmdId = Collections.unmodifiableMap(timeoutsByCommandId);
+        deadlinesByCmdId = Collections.unmodifiableMap(deadlinesByCommandId);
     }
 
     @Override
     public OptionalLong getTimeout(String commandId) {
         Objects.requireNonNull(commandId);
-        Long t = timeoutMap.get(commandId);
+        Long t = timeoutsByCmdId.get(commandId);
         if (t == null) {
             return OptionalLong.empty();
         } else {
@@ -41,7 +41,7 @@ public class ComputationParametersImpl extends AbstractExtendable<ComputationPar
     @Override
     public OptionalLong getDeadline(String commandId) {
         Objects.requireNonNull(commandId);
-        Long t = deadlineMap.get(commandId);
+        Long t = deadlinesByCmdId.get(commandId);
         if (t == null) {
             return OptionalLong.empty();
         } else {
