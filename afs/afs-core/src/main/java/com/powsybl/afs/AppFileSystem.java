@@ -77,7 +77,6 @@ public class AppFileSystem implements AutoCloseable {
 
     public Folder getRootFolder() {
         Folder folder = new Folder(new FileCreationContext(rootNodeInfo.get(), storage, this));
-        storage.setEnable(folder.getId(), true);
         return folder;
     }
 

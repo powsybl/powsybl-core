@@ -219,6 +219,7 @@ public class MapDbAppStorage implements AppStorage {
         return removed;
     }
 
+    private static final String NODE = "Node ";
     @Override
     public String getFileSystemName() {
         return fileSystemName;
@@ -230,11 +231,11 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     private AfsStorageException createNodeNotFoundException(UUID nodeUuid) {
-        return new AfsStorageException("Node " + nodeUuid + " not found");
+        return new AfsStorageException(NODE + nodeUuid + " not found");
     }
 
     private AfsStorageException createNodeDisabledException(UUID nodeUuid) {
-        return new AfsStorageException("Node " + nodeUuid + " is disabled");
+        return new AfsStorageException(NODE + nodeUuid + " is disabled");
     }
 
     private void checkEnabled(UUID nodeUuid) {
@@ -390,16 +391,12 @@ public class MapDbAppStorage implements AppStorage {
             checkNodeExists(parentNodeUuid);
             // check parent node does not already have a child with the same name
             if (childNodeMap.containsKey(new NamedLink(parentNodeUuid, name))) {
-                throw new AfsStorageException("Node " + parentNodeUuid + " already have a child named " + name);
+                throw new AfsStorageException(NODE + parentNodeUuid + " already have a child named " + name);
             }
         }
         UUID nodeUuid = UUID.randomUUID();
         long creationTime = ZonedDateTime.now().toInstant().toEpochMilli();
         NodeInfo nodeInfo = new NodeInfo(nodeUuid.toString(), name, nodePseudoClass, description, creationTime, creationTime, version, genericMetadata);
-        if (nodePseudoClass.equals("folder") || nodePseudoClass.equals("root") ||
-                nodePseudoClass.equals("projectFolder") || nodePseudoClass.equals("project")) {
-            nodeInfo.setEnable(true);
-        }
         nodeInfoMap.put(nodeUuid, nodeInfo);
         dataNamesMap.put(nodeUuid, Collections.emptySet());
         childNodesMap.put(nodeUuid, new ArrayList<>());
@@ -714,7 +711,7 @@ public class MapDbAppStorage implements AppStorage {
         if (dependencyNodes == null) {
             return Collections.emptySet();
         }
-        return dependencyNodes.stream().map(this::getNodeInfo).collect(Collectors.toCollection(LinkedHashSet::new));
+        return dependencyNodes.stream().map(this::getNodeInfo).filter(NodeInfo::isEnable).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @Override
@@ -726,6 +723,7 @@ public class MapDbAppStorage implements AppStorage {
             throw createNodeNotFoundException(nodeUuid);
         }
         return dependencyNodes.stream()
+                              .filter(namedLink -> getNodeInfo(namedLink.getNodeUuid()).isEnable())
                               .map(namedLink -> new NodeDependency(namedLink.getName(), getNodeInfo(namedLink.getNodeUuid())))
                               .collect(Collectors.toSet());
     }
@@ -740,6 +738,7 @@ public class MapDbAppStorage implements AppStorage {
         }
         return backwardDependencyNodes.stream()
                                       .map(this::getNodeInfo)
+                                      .filter(NodeInfo::isEnable)
                                       .collect(Collectors.toSet());
     }
 

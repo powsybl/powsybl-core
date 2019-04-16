@@ -88,12 +88,12 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
         NodeInfo folderInfo = storage.getChildNode(info.getId(), name)
                 .orElseGet(() -> {
                     NodeInfo newFolderInfo = storage.createNode(info.getId(), name, PSEUDO_CLASS, "", VERSION, new NodeGenericMetadata());
+                    storage.setEnable(newFolderInfo.getId(), true);
                     storage.flush();
                     return newFolderInfo;
                 });
-        Folder folder =  new Folder(new FileCreationContext(folderInfo, storage, fileSystem));
-        storage.setEnable(folder.getId(), true);
-        return  folder;
+        return new Folder(new FileCreationContext(folderInfo, storage, fileSystem));
+
     }
 
     /**
@@ -104,13 +104,13 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
                 .orElseGet(() -> {
                     NodeInfo newProjectInfo = storage.createNode(info.getId(), name, Project.PSEUDO_CLASS, "", Project.VERSION, new NodeGenericMetadata());
                     // create root project folder
-                    storage.createNode(newProjectInfo.getId(), Project.ROOT_FOLDER_NAME, ProjectFolder.PSEUDO_CLASS, "", ProjectFolder.VERSION, new NodeGenericMetadata());
+                    NodeInfo newProjectInfoRootFolder = storage.createNode(newProjectInfo.getId(), Project.ROOT_FOLDER_NAME, ProjectFolder.PSEUDO_CLASS, "", ProjectFolder.VERSION, new NodeGenericMetadata());
+                    storage.setEnable(newProjectInfo.getId(), true);
+                    storage.setEnable(newProjectInfoRootFolder.getId(), true);
                     storage.flush();
                     return newProjectInfo;
                 });
-        Project project = new Project(new FileCreationContext(projectInfo, storage, fileSystem));
-        storage.setEnable(project.getId(), true);
-        return project;
+        return new Project(new FileCreationContext(projectInfo, storage, fileSystem));
     }
 
     public void archive(Path dir) {

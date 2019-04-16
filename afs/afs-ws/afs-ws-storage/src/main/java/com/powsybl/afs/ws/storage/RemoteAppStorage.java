@@ -185,8 +185,21 @@ public class RemoteAppStorage implements AppStorage {
 
     @Override
     public boolean isEnable(String nodeId) {
-        // to be implemented
-        return false;
+        Objects.requireNonNull(nodeId);
+
+        LOGGER.debug("isWritable(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
+
+        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/isEnable")
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
+                .request(MediaType.TEXT_PLAIN)
+                .header(HttpHeaders.AUTHORIZATION, token)
+                .get();
+        try {
+            return readEntityIfOk(response, Boolean.class);
+        } finally {
+            response.close();
+        }
     }
 
     @Override

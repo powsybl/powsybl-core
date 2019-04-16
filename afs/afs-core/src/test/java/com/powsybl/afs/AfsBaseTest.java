@@ -56,10 +56,8 @@ public class AfsBaseTest {
         assertEquals("mem", afs.getName());
         assertEquals(1, ad.getProjectFileClasses().size());
         Folder root = afs.getRootFolder();
-        afs.getStorage().setEnable(root.getId(), true);
         assertNotNull(root);
         Folder dir1 = root.createFolder("dir1");
-        afs.getStorage().setEnable(dir1.getId(), true);
         assertNotNull(dir1);
         dir1.createFolder("dir2");
         dir1.createFolder("dir3");
@@ -74,18 +72,13 @@ public class AfsBaseTest {
         assertFalse(dir1.isAheadOfVersion());
         assertEquals(dir1.getName(), dir1.toString());
         assertEquals("mem", dir1.getParent().orElseThrow(AssertionError::new).getName());
-
         Folder dir2 = dir1.getFolder("dir2").orElse(null);
-        Folder dir3 = dir1.getFolder("dir3").orElse(null);
-        afs.getStorage().setEnable(dir3.getId(), true);
-        afs.getStorage().setEnable(dir2.getId(), true);
-
         assertNotNull(dir2);
         assertNotNull(dir2.getParent());
         assertEquals("mem:/dir1", dir2.getParent().orElseThrow(AssertionError::new).getPath().toString());
         assertEquals(2, dir1.getChildren().size());
-        Folder dir32 = root.getFolder("dir3").orElse(null);
-        assertNull(dir32);
+        Folder dir3 = root.getFolder("dir3").orElse(null);
+        assertNull(dir3);
         String str = dir2.getPath().toString();
         assertEquals("mem:/dir1/dir2", str);
         Folder mayBeDir2 = afs.getRootFolder().getFolder("dir1/dir2").orElse(null);
@@ -96,10 +89,7 @@ public class AfsBaseTest {
         assertEquals("dir2", mayBeDir2otherWay.getName());
 
         Project project1 = dir2.createProject("project1");
-        afs.getStorage().setEnable(project1.getId(), true);
-
         project1.setDescription("test project");
-        afs.getStorage().setEnable(project1.getId(), true);
         assertNotNull(project1);
         assertEquals("project1", project1.getName());
         assertEquals("test project", project1.getDescription());
@@ -109,15 +99,11 @@ public class AfsBaseTest {
         assertSame(project1.getFileSystem(), afs);
 
         Project project2 = dir2.createProject("project2");
-        afs.getStorage().setEnable(project2.getId(), true);
         project2.rename("project22");
         assertEquals("project22", project2.getName());
 
         Project projet101 = dir2.createProject("project5");
         Project project102 = dir2.createProject("project6");
-        afs.getStorage().setEnable(projet101.getId(), true);
-        afs.getStorage().setEnable(project102.getId(), true);
-
         try {
             project102.rename("project5");
             fail();
@@ -126,18 +112,12 @@ public class AfsBaseTest {
         }
 
         Folder dir41 = dir2.createFolder("dir41");
-        afs.getStorage().setEnable(dir41.getId(), true);
-
         Project project3 = dir41.createProject("project3");
-        afs.getStorage().setEnable(project3.getId(), true);
         project3.delete();
         assertTrue(dir41.getChildren().isEmpty());
 
         Folder dir51 = dir2.createFolder("dir51");
-        afs.getStorage().setEnable(dir51.getId(), true);
-
         Project project5 = dir51.createProject("project5");
-        afs.getStorage().setEnable(project5.getId(), true);
         try {
             dir51.delete();
             fail();
@@ -145,17 +125,12 @@ public class AfsBaseTest {
         }
 
         Folder dir71 = root.createFolder("dir7");
-        afs.getStorage().setEnable(dir71.getId(), true);
         Project project4 = dir41.createProject("projet4");
-        afs.getStorage().setEnable(project4.getId(), true);
         project4.moveTo(dir71);
         assertFalse(dir71.getChildren().isEmpty());
 
         Folder dir81 = root.createFolder("dir8");
-        afs.getStorage().setEnable(dir81.getId(), true);
         Folder dir82 = dir81.createFolder("dir9");
-        afs.getStorage().setEnable(dir82.getId(), true);
-
         try {
             dir81.moveTo(dir82);
             fail();
@@ -182,10 +157,8 @@ public class AfsBaseTest {
             }
         };
         ProjectFolder rootFolder = project1.getRootFolder();
-        afs.getStorage().setEnable(rootFolder.getId(), true);
         rootFolder.addListener(l);
         ProjectFolder dir4 = rootFolder.createFolder("dir4");
-        afs.getStorage().setEnable(dir4.getId(), true);
         assertTrue(dir4.isFolder());
         assertEquals("dir4", dir4.getName());
         assertNotNull(dir4.getParent());
@@ -201,11 +174,7 @@ public class AfsBaseTest {
         }
 
         ProjectFolder dir5 = rootFolder.createFolder("dir5");
-        afs.getStorage().setEnable(dir5.getId(), true);
-
         ProjectFolder dir6 = dir5.createFolder("dir6");
-        afs.getStorage().setEnable(dir6.getId(), true);
-
         assertEquals(ImmutableList.of("dir5", "dir6"), dir6.getPath().toList().subList(1, 3));
         assertEquals("dir5/dir6", dir6.getPath().toString());
         assertEquals("dir6", rootFolder.getChild("dir5/dir6").orElseThrow(AssertionError::new).getName());
@@ -214,29 +183,18 @@ public class AfsBaseTest {
         assertEquals(Collections.singletonList(dir4.getId()), removed);
 
         ProjectFolder dir7 = rootFolder.createFolder("dir7");
-        afs.getStorage().setEnable(dir7.getId(), true);
-
         dir7.rename("dir77");
         assertEquals("dir77", dir7.getName());
     }
 
     @Test
     public void moveToTest() {
-        Folder folder = afs.getRootFolder();
-        afs.getStorage().setEnable(afs.getRootFolder().getId(), true);
-        Project project = folder.createProject("test");
-        afs.getStorage().setEnable(project.getId(), true);
-        afs.getStorage().setEnable(project.getRootFolder().getId(), true);
-
+        Project project = afs.getRootFolder().createProject("test");
         ProjectFolder test1 = project.getRootFolder().createFolder("test1");
         ProjectFolder test2 = project.getRootFolder().createFolder("test2");
-        afs.getStorage().setEnable(test1.getId(), true);
-        afs.getStorage().setEnable(test2.getId(), true);
-
         FooFile file = test1.fileBuilder(FooFileBuilder.class)
                 .withName("foo")
                 .build();
-        afs.getStorage().setEnable(file.getId(), true);
         assertEquals(test1.getId(), file.getParent().orElseThrow(AssertionError::new).getId());
         assertEquals(1, test1.getChildren().size());
         assertTrue(test2.getChildren().isEmpty());

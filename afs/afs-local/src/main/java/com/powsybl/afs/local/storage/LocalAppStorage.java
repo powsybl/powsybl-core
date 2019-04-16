@@ -145,8 +145,7 @@ public class LocalAppStorage implements AppStorage {
                             attr.creationTime().toMillis(),
                             attr.lastModifiedTime().toMillis(),
                             DEFAULT_VERSION,
-                            new NodeGenericMetadata(),
-                            true);
+                            new NodeGenericMetadata());
     }
 
     @Override
@@ -271,9 +270,7 @@ public class LocalAppStorage implements AppStorage {
 
     @Override
     public boolean isEnable(String nodeId) {
-        // TO BE IMPLEMENTED
-        NodeInfo nodeInfo = getNodeInfo(nodeId);
-        return nodeInfo.isEnable();
+        return true;
     }
 
     @Override

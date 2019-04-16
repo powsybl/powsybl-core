@@ -109,7 +109,7 @@ public abstract class AbstractAppStorageTest {
         // 2) create a test folder
         NodeInfo testFolderInfo = storage.createNode(rootFolderInfo.getId(), "test", FOLDER_PSEUDO_CLASS, "", 0,
                 new NodeGenericMetadata().setString("k", "v"));
-        storage.setEnable(storage.getChildNode(rootFolderInfo.getId(), "test").get().getId(), true);
+        storage.setEnable(testFolderInfo.getId(), true);
         storage.flush();
 
         // check event
@@ -469,8 +469,8 @@ public abstract class AbstractAppStorageTest {
         // create root node and 2 folders
         NodeInfo folder3Info = storage.createNode(rootFolderInfo.getId(), "test3", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
         NodeInfo folder4Info = storage.createNode(rootFolderInfo.getId(), "test4", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
-        storage.setEnable(storage.getChildNode(rootFolderInfo.getId(), "test3").get().getId(), true);
-        storage.setEnable(storage.getChildNode(rootFolderInfo.getId(), "test4").get().getId(), true);
+        storage.setEnable(folder3Info.getId(), true);
+        storage.setEnable(folder4Info.getId(), true);
         storage.flush();
 
         discardEvents(2);
@@ -493,9 +493,9 @@ public abstract class AbstractAppStorageTest {
         NodeInfo folder5Info = storage.createNode(rootFolderInfo.getId(), "test5", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
         NodeInfo folder51Info = storage.createNode(folder5Info.getId(), "child_of_test5", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
         NodeInfo folder52Info = storage.createNode(folder5Info.getId(), "another_child_of_test5", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
-        storage.setEnable(storage.getChildNode(rootFolderInfo.getId(), "test5").get().getId(), true);
-        storage.setEnable(storage.getChildNode(folder5Info.getId(), "child_of_test5").get().getId(), true);
-        storage.setEnable(storage.getChildNode(folder5Info.getId(), "another_child_of_test5").get().getId(), true);
+        storage.setEnable(folder5Info.getId(), true);
+        storage.setEnable(folder51Info.getId(), true);
+        storage.setEnable(folder52Info.getId(), true);
         storage.flush();
 
         String newName = "newtest5";
@@ -509,7 +509,7 @@ public abstract class AbstractAppStorageTest {
         assertTrue(storage.getChildNode(folder5Info.getId(), "another_child_of_test5").isPresent());
 
         NodeInfo folder6Info = storage.createNode(rootFolderInfo.getId(), "test6", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
-        storage.setEnable(storage.getChildNode(rootFolderInfo.getId(), "test6").get().getId(), true);
+        storage.setEnable(folder6Info.getId(), true);
         try {
             storage.renameNode(folder6Info.getId(), null);
             fail();
@@ -517,7 +517,7 @@ public abstract class AbstractAppStorageTest {
         }
 
         NodeInfo folder7Info = storage.createNode(rootFolderInfo.getId(), "test7", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
-        storage.setEnable(storage.getChildNode(rootFolderInfo.getId(), "test7").get().getId(), true);
+        storage.setEnable(folder7Info.getId(), true);
         try {
             storage.renameNode(folder7Info.getId(), "");
             fail();
