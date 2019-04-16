@@ -35,6 +35,10 @@ class BusbarSectionXml extends AbstractIdentifiableXml<BusbarSection, BusbarSect
         return false;
     }
 
+    boolean hasStateValues(BusbarSection bs) {
+        return !Double.isNaN(bs.getV())  || !Double.isNaN(bs.getAngle());
+    }
+
     @Override
     protected void writeRootElementAttributes(BusbarSection bs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {

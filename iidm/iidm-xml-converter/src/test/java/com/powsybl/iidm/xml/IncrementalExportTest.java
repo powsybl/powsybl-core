@@ -11,6 +11,7 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.IidmImportExportType;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
 import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 import com.powsybl.iidm.network.test.TieLineNetworkFactory;
@@ -52,7 +53,6 @@ public class IncrementalExportTest extends AbstractConverterTest {
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("-TOPO.xiidm"))) {
             compareXml(getClass().getResourceAsStream("/" + prefix + "-TOPO.xiidm"), is);
         }
-
     }
 
     @Test
@@ -88,5 +88,12 @@ public class IncrementalExportTest extends AbstractConverterTest {
         Network network = TieLineNetworkFactory.create();
         assertNotNull(network);
         incrementalExport(network, "tl");
+    }
+
+    @Test
+    public void incrementalExportBattery() throws IOException {
+        Network network = BatteryNetworkFactory.create();
+        assertNotNull(network);
+        incrementalExport(network, "batterie");
     }
 }

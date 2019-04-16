@@ -35,12 +35,12 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
     }
 
     @Override
-    boolean hasControlValues(DanglingLine l) {
+    protected boolean hasControlValues(DanglingLine l) {
         return false;
     }
 
     @Override
-    boolean hasStateValues(DanglingLine l) {
+    protected boolean hasStateValues(DanglingLine l) {
         return isTerminalHavingStateValues(l.getTerminal());
     }
 

@@ -57,7 +57,6 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     }
 
     public ExportOptions() {
-
     }
 
     public ExportOptions setImportExportType(IidmImportExportType importExportType) {

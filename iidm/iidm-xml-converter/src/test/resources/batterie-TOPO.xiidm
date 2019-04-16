@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" id="fictitious" caseDate="2017-06-25T17:43:00.000+01:00" forecastDistance="0" sourceFormat="test">
+    <iidm:substation id="P1">
+        <iidm:voltageLevel id="VLGEN">
+            <iidm:generator id="GEN" bus="NGEN" connectableBus="NGEN"></iidm:generator>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:substation id="P2">
+        <iidm:voltageLevel id="VLBAT">
+            <iidm:battery id="BAT" bus="NBAT" connectableBus="NBAT"></iidm:battery>
+            <iidm:battery id="BAT2" bus="NBAT" connectableBus="NBAT"></iidm:battery>
+            <iidm:load id="LOAD" bus="NBAT" connectableBus="NBAT"/>
+        </iidm:voltageLevel>
+    </iidm:substation>
+    <iidm:line id="NHV1_NHV2_1" bus1="NGEN" connectableBus1="NGEN" bus2="NBAT" connectableBus2="NBAT"/>
+    <iidm:line id="NHV1_NHV2_2" bus1="NGEN" connectableBus1="NGEN" bus2="NBAT" connectableBus2="NBAT"/>
+</iidm:network>

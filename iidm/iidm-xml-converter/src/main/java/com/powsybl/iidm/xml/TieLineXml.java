@@ -35,12 +35,12 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
     }
 
     @Override
-    boolean hasStateValues(TieLine l) {
+    protected boolean hasStateValues(TieLine l) {
         return isTerminalHavingStateValues(l.getTerminal1()) || isTerminalHavingStateValues(l.getTerminal2());
     }
 
     @Override
-    boolean hasControlValues(TieLine l) {
+    protected boolean hasControlValues(TieLine l) {
         return false;
     }
 

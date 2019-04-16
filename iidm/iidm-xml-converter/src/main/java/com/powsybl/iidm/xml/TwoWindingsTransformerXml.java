@@ -39,12 +39,12 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     }
 
     @Override
-    boolean hasControlValues(TwoWindingsTransformer twt) {
+    protected boolean hasControlValues(TwoWindingsTransformer twt) {
         return twt.getRatioTapChanger() != null || twt.getPhaseTapChanger() != null;
     }
 
     @Override
-    boolean hasStateValues(TwoWindingsTransformer twt) {
+    protected boolean hasStateValues(TwoWindingsTransformer twt) {
         return isTerminalHavingStateValues(twt.getTerminal1()) || isTerminalHavingStateValues(twt.getTerminal2());
     }
 

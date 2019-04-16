@@ -35,16 +35,16 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
     }
 
     @Override
-    boolean hasStateValues(Line l) {
+    protected boolean hasStateValues(Line l) {
         return isTerminalHavingStateValues(l.getTerminal1()) || isTerminalHavingStateValues(l.getTerminal2());
     }
 
     @Override
-    boolean hasControlValues(Line l) {
+    protected boolean hasControlValues(Line l) {
         return false;
     }
 
-    boolean hasTopoValues(Line l, NetworkXmlWriterContext  context) {
+    boolean hasTopoValues(Line l, NetworkXmlWriterContext context) {
         return isTerminalHavingTopoValues(l.getTerminal1(), context) || isTerminalHavingTopoValues(l.getTerminal2(), context);
     }
 

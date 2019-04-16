@@ -44,7 +44,7 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
             context.getWriter().writeAttribute("name", context.getAnonymizer().anonymizeString(identifiable.getName()));
         }
         writeRootElementAttributes(identifiable, parent, context);
-        if (identifiable.hasProperty() && context.getOptions().getImportExportType() != IidmImportExportType.INCREMENTAL_IIDM) {
+        if (identifiable.hasProperty() && context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
             Properties props = identifiable.getProperties();
             for (String name : props.stringPropertyNames()) {
                 String value = props.getProperty(name);

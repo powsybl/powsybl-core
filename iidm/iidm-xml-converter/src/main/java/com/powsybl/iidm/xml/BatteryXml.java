@@ -95,12 +95,12 @@ class BatteryXml extends AbstractConnectableXml<Battery, BatteryAdder, VoltageLe
     }
 
     @Override
-    boolean hasStateValues(Battery battery) {
+    protected boolean hasStateValues(Battery battery) {
         return isTerminalHavingStateValues(battery.getTerminal());
     }
 
     @Override
-    boolean hasControlValues(Battery battery) {
+    protected boolean hasControlValues(Battery battery) {
         return false;
     }
 }

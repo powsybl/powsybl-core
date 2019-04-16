@@ -34,12 +34,12 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
     }
 
     @Override
-    boolean hasControlValues(StaticVarCompensator svc) {
+    protected boolean hasControlValues(StaticVarCompensator svc) {
         return true;
     }
 
     @Override
-    boolean hasStateValues(StaticVarCompensator svc) {
+    protected boolean hasStateValues(StaticVarCompensator svc) {
         return isTerminalHavingStateValues(svc.getTerminal());
     }
 

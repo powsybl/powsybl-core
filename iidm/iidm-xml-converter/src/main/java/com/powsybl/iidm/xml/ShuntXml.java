@@ -35,12 +35,12 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
     }
 
     @Override
-    boolean hasControlValues(ShuntCompensator sc) {
+    protected boolean hasControlValues(ShuntCompensator sc) {
         return true;
     }
 
     @Override
-    boolean hasStateValues(ShuntCompensator sc) {
+    protected boolean hasStateValues(ShuntCompensator sc) {
         return isTerminalHavingStateValues(sc.getTerminal());
     }
 

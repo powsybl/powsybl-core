@@ -127,7 +127,8 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
         for (TwoWindingsTransformer twt : twts) {
             if (!context.getFilter().test(twt) ||
                     (!TwoWindingsTransformerXml.INSTANCE.hasControlValues(twt) && context.getTargetFile() == IncrementalIidmFiles.CONTROL) ||
-                    (!TwoWindingsTransformerXml.INSTANCE.hasStateValues(twt) && context.getTargetFile() == IncrementalIidmFiles.STATE)) {
+                    (!TwoWindingsTransformerXml.INSTANCE.hasStateValues(twt) && context.getTargetFile() == IncrementalIidmFiles.STATE) ||
+                    (!TwoWindingsTransformerXml.INSTANCE.hasTopoValues(twt, context) && context.getTargetFile() == IncrementalIidmFiles.TOPO)) {
                 continue;
             }
             TwoWindingsTransformerXml.INSTANCE.write(twt, null, context);
@@ -136,7 +137,8 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
         for (ThreeWindingsTransformer twt : twts2) {
             if (!context.getFilter().test(twt) ||
                     (!ThreeWindingsTransformerXml.INSTANCE.hasControlValues(twt) && context.getTargetFile() == IncrementalIidmFiles.CONTROL) ||
-                    (!ThreeWindingsTransformerXml.INSTANCE.hasStateValues(twt) && context.getTargetFile() == IncrementalIidmFiles.STATE)) {
+                    (!ThreeWindingsTransformerXml.INSTANCE.hasStateValues(twt) && context.getTargetFile() == IncrementalIidmFiles.STATE) ||
+                    (!ThreeWindingsTransformerXml.INSTANCE.hasTopoValues(twt, context) && context.getTargetFile() == IncrementalIidmFiles.TOPO)) {
                 continue;
             }
             ThreeWindingsTransformerXml.INSTANCE.write(twt, null, context);

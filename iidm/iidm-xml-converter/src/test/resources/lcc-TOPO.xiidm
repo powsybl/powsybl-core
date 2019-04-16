@@ -17,7 +17,6 @@
                 <iidm:switch id="DISC_BBS1_BK3" open="false"/>
                 <iidm:switch id="BK3" open="false"/>
             </iidm:nodeBreakerTopology>
-            <iidm:lccConverterStation id="C2"/>
         </iidm:voltageLevel>
     </iidm:substation>
 </iidm:network>

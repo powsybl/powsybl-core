@@ -36,12 +36,12 @@ class LoadXml extends AbstractConnectableXml<Load, LoadAdder, VoltageLevel> {
     }
 
     @Override
-    boolean hasControlValues(Load l) {
+    protected boolean hasControlValues(Load l) {
         return false;
     }
 
     @Override
-    boolean hasStateValues(Load l) {
+    protected boolean hasStateValues(Load l) {
         return isTerminalHavingStateValues(l.getTerminal());
     }
 

@@ -34,12 +34,12 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
     }
 
     @Override
-    boolean hasStateValues(Generator g) {
+    protected boolean hasStateValues(Generator g) {
         return isTerminalHavingStateValues(g.getTerminal());
     }
 
     @Override
-    boolean hasControlValues(Generator g) {
+    protected boolean hasControlValues(Generator g) {
         return true;
     }
 

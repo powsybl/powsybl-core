@@ -30,16 +30,16 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
 
     private static final String CURRENT_LIMITS = "currentLimits";
 
-    abstract boolean hasStateValues(T connectable);
+    protected abstract boolean hasStateValues(T connectable);
 
-    abstract boolean hasControlValues(T connectable);
+    protected abstract boolean hasControlValues(T connectable);
 
-    boolean isTerminalHavingTopoValues(Terminal t, NetworkXmlWriterContext  context) {
+    static boolean isTerminalHavingTopoValues(Terminal t, NetworkXmlWriterContext  context) {
         TopologyLevel topologyLevel = TopologyLevel.min(t.getVoltageLevel().getTopologyKind(), context.getOptions().getTopologyLevel());
         return topologyLevel != TopologyLevel.NODE_BREAKER;
     }
 
-    boolean isTerminalHavingStateValues(Terminal t) {
+    static boolean isTerminalHavingStateValues(Terminal t) {
         return !Double.isNaN(t.getP())  || !Double.isNaN(t.getQ());
     }
 
@@ -49,9 +49,6 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
 
     protected static void writeNodeOrBus(Integer index, Terminal t, NetworkXmlWriterContext context) throws XMLStreamException {
         TopologyLevel topologyLevel = TopologyLevel.min(t.getVoltageLevel().getTopologyKind(), context.getOptions().getTopologyLevel());
-        if (context.getTargetFile() == IncrementalIidmFiles.TOPO && topologyLevel == TopologyLevel.NODE_BREAKER) {
-            return;
-        }
         switch (topologyLevel) {
             case NODE_BREAKER:
                 writeNode(index, t, context);

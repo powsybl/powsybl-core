@@ -35,12 +35,12 @@ public class LccConverterStationXml extends AbstractConnectableXml<LccConverterS
     }
 
     @Override
-    boolean hasControlValues(LccConverterStation cs) {
+    protected boolean hasControlValues(LccConverterStation cs) {
         return false;
     }
 
     @Override
-    boolean hasStateValues(LccConverterStation cs) {
+    protected boolean hasStateValues(LccConverterStation cs) {
         return isTerminalHavingStateValues(cs.getTerminal());
     }
 

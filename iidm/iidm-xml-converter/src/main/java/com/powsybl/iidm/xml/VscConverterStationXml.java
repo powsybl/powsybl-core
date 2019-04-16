@@ -35,12 +35,12 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
     }
 
     @Override
-    boolean hasControlValues(VscConverterStation cs) {
+    protected boolean hasControlValues(VscConverterStation cs) {
         return true;
     }
 
     @Override
-    boolean hasStateValues(VscConverterStation cs) {
+    protected boolean hasStateValues(VscConverterStation cs) {
         return isTerminalHavingStateValues(cs.getTerminal());
     }
 

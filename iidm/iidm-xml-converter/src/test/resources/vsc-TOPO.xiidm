@@ -11,7 +11,6 @@
                 <iidm:switch id="DISC_BBS1_BK1" open="false"/>
                 <iidm:switch id="BK1" open="false"/>
             </iidm:nodeBreakerTopology>
-            <iidm:vscConverterStation id="C2"></iidm:vscConverterStation>
         </iidm:voltageLevel>
     </iidm:substation>
 </iidm:network>

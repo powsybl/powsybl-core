@@ -38,12 +38,12 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
     }
 
     @Override
-    boolean hasControlValues(ThreeWindingsTransformer twt) {
+    protected boolean hasControlValues(ThreeWindingsTransformer twt) {
         return twt.getLeg3().getRatioTapChanger() != null || twt.getLeg2().getRatioTapChanger() != null;
     }
 
     @Override
-    boolean hasStateValues(ThreeWindingsTransformer twt) {
+    protected boolean hasStateValues(ThreeWindingsTransformer twt) {
         return isTerminalHavingStateValues(twt.getLeg1().getTerminal()) || isTerminalHavingStateValues(twt.getLeg2().getTerminal()) ||
                 isTerminalHavingStateValues(twt.getLeg3().getTerminal());
     }
