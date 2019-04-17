@@ -69,7 +69,7 @@ public class IncrementalUpdateTest extends AbstractConverterTest {
         assertNotEquals(networkLf.getVoltageLevel("VLHV2").getBusBreakerView().getBus("NHV2").getV(), network.getVoltageLevel("VLHV2").getBusBreakerView().getBus("NHV2").getV(), 0);
         assertNotEquals(networkLf.getVoltageLevel("VLHV2").getBusBreakerView().getBus("NHV2").getAngle(), network.getVoltageLevel("VLHV2").getBusBreakerView().getBus("NHV2").getAngle(), 0);
 
-        //To create a data source that contains TOPO.xiidm, STATE.xiidm et CONTROL.xiidm
+        //To create a data source that contains  STATE.xiidm et CONTROL.xiid
         MemDataSource dataSource = new MemDataSource();
         Properties properties = new Properties();
         properties.put(XMLExporter.ANONYMISED, "false");

@@ -19,7 +19,7 @@ import java.util.Set;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class NodeTerminal extends AbstractTerminal {
+public class NodeTerminal extends AbstractTerminal {
 
     private final int node;
 
@@ -99,7 +99,7 @@ class NodeTerminal extends AbstractTerminal {
         return v.get(network.get().getVariantIndex());
     }
 
-    void setV(double v) {
+    public void setV(double v) {
         if (v < 0) {
             throw new ValidationException(connectable, "voltage cannot be < 0");
         }

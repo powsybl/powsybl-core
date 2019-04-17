@@ -838,10 +838,10 @@ public final class NetworkXml {
                         updateVoltageLevel(reader, network, vl);
                         break;
                     case BusXml.ROOT_ELEMENT_NAME:
-                        updateBus(reader, vl);
+                        updateBusStateValues(reader, vl, targetFile);
                         break;
                     case BusbarSectionXml.ROOT_ELEMENT_NAME:
-                        // Nothing to do
+                        updateBusbarSectionStateValues(reader, vl, targetFile);
                         break;
                     case NodeBreakerViewSwitchXml.ROOT_ELEMENT_NAME:
                         updateSwitchTopoValues(reader, network, targetFile);
@@ -959,7 +959,10 @@ public final class NetworkXml {
         rpc.setRegulationValue(regulatingValue).setRegulating(regulating).setRegulationMode(PhaseTapChanger.RegulationMode.valueOf(regulationMode));
     }
 
-    private static void updateBus(XMLStreamReader reader, VoltageLevel[] vl) {
+    private static void updateBusStateValues(XMLStreamReader reader, VoltageLevel[] vl, IncrementalIidmFiles targetFile) {
+        if (targetFile != IncrementalIidmFiles.STATE) {
+            return;
+        }
         String id = reader.getAttributeValue(null, "id");
         double v = XmlUtil.readDoubleAttribute(reader, "v");
         double angle = XmlUtil.readDoubleAttribute(reader, "angle");
@@ -968,6 +971,17 @@ public final class NetworkXml {
             b = vl[0].getBusView().getBus(id);
         }
         b.setV(v > 0 ? v : Double.NaN).setAngle(angle);
+    }
+
+    private static void updateBusbarSectionStateValues(XMLStreamReader reader, VoltageLevel[] vl, IncrementalIidmFiles targetFile) {
+        if (targetFile != IncrementalIidmFiles.STATE) {
+            return;
+        }
+        String id = reader.getAttributeValue(null, "id");
+        double v = XmlUtil.readDoubleAttribute(reader, "v");
+        double angle = XmlUtil.readDoubleAttribute(reader, "angle");
+        BusbarSection b = vl[0].getNodeBreakerView().getBusbarSection(id);
+        b.setAngle(angle).setV(v > 0 ? v : Double.NaN);
     }
 
     private static void updateInjectionStateValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
