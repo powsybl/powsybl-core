@@ -7,7 +7,12 @@
 package com.powsybl.ucte.network;
 
 import com.google.common.base.Strings;
+
 import java.util.Objects;
+import java.util.Optional;
+
+import static com.powsybl.ucte.network.UcteCountryCode.isUcteCountryCode;
+import static com.powsybl.ucte.network.UcteVoltageLevelCode.isVoltageLevel;
 
 /**
  *
@@ -89,6 +94,31 @@ public class UcteNodeCode {
      */
     public void setBusbar(Character busbar) {
         this.busbar = busbar;
+    }
+
+    /**
+     * Convert a string into a UcteNodeCode if possible, ie the string is compatible with the ucteNodeCode format
+     * @param id to convert into a UcteNodeCode
+     * @return an Optional that may contain a UcteNodeCode
+     */
+    public static Optional<UcteNodeCode> parseUcteNodeCode(String id) {
+        UcteNodeCode ucteNodeCode = null;
+        if (isUcteNodeId(id)) {
+            UcteCountryCode ucteCountryCode = UcteCountryCode.fromUcteCode(id.charAt(0));
+            ucteNodeCode = new UcteNodeCode(
+                    ucteCountryCode,
+                    id.substring(1, 6),
+                    UcteVoltageLevelCode.voltageLevelCodeFromChar(id.charAt(6)),
+                    id.charAt(7));
+        }
+        return Optional.ofNullable(ucteNodeCode);
+    }
+
+    public static boolean isUcteNodeId(String id) {
+        return id != null &&
+                id.length() == 8 &&
+                isUcteCountryCode(id.charAt(0)) &&
+                isVoltageLevel(id.charAt(6));
     }
 
     @Override

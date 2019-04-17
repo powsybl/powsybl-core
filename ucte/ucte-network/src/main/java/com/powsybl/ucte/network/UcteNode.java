@@ -68,6 +68,14 @@ public class UcteNode implements UcteRecord {
     }
 
     /**
+     * Gets the default power limit for switches
+     * @return node code
+     */
+    public static float getDefaultPowerLimit() {
+        return DEFAULT_POWER_LIMIT;
+    }
+
+    /**
      * Gets node code.
      * @return node code
      */
