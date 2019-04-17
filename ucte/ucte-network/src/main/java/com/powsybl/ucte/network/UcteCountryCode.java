@@ -108,4 +108,13 @@ public enum UcteCountryCode {
         }
     }
 
+    public static boolean isUcteCountryCode(char character) {
+        try {
+            UcteCountryCode.fromUcteCode(character);
+            return true;
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+    }
+
 }
