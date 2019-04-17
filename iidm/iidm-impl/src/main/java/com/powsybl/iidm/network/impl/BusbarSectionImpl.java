@@ -43,16 +43,4 @@ class BusbarSectionImpl extends AbstractConnectable<BusbarSection> implements Bu
     public double getAngle() {
         return ((NodeTerminal) getTerminal()).getAngle();
     }
-
-    @Override
-    public BusbarSection setV(double v) {
-        ((NodeTerminal) getTerminal()).setV(v);
-        return this;
-    }
-
-    @Override
-    public BusbarSection setAngle(double angle) {
-        ((NodeTerminal) getTerminal()).setAngle(angle);
-        return this;
-    }
 }

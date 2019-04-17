@@ -980,8 +980,11 @@ public final class NetworkXml {
         String id = reader.getAttributeValue(null, "id");
         double v = XmlUtil.readDoubleAttribute(reader, "v");
         double angle = XmlUtil.readDoubleAttribute(reader, "angle");
-        BusbarSection b = vl[0].getNodeBreakerView().getBusbarSection(id);
-        b.setAngle(angle).setV(v > 0 ? v : Double.NaN);
+        BusbarSection bbs = vl[0].getNodeBreakerView().getBusbarSection(id);
+        Bus b = bbs.getTerminal().getBusView().getBus();
+        if (b != null) {
+            b.setAngle(angle).setV(v > 0 ? v : Double.NaN);
+        }
     }
 
     private static void updateInjectionStateValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {

@@ -17,8 +17,4 @@ public interface BusbarSection extends Injection<BusbarSection> {
     double getV();
 
     double getAngle();
-
-    BusbarSection setV(double v);
-
-    BusbarSection setAngle(double angle);
 }

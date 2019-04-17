@@ -10,9 +10,12 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.IidmImportExportType;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
+import com.powsybl.iidm.network.test.NetworkTest1Factory;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -85,6 +88,69 @@ public class IncrementalUpdateTest extends AbstractConverterTest {
         assertEquals(networkLf.getLine("NHV1_NHV2_2").getTerminal1().getQ(), network.getLine("NHV1_NHV2_2").getTerminal1().getQ(), 0);
         assertEquals(networkLf.getVoltageLevel("VLHV2").getBusBreakerView().getBus("NHV2").getV(), network.getVoltageLevel("VLHV2").getBusBreakerView().getBus("NHV2").getV(), 0);
         assertEquals(networkLf.getVoltageLevel("VLHV2").getBusBreakerView().getBus("NHV2").getAngle(), network.getVoltageLevel("VLHV2").getBusBreakerView().getBus("NHV2").getAngle(), 0);
+    }
+
+    @Test
+    public void updateStateValuesBusBarSection() throws IOException {
+        //load networks
+        //network without state values
+        Network network = NetworkTest1Factory.create();
+        //network with state values in the busbarSection
+        Network networkLf = NetworkTest1Factory.create();
+        BusbarSection bbs = (BusbarSection) networkLf.getIdentifiable("voltageLevel1BusbarSection1");
+        Bus b = bbs.getTerminal().getBusView().getBus();
+        b.setAngle(100).setV(300);
+
+        //set the same case date
+        network.setCaseDate(networkLf.getCaseDate());
+
+        assertNotEquals(network.getVoltageLevel("voltageLevel1")
+                        .getNodeBreakerView()
+                        .getBusbarSection("voltageLevel1BusbarSection1")
+                        .getAngle(),
+                networkLf.getVoltageLevel("voltageLevel1")
+                        .getNodeBreakerView()
+                        .getBusbarSection("voltageLevel1BusbarSection1")
+                        .getAngle(),  0);
+
+        assertNotEquals(network.getVoltageLevel("voltageLevel1")
+                        .getNodeBreakerView()
+                        .getBusbarSection("voltageLevel1BusbarSection1")
+                        .getV(),
+                networkLf.getVoltageLevel("voltageLevel1")
+                        .getNodeBreakerView()
+                        .getBusbarSection("voltageLevel1BusbarSection1")
+                        .getV(),  0);
+
+        //To create a data source that contains  STATE.xiidm
+        MemDataSource dataSource = new MemDataSource();
+        Properties properties = new Properties();
+        properties.put(XMLExporter.ANONYMISED, "false");
+        properties.put(XMLExporter.TOPO, "false");
+        properties.put(XMLExporter.CONTROL, "false");
+        //Incremental export for the second network
+        properties.put(XMLExporter.IMPORT_EXPORT_TYPE, String.valueOf(IidmImportExportType.INCREMENTAL_IIDM));
+        new XMLExporter().export(networkLf, properties, dataSource);
+
+        //Update the first network using the state file recently exported
+        NetworkXml.update(network, dataSource);
+        assertEquals(network.getVoltageLevel("voltageLevel1")
+                        .getNodeBreakerView()
+                        .getBusbarSection("voltageLevel1BusbarSection1")
+                        .getAngle(),
+                networkLf.getVoltageLevel("voltageLevel1")
+                        .getNodeBreakerView()
+                        .getBusbarSection("voltageLevel1BusbarSection1")
+                        .getAngle(),  0);
+
+        assertEquals(network.getVoltageLevel("voltageLevel1")
+                        .getNodeBreakerView()
+                        .getBusbarSection("voltageLevel1BusbarSection1")
+                        .getV(),
+                networkLf.getVoltageLevel("voltageLevel1")
+                        .getNodeBreakerView()
+                        .getBusbarSection("voltageLevel1BusbarSection1")
+                        .getV(),  0);
     }
 
     @Test
