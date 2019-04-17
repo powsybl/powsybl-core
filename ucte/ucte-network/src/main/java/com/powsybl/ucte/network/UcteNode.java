@@ -19,7 +19,7 @@ public class UcteNode implements UcteRecord {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UcteNode.class);
 
-    public static final float DEFAULT_POWER_LIMIT = 9999;
+    private static final float DEFAULT_POWER_LIMIT = 9999;
 
     private UcteNodeCode code;
     private String geographicalName;
@@ -65,6 +65,14 @@ public class UcteNode implements UcteRecord {
         this.threePhaseShortCircuitPower = threePhaseShortCircuitPower;
         this.xrRatio = xrRatio;
         this.powerPlantType = powerPlantType;
+    }
+
+    /**
+     * Gets the default power limit for switches
+     * @return node code
+     */
+    public static float getDefaultPowerLimit() {
+        return DEFAULT_POWER_LIMIT;
     }
 
     /**

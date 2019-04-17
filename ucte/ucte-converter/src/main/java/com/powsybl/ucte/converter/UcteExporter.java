@@ -7,6 +7,7 @@
 package com.powsybl.ucte.converter;
 
 import com.google.auto.service.AutoService;
+import com.google.common.primitives.Doubles;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.iidm.export.Exporter;
@@ -17,6 +18,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,7 +40,8 @@ public class UcteExporter implements Exporter {
     private static final Logger LOGGER = LoggerFactory.getLogger(UcteExporter.class);
 
     private HashMap<String, UcteNodeCode> iidmIdToUcteNodeCodeId = new HashMap<>();
-//    private HashMap<String, UcteElementId> iidmIdToUcteElementId = new HashMap<>();
+    private HashMap<String, UcteElementId> iidmIdToUcteElementId = new HashMap<>();
+    private String generatedGeographicalName = "aaaa";
 
     private static final String NOT_HANDLED_YET_MESSAGE = "Do not handle yet the case where there is incompatible UcteNodeCode";
 
@@ -92,6 +96,7 @@ public class UcteExporter implements Exporter {
     private void convertBus(UcteNetwork ucteNetwork, Bus bus) {
         VoltageLevel voltageLevel = bus.getVoltageLevel();
         long loadCount = voltageLevel.getLoadStream().count();
+        Load load = loadCount == 1 ? (Load) voltageLevel.getLoadStream().toArray()[0] : null;
         long generatorCount = bus.getGeneratorStream().count();
         String country = voltageLevel.getSubstation().getCountry().toString();
         String geographicalName = null;
@@ -111,8 +116,7 @@ public class UcteExporter implements Exporter {
             voltageReference = (float) bus.getV();
         }
 
-        if (loadCount == 1) {
-            Load load = (Load) voltageLevel.getLoadStream().toArray()[0];
+        if (load != null && load.getTerminal().getBusBreakerView().getBus().getId().equals(bus.getId())) {
             p0 = (float) load.getP0();
             q0 = (float) load.getQ0();
         }
@@ -123,13 +127,13 @@ public class UcteExporter implements Exporter {
             reactivePowerGeneration = (float) -generator.getTargetQ();
             voltageReference = (float) generator.getTargetV();
 
-            minimumPermissibleActivePowerGeneration = -generator.getMinP() >= UcteNode.DEFAULT_POWER_LIMIT ? Float.NaN : (float) -generator.getMinP();
-            maximumPermissibleActivePowerGeneration = -generator.getMaxP() <= -UcteNode.DEFAULT_POWER_LIMIT ? Float.NaN : (float) -generator.getMaxP();
+            minimumPermissibleActivePowerGeneration = -generator.getMinP() >= UcteNode.getDefaultPowerLimit() ? Float.NaN : (float) -generator.getMinP();
+            maximumPermissibleActivePowerGeneration = -generator.getMaxP() <= -UcteNode.getDefaultPowerLimit() ? Float.NaN : (float) -generator.getMaxP();
             minimumPermissibleReactivePowerGeneration =
-                    -generator.getReactiveLimits().getMinQ(activePowerGeneration) >= UcteNode.DEFAULT_POWER_LIMIT ? Float.NaN :
+                    -generator.getReactiveLimits().getMinQ(activePowerGeneration) >= UcteNode.getDefaultPowerLimit() ? Float.NaN :
                             (float) -generator.getReactiveLimits().getMinQ(activePowerGeneration);
             maximumPermissibleReactivePowerGeneration =
-                    -generator.getReactiveLimits().getMaxQ(activePowerGeneration) <= -UcteNode.DEFAULT_POWER_LIMIT ? Float.NaN :
+                    -generator.getReactiveLimits().getMaxQ(activePowerGeneration) <= -UcteNode.getDefaultPowerLimit() ? Float.NaN :
                             (float) -generator.getReactiveLimits().getMaxQ(activePowerGeneration);
 
             if (generator.isVoltageRegulatorOn() && generator.getRegulatingTerminal().isConnected()) {
@@ -211,7 +215,7 @@ public class UcteExporter implements Exporter {
         if (optUcteXNodeCode.isPresent()) {
             String geographicalName = danglingLine.getProperties().containsKey(UcteImporter.GEOGRAPHICAL_NAME_PROPERTY_KEY) ?
                     danglingLine.getProperties().getProperty(UcteImporter.GEOGRAPHICAL_NAME_PROPERTY_KEY) : null;
-            float referenceValue = danglingLine.getProperties().containsKey(UcteImporter.REFERENCE_VOLTAGE) ?
+            float referenceVoltage = danglingLine.getProperties().containsKey(UcteImporter.REFERENCE_VOLTAGE) ?
                     Float.parseFloat(danglingLine.getProperties().getProperty(UcteImporter.REFERENCE_VOLTAGE)) : Float.NaN;
 
             ucteNetwork.addNode(new UcteNode(
@@ -219,7 +223,7 @@ public class UcteExporter implements Exporter {
                     geographicalName,
                     UcteNodeStatus.EQUIVALENT,
                     UcteNodeTypeCode.PQ,
-                    referenceValue,
+                    referenceVoltage,
                     (float) danglingLine.getP0(),
                     (float) danglingLine.getQ0(),
                     Float.NaN,
@@ -255,17 +259,34 @@ public class UcteExporter implements Exporter {
                         elementName);
                 ucteNetwork.addLine(ucteLine);
             } else {
-                LOGGER.warn(NOT_HANDLED_YET_MESSAGE);
-                LOGGER.warn(danglingLine.getId());
+                createLineFromNonCompliantIdDanglingLine(ucteNetwork, danglingLine);
             }
         } else {
-            LOGGER.warn(NOT_HANDLED_YET_MESSAGE);
-            LOGGER.warn(danglingLine.getId());
+            createLineFromNonCompliantIdDanglingLine(ucteNetwork, danglingLine);
         }
     }
 
+    private void createLineFromNonCompliantIdDanglingLine(UcteNetwork ucteNetwork, DanglingLine danglingLine) {
+        UcteNodeCode ucteNodeCode1 = createUcteNodeCode(danglingLine.getUcteXnodeCode(),
+                null,
+                UcteCountryCode.XX.toString());
+        UcteNodeCode ucteNodeCode2 = createUcteNodeCode(danglingLine.getTerminal().getBusBreakerView().getConnectableBus().getId(),
+                danglingLine.getTerminal().getBusBreakerView().getConnectableBus().getVoltageLevel(),
+                danglingLine.getTerminal().getBusBreakerView().getConnectableBus().getVoltageLevel().getSubstation().getCountry().toString());
+        UcteElementId ucteElementId = generateUcteElementId(danglingLine.getId(), ucteNodeCode1, ucteNodeCode2);
+
+        UcteLine ucteLine = new UcteLine(ucteElementId,
+                UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION,
+                (float) danglingLine.getR(),
+                (float) danglingLine.getX(),
+                (float) danglingLine.getB(),
+                (int) danglingLine.getCurrentLimits().getPermanentLimit(),
+                null);
+        ucteNetwork.addLine(ucteLine);
+    }
+
     private void convertSwitches(UcteNetwork ucteNetwork, VoltageLevel voltageLevel) {
-        Iterable<Switch> switchIterator = voltageLevel.getSwitches();
+        Iterable<Switch> switchIterator = voltageLevel.getBusBreakerView().getSwitches();
         for (Switch sw : switchIterator) {
             LOGGER.debug("Converting switch {}", sw.getId());
 
@@ -284,7 +305,13 @@ public class UcteExporter implements Exporter {
                 setSwitchCurrentLimit(ucteLine, sw);
                 ucteNetwork.addLine(ucteLine);
             } else {
-                LOGGER.warn(NOT_HANDLED_YET_MESSAGE);
+                Bus bus1 = voltageLevel.getBusBreakerView().getBus1(sw.getId());
+                Bus bus2 = voltageLevel.getBusBreakerView().getBus2(sw.getId());
+                UcteNodeCode ucteNodeCode1 = createUcteNodeCode(bus1.getId(), voltageLevel, voltageLevel.getSubstation().getCountry().toString());
+                UcteNodeCode ucteNodeCode2 = createUcteNodeCode(bus2.getId(), voltageLevel, voltageLevel.getSubstation().getCountry().toString());
+                UcteElementId ucteElementId = generateUcteElementId(sw.getId(), ucteNodeCode1, ucteNodeCode2);
+                UcteLine ucteLine = new UcteLine(ucteElementId, switchStatus, 0, 0, 0, null, null);
+                ucteNetwork.addLine(ucteLine);
             }
         }
     }
@@ -329,17 +356,42 @@ public class UcteExporter implements Exporter {
                 ucteNetwork.addLine(ucteLine1);
                 ucteNetwork.addLine(ucteLine2);
             } else {
-                LOGGER.warn(NOT_HANDLED_YET_MESSAGE);
+                createTieLineWithGeneratedIds(ucteNetwork, line);
             }
+        } else {
+            createTieLineWithGeneratedIds(ucteNetwork, line);
         }
+    }
+
+    private void createTieLineWithGeneratedIds(UcteNetwork ucteNetwork, Line line) {
+        MergedXnode mergedXnode = line.getExtension(MergedXnode.class);
+        UcteNodeCode ucteNodeCode1 = createUcteNodeCode(line.getTerminal1().getBusBreakerView().getBus().getId(),
+                line.getTerminal1().getBusBreakerView().getBus().getVoltageLevel(),
+                line.getTerminal1().getBusBreakerView().getBus().getVoltageLevel().getSubstation().getCountry().toString());
+        UcteNodeCode ucteNodeCode2 = createUcteNodeCode(line.getTerminal2().getBusBreakerView().getBus().getId(),
+                line.getTerminal2().getBusBreakerView().getBus().getVoltageLevel(),
+                line.getTerminal2().getBusBreakerView().getBus().getVoltageLevel().getSubstation().getCountry().toString());
+        UcteNodeCode ucteNodeCodeXnode = createUcteNodeCode(mergedXnode.getCode(),
+                line.getTerminal1().getBusBreakerView().getBus().getVoltageLevel(),
+                UcteCountryCode.XX.toString());
+        createXnodeFromTieLine(ucteNetwork, ucteNodeCodeXnode, line);
+        UcteElementId ucteElementId1 = generateUcteElementId(line.getId() + "_1", ucteNodeCodeXnode, ucteNodeCode1);
+        UcteElementId ucteElementId2 = generateUcteElementId(line.getId() + "_2", ucteNodeCodeXnode, ucteNodeCode2);
+
+        UcteLine ucteLine1 = new UcteLine(ucteElementId1, UcteElementStatus.REAL_ELEMENT_IN_OPERATION, (float) line.getR() / 2,
+                (float) line.getX() / 2, (float) line.getB1(), (int) line.getCurrentLimits1().getPermanentLimit(), null);
+        UcteLine ucteLine2 = new UcteLine(ucteElementId2, UcteElementStatus.REAL_ELEMENT_IN_OPERATION, (float) line.getR() / 2,
+                (float) line.getX() / 2, (float) line.getB1(), (int) line.getCurrentLimits1().getPermanentLimit(), null);
+        ucteNetwork.addLine(ucteLine1);
+        ucteNetwork.addLine(ucteLine2);
     }
 
     private void createXnodeFromTieLine(UcteNetwork ucteNetwork, UcteNodeCode ucteNodeCode, Line line) {
         String geographicalName = "";
-        float referenceValue = Float.NaN;
+        float referenceVoltage = Float.NaN;
         if (ucteNodeCode.toString().equals(line.getExtension(MergedXnode.class).getCode())) {
-            geographicalName = setGeographicalNameProperty(line);
-            referenceValue = setReferenceVoltageProperty(line);
+            geographicalName = getGeographicalNameProperty(line);
+            referenceVoltage = getReferenceVoltageProperty(line);
         }
         if (ucteNodeCode.getUcteCountryCode() == UcteCountryCode.XX) {
             ucteNetwork.addNode(
@@ -348,7 +400,7 @@ public class UcteExporter implements Exporter {
                             geographicalName,
                             UcteNodeStatus.EQUIVALENT,
                             UcteNodeTypeCode.PQ,
-                            referenceValue,
+                            referenceVoltage,
                             0f,
                             0f,
                             Float.NaN,
@@ -571,36 +623,39 @@ public class UcteExporter implements Exporter {
 
     private UcteAngleRegulation convertPhaseTapChanger(TwoWindingsTransformer twoWindingsTransformer) {
         LOGGER.debug("Converting iidm Phase tap changer of transformer {}", twoWindingsTransformer.getId());
-        return new UcteAngleRegulation(calculateAngleDu(twoWindingsTransformer),
-                calculateAngleTheta(twoWindingsTransformer),
-                twoWindingsTransformer.getPhaseTapChanger().getLowTapPosition(),
-                twoWindingsTransformer.getPhaseTapChanger().getTapPosition(),
-                calculateAngleP(twoWindingsTransformer),
-                UcteAngleRegulationType.SYMM); //TODO SYMM and ASYM
+        UcteAngleRegulationType ucteAngleRegulationType = findRegulationType(twoWindingsTransformer);
+        if (ucteAngleRegulationType == UcteAngleRegulationType.SYMM) {
+            return new UcteAngleRegulation((float) calculateSymmAngleDu(twoWindingsTransformer),
+                    90,
+                    twoWindingsTransformer.getPhaseTapChanger().getLowTapPosition(),
+                    twoWindingsTransformer.getPhaseTapChanger().getTapPosition(),
+                    calculateAngleP(), //TODO where do I find P ?
+                    ucteAngleRegulationType);
+        } else {
+            return new UcteAngleRegulation((float) calculateAsymmAngleDu(twoWindingsTransformer),
+                    (float) calculateAsymmAngleTheta(twoWindingsTransformer),
+                    twoWindingsTransformer.getPhaseTapChanger().getLowTapPosition(),
+                    twoWindingsTransformer.getPhaseTapChanger().getTapPosition(),
+                    calculateAngleP(), //TODO where do I find P ?
+                    ucteAngleRegulationType);
+        }
     }
 
     double calculatePhaseDu(TwoWindingsTransformer twoWindingsTransformer) {
-        double du = 0;
-        boolean passedBy0 = false;
+        double rhoMax = 0;
+        double rhoMin = 0;
+        int tapNumber =  twoWindingsTransformer.getRatioTapChanger().getHighTapPosition() + Math.abs(twoWindingsTransformer.getRatioTapChanger().getLowTapPosition());
+        double[] rhoList = new double[tapNumber];
+        int j = 0;
         for (int i = twoWindingsTransformer.getRatioTapChanger().getLowTapPosition();
-             i < twoWindingsTransformer.getRatioTapChanger().getHighTapPosition();
-             i++) {
-            if (i != 0) {
-                double rho = twoWindingsTransformer.getRatioTapChanger().getStep(i).getRho();
-                du += (100 * (1 / rho - 1)) / i;
-            } else { //i == 0
-                passedBy0 = true;
-            }
+             i < twoWindingsTransformer.getRatioTapChanger().getHighTapPosition(); i++) {
+            rhoList[j] = twoWindingsTransformer.getRatioTapChanger().getStep(i).getRho();
+            j++;
         }
-        if (passedBy0) {
-            return du /
-                    (twoWindingsTransformer.getRatioTapChanger().getHighTapPosition() -
-                            twoWindingsTransformer.getRatioTapChanger().getLowTapPosition() - 1);
-        } else {
-            return du /
-                    (twoWindingsTransformer.getRatioTapChanger().getHighTapPosition() -
-                            twoWindingsTransformer.getRatioTapChanger().getLowTapPosition());
-        }
+        rhoMax = Doubles.max(rhoList);
+        rhoMin = Doubles.min(rhoList);
+        double res = 100 * (1 / rhoMin - 1 / rhoMax) / (tapNumber - 1);
+        return BigDecimal.valueOf(res).setScale(4, RoundingMode.HALF_UP).doubleValue();
     }
 
     double calculatePhaseDu(ThreeWindingsTransformer threeWindingsTransformer) {
@@ -627,16 +682,119 @@ public class UcteExporter implements Exporter {
         }
     }
 
-    float calculateAngleDu(TwoWindingsTransformer twoWindingsTransformer) { //TODO need to find a way to calculate this value
+    private double calculateSymmAngleDu(TwoWindingsTransformer twoWindingsTransformer) {
+        double alphaMin = 0;
+        double alphaMax = 0;
+        int tapNumber =  twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition() + Math.abs(twoWindingsTransformer.getPhaseTapChanger().getLowTapPosition());
+        double[] alphaList = new double[tapNumber];
+        int j = 0;
+        for (int i = twoWindingsTransformer.getPhaseTapChanger().getLowTapPosition();
+             i < twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition(); i++) {
+            alphaList[j] = -twoWindingsTransformer.getPhaseTapChanger().getStep(i).getAlpha();
+            j++;
+        }
+        alphaMin = Doubles.max(alphaList);
+        alphaMax = Doubles.min(alphaList);
+
+        return 2 * (Math.tan(alphaMax / 2) - Math.tan(alphaMin / 2)) / (tapNumber - 1);
+    }
+
+    private double calculateAsymmAngleDu(TwoWindingsTransformer twoWindingsTransformer) {
+        int lowTapPosition = twoWindingsTransformer.getPhaseTapChanger().getLowTapPosition();
+        int highTapPosition = twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition();
+        double lowPositionAlpha = -twoWindingsTransformer.getPhaseTapChanger().getStep(lowTapPosition).getAlpha();
+        double lowPositionRho = 1 / twoWindingsTransformer.getPhaseTapChanger().getStep(lowTapPosition).getRho();
+        double highPositionAlpha = -twoWindingsTransformer.getPhaseTapChanger().getStep(highTapPosition).getAlpha();
+        double highPositionRho = 1 / twoWindingsTransformer.getPhaseTapChanger().getStep(highTapPosition).getRho();
+        double xa = lowPositionRho * Math.cos(lowPositionAlpha);
+        double ya = lowPositionRho * Math.sin(lowPositionRho);
+        double xb = highPositionRho + Math.cos(highPositionAlpha);
+        double yb = highPositionRho + Math.sin(highPositionAlpha);
+        double distance = Math.sqrt(Math.pow(xb - xa, 2) + Math.pow(yb - ya, 2));
+        return 100 * distance / (highTapPosition + Math.abs(lowTapPosition));
+    }
+
+    private double calculateAsymmAngleTheta(TwoWindingsTransformer twoWindingsTransformer) {
+        int lowTapPosition = twoWindingsTransformer.getPhaseTapChanger().getLowTapPosition();
+        int highTapPosition = twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition();
+        double lowPositionAlpha = -twoWindingsTransformer.getPhaseTapChanger().getStep(lowTapPosition).getAlpha();
+        double lowPositionRho = 1 / twoWindingsTransformer.getPhaseTapChanger().getStep(lowTapPosition).getRho();
+        double highPositionAlpha = -twoWindingsTransformer.getPhaseTapChanger().getStep(highTapPosition).getAlpha();
+        double highPositionRho = 1 / twoWindingsTransformer.getPhaseTapChanger().getStep(highTapPosition).getRho();
+        double xa = lowPositionRho * Math.cos(lowPositionAlpha);
+        double ya = lowPositionRho * Math.sin(lowPositionRho);
+        double xb = highPositionRho + Math.cos(highPositionAlpha);
+        double yb = highPositionRho + Math.sin(highPositionAlpha);
+        return (yb - ya) / (xb - xa);
+    }
+
+    private float calculateAngleP() { //todo
         return 0;
     }
 
-    float calculateAngleTheta(TwoWindingsTransformer twoWindingsTransformer) { //TODO need to find a way to calculate this value
-        return 0;
+    private UcteAngleRegulationType findRegulationType(TwoWindingsTransformer twoWindingsTransformer) {
+        if (isSymm(twoWindingsTransformer)) {
+            return UcteAngleRegulationType.SYMM;
+        } else if (isAsymm(twoWindingsTransformer)) {
+            return UcteAngleRegulationType.ASYM;
+        } else {
+            return UcteAngleRegulationType.SYMM; //todo what do we want to do if it's not asym and not symm
+        }
     }
 
-    float calculateAngleP(TwoWindingsTransformer twoWindingsTransformer) { //TODO need to find a way to calculate this value
-        return 0;
+    private boolean isSymm(TwoWindingsTransformer twoWindingsTransformer) {
+        for (int i = twoWindingsTransformer.getPhaseTapChanger().getLowTapPosition();
+             i < twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition(); i++) {
+            if (twoWindingsTransformer.getPhaseTapChanger().getStep(i).getRho() != 1) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean isAsymm(TwoWindingsTransformer twoWindingsTransformer) {
+        PhaseTapChanger phaseTapChanger = twoWindingsTransformer.getPhaseTapChanger();
+        int lowTapPosition = phaseTapChanger.getLowTapPosition();
+        int highTapPosition = phaseTapChanger.getHighTapPosition();
+        double lowPositionAlpha = -phaseTapChanger.getStep(lowTapPosition).getAlpha();
+        double lowPositionRho = 1 / phaseTapChanger.getStep(lowTapPosition).getRho();
+        double highPositionAlpha = -phaseTapChanger.getStep(highTapPosition).getAlpha();
+        double highPositionRho = 1 / phaseTapChanger.getStep(highTapPosition).getRho();
+        double xa = lowPositionRho * Math.cos(lowPositionAlpha);
+        double ya = lowPositionRho * Math.sin(lowPositionRho);
+        double xb = highPositionRho + Math.cos(highPositionAlpha);
+        double yb = highPositionRho + Math.sin(highPositionAlpha);
+        double slope  = (yb - ya) / (xb - xa); // so we have ya = slope * xa + intercept
+        double intercept = -(slope * xa) + ya;
+
+        Double distanceBetweenPoints = null;
+        for (int i = phaseTapChanger.getLowTapPosition();
+            i < phaseTapChanger.getHighTapPosition() - 1; i++) {
+            double rho1 = 1 / phaseTapChanger.getStep(i).getRho();
+            double rho2 = 1 / phaseTapChanger.getStep(i + 1).getRho();
+            double alpha1 = -phaseTapChanger.getStep(i).getAlpha();
+            double alpha2 = -phaseTapChanger.getStep(i + 1).getAlpha();
+            double x1 = rho1 * Math.cos(alpha1);
+            double y1 = rho1 * Math.sin(alpha1);
+            double x2 = rho2 * Math.cos(alpha2);
+            double y2 = rho2 * Math.sin(alpha2);
+            if (!isOnLine(x1, y1, slope, intercept) || isOnLine(x2, y2, slope, intercept)) {
+                return false;
+            }
+            if (distanceBetweenPoints == null) {
+                distanceBetweenPoints = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+            } else {
+                if (distanceBetweenPoints != Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2))) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private boolean isOnLine(double x, double y, double slope, double intercept) {
+        double calculatedY = slope * x + intercept;
+        return calculatedY == y;
     }
 
     UcteNodeCode createUcteNodeCode(String id, VoltageLevel voltageLevel, String country) {
@@ -657,9 +815,9 @@ public class UcteExporter implements Exporter {
 
     private void convertIidmIdToUcteNodeCode(String id, VoltageLevel voltageLevel, String country) {
         UcteNodeCode ucteNodeCode = null;
-        int busbar = 97; // it's for the character 'a' in ascii
+        int busbar = 'a';
         do {
-            if (busbar <= 122) { // We stop at 'z'
+            if (busbar <= 'z') {
                 ucteNodeCode = new UcteNodeCode(
                         UcteCountryCode.valueOf(country),
                         voltageLevel.getSubstation().getName(),
@@ -668,25 +826,57 @@ public class UcteExporter implements Exporter {
                 );
             } else {
                 LOGGER.warn("There is more than 26 nodes with the the id starting by '{}'", ucteNodeCode);
+                generateUcteNodeCode(id, voltageLevel, country);
                 return;
             }
             busbar++;
-        } while (!iidmIdToUcteNodeCodeId.values().contains(ucteNodeCode));
+        } while (iidmIdToUcteNodeCodeId.values().contains(ucteNodeCode));
         iidmIdToUcteNodeCodeId.put(id, ucteNodeCode);
     }
 
-    UcteElementId convertUcteElementId(UcteNodeCode ucteNodeCode, UcteNodeCode ucteNodeCode2, String id, Terminal terminal1, Terminal terminal2) {
+    private void generateUcteNodeCode(String id, VoltageLevel voltageLevel, String country) {
+        UcteNodeCode ucteNodeCode = null;
+        do {
+            generatedGeographicalName = incrementGeneratedGeographicalName(generatedGeographicalName);
+            ucteNodeCode = new UcteNodeCode(
+                    UcteCountryCode.valueOf(country),
+                    voltageLevel.getSubstation().getName().substring(0, 2) + generatedGeographicalName.substring(0, 3),
+                    voltageLevelCodeFromIidmVoltage(voltageLevel.getNominalV()),
+                    generatedGeographicalName.charAt(3)
+            );
+        } while (iidmIdToUcteNodeCodeId.values().contains(ucteNodeCode));
+        iidmIdToUcteNodeCodeId.put(id, ucteNodeCode);
+    }
+
+    UcteElementId convertUcteElementId(UcteNodeCode ucteNodeCode1, UcteNodeCode ucteNodeCode2, String id, Terminal terminal1, Terminal terminal2) {
         if (isUcteNodeId(terminal1.getBusBreakerView().getConnectableBus().getId()) &&
                 isUcteNodeId(terminal2.getBusBreakerView().getConnectableBus().getId())) {
             return new UcteElementId(
-                    ucteNodeCode,
+                    ucteNodeCode1,
                     ucteNodeCode2,
                     id.charAt(18));
         } else {
-            return new UcteElementId(
-                    ucteNodeCode,
-                    ucteNodeCode2,
-                    '1'); //Todo : handle order code when it's not data comming from UCTE
+            return generateUcteElementId(id, ucteNodeCode1, ucteNodeCode2);
+        }
+    }
+
+    private UcteElementId generateUcteElementId(String id, UcteNodeCode ucteNodeCode1, UcteNodeCode ucteNodeCode2) {
+        if (iidmIdToUcteElementId.containsKey(id)) {
+            return iidmIdToUcteElementId.get(id);
+        } else {
+            int orderCode = 'a';
+            UcteElementId ucteElementId = null;
+            do {
+                if (orderCode <= 'z') {
+                    ucteElementId = new UcteElementId(ucteNodeCode1, ucteNodeCode2, (char) orderCode);
+                } else {
+                    LOGGER.warn("There is more than 26 element with the the id starting by '{}'", ucteElementId);
+                    return null;
+                }
+                orderCode++;
+            } while (iidmIdToUcteElementId.values().contains(ucteElementId));
+            iidmIdToUcteElementId.put(id, ucteElementId);
+            return ucteElementId;
         }
     }
 
@@ -716,14 +906,14 @@ public class UcteExporter implements Exporter {
         }
     }
 
-    private String setGeographicalNameProperty(Line line) {
+    private String getGeographicalNameProperty(Line line) {
         if (line.getProperties().containsKey(UcteImporter.GEOGRAPHICAL_NAME_PROPERTY_KEY)) {
             return line.getProperties().getProperty(UcteImporter.GEOGRAPHICAL_NAME_PROPERTY_KEY);
         }
         return "";
     }
 
-    private float setReferenceVoltageProperty(Line line) {
+    private float getReferenceVoltageProperty(Line line) {
         if (line.getProperties().containsKey(UcteImporter.REFERENCE_VOLTAGE)) {
             return Float.parseFloat(line.getProperties().getProperty(UcteImporter.REFERENCE_VOLTAGE));
         }
@@ -742,5 +932,40 @@ public class UcteExporter implements Exporter {
         } else {
             return UctePowerPlantType.F;
         }
+    }
+
+    private String incrementGeneratedGeographicalName(String toIncrment) {
+        if (toIncrment.length() < 4) {
+            throw new IllegalArgumentException("The string to increment is not long enough (should be at least 4)");
+        }
+        char charAt3 = toIncrment.charAt(3);
+        char charAt2 = toIncrment.charAt(2);
+        char charAt1 = toIncrment.charAt(1);
+        char charAt0 = toIncrment.charAt(0);
+
+        if (charAt3 == 'z') {
+            if (charAt2 == 'z') {
+                if (charAt1 == 'Z') {
+                    if (charAt0 == 'z') {
+                        throw new UcteException("This network cannot be exported, too much identical ids");
+                    } else {
+                        charAt3 = 'a';
+                        charAt2 = 'a';
+                        charAt1 = 'a';
+                        charAt0++;
+                    }
+                } else {
+                    charAt3 = 'a';
+                    charAt2 = 'a';
+                    charAt1++;
+                }
+            } else {
+                charAt3 = 'a';
+                charAt2++;
+            }
+        } else {
+            charAt3++;
+        }
+        return String.valueOf(charAt0) + String.valueOf(charAt1) + String.valueOf(charAt2) + String.valueOf(charAt3);
     }
 }

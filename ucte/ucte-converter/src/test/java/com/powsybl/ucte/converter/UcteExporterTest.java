@@ -132,13 +132,13 @@ public class UcteExporterTest {
     @Test
     public void calculatePhaseDuTest() {
         assertEquals(
-                2.000000019938067,
+                2.0000,
                 ucteExporter.calculatePhaseDu(transfomerRegulationNetwork.getTwoWindingsTransformer("0BBBBB5  0AAAAA2  1")),
-                0.0000000000000001);
+                0.00001);
         assertNotEquals(
-                2.000000019938066,
+                2.0001,
                 ucteExporter.calculatePhaseDu(transfomerRegulationNetwork.getTwoWindingsTransformer("0BBBBB5  0AAAAA2  1")),
-                0.0000000000000001);
+                0.00001);
     }
 
     @Test
