@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
  */
 public class ProjectFile extends ProjectNode {
 
-    private final WeakListenerList<ProjectFileListener> listeners = new WeakListenerList<>();
+    protected final WeakListenerList<ProjectFileListener> listeners = new WeakListenerList<>();
 
     private final AppStorageListener l = eventList -> {
         for (NodeEvent event : eventList.getEvents()) {

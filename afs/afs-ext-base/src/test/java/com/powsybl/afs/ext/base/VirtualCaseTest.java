@@ -136,7 +136,7 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
         assertTrue(script.getBackwardDependencies().isEmpty());
 
         // test script error
-        ModificationScript scriptWithError = folder.fileBuilder(ModificationScriptBuilder.class)
+        AbstractModificationScript scriptWithError = folder.fileBuilder(ModificationScriptBuilder.class)
                 .withName("scriptWithError")
                 .withType(ScriptType.GROOVY)
                 .withContent("prin 'hello'")

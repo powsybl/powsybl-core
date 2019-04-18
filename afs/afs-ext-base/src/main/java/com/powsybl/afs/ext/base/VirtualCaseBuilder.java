@@ -23,7 +23,7 @@ public class VirtualCaseBuilder implements ProjectFileBuilder<VirtualCase> {
 
     private ProjectFile aCase;
 
-    private ModificationScript script;
+    private AbstractModificationScript script;
 
     public VirtualCaseBuilder(ProjectFileBuildContext context) {
         this.context = Objects.requireNonNull(context);
@@ -39,7 +39,7 @@ public class VirtualCaseBuilder implements ProjectFileBuilder<VirtualCase> {
         return this;
     }
 
-    public VirtualCaseBuilder withScript(ModificationScript script) {
+    public VirtualCaseBuilder withScript(AbstractModificationScript script) {
         this.script = Objects.requireNonNull(script);
         return this;
     }

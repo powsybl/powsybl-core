@@ -29,7 +29,7 @@ public class VirtualCase extends ProjectFile implements ProjectCase {
 
     private final DependencyCache<ProjectFile> projectCaseDependency = new DependencyCache<>(this, CASE_DEPENDENCY_NAME, ProjectFile.class);
 
-    private final DependencyCache<ModificationScript> modificationScriptDependency = new DependencyCache<>(this, SCRIPT_DEPENDENCY_NAME, ModificationScript.class);
+    private final DependencyCache<AbstractModificationScript> modificationScriptDependency = new DependencyCache<>(this, SCRIPT_DEPENDENCY_NAME, AbstractModificationScript.class);
 
     public VirtualCase(ProjectFileCreationContext context) {
         super(context, VERSION);
@@ -45,11 +45,11 @@ public class VirtualCase extends ProjectFile implements ProjectCase {
         projectCaseDependency.invalidate();
     }
 
-    public Optional<ModificationScript> getScript() {
+    public Optional<AbstractModificationScript> getScript() {
         return modificationScriptDependency.getFirst();
     }
 
-    public void setScript(ModificationScript aScript) {
+    public void setScript(AbstractModificationScript aScript) {
         Objects.requireNonNull(aScript);
         setDependencies(SCRIPT_DEPENDENCY_NAME, Collections.singletonList(aScript));
         modificationScriptDependency.invalidate();

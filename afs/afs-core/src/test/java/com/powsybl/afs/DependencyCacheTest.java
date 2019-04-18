@@ -81,7 +81,7 @@ public class DependencyCacheTest extends AbstractProjectFileTest {
         }
     }
 
-    class Tac extends ProjectFile {
+    class Tac extends ProjectFile implements ProjectFileListener {
 
         private static final String DEP_NAME = "dep";
 
@@ -95,23 +95,47 @@ public class DependencyCacheTest extends AbstractProjectFileTest {
             return cache.getFirst().orElse(null);
         }
 
-        void setTicDependency(Tic tic) {
-            setDependencies(DEP_NAME, Collections.singletonList(tic));
+        void setTicDependency(ProjectFile ticOrTac) {
+            if (ticOrTac == null) {
+                cache.getFirst().ifPresent(d -> d.removeListener(this));
+                removeDependencies(DEP_NAME);
+
+            } else {
+                setDependencies(DEP_NAME, Collections.singletonList(ticOrTac));
+                ticOrTac.addListener(this);
+            }
             cache.invalidate();
         }
+
+        @Override
+        public void dependencyChanged(String name) {
+            listeners.notify(listener -> listener.dependencyChanged(name));
+        }
+
+        @Override
+        public void backwardDependencyChanged(String name) {
+        }
+
     }
 
     class TacBuilder implements ProjectFileBuilder<Tac> {
 
         private final ProjectFileBuildContext context;
 
+        private String name;
+
         TacBuilder(ProjectFileBuildContext context) {
             this.context = context;
         }
 
+        public TacBuilder setName(String name) {
+            this.name = name;
+            return this;
+        }
+
         @Override
         public Tac build() {
-            NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), "tac", "TAC", "", 0, new NodeGenericMetadata());
+            NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, "TAC", "", 0, new NodeGenericMetadata());
             return new Tac(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));
         }
     }
@@ -159,7 +183,7 @@ public class DependencyCacheTest extends AbstractProjectFileTest {
         Project project = afs.getRootFolder().createProject("project");
         Tic tic = project.getRootFolder().fileBuilder(TicBuilder.class).setName("tic").build();
         Tic tic2 = project.getRootFolder().fileBuilder(TicBuilder.class).setName("tic2").build();
-        Tac tac = project.getRootFolder().fileBuilder(TacBuilder.class).build();
+        Tac tac = project.getRootFolder().fileBuilder(TacBuilder.class).setName("tac").build();
         assertNull(tac.getTicDependency());
         tac.setTicDependency(tic);
         assertNotNull(tac.getTicDependency());
@@ -167,5 +191,53 @@ public class DependencyCacheTest extends AbstractProjectFileTest {
         tac.setTicDependency(tic2);
         assertNotNull(tac.getTicDependency());
         assertEquals(tic2.getId(), tac.getTicDependency().getId());
+    }
+
+    class TacListener implements ProjectFileListener {
+
+        private static final String DEP_NAME = "dep";
+
+        private boolean dependencyUpdated = false;
+
+        TacListener(Tac tac) {
+            tac.addListener(this);
+        }
+
+        @Override
+        public void dependencyChanged(String name) {
+            dependencyUpdated = true;
+        }
+
+        @Override
+        public void backwardDependencyChanged(String name) {
+
+        }
+
+        public boolean isDependencyUpdated() {
+            return dependencyUpdated;
+        }
+
+        public void resetDependencyUpdated() {
+            dependencyUpdated = false;
+        }
+
+    }
+
+    @Test
+    public void dependencyTest() {
+        Project project = afs.getRootFolder().createProject("project");
+        Tic tic = project.getRootFolder().fileBuilder(TicBuilder.class).setName("tic").build();
+        Tac tac = project.getRootFolder().fileBuilder(TacBuilder.class).setName("tac").build();
+        Tac tac2 = project.getRootFolder().fileBuilder(TacBuilder.class).setName("tac2").build();
+        TacListener tacListener = new TacListener(tac2);
+        assertFalse(tacListener.isDependencyUpdated());
+        tac2.setTicDependency(tac);
+        assertTrue(tacListener.isDependencyUpdated());
+        tacListener.resetDependencyUpdated();
+        tac.setTicDependency(tic);
+        assertTrue(tacListener.isDependencyUpdated());
+        tacListener.resetDependencyUpdated();
+        tac.setTicDependency(null);
+        assertTrue(tacListener.isDependencyUpdated());
     }
 }

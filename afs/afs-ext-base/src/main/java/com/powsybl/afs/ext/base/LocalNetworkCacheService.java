@@ -54,7 +54,7 @@ public class LocalNetworkCacheService implements NetworkCacheService {
         return ScriptResult.of(network);
     }
 
-    private static ScriptResult<Network> applyScript(Network network, String previousScriptOutput, ModificationScript script) {
+    private static ScriptResult<Network> applyScript(Network network, String previousScriptOutput, AbstractModificationScript script) {
         ScriptResult<Object> result = ScriptUtils.runScript(network, script.getScriptType(), script.readScript());
         if (result.getError() == null) {
             return new ScriptResult<>(network, previousScriptOutput + result.getOutput(), null);
@@ -74,7 +74,7 @@ public class LocalNetworkCacheService implements NetworkCacheService {
             return network;
         }
 
-        ModificationScript script = virtualCase.getScript()
+        AbstractModificationScript script = virtualCase.getScript()
                                                .orElseThrow(VirtualCase::createScriptLinkIsDeadException);
 
         LOGGER.info("Applying script to network of project case {}", virtualCase.getId());

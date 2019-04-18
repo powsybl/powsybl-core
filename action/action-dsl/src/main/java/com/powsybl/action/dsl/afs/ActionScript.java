@@ -6,15 +6,19 @@
  */
 package com.powsybl.action.dsl.afs;
 
+import com.google.common.io.CharStreams;
 import com.powsybl.action.dsl.ActionDb;
 import com.powsybl.action.dsl.ActionDslLoader;
 import com.powsybl.afs.ProjectFileCreationContext;
-import com.powsybl.afs.ext.base.AbstractModificationScript;
+import com.powsybl.afs.ext.base.AbstractScript;
 import com.powsybl.afs.ext.base.ScriptType;
+import com.powsybl.afs.ext.base.StorableScript;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -23,7 +27,7 @@ import java.util.ResourceBundle;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ActionScript extends AbstractModificationScript implements ContingenciesProvider {
+public class ActionScript extends AbstractScript implements ContingenciesProvider, StorableScript {
 
     public static final String PSEUDO_CLASS = "actionScript";
     public static final int VERSION = 0;
@@ -54,5 +58,20 @@ public class ActionScript extends AbstractModificationScript implements Continge
     @Override
     public List<Contingency> getContingencies(Network network) {
         return new ArrayList<>(load(network).getContingencies());
+    }
+
+    @Override
+    public void writeScript(String content) {
+        try (Reader reader = new StringReader(content);
+             Writer writer = new OutputStreamWriter(storage.writeBinaryData(info.getId(), scriptContentName), StandardCharsets.UTF_8)) {
+            CharStreams.copy(reader, writer);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        storage.updateModificationTime(info.getId());
+        storage.flush();
+
+        // invalidate backward dependencies
+        invalidate();
     }
 }
