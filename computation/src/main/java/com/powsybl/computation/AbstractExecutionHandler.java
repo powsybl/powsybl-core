@@ -14,20 +14,35 @@ import java.util.stream.Collectors;
 
 /**
  *
+ * Provides some default method implementations for {@link ExecutionHandler}s implementations.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  * @param <R>
  */
 public abstract class AbstractExecutionHandler<R> implements ExecutionHandler<R> {
 
+    /**
+     * Empty implementation.
+     */
     @Override
     public void onExecutionStart(CommandExecution execution, int executionIndex) {
     }
 
+    /**
+     * Empty implementation.
+     */
     @Override
     public void onExecutionCompletion(CommandExecution execution, int executionIndex) {
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * That implementation checks the {@link ExecutionReport} for errors, and throws a {@link PowsyblException}
+     * in that case. May be called by actual implementations.
+     *
+     */
     @Override
     public R after(Path workingDir, ExecutionReport report) throws IOException {
         if (!report.getErrors().isEmpty()) {
