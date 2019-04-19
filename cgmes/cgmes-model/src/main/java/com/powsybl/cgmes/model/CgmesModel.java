@@ -104,6 +104,8 @@ public interface CgmesModel {
 
     PropertyBags asynchronousMachines();
 
+    PropertyBags reactiveCapabilityCurveData();
+
     PropertyBags ratioTapChangerTablesPoints();
 
     PropertyBags ratioTapChangerTable(String tableId);
