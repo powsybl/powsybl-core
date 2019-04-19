@@ -6,6 +6,7 @@
  */
 package com.powsybl.security;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
 
@@ -54,7 +55,7 @@ public class DefaultLimitViolationDetector extends AbstractLimitViolationDetecto
     }
 
     @Override
-    public void checkCurrent(Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer) {
+    public void checkCurrent(Contingency contingency, Branch branch, Branch.Side side, double value, Consumer<LimitViolation> consumer) {
 
         Branch.Overload overload = LimitViolationUtils.checkTemporaryLimits(branch, side, limitReduction, value);
 
@@ -74,7 +75,7 @@ public class DefaultLimitViolationDetector extends AbstractLimitViolationDetecto
     }
 
     @Override
-    public void checkVoltage(Bus bus, double value, Consumer<LimitViolation> consumer) {
+    public void checkVoltage(Contingency contingency, Bus bus, double value, Consumer<LimitViolation> consumer) {
         VoltageLevel vl = bus.getVoltageLevel();
         if (!Double.isNaN(vl.getLowVoltageLimit()) && value <= vl.getLowVoltageLimit()) {
             consumer.accept(new LimitViolation(vl.getId(), vl.getName(), LimitViolationType.LOW_VOLTAGE,

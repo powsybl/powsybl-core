@@ -77,7 +77,7 @@ class ExpressionDslLoader extends DslLoader {
 
         // comparison
 
-        java.lang.Object.metaClass.compareTo2 = { Object value, String op ->
+        Object.metaClass.compareTo2 = { Object value, String op ->
             switch (op) {
                 case ">":
                     return delegate > value

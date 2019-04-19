@@ -30,7 +30,7 @@ class DslLoader {
     }
 
     static GroovyShell createShell(Binding binding) {
-        def astCustomizer = new ASTTransformationCustomizer(new PowsyblDslAstTransformation())
+        def astCustomizer = new ASTTransformationCustomizer(new ExpressionDslAstTransformation())
         def imports = new ImportCustomizer()
         def config = new CompilerConfiguration()
         config.addCompilationCustomizers(astCustomizer, imports)

@@ -60,14 +60,14 @@ public final class JsonSecurityAnalysisParameters {
     }
 
     /**
-     * Reads parameters from a JSON file (will NOT rely on platform config).
+     * Reads parameters from a JSON file (will NOT rely on platform configured).
      */
     public static SecurityAnalysisParameters read(Path jsonFile) {
         return update(new SecurityAnalysisParameters(), jsonFile);
     }
 
     /**
-     * Reads parameters from a JSON file (will NOT rely on platform config).
+     * Reads parameters from a JSON file (will NOT rely on platform configured).
      */
     public static SecurityAnalysisParameters read(InputStream jsonStream) {
         return update(new SecurityAnalysisParameters(), jsonStream);

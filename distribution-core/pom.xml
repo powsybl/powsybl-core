@@ -305,6 +305,12 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-security-analysis-dsl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-sensitivity-api</artifactId>
             <version>${project.version}</version>
         </dependency>

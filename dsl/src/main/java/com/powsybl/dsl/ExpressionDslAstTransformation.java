@@ -14,10 +14,15 @@ import org.codehaus.groovy.control.SourceUnit;
 import org.codehaus.groovy.transform.GroovyASTTransformation;
 
 /**
+ * An AST transformation which replaces calls to operators (for example "&&")
+ * by calls to custom methods (for example and2).
+ *
+ * This allows to actually overload the behaviour of those operators. See {@link ExpressionDslLoader}.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @GroovyASTTransformation
-public class PowsyblDslAstTransformation extends AbstractAstTransformation {
+public class ExpressionDslAstTransformation extends AbstractAstTransformation {
 
     private static final boolean DEBUG = false;
 

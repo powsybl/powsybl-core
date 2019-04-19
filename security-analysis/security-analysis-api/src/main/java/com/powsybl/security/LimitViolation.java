@@ -10,9 +10,14 @@ package com.powsybl.security;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.iidm.network.*;
 
+import javax.annotation.Nullable;
 import java.util.Objects;
 
 /**
+ *
+ * A generic representation of a violation of a network equipment security limit.
+ * For example, it may represent a current overload on a line.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class LimitViolation extends AbstractExtendable<LimitViolation> {
@@ -61,38 +66,88 @@ public class LimitViolation extends AbstractExtendable<LimitViolation> {
         this(subjectId, null, limitType, limit, limitReduction, value);
     }
 
+    /**
+     * The identifier of the network equipment on which the violation occurred.
+     *
+     * @return the identifier of the network equipment on which the violation occurred.
+     */
     public String getSubjectId() {
         return subjectId;
     }
 
+    /**
+     * The name of the network equipment on which the violation occurred.
+     * May be {@code null}.
+     *
+     * @return the name of the network equipment on which the violation occurred.
+     */
+    @Nullable
     public String getSubjectName() {
         return subjectName;
     }
 
+    /**
+     * The type of limit which has been violated.
+     * @return the type of limit which has been violated.
+     */
     public LimitViolationType getLimitType() {
         return limitType;
     }
 
+    /**
+     * The value of the limit which has been violated.
+     * @return the value of the limit which has been violated.
+     */
     public double getLimit() {
         return limit;
     }
 
+    /**
+     * The name of the limit which has been violated. May be {@code null}.
+     * @return the value of the limit which has been violated. May be {@code null}.
+     */
+    @Nullable
     public String getLimitName() {
         return limitName;
     }
 
+    /**
+     * The acceptable duration, in seconds, associated to the current violation value.
+     * Only relevant for current limits.
+     *
+     * @return the acceptable duration, in seconds, associated to the current violation value.
+     */
     public int getAcceptableDuration() {
         return acceptableDuration;
     }
 
+    /**
+     * The limit reduction factor used for violation detection.
+     * For example when monitoring values above 95% of a given limit, this will return {@code 0.95f}
+     *
+     * @return the limit reduction factor used for violation detection.
+     */
     public float getLimitReduction() {
         return limitReduction;
     }
 
+    /**
+     * The actual value of the physical value which triggered the detection of a violation.
+     *
+     * @return the actual value of the physical value which triggered the detection of a violation.
+     */
     public double getValue() {
         return value;
     }
 
+    /**
+     * The side of the equipment where the violation occurred. Will be {@code null} for equipments
+     * other than branches.
+     *
+     * @return the side of the equipment where the violation occurred. Will be {@code null} for equipments
+     *         other than branches.
+     */
+    @Nullable
     public Branch.Side getSide() {
         return side;
     }

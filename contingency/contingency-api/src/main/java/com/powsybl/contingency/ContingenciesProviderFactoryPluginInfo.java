@@ -18,4 +18,5 @@ public class ContingenciesProviderFactoryPluginInfo extends PluginInfo<Contingen
     public ContingenciesProviderFactoryPluginInfo() {
         super(ContingenciesProviderFactory.class);
     }
+
 }

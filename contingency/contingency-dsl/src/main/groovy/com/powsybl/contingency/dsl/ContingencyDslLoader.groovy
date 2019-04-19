@@ -39,6 +39,8 @@ class ContingencyDslLoader extends DslLoader {
 
     static void loadDsl(Binding binding, Network network, Consumer<Contingency> consumer, ContingencyDslObserver observer) {
 
+        binding.setVariable("network", network)
+
         // contingencies
         binding.contingency = { String id, Closure<Void> closure ->
             def cloned = closure.clone()

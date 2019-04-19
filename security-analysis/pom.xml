@@ -27,6 +27,7 @@
         <module>security-analysis-afs</module>
         <module>security-analysis-afs-local</module>
         <module>security-analysis-api</module>
+        <module>security-analysis-dsl</module>
     </modules>
 
 </project>

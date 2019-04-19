@@ -125,6 +125,8 @@ class ActionDslLoader extends DslLoader {
 
         ConditionDslLoader.prepareClosures(binding)
 
+        ContingencyDslLoader.loadDsl(binding, network, handler.&addContingency, observer)
+
         // rules
         binding.rule = { String id, Closure<Void> closure ->
             def cloned = closure.clone()

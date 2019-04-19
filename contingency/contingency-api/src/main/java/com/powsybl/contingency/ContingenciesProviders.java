@@ -7,13 +7,14 @@
 package com.powsybl.contingency;
 
 import com.powsybl.commons.config.ComponentDefaultConfig;
+import com.powsybl.computation.Partition;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
 public final class ContingenciesProviders {
 
-    private static ContingenciesProvider emptyProvider = new EmptyContingencyListProvider();
+    private static final ContingenciesProvider EMPTY_PROVIDER = new EmptyContingencyListProvider();
 
     private ContingenciesProviders() {
     }
@@ -29,7 +30,15 @@ public final class ContingenciesProviders {
      * Returns an empty list provider.
      */
     public static ContingenciesProvider emptyProvider() {
-        return emptyProvider;
+        return EMPTY_PROVIDER;
+    }
+
+    /**
+     * Returns a contingencies provider which provides a subset of another provider,
+     * defined by a {@link Partition}.
+     */
+    public static ContingenciesProvider newSubProvider(ContingenciesProvider provider, Partition subPart) {
+        return new SubContingenciesProvider(provider, subPart);
     }
 
 }

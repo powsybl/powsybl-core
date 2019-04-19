@@ -95,8 +95,7 @@ public abstract class AbstractDataSourceTest {
             assertTrue(dataSource.exists(name));
             try (InputStream is = dataSource.newInputStream(name)) {
                 // Ok, some content is available
-            }
-            catch (IOException x) {
+            } catch (IOException x) {
                 fail(name);
             }
         }

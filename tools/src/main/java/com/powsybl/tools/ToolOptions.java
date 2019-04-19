@@ -124,4 +124,5 @@ public class ToolOptions {
     public Optional<Path> getPath(String option) {
         return getValue(option, fileSystem::getPath);
     }
+
 }

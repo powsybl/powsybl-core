@@ -8,6 +8,8 @@ package com.powsybl.dsl.ast;
 
 import com.powsybl.commons.PowsyblException;
 
+import java.util.Objects;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -36,9 +38,9 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
         double value2 = ((Number) result2).doubleValue();
         switch (node.getOperator()) {
             case EQUALS:
-                return value1 == value2;
+                return Objects.equals(value1, value2);
             case NOT_EQUALS:
-                return value1 != value2;
+                return !Objects.equals(value1, value2);
             case GREATER_THAN:
                 return value1 > value2;
             case LESS_THAN:
@@ -64,23 +66,31 @@ public class ExpressionEvaluator extends DefaultExpressionVisitor<Object, Void> 
     @Override
     public Object visitLogicalOperator(LogicalBinaryOperatorNode node, Void arg) {
         Object result1 = node.getLeft().accept(this, arg);
-        Object result2 = node.getRight().accept(this, arg);
         if (!(result1 instanceof Boolean)) {
             throw new PowsyblException("Left operand of comparison should return a boolean");
         }
-        if (!(result2 instanceof Boolean)) {
-            throw new PowsyblException("Right operand of comparison should return a boolean");
-        }
+
         boolean value1 = (Boolean) result1;
-        boolean value2 = (Boolean) result2;
         switch (node.getOperator()) {
             case AND:
-                return value1 && value2;
+                if (!value1) {
+                    return false;
+                }
+                break;
             case OR:
-                return value1 || value2;
+                if (value1) {
+                    return true;
+                }
+                break;
             default:
                 throw createUnexpectedOperatorException(node.getOperator().name());
         }
+
+        Object result2 = node.getRight().accept(this, arg);
+        if (!(result2 instanceof Boolean)) {
+            throw new PowsyblException("Right operand of comparison should return a boolean");
+        }
+        return result2;
     }
 
     @Override

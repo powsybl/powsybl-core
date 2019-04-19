@@ -82,7 +82,7 @@ public final class Security {
             throw new IllegalArgumentException("Bad limit reduction " + limitReduction);
         }
         List<LimitViolation> violations = new ArrayList<>();
-        new DefaultLimitViolationDetector(limitReduction, currentLimitTypes).checkAll(network, violations::add);
+        new DefaultLimitViolationDetector(limitReduction, currentLimitTypes).checkAll(null, network, violations::add);
         return violations;
     }
 

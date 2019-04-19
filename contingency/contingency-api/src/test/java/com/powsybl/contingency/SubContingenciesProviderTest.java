@@ -4,12 +4,10 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.security.distributed;
+package com.powsybl.contingency;
 
 import com.google.common.collect.ImmutableList;
 import com.powsybl.computation.Partition;
-import com.powsybl.contingency.ContingenciesProvider;
-import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -19,7 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
