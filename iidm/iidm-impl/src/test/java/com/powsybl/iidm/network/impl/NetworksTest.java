@@ -11,10 +11,9 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.util.Networks;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.helpers.FormattingTuple;
-import org.slf4j.helpers.MessageFormatter;
 
+import java.io.IOException;
+import java.io.Writer;
 import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
@@ -25,20 +24,18 @@ import static org.junit.Assert.assertEquals;
 public class NetworksTest {
 
     @Test
-    public void printBalanceSummaryTest()  {
+    public void printBalanceSummaryTest() throws IOException {
         StringBuilder buffer = new StringBuilder();
 
-        Logger logger = Mockito.mock(Logger.class);
-        Mockito.when(logger.isDebugEnabled()).thenReturn(true);
+        Writer writer = Mockito.mock(Writer.class);
         Mockito.doAnswer(invocationOnMock -> {
             Object[] args = invocationOnMock.getArguments();
-            FormattingTuple formatter = MessageFormatter.format(Objects.toString(args[0]), args[1], args[2]);
-            buffer.append(formatter.getMessage());
+            buffer.append(Objects.toString(args[0]));
             return null;
-        }).when(logger).debug(Mockito.anyString(), Mockito.any(), Mockito.any());
+        }).when(writer).write(Mockito.anyString());
 
         Network network = EurostagTutorialExample1Factory.create();
-        Networks.printBalanceSummary("", network, logger);
+        Networks.printBalanceSummary("", network, writer);
         assertEquals("Active balance at step '':\n" +
                      "+-----------------------+--------------------------------+----------------------------------+\n" +
                      "|                       | Main CC connected/disconnected | Others CC connected/disconnected |\n" +
