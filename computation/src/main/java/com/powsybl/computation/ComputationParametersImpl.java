@@ -6,29 +6,31 @@
  */
 package com.powsybl.computation;
 
-import java.util.*;
+import com.powsybl.commons.extensions.AbstractExtendable;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.Objects;
+import java.util.OptionalLong;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ComputationParametersImpl implements ComputationParameters {
+public class ComputationParametersImpl extends AbstractExtendable<ComputationParameters> implements ComputationParameters {
 
-    private final Map<String, Long> timeoutMap;
+    private final Map<String, Long> timeoutsByCmdId;
 
-    private final Map<String, Long> deadlineMap;
+    private final Map<String, Long> deadlinesByCmdId;
 
-    private final Map<String, String> qosMap;
-
-    ComputationParametersImpl(Map<String, Long> timeoutMap, Map<String, Long> deadlineMap, Map<String, String> qosMap) {
-        this.timeoutMap = Collections.unmodifiableMap(timeoutMap);
-        this.deadlineMap = Collections.unmodifiableMap(deadlineMap);
-        this.qosMap = Collections.unmodifiableMap(qosMap);
+    ComputationParametersImpl(Map<String, Long> timeoutsByCommandId, Map<String, Long> deadlinesByCommandId) {
+        timeoutsByCmdId = Collections.unmodifiableMap(timeoutsByCommandId);
+        deadlinesByCmdId = Collections.unmodifiableMap(deadlinesByCommandId);
     }
 
     @Override
     public OptionalLong getTimeout(String commandId) {
         Objects.requireNonNull(commandId);
-        Long t = timeoutMap.get(commandId);
+        Long t = timeoutsByCmdId.get(commandId);
         if (t == null) {
             return OptionalLong.empty();
         } else {
@@ -39,7 +41,7 @@ public class ComputationParametersImpl implements ComputationParameters {
     @Override
     public OptionalLong getDeadline(String commandId) {
         Objects.requireNonNull(commandId);
-        Long t = deadlineMap.get(commandId);
+        Long t = deadlinesByCmdId.get(commandId);
         if (t == null) {
             return OptionalLong.empty();
         } else {
@@ -47,13 +49,4 @@ public class ComputationParametersImpl implements ComputationParameters {
         }
     }
 
-    @Override
-    public Optional<String> getQos(String commandId) {
-        Objects.requireNonNull(commandId);
-        String qosFromMap = qosMap.get(commandId);
-        if (qosFromMap != null) {
-            return Optional.of(qosFromMap);
-        }
-        return Optional.empty();
-    }
 }

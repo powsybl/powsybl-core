@@ -13,6 +13,7 @@ import static org.junit.Assert.assertNull;
 import java.io.IOException;
 import java.nio.file.FileSystem;
 
+import com.powsybl.iidm.network.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -24,15 +25,6 @@ import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.ReactiveCapabilityCurve;
-import com.powsybl.iidm.network.ReactiveLimits;
-import com.powsybl.iidm.network.ReactiveLimitsKind;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -85,7 +77,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBEReactiveCapabilityCurve() throws IOException {
+    public void microBEReactiveCapabilityCurve() {
         Network network = new CgmesImport(platformConfig)
             .importData(catalogModified.microGridBaseCaseBEReactiveCapabilityCurve().dataSource(), null);
         ReactiveLimits rl = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0").getReactiveLimits();
@@ -95,6 +87,17 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(-20, rl.getMinQ(-200), 0.001);
         assertEquals(-20, rl.getMinQ(-201), 0.001);
         assertEquals(-20 - (180.0 / 100.0), rl.getMinQ(-199), 0.001);
+    }
+
+    @Test
+    public void microBEReactiveCapabilityCurveOnePoint() {
+        Network network = new CgmesImport(platformConfig)
+                .importData(catalogModified.microGridBaseCaseBEReactiveCapabilityCurveOnePoint().dataSource(), null);
+        ReactiveLimits rl = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0").getReactiveLimits();
+        assertEquals(ReactiveLimitsKind.MIN_MAX, rl.getKind());
+        MinMaxReactiveLimits mm = (MinMaxReactiveLimits) rl;
+        assertEquals(-200, mm.getMinQ(), 0);
+        assertEquals(200, mm.getMaxQ(), 0);
     }
 
     @Test
