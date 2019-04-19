@@ -81,11 +81,24 @@ public abstract class AbstractAppStorageTest {
         }
     }
 
+    @Test(expected = AfsStorageException.class)
+    public void testDisabledNode() {
+        NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists(storage.getFileSystemName(), FOLDER_PSEUDO_CLASS);
+        storage.flush();
+        NodeInfo testFolderInfo = storage.createNode(rootFolderInfo.getId(), "test", FOLDER_PSEUDO_CLASS, "", 0,
+                new NodeGenericMetadata().setString("k", "v"));
+        storage.createNode(testFolderInfo.getId(), "test", FOLDER_PSEUDO_CLASS, "", 0,
+                new NodeGenericMetadata().setString("k", "v"));
+        storage.flush();
+    }
+
     @Test
     public void test() throws IOException, InterruptedException {
         // 1) create root folder
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists(storage.getFileSystemName(), FOLDER_PSEUDO_CLASS);
         storage.flush();
+
+        assertTrue(storage.isEnable(rootFolderInfo.getId()));
 
         // check event
         assertEventStack(new NodeCreated(rootFolderInfo.getId(), null));
@@ -490,9 +503,9 @@ public abstract class AbstractAppStorageTest {
 
         // 19) rename node test
         NodeInfo folder5Info = storage.createNode(rootFolderInfo.getId(), "test5", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
+        storage.setEnable(folder5Info.getId(), true);
         NodeInfo folder51Info = storage.createNode(folder5Info.getId(), "child_of_test5", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
         NodeInfo folder52Info = storage.createNode(folder5Info.getId(), "another_child_of_test5", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
-        storage.setEnable(folder5Info.getId(), true);
         storage.setEnable(folder51Info.getId(), true);
         storage.setEnable(folder52Info.getId(), true);
         storage.flush();

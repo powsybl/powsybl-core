@@ -392,6 +392,7 @@ public class MapDbAppStorage implements AppStorage {
         Objects.requireNonNull(nodePseudoClass);
         if (parentNodeUuid != null) {
             checkNodeExists(parentNodeUuid);
+            checkEnabled(parentNodeUuid);
             // check parent node does not already have a child with the same name
             if (childNodeMap.containsKey(new NamedLink(parentNodeUuid, name))) {
                 throw new AfsStorageException(NODE + parentNodeUuid + " already have a child named " + name);
