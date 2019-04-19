@@ -85,7 +85,6 @@ public abstract class AbstractAppStorageTest {
     public void test() throws IOException, InterruptedException {
         // 1) create root folder
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists(storage.getFileSystemName(), FOLDER_PSEUDO_CLASS);
-        storage.setEnable(rootFolderInfo.getId(), true);
         storage.flush();
 
         // check event
