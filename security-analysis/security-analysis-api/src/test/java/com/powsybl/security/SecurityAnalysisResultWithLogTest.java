@@ -25,11 +25,7 @@ public class SecurityAnalysisResultWithLogTest {
         byte[] logs = new byte[10];
         SecurityAnalysisResultWithLog sut1 = new SecurityAnalysisResultWithLog(sar, logs);
         assertSame(logs, sut1.getLogBytes().orElse(new byte[1]));
-        try {
-            new SecurityAnalysisResultWithLog(null);
-            fail();
-        } catch (NullPointerException e) {
-            // ignored
-        }
+        SecurityAnalysisResultWithLog nullResult = new SecurityAnalysisResultWithLog(null, logs);
+        assertNull(nullResult.getResult());
     }
 }

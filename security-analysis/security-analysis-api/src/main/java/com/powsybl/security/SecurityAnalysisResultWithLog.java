@@ -6,7 +6,6 @@
  */
 package com.powsybl.security;
 
-import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -19,11 +18,11 @@ public class SecurityAnalysisResultWithLog {
     private byte[] logBytes;
 
     public SecurityAnalysisResultWithLog(SecurityAnalysisResult result) {
-        this.result = Objects.requireNonNull(result);
+        this.result = result;
     }
 
     public SecurityAnalysisResultWithLog(SecurityAnalysisResult result, byte[] logBytes) {
-        this.result = Objects.requireNonNull(result);
+        this.result = result;
         this.logBytes = logBytes;
     }
 
@@ -35,6 +34,10 @@ public class SecurityAnalysisResultWithLog {
         return Optional.ofNullable(logBytes);
     }
 
+    /**
+     * Returns a {@link SecurityAnalysisResult}, could be null.
+     * @return a {@link SecurityAnalysisResult}, null if the computation fails.
+     */
     public SecurityAnalysisResult getResult() {
         return result;
     }

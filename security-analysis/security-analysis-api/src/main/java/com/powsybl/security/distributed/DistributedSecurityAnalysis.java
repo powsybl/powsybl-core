@@ -6,6 +6,7 @@
  */
 package com.powsybl.security.distributed;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.compress.ZipHelper;
 import com.powsybl.computation.*;
 import com.powsybl.contingency.ContingenciesProvider;
@@ -149,10 +150,19 @@ public class DistributedSecurityAnalysis extends ExternalSecurityAnalysis {
 
         @Override
         public SecurityAnalysisResultWithLog after(Path workingDir, ExecutionReport report) throws IOException {
-            SecurityAnalysisResult re = simpleSubTaskHandler.after(workingDir, report);
+            SecurityAnalysisResult re = null;
+            boolean error = false;
+            try {
+                re = simpleSubTaskHandler.after(workingDir, report);
+            } catch (PowsyblException e) {
+                error = true;
+            }
+
             collectedLogsFilename = new ArrayList<>();
             for (int i = 0; i < simpleSubTaskHandler.getActualTaskCount(); i++) {
-                collectedLogsFilename.add(getLogOutputName(i)); // hades logs_IDX.zip
+                if (!error) {
+                    collectedLogsFilename.add(getLogOutputName(i)); // hades logs_IDX.zip
+                }
                 collectedLogsFilename.add(SubTaskHandler.SA_TASK_CMD_ID + "_" + i + ".out");
                 collectedLogsFilename.add(SubTaskHandler.SA_TASK_CMD_ID + "_" + i + ".err");
             }

@@ -8,6 +8,7 @@ package com.powsybl.security.distributed;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.computation.*;
@@ -217,6 +218,27 @@ public class DistributedSecurityAnalysisTest {
         }
 
         List<String> expectedLogs = Arrays.asList("logs_0.zip", "security-analysis-task_0.out", "security-analysis-task_0.err", "logs_1.zip", "security-analysis-task_1.out", "security-analysis-task_1.err");
+        assertEquals(expectedLogs, sut.getCollectedLogsFilename());
+    }
+
+    @Test
+    public void testResultNull() throws IOException {
+        DistributedSecurityAnalysis sa = mock(DistributedSecurityAnalysis.class);
+        DistributedSecurityAnalysis.SubTaskHandler handler = mock(DistributedSecurityAnalysis.SubTaskHandler.class);
+        when(handler.getActualTaskCount()).thenReturn(2);
+        DistributedSecurityAnalysis.SubTaskWithLogHandler sut = sa.new SubTaskWithLogHandler(handler);
+
+        // mock there are errors
+        when(handler.after(any(), any())).thenThrow(new PowsyblException("error"));
+        // execute
+        try {
+            sut.after(mock(Path.class), mock(ExecutionReport.class));
+        } catch (Exception e) {
+            // ignored
+        }
+
+        // no more logs_x.zip
+        List<String> expectedLogs = Arrays.asList("security-analysis-task_0.out", "security-analysis-task_0.err", "security-analysis-task_1.out", "security-analysis-task_1.err");
         assertEquals(expectedLogs, sut.getCollectedLogsFilename());
     }
 }
