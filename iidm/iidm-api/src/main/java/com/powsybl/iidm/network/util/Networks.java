@@ -328,22 +328,22 @@ public final class Networks {
     }
 
     private static void logOtherCC(Writer writer, String title, Supplier<String> tableSupplier, ConnectedPower balanceOtherCC) throws IOException {
-        writer.write(String.format("Active balance at step '%s':%n%s", title, tableSupplier.get()));
+        writer.write("Active balance at step '" + title + "':" + System.lineSeparator() + tableSupplier.get());
 
         if (!balanceOtherCC.connectedLoads.isEmpty()) {
-            writer.write(String.format("Connected loads in other CC: %s%n", String.join(", ", balanceOtherCC.connectedLoads)));
+            writer.write("Connected loads in other CC: " + String.join(", ", balanceOtherCC.connectedLoads) + System.lineSeparator());
         }
         if (!balanceOtherCC.disconnectedLoads.isEmpty()) {
-            writer.write(String.format("Disconnected loads in other CC: %s%n", String.join(", ", balanceOtherCC.disconnectedLoads)));
+            writer.write("Disconnected loads in other CC: " + String.join(", ", balanceOtherCC.disconnectedLoads) + System.lineSeparator());
         }
         if (!balanceOtherCC.connectedGenerators.isEmpty()) {
-            writer.write(String.format("Connected generators in other CC: %s%n", String.join(", ", balanceOtherCC.connectedGenerators)));
+            writer.write("Connected generators in other CC: " + String.join(", ", balanceOtherCC.connectedGenerators) + System.lineSeparator());
         }
         if (!balanceOtherCC.disconnectedGenerators.isEmpty()) {
-            writer.write(String.format("Disconnected generators in other CC: %s%n", String.join(", ", balanceOtherCC.disconnectedGenerators)));
+            writer.write("Disconnected generators in other CC: " + String.join(", ", balanceOtherCC.disconnectedGenerators) + System.lineSeparator());
         }
         if (!balanceOtherCC.disconnectedShunts.isEmpty()) {
-            writer.write(String.format("Disconnected shunts in other CC: %s%n", String.join(", ", balanceOtherCC.disconnectedShunts)));
+            writer.write("Disconnected shunts in other CC: " + String.join(", ", balanceOtherCC.disconnectedShunts) + System.lineSeparator());
         }
     }
 

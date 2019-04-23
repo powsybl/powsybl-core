@@ -36,7 +36,7 @@ public class NetworksTest {
 
         Network network = EurostagTutorialExample1Factory.create();
         Networks.printBalanceSummary("", network, writer);
-        assertEquals("Active balance at step '':\n" +
+        assertEquals("Active balance at step '':" + System.lineSeparator() +
                      "+-----------------------+--------------------------------+----------------------------------+\n" +
                      "|                       | Main CC connected/disconnected | Others CC connected/disconnected |\n" +
                      "+-----------------------+--------------------------------+----------------------------------+\n" +
