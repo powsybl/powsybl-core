@@ -217,79 +217,6 @@ public abstract class AbstractTransformerFullConversion
         });
     }
 
-    protected TapChanger23 neutral1TapChanger(TapChanger tapChanger) {
-        if (tapChanger == null) {
-            return new TapChanger23();
-        }
-        TapChanger tapChanger2 = baseCloneTapChanger(tapChanger);
-        resetTapChangerRegulation(tapChanger2);
-        TapChanger tapChanger3 = baseCloneTapChanger(tapChanger);
-        resetTapChangerRegulation(tapChanger3);
-
-        tapChanger.getSteps().forEach(step -> {
-            double ratio = step.getRatio();
-            double angle = step.getAngle();
-            TapChangerStepConversion neutralStep = calculateNeutralStep(ratio, angle);
-
-            tapChanger2.beginStep()
-                    .setRatio(neutralStep.ratio)
-                    .setAngle(neutralStep.angle)
-                    .setR(neutralStep.r)
-                    .setX(neutralStep.x)
-                    .setG1(neutralStep.g1)
-                    .setB1(neutralStep.b1)
-                    .setG2(neutralStep.g2)
-                    .setB2(neutralStep.b2)
-                    .endStep();
-            tapChanger3.beginStep()
-                    .setRatio(neutralStep.ratio)
-                    .setAngle(neutralStep.angle)
-                    .setR(neutralStep.r)
-                    .setX(neutralStep.x)
-                    .setG1(neutralStep.g1)
-                    .setB1(neutralStep.b1)
-                    .setG2(neutralStep.g2)
-                    .setB2(neutralStep.b2)
-                    .endStep();
-        });
-
-        TapChanger23 tapChanger23 = new TapChanger23();
-        tapChanger23.tapChanger2 = tapChanger2;
-        tapChanger23.tapChanger3 = tapChanger3;
-
-        return tapChanger23;
-    }
-
-    protected TapChanger deletePhaseTapChanger(TapChanger tapChanger) {
-        if (tapChanger == null) {
-            return null;
-        }
-        TapChanger nTapChanger = baseCloneTapChanger(tapChanger);
-        resetTapChangerRegulation(nTapChanger);
-
-        boolean differentRatios = tapChanger.getSteps().stream().anyMatch(step -> step.getRatio() != 1.0);
-        if (!differentRatios) {
-            return null;
-        }
-
-        tapChanger.getSteps().forEach(step -> {
-            double ratio = step.getRatio();
-
-            nTapChanger.beginStep()
-                    .setRatio(ratio)
-                    .setAngle(0.0)
-                    .setR(step.getR())
-                    .setX(step.getX())
-                    .setG1(step.getG1())
-                    .setB1(step.getB1())
-                    .setG2(step.getG2())
-                    .setB2(step.getB2())
-                    .endStep();
-
-        });
-        return nTapChanger;
-    }
-
     private TapChanger baseCloneTapChanger(TapChanger rtc) {
         TapChanger tapChanger = new TapChanger();
         boolean isRegulating = rtc.isRegulating();
@@ -357,21 +284,21 @@ public abstract class AbstractTransformerFullConversion
         return step;
     }
 
-    private TapChangerStepConversion calculateNeutralStep(double ratio, double angle) {
-        TapChangerStepConversion step = new TapChangerStepConversion();
-        Complex a = new Complex(ratio * Math.cos(Math.toRadians(angle)),
-                ratio * Math.sin(Math.toRadians(angle)));
-        Complex na = a.reciprocal();
-        step.ratio = na.abs();
-        step.angle = Math.toDegrees(na.getArgument());
-        step.r = 0.0;
-        step.x = 0.0;
-        step.g1 = 0.0;
-        step.b1 = 0.0;
-        step.g2 = 0.0;
-        step.b2 = 0.0;
-        return step;
-    }
+    // private TapChangerStepConversion calculateNeutralStep(double ratio, double angle) {
+    // TapChangerStepConversion step = new TapChangerStepConversion();
+    // Complex a = new Complex(ratio * Math.cos(Math.toRadians(angle)),
+    // ratio * Math.sin(Math.toRadians(angle)));
+    // Complex na = a.reciprocal();
+    // step.ratio = na.abs();
+    // step.angle = Math.toDegrees(na.getArgument());
+    // step.r = 0.0;
+    // step.x = 0.0;
+    // step.g1 = 0.0;
+    // step.b1 = 0.0;
+    // step.g2 = 0.0;
+    // step.b2 = 0.0;
+    // return step;
+    // }
 
     protected RatioConversion identityRatioConversion(double r, double x, double g1,
             double b1, double g2, double b2) {
@@ -457,6 +384,17 @@ public abstract class AbstractTransformerFullConversion
         int position = tc.getTapPosition();
         int lowPosition = tc.getLowTapPosition();
         return tc.getSteps().get(position - lowPosition);
+    }
+
+    protected TapChanger fixTapChangerRegulation(TapChanger tc) {
+        if (tapChangerType(tc) == TapChangerType.REGULATING) {
+            TapChanger newtc = baseCloneTapChanger(tc);
+            resetTapChangerRegulation(newtc);
+
+            return newtc;
+        }
+
+        return tc;
     }
 
     // propertyBag
@@ -815,10 +753,5 @@ public abstract class AbstractTransformerFullConversion
         double b1;
         double g2;
         double b2;
-    }
-
-    static class TapChanger23 {
-        TapChanger tapChanger2;
-        TapChanger tapChanger3;
     }
 }

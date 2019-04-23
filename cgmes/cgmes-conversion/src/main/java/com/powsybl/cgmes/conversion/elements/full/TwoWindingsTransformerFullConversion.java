@@ -42,9 +42,9 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
         if (x1 != 0.0) {
             ratio0AtEnd1 = false;
         } else {
-            ratio0AtEnd1 = true;
+            ratio0AtEnd1 = context.config().xfmr2Ratio0AtEnd1();
         }
-        invertIidmAngle = false;
+        invertIidmAngle = context.config().invertXfmr2IidmAngle();
     }
 
     @Override
@@ -57,11 +57,19 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
         TapChanger phaseTapChanger1 = getPhaseTapChanger(ptc1, terminal1, ratedU1, x);
         TapChanger phaseTapChanger2 = getPhaseTapChanger(ptc2, terminal2, ratedU2, x);
 
-        TapChanger nratioTapChanger2 = moveTapChangerFrom2To1(ratioTapChanger2);
-        TapChanger nphaseTapChanger2 = moveTapChangerFrom2To1(phaseTapChanger2);
+        TapChanger22 tapChanger22 = filterRatioPhaseRegulatingControl(ratioTapChanger1, phaseTapChanger1,
+                ratioTapChanger2, phaseTapChanger2);
 
-        TapChanger ratioTapChanger = combineTapChangers(ratioTapChanger1, nratioTapChanger2);
-        TapChanger phaseTapChanger = combineTapChangers(phaseTapChanger1, nphaseTapChanger2);
+        TapChanger xRatioTapChanger1 = tapChanger22.ratioTapChanger1;
+        TapChanger xPhaseTapChanger1 = tapChanger22.phaseTapChanger1;
+        TapChanger xRatioTapChanger2 = tapChanger22.ratioTapChanger2;
+        TapChanger xPhaseTapChanger2 = tapChanger22.phaseTapChanger2;
+
+        TapChanger nRatioTapChanger2 = moveTapChangerFrom2To1(xRatioTapChanger2);
+        TapChanger nPhaseTapChanger2 = moveTapChangerFrom2To1(xPhaseTapChanger2);
+
+        TapChanger ratioTapChanger = combineTapChangers(xRatioTapChanger1, nRatioTapChanger2);
+        TapChanger phaseTapChanger = combineTapChangers(xPhaseTapChanger1, nPhaseTapChanger2);
 
         RatioConversion rc0 = identityRatioConversion(r, x, g1, b1, g2, b2);
         if (!ratio0AtEnd1) {
@@ -72,8 +80,39 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
         setToIidm(ratioTapChanger, phaseTapChanger, rc0.r, rc0.x, rc0.g1, rc0.b1, rc0.g2, rc0.b2);
     }
 
+    private TapChanger22 filterRatioPhaseRegulatingControl(TapChanger ratioTapChanger1, TapChanger phaseTapChanger1,
+            TapChanger ratioTapChanger2, TapChanger phaseTapChanger2) {
+
+        TapChanger22 tapChanger22 = new TapChanger22();
+
+        if (tapChangerType(ratioTapChanger1) == TapChangerType.REGULATING) {
+            tapChanger22.ratioTapChanger1 = ratioTapChanger1;
+            tapChanger22.phaseTapChanger1 = fixTapChangerRegulation(phaseTapChanger1);
+            tapChanger22.ratioTapChanger2 = fixTapChangerRegulation(ratioTapChanger2);
+            tapChanger22.phaseTapChanger2 = fixTapChangerRegulation(phaseTapChanger2);
+        } else if (tapChangerType(ratioTapChanger2) == TapChangerType.REGULATING) {
+            tapChanger22.ratioTapChanger1 = ratioTapChanger1;
+            tapChanger22.phaseTapChanger1 = fixTapChangerRegulation(phaseTapChanger1);
+            tapChanger22.ratioTapChanger2 = ratioTapChanger2;
+            tapChanger22.phaseTapChanger2 = fixTapChangerRegulation(phaseTapChanger2);
+        } else if (tapChangerType(phaseTapChanger1) == TapChangerType.REGULATING) {
+            tapChanger22.ratioTapChanger1 = ratioTapChanger1;
+            tapChanger22.phaseTapChanger1 = phaseTapChanger1;
+            tapChanger22.ratioTapChanger2 = ratioTapChanger2;
+            tapChanger22.phaseTapChanger2 = fixTapChangerRegulation(phaseTapChanger2);
+        } else {
+            tapChanger22.ratioTapChanger1 = ratioTapChanger1;
+            tapChanger22.phaseTapChanger1 = phaseTapChanger1;
+            tapChanger22.ratioTapChanger2 = ratioTapChanger2;
+            tapChanger22.phaseTapChanger2 = phaseTapChanger2;
+        }
+
+        return tapChanger22;
+    }
+
     private void setToIidm(TapChanger ratioTapChanger, TapChanger phaseTapChanger, double r,
             double x, double g1, double b1, double g2, double b2) {
+        // JAM_TODO. Split shunts una vez aprobada la modificacion del modelo
         TwoWindingsTransformerAdder adder = substation().newTwoWindingsTransformer()
                 .setR(r)
                 .setX(x)
@@ -193,6 +232,13 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
             }
         }
         return null;
+    }
+
+    static class TapChanger22 {
+        TapChanger ratioTapChanger1;
+        TapChanger phaseTapChanger1;
+        TapChanger ratioTapChanger2;
+        TapChanger phaseTapChanger2;
     }
 
     private final double      r1;

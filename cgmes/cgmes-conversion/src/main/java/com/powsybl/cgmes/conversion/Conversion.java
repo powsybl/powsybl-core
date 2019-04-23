@@ -393,12 +393,50 @@ public class Conversion {
             createBusbarSectionForEveryConnectivityNode = b;
         }
 
+        public boolean xfmr2Ratio0AtEnd1() {
+            return xfmr2Ratio0AtEnd1;
+        }
+
+        public void setXfmr2Ratio0AtEnd1(boolean b) {
+            xfmr2Ratio0AtEnd1 = b;
+        }
+
+        public boolean invertXfmr2IidmAngle() {
+            return invertXfmr2IidmAngle;
+        }
+
+        public void setInvertXfmr2IidmAngle(boolean b) {
+            invertXfmr2IidmAngle = b;
+        }
+
+        public boolean xfmr3Ratio0Outside() {
+            return xfmr3Ratio0Outside;
+        }
+
+        public void setXfmr3Ratio0Outside(boolean b) {
+            xfmr3Ratio0Outside = b;
+        }
+
+        public boolean xfmr3RatioPhaseOutside() {
+            return xfmr3RatioPhaseOutside;
+        }
+
+        public void setXfmr3RatioPhaseOutside(boolean b) {
+            xfmr3RatioPhaseOutside = b;
+        }
+
         private boolean convertBoundary                                 = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
         private double  lowImpedanceLineR                               = 0.05;
         private double  lowImpedanceLineX                               = 0.05;
 
         private boolean createBusbarSectionForEveryConnectivityNode     = false;
+
+        private boolean xfmr2Ratio0AtEnd1 = true;
+        private boolean invertXfmr2IidmAngle = false;
+        private boolean xfmr3Ratio0Outside = false;
+        private boolean xfmr3RatioPhaseOutside = false;
+
     }
 
     private final CgmesModel    cgmes;

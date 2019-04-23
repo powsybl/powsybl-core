@@ -19,7 +19,7 @@ import com.powsybl.triplestore.api.PropertyBags;
 public class ThreeWindingsTransformerFullConversion extends AbstractTransformerFullConversion {
 
     private enum FinalPosition {
-        OUTSIDE, INSIDE
+        NETWORK_SIDE, STAR_BUS_SIDE
     }
 
     public ThreeWindingsTransformerFullConversion(PropertyBags ends,
@@ -44,41 +44,22 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
         ptc3 = getTransformerTapChanger(winding3, "PhaseTapChanger",
                 powerTransformerPhaseTapChanger);
 
-        boolean ratio0Outside1 = false;
-        boolean ratio0Outside2 = false;
-        boolean ratio0Outside3 = false;
-        boolean ratioPhaseOutside1 = true;
-        boolean ratioPhaseOutside2 = false;
-        boolean ratioPhaseOutside3 = false;
+        this.ratio0Outside1 = context.config().xfmr3Ratio0Outside();
+        // this.ratio0Outside2 = context.config().xfmr3Ratio0Outside();
+        this.ratio0Outside3 = context.config().xfmr3Ratio0Outside();
+        this.ratioPhaseOutside1 = context.config().xfmr3RatioPhaseOutside();
+        this.ratioPhaseOutside2 = context.config().xfmr3RatioPhaseOutside();
+        this.ratioPhaseOutside3 = context.config().xfmr3RatioPhaseOutside();
 
-        TapChanger ratioTapChanger1 = getRatioTapChanger(rtc1, winding1.get(CgmesNames.TERMINAL));
-        TapChanger ratioTapChanger2 = getRatioTapChanger(rtc2, winding2.get(CgmesNames.TERMINAL));
-        TapChanger ratioTapChanger3 = getRatioTapChanger(rtc3, winding3.get(CgmesNames.TERMINAL));
-        TapChanger phaseTapChanger1 = getPhaseTapChanger(ptc1, winding1.get(CgmesNames.TERMINAL),
+        this.ratioTapChanger1 = getRatioTapChanger(rtc1, winding1.get(CgmesNames.TERMINAL));
+        this.ratioTapChanger2 = getRatioTapChanger(rtc2, winding2.get(CgmesNames.TERMINAL));
+        this.ratioTapChanger3 = getRatioTapChanger(rtc3, winding3.get(CgmesNames.TERMINAL));
+        this.phaseTapChanger1 = getPhaseTapChanger(ptc1, winding1.get(CgmesNames.TERMINAL),
                 winding1.asDouble(ratedU), winding1.asDouble("x"));
-        TapChanger phaseTapChanger2 = getPhaseTapChanger(ptc2, winding2.get(CgmesNames.TERMINAL),
+        this.phaseTapChanger2 = getPhaseTapChanger(ptc2, winding2.get(CgmesNames.TERMINAL),
                 winding2.asDouble(ratedU), winding2.asDouble("x"));
-        TapChanger phaseTapChanger3 = getPhaseTapChanger(ptc3, winding3.get(CgmesNames.TERMINAL),
+        this.phaseTapChanger3 = getPhaseTapChanger(ptc3, winding3.get(CgmesNames.TERMINAL),
                 winding3.asDouble(ratedU), winding3.asDouble("x"));
-
-        T3xRotate t3xRotate = rotateThreeWindingsTransformer(winding1, ratioTapChanger1,
-                phaseTapChanger1, ratio0Outside1, ratioPhaseOutside1,
-                winding2, ratioTapChanger2, phaseTapChanger2, ratio0Outside2, ratioPhaseOutside2,
-                winding3, ratioTapChanger3, phaseTapChanger3, ratio0Outside3, ratioPhaseOutside3);
-        winding1 = t3xRotate.winding1;
-        this.ratioTapChanger1 = t3xRotate.rtc1;
-        this.phaseTapChanger1 = t3xRotate.ptc1;
-        winding2 = t3xRotate.winding2;
-        this.ratioTapChanger2 = t3xRotate.rtc2;
-        this.phaseTapChanger2 = t3xRotate.ptc2;
-        winding3 = t3xRotate.winding3;
-        this.ratioTapChanger3 = t3xRotate.rtc3;
-        this.phaseTapChanger3 = t3xRotate.ptc3;
-        this.ratio0Outside2 = t3xRotate.ratio0Outside2;
-        this.ratio0Outside3 = t3xRotate.ratio0Outside3;
-        this.ratioPhaseOutside1 = t3xRotate.ratioPhaseOutside1;
-        this.ratioPhaseOutside2 = t3xRotate.ratioPhaseOutside2;
-        this.ratioPhaseOutside3 = t3xRotate.ratioPhaseOutside3;
 
         r1 = winding1.asDouble("r");
         x1 = winding1.asDouble("x");
@@ -109,65 +90,42 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
     @Override
     public void convert() {
 
+        // Regulating control filtering
+
+        TapChanger3 tapChanger3 = filterRatioPhaseRegulatingControl(ratioTapChanger1, phaseTapChanger1,
+                ratioTapChanger2, phaseTapChanger2, ratioTapChanger3, phaseTapChanger3);
+
+        TapChanger xRatioTapChanger1 = tapChanger3.ratioTapChanger1;
+        TapChanger xPhaseTapChanger1 = tapChanger3.phaseTapChanger1;
+        TapChanger xRatioTapChanger2 = tapChanger3.ratioTapChanger2;
+        TapChanger xPhaseTapChanger2 = tapChanger3.phaseTapChanger2;
+        TapChanger xRatioTapChanger3 = tapChanger3.ratioTapChanger3;
+        TapChanger xPhaseTapChanger3 = tapChanger3.phaseTapChanger3;
+
         // Move initial tapChangers
-        TapChangerEnd tcEnd1 = moveTapChangerEnd(ratioTapChanger1, phaseTapChanger1,
-                ratioPhaseOutside1, FinalPosition.INSIDE);
-        TapChanger nRatioTapChanger1 = tcEnd1.ratioTapChanger;
-        TapChanger nPhaseTapChanger1 = tcEnd1.phaseTapChanger;
 
-        TapChangerEnd tcEnd2 = moveTapChangerEnd(ratioTapChanger2, phaseTapChanger2,
-                ratioPhaseOutside2, FinalPosition.OUTSIDE);
-        TapChanger nRatioTapChanger2 = tcEnd2.ratioTapChanger;
-        TapChanger nPhaseTapChanger2 = tcEnd2.phaseTapChanger;
+        TapChangerEnd tcEnd1 = moveTapChangerEnd(xRatioTapChanger1, xPhaseTapChanger1,
+                ratioPhaseOutside1, FinalPosition.NETWORK_SIDE);
+        TapChanger fRatioTapChanger1 = tcEnd1.ratioTapChanger;
+        TapChanger fPhaseTapChanger1 = tcEnd1.phaseTapChanger;
 
-        TapChangerEnd tcEnd3 = moveTapChangerEnd(ratioTapChanger3, phaseTapChanger3,
-                ratioPhaseOutside3, FinalPosition.OUTSIDE);
-        TapChanger nRatioTapChanger3 = tcEnd3.ratioTapChanger;
-        TapChanger nPhaseTapChanger3 = tcEnd3.phaseTapChanger;
+        TapChangerEnd tcEnd2 = moveTapChangerEnd(xRatioTapChanger2, xPhaseTapChanger2,
+                ratioPhaseOutside2, FinalPosition.NETWORK_SIDE);
+        TapChanger fRatioTapChanger2 = tcEnd2.ratioTapChanger;
+        TapChanger fPhaseTapChanger2 = tcEnd2.phaseTapChanger;
 
-        // Fix nRatioTapChanger1 a neutral
-        // Fix nPhaseTapChanger1 a neutral
+        TapChangerEnd tcEnd3 = moveTapChangerEnd(xRatioTapChanger3, xPhaseTapChanger3,
+                ratioPhaseOutside3, FinalPosition.NETWORK_SIDE);
+        TapChanger fRatioTapChanger3 = tcEnd3.ratioTapChanger;
+        TapChanger fPhaseTapChanger3 = tcEnd3.phaseTapChanger;
 
-        TapChanger23 neutralRatioTapChanger1 = neutral1TapChanger(nRatioTapChanger1);
-        TapChanger23 neutralPhaseTapChanger1 = neutral1TapChanger(nPhaseTapChanger1);
+        // ratio0 ratedUf and ratedU2 same nominal voltage
 
-        TapChanger ratioTapChanger2Rtc1 = neutralRatioTapChanger1.tapChanger2;
-        TapChanger ratioTapChanger3Rtc1 = neutralRatioTapChanger1.tapChanger3;
-        TapChanger phaseTapChanger2Rtc1 = neutralPhaseTapChanger1.tapChanger2;
-        TapChanger phaseTapChanger3Rtc1 = neutralPhaseTapChanger1.tapChanger3;
-
-        // Move outside the new tapChanger associated with tapChangers 1
-        TapChanger nRatioTapChanger2Rtc1 = moveTapChangerFrom2To1(ratioTapChanger2Rtc1);
-        TapChanger nPhaseTapChanger2Rtc1 = moveTapChangerFrom2To1(phaseTapChanger2Rtc1);
-        TapChanger nRatioTapChanger3Rtc1 = moveTapChangerFrom2To1(ratioTapChanger3Rtc1);
-        TapChanger nPhaseTapChanger3Rtc1 = moveTapChangerFrom2To1(phaseTapChanger3Rtc1);
-
-        // Combine the two ratios at end2 and also the two phases
-        TapChanger ncRatioTapChanger2Rtc1 = combineTapChangers(nRatioTapChanger2,
-                nRatioTapChanger2Rtc1);
-        TapChanger ncPhaseTapChanger2Rtc1 = combineTapChangers(nPhaseTapChanger2,
-                nPhaseTapChanger2Rtc1);
-        TapChanger ncRatioTapChanger3Rtc1 = combineTapChangers(nRatioTapChanger3,
-                nRatioTapChanger3Rtc1);
-        TapChanger ncPhaseTapChanger3Rtc1 = combineTapChangers(nPhaseTapChanger3,
-                nPhaseTapChanger3Rtc1);
-
-        // Delete phase at phaseTapChangers
-        TapChanger ncdPhaseTapChanger2Rtc1 = deletePhaseTapChanger(ncPhaseTapChanger2Rtc1);
-        TapChanger ncdPhaseTapChanger3Rtc1 = deletePhaseTapChanger(ncPhaseTapChanger3Rtc1);
-
-        // Combine ratio and phase at end2 and end3
-
-        TapChanger fRatioTapChanger2 = combineTapChangers(ncRatioTapChanger2Rtc1,
-                ncdPhaseTapChanger2Rtc1);
-        TapChanger fRatioTapChanger3 = combineTapChangers(ncRatioTapChanger3Rtc1,
-                ncdPhaseTapChanger3Rtc1);
-
-        double ratedUf = ratedU1;
-        RatioConversion rc02 = identityRatioConversion(r2, x2, g21, b21, g22, b22);
-        if (!ratio0Outside2) {
-            double a0 = ratedUf / ratedU2;
-            rc02 = moveRatioFrom2To1(a0, 0.0, r2, x2, g21, b21, g22, b22);
+        double ratedUf = ratedU2;
+        RatioConversion rc01 = identityRatioConversion(r1, x1, g11, b11, g12, b12);
+        if (!ratio0Outside1) {
+            double a0 = ratedUf / ratedU1;
+            rc01 = moveRatioFrom2To1(a0, 0.0, r1, x1, g11, b11, g12, b12);
         }
         RatioConversion rc03 = identityRatioConversion(r3, x3, g31, b31, g32, b32);
         if (!ratio0Outside3) {
@@ -175,138 +133,21 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
             rc03 = moveRatioFrom2To1(a0, 0.0, r3, x3, g31, b31, g32, b32);
         }
 
-        setToIidm(fRatioTapChanger2, fRatioTapChanger3, r1, x1, g11, b11, g12, b12,
-                rc02.r, rc02.x, rc02.g1, rc02.b1, rc02.g2, rc02.b2,
+        setToIidm(fRatioTapChanger1, fPhaseTapChanger1, fRatioTapChanger2, fPhaseTapChanger2,
+                fRatioTapChanger3, fPhaseTapChanger3,
+                rc01.r, rc01.x, rc01.g1, rc01.b1, rc01.g2, rc01.b2,
+                r2, x2, g21, b21, g22, b22,
                 rc03.r, rc03.x, rc03.g1, rc03.b1, rc03.g2, rc03.b2);
-    }
-
-    private T3xRotate rotateThreeWindingsTransformer(PropertyBag winding1, TapChanger rtc1,
-            TapChanger ptc1,
-            boolean ratio0Outside1, boolean ratioPhaseOutside1,
-            PropertyBag winding2, TapChanger rtc2, TapChanger ptc2, boolean ratio0Outside2,
-            boolean ratioPhaseOutside2,
-            PropertyBag winding3, TapChanger rtc3, TapChanger ptc3, boolean ratio0Outside3,
-            boolean ratioPhaseOutside3) {
-        T3xRotate tx3Rotate = new T3xRotate();
-
-        boolean rotateIsAllowed = false;
-        if (rotateIsAllowed && initialCandidateToRotate(rtc1, ptc1)
-                && finalCandidateToRotate(rtc2, ptc2)) {
-
-            tx3Rotate.winding1 = winding2;
-            tx3Rotate.rtc1 = rtc2;
-            tx3Rotate.ptc1 = ptc2;
-            tx3Rotate.ratioPhaseOutside1 = ratioPhaseOutside2;
-
-            tx3Rotate.winding2 = winding1;
-            tx3Rotate.rtc2 = rtc1;
-            tx3Rotate.ptc2 = ptc1;
-            tx3Rotate.ratio0Outside2 = ratio0Outside1;
-            tx3Rotate.ratioPhaseOutside2 = ratioPhaseOutside1;
-
-            tx3Rotate.winding3 = winding3;
-            tx3Rotate.rtc3 = rtc3;
-            tx3Rotate.ptc3 = ptc3;
-            tx3Rotate.ratio0Outside3 = ratio0Outside3;
-            tx3Rotate.ratioPhaseOutside3 = ratioPhaseOutside3;
-
-            return tx3Rotate;
-        }
-        if (rotateIsAllowed && initialCandidateToRotate(rtc1, ptc1)
-                && finalCandidateToRotate(rtc3, ptc3)) {
-
-            tx3Rotate.winding1 = winding3;
-            tx3Rotate.rtc1 = rtc3;
-            tx3Rotate.ptc1 = ptc3;
-            tx3Rotate.ratioPhaseOutside1 = ratioPhaseOutside3;
-
-            tx3Rotate.winding2 = winding2;
-            tx3Rotate.rtc2 = rtc2;
-            tx3Rotate.ptc2 = ptc2;
-            tx3Rotate.ratio0Outside2 = ratio0Outside2;
-            tx3Rotate.ratioPhaseOutside2 = ratioPhaseOutside2;
-
-            tx3Rotate.winding3 = winding1;
-            tx3Rotate.rtc3 = rtc1;
-            tx3Rotate.ptc3 = ptc1;
-            tx3Rotate.ratio0Outside3 = ratio0Outside1;
-            tx3Rotate.ratioPhaseOutside3 = ratioPhaseOutside1;
-
-            return tx3Rotate;
-        }
-
-        // Do not rotate
-
-        tx3Rotate.winding1 = winding1;
-        tx3Rotate.rtc1 = rtc1;
-        tx3Rotate.ptc1 = ptc1;
-        tx3Rotate.ratioPhaseOutside1 = ratioPhaseOutside1;
-
-        tx3Rotate.winding2 = winding2;
-        tx3Rotate.rtc2 = rtc2;
-        tx3Rotate.ptc2 = ptc2;
-        tx3Rotate.ratio0Outside2 = ratio0Outside2;
-        tx3Rotate.ratioPhaseOutside2 = ratioPhaseOutside2;
-
-        tx3Rotate.winding3 = winding3;
-        tx3Rotate.rtc3 = rtc3;
-        tx3Rotate.ptc3 = ptc3;
-        tx3Rotate.ratio0Outside3 = ratio0Outside3;
-        tx3Rotate.ratioPhaseOutside3 = ratioPhaseOutside3;
-
-        return tx3Rotate;
-    }
-
-    private boolean initialCandidateToRotate(TapChanger rtc, TapChanger ptc) {
-        switch (tapChangerType(rtc)) {
-            case NULL:
-                break;
-            case FIXED:
-            case NON_REGULATING:
-            case REGULATING:
-                return true;
-        }
-        switch (tapChangerType(ptc)) {
-            case NULL:
-                break;
-            case FIXED:
-            case NON_REGULATING:
-            case REGULATING:
-                return true;
-        }
-
-        return false;
-    }
-
-    private boolean finalCandidateToRotate(TapChanger rtc, TapChanger ptc) {
-        switch (tapChangerType(rtc)) {
-            case NULL:
-                break;
-            case FIXED:
-            case NON_REGULATING:
-            case REGULATING:
-                return false;
-        }
-        switch (tapChangerType(ptc)) {
-            case NULL:
-                break;
-            case FIXED:
-            case NON_REGULATING:
-            case REGULATING:
-                return false;
-        }
-
-        return true;
     }
 
     private TapChangerEnd moveTapChangerEnd(TapChanger ratioTapChanger, TapChanger phaseTapChanger,
             boolean ratioPhaseOutside, FinalPosition finalPosition) {
         TapChanger nRatioTapChanger = null;
         TapChanger nPhaseTapChanger = null;
-        if (ratioPhaseOutside && finalPosition == FinalPosition.INSIDE) {
+        if (ratioPhaseOutside && finalPosition == FinalPosition.STAR_BUS_SIDE) {
             nRatioTapChanger = moveTapChangerFrom1To2(ratioTapChanger);
             nPhaseTapChanger = moveTapChangerFrom1To2(phaseTapChanger);
-        } else if (!ratioPhaseOutside && finalPosition == FinalPosition.OUTSIDE) {
+        } else if (!ratioPhaseOutside && finalPosition == FinalPosition.NETWORK_SIDE) {
             nRatioTapChanger = moveTapChangerFrom2To1(ratioTapChanger);
             nPhaseTapChanger = moveTapChangerFrom2To1(phaseTapChanger);
 
@@ -321,11 +162,67 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
         return tapChangerEnd;
     }
 
-    private void setToIidm(TapChanger ratioTapChanger2, TapChanger ratioTapChanger3,
+    private TapChanger3 filterRatioPhaseRegulatingControl(TapChanger ratioTapChanger1,
+            TapChanger phaseTapChanger1, TapChanger ratioTapChanger2, TapChanger phaseTapChanger2,
+            TapChanger ratioTapChanger3, TapChanger phaseTapChanger3) {
+
+        TapChanger3 tapChanger3 = new TapChanger3();
+
+        if (tapChangerType(ratioTapChanger1) == TapChangerType.REGULATING) {
+            tapChanger3.ratioTapChanger1 = ratioTapChanger1;
+            tapChanger3.phaseTapChanger1 = fixTapChangerRegulation(phaseTapChanger1);
+            tapChanger3.ratioTapChanger2 = fixTapChangerRegulation(ratioTapChanger2);
+            tapChanger3.phaseTapChanger2 = fixTapChangerRegulation(phaseTapChanger2);
+            tapChanger3.ratioTapChanger3 = fixTapChangerRegulation(ratioTapChanger3);
+            tapChanger3.phaseTapChanger3 = fixTapChangerRegulation(phaseTapChanger3);
+        } else if (tapChangerType(phaseTapChanger1) == TapChangerType.REGULATING) {
+            tapChanger3.ratioTapChanger1 = ratioTapChanger1;
+            tapChanger3.phaseTapChanger1 = phaseTapChanger1;
+            tapChanger3.ratioTapChanger2 = fixTapChangerRegulation(ratioTapChanger2);
+            tapChanger3.phaseTapChanger2 = fixTapChangerRegulation(phaseTapChanger2);
+            tapChanger3.ratioTapChanger3 = fixTapChangerRegulation(ratioTapChanger3);
+            tapChanger3.phaseTapChanger3 = fixTapChangerRegulation(phaseTapChanger3);
+        } else if (tapChangerType(ratioTapChanger2) == TapChangerType.REGULATING) {
+            tapChanger3.ratioTapChanger1 = ratioTapChanger1;
+            tapChanger3.phaseTapChanger1 = phaseTapChanger1;
+            tapChanger3.ratioTapChanger2 = ratioTapChanger2;
+            tapChanger3.phaseTapChanger2 = fixTapChangerRegulation(phaseTapChanger2);
+            tapChanger3.ratioTapChanger3 = fixTapChangerRegulation(ratioTapChanger3);
+            tapChanger3.phaseTapChanger3 = fixTapChangerRegulation(phaseTapChanger3);
+        } else if (tapChangerType(phaseTapChanger2) == TapChangerType.REGULATING) {
+            tapChanger3.ratioTapChanger1 = ratioTapChanger1;
+            tapChanger3.phaseTapChanger1 = phaseTapChanger1;
+            tapChanger3.ratioTapChanger2 = ratioTapChanger2;
+            tapChanger3.phaseTapChanger2 = phaseTapChanger2;
+            tapChanger3.ratioTapChanger3 = fixTapChangerRegulation(ratioTapChanger3);
+            tapChanger3.phaseTapChanger3 = fixTapChangerRegulation(phaseTapChanger3);
+        } else if (tapChangerType(ratioTapChanger3) == TapChangerType.REGULATING) {
+            tapChanger3.ratioTapChanger1 = ratioTapChanger1;
+            tapChanger3.phaseTapChanger1 = phaseTapChanger1;
+            tapChanger3.ratioTapChanger2 = ratioTapChanger2;
+            tapChanger3.phaseTapChanger2 = phaseTapChanger2;
+            tapChanger3.ratioTapChanger3 = ratioTapChanger3;
+            tapChanger3.phaseTapChanger3 = fixTapChangerRegulation(phaseTapChanger3);
+        } else {
+            tapChanger3.ratioTapChanger1 = ratioTapChanger1;
+            tapChanger3.phaseTapChanger1 = phaseTapChanger1;
+            tapChanger3.ratioTapChanger2 = ratioTapChanger2;
+            tapChanger3.phaseTapChanger2 = phaseTapChanger2;
+            tapChanger3.ratioTapChanger3 = ratioTapChanger3;
+            tapChanger3.phaseTapChanger3 = phaseTapChanger3;
+        }
+
+        return tapChanger3;
+    }
+
+    private void setToIidm(TapChanger ratioTapChanger1, TapChanger phaseTapChanger1,
+            TapChanger ratioTapChanger2, TapChanger phaseTapChanger2,
+            TapChanger ratioTapChanger3, TapChanger phaseTapChanger3,
             double r1, double x1, double g11, double b11, double g12, double b12,
             double r2, double x2, double g21, double b21, double g22, double b22,
             double r3, double x3, double g31, double b31, double g32, double b32) {
 
+        // JAM_TODO Ajustar shunts y TapChanger al nuevo modelo propuesto
         // Add shunts g1 = g11 + g21 + g22 + g31 + g33;
         // Add shunts b1 = b11 + b21 + b22 + b31 + b33;
 
@@ -436,26 +333,18 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
         return null;
     }
 
-    static class T3xRotate {
-        PropertyBag winding1;
-        TapChanger  rtc1;
-        TapChanger  ptc1;
-        PropertyBag winding2;
-        TapChanger  rtc2;
-        TapChanger  ptc2;
-        PropertyBag winding3;
-        TapChanger  rtc3;
-        TapChanger  ptc3;
-        boolean     ratio0Outside2;
-        boolean     ratio0Outside3;
-        boolean     ratioPhaseOutside1;
-        boolean     ratioPhaseOutside2;
-        boolean     ratioPhaseOutside3;
-    }
-
     static class TapChangerEnd {
         TapChanger ratioTapChanger;
         TapChanger phaseTapChanger;
+    }
+
+    static class TapChanger3 {
+        TapChanger ratioTapChanger1;
+        TapChanger phaseTapChanger1;
+        TapChanger ratioTapChanger2;
+        TapChanger phaseTapChanger2;
+        TapChanger ratioTapChanger3;
+        TapChanger phaseTapChanger3;
     }
 
     private final double      r1;
@@ -494,7 +383,8 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
     private final TapChanger  phaseTapChanger1;
     private final TapChanger  phaseTapChanger2;
     private final TapChanger  phaseTapChanger3;
-    private final boolean     ratio0Outside2;
+    private final boolean     ratio0Outside1;
+    // private final boolean ratio0Outside2;
     private final boolean     ratio0Outside3;
     private final boolean     ratioPhaseOutside1;
     private final boolean     ratioPhaseOutside2;
