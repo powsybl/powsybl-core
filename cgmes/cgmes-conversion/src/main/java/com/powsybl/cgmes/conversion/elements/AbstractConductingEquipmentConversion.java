@@ -14,7 +14,6 @@ import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.PowerFlow;
 import com.powsybl.iidm.network.BranchAdder;
 import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.InjectionAdder;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.Terminal;
@@ -33,9 +32,9 @@ import com.powsybl.triplestore.api.PropertyBags;
 public abstract class AbstractConductingEquipmentConversion extends AbstractIdentifiedObjectConversion {
 
     public AbstractConductingEquipmentConversion(
-            String type,
-            PropertyBag p,
-            Context context) {
+        String type,
+        PropertyBag p,
+        Context context) {
         super(type, p, context);
         numTerminals = 1;
         terminals = new TerminalData[] {null, null, null};
@@ -44,10 +43,10 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     public AbstractConductingEquipmentConversion(
-            String type,
-            PropertyBag p,
-            Context context,
-            int numTerminals) {
+        String type,
+        PropertyBag p,
+        Context context,
+        int numTerminals) {
         super(type, p, context);
         // Information about each terminal is in properties of the unique property bag
         if (numTerminals > 3) {
@@ -63,9 +62,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     }
 
     public AbstractConductingEquipmentConversion(
-            String type,
-            PropertyBags ps,
-            Context context) {
+        String type,
+        PropertyBags ps,
+        Context context) {
         super(type, ps, context);
         // Information about each terminal is in each separate property bags
         // It is assumed the property bags are already sorted
@@ -117,9 +116,9 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             }
             if (voltageLevel(k) == null) {
                 missing(String.format("VoltageLevel of terminal %d %s (iidm %s)",
-                        k,
-                        cgmesVoltageLevelId(k),
-                        iidmVoltageLevelId(k)));
+                    k,
+                    cgmesVoltageLevelId(k),
+                    iidmVoltageLevelId(k)));
                 return false;
             }
         }
@@ -140,14 +139,14 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     String nodeId() {
         return context.nodeBreaker()
-                ? terminals[0].t.connectivityNode()
-                : terminals[0].t.topologicalNode();
+            ? terminals[0].t.connectivityNode()
+            : terminals[0].t.topologicalNode();
     }
 
     String nodeId(int n) {
         return context.nodeBreaker()
-                ? terminals[n - 1].t.connectivityNode()
-                : terminals[n - 1].t.topologicalNode();
+            ? terminals[n - 1].t.connectivityNode()
+            : terminals[n - 1].t.topologicalNode();
     }
 
     boolean isBoundary(int n) {
@@ -234,27 +233,6 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
         return terminalPowerFlow(n).defined() ? terminalPowerFlow(n) : equipmentPowerFlow();
     }
 
-    // Helpers
-
-    protected void convertReactiveLimits(Generator g) {
-        if (p.containsKey("minQ") && p.containsKey("maxQ")) {
-            double minQ = p.asDouble("minQ");
-            double maxQ = p.asDouble("maxQ");
-            if (minQ > maxQ) {
-                String reason = String.format("minQ > maxQ (%.4f > %.4f)", minQ, maxQ);
-                fixed("reactiveLimits", reason);
-                double t = minQ;
-                minQ = maxQ;
-                maxQ = t;
-            }
-            g.newMinMaxReactiveLimits()
-                    .setMinQ(minQ)
-                    .setMaxQ(maxQ)
-                    .add();
-        }
-        // TODO Reactive capability curves
-    }
-
     // Terminals
 
     void convertedTerminal(String terminalId, Terminal t, int n, PowerFlow f) {
@@ -294,7 +272,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             String nodeId = context.nodeBreaker() ? t.connectivityNode() : t.topologicalNode();
             this.busId = context.namingStrategy().getId("Bus", nodeId);
             if (context.config().convertBoundary()
-                    && context.boundary().containsNode(nodeId)) {
+                && context.boundary().containsNode(nodeId)) {
                 cgmesVoltageLevelId = Context.boundaryVoltageLevelId(nodeId);
             } else {
                 // cgmesVoltageLevelId may be null if terminal is contained in a Line
@@ -303,7 +281,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             }
             if (cgmesVoltageLevelId != null) {
                 iidmVoltageLevelId = context.namingStrategy().getId("VoltageLevel",
-                        cgmesVoltageLevelId);
+                    cgmesVoltageLevelId);
                 voltageLevel = context.network().getVoltageLevel(iidmVoltageLevelId);
             } else {
                 iidmVoltageLevelId = null;
@@ -333,60 +311,60 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
     public void connect(BranchAdder<?> adder) {
         if (context.nodeBreaker()) {
             adder
-                    .setVoltageLevel1(iidmVoltageLevelId(1))
-                    .setVoltageLevel2(iidmVoltageLevelId(2))
-                    .setNode1(iidmNode(1))
-                    .setNode2(iidmNode(2));
+                .setVoltageLevel1(iidmVoltageLevelId(1))
+                .setVoltageLevel2(iidmVoltageLevelId(2))
+                .setNode1(iidmNode(1))
+                .setNode2(iidmNode(2));
         } else {
             String busId1 = busId(1);
             String busId2 = busId(2);
             adder
-                    .setVoltageLevel1(iidmVoltageLevelId(1))
-                    .setVoltageLevel2(iidmVoltageLevelId(2))
-                    .setBus1(terminalConnected(1) ? busId1 : null)
-                    .setBus2(terminalConnected(2) ? busId2 : null)
-                    .setConnectableBus1(busId1)
-                    .setConnectableBus2(busId2);
+                .setVoltageLevel1(iidmVoltageLevelId(1))
+                .setVoltageLevel2(iidmVoltageLevelId(2))
+                .setBus1(terminalConnected(1) ? busId1 : null)
+                .setBus2(terminalConnected(2) ? busId2 : null)
+                .setConnectableBus1(busId1)
+                .setConnectableBus2(busId2);
         }
     }
 
     public void connect(BranchAdder<?> adder,
-            String iidmVoltageLevelId1, String busId1, boolean t1Connected, int node1,
-            String iidmVoltageLevelId2, String busId2, boolean t2Connected, int node2) {
+        String iidmVoltageLevelId1, String busId1, boolean t1Connected, int node1,
+        String iidmVoltageLevelId2, String busId2, boolean t2Connected, int node2) {
         if (context.nodeBreaker()) {
             adder
-                    .setVoltageLevel1(iidmVoltageLevelId1)
-                    .setVoltageLevel2(iidmVoltageLevelId2)
-                    .setNode1(node1)
-                    .setNode2(node2);
+                .setVoltageLevel1(iidmVoltageLevelId1)
+                .setVoltageLevel2(iidmVoltageLevelId2)
+                .setNode1(node1)
+                .setNode2(node2);
         } else {
             adder
-                    .setVoltageLevel1(iidmVoltageLevelId1)
-                    .setVoltageLevel2(iidmVoltageLevelId2)
-                    .setBus1(t1Connected ? busId1 : null)
-                    .setBus2(t2Connected ? busId2 : null)
-                    .setConnectableBus1(busId1)
-                    .setConnectableBus2(busId2);
+                .setVoltageLevel1(iidmVoltageLevelId1)
+                .setVoltageLevel2(iidmVoltageLevelId2)
+                .setBus1(t1Connected ? busId1 : null)
+                .setBus2(t2Connected ? busId2 : null)
+                .setConnectableBus1(busId1)
+                .setConnectableBus2(busId2);
         }
     }
 
     public void connect(BranchAdder<?> adder, boolean t1Connected, boolean t2Connected) {
         if (context.nodeBreaker()) {
             adder
-                    .setVoltageLevel1(iidmVoltageLevelId(1))
-                    .setVoltageLevel2(iidmVoltageLevelId(2))
-                    .setNode1(iidmNode(1))
-                    .setNode2(iidmNode(2));
+                .setVoltageLevel1(iidmVoltageLevelId(1))
+                .setVoltageLevel2(iidmVoltageLevelId(2))
+                .setNode1(iidmNode(1))
+                .setNode2(iidmNode(2));
         } else {
             String busId1 = busId(1);
             String busId2 = busId(2);
             adder
-                    .setVoltageLevel1(iidmVoltageLevelId(1))
-                    .setVoltageLevel2(iidmVoltageLevelId(2))
-                    .setBus1(t1Connected ? busId1 : null)
-                    .setBus2(t2Connected ? busId2 : null)
-                    .setConnectableBus1(busId1)
-                    .setConnectableBus2(busId2);
+                .setVoltageLevel1(iidmVoltageLevelId(1))
+                .setVoltageLevel2(iidmVoltageLevelId(2))
+                .setBus1(t1Connected ? busId1 : null)
+                .setBus2(t2Connected ? busId2 : null)
+                .setConnectableBus1(busId1)
+                .setConnectableBus2(busId2);
         }
     }
 
@@ -399,21 +377,21 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
 
     public void connect(VoltageLevel.BusBreakerView.SwitchAdder adder, boolean open) {
         adder
-                .setBus1(busId(1))
-                .setBus2(busId(2))
-                .setOpen(open || !terminalConnected(1) || !terminalConnected(2));
+            .setBus1(busId(1))
+            .setBus2(busId(2))
+            .setOpen(open || !terminalConnected(1) || !terminalConnected(2));
     }
 
     public void connect(LegAdder<?> adder, int terminal) {
         if (context.nodeBreaker()) {
             adder
-                    .setVoltageLevel(iidmVoltageLevelId(terminal))
-                    .setNode(iidmNode(terminal));
+                .setVoltageLevel(iidmVoltageLevelId(terminal))
+                .setNode(iidmNode(terminal));
         } else {
             adder
-                    .setVoltageLevel(iidmVoltageLevelId(terminal))
-                    .setBus(terminalConnected(terminal) ? busId(terminal) : null)
-                    .setConnectableBus(busId(terminal));
+                .setVoltageLevel(iidmVoltageLevelId(terminal))
+                .setBus(terminalConnected(terminal) ? busId(terminal) : null)
+                .setConnectableBus(busId(terminal));
         }
     }
 

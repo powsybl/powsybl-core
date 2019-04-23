@@ -585,10 +585,23 @@ public class CgmesConformity1NetworkCatalog {
                     .setRegulatingTerminal(txBE21.getTerminal(Branch.Side.TWO))
                     .setRatedS(300)
                     .add();
-            genBrussels10.newMinMaxReactiveLimits()
-                    .setMinQ(0)
-                    .setMaxQ(0)
-                    .add();
+            ReactiveCapabilityCurveAdder rcca = genBrussels10.newReactiveCapabilityCurve();
+            rcca.beginPoint()
+                    .setP(-100.0)
+                    .setMinQ(-200.0)
+                    .setMaxQ(200.0)
+                    .endPoint();
+            rcca.beginPoint()
+                    .setP(0.0)
+                    .setMinQ(-300.0)
+                    .setMaxQ(300.0)
+                    .endPoint();
+            rcca.beginPoint()
+                    .setP(100.0)
+                    .setMinQ(-200.0)
+                    .setMaxQ(200.0)
+                    .endPoint();
+            rcca.add();
             genBrussels10.getTerminal().setP(p);
             genBrussels10.getTerminal().setQ(q);
         }

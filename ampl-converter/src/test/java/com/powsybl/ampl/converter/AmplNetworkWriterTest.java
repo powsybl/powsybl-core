@@ -89,6 +89,16 @@ public class AmplNetworkWriterTest extends AbstractConverterTest {
     }
 
     @Test
+    public void writeBattery() throws IOException {
+        Network network = BatteryNetworkFactory.create();
+
+        MemDataSource dataSource = new MemDataSource();
+        export(network, dataSource);
+
+        assertEqualsToRef(dataSource, "_network_batteries", "inputs/battery-test-batteries.txt");
+    }
+
+    @Test
     public void writeThreeWindingsTransformer() throws IOException {
         Network network = ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits();
 

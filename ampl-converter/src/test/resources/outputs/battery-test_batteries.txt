@@ -1,0 +1,3 @@
+#Batteries
+#"variant" "num" "bus" "p0 (MW)" "q0 (MW)" "P (MW)" "Q (MVar)"
+1 1 1 12.0 13.0 300.000 150.000

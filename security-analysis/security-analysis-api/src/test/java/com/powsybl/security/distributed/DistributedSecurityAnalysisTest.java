@@ -10,9 +10,7 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
-import com.powsybl.computation.CommandExecution;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.computation.ExecutionHandler;
+import com.powsybl.computation.*;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Network;
@@ -20,6 +18,7 @@ import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.SecurityAnalysis;
 import com.powsybl.security.SecurityAnalysisParameters;
+import com.powsybl.security.SecurityAnalysisResult;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +28,7 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -87,20 +87,33 @@ public class DistributedSecurityAnalysisTest {
      */
     @Test
     public void testDistributed() throws IOException {
-
         ExternalSecurityAnalysisConfig config = new ExternalSecurityAnalysisConfig();
         SecurityAnalysis analysis = new DistributedSecurityAnalysis(config, network, cm, Collections.emptyList(), 5);
 
         analysis.run(VariantManagerConstants.INITIAL_VARIANT_ID, new SecurityAnalysisParameters(), contingencies);
 
+        checkInvocationOnExecutionHandler(workingDir);
+        checkWorkingDirContent();
+    }
+
+    @Test
+    public void testDistributedWithLog() throws IOException {
+        ExternalSecurityAnalysisConfig config = new ExternalSecurityAnalysisConfig();
+        SecurityAnalysis analysis = new DistributedSecurityAnalysis(config, network, cm, Collections.emptyList(), 5);
+
+        analysis.runWithLog(VariantManagerConstants.INITIAL_VARIANT_ID, new SecurityAnalysisParameters(), contingencies);
+
+        checkInvocationOnExecutionHandler(workingDir);
+        checkWorkingDirContent();
+    }
+
+    private void checkInvocationOnExecutionHandler(Path workingDir) throws IOException {
         //Capture the execution handler
         ArgumentCaptor<ExecutionHandler> capt = ArgumentCaptor.forClass(ExecutionHandler.class);
         verify(cm, times(1)).execute(any(), capt.capture());
 
         //checks methods of the execution handler
         List<CommandExecution> cmd = capt.getValue().before(workingDir);
-
-        checkWorkingDirContent();
         assertEquals(1, cmd.size());
         assertEquals(5, cmd.get(0).getExecutionCount());
     }
@@ -110,7 +123,6 @@ public class DistributedSecurityAnalysisTest {
         assertTrue(Files.exists(workingDir.resolve("contingencies.groovy")));
         assertTrue(Files.exists(workingDir.resolve("parameters.json")));
     }
-
 
     /**
      * Checks that input files are written to working dir
@@ -178,4 +190,33 @@ public class DistributedSecurityAnalysisTest {
         }
     }
 
+    @Test
+    public void testSubTaskWithLogHandler() throws IOException {
+        DistributedSecurityAnalysis sa = mock(DistributedSecurityAnalysis.class);
+        DistributedSecurityAnalysis.SubTaskHandler handler = mock(DistributedSecurityAnalysis.SubTaskHandler.class);
+        when(handler.getActualTaskCount()).thenReturn(2);
+        DistributedSecurityAnalysis.SubTaskWithLogHandler sut = sa.new SubTaskWithLogHandler(handler);
+        SecurityAnalysisResult sar = mock(SecurityAnalysisResult.class);
+        ExecutionReport executionReport = new ExecutionReport() {
+            @Override
+            public List<ExecutionError> getErrors() {
+                return Collections.emptyList();
+            }
+
+            @Override
+            public void log() {
+
+            }
+        };
+        when(handler.after(any(), any())).thenReturn(sar);
+        // execute
+        try {
+            sut.after(mock(Path.class), executionReport);
+        } catch (Exception e) {
+            // ignored
+        }
+
+        List<String> expectedLogs = Arrays.asList("logs_0.zip", "security-analysis-task_0.out", "security-analysis-task_0.err", "logs_1.zip", "security-analysis-task_1.out", "security-analysis-task_1.err");
+        assertEquals(expectedLogs, sut.getCollectedLogsFilename());
+    }
 }
