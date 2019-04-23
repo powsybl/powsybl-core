@@ -7,12 +7,13 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.IidmImportExportType;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.network.VscConverterStationAdder;
 
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -46,27 +47,27 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
 
     @Override
     protected void writeRootElementAttributes(VscConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.CONTROL) {
+        if (!context.getOptions().isIncrementalConversion() || context.getTargetFile() == IncrementalIidmFiles.CONTROL) {
             context.getWriter().writeAttribute("voltageRegulatorOn", Boolean.toString(cs.isVoltageRegulatorOn()));
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
+        if (!context.getOptions().isIncrementalConversion()) {
             XmlUtil.writeFloat("lossFactor", cs.getLossFactor(), context.getWriter());
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || (context.getTargetFile() == IncrementalIidmFiles.CONTROL)) {
+        if (!context.getOptions().isIncrementalConversion() || (context.getTargetFile() == IncrementalIidmFiles.CONTROL)) {
             XmlUtil.writeDouble("voltageSetpoint", cs.getVoltageSetpoint(), context.getWriter());
             XmlUtil.writeDouble("reactivePowerSetpoint", cs.getReactivePowerSetpoint(), context.getWriter());
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.TOPO) {
+        if (!context.getOptions().isIncrementalConversion() || context.getTargetFile() == IncrementalIidmFiles.TOPO) {
             writeNodeOrBus(null, cs.getTerminal(), context);
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE) {
+        if (!context.getOptions().isIncrementalConversion() || context.getTargetFile() == IncrementalIidmFiles.STATE) {
             writePQ(null, cs.getTerminal(), context.getWriter());
         }
     }
 
     @Override
     protected void writeSubElements(VscConverterStation cs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
+        if (!context.getOptions().isIncrementalConversion()) {
             ReactiveLimitsXml.INSTANCE.write(cs, context);
         }
     }
@@ -106,5 +107,21 @@ class VscConverterStationXml extends AbstractConnectableXml<VscConverterStation,
                     super.readSubElements(cs, context);
             }
         });
+    }
+
+    static void updateVscConverterStationControlValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
+        if (targetFile != IncrementalIidmFiles.CONTROL) {
+            return;
+        }
+        String id = reader.getAttributeValue(null, "id");
+        boolean voltageRegulatorOn = XmlUtil.readOptionalBoolAttribute(reader, "voltageRegulatorOn", false);
+        double voltageSetpoint = XmlUtil.readOptionalDoubleAttribute(reader, "voltageSetpoint");
+        double reactivePowerSetPoint = XmlUtil.readOptionalDoubleAttribute(reader, "reactivePowerSetpoint");
+        VscConverterStation cs = (VscConverterStation) network.getIdentifiable(id);
+        if (voltageRegulatorOn) {
+            cs.setVoltageSetpoint(voltageSetpoint);
+        } else {
+            cs.setReactivePowerSetpoint(reactivePowerSetPoint);
+        }
     }
 }

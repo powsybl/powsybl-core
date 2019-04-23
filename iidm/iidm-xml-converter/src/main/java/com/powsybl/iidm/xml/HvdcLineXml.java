@@ -7,12 +7,12 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.IidmImportExportType;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.HvdcLineAdder;
 import com.powsybl.iidm.network.Network;
 
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -36,15 +36,15 @@ class HvdcLineXml extends AbstractIdentifiableXml<HvdcLine, HvdcLineAdder, Netwo
 
     @Override
     protected void writeRootElementAttributes(HvdcLine l, Network parent, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
+        if (!context.getOptions().isIncrementalConversion()) {
             XmlUtil.writeDouble("r", l.getR(), context.getWriter());
             XmlUtil.writeDouble("nominalV", l.getNominalV(), context.getWriter());
             context.getWriter().writeAttribute("convertersMode", l.getConvertersMode().name());
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.CONTROL) {
+        if (!context.getOptions().isIncrementalConversion() || context.getTargetFile() == IncrementalIidmFiles.CONTROL) {
             XmlUtil.writeDouble("activePowerSetpoint", l.getActivePowerSetpoint(), context.getWriter());
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
+        if (!context.getOptions().isIncrementalConversion()) {
             XmlUtil.writeDouble("maxP", l.getMaxP(), context.getWriter());
             context.getWriter().writeAttribute("converterStation1", l.getConverterStation1().getId());
             context.getWriter().writeAttribute("converterStation2", l.getConverterStation2().getId());
@@ -78,5 +78,15 @@ class HvdcLineXml extends AbstractIdentifiableXml<HvdcLine, HvdcLineAdder, Netwo
     @Override
     protected void readSubElements(HvdcLine l, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> HvdcLineXml.super.readSubElements(l, context));
+    }
+
+    static void updateHvdcLineControlValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
+        if (targetFile != IncrementalIidmFiles.CONTROL) {
+            return;
+        }
+        String id = reader.getAttributeValue(null, "id");
+        double activePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(reader, "activePowerSetpoint");
+        HvdcLine l = (HvdcLine) network.getIdentifiable(id);
+        l.setActivePowerSetpoint(activePowerSetpoint);
     }
 }

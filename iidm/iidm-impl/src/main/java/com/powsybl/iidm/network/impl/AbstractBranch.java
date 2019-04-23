@@ -224,4 +224,5 @@ abstract class AbstractBranch<I extends Branch<I>> extends AbstractConnectable<I
     public Branch.Overload checkTemporaryLimits2() {
         return checkTemporaryLimits2(1f);
     }
+
 }

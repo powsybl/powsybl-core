@@ -25,6 +25,8 @@ import com.powsybl.iidm.export.BusFilter;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.xml.update.BranchUpdaterXml;
+import com.powsybl.iidm.xml.update.InjectionUpdaterXml;
 import javanet.staxutils.IndentingXMLStreamWriter;
 import org.apache.commons.io.FilenameUtils;
 import org.joda.time.DateTime;
@@ -835,55 +837,55 @@ public final class NetworkXml {
             XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {
                 switch (reader.getLocalName()) {
                     case VoltageLevelXml.ROOT_ELEMENT_NAME:
-                        updateVoltageLevel(reader, network, vl);
+                        VoltageLevelXml.updateVoltageLevel(reader, network, vl);
                         break;
                     case BusXml.ROOT_ELEMENT_NAME:
-                        updateBusStateValues(reader, vl, targetFile);
+                        BusXml.updateBusStateValues(reader, vl, targetFile);
                         break;
                     case BusbarSectionXml.ROOT_ELEMENT_NAME:
-                        updateBusbarSectionStateValues(reader, vl, targetFile);
+                        BusbarSectionXml.updateBusbarSectionStateValues(reader, vl, targetFile);
                         break;
                     case NodeBreakerViewSwitchXml.ROOT_ELEMENT_NAME:
-                        updateSwitchTopoValues(reader, network, targetFile);
+                        AbstractSwitchXml.updateSwitchTopoValues(reader, network, targetFile);
                         // Nothing to do
                         break;
                     case GeneratorXml.ROOT_ELEMENT_NAME:
-                        updateInjectionTopoValues(reader, network, vl, targetFile);
-                        updateInjectionStateValues(reader, network, targetFile);
-                        updateGeneratorControlValues(reader, network, targetFile);
+                        InjectionUpdaterXml.updateInjectionTopoValues(reader, network, vl, targetFile);
+                        InjectionUpdaterXml.updateInjectionStateValues(reader, network, targetFile);
+                        GeneratorXml.updateGeneratorControlValues(reader, network, targetFile);
                         break;
                     case ShuntXml.ROOT_ELEMENT_NAME:
-                        updateInjectionTopoValues(reader, network, vl, targetFile);
-                        updateInjectionStateValues(reader, network, targetFile);
-                        updateShuntControlValues(reader, network, targetFile);
+                        InjectionUpdaterXml.updateInjectionTopoValues(reader, network, vl, targetFile);
+                        InjectionUpdaterXml.updateInjectionStateValues(reader, network, targetFile);
+                        ShuntXml.updateShuntControlValues(reader, network, targetFile);
                         break;
                     case StaticVarCompensatorXml.ROOT_ELEMENT_NAME:
-                        updateInjectionStateValues(reader, network, targetFile);
-                        updateStaticVarControlValues(reader, network, targetFile);
+                        InjectionUpdaterXml.updateInjectionStateValues(reader, network, targetFile);
+                        StaticVarCompensatorXml.updateStaticVarControlValues(reader, network, targetFile);
                         break;
                     case LoadXml.ROOT_ELEMENT_NAME:
                     case BatteryXml.ROOT_ELEMENT_NAME:
                     case DanglingLineXml.ROOT_ELEMENT_NAME:
                     case LccConverterStationXml.ROOT_ELEMENT_NAME:
-                        updateInjectionTopoValues(reader, network, vl, targetFile);
-                        updateInjectionStateValues(reader, network, targetFile);
+                        InjectionUpdaterXml.updateInjectionTopoValues(reader, network, vl, targetFile);
+                        InjectionUpdaterXml.updateInjectionStateValues(reader, network, targetFile);
                         break;
                     case VscConverterStationXml.ROOT_ELEMENT_NAME:
-                        updateInjectionTopoValues(reader, network, vl, targetFile);
-                        updateInjectionStateValues(reader, network, targetFile);
-                        updateVscConverterStationControlValues(reader, network, targetFile);
+                        InjectionUpdaterXml.updateInjectionTopoValues(reader, network, vl, targetFile);
+                        InjectionUpdaterXml.updateInjectionStateValues(reader, network, targetFile);
+                        VscConverterStationXml.updateVscConverterStationControlValues(reader, network, targetFile);
                         break;
                     case LineXml.ROOT_ELEMENT_NAME:
-                        updateBranchTopoValues(reader, network, vl, targetFile);
-                        updateBranchStateValues(reader, network, targetFile);
+                        BranchUpdaterXml.updateBranchTopoValues(reader, network, vl, targetFile);
+                        BranchUpdaterXml.updateBranchStateValues(reader, network, targetFile);
                         break;
                     case TwoWindingsTransformerXml.ROOT_ELEMENT_NAME:
-                        updateBranchTopoValues(reader, network, vl, targetFile);
-                        updateBranchStateValues(reader, network, targetFile);
-                        updateTwoWindingsTransformer(reader, network, twt);
+                        BranchUpdaterXml.updateBranchTopoValues(reader, network, vl, targetFile);
+                        BranchUpdaterXml.updateBranchStateValues(reader, network, targetFile);
+                        TwoWindingsTransformerXml.updateTwoWindingsTransformer(reader, network, twt);
                         break;
                     case HvdcLineXml.ROOT_ELEMENT_NAME:
-                        updateVscHvdcLineControlValues(reader, network, targetFile);
+                        HvdcLineXml.updateHvdcLineControlValues(reader, network, targetFile);
                         break;
                     case SubstationXml.ROOT_ELEMENT_NAME:
                     case VoltageLevelXml.BUS_BREAKER_TOPOLOGY_ELEMENT_NAME:
@@ -891,10 +893,10 @@ public final class NetworkXml {
                         // Nothing to do
                         break;
                     case TwoWindingsTransformerXml.RATIO_TAP_CHANGER_ELEMENT_NAME:
-                        updateRatioTapChangerControlValues(reader, twt, targetFile);
+                        TwoWindingsTransformerXml.updateRatioTapChangerControlValues(reader, twt, targetFile);
                         break;
                     case TwoWindingsTransformerXml.PHASE_TAP_CHANGER_ELEMENT_NAME:
-                        updatePhaseTapChangerControlValues(reader, twt, targetFile);
+                        TwoWindingsTransformerXml.updatePhaseTapChangerControlValues(reader, twt, targetFile);
                         break;
                     case TwoWindingsTransformerXml.TERMINAL_REF_ELEMENT_NAME:
                         // to do
@@ -917,199 +919,6 @@ public final class NetworkXml {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    private static void updateVoltageLevel(XMLStreamReader reader, Network network, VoltageLevel[] vl) {
-        String id = reader.getAttributeValue(null, "id");
-        vl[0] = network.getVoltageLevel(id);
-        if (vl[0] == null) {
-            throw new PowsyblException("Voltage level '" + id + "' not found");
-        }
-    }
-
-    private static void updateTwoWindingsTransformer(XMLStreamReader reader, Network network, TwoWindingsTransformer[] twt) {
-        String id = reader.getAttributeValue(null, "id");
-        twt[0] = network.getTwoWindingsTransformer(id);
-        if (twt[0] == null) {
-            throw new PowsyblException("Two Windings Transformer '" + id + "' not found");
-        }
-    }
-
-    private static void updateRatioTapChangerControlValues(XMLStreamReader reader, TwoWindingsTransformer[] twtTab, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.CONTROL) {
-            return;
-        }
-        boolean regulating = XmlUtil.readOptionalBoolAttribute(reader, "regulating", false);
-        double targetV = XmlUtil.readOptionalDoubleAttribute(reader, "targetV");
-        double tapPosition = XmlUtil.readOptionalDoubleAttribute(reader, "tapPosition");
-        TwoWindingsTransformer twt = twtTab[0];
-        RatioTapChanger rtc = twt.getRatioTapChanger();
-        rtc.setTargetV(targetV).setRegulating(regulating).setTapPosition((int) tapPosition);
-    }
-
-    private static void updatePhaseTapChangerControlValues(XMLStreamReader reader, TwoWindingsTransformer[] twtTab, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.CONTROL) {
-            return;
-        }
-        String regulationMode = reader.getAttributeValue(null, "regulationMode");
-        double regulatingValue = XmlUtil.readOptionalDoubleAttribute(reader, "regulationValue");
-        boolean regulating = XmlUtil.readOptionalBoolAttribute(reader, "regulating", false);
-        TwoWindingsTransformer twt = twtTab[0];
-        PhaseTapChanger rpc = twt.getPhaseTapChanger();
-        rpc.setRegulationValue(regulatingValue).setRegulating(regulating).setRegulationMode(PhaseTapChanger.RegulationMode.valueOf(regulationMode));
-    }
-
-    private static void updateBusStateValues(XMLStreamReader reader, VoltageLevel[] vl, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.STATE) {
-            return;
-        }
-        String id = reader.getAttributeValue(null, "id");
-        double v = XmlUtil.readDoubleAttribute(reader, "v");
-        double angle = XmlUtil.readDoubleAttribute(reader, "angle");
-        Bus b = vl[0].getBusBreakerView().getBus(id);
-        if (b == null) {
-            b = vl[0].getBusView().getBus(id);
-        }
-        b.setV(v > 0 ? v : Double.NaN).setAngle(angle);
-    }
-
-    private static void updateBusbarSectionStateValues(XMLStreamReader reader, VoltageLevel[] vl, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.STATE) {
-            return;
-        }
-        String id = reader.getAttributeValue(null, "id");
-        double v = XmlUtil.readDoubleAttribute(reader, "v");
-        double angle = XmlUtil.readDoubleAttribute(reader, "angle");
-        BusbarSection bbs = vl[0].getNodeBreakerView().getBusbarSection(id);
-        Bus b = bbs.getTerminal().getBusView().getBus();
-        if (b != null) {
-            b.setAngle(angle).setV(v > 0 ? v : Double.NaN);
-        }
-    }
-
-    private static void updateInjectionStateValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.STATE) {
-            return;
-        }
-        String id = reader.getAttributeValue(null, "id");
-        double p = XmlUtil.readOptionalDoubleAttribute(reader, "p");
-        double q = XmlUtil.readOptionalDoubleAttribute(reader, "q");
-        Injection inj = (Injection) network.getIdentifiable(id);
-        inj.getTerminal().setP(p).setQ(q);
-    }
-
-    private static void updateInjectionTopoValues(XMLStreamReader reader, Network network, VoltageLevel[] vl, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.TOPO) {
-            return;
-        }
-        String id = reader.getAttributeValue(null, "id");
-        String connectableBus = reader.getAttributeValue(null, "connectableBus");
-        Injection inj = (Injection) network.getIdentifiable(id);
-        if (vl[0].getTopologyKind() == TopologyKind.BUS_BREAKER) {
-            inj.getTerminal().getBusBreakerView().setConnectableBus(connectableBus);
-            inj.getTerminal().connect();
-        }
-    }
-
-    private static void updateBranchTopoValues(XMLStreamReader reader, Network network, VoltageLevel[] vl, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.TOPO) {
-            return;
-        }
-        String id = reader.getAttributeValue(null, "id");
-        String connectableBus1 = reader.getAttributeValue(null, "connectableBus1");
-        String connectableBus2 = reader.getAttributeValue(null, "connectableBus2");
-        Branch branch = (Branch) network.getIdentifiable(id);
-        if (vl[0].getTopologyKind() == TopologyKind.BUS_BREAKER) {
-            branch.getTerminal1().getBusBreakerView().setConnectableBus(connectableBus1);
-            branch.getTerminal1().connect();
-            branch.getTerminal2().getBusBreakerView().setConnectableBus(connectableBus2);
-            branch.getTerminal2().connect();
-        }
-    }
-
-    private static void updateSwitchTopoValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.TOPO) {
-            return;
-        }
-        String id = reader.getAttributeValue(null, "id");
-        boolean open = XmlUtil.readBoolAttribute(reader, "open");
-        Switch sw = (Switch) network.getIdentifiable(id);
-        sw.setOpen(open);
-    }
-
-    private static void updateGeneratorControlValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.CONTROL) {
-            return;
-        }
-        String id = reader.getAttributeValue(null, "id");
-        boolean voltageRegulatorOn = XmlUtil.readOptionalBoolAttribute(reader, "voltageRegulatorOn", false);
-        double targetP = XmlUtil.readOptionalDoubleAttribute(reader, "targetP");
-        double targetQ = XmlUtil.readOptionalDoubleAttribute(reader, "targetQ");
-        double targetV = XmlUtil.readOptionalDoubleAttribute(reader, "targetV");
-        Generator generator = (Generator) network.getIdentifiable(id);
-        generator.setTargetP(targetP).setTargetQ(targetQ).setTargetV(targetV).setVoltageRegulatorOn(voltageRegulatorOn);
-    }
-
-    private static void updateShuntControlValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.CONTROL) {
-            return;
-        }
-        String id = reader.getAttributeValue(null, "id");
-        double currentSectionCount = XmlUtil.readOptionalDoubleAttribute(reader, "currentSectionCount");
-        ShuntCompensator sc = (ShuntCompensator) network.getIdentifiable(id);
-        sc.setCurrentSectionCount((int) currentSectionCount);
-    }
-
-    private static void updateStaticVarControlValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.CONTROL) {
-            return;
-        }
-        String id = reader.getAttributeValue(null, "id");
-        double voltageSetPoint = XmlUtil.readOptionalDoubleAttribute(reader, "voltageSetPoint");
-        double reactivePowerSetPoint = XmlUtil.readOptionalDoubleAttribute(reader, "reactivePowerSetPoint");
-        String regulationMode = reader.getAttributeValue(null, "regulationMode");
-        StaticVarCompensator svc = (StaticVarCompensator) network.getIdentifiable(id);
-        svc.setReactivePowerSetPoint(reactivePowerSetPoint).setVoltageSetPoint(voltageSetPoint).setRegulationMode(StaticVarCompensator.RegulationMode.valueOf(regulationMode));
-    }
-
-    private static void updateVscConverterStationControlValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.CONTROL) {
-            return;
-        }
-        String id = reader.getAttributeValue(null, "id");
-        boolean voltageRegulatorOn = XmlUtil.readOptionalBoolAttribute(reader, "voltageRegulatorOn", false);
-        double voltageSetpoint = XmlUtil.readOptionalDoubleAttribute(reader, "voltageSetpoint");
-        double reactivePowerSetPoint = XmlUtil.readOptionalDoubleAttribute(reader, "reactivePowerSetpoint");
-        VscConverterStation cs = (VscConverterStation) network.getIdentifiable(id);
-        if (voltageRegulatorOn) {
-            cs.setVoltageSetpoint(voltageSetpoint);
-        } else {
-            cs.setReactivePowerSetpoint(reactivePowerSetPoint);
-        }
-    }
-
-    private static void updateVscHvdcLineControlValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.CONTROL) {
-            return;
-        }
-        String id = reader.getAttributeValue(null, "id");
-        double activePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(reader, "activePowerSetpoint");
-        HvdcLine l = (HvdcLine) network.getIdentifiable(id);
-        l.setActivePowerSetpoint(activePowerSetpoint);
-    }
-
-    private static void updateBranchStateValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.STATE) {
-            return;
-        }
-        String id = reader.getAttributeValue(null, "id");
-        double p1 = XmlUtil.readOptionalDoubleAttribute(reader, "p1");
-        double q1 = XmlUtil.readOptionalDoubleAttribute(reader, "q1");
-        double p2 = XmlUtil.readOptionalDoubleAttribute(reader, "p2");
-        double q2 = XmlUtil.readOptionalDoubleAttribute(reader, "q2");
-        Branch branch = (Branch) network.getIdentifiable(id);
-        branch.getTerminal1().setP(p1).setQ(q1);
-        branch.getTerminal2().setP(p2).setQ(q2);
     }
 
     public static byte[] gzip(Network network) {

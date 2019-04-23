@@ -10,7 +10,6 @@ import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.AbstractOptions;
 import com.powsybl.iidm.IidmImportExportMode;
-import com.powsybl.iidm.IidmImportExportType;
 import com.powsybl.iidm.network.TopologyLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,7 +39,7 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
 
     private boolean throwExceptionIfExtensionNotFound = false;
 
-    private IidmImportExportType importExportType = IidmImportExportType.FULL_IIDM;
+    private boolean incrementalConversion = false;
 
     private boolean topo = true;
 
@@ -59,8 +58,12 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     public ExportOptions() {
     }
 
-    public ExportOptions setImportExportType(IidmImportExportType importExportType) {
-        this.importExportType = importExportType;
+    public boolean isIncrementalConversion() {
+        return incrementalConversion;
+    }
+
+    public ExportOptions setIncrementalConversion(boolean incrementalConversion) {
+        this.incrementalConversion = incrementalConversion;
         return this;
     }
 
@@ -164,10 +167,6 @@ public class ExportOptions extends AbstractOptions<ExportOptions> {
     public ExportOptions setThrowExceptionIfExtensionNotFound(boolean throwException) {
         this.throwExceptionIfExtensionNotFound = throwException;
         return this;
-    }
-
-    public IidmImportExportType getImportExportType() {
-        return importExportType;
     }
 
     public boolean isTopo() {

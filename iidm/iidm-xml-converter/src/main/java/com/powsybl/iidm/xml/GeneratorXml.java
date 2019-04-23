@@ -7,10 +7,11 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.IidmImportExportType;
+
 import com.powsybl.iidm.network.*;
 
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import java.util.Objects;
 
 /**
@@ -45,23 +46,23 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
 
     @Override
     protected void writeRootElementAttributes(Generator g, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
+        if (!context.getOptions().isIncrementalConversion()) {
             context.getWriter().writeAttribute("energySource", g.getEnergySource().name());
             XmlUtil.writeDouble("minP", g.getMinP(), context.getWriter());
             XmlUtil.writeDouble("maxP", g.getMaxP(), context.getWriter());
             XmlUtil.writeDouble("ratedS", g.getRatedS(), context.getWriter());
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.CONTROL) {
+        if (!context.getOptions().isIncrementalConversion() || context.getTargetFile() == IncrementalIidmFiles.CONTROL) {
             context.getWriter().writeAttribute("voltageRegulatorOn", Boolean.toString(g.isVoltageRegulatorOn()));
             XmlUtil.writeDouble("targetP", g.getTargetP(), context.getWriter());
             XmlUtil.writeDouble("targetV", g.getTargetV(), context.getWriter());
             XmlUtil.writeDouble("targetQ", g.getTargetQ(), context.getWriter());
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM ||
+        if (!context.getOptions().isIncrementalConversion() ||
                 (context.getTargetFile() == IncrementalIidmFiles.TOPO)) {
             writeNodeOrBus(null, g.getTerminal(), context);
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM ||
+        if (!context.getOptions().isIncrementalConversion() ||
                 (context.getOptions().isState() && context.getTargetFile() == IncrementalIidmFiles.STATE)) {
             writePQ(null, g.getTerminal(), context.getWriter());
         }
@@ -74,7 +75,7 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
                                   g.getTerminal().getBusBreakerView().getConnectableBus())) {
             writeTerminalRef(g.getRegulatingTerminal(), context, "regulatingTerminal");
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
+        if (!context.getOptions().isIncrementalConversion()) {
             ReactiveLimitsXml.INSTANCE.write(g, context);
         }
     }
@@ -127,5 +128,18 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
                     super.readSubElements(g, context);
             }
         });
+    }
+
+    static void updateGeneratorControlValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
+        if (targetFile != IncrementalIidmFiles.CONTROL) {
+            return;
+        }
+        String id = reader.getAttributeValue(null, "id");
+        boolean voltageRegulatorOn = XmlUtil.readOptionalBoolAttribute(reader, "voltageRegulatorOn", false);
+        double targetP = XmlUtil.readOptionalDoubleAttribute(reader, "targetP");
+        double targetQ = XmlUtil.readOptionalDoubleAttribute(reader, "targetQ");
+        double targetV = XmlUtil.readOptionalDoubleAttribute(reader, "targetV");
+        Generator generator = (Generator) network.getIdentifiable(id);
+        generator.setTargetP(targetP).setTargetQ(targetQ).setTargetV(targetV).setVoltageRegulatorOn(voltageRegulatorOn);
     }
 }

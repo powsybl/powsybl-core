@@ -7,7 +7,6 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.IidmImportExportType;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -27,7 +26,7 @@ public class BusBreakerViewSwitchXml extends AbstractSwitchXml<VoltageLevel.BusB
         VoltageLevel.BusBreakerView v = vl.getBusBreakerView();
         Bus bus1 = v.getBus1(s.getId());
         Bus bus2 = v.getBus2(s.getId());
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
+        if (!context.getOptions().isIncrementalConversion()) {
             context.getWriter().writeAttribute("bus1", context.getAnonymizer().anonymizeString(bus1.getId()));
             context.getWriter().writeAttribute("bus2", context.getAnonymizer().anonymizeString(bus2.getId()));
         }

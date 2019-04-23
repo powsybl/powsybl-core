@@ -11,7 +11,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.IidmImportExportMode;
-import com.powsybl.iidm.IidmImportExportType;
+
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Network;
@@ -76,7 +76,7 @@ public class XMLExporter implements Exporter {
     public static final String TOPO = "iidm.export.incremental.xml.topo";
     public static final String STATE = "iidm.export.incremental.xml.state";
     public static final String CONTROL = "iidm.export.incremental.xml.control";
-    public static final String IMPORT_EXPORT_TYPE = "iidm.export.xml.type";
+    public static final String INCREMENTAL_CONVERSION = "iidm.export.xml.incremental-conversion";
 
     private static final Parameter INDENT_PARAMETER = new Parameter(INDENT, ParameterType.BOOLEAN, "Indent export output file", Boolean.TRUE);
     private static final Parameter WITH_BRANCH_STATE_VARIABLES_PARAMETER = new Parameter(WITH_BRANCH_STATE_VARIABLES, ParameterType.BOOLEAN, "Export network with branch state variables", Boolean.TRUE);
@@ -90,7 +90,7 @@ public class XMLExporter implements Exporter {
     private static final Parameter TOPO_PARAMETER = new Parameter(TOPO, ParameterType.BOOLEAN, "export topology parameters in a TOPO file", Boolean.TRUE);
     private static final Parameter STATE_PARAMETER = new Parameter(STATE, ParameterType.BOOLEAN, "export states parameters in a STATE file", Boolean.TRUE);
     private static final Parameter CONTROL_PARAMETER = new Parameter(CONTROL, ParameterType.BOOLEAN, "export control parameters in a CONTROL file", Boolean.TRUE);
-    private static final Parameter IMPORT_EXPORT_TYPE_PARAMETER = new Parameter(IMPORT_EXPORT_TYPE, ParameterType.STRING, "export import type", String.valueOf(IidmImportExportType.FULL_IIDM));
+    private static final Parameter INCREMENTAL_CONVERSION_PARAMETER = new Parameter(INCREMENTAL_CONVERSION, ParameterType.BOOLEAN, "incremental conversion", Boolean.FALSE);
 
     private final ParameterDefaultValueConfig defaultValueConfig;
 
@@ -130,12 +130,12 @@ public class XMLExporter implements Exporter {
                 .setTopo(ConversionParameters.readBooleanParameter(getFormat(), parameters, TOPO_PARAMETER, defaultValueConfig))
                 .setState(ConversionParameters.readBooleanParameter(getFormat(), parameters, STATE_PARAMETER, defaultValueConfig))
                 .setControl(ConversionParameters.readBooleanParameter(getFormat(), parameters, CONTROL_PARAMETER, defaultValueConfig))
-                .setImportExportType(IidmImportExportType.valueOf(ConversionParameters.readStringParameter(getFormat(), parameters, IMPORT_EXPORT_TYPE_PARAMETER, defaultValueConfig)));
+                .setIncrementalConversion(ConversionParameters.readBooleanParameter(getFormat(), parameters, INCREMENTAL_CONVERSION_PARAMETER, defaultValueConfig));
 
         try {
             long startTime = System.currentTimeMillis();
 
-            if (options.getImportExportType() == IidmImportExportType.INCREMENTAL_IIDM) {
+            if (options.isIncrementalConversion()) {
                 NetworkXml.incrementalWrite(network, options, dataSource);
 
             } else {

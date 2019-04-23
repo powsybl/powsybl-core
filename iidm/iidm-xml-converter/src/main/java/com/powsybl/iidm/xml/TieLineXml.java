@@ -7,7 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.IidmImportExportType;
+
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TieLine;
 import com.powsybl.iidm.network.TieLineAdder;
@@ -61,18 +61,18 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
 
     @Override
     protected void writeRootElementAttributes(TieLine tl, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
+        if (!context.getOptions().isIncrementalConversion()) {
             context.getWriter().writeAttribute("ucteXnodeCode", tl.getUcteXnodeCode());
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.TOPO) {
+        if (!context.getOptions().isIncrementalConversion() || context.getTargetFile() == IncrementalIidmFiles.TOPO) {
             writeNodeOrBus(1, tl.getTerminal1(), context);
             writeNodeOrBus(2, tl.getTerminal2(), context);
         }
-        if (context.getOptions().isWithBranchSV() && (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE)) {
+        if (context.getOptions().isWithBranchSV() && (!context.getOptions().isIncrementalConversion() || context.getTargetFile() == IncrementalIidmFiles.STATE)) {
             writePQ(1, tl.getTerminal1(), context.getWriter());
             writePQ(2, tl.getTerminal2(), context.getWriter());
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
+        if (!context.getOptions().isIncrementalConversion()) {
             writeHalf(tl.getHalf1(), context, 1);
             writeHalf(tl.getHalf2(), context, 2);
         }
@@ -80,7 +80,7 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
 
     @Override
     protected void writeSubElements(TieLine tl, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.INCREMENTAL_IIDM) {
+        if (context.getOptions().isIncrementalConversion()) {
             return;
         }
         if (tl.getCurrentLimits1() != null) {

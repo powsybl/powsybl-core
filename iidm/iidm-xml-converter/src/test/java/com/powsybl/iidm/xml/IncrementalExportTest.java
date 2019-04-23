@@ -9,7 +9,6 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.*;
-import com.powsybl.iidm.IidmImportExportType;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import com.powsybl.iidm.network.test.HvdcTestNetwork;
@@ -39,7 +38,7 @@ public class IncrementalExportTest extends AbstractConverterTest {
         Properties properties;
         properties = new Properties();
         properties.put(XMLExporter.ANONYMISED, "false");
-        properties.put(XMLExporter.IMPORT_EXPORT_TYPE, String.valueOf(IidmImportExportType.INCREMENTAL_IIDM));
+        properties.put(XMLExporter.INCREMENTAL_CONVERSION, true);
         MemDataSource dataSource = new MemDataSource();
 
         new XMLExporter().export(network, properties, dataSource);

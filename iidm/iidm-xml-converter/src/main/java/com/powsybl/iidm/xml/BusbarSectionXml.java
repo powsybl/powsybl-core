@@ -7,13 +7,14 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.IidmImportExportType;
+
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.BusbarSectionAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 /**
  *
@@ -41,7 +42,7 @@ class BusbarSectionXml extends AbstractIdentifiableXml<BusbarSection, BusbarSect
 
     @Override
     protected void writeRootElementAttributes(BusbarSection bs, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
+        if (!context.getOptions().isIncrementalConversion()) {
             XmlUtil.writeInt("node", bs.getTerminal().getNodeBreakerView().getNode(), context.getWriter());
         }
         XmlUtil.writeDouble("v", bs.getV(), context.getWriter());
@@ -72,5 +73,19 @@ class BusbarSectionXml extends AbstractIdentifiableXml<BusbarSection, BusbarSect
     @Override
     protected void readSubElements(BusbarSection bs, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> BusbarSectionXml.super.readSubElements(bs, context));
+    }
+
+    static void updateBusbarSectionStateValues(XMLStreamReader reader, VoltageLevel[] vl, IncrementalIidmFiles targetFile) {
+        if (targetFile != IncrementalIidmFiles.STATE) {
+            return;
+        }
+        String id = reader.getAttributeValue(null, "id");
+        double v = XmlUtil.readDoubleAttribute(reader, "v");
+        double angle = XmlUtil.readDoubleAttribute(reader, "angle");
+        BusbarSection bbs = vl[0].getNodeBreakerView().getBusbarSection(id);
+        Bus b = bbs.getTerminal().getBusView().getBus();
+        if (b != null) {
+            b.setAngle(angle).setV(v > 0 ? v : Double.NaN);
+        }
     }
 }

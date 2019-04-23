@@ -6,12 +6,14 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.iidm.IidmImportExportType;
+import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.IdentifiableAdder;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Switch;
 import com.powsybl.iidm.network.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 /**
  *
@@ -33,14 +35,14 @@ abstract class AbstractSwitchXml<A extends IdentifiableAdder<A>> extends Abstrac
 
     @Override
     protected void writeRootElementAttributes(Switch s, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
+        if (!context.getOptions().isIncrementalConversion()) {
             context.getWriter().writeAttribute("kind", s.getKind().name());
             context.getWriter().writeAttribute("retained", Boolean.toString(s.isRetained()));
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.TOPO) {
+        if (!context.getOptions().isIncrementalConversion() || context.getTargetFile() == IncrementalIidmFiles.TOPO) {
             context.getWriter().writeAttribute("open", Boolean.toString(s.isOpen()));
         }
-        if (s.isFictitious() && context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
+        if (s.isFictitious() && !context.getOptions().isIncrementalConversion()) {
             context.getWriter().writeAttribute("fictitious", Boolean.toString(s.isFictitious()));
         }
     }
@@ -48,5 +50,15 @@ abstract class AbstractSwitchXml<A extends IdentifiableAdder<A>> extends Abstrac
     @Override
     protected void readSubElements(Switch s, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> AbstractSwitchXml.super.readSubElements(s, context));
+    }
+
+    static void updateSwitchTopoValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
+        if (targetFile != IncrementalIidmFiles.TOPO) {
+            return;
+        }
+        String id = reader.getAttributeValue(null, "id");
+        boolean open = XmlUtil.readBoolAttribute(reader, "open");
+        Switch sw = (Switch) network.getIdentifiable(id);
+        sw.setOpen(open);
     }
 }

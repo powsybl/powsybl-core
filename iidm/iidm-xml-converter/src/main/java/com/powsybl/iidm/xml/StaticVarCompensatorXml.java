@@ -7,12 +7,13 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.IidmImportExportType;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.network.StaticVarCompensatorAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -45,19 +46,19 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
 
     @Override
     protected void writeRootElementAttributes(StaticVarCompensator svc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
+        if (!context.getOptions().isIncrementalConversion()) {
             XmlUtil.writeDouble("bMin", svc.getBmin(), context.getWriter());
             XmlUtil.writeDouble("bMax", svc.getBmax(), context.getWriter());
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || (context.getTargetFile() == IncrementalIidmFiles.CONTROL)) {
+        if (!context.getOptions().isIncrementalConversion() || (context.getTargetFile() == IncrementalIidmFiles.CONTROL)) {
             XmlUtil.writeDouble("voltageSetPoint", svc.getVoltageSetPoint(), context.getWriter());
             XmlUtil.writeDouble("reactivePowerSetPoint", svc.getReactivePowerSetPoint(), context.getWriter());
             context.getWriter().writeAttribute("regulationMode", svc.getRegulationMode().name());
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || (context.getTargetFile() == IncrementalIidmFiles.TOPO)) {
+        if (!context.getOptions().isIncrementalConversion() || (context.getTargetFile() == IncrementalIidmFiles.TOPO)) {
             writeNodeOrBus(null, svc.getTerminal(), context);
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE) {
+        if (!context.getOptions().isIncrementalConversion() || context.getTargetFile() == IncrementalIidmFiles.STATE) {
             writePQ(null, svc.getTerminal(), context.getWriter());
         }
     }
@@ -88,5 +89,17 @@ public class StaticVarCompensatorXml extends AbstractConnectableXml<StaticVarCom
     @Override
     protected void readSubElements(StaticVarCompensator svc, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> super.readSubElements(svc, context));
+    }
+
+    static void updateStaticVarControlValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
+        if (targetFile != IncrementalIidmFiles.CONTROL) {
+            return;
+        }
+        String id = reader.getAttributeValue(null, "id");
+        double voltageSetPoint = XmlUtil.readOptionalDoubleAttribute(reader, "voltageSetPoint");
+        double reactivePowerSetPoint = XmlUtil.readOptionalDoubleAttribute(reader, "reactivePowerSetPoint");
+        String regulationMode = reader.getAttributeValue(null, "regulationMode");
+        StaticVarCompensator svc = (StaticVarCompensator) network.getIdentifiable(id);
+        svc.setReactivePowerSetPoint(reactivePowerSetPoint).setVoltageSetPoint(voltageSetPoint).setRegulationMode(StaticVarCompensator.RegulationMode.valueOf(regulationMode));
     }
 }

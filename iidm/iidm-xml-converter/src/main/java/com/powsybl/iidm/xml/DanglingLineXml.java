@@ -7,7 +7,6 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.IidmImportExportType;
 import com.powsybl.iidm.network.DanglingLine;
 import com.powsybl.iidm.network.DanglingLineAdder;
 import com.powsybl.iidm.network.VoltageLevel;
@@ -46,7 +45,7 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
 
     @Override
     protected void writeRootElementAttributes(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
+        if (!context.getOptions().isIncrementalConversion()) {
             XmlUtil.writeDouble("p0", dl.getP0(), context.getWriter());
             XmlUtil.writeDouble("q0", dl.getQ0(), context.getWriter());
             XmlUtil.writeDouble("r", dl.getR(), context.getWriter());
@@ -57,17 +56,17 @@ class DanglingLineXml extends AbstractConnectableXml<DanglingLine, DanglingLineA
                 context.getWriter().writeAttribute("ucteXnodeCode", dl.getUcteXnodeCode());
             }
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || (context.getTargetFile() == IncrementalIidmFiles.TOPO)) {
+        if (!context.getOptions().isIncrementalConversion() || (context.getTargetFile() == IncrementalIidmFiles.TOPO)) {
             writeNodeOrBus(null, dl.getTerminal(), context);
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE) {
+        if (!context.getOptions().isIncrementalConversion() || context.getTargetFile() == IncrementalIidmFiles.STATE) {
             writePQ(null, dl.getTerminal(), context.getWriter());
         }
     }
 
     @Override
     protected void writeSubElements(DanglingLine dl, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.INCREMENTAL_IIDM) {
+        if (context.getOptions().isIncrementalConversion()) {
             return;
         }
         if (dl.getCurrentLimits() != null) {

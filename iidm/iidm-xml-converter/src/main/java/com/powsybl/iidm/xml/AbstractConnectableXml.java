@@ -8,7 +8,7 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.IidmImportExportType;
+
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 
@@ -63,7 +63,7 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
                 throw new AssertionError("Unexpected TopologyLevel value: " + topologyLevel);
         }
 
-        if (index != null && context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
+        if (index != null && !context.getOptions().isIncrementalConversion()) {
             context.getWriter().writeAttribute("voltageLevelId" + index, context.getAnonymizer().anonymizeString(t.getVoltageLevel().getId()));
         }
     }

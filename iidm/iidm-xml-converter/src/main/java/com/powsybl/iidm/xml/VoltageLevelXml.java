@@ -7,11 +7,13 @@
 package com.powsybl.iidm.xml;
 
 import com.google.common.collect.Lists;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.IidmImportExportType;
+
 import com.powsybl.iidm.network.*;
 
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
 
@@ -48,6 +50,14 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
             }
         }
         return false;
+    }
+
+    static void updateVoltageLevel(XMLStreamReader reader, Network network, VoltageLevel[] vl) {
+        String id = reader.getAttributeValue(null, "id");
+        vl[0] = network.getVoltageLevel(id);
+        if (vl[0] == null) {
+            throw new PowsyblException("Voltage level '" + id + "' not found");
+        }
     }
 
     private boolean isShuntCompensatorsHavingControlValues(VoltageLevel vl, NetworkXmlWriterContext context) {
@@ -272,7 +282,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
 
     @Override
     protected void writeRootElementAttributes(VoltageLevel vl, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
+        if (!context.getOptions().isIncrementalConversion()) {
             XmlUtil.writeDouble("nominalV", vl.getNominalV(), context.getWriter());
             XmlUtil.writeDouble("lowVoltageLimit", vl.getLowVoltageLimit(), context.getWriter());
             XmlUtil.writeDouble("highVoltageLimit", vl.getHighVoltageLimit(), context.getWriter());
@@ -287,7 +297,7 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         if ((topologyLevel == TopologyLevel.NODE_BREAKER && context.getTargetFile() == IncrementalIidmFiles.TOPO) ||
                 (topologyLevel != TopologyLevel.NODE_BREAKER && context.getTargetFile() == IncrementalIidmFiles.STATE && isBusesHavingStateValues(vl, context)) ||
                 (topologyLevel == TopologyLevel.NODE_BREAKER && context.getTargetFile() == IncrementalIidmFiles.STATE && isBusbarSectionsHavingStateValues(vl)) ||
-                context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
+                !context.getOptions().isIncrementalConversion()) {
             switch (topologyLevel) {
                 case NODE_BREAKER:
                     writeNodeBreakerTopology(vl, context);
@@ -321,18 +331,18 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
             return;
         }
         context.getWriter().writeStartElement(IIDM_URI, NODE_BREAKER_TOPOLOGY_ELEMENT_NAME);
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
+        if (!context.getOptions().isIncrementalConversion()) {
             context.getWriter().writeAttribute("nodeCount", Integer.toString(vl.getNodeBreakerView().getNodeCount()));
         }
 
         for (BusbarSection bs : vl.getNodeBreakerView().getBusbarSections()) {
-            if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM ||
+            if (!context.getOptions().isIncrementalConversion() ||
                     (context.getTargetFile() == IncrementalIidmFiles.STATE && BusbarSectionXml.INSTANCE.hasStateValues(bs))) {
                 BusbarSectionXml.INSTANCE.write(bs, null, context);
             }
         }
 
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.TOPO) {
+        if (!context.getOptions().isIncrementalConversion() || context.getTargetFile() == IncrementalIidmFiles.TOPO) {
             for (Switch sw : vl.getNodeBreakerView().getSwitches()) {
                 NodeBreakerViewSwitchXml.INSTANCE.write(sw, vl, context);
             }

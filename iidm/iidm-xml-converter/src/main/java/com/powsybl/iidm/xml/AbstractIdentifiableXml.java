@@ -8,7 +8,7 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.IidmImportExportType;
+
 import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.IdentifiableAdder;
 
@@ -22,7 +22,6 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 abstract class AbstractIdentifiableXml<T extends Identifiable, A extends IdentifiableAdder<A>, P extends Identifiable> {
-
     protected abstract String getRootElementName();
 
     protected abstract boolean hasSubElements(T identifiable);
@@ -40,11 +39,11 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
             context.getWriter().writeEmptyElement(IIDM_URI, getRootElementName());
         }
         context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(identifiable.getId()));
-        if (!identifiable.getId().equals(identifiable.getName()) && context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
+        if (!identifiable.getId().equals(identifiable.getName()) && !context.getOptions().isIncrementalConversion()) {
             context.getWriter().writeAttribute("name", context.getAnonymizer().anonymizeString(identifiable.getName()));
         }
         writeRootElementAttributes(identifiable, parent, context);
-        if (identifiable.hasProperty() && context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
+        if (identifiable.hasProperty() && !context.getOptions().isIncrementalConversion()) {
             Properties props = identifiable.getProperties();
             for (String name : props.stringPropertyNames()) {
                 String value = props.getProperty(name);

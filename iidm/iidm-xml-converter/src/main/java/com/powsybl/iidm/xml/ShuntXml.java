@@ -7,12 +7,14 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.IidmImportExportType;
+
+import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.ShuntCompensatorAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 
 /**
  *
@@ -46,18 +48,18 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
 
     @Override
     protected void writeRootElementAttributes(ShuntCompensator sc, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM) {
+        if (!context.getOptions().isIncrementalConversion()) {
             XmlUtil.writeDouble("bPerSection", sc.getbPerSection(), context.getWriter());
             context.getWriter().writeAttribute("maximumSectionCount", Integer.toString(sc.getMaximumSectionCount()));
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || (context.getTargetFile() == IncrementalIidmFiles.CONTROL)) {
+        if (!context.getOptions().isIncrementalConversion() || (context.getTargetFile() == IncrementalIidmFiles.CONTROL)) {
             context.getWriter().writeAttribute("currentSectionCount", Integer.toString(sc.getCurrentSectionCount()));
         }
 
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || (context.getTargetFile() == IncrementalIidmFiles.TOPO)) {
+        if (!context.getOptions().isIncrementalConversion() || (context.getTargetFile() == IncrementalIidmFiles.TOPO)) {
             writeNodeOrBus(null, sc.getTerminal(), context);
         }
-        if (context.getOptions().getImportExportType() == IidmImportExportType.FULL_IIDM || context.getTargetFile() == IncrementalIidmFiles.STATE) {
+        if (!context.getOptions().isIncrementalConversion() || context.getTargetFile() == IncrementalIidmFiles.STATE) {
             writePQ(null, sc.getTerminal(), context.getWriter());
         }
     }
@@ -84,5 +86,15 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
     @Override
     protected void readSubElements(ShuntCompensator sc, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> ShuntXml.super.readSubElements(sc, context));
+    }
+
+    static void updateShuntControlValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
+        if (targetFile != IncrementalIidmFiles.CONTROL) {
+            return;
+        }
+        String id = reader.getAttributeValue(null, "id");
+        double currentSectionCount = XmlUtil.readOptionalDoubleAttribute(reader, "currentSectionCount");
+        ShuntCompensator sc = (ShuntCompensator) network.getIdentifiable(id);
+        sc.setCurrentSectionCount((int) currentSectionCount);
     }
 }

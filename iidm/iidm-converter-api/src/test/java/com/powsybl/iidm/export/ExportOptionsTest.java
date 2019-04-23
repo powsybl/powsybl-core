@@ -8,7 +8,7 @@ package com.powsybl.iidm.export;
 
 import com.google.common.collect.Sets;
 import com.powsybl.iidm.IidmImportExportMode;
-import com.powsybl.iidm.IidmImportExportType;
+
 import com.powsybl.iidm.network.TopologyLevel;
 import org.junit.Test;
 
@@ -72,11 +72,11 @@ public class ExportOptionsTest {
         assertTrue(options.isState());
         assertTrue(options.isControl());
         assertTrue(options.isTopo());
-        assertEquals(IidmImportExportType.FULL_IIDM, options.getImportExportType());
-        options.setControl(false).setTopo(false).setState(false).setImportExportType(IidmImportExportType.INCREMENTAL_IIDM);
+        assertFalse(options.isIncrementalConversion());
+        options.setControl(false).setTopo(false).setState(false).setIncrementalConversion(true);
         assertFalse(options.isState());
         assertFalse(options.isControl());
         assertFalse(options.isTopo());
-        assertEquals(IidmImportExportType.INCREMENTAL_IIDM, options.getImportExportType());
+        assertTrue(options.isIncrementalConversion());
     }
 }
