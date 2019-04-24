@@ -98,26 +98,12 @@ public final class Networks {
      */
     @Deprecated
     public static void printBalanceSummary(String title, Network network, Logger logger) throws IOException {
-        try (OutputStream os = new OutputStream() {
-            private String mem = "";
-            private boolean closed = false;
-
-            @Override
-            public void write(int i) {
-                byte[] bytes = new byte[1];
-                bytes[0] = (byte) (i & 0xff);
-                mem = mem + new String(bytes);
+        Objects.requireNonNull(logger);
+        if (logger.isDebugEnabled()) {
+            try (Writer writer = new StringWriter()) {
+                printBalanceSummary(title, network, writer);
+                logger.debug(writer.toString());
             }
-
-            @Override
-            public void close() {
-                if (!closed) {
-                    logger.debug(mem);
-                    closed = true;
-                }
-            }
-        }; Writer writer = new OutputStreamWriter(os)) {
-            printBalanceSummary(title, network, writer);
         }
     }
 
