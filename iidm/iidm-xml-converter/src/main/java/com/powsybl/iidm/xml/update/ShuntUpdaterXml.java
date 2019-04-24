@@ -19,6 +19,9 @@ import javax.xml.stream.XMLStreamReader;
  */
 
 public final class ShuntUpdaterXml {
+
+    private ShuntUpdaterXml() { }
+
     public static void updateShuntControlValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
         if (targetFile != IncrementalIidmFiles.CONTROL) {
             return;

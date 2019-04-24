@@ -19,6 +19,9 @@ import javax.xml.stream.XMLStreamReader;
  */
 
 public final class StaticVarCompensatorUpdaterXml {
+
+    private StaticVarCompensatorUpdaterXml() { }
+
     public static void updateStaticVarControlValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
         if (targetFile != IncrementalIidmFiles.CONTROL) {
             return;

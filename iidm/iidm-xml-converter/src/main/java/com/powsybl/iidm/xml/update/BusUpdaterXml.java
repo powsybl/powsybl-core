@@ -19,6 +19,8 @@ import javax.xml.stream.XMLStreamReader;
 
 public final class BusUpdaterXml {
 
+    private BusUpdaterXml() { }
+
     public static void updateBusStateValues(XMLStreamReader reader, VoltageLevel[] vl, IncrementalIidmFiles targetFile) {
         if (targetFile != IncrementalIidmFiles.STATE) {
             return;

@@ -21,6 +21,8 @@ import javax.xml.stream.XMLStreamReader;
 
 public final class BusbarSectionUpdaterXml {
 
+    private BusbarSectionUpdaterXml() { }
+
     public static void updateBusbarSectionStateValues(XMLStreamReader reader, VoltageLevel[] vl, IncrementalIidmFiles targetFile) {
         if (targetFile != IncrementalIidmFiles.STATE) {
             return;

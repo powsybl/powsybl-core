@@ -19,6 +19,9 @@ import javax.xml.stream.XMLStreamReader;
  */
 
 public final class TwoWindingsTransformerUpdaterXml {
+
+    private TwoWindingsTransformerUpdaterXml() { }
+
     public static void updateTwoWindingsTransformer(XMLStreamReader reader, Network network, TwoWindingsTransformer[] twt) {
         String id = reader.getAttributeValue(null, "id");
         twt[0] = network.getTwoWindingsTransformer(id);

@@ -19,6 +19,8 @@ import javax.xml.stream.XMLStreamReader;
 
 public final class VoltageLevelUpdaterXml {
 
+    private VoltageLevelUpdaterXml() { }
+
     public static void updateVoltageLevel(XMLStreamReader reader, Network network, VoltageLevel[] vl) {
         String id = reader.getAttributeValue(null, "id");
         vl[0] = network.getVoltageLevel(id);

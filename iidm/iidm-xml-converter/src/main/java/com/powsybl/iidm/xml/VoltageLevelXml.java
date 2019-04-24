@@ -7,13 +7,11 @@
 package com.powsybl.iidm.xml;
 
 import com.google.common.collect.Lists;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.xml.XmlUtil;
 
 import com.powsybl.iidm.network.*;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
 

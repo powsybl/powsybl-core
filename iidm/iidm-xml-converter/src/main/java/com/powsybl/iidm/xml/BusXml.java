@@ -13,12 +13,11 @@ import com.powsybl.iidm.network.BusAdder;
 import com.powsybl.iidm.network.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+
 class BusXml extends AbstractIdentifiableXml<Bus, BusAdder, VoltageLevel> {
 
     static final BusXml INSTANCE = new BusXml();

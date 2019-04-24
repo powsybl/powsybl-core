@@ -19,6 +19,9 @@ import javax.xml.stream.XMLStreamReader;
  */
 
 public final class VscConverterStationUpdaterXml {
+
+    private VscConverterStationUpdaterXml() { }
+
     public static void updateVscConverterStationControlValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
         if (targetFile != IncrementalIidmFiles.CONTROL) {
             return;

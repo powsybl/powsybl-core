@@ -18,6 +18,9 @@ import javax.xml.stream.XMLStreamReader;
  */
 
 public final class SwitchUpdaterXml {
+
+    private SwitchUpdaterXml() { }
+
     public static void updateSwitchTopoValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
         if (targetFile != IncrementalIidmFiles.TOPO) {
             return;

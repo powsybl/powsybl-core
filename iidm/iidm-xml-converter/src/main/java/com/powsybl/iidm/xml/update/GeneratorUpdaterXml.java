@@ -19,6 +19,9 @@ import javax.xml.stream.XMLStreamReader;
  */
 
 public final class GeneratorUpdaterXml {
+
+    private GeneratorUpdaterXml() { }
+
     public static void updateGeneratorControlValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
         if (targetFile != IncrementalIidmFiles.CONTROL) {
             return;
