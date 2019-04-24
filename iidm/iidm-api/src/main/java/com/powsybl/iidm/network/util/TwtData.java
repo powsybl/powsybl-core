@@ -14,8 +14,6 @@ import org.apache.commons.math3.complex.ComplexUtils;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.RatioTapChangerStep;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg1;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg2or3;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.LegBase;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
 
@@ -43,17 +41,26 @@ public class TwtData {
     private final double u3;
     private final double theta3;
 
-    private final double g;
-    private final double b;
-
     private final double r1;
     private final double x1;
+    private final double g11;
+    private final double b11;
+    private final double g12;
+    private final double b12;
     private final double ratedU1;
     private final double r2;
     private final double x2;
+    private final double g21;
+    private final double b21;
+    private final double g22;
+    private final double b22;
     private final double ratedU2;
     private final double r3;
     private final double x3;
+    private final double g31;
+    private final double b31;
+    private final double g32;
+    private final double b32;
     private final double ratedU3;
 
     private final boolean connected1;
@@ -91,17 +98,26 @@ public class TwtData {
         u3 = getV(twt.getLeg3());
         theta3 = getTheta(twt.getLeg3());
 
-        g = twt.getLeg1().getG();
-        b = twt.getLeg1().getB();
-
         r1 = twt.getLeg1().getR();
         x1 = twt.getLeg1().getX();
+        g11 = twt.getLeg1().getG1();
+        b11 = twt.getLeg1().getB1();
+        g12 = twt.getLeg1().getG2();
+        b12 = twt.getLeg1().getB2();
         ratedU1 = twt.getLeg1().getRatedU();
         r2 = adjustedR(twt.getLeg2());
         x2 = adjustedX(twt.getLeg2());
+        g21 = twt.getLeg2().getG1();
+        b21 = twt.getLeg2().getB1();
+        g22 = twt.getLeg2().getG2();
+        b22 = twt.getLeg2().getB2();
         ratedU2 = twt.getLeg2().getRatedU();
         r3 = adjustedR(twt.getLeg3());
         x3 = adjustedX(twt.getLeg3());
+        g31 = twt.getLeg3().getG1();
+        b31 = twt.getLeg3().getB1();
+        g32 = twt.getLeg3().getG2();
+        b32 = twt.getLeg3().getB2();
         ratedU3 = twt.getLeg3().getRatedU();
 
         connected1 = twt.getLeg1().getTerminal().isConnected();
@@ -111,7 +127,7 @@ public class TwtData {
         mainComponent2 = isMainComponent(twt.getLeg2());
         mainComponent3 = isMainComponent(twt.getLeg3());
 
-        // Assume the ratedU at the star bus is equal to ratedU of Leg1
+        // Assume the ratedU at the star bus is equal to ratedU of LegBase
         double ratedU0 = twt.getLeg1().getRatedU();
 
         Complex starVoltage = calcStarVoltage(twt, ratedU0);
@@ -148,8 +164,8 @@ public class TwtData {
         Complex a03 = new Complex(1, 0);
         Complex a3 = new Complex(1 / rho(twt.getLeg3(), ratedU0), 0);
 
-        // IIDM model includes admittance to ground at star bus side in Leg1
-        Complex ysh01 = new Complex(twt.getLeg1().getG(), twt.getLeg1().getB());
+        // IIDM model includes admittance to ground at star bus side in LegBase
+        Complex ysh01 = new Complex(twt.getLeg1().getG1(), twt.getLeg1().getB1());
         Complex ysh02 = new Complex(0, 0);
         Complex ysh03 = new Complex(0, 0);
         Complex y01 = ytr1.negate().divide(a01.conjugate().multiply(a1));
@@ -172,7 +188,7 @@ public class TwtData {
                 : Double.NaN;
     }
 
-    private static double rho(Leg2or3 leg, double ratedU0) {
+    private static double rho(LegBase<?> leg, double ratedU0) {
         double rho = ratedU0 / leg.getRatedU();
         if (leg.getRatioTapChanger() != null) {
             RatioTapChangerStep step = leg.getRatioTapChanger().getCurrentStep();
@@ -183,7 +199,7 @@ public class TwtData {
         return rho;
     }
 
-    private static double adjustedR(Leg2or3 leg) {
+    private static double adjustedR(LegBase<?> leg) {
         double r = leg.getR();
         if (leg.getRatioTapChanger() != null) {
             RatioTapChangerStep step = leg.getRatioTapChanger().getCurrentStep();
@@ -194,7 +210,7 @@ public class TwtData {
         return r;
     }
 
-    private static double adjustedX(Leg2or3 leg) {
+    private static double adjustedX(LegBase<?> leg) {
         double x = leg.getX();
         if (leg.getRatioTapChanger() != null) {
             RatioTapChangerStep step = leg.getRatioTapChanger().getCurrentStep();
@@ -212,15 +228,15 @@ public class TwtData {
         return bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
     }
 
-    private static BranchData legBranchData(String twtId, Leg1 leg, Complex starVoltage, double epsilonX,
+    private static BranchData legBranchData(String twtId, LegBase<?> leg, Complex starVoltage, double epsilonX,
             boolean applyReactanceCorrection) {
-        // In IIDM only the Leg1 has admittance to ground
+        // In IIDM only the LegBase has admittance to ground
         // And it is modeled at end corresponding to star bus
-        return legBranchData(twtId, Side.ONE, leg, leg.getG(), leg.getB(), leg.getRatedU(), starVoltage, epsilonX,
+        return legBranchData(twtId, Side.ONE, leg, leg.getG1(), leg.getB1(), leg.getRatedU(), starVoltage, epsilonX,
                 applyReactanceCorrection);
     }
 
-    private static BranchData legBranchData(String twtId, Side side, Leg2or3 leg, double ratedU0, Complex starVoltage,
+    private static BranchData legBranchData(String twtId, Side side, LegBase<?> leg, double ratedU0, Complex starVoltage,
             double epsilonX, boolean applyReactanceCorrection) {
         // All (gk, bk) are zero in the IIDM model
         return legBranchData(twtId, side, leg, 0, 0, ratedU0, starVoltage, epsilonX, applyReactanceCorrection);
@@ -230,8 +246,8 @@ public class TwtData {
             Complex starVoltage,
             double epsilonX, boolean applyReactanceCorrection) {
         String branchId = twtId + "_" + side;
-        double r = side == Side.ONE ? leg.getR() : adjustedR((Leg2or3) leg);
-        double x = side == Side.ONE ? leg.getX() : adjustedX((Leg2or3) leg);
+        double r = side == Side.ONE ? leg.getR() : adjustedR(leg);
+        double x = side == Side.ONE ? leg.getX() : adjustedX(leg);
         double uk = getV(leg);
         double thetak = getTheta(leg);
         double u0 = starVoltage.abs();
@@ -240,7 +256,7 @@ public class TwtData {
         double bk = 0;
         double g0 = g;
         double b0 = b;
-        double rhok = side == Side.ONE ? 1.0 : rho((Leg2or3) leg, ratedU0);
+        double rhok = side == Side.ONE ? 1.0 : rho(leg, ratedU0);
         double alphak = 0;
         double rho0 = 1;
         double alpha0 = 0;
@@ -353,14 +369,6 @@ public class TwtData {
         return starTheta;
     }
 
-    public double getG() {
-        return g;
-    }
-
-    public double getB() {
-        return b;
-    }
-
     public double getR(Side side) {
         Objects.requireNonNull(side);
         switch (side) {
@@ -384,6 +392,62 @@ public class TwtData {
                 return x2;
             case THREE:
                 return x3;
+            default:
+                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+        }
+    }
+
+    public double getG1(Side side) {
+        Objects.requireNonNull(side);
+        switch (side) {
+            case ONE:
+                return g11;
+            case TWO:
+                return g21;
+            case THREE:
+                return g31;
+            default:
+                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+        }
+    }
+
+    public double getB1(Side side) {
+        Objects.requireNonNull(side);
+        switch (side) {
+            case ONE:
+                return b11;
+            case TWO:
+                return b21;
+            case THREE:
+                return b31;
+            default:
+                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+        }
+    }
+
+    public double getG2(Side side) {
+        Objects.requireNonNull(side);
+        switch (side) {
+            case ONE:
+                return g12;
+            case TWO:
+                return g22;
+            case THREE:
+                return g32;
+            default:
+                throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
+        }
+    }
+
+    public double getB2(Side side) {
+        Objects.requireNonNull(side);
+        switch (side) {
+            case ONE:
+                return b12;
+            case TWO:
+                return b22;
+            case THREE:
+                return b32;
             default:
                 throw new AssertionError(UNEXPECTED_SIDE + ": " + side);
         }

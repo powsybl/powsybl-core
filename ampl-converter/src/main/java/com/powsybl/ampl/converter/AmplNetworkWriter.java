@@ -800,8 +800,8 @@ public class AmplNetworkWriter {
             double zb3 = vb3 * vb3 / AmplConstants.SB;
             double r1 = twt.getLeg1().getR() / zb1;
             double x1 = twt.getLeg1().getX() / zb1;
-            double g1 = twt.getLeg1().getG() * zb1;
-            double b1 = twt.getLeg1().getB() * zb1;
+            double g1 = twt.getLeg1().getG1() * zb1;
+            double b1 = twt.getLeg1().getB1() * zb1;
             double r2 = twt.getLeg2().getR() / zb2;
             double x2 = twt.getLeg2().getX() / zb2;
             double r3 = twt.getLeg3().getR() / zb3;

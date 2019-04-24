@@ -37,8 +37,10 @@ public class ThreeWindingsTransformerTest {
                 .newLeg1()
                     .setR(1.3)
                     .setX(1.4)
-                    .setG(1.6)
-                    .setB(1.7)
+                    .setG1(1.6)
+                    .setB1(1.7)
+                    .setG2(0.0)
+                    .setB2(0.0)
                     .setRatedU(1.1)
                     .setVoltageLevel("vl1")
                     .setConnectableBus("busA")
@@ -47,6 +49,10 @@ public class ThreeWindingsTransformerTest {
                 .newLeg2()
                     .setR(2.03)
                     .setX(2.04)
+                    .setG1(0.0)
+                    .setB1(0.0)
+                    .setG2(0.0)
+                    .setB2(0.0)
                     .setRatedU(2.05)
                     .setVoltageLevel("vl2")
                     .setConnectableBus("busB")
@@ -54,6 +60,10 @@ public class ThreeWindingsTransformerTest {
                 .newLeg3()
                     .setR(3.3)
                     .setX(3.4)
+                    .setG1(0.0)
+                    .setB1(0.0)
+                    .setG2(0.0)
+                    .setB2(0.0)
                     .setRatedU(3.5)
                     .setVoltageLevel("vl2")
                     .setConnectableBus("busB")
@@ -67,26 +77,26 @@ public class ThreeWindingsTransformerTest {
         assertEquals(substation.getThreeWindingsTransformerStream().count(), substation.getThreeWindingsTransformerCount());
 
         // leg1 adder
-        ThreeWindingsTransformer.Leg1 leg1 = transformer.getLeg1();
+        ThreeWindingsTransformer.LegBase leg1 = transformer.getLeg1();
         assertEquals(1.3, leg1.getR(), 0.0);
         assertEquals(1.4, leg1.getX(), 0.0);
         assertEquals(1.1, leg1.getRatedU(), 0.0);
-        assertEquals(1.6, leg1.getG(), 0.0);
-        assertEquals(1.7, leg1.getB(), 0.0);
+        assertEquals(1.6, leg1.getG1(), 0.0);
+        assertEquals(1.7, leg1.getB1(), 0.0);
         assertSame(transformer.getTerminal(ThreeWindingsTransformer.Side.ONE), leg1.getTerminal());
         // leg1 setter getter
         leg1.setR(2.0);
         assertEquals(2.0, leg1.getR(), 0.0);
         leg1.setX(2.1);
         assertEquals(2.1, leg1.getX(), 0.0);
-        leg1.setG(2.2);
-        assertEquals(2.2, leg1.getG(), 0.0);
-        leg1.setB(2.3);
-        assertEquals(2.3, leg1.getB(), 0.0);
+        leg1.setG1(2.2);
+        assertEquals(2.2, leg1.getG1(), 0.0);
+        leg1.setB1(2.3);
+        assertEquals(2.3, leg1.getB1(), 0.0);
 
         // leg2/3 adder
-        ThreeWindingsTransformer.Leg2or3 leg2 = transformer.getLeg2();
-        ThreeWindingsTransformer.Leg2or3 leg3 = transformer.getLeg3();
+        ThreeWindingsTransformer.LegBase leg2 = transformer.getLeg2();
+        ThreeWindingsTransformer.LegBase leg3 = transformer.getLeg3();
         assertEquals(2.03, leg2.getR(), 0.0);
         assertEquals(2.04, leg2.getX(), 0.0);
         assertEquals(2.05, leg2.getRatedU(), 0.0);
@@ -238,8 +248,10 @@ public class ThreeWindingsTransformerTest {
                     .newLeg1()
                         .setR(r)
                         .setX(x)
-                        .setG(g)
-                        .setB(b)
+                        .setG1(g)
+                        .setB1(b)
+                        .setG2(0.0)
+                        .setB2(0.0)
                         .setRatedU(ratedU)
                         .setVoltageLevel("vl1")
                         .setConnectableBus("busA")
@@ -247,6 +259,10 @@ public class ThreeWindingsTransformerTest {
                     .newLeg2()
                         .setR(2.03)
                         .setX(2.04)
+                        .setG1(0.0)
+                        .setB1(0.0)
+                        .setG2(0.0)
+                        .setB2(0.0)
                         .setRatedU(2.05)
                         .setVoltageLevel("vl2")
                         .setConnectableBus("busB")
@@ -254,6 +270,10 @@ public class ThreeWindingsTransformerTest {
                     .newLeg3()
                         .setR(3.3)
                         .setX(3.4)
+                        .setG1(0.0)
+                        .setB1(0.0)
+                        .setG2(0.0)
+                        .setB2(0.0)
                         .setRatedU(3.5)
                         .setVoltageLevel("vl2")
                         .setConnectableBus("busB")
