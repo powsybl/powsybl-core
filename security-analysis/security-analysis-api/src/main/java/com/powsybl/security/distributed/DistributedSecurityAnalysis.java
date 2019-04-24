@@ -156,6 +156,7 @@ public class DistributedSecurityAnalysis extends ExternalSecurityAnalysis {
                 re = simpleSubTaskHandler.after(workingDir, report);
             } catch (PowsyblException e) {
                 error = true;
+                LOGGER.warn(e.getMessage(), e);
             }
 
             collectedLogsFilename = new ArrayList<>();
