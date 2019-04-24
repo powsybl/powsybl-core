@@ -10,8 +10,6 @@ package com.powsybl.cgmes.conversion.elements;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
-import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.Leg1Adder;
-import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.Leg2or3Adder;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -97,19 +95,29 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
         ThreeWindingsTransformerAdder txadder = substation().newThreeWindingsTransformer();
         identify(txadder);
 
-        LegAdder<Leg1Adder> l1adder = txadder.newLeg1()
+        LegAdder<LegAdder> l1adder = txadder.newLeg1()
                 .setR(ir1)
                 .setX(ix1)
-                .setG(ig1)
-                .setB(ib1)
+                .setG1(ig1)
+                .setB1(ib1)
+                .setG2(0.0)
+                .setB2(0.0)
                 .setRatedU(ratedU1);
-        LegAdder<Leg2or3Adder> l2adder = txadder.newLeg2()
+        LegAdder<LegAdder> l2adder = txadder.newLeg2()
                 .setR(ir2)
                 .setX(ix2)
+                .setG1(0.0)
+                .setB1(0.0)
+                .setG2(0.0)
+                .setB2(0.0)
                 .setRatedU(ratedU2);
-        LegAdder<Leg2or3Adder> l3adder = txadder.newLeg3()
+        LegAdder<LegAdder> l3adder = txadder.newLeg3()
                 .setR(ir3)
                 .setX(ix3)
+                .setG1(0.0)
+                .setB1(0.0)
+                .setG2(0.0)
+                .setB2(0.0)
                 .setRatedU(ratedU3);
         connect(l1adder, 1);
         connect(l2adder, 2);

@@ -6,17 +6,18 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import java.util.List;
+
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.Terminal;
-import gnu.trove.list.array.TDoubleArrayList;
 
-import java.util.List;
+import gnu.trove.list.array.TDoubleArrayList;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl, PhaseTapChangerImpl, PhaseTapChangerStepImpl>
+class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, PhaseTapChangerImpl, PhaseTapChangerStepImpl>
                           implements PhaseTapChanger {
 
     private RegulationMode regulationMode;
@@ -25,7 +26,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl,
 
     private final TDoubleArrayList regulationValue;
 
-    PhaseTapChangerImpl(TwoWindingsTransformerImpl parent, int lowTapPosition,
+    PhaseTapChangerImpl(PhaseTapChangerParent parent, int lowTapPosition,
                         List<PhaseTapChangerStepImpl> steps, TerminalExt regulationTerminal,
                         int tapPosition, boolean regulating, RegulationMode regulationMode, double regulationValue) {
         super(parent.getNetwork().getRef(), parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating);

@@ -26,28 +26,24 @@ public interface ThreeWindingsTransformerAdder extends IdentifiableAdder<ThreeWi
 
         L setX(double x);
 
+        L setG1(double g);
+
+        L setB1(double b);
+
+        L setG2(double g);
+
+        L setB2(double b);
+
         L setRatedU(double ratedU);
 
         ThreeWindingsTransformerAdder add();
     }
 
-    public interface Leg1Adder extends LegAdder<Leg1Adder> {
+    LegAdder newLeg1();
 
-        Leg1Adder setG(double g);
+    LegAdder newLeg2();
 
-        Leg1Adder setB(double b);
-
-    }
-
-    public interface Leg2or3Adder extends LegAdder<Leg2or3Adder> {
-
-    }
-
-    Leg1Adder newLeg1();
-
-    Leg2or3Adder newLeg2();
-
-    Leg2or3Adder newLeg3();
+    LegAdder newLeg3();
 
     ThreeWindingsTransformer add();
 

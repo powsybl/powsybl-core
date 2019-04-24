@@ -43,8 +43,8 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
     protected void writeRootElementAttributes(ThreeWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeDouble("r1", twt.getLeg1().getR(), context.getWriter());
         XmlUtil.writeDouble("x1", twt.getLeg1().getX(), context.getWriter());
-        XmlUtil.writeDouble("g1", twt.getLeg1().getG(), context.getWriter());
-        XmlUtil.writeDouble("b1", twt.getLeg1().getB(), context.getWriter());
+        XmlUtil.writeDouble("g1", twt.getLeg1().getG1(), context.getWriter());
+        XmlUtil.writeDouble("b1", twt.getLeg1().getB1(), context.getWriter());
         XmlUtil.writeDouble("ratedU1", twt.getLeg1().getRatedU(), context.getWriter());
         XmlUtil.writeDouble("r2", twt.getLeg2().getR(), context.getWriter());
         XmlUtil.writeDouble("x2", twt.getLeg2().getX(), context.getWriter());
@@ -101,9 +101,9 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         double r3 = XmlUtil.readDoubleAttribute(context.getReader(), "r3");
         double x3 = XmlUtil.readDoubleAttribute(context.getReader(), "x3");
         double ratedU3 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU3");
-        LegAdder legAdder1 = adder.newLeg1().setR(r1).setX(x1).setG(g1).setB(b1).setRatedU(ratedU1);
-        LegAdder legAdder2 = adder.newLeg2().setR(r2).setX(x2).setRatedU(ratedU2);
-        LegAdder legAdder3 = adder.newLeg3().setR(r3).setX(x3).setRatedU(ratedU3);
+        LegAdder legAdder1 = adder.newLeg1().setR(r1).setX(x1).setG1(g1).setB1(b1).setG2(0.0).setB2(0.0).setRatedU(ratedU1);
+        LegAdder legAdder2 = adder.newLeg2().setR(r2).setX(x2).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0).setRatedU(ratedU2);
+        LegAdder legAdder3 = adder.newLeg3().setR(r3).setX(x3).setG1(0.0).setB1(0.0).setG2(0.0).setB2(0.0).setRatedU(ratedU3);
         readNodeOrBus(1, legAdder1, context);
         readNodeOrBus(2, legAdder2, context);
         readNodeOrBus(3, legAdder3, context);

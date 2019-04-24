@@ -114,7 +114,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         readRatioTapChanger("ratioTapChanger", twt.newRatioTapChanger(), twt.getTerminal1(), context);
     }
 
-    protected static void readRatioTapChanger(int leg, ThreeWindingsTransformer.Leg2or3 twl, NetworkXmlReaderContext context) throws XMLStreamException {
+    protected static void readRatioTapChanger(int leg, ThreeWindingsTransformer.LegBase twl, NetworkXmlReaderContext context) throws XMLStreamException {
         readRatioTapChanger("ratioTapChanger" + leg, twl.newRatioTapChanger(), twl.getTerminal(), context);
     }
 
