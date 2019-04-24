@@ -544,6 +544,7 @@ public class MapDbAppStorage implements AppStorage {
     public Set<String> getTimeSeriesNames(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
         checkNodeExists(nodeUuid);
+        checkEnabled(nodeUuid);
         Set<String> names = timeSeriesNamesMap.get(nodeUuid);
         if (names == null) {
             return Collections.emptySet();
@@ -563,6 +564,7 @@ public class MapDbAppStorage implements AppStorage {
     @Override
     public List<TimeSeriesMetadata> getTimeSeriesMetadata(String nodeId, Set<String> timeSeriesNames) {
         UUID nodeUuid = checkNodeId(nodeId);
+        checkEnabled(nodeUuid);
         Objects.requireNonNull(timeSeriesNames);
         List<TimeSeriesMetadata> metadataList = new ArrayList<>();
         for (String timeSeriesName : timeSeriesNames) {
@@ -578,6 +580,7 @@ public class MapDbAppStorage implements AppStorage {
     public Set<Integer> getTimeSeriesDataVersions(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
         checkNodeExists(nodeUuid);
+        checkEnabled(nodeUuid);
         return Stream.concat(doubleTimeSeriesChunksMap.keySet().stream(),
                 stringTimeSeriesChunksMap.keySet().stream())
                 .map(TimeSeriesChunkKey::getTimeSeriesKey)
@@ -590,6 +593,7 @@ public class MapDbAppStorage implements AppStorage {
     public Set<Integer> getTimeSeriesDataVersions(String nodeId, String timeSeriesName) {
         UUID nodeUuid = checkNodeId(nodeId);
         checkNodeExists(nodeUuid);
+        checkEnabled(nodeUuid);
         Objects.requireNonNull(timeSeriesName);
         return Stream.concat(doubleTimeSeriesChunksMap.keySet().stream(),
                              stringTimeSeriesChunksMap.keySet().stream())
@@ -625,6 +629,7 @@ public class MapDbAppStorage implements AppStorage {
         Map<String, List<C>> getTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version, ConcurrentMap<TimeSeriesChunkKey, C> map) {
         UUID nodeUuid = checkNodeId(nodeId);
         Objects.requireNonNull(timeSeriesNames);
+        checkEnabled(nodeUuid);
         TimeSeriesVersions.check(version);
         Objects.requireNonNull(map);
         Map<String, List<C>> timeSeriesData = new HashMap<>();
