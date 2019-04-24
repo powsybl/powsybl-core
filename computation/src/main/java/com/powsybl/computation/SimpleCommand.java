@@ -9,15 +9,40 @@ package com.powsybl.computation;
 import java.util.List;
 
 /**
+ * A single command to be executed, defined by its program name and a list of arguments.
+ * The actual values of arguments may depend on the execution number, when several executions are submitted
+ * to a {@link ComputationManager}.
+ *
+ * <p>A timeout for the execution of this command may be specified.
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public interface SimpleCommand extends Command {
 
+    /**
+     * Define the name of the program to be executed.
+     *
+     * @return the name of the program to be executed.
+     */
     String getProgram();
 
+    /**
+     * The list of arguments to be passed to the program, for the specified execution number.
+     *
+     * @param executionNumber execution number for which arguments are requested.
+     * @return                the list of arguments to be passed to the program, for the specified execution number.
+     */
     List<String> getArgs(int executionNumber);
 
+    /**
+     * @deprecated {@link ComputationParameters#getTimeout} should be used instead.
+     *
+     * A timeout in milliseconds for this command execution.
+     * If less than zero, the execution time should be considered as unlimited.
+     *
+     * @return the timeout in milliseconds for this command execution.
+     */
+    @Deprecated
     int getTimeout();
 
 }
