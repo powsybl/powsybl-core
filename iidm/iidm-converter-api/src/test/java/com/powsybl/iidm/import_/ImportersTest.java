@@ -182,8 +182,9 @@ public class ImportersTest extends AbstractConvertersTest {
 
     @Test
     public void loadNullNetwork1() {
-        Network network = Importers.loadNetwork(badPath, computationManager, importConfigMock, null, loader);
-        assertNull(network);
+        expected.expect(PowsyblException.class);
+        expected.expectMessage("Unsupported file format or invalid file.");
+        Importers.loadNetwork(badPath, computationManager, importConfigMock, null, loader);
     }
 
     @Test
@@ -195,8 +196,9 @@ public class ImportersTest extends AbstractConvertersTest {
 
     @Test
     public void loadNullNetwork2() throws IOException {
-        Network network = Importers.loadNetwork("baz.txt", Importers.createDataSource(badPath).newInputStream(null, "txt"), computationManager, importConfigMock, null, loader);
-        assertNull(network);
+        expected.expect(PowsyblException.class);
+        expected.expectMessage("Unsupported file format or invalid file.");
+        Importers.loadNetwork("baz.txt", Importers.createDataSource(badPath).newInputStream(null, "txt"), computationManager, importConfigMock, null, loader);
     }
 
     @Test
