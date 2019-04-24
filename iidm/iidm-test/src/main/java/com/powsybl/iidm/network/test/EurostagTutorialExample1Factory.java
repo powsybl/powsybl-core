@@ -337,38 +337,25 @@ public final class EurostagTutorialExample1Factory {
                 .setTopologyKind(TopologyKind.BUS_BREAKER)
                 .add();
 
-        Bus nload2 = vlhv3.getBusBreakerView().newBus().setId("NLOAD2").add();
-        Bus nload3 = vlhv3.getBusBreakerView().newBus().setId("NLOAD3").add();
-        Bus ngen2 = vlhv3.getBusBreakerView().newBus().setId("NGEN2").add();
-        Bus ngen3 = vlhv3.getBusBreakerView().newBus().setId("NGEN3").add();
+        Bus nconnected = vlhv3.getBusBreakerView().newBus().setId("N1").add();
+        Bus ndisconnected = vlhv3.getBusBreakerView().newBus().setId("N2").add();
         Bus nshunt = vlhv3.getBusBreakerView().newBus().setId("NSHUNT").add();
 
-        vlhv3.getBusBreakerView().newSwitch().setId("S1")
-                .setOpen(false)
-                .setBus1(ngen2.getId())
-                .setBus2(nload2.getId())
-                .add();
-        vlhv3.getBusBreakerView().newSwitch().setId("S2")
-                .setOpen(false)
-                .setBus1(ngen3.getId())
-                .setBus2(nload3.getId())
-                .add();
-
         vlhv3.newLoad().setId("LOAD2")
-                .setBus(nload2.getId())
-                .setConnectableBus(nload2.getId())
+                .setBus(nconnected.getId())
+                .setConnectableBus(nconnected.getId())
                 .setP0(600.0)
                 .setQ0(200.0)
                 .add();
         vlhv3.newLoad().setId("LOAD3")
-                .setConnectableBus(nload3.getId())
+                .setConnectableBus(ndisconnected.getId())
                 .setP0(600.0)
                 .setQ0(200.0)
                 .add();
 
         vlhv3.newGenerator().setId("GEN2")
-                .setBus(ngen2.getId())
-                .setConnectableBus(ngen2.getId())
+                .setBus(nconnected.getId())
+                .setConnectableBus(nconnected.getId())
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
                 .setVoltageRegulatorOn(true)
@@ -377,7 +364,7 @@ public final class EurostagTutorialExample1Factory {
                 .setTargetQ(301.0)
                 .add();
         vlhv3.newGenerator().setId("GEN3")
-                .setConnectableBus(ngen3.getId())
+                .setConnectableBus(ndisconnected.getId())
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
                 .setVoltageRegulatorOn(true)

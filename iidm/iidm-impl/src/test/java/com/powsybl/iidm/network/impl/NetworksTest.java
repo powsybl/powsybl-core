@@ -31,7 +31,7 @@ public class NetworksTest {
                             "+-----------------------+--------------------------------+----------------------------------+\n" +
                             "|                       | Main CC connected/disconnected | Others CC connected/disconnected |\n" +
                             "+-----------------------+--------------------------------+----------------------------------+\n" +
-                            "| Bus count             |               4                |                5                 |\n" +
+                            "| Bus count             |               4                |                3                 |\n" +
                             "| Load count            | 1           | 0                | 1           | 1                  |\n" +
                             "| Load (MW)             | 600.0       | 0.0              | 600.0       | 600.0              |\n" +
                             "| Generator count       | 1           | 0                | 1           | 1                  |\n" +
