@@ -119,9 +119,7 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
         }
     }
 
-    @Override
-    protected void writeSubElements(Substation s, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        writeVoltageLevels(s, context);
+    private void writeTwoWindingsTransformers(Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
         Iterable<TwoWindingsTransformer> twts = s.getTwoWindingsTransformers();
         for (TwoWindingsTransformer twt : twts) {
             if (!context.getFilter().test(twt) ||
@@ -132,6 +130,9 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
             }
             TwoWindingsTransformerXml.INSTANCE.write(twt, null, context);
         }
+    }
+
+    private void writeThreeWindingsTransformers(Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
         Iterable<ThreeWindingsTransformer> twts2 = s.getThreeWindingsTransformers();
         for (ThreeWindingsTransformer twt : twts2) {
             if (!context.getFilter().test(twt) ||
@@ -142,6 +143,13 @@ class SubstationXml extends AbstractIdentifiableXml<Substation, SubstationAdder,
             }
             ThreeWindingsTransformerXml.INSTANCE.write(twt, null, context);
         }
+    }
+
+    @Override
+    protected void writeSubElements(Substation s, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
+        writeVoltageLevels(s, context);
+        writeTwoWindingsTransformers(s, context);
+        writeThreeWindingsTransformers(s, context);
     }
 
     @Override

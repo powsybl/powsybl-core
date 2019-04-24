@@ -10,6 +10,8 @@ import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VscConverterStation;
 import com.powsybl.iidm.xml.IncrementalIidmFiles;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamReader;
 
@@ -20,6 +22,8 @@ import javax.xml.stream.XMLStreamReader;
 
 public final class VscConverterStationUpdaterXml {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(VscConverterStationUpdaterXml.class);
+
     private VscConverterStationUpdaterXml() { }
 
     public static void updateVscConverterStationControlValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
@@ -29,6 +33,10 @@ public final class VscConverterStationUpdaterXml {
             double voltageSetpoint = XmlUtil.readOptionalDoubleAttribute(reader, "voltageSetpoint");
             double reactivePowerSetPoint = XmlUtil.readOptionalDoubleAttribute(reader, "reactivePowerSetpoint");
             VscConverterStation cs = (VscConverterStation) network.getIdentifiable(id);
+            if (cs == null) {
+                LOGGER.warn("VscConverterStation {} not found", id);
+                return;
+            }
             if (voltageRegulatorOn) {
                 cs.setVoltageSetpoint(voltageSetpoint);
             } else {

@@ -9,6 +9,8 @@ package com.powsybl.iidm.xml.update;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.IncrementalIidmFiles;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamReader;
 
@@ -19,6 +21,8 @@ import javax.xml.stream.XMLStreamReader;
 
 public final class BranchUpdaterXml {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(BranchUpdaterXml.class);
+
     private BranchUpdaterXml() { }
 
     public static void updateBranchTopoValues(XMLStreamReader reader, Network network, VoltageLevel[] vl, IncrementalIidmFiles targetFile) {
@@ -27,6 +31,14 @@ public final class BranchUpdaterXml {
             String connectableBus1 = reader.getAttributeValue(null, "connectableBus1");
             String connectableBus2 = reader.getAttributeValue(null, "connectableBus2");
             Branch branch = (Branch) network.getIdentifiable(id);
+            if (vl[0] == null) {
+                LOGGER.warn("Branch {} update is skipped because the parent voltage level  not found", id);
+                return;
+            }
+            if (branch == null) {
+                LOGGER.warn("Branch {} not found", id);
+                return;
+            }
             if (vl[0].getTopologyKind() == TopologyKind.BUS_BREAKER) {
                 branch.getTerminal1().getBusBreakerView().setConnectableBus(connectableBus1);
                 branch.getTerminal1().connect();

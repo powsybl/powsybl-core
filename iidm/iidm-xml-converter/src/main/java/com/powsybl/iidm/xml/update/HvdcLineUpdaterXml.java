@@ -10,6 +10,8 @@ import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.HvdcLine;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.IncrementalIidmFiles;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamReader;
 
@@ -20,6 +22,8 @@ import javax.xml.stream.XMLStreamReader;
 
 public final class HvdcLineUpdaterXml {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(HvdcLineUpdaterXml.class);
+
     private HvdcLineUpdaterXml() { }
 
     public static void updateHvdcLineControlValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
@@ -27,6 +31,10 @@ public final class HvdcLineUpdaterXml {
             String id = reader.getAttributeValue(null, "id");
             double activePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(reader, "activePowerSetpoint");
             HvdcLine l = (HvdcLine) network.getIdentifiable(id);
+            if (l == null) {
+                LOGGER.warn("HvdcLine {} not found", id);
+                return;
+            }
             l.setActivePowerSetpoint(activePowerSetpoint);
         }
     }

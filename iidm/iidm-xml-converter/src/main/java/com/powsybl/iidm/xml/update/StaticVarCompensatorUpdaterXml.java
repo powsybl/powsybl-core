@@ -10,6 +10,8 @@ import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.StaticVarCompensator;
 import com.powsybl.iidm.xml.IncrementalIidmFiles;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamReader;
 
@@ -20,6 +22,8 @@ import javax.xml.stream.XMLStreamReader;
 
 public final class StaticVarCompensatorUpdaterXml {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(StaticVarCompensatorUpdaterXml.class);
+
     private StaticVarCompensatorUpdaterXml() { }
 
     public static void updateStaticVarControlValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
@@ -29,6 +33,10 @@ public final class StaticVarCompensatorUpdaterXml {
             double reactivePowerSetPoint = XmlUtil.readOptionalDoubleAttribute(reader, "reactivePowerSetPoint");
             String regulationMode = reader.getAttributeValue(null, "regulationMode");
             StaticVarCompensator svc = (StaticVarCompensator) network.getIdentifiable(id);
+            if (svc == null) {
+                LOGGER.warn("Generator {} not found", id);
+                return;
+            }
             svc.setReactivePowerSetPoint(reactivePowerSetPoint).setVoltageSetPoint(voltageSetPoint).setRegulationMode(StaticVarCompensator.RegulationMode.valueOf(regulationMode));
         }
     }

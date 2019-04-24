@@ -9,6 +9,8 @@ package com.powsybl.iidm.xml.update;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.IncrementalIidmFiles;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamReader;
 
@@ -19,6 +21,8 @@ import javax.xml.stream.XMLStreamReader;
 
 public final class InjectionUpdaterXml {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(InjectionUpdaterXml.class);
+
     private InjectionUpdaterXml() { }
 
     public static void updateInjectionTopoValues(XMLStreamReader reader, Network network, VoltageLevel[] vl, IncrementalIidmFiles targetFile) {
@@ -26,6 +30,14 @@ public final class InjectionUpdaterXml {
             String id = reader.getAttributeValue(null, "id");
             String connectableBus = reader.getAttributeValue(null, "connectableBus");
             Injection inj = (Injection) network.getIdentifiable(id);
+            if (vl[0] == null) {
+                LOGGER.warn("Injection {} update is skipped because the parent voltage level  not found", id);
+                return;
+            }
+            if (inj == null) {
+                LOGGER.warn("Injection {} not found", id);
+                return;
+            }
             if (vl[0].getTopologyKind() == TopologyKind.BUS_BREAKER) {
                 inj.getTerminal().getBusBreakerView().setConnectableBus(connectableBus);
                 inj.getTerminal().connect();
@@ -39,6 +51,10 @@ public final class InjectionUpdaterXml {
             double p = XmlUtil.readOptionalDoubleAttribute(reader, "p");
             double q = XmlUtil.readOptionalDoubleAttribute(reader, "q");
             Injection inj = (Injection) network.getIdentifiable(id);
+            if (inj == null) {
+                LOGGER.warn("Injection {} not found", id);
+                return;
+            }
             inj.getTerminal().setP(p).setQ(q);
         }
     }

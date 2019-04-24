@@ -10,6 +10,8 @@ import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.xml.IncrementalIidmFiles;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamReader;
 
@@ -20,6 +22,8 @@ import javax.xml.stream.XMLStreamReader;
 
 public final class ShuntUpdaterXml {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ShuntUpdaterXml.class);
+
     private ShuntUpdaterXml() { }
 
     public static void updateShuntControlValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
@@ -27,6 +31,10 @@ public final class ShuntUpdaterXml {
             String id = reader.getAttributeValue(null, "id");
             double currentSectionCount = XmlUtil.readOptionalDoubleAttribute(reader, "currentSectionCount");
             ShuntCompensator sc = (ShuntCompensator) network.getIdentifiable(id);
+            if (sc == null) {
+                LOGGER.warn("Shunt {} not found", id);
+                return;
+            }
             sc.setCurrentSectionCount((int) currentSectionCount);
         }
     }

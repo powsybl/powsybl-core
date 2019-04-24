@@ -9,6 +9,8 @@ package com.powsybl.iidm.xml.update;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.IncrementalIidmFiles;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamReader;
 
@@ -19,6 +21,8 @@ import javax.xml.stream.XMLStreamReader;
 
 public final class SwitchUpdaterXml {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SwitchUpdaterXml.class);
+
     private SwitchUpdaterXml() { }
 
     public static void updateSwitchTopoValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
@@ -26,6 +30,10 @@ public final class SwitchUpdaterXml {
             String id = reader.getAttributeValue(null, "id");
             boolean open = XmlUtil.readBoolAttribute(reader, "open");
             Switch sw = (Switch) network.getIdentifiable(id);
+            if (sw == null) {
+                LOGGER.warn("Switch {} not found", id);
+                return;
+            }
             sw.setOpen(open);
         }
     }

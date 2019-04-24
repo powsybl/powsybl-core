@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.xml.IncrementalIidmFiles;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamReader;
 
@@ -21,6 +23,8 @@ import javax.xml.stream.XMLStreamReader;
 
 public final class BusbarSectionUpdaterXml {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(BusbarSectionUpdaterXml.class);
+
     private BusbarSectionUpdaterXml() { }
 
     public static void updateBusbarSectionStateValues(XMLStreamReader reader, VoltageLevel[] vl, IncrementalIidmFiles targetFile) {
@@ -28,7 +32,15 @@ public final class BusbarSectionUpdaterXml {
             String id = reader.getAttributeValue(null, "id");
             double v = XmlUtil.readDoubleAttribute(reader, "v");
             double angle = XmlUtil.readDoubleAttribute(reader, "angle");
+            if (vl[0] == null) {
+                LOGGER.warn("BusbarSection {} update is skipped because the parent voltage level  not found", id);
+                return;
+            }
             BusbarSection bbs = vl[0].getNodeBreakerView().getBusbarSection(id);
+            if (bbs == null) {
+                LOGGER.warn("BusbarSection {} not found", id);
+                return;
+            }
             Bus b = bbs.getTerminal().getBusView().getBus();
             if (b != null) {
                 b.setAngle(angle).setV(v > 0 ? v : Double.NaN);

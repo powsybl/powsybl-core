@@ -6,9 +6,10 @@
  */
 package com.powsybl.iidm.xml.update;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamReader;
 
@@ -19,13 +20,15 @@ import javax.xml.stream.XMLStreamReader;
 
 public final class VoltageLevelUpdaterXml {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(VoltageLevelUpdaterXml.class);
+
     private VoltageLevelUpdaterXml() { }
 
     public static void updateVoltageLevel(XMLStreamReader reader, Network network, VoltageLevel[] vl) {
         String id = reader.getAttributeValue(null, "id");
         vl[0] = network.getVoltageLevel(id);
         if (vl[0] == null) {
-            throw new PowsyblException("Voltage level '" + id + "' not found");
+            LOGGER.warn("Voltage level '{}' not found", id);
         }
     }
 }

@@ -10,6 +10,8 @@ import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.IncrementalIidmFiles;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamReader;
 
@@ -19,6 +21,8 @@ import javax.xml.stream.XMLStreamReader;
  */
 
 public final class GeneratorUpdaterXml {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GeneratorUpdaterXml.class);
 
     private GeneratorUpdaterXml() { }
 
@@ -30,6 +34,10 @@ public final class GeneratorUpdaterXml {
             double targetQ = XmlUtil.readOptionalDoubleAttribute(reader, "targetQ");
             double targetV = XmlUtil.readOptionalDoubleAttribute(reader, "targetV");
             Generator generator = (Generator) network.getIdentifiable(id);
+            if (generator == null) {
+                LOGGER.warn("Generator {} not found", id);
+                return;
+            }
             generator.setTargetP(targetP).setTargetQ(targetQ).setTargetV(targetV).setVoltageRegulatorOn(voltageRegulatorOn);
         }
     }

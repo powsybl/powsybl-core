@@ -9,6 +9,8 @@ package com.powsybl.iidm.xml.update;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.xml.IncrementalIidmFiles;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.xml.stream.XMLStreamReader;
 
@@ -19,6 +21,8 @@ import javax.xml.stream.XMLStreamReader;
 
 public final class BusUpdaterXml {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(BusUpdaterXml.class);
+
     private BusUpdaterXml() { }
 
     public static void updateBusStateValues(XMLStreamReader reader, VoltageLevel[] vl, IncrementalIidmFiles targetFile) {
@@ -26,9 +30,17 @@ public final class BusUpdaterXml {
             String id = reader.getAttributeValue(null, "id");
             double v = XmlUtil.readDoubleAttribute(reader, "v");
             double angle = XmlUtil.readDoubleAttribute(reader, "angle");
+            if (vl[0] == null) {
+                LOGGER.warn("Bus {} update is skipped because the parent voltage level  not found", id);
+                return;
+            }
             Bus b = vl[0].getBusBreakerView().getBus(id);
             if (b == null) {
                 b = vl[0].getBusView().getBus(id);
+            }
+            if (b == null) {
+                LOGGER.warn("Bus {} not found", id);
+                return;
             }
             b.setV(v > 0 ? v : Double.NaN).setAngle(angle);
         }
