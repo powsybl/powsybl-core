@@ -87,14 +87,4 @@ class ShuntXml extends AbstractConnectableXml<ShuntCompensator, ShuntCompensator
     protected void readSubElements(ShuntCompensator sc, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> ShuntXml.super.readSubElements(sc, context));
     }
-
-    static void updateShuntControlValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.CONTROL) {
-            return;
-        }
-        String id = reader.getAttributeValue(null, "id");
-        double currentSectionCount = XmlUtil.readOptionalDoubleAttribute(reader, "currentSectionCount");
-        ShuntCompensator sc = (ShuntCompensator) network.getIdentifiable(id);
-        sc.setCurrentSectionCount((int) currentSectionCount);
-    }
 }

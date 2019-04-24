@@ -74,18 +74,4 @@ class BusbarSectionXml extends AbstractIdentifiableXml<BusbarSection, BusbarSect
     protected void readSubElements(BusbarSection bs, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> BusbarSectionXml.super.readSubElements(bs, context));
     }
-
-    static void updateBusbarSectionStateValues(XMLStreamReader reader, VoltageLevel[] vl, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.STATE) {
-            return;
-        }
-        String id = reader.getAttributeValue(null, "id");
-        double v = XmlUtil.readDoubleAttribute(reader, "v");
-        double angle = XmlUtil.readDoubleAttribute(reader, "angle");
-        BusbarSection bbs = vl[0].getNodeBreakerView().getBusbarSection(id);
-        Bus b = bbs.getTerminal().getBusView().getBus();
-        if (b != null) {
-            b.setAngle(angle).setV(v > 0 ? v : Double.NaN);
-        }
-    }
 }

@@ -52,14 +52,6 @@ class VoltageLevelXml extends AbstractIdentifiableXml<VoltageLevel, VoltageLevel
         return false;
     }
 
-    static void updateVoltageLevel(XMLStreamReader reader, Network network, VoltageLevel[] vl) {
-        String id = reader.getAttributeValue(null, "id");
-        vl[0] = network.getVoltageLevel(id);
-        if (vl[0] == null) {
-            throw new PowsyblException("Voltage level '" + id + "' not found");
-        }
-    }
-
     private boolean isShuntCompensatorsHavingControlValues(VoltageLevel vl, NetworkXmlWriterContext context) {
         for (ShuntCompensator sc : vl.getShuntCompensators()) {
             if (!context.getFilter().test(sc)) {

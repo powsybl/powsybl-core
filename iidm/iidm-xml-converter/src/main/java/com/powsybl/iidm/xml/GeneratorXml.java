@@ -129,17 +129,4 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
             }
         });
     }
-
-    static void updateGeneratorControlValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.CONTROL) {
-            return;
-        }
-        String id = reader.getAttributeValue(null, "id");
-        boolean voltageRegulatorOn = XmlUtil.readOptionalBoolAttribute(reader, "voltageRegulatorOn", false);
-        double targetP = XmlUtil.readOptionalDoubleAttribute(reader, "targetP");
-        double targetQ = XmlUtil.readOptionalDoubleAttribute(reader, "targetQ");
-        double targetV = XmlUtil.readOptionalDoubleAttribute(reader, "targetV");
-        Generator generator = (Generator) network.getIdentifiable(id);
-        generator.setTargetP(targetP).setTargetQ(targetQ).setTargetV(targetV).setVoltageRegulatorOn(voltageRegulatorOn);
-    }
 }

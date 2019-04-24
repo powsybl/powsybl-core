@@ -25,8 +25,7 @@ import com.powsybl.iidm.export.BusFilter;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.xml.update.BranchUpdaterXml;
-import com.powsybl.iidm.xml.update.InjectionUpdaterXml;
+import com.powsybl.iidm.xml.update.*;
 import javanet.staxutils.IndentingXMLStreamWriter;
 import org.apache.commons.io.FilenameUtils;
 import org.joda.time.DateTime;
@@ -837,31 +836,31 @@ public final class NetworkXml {
             XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {
                 switch (reader.getLocalName()) {
                     case VoltageLevelXml.ROOT_ELEMENT_NAME:
-                        VoltageLevelXml.updateVoltageLevel(reader, network, vl);
+                        VoltageLevelUpdaterXml.updateVoltageLevel(reader, network, vl);
                         break;
                     case BusXml.ROOT_ELEMENT_NAME:
-                        BusXml.updateBusStateValues(reader, vl, targetFile);
+                        BusUpdaterXml.updateBusStateValues(reader, vl, targetFile);
                         break;
                     case BusbarSectionXml.ROOT_ELEMENT_NAME:
-                        BusbarSectionXml.updateBusbarSectionStateValues(reader, vl, targetFile);
+                        BusbarSectionUpdaterXml.updateBusbarSectionStateValues(reader, vl, targetFile);
                         break;
                     case NodeBreakerViewSwitchXml.ROOT_ELEMENT_NAME:
-                        AbstractSwitchXml.updateSwitchTopoValues(reader, network, targetFile);
+                        SwitchUpdaterXml.updateSwitchTopoValues(reader, network, targetFile);
                         // Nothing to do
                         break;
                     case GeneratorXml.ROOT_ELEMENT_NAME:
                         InjectionUpdaterXml.updateInjectionTopoValues(reader, network, vl, targetFile);
                         InjectionUpdaterXml.updateInjectionStateValues(reader, network, targetFile);
-                        GeneratorXml.updateGeneratorControlValues(reader, network, targetFile);
+                        GeneratorUpdaterXml.updateGeneratorControlValues(reader, network, targetFile);
                         break;
                     case ShuntXml.ROOT_ELEMENT_NAME:
                         InjectionUpdaterXml.updateInjectionTopoValues(reader, network, vl, targetFile);
                         InjectionUpdaterXml.updateInjectionStateValues(reader, network, targetFile);
-                        ShuntXml.updateShuntControlValues(reader, network, targetFile);
+                        ShuntUpdaterXml.updateShuntControlValues(reader, network, targetFile);
                         break;
                     case StaticVarCompensatorXml.ROOT_ELEMENT_NAME:
                         InjectionUpdaterXml.updateInjectionStateValues(reader, network, targetFile);
-                        StaticVarCompensatorXml.updateStaticVarControlValues(reader, network, targetFile);
+                        StaticVarCompensatorUpdaterXml.updateStaticVarControlValues(reader, network, targetFile);
                         break;
                     case LoadXml.ROOT_ELEMENT_NAME:
                     case BatteryXml.ROOT_ELEMENT_NAME:
@@ -873,7 +872,7 @@ public final class NetworkXml {
                     case VscConverterStationXml.ROOT_ELEMENT_NAME:
                         InjectionUpdaterXml.updateInjectionTopoValues(reader, network, vl, targetFile);
                         InjectionUpdaterXml.updateInjectionStateValues(reader, network, targetFile);
-                        VscConverterStationXml.updateVscConverterStationControlValues(reader, network, targetFile);
+                        VscConverterStationUpdaterXml.updateVscConverterStationControlValues(reader, network, targetFile);
                         break;
                     case LineXml.ROOT_ELEMENT_NAME:
                         BranchUpdaterXml.updateBranchTopoValues(reader, network, vl, targetFile);
@@ -882,10 +881,10 @@ public final class NetworkXml {
                     case TwoWindingsTransformerXml.ROOT_ELEMENT_NAME:
                         BranchUpdaterXml.updateBranchTopoValues(reader, network, vl, targetFile);
                         BranchUpdaterXml.updateBranchStateValues(reader, network, targetFile);
-                        TwoWindingsTransformerXml.updateTwoWindingsTransformer(reader, network, twt);
+                        TwoWindingsTransformerUpdaterXml.updateTwoWindingsTransformer(reader, network, twt);
                         break;
                     case HvdcLineXml.ROOT_ELEMENT_NAME:
-                        HvdcLineXml.updateHvdcLineControlValues(reader, network, targetFile);
+                        HvdcLineUpdaterXml.updateHvdcLineControlValues(reader, network, targetFile);
                         break;
                     case SubstationXml.ROOT_ELEMENT_NAME:
                     case VoltageLevelXml.BUS_BREAKER_TOPOLOGY_ELEMENT_NAME:
@@ -893,10 +892,10 @@ public final class NetworkXml {
                         // Nothing to do
                         break;
                     case TwoWindingsTransformerXml.RATIO_TAP_CHANGER_ELEMENT_NAME:
-                        TwoWindingsTransformerXml.updateRatioTapChangerControlValues(reader, twt, targetFile);
+                        TwoWindingsTransformerUpdaterXml.updateRatioTapChangerControlValues(reader, twt, targetFile);
                         break;
                     case TwoWindingsTransformerXml.PHASE_TAP_CHANGER_ELEMENT_NAME:
-                        TwoWindingsTransformerXml.updatePhaseTapChangerControlValues(reader, twt, targetFile);
+                        TwoWindingsTransformerUpdaterXml.updatePhaseTapChangerControlValues(reader, twt, targetFile);
                         break;
                     case TwoWindingsTransformerXml.TERMINAL_REF_ELEMENT_NAME:
                         // to do

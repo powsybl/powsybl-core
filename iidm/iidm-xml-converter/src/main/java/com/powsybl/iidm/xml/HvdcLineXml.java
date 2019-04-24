@@ -79,14 +79,4 @@ class HvdcLineXml extends AbstractIdentifiableXml<HvdcLine, HvdcLineAdder, Netwo
     protected void readSubElements(HvdcLine l, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> HvdcLineXml.super.readSubElements(l, context));
     }
-
-    static void updateHvdcLineControlValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.CONTROL) {
-            return;
-        }
-        String id = reader.getAttributeValue(null, "id");
-        double activePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(reader, "activePowerSetpoint");
-        HvdcLine l = (HvdcLine) network.getIdentifiable(id);
-        l.setActivePowerSetpoint(activePowerSetpoint);
-    }
 }

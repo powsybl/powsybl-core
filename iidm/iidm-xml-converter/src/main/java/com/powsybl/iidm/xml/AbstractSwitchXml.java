@@ -51,14 +51,4 @@ abstract class AbstractSwitchXml<A extends IdentifiableAdder<A>> extends Abstrac
     protected void readSubElements(Switch s, NetworkXmlReaderContext context) throws XMLStreamException {
         readUntilEndRootElement(context.getReader(), () -> AbstractSwitchXml.super.readSubElements(s, context));
     }
-
-    static void updateSwitchTopoValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.TOPO) {
-            return;
-        }
-        String id = reader.getAttributeValue(null, "id");
-        boolean open = XmlUtil.readBoolAttribute(reader, "open");
-        Switch sw = (Switch) network.getIdentifiable(id);
-        sw.setOpen(open);
-    }
 }

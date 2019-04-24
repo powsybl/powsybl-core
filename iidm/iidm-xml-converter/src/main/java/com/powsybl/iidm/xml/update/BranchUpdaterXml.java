@@ -19,9 +19,6 @@ import javax.xml.stream.XMLStreamReader;
 
 public final class BranchUpdaterXml {
 
-    private BranchUpdaterXml() {
-    }
-
     public static void updateBranchTopoValues(XMLStreamReader reader, Network network, VoltageLevel[] vl, IncrementalIidmFiles targetFile) {
         if (targetFile != IncrementalIidmFiles.TOPO) {
             return;

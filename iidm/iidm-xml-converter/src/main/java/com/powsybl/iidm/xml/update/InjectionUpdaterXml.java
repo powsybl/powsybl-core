@@ -19,9 +19,6 @@ import javax.xml.stream.XMLStreamReader;
 
 public final class InjectionUpdaterXml {
 
-    private InjectionUpdaterXml() {
-    }
-
     public static void updateInjectionTopoValues(XMLStreamReader reader, Network network, VoltageLevel[] vl, IncrementalIidmFiles targetFile) {
         if (targetFile != IncrementalIidmFiles.TOPO) {
             return;

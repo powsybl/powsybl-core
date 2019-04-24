@@ -149,36 +149,4 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
             }
         });
     }
-
-    static void updateTwoWindingsTransformer(XMLStreamReader reader, Network network, TwoWindingsTransformer[] twt) {
-        String id = reader.getAttributeValue(null, "id");
-        twt[0] = network.getTwoWindingsTransformer(id);
-        if (twt[0] == null) {
-            throw new PowsyblException("Two Windings Transformer '" + id + "' not found");
-        }
-    }
-
-    static void updatePhaseTapChangerControlValues(XMLStreamReader reader, TwoWindingsTransformer[] twtTab, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.CONTROL) {
-            return;
-        }
-        String regulationMode = reader.getAttributeValue(null, "regulationMode");
-        double regulatingValue = XmlUtil.readOptionalDoubleAttribute(reader, "regulationValue");
-        boolean regulating = XmlUtil.readOptionalBoolAttribute(reader, "regulating", false);
-        TwoWindingsTransformer twt = twtTab[0];
-        PhaseTapChanger rpc = twt.getPhaseTapChanger();
-        rpc.setRegulationValue(regulatingValue).setRegulating(regulating).setRegulationMode(PhaseTapChanger.RegulationMode.valueOf(regulationMode));
-    }
-
-    static void updateRatioTapChangerControlValues(XMLStreamReader reader, TwoWindingsTransformer[] twtTab, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.CONTROL) {
-            return;
-        }
-        boolean regulating = XmlUtil.readOptionalBoolAttribute(reader, "regulating", false);
-        double targetV = XmlUtil.readOptionalDoubleAttribute(reader, "targetV");
-        double tapPosition = XmlUtil.readOptionalDoubleAttribute(reader, "tapPosition");
-        TwoWindingsTransformer twt = twtTab[0];
-        RatioTapChanger rtc = twt.getRatioTapChanger();
-        rtc.setTargetV(targetV).setRegulating(regulating).setTapPosition((int) tapPosition);
-    }
 }

@@ -48,20 +48,6 @@ class BusXml extends AbstractIdentifiableXml<Bus, BusAdder, VoltageLevel> {
         }
     }
 
-    static void updateBusStateValues(XMLStreamReader reader, VoltageLevel[] vl, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.STATE) {
-            return;
-        }
-        String id = reader.getAttributeValue(null, "id");
-        double v = XmlUtil.readDoubleAttribute(reader, "v");
-        double angle = XmlUtil.readDoubleAttribute(reader, "angle");
-        Bus b = vl[0].getBusBreakerView().getBus(id);
-        if (b == null) {
-            b = vl[0].getBusView().getBus(id);
-        }
-        b.setV(v > 0 ? v : Double.NaN).setAngle(angle);
-    }
-
     @Override
     protected void writeSubElements(Bus b, VoltageLevel vl, NetworkXmlWriterContext context) throws XMLStreamException {
         // no sub elements to write
