@@ -323,4 +323,78 @@ public final class EurostagTutorialExample1Factory {
         return network;
     }
 
+    public static Network createWithMultipleConnectedComponents() {
+        Network network = create();
+
+        Substation p3 = network.newSubstation()
+                .setId("P3")
+                .setCountry(Country.FR)
+                .add();
+
+        VoltageLevel vlhv3 = p3.newVoltageLevel()
+                .setId("VLHV3")
+                .setNominalV(24.0)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+
+        Bus nload2 = vlhv3.getBusBreakerView().newBus().setId("NLOAD2").add();
+        Bus nload3 = vlhv3.getBusBreakerView().newBus().setId("NLOAD3").add();
+        Bus ngen2 = vlhv3.getBusBreakerView().newBus().setId("NGEN2").add();
+        Bus ngen3 = vlhv3.getBusBreakerView().newBus().setId("NGEN3").add();
+        Bus nshunt = vlhv3.getBusBreakerView().newBus().setId("NSHUNT").add();
+
+        vlhv3.getBusBreakerView().newSwitch().setId("S1")
+                .setOpen(false)
+                .setBus1(ngen2.getId())
+                .setBus2(nload2.getId())
+                .add();
+        vlhv3.getBusBreakerView().newSwitch().setId("S2")
+                .setOpen(false)
+                .setBus1(ngen3.getId())
+                .setBus2(nload3.getId())
+                .add();
+
+        vlhv3.newLoad().setId("LOAD2")
+                .setBus(nload2.getId())
+                .setConnectableBus(nload2.getId())
+                .setP0(600.0)
+                .setQ0(200.0)
+                .add();
+        vlhv3.newLoad().setId("LOAD3")
+                .setConnectableBus(nload3.getId())
+                .setP0(600.0)
+                .setQ0(200.0)
+                .add();
+
+        vlhv3.newGenerator().setId("GEN2")
+                .setBus(ngen2.getId())
+                .setConnectableBus(ngen2.getId())
+                .setMinP(-9999.99)
+                .setMaxP(9999.99)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(24.5)
+                .setTargetP(607.0)
+                .setTargetQ(301.0)
+                .add();
+        vlhv3.newGenerator().setId("GEN3")
+                .setConnectableBus(ngen3.getId())
+                .setMinP(-9999.99)
+                .setMaxP(9999.99)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(24.5)
+                .setTargetP(607.0)
+                .setTargetQ(301.0)
+                .add();
+
+        vlhv3.newShuntCompensator()
+                .setId("SHUNT")
+                .setConnectableBus(nshunt.getId())
+                .setMaximumSectionCount(1)
+                .setCurrentSectionCount(1)
+                .setbPerSection(1e-5)
+                .add();
+
+        return network;
+    }
+
 }
