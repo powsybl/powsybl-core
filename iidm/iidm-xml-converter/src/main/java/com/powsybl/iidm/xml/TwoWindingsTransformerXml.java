@@ -74,25 +74,23 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
 
     @Override
     protected void writeSubElements(TwoWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getTargetFile() == IncrementalIidmFiles.TOPO || context.getTargetFile() == IncrementalIidmFiles.STATE) {
-            return;
+        if (context.getTargetFile() == IncrementalIidmFiles.CONTROL || !context.getOptions().isIncrementalConversion()) {
+            RatioTapChanger rtc = twt.getRatioTapChanger();
+            if (rtc != null) {
+                writeRatioTapChanger(RATIO_TAP_CHANGER_ELEMENT_NAME, rtc, context);
+            }
+            PhaseTapChanger ptc = twt.getPhaseTapChanger();
+            if (ptc != null) {
+                writePhaseTapChanger(PHASE_TAP_CHANGER_ELEMENT_NAME, ptc, context);
+            }
         }
-        RatioTapChanger rtc = twt.getRatioTapChanger();
-        if (rtc != null) {
-            writeRatioTapChanger(RATIO_TAP_CHANGER_ELEMENT_NAME, rtc, context);
-        }
-        PhaseTapChanger ptc = twt.getPhaseTapChanger();
-        if (ptc != null) {
-            writePhaseTapChanger(PHASE_TAP_CHANGER_ELEMENT_NAME, ptc, context);
-        }
-        if (context.getOptions().isIncrementalConversion()) {
-            return;
-        }
-        if (twt.getCurrentLimits1() != null) {
-            writeCurrentLimits(1, twt.getCurrentLimits1(), context.getWriter());
-        }
-        if (twt.getCurrentLimits2() != null) {
-            writeCurrentLimits(2, twt.getCurrentLimits2(), context.getWriter());
+        if (!context.getOptions().isIncrementalConversion()) {
+            if (twt.getCurrentLimits1() != null) {
+                writeCurrentLimits(1, twt.getCurrentLimits1(), context.getWriter());
+            }
+            if (twt.getCurrentLimits2() != null) {
+                writeCurrentLimits(2, twt.getCurrentLimits2(), context.getWriter());
+            }
         }
     }
 

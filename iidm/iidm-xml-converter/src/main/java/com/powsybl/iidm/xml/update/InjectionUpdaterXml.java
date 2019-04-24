@@ -22,26 +22,24 @@ public final class InjectionUpdaterXml {
     private InjectionUpdaterXml() { }
 
     public static void updateInjectionTopoValues(XMLStreamReader reader, Network network, VoltageLevel[] vl, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.TOPO) {
-            return;
-        }
-        String id = reader.getAttributeValue(null, "id");
-        String connectableBus = reader.getAttributeValue(null, "connectableBus");
-        Injection inj = (Injection) network.getIdentifiable(id);
-        if (vl[0].getTopologyKind() == TopologyKind.BUS_BREAKER) {
-            inj.getTerminal().getBusBreakerView().setConnectableBus(connectableBus);
-            inj.getTerminal().connect();
+        if (targetFile == IncrementalIidmFiles.TOPO) {
+            String id = reader.getAttributeValue(null, "id");
+            String connectableBus = reader.getAttributeValue(null, "connectableBus");
+            Injection inj = (Injection) network.getIdentifiable(id);
+            if (vl[0].getTopologyKind() == TopologyKind.BUS_BREAKER) {
+                inj.getTerminal().getBusBreakerView().setConnectableBus(connectableBus);
+                inj.getTerminal().connect();
+            }
         }
     }
 
     public static void updateInjectionStateValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.STATE) {
-            return;
+        if (targetFile == IncrementalIidmFiles.STATE) {
+            String id = reader.getAttributeValue(null, "id");
+            double p = XmlUtil.readOptionalDoubleAttribute(reader, "p");
+            double q = XmlUtil.readOptionalDoubleAttribute(reader, "q");
+            Injection inj = (Injection) network.getIdentifiable(id);
+            inj.getTerminal().setP(p).setQ(q);
         }
-        String id = reader.getAttributeValue(null, "id");
-        double p = XmlUtil.readOptionalDoubleAttribute(reader, "p");
-        double q = XmlUtil.readOptionalDoubleAttribute(reader, "q");
-        Injection inj = (Injection) network.getIdentifiable(id);
-        inj.getTerminal().setP(p).setQ(q);
     }
 }

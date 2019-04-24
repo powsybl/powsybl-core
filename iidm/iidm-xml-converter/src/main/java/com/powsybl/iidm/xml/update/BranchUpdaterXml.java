@@ -22,32 +22,30 @@ public final class BranchUpdaterXml {
     private BranchUpdaterXml() { }
 
     public static void updateBranchTopoValues(XMLStreamReader reader, Network network, VoltageLevel[] vl, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.TOPO) {
-            return;
-        }
-        String id = reader.getAttributeValue(null, "id");
-        String connectableBus1 = reader.getAttributeValue(null, "connectableBus1");
-        String connectableBus2 = reader.getAttributeValue(null, "connectableBus2");
-        Branch branch = (Branch) network.getIdentifiable(id);
-        if (vl[0].getTopologyKind() == TopologyKind.BUS_BREAKER) {
-            branch.getTerminal1().getBusBreakerView().setConnectableBus(connectableBus1);
-            branch.getTerminal1().connect();
-            branch.getTerminal2().getBusBreakerView().setConnectableBus(connectableBus2);
-            branch.getTerminal2().connect();
+        if (targetFile == IncrementalIidmFiles.TOPO) {
+            String id = reader.getAttributeValue(null, "id");
+            String connectableBus1 = reader.getAttributeValue(null, "connectableBus1");
+            String connectableBus2 = reader.getAttributeValue(null, "connectableBus2");
+            Branch branch = (Branch) network.getIdentifiable(id);
+            if (vl[0].getTopologyKind() == TopologyKind.BUS_BREAKER) {
+                branch.getTerminal1().getBusBreakerView().setConnectableBus(connectableBus1);
+                branch.getTerminal1().connect();
+                branch.getTerminal2().getBusBreakerView().setConnectableBus(connectableBus2);
+                branch.getTerminal2().connect();
+            }
         }
     }
 
     public static void updateBranchStateValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.STATE) {
-            return;
+        if (targetFile == IncrementalIidmFiles.STATE) {
+            String id = reader.getAttributeValue(null, "id");
+            double p1 = XmlUtil.readOptionalDoubleAttribute(reader, "p1");
+            double q1 = XmlUtil.readOptionalDoubleAttribute(reader, "q1");
+            double p2 = XmlUtil.readOptionalDoubleAttribute(reader, "p2");
+            double q2 = XmlUtil.readOptionalDoubleAttribute(reader, "q2");
+            Branch branch = (Branch) network.getIdentifiable(id);
+            branch.getTerminal1().setP(p1).setQ(q1);
+            branch.getTerminal2().setP(p2).setQ(q2);
         }
-        String id = reader.getAttributeValue(null, "id");
-        double p1 = XmlUtil.readOptionalDoubleAttribute(reader, "p1");
-        double q1 = XmlUtil.readOptionalDoubleAttribute(reader, "q1");
-        double p2 = XmlUtil.readOptionalDoubleAttribute(reader, "p2");
-        double q2 = XmlUtil.readOptionalDoubleAttribute(reader, "q2");
-        Branch branch = (Branch) network.getIdentifiable(id);
-        branch.getTerminal1().setP(p1).setQ(q1);
-        branch.getTerminal2().setP(p2).setQ(q2);
     }
 }

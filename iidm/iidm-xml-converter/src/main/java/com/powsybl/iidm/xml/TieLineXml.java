@@ -80,14 +80,13 @@ class TieLineXml extends AbstractConnectableXml<TieLine, TieLineAdder, Network> 
 
     @Override
     protected void writeSubElements(TieLine tl, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().isIncrementalConversion()) {
-            return;
-        }
-        if (tl.getCurrentLimits1() != null) {
-            writeCurrentLimits(1, tl.getCurrentLimits1(), context.getWriter());
-        }
-        if (tl.getCurrentLimits2() != null) {
-            writeCurrentLimits(2, tl.getCurrentLimits2(), context.getWriter());
+        if (!context.getOptions().isIncrementalConversion()) {
+            if (tl.getCurrentLimits1() != null) {
+                writeCurrentLimits(1, tl.getCurrentLimits1(), context.getWriter());
+            }
+            if (tl.getCurrentLimits2() != null) {
+                writeCurrentLimits(2, tl.getCurrentLimits2(), context.getWriter());
+            }
         }
     }
 

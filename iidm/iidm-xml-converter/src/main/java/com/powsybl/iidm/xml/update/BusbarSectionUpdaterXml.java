@@ -24,16 +24,15 @@ public final class BusbarSectionUpdaterXml {
     private BusbarSectionUpdaterXml() { }
 
     public static void updateBusbarSectionStateValues(XMLStreamReader reader, VoltageLevel[] vl, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.STATE) {
-            return;
-        }
-        String id = reader.getAttributeValue(null, "id");
-        double v = XmlUtil.readDoubleAttribute(reader, "v");
-        double angle = XmlUtil.readDoubleAttribute(reader, "angle");
-        BusbarSection bbs = vl[0].getNodeBreakerView().getBusbarSection(id);
-        Bus b = bbs.getTerminal().getBusView().getBus();
-        if (b != null) {
-            b.setAngle(angle).setV(v > 0 ? v : Double.NaN);
+        if (targetFile == IncrementalIidmFiles.STATE) {
+            String id = reader.getAttributeValue(null, "id");
+            double v = XmlUtil.readDoubleAttribute(reader, "v");
+            double angle = XmlUtil.readDoubleAttribute(reader, "angle");
+            BusbarSection bbs = vl[0].getNodeBreakerView().getBusbarSection(id);
+            Bus b = bbs.getTerminal().getBusView().getBus();
+            if (b != null) {
+                b.setAngle(angle).setV(v > 0 ? v : Double.NaN);
+            }
         }
     }
 }

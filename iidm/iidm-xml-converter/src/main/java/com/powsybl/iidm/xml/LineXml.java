@@ -71,14 +71,13 @@ class LineXml extends AbstractConnectableXml<Line, LineAdder, Network> {
 
     @Override
     protected void writeSubElements(Line l, Network n, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getOptions().isIncrementalConversion()) {
-            return;
-        }
-        if (l.getCurrentLimits1() != null) {
-            writeCurrentLimits(1, l.getCurrentLimits1(), context.getWriter());
-        }
-        if (l.getCurrentLimits2() != null) {
-            writeCurrentLimits(2, l.getCurrentLimits2(), context.getWriter());
+        if (!context.getOptions().isIncrementalConversion()) {
+            if (l.getCurrentLimits1() != null) {
+                writeCurrentLimits(1, l.getCurrentLimits1(), context.getWriter());
+            }
+            if (l.getCurrentLimits2() != null) {
+                writeCurrentLimits(2, l.getCurrentLimits2(), context.getWriter());
+            }
         }
     }
 

@@ -22,12 +22,11 @@ public final class SwitchUpdaterXml {
     private SwitchUpdaterXml() { }
 
     public static void updateSwitchTopoValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.TOPO) {
-            return;
+        if (targetFile == IncrementalIidmFiles.TOPO) {
+            String id = reader.getAttributeValue(null, "id");
+            boolean open = XmlUtil.readBoolAttribute(reader, "open");
+            Switch sw = (Switch) network.getIdentifiable(id);
+            sw.setOpen(open);
         }
-        String id = reader.getAttributeValue(null, "id");
-        boolean open = XmlUtil.readBoolAttribute(reader, "open");
-        Switch sw = (Switch) network.getIdentifiable(id);
-        sw.setOpen(open);
     }
 }

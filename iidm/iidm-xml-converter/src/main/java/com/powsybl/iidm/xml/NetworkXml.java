@@ -421,19 +421,19 @@ public final class NetworkXml {
     }
 
     private static void writeLines(Network n, NetworkXmlWriterContext  context, IncrementalIidmFiles targetFile, BusFilter filter) throws XMLStreamException {
-        if (targetFile  == IncrementalIidmFiles.CONTROL || (targetFile == IncrementalIidmFiles.STATE && !context.getOptions().isWithBranchSV())) {
-            return;
-        }
-        for (Line l : n.getLines()) {
-            if (!filter.test(l)) {
-                continue;
-            }
-            if ((targetFile == IncrementalIidmFiles.STATE && LineXml.INSTANCE.hasStateValues(l)) ||
-                    targetFile == IncrementalIidmFiles.TOPO && LineXml.INSTANCE.hasTopoValues(l, context)) {
-                if (l.isTieLine()) {
-                    TieLineXml.INSTANCE.write((TieLine) l, n, context);
-                } else {
-                    LineXml.INSTANCE.write(l, n, context);
+        if (targetFile == IncrementalIidmFiles.STATE && context.getOptions().isWithBranchSV() ||
+                targetFile == IncrementalIidmFiles.TOPO) {
+            for (Line l : n.getLines()) {
+                if (!filter.test(l)) {
+                    continue;
+                }
+                if ((targetFile == IncrementalIidmFiles.STATE && LineXml.INSTANCE.hasStateValues(l)) ||
+                        targetFile == IncrementalIidmFiles.TOPO && LineXml.INSTANCE.hasTopoValues(l, context)) {
+                    if (l.isTieLine()) {
+                        TieLineXml.INSTANCE.write((TieLine) l, n, context);
+                    } else {
+                        LineXml.INSTANCE.write(l, n, context);
+                    }
                 }
             }
         }

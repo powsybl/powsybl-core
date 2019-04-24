@@ -23,18 +23,17 @@ public final class VscConverterStationUpdaterXml {
     private VscConverterStationUpdaterXml() { }
 
     public static void updateVscConverterStationControlValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.CONTROL) {
-            return;
-        }
-        String id = reader.getAttributeValue(null, "id");
-        boolean voltageRegulatorOn = XmlUtil.readOptionalBoolAttribute(reader, "voltageRegulatorOn", false);
-        double voltageSetpoint = XmlUtil.readOptionalDoubleAttribute(reader, "voltageSetpoint");
-        double reactivePowerSetPoint = XmlUtil.readOptionalDoubleAttribute(reader, "reactivePowerSetpoint");
-        VscConverterStation cs = (VscConverterStation) network.getIdentifiable(id);
-        if (voltageRegulatorOn) {
-            cs.setVoltageSetpoint(voltageSetpoint);
-        } else {
-            cs.setReactivePowerSetpoint(reactivePowerSetPoint);
+        if (targetFile == IncrementalIidmFiles.CONTROL) {
+            String id = reader.getAttributeValue(null, "id");
+            boolean voltageRegulatorOn = XmlUtil.readOptionalBoolAttribute(reader, "voltageRegulatorOn", false);
+            double voltageSetpoint = XmlUtil.readOptionalDoubleAttribute(reader, "voltageSetpoint");
+            double reactivePowerSetPoint = XmlUtil.readOptionalDoubleAttribute(reader, "reactivePowerSetpoint");
+            VscConverterStation cs = (VscConverterStation) network.getIdentifiable(id);
+            if (voltageRegulatorOn) {
+                cs.setVoltageSetpoint(voltageSetpoint);
+            } else {
+                cs.setReactivePowerSetpoint(reactivePowerSetPoint);
+            }
         }
     }
 }

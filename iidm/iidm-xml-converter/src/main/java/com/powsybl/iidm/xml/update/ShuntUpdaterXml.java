@@ -23,12 +23,11 @@ public final class ShuntUpdaterXml {
     private ShuntUpdaterXml() { }
 
     public static void updateShuntControlValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.CONTROL) {
-            return;
+        if (targetFile == IncrementalIidmFiles.CONTROL) {
+            String id = reader.getAttributeValue(null, "id");
+            double currentSectionCount = XmlUtil.readOptionalDoubleAttribute(reader, "currentSectionCount");
+            ShuntCompensator sc = (ShuntCompensator) network.getIdentifiable(id);
+            sc.setCurrentSectionCount((int) currentSectionCount);
         }
-        String id = reader.getAttributeValue(null, "id");
-        double currentSectionCount = XmlUtil.readOptionalDoubleAttribute(reader, "currentSectionCount");
-        ShuntCompensator sc = (ShuntCompensator) network.getIdentifiable(id);
-        sc.setCurrentSectionCount((int) currentSectionCount);
     }
 }

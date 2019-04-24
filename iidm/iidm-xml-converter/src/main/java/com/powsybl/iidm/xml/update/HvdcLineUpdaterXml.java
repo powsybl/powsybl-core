@@ -23,12 +23,11 @@ public final class HvdcLineUpdaterXml {
     private HvdcLineUpdaterXml() { }
 
     public static void updateHvdcLineControlValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.CONTROL) {
-            return;
+        if (targetFile == IncrementalIidmFiles.CONTROL) {
+            String id = reader.getAttributeValue(null, "id");
+            double activePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(reader, "activePowerSetpoint");
+            HvdcLine l = (HvdcLine) network.getIdentifiable(id);
+            l.setActivePowerSetpoint(activePowerSetpoint);
         }
-        String id = reader.getAttributeValue(null, "id");
-        double activePowerSetpoint = XmlUtil.readOptionalDoubleAttribute(reader, "activePowerSetpoint");
-        HvdcLine l = (HvdcLine) network.getIdentifiable(id);
-        l.setActivePowerSetpoint(activePowerSetpoint);
     }
 }

@@ -31,26 +31,24 @@ public final class TwoWindingsTransformerUpdaterXml {
     }
 
     public static void updatePhaseTapChangerControlValues(XMLStreamReader reader, TwoWindingsTransformer[] twtTab, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.CONTROL) {
-            return;
+        if (targetFile == IncrementalIidmFiles.CONTROL) {
+            String regulationMode = reader.getAttributeValue(null, "regulationMode");
+            double regulatingValue = XmlUtil.readOptionalDoubleAttribute(reader, "regulationValue");
+            boolean regulating = XmlUtil.readOptionalBoolAttribute(reader, "regulating", false);
+            TwoWindingsTransformer twt = twtTab[0];
+            PhaseTapChanger rpc = twt.getPhaseTapChanger();
+            rpc.setRegulationValue(regulatingValue).setRegulating(regulating).setRegulationMode(PhaseTapChanger.RegulationMode.valueOf(regulationMode));
         }
-        String regulationMode = reader.getAttributeValue(null, "regulationMode");
-        double regulatingValue = XmlUtil.readOptionalDoubleAttribute(reader, "regulationValue");
-        boolean regulating = XmlUtil.readOptionalBoolAttribute(reader, "regulating", false);
-        TwoWindingsTransformer twt = twtTab[0];
-        PhaseTapChanger rpc = twt.getPhaseTapChanger();
-        rpc.setRegulationValue(regulatingValue).setRegulating(regulating).setRegulationMode(PhaseTapChanger.RegulationMode.valueOf(regulationMode));
     }
 
     public static void updateRatioTapChangerControlValues(XMLStreamReader reader, TwoWindingsTransformer[] twtTab, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.CONTROL) {
-            return;
+        if (targetFile == IncrementalIidmFiles.CONTROL) {
+            boolean regulating = XmlUtil.readOptionalBoolAttribute(reader, "regulating", false);
+            double targetV = XmlUtil.readOptionalDoubleAttribute(reader, "targetV");
+            double tapPosition = XmlUtil.readOptionalDoubleAttribute(reader, "tapPosition");
+            TwoWindingsTransformer twt = twtTab[0];
+            RatioTapChanger rtc = twt.getRatioTapChanger();
+            rtc.setTargetV(targetV).setRegulating(regulating).setTapPosition((int) tapPosition);
         }
-        boolean regulating = XmlUtil.readOptionalBoolAttribute(reader, "regulating", false);
-        double targetV = XmlUtil.readOptionalDoubleAttribute(reader, "targetV");
-        double tapPosition = XmlUtil.readOptionalDoubleAttribute(reader, "tapPosition");
-        TwoWindingsTransformer twt = twtTab[0];
-        RatioTapChanger rtc = twt.getRatioTapChanger();
-        rtc.setTargetV(targetV).setRegulating(regulating).setTapPosition((int) tapPosition);
     }
 }

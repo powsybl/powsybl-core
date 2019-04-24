@@ -82,28 +82,26 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
 
     @Override
     protected void writeSubElements(ThreeWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
-        if (context.getTargetFile() == IncrementalIidmFiles.TOPO || context.getTargetFile() == IncrementalIidmFiles.STATE) {
-            return;
+        if (context.getTargetFile() == IncrementalIidmFiles.CONTROL || !context.getOptions().isIncrementalConversion()) {
+            RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
+            if (rtc2 != null) {
+                writeRatioTapChanger("ratioTapChanger2", rtc2, context);
+            }
+            RatioTapChanger rtc3 = twt.getLeg3().getRatioTapChanger();
+            if (rtc3 != null) {
+                writeRatioTapChanger("ratioTapChanger3", rtc3, context);
+            }
         }
-        RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
-        if (rtc2 != null) {
-            writeRatioTapChanger("ratioTapChanger2", rtc2, context);
-        }
-        RatioTapChanger rtc3 = twt.getLeg3().getRatioTapChanger();
-        if (rtc3 != null) {
-            writeRatioTapChanger("ratioTapChanger3", rtc3, context);
-        }
-        if (context.getOptions().isIncrementalConversion()) {
-            return;
-        }
-        if (twt.getLeg1().getCurrentLimits() != null) {
-            writeCurrentLimits(1, twt.getLeg1().getCurrentLimits(), context.getWriter());
-        }
-        if (twt.getLeg2().getCurrentLimits() != null) {
-            writeCurrentLimits(2, twt.getLeg2().getCurrentLimits(), context.getWriter());
-        }
-        if (twt.getLeg3().getCurrentLimits() != null) {
-            writeCurrentLimits(3, twt.getLeg3().getCurrentLimits(), context.getWriter());
+        if (!context.getOptions().isIncrementalConversion()) {
+            if (twt.getLeg1().getCurrentLimits() != null) {
+                writeCurrentLimits(1, twt.getLeg1().getCurrentLimits(), context.getWriter());
+            }
+            if (twt.getLeg2().getCurrentLimits() != null) {
+                writeCurrentLimits(2, twt.getLeg2().getCurrentLimits(), context.getWriter());
+            }
+            if (twt.getLeg3().getCurrentLimits() != null) {
+                writeCurrentLimits(3, twt.getLeg3().getCurrentLimits(), context.getWriter());
+            }
         }
     }
 

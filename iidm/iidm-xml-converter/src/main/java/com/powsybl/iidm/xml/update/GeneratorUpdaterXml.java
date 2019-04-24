@@ -23,15 +23,14 @@ public final class GeneratorUpdaterXml {
     private GeneratorUpdaterXml() { }
 
     public static void updateGeneratorControlValues(XMLStreamReader reader, Network network, IncrementalIidmFiles targetFile) {
-        if (targetFile != IncrementalIidmFiles.CONTROL) {
-            return;
+        if (targetFile == IncrementalIidmFiles.CONTROL) {
+            String id = reader.getAttributeValue(null, "id");
+            boolean voltageRegulatorOn = XmlUtil.readOptionalBoolAttribute(reader, "voltageRegulatorOn", false);
+            double targetP = XmlUtil.readOptionalDoubleAttribute(reader, "targetP");
+            double targetQ = XmlUtil.readOptionalDoubleAttribute(reader, "targetQ");
+            double targetV = XmlUtil.readOptionalDoubleAttribute(reader, "targetV");
+            Generator generator = (Generator) network.getIdentifiable(id);
+            generator.setTargetP(targetP).setTargetQ(targetQ).setTargetV(targetV).setVoltageRegulatorOn(voltageRegulatorOn);
         }
-        String id = reader.getAttributeValue(null, "id");
-        boolean voltageRegulatorOn = XmlUtil.readOptionalBoolAttribute(reader, "voltageRegulatorOn", false);
-        double targetP = XmlUtil.readOptionalDoubleAttribute(reader, "targetP");
-        double targetQ = XmlUtil.readOptionalDoubleAttribute(reader, "targetQ");
-        double targetV = XmlUtil.readOptionalDoubleAttribute(reader, "targetV");
-        Generator generator = (Generator) network.getIdentifiable(id);
-        generator.setTargetP(targetP).setTargetQ(targetQ).setTargetV(targetV).setVoltageRegulatorOn(voltageRegulatorOn);
     }
 }
