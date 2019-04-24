@@ -22,9 +22,13 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
 
     private double x;
 
-    private double g;
+    private double g1;
 
-    private double b;
+    private double b1;
+
+    private double g2;
+
+    private double b2;
 
     private double ratedU1;
 
@@ -36,13 +40,16 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
 
     TwoWindingsTransformerImpl(String id, String name,
             SubstationImpl substation,
-            double r, double x, double g, double b, double ratedU1, double ratedU2) {
+            double r, double x, double g1, double b1, double g2, double b2,
+            double ratedU1, double ratedU2) {
         super(id, name);
         this.substation = substation;
         this.r = r;
         this.x = x;
-        this.g = g;
-        this.b = b;
+        this.g1 = g1;
+        this.b1 = b1;
+        this.g2 = g2;
+        this.b2 = b2;
         this.ratedU1 = ratedU1;
         this.ratedU2 = ratedU2;
     }
@@ -86,30 +93,58 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
     }
 
     @Override
-    public double getG() {
-        return g;
+    public double getG1() {
+        return g1;
     }
 
     @Override
-    public TwoWindingsTransformerImpl setG(double g) {
+    public TwoWindingsTransformerImpl setG1(double g) {
         ValidationUtil.checkG(this, g);
-        double oldValue = this.g;
-        this.g = g;
-        notifyUpdate("g", oldValue, g);
+        double oldValue = this.g1;
+        this.g1 = g;
+        notifyUpdate("g1", oldValue, g);
         return this;
     }
 
     @Override
-    public double getB() {
-        return b;
+    public double getB1() {
+        return b1;
     }
 
     @Override
-    public TwoWindingsTransformerImpl setB(double b) {
+    public TwoWindingsTransformerImpl setB1(double b) {
         ValidationUtil.checkB(this, b);
-        double oldValue = this.b;
-        this.b = b;
-        notifyUpdate("b", oldValue, b);
+        double oldValue = this.b1;
+        this.b1 = b;
+        notifyUpdate("b1", oldValue, b);
+        return this;
+    }
+
+    @Override
+    public double getG2() {
+        return g2;
+    }
+
+    @Override
+    public TwoWindingsTransformerImpl setG2(double g) {
+        ValidationUtil.checkG(this, g);
+        double oldValue = this.g2;
+        this.g2 = g;
+        notifyUpdate("g2", oldValue, g);
+        return this;
+    }
+
+    @Override
+    public double getB2() {
+        return b2;
+    }
+
+    @Override
+    public TwoWindingsTransformerImpl setB2(double b) {
+        ValidationUtil.checkB(this, b);
+        double oldValue = this.b2;
+        this.b2 = b;
+        notifyUpdate("b2", oldValue, b);
         return this;
     }
 

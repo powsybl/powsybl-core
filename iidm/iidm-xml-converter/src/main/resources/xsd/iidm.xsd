@@ -341,8 +341,10 @@
                 </xs:sequence>
                 <xs:attribute name="r" use="required" type="xs:double"/>
                 <xs:attribute name="x" use="required" type="xs:double"/>
-                <xs:attribute name="g" use="required" type="xs:double"/>
-                <xs:attribute name="b" use="required" type="xs:double"/>
+                <xs:attribute name="g1" use="required" type="xs:double"/>
+                <xs:attribute name="b1" use="required" type="xs:double"/>
+                <xs:attribute name="g2" use="required" type="xs:double"/>
+                <xs:attribute name="b2" use="required" type="xs:double"/>
                 <xs:attribute name="ratedU1" use="required" type="xs:double"/>
                 <xs:attribute name="ratedU2" use="required" type="xs:double"/>
             </xs:extension>

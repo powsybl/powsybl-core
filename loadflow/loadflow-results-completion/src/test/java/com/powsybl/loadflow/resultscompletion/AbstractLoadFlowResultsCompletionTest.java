@@ -168,8 +168,8 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(transformer.getTerminal(Side.TWO)).thenReturn(twtTerminal2);
         Mockito.when(transformer.getR()).thenReturn(0.121);
         Mockito.when(transformer.getX()).thenReturn(47.9);
-        Mockito.when(transformer.getG()).thenReturn(0.0);
-        Mockito.when(transformer.getB()).thenReturn(0.0);
+        Mockito.when(transformer.getG1()).thenReturn(0.0);
+        Mockito.when(transformer.getB1()).thenReturn(0.0);
         Mockito.when(transformer.getRatioTapChanger()).thenReturn(ratioTapChanger);
         Mockito.when(transformer.getRatedU1()).thenReturn(380.0);
         Mockito.when(transformer.getRatedU2()).thenReturn(380.0);

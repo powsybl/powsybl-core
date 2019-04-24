@@ -255,7 +255,7 @@ public class ConditionDslLoaderTest {
         evalAndAssert(800.0, "line('NHV1_NHV2_1').currentLimits1.getTemporaryLimitValue(1200)");
 
         evalAndAssert(800.0, "branch('NHV1_NHV2_1').currentLimits1.getTemporaryLimitValue(1200)");
-        evalAndAssert(0.0, "branch('NHV2_NLOAD').g");
+        evalAndAssert(0.0, "branch('NHV2_NLOAD').g1");
     }
 
     @Test

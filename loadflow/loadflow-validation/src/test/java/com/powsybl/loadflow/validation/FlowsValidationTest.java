@@ -127,8 +127,8 @@ public class FlowsValidationTest extends AbstractValidationTest {
         Mockito.when(transformer1.getTerminal2()).thenReturn(terminal2);
         Mockito.when(transformer1.getR()).thenReturn(r * (1 - r / 100));
         Mockito.when(transformer1.getX()).thenReturn(x * (1 - x / 100));
-        Mockito.when(transformer1.getG()).thenReturn(g1 * (1 - g1 / 100));
-        Mockito.when(transformer1.getB()).thenReturn(b1 * 2 * (1 - b1 / 100));
+        Mockito.when(transformer1.getG1()).thenReturn(g1 * (1 - g1 / 100));
+        Mockito.when(transformer1.getB1()).thenReturn(b1 * 2 * (1 - b1 / 100));
         Mockito.when(transformer1.getRatioTapChanger()).thenReturn(ratioTapChanger);
         Mockito.when(transformer1.getRatedU1()).thenReturn(ratedU1);
         Mockito.when(transformer1.getRatedU2()).thenReturn(ratedU2);
@@ -233,8 +233,8 @@ public class FlowsValidationTest extends AbstractValidationTest {
         Mockito.when(transformer2.getTerminal2()).thenReturn(terminal2);
         Mockito.when(transformer2.getR()).thenReturn(r * (1 - r / 100));
         Mockito.when(transformer2.getX()).thenReturn(x * (1 - x / 100));
-        Mockito.when(transformer2.getG()).thenReturn(g1 * (1 - g1 / 100));
-        Mockito.when(transformer2.getB()).thenReturn(b1 * 2 * (1 - b1 / 100));
+        Mockito.when(transformer2.getG1()).thenReturn(g1 * (1 - g1 / 100));
+        Mockito.when(transformer2.getB1()).thenReturn(b1 * 2 * (1 - b1 / 100));
         Mockito.when(transformer2.getRatioTapChanger()).thenReturn(ratioTapChanger);
         Mockito.when(transformer2.getRatedU1()).thenReturn(ratedU1);
         Mockito.when(transformer2.getRatedU2()).thenReturn(ratedU2);

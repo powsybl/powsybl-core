@@ -21,9 +21,13 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
 
     private double x = Double.NaN;
 
-    private double g = Double.NaN;
+    private double g1 = Double.NaN;
 
-    private double b = Double.NaN;
+    private double b1 = Double.NaN;
+
+    private double g2 = Double.NaN;
+
+    private double b2 = Double.NaN;
 
     private double ratedU1 = Double.NaN;
 
@@ -56,14 +60,26 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
     }
 
     @Override
-    public TwoWindingsTransformerAdder setB(double b) {
-        this.b = b;
+    public TwoWindingsTransformerAdder setB1(double b) {
+        this.b1 = b;
         return this;
     }
 
     @Override
-    public TwoWindingsTransformerAdder setG(double g) {
-        this.g = g;
+    public TwoWindingsTransformerAdder setG1(double g) {
+        this.g1 = g;
+        return this;
+    }
+
+    @Override
+    public TwoWindingsTransformerAdder setB2(double b) {
+        this.b2 = b;
+        return this;
+    }
+
+    @Override
+    public TwoWindingsTransformerAdder setG2(double g) {
+        this.g2 = g;
         return this;
     }
 
@@ -95,15 +111,17 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
 
         ValidationUtil.checkR(this, r);
         ValidationUtil.checkX(this, x);
-        ValidationUtil.checkG(this, g);
-        ValidationUtil.checkB(this, b);
+        ValidationUtil.checkG(this, g1);
+        ValidationUtil.checkB(this, b1);
+        ValidationUtil.checkG(this, g2);
+        ValidationUtil.checkB(this, b2);
         ValidationUtil.checkRatedU1(this, ratedU1);
         ValidationUtil.checkRatedU2(this, ratedU2);
 
         TwoWindingsTransformerImpl transformer
                 = new TwoWindingsTransformerImpl(id, getName(),
                                                  voltageLevel1.getSubstation(),
-                                                 r, x, g, b,
+                                                 r, x, g1, b1, g2, b2,
                                                  ratedU1, ratedU2);
         terminal1.setNum(1);
         terminal2.setNum(2);
