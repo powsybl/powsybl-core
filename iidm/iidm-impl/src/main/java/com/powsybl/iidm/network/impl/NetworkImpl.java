@@ -974,6 +974,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                     mergedLine.id, mergedLine.xnode, mergedLine.country1, mergedLine.country2);
             TieLineAdderImpl la = newTieLine()
                     .setId(mergedLine.id)
+                    .setName(mergedLine.half1.name + " + " + mergedLine.half2.name)
                     .setVoltageLevel1(mergedLine.voltageLevel1)
                     .setVoltageLevel2(mergedLine.voltageLevel2)
                     .line1().setId(mergedLine.half1.id)
