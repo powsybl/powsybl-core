@@ -4,22 +4,24 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.security;
+package com.powsybl.security.detectors;
 
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.security.LimitViolation;
+import com.powsybl.security.LimitViolationDetector;
 
 import java.util.function.Consumer;
 
 /**
  * Provides implementations for aggregation methods of {@link LimitViolationDetector}.
- * Actual implementations will only have to focus on detecting violations element-wise.
+ * Contingency based methods are not implemented, default implementation are left untouched.
  *
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
-public abstract class AbstractLimitViolationDetector implements LimitViolationDetector {
+public abstract class AbstractContingencyBlindDetector implements LimitViolationDetector {
 
     /**
      * This implementation takes the current value to be checked from the Network.
@@ -55,5 +57,4 @@ public abstract class AbstractLimitViolationDetector implements LimitViolationDe
                 .flatMap(v -> v.getBusView().getBusStream())
                 .forEach(b -> checkVoltage(b, consumer));
     }
-
 }

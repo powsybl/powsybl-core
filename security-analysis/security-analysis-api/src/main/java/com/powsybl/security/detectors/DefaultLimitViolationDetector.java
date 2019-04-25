@@ -4,12 +4,20 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.security;
+package com.powsybl.security.detectors;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.util.LimitViolationUtils;
+import com.powsybl.security.LimitViolation;
+import com.powsybl.security.LimitViolationType;
+import com.powsybl.security.Security;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.EnumSet;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -17,7 +25,7 @@ import java.util.function.Consumer;
  *
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
  */
-public class DefaultLimitViolationDetector extends AbstractLimitViolationDetector {
+public class DefaultLimitViolationDetector extends AbstractContingencyBlindDetector {
 
     private final float limitReduction;
     private final Set<Security.CurrentLimitType> currentLimitTypes;
