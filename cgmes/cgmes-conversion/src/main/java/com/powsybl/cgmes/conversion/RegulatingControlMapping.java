@@ -21,6 +21,12 @@ public class RegulatingControlMapping {
     private static final String TAP_CHANGER_CONTROL = "TapChangerControl";
     private static final String TERMINAL = "Terminal";
 
+    private final Context context;
+
+    public RegulatingControlMapping(Context context) {
+        this.context = context;
+    }
+
     class RegulatingControl {
         private String mode;
         private String cgmesTerminal;
@@ -43,15 +49,15 @@ public class RegulatingControlMapping {
         regulatingControlMapping.put(p.getId(REGULATING_CONTROL), new RegulatingControl(p));
     }
 
-    public void setRegulatingControl(String idEq, PropertyBag p, GeneratorAdder adder, VoltageLevel vl, Context context) {
+    public void setRegulatingControl(String idEq, PropertyBag p, GeneratorAdder adder, VoltageLevel vl) {
         if (p.containsKey(REGULATING_CONTROL)) {
             String controlId = p.getId(REGULATING_CONTROL);
             RegulatingControl control = regulatingControlMapping.get(controlId);
             if (control != null) {
                 if (control.mode != null && control.mode.endsWith("voltage")) {
-                    setTargetValue(control.targetValue, vl.getNominalV(), controlId, adder, context);
+                    setTargetValue(control.targetValue, vl.getNominalV(), controlId, adder);
                     adder.setVoltageRegulatorOn(control.enabled);
-                    setRegulatingTerminal(control, p.getId(TERMINAL), idEq, controlId, adder, context);
+                    setRegulatingTerminal(control, p.getId(TERMINAL), idEq, controlId, adder);
                     return;
                 }
             } else {
@@ -62,7 +68,7 @@ public class RegulatingControlMapping {
                 .setTargetV(Double.NaN);
     }
 
-    public void setRegulatingControl(PropertyBag p, Terminal defaultTerminal, RatioTapChangerAdder adder, Context context) {
+    public void setRegulatingControl(PropertyBag p, Terminal defaultTerminal, RatioTapChangerAdder adder) {
         if (p.containsKey(TAP_CHANGER_CONTROL)) {
             String controlId = p.getId(TAP_CHANGER_CONTROL);
             RegulatingControl control = regulatingControlMapping.get(controlId);
@@ -91,10 +97,10 @@ public class RegulatingControlMapping {
                     .setTargetV(control.targetValue);
         }
         adder.setLoadTapChangingCapabilities(true);
-        setRegulatingTerminal(p, control, defaultTerminal, adder, context);
+        setRegulatingTerminal(p, control, defaultTerminal, adder);
     }
 
-    private static void setTargetValue(double targetValue, double defaultValue, String controlId, GeneratorAdder adder, Context context) {
+    private void setTargetValue(double targetValue, double defaultValue, String controlId, GeneratorAdder adder) {
         if (targetValue == 0 || Double.isNaN(targetValue)) {
             context.fixed(controlId, "Invalid value for regulating target value",
                     targetValue, defaultValue);
@@ -104,7 +110,7 @@ public class RegulatingControlMapping {
         }
     }
 
-    private void setRegulatingTerminal(RegulatingControl control, String terminalEq, String idEq, String controlId, GeneratorAdder adder, Context context) {
+    private void setRegulatingTerminal(RegulatingControl control, String terminalEq, String idEq, String controlId, GeneratorAdder adder) {
         if (context.terminalMapping().find(control.cgmesTerminal) != null) {
             adder.setRegulatingTerminal(context.terminalMapping().find(control.cgmesTerminal));
         } else if (!context.terminalMapping().areAssociated(terminalEq, control.topologicalNode)) {
@@ -114,7 +120,7 @@ public class RegulatingControlMapping {
         regulatingControlMapping.remove(controlId);
     }
 
-    private void setRegulatingTerminal(PropertyBag p, RegulatingControl control, Terminal defaultTerminal, RatioTapChangerAdder adder, Context context) {
+    private void setRegulatingTerminal(PropertyBag p, RegulatingControl control, Terminal defaultTerminal, RatioTapChangerAdder adder) {
         if (context.terminalMapping().find(control.cgmesTerminal) != null) {
             adder.setRegulationTerminal(context.terminalMapping().find(control.cgmesTerminal));
         } else {

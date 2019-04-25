@@ -83,7 +83,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         } else {
             addStepsFromStepVoltageIncrement(rtca);
         }
-        context.regulatingControlMapping().setRegulatingControl(p, terminal(), rtca, context);
+        context.regulatingControlMapping().setRegulatingControl(p, terminal(), rtca);
         rtca.add();
     }
 

@@ -46,7 +46,7 @@ public class Context {
         tapChangerTransformers = new TapChangerTransformers();
         dcMapping = new DcMapping(this);
         currentLimitsMapping = new CurrentLimitsMapping(this);
-        regulatingControlMapping = new RegulatingControlMapping();
+        regulatingControlMapping = new RegulatingControlMapping(this);
         nodeMapping = new NodeMapping();
 
         ratioTapChangerTables = new HashMap<>();

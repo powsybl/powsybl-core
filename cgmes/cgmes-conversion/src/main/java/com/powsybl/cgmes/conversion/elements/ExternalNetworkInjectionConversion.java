@@ -37,7 +37,7 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
         }
 
         GeneratorAdder adder = voltageLevel().newGenerator();
-        context.regulatingControlMapping().setRegulatingControl(iidmId(), p, adder, voltageLevel(), context);
+        context.regulatingControlMapping().setRegulatingControl(iidmId(), p, adder, voltageLevel());
         adder.setMinP(minP)
                 .setMaxP(maxP)
                 .setTargetP(targetP)
