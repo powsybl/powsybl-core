@@ -112,7 +112,7 @@ public class Conversion {
         context.currentLimitsMapping().addAll();
 
         // set all remote regulating terminals
-        context.setAllRemoteRegulatingTerminals();
+        context.regulatingControlMapping().setAllRemoteRegulatingTerminals();
 
         voltageAngles(nodes, context);
         if (context.config().debugTopology()) {

@@ -11,6 +11,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
@@ -20,6 +21,7 @@ public class RegulatingControlMapping {
     private static final String REGULATING_CONTROL = "RegulatingControl";
     private static final String TAP_CHANGER_CONTROL = "TapChangerControl";
     private static final String TERMINAL = "Terminal";
+    private static final String MISSING_IIDM_TERMINAL = "IIDM terminal for this CGMES topological node: %s";
 
     private final Context context;
 
@@ -28,11 +30,13 @@ public class RegulatingControlMapping {
     }
 
     class RegulatingControl {
-        private String mode;
-        private String cgmesTerminal;
-        private String topologicalNode;
-        private boolean enabled;
-        private double targetValue;
+        private final String mode;
+        private final String cgmesTerminal;
+        private final String topologicalNode;
+        private final boolean enabled;
+        private final double targetValue;
+
+        private String idEq;
 
         RegulatingControl(PropertyBag p) {
             this.mode = p.get("mode").toLowerCase();
@@ -54,7 +58,7 @@ public class RegulatingControlMapping {
             String controlId = p.getId(REGULATING_CONTROL);
             RegulatingControl control = regulatingControlMapping.get(controlId);
             if (control != null) {
-                if (control.mode != null && control.mode.endsWith("voltage")) {
+                if (control.mode.endsWith("voltage")) {
                     setTargetValue(control.targetValue, vl.getNominalV(), controlId, adder);
                     adder.setVoltageRegulatorOn(control.enabled);
                     setRegulatingTerminal(control, p.getId(TERMINAL), idEq, controlId, adder);
@@ -114,7 +118,7 @@ public class RegulatingControlMapping {
         if (context.terminalMapping().find(control.cgmesTerminal) != null) {
             adder.setRegulatingTerminal(context.terminalMapping().find(control.cgmesTerminal));
         } else if (!context.terminalMapping().areAssociated(terminalEq, control.topologicalNode)) {
-            context.putRemoteRegulatingTerminal(idEq, control.topologicalNode);
+            control.idEq = idEq;
             return;
         }
         regulatingControlMapping.remove(controlId);
@@ -126,10 +130,80 @@ public class RegulatingControlMapping {
         } else {
             adder.setRegulationTerminal(defaultTerminal);
             if (!context.terminalMapping().areAssociated(p.getId(TERMINAL), control.topologicalNode)) {
-                context.putRemoteRegulatingTerminal(p.getId("RatioTapChanger"), control.topologicalNode);
+                control.idEq = p.getId("RatioTapChanger");
                 return;
             }
         }
         regulatingControlMapping.remove(p.getId(TAP_CHANGER_CONTROL));
+    }
+
+    public void setAllRemoteRegulatingTerminals() {
+        regulatingControlMapping.entrySet().removeIf(this::setRegulatingTerminal);
+        regulatingControlMapping.forEach((key, value) -> context.pending("Regulating terminal", String.format("The setting of the regulating terminal of the regulating control %s is not handled.", key)));
+    }
+
+    private boolean setRegulatingTerminal(Map.Entry<String, RegulatingControl> entry) {
+        RegulatingControl control = entry.getValue();
+        String idEq = control.idEq;
+        Identifiable i = idEq != null ? context.network().getIdentifiable(idEq) : null;
+        if (i == null) {
+            if (context.tapChangerTransformers().transformer2(entry.getKey()) != null) {
+                return setRegulatingTerminal(entry.getKey(), control, context.tapChangerTransformers().transformer2(entry.getKey()));
+            } else if (context.tapChangerTransformers().transformer3(entry.getKey()) != null) {
+                return setRegulatingTerminal(entry.getKey(), control, context.tapChangerTransformers().transformer3(entry.getKey()));
+            }
+        } else if (i instanceof Generator) {
+            return setRegulatingTerminal(control, (Generator) i);
+        }
+        return false;
+    }
+
+    private Terminal findRegulatingTerminal(String cgmesTerminal, String topologicalNode) {
+        return Optional.ofNullable(context.terminalMapping().find(cgmesTerminal))
+                .orElseGet(() -> context.terminalMapping().findFromTopologicalNode(topologicalNode));
+    }
+
+    private boolean setRegulatingTerminal(String tc, RegulatingControl control, TwoWindingsTransformer t2w) {
+        Terminal regTerminal = findRegulatingTerminal(control.cgmesTerminal, control.topologicalNode);
+        if (regTerminal == null) {
+            context.missing(String.format(MISSING_IIDM_TERMINAL, control.topologicalNode));
+            return false;
+        }
+        if (context.tapChangerTransformers().type(tc).equals("rtc")) {
+            t2w.getRatioTapChanger().setRegulationTerminal(regTerminal);
+            return true;
+        } else if (context.tapChangerTransformers().type(tc).equals("ptc")) {
+            t2w.getPhaseTapChanger().setRegulationTerminal(regTerminal);
+            return true;
+        }
+        return false;
+    }
+
+    private boolean setRegulatingTerminal(String tc, RegulatingControl control, ThreeWindingsTransformer t3w) {
+        Terminal regTerminal = findRegulatingTerminal(control.cgmesTerminal, control.topologicalNode);
+        if (regTerminal == null) {
+            context.missing(String.format(MISSING_IIDM_TERMINAL, control.topologicalNode));
+            return false;
+        }
+        if (context.tapChangerTransformers().type(tc).equals("rtc")) {
+            if (context.tapChangerTransformers().whichSide(tc) == 2) {
+                t3w.getLeg2().getRatioTapChanger().setRegulationTerminal(regTerminal);
+                return true;
+            } else if (context.tapChangerTransformers().whichSide(tc) == 3) {
+                t3w.getLeg3().getRatioTapChanger().setRegulationTerminal(regTerminal);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean setRegulatingTerminal(RegulatingControl control, Generator g) {
+        Terminal regTerminal = findRegulatingTerminal(control.cgmesTerminal, control.topologicalNode);
+        if (regTerminal == null) {
+            context.missing(String.format(MISSING_IIDM_TERMINAL, control.topologicalNode));
+            return false;
+        }
+        g.setRegulatingTerminal(regTerminal);
+        return true;
     }
 }
