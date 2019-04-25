@@ -46,7 +46,8 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
-import com.powsybl.triplestore.api.CgmesContext;
+import com.powsybl.triplestore.api.PrefixNamespace;
+import com.powsybl.triplestore.api.TripleStoreContext;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStoreException;
@@ -173,46 +174,49 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void add(CgmesContext cgmesContext, String objNs, String objType, PropertyBags statements) {
+    public void add(TripleStoreContext context, String objNs, String objType, PropertyBags statements) {
         try (RepositoryConnection conn = repo.getConnection()) {
             conn.setIsolationLevel(IsolationLevels.NONE);
 
-            String name = getContextName(conn, cgmesContext);
+            String name = getContextName(conn, context);
 
-            Resource context = conn.getValueFactory().createIRI(name);
+            Resource contextResource = conn.getValueFactory().createIRI(name);
 
-            statements.forEach(statement -> createStatements(conn, objNs, objType, statement, context));
+            statements.forEach(statement -> createStatements(conn, objNs, objType, statement, contextResource));
         }
     }
 
     @Override
-    public String add(CgmesContext cgmesContext, String objNs, String objType, PropertyBag properties) {
+    public String add(TripleStoreContext context, String objNs, String objType, PropertyBag properties) {
         try (RepositoryConnection conn = repo.getConnection()) {
             conn.setIsolationLevel(IsolationLevels.NONE);
-            String name = getContextName(conn, cgmesContext);
-            Resource context = conn.getValueFactory().createIRI(name);
-            return createStatements(conn, objNs, objType, properties, context);
+            String name = getContextName(conn, context);
+            Resource contextResource = conn.getValueFactory().createIRI(name);
+            return createStatements(conn, objNs, objType, properties, contextResource);
         }
     }
 
-    private String getContextName(RepositoryConnection conn, CgmesContext cgmesContext) {
+    private String getContextName(RepositoryConnection conn, TripleStoreContext context) {
         String name = null;
         RepositoryResult<Resource> ctxs = conn.getContextIDs();
         while (ctxs.hasNext()) {
             String ctx = ctxs.next().stringValue();
+            // FIXME Luma this is just to build a long context name from short,
+            // that has a similar name of one of the already existing context long names ???
             if (ctx.contains("EQ")) {
-                name = ctx.replace("EQ", cgmesContext.getProfile().name());
+                name = ctx.replace("EQ", context.shortName());
                 break;
             }
         }
         if (name == null) {
-            name = namespaceForContexts() + cgmesContext.getName();
+            name = namespaceForContexts() + context.longName();
         }
         return name;
     }
 
-    private static String createStatements(RepositoryConnection cnx, String objNs, String objType, PropertyBag statement,
-            Resource context) {
+    private static String createStatements(RepositoryConnection cnx, String objNs, String objType,
+        PropertyBag statement,
+        Resource context) {
         UUID uuid = new UUID();
         IRI resource = uuid.evaluate(cnx.getValueFactory());
         IRI parentPredicate = RDF.TYPE;
@@ -281,13 +285,13 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public List<com.powsybl.triplestore.api.Namespace> getNamespaces() {
-        List<com.powsybl.triplestore.api.Namespace> namespaces = new ArrayList<>();
+    public List<PrefixNamespace> getNamespaces() {
+        List<PrefixNamespace> namespaces = new ArrayList<>();
         try (RepositoryConnection conn = repo.getConnection()) {
             RepositoryResult<Namespace> ns = conn.getNamespaces();
             while (ns.hasNext()) {
                 Namespace namespace = ns.next();
-                namespaces.add(new com.powsybl.triplestore.api.Namespace(namespace.getPrefix(), namespace.getName()));
+                namespaces.add(new PrefixNamespace(namespace.getPrefix(), namespace.getName()));
             }
         }
         return namespaces;

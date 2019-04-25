@@ -40,8 +40,8 @@ import org.apache.jena.vocabulary.RDF;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
-import com.powsybl.triplestore.api.CgmesContext;
-import com.powsybl.triplestore.api.Namespace;
+import com.powsybl.triplestore.api.TripleStoreContext;
+import com.powsybl.triplestore.api.PrefixNamespace;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStoreException;
@@ -154,40 +154,40 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void add(CgmesContext cgmesContext, String objNs, String objType, PropertyBags statements) {
-        String context = getContextName(cgmesContext);
+    public void add(TripleStoreContext context, String objNs, String objType, PropertyBags statements) {
+        String contextName = getContextName(context);
 
-        Model m = getModel(context);
+        Model m = getModel(contextName);
 
         for (PropertyBag statement : statements) {
             createStatements(m, objNs, objType, statement);
         }
-        dataset.addNamedModel(context, m);
+        dataset.addNamedModel(contextName, m);
         union = union.union(m);
     }
 
     @Override
-    public String add(CgmesContext cgmesContext, String objNs, String objType, PropertyBag properties) {
-        String context = getContextName(cgmesContext);
-        Model m = getModel(context);
+    public String add(TripleStoreContext context, String objNs, String objType, PropertyBag properties) {
+        String contextName = getContextName(context);
+        Model m = getModel(contextName);
         String id = createStatements(m, objNs, objType, properties);
-        dataset.addNamedModel(context, m);
+        dataset.addNamedModel(contextName, m);
         union = union.union(m);
         return id;
     }
 
-    private String getContextName(CgmesContext cgmesContext) {
+    private String getContextName(TripleStoreContext context) {
         String name = null;
         Iterator<String> k = dataset.listNames();
         while (k.hasNext()) {
             String n = k.next();
             if (n.contains("EQ")) {
-                name = n.replace("EQ", cgmesContext.getProfile().name());
+                name = n.replace("EQ", context.shortName());
                 break;
             }
         }
         if (name == null) {
-            name = namespaceForContexts() + cgmesContext.getName();
+            name = namespaceForContexts() + context.longName();
         }
         return name;
     }
@@ -312,12 +312,11 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public List<Namespace> getNamespaces() {
-        List<Namespace> namespaces = new ArrayList<>();
+    public List<PrefixNamespace> getNamespaces() {
+        List<PrefixNamespace> namespaces = new ArrayList<>();
         Map<String, String> namespacesMap = union.getNsPrefixMap();
-        namespacesMap.keySet().forEach(prefix -> {
-            namespaces.add(new com.powsybl.triplestore.api.Namespace(prefix, namespacesMap.get(prefix)));
-        });
+        namespacesMap.keySet().forEach(
+            prefix -> namespaces.add(new PrefixNamespace(prefix, namespacesMap.get(prefix))));
         return namespaces;
     }
 

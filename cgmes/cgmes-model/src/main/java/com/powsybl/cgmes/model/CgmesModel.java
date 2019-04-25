@@ -16,7 +16,7 @@ import com.powsybl.triplestore.api.TripleStore;
 import org.joda.time.DateTime;
 
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.triplestore.api.CgmesContext;
+import com.powsybl.triplestore.api.TripleStoreContext;
 import com.powsybl.triplestore.api.PropertyBags;
 
 /**
@@ -123,7 +123,7 @@ public interface CgmesModel {
 
     void clear(Subset subset);
 
-    void add(CgmesContext context, String type, PropertyBags objects);
+    void add(TripleStoreContext context, String type, PropertyBags objects);
 
     void print(PrintStream out);
 

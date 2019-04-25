@@ -34,14 +34,14 @@ public interface TripleStore {
 
     PropertyBags query(String query);
 
-    void add(CgmesContext context, String namespace, String type, PropertyBags objects);
+    void add(TripleStoreContext context, String namespace, String type, PropertyBags objects);
 
-    String add(CgmesContext context, String namespace, String type, PropertyBag properties);
+    String add(TripleStoreContext context, String namespace, String type, PropertyBag properties);
 
     Set<String> contextNames();
 
     void addNamespace(String prefix, String namespace);
 
-    List<Namespace> getNamespaces();
+    List<PrefixNamespace> getNamespaces();
 
 }

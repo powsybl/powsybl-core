@@ -24,9 +24,8 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
-import com.powsybl.triplestore.api.CgmesContext;
-import com.powsybl.triplestore.api.CgmesProfile;
-import com.powsybl.triplestore.api.Namespace;
+import com.powsybl.triplestore.api.TripleStoreContext;
+import com.powsybl.triplestore.api.PrefixNamespace;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStore;
@@ -102,8 +101,8 @@ public class ExportTest {
         exportTripleStore.addNamespace("data", baseNamespace);
         exportTripleStore.addNamespace("cim", cimNamespace);
         // create context
-        String contextName = networkId + "_" + CgmesProfile.EQ.name() + "_" + implementation + ".xml";
-        CgmesContext context = new CgmesContext(CgmesProfile.EQ, contextName);
+        String contextName = networkId + "_" + "EQ" + "_" + implementation + ".xml";
+        TripleStoreContext context = new TripleStoreContext("EQ", contextName);
         // add statements to triple stores
         // add base voltage statements
         String baseVoltageId = exportTripleStore.add(context, cimNamespace, "BaseVoltage", createBaseVoltageProperties());
@@ -123,8 +122,8 @@ public class ExportTest {
             importTripleStore.read("http://" + networkId, contextName, is);
         }
         // check namespaces
-        assertTrue(importTripleStore.getNamespaces().contains(new Namespace("data", baseNamespace)));
-        assertTrue(importTripleStore.getNamespaces().contains(new Namespace("cim", cimNamespace)));
+        assertTrue(importTripleStore.getNamespaces().contains(new PrefixNamespace("data", baseNamespace)));
+        assertTrue(importTripleStore.getNamespaces().contains(new PrefixNamespace("cim", cimNamespace)));
         // query import triple store
         importTripleStore.defineQueryPrefix("cim", cimNamespace);
         PropertyBags results = importTripleStore.query(query);

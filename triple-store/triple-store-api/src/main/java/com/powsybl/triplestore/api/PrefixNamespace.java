@@ -9,15 +9,14 @@ package com.powsybl.triplestore.api;
 import java.util.Objects;
 
 /**
- *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
-public class Namespace {
+public class PrefixNamespace {
 
     private final String prefix;
     private final String namespace;
 
-    public Namespace(String prefix, String namespace) {
+    public PrefixNamespace(String prefix, String namespace) {
         this.prefix = Objects.requireNonNull(prefix);
         this.namespace = Objects.requireNonNull(namespace);
     }
@@ -37,16 +36,18 @@ public class Namespace {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Namespace) {
-            Namespace other = (Namespace) obj;
-            return prefix.equals(other.getPrefix()) && namespace.equals(other.getNamespace());
+        if (this == obj) {
+            return true;
         }
-        return false;
+        if (!(obj instanceof PrefixNamespace)) {
+            return false;
+        }
+        PrefixNamespace other = (PrefixNamespace) obj;
+        return prefix.equals(other.getPrefix()) && namespace.equals(other.getNamespace());
     }
 
     @Override
     public int hashCode() {
         return Objects.hash(prefix, namespace);
     }
-
 }

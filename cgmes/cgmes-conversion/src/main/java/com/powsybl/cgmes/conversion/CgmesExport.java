@@ -20,8 +20,7 @@ import com.powsybl.cgmes.model.Subset;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.*;
-import com.powsybl.triplestore.api.CgmesContext;
-import com.powsybl.triplestore.api.CgmesProfile;
+import com.powsybl.triplestore.api.TripleStoreContext;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -62,7 +61,7 @@ public class CgmesExport implements Exporter {
     }
 
     private void addStateVariables(Network n, CgmesModel cgmes) {
-        CgmesContext context = new CgmesContext(CgmesProfile.SV);
+        TripleStoreContext context = new TripleStoreContext(Subset.STATE_VARIABLES.getIdentifier());
 
         // TODO Add full model data with proper profile (StateVariables)
 
