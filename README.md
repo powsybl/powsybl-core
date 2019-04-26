@@ -41,12 +41,17 @@ To run all the tests, simply launch the following command from the root of the r
 $ mvn package
 ```
 
+To install an itools distribution, with all the components:
+```
+$> ./install.sh --without-cpp --prefix=<PREFIX>
+```
+
 Modify some existing tests or create your own new tests to experiment with the framework! If it suits you better, import the project in an IDE and use the IDE to launch your own main classes. If you know java and maven and want to do things manually, you can also use maven directly to compute the classpath of all the project jars and run anything you want with it.
 
 Read [Contributing.md](https://github.com/powsybl/.github/blob/master/CONTRIBUTING.md) for more in-depth explanations on how to run code.
 
 ## Full Project Build
-In order to fully build the project, in addition to the java you need:
+In order to fully build the project (i.e. Java and C++ modules), in addition to the java you need:
   * CMake *(2.6 or greater)*
   * Recent C++ compiler (GNU g++ or Clang)
   * OpenMPI *(1.8.3 or greater)*
@@ -110,7 +115,7 @@ each time you use the toolchain.
 | ------ | ----------- | ------------- |
 | --help | Display this help | |
 | --prefix | Set the installation directory | $HOME/powsybl |
-| --package-type | Set the package format. The supported formats are zip, tar, tar.gz and tar.bz2 | zip |
+| --without-cpp | Disable C++ modules compilation | |
 
 #### Third-parties
 
@@ -126,7 +131,7 @@ each time you use the toolchain.
 ```
 #  -- Global options --
 powsybl_prefix=$HOME/powsybl
-powsybl_package_type=zip
+powsybl_cpp=false
 
 #  -- Thirdparty libraries --
 thirdparty_build=true
