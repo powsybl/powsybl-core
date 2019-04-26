@@ -119,7 +119,7 @@ public class ExportTest {
         TripleStore importTripleStore = TripleStoreFactory.create(implementation);
         // import data into triple store
         try (InputStream is = dataSource.newInputStream(contextName)) {
-            importTripleStore.read("http://" + networkId, contextName, is);
+            importTripleStore.read(is, "http://" + networkId, contextName);
         }
         // check namespaces
         assertTrue(importTripleStore.getNamespaces().contains(new PrefixNamespace("data", baseNamespace)));

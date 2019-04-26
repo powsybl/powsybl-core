@@ -7,17 +7,19 @@
 
 package com.powsybl.cgmes.model;
 
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Map;
 import java.util.Properties;
 import java.util.function.Consumer;
 
-import com.powsybl.triplestore.api.TripleStore;
 import org.joda.time.DateTime;
 
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.triplestore.api.TripleStoreContext;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.triplestore.api.PropertyBags;
+import com.powsybl.triplestore.api.TripleStore;
+import com.powsybl.triplestore.api.TripleStoreContext;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -129,7 +131,21 @@ public interface CgmesModel {
 
     void print(Consumer<String> liner);
 
+    // read/write
+
+    public static String baseName(ReadOnlyDataSource ds) {
+        return new CgmesOnDataSource(ds).baseName();
+    }
+
+    void setBasename(String baseName);
+
     void write(DataSource ds);
+
+    void read(ReadOnlyDataSource ds);
+
+    void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary);
+
+    void read(InputStream is, String baseName, String contextName);
 
     // Helper mappings
 

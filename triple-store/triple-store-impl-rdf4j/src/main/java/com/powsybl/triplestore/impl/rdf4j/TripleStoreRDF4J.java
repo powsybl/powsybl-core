@@ -63,7 +63,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void read(String base, String contextName, InputStream is) {
+    public void read(InputStream is, String baseName, String contextName) {
         try (RepositoryConnection conn = repo.getConnection()) {
             conn.setIsolationLevel(IsolationLevels.NONE);
 
@@ -76,14 +76,14 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
             Resource context = context(conn, contextName);
             // We add data with a context (graph) to keep the source of information
             // When we write we want to keep data split by graph
-            conn.add(is, base, formatFromName(contextName), context);
-            addNamespaceForBase(conn, base);
+            conn.add(is, baseName, guessFormatFromName(contextName), context);
+            addNamespaceForBase(conn, baseName);
         } catch (IOException x) {
-            throw new TripleStoreException(String.format("Reading %s %s", base, contextName), x);
+            throw new TripleStoreException(String.format("Reading %s %s", baseName, contextName), x);
         }
     }
 
-    private static RDFFormat formatFromName(String name) {
+    private static RDFFormat guessFormatFromName(String name) {
         if (name.endsWith(".ttl")) {
             return RDFFormat.TURTLE;
         } else if (name.endsWith(".xml")) {
@@ -174,25 +174,22 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void add(TripleStoreContext context, String objNs, String objType, PropertyBags statements) {
+    public void add(TripleStoreContext context, String objNs, String objType, PropertyBags objects) {
         try (RepositoryConnection conn = repo.getConnection()) {
             conn.setIsolationLevel(IsolationLevels.NONE);
-
             String name = getContextName(conn, context);
-
             Resource contextResource = conn.getValueFactory().createIRI(name);
-
-            statements.forEach(statement -> createStatements(conn, objNs, objType, statement, contextResource));
+            objects.forEach(object -> createStatements(conn, objNs, objType, object, contextResource));
         }
     }
 
     @Override
-    public String add(TripleStoreContext context, String objNs, String objType, PropertyBag properties) {
+    public String add(TripleStoreContext context, String objNs, String objType, PropertyBag object) {
         try (RepositoryConnection conn = repo.getConnection()) {
             conn.setIsolationLevel(IsolationLevels.NONE);
             String name = getContextName(conn, context);
             Resource contextResource = conn.getValueFactory().createIRI(name);
-            return createStatements(conn, objNs, objType, properties, contextResource);
+            return createStatements(conn, objNs, objType, object, contextResource);
         }
     }
 

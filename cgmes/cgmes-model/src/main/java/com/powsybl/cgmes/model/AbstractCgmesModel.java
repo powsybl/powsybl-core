@@ -7,6 +7,8 @@
 
 package com.powsybl.cgmes.model;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +18,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -192,7 +195,41 @@ public abstract class AbstractCgmesModel implements CgmesModel {
         return cs;
     }
 
+    // read/write
+
+    @Override
+    public void setBasename(String baseName) {
+        this.baseName = baseName;
+    }
+
+    @Override
+    public void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary) {
+        setBasename(CgmesModel.baseName(mainDataSource));
+        read(mainDataSource);
+        if (!hasBoundary() && alternativeDataSourceForBoundary != null) {
+            read(alternativeDataSourceForBoundary);
+        }
+    }
+
+    @Override
+    public void read(ReadOnlyDataSource ds) {
+        CgmesOnDataSource cds = new CgmesOnDataSource(ds);
+        for (String name : cds.names()) {
+            LOG.info("Reading [{}]", name);
+            try (InputStream is = cds.dataSource().newInputStream(name)) {
+                read(is, baseName, name);
+            } catch (IOException e) {
+                String msg = String.format("Reading [%s]", name);
+                LOG.warn(msg);
+                throw new CgmesModelException(msg, e);
+            }
+        }
+    }
+
     private final Properties properties;
+    private String baseName;
+
+    // Caches
     private Map<String, PropertyBags> cachedGroupedTransformerEnds;
     private Map<String, CgmesTerminal> cachedTerminals;
     private Map<String, CgmesContainer> cachedContainers;

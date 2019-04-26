@@ -7,16 +7,11 @@
 
 package com.powsybl.cgmes.model;
 
-import java.io.IOException;
-import java.io.InputStream;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.Objects;
 
 import com.powsybl.cgmes.model.triplestore.CgmesModelTripleStore;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.triplestore.api.TripleStore;
-import com.powsybl.triplestore.api.TripleStoreException;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
 /**
@@ -27,36 +22,30 @@ public final class CgmesModelFactory {
     private CgmesModelFactory() {
     }
 
-    public static CgmesModelTripleStore create(ReadOnlyDataSource ds, String tripleStoreImpl) {
-        return create(ds, null, tripleStoreImpl);
+    public static CgmesModel create(ReadOnlyDataSource dataSource, String implementation) {
+        Objects.requireNonNull(dataSource);
+        Objects.requireNonNull(implementation);
+
+        ReadOnlyDataSource alternativeDataSourceForBoundary = null;
+        return create(dataSource, alternativeDataSourceForBoundary, implementation);
     }
 
-    public static CgmesModelTripleStore create(ReadOnlyDataSource ds, ReadOnlyDataSource dsBoundary, String tripleStoreImpl) {
-        CgmesOnDataSource cds = new CgmesOnDataSource(ds);
-        TripleStore tripleStore = TripleStoreFactory.create(tripleStoreImpl);
-        CgmesModelTripleStore cgmes = new CgmesModelTripleStore(cds.cimNamespace(), tripleStore);
-        read(cgmes, cds, cds.baseName());
-        // Only try to read boundary data from additional sources if the main data
-        // source does not contain boundary info
-        if (!cgmes.hasBoundary() && dsBoundary != null) {
-            // Read boundary using same baseName of the main data
-            read(cgmes, new CgmesOnDataSource(dsBoundary), cds.baseName());
-        }
+    public static CgmesModel create(
+        ReadOnlyDataSource mainDataSource,
+        ReadOnlyDataSource alternativeDataSourceForBoundary,
+        String implementation) {
+        Objects.requireNonNull(mainDataSource);
+        Objects.requireNonNull(implementation);
+
+        CgmesModel cgmes = createImplementation(implementation, mainDataSource);
+        cgmes.read(mainDataSource, alternativeDataSourceForBoundary);
         return cgmes;
     }
 
-    private static void read(CgmesModelTripleStore cgmes, CgmesOnDataSource cds, String base) {
-        for (String name : cds.names()) {
-            LOG.info("Reading [{}]", name);
-            try (InputStream is = cds.dataSource().newInputStream(name)) {
-                cgmes.read(base, name, is);
-            } catch (IOException e) {
-                String msg = String.format("Reading [%s]", name);
-                LOG.warn(msg);
-                throw new TripleStoreException(msg, e);
-            }
-        }
+    private static CgmesModel createImplementation(String implementation, ReadOnlyDataSource ds) {
+        // Only triple store implementations are available
+        TripleStore tripleStore = TripleStoreFactory.create(implementation);
+        String cimNamespace = new CgmesOnDataSource(ds).cimNamespace();
+        return new CgmesModelTripleStore(cimNamespace, tripleStore);
     }
-
-    private static final Logger LOG = LoggerFactory.getLogger(CgmesModelFactory.class);
 }

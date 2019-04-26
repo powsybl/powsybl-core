@@ -23,11 +23,11 @@ import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
 import com.powsybl.cgmes.model.Subset;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.triplestore.api.TripleStoreContext;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.QueryCatalog;
 import com.powsybl.triplestore.api.TripleStore;
+import com.powsybl.triplestore.api.TripleStoreContext;
 import com.powsybl.triplestore.api.TripleStoreException;
 
 /**
@@ -44,8 +44,9 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         Objects.requireNonNull(queryCatalog);
     }
 
-    public void read(String base, String contextName, InputStream is) {
-        tripleStore.read(base, contextName, is);
+    @Override
+    public void read(InputStream is, String baseName, String contextName) {
+        tripleStore.read(is, baseName, contextName);
     }
 
     @Override

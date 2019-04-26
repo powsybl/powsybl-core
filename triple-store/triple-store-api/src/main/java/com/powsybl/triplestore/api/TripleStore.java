@@ -20,7 +20,7 @@ import com.powsybl.commons.datasource.DataSource;
  */
 public interface TripleStore {
 
-    void read(String base, String contextName, InputStream is);
+    void read(InputStream is, String base, String contextName);
 
     void write(DataSource ds);
 

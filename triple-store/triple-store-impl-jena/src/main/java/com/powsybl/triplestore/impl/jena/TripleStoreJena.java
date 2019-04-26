@@ -40,10 +40,10 @@ import org.apache.jena.vocabulary.RDF;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
-import com.powsybl.triplestore.api.TripleStoreContext;
 import com.powsybl.triplestore.api.PrefixNamespace;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
+import com.powsybl.triplestore.api.TripleStoreContext;
 import com.powsybl.triplestore.api.TripleStoreException;
 
 /**
@@ -69,14 +69,14 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void read(String base, String contextName, InputStream is) {
+    public void read(InputStream is, String baseName, String contextName) {
         Model m = ModelFactory.createDefaultModel();
-        m.read(is, base, formatFromName(contextName));
+        m.read(is, baseName, guessFormatFromName(contextName));
         dataset.addNamedModel(namedModelFromName(contextName), m);
         union = union.union(m);
     }
 
-    private static String formatFromName(String name) {
+    private static String guessFormatFromName(String name) {
         if (name.endsWith(".ttl")) {
             return "TURTLE";
         } else if (name.endsWith(".xml")) {

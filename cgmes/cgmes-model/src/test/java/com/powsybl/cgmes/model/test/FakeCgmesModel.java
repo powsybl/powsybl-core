@@ -1,5 +1,6 @@
 package com.powsybl.cgmes.model.test;
 
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.Collections;
@@ -7,18 +8,19 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.function.Consumer;
 
-import com.powsybl.triplestore.api.TripleStore;
 import org.joda.time.DateTime;
+import org.mockito.Mockito;
 
 import com.powsybl.cgmes.model.CgmesContainer;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesTerminal;
 import com.powsybl.cgmes.model.Subset;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.triplestore.api.TripleStoreContext;
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
-import org.mockito.Mockito;
+import com.powsybl.triplestore.api.TripleStore;
+import com.powsybl.triplestore.api.TripleStoreContext;
 
 public final class FakeCgmesModel implements CgmesModel {
     private final Properties properties;
@@ -525,5 +527,25 @@ public final class FakeCgmesModel implements CgmesModel {
     @Override
     public double nominalVoltage(String baseVoltageId) {
         return Double.NaN;
+    }
+
+    @Override
+    public void setBasename(String baseName) {
+        // TODO Review if required by current tests
+    }
+
+    @Override
+    public void read(ReadOnlyDataSource ds) {
+        // TODO Review if required by current tests
+    }
+
+    @Override
+    public void read(ReadOnlyDataSource mainDataSource, ReadOnlyDataSource alternativeDataSourceForBoundary) {
+        // TODO Review if required by current tests
+    }
+
+    @Override
+    public void read(InputStream is, String baseName, String contextName) {
+        // TODO Review if required by current tests
     }
 }
