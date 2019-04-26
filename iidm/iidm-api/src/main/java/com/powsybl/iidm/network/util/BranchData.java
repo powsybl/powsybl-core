@@ -108,8 +108,12 @@ public class BranchData {
 
         id = line.getId();
 
-        Bus bus1 = line.getTerminal1().getBusBreakerView().getBus();
-        Bus bus2 = line.getTerminal2().getBusBreakerView().getBus();
+        Bus bus1 = line.getTerminal1().getBusBreakerView() != null
+                ? line.getTerminal1().getBusBreakerView().getBus()
+                : line.getTerminal1().getBusView().getBus();
+        Bus bus2 = line.getTerminal2().getBusBreakerView() != null
+                ? line.getTerminal2().getBusBreakerView().getBus()
+                : line.getTerminal2().getBusView().getBus();
         Bus connectableBus1 = line.getTerminal1().getBusView().getConnectableBus();
         Bus connectableBus2 = line.getTerminal2().getBusView().getConnectableBus();
 
@@ -151,8 +155,12 @@ public class BranchData {
 
         id = twt.getId();
 
-        Bus bus1 = twt.getTerminal1().getBusBreakerView().getBus();
-        Bus bus2 = twt.getTerminal2().getBusBreakerView().getBus();
+        Bus bus1 = twt.getTerminal1().getBusBreakerView() != null
+                ? twt.getTerminal1().getBusBreakerView().getBus()
+                : twt.getTerminal1().getBusView().getBus();
+        Bus bus2 = twt.getTerminal2().getBusBreakerView() != null
+                ? twt.getTerminal2().getBusBreakerView().getBus()
+                : twt.getTerminal2().getBusView().getBus();
         Bus connectableBus1 = twt.getTerminal1().getBusView().getConnectableBus();
         Bus connectableBus2 = twt.getTerminal2().getBusView().getConnectableBus();
 
