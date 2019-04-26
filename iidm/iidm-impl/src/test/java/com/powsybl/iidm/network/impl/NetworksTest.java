@@ -39,11 +39,11 @@ public class NetworksTest {
                             "| Generation (MW)       | 607.0       | 0.0              | 607.0       | 607.0              |\n" +
                             "| Shunt at nom V (MVar) | 0.0 0.0 (0) | 0.0 0.0 (0)      | 0.0 0.0 (0) | 0.00576 0.0 (1)    |\n" +
                             "+-----------------------+-------------+------------------+-------------+--------------------+" + System.lineSeparator() +
-                            "Connected loads in other CC: LOAD2" + System.lineSeparator() +
-                            "Disconnected loads in other CC: LOAD3" + System.lineSeparator() +
-                            "Connected generators in other CC: GEN2" + System.lineSeparator() +
-                            "Disconnected generators in other CC: GEN3" + System.lineSeparator() +
-                            "Disconnected shunts in other CC: SHUNT" + System.lineSeparator(),
+                            "Connected loads in other CC: [LOAD2]" + System.lineSeparator() +
+                            "Disconnected loads in other CC: [LOAD3]" + System.lineSeparator() +
+                            "Connected generators in other CC: [GEN2]" + System.lineSeparator() +
+                            "Disconnected generators in other CC: [GEN3]" + System.lineSeparator() +
+                            "Disconnected shunts in other CC: [SHUNT]" + System.lineSeparator(),
                     writer.toString());
         }
     }

@@ -317,19 +317,19 @@ public final class Networks {
         writer.write("Active balance at step '" + title + "':" + System.lineSeparator() + tableSupplier.get());
 
         if (!balanceOtherCC.connectedLoads.isEmpty()) {
-            writer.write("Connected loads in other CC: " + String.join(", ", balanceOtherCC.connectedLoads) + System.lineSeparator());
+            writer.write("Connected loads in other CC: " + balanceOtherCC.connectedLoads + System.lineSeparator());
         }
         if (!balanceOtherCC.disconnectedLoads.isEmpty()) {
-            writer.write("Disconnected loads in other CC: " + String.join(", ", balanceOtherCC.disconnectedLoads) + System.lineSeparator());
+            writer.write("Disconnected loads in other CC: " + balanceOtherCC.disconnectedLoads + System.lineSeparator());
         }
         if (!balanceOtherCC.connectedGenerators.isEmpty()) {
-            writer.write("Connected generators in other CC: " + String.join(", ", balanceOtherCC.connectedGenerators) + System.lineSeparator());
+            writer.write("Connected generators in other CC: " + balanceOtherCC.connectedGenerators + System.lineSeparator());
         }
         if (!balanceOtherCC.disconnectedGenerators.isEmpty()) {
-            writer.write("Disconnected generators in other CC: " + String.join(", ", balanceOtherCC.disconnectedGenerators) + System.lineSeparator());
+            writer.write("Disconnected generators in other CC: " + balanceOtherCC.disconnectedGenerators + System.lineSeparator());
         }
         if (!balanceOtherCC.disconnectedShunts.isEmpty()) {
-            writer.write("Disconnected shunts in other CC: " + String.join(", ", balanceOtherCC.disconnectedShunts) + System.lineSeparator());
+            writer.write("Disconnected shunts in other CC: " + balanceOtherCC.disconnectedShunts + System.lineSeparator());
         }
     }
 
