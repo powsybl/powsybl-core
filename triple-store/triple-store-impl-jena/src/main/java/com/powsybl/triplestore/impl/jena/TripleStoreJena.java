@@ -43,7 +43,6 @@ import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
 import com.powsybl.triplestore.api.PrefixNamespace;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
-import com.powsybl.triplestore.api.TripleStoreContext;
 import com.powsybl.triplestore.api.TripleStoreException;
 
 /**
@@ -154,11 +153,8 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void add(TripleStoreContext context, String objNs, String objType, PropertyBags statements) {
-        String contextName = getContextName(context);
-
+    public void add(String contextName, String objNs, String objType, PropertyBags statements) {
         Model m = getModel(contextName);
-
         for (PropertyBag statement : statements) {
             createStatements(m, objNs, objType, statement);
         }
@@ -167,29 +163,12 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public String add(TripleStoreContext context, String objNs, String objType, PropertyBag properties) {
-        String contextName = getContextName(context);
+    public String add(String contextName, String objNs, String objType, PropertyBag properties) {
         Model m = getModel(contextName);
         String id = createStatements(m, objNs, objType, properties);
         dataset.addNamedModel(contextName, m);
         union = union.union(m);
         return id;
-    }
-
-    private String getContextName(TripleStoreContext context) {
-        String name = null;
-        Iterator<String> k = dataset.listNames();
-        while (k.hasNext()) {
-            String n = k.next();
-            if (n.contains("EQ")) {
-                name = n.replace("EQ", context.shortName());
-                break;
-            }
-        }
-        if (name == null) {
-            name = namespaceForContexts() + context.longName();
-        }
-        return name;
     }
 
     private Model getModel(String context) {

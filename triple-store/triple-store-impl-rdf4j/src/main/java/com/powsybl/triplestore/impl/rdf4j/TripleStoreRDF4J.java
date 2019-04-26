@@ -47,7 +47,6 @@ import org.slf4j.LoggerFactory;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
 import com.powsybl.triplestore.api.PrefixNamespace;
-import com.powsybl.triplestore.api.TripleStoreContext;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStoreException;
@@ -174,41 +173,19 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void add(TripleStoreContext context, String objNs, String objType, PropertyBags objects) {
+    public void add(String contextName, String objNs, String objType, PropertyBags objects) {
         try (RepositoryConnection conn = repo.getConnection()) {
             conn.setIsolationLevel(IsolationLevels.NONE);
-            String name = getContextName(conn, context);
-            Resource contextResource = conn.getValueFactory().createIRI(name);
-            objects.forEach(object -> createStatements(conn, objNs, objType, object, contextResource));
+            objects.forEach(object -> createStatements(conn, objNs, objType, object, context(conn, contextName)));
         }
     }
 
     @Override
-    public String add(TripleStoreContext context, String objNs, String objType, PropertyBag object) {
+    public String add(String contextName, String objNs, String objType, PropertyBag object) {
         try (RepositoryConnection conn = repo.getConnection()) {
             conn.setIsolationLevel(IsolationLevels.NONE);
-            String name = getContextName(conn, context);
-            Resource contextResource = conn.getValueFactory().createIRI(name);
-            return createStatements(conn, objNs, objType, object, contextResource);
+            return createStatements(conn, objNs, objType, object, context(conn, contextName));
         }
-    }
-
-    private String getContextName(RepositoryConnection conn, TripleStoreContext context) {
-        String name = null;
-        RepositoryResult<Resource> ctxs = conn.getContextIDs();
-        while (ctxs.hasNext()) {
-            String ctx = ctxs.next().stringValue();
-            // FIXME Luma this is just to build a long context name from short,
-            // that has a similar name of one of the already existing context long names ???
-            if (ctx.contains("EQ")) {
-                name = ctx.replace("EQ", context.shortName());
-                break;
-            }
-        }
-        if (name == null) {
-            name = namespaceForContexts() + context.longName();
-        }
-        return name;
     }
 
     private static String createStatements(RepositoryConnection cnx, String objNs, String objType,

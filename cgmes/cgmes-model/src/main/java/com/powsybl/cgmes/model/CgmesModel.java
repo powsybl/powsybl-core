@@ -19,7 +19,6 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStore;
-import com.powsybl.triplestore.api.TripleStoreContext;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -123,9 +122,9 @@ public interface CgmesModel {
 
     PropertyBags dcTerminalsTP();
 
-    void clear(Subset subset);
+    void clear(CgmesSubset subset);
 
-    void add(TripleStoreContext context, String type, PropertyBags objects);
+    void add(CgmesSubset subset, String type, PropertyBags objects);
 
     void print(PrintStream out);
 

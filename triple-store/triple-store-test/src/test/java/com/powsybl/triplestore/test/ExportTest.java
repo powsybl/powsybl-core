@@ -24,7 +24,6 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.FileDataSource;
-import com.powsybl.triplestore.api.TripleStoreContext;
 import com.powsybl.triplestore.api.PrefixNamespace;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -102,15 +101,14 @@ public class ExportTest {
         exportTripleStore.addNamespace("cim", cimNamespace);
         // create context
         String contextName = networkId + "_" + "EQ" + "_" + implementation + ".xml";
-        TripleStoreContext context = new TripleStoreContext("EQ", contextName);
         // add statements to triple stores
         // add base voltage statements
-        String baseVoltageId = exportTripleStore.add(context, cimNamespace, "BaseVoltage", createBaseVoltageProperties());
+        String baseVoltageId = exportTripleStore.add(contextName, cimNamespace, "BaseVoltage", createBaseVoltageProperties());
         // add voltage levels statements
         PropertyBags voltageLevelsProperties = new PropertyBags();
         voltageLevelsProperties.add(createVoltageLevelProperties(baseVoltageId, vl1Name, substation1Id));
         voltageLevelsProperties.add(createVoltageLevelProperties(baseVoltageId, vl2Name, substation2Id));
-        exportTripleStore.add(context, cimNamespace, "VoltageLevel", voltageLevelsProperties);
+        exportTripleStore.add(contextName, cimNamespace, "VoltageLevel", voltageLevelsProperties);
         // export triple store
         DataSource dataSource = new FileDataSource(exportFolder, networkId);
         exportTripleStore.write(dataSource);

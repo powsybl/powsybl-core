@@ -14,13 +14,12 @@ import org.mockito.Mockito;
 import com.powsybl.cgmes.model.CgmesContainer;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesTerminal;
-import com.powsybl.cgmes.model.Subset;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStore;
-import com.powsybl.triplestore.api.TripleStoreContext;
 
 public final class FakeCgmesModel implements CgmesModel {
     private final Properties properties;
@@ -474,12 +473,12 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     @Override
-    public void clear(Subset subset) {
+    public void clear(CgmesSubset subset) {
         // FakeCgmesModel, no need to implement clear
     }
 
     @Override
-    public void add(TripleStoreContext context, String type, PropertyBags objects) {
+    public void add(CgmesSubset subset, String type, PropertyBags objects) {
         // FakeCgmesModel, no need to implement storage of objects
     }
 

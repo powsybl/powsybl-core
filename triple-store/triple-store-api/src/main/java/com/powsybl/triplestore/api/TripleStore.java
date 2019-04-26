@@ -34,9 +34,9 @@ public interface TripleStore {
 
     PropertyBags query(String query);
 
-    void add(TripleStoreContext context, String namespace, String type, PropertyBags objects);
+    void add(String contextName, String namespace, String type, PropertyBags objects);
 
-    String add(TripleStoreContext context, String namespace, String type, PropertyBag properties);
+    String add(String contextName, String namespace, String type, PropertyBag properties);
 
     Set<String> contextNames();
 

@@ -52,7 +52,6 @@ import com.bigdata.rdf.store.AbstractTripleStore;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
 import com.powsybl.triplestore.api.PrefixNamespace;
-import com.powsybl.triplestore.api.TripleStoreContext;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStoreException;
@@ -250,84 +249,61 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public void add(TripleStoreContext context, String objNs, String objType, PropertyBags statements) {
+    public void add(String contextName, String objNs, String objType, PropertyBags statements) {
         RepositoryConnection cnx = null;
         try {
             cnx = repo.getConnection();
-            addStatements(cnx, context, objNs, objType, statements);
+            addStatements(cnx, contextName, objNs, objType, statements);
 
         } catch (RepositoryException x) {
-            throw new TripleStoreException(String.format("Adding statements for graph %s", context.shortName()), x);
+            throw new TripleStoreException(String.format("Adding statements for graph %s", contextName), x);
         } finally {
             if (cnx != null) {
                 try {
                     cnx.close();
                 } catch (RepositoryException x) {
-                    LOG.error("Adding statements for graph {}. Closing repository connection", context.shortName());
+                    LOG.error("Adding statements for graph {}. Closing repository connection", contextName);
                 }
             }
         }
     }
 
     @Override
-    public String add(TripleStoreContext context, String objNs, String objType, PropertyBag properties) {
+    public String add(String contextName, String objNs, String objType, PropertyBag properties) {
         RepositoryConnection cnx = null;
         try {
             cnx = repo.getConnection();
-            return addStatement(cnx, context, objNs, objType, properties);
+            return addStatement(cnx, contextName, objNs, objType, properties);
         } catch (RepositoryException x) {
-            throw new TripleStoreException(String.format("Adding statements for graph %s", context.shortName()), x);
+            throw new TripleStoreException(String.format("Adding statements for graph %s", contextName), x);
         } finally {
             if (cnx != null) {
                 try {
                     cnx.close();
                 } catch (RepositoryException x) {
-                    LOG.error("Adding statements for graph {}. Closing repository connection", context.shortName());
+                    LOG.error("Adding statements for graph {}. Closing repository connection", contextName);
                 }
             }
         }
     }
 
-    private void addStatements(RepositoryConnection cnx, TripleStoreContext context, String objNs, String objType,
+    private void addStatements(RepositoryConnection cnx, String contextName, String objNs, String objType,
         PropertyBags statements)
         throws RepositoryException {
 
         cnx.begin();
-
-        String name = getContextName(cnx, context);
-
-        Resource contextResource = cnx.getValueFactory().createURI(name);
         for (PropertyBag statement : statements) {
-            createStatements(cnx, objNs, objType, statement, contextResource);
+            createStatements(cnx, objNs, objType, statement, context(cnx, contextName));
         }
-
         cnx.commit();
     }
 
-    private String addStatement(RepositoryConnection cnx, TripleStoreContext context, String objNs, String objType,
+    private String addStatement(RepositoryConnection cnx, String contextName, String objNs, String objType,
         PropertyBag properties) throws RepositoryException {
         cnx.begin();
-        String name = getContextName(cnx, context);
-        Resource contextResource = cnx.getValueFactory().createURI(name);
-        String id = createStatements(cnx, objNs, objType, properties, contextResource);
+        String id = createStatements(cnx, objNs, objType, properties, context(cnx, contextName));
         cnx.commit();
         return id;
-    }
-
-    private String getContextName(RepositoryConnection cnx, TripleStoreContext context) throws RepositoryException {
-        String name = null;
-        RepositoryResult<Resource> ctxs = cnx.getContextIDs();
-        while (ctxs.hasNext()) {
-            String ctx = ctxs.next().stringValue();
-            if (ctx.contains("EQ")) {
-                name = ctx.replace("EQ", context.shortName());
-                break;
-            }
-        }
-        if (name == null) {
-            name = namespaceForContexts() + context.longName();
-        }
-        return name;
     }
 
     private static String createStatements(RepositoryConnection cnx, String objNs, String objType,

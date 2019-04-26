@@ -10,7 +10,7 @@ package com.powsybl.cgmes.model;
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
-public enum Subset {
+public enum CgmesSubset {
     // TODO Each subset has a "main" profile URL plus additional optional profiles
     // DL http://entsoe.eu/CIM/DiagramLayout/3/1
     // DY http://entsoe.eu/CIM/Dynamics/3/1
@@ -30,11 +30,13 @@ public enum Subset {
     STEADY_STATE_HYPOTHESIS("SSH"),
     DYNAMIC("DY"),
     DIAGRAM_LAYOUT("DL"),
-    GEOGRAPHICAL_LOCATION("GL");
+    GEOGRAPHICAL_LOCATION("GL"),
+    EQUIPMENT_BOUNDARY("EQ_BD"),
+    TOPOLOGY_BOUNDAARY("TP_BD");
 
     private final String identifier;
 
-    Subset(String identifier) {
+    CgmesSubset(String identifier) {
         this.identifier = identifier;
     }
 

@@ -9,18 +9,22 @@ package com.powsybl.cgmes.conversion;
 
 import java.util.Arrays;
 import java.util.List;
-
 import java.util.Properties;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.cgmes.model.Subset;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.export.Exporter;
-import com.powsybl.iidm.network.*;
-import com.powsybl.triplestore.api.TripleStoreContext;
+import com.powsybl.iidm.network.Bus;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Load;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.ShuntCompensator;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -42,7 +46,7 @@ public class CgmesExport implements Exporter {
         CgmesModel cgmes = ext.getCgmesModel();
 
         // Clear the previous SV data
-        cgmes.clear(Subset.STATE_VARIABLES);
+        cgmes.clear(CgmesSubset.STATE_VARIABLES);
 
         // Fill the SV data of the CgmesModel with the network current state
         addStateVariables(network, cgmes);
@@ -61,9 +65,9 @@ public class CgmesExport implements Exporter {
     }
 
     private void addStateVariables(Network n, CgmesModel cgmes) {
-        TripleStoreContext context = new TripleStoreContext(Subset.STATE_VARIABLES.getIdentifier());
-
         // TODO Add full model data with proper profile (StateVariables)
+        // FullModel is defined in ModelDescription:
+        // http://iec.ch/TC57/61970-552/ModelDescription/1#
 
         PropertyBags voltages = new PropertyBags();
         for (Bus b : n.getBusBreakerView().getBuses()) {
@@ -73,7 +77,7 @@ public class CgmesExport implements Exporter {
             p.put("TopologicalNode", topologicalNodeFromBusId(b.getId()));
             voltages.add(p);
         }
-        cgmes.add(context, "SvVoltage", voltages);
+        cgmes.add(CgmesSubset.STATE_VARIABLES, "SvVoltage", voltages);
 
         PropertyBags powerFlows = new PropertyBags();
         for (Load l : n.getLoads()) {
@@ -85,7 +89,7 @@ public class CgmesExport implements Exporter {
         for (ShuntCompensator s : n.getShuntCompensators()) {
             powerFlows.add(createPowerFlowProperties(cgmes, s.getTerminal()));
         }
-        cgmes.add(context, "SvPowerFlow", powerFlows);
+        cgmes.add(CgmesSubset.STATE_VARIABLES, "SvPowerFlow", powerFlows);
 
         PropertyBags shuntCompensatorSections = new PropertyBags();
         for (ShuntCompensator s : n.getShuntCompensators()) {
@@ -94,7 +98,7 @@ public class CgmesExport implements Exporter {
             p.put("ShuntCompensator", s.getId());
             shuntCompensatorSections.add(p);
         }
-        cgmes.add(context, "SvShuntCompensatorSections", shuntCompensatorSections);
+        cgmes.add(CgmesSubset.STATE_VARIABLES, "SvShuntCompensatorSections", shuntCompensatorSections);
 
         PropertyBags tapSteps = new PropertyBags();
         for (TwoWindingsTransformer t : n.getTwoWindingsTransformers()) {
@@ -111,7 +115,7 @@ public class CgmesExport implements Exporter {
                 tapSteps.add(p);
             }
         }
-        cgmes.add(context, "SvTapStep", tapSteps);
+        cgmes.add(CgmesSubset.STATE_VARIABLES, "SvTapStep", tapSteps);
     }
 
     private PropertyBag createPowerFlowProperties(CgmesModel cgmes, Terminal terminal) {

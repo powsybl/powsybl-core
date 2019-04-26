@@ -92,7 +92,7 @@ public class CgmesOnDataSource {
 
     private static final String REGEX_VALID_NAME_IDS = Stream.of(
             Stream.of("ME"),
-            Arrays.stream(Subset.values()).map(Subset::getIdentifier))
+            Arrays.stream(CgmesSubset.values()).map(CgmesSubset::getIdentifier))
             .flatMap(s -> s)
             .collect(Collectors.joining("|", "(", ")"));
     private static final String REGEX_VALID_NAME = ""
