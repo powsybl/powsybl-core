@@ -48,7 +48,7 @@ public class CgmesConformity1ModifiedConversionTest {
         fileSystem.close();
     }
 
-    @Test
+    //@Test
     public void microBERatioPhaseTabularTest() throws IOException {
         Network network = new CgmesImport(platformConfig)
             .importData(catalogModified.microGridBaseCaseBERatioPhaseTapChangerTabular().dataSource(), null);

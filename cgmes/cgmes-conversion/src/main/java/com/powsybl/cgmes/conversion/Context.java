@@ -156,7 +156,7 @@ public class Context {
     public PropertyBags phaseTapChangerTable(String tableId) {
         return phaseTapChangerTables.get(tableId);
     }
-    
+
     public void putRemoteRegulatingTerminal(String idEq, String topologicalNode) {
         remoteRegulatingTerminals.put(idEq, topologicalNode);
     }
