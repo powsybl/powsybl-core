@@ -16,9 +16,13 @@ public interface TwoWindingsTransformerAdder extends BranchAdder<TwoWindingsTran
 
     TwoWindingsTransformerAdder setX(double x);
 
-    TwoWindingsTransformerAdder setB(double b);
+    TwoWindingsTransformerAdder setB1(double b);
 
-    TwoWindingsTransformerAdder setG(double g);
+    TwoWindingsTransformerAdder setG1(double g);
+
+    TwoWindingsTransformerAdder setB2(double b);
+
+    TwoWindingsTransformerAdder setG2(double g);
 
     TwoWindingsTransformerAdder setRatedU1(double ratedU1);
 

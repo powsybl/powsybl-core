@@ -266,9 +266,11 @@ public class Conversion {
                     }
                     AbstractConductingEquipmentConversion c = null;
                     if (ends.size() == 2) {
-                        c = new TwoWindingsTransformerFullConversion(ends, powerTransformerRatioTapChanger, powerTransformerPhaseTapChanger, context);
+                        c = new TwoWindingsTransformerFullConversion(ends, powerTransformerRatioTapChanger, powerTransformerPhaseTapChanger,
+                                context);
                     } else if (ends.size() == 3) {
-                        c = new ThreeWindingsTransformerFullConversion(ends, powerTransformerRatioTapChanger, powerTransformerPhaseTapChanger, context);
+                        c = new ThreeWindingsTransformerFullConversion(ends, powerTransformerRatioTapChanger,
+                                powerTransformerPhaseTapChanger, context);
                     } else {
                         String what = String.format("PowerTransformer %s", t);
                         String reason = String.format("Has %d ends. Only 2 or 3 ends are supported",
@@ -399,20 +401,140 @@ public class Conversion {
             createBusbarSectionForEveryConnectivityNode = b;
         }
 
-        public boolean xfmr2Ratio0AtEnd1() {
-            return xfmr2Ratio0AtEnd1;
+        public boolean isXfmr2RatioPhaseEnd1() {
+            return xfmr2RatioPhaseEnd1;
         }
 
-        public void setXfmr2Ratio0AtEnd1(boolean b) {
-            xfmr2Ratio0AtEnd1 = b;
+        public void setXfmr2RatioPhaseEnd1(boolean xfmr2RatioPhaseEnd1) {
+            this.xfmr2RatioPhaseEnd1 = xfmr2RatioPhaseEnd1;
         }
 
-        public boolean invertXfmr2IidmAngle() {
-            return invertXfmr2IidmAngle;
+        public boolean isXfmr2RatioPhaseEnd2() {
+            return xfmr2RatioPhaseEnd2;
         }
 
-        public void setInvertXfmr2IidmAngle(boolean b) {
-            invertXfmr2IidmAngle = b;
+        public void setXfmr2RatioPhaseEnd2(boolean xfmr2RatioPhaseEnd2) {
+            this.xfmr2RatioPhaseEnd2 = xfmr2RatioPhaseEnd2;
+        }
+
+        public boolean isXfmr2RatioPhaseEnd1End2() {
+            return xfmr2RatioPhaseEnd1End2;
+        }
+
+        public void setXfmr2RatioPhaseEnd1End2(boolean xfmr2RatioPhaseEnd1End2) {
+            this.xfmr2RatioPhaseEnd1End2 = xfmr2RatioPhaseEnd1End2;
+        }
+
+        public boolean isXfmr2RatioPhaseRtc() {
+            return xfmr2RatioPhaseRtc;
+        }
+
+        public void setXfmr2RatioPhaseRtc(boolean xfmr2RatioPhaseRtc) {
+            this.xfmr2RatioPhaseRtc = xfmr2RatioPhaseRtc;
+        }
+
+        public boolean isXfmr2Phase1Negate() {
+            return xfmr2Phase1Negate;
+        }
+
+        public void setXfmr2Phase1Negate(boolean xfmr2Phase1Negate) {
+            this.xfmr2Phase1Negate = xfmr2Phase1Negate;
+        }
+
+        public boolean isXfmr2Phase2Negate() {
+            return xfmr2Phase2Negate;
+        }
+
+        public void setXfmr2Phase2Negate(boolean xfmr2Phase2Negate) {
+            this.xfmr2Phase2Negate = xfmr2Phase2Negate;
+        }
+
+        public boolean isXfmr2ShuntEnd1() {
+            return xfmr2ShuntEnd1;
+        }
+
+        public void setXfmr2ShuntEnd1(boolean xfmr2ShuntEnd1) {
+            this.xfmr2ShuntEnd1 = xfmr2ShuntEnd1;
+        }
+
+        public boolean isXfmr2ShuntEnd2() {
+            return xfmr2ShuntEnd2;
+        }
+
+        public void setXfmr2ShuntEnd2(boolean xfmr2ShuntEnd2) {
+            this.xfmr2ShuntEnd2 = xfmr2ShuntEnd2;
+        }
+
+        public boolean isXfmr2ShuntEnd1End2() {
+            return xfmr2ShuntEnd1End2;
+        }
+
+        public void setXfmr2ShuntEnd1End2(boolean xfmr2ShuntEnd1End2) {
+            this.xfmr2ShuntEnd1End2 = xfmr2ShuntEnd1End2;
+        }
+
+        public boolean isXfmr2ShuntSplit() {
+            return xfmr2ShuntSplit;
+        }
+
+        public void setXfmr2ShuntSplit(boolean xfmr2ShuntSplit) {
+            this.xfmr2ShuntSplit = xfmr2ShuntSplit;
+        }
+
+        public boolean isXfmr2PhaseAngleClockEnd1End2() {
+            return xfmr2PhaseAngleClockEnd1End2;
+        }
+
+        public void setXfmr2PhaseAngleClockEnd1End2(boolean xfmr2PhaseAngleClockEnd1End2) {
+            this.xfmr2PhaseAngleClockEnd1End2 = xfmr2PhaseAngleClockEnd1End2;
+        }
+
+        public boolean isXfmr2PhaseAngleClock1Negate() {
+            return xfmr2PhaseAngleClock1Negate;
+        }
+
+        public void setXfmr2PhaseAngleClock1Negate(boolean xfmr2PhaseAngleClock1Negate) {
+            this.xfmr2PhaseAngleClock1Negate = xfmr2PhaseAngleClock1Negate;
+        }
+
+        public boolean isXfmr2PhaseAngleClock2Negate() {
+            return xfmr2PhaseAngleClock2Negate;
+        }
+
+        public void setXfmr2PhaseAngleClock2Negate(boolean xfmr2PhaseAngleClock2Negate) {
+            this.xfmr2PhaseAngleClock2Negate = xfmr2PhaseAngleClock2Negate;
+        }
+
+        public boolean isXfmr2Ratio0End1() {
+            return xfmr2Ratio0End1;
+        }
+
+        public void setXfmr2Ratio0End1(boolean xfmr2Ratio0End1) {
+            this.xfmr2Ratio0End1 = xfmr2Ratio0End1;
+        }
+
+        public boolean isXfmr2Ratio0End2() {
+            return xfmr2Ratio0End2;
+        }
+
+        public void setXfmr2Ratio0End2(boolean xfmr2Ratio0End2) {
+            this.xfmr2Ratio0End2 = xfmr2Ratio0End2;
+        }
+
+        public boolean isXfmr2Ratio0Rtc() {
+            return xfmr2Ratio0Rtc;
+        }
+
+        public void setXfmr2Ratio0Rtc(boolean xfmr2Ratio0Rtc) {
+            this.xfmr2Ratio0Rtc = xfmr2Ratio0Rtc;
+        }
+
+        public boolean isXfmr2Ratio0X() {
+            return xfmr2Ratio0X;
+        }
+
+        public void setXfmr2Ratio0X(boolean xfmr2Ratio0X) {
+            this.xfmr2Ratio0X = xfmr2Ratio0X;
         }
 
         public boolean xfmr3Ratio0Outside() {
@@ -438,23 +560,39 @@ public class Conversion {
 
         private boolean createBusbarSectionForEveryConnectivityNode     = false;
 
-        private boolean xfmr2Ratio0AtEnd1 = true;
-        private boolean invertXfmr2IidmAngle = false;
-        private boolean xfmr3Ratio0Outside = false;
-        private boolean xfmr3RatioPhaseOutside = false;
+        private boolean xfmr2RatioPhaseEnd1                             = false;
+        private boolean xfmr2RatioPhaseEnd2                             = false;
+        private boolean xfmr2RatioPhaseEnd1End2                         = false;
+        private boolean xfmr2RatioPhaseRtc                              = false;
+        private boolean xfmr2Phase1Negate                               = false;
+        private boolean xfmr2Phase2Negate                               = false;
+        private boolean xfmr2ShuntEnd1                                  = false;
+        private boolean xfmr2ShuntEnd2                                  = false;
+        private boolean xfmr2ShuntEnd1End2                              = false;
+        private boolean xfmr2ShuntSplit                                 = false;
+        private boolean xfmr2PhaseAngleClockEnd1End2                    = false;
+        private boolean xfmr2PhaseAngleClock1Negate                     = false;
+        private boolean xfmr2PhaseAngleClock2Negate                     = false;
+        private boolean xfmr2Ratio0End1                                 = false;
+        private boolean xfmr2Ratio0End2                                 = false;
+        private boolean xfmr2Ratio0Rtc                                  = false;
+        private boolean xfmr2Ratio0X                                    = false;
+
+        private boolean xfmr3Ratio0Outside                              = false;
+        private boolean xfmr3RatioPhaseOutside                          = false;
 
     }
 
-    private final CgmesModel    cgmes;
-    private final Config        config;
+    private final CgmesModel                     cgmes;
+    private final Config                         config;
     private final List<CgmesImportPostProcessor> postProcessors;
 
-    private Profiling           profiling;
+    private Profiling                            profiling;
 
-    private static final Logger LOG                                        = LoggerFactory
+    private static final Logger                  LOG                                        = LoggerFactory
             .getLogger(Conversion.class);
 
-    public static final String  NETWORK_PS_CGMES_MODEL_DETAIL              = "CGMESModelDetail";
-    public static final String  NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH   = "bus-branch";
-    public static final String  NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER = "node-breaker";
+    public static final String                   NETWORK_PS_CGMES_MODEL_DETAIL              = "CGMESModelDetail";
+    public static final String                   NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH   = "bus-branch";
+    public static final String                   NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER = "node-breaker";
 }

@@ -49,8 +49,10 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
         TwoWindingsTransformerAdder adder = substation().newTwoWindingsTransformer()
                 .setR(r0)
                 .setX(x0)
-                .setG(g0)
-                .setB(b0)
+                .setG1(g0)
+                .setB1(b0)
+                .setG2(0.0)
+                .setB2(0.0)
                 .setRatedU1(ratedU1)
                 .setRatedU2(ratedU2);
         identify(adder);

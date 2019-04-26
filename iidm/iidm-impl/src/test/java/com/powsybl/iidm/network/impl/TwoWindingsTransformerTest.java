@@ -37,8 +37,10 @@ public class TwoWindingsTransformerTest {
                                                                     .setName("twt_name")
                                                                     .setR(1.0)
                                                                     .setX(2.0)
-                                                                    .setG(3.0)
-                                                                    .setB(4.0)
+                                                                    .setG1(3.0)
+                                                                    .setB1(4.0)
+                                                                    .setG2(0.0)
+                                                                    .setB2(0.0)
                                                                     .setRatedU1(5.0)
                                                                     .setRatedU2(6.0)
                                                                     .setVoltageLevel1("vl1")
@@ -50,8 +52,8 @@ public class TwoWindingsTransformerTest {
         assertEquals("twt_name", twoWindingsTransformer.getName());
         assertEquals(1.0, twoWindingsTransformer.getR(), 0.0);
         assertEquals(2.0, twoWindingsTransformer.getX(), 0.0);
-        assertEquals(3.0, twoWindingsTransformer.getG(), 0.0);
-        assertEquals(4.0, twoWindingsTransformer.getB(), 0.0);
+        assertEquals(3.0, twoWindingsTransformer.getG1(), 0.0);
+        assertEquals(4.0, twoWindingsTransformer.getB1(), 0.0);
         assertEquals(5.0, twoWindingsTransformer.getRatedU1(), 0.0);
         assertEquals(6.0, twoWindingsTransformer.getRatedU2(), 0.0);
         assertEquals(ConnectableType.TWO_WINDINGS_TRANSFORMER, twoWindingsTransformer.getType());
@@ -62,11 +64,11 @@ public class TwoWindingsTransformerTest {
         twoWindingsTransformer.setR(r);
         assertEquals(r, twoWindingsTransformer.getR(), 0.0);
         double b = 1.0;
-        twoWindingsTransformer.setB(b);
-        assertEquals(b, twoWindingsTransformer.getB(), 0.0);
+        twoWindingsTransformer.setB1(b);
+        assertEquals(b, twoWindingsTransformer.getB1(), 0.0);
         double g = 2.0;
-        twoWindingsTransformer.setG(g);
-        assertEquals(g, twoWindingsTransformer.getG(), 0.0);
+        twoWindingsTransformer.setG1(g);
+        assertEquals(g, twoWindingsTransformer.getG1(), 0.0);
         double x = 4.0;
         twoWindingsTransformer.setX(x);
         assertEquals(x, twoWindingsTransformer.getX(), 0.0);
@@ -148,8 +150,10 @@ public class TwoWindingsTransformerTest {
                         .setName("twt_name")
                         .setR(1.0)
                         .setX(2.0)
-                        .setG(3.0)
-                        .setB(4.0)
+                        .setG1(3.0)
+                        .setB1(4.0)
+                        .setG2(0.0)
+                        .setB2(0.0)
                         .setRatedU1(5.0)
                         .setRatedU2(6.0)
                         .setVoltageLevel1("vl1")
@@ -166,8 +170,10 @@ public class TwoWindingsTransformerTest {
                     .setName(name)
                     .setR(r)
                     .setX(x)
-                    .setG(g)
-                    .setB(b)
+                    .setG1(g)
+                    .setB1(b)
+                    .setG2(0.0)
+                    .setB2(0.0)
                     .setRatedU1(ratedU1)
                     .setRatedU2(ratedU2)
                     .setVoltageLevel1("vl1")

@@ -45,7 +45,7 @@ public class SV {
     }
 
     public static double getG(TwoWindingsTransformer twt) {
-        double g = twt.getG();
+        double g = twt.getG1() + twt.getG2();
         if (twt.getRatioTapChanger() != null) {
             g *= 1 + twt.getRatioTapChanger().getCurrentStep().getG() / 100;
         }
@@ -53,7 +53,7 @@ public class SV {
     }
 
     public static double getB(TwoWindingsTransformer twt) {
-        double b = twt.getB();
+        double b = twt.getB1() + twt.getB2();
         if (twt.getRatioTapChanger() != null) {
             b *= 1 + twt.getRatioTapChanger().getCurrentStep().getB() / 100;
         }

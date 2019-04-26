@@ -112,9 +112,11 @@ public final class PhaseShifterTestCaseFactory {
                 .setRatedU2(380.0)
                 .setR(2.0)
                 .setX(100.0)
-                .setG(0.0)
-                .setB(0.0)
-                .add();
+                .setG1(0.0)
+                .setB1(0.0)
+                .setG2(0.0)
+                .setB2(0.0)
+               .add();
         ps1.getTerminal1().setP(50.08403).setQ(29.201416);
         ps1.getTerminal2().setP(-50.042015).setQ(-27.100708);
         ps1.newPhaseTapChanger()

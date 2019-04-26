@@ -9,12 +9,8 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion;
 import com.powsybl.cgmes.conversion.elements.full.TapChanger.StepAdder;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
-import com.powsybl.iidm.network.PhaseTapChangerAdder;
-import com.powsybl.iidm.network.RatioTapChangerAdder;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -397,6 +393,47 @@ public abstract class AbstractTransformerFullConversion
         return tc;
     }
 
+    protected TapChanger createPhaseAngleClockTapChanger(int phaseAngleClock) {
+        if (phaseAngleClock == 0) {
+            return null;
+        }
+        double degrees = getPhaseAngleClockDegrees(phaseAngleClock);
+        TapChanger tapChanger = new TapChanger();
+        tapChanger.setLowTapPosition(0);
+        tapChanger.setTapPosition(0);
+        tapChanger.setLoadTapChangingCapabilities(false);
+        tapChanger.beginStep()
+                .setRatio(1.0)
+                .setAngle(degrees)
+                .endStep();
+        resetTapChangerRegulation(tapChanger);
+        return tapChanger;
+    }
+
+    double getPhaseAngleClockDegrees(int phaseAngleClock) {
+        double phaseAngleClockDegree = 0.0;
+        phaseAngleClockDegree += phaseAngleClock * 30.0;
+        phaseAngleClockDegree = Math.IEEEremainder(phaseAngleClockDegree, 360.0);
+        if (phaseAngleClockDegree > 180.0) {
+            phaseAngleClockDegree -= 360.0;
+        }
+        return phaseAngleClockDegree;
+    }
+
+    protected void negatePhaseTapChanger(TapChanger tc) {
+        if (tc == null) {
+            return;
+        }
+        tc.getSteps().forEach(step -> {
+            double angle = step.getAngle();
+            step.setAngle(-angle);
+        });
+    }
+
+    protected boolean isDefinedTapChanger(TapChanger tc) {
+        return !tapChangerType(tc).equals(TapChangerType.NULL);
+    }
+
     // propertyBag
     protected PropertyBag getTransformerTapChanger(PropertyBag end, String id,
             Map<String, PropertyBag> powerTransformerTapChanger) {
@@ -419,6 +456,7 @@ public abstract class AbstractTransformerFullConversion
         addRatioRegulationMode(ratioTapChanger, rtcTerminal, tapChanger);
 
         addRatioSteps(ratioTapChanger, tapChanger);
+
         return tapChanger;
     }
 
@@ -727,13 +765,44 @@ public abstract class AbstractTransformerFullConversion
         return targetV;
     }
 
-    protected abstract Terminal terminal(Connectable<?> tx, String terminal);
-
-    protected abstract RatioTapChangerAdder newRatioTapChanger(Connectable<?> tx, String terminal);
-
-    protected abstract PhaseTapChangerAdder newPhaseTapChanger(Connectable<?> tx);
-
     // return classes
+
+    static class CgmesEnd {
+        double     g;
+        double     b;
+        TapChanger ratioTapChanger;
+        TapChanger phaseTapChanger;
+        double     rated;
+        int        phaseAngleClock;
+        String     terminal;
+        boolean    xIsZero;
+        boolean    rtcDefined;
+    }
+
+    static class InterpretedEnd {
+        double     g;
+        double     b;
+        TapChanger ratioTapChanger;
+        TapChanger phaseTapChanger;
+        double     rated;
+        String     terminal;
+    }
+
+    static class ConvertedEnd1 {
+        double     g;
+        double     b;
+        TapChanger ratioTapChanger;
+        TapChanger phaseTapChanger;
+        double     rated;
+        String     terminal;
+    }
+
+    static class ConvertedEnd2 {
+        double g;
+        double b;
+        double rated;
+        String terminal;
+    }
 
     static class TapChangerStepConversion {
         double ratio;

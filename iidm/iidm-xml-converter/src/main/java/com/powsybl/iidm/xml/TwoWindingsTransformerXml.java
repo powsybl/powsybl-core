@@ -38,8 +38,10 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     protected void writeRootElementAttributes(TwoWindingsTransformer twt, Substation s, NetworkXmlWriterContext context) throws XMLStreamException {
         XmlUtil.writeDouble("r", twt.getR(), context.getWriter());
         XmlUtil.writeDouble("x", twt.getX(), context.getWriter());
-        XmlUtil.writeDouble("g", twt.getG(), context.getWriter());
-        XmlUtil.writeDouble("b", twt.getB(), context.getWriter());
+        XmlUtil.writeDouble("g1", twt.getG1(), context.getWriter());
+        XmlUtil.writeDouble("b1", twt.getB1(), context.getWriter());
+        XmlUtil.writeDouble("g2", twt.getG2(), context.getWriter());
+        XmlUtil.writeDouble("b2", twt.getB2(), context.getWriter());
         XmlUtil.writeDouble("ratedU1", twt.getRatedU1(), context.getWriter());
         XmlUtil.writeDouble("ratedU2", twt.getRatedU2(), context.getWriter());
         writeNodeOrBus(1, twt.getTerminal1(), context);
@@ -77,14 +79,18 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
     protected TwoWindingsTransformer readRootElementAttributes(TwoWindingsTransformerAdder adder, NetworkXmlReaderContext context) {
         double r = XmlUtil.readDoubleAttribute(context.getReader(), "r");
         double x = XmlUtil.readDoubleAttribute(context.getReader(), "x");
-        double g = XmlUtil.readDoubleAttribute(context.getReader(), "g");
-        double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
+        double g1 = XmlUtil.readDoubleAttribute(context.getReader(), "g1");
+        double b1 = XmlUtil.readDoubleAttribute(context.getReader(), "b1");
+        double g2 = XmlUtil.readDoubleAttribute(context.getReader(), "g2");
+        double b2 = XmlUtil.readDoubleAttribute(context.getReader(), "b2");
         double ratedU1 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU1");
         double ratedU2 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU2");
         adder.setR(r)
                 .setX(x)
-                .setG(g)
-                .setB(b)
+                .setG1(g1)
+                .setB1(b1)
+                .setG2(g2)
+                .setB2(b2)
                 .setRatedU1(ratedU1)
                 .setRatedU2(ratedU2);
         readNodeOrBus(adder, context);

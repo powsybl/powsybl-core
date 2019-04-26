@@ -386,8 +386,10 @@ public class Comparison {
                 actual.getTerminal2().getVoltageLevel());
         compare("r", expected.getR(), actual.getR());
         compare("x", expected.getX(), actual.getX());
-        compare("g", expected.getG(), actual.getG());
-        compare("b", expected.getB(), actual.getB());
+        compare("g1", expected.getG1(), actual.getG1());
+        compare("b1", expected.getB1(), actual.getB1());
+        compare("g2", expected.getG2(), actual.getG2());
+        compare("b2", expected.getB2(), actual.getB2());
         compare("ratedU1", expected.getRatedU1(), actual.getRatedU1());
         compare("ratedU2", expected.getRatedU2(), actual.getRatedU2());
         compareCurrentLimits(expected, actual,

@@ -110,8 +110,10 @@ public final class EurostagTutorialExample1Factory {
                 .setRatedU2(400.0)
                 .setR(0.24 / 1300 * zb380)
                 .setX(Math.sqrt(10 * 10 - 0.24 * 0.24) / 1300 * zb380)
-                .setG(0.0)
-                .setB(0.0)
+                .setG1(0.0)
+                .setB1(0.0)
+                .setG2(0.0)
+                .setB2(0.0)
             .add();
         int zb150 = 150 * 150 / 100;
         TwoWindingsTransformer nhv2Nload = p2.newTwoWindingsTransformer()
@@ -126,8 +128,10 @@ public final class EurostagTutorialExample1Factory {
                 .setRatedU2(158.0)
                 .setR(0.21 / 1000 * zb150)
                 .setX(Math.sqrt(18 * 18 - 0.21 * 0.21) / 1000 * zb150)
-                .setG(0.0)
-                .setB(0.0)
+                .setG1(0.0)
+                .setB1(0.0)
+                .setG2(0.0)
+                .setB2(0.0)
             .add();
         double a = (158.0 / 150.0) / (400.0 / 380.0);
         nhv2Nload.newRatioTapChanger()

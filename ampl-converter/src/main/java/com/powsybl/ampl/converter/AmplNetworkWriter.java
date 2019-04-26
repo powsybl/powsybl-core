@@ -712,14 +712,14 @@ public class AmplNetworkWriter {
             double b1;
             double b2;
             if (config.isSpecificCompatibility()) {
-                g1 = twt.getG() * zb2 / 2;
+                g1 = twt.getG1() * zb2 / 2;
                 g2 = g1;
-                b1 = twt.getB() * zb2 / 2;
+                b1 = twt.getB1() * zb2 / 2;
                 b2 = b1;
             } else {
-                g1 = twt.getG() * zb2;
+                g1 = twt.getG1() * zb2;
                 g2 = 0;
-                b1 = twt.getB() * zb2;
+                b1 = twt.getB1() * zb2;
                 b2 = 0;
             }
 

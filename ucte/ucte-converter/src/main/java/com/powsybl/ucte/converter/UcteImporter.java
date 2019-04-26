@@ -649,8 +649,10 @@ public class UcteImporter implements Importer {
                 .setRatedU2(ucteTransfo.getRatedVoltage1())
                 .setR(ucteTransfo.getResistance())
                 .setX(ucteTransfo.getReactance())
-                .setG(getConductance(ucteTransfo))
-                .setB(getSusceptance(ucteTransfo))
+                .setG1(getConductance(ucteTransfo))
+                .setB1(getSusceptance(ucteTransfo))
+                .setG2(0.0)
+                .setB2(0.0)
                 .add();
 
     }
@@ -726,8 +728,10 @@ public class UcteImporter implements Importer {
                         .setRatedU2(ucteTransfo.getRatedVoltage1())
                         .setR(ucteTransfo.getResistance())
                         .setX(ucteTransfo.getReactance())
-                        .setG(getConductance(ucteTransfo))
-                        .setB(getSusceptance(ucteTransfo))
+                        .setG1(getConductance(ucteTransfo))
+                        .setB1(getSusceptance(ucteTransfo))
+                        .setG2(0.0)
+                        .setB2(0.0)
                         .add();
 
             }

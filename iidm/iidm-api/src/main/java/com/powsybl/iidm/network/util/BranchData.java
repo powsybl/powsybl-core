@@ -22,46 +22,46 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
  */
 public class BranchData {
 
-    private final String id;
+    private final String  id;
 
-    private final double r;
-    private final double x;
+    private final double  r;
+    private final double  x;
     // If we use complex numbers for the calculation of branch flows
     // we do not need to compute z, y, ksi
     // these attributes could be removed
-    private final double z;
-    private final double y;
-    private final double ksi;
-    private final double rho1;
-    private final double rho2;
-    private final double u1;
-    private final double u2;
-    private final double theta1;
-    private final double theta2;
-    private final double alpha1;
-    private final double alpha2;
-    private final double g1;
-    private final double g2;
-    private final double b1;
-    private final double b2;
-    private final double p1;
-    private final double q1;
-    private final double p2;
-    private final double q2;
+    private final double  z;
+    private final double  y;
+    private final double  ksi;
+    private final double  rho1;
+    private final double  rho2;
+    private final double  u1;
+    private final double  u2;
+    private final double  theta1;
+    private final double  theta2;
+    private final double  alpha1;
+    private final double  alpha2;
+    private final double  g1;
+    private final double  g2;
+    private final double  b1;
+    private final double  b2;
+    private final double  p1;
+    private final double  q1;
+    private final double  p2;
+    private final double  q2;
 
     private final boolean connected1;
     private final boolean connected2;
     private final boolean mainComponent1;
     private final boolean mainComponent2;
 
-    private double computedU1;
-    private double computedU2;
-    private double computedTheta1;
-    private double computedTheta2;
-    private double computedP1;
-    private double computedQ1;
-    private double computedP2;
-    private double computedQ2;
+    private double        computedU1;
+    private double        computedU2;
+    private double        computedTheta1;
+    private double        computedTheta2;
+    private double        computedP1;
+    private double        computedQ1;
+    private double        computedP2;
+    private double        computedQ2;
 
     public BranchData(String id,
             double r, double x,
@@ -108,8 +108,8 @@ public class BranchData {
 
         id = line.getId();
 
-        Bus bus1 = line.getTerminal1().getBusView().getBus();
-        Bus bus2 = line.getTerminal2().getBusView().getBus();
+        Bus bus1 = line.getTerminal1().getBusBreakerView().getBus();
+        Bus bus2 = line.getTerminal2().getBusBreakerView().getBus();
         Bus connectableBus1 = line.getTerminal1().getBusView().getConnectableBus();
         Bus connectableBus2 = line.getTerminal2().getBusView().getConnectableBus();
 
@@ -151,8 +151,8 @@ public class BranchData {
 
         id = twt.getId();
 
-        Bus bus1 = twt.getTerminal1().getBusView().getBus();
-        Bus bus2 = twt.getTerminal2().getBusView().getBus();
+        Bus bus1 = twt.getTerminal1().getBusBreakerView().getBus();
+        Bus bus2 = twt.getTerminal2().getBusBreakerView().getBus();
         Bus connectableBus1 = twt.getTerminal1().getBusView().getConnectableBus();
         Bus connectableBus2 = twt.getTerminal2().getBusView().getConnectableBus();
 
@@ -171,9 +171,9 @@ public class BranchData {
         alpha1 = twt.getPhaseTapChanger() != null ? Math.toRadians(twt.getPhaseTapChanger().getCurrentStep().getAlpha()) : 0f;
         alpha2 = 0f;
         g1 = getG1(twt, specificCompatibility);
-        g2 = specificCompatibility ? twt.getG() / 2 : 0f;
+        g2 = specificCompatibility ? twt.getG1() / 2 : twt.getG2();
         b1 = getB1(twt, specificCompatibility);
-        b2 = specificCompatibility ? twt.getB() / 2 : 0f;
+        b2 = specificCompatibility ? twt.getB1() / 2 : twt.getB2();
         p1 = twt.getTerminal1().getP();
         q1 = twt.getTerminal1().getQ();
         p2 = twt.getTerminal2().getP();
@@ -199,26 +199,26 @@ public class BranchData {
 
     private double getR(TwoWindingsTransformer twt) {
         return getValue(twt.getR(),
-                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getR() : 0,
-                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getR() : 0);
+                twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getR() : 0,
+                twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getR() : 0);
     }
 
     private double getX(TwoWindingsTransformer twt) {
         return getValue(twt.getX(),
-                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getX() : 0,
-                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getX() : 0);
+                twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getX() : 0,
+                twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getX() : 0);
     }
 
     private double getG1(TwoWindingsTransformer twt, boolean specificCompatibility) {
-        return getValue(specificCompatibility ? twt.getG() / 2 : twt.getG(),
-                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getG() : 0,
-                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getG() : 0);
+        return getValue(specificCompatibility ? twt.getG1() / 2 : twt.getG1(),
+                twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getG() : 0,
+                twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getG() : 0);
     }
 
     private double getB1(TwoWindingsTransformer twt, boolean specificCompatibility) {
-        return getValue(specificCompatibility ? twt.getB() / 2 : twt.getB(),
-                        twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getB() : 0,
-                        twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getB() : 0);
+        return getValue(specificCompatibility ? twt.getB1() / 2 : twt.getB1(),
+                twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getB() : 0,
+                twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getB() : 0);
     }
 
     private double getRho1(TwoWindingsTransformer twt) {

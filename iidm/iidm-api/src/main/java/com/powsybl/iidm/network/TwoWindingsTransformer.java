@@ -80,25 +80,49 @@ public interface TwoWindingsTransformer extends Branch<TwoWindingsTransformer>, 
      * Get the nominal magnetizing conductance specified in S at the secondary
      * voltage side.
      */
-    double getG();
+    double getG1();
 
     /**
      * Set the nominal magnetizing conductance specified in S at the secondary
      * voltage side.
      */
-    TwoWindingsTransformer setG(double g);
+    TwoWindingsTransformer setG1(double g);
 
     /**
      * Get the nominal magnetizing susceptance specified in S at the secondary
      * voltage side.
      */
-    double getB();
+    double getB1();
 
     /**
      * Set the nominal magnetizing susceptance specified in S at the secondary
      * voltage side.
      */
-    TwoWindingsTransformer setB(double b);
+    TwoWindingsTransformer setB1(double b);
+
+    /**
+     * Get the nominal magnetizing conductance specified in S at the secondary
+     * voltage side.
+     */
+    double getG2();
+
+    /**
+     * Set the nominal magnetizing conductance specified in S at the secondary
+     * voltage side.
+     */
+    TwoWindingsTransformer setG2(double g);
+
+    /**
+     * Get the nominal magnetizing susceptance specified in S at the secondary
+     * voltage side.
+     */
+    double getB2();
+
+    /**
+     * Set the nominal magnetizing susceptance specified in S at the secondary
+     * voltage side.
+     */
+    TwoWindingsTransformer setB2(double b);
 
     /**
      * Get the primary winding rated voltage in kV.
