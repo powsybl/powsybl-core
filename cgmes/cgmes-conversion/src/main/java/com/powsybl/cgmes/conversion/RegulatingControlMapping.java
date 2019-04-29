@@ -100,7 +100,7 @@ public class RegulatingControlMapping {
             String controlId = p.getId(TAP_CHANGER_CONTROL);
             RegulatingControl control = regulatingControlMapping.get(controlId);
             if (control != null) {
-                if (control.mode.endsWith("voltage")) {
+                if (control.mode.endsWith("voltage") || (p.containsKey("tculControlMode") && p.get("tculControlMode").endsWith("volt"))) {
                     addRegulatingControlVoltage(p, control, adder, defaultTerminal, context);
                     return;
                 } else if (!control.mode.endsWith("fixed")) {
@@ -121,7 +121,7 @@ public class RegulatingControlMapping {
             adder.setRegulating(false)
                     .setTargetV(Double.NaN);
         } else {
-            adder.setRegulating(control.enabled)
+            adder.setRegulating(control.enabled || p.asBoolean("tapChangerControlEnabled", false))
                     .setTargetV(control.targetValue);
         }
         adder.setLoadTapChangingCapabilities(true);

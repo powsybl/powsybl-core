@@ -1675,7 +1675,7 @@
 		<cim:RatioTapChanger.stepVoltageIncrement>0.800000</cim:RatioTapChanger.stepVoltageIncrement>
 		<cim:TapChanger.ltcFlag>true</cim:TapChanger.ltcFlag>
 		<cim:TapChanger.TapChangerControl rdf:resource="#_97110e84-7da6-479c-846c-696fdaa83d56"/>
-		<cim:RatioTapChanger.tculControlMode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#TransformerControlMode.volt"/>
+		<cim:RatioTapChanger.tculControlMode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#TransformerControlMode.reactive"/>
 		<cim:RatioTapChanger.TransformerEnd rdf:resource="#_35651e25-a77a-46a1-92f4-443d6acce90e"/>
 	</cim:RatioTapChanger>
 	<cim:RatioTapChanger rdf:ID="_fe25f43a-7341-446e-a71a-8ab7119ba806">

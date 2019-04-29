@@ -424,18 +424,7 @@ WHERE {
              cim:TapChanger.TapChangerControl ?TapChangerControl ;
              cim:TapChanger.ltcFlag ?ltcFlag ;
              # ??? FIXME what is the difference between tculControlMode and TapChangerControl RegulatingControl.mode ?
-             cim:RatioTapChanger.tculControlMode ?tculControlMode .
-        ?TapChangerControl
-             cim:RegulatingControl.mode ?regulatingControlMode ;
-             cim:RegulatingControl.Terminal ?RegulatingControlTerminal .
-        OPTIONAL { GRAPH ?graphSSH {
-            ?TapChangerControl
-                cim:RegulatingControl.enabled ?regulatingControlEnabled ;
-                cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;
-                cim:RegulatingControl.targetDeadband ?regulatingControlTargetDeadband ;
-                cim:RegulatingControl.targetValueUnitMultiplier ?regulatingControlTargetValueUnitMultiplier ;
-                cim:RegulatingControl.discrete ?regulatingControlDiscrete .
-        }}
+             cim:RatioTapChanger.tculControlMode ?tculControlMode
     }
     OPTIONAL {
     	?RatioTapChanger cim:RatioTapChanger.RatioTapChangerTable ?RatioTapChangerTable 
@@ -514,20 +503,7 @@ WHERE {
     OPTIONAL {
         ?PhaseTapChanger
             cim:TapChanger.ltcFlag ?ltcFlag ;
-            cim:TapChanger.TapChangerControl ?TapChangerControl .
-        ?TapChangerControl
-            cim:RegulatingControl.mode ?regulatingControlMode ;
-            cim:RegulatingControl.Terminal ?RegulatingControlTerminal .
-        OPTIONAL { GRAPH ?graphSSH {
-            ?TapChangerControl
-                cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;
-                cim:RegulatingControl.enabled ?regulatingControlEnabled ;
-                cim:RegulatingControl.targetValueUnitMultiplier ?regulatingControlTargetValueUnitMultiplier ;
-                cim:RegulatingControl.discrete ?regulatingControlDiscrete .
-            OPTIONAL {
-                ?TapChangerControl cim:RegulatingControl.targetDeadband ?regulatingControlTargetDeadband
-            }
-        }}
+            cim:TapChanger.TapChangerControl ?TapChangerControl
     }
 }}
 OPTIONAL { GRAPH ?graphSV {
