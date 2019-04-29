@@ -66,10 +66,10 @@ public class RegulatingControlMapping {
                 } else {
                     context.ignored(control.mode, String.format("Unsupported regulation mode for generator %s", idEq));
                 }
+                regulatingControlMapping.remove(controlId);
             } else {
                 context.missing(String.format("Regulating control %s for equipment %s", controlId, idEq));
             }
-            regulatingControlMapping.remove(controlId);
         }
         adder.setVoltageRegulatorOn(false)
                 .setTargetV(Double.NaN);
@@ -106,10 +106,10 @@ public class RegulatingControlMapping {
                 } else if (!control.mode.endsWith("fixed")) {
                     context.ignored(control.mode, "Unsupported regulation mode for Ratio tap changer.");
                 }
+                regulatingControlMapping.remove(controlId);
             } else {
                 context.missing(String.format("Regulating control %s", controlId));
             }
-            regulatingControlMapping.remove(controlId);
         }
         adder.setLoadTapChangingCapabilities(false);
     }
