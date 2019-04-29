@@ -51,7 +51,7 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
         if (g.getRegulatingTerminal() != null
                 && !Objects.equals(g.getRegulatingTerminal().getBusBreakerView().getConnectableBus(),
                                   g.getTerminal().getBusBreakerView().getConnectableBus())) {
-            writeTerminalRef(g.getRegulatingTerminal(), context, "regulatingTerminal");
+            TerminalRefXml.writeTerminalRef(g.getRegulatingTerminal(), context, "regulatingTerminal");
         }
         ReactiveLimitsXml.INSTANCE.write(g, context);
     }
@@ -92,7 +92,7 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
                 case "regulatingTerminal":
                     String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
                     String side = context.getReader().getAttributeValue(null, "side");
-                    context.getEndTasks().add(() -> g.setRegulatingTerminal(readTerminalRef(g.getTerminal().getVoltageLevel().getSubstation().getNetwork(), id, side)));
+                    context.getEndTasks().add(() -> g.setRegulatingTerminal(TerminalRefXml.readTerminalRef(g.getTerminal().getVoltageLevel().getSubstation().getNetwork(), id, side)));
                     break;
 
                 case "reactiveCapabilityCurve":
