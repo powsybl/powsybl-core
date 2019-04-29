@@ -7,8 +7,8 @@
 
 package com.powsybl.cgmes.conversion.test.conformity.modified;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
@@ -101,7 +101,35 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void miniNodeBreakerTestLimits() throws IOException {
+    public void microBEPtcCurrentLimiter() {
+        Network network = new CgmesImport(platformConfig)
+                .importData(catalogModified.microGridBaseCaseBEPtcCurrentLimiter().dataSource(), null);
+        PhaseTapChanger ptc = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
+        assertNotNull(ptc);
+        assertEquals(CURRENT_LIMITER, ptc.getRegulationMode());
+    }
+
+    @Test
+    public void microBEInvalidRegulatingControl() {
+        Network network = new CgmesImport(platformConfig)
+                .importData(catalogModified.microGridBaseCaseBEInvalidRegulatingControl().dataSource(), null);
+
+        Generator generator = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0");
+        assertFalse(generator.isVoltageRegulatorOn());
+        assertTrue(Double.isNaN(generator.getTargetV()));
+        assertSame(generator.getTerminal(), generator.getRegulatingTerminal());
+
+        RatioTapChanger rtc = network.getTwoWindingsTransformer("_e482b89a-fa84-4ea9-8e70-a83d44790957").getRatioTapChanger();
+        assertNotNull(rtc);
+        assertFalse(rtc.hasLoadTapChangingCapabilities());
+
+        PhaseTapChanger ptc = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
+        assertNotNull(ptc);
+        assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, ptc.getRegulationMode());
+    }
+
+    @Test
+    public void miniNodeBreakerTestLimits() {
         // Original test case
         Network network0 = new CgmesImport(platformConfig).importData(catalog.miniNodeBreaker().dataSource(), null);
         // The case has been manually modified to have OperationalLimits

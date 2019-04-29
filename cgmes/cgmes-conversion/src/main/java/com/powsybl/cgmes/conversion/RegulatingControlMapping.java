@@ -63,10 +63,13 @@ public class RegulatingControlMapping {
                     adder.setVoltageRegulatorOn(control.enabled);
                     setRegulatingTerminal(control, p.getId(TERMINAL), idEq, controlId, adder);
                     return;
+                } else {
+                    context.ignored(control.mode, String.format("Unsupported regulation mode for generator %s", idEq));
                 }
             } else {
                 context.missing(String.format("Regulating control %s for equipment %s", controlId, idEq));
             }
+            regulatingControlMapping.remove(controlId);
         }
         adder.setVoltageRegulatorOn(false)
                 .setTargetV(Double.NaN);
@@ -101,11 +104,12 @@ public class RegulatingControlMapping {
                     addRegulatingControlVoltage(p, control, adder, defaultTerminal, context);
                     return;
                 } else if (!control.mode.endsWith("fixed")) {
-                    context.ignored(control.mode, "Unsupported regulation mode");
+                    context.ignored(control.mode, "Unsupported regulation mode for Ratio tap changer.");
                 }
             } else {
                 context.missing(String.format("Regulating control %s", controlId));
             }
+            regulatingControlMapping.remove(controlId);
         }
         adder.setLoadTapChangingCapabilities(false);
     }
@@ -143,17 +147,19 @@ public class RegulatingControlMapping {
                 int side = context.tapChangerTransformers().whichSide(p.getId("PhaseTapChanger"));
                 if (control.mode.endsWith("currentflow")) {
                     addCurrentFlowRegControl(p, control, defaultTerminal, adder, side, t2w);
+                    return;
                 } else if (control.mode.endsWith("activepower")) {
                     addActivePowerRegControl(p, control, defaultTerminal, adder, side, t2w);
+                    return;
                 } else if (control.mode.endsWith("fixed")) {
                     // Nothing to do
                 } else {
-                    context.ignored(control.mode, "Unsupported regulating mode");
+                    context.fixed(control.mode, "Unsupported regulating mode for Phase tap changer. Considered as FIXED_TAP");
                 }
+                regulatingControlMapping.remove(p.getId(TAP_CHANGER_CONTROL));
             } else {
                 context.missing(String.format("Regulating control %s", p.getId(TAP_CHANGER_CONTROL)));
             }
-
         }
     }
 
