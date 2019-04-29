@@ -104,6 +104,7 @@ public class CgmesConformity1ModifiedConversionTest {
     public void microBEPtcCurrentLimiter() {
         Network network = new CgmesImport(platformConfig)
                 .importData(catalogModified.microGridBaseCaseBEPtcCurrentLimiter().dataSource(), null);
+
         PhaseTapChanger ptc = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
         assertNotNull(ptc);
         assertEquals(CURRENT_LIMITER, ptc.getRegulationMode());
@@ -122,10 +123,40 @@ public class CgmesConformity1ModifiedConversionTest {
         RatioTapChanger rtc = network.getTwoWindingsTransformer("_e482b89a-fa84-4ea9-8e70-a83d44790957").getRatioTapChanger();
         assertNotNull(rtc);
         assertFalse(rtc.hasLoadTapChangingCapabilities());
+        assertTrue(Double.isNaN(rtc.getTargetV()));
+        assertFalse(rtc.isRegulating());
+        assertNull(rtc.getRegulationTerminal());
 
         PhaseTapChanger ptc = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
         assertNotNull(ptc);
         assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, ptc.getRegulationMode());
+        assertTrue(Double.isNaN(ptc.getRegulationValue()));
+        assertFalse(ptc.isRegulating());
+        assertNull(ptc.getRegulationTerminal());
+    }
+
+    @Test
+    public void microBEMissingRegulatingControl() {
+        Network network = new CgmesImport(platformConfig)
+                .importData(catalogModified.microGridBaseCaseBEMissingRegulatingControl().dataSource(), null);
+
+        Generator generator = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0");
+        assertFalse(generator.isVoltageRegulatorOn());
+        assertTrue(Double.isNaN(generator.getTargetV()));
+
+        RatioTapChanger rtc = network.getTwoWindingsTransformer("_b94318f6-6d24-4f56-96b9-df2531ad6543").getRatioTapChanger();
+        assertNotNull(rtc);
+        assertFalse(rtc.hasLoadTapChangingCapabilities());
+        assertTrue(Double.isNaN(rtc.getTargetV()));
+        assertFalse(rtc.isRegulating());
+        assertNull(rtc.getRegulationTerminal());
+
+        PhaseTapChanger ptc = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
+        assertNotNull(ptc);
+        assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, ptc.getRegulationMode());
+        assertTrue(Double.isNaN(ptc.getRegulationValue()));
+        assertFalse(ptc.isRegulating());
+        assertNull(ptc.getRegulationTerminal());
     }
 
     @Test
