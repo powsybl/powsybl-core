@@ -7,7 +7,10 @@
 package com.powsybl.ucte.converter;
 
 import com.powsybl.commons.datasource.*;
+import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.ucte.network.*;
 import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
@@ -28,6 +31,7 @@ public class UcteExporterTest {
 
     private static Network transfomerRegulationNetwork;
     private static Network exportTestNetwork;
+    private static Network iidmNetwork;
     private UcteExporter ucteExporter = new UcteExporter();
 
     @Rule
@@ -39,6 +43,9 @@ public class UcteExporterTest {
         transfomerRegulationNetwork = new UcteImporter().importData(dataSource, null);
         dataSource = new ResourceDataSource("exportTest", new ResourceSet("/", "exportTest.uct"));
         exportTestNetwork = new UcteImporter().importData(dataSource, null);
+        iidmNetwork = EurostagTutorialExample1Factory.create();
+        iidmNetwork.getLine("NHV1_NHV2_1").getProperties().setProperty(UcteImporter.REFERENCE_VOLTAGE, "15.8");
+        iidmNetwork.getLine("NHV1_NHV2_1").getProperties().setProperty(UcteImporter.GEOGRAPHICAL_NAME_PROPERTY_KEY, "geographicalName");
     }
 
     @Test
@@ -107,6 +114,49 @@ public class UcteExporterTest {
     }
 
     @Test
+    public void createLineFromNonCompliantIdDanglingLineTest() {
+        Network networkWithDL = DanglingLineNetworkFactory.create();
+        UcteNetwork ucteNetwork = new UcteNetworkImpl();
+        ucteExporter.createLineFromNonCompliantIdDanglingLine(ucteNetwork, networkWithDL.getDanglingLine("DL"));
+        assertEquals(1, ucteNetwork.getLines().size());
+        assertEquals("XVL   9a FVL   9a a", ucteNetwork.getLines().toArray()[0].toString());
+    }
+
+    @Test
+    public void generateUcteNodeCodeTest() {
+        ucteExporter.generateUcteNodeCode("test", iidmNetwork.getVoltageLevel("VLHV1"), UcteCountryCode.FR.toString());
+        assertEquals("FP1aaa1b", ucteExporter.iidmIdToUcteNodeCodeId.get("test").toString());
+        ucteExporter.generateUcteNodeCode("test", iidmNetwork.getVoltageLevel("VLHV1"), UcteCountryCode.FR.toString());
+        assertEquals("FP1aaa1c", ucteExporter.iidmIdToUcteNodeCodeId.get("test").toString());
+        for (int i = 0; i < 150; i++) {
+            ucteExporter.generateUcteNodeCode("test", iidmNetwork.getVoltageLevel("VLHV1"), UcteCountryCode.FR.toString());
+        }
+        ucteExporter.generateUcteNodeCode("test", iidmNetwork.getVoltageLevel("VLHV1"), UcteCountryCode.FR.toString());
+        assertEquals("FP1aaf1x", ucteExporter.iidmIdToUcteNodeCodeId.get("test").toString());
+    }
+
+    @Test
+    public void incrementGeneratedGeographicalNameTest() {
+        assertEquals("aaab", ucteExporter.incrementGeneratedGeographicalName("aaaa"));
+        assertEquals("aaba", ucteExporter.incrementGeneratedGeographicalName("aaaz"));
+        assertEquals("tryc", ucteExporter.incrementGeneratedGeographicalName("trybr"));
+        assertEquals("zaaa", ucteExporter.incrementGeneratedGeographicalName("yzzz"));
+        assertEquals("zfaa", ucteExporter.incrementGeneratedGeographicalName("zezz"));
+        try {
+            ucteExporter.incrementGeneratedGeographicalName("aze");
+            fail();
+        } catch (IllegalArgumentException exception) {
+            assertEquals("The string to increment is not long enough (should be at least 4)", exception.getMessage());
+        }
+        try {
+            ucteExporter.incrementGeneratedGeographicalName("zzzz");
+            fail();
+        } catch (UcteException exception) {
+            assertEquals("This network cannot be exported, too much identical ids", exception.getMessage());
+        }
+    }
+
+    @Test
     public void energySourceToUctePowerPlantTypeTest() {
         assertSame(UctePowerPlantType.H, ucteExporter.energySourceToUctePowerPlantType(EnergySource.HYDRO));
         assertSame(UctePowerPlantType.N, ucteExporter.energySourceToUctePowerPlantType(EnergySource.NUCLEAR));
@@ -160,8 +210,34 @@ public class UcteExporterTest {
 
     @Test
     public void isUcteTieLineIdTest() {
-        assertTrue(ucteExporter.isUcteTieLineId(exportTestNetwork.getLine("XB__F_21 B_SU1_21 1 + XB__F_21 F_SU1_21 1")));
-        assertFalse(ucteExporter.isUcteTieLineId(exportTestNetwork.getLine("F_SU1_12 F_SU2_11 1")));
+        Line line = exportTestNetwork.getLine("XB__F_21 B_SU1_21 1 + XB__F_21 F_SU1_21 1");
+        MergedXnode mergedXnode =
+                new MergedXnode(line, 0f, 0f, 0d, 0d, 0d, 0d, "");
+        line.addExtension(MergedXnode.class, mergedXnode);
+        assertFalse(ucteExporter.isUcteTieLineId(line));
+        line.getExtension(MergedXnode.class).setLine1Name("tooShort");
+        line.getExtension(MergedXnode.class).setLine2Name("B_SU1_21 1 F_SU1_21 1");
+        assertFalse(ucteExporter.isUcteTieLineId(line));
+        line.getExtension(MergedXnode.class).setLine1Name("notUcteCompliantId1111111111111");
+        assertFalse(ucteExporter.isUcteTieLineId(line));
+        line.getExtension(MergedXnode.class).setLine1Name("B_SU1_21 1 F_SU1_21 2");
+        assertTrue(ucteExporter.isUcteTieLineId(line));
+    }
+
+    @Test
+    public void getGeographicalNamePropertyTest() {
+        assertEquals("geographicalName", ucteExporter.getGeographicalNameProperty(iidmNetwork.getLine("NHV1_NHV2_1")));
+        assertNotEquals("wrong", ucteExporter.getGeographicalNameProperty(iidmNetwork.getLine("NHV1_NHV2_1")));
+        assertEquals("", ucteExporter.getGeographicalNameProperty(iidmNetwork.getLine("NHV1_NHV2_2")));
+        assertNotEquals("false", ucteExporter.getGeographicalNameProperty(iidmNetwork.getLine("NHV1_NHV2_2")));
+    }
+
+    @Test
+    public void getReferenceVoltagePropertyTest() {
+        assertEquals(15.8, ucteExporter.getReferenceVoltageProperty(iidmNetwork.getLine("NHV1_NHV2_1")), 0.01);
+        assertNotEquals(16, ucteExporter.getReferenceVoltageProperty(iidmNetwork.getLine("NHV1_NHV2_1")), 0.01);
+        assertEquals(Float.NaN, ucteExporter.getReferenceVoltageProperty(iidmNetwork.getLine("NHV1_NHV2_2")), 0.01);
+        assertNotEquals(1, ucteExporter.getReferenceVoltageProperty(iidmNetwork.getLine("NHV1_NHV2_2")), 0.01);
     }
 
     @Test
