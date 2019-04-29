@@ -49,7 +49,7 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBERatioPhaseTabularTest() throws IOException {
+    public void microBERatioPhaseTabularTest() {
         Network network = new CgmesImport(platformConfig)
             .importData(catalogModified.microGridBaseCaseBERatioPhaseTapChangerTabular().dataSource(), null);
         RatioTapChanger rtc = network.getTwoWindingsTransformer("_b94318f6-6d24-4f56-96b9-df2531ad6543")

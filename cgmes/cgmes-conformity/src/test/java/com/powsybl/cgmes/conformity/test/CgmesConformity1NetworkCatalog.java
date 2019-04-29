@@ -511,8 +511,7 @@ public class CgmesConformity1NetworkCatalog {
             rtca.setLoadTapChangingCapabilities(true)
                     .setRegulating(false)
                     .setTargetV(Float.NaN)
-                    // TODO Set the right regulation terminal
-                    .setRegulationTerminal(txBE22.getTerminal(side));
+                    .setRegulationTerminal(txBE22.getTerminal2());
             rtca.add();
         }
         TwoWindingsTransformer txBE21;
@@ -966,7 +965,7 @@ public class CgmesConformity1NetworkCatalog {
         ptca.setRegulating(regulating)
                 .setRegulationMode(mode)
                 .setRegulationValue(regulationValue)
-                .setRegulationTerminal(tx.getTerminal1())
+                .setRegulationTerminal(tx.getTerminal2())
                 .add();
     }
 
