@@ -35,6 +35,8 @@ public class BusTest {
                     .setId("bus1")
                 .add();
 
+        assertNotNull(network.getBusBreakerView().getBus("bus1"));
+        assertEquals("bus1", network.getBusBreakerView().getBus("bus1").getId());
         assertEquals("bus1", bus.getId());
         assertEquals("bus1Name", bus.getName());
 
