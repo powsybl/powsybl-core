@@ -139,7 +139,6 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
         new AppStorageArchive(storage).unarchive(info, dir);
     }
 
-
     @Override
     public void delete() {
         if (getChildren().isEmpty()) {
