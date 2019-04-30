@@ -104,6 +104,13 @@ public interface Network extends Container<Network> {
     }
 
     /**
+     * Get a Bus.
+     * @param id the id of the Bus
+     * @return the Bus or null if not found
+     */
+    Bus getBus(String id);
+
+    /**
      * Get the date that the network represents.
      */
     DateTime getCaseDate();

@@ -119,6 +119,14 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
     }
 
     @Override
+    public Bus getBus(String id) {
+        return getVoltageLevelStream().map(vl -> vl.getBusView().getBus(id))
+                .filter(Objects::nonNull)
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Override
     public DateTime getCaseDate() {
         return caseDate;
     }
