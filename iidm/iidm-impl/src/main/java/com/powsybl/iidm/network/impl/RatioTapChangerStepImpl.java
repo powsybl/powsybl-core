@@ -14,8 +14,8 @@ import com.powsybl.iidm.network.RatioTapChangerStep;
  */
 class RatioTapChangerStepImpl extends TapChangerStepImpl<RatioTapChangerStepImpl> implements RatioTapChangerStep {
 
-    RatioTapChangerStepImpl(double rho, double r, double x, double g, double b) {
-        super(rho, r, x, g, b);
+    RatioTapChangerStepImpl(double rho, double r, double x, double g1, double b1, double g2, double b2) {
+        super(rho, r, x, g1, b1, g2, b2);
     }
 
 }

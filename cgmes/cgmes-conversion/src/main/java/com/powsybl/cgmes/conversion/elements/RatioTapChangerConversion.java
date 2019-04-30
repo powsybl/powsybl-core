@@ -153,8 +153,10 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
                 .setRho(rtcAtSide1 ? rho : 1 / rho)
                 .setR(r + dz + r * dz / 100)
                 .setX(x + dz + r * dz / 100)
-                .setG(g + dy + g * dy / 100)
-                .setB(b + dy + b * dy / 100)
+                .setG1(g + dy + g * dy / 100)
+                .setB1(b + dy + b * dy / 100)
+                .setG2(0.0)
+                .setB2(0.0)
                 .endStep();
         }
     }
@@ -201,8 +203,10 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
                 .setRho(rho)
                 .setR(dz)
                 .setX(dz)
-                .setG(dy)
-                .setB(dy)
+                .setG1(dy)
+                .setB1(dy)
+                .setG2(0.0)
+                .setB2(0.0)
                 .endStep();
         }
     }

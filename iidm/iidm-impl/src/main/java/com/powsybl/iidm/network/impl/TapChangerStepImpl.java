@@ -18,16 +18,22 @@ class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
 
     private double x;
 
-    private double g;
+    private double g1;
 
-    private double b;
+    private double b1;
 
-    protected TapChangerStepImpl(double rho, double r, double x, double g, double b) {
+    private double g2;
+
+    private double b2;
+
+    protected TapChangerStepImpl(double rho, double r, double x, double g1, double b1, double g2, double b2) {
         this.rho = rho;
         this.r = r;
         this.x = x;
-        this.g = g;
-        this.b = b;
+        this.g1 = g1;
+        this.b1 = b1;
+        this.g2 = g2;
+        this.b2 = b2;
     }
 
     public double getRho() {
@@ -57,22 +63,39 @@ class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
         return (S) this;
     }
 
-    public double getB() {
-        return b;
+    public double getB1() {
+        return b1;
     }
 
-    public S setB(double b) {
-        this.b = b;
+    public S setB1(double b1) {
+        this.b1 = b1;
         return (S) this;
     }
 
-    public double getG() {
-        return g;
+    public double getG1() {
+        return g1;
     }
 
-    public S setG(double g) {
-        this.g = g;
+    public S setG1(double g1) {
+        this.g1 = g1;
         return (S) this;
     }
 
+    public double getB2() {
+        return b2;
+    }
+
+    public S setB2(double b2) {
+        this.b2 = b2;
+        return (S) this;
+    }
+
+    public double getG2() {
+        return g2;
+    }
+
+    public S setG2(double g2) {
+        this.g2 = g2;
+        return (S) this;
+    }
 }
