@@ -17,8 +17,8 @@ class PhaseTapChangerStepImpl extends TapChangerStepImpl<PhaseTapChangerStepImpl
 
     private double alpha;
 
-    PhaseTapChangerStepImpl(double alpha, double rho, double r, double x, double g, double b) {
-        super(rho, r, x, g, b);
+    PhaseTapChangerStepImpl(double alpha, double rho, double r, double x, double g1, double b1, double g2, double b2) {
+        super(rho, r, x, g1, b1, g2, b2);
         this.alpha = alpha;
     }
 

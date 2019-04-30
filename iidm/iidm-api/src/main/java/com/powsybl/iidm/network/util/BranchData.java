@@ -219,14 +219,14 @@ public class BranchData {
 
     private double getG1(TwoWindingsTransformer twt, boolean specificCompatibility) {
         return getValue(specificCompatibility ? twt.getG1() / 2 : twt.getG1(),
-                twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getG() : 0,
-                twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getG() : 0);
+                twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getG1() : 0,
+                twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getG1() : 0);
     }
 
     private double getB1(TwoWindingsTransformer twt, boolean specificCompatibility) {
         return getValue(specificCompatibility ? twt.getB1() / 2 : twt.getB1(),
-                twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getB() : 0,
-                twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getB() : 0);
+                twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getB1() : 0,
+                twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getB1() : 0);
     }
 
     private double getRho1(TwoWindingsTransformer twt) {

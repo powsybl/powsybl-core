@@ -22,9 +22,13 @@ public interface PhaseTapChangerAdder {
 
         StepAdder setX(double x);
 
-        StepAdder setG(double g);
+        StepAdder setG1(double g1);
 
-        StepAdder setB(double b);
+        StepAdder setB1(double b1);
+
+        StepAdder setG2(double g2);
+
+        StepAdder setB2(double b2);
 
         PhaseTapChangerAdder endStep();
     }

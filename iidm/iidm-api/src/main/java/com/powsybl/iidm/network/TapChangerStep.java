@@ -45,21 +45,21 @@ public interface TapChangerStep<S extends TapChangerStep> {
     /**
      * Get the susceptance deviation in percent of nominal value.
      */
-    double getB();
+    double getB1();
 
     /**
      * Set the susceptance deviation in percent of nominal value.
      */
-    S setB(double b);
+    S setB1(double b);
 
     /**
      * Get the conductance deviation in percent of nominal value.
      */
-    double getG();
+    double getG1();
 
     /**
      * Set the conductance deviation in percent of nominal value.
      */
-    S setG(double g);
+    S setG1(double g);
 
 }

@@ -519,8 +519,10 @@ public class UcteImporter implements Importer {
                     .setRho(rho)
                     .setR(0f)
                     .setX(0f)
-                    .setG(0f)
-                    .setB(0f)
+                    .setG1(0f)
+                    .setB1(0f)
+                    .setG2(0f)
+                    .setB2(0f)
                     .endStep();
         }
         rtca.add();
@@ -559,8 +561,10 @@ public class UcteImporter implements Importer {
                     .setAlpha(-alpha) // minus because in the UCT model PST is on side 2 and side1 on IIDM model
                     .setR(0f)
                     .setX(0f)
-                    .setG(0f)
-                    .setB(0f)
+                    .setG1(0f)
+                    .setB1(0f)
+                    .setG2(0f)
+                    .setB2(0f)
                     .endStep();
         }
         ptca.add();

@@ -445,8 +445,10 @@ public class CgmesConformity1NetworkCatalog {
                         .setRho(rhok)
                         .setR(dz)
                         .setX(dz)
-                        .setG(dy)
-                        .setB(dy)
+                        .setG1(dy)
+                        .setB1(dy)
+                        .setG2(0.0)
+                        .setB2(0.0)
                         .endStep();
             }
             rtca.setLoadTapChangingCapabilities(true)
@@ -508,8 +510,10 @@ public class CgmesConformity1NetworkCatalog {
                         .setRho(rhok)
                         .setR(0)
                         .setX(0)
-                        .setG(0)
-                        .setB(0)
+                        .setG1(0.0)
+                        .setB1(0.0)
+                        .setG2(0.0)
+                        .setB2(0.0)
                         .endStep();
             }
             rtca.setLoadTapChangingCapabilities(true)
@@ -960,8 +964,10 @@ public class CgmesConformity1NetworkCatalog {
                     .setAlpha(Math.toDegrees(alpha))
                     .setR(0)
                     .setX(dx)
-                    .setG(0)
-                    .setB(0)
+                    .setG1(0.0)
+                    .setB1(0.0)
+                    .setG2(0.0)
+                    .setB2(0.0)
                     .endStep();
             if (LOG.isDebugEnabled()) {
                 int n = (low + k) - neutral;

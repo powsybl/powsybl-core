@@ -171,8 +171,10 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                     .setRho(1 / (side == 1 ? rho : 1 / rho))
                     .setR(r + dz + r * dz / 100)
                     .setX(x + dz + r * dz / 100)
-                    .setG(g + dy + g * dy / 100)
-                    .setB(b + dy + b * dy / 100)
+                    .setG1(g + dy + g * dy / 100)
+                    .setB1(b + dy + b * dy / 100)
+                    .setG2(0.0)
+                    .setB2(0.0)
                     .endStep();
         }
     }
@@ -334,8 +336,10 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                     .setRho(rho)
                     .setR(0)
                     .setX(dx)
-                    .setG(0)
-                    .setB(0)
+                    .setG1(0.0)
+                    .setB1(0.0)
+                    .setG2(0.0)
+                    .setB2(0.0)
                     .endStep();
             if (LOG.isDebugEnabled()) {
                 int n = (lowStep + i) - neutralStep;

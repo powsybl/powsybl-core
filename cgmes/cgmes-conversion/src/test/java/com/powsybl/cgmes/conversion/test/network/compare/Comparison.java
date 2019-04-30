@@ -482,8 +482,8 @@ public class Comparison {
             BiConsumer<TCS, TCS> testTapChangerStep1) {
         compare("tapChangerStep.r", expected.getR(), actual.getR());
         compare("tapChangerStep.x", expected.getX(), actual.getX());
-        compare("tapChangerStep.g", expected.getG(), actual.getG());
-        compare("tapChangerStep.b", expected.getB(), actual.getB());
+        compare("tapChangerStep.g", expected.getG1(), actual.getG1());
+        compare("tapChangerStep.b", expected.getB1(), actual.getB1());
         compare("tapChangerStep.rho", expected.getRho(), actual.getRho());
         if (testTapChangerStep1 != null) {
             testTapChangerStep1.accept(expected, actual);
