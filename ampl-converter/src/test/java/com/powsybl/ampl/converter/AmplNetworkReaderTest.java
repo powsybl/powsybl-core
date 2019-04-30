@@ -264,7 +264,7 @@ public class AmplNetworkReaderTest {
     }
 
     private void testBuses(Network network, AmplNetworkReader reader) throws IOException {
-        Optional<Bus> bx = Optional.ofNullable(network.getBus("VLGEN_0"));
+        Optional<Bus> bx = Optional.ofNullable(network.getBusView().getBus("VLGEN_0"));
         if (bx.isPresent()) {
             Bus b = bx.get();
             assertTrue(Double.isNaN(b.getAngle()));
@@ -274,7 +274,7 @@ public class AmplNetworkReaderTest {
         }
 
         reader.readBuses();
-        Optional<Bus> bx2 = Optional.ofNullable(network.getBus("VLGEN_0"));
+        Optional<Bus> bx2 = Optional.ofNullable(network.getBusView().getBus("VLGEN_0"));
         if (bx2.isPresent()) {
             Bus b = bx2.get();
             assertEquals(Math.toDegrees(2d), b.getAngle(), 0.0);

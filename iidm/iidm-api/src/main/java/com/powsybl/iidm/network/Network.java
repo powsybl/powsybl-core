@@ -70,6 +70,11 @@ public interface Network extends Container<Network> {
          * Get the switch count.
          */
         int getSwitchCount();
+
+        /**
+         * Get a Bus.
+         */
+        Bus getBus(String id);
     }
 
     /**
@@ -94,6 +99,11 @@ public interface Network extends Container<Network> {
         Stream<Bus> getBusStream();
 
         /**
+         * Get a Bus.
+         */
+        Bus getBus(String id);
+
+        /**
          * Get all connected compoments.
          * <p>
          * Depends on the working variant.
@@ -102,13 +112,6 @@ public interface Network extends Container<Network> {
         Collection<Component> getConnectedComponents();
 
     }
-
-    /**
-     * Get a Bus.
-     * @param id the id of the Bus
-     * @return the Bus or null if not found
-     */
-    Bus getBus(String id);
 
     /**
      * Get the date that the network represents.
