@@ -12,7 +12,6 @@ import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
 
 import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.RatioTapChangerStep;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.LegBase;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
@@ -25,60 +24,60 @@ public class TwtData {
 
     private static final String UNEXPECTED_SIDE = "Unexpected side";
 
-    private final String id;
+    private final String        id;
 
-    private final double p1;
-    private final double q1;
-    private final double p2;
-    private final double q2;
-    private final double p3;
-    private final double q3;
+    private final double        p1;
+    private final double        q1;
+    private final double        p2;
+    private final double        q2;
+    private final double        p3;
+    private final double        q3;
 
-    private final double u1;
-    private final double theta1;
-    private final double u2;
-    private final double theta2;
-    private final double u3;
-    private final double theta3;
+    private final double        u1;
+    private final double        theta1;
+    private final double        u2;
+    private final double        theta2;
+    private final double        u3;
+    private final double        theta3;
 
-    private final double r1;
-    private final double x1;
-    private final double g11;
-    private final double b11;
-    private final double g12;
-    private final double b12;
-    private final double ratedU1;
-    private final double r2;
-    private final double x2;
-    private final double g21;
-    private final double b21;
-    private final double g22;
-    private final double b22;
-    private final double ratedU2;
-    private final double r3;
-    private final double x3;
-    private final double g31;
-    private final double b31;
-    private final double g32;
-    private final double b32;
-    private final double ratedU3;
+    private final double        r1;
+    private final double        x1;
+    private final double        g11;
+    private final double        b11;
+    private final double        g12;
+    private final double        b12;
+    private final double        ratedU1;
+    private final double        r2;
+    private final double        x2;
+    private final double        g21;
+    private final double        b21;
+    private final double        g22;
+    private final double        b22;
+    private final double        ratedU2;
+    private final double        r3;
+    private final double        x3;
+    private final double        g31;
+    private final double        b31;
+    private final double        g32;
+    private final double        b32;
+    private final double        ratedU3;
 
-    private final boolean connected1;
-    private final boolean connected2;
-    private final boolean connected3;
-    private final boolean mainComponent1;
-    private final boolean mainComponent2;
-    private final boolean mainComponent3;
+    private final boolean       connected1;
+    private final boolean       connected2;
+    private final boolean       connected3;
+    private final boolean       mainComponent1;
+    private final boolean       mainComponent2;
+    private final boolean       mainComponent3;
 
-    private final double computedP1;
-    private final double computedQ1;
-    private final double computedP2;
-    private final double computedQ2;
-    private final double computedP3;
-    private final double computedQ3;
+    private final double        computedP1;
+    private final double        computedQ1;
+    private final double        computedP2;
+    private final double        computedQ2;
+    private final double        computedP3;
+    private final double        computedQ3;
 
-    private final double starU;
-    private final double starTheta;
+    private final double        starU;
+    private final double        starTheta;
 
     public TwtData(ThreeWindingsTransformer twt, double epsilonX, boolean applyReactanceCorrection) {
         Objects.requireNonNull(twt);
@@ -98,26 +97,26 @@ public class TwtData {
         u3 = getV(twt.getLeg3());
         theta3 = getTheta(twt.getLeg3());
 
-        r1 = twt.getLeg1().getR();
-        x1 = twt.getLeg1().getX();
-        g11 = twt.getLeg1().getG1();
-        b11 = twt.getLeg1().getB1();
-        g12 = twt.getLeg1().getG2();
-        b12 = twt.getLeg1().getB2();
+        r1 = getR(twt.getLeg1());
+        x1 = getX(twt.getLeg1());
+        g11 = getG1(twt.getLeg1());
+        b11 = getB1(twt.getLeg1());
+        g12 = getG2(twt.getLeg1());
+        b12 = getB2(twt.getLeg1());
         ratedU1 = twt.getLeg1().getRatedU();
-        r2 = adjustedR(twt.getLeg2());
-        x2 = adjustedX(twt.getLeg2());
-        g21 = twt.getLeg2().getG1();
-        b21 = twt.getLeg2().getB1();
-        g22 = twt.getLeg2().getG2();
-        b22 = twt.getLeg2().getB2();
+        r2 = getR(twt.getLeg2());
+        x2 = getX(twt.getLeg2());
+        g21 = getG1(twt.getLeg2());
+        b21 = getB1(twt.getLeg2());
+        g22 = getG2(twt.getLeg2());
+        b22 = getB2(twt.getLeg2());
         ratedU2 = twt.getLeg2().getRatedU();
-        r3 = adjustedR(twt.getLeg3());
-        x3 = adjustedX(twt.getLeg3());
-        g31 = twt.getLeg3().getG1();
-        b31 = twt.getLeg3().getB1();
-        g32 = twt.getLeg3().getG2();
-        b32 = twt.getLeg3().getB2();
+        r3 = getR(twt.getLeg3());
+        x3 = getX(twt.getLeg3());
+        g31 = getG1(twt.getLeg3());
+        b31 = getB1(twt.getLeg3());
+        g32 = getG2(twt.getLeg3());
+        b32 = getB2(twt.getLeg3());
         ratedU3 = twt.getLeg3().getRatedU();
 
         connected1 = twt.getLeg1().getTerminal().isConnected();
@@ -134,7 +133,7 @@ public class TwtData {
         starU = starVoltage.abs();
         starTheta = starVoltage.getArgument();
 
-        BranchData leg1BranchData = legBranchData(twt.getId(), twt.getLeg1(), starVoltage,
+        BranchData leg1BranchData = legBranchData(twt.getId(), Side.ONE, twt.getLeg1(), ratedU0, starVoltage,
                 epsilonX, applyReactanceCorrection);
         computedP1 = leg1BranchData.getComputedP1();
         computedQ1 = leg1BranchData.getComputedQ1();
@@ -153,21 +152,22 @@ public class TwtData {
         Complex v1 = ComplexUtils.polar2Complex(getV(twt.getLeg1()), getTheta(twt.getLeg1()));
         Complex v2 = ComplexUtils.polar2Complex(getV(twt.getLeg2()), getTheta(twt.getLeg2()));
         Complex v3 = ComplexUtils.polar2Complex(getV(twt.getLeg3()), getTheta(twt.getLeg3()));
-        Complex ytr1 = new Complex(twt.getLeg1().getR(), twt.getLeg1().getX()).reciprocal();
-        Complex ytr2 = new Complex(adjustedR(twt.getLeg2()), adjustedX(twt.getLeg2())).reciprocal();
-        Complex ytr3 = new Complex(adjustedR(twt.getLeg3()), adjustedX(twt.getLeg3())).reciprocal();
+        Complex ytr1 = new Complex(getR(twt.getLeg1()), getX(twt.getLeg1())).reciprocal();
+        Complex ytr2 = new Complex(getR(twt.getLeg2()), getX(twt.getLeg2())).reciprocal();
+        Complex ytr3 = new Complex(getR(twt.getLeg3()), getX(twt.getLeg3())).reciprocal();
 
         Complex a01 = new Complex(1, 0);
-        Complex a1 = new Complex(twt.getLeg1().getRatedU() / ratedU0, 0);
+        // JAMTODO Complex a1 = new Complex(twt.getLeg1().getRatedU() / ratedU0, 0);
+        Complex a1 = ComplexUtils.polar2Complex(1 / rho(twt.getLeg1(), ratedU0), -alpha(twt.getLeg1()));
         Complex a02 = new Complex(1, 0);
-        Complex a2 = new Complex(1 / rho(twt.getLeg2(), ratedU0), 0);
+        Complex a2 = ComplexUtils.polar2Complex(1 / rho(twt.getLeg2(), ratedU0), -alpha(twt.getLeg2()));
         Complex a03 = new Complex(1, 0);
-        Complex a3 = new Complex(1 / rho(twt.getLeg3(), ratedU0), 0);
+        Complex a3 = ComplexUtils.polar2Complex(1 / rho(twt.getLeg3(), ratedU0), -alpha(twt.getLeg3()));
 
         // IIDM model includes admittance to ground at star bus side in LegBase
-        Complex ysh01 = new Complex(twt.getLeg1().getG1(), twt.getLeg1().getB1());
-        Complex ysh02 = new Complex(0, 0);
-        Complex ysh03 = new Complex(0, 0);
+        Complex ysh01 = new Complex(getG2(twt.getLeg1()), getB2(twt.getLeg1()));
+        Complex ysh02 = new Complex(getG2(twt.getLeg2()), getB2(twt.getLeg2()));
+        Complex ysh03 = new Complex(getG2(twt.getLeg3()), getB2(twt.getLeg3()));
         Complex y01 = ytr1.negate().divide(a01.conjugate().multiply(a1));
         Complex y02 = ytr2.negate().divide(a02.conjugate().multiply(a2));
         Complex y03 = ytr3.negate().divide(a03.conjugate().multiply(a3));
@@ -180,45 +180,76 @@ public class TwtData {
     }
 
     private static double getV(LegBase<?> leg) {
-        return leg.getTerminal().isConnected() ? leg.getTerminal().getBusView().getBus().getV() : Double.NaN;
+        if (leg.getTerminal().getBusBreakerView() != null) {
+            return leg.getTerminal().isConnected() ? leg.getTerminal().getBusBreakerView().getBus().getV() : Double.NaN;
+        } else {
+            return leg.getTerminal().isConnected() ? leg.getTerminal().getBusView().getBus().getV() : Double.NaN;
+        }
     }
 
     private static double getTheta(LegBase<?> leg) {
-        return leg.getTerminal().isConnected() ? Math.toRadians(leg.getTerminal().getBusView().getBus().getAngle())
-                : Double.NaN;
+        if (leg.getTerminal().getBusBreakerView() != null) {
+            return leg.getTerminal().isConnected() ? Math.toRadians(leg.getTerminal().getBusBreakerView().getBus().getAngle())
+                    : Double.NaN;
+        } else {
+            return leg.getTerminal().isConnected() ? Math.toRadians(leg.getTerminal().getBusView().getBus().getAngle())
+                    : Double.NaN;
+        }
     }
 
     private static double rho(LegBase<?> leg, double ratedU0) {
         double rho = ratedU0 / leg.getRatedU();
         if (leg.getRatioTapChanger() != null) {
-            RatioTapChangerStep step = leg.getRatioTapChanger().getCurrentStep();
-            if (step != null) {
-                rho *= step.getRho();
-            }
+            rho *= leg.getRatioTapChanger().getCurrentStep().getRho();
+        }
+        if (leg.getPhaseTapChanger() != null) {
+            rho *= leg.getPhaseTapChanger().getCurrentStep().getRho();
         }
         return rho;
     }
 
-    private static double adjustedR(LegBase<?> leg) {
-        double r = leg.getR();
-        if (leg.getRatioTapChanger() != null) {
-            RatioTapChangerStep step = leg.getRatioTapChanger().getCurrentStep();
-            if (step != null) {
-                r *= 1 + step.getR() / 100;
-            }
-        }
-        return r;
+    private static double alpha(LegBase<?> leg) {
+        return leg.getPhaseTapChanger() != null ? Math.toRadians(leg.getPhaseTapChanger().getCurrentStep().getAlpha()) : 0f;
     }
 
-    private static double adjustedX(LegBase<?> leg) {
-        double x = leg.getX();
-        if (leg.getRatioTapChanger() != null) {
-            RatioTapChangerStep step = leg.getRatioTapChanger().getCurrentStep();
-            if (step != null) {
-                x *= 1 + step.getX() / 100;
-            }
-        }
-        return x;
+    private static double getValue(double initialValue, double rtcStepValue, double ptcStepValue) {
+        return initialValue * (1 + rtcStepValue / 100) * (1 + ptcStepValue / 100);
+    }
+
+    private static double getR(LegBase<?> leg) {
+        return getValue(leg.getR(),
+                leg.getRatioTapChanger() != null ? leg.getRatioTapChanger().getCurrentStep().getR() : 0,
+                leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getR() : 0);
+    }
+
+    private static double getX(LegBase<?> leg) {
+        return getValue(leg.getX(),
+                leg.getRatioTapChanger() != null ? leg.getRatioTapChanger().getCurrentStep().getX() : 0,
+                leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getX() : 0);
+    }
+
+    private static double getG1(LegBase<?> leg) {
+        return getValue(leg.getG1(),
+                leg.getRatioTapChanger() != null ? leg.getRatioTapChanger().getCurrentStep().getG1() : 0,
+                leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getG1() : 0);
+    }
+
+    private static double getB1(LegBase<?> leg) {
+        return getValue(leg.getB1(),
+                leg.getRatioTapChanger() != null ? leg.getRatioTapChanger().getCurrentStep().getB1() : 0,
+                leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getB1() : 0);
+    }
+
+    private static double getG2(LegBase<?> leg) {
+        return getValue(leg.getG2(),
+                leg.getRatioTapChanger() != null ? leg.getRatioTapChanger().getCurrentStep().getG2() : 0,
+                leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getG2() : 0);
+    }
+
+    private static double getB2(LegBase<?> leg) {
+        return getValue(leg.getB2(),
+                leg.getRatioTapChanger() != null ? leg.getRatioTapChanger().getCurrentStep().getB2() : 0,
+                leg.getPhaseTapChanger() != null ? leg.getPhaseTapChanger().getCurrentStep().getB2() : 0);
     }
 
     private static boolean isMainComponent(LegBase<?> leg) {
@@ -228,38 +259,23 @@ public class TwtData {
         return bus != null ? bus.isInMainConnectedComponent() : connectableMainComponent;
     }
 
-    private static BranchData legBranchData(String twtId, LegBase<?> leg, Complex starVoltage, double epsilonX,
-            boolean applyReactanceCorrection) {
-        // In IIDM only the LegBase has admittance to ground
-        // And it is modeled at end corresponding to star bus
-        return legBranchData(twtId, Side.ONE, leg, leg.getG1(), leg.getB1(), leg.getRatedU(), starVoltage, epsilonX,
-                applyReactanceCorrection);
-    }
-
-    private static BranchData legBranchData(String twtId, Side side, LegBase<?> leg, double ratedU0, Complex starVoltage,
-            double epsilonX, boolean applyReactanceCorrection) {
-        // All (gk, bk) are zero in the IIDM model
-        return legBranchData(twtId, side, leg, 0, 0, ratedU0, starVoltage, epsilonX, applyReactanceCorrection);
-    }
-
-    private static BranchData legBranchData(String twtId, Side side, LegBase<?> leg, double g, double b, double ratedU0,
-            Complex starVoltage,
-            double epsilonX, boolean applyReactanceCorrection) {
+    private static BranchData legBranchData(String twtId, Side side, LegBase<?> leg, double ratedU0,
+            Complex starVoltage, double epsilonX, boolean applyReactanceCorrection) {
         String branchId = twtId + "_" + side;
-        double r = side == Side.ONE ? leg.getR() : adjustedR(leg);
-        double x = side == Side.ONE ? leg.getX() : adjustedX(leg);
+        double r = getR(leg);
+        double x = getX(leg);
         double uk = getV(leg);
         double thetak = getTheta(leg);
         double u0 = starVoltage.abs();
         double theta0 = starVoltage.getArgument();
-        double gk = 0;
-        double bk = 0;
-        double g0 = g;
-        double b0 = b;
-        double rhok = side == Side.ONE ? 1.0 : rho(leg, ratedU0);
-        double alphak = 0;
+        double g1 = getG1(leg);
+        double b1 = getB1(leg);
+        double g2 = getG2(leg);
+        double b2 = getB2(leg);
+        double rhok = rho(leg, ratedU0);
+        double alphak = alpha(leg);
         double rho0 = 1;
-        double alpha0 = 0;
+        double alpha0 = 0f;
         boolean buskMainComponent = true;
         boolean bus0MainComponent = true;
         boolean buskConnected = true;
@@ -268,7 +284,7 @@ public class TwtData {
         double flowQk = Double.NaN;
         double flowP0 = Double.NaN;
         double flowQ0 = Double.NaN;
-        return new BranchData(branchId, r, x, rhok, rho0, uk, u0, thetak, theta0, alphak, alpha0, gk, g0, bk, b0,
+        return new BranchData(branchId, r, x, rhok, rho0, uk, u0, thetak, theta0, alphak, alpha0, g1, g2, b1, b2,
                 flowPk, flowQk, flowP0, flowQ0, buskConnected, bus0Connected, buskMainComponent, bus0MainComponent,
                 epsilonX, applyReactanceCorrection);
     }

@@ -376,6 +376,10 @@ public class TapChangerTest {
         assertEquals(stepG, step.getG1(), 0.0);
         step.setB1(stepB);
         assertEquals(stepB, step.getB1(), 0.0);
+        step.setG2(0.0);
+        assertEquals(0.0, step.getG2(), 0.0);
+        step.setB2(0.0);
+        assertEquals(0.0, step.getB2(), 0.0);
         step.setRho(stepRho);
         assertEquals(stepRho, step.getRho(), 0.0);
 

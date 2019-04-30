@@ -767,43 +767,6 @@ public abstract class AbstractTransformerFullConversion
 
     // return classes
 
-    static class CgmesEnd {
-        double     g;
-        double     b;
-        TapChanger ratioTapChanger;
-        TapChanger phaseTapChanger;
-        double     rated;
-        int        phaseAngleClock;
-        String     terminal;
-        boolean    xIsZero;
-        boolean    rtcDefined;
-    }
-
-    static class InterpretedEnd {
-        double     g;
-        double     b;
-        TapChanger ratioTapChanger;
-        TapChanger phaseTapChanger;
-        double     rated;
-        String     terminal;
-    }
-
-    static class ConvertedEnd1 {
-        double     g;
-        double     b;
-        TapChanger ratioTapChanger;
-        TapChanger phaseTapChanger;
-        double     rated;
-        String     terminal;
-    }
-
-    static class ConvertedEnd2 {
-        double g;
-        double b;
-        double rated;
-        String terminal;
-    }
-
     static class TapChangerStepConversion {
         double ratio;
         double angle;

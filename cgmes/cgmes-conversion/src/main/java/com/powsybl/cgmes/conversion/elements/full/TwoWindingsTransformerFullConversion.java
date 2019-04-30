@@ -64,12 +64,15 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
         TapChanger phaseTapChanger1 = getPhaseTapChanger(ptc1, terminal1, ratedU1, x);
         TapChanger phaseTapChanger2 = getPhaseTapChanger(ptc2, terminal2, ratedU2, x);
 
+        TapChanger22 tapChanger22 = filterRatioPhaseRegulatingControl(ratioTapChanger1,
+                phaseTapChanger1, ratioTapChanger2, phaseTapChanger2);
+
         CgmesModel cgmesModel = new CgmesModel();
         cgmesModel.end1.g = g1;
         cgmesModel.end1.b = b1;
-        cgmesModel.end1.ratioTapChanger = ratioTapChanger1;
-        cgmesModel.end1.phaseTapChanger = phaseTapChanger1;
-        cgmesModel.end1.rated = ratedU1;
+        cgmesModel.end1.ratioTapChanger = tapChanger22.ratioTapChanger1;
+        cgmesModel.end1.phaseTapChanger = tapChanger22.phaseTapChanger1;
+        cgmesModel.end1.ratedU = ratedU1;
         cgmesModel.end1.phaseAngleClock = phaseAngleClock1;
         cgmesModel.end1.terminal = terminal1;
 
@@ -82,9 +85,9 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
 
         cgmesModel.end2.g = g2;
         cgmesModel.end2.b = b2;
-        cgmesModel.end2.ratioTapChanger = ratioTapChanger2;
-        cgmesModel.end2.phaseTapChanger = phaseTapChanger2;
-        cgmesModel.end2.rated = ratedU2;
+        cgmesModel.end2.ratioTapChanger = tapChanger22.ratioTapChanger2;
+        cgmesModel.end2.phaseTapChanger = tapChanger22.phaseTapChanger2;
+        cgmesModel.end2.ratedU = ratedU2;
         cgmesModel.end2.phaseAngleClock = phaseAngleClock2;
         cgmesModel.end2.terminal = terminal2;
 
@@ -99,6 +102,36 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
         cgmesModel.x = x;
 
         return cgmesModel;
+    }
+
+    private TapChanger22 filterRatioPhaseRegulatingControl(TapChanger ratioTapChanger1, TapChanger phaseTapChanger1,
+            TapChanger ratioTapChanger2, TapChanger phaseTapChanger2) {
+
+        TapChanger22 tapChanger22 = new TapChanger22();
+
+        if (tapChangerType(ratioTapChanger1) == TapChangerType.REGULATING) {
+            tapChanger22.ratioTapChanger1 = ratioTapChanger1;
+            tapChanger22.phaseTapChanger1 = fixTapChangerRegulation(phaseTapChanger1);
+            tapChanger22.ratioTapChanger2 = fixTapChangerRegulation(ratioTapChanger2);
+            tapChanger22.phaseTapChanger2 = fixTapChangerRegulation(phaseTapChanger2);
+        } else if (tapChangerType(ratioTapChanger2) == TapChangerType.REGULATING) {
+            tapChanger22.ratioTapChanger1 = ratioTapChanger1;
+            tapChanger22.phaseTapChanger1 = fixTapChangerRegulation(phaseTapChanger1);
+            tapChanger22.ratioTapChanger2 = ratioTapChanger2;
+            tapChanger22.phaseTapChanger2 = fixTapChangerRegulation(phaseTapChanger2);
+        } else if (tapChangerType(phaseTapChanger1) == TapChangerType.REGULATING) {
+            tapChanger22.ratioTapChanger1 = ratioTapChanger1;
+            tapChanger22.phaseTapChanger1 = phaseTapChanger1;
+            tapChanger22.ratioTapChanger2 = ratioTapChanger2;
+            tapChanger22.phaseTapChanger2 = fixTapChangerRegulation(phaseTapChanger2);
+        } else {
+            tapChanger22.ratioTapChanger1 = ratioTapChanger1;
+            tapChanger22.phaseTapChanger1 = phaseTapChanger1;
+            tapChanger22.ratioTapChanger2 = ratioTapChanger2;
+            tapChanger22.phaseTapChanger2 = phaseTapChanger2;
+        }
+
+        return tapChanger22;
     }
 
     private InterpretedModel interpret(CgmesModel cgmesModel, Conversion.Config alternative) {
@@ -119,13 +152,13 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
         interpretedModel.end1.b = interpretedShunt.b1;
         interpretedModel.end1.ratioTapChanger = interpretedTapChanger.ratioTapChanger1;
         interpretedModel.end1.phaseTapChanger = fPhaseTapChanger1;
-        interpretedModel.end1.rated = cgmesModel.end1.rated;
+        interpretedModel.end1.ratedU = cgmesModel.end1.ratedU;
         interpretedModel.end1.terminal = cgmesModel.end1.terminal;
         interpretedModel.end2.g = interpretedShunt.g2;
         interpretedModel.end2.b = interpretedShunt.b2;
         interpretedModel.end2.ratioTapChanger = interpretedTapChanger.ratioTapChanger2;
         interpretedModel.end2.phaseTapChanger = fPhaseTapChanger2;
-        interpretedModel.end2.rated = cgmesModel.end2.rated;
+        interpretedModel.end2.ratedU = cgmesModel.end2.ratedU;
         interpretedModel.end2.terminal = cgmesModel.end2.terminal;
         interpretedModel.ratio0AtEnd2 = ratio0AtEnd2;
 
@@ -236,7 +269,7 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
     }
 
     private boolean ratio0Alternative(CgmesModel cgmesModel, Conversion.Config alternative) {
-        if (cgmesModel.end1.rated == cgmesModel.end2.rated) {
+        if (cgmesModel.end1.ratedU == cgmesModel.end2.ratedU) {
             return false;
         }
 
@@ -264,19 +297,15 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
 
     private ConvertedModel convertToIidm(InterpretedModel interpretedModel) {
 
-        TapChanger22 tapChanger22 = filterRatioPhaseRegulatingControl(interpretedModel.end1.ratioTapChanger,
-                interpretedModel.end1.phaseTapChanger, interpretedModel.end2.ratioTapChanger,
-                interpretedModel.end2.phaseTapChanger);
+        TapChanger nRatioTapChanger2 = moveTapChangerFrom2To1(interpretedModel.end2.ratioTapChanger);
+        TapChanger nPhaseTapChanger2 = moveTapChangerFrom2To1(interpretedModel.end2.phaseTapChanger);
 
-        TapChanger nRatioTapChanger2 = moveTapChangerFrom2To1(tapChanger22.ratioTapChanger2);
-        TapChanger nPhaseTapChanger2 = moveTapChangerFrom2To1(tapChanger22.phaseTapChanger2);
-
-        TapChanger ratioTapChanger = combineTapChangers(tapChanger22.ratioTapChanger1, nRatioTapChanger2);
-        TapChanger phaseTapChanger = combineTapChangers(tapChanger22.phaseTapChanger1, nPhaseTapChanger2);
+        TapChanger ratioTapChanger = combineTapChangers(interpretedModel.end1.ratioTapChanger, nRatioTapChanger2);
+        TapChanger phaseTapChanger = combineTapChangers(interpretedModel.end1.phaseTapChanger, nPhaseTapChanger2);
 
         RatioConversion rc0;
         if (interpretedModel.ratio0AtEnd2) {
-            double a0 = ratedU2 / ratedU1;
+            double a0 = interpretedModel.end2.ratedU / interpretedModel.end1.ratedU;
             rc0 = moveRatioFrom2To1(a0, 0.0, interpretedModel.r, interpretedModel.x, interpretedModel.end1.g, interpretedModel.end1.b,
                     interpretedModel.end2.g, interpretedModel.end2.b);
         } else {
@@ -292,45 +321,15 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
         convertedModel.end1.b = rc0.b1;
         convertedModel.end1.ratioTapChanger = ratioTapChanger;
         convertedModel.end1.phaseTapChanger = phaseTapChanger;
-        convertedModel.end1.rated = interpretedModel.end1.rated;
+        convertedModel.end1.ratedU = interpretedModel.end1.ratedU;
         convertedModel.end1.terminal = interpretedModel.end1.terminal;
 
         convertedModel.end2.g = rc0.g2;
         convertedModel.end2.b = rc0.b2;
-        convertedModel.end2.rated = interpretedModel.end2.rated;
+        convertedModel.end2.ratedU = interpretedModel.end2.ratedU;
         convertedModel.end2.terminal = interpretedModel.end2.terminal;
 
         return convertedModel;
-    }
-
-    private TapChanger22 filterRatioPhaseRegulatingControl(TapChanger ratioTapChanger1, TapChanger phaseTapChanger1,
-            TapChanger ratioTapChanger2, TapChanger phaseTapChanger2) {
-
-        TapChanger22 tapChanger22 = new TapChanger22();
-
-        if (tapChangerType(ratioTapChanger1) == TapChangerType.REGULATING) {
-            tapChanger22.ratioTapChanger1 = ratioTapChanger1;
-            tapChanger22.phaseTapChanger1 = fixTapChangerRegulation(phaseTapChanger1);
-            tapChanger22.ratioTapChanger2 = fixTapChangerRegulation(ratioTapChanger2);
-            tapChanger22.phaseTapChanger2 = fixTapChangerRegulation(phaseTapChanger2);
-        } else if (tapChangerType(ratioTapChanger2) == TapChangerType.REGULATING) {
-            tapChanger22.ratioTapChanger1 = ratioTapChanger1;
-            tapChanger22.phaseTapChanger1 = fixTapChangerRegulation(phaseTapChanger1);
-            tapChanger22.ratioTapChanger2 = ratioTapChanger2;
-            tapChanger22.phaseTapChanger2 = fixTapChangerRegulation(phaseTapChanger2);
-        } else if (tapChangerType(phaseTapChanger1) == TapChangerType.REGULATING) {
-            tapChanger22.ratioTapChanger1 = ratioTapChanger1;
-            tapChanger22.phaseTapChanger1 = phaseTapChanger1;
-            tapChanger22.ratioTapChanger2 = ratioTapChanger2;
-            tapChanger22.phaseTapChanger2 = fixTapChangerRegulation(phaseTapChanger2);
-        } else {
-            tapChanger22.ratioTapChanger1 = ratioTapChanger1;
-            tapChanger22.phaseTapChanger1 = phaseTapChanger1;
-            tapChanger22.ratioTapChanger2 = ratioTapChanger2;
-            tapChanger22.phaseTapChanger2 = phaseTapChanger2;
-        }
-
-        return tapChanger22;
     }
 
     private void setToIidm(ConvertedModel convertedModel) {
@@ -341,8 +340,8 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
                 .setB1(convertedModel.end1.b)
                 .setG2(convertedModel.end2.g)
                 .setB2(convertedModel.end2.b)
-                .setRatedU1(convertedModel.end1.rated)
-                .setRatedU2(convertedModel.end2.rated);
+                .setRatedU1(convertedModel.end1.ratedU)
+                .setRatedU2(convertedModel.end2.ratedU);
         identify(adder);
         connect(adder);
         TwoWindingsTransformer tx = adder.add();
@@ -369,7 +368,7 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
         if (position < lowStep || position > highStep) {
             return;
         }
-        RatioTapChangerAdder rtca = newRatioTapChanger(tx, regulatingTerminalId);
+        RatioTapChangerAdder rtca = newRatioTapChanger(tx);
         rtca.setLowTapPosition(lowStep).setTapPosition((int) position)
                 .setLoadTapChangingCapabilities(isLoadTapChangingCapabilities)
                 .setRegulating(isRegulating).setRegulationTerminal(regulationTerminal)
@@ -378,14 +377,18 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
             double ratio0 = step.getRatio();
             double r0 = step.getR();
             double x0 = step.getX();
-            double b0 = step.getB1();
-            double g0 = step.getG1();
+            double b01 = step.getB1();
+            double g01 = step.getG1();
+            double b02 = step.getB2();
+            double g02 = step.getG2();
             rtca.beginStep()
                     .setRho(1 / ratio0)
                     .setR(r0)
                     .setX(x0)
-                    .setB(b0)
-                    .setG(g0)
+                    .setB1(b01)
+                    .setG1(g01)
+                    .setB2(b02)
+                    .setG2(g02)
                     .endStep();
         });
         rtca.add();
@@ -417,21 +420,25 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
             double angle0 = step.getAngle();
             double r0 = step.getR();
             double x0 = step.getX();
-            double b0 = step.getB1();
-            double g0 = step.getG1();
+            double b01 = step.getB1();
+            double g01 = step.getG1();
+            double b02 = step.getB2();
+            double g02 = step.getG2();
             ptca.beginStep()
                     .setRho(1 / ratio0)
                     .setAlpha(-angle0)
                     .setR(r0)
                     .setX(x0)
-                    .setB(b0)
-                    .setG(g0)
+                    .setB1(b01)
+                    .setG1(g01)
+                    .setB2(b02)
+                    .setG2(g02)
                     .endStep();
         });
         ptca.add();
     }
 
-    protected RatioTapChangerAdder newRatioTapChanger(Connectable<?> tx, String terminal) {
+    protected RatioTapChangerAdder newRatioTapChanger(Connectable<?> tx) {
         return ((TwoWindingsTransformer) tx).newRatioTapChanger();
     }
 
@@ -458,6 +465,18 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
         CgmesEnd end2 = new CgmesEnd();
     }
 
+    static class CgmesEnd {
+        double     g;
+        double     b;
+        TapChanger ratioTapChanger;
+        TapChanger phaseTapChanger;
+        double     ratedU;
+        int        phaseAngleClock;
+        String     terminal;
+        boolean    xIsZero;
+        boolean    rtcDefined;
+    }
+
     static class InterpretedModel {
         double         r;
         double         x;
@@ -466,11 +485,36 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
         boolean        ratio0AtEnd2;
     }
 
+    static class InterpretedEnd {
+        double     g;
+        double     b;
+        TapChanger ratioTapChanger;
+        TapChanger phaseTapChanger;
+        double     ratedU;
+        String     terminal;
+    }
+
     static class ConvertedModel {
         double        r;
         double        x;
         ConvertedEnd1 end1 = new ConvertedEnd1();
         ConvertedEnd2 end2 = new ConvertedEnd2();
+    }
+
+    static class ConvertedEnd1 {
+        double     g;
+        double     b;
+        TapChanger ratioTapChanger;
+        TapChanger phaseTapChanger;
+        double     ratedU;
+        String     terminal;
+    }
+
+    static class ConvertedEnd2 {
+        double g;
+        double b;
+        double ratedU;
+        String terminal;
     }
 
     static class Shunt22 {

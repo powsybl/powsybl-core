@@ -21,7 +21,7 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer.LegBase;
 public class TwtTestData {
 
     public static double P1 = 99.218431;
-    public static double Q1 = 3.304328;
+    public static double Q1 = 2.747147;
     public static double P2 = -216.19819;
     public static double Q2 = -85.368180;
     public static double P3 = 118;
@@ -41,7 +41,7 @@ public class TwtTestData {
     public static double U3 = 21.987;
     public static double ANGLE3 = -6.6508;
 
-    public static double STAR_U = 412.66853716385845;
+    public static double STAR_U = 412.66200701692287;
     public static double STAR_ANGLE = -7.353779246544198;
 
     public static double R1 = 0.898462;

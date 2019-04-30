@@ -2,9 +2,14 @@ package com.powsybl.cgmes.conversion.elements.full;
 
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Connectable;
+import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
 import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.iidm.network.Terminal;
@@ -42,122 +47,84 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
         ptc3 = getTransformerTapChanger(winding3, "PhaseTapChanger",
                 powerTransformerPhaseTapChanger);
 
-        this.ratio0Outside1 = context.config().xfmr3Ratio0Outside();
-        // this.ratio0Outside2 = context.config().xfmr3Ratio0Outside();
-        this.ratio0Outside3 = context.config().xfmr3Ratio0Outside();
-        this.ratioPhaseOutside1 = context.config().xfmr3RatioPhaseOutside();
-        this.ratioPhaseOutside2 = context.config().xfmr3RatioPhaseOutside();
-        this.ratioPhaseOutside3 = context.config().xfmr3RatioPhaseOutside();
-
-        this.ratioTapChanger1 = getRatioTapChanger(rtc1, winding1.get(CgmesNames.TERMINAL));
-        this.ratioTapChanger2 = getRatioTapChanger(rtc2, winding2.get(CgmesNames.TERMINAL));
-        this.ratioTapChanger3 = getRatioTapChanger(rtc3, winding3.get(CgmesNames.TERMINAL));
-        this.phaseTapChanger1 = getPhaseTapChanger(ptc1, winding1.get(CgmesNames.TERMINAL),
-                winding1.asDouble(ratedU), winding1.asDouble("x"));
-        this.phaseTapChanger2 = getPhaseTapChanger(ptc2, winding2.get(CgmesNames.TERMINAL),
-                winding2.asDouble(ratedU), winding2.asDouble("x"));
-        this.phaseTapChanger3 = getPhaseTapChanger(ptc3, winding3.get(CgmesNames.TERMINAL),
-                winding3.asDouble(ratedU), winding3.asDouble("x"));
-
         r1 = winding1.asDouble("r");
         x1 = winding1.asDouble("x");
-        g11 = winding1.asDouble("g", 0);
-        b11 = winding1.asDouble("b");
-        g12 = 0.0;
-        b12 = 0.0;
+        g1 = winding1.asDouble("g", 0);
+        b1 = winding1.asDouble("b");
         r2 = winding2.asDouble("r");
         x2 = winding2.asDouble("x");
-        g21 = winding2.asDouble("g", 0);
-        b21 = winding2.asDouble("b");
-        g22 = 0.0;
-        b22 = 0.0;
+        g2 = winding2.asDouble("g", 0);
+        b2 = winding2.asDouble("b");
         r3 = winding3.asDouble("r");
         x3 = winding3.asDouble("x");
-        g31 = winding3.asDouble("g", 0);
-        b31 = winding3.asDouble("b");
-        g32 = 0.0;
-        b32 = 0.0;
+        g3 = winding3.asDouble("g", 0);
+        b3 = winding3.asDouble("b");
         ratedU1 = winding1.asDouble(ratedU);
         ratedU2 = winding2.asDouble(ratedU);
         ratedU3 = winding3.asDouble(ratedU);
         terminal1 = winding1.get(CgmesNames.TERMINAL);
         terminal2 = winding2.get(CgmesNames.TERMINAL);
         terminal3 = winding3.get(CgmesNames.TERMINAL);
+        phaseAngleClock1 = winding1.asInt("phaseAngleClock", 0);
+        phaseAngleClock2 = winding2.asInt("phaseAngleClock", 0);
+        phaseAngleClock3 = winding3.asInt("phaseAngleClock", 0);
     }
 
     @Override
     public void convert() {
 
-        // Regulating control filtering
+        LOG.info("MMC start three wind");
+        CgmesModel cgmesModel = load();
+        InterpretedModel interpretedModel = interpret(cgmesModel, context.config());
+        ConvertedModel convertedModel = convertToIidm(interpretedModel);
+
+        setToIidm(convertedModel);
+    }
+
+    private CgmesModel load() {
+
+        TapChanger ratioTapChanger1 = getRatioTapChanger(rtc1, terminal1);
+        TapChanger ratioTapChanger2 = getRatioTapChanger(rtc2, terminal2);
+        TapChanger ratioTapChanger3 = getRatioTapChanger(rtc3, terminal3);
+        TapChanger phaseTapChanger1 = getPhaseTapChanger(ptc1, terminal1, ratedU1, x1);
+        TapChanger phaseTapChanger2 = getPhaseTapChanger(ptc2, terminal2, ratedU2, x2);
+        TapChanger phaseTapChanger3 = getPhaseTapChanger(ptc3, terminal3, ratedU3, x3);
 
         TapChanger3 tapChanger3 = filterRatioPhaseRegulatingControl(ratioTapChanger1, phaseTapChanger1,
                 ratioTapChanger2, phaseTapChanger2, ratioTapChanger3, phaseTapChanger3);
 
-        TapChanger xRatioTapChanger1 = tapChanger3.ratioTapChanger1;
-        TapChanger xPhaseTapChanger1 = tapChanger3.phaseTapChanger1;
-        TapChanger xRatioTapChanger2 = tapChanger3.ratioTapChanger2;
-        TapChanger xPhaseTapChanger2 = tapChanger3.phaseTapChanger2;
-        TapChanger xRatioTapChanger3 = tapChanger3.ratioTapChanger3;
-        TapChanger xPhaseTapChanger3 = tapChanger3.phaseTapChanger3;
+        CgmesModel cgmesModel = new CgmesModel();
+        cgmesModel.winding1.r = r1;
+        cgmesModel.winding1.x = x1;
+        cgmesModel.winding1.g = g1;
+        cgmesModel.winding1.b = b1;
+        cgmesModel.winding1.ratioTapChanger = tapChanger3.ratioTapChanger1;
+        cgmesModel.winding1.phaseTapChanger = tapChanger3.phaseTapChanger1;
+        cgmesModel.winding1.ratedU = ratedU1;
+        cgmesModel.winding1.phaseAngleClock = phaseAngleClock1;
+        cgmesModel.winding1.terminal = terminal1;
 
-        // Move initial tapChangers
+        cgmesModel.winding2.r = r2;
+        cgmesModel.winding2.x = x2;
+        cgmesModel.winding2.g = g2;
+        cgmesModel.winding2.b = b2;
+        cgmesModel.winding2.ratioTapChanger = tapChanger3.ratioTapChanger2;
+        cgmesModel.winding2.phaseTapChanger = tapChanger3.phaseTapChanger2;
+        cgmesModel.winding2.ratedU = ratedU2;
+        cgmesModel.winding2.phaseAngleClock = phaseAngleClock2;
+        cgmesModel.winding2.terminal = terminal2;
 
-        TapChangerEnd tcEnd1 = moveTapChangerEnd(xRatioTapChanger1, xPhaseTapChanger1,
-                ratioPhaseOutside1, FinalPosition.NETWORK_SIDE);
-        TapChanger fRatioTapChanger1 = tcEnd1.ratioTapChanger;
-        TapChanger fPhaseTapChanger1 = tcEnd1.phaseTapChanger;
+        cgmesModel.winding3.r = r3;
+        cgmesModel.winding3.x = x3;
+        cgmesModel.winding3.g = g3;
+        cgmesModel.winding3.b = b3;
+        cgmesModel.winding3.ratioTapChanger = tapChanger3.ratioTapChanger3;
+        cgmesModel.winding3.phaseTapChanger = tapChanger3.phaseTapChanger3;
+        cgmesModel.winding3.ratedU = ratedU3;
+        cgmesModel.winding3.phaseAngleClock = phaseAngleClock3;
+        cgmesModel.winding3.terminal = terminal3;
 
-        TapChangerEnd tcEnd2 = moveTapChangerEnd(xRatioTapChanger2, xPhaseTapChanger2,
-                ratioPhaseOutside2, FinalPosition.NETWORK_SIDE);
-        TapChanger fRatioTapChanger2 = tcEnd2.ratioTapChanger;
-        TapChanger fPhaseTapChanger2 = tcEnd2.phaseTapChanger;
-
-        TapChangerEnd tcEnd3 = moveTapChangerEnd(xRatioTapChanger3, xPhaseTapChanger3,
-                ratioPhaseOutside3, FinalPosition.NETWORK_SIDE);
-        TapChanger fRatioTapChanger3 = tcEnd3.ratioTapChanger;
-        TapChanger fPhaseTapChanger3 = tcEnd3.phaseTapChanger;
-
-        // ratio0 ratedUf and ratedU2 same nominal voltage
-
-        double ratedUf = ratedU2;
-        RatioConversion rc01 = identityRatioConversion(r1, x1, g11, b11, g12, b12);
-        if (!ratio0Outside1) {
-            double a0 = ratedUf / ratedU1;
-            rc01 = moveRatioFrom2To1(a0, 0.0, r1, x1, g11, b11, g12, b12);
-        }
-        RatioConversion rc03 = identityRatioConversion(r3, x3, g31, b31, g32, b32);
-        if (!ratio0Outside3) {
-            double a0 = ratedUf / ratedU3;
-            rc03 = moveRatioFrom2To1(a0, 0.0, r3, x3, g31, b31, g32, b32);
-        }
-
-        setToIidm(fRatioTapChanger1, fPhaseTapChanger1, fRatioTapChanger2, fPhaseTapChanger2,
-                fRatioTapChanger3, fPhaseTapChanger3,
-                rc01.r, rc01.x, rc01.g1, rc01.b1, rc01.g2, rc01.b2,
-                r2, x2, g21, b21, g22, b22,
-                rc03.r, rc03.x, rc03.g1, rc03.b1, rc03.g2, rc03.b2);
-    }
-
-    private TapChangerEnd moveTapChangerEnd(TapChanger ratioTapChanger, TapChanger phaseTapChanger,
-            boolean ratioPhaseOutside, FinalPosition finalPosition) {
-        TapChanger nRatioTapChanger = null;
-        TapChanger nPhaseTapChanger = null;
-        if (ratioPhaseOutside && finalPosition == FinalPosition.STAR_BUS_SIDE) {
-            nRatioTapChanger = moveTapChangerFrom1To2(ratioTapChanger);
-            nPhaseTapChanger = moveTapChangerFrom1To2(phaseTapChanger);
-        } else if (!ratioPhaseOutside && finalPosition == FinalPosition.NETWORK_SIDE) {
-            nRatioTapChanger = moveTapChangerFrom2To1(ratioTapChanger);
-            nPhaseTapChanger = moveTapChangerFrom2To1(phaseTapChanger);
-
-        } else {
-            nRatioTapChanger = ratioTapChanger;
-            nPhaseTapChanger = phaseTapChanger;
-        }
-
-        TapChangerEnd tapChangerEnd = new TapChangerEnd();
-        tapChangerEnd.ratioTapChanger = nRatioTapChanger;
-        tapChangerEnd.phaseTapChanger = nPhaseTapChanger;
-        return tapChangerEnd;
+        return cgmesModel;
     }
 
     private TapChanger3 filterRatioPhaseRegulatingControl(TapChanger ratioTapChanger1,
@@ -213,50 +180,277 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
         return tapChanger3;
     }
 
-    private void setToIidm(TapChanger ratioTapChanger1, TapChanger phaseTapChanger1,
-            TapChanger ratioTapChanger2, TapChanger phaseTapChanger2,
-            TapChanger ratioTapChanger3, TapChanger phaseTapChanger3,
-            double r1, double x1, double g11, double b11, double g12, double b12,
-            double r2, double x2, double g21, double b21, double g22, double b22,
-            double r3, double x3, double g31, double b31, double g32, double b32) {
+    private InterpretedModel interpret(CgmesModel cgmesModel, Conversion.Config alternative) {
 
-        // JAM_TODO Ajustar shunts y TapChanger al nuevo modelo propuesto
-        // Add shunts g1 = g11 + g21 + g22 + g31 + g33;
-        // Add shunts b1 = b11 + b21 + b22 + b31 + b33;
+        TapChanger22 winding1InterpretedTapChanger = ratioPhaseAlternative(cgmesModel.winding1, alternative);
+        TapChanger22 winding2InterpretedTapChanger = ratioPhaseAlternative(cgmesModel.winding2, alternative);
+        TapChanger22 winding3InterpretedTapChanger = ratioPhaseAlternative(cgmesModel.winding3, alternative);
 
-        double g1 = g11 + g12 + g21 + g22 + g31 + g32;
-        double b1 = b11 + b12 + b21 + b22 + b31 + b32;
+        Shunt22 winding1InterpretedShunt = shuntAlternative(cgmesModel.winding1, alternative);
+        Shunt22 winding2InterpretedShunt = shuntAlternative(cgmesModel.winding2, alternative);
+        Shunt22 winding3InterpretedShunt = shuntAlternative(cgmesModel.winding3, alternative);
 
-        cleanTapChanger(ratioTapChanger2, false, false, true, true, true, true);
-        cleanTapChanger(ratioTapChanger3, false, false, true, true, true, true);
+        TapChanger02 winding1InterpretedClock = phaseAngleClockAlternative(cgmesModel.winding1, alternative);
+        TapChanger02 winding2InterpretedClock = phaseAngleClockAlternative(cgmesModel.winding2, alternative);
+        TapChanger02 winding3InterpretedClock = phaseAngleClockAlternative(cgmesModel.winding3, alternative);
+
+        boolean winding1Ratio0AtEnd2 = ratio0Alternative(cgmesModel.winding1, alternative);
+        boolean winding2Ratio0AtEnd2 = ratio0Alternative(cgmesModel.winding2, alternative);
+        boolean winding3Ratio0AtEnd2 = ratio0Alternative(cgmesModel.winding3, alternative);
+
+        TapChanger winding1PhaseTapChanger1 = combineTapChangers(winding1InterpretedTapChanger.phaseTapChanger1,
+                winding1InterpretedClock.phaseTapChanger1);
+        TapChanger winding1PhaseTapChanger2 = combineTapChangers(winding1InterpretedTapChanger.phaseTapChanger2,
+                winding1InterpretedClock.phaseTapChanger2);
+
+        TapChanger winding2PhaseTapChanger1 = combineTapChangers(winding2InterpretedTapChanger.phaseTapChanger1,
+                winding2InterpretedClock.phaseTapChanger1);
+        TapChanger winding2PhaseTapChanger2 = combineTapChangers(winding2InterpretedTapChanger.phaseTapChanger2,
+                winding2InterpretedClock.phaseTapChanger2);
+
+        TapChanger winding3PhaseTapChanger1 = combineTapChangers(winding3InterpretedTapChanger.phaseTapChanger1,
+                winding3InterpretedClock.phaseTapChanger1);
+        TapChanger winding3PhaseTapChanger2 = combineTapChangers(winding3InterpretedTapChanger.phaseTapChanger2,
+                winding3InterpretedClock.phaseTapChanger2);
+
+        InterpretedModel interpretedModel = new InterpretedModel();
+        interpretedModel.winding1.r = cgmesModel.winding1.r;
+        interpretedModel.winding1.x = cgmesModel.winding1.x;
+        interpretedModel.winding1.g1 = winding1InterpretedShunt.g1;
+        interpretedModel.winding1.b1 = winding1InterpretedShunt.b1;
+        interpretedModel.winding1.g2 = winding1InterpretedShunt.g2;
+        interpretedModel.winding1.b2 = winding1InterpretedShunt.b2;
+        interpretedModel.winding1.ratioTapChanger1 = winding1InterpretedTapChanger.ratioTapChanger1;
+        interpretedModel.winding1.phaseTapChanger1 = winding1PhaseTapChanger1;
+        interpretedModel.winding1.ratioTapChanger2 = winding1InterpretedTapChanger.ratioTapChanger2;
+        interpretedModel.winding1.phaseTapChanger2 = winding1PhaseTapChanger2;
+        interpretedModel.winding1.ratedU = cgmesModel.winding1.ratedU;
+        interpretedModel.winding1.terminal = cgmesModel.winding1.terminal;
+        interpretedModel.winding1.ratio0AtEnd2 = winding1Ratio0AtEnd2;
+
+        interpretedModel.winding2.r = cgmesModel.winding2.r;
+        interpretedModel.winding2.x = cgmesModel.winding2.x;
+        interpretedModel.winding2.g1 = winding2InterpretedShunt.g1;
+        interpretedModel.winding2.b1 = winding2InterpretedShunt.b1;
+        interpretedModel.winding2.g2 = winding2InterpretedShunt.g2;
+        interpretedModel.winding2.b2 = winding2InterpretedShunt.b2;
+        interpretedModel.winding2.ratioTapChanger1 = winding2InterpretedTapChanger.ratioTapChanger1;
+        interpretedModel.winding2.phaseTapChanger1 = winding2PhaseTapChanger1;
+        interpretedModel.winding2.ratioTapChanger2 = winding2InterpretedTapChanger.ratioTapChanger2;
+        interpretedModel.winding2.phaseTapChanger2 = winding2PhaseTapChanger2;
+        interpretedModel.winding2.ratedU = cgmesModel.winding2.ratedU;
+        interpretedModel.winding2.terminal = cgmesModel.winding2.terminal;
+        interpretedModel.winding2.ratio0AtEnd2 = winding2Ratio0AtEnd2;
+
+        interpretedModel.winding3.r = cgmesModel.winding3.r;
+        interpretedModel.winding3.x = cgmesModel.winding3.x;
+        interpretedModel.winding3.g1 = winding3InterpretedShunt.g1;
+        interpretedModel.winding3.b1 = winding3InterpretedShunt.b1;
+        interpretedModel.winding3.g2 = winding3InterpretedShunt.g2;
+        interpretedModel.winding3.b2 = winding3InterpretedShunt.b2;
+        interpretedModel.winding3.ratioTapChanger1 = winding3InterpretedTapChanger.ratioTapChanger1;
+        interpretedModel.winding3.phaseTapChanger1 = winding3PhaseTapChanger1;
+        interpretedModel.winding3.ratioTapChanger2 = winding3InterpretedTapChanger.ratioTapChanger2;
+        interpretedModel.winding3.phaseTapChanger2 = winding3PhaseTapChanger2;
+        interpretedModel.winding3.ratedU = cgmesModel.winding3.ratedU;
+        interpretedModel.winding3.terminal = cgmesModel.winding3.terminal;
+        interpretedModel.winding3.ratio0AtEnd2 = winding3Ratio0AtEnd2;
+
+        return interpretedModel;
+    }
+
+    private TapChanger22 ratioPhaseAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
+        TapChanger ratioTapChanger1 = null;
+        TapChanger phaseTapChanger1 = null;
+        TapChanger ratioTapChanger2 = null;
+        TapChanger phaseTapChanger2 = null;
+
+        if (alternative.isXfmr3RatioPhaseNetworkSide()) {
+            ratioTapChanger1 = cgmesWinding.ratioTapChanger;
+            phaseTapChanger1 = cgmesWinding.phaseTapChanger;
+        } else {
+            ratioTapChanger2 = cgmesWinding.ratioTapChanger;
+            phaseTapChanger2 = cgmesWinding.phaseTapChanger;
+        }
+
+        TapChanger22 tapChanger22 = new TapChanger22();
+        tapChanger22.ratioTapChanger1 = ratioTapChanger1;
+        tapChanger22.phaseTapChanger1 = phaseTapChanger1;
+        tapChanger22.ratioTapChanger2 = ratioTapChanger2;
+        tapChanger22.phaseTapChanger2 = phaseTapChanger2;
+
+        return tapChanger22;
+    }
+
+    private Shunt22 shuntAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
+        double g1 = 0.0;
+        double b1 = 0.0;
+        double g2 = 0.0;
+        double b2 = 0.0;
+        if (alternative.isXfmr3ShuntNetworkSide()) {
+            g1 = cgmesWinding.g;
+            b1 = cgmesWinding.b;
+        } else if (alternative.isXfmr3ShuntStarBusSide()) {
+            g2 = cgmesWinding.g;
+            b2 = cgmesWinding.b;
+        } else {
+            g1 = cgmesWinding.g * 0.5;
+            b1 = cgmesWinding.b * 0.5;
+            g2 = cgmesWinding.g * 0.5;
+            b2 = cgmesWinding.b * 0.5;
+        }
+
+        Shunt22 shunt22 = new Shunt22();
+        shunt22.g1 = g1;
+        shunt22.b1 = b1;
+        shunt22.g2 = g2;
+        shunt22.b2 = b2;
+
+        return shunt22;
+    }
+
+    private TapChanger02 phaseAngleClockAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
+        TapChanger phaseTapChanger1 = null;
+        TapChanger phaseTapChanger2 = null;
+
+        if (cgmesWinding.phaseAngleClock != 0) {
+            if (alternative.isXfmr3PhaseAngleClockNetworkSide()) {
+                phaseTapChanger1 = createPhaseAngleClockTapChanger(cgmesWinding.phaseAngleClock);
+            } else if (alternative.isXfmr3PhaseAngleClockStarBusSide()) {
+                phaseTapChanger2 = createPhaseAngleClockTapChanger(cgmesWinding.phaseAngleClock);
+            }
+        }
+
+        TapChanger02 tapChanger02 = new TapChanger02();
+        tapChanger02.phaseTapChanger1 = phaseTapChanger1;
+        tapChanger02.phaseTapChanger2 = phaseTapChanger2;
+
+        return tapChanger02;
+    }
+
+    private boolean ratio0Alternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
+
+        boolean ratio0AtEnd2;
+        if (alternative.isXfmr3Ratio0NetworkSide()) {
+            ratio0AtEnd2 = false;
+        } else {
+            ratio0AtEnd2 = true;
+        }
+        LOG.info("ratio0AtEnd2 {}", ratio0AtEnd2);
+        return ratio0AtEnd2;
+    }
+
+    private ConvertedModel convertToIidm(InterpretedModel interpretedModel) {
+
+        TapChangerWinding winding1TapChanger = moveCombineTapChangerWinding(interpretedModel.winding1);
+        TapChangerWinding winding2TapChanger = moveCombineTapChangerWinding(interpretedModel.winding2);
+        TapChangerWinding winding3TapChanger = moveCombineTapChangerWinding(interpretedModel.winding3);
+
+        double ratedUf = interpretedModel.winding1.ratedU;
+        RatioConversion winding1Rc0 = rc0Winding(interpretedModel.winding1, ratedUf);
+        RatioConversion winding2Rc0 = rc0Winding(interpretedModel.winding2, ratedUf);
+        RatioConversion winding3Rc0 = rc0Winding(interpretedModel.winding3, ratedUf);
+
+        ConvertedModel convertedModel = new ConvertedModel();
+        convertedModel.winding1.r = winding1Rc0.r;
+        convertedModel.winding1.x = winding1Rc0.x;
+        convertedModel.winding1.g1 = winding1Rc0.g1;
+        convertedModel.winding1.b1 = winding1Rc0.b1;
+        convertedModel.winding1.g2 = winding1Rc0.g2;
+        convertedModel.winding1.b2 = winding1Rc0.b2;
+        convertedModel.winding1.ratioTapChanger = winding1TapChanger.ratioTapChanger;
+        convertedModel.winding1.phaseTapChanger = winding1TapChanger.phaseTapChanger;
+        convertedModel.winding1.ratedU = interpretedModel.winding1.ratedU;
+        convertedModel.winding1.terminal = interpretedModel.winding1.terminal;
+
+        convertedModel.winding2.r = winding2Rc0.r;
+        convertedModel.winding2.x = winding2Rc0.x;
+        convertedModel.winding2.g1 = winding2Rc0.g1;
+        convertedModel.winding2.b1 = winding2Rc0.b1;
+        convertedModel.winding2.g2 = winding2Rc0.g2;
+        convertedModel.winding2.b2 = winding2Rc0.b2;
+        convertedModel.winding2.ratioTapChanger = winding2TapChanger.ratioTapChanger;
+        convertedModel.winding2.phaseTapChanger = winding2TapChanger.phaseTapChanger;
+        convertedModel.winding2.ratedU = interpretedModel.winding2.ratedU;
+        convertedModel.winding2.terminal = interpretedModel.winding2.terminal;
+
+        convertedModel.winding3.r = winding3Rc0.r;
+        convertedModel.winding3.x = winding3Rc0.x;
+        convertedModel.winding3.g1 = winding3Rc0.g1;
+        convertedModel.winding3.b1 = winding3Rc0.b1;
+        convertedModel.winding3.g2 = winding3Rc0.g2;
+        convertedModel.winding3.b2 = winding3Rc0.b2;
+        convertedModel.winding3.ratioTapChanger = winding3TapChanger.ratioTapChanger;
+        convertedModel.winding3.phaseTapChanger = winding3TapChanger.phaseTapChanger;
+        convertedModel.winding3.ratedU = interpretedModel.winding3.ratedU;
+        convertedModel.winding3.terminal = interpretedModel.winding3.terminal;
+
+        convertedModel.ratedUf = ratedUf;
+
+        return convertedModel;
+    }
+
+    private TapChangerWinding moveCombineTapChangerWinding(InterpretedWinding interpretedWinding) {
+
+        TapChanger nRatioTapChanger = moveTapChangerFrom2To1(interpretedWinding.ratioTapChanger2);
+        TapChanger nPhaseTapChanger = moveTapChangerFrom2To1(interpretedWinding.phaseTapChanger2);
+
+        TapChanger cRatioTapChanger = combineTapChangers(interpretedWinding.ratioTapChanger1, nRatioTapChanger);
+        TapChanger cPhaseTapChanger = combineTapChangers(interpretedWinding.phaseTapChanger1, nPhaseTapChanger);
+
+        TapChangerWinding tapChangerWinding = new TapChangerWinding();
+        tapChangerWinding.ratioTapChanger = cRatioTapChanger;
+        tapChangerWinding.phaseTapChanger = cPhaseTapChanger;
+        return tapChangerWinding;
+    }
+
+    private RatioConversion rc0Winding(InterpretedWinding interpretedWinding, double ratedUf) {
+        RatioConversion rc0;
+        if (interpretedWinding.ratio0AtEnd2) {
+            double a0 = ratedUf / interpretedWinding.ratedU;
+            rc0 = moveRatioFrom2To1(a0, 0.0, interpretedWinding.r, interpretedWinding.x,
+                    interpretedWinding.g1, interpretedWinding.b1,
+                    interpretedWinding.g2, interpretedWinding.b2);
+        } else {
+            rc0 = identityRatioConversion(interpretedWinding.r, interpretedWinding.x,
+                    interpretedWinding.g1, interpretedWinding.b1,
+                    interpretedWinding.g2, interpretedWinding.b2);
+        }
+
+        return rc0;
+
+    }
+
+    private void setToIidm(ConvertedModel convertedModel) {
 
         ThreeWindingsTransformerAdder txadder = substation().newThreeWindingsTransformer();
         identify(txadder);
 
         LegAdder<LegAdder> l1adder = txadder.newLeg1()
-                .setR(r1)
-                .setX(x1)
-                .setG1(g1)
-                .setB1(b1)
-                .setG2(0.0)
-                .setB2(0.0)
-                .setRatedU(ratedU1);
+                .setR(convertedModel.winding1.r)
+                .setX(convertedModel.winding1.x)
+                .setG1(convertedModel.winding1.g1)
+                .setB1(convertedModel.winding1.b1)
+                .setG2(convertedModel.winding1.g2)
+                .setB2(convertedModel.winding1.b2)
+                .setRatedU(convertedModel.winding1.ratedU);
         LegAdder<LegAdder> l2adder = txadder.newLeg2()
-                .setR(r2)
-                .setX(x2)
-                .setG1(0.0)
-                .setB1(0.0)
-                .setG2(0.0)
-                .setB2(0.0)
-                .setRatedU(ratedU2);
+                .setR(convertedModel.winding2.r)
+                .setX(convertedModel.winding2.x)
+                .setG1(convertedModel.winding2.g1)
+                .setB1(convertedModel.winding2.b1)
+                .setG2(convertedModel.winding2.g2)
+                .setB2(convertedModel.winding2.b2)
+                .setRatedU(convertedModel.winding2.ratedU);
         LegAdder<LegAdder> l3adder = txadder.newLeg3()
-                .setR(r3)
-                .setX(x3)
-                .setG1(0.0)
-                .setB1(0.0)
-                .setG2(0.0)
-                .setB2(0.0)
-                .setRatedU(ratedU3);
+                .setR(convertedModel.winding3.r)
+                .setX(convertedModel.winding3.x)
+                .setG1(convertedModel.winding3.g1)
+                .setB1(convertedModel.winding3.b1)
+                .setG2(convertedModel.winding3.g2)
+                .setB2(convertedModel.winding3.b2)
+                .setRatedU(convertedModel.winding3.ratedU);
+
         connect(l1adder, 1);
         connect(l2adder, 2);
         connect(l3adder, 3);
@@ -270,17 +464,24 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
                 tx.getLeg2().getTerminal(),
                 tx.getLeg3().getTerminal());
 
-        setToIidmRatioTapChanger(ratioTapChanger2, tx, terminal2);
-        setToIidmRatioTapChanger(ratioTapChanger3, tx, terminal3);
+        setToIidmRatioTapChanger(convertedModel, convertedModel.winding1, tx, terminal1);
+        setToIidmPhaseTapChanger(convertedModel, convertedModel.winding1, tx, terminal1);
+        setToIidmRatioTapChanger(convertedModel, convertedModel.winding2, tx, terminal2);
+        setToIidmPhaseTapChanger(convertedModel, convertedModel.winding2, tx, terminal2);
+        setToIidmRatioTapChanger(convertedModel, convertedModel.winding3, tx, terminal3);
+        setToIidmPhaseTapChanger(convertedModel, convertedModel.winding3, tx, terminal3);
     }
 
-    private void setToIidmRatioTapChanger(TapChanger rtc, Connectable<?> tx, String rtcTerminal) {
+    private void setToIidmRatioTapChanger(ConvertedModel convertedModel, ConvertedWinding convertedWinding,
+            Connectable<?> tx, String terminal) {
+
+        TapChanger rtc = convertedWinding.ratioTapChanger;
         if (rtc == null) {
             return;
         }
         boolean isRegulating = rtc.isRegulating();
-        String terminal = rtc.getRegulationTerminal();
-        Terminal regulationTerminal = terminal(tx, terminal);
+        String regulatingTerminalId = rtc.getRegulationTerminal();
+        Terminal regulationTerminal = terminal(convertedModel, tx, regulatingTerminalId);
         double regulationValue = rtc.getRegulationValue();
         boolean isLoadTapChangingCapabilities = rtc.isLoadTapChangingCapabilities();
         int lowStep = rtc.getLowTapPosition();
@@ -289,7 +490,7 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
         if (position < lowStep || position > highStep) {
             return;
         }
-        RatioTapChangerAdder rtca = newRatioTapChanger(tx, rtcTerminal);
+        RatioTapChangerAdder rtca = newRatioTapChanger(convertedModel, tx, terminal);
         rtca.setLowTapPosition(lowStep).setTapPosition((int) position)
                 .setLoadTapChangingCapabilities(isLoadTapChangingCapabilities)
                 .setRegulating(isRegulating).setRegulationTerminal(regulationTerminal)
@@ -298,47 +499,183 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
             double ratio0 = step.getRatio();
             double r0 = step.getR();
             double x0 = step.getX();
-            double b0 = step.getB1();
-            double g0 = step.getG1();
+            double b01 = step.getB1();
+            double g01 = step.getG1();
+            double b02 = step.getB2();
+            double g02 = step.getG2();
             rtca.beginStep()
                     .setRho(1 / ratio0)
                     .setR(r0)
                     .setX(x0)
-                    .setB(b0)
-                    .setG(g0)
+                    .setB1(b01)
+                    .setG1(g01)
+                    .setB2(b02)
+                    .setG2(g02)
                     .endStep();
         });
         rtca.add();
     }
 
-    protected RatioTapChangerAdder newRatioTapChanger(Connectable<?> tx, String terminal) {
-        if (terminal1.equals(terminal)) {
-            // No supported in IIDM model
-            return null;
-        } else if (terminal2.equals(terminal)) {
+    private void setToIidmPhaseTapChanger(ConvertedModel convertedModel,
+            ConvertedWinding convertedWinding, Connectable<?> tx, String terminal) {
+        TapChanger ptc = convertedWinding.phaseTapChanger;
+
+        if (ptc == null) {
+            return;
+        }
+        boolean isRegulating = ptc.isRegulating();
+        RegulationMode regulationMode = ptc.getRegulationMode();
+        String regulationTerminalId = ptc.getRegulationTerminal();
+        Terminal regulationTerminal = terminal(convertedModel, tx, regulationTerminalId);
+        double regulationValue = ptc.getRegulationValue();
+        int lowStep = ptc.getLowTapPosition();
+        int position = ptc.getTapPosition();
+        int highStep = lowStep + ptc.getSteps().size() - 1;
+        if (position < lowStep || position > highStep) {
+            return;
+        }
+        PhaseTapChangerAdder ptca = newPhaseTapChanger(convertedModel, tx, terminal);
+        ptca.setLowTapPosition(lowStep).setTapPosition((int) position)
+                .setRegulating(isRegulating).setRegulationTerminal(regulationTerminal)
+                .setRegulationMode(regulationMode).setRegulationValue(regulationValue);
+        ptc.getSteps().forEach(step -> {
+            double ratio0 = step.getRatio();
+            double angle0 = step.getAngle();
+            double r0 = step.getR();
+            double x0 = step.getX();
+            double b01 = step.getB1();
+            double g01 = step.getG1();
+            double b02 = step.getB2();
+            double g02 = step.getG2();
+            ptca.beginStep()
+                    .setRho(1 / ratio0)
+                    .setAlpha(-angle0)
+                    .setR(r0)
+                    .setX(x0)
+                    .setB1(b01)
+                    .setG1(g01)
+                    .setB2(b02)
+                    .setG2(g02)
+                    .endStep();
+        });
+        ptca.add();
+    }
+
+    protected RatioTapChangerAdder newRatioTapChanger(ConvertedModel convertedModel, Connectable<?> tx, String terminal) {
+        if (convertedModel.winding1.terminal.equals(terminal)) {
+            return ((ThreeWindingsTransformer) tx).getLeg1().newRatioTapChanger();
+        } else if (convertedModel.winding2.terminal.equals(terminal)) {
             return ((ThreeWindingsTransformer) tx).getLeg2().newRatioTapChanger();
-        } else if (terminal3.equals(terminal)) {
+        } else if (convertedModel.winding3.terminal.equals(terminal)) {
             return ((ThreeWindingsTransformer) tx).getLeg3().newRatioTapChanger();
         }
         return null;
     }
 
-    protected PhaseTapChangerAdder newPhaseTapChanger(Connectable<?> tx) {
+    protected PhaseTapChangerAdder newPhaseTapChanger(ConvertedModel convertedModel, Connectable<?> tx, String terminal) {
+        if (convertedModel.winding1.terminal.equals(terminal)) {
+            return ((ThreeWindingsTransformer) tx).getLeg1().newPhaseTapChanger();
+        } else if (convertedModel.winding2.terminal.equals(terminal)) {
+            return ((ThreeWindingsTransformer) tx).getLeg2().newPhaseTapChanger();
+        } else if (convertedModel.winding3.terminal.equals(terminal)) {
+            return ((ThreeWindingsTransformer) tx).getLeg3().newPhaseTapChanger();
+        }
         return null;
     }
 
-    protected Terminal terminal(Connectable<?> tx, String terminal) {
-        if (terminal1.equals(terminal)) {
-            // invalid
-        } else if (terminal2.equals(terminal)) {
+    protected Terminal terminal(ConvertedModel convertedModel, Connectable<?> tx, String terminal) {
+        if (convertedModel.winding1.terminal.equals(terminal)) {
+            return ((ThreeWindingsTransformer) tx).getLeg1().getTerminal();
+        } else if (convertedModel.winding2.terminal.equals(terminal)) {
             return ((ThreeWindingsTransformer) tx).getLeg2().getTerminal();
-        } else if (terminal3.equals(terminal)) {
+        } else if (convertedModel.winding3.terminal.equals(terminal)) {
             return ((ThreeWindingsTransformer) tx).getLeg3().getTerminal();
         }
         return null;
     }
 
-    static class TapChangerEnd {
+    static class CgmesModel {
+        CgmesWinding winding1 = new CgmesWinding();
+        CgmesWinding winding2 = new CgmesWinding();
+        CgmesWinding winding3 = new CgmesWinding();
+    }
+
+    static class CgmesWinding {
+        double     r;
+        double     x;
+        double     g;
+        double     b;
+        TapChanger ratioTapChanger;
+        TapChanger phaseTapChanger;
+        double     ratedU;
+        int        phaseAngleClock;
+        String     terminal;
+    }
+
+    static class InterpretedModel {
+        InterpretedWinding winding1 = new InterpretedWinding();
+        InterpretedWinding winding2 = new InterpretedWinding();
+        InterpretedWinding winding3 = new InterpretedWinding();
+    }
+
+    // 1 network side, 2 start bus side
+    static class InterpretedWinding {
+        double     r;
+        double     x;
+        double     g1;
+        double     b1;
+        double     g2;
+        double     b2;
+        TapChanger ratioTapChanger1;
+        TapChanger phaseTapChanger1;
+        TapChanger ratioTapChanger2;
+        TapChanger phaseTapChanger2;
+        double     ratedU;
+        String     terminal;
+        boolean    ratio0AtEnd2;
+    }
+
+    static class ConvertedModel {
+        ConvertedWinding winding1 = new ConvertedWinding();
+        ConvertedWinding winding2 = new ConvertedWinding();
+        ConvertedWinding winding3 = new ConvertedWinding();
+        double           ratedUf;
+    }
+
+    // 1 network side, 2 start bus side
+    static class ConvertedWinding {
+        double     r;
+        double     x;
+        double     g1;
+        double     b1;
+        double     g2;
+        double     b2;
+        TapChanger ratioTapChanger;
+        TapChanger phaseTapChanger;
+        double     ratedU;
+        String     terminal;
+    }
+
+    static class TapChanger22 {
+        TapChanger ratioTapChanger1;
+        TapChanger phaseTapChanger1;
+        TapChanger ratioTapChanger2;
+        TapChanger phaseTapChanger2;
+    }
+
+    static class Shunt22 {
+        double g1;
+        double b1;
+        double g2;
+        double b2;
+    }
+
+    static class TapChanger02 {
+        TapChanger phaseTapChanger1;
+        TapChanger phaseTapChanger2;
+    }
+
+    static class TapChangerWinding {
         TapChanger ratioTapChanger;
         TapChanger phaseTapChanger;
     }
@@ -354,22 +691,16 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
 
     private final double      r1;
     private final double      x1;
-    private final double      b11;
-    private final double      g11;
-    private final double      b12;
-    private final double      g12;
+    private final double      g1;
+    private final double      b1;
     private final double      r2;
     private final double      x2;
-    private final double      b21;
-    private final double      g21;
-    private final double      b22;
-    private final double      g22;
+    private final double      g2;
+    private final double      b2;
     private final double      r3;
     private final double      x3;
-    private final double      b31;
-    private final double      g31;
-    private final double      b32;
-    private final double      g32;
+    private final double      g3;
+    private final double      b3;
     private final double      ratedU1;
     private final double      ratedU2;
     private final double      ratedU3;
@@ -382,16 +713,9 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
     private final PropertyBag ptc1;
     private final PropertyBag ptc2;
     private final PropertyBag ptc3;
-    private final TapChanger  ratioTapChanger1;
-    private final TapChanger  ratioTapChanger2;
-    private final TapChanger  ratioTapChanger3;
-    private final TapChanger  phaseTapChanger1;
-    private final TapChanger  phaseTapChanger2;
-    private final TapChanger  phaseTapChanger3;
-    private final boolean     ratio0Outside1;
-    // private final boolean ratio0Outside2;
-    private final boolean     ratio0Outside3;
-    private final boolean     ratioPhaseOutside1;
-    private final boolean     ratioPhaseOutside2;
-    private final boolean     ratioPhaseOutside3;
+    private final int         phaseAngleClock1;
+    private final int         phaseAngleClock2;
+    private final int         phaseAngleClock3;
+
+    private static final Logger LOG = LoggerFactory.getLogger(ThreeWindingsTransformerFullConversion.class);
 }

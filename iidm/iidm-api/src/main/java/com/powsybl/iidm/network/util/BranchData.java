@@ -10,6 +10,8 @@ import java.util.Objects;
 
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.Bus;
@@ -179,9 +181,9 @@ public class BranchData {
         alpha1 = twt.getPhaseTapChanger() != null ? Math.toRadians(twt.getPhaseTapChanger().getCurrentStep().getAlpha()) : 0f;
         alpha2 = 0f;
         g1 = getG1(twt, specificCompatibility);
-        g2 = specificCompatibility ? twt.getG1() / 2 : twt.getG2();
+        g2 = getG2(twt, specificCompatibility);
         b1 = getB1(twt, specificCompatibility);
-        b2 = specificCompatibility ? twt.getB1() / 2 : twt.getB2();
+        b2 = getB2(twt, specificCompatibility);
         p1 = twt.getTerminal1().getP();
         q1 = twt.getTerminal1().getQ();
         p2 = twt.getTerminal2().getP();
@@ -227,6 +229,18 @@ public class BranchData {
         return getValue(specificCompatibility ? twt.getB1() / 2 : twt.getB1(),
                 twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getB1() : 0,
                 twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getB1() : 0);
+    }
+
+    private double getG2(TwoWindingsTransformer twt, boolean specificCompatibility) {
+        return getValue(specificCompatibility ? twt.getG2() / 2 : twt.getG2(),
+                twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getG2() : 0,
+                twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getG2() : 0);
+    }
+
+    private double getB2(TwoWindingsTransformer twt, boolean specificCompatibility) {
+        return getValue(specificCompatibility ? twt.getB2() / 2 : twt.getB2(),
+                twt.getRatioTapChanger() != null ? twt.getRatioTapChanger().getCurrentStep().getB2() : 0,
+                twt.getPhaseTapChanger() != null ? twt.getPhaseTapChanger().getCurrentStep().getB2() : 0);
     }
 
     private double getRho1(TwoWindingsTransformer twt) {
@@ -308,6 +322,33 @@ public class BranchData {
 
             Complex s1 = i12.conjugate().multiply(v1);
             Complex s2 = i21.conjugate().multiply(v2);
+
+            if (id.startsWith("_123034ba-cf28-49dc-85d9-383cd4f7bf46")) {
+                LOG.info("r {}", r);
+                LOG.info("x {}", x);
+                LOG.info("y1 {}", y1);
+                LOG.info("y2 {}", y2);
+                LOG.info("y11 {}", y11);
+                LOG.info("y12 {}", y12);
+                LOG.info("y21 {}", y21);
+                LOG.info("y22 {}", y22);
+                LOG.info("v1 {}", computedU1);
+                LOG.info("v2 {}", computedU2);
+                LOG.info("angleDegrees1 {}", Math.toDegrees(computedTheta1));
+                LOG.info("angleDegrees2 {}", Math.toDegrees(computedTheta2));
+                LOG.info("1/rho1 {}", 1 / rho1);
+                LOG.info("1/rho2 {}", 1 / rho2);
+                LOG.info("-alpha1 {}", -alpha1);
+                LOG.info("-alpha2 {}", -alpha2);
+                LOG.info("a1 {}", a1);
+                LOG.info("a2 {}", a2);
+                LOG.info("r {}", r);
+                LOG.info("x {}", x);
+                LOG.info("g1 {}", g1);
+                LOG.info("b1 {}", b1);
+                LOG.info("g2 {}", g2);
+                LOG.info("b2 {}", b2);
+            }
 
             computedP1 = s1.getReal();
             computedQ1 = s1.getImaginary();
@@ -475,4 +516,6 @@ public class BranchData {
                 throw new AssertionError("Unexpected side: " + side);
         }
     }
+
+    private static final Logger LOG = LoggerFactory.getLogger(BranchData.class);
 }

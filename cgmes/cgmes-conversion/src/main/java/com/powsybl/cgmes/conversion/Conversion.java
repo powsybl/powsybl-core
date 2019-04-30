@@ -537,20 +537,60 @@ public class Conversion {
             this.xfmr2Ratio0X = xfmr2Ratio0X;
         }
 
-        public boolean xfmr3Ratio0Outside() {
-            return xfmr3Ratio0Outside;
+        public boolean isXfmr3RatioPhaseNetworkSide() {
+            return xfmr3RatioPhaseNetworkSide;
         }
 
-        public void setXfmr3Ratio0Outside(boolean b) {
-            xfmr3Ratio0Outside = b;
+        public void setXfmr3RatioPhaseNetworkSide(boolean xfmr3RatioPhaseNetworkSide) {
+            this.xfmr3RatioPhaseNetworkSide = xfmr3RatioPhaseNetworkSide;
         }
 
-        public boolean xfmr3RatioPhaseOutside() {
-            return xfmr3RatioPhaseOutside;
+        public boolean isXfmr3ShuntNetworkSide() {
+            return xfmr3ShuntNetworkSide;
         }
 
-        public void setXfmr3RatioPhaseOutside(boolean b) {
-            xfmr3RatioPhaseOutside = b;
+        public void setXfmr3ShuntNetworkSide(boolean xfmr3ShuntNetworkSide) {
+            this.xfmr3ShuntNetworkSide = xfmr3ShuntNetworkSide;
+        }
+
+        public boolean isXfmr3ShuntStarBusSide() {
+            return xfmr3ShuntStarBusSide;
+        }
+
+        public void setXfmr3ShuntStarBusSide(boolean xfmr3ShuntStarBusSide) {
+            this.xfmr3ShuntStarBusSide = xfmr3ShuntStarBusSide;
+        }
+
+        public boolean isXfmr3ShuntSplit() {
+            return xfmr3ShuntSplit;
+        }
+
+        public void setXfmr3ShuntSplit(boolean xfmr3ShuntSplit) {
+            this.xfmr3ShuntSplit = xfmr3ShuntSplit;
+        }
+
+        public boolean isXfmr3PhaseAngleClockNetworkSide() {
+            return xfmr3PhaseAngleClockNetworkSide;
+        }
+
+        public void setXfmr3PhaseAngleClockNetworkSide(boolean xfmr3PhaseAngleClockNetworkSide) {
+            this.xfmr3PhaseAngleClockNetworkSide = xfmr3PhaseAngleClockNetworkSide;
+        }
+
+        public boolean isXfmr3PhaseAngleClockStarBusSide() {
+            return xfmr3PhaseAngleClockStarBusSide;
+        }
+
+        public void setXfmr3PhaseAngleClockStarBusSide(boolean xfmr3PhaseAngleClockStarBusSide) {
+            this.xfmr3PhaseAngleClockStarBusSide = xfmr3PhaseAngleClockStarBusSide;
+        }
+
+        public boolean isXfmr3Ratio0NetworkSide() {
+            return xfmr3Ratio0NetworkSide;
+        }
+
+        public void setXfmr3Ratio0NetworkSide(boolean xfmr3Ratio0NetworkSide) {
+            this.xfmr3Ratio0NetworkSide = xfmr3Ratio0NetworkSide;
         }
 
         private boolean convertBoundary                                 = false;
@@ -578,9 +618,13 @@ public class Conversion {
         private boolean xfmr2Ratio0Rtc                                  = false;
         private boolean xfmr2Ratio0X                                    = false;
 
-        private boolean xfmr3Ratio0Outside                              = false;
-        private boolean xfmr3RatioPhaseOutside                          = false;
-
+        private boolean xfmr3RatioPhaseNetworkSide                      = false;
+        private boolean xfmr3ShuntNetworkSide                           = false;
+        private boolean xfmr3ShuntStarBusSide                           = false;
+        private boolean xfmr3ShuntSplit                                 = false;
+        private boolean xfmr3PhaseAngleClockNetworkSide                 = false;
+        private boolean xfmr3PhaseAngleClockStarBusSide                 = false;
+        private boolean xfmr3Ratio0NetworkSide                          = false;
     }
 
     private final CgmesModel                     cgmes;
