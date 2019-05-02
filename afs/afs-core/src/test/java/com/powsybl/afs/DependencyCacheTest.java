@@ -96,8 +96,8 @@ public class DependencyCacheTest extends AbstractProjectFileTest {
         }
 
         void setTicDependency(ProjectFile ticOrTac) {
+            cache.getFirst().ifPresent(d -> d.removeListener(this));
             if (ticOrTac == null) {
-                cache.getFirst().ifPresent(d -> d.removeListener(this));
                 removeDependencies(DEP_NAME);
 
             } else {
@@ -194,8 +194,6 @@ public class DependencyCacheTest extends AbstractProjectFileTest {
     }
 
     class TacListener implements ProjectFileListener {
-
-        private static final String DEP_NAME = "dep";
 
         private boolean dependencyUpdated = false;
 

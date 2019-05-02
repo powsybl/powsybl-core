@@ -27,9 +27,9 @@ public abstract class AbstractScript extends ProjectFile implements ReadOnlyScri
 
     protected final String scriptContentName;
 
-    private final List<ScriptListener> listeners = new ArrayList<>();
+    protected final List<ScriptListener> scriptListeners = new ArrayList<>();
 
-    private final AppStorageListener l = eventList -> processEvents(eventList.getEvents(), info.getId(), listeners);
+    private final AppStorageListener l = eventList -> processEvents(eventList.getEvents(), info.getId(), scriptListeners);
 
     public AbstractScript(ProjectFileCreationContext context, int codeVersion, String scriptContentName) {
         super(context, codeVersion);
@@ -62,12 +62,12 @@ public abstract class AbstractScript extends ProjectFile implements ReadOnlyScri
     @Override
     public void addListener(ScriptListener listener) {
         Objects.requireNonNull(listener);
-        listeners.add(listener);
+        scriptListeners.add(listener);
     }
 
     @Override
     public void removeListener(ScriptListener listener) {
         Objects.requireNonNull(listener);
-        listeners.remove(listener);
+        scriptListeners.remove(listener);
     }
 }
