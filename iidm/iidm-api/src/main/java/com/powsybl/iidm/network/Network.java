@@ -74,7 +74,9 @@ public interface Network extends Container<Network> {
         /**
          * Get a Bus.
          */
-        Bus getBus(String id);
+        default Bus getBus(String id) {
+            return null;
+        }
     }
 
     /**
@@ -101,7 +103,9 @@ public interface Network extends Container<Network> {
         /**
          * Get a Bus.
          */
-        Bus getBus(String id);
+        default Bus getBus(String id) {
+            return null;
+        }
 
         /**
          * Get all connected compoments.
