@@ -112,7 +112,7 @@ public final class SecurityAnalysisExecutionHandlers {
     public static SecurityAnalysisResultWithLog readSingleResultWithLogs(Path workingDir) {
         SecurityAnalysisResult re = readSingleResult(workingDir);
         List<String> collectedLogsFilename = new ArrayList<>();
-        collectedLogsFilename.add(workingDir.relativize(getLogPath(workingDir)).toString()); // hades logs_IDX.zip
+        collectedLogsFilename.add(workingDir.relativize(getLogPath(workingDir)).toString()); // logs_IDX.zip
         collectedLogsFilename.add(SA_CMD_ID + ".out");
         collectedLogsFilename.add(SA_CMD_ID + ".err");
         byte[] logBytes = ZipHelper.archiveFilesToZipBytes(workingDir, collectedLogsFilename);
@@ -158,7 +158,7 @@ public final class SecurityAnalysisExecutionHandlers {
         SecurityAnalysisResult re = readResults(workingDir, subtaskCount);
         List<String> collectedLogsFilename = new ArrayList<>();
         for (int i = 0; i < subtaskCount; i++) {
-            collectedLogsFilename.add(workingDir.relativize(getLogPathForTask(workingDir, i)).toString()); // hades logs_IDX.zip
+            collectedLogsFilename.add(workingDir.relativize(getLogPathForTask(workingDir, i)).toString()); // logs_IDX.zip
             collectedLogsFilename.add(SA_TASK_CMD_ID + "_" + i + ".out");
             collectedLogsFilename.add(SA_TASK_CMD_ID + "_" + i + ".err");
         }

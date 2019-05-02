@@ -8,6 +8,8 @@ package com.powsybl.security.execution;
 
 import com.powsybl.iidm.network.Network;
 
+import java.util.Objects;
+
 /**
  * A network variant, simply embeds a {@link Network} and the ID of one of its variants.
  *
@@ -19,8 +21,8 @@ public class NetworkVariant {
     private final String variantId;
 
     public NetworkVariant(Network network, String variantId) {
-        this.network = network;
-        this.variantId = variantId;
+        this.network = Objects.requireNonNull(network);
+        this.variantId = Objects.requireNonNull(variantId);
     }
 
     /**

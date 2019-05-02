@@ -145,7 +145,7 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
     /**
      * Add case file option, and write network to working directory.
      */
-    private void addCaseFile(SecurityAnalysisCommandOptions options, Path workingDir, NetworkVariant variant) {
+    private static void addCaseFile(SecurityAnalysisCommandOptions options, Path workingDir, NetworkVariant variant) {
         Path dest = getCasePath(workingDir);
         options.caseFile(dest);
         LOGGER.debug("Copying network to file {}", dest);
@@ -155,7 +155,7 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
     /**
      * Add contingencies file option, and write it to working directory.
      */
-    private void addContingenciesFile(SecurityAnalysisCommandOptions options, Path workingDir, ByteSource source) {
+    private static void addContingenciesFile(SecurityAnalysisCommandOptions options, Path workingDir, ByteSource source) {
         Path dest = getContingenciesPath(workingDir);
         options.contingenciesFile(dest);
         LOGGER.debug("Writing contingencies to file {}", dest);
@@ -165,7 +165,7 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
     /**
      * Add parameters file option, and write it as JSON to working directory.
      */
-    private void addParametersFile(SecurityAnalysisCommandOptions options, Path workingDir, SecurityAnalysisParameters parameters) {
+    private static void addParametersFile(SecurityAnalysisCommandOptions options, Path workingDir, SecurityAnalysisParameters parameters) {
         Path parametersPath = getParametersPath(workingDir);
         options.parametersFile(getParametersPath(workingDir));
         LOGGER.debug("Writing parameters to file {}", parametersPath);

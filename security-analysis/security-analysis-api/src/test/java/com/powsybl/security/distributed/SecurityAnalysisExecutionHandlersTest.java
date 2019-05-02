@@ -108,12 +108,12 @@ public class SecurityAnalysisExecutionHandlersTest {
 
     @Test
     public void forwardedBeforeWithCompleteInput() throws IOException {
-        SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
-        input.setParameters(new SecurityAnalysisParameters());
-        input.setNetworkVariant(EurostagTutorialExample1Factory.create(), VariantManagerConstants.INITIAL_VARIANT_ID);
-        input.setContingenciesSource(ByteSource.wrap("contingencies definition".getBytes(StandardCharsets.UTF_8)));
-        input.addResultExtensions(ImmutableList.of("ext1", "ext2"));
-        input.addViolationTypes(ImmutableList.of(LimitViolationType.CURRENT));
+        SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput()
+                .setParameters(new SecurityAnalysisParameters())
+                .setNetworkVariant(EurostagTutorialExample1Factory.create(), VariantManagerConstants.INITIAL_VARIANT_ID)
+                .setContingenciesSource(ByteSource.wrap("contingencies definition".getBytes(StandardCharsets.UTF_8)))
+                .addResultExtensions(ImmutableList.of("ext1", "ext2"))
+                .addViolationTypes(ImmutableList.of(LimitViolationType.CURRENT));
         ExecutionHandler<SecurityAnalysisResult> handler = SecurityAnalysisExecutionHandlers.forwarded(input, 12);
 
         Path workingDir = fileSystem.getPath("/work");
@@ -137,12 +137,12 @@ public class SecurityAnalysisExecutionHandlersTest {
 
     @Test
     public void distributedBefore() throws IOException {
-        SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
-        input.setParameters(new SecurityAnalysisParameters());
-        input.setNetworkVariant(EurostagTutorialExample1Factory.create(), VariantManagerConstants.INITIAL_VARIANT_ID);
-        input.setContingenciesSource(ByteSource.wrap("contingencies definition".getBytes(StandardCharsets.UTF_8)));
-        input.addResultExtensions(ImmutableList.of("ext1", "ext2"));
-        input.addViolationTypes(ImmutableList.of(LimitViolationType.CURRENT));
+        SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput()
+                .setParameters(new SecurityAnalysisParameters())
+                .setNetworkVariant(EurostagTutorialExample1Factory.create(), VariantManagerConstants.INITIAL_VARIANT_ID)
+                .setContingenciesSource(ByteSource.wrap("contingencies definition".getBytes(StandardCharsets.UTF_8)))
+                .addResultExtensions(ImmutableList.of("ext1", "ext2"))
+                .addViolationTypes(ImmutableList.of(LimitViolationType.CURRENT));
         ExecutionHandler<SecurityAnalysisResult> handler = SecurityAnalysisExecutionHandlers.distributed(input, 3);
 
         List<CommandExecution> commandExecutions = handler.before(workingDir);
@@ -171,10 +171,10 @@ public class SecurityAnalysisExecutionHandlersTest {
 
     @Test
     public void distributedBeforeWithLog() throws IOException {
-        SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
-        input.setParameters(new SecurityAnalysisParameters());
-        input.setNetworkVariant(EurostagTutorialExample1Factory.create(), VariantManagerConstants.INITIAL_VARIANT_ID);
-        input.setContingenciesSource(ByteSource.wrap("contingencies definition".getBytes(StandardCharsets.UTF_8)));
+        SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput()
+                .setParameters(new SecurityAnalysisParameters())
+                .setNetworkVariant(EurostagTutorialExample1Factory.create(), VariantManagerConstants.INITIAL_VARIANT_ID)
+                .setContingenciesSource(ByteSource.wrap("contingencies definition".getBytes(StandardCharsets.UTF_8)));
         ExecutionHandler<SecurityAnalysisResultWithLog> handler = SecurityAnalysisExecutionHandlers.distributedWithLog(input, 3);
 
         List<CommandExecution> commandExecutions = handler.before(workingDir);
@@ -201,10 +201,10 @@ public class SecurityAnalysisExecutionHandlersTest {
 
     @Test
     public void forwardedBeforeWithLog() throws IOException {
-        SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
-        input.setParameters(new SecurityAnalysisParameters());
-        input.setNetworkVariant(EurostagTutorialExample1Factory.create(), VariantManagerConstants.INITIAL_VARIANT_ID);
-        input.setContingenciesSource(ByteSource.wrap("contingencies definition".getBytes(StandardCharsets.UTF_8)));
+        SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput()
+                .setParameters(new SecurityAnalysisParameters())
+                .setNetworkVariant(EurostagTutorialExample1Factory.create(), VariantManagerConstants.INITIAL_VARIANT_ID)
+                .setContingenciesSource(ByteSource.wrap("contingencies definition".getBytes(StandardCharsets.UTF_8)));
         ExecutionHandler<SecurityAnalysisResultWithLog> handler = SecurityAnalysisExecutionHandlers.forwardedWithLogs(input);
 
         List<CommandExecution> commandExecutions = handler.before(workingDir);

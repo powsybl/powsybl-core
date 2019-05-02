@@ -89,10 +89,10 @@ public class ExternalSecurityAnalysis implements SecurityAnalysis {
 
     protected SecurityAnalysisExecutionInput buildInput(String workingStateId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider) {
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
-        input.setNetworkVariant(network, workingStateId);
-        input.setParameters(parameters);
-        input.setContingenciesSource(ByteSource.wrap(contingenciesProvider.asScript().getBytes(StandardCharsets.UTF_8)));
-        input.addResultExtensions(extensions);
+        input.setNetworkVariant(network, workingStateId)
+                .setParameters(parameters)
+                .setContingenciesSource(ByteSource.wrap(contingenciesProvider.asScript().getBytes(StandardCharsets.UTF_8)))
+                .addResultExtensions(extensions);
         return input;
     }
 }

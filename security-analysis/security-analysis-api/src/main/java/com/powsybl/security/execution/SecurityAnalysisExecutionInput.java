@@ -57,31 +57,38 @@ public class SecurityAnalysisExecutionInput {
         return networkVariant;
     }
 
-    public void setContingenciesSource(ByteSource contingenciesSource) {
+    public SecurityAnalysisExecutionInput setContingenciesSource(ByteSource contingenciesSource) {
         this.contingenciesSource = contingenciesSource;
+        return this;
     }
 
-    public void addResultExtension(String resultExtensions) {
-        this.resultExtensions.add(Objects.requireNonNull(resultExtensions));
+    public SecurityAnalysisExecutionInput addResultExtension(String resultExtension) {
+        resultExtensions.add(Objects.requireNonNull(resultExtension));
+        return this;
     }
 
-    public void addResultExtensions(Collection<String> resultExtensions) {
+    public SecurityAnalysisExecutionInput addResultExtensions(Collection<String> resultExtensions) {
         this.resultExtensions.addAll(Objects.requireNonNull(resultExtensions));
+        return this;
     }
 
-    public void addViolationType(LimitViolationType violationType) {
-        this.violationTypes.add(Objects.requireNonNull(violationType));
+    public SecurityAnalysisExecutionInput addViolationType(LimitViolationType violationType) {
+        violationTypes.add(Objects.requireNonNull(violationType));
+        return this;
     }
 
-    public void addViolationTypes(Collection<LimitViolationType> violationTypes) {
+    public SecurityAnalysisExecutionInput addViolationTypes(Collection<LimitViolationType> violationTypes) {
         this.violationTypes.addAll(Objects.requireNonNull(violationTypes));
+        return this;
     }
 
-    public void setParameters(SecurityAnalysisParameters parameters) {
+    public SecurityAnalysisExecutionInput setParameters(SecurityAnalysisParameters parameters) {
         this.parameters = parameters;
+        return this;
     }
 
-    public void setNetworkVariant(Network network, String variantId) {
-        this.networkVariant = new NetworkVariant(network, variantId);
+    public SecurityAnalysisExecutionInput setNetworkVariant(Network network, String variantId) {
+        networkVariant = new NetworkVariant(network, variantId);
+        return this;
     }
 }
