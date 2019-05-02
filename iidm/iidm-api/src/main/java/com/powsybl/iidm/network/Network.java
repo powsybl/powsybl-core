@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.commons.PowsyblException;
 import org.joda.time.DateTime;
 
 import java.util.Collection;
@@ -75,7 +76,7 @@ public interface Network extends Container<Network> {
          * Get a Bus.
          */
         default Bus getBus(String id) {
-            return null;
+            throw new PowsyblException("Method should be overridden in the current implementation");
         }
     }
 
@@ -104,7 +105,7 @@ public interface Network extends Container<Network> {
          * Get a Bus.
          */
         default Bus getBus(String id) {
-            return null;
+            throw new PowsyblException("Method should be overridden in the current implementation");
         }
 
         /**
