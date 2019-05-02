@@ -319,9 +319,31 @@ public interface Network extends Container<Network> {
     /**
      * Get a generator.
      *
-     * @param id the id od the generator
+     * @param id the id of the generator
      */
     Generator getGenerator(String id);
+
+    /**
+     * Get all batteries.
+     */
+    Iterable<Battery> getBatteries();
+
+    /**
+     * Get all batteries.
+     */
+    Stream<Battery> getBatteryStream();
+
+    /**
+     * Get the battery count.
+     */
+    int getBatteryCount();
+
+    /**
+     * Get a battery.
+     *
+     * @param id the id of the battery
+     */
+    Battery getBattery(String id);
 
     /**
      * Get all loads.

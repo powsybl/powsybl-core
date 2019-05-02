@@ -12,6 +12,7 @@ import com.powsybl.commons.util.ServiceLoaderCache;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -29,18 +30,26 @@ public final class ExtensionProviders<T extends ExtensionProvider> {
         return new ExtensionProviders<>(clazz, categoryName);
     }
 
+    public static <T extends ExtensionProvider> ExtensionProviders<T> createProvider(Class<T> clazz, String categoryName, Set<String> extensionNames) {
+        return new ExtensionProviders<>(clazz, categoryName, extensionNames);
+    }
+
     private ExtensionProviders(Class<T> clazz) {
         providers = new ServiceLoaderCache<>(clazz).getServices().stream()
             .collect(Collectors.toMap(T::getExtensionName, e -> e));
     }
 
     private ExtensionProviders(Class<T> clazz, String categoryName) {
+        this(clazz, categoryName, null);
+    }
+
+    private ExtensionProviders(Class<T> clazz, String categoryName, Set<String> extensionNames) {
         Objects.requireNonNull(clazz);
         Objects.requireNonNull(categoryName);
 
         providers = new ServiceLoaderCache<>(clazz).getServices().stream()
-            .filter(s -> s.getCategoryName().equals(categoryName))
-            .collect(Collectors.toMap(T::getExtensionName, e -> e));
+                .filter(s -> s.getCategoryName().equals(categoryName) && (extensionNames == null || extensionNames.contains(s.getExtensionName())))
+                .collect(Collectors.toMap(T::getExtensionName, e -> e));
     }
 
     public T findProvider(String name) {

@@ -11,19 +11,12 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.stream.Stream;
 
+import com.powsybl.iidm.network.*;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.Terminal.BusView;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 
@@ -33,10 +26,12 @@ import com.powsybl.loadflow.validation.io.ValidationWriter;
  */
 public class BusesValidationTest extends AbstractValidationTest {
 
-    private final double loadP = 37.2786;
-    private final double loadQ = 174.38244;
+    private final double loadP = 47.2786;
+    private final double loadQ = 163.38244;
     private final double genP = -2020;
     private final double genQ = 91.54;
+    private final double batP = -10;
+    private final double batQ = 11;
     private final double shuntP = 0.0;
     private final double shuntQ = 175.8437;
     private final double svcP = 0.0;
@@ -68,6 +63,12 @@ public class BusesValidationTest extends AbstractValidationTest {
         Mockito.when(genTerminal.getQ()).thenReturn(genQ);
         Generator gen = Mockito.mock(Generator.class);
         Mockito.when(gen.getTerminal()).thenReturn(genTerminal);
+
+        Terminal batTerminal = Mockito.mock(Terminal.class);
+        Mockito.when(batTerminal.getP()).thenReturn(batP);
+        Mockito.when(batTerminal.getQ()).thenReturn(batQ);
+        Battery bat = Mockito.mock(Battery.class);
+        Mockito.when(bat.getTerminal()).thenReturn(batTerminal);
 
         Terminal shauntTerminal = Mockito.mock(Terminal.class);
         Mockito.when(shauntTerminal.getP()).thenReturn(shuntP);
@@ -103,6 +104,7 @@ public class BusesValidationTest extends AbstractValidationTest {
         Mockito.when(bus.getId()).thenReturn("bus");
         Mockito.when(bus.getLoadStream()).thenAnswer(dummyLoads -> Stream.of(load));
         Mockito.when(bus.getGeneratorStream()).thenAnswer(dummyGens -> Stream.of(gen));
+        Mockito.when(bus.getBatteryStream()).thenAnswer(dummyBats -> Stream.of(bat));
         Mockito.when(bus.getShuntCompensatorStream()).thenAnswer(dummyShunts -> Stream.of(shunt));
         Mockito.when(bus.getStaticVarCompensatorStream()).thenAnswer(dummyShunts -> Stream.empty());
         Mockito.when(bus.getVscConverterStationStream()).thenAnswer(dummyShunts -> Stream.empty());
@@ -115,28 +117,28 @@ public class BusesValidationTest extends AbstractValidationTest {
 
     @Test
     public void checkBusesValues() {
-        assertTrue(BusesValidation.checkBuses("test", loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+        assertTrue(BusesValidation.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
                                               lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, looseConfig, NullWriter.NULL_WRITER));
-        assertFalse(BusesValidation.checkBuses("test", loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+        assertFalse(BusesValidation.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
                                                lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, strictConfig, NullWriter.NULL_WRITER));
-        assertFalse(BusesValidation.checkBuses("test", loadP, 174.4932, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+        assertFalse(BusesValidation.checkBuses("test", loadP, 174.4932, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
                                                lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, looseConfig, NullWriter.NULL_WRITER));
         // check NaN values
-        assertFalse(BusesValidation.checkBuses("test", Double.NaN, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+        assertFalse(BusesValidation.checkBuses("test", Double.NaN, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
                                                lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, looseConfig, NullWriter.NULL_WRITER));
-        assertFalse(BusesValidation.checkBuses("test", loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+        assertFalse(BusesValidation.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
                                                lineP, lineQ, danglingLineP, danglingLineQ, twtP, Double.NaN, tltP, tltQ, mainComponent, looseConfig, NullWriter.NULL_WRITER));
         looseConfig.setOkMissingValues(true);
-        assertTrue(BusesValidation.checkBuses("test", Double.NaN, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+        assertTrue(BusesValidation.checkBuses("test", Double.NaN, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
                                               lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, looseConfig, NullWriter.NULL_WRITER));
-        assertTrue(BusesValidation.checkBuses("test", loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+        assertTrue(BusesValidation.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
                                               lineP, lineQ, danglingLineP, danglingLineQ, twtP, Double.NaN, tltP, tltQ, mainComponent, looseConfig, NullWriter.NULL_WRITER));
         looseConfig.setOkMissingValues(false);
         // check main component
-        assertFalse(BusesValidation.checkBuses("test", loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP,
+        assertFalse(BusesValidation.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP,
                                                danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, strictConfig, NullWriter.NULL_WRITER));
         mainComponent = false;
-        assertTrue(BusesValidation.checkBuses("test", loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP,
+        assertTrue(BusesValidation.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP,
                                               danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, strictConfig, NullWriter.NULL_WRITER));
     }
 

@@ -10,12 +10,10 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.util.Networks;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.helpers.FormattingTuple;
-import org.slf4j.helpers.MessageFormatter;
 
-import java.util.Objects;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 
 import static org.junit.Assert.assertEquals;
 
@@ -25,32 +23,28 @@ import static org.junit.Assert.assertEquals;
 public class NetworksTest {
 
     @Test
-    public void printBalanceSummaryTest()  {
-        StringBuilder buffer = new StringBuilder();
-
-        Logger logger = Mockito.mock(Logger.class);
-        Mockito.when(logger.isDebugEnabled()).thenReturn(true);
-        Mockito.doAnswer(invocationOnMock -> {
-            Object[] args = invocationOnMock.getArguments();
-            FormattingTuple formatter = MessageFormatter.format(Objects.toString(args[0]), args[1], args[2]);
-            buffer.append(formatter.getMessage());
-            return null;
-        }).when(logger).debug(Mockito.anyString(), Mockito.any(), Mockito.any());
-
-        Network network = EurostagTutorialExample1Factory.create();
-        Networks.printBalanceSummary("", network, logger);
-        assertEquals("Active balance at step '':\n" +
-                     "+-----------------------+--------------------------------+----------------------------------+\n" +
-                     "|                       | Main CC connected/disconnected | Others CC connected/disconnected |\n" +
-                     "+-----------------------+--------------------------------+----------------------------------+\n" +
-                     "| Bus count             |               4                |                0                 |\n" +
-                     "| Load count            | 1           | 0                | 0           | 0                  |\n" +
-                     "| Load (MW)             | 600.0       | 0.0              | 0.0         | 0.0                |\n" +
-                     "| Generator count       | 1           | 0                | 0           | 0                  |\n" +
-                     "| Max generation (MW)   | 9999.99     | 0.0              | 0.0         | 0.0                |\n" +
-                     "| Generation (MW)       | 607.0       | 0.0              | 0.0         | 0.0                |\n" +
-                     "| Shunt at nom V (MVar) | 0.0 0.0 (0) | 0.0 0.0 (0)      | 0.0 0.0 (0) | 0.0 0.0 (0)        |\n" +
-                     "+-----------------------+-------------+------------------+-------------+--------------------+" + System.lineSeparator(),
-                buffer.toString());
+    public void printBalanceSummaryTest() throws IOException {
+        try (Writer writer = new StringWriter()) {
+            Network network = EurostagTutorialExample1Factory.createWithMultipleConnectedComponents();
+            Networks.printBalanceSummary("", network, writer);
+            assertEquals("Active balance at step '':" + System.lineSeparator() +
+                            "+-----------------------+--------------------------------+----------------------------------+\n" +
+                            "|                       | Main CC connected/disconnected | Others CC connected/disconnected |\n" +
+                            "+-----------------------+--------------------------------+----------------------------------+\n" +
+                            "| Bus count             |               4                |                3                 |\n" +
+                            "| Load count            | 1           | 0                | 1           | 1                  |\n" +
+                            "| Load (MW)             | 600.0       | 0.0              | 600.0       | 600.0              |\n" +
+                            "| Generator count       | 1           | 0                | 1           | 1                  |\n" +
+                            "| Max generation (MW)   | 9999.99     | 0.0              | 9999.99     | 9999.99            |\n" +
+                            "| Generation (MW)       | 607.0       | 0.0              | 607.0       | 607.0              |\n" +
+                            "| Shunt at nom V (MVar) | 0.0 0.0 (0) | 0.0 0.0 (0)      | 0.0 0.0 (0) | 0.00576 0.0 (1)    |\n" +
+                            "+-----------------------+-------------+------------------+-------------+--------------------+" + System.lineSeparator() +
+                            "Connected loads in other CC: [LOAD2]" + System.lineSeparator() +
+                            "Disconnected loads in other CC: [LOAD3]" + System.lineSeparator() +
+                            "Connected generators in other CC: [GEN2]" + System.lineSeparator() +
+                            "Disconnected generators in other CC: [GEN3]" + System.lineSeparator() +
+                            "Disconnected shunts in other CC: [SHUNT]" + System.lineSeparator(),
+                    writer.toString());
+        }
     }
 }

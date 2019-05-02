@@ -258,6 +258,22 @@ class MergedBus extends AbstractIdentifiable<Bus> implements CalculatedBus {
     }
 
     @Override
+    public Iterable<Battery> getBatteries() {
+        checkValidity();
+        List<Iterable<Battery>> iterables = new ArrayList<>(buses.size());
+        for (ConfiguredBus bus : buses) {
+            iterables.add(bus.getBatteries());
+        }
+        return Iterables.concat(iterables);
+    }
+
+    @Override
+    public Stream<Battery> getBatteryStream() {
+        checkValidity();
+        return buses.stream().flatMap(ConfiguredBus::getBatteryStream);
+    }
+
+    @Override
     public Iterable<Load> getLoads() {
         checkValidity();
         List<Iterable<Load>> iterables = new ArrayList<>(buses.size());
