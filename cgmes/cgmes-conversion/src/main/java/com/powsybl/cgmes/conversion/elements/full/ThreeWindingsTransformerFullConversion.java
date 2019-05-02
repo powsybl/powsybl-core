@@ -2,9 +2,6 @@ package com.powsybl.cgmes.conversion.elements.full;
 
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -73,7 +70,6 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
     @Override
     public void convert() {
 
-        LOG.info("MMC start three wind");
         CgmesModel cgmesModel = load();
         InterpretedModel interpretedModel = interpret(cgmesModel, context.config());
         ConvertedModel convertedModel = convertToIidm(interpretedModel);
@@ -336,7 +332,6 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
         } else {
             ratio0AtEnd2 = true;
         }
-        LOG.info("ratio0AtEnd2 {}", ratio0AtEnd2);
         return ratio0AtEnd2;
     }
 
@@ -716,6 +711,4 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
     private final int         phaseAngleClock1;
     private final int         phaseAngleClock2;
     private final int         phaseAngleClock3;
-
-    private static final Logger LOG = LoggerFactory.getLogger(ThreeWindingsTransformerFullConversion.class);
 }
