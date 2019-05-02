@@ -13,6 +13,13 @@ import java.util.Objects;
 
 /**
  *
+ * A command execution essentially defines how a {@link Command} should be executed.
+ * In particular, an execution number defines how many times the underlying command should be executed.
+ *
+ * <p>For each execution, the {@link ComputationManager} should increment an execution index and request
+ * the corresponding argument values.
+ * This mechanism may be used to easily submit a number of commands which differ only by their argument.
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class CommandExecution {
