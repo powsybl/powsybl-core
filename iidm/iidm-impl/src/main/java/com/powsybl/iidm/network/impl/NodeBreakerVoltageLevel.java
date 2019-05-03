@@ -911,9 +911,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             return;
         }
         int node = ((NodeTerminal) terminal).getNode();
-        if (getTerminal(graph, node) != null) {
+
+        NodeTerminal oldTerminal = getTerminal(graph, node);
+        if (oldTerminal != null) {
             throw new ValidationException(terminal.getConnectable(),
-                    "an equipment (" + getTerminal(graph, node).getConnectable().getId()
+                    "an equipment (" + oldTerminal.getConnectable().getId()
                             + ") is already connected to node " + node + " of voltage level "
                             + NodeBreakerVoltageLevel.this.id);
         }
