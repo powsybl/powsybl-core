@@ -122,23 +122,6 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
         }
     }
 
-    public void archive(Path dir) {
-        Objects.requireNonNull(dir);
-        try {
-            new AppStorageArchive(storage).archive(info, dir);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-    }
-
-    public void unarchiveChildren(Path dir) {
-        new AppStorageArchive(storage).unarchiveChildren(info, dir);
-    }
-
-    public void unarchive(Path dir) {
-        new AppStorageArchive(storage).unarchive(info, dir);
-    }
-
     @Override
     public void delete() {
         if (getChildren().isEmpty()) {

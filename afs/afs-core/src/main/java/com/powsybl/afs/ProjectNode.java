@@ -96,4 +96,8 @@ public class ProjectNode extends AbstractNodeBase<ProjectFolder> {
     public AppFileSystem getFileSystem() {
         return project.getFileSystem();
     }
+
+    public <U> U findService(Class<U> serviceClass) {
+        return project.getFileSystem().getData().findService(serviceClass, storage.isRemote());
+    }
 }

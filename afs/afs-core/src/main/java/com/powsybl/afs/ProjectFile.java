@@ -112,7 +112,4 @@ public class ProjectFile extends ProjectNode {
         project.getFileSystem().getTaskMonitor().stopTask(id);
     }
 
-    public <U> U findService(Class<U> serviceClass) {
-        return project.getFileSystem().getData().findService(serviceClass, storage.isRemote());
-    }
 }
