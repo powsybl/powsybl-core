@@ -35,28 +35,18 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Functions;
 import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Multimap;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.Colors;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.BusAdder;
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.BusbarSectionAdder;
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
 import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView.SwitchAdder;
 import com.powsybl.iidm.network.util.ShortIdDictionary;
 import com.powsybl.math.graph.GraphUtil;
@@ -475,19 +465,19 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private interface BusChecker {
 
-        boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals);
+        boolean isValid(UndirectedGraph<NodeTerminal, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals);
     }
 
     private static class CalculatedBusChecker implements BusChecker {
 
         @Override
-        public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals) {
+        public boolean isValid(UndirectedGraph<NodeTerminal, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals) {
             int feederCount = 0;
             int branchCount = 0;
             int busbarSectionCount = 0;
             for (int i = 0; i < nodes.size(); i++) {
                 int node = nodes.get(i);
-                TerminalExt terminal = graph.getVertexObject(node);
+                TerminalExt terminal = getTerminal(graph, node);
                 if (terminal != null) {
                     AbstractConnectable connectable = terminal.getConnectable();
                     switch (connectable.getType()) {
@@ -524,7 +514,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     private static class CalculatedBusBreakerChecker implements BusChecker {
         @Override
-        public boolean isValid(UndirectedGraph<? extends TerminalExt, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals) {
+        public boolean isValid(UndirectedGraph<NodeTerminal, SwitchImpl> graph, TIntArrayList nodes, List<NodeTerminal> terminals) {
             return !nodes.isEmpty();
         }
     }
@@ -565,13 +555,24 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
     @Override
     public Iterable<Terminal> getTerminals() {
         return FluentIterable.from(graph.getVerticesObj())
-                .filter(Predicates.notNull())
+                .filter(NodeBreakerVoltageLevel::isValid)
                 .transform(Functions.identity());
     }
 
     @Override
     public Stream<Terminal> getTerminalStream() {
-        return graph.getVertexObjectStream().filter(Objects::nonNull).map(Function.identity());
+        return graph.getVertexObjectStream()
+                .filter(NodeBreakerVoltageLevel::isValid)
+                .map(Function.identity());
+    }
+
+    private static NodeTerminal getTerminal(UndirectedGraph<NodeTerminal, SwitchImpl> graph, int node) {
+        NodeTerminal terminal = graph.getVertexObject(node);
+        return isValid(terminal) ? terminal : null;
+    }
+
+    private static boolean isValid(NodeTerminal nodeTerminal) {
+        return nodeTerminal != null && nodeTerminal.getConnectable() != null;
     }
 
     static PowsyblException createNotSupportedNodeBreakerTopologyException() {
@@ -608,6 +609,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             if (count > oldCount) {
                 for (int i = oldCount; i < count; i++) {
                     graph.addVertex();
+                    graph.setVertexObject(i, new NodeTerminal(getNetwork().getRef(), i));
                 }
             }
             return this;
@@ -627,7 +629,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         @Override
         public Terminal getTerminal(int node) {
-            return graph.getVertexObject(node);
+            return NodeBreakerVoltageLevel.getTerminal(graph, node);
         }
 
         @Override
@@ -909,9 +911,9 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             return;
         }
         int node = ((NodeTerminal) terminal).getNode();
-        if (graph.getVertexObject(node) != null) {
+        if (getTerminal(graph, node) != null) {
             throw new ValidationException(terminal.getConnectable(),
-                    "an equipment (" + graph.getVertexObject(node).getConnectable().getId()
+                    "an equipment (" + getTerminal(graph, node).getConnectable().getId()
                             + ") is already connected to node " + node + " of voltage level "
                             + NodeBreakerVoltageLevel.this.id);
         }
@@ -940,11 +942,11 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
     @Override
     public void clean() {
-        GraphUtil.removeIsolatedVertices(graph);
+        GraphUtil.removeIsolatedVertices(graph, (g, v) -> getTerminal(graph, v) != null);
     }
 
-    private static boolean isBusbarSection(Terminal t) {
-        return t != null && t.getConnectable().getType() == ConnectableType.BUSBAR_SECTION;
+    private static boolean isBusbarSection(NodeTerminal t) {
+        return isValid(t) && t.getConnectable().getType() == ConnectableType.BUSBAR_SECTION;
     }
 
     private static boolean isOpenedDisconnector(Switch s) {
@@ -1035,7 +1037,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
             graph.traverse(node, (v1, e, v2) -> {
                 SwitchImpl aSwitch = graph.getEdgeObject(e);
-                NodeTerminal otherTerminal = graph.getVertexObject(v2);
+                NodeTerminal otherTerminal = getTerminal(graph, v2);
                 if (aSwitch == null // internal connection case
                         || traverser.traverse(aSwitch)) {
                     if (otherTerminal == null) {
@@ -1133,7 +1135,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
                 intToNode.put(n, node);
                 busToNodes.put(bus.getId(), n);
             } else {
-                TerminalExt terminal = graph.getVertexObject(n);
+                TerminalExt terminal = getTerminal(graph, n);
                 if (terminal != null) {
                     AbstractConnectable connectable = terminal.getConnectable();
                     String label = n + "\\n" + connectable.getType().toString() + "\\n" + connectable.getId();
@@ -1162,7 +1164,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             MutableGraph newBus = mutGraph(key).setCluster(true);
             for (int nodeInt : busToNodes.get(key)) {
                 MutableNode node = intToNode.get(nodeInt);
-                TerminalExt terminal = this.graph.getVertexObject(nodeInt);
+                TerminalExt terminal = getTerminal(graph, nodeInt);
                 if (terminal != null) {
                     AbstractConnectable connectable = terminal.getConnectable();
                     String label = nodeInt + "\\n" + connectable.getType().toString() + "\\n" + connectable.getId();

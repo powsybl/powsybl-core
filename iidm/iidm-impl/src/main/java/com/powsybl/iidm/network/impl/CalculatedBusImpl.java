@@ -10,10 +10,10 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -68,13 +68,17 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public Stream<TerminalExt> getConnectedTerminalStream() {
         checkValidity();
-        return terminals.stream().map(Function.identity());
+        return terminals.stream()
+                .filter(t -> t.getConnectable() != null)
+                .map(Function.identity());
     }
 
     @Override
     public Collection<TerminalExt> getTerminals() {
         checkValidity();
-        return Collections.unmodifiableCollection(terminals);
+        return terminals.stream()
+                .filter(t -> t.getConnectable() != null)
+                .collect(Collectors.toList());
     }
 
     @Override

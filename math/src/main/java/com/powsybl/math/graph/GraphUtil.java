@@ -104,11 +104,14 @@ public final class GraphUtil {
         return new ConnectedComponentsComputationResult(componentNumber, componentSize);
     }
 
-    /**
-     * Remove from the {@param graph} vertices which are not connected to any edge,
-     * and which have no associated object.
-     */
-    public static <V, E> void removeIsolatedVertices(UndirectedGraph<V, E> graph) {
+    @FunctionalInterface
+    public interface VertexChecker<V, E> {
+
+        boolean isValid(UndirectedGraph<V, E> graph, int vertex);
+
+    }
+
+    public static <V, E> void removeIsolatedVertices(UndirectedGraph<V, E> graph, VertexChecker checker) {
         Objects.requireNonNull(graph, "Graph is null.");
 
         TIntSet connectedVertices = new TIntHashSet();
@@ -118,9 +121,17 @@ public final class GraphUtil {
         }
 
         for (int v : graph.getVertices()) {
-            if (!connectedVertices.contains(v) && graph.getVertexObject(v) == null) {
+            if (!connectedVertices.contains(v) && !checker.isValid(graph, v)) {
                 graph.removeVertex(v);
             }
         }
+    }
+
+    /**
+     * Remove from the {@param graph} vertices which are not connected to any edge,
+     * and which have no associated object.
+     */
+    public static <V, E> void removeIsolatedVertices(UndirectedGraph<V, E> graph) {
+        removeIsolatedVertices(graph, (g, v) -> g.getVertexObject(v) != null);
     }
 }
