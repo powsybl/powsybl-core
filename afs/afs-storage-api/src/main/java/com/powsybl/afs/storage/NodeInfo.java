@@ -33,6 +33,7 @@ public class NodeInfo {
 
     public NodeInfo() {
     }
+
     public NodeInfo(String id, String name, String pseudoClass, String description, long creationTime, long modificationTime,
                     int version, NodeGenericMetadata genericMetadata) {
         this.id = Objects.requireNonNull(id);

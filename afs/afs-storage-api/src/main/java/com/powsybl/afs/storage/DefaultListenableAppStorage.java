@@ -40,6 +40,7 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
     private final Lock lock = new ReentrantLock();
 
     private EventSourcing eventSourcing;
+
     public DefaultListenableAppStorage(AppStorage storage) {
         super(storage);
         eventSourcing = new EventSourcing();
