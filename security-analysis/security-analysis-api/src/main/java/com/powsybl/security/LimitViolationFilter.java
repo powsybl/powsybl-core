@@ -57,7 +57,7 @@ public class LimitViolationFilter {
         return load(PlatformConfig.defaultConfig());
     }
 
-    static LimitViolationFilter load(PlatformConfig platformConfig) {
+    public static LimitViolationFilter load(PlatformConfig platformConfig) {
 
         return platformConfig.getOptionalModuleConfig("limit-violation-default-filter")
                 .map(moduleConfig -> {

@@ -12,6 +12,13 @@ import java.util.Objects;
 
 /**
  *
+ * Defines the execution environment for commands to be executed:
+ * <ul>
+ *   <li>a map of environment variables</li>
+ *   <li>a prefix for the execution working directory</li>
+ *   <li>a debug indicator</li>
+ * </ul>
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class ExecutionEnvironment {

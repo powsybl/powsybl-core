@@ -25,7 +25,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     private double ratedS;
 
-    private ReactiveLimits reactiveLimits;
+    private final ReactiveLimitsHolderImpl reactiveLimits;
 
     private TerminalExt regulatingTerminal;
 
@@ -49,7 +49,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         this.energySource = energySource;
         this.minP = minP;
         this.maxP = maxP;
-        reactiveLimits = new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE);
+        this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
         this.regulatingTerminal = regulatingTerminal;
         this.ratedS = ratedS;
         int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
@@ -212,25 +212,17 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
 
     @Override
     public void setReactiveLimits(ReactiveLimits reactiveLimits) {
-        this.reactiveLimits = reactiveLimits;
+        this.reactiveLimits.setReactiveLimits(reactiveLimits);
     }
 
     @Override
     public ReactiveLimits getReactiveLimits() {
-        return reactiveLimits;
+        return reactiveLimits.getReactiveLimits();
     }
 
     @Override
     public <RL extends ReactiveLimits> RL getReactiveLimits(Class<RL> type) {
-        if (type == null) {
-            throw new IllegalArgumentException("type is null");
-        }
-        if (type.isInstance(reactiveLimits)) {
-            return type.cast(reactiveLimits);
-        } else {
-            throw new ValidationException(this, "incorrect reactive limits type "
-                    + type.getName() + ", expected " + reactiveLimits.getClass());
-        }
+        return reactiveLimits.getReactiveLimits(type);
     }
 
     @Override
