@@ -93,7 +93,7 @@ public class SecurityAnalysisRunnerBuilder implements ProjectFileBuilder<Securit
         // write parameters using default one
         SecurityAnalysisRunner.writeParameters(context.getStorage(), info, parameters);
 
-        context.getStorage().setEnable(info.getId(), true);
+        context.getStorage().enable(info.getId());
 
         context.getStorage().flush();
 

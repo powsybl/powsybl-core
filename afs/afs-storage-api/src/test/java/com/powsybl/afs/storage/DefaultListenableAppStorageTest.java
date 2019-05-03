@@ -114,7 +114,7 @@ public class DefaultListenableAppStorageTest {
         listenableStorage.flush();
         assertEquals(new NodeEventList(new TimeSeriesCleared("node1")), lastEventList);
 
-        listenableStorage.setEnable("node1", true);
+        listenableStorage.enable("node1");
         assertTrue(listenableStorage.isEnable("node1"));
 
     }

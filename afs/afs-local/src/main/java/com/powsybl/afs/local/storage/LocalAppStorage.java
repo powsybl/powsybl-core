@@ -194,7 +194,7 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
-    public void setEnable(String nodeId, boolean enable) {
+    public void enable(String nodeId) {
         throw new AssertionError();
     }
 

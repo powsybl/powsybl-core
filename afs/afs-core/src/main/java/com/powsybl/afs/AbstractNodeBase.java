@@ -63,9 +63,9 @@ public abstract class AbstractNodeBase<F> {
         storage.flush();
     }
 
-    public void setEnable(Boolean enable) {
-        storage.setEnable(info.getId(), enable);
-        info.setEnable(enable);
+    public void enable() {
+        storage.enable(info.getId());
+        info.enable();
         storage.flush();
     }
 

@@ -274,8 +274,8 @@ public class MapDbAppStorage implements AppStorage {
             rootNodeInfo = createNode(null, name, nodePseudoClass, "", 0, new NodeGenericMetadata());
             rootNodeVar.set(rootNodeInfo);
         }
-        this.setEnable(rootNodeInfo.getId(), true);
-        rootNodeInfo.setEnable(true);
+        this.enable(rootNodeInfo.getId());
+        rootNodeInfo.enable();
         return rootNodeInfo;
     }
 
@@ -303,11 +303,10 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     @Override
-    public void setEnable(String nodeId, boolean enable) {
+    public void enable(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
-        Objects.requireNonNull(enable);
         NodeInfo nodeInfo = getNodeInfo(nodeId);
-        nodeInfo.setEnable(enable);
+        nodeInfo.enable();
         nodeInfoMap.put(nodeUuid, nodeInfo);
     }
 

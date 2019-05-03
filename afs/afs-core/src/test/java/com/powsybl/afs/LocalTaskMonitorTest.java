@@ -35,16 +35,16 @@ public class LocalTaskMonitorTest extends AbstractProjectFileTest {
 
     @Test
     public void test() throws IOException {
-        afs.getStorage().setEnable(afs.getRootFolder().getId(), true);
+        afs.getStorage().enable(afs.getRootFolder().getId());
 
         Project test = afs.getRootFolder().createProject("test");
-        afs.getStorage().setEnable(test.getId(), true);
-        afs.getStorage().setEnable(test.getRootFolder().getId(), true);
+        afs.getStorage().enable(test.getId());
+        afs.getStorage().enable(test.getRootFolder().getId());
 
         FooFile foo = test.getRootFolder().fileBuilder(FooFileBuilder.class)
                 .withName("foo")
                 .build();
-        afs.getStorage().setEnable(foo.getId(), true);
+        afs.getStorage().enable(foo.getId());
 
         try (TaskMonitor monitor = new LocalTaskMonitor()) {
             Deque<TaskEvent> events = new ArrayDeque<>();

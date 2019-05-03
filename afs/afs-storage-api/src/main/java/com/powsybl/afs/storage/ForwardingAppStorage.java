@@ -63,8 +63,8 @@ public class ForwardingAppStorage implements AppStorage {
     }
 
     @Override
-    public void setEnable(String nodeId, boolean enable) {
-        storage.setEnable(nodeId, enable);
+    public void enable(String nodeId) {
+        storage.enable(nodeId);
     }
 
     @Override

@@ -142,8 +142,8 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
         // create network2.net
         NodeInfo caseNode2 = storage.createNode(rootFolderInfo.getId(), "network2", Case.PSEUDO_CLASS, "", Case.VERSION,
                 new NodeGenericMetadata().setString(Case.FORMAT, ImporterMock.FORMAT));
-        storage.setEnable(caseNode.getId(), true);
-        storage.setEnable(caseNode2.getId(), true);
+        storage.enable(caseNode.getId());
+        storage.enable(caseNode2.getId());
 
     }
 

@@ -54,7 +54,7 @@ public interface AppStorage extends AutoCloseable {
 
     void setDescription(String nodeId, String description);
 
-    void setEnable(String nodeId, boolean enable);
+    void enable(String nodeId);
 
     void updateModificationTime(String nodeId);
 

@@ -72,7 +72,7 @@ public class LocalAppStorageTest {
     @Test(expected = AssertionError.class)
     public void testSetEnable() {
         NodeInfo rootNodeInfo = storage.createRootNodeIfNotExists("mem", Folder.PSEUDO_CLASS);
-        storage.setEnable(rootNodeInfo.getId(), true);
+        storage.enable(rootNodeInfo.getId());
     }
 
     @Test

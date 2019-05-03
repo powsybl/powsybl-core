@@ -36,13 +36,13 @@ public class AppFileSystemToolTest extends AbstractToolTest {
             protected AppData createAppData(ToolRunningContext context) {
                 AppStorage storage = MapDbAppStorage.createMem("mem");
                 AppFileSystem afs = new AppFileSystem("mem", false, storage);
-                afs.getStorage().setEnable(afs.getRootFolder().getId(), true);
+                afs.getStorage().enable(afs.getRootFolder().getId());
                 AppData appData = new AppData(computationManager, computationManager, Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
                         Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
                 Project project1 = afs.getRootFolder().createProject("test_project1");
-                afs.getStorage().setEnable(project1.getId(), true);
+                afs.getStorage().enable(project1.getId());
                 Project project2 = afs.getRootFolder().createProject("test_project2");
-                afs.getStorage().setEnable(project2.getId(), true);
+                afs.getStorage().enable(project2.getId());
                 return appData;
             }
         };

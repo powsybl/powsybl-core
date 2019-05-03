@@ -113,8 +113,8 @@ public class NodeInfo {
         return enable;
     }
 
-    public NodeInfo setEnable(boolean enable) {
-        this.enable = enable;
+    public NodeInfo enable() {
+        this.enable = true;
         return this;
     }
 

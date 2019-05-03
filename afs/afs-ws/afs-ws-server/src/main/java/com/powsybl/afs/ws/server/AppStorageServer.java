@@ -196,10 +196,9 @@ public class AppStorageServer {
     @ApiOperation (value = "")
     @ApiResponses (value = {@ApiResponse(code = 200, message = ""), @ApiResponse(code = 500, message = "Error")})
     public Response setEnable(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
-                                   @ApiParam(value = "File system name") @PathParam("nodeId") String nodeId,
-                                   @ApiParam(value = "enable") boolean enable) {
+                                   @ApiParam(value = "File system name") @PathParam("nodeId") String nodeId) {
         AppStorage storage = appDataBean.getStorage(fileSystemName);
-        storage.setEnable(nodeId, enable);
+        storage.enable(nodeId);
         return Response.ok().build();
     }
 

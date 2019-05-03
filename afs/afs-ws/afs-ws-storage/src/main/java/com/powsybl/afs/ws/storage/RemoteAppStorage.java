@@ -228,14 +228,13 @@ public class RemoteAppStorage implements AppStorage {
     }
 
     @Override
-    public void setEnable(String nodeId, boolean enable) {
+    public void enable(String nodeId) {
         Objects.requireNonNull(nodeId);
-        Objects.requireNonNull(enable);
 
         // flush buffer to keep change order
         changeBuffer.flush();
 
-        LOGGER.debug("setDescription(fileSystemName={}, nodeId={}, enable={})", fileSystemName, nodeId, enable);
+        LOGGER.debug("enable(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/enable")
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
@@ -244,7 +243,7 @@ public class RemoteAppStorage implements AppStorage {
                 .header(HttpHeaders.AUTHORIZATION, token)
                 .header(HttpHeaders.CONTENT_ENCODING, "gzip")
                 .acceptEncoding("gzip")
-                .put(Entity.json(enable));
+                .put(Entity.json(true));
         try {
             checkOk(response);
         } finally {
