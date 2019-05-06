@@ -14,13 +14,13 @@ import java.nio.file.Path;
  */
 public interface ContingenciesProviderFactory {
 
-    <T extends ContingenciesProvider> T create();
+    ContingenciesProvider create();
 
-    default <T extends ContingenciesProvider> T create(Path contingenciesFile) {
+    default ContingenciesProvider create(Path contingenciesFile) {
         return create();
     }
 
-    default <T extends ContingenciesProvider> T create(InputStream data) {
+    default ContingenciesProvider create(InputStream data) {
         return create();
     }
 

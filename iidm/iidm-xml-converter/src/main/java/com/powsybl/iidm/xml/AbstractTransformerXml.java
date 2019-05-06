@@ -55,7 +55,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
             XmlUtil.writeDouble("targetV", rtc.getTargetV(), context.getWriter());
         }
         if (rtc.getRegulationTerminal() != null) {
-            writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
+            TerminalRefXml.writeTerminalRef(rtc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }
         if (!context.getOptions().isIncrementalConversion()) {
             for (int p = rtc.getLowTapPosition(); p <= rtc.getHighTapPosition(); p++) {
@@ -87,7 +87,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                     String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
                     String side = context.getReader().getAttributeValue(null, "side");
                     context.getEndTasks().add(() ->  {
-                        adder.setRegulationTerminal(readTerminalRef(terminal.getVoltageLevel().getSubstation().getNetwork(), id, side));
+                        adder.setRegulationTerminal(TerminalRefXml.readTerminalRef(terminal.getVoltageLevel().getSubstation().getNetwork(), id, side));
                         adder.add();
                     });
                     hasTerminalRef[0] = true;
@@ -136,7 +136,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
             context.getWriter().writeAttribute(ATTR_REGULATING, Boolean.toString(ptc.isRegulating()));
         }
         if (ptc.getRegulationTerminal() != null && !context.getOptions().isIncrementalConversion()) {
-            writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
+            TerminalRefXml.writeTerminalRef(ptc.getRegulationTerminal(), context, ELEM_TERMINAL_REF);
         }
         if (!context.getOptions().isIncrementalConversion()) {
             for (int p = ptc.getLowTapPosition(); p <= ptc.getHighTapPosition(); p++) {
@@ -168,7 +168,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                     String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
                     String side = context.getReader().getAttributeValue(null, "side");
                     context.getEndTasks().add(() ->  {
-                        adder.setRegulationTerminal(readTerminalRef(twt.getTerminal1().getVoltageLevel().getSubstation().getNetwork(), id, side));
+                        adder.setRegulationTerminal(TerminalRefXml.readTerminalRef(twt.getTerminal1().getVoltageLevel().getSubstation().getNetwork(), id, side));
                         adder.add();
                     });
                     hasTerminalRef[0] = true;
