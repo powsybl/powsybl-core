@@ -21,7 +21,7 @@ class SparseLUDecomposition implements LUDecomposition {
     private final String id;
 
     SparseLUDecomposition(SparseMatrix matrix) {
-        if (matrix.getM() != matrix.getN()) {
+        if (matrix.getRowCount() != matrix.getColumnCount()) {
             throw new IllegalArgumentException("matrix is not square");
         }
         this.id = UUID.randomUUID().toString();
@@ -49,7 +49,7 @@ class SparseLUDecomposition implements LUDecomposition {
      */
     @Override
     public void solve(DenseMatrix b) {
-        solve2(id, b.getM(), b.getN(), b.getBuffer());
+        solve2(id, b.getRowCount(), b.getColumnCount(), b.getBuffer());
     }
 
     /**
