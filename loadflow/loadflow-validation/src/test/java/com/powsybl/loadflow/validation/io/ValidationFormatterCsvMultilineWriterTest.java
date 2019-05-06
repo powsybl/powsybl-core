@@ -20,6 +20,8 @@ import com.powsybl.loadflow.validation.ValidationType;
  */
 public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidationFormatterWriterTest {
 
+    private final ValidationWriterFactory factory = new ValidationFormatterCsvMultilineWriterFactory();
+
     @Override
     protected String getFlowsContent() {
         return String.join(System.lineSeparator(),
@@ -216,7 +218,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
 
     @Override
     protected ValidationWriter getFlowsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults) {
-        return new ValidationFormatterCsvMultilineWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.FLOWS, compareResults);
+        return factory.create("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.FLOWS, compareResults);
     }
 
     @Override
@@ -351,7 +353,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
 
     @Override
     protected ValidationWriter getGeneratorsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults) {
-        return new ValidationFormatterCsvMultilineWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.GENERATORS, compareResults);
+        return factory.create("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.GENERATORS, compareResults);
     }
 
     @Override
@@ -376,6 +378,8 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", busId, "loadQ", String.format(Locale.getDefault(), "%g", loadQ)),
                            String.join(";", busId, "genP", String.format(Locale.getDefault(), "%g", genP)),
                            String.join(";", busId, "genQ", String.format(Locale.getDefault(), "%g", genQ)),
+                           String.join(";", busId, "batP", String.format(Locale.getDefault(), "%g", batP)),
+                           String.join(";", busId, "batQ", String.format(Locale.getDefault(), "%g", batQ)),
                            String.join(";", busId, "shuntP", String.format(Locale.getDefault(), "%g", shuntP)),
                            String.join(";", busId, "shuntQ", String.format(Locale.getDefault(), "%g", shuntQ)),
                            String.join(";", busId, "svcP", String.format(Locale.getDefault(), "%g", svcP)),
@@ -431,6 +435,8 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", busId, "loadQ", String.format(Locale.getDefault(), "%g", loadQ), String.format(Locale.getDefault(), "%g", loadQ)),
                            String.join(";", busId, "genP", String.format(Locale.getDefault(), "%g", genP), String.format(Locale.getDefault(), "%g", genP)),
                            String.join(";", busId, "genQ", String.format(Locale.getDefault(), "%g", genQ), String.format(Locale.getDefault(), "%g", genQ)),
+                           String.join(";", busId, "batP", String.format(Locale.getDefault(), "%g", batP), String.format(Locale.getDefault(), "%g", batP)),
+                           String.join(";", busId, "batQ", String.format(Locale.getDefault(), "%g", batQ), String.format(Locale.getDefault(), "%g", batQ)),
                            String.join(";", busId, "shuntP", String.format(Locale.getDefault(), "%g", shuntP), String.format(Locale.getDefault(), "%g", shuntP)),
                            String.join(";", busId, "shuntQ", String.format(Locale.getDefault(), "%g", shuntQ), String.format(Locale.getDefault(), "%g", shuntQ)),
                            String.join(";", busId, "svcP", String.format(Locale.getDefault(), "%g", svcP), String.format(Locale.getDefault(), "%g", svcP)),
@@ -460,6 +466,8 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", otherBusId, "loadQ", "", String.format(Locale.getDefault(), "%g", loadQ)),
                            String.join(";", otherBusId, "genP", "", String.format(Locale.getDefault(), "%g", genP)),
                            String.join(";", otherBusId, "genQ", "", String.format(Locale.getDefault(), "%g", genQ)),
+                           String.join(";", otherBusId, "batP", "", String.format(Locale.getDefault(), "%g", batP)),
+                           String.join(";", otherBusId, "batQ", "", String.format(Locale.getDefault(), "%g", batQ)),
                            String.join(";", otherBusId, "shuntP", "", String.format(Locale.getDefault(), "%g", shuntP)),
                            String.join(";", otherBusId, "shuntQ", "", String.format(Locale.getDefault(), "%g", shuntQ)),
                            String.join(";", otherBusId, "svcP", "", String.format(Locale.getDefault(), "%g", svcP)),
@@ -482,6 +490,8 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
                            String.join(";", busId, "loadQ", String.format(Locale.getDefault(), "%g", loadQ), ""),
                            String.join(";", busId, "genP", String.format(Locale.getDefault(), "%g", genP), ""),
                            String.join(";", busId, "genQ", String.format(Locale.getDefault(), "%g", genQ), ""),
+                           String.join(";", busId, "batP", String.format(Locale.getDefault(), "%g", batP), ""),
+                           String.join(";", busId, "batQ", String.format(Locale.getDefault(), "%g", batQ), ""),
                            String.join(";", busId, "shuntP", String.format(Locale.getDefault(), "%g", shuntP), ""),
                            String.join(";", busId, "shuntQ", String.format(Locale.getDefault(), "%g", shuntQ), ""),
                            String.join(";", busId, "svcP", String.format(Locale.getDefault(), "%g", svcP), ""),
@@ -502,7 +512,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
 
     @Override
     protected ValidationWriter getBusesValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults) {
-        return new ValidationFormatterCsvMultilineWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.BUSES, compareResults);
+        return factory.create("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.BUSES, compareResults);
     }
 
     @Override
@@ -621,7 +631,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
 
     @Override
     protected ValidationWriter getSvcsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults) {
-        return new ValidationFormatterCsvMultilineWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.SVCS, compareResults);
+        return factory.create("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.SVCS, compareResults);
     }
 
     @Override
@@ -724,7 +734,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
 
     @Override
     protected ValidationWriter getShuntsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults) {
-        return new ValidationFormatterCsvMultilineWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.SHUNTS, compareResults);
+        return factory.create("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.SHUNTS, compareResults);
     }
 
     @Override
@@ -843,7 +853,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
 
     @Override
     protected ValidationWriter getTwtsValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults) {
-        return new ValidationFormatterCsvMultilineWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.TWTS, compareResults);
+        return factory.create("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.TWTS, compareResults);
     }
 
     @Override
@@ -1150,7 +1160,7 @@ public class ValidationFormatterCsvMultilineWriterTest extends AbstractValidatio
 
     @Override
     protected ValidationWriter getTwts3wValidationFormatterCsvWriter(TableFormatterConfig config, Writer writer, boolean verbose, boolean compareResults) {
-        return new ValidationFormatterCsvMultilineWriter("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.TWTS3W, compareResults);
+        return factory.create("test", CsvTableFormatterFactory.class, config, writer, verbose, ValidationType.TWTS3W, compareResults);
     }
 
 }

@@ -84,6 +84,8 @@ public abstract class AbstractValidationFormatterWriterTest {
     protected final double loadQ = 174.38244;
     protected final double genP = -2020;
     protected final double genQ = 91.54;
+    protected final double batP = -2019;
+    protected final double batQ = 92.54;
     protected final double shuntP = 0;
     protected final double shuntQ = 175.8437;
     protected final double svcP = 0;
@@ -301,11 +303,11 @@ public abstract class AbstractValidationFormatterWriterTest {
         Writer writer = new StringWriter();
         TableFormatterConfig config = new TableFormatterConfig(Locale.getDefault(), ';', "inv", true, true);
         try (ValidationWriter busesWriter = getBusesValidationFormatterCsvWriter(config, writer, verbose, compareResults)) {
-            busesWriter.write(busId1, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+            busesWriter.write(busId1, incomingP, incomingQ, loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
                               lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated);
             busesWriter.setValidationCompleted();
             if (compareResults) {
-                busesWriter.write(busId2, incomingP, incomingQ, loadP, loadQ, genP, genQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+                busesWriter.write(busId2, incomingP, incomingQ, loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
                                   lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, validated);
                 busesWriter.setValidationCompleted();
             }

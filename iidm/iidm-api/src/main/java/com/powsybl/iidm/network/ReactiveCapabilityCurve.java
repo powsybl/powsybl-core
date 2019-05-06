@@ -10,10 +10,10 @@ import java.util.Collection;
 
 /**
  * A reactive capability curve to define reactive limits of a <code>Generator<code>
- * that depends of the active power.
+ * or <code>Battery<code> that depends of the active power.
  * <p>
  * This curve is made of <code>Point</code> and each point defines the minimum
- * and maximum reactive limit for a given active power of the generator.
+ * and maximum reactive limit for a given active power of the generator or battery.
  * <p>
  * The following graph shows a 4 points reactive capability curve. On the X-axis
  * is the active power in MW, on the Y-axis the minimal and maximal reactive
@@ -32,7 +32,7 @@ import java.util.Collection;
  * |
  *</pre>
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- * @see Generator
+ * @see Generator,Battery
  */
 public interface ReactiveCapabilityCurve extends ReactiveLimits {
 
@@ -65,7 +65,7 @@ public interface ReactiveCapabilityCurve extends ReactiveLimits {
     double getMinP();
 
     /**
-     * Get the active power maximim value of the curve.
+     * Get the active power maximum value of the curve.
      */
     double getMaxP();
 

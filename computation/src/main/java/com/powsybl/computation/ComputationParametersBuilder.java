@@ -21,8 +21,6 @@ public class ComputationParametersBuilder {
 
     private final Map<String, Long> deadlineMap = new HashMap<>();
 
-    private final Map<String, String> qosMap = new HashMap<>();
-
     public ComputationParametersBuilder() {
     }
 
@@ -40,14 +38,7 @@ public class ComputationParametersBuilder {
         return this;
     }
 
-    public ComputationParametersBuilder setQos(String cmdId, String qos) {
-        Objects.requireNonNull(cmdId);
-        Objects.requireNonNull(qos);
-        qosMap.put(cmdId, qos);
-        return this;
-    }
-
     public ComputationParameters build() {
-        return new ComputationParametersImpl(timeoutMap, deadlineMap, qosMap);
+        return new ComputationParametersImpl(timeoutMap, deadlineMap);
     }
 }

@@ -809,6 +809,26 @@ public interface VoltageLevel extends Container<VoltageLevel> {
     int getGeneratorCount();
 
     /**
+     * Get a builder to create a new battery.
+     */
+    BatteryAdder newBattery();
+
+    /**
+     * Get batteries.
+     */
+    Iterable<Battery> getBatteries();
+
+    /**
+     * Get batteries.
+     */
+    Stream<Battery> getBatteryStream();
+
+    /**
+     * Get battery count.
+     */
+    int getBatteryCount();
+
+    /**
      * Get a builder to create a new load.
      */
     LoadAdder newLoad();
@@ -837,30 +857,6 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      * Get load count.
      */
     int getLoadCount();
-
-    /**
-     * @deprecated Use {@link #newShuntCompensator()} instead.
-     */
-    @Deprecated
-    default ShuntCompensatorAdder newShunt() {
-        return newShuntCompensator();
-    }
-
-    /**
-     * @deprecated Use {@link #getShuntCompensators()} instead.
-     */
-    @Deprecated
-    default Iterable<ShuntCompensator> getShunts() {
-        return getShuntCompensators();
-    }
-
-    /**
-     * @deprecated Use {@link #getShuntCompensatorStream()} instead.
-     */
-    @Deprecated
-    default Stream<ShuntCompensator> getShuntStream() {
-        return getShuntCompensatorStream();
-    }
 
     ShuntCompensatorAdder newShuntCompensator();
 

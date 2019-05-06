@@ -323,4 +323,65 @@ public final class EurostagTutorialExample1Factory {
         return network;
     }
 
+    public static Network createWithMultipleConnectedComponents() {
+        Network network = create();
+
+        Substation p3 = network.newSubstation()
+                .setId("P3")
+                .setCountry(Country.FR)
+                .add();
+
+        VoltageLevel vlhv3 = p3.newVoltageLevel()
+                .setId("VLHV3")
+                .setNominalV(24.0)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+
+        Bus nconnected = vlhv3.getBusBreakerView().newBus().setId("N1").add();
+        Bus ndisconnected = vlhv3.getBusBreakerView().newBus().setId("N2").add();
+        Bus nshunt = vlhv3.getBusBreakerView().newBus().setId("NSHUNT").add();
+
+        vlhv3.newLoad().setId("LOAD2")
+                .setBus(nconnected.getId())
+                .setConnectableBus(nconnected.getId())
+                .setP0(600.0)
+                .setQ0(200.0)
+                .add();
+        vlhv3.newLoad().setId("LOAD3")
+                .setConnectableBus(ndisconnected.getId())
+                .setP0(600.0)
+                .setQ0(200.0)
+                .add();
+
+        vlhv3.newGenerator().setId("GEN2")
+                .setBus(nconnected.getId())
+                .setConnectableBus(nconnected.getId())
+                .setMinP(-9999.99)
+                .setMaxP(9999.99)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(24.5)
+                .setTargetP(607.0)
+                .setTargetQ(301.0)
+                .add();
+        vlhv3.newGenerator().setId("GEN3")
+                .setConnectableBus(ndisconnected.getId())
+                .setMinP(-9999.99)
+                .setMaxP(9999.99)
+                .setVoltageRegulatorOn(true)
+                .setTargetV(24.5)
+                .setTargetP(607.0)
+                .setTargetQ(301.0)
+                .add();
+
+        vlhv3.newShuntCompensator()
+                .setId("SHUNT")
+                .setConnectableBus(nshunt.getId())
+                .setMaximumSectionCount(1)
+                .setCurrentSectionCount(1)
+                .setbPerSection(1e-5)
+                .add();
+
+        return network;
+    }
+
 }

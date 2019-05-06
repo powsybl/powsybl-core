@@ -18,8 +18,10 @@ import java.util.List;
 import java.util.Properties;
 import java.util.function.Consumer;
 
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import org.mockito.Mockito;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -180,6 +182,7 @@ public class ConversionTester {
     private void exportXiidm(String name, String impl, Network expected, Network actual) throws IOException {
         String name1 = name.replace('/', '-');
         Path path = Files.createTempDirectory("temp-conversion-" + name1 + "-" + impl + "-");
+
         XMLExporter xmlExporter = new XMLExporter(Mockito.mock(PlatformConfig.class));
         // Last component of the path is the name for the exported XML
         if (expected != null) {
@@ -213,11 +216,12 @@ public class ConversionTester {
         // Precision required on bus balances (MVA)
         double threshold = 0.01;
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
-            ValidationConfig config = loadFlowValidationConfig(fs, threshold);
+            ValidationConfig validationConfig = loadFlowValidationConfig(fs, threshold);
+            TableFormatterConfig formatterConfig = new TableFormatterConfig();
             Path working = Files.createDirectories(fs.getPath("lf-validation"));
 
-            computeMissingFlows(network, config.getLoadFlowParameters());
-            assertTrue(ValidationType.BUSES.check(network, config, working));
+            computeMissingFlows(network, validationConfig.getLoadFlowParameters());
+            assertTrue(ValidationType.BUSES.check(network, validationConfig, formatterConfig, working));
         }
     }
 

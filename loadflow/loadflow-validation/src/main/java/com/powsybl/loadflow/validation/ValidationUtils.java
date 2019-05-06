@@ -10,6 +10,7 @@ import java.io.Writer;
 import java.util.Objects;
 
 import com.powsybl.commons.config.ConfigurationException;
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 import com.powsybl.loadflow.validation.io.ValidationWriterFactory;
 
@@ -26,13 +27,18 @@ public final class ValidationUtils {
     }
 
     public static ValidationWriter createValidationWriter(String id, ValidationConfig config, Writer writer, ValidationType validationType) {
+        return createValidationWriter(id, config, TableFormatterConfig.load(), writer, validationType);
+    }
+
+    public static ValidationWriter createValidationWriter(String id, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer, ValidationType validationType) {
         Objects.requireNonNull(id);
-        Objects.requireNonNull(config);
+        Objects.requireNonNull(validationConfig);
+        Objects.requireNonNull(formatterConfig);
         Objects.requireNonNull(writer);
         Objects.requireNonNull(validationType);
         try {
-            ValidationWriterFactory factory = config.getValidationOutputWriter().getValidationWriterFactory().newInstance();
-            return factory.create(id, config.getTableFormatterFactory(), writer, config.isVerbose(), validationType, config.isCompareResults());
+            ValidationWriterFactory factory = validationConfig.getValidationOutputWriter().getValidationWriterFactory().newInstance();
+            return factory.create(id, validationConfig.getTableFormatterFactory(), formatterConfig, writer, validationConfig.isVerbose(), validationType, validationConfig.isCompareResults());
         } catch (InstantiationException | IllegalAccessException e) {
             throw new ConfigurationException(e);
         }
