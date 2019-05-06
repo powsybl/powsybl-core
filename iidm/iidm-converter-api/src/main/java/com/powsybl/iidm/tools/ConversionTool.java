@@ -41,8 +41,8 @@ public class ConversionTool implements Tool {
     private static final String OUTPUT_FILE = "output-file";
     private static final String GROOVY_SCRIPT = "groovy-script";
 
-    protected ImportConfig createImportConfig() {
-        return ImportConfig.load();
+    protected ImportConfig createImportConfig(CommandLine line) {
+        return ConversionToolUtils.createImportConfig(line);
     }
 
     @Override
@@ -85,6 +85,7 @@ public class ConversionTool implements Tool {
                         .argName("OUTPUT_FILE")
                         .required()
                         .build());
+                options.addOption(createSkipPostProcOption());
                 options.addOption(createImportParametersFileOption());
                 options.addOption(createImportParameterOption());
                 options.addOption(createExportParametersFileOption());
@@ -116,7 +117,7 @@ public class ConversionTool implements Tool {
         }
 
         Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        Network network = Importers.loadNetwork(context.getFileSystem().getPath(inputFile), context.getShortTimeExecutionComputationManager(), createImportConfig(), inputParams);
+        Network network = Importers.loadNetwork(context.getFileSystem().getPath(inputFile), context.getShortTimeExecutionComputationManager(), createImportConfig(line), inputParams);
 
         if (line.hasOption(GROOVY_SCRIPT)) {
             Path groovyScript = context.getFileSystem().getPath(line.getOptionValue(GROOVY_SCRIPT));

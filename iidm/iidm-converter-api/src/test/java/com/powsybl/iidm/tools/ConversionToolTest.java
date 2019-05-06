@@ -13,6 +13,7 @@ import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.Tool;
 import com.powsybl.iidm.import_.ImportConfig;
+import org.apache.commons.cli.CommandLine;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,10 +30,9 @@ public class ConversionToolTest extends AbstractToolTest {
 
     private ConversionTool createConversionTool() {
         return new ConversionTool() {
-
             @Override
-            protected ImportConfig createImportConfig() {
-                return ImportConfig.load(platformConfig);
+            protected ImportConfig createImportConfig(CommandLine line) {
+                return ConversionToolUtils.createImportConfig(line, ImportConfig.load(platformConfig));
             }
         };
     }
@@ -61,7 +61,7 @@ public class ConversionToolTest extends AbstractToolTest {
     @Override
     public void assertCommand() {
         Tool tool = createConversionTool();
-        assertCommand(tool.getCommand(), "convert-network", 8, 3);
+        assertCommand(tool.getCommand(), "convert-network", 9, 3);
         assertOption(tool.getCommand().getOptions(), "input-file", true, true);
         assertOption(tool.getCommand().getOptions(), "output-file", true, true);
         assertOption(tool.getCommand().getOptions(), "output-format", true, true);
@@ -70,6 +70,7 @@ public class ConversionToolTest extends AbstractToolTest {
         assertOption(tool.getCommand().getOptions(), "I", false, true);
         assertOption(tool.getCommand().getOptions(), "import-parameters", false, true);
         assertOption(tool.getCommand().getOptions(), "E", false, true);
+        assertOption(tool.getCommand().getOptions(), "skip-postproc", false, false);
     }
 
     @Test
