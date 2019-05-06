@@ -9,19 +9,16 @@ package com.powsybl.iidm.import_;
 import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class ImportConfig {
 
-    private static final List<String> DEFAULT_POST_PROCESSORS = Collections.emptyList();
+    private static final List<String> DEFAULT_POST_PROCESSORS = new ArrayList<>();
 
-    private final List<String> postProcessors;
+    private List<String> postProcessors = new ArrayList<>();
 
     public static ImportConfig load() {
         return load(PlatformConfig.defaultConfig());
@@ -40,11 +37,10 @@ public class ImportConfig {
     }
 
     public ImportConfig() {
-        this(Collections.emptyList());
     }
 
     public ImportConfig(String... postProcessors) {
-        this(Arrays.asList(postProcessors));
+        this(new ArrayList<>(Arrays.asList(postProcessors)));
     }
 
     public ImportConfig(List<String> postProcessors) {
@@ -53,6 +49,25 @@ public class ImportConfig {
 
     public List<String> getPostProcessors() {
         return postProcessors;
+    }
+
+    public ImportConfig setPostProcessors(List<String> postProcessors) {
+        this.postProcessors = postProcessors;
+        return this;
+    }
+
+    public ImportConfig setPostProcessors(String... postProcessors) {
+        return setPostProcessors(new ArrayList<>(Arrays.asList(postProcessors)));
+    }
+
+    public ImportConfig addPostProcessor(String postProcessor) {
+        this.postProcessors.add(postProcessor);
+        return this;
+    }
+
+    public ImportConfig removePostProcessor(String postProcessor) {
+        this.postProcessors.remove(postProcessor);
+        return this;
     }
 
     @Override
