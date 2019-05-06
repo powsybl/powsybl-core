@@ -112,10 +112,10 @@ public class CgmesConformity1ModifiedConversionTest {
         Network network = new CgmesImport(platformConfig)
                 .importData(catalogModified.microGridBaseCaseBEInvalidRegulatingControl().dataSource(), null);
 
-        Generator generator = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0");
-        assertFalse(generator.isVoltageRegulatorOn());
-        assertTrue(Double.isNaN(generator.getTargetV()));
-        assertSame(generator.getTerminal(), generator.getRegulatingTerminal());
+        Generator generator1 = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0");
+        assertFalse(generator1.isVoltageRegulatorOn());
+        assertTrue(Double.isNaN(generator1.getTargetV()));
+        assertSame(generator1.getTerminal(), generator1.getRegulatingTerminal());
 
         RatioTapChanger rtc = network.getTwoWindingsTransformer("_e482b89a-fa84-4ea9-8e70-a83d44790957").getRatioTapChanger();
         assertNotNull(rtc);
@@ -130,6 +130,9 @@ public class CgmesConformity1ModifiedConversionTest {
         assertTrue(Double.isNaN(ptc.getRegulationValue()));
         assertFalse(ptc.isRegulating());
         assertNull(ptc.getRegulationTerminal());
+
+        Generator generator2 = network.getGenerator("_550ebe0d-f2b2-48c1-991f-cebea43a21aa");
+        assertEquals(generator2.getTerminal().getVoltageLevel().getNominalV(), generator2.getTargetV(), 0.0);
     }
 
     @Test
