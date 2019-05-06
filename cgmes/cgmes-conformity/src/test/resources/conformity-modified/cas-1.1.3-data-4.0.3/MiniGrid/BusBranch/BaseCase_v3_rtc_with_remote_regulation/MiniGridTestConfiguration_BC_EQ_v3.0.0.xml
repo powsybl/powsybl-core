@@ -35,7 +35,7 @@
 
   <cim:BusbarSection rdf:ID="FICTIVE_BBS2">
     <cim:IdentifiedObject.name>Fict_BBS_2</cim:IdentifiedObject.name>
-    <cim:Equipment.EquipmentContainer rdf:resource="#_974565b1-ac55-4901-9f48-afc7ef5486df"/>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_93778e52-3fd5-456d-8b10-987c3e6bc47e"/>
     <cim:BusbarSection.ipMax>0e+000</cim:BusbarSection.ipMax>
   </cim:BusbarSection>
   <cim:Terminal rdf:ID="BBS2_TERMINAL">
