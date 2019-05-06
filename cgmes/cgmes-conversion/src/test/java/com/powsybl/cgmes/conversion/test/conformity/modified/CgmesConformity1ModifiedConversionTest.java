@@ -14,10 +14,7 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 
 import com.powsybl.iidm.network.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
@@ -51,9 +48,9 @@ public class CgmesConformity1ModifiedConversionTest {
     @Test
     public void microBERatioPhaseTabularTest() {
         Network network = new CgmesImport(platformConfig)
-            .importData(catalogModified.microGridBaseCaseBERatioPhaseTapChangerTabular().dataSource(), null);
+                .importData(catalogModified.microGridBaseCaseBERatioPhaseTapChangerTabular().dataSource(), null);
         RatioTapChanger rtc = network.getTwoWindingsTransformer("_b94318f6-6d24-4f56-96b9-df2531ad6543")
-            .getRatioTapChanger();
+                .getRatioTapChanger();
         assertEquals(6, rtc.getStepCount());
         // ratio is missing for step 3
         // ratio is defined explicitly as 1.0 for step 4
@@ -65,7 +62,7 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(0.0, rtc.getStep(6).getX(), 0);
 
         PhaseTapChanger ptc = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0")
-            .getPhaseTapChanger();
+                .getPhaseTapChanger();
         // r,x not defined for step 1
         // ratio not defined for any step
         assertEquals(4, ptc.getStepCount());
@@ -79,7 +76,7 @@ public class CgmesConformity1ModifiedConversionTest {
     @Test
     public void microBEReactiveCapabilityCurve() {
         Network network = new CgmesImport(platformConfig)
-            .importData(catalogModified.microGridBaseCaseBEReactiveCapabilityCurve().dataSource(), null);
+                .importData(catalogModified.microGridBaseCaseBEReactiveCapabilityCurve().dataSource(), null);
         ReactiveLimits rl = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0").getReactiveLimits();
         assertEquals(ReactiveLimitsKind.CURVE, rl.getKind());
         ReactiveCapabilityCurve rcc = (ReactiveCapabilityCurve) rl;
@@ -160,13 +157,25 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void miniBusBranchRtcRemoteRegulation() {
+        Network network = new CgmesImport(platformConfig).importData(catalogModified.miniBusBranchRtcRemoteRegulation().dataSource(), null);
+
+        TwoWindingsTransformer twt2 = network.getTwoWindingsTransformer("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
+        RatioTapChanger rtc = twt2.getRatioTapChanger();
+        assertNotNull(rtc);
+        Terminal regulatingTerminal = rtc.getRegulationTerminal();
+        assertNotNull(regulatingTerminal);
+        assertSame(twt2.getTerminal1().getBusBreakerView().getBus(), regulatingTerminal.getBusBreakerView().getBus());
+    }
+
+    @Test
     public void miniNodeBreakerTestLimits() {
         // Original test case
         Network network0 = new CgmesImport(platformConfig).importData(catalog.miniNodeBreaker().dataSource(), null);
         // The case has been manually modified to have OperationalLimits
         // defined for Equipment
         Network network1 = new CgmesImport(platformConfig)
-            .importData(catalogModified.miniNodeBreakerLimitsforEquipment().dataSource(), null);
+                .importData(catalogModified.miniNodeBreakerLimitsforEquipment().dataSource(), null);
 
         double tol = 0;
 

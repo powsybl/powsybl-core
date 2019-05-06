@@ -134,6 +134,7 @@ public class RegulatingControlMapping {
         } else {
             adder.setRegulationTerminal(defaultTerminal);
             if (!context.terminalMapping().areAssociated(p.getId(TERMINAL), control.topologicalNode)) {
+                control.idEq = p.getId("RatioTapChanger");
                 return;
             }
         }
@@ -191,6 +192,7 @@ public class RegulatingControlMapping {
         } else {
             adder.setRegulationTerminal(defaultTerminal);
             if (!context.terminalMapping().areAssociated(p.getId(TERMINAL), control.topologicalNode)) {
+                control.idEq = p.getId("PhaseTapChanger");
                 return;
             }
         }
@@ -204,16 +206,18 @@ public class RegulatingControlMapping {
 
     private boolean setRemoteRegulatingTerminal(Map.Entry<String, RegulatingControl> entry) {
         RegulatingControl control = entry.getValue();
-        Identifiable i = control.idEq != null ? context.network().getIdentifiable(control.idEq) : null;
-        if (i == null) {
-            String tc = entry.getKey();
-            if (context.tapChangerTransformers().transformer2(tc) != null) {
-                return setRemoteRegulatingTerminal(tc, control, context.tapChangerTransformers().transformer2(tc));
-            } else if (context.tapChangerTransformers().transformer3(tc) != null) {
-                return setRemoteRegulatingTerminal(tc, control, context.tapChangerTransformers().transformer3(tc));
+        if (control.idEq != null) {
+            Identifiable i = context.network().getIdentifiable(control.idEq);
+            if (i == null) {
+                String tc = control.idEq;
+                if (context.tapChangerTransformers().transformer2(tc) != null) {
+                    return setRemoteRegulatingTerminal(tc, control, context.tapChangerTransformers().transformer2(tc));
+                } else if (context.tapChangerTransformers().transformer3(tc) != null) {
+                    return setRemoteRegulatingTerminal(tc, control, context.tapChangerTransformers().transformer3(tc));
+                }
+            } else if (i instanceof Generator) {
+                return setRemoteRegulatingTerminal(control, (Generator) i);
             }
-        } else if (i instanceof Generator) {
-            return setRemoteRegulatingTerminal(control, (Generator) i);
         }
         return false;
     }
