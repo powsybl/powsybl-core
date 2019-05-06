@@ -18,7 +18,7 @@
     <cim:Equipment.EquipmentContainer rdf:resource="#_974565b1-ac55-4901-9f48-afc7ef5486df"/>
     <cim:BusbarSection.ipMax>0e+000</cim:BusbarSection.ipMax>
   </cim:BusbarSection>
-  <cim:Terminal rdf:ID="BBS_TERMINAL">
+  <cim:Terminal rdf:ID="BBS1_TERMINAL">
     <cim:IdentifiedObject.name>BE-Busbar_1_Busbar_Section</cim:IdentifiedObject.name>
     <entsoe:IdentifiedObject.shortName>BB</entsoe:IdentifiedObject.shortName>
     <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
@@ -30,8 +30,42 @@
     <cim:IdentifiedObject.name>RTC_ADDED</cim:IdentifiedObject.name>
     <entsoe:IdentifiedObject.shortName>RTC_ADDED</entsoe:IdentifiedObject.shortName>
     <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.voltage"/>
-    <cim:RegulatingControl.Terminal rdf:resource="#BBS_TERMINAL"/>
+    <cim:RegulatingControl.Terminal rdf:resource="#BBS1_TERMINAL"/>
   </cim:TapChangerControl>
+
+  <cim:BusbarSection rdf:ID="FICTIVE_BBS2">
+    <cim:IdentifiedObject.name>Fict_BBS_2</cim:IdentifiedObject.name>
+    <cim:Equipment.EquipmentContainer rdf:resource="#_974565b1-ac55-4901-9f48-afc7ef5486df"/>
+    <cim:BusbarSection.ipMax>0e+000</cim:BusbarSection.ipMax>
+  </cim:BusbarSection>
+  <cim:Terminal rdf:ID="BBS2_TERMINAL">
+    <cim:IdentifiedObject.name>BE-Busbar_1_Busbar_Section</cim:IdentifiedObject.name>
+    <entsoe:IdentifiedObject.shortName>BB</entsoe:IdentifiedObject.shortName>
+    <cim:ACDCTerminal.sequenceNumber>1</cim:ACDCTerminal.sequenceNumber>
+    <cim:Terminal.phases rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#PhaseCode.ABC"/>
+    <cim:Terminal.ConductingEquipment rdf:resource="#FICTIVE_BBS2"/>
+    <cim:IdentifiedObject.description>Busbar Section</cim:IdentifiedObject.description>
+  </cim:Terminal>
+  <cim:TapChangerControl rdf:ID="RATIO_TAP_CONTROL_T3">
+    <cim:IdentifiedObject.name>RTC_T3_ADDED</cim:IdentifiedObject.name>
+    <entsoe:IdentifiedObject.shortName>RTC_T3_ADDED</entsoe:IdentifiedObject.shortName>
+    <cim:RegulatingControl.mode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#RegulatingControlModeKind.voltage"/>
+    <cim:RegulatingControl.Terminal rdf:resource="#BBS2_TERMINAL"/>
+  </cim:TapChangerControl>
+  <cim:RatioTapChanger rdf:ID="RATIO_TAP_CHANGER_T3">
+    <cim:IdentifiedObject.name>BE-TR3_3</cim:IdentifiedObject.name>
+    <entsoe:IdentifiedObject.shortName>BE-T_3</entsoe:IdentifiedObject.shortName>
+    <cim:TapChanger.neutralU>120.000000</cim:TapChanger.neutralU>
+    <cim:TapChanger.lowStep>1</cim:TapChanger.lowStep>
+    <cim:TapChanger.highStep>33</cim:TapChanger.highStep>
+    <cim:TapChanger.neutralStep>17</cim:TapChanger.neutralStep>
+    <cim:TapChanger.normalStep>17</cim:TapChanger.normalStep>
+    <cim:RatioTapChanger.stepVoltageIncrement>0.625000</cim:RatioTapChanger.stepVoltageIncrement>
+    <cim:TapChanger.ltcFlag>true</cim:TapChanger.ltcFlag>
+    <cim:TapChanger.TapChangerControl rdf:resource="#RATIO_TAP_CONTROL_T3"/>
+    <cim:RatioTapChanger.tculControlMode rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#TransformerControlMode.volt"/>
+    <cim:RatioTapChanger.TransformerEnd rdf:resource="#_3b446af6-630a-46ee-bc76-d5543509b355"/>
+  </cim:RatioTapChanger>
 
     <!-- ADDED COMPONENTS - END !-->
 

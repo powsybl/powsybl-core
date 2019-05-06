@@ -239,6 +239,13 @@
     <cim:RegulatingControl.targetValue>21.0</cim:RegulatingControl.targetValue>
     <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.k" />
   </cim:RegulatingControl>
+  <cim:RegulatingControl rdf:about="#RATIO_TAP_CONTROL_T3">
+    <cim:RegulatingControl.discrete>false</cim:RegulatingControl.discrete>
+    <cim:RegulatingControl.enabled>true</cim:RegulatingControl.enabled>
+    <cim:RegulatingControl.targetDeadband>0</cim:RegulatingControl.targetDeadband>
+    <cim:RegulatingControl.targetValue>30.0</cim:RegulatingControl.targetValue>
+    <cim:RegulatingControl.targetValueUnitMultiplier rdf:resource="http://iec.ch/TC57/2013/CIM-schema-cim16#UnitMultiplier.k" />
+  </cim:RegulatingControl>
 
   <!-- ADDED COMPONENT - END !-->
 

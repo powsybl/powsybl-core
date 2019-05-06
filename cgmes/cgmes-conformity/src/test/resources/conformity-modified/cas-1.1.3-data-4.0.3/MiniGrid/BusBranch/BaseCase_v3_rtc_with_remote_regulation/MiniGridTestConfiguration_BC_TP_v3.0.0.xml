@@ -139,8 +139,11 @@
 
   <!-- ADDED COMPONENT !-->
 
-  <cim:Terminal rdf:about="#BBS_TERMINAL">
+  <cim:Terminal rdf:about="#BBS1_TERMINAL">
     <cim:Terminal.TopologicalNode rdf:resource="#_c0adab49-d445-4609-a1a3-ebe4ef297cc8" />
+  </cim:Terminal>
+  <cim:Terminal rdf:about="#BBS2_TERMINAL">
+    <cim:Terminal.TopologicalNode rdf:resource="#_03163ede-7eec-457f-8641-365982227d7c" />
   </cim:Terminal>
 
   <!-- ADDED COMPONENT - END !-->
