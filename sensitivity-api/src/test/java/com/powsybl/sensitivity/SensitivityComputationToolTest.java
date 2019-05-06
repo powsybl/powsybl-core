@@ -6,8 +6,11 @@
  */
 package com.powsybl.sensitivity;
 
+import com.powsybl.iidm.import_.ImportConfig;
+import com.powsybl.iidm.tools.ConversionToolUtils;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.Tool;
+import org.apache.commons.cli.CommandLine;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -21,7 +24,12 @@ public class SensitivityComputationToolTest extends AbstractToolTest {
 
     private static final String COMMAND_NAME = "sensitivity-computation";
 
-    private final SensitivityComputationTool tool = new SensitivityComputationTool();
+    private final SensitivityComputationTool tool = new SensitivityComputationTool() {
+        @Override
+        protected ImportConfig createImportConfig(CommandLine line) {
+            return ConversionToolUtils.createImportConfig(line, new ImportConfig());
+        }
+    };
 
     @Override
     @Before

@@ -34,9 +34,7 @@ import java.io.Writer;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParameterOption;
-import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParametersFileOption;
-import static com.powsybl.iidm.tools.ConversionToolUtils.readProperties;
+import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -47,8 +45,11 @@ public class SensitivityComputationTool implements Tool {
     private static final String CASE_FILE_OPTION = "case-file";
     private static final String OUTPUT_FILE_OPTION = "output-file";
     private static final String OUTPUT_FORMAT_OPTION = "output-format";
-    private static final String SKIP_POSTPROC_OPTION = "skip-postproc";
     private static final String FACTORS_FILE_OPTION = "factors-file";
+
+    protected ImportConfig createImportConfig(CommandLine line) {
+        return ConversionToolUtils.createImportConfig(line);
+    }
 
     @Override
     public Command getCommand() {
@@ -93,9 +94,7 @@ public class SensitivityComputationTool implements Tool {
                         .hasArg()
                         .argName("FORMAT")
                         .build());
-                options.addOption(Option.builder().longOpt(SKIP_POSTPROC_OPTION)
-                        .desc("skip network importer post processors (when configured)")
-                        .build());
+                options.addOption(createSkipPostProcOption());
                 options.addOption(createImportParametersFileOption());
                 options.addOption(createImportParameterOption());
                 return options;
@@ -111,12 +110,11 @@ public class SensitivityComputationTool implements Tool {
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));
-        boolean skipPostProc = line.hasOption(SKIP_POSTPROC_OPTION);
         Path outputFile = null;
         String format = null;
         ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
 
-        ImportConfig importConfig = (!skipPostProc) ? ImportConfig.load() : new ImportConfig();
+        ImportConfig importConfig = createImportConfig(line);
         // process a single network: output-file/output-format options available
         if (line.hasOption(OUTPUT_FILE_OPTION)) {
             outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE_OPTION));
