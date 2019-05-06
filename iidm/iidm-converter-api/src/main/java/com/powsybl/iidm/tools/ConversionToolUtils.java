@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.tools;
 
+import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
@@ -23,6 +24,7 @@ public final class ConversionToolUtils {
 
     private static final String IMPORT_PARAMETERS = "import-parameters";
     private static final String EXPORT_PARAMETERS = "export-parameters";
+    private static final String SKIP_POSTPROC = "skip-postproc";
 
     public enum OptionType {
         IMPORT(IMPORT_PARAMETERS, 'I'),
@@ -98,6 +100,20 @@ public final class ConversionToolUtils {
         properties.putAll(line.getOptionProperties(Character.toString(optionType.getShortOpt())));
 
         return properties;
+    }
+
+    public static Option createSkipPostProcOption() {
+        return Option.builder().longOpt(SKIP_POSTPROC)
+                .desc("skip network importer post processors (when configured)")
+                .build();
+    }
+
+    public static ImportConfig createImportConfig(CommandLine line) {
+        ImportConfig importConfig = ImportConfig.load();
+        if (line.hasOption(SKIP_POSTPROC)) {
+            importConfig.setPostProcessors();
+        }
+        return importConfig;
     }
 
     private ConversionToolUtils() {
