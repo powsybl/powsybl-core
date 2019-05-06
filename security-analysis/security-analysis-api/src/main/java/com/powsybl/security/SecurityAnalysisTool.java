@@ -19,6 +19,7 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.tools.ConversionToolUtils;
 import com.powsybl.security.converter.SecurityAnalysisResultExporters;
+import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.distributed.DistributedSecurityAnalysis;
 import com.powsybl.security.distributed.ExternalSecurityAnalysis;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;

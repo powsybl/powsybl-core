@@ -6,16 +6,19 @@
  */
 package com.powsybl.computation;
 
-import java.util.Optional;
+import com.powsybl.commons.extensions.Extendable;
+import com.powsybl.commons.extensions.Extension;
+
+import java.util.Collections;
 import java.util.OptionalLong;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public interface ComputationParameters {
+public interface ComputationParameters extends Extendable<ComputationParameters> {
 
     /**
-     * Returns an optional describing the execution time limit in seconds, the waiting time in queue is not inclued. See
+     * Returns an optional describing the execution time limit in seconds, the waiting time in queue is not included. See
      * differences with {@link #getDeadline(String)}
      * @param commandId id of {@link Command}
      * @return an optional describing seconds
@@ -23,31 +26,17 @@ public interface ComputationParameters {
     OptionalLong getTimeout(String commandId);
 
     /**
-     * Returns an optional describing the total time limmit in seconds, the waiting time in queue is included. See differences
+     * Returns an optional describing the total time limit in seconds, the waiting time in queue is included. See differences
      * with {@link #getTimeout(String)}
      * @param commandId id of {@link Command}
      * @return an optional describing seconds
      */
     OptionalLong getDeadline(String commandId);
 
-    Optional<String> getQos(String commandId);
-
+    /**
+     * @return an empty {@link ComputationParameters}, but it supports plugin. See more {@link Extension}
+     */
     static ComputationParameters empty() {
-        return new ComputationParameters() {
-            @Override
-            public OptionalLong getTimeout(String commandId) {
-                return OptionalLong.empty();
-            }
-
-            @Override
-            public OptionalLong getDeadline(String commandId) {
-                return OptionalLong.empty();
-            }
-
-            @Override
-            public Optional<String> getQos(String commandId) {
-                return Optional.empty();
-            }
-        };
+        return new ComputationParametersImpl(Collections.emptyMap(), Collections.emptyMap());
     }
 }
