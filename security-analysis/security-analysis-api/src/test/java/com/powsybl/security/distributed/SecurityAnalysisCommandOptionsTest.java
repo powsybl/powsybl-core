@@ -11,6 +11,7 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.computation.Partition;
 import com.powsybl.computation.SimpleCommand;
 import com.powsybl.security.LimitViolationType;
+import org.apache.commons.lang3.SystemUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
@@ -52,7 +53,8 @@ public class SecurityAnalysisCommandOptionsTest {
         options.caseFile(fileSystem.getPath("test.xiidm"));
 
         SimpleCommand cmd = options.toCommand();
-        assertEquals("itools", cmd.getProgram());
+        String expectedDefaultProgram = SystemUtils.IS_OS_WINDOWS ? "itools.bat" : "itools";
+        assertEquals(expectedDefaultProgram, cmd.getProgram());
         assertEquals("security-analysis", cmd.getId());
         List<String> args = cmd.getArgs(0);
         Assertions.assertThat(args)

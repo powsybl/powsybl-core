@@ -17,6 +17,9 @@ import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
 import java.util.Collections;
 import java.util.concurrent.CompletableFuture;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
+
 /**
  * Execute a security analysis by spawning a specified number of subtasks, each of which
  * will consist to a separate call to {@literal itools security-analysis} through the specified
@@ -30,7 +33,8 @@ public class DistributedSecurityAnalysisExecution implements SecurityAnalysisExe
     private final int subtaskCount;
 
     public DistributedSecurityAnalysisExecution(ExternalSecurityAnalysisConfig config, int subtaskCount) {
-        this.config = config;
+        this.config = requireNonNull(config);
+        checkArgument(subtaskCount > 0, "Sub-tasks count must be positive.");
         this.subtaskCount = subtaskCount;
     }
 

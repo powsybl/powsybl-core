@@ -21,6 +21,7 @@ import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.*;
 import com.powsybl.security.converter.JsonSecurityAnalysisResultExporter;
 import com.powsybl.security.execution.SecurityAnalysisExecutionInput;
+import org.apache.commons.lang3.SystemUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
@@ -77,7 +78,8 @@ public class SecurityAnalysisExecutionHandlersTest {
         SimpleCommand command = (SimpleCommand) commandExecution.getCommand();
         assertNotNull(command);
 
-        assertEquals("itools", command.getProgram());
+        String expectedDefaultProgram = SystemUtils.IS_OS_WINDOWS ? "itools.bat" : "itools";
+        assertEquals(expectedDefaultProgram, command.getProgram());
         List<String> args = command.getArgs(0);
         Assertions.assertThat(args).first().isEqualTo("security-analysis");
         Assertions.assertThat(args.subList(1, args.size()))

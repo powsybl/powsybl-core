@@ -9,6 +9,7 @@ package com.powsybl.security.distributed;
 import com.google.common.base.Preconditions;
 import com.powsybl.computation.*;
 import com.powsybl.security.LimitViolationType;
+import org.apache.commons.lang3.SystemUtils;
 
 import java.nio.file.Path;
 import java.util.*;
@@ -164,7 +165,7 @@ public class SecurityAnalysisCommandOptions {
 
         SimpleCommandBuilder commandBuilder = new SimpleCommandBuilder()
                 .id(id)
-                .program(itoolsCommand != null ? itoolsCommand : "itools")
+                .program(itoolsCommand != null ? itoolsCommand : getDefaultItoolsCommand())
                 .arg("security-analysis")
                 .option(CASE_FILE_OPTION, pathToString(caseFile));
 
@@ -201,5 +202,9 @@ public class SecurityAnalysisCommandOptions {
         if (optionValue != null) {
             commandBuilder.option(optionName, i -> toString.apply(optionValue.apply(i)));
         }
+    }
+
+    private static String getDefaultItoolsCommand() {
+        return SystemUtils.IS_OS_WINDOWS ? "itools.bat" : "itools";
     }
 }

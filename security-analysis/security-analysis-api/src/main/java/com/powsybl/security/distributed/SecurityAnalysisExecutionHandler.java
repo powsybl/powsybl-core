@@ -26,6 +26,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.Collections;
 import java.util.List;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -76,8 +77,9 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
                                             OptionsCustomizer optionsCustomizer,
                                             int executionCount,
                                             SecurityAnalysisExecutionInput input) {
-        this.reader = reader;
+        this.reader = requireNonNull(reader);
         this.optionsCustomizer = optionsCustomizer;
+        checkArgument(executionCount > 0, "Execution count must be positive.");
         this.executionCount = executionCount;
         this.input = requireNonNull(input);
     }
