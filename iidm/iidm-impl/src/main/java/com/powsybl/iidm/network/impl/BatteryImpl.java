@@ -7,6 +7,8 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.util.Ref;
+import gnu.trove.list.array.TDoubleArrayList;
 
 /**
  * {@inheritDoc}
@@ -17,21 +19,27 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
 
     private final ReactiveLimitsHolderImpl reactiveLimits;
 
-    private double p0;
+    private TDoubleArrayList p0;
 
-    private double q0;
+    private TDoubleArrayList q0;
 
     private double minP;
 
     private double maxP;
 
-    BatteryImpl(String id, String name, double p0, double q0, double minP, double maxP) {
+    BatteryImpl(Ref<? extends VariantManagerHolder> ref, String id, String name, double p0, double q0, double minP, double maxP) {
         super(id, name);
-        this.p0 = p0;
-        this.q0 = q0;
         this.minP = minP;
         this.maxP = maxP;
         this.reactiveLimits = new ReactiveLimitsHolderImpl(this, new MinMaxReactiveLimitsImpl(-Double.MAX_VALUE, Double.MAX_VALUE));
+
+        int variantArraySize = ref.get().getVariantManager().getVariantArraySize();
+        this.p0 = new TDoubleArrayList(variantArraySize);
+        this.q0 = new TDoubleArrayList(variantArraySize);
+        for (int i = 0; i < variantArraySize; i++) {
+            this.p0.add(p0);
+            this.q0.add(q0);
+        }
     }
 
     /**
@@ -55,7 +63,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public double getP0() {
-        return p0;
+        return p0.get(getNetwork().getVariantIndex());
     }
 
     /**
@@ -63,9 +71,9 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public Battery setP0(double p0) {
+        int variantIndex = getNetwork().getVariantIndex();
         ValidationUtil.checkP0(this, p0);
-        double oldValue = this.p0;
-        this.p0 = p0;
+        double oldValue = this.p0.set(variantIndex, p0);
         notifyUpdate("p0", oldValue, p0);
         return this;
     }
@@ -75,7 +83,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public double getQ0() {
-        return q0;
+        return q0.get(getNetwork().getVariantIndex());
     }
 
     /**
@@ -83,9 +91,9 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public Battery setQ0(double q0) {
+        int variantIndex = getNetwork().getVariantIndex();
         ValidationUtil.checkQ0(this, q0);
-        double oldValue = this.q0;
-        this.q0 = q0;
+        double oldValue = this.q0.set(variantIndex, q0);
         notifyUpdate("q0", oldValue, q0);
         return this;
     }

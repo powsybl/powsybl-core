@@ -6,6 +6,7 @@
  */
 package com.powsybl.security;
 
+import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Network;
@@ -25,6 +26,103 @@ public interface LimitViolationDetector {
      * Checks whether the specified current value on the specified side
      * of the specified {@link Branch} should be considered as a {@link LimitViolation} or not.
      * In case it should, feeds the consumer with it.
+     *
+     *
+     * @param contingency   The contingency for which current must be checked, {@code null} for N situation.
+     * @param branch        The branch on which the current must be checked.
+     * @param side          The side of the branch on which the current must be checked.
+     * @param currentValue  The current value to be checked, in A.
+     * @param consumer      Will be fed with possibly created limit violations.
+     */
+    default void checkCurrent(Contingency contingency, Branch branch, Branch.Side side, double currentValue, Consumer<LimitViolation> consumer) {
+        checkCurrent(branch, side, currentValue, consumer);
+    }
+
+    /**
+     * Checks whether the current value on the specified side
+     * of the specified {@link Branch} should be considered as a {@link LimitViolation} or not.
+     * In case it should, feeds the consumer with it.
+     *
+     * @param contingency   The contingency for which current must be checked, {@code null} for N situation.
+     * @param branch        The branch on which the current must be checked.
+     * @param side          The side of the branch on which the current must be checked.
+     * @param consumer      Will be fed with possibly created limit violations.
+     */
+    default void checkCurrent(Contingency contingency, Branch branch, Branch.Side side, Consumer<LimitViolation> consumer) {
+        checkCurrent(branch, side, consumer);
+    }
+
+    /**
+     * Checks whether the specified voltage value on the specified {@link Bus}
+     * should be considered as a {@link LimitViolation} or not.
+     * In case it should, returns the corresponding limit violation.
+     *
+     * @param contingency   The contingency for which current must be checked, {@code null} for N situation.
+     * @param bus           The bus on which the voltage must be checked.
+     * @param voltageValue  The voltage value to be checked, in V.
+     * @param consumer      Will be fed with possibly created limit violations.
+     */
+    default void checkVoltage(Contingency contingency, Bus bus, double voltageValue, Consumer<LimitViolation> consumer) {
+        checkVoltage(bus, voltageValue, consumer);
+    }
+
+    /**
+     * Checks whether the voltage value on the specified {@link Bus}
+     * should be considered as a {@link LimitViolation} or not.
+     * In case it should, feeds the consumer with it.
+     *
+     * @param contingency   The contingency for which current must be checked, {@code null} for N situation.
+     * @param bus           The bus on which the voltage must be checked.
+     * @param consumer      Will be fed with possibly created limit violations.
+     */
+    default void checkVoltage(Contingency contingency, Bus bus, Consumer<LimitViolation> consumer) {
+        checkVoltage(bus, consumer);
+    }
+
+    /**
+     * Checks whether the voltage value on the specified {@link VoltageLevel}
+     * should be considered as a {@link LimitViolation} or not.
+     * In case it should, feeds the consumer with it.
+     *
+     * @param contingency   The contingency for which current must be checked, {@code null} for N situation.
+     * @param voltageLevel  The voltage level on which the voltage must be checked.
+     * @param consumer      Will be fed with possibly created limit violations.
+     */
+    default void checkVoltage(Contingency contingency, VoltageLevel voltageLevel, Consumer<LimitViolation> consumer) {
+        checkVoltage(voltageLevel, consumer);
+    }
+
+    /**
+     * Checks whether the current value on both sides of the specified {@link Branch}
+     * should be considered as {@link LimitViolation}(s).
+     * In case it should, feeds the consumer with it.
+     *
+     * @param contingency   The contingency for which current must be checked, {@code null} for N situation.
+     * @param branch        The branch on which the current must be checked.
+     * @param consumer      Will be fed with possibly created limit violations.
+     */
+    default void checkCurrent(Contingency contingency, Branch branch, Consumer<LimitViolation> consumer) {
+        checkCurrent(branch, consumer);
+    }
+
+    /**
+     * Checks whether the current and voltage values on all equipments
+     * of the specified {@link Network} should be considered as {@link LimitViolation}s.
+     * In case it should, feeds the consumer with it.
+     *
+     * @param contingency   The contingency for which current must be checked, {@code null} for N situation.
+     * @param network       The network on which physical values must be checked.
+     * @param consumer      Will be fed with possibly created limit violations.
+     */
+    default void checkAll(Contingency contingency, Network network, Consumer<LimitViolation> consumer) {
+        checkAll(network, consumer);
+    }
+
+    /**
+     * Checks whether the specified current value on the specified side
+     * of the specified {@link Branch} should be considered as a {@link LimitViolation} or not.
+     * In case it should, feeds the consumer with it.
+     *
      *
      * @param branch        The branch on which the current must be checked.
      * @param side          The side of the branch on which the current must be checked.
