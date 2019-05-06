@@ -355,10 +355,32 @@ public class ImmutableTest {
 
         when(delegate.getBusbarSections()).thenReturn(MOCK_BS_LIST);
         when(delegate.getBusbarSectionStream()).thenReturn(MOCK_BS_STREAM.get());
+        when(delegate.getBusbarSection("bs")).thenReturn(MOCK_BS_LIST.get(0));
         when(delegate.getBusbarSectionCount()).thenReturn(3);
         assertEquals(3, sut.getBusbarSectionCount());
+        assertTrue(sut.getBusbarSection("bs") instanceof ImmutableBusbarSection);
         assertElementType(ImmutableBusbarSection.class, sut.getBusbarSections(), sut.getBusbarSectionStream());
 
+        // views
+        Network.BusView mockBusView = mock(Network.BusView.class);
+        when(mockBusView.getBuses()).thenReturn(MOCK_BUS_LIST);
+        when(mockBusView.getBusStream()).thenReturn(MOCK_BUS_STREAM.get());
+        when(mockBusView.getBus("a")).thenReturn(MOCK_BUS_LIST.get(0));
+        when(delegate.getBusView()).thenReturn(mockBusView);
+        Network.BusView busView = sut.getBusView();
+        assertElementType(ImmutableBus.class, busView.getBuses(), busView.getBusStream());
+        assertTrue(busView.getBus("a") instanceof ImmutableBus);
+        Network.BusBreakerView mockBbv = mock(Network.BusBreakerView.class);
+        when(mockBbv.getBuses()).thenReturn(MOCK_BUS_LIST);
+        when(mockBbv.getBusStream()).thenReturn(MOCK_BUS_STREAM.get());
+        when(mockBbv.getBus("a")).thenReturn(MOCK_BUS_LIST.get(0));
+        when(mockBbv.getSwitchStream()).thenReturn(MOCK_SW_STREAM.get());
+        when(mockBbv.getSwitches()).thenReturn(MOCK_SW_LIST);
+        when(delegate.getBusBreakerView()).thenReturn(mockBbv);
+        Network.BusBreakerView sutBbv = sut.getBusBreakerView();
+        assertElementType(ImmutableBus.class, sutBbv.getBuses(), sutBbv.getBusStream());
+        assertElementType(ImmutableSwitch.class, sutBbv.getSwitches(), sutBbv.getSwitchStream());
+        assertTrue(sutBbv.getBus("a") instanceof ImmutableBus);
     }
 
     @Test

@@ -65,7 +65,6 @@ public class ImmutableNetworkTest {
         invalidVlMethods.add("newBattery");
         invalidVlMethods.add("newLoad");
         invalidVlMethods.add("newShuntCompensator");
-        invalidVlMethods.add("newShunt"); // to remove in the clean voltage level's api commit
         invalidVlMethods.add("newDanglingLine");
         invalidVlMethods.add("newStaticVarCompensator");
         invalidVlMethods.add("newVscConverterStation");
@@ -145,6 +144,11 @@ public class ImmutableNetworkTest {
 
         assertTrue(immutableTerminal.getBusView().getBus() instanceof ImmutableBus);
         assertTrue(immutableTerminal.getBusView().getConnectableBus() instanceof ImmutableBus);
+    }
+
+    @Test
+    public void testBusView() {
+
     }
 
     @Test

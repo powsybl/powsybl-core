@@ -857,6 +857,11 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
             public int getSwitchCount() {
                 return busBreakerView.getSwitchCount();
             }
+
+            @Override
+            public Bus getBus(String id) {
+                return cache.getBus(busBreakerView.getBus(id));
+            }
         };
     }
 
@@ -889,6 +894,11 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
             @Override
             public Collection<Component> getConnectedComponents() {
                 return identifiable.getBusView().getConnectedComponents().stream().map(cache::getComponent).collect(Collectors.toList());
+            }
+
+            @Override
+            public Bus getBus(String id) {
+                return cache.getBus(identifiable.getBusView().getBus(id));
             }
         };
     }
