@@ -858,30 +858,6 @@ public interface VoltageLevel extends Container<VoltageLevel> {
      */
     int getLoadCount();
 
-    /**
-     * @deprecated Use {@link #newShuntCompensator()} instead.
-     */
-    @Deprecated
-    default ShuntCompensatorAdder newShunt() {
-        return newShuntCompensator();
-    }
-
-    /**
-     * @deprecated Use {@link #getShuntCompensators()} instead.
-     */
-    @Deprecated
-    default Iterable<ShuntCompensator> getShunts() {
-        return getShuntCompensators();
-    }
-
-    /**
-     * @deprecated Use {@link #getShuntCompensatorStream()} instead.
-     */
-    @Deprecated
-    default Stream<ShuntCompensator> getShuntStream() {
-        return getShuntCompensatorStream();
-    }
-
     ShuntCompensatorAdder newShuntCompensator();
 
     /**

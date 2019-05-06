@@ -214,10 +214,10 @@ public class NetworkTest {
         Battery battery2 = network.getBattery("BAT2");
         assertNotNull(battery2);
         assertEquals("BAT2", battery2.getId());
-        assertEquals(9999.99, battery2.getP0(), 0.0);
-        assertEquals(9999.99, battery2.getQ0(), 0.0);
-        assertEquals(-9999.99, battery2.getMinP(), 0.0);
-        assertEquals(9999.99, battery2.getMaxP(), 0.0);
+        assertEquals(100, battery2.getP0(), 0.0);
+        assertEquals(200, battery2.getQ0(), 0.0);
+        assertEquals(-200, battery2.getMinP(), 0.0);
+        assertEquals(200, battery2.getMaxP(), 0.0);
         assertEquals(bus2.getId(), battery2.getTerminal().getBusBreakerView().getBus().getId());
 
         Load load1 = network.getLoad("LOAD");

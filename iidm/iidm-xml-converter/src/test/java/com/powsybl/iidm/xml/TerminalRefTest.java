@@ -33,7 +33,11 @@ public class TerminalRefTest extends AbstractConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
-        String filename = "terminalRef.xiidm";
+        roundTrip("terminalRef.xiidm");
+        roundTrip("regulatingTerminal.xml");
+    }
+
+    private void roundTrip(String filename) throws IOException {
         Network network = Importers.loadNetwork(filename, getClass().getResourceAsStream("/" + filename), computationManager, importConfig, null, loader);
         assertNotNull(network);
         roundTripXmlTest(network, NetworkXml::writeAndValidate, NetworkXml::read, "/" + filename);

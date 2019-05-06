@@ -6,7 +6,10 @@
  */
 package com.powsybl.computation;
 
+import com.powsybl.commons.extensions.AbstractExtension;
 import org.junit.Test;
+
+import java.util.Objects;
 
 import static org.junit.Assert.*;
 
@@ -19,7 +22,6 @@ public class ComputationParametersTest {
     public void testEmpty() {
         ComputationParameters empty = ComputationParameters.empty();
         assertFalse(empty.getTimeout("cmd").isPresent());
-        assertFalse(empty.getQos("cmd").isPresent());
     }
 
     @Test
@@ -27,17 +29,13 @@ public class ComputationParametersTest {
         String cmdId = "cmd";
         ComputationParameters opts = new ComputationParametersBuilder()
                 .setTimeout(cmdId, 10)
-                .setQos(cmdId, "p1")
                 .setDeadline(cmdId, 42)
                 .build();
         assertEquals(10, opts.getTimeout(cmdId).orElse(-1));
-        assertEquals("p1", opts.getQos(cmdId).orElse("asdf"));
         assertEquals(42, opts.getDeadline(cmdId).orElse(-1));
         String missingCmd = "missing";
         assertFalse(opts.getTimeout(missingCmd).isPresent());
-        assertFalse(opts.getQos(missingCmd).isPresent());
         assertFalse(opts.getDeadline(missingCmd).isPresent());
-
     }
 
     @Test
@@ -49,6 +47,37 @@ public class ComputationParametersTest {
             fail();
         } catch (Exception e) {
             // ignore
+        }
+    }
+
+    @Test
+    public void testExt() {
+        // prepare
+        ComputationParameters base = ComputationParameters.empty();
+        QuantumComputationParameters quantum = new QuantumComputationParameters(42);
+        base.addExtension(QuantumComputationParameters.class, quantum);
+
+        // in quantum computation manager
+        QuantumComputationParameters quantumComputationParameters = base.getExtension(QuantumComputationParameters.class);
+        assertSame(quantum, quantumComputationParameters);
+        assertEquals(42, quantumComputationParameters.getAtLeastQubits());
+    }
+
+    class QuantumComputationParameters extends AbstractExtension<ComputationParameters> {
+
+        private final Integer atLeastQubits;
+
+        QuantumComputationParameters(Integer atLeastQubits) {
+            this.atLeastQubits = Objects.requireNonNull(atLeastQubits);
+        }
+
+        @Override
+        public String getName() {
+            return "QuantumComputationParameters";
+        }
+
+        public int getAtLeastQubits() {
+            return atLeastQubits;
         }
     }
 }
