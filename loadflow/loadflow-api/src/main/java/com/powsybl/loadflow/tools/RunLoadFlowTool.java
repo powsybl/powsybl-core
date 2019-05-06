@@ -52,7 +52,6 @@ public class RunLoadFlowTool implements Tool {
     private static final String PARAMETERS_FILE = "parameters-file";
     private static final String OUTPUT_FILE = "output-file";
     private static final String OUTPUT_FORMAT = "output-format";
-    private static final String SKIP_POSTPROC = "skip-postproc";
     private static final String OUTPUT_CASE_FORMAT = "output-case-format";
     private static final String OUTPUT_CASE_FILE = "output-case-file";
 
@@ -103,9 +102,7 @@ public class RunLoadFlowTool implements Tool {
                         .hasArg()
                         .argName("FORMAT")
                         .build());
-                options.addOption(Option.builder().longOpt(SKIP_POSTPROC)
-                        .desc("skip network importer post processors (when configured)")
-                        .build());
+                options.addOption(createSkipPostProcOption());
                 options.addOption(Option.builder().longOpt(OUTPUT_CASE_FORMAT)
                         .desc("modified network output format " + Exporters.getFormats())
                         .hasArg()
@@ -133,13 +130,12 @@ public class RunLoadFlowTool implements Tool {
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE));
-        boolean skipPostProc = line.hasOption(SKIP_POSTPROC);
         Path outputFile = null;
         Format format = null;
         Path outputCaseFile = null;
         ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
 
-        ImportConfig importConfig = (!skipPostProc) ? ImportConfig.load() : new ImportConfig();
+        ImportConfig importConfig = createImportConfig(line);
         // process a single network: output-file/output-format options available
         if (line.hasOption(OUTPUT_FILE)) {
             outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE));
