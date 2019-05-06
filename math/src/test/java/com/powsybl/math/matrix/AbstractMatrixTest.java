@@ -192,4 +192,16 @@ public abstract class AbstractMatrixTest {
         assertEquals(1d, b.get(0, 1), 0d);
         assertEquals(0d, b.get(1, 1), 0d);
     }
+
+    @Test
+    public void testDeprecated() {
+        Matrix a = getMatrixFactory().create(2, 2, 2);
+        assertEquals(a.getRowCount(), a.getM());
+        assertEquals(a.getColumnCount(), a.getN());
+        a.setValue(0, 0, 1d);
+        a.setValue(0, 1, 1d);
+        assertEquals(1d, a.toDense().get(0, 1), 0d);
+        a.addValue(0, 1, 2d);
+        assertEquals(3d, a.toDense().get(0, 1), 0d);
+    }
 }
