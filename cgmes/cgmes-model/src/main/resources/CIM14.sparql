@@ -138,36 +138,6 @@ SELECT *
     OPTIONAL { ?OperationalLimitType cim:OperationalLimitType.acceptableDuration ?acceptableDuration }
 }}
 
-# query: regulatingControls
-SELECT *
-WHERE {
-    {
-        ?RegulatingControl a cim:RegulatingControl
-        { GRAPH ?graphSSH1 {
-            ?RegulatingControl cim:RegulatingControl.enabled ?enabled
-        }}
-    }
-    UNION
-    {
-        ?RegulatingControl a cim:TapChangerControl
-        BIND ( "true" AS ?enabled )
-    }
-    ?RegulatingControl
-        cim:RegulatingControl.mode ?mode ;
-        cim:RegulatingControl.Terminal ?Terminal .
-    { GRAPH ?graphTP {
-        ?Terminal
-            cim:Terminal.TopologicalNode ?topologicalNode
-    }}
-    { GRAPH ?graphSSH2 {
-        ?RegulatingControl
-            cim:RegulatingControl.targetValue ?targetValue ;
-            cim:RegulatingControl.targetValueUnitMultiplier ?targetValueUnitMultiplier ;
-            cim:RegulatingControl.discrete ?discrete .
-        OPTIONAL { ?RegulatingControl cim:RegulatingControl.targetDeadband ?targetDeadband }
-    }}
-}
-
 # query: switches
 SELECT *
 WHERE {
