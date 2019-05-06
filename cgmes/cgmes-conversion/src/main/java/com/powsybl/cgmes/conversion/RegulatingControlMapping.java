@@ -104,7 +104,7 @@ public class RegulatingControlMapping {
                     addRegulatingControlVoltage(p, control, adder, defaultTerminal, context);
                     return;
                 } else if (!control.mode.endsWith("fixed")) {
-                    context.ignored(control.mode, "Unsupported regulation mode for Ratio tap changer.");
+                    context.fixed(control.mode, "Unsupported regulation mode for Ratio tap changer. Considered as a fixed ratio tap changer.");
                 }
                 regulatingControlMapping.remove(controlId);
             } else {
@@ -152,9 +152,7 @@ public class RegulatingControlMapping {
                 } else if (control.mode.endsWith("activepower")) {
                     addActivePowerRegControl(p, control, defaultTerminal, adder, side, t2w);
                     return;
-                } else if (control.mode.endsWith("fixed")) {
-                    // Nothing to do
-                } else {
+                } else if (!control.mode.endsWith("fixed")) {
                     context.fixed(control.mode, "Unsupported regulating mode for Phase tap changer. Considered as FIXED_TAP");
                 }
                 regulatingControlMapping.remove(p.getId(TAP_CHANGER_CONTROL));
