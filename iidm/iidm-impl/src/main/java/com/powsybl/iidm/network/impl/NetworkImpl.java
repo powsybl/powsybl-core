@@ -75,6 +75,13 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             return getVoltageLevelStream().mapToInt(vl -> vl.getBusBreakerView().getSwitchCount()).sum();
         }
 
+        @Override
+        public Bus getBus(String id) {
+            return getVoltageLevelStream().map(vl -> vl.getBusBreakerView().getBus(id))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
+        }
     }
 
     private final BusBreakerViewImpl busBreakerView = new BusBreakerViewImpl();
@@ -95,6 +102,14 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         @Override
         public Collection<Component> getConnectedComponents() {
             return Collections.unmodifiableList(variants.get().connectedComponentsManager.getConnectedComponents());
+        }
+
+        @Override
+        public Bus getBus(String id) {
+            return getVoltageLevelStream().map(vl -> vl.getBusView().getBus(id))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
         }
 
     }
