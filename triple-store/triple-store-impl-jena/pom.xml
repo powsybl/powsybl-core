@@ -54,5 +54,9 @@
             <artifactId>powsybl-triple-store-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>xml-apis</groupId>
+            <artifactId>xml-apis</artifactId>
+        </dependency>
     </dependencies>
 </project>
