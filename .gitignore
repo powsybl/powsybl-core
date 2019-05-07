@@ -21,7 +21,6 @@
 /afs/afs-ws/afs-ws-storage/target/
 /afs/afs-ws/afs-ws-utils/target/
 /afs/afs-ws/target/
-/ampl-converter/target/
 /cgmes/target
 /cgmes/cgmes-conformity/target/
 /cgmes/cgmes-converter/target/
@@ -45,6 +44,7 @@
 /iidm/target/
 /iidm/iidm-api/target
 /iidm/iidm-converter-api/target/
+/iidm/iidm-dsv-converter/target/
 /iidm/iidm-impl/target/
 /iidm/iidm-reducer/target/
 /iidm/iidm-test/target/

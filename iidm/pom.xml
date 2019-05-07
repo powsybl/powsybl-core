@@ -26,6 +26,7 @@
     <modules>
         <module>iidm-api</module>
         <module>iidm-converter-api</module>
+        <module>iidm-dsv-converter</module>
         <module>iidm-impl</module>
         <module>iidm-reducer</module>
         <module>iidm-test</module>

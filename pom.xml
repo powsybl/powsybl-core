@@ -52,7 +52,6 @@
     <modules>
         <module>action</module>
         <module>afs</module>
-        <module>ampl-converter</module>
         <module>cgmes</module>
         <module>cim-anonymiser</module>
         <module>commons</module>
