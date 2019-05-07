@@ -18,7 +18,6 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
@@ -34,12 +33,12 @@ public class AmplNetworkReaderTest {
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
         ReadOnlyDataSource dataSource = new ResourceDataSource("eurostag-tutorial-example1",
-                                                               new ResourceSet("/outputs/", "eurostag-tutorial-example1_generators.txt",
-                                                                                            "eurostag-tutorial-example1_loads.txt",
-                                                                                            "eurostag-tutorial-example1_rtc.txt",
-                                                                                            "eurostag-tutorial-example1_indic.txt",
-                                                                                            "eurostag-tutorial-example1_buses.txt",
-                                                                                            "eurostag-tutorial-example1_branches.txt"));
+                new ResourceSet("/outputs/", "eurostag-tutorial-example1_generators.txt",
+                        "eurostag-tutorial-example1_loads.txt",
+                        "eurostag-tutorial-example1_rtc.txt",
+                        "eurostag-tutorial-example1_indic.txt",
+                        "eurostag-tutorial-example1_buses.txt",
+                        "eurostag-tutorial-example1_branches.txt"));
 
         AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, mapper);
         testGenerators(network, reader);
@@ -56,8 +55,8 @@ public class AmplNetworkReaderTest {
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
         ReadOnlyDataSource dataSource = new ResourceDataSource("3wt",
-                                                               new ResourceSet("/outputs/",
-                                                                               "3wt_branches.txt"));
+                new ResourceSet("/outputs/",
+                        "3wt_branches.txt"));
 
         AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, mapper);
         testThreeWindingTransBranches(network, reader);
@@ -69,8 +68,8 @@ public class AmplNetworkReaderTest {
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
         ReadOnlyDataSource dataSource = new ResourceDataSource("3wt-variant-index-2",
-                                                               new ResourceSet("/outputs/",
-                                                                               "3wt-variant-index-2_branches.txt"));
+                new ResourceSet("/outputs/",
+                        "3wt-variant-index-2_branches.txt"));
 
         AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, 2, mapper);
         testThreeWindingTransBranches(network, reader);
@@ -82,8 +81,8 @@ public class AmplNetworkReaderTest {
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
         ReadOnlyDataSource dataSource = new ResourceDataSource("dl",
-                                                               new ResourceSet("/outputs/",
-                                                                               "dl_branches.txt"));
+                new ResourceSet("/outputs/",
+                        "dl_branches.txt"));
 
         AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, mapper);
         testDLBranches(network, reader);
@@ -95,10 +94,10 @@ public class AmplNetworkReaderTest {
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
         ReadOnlyDataSource dataSource = new ResourceDataSource("lcc-test",
-                                                               new ResourceSet("/outputs/",
-                                                                               "lcc-test_hvdc.txt",
-                                                                               "lcc-test_shunts.txt",
-                                                                               "lcc-test_lcc_converter_stations.txt"));
+                new ResourceSet("/outputs/",
+                        "lcc-test_hvdc.txt",
+                        "lcc-test_shunts.txt",
+                        "lcc-test_lcc_converter_stations.txt"));
 
         AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, mapper);
         testHvdc(network, reader);
@@ -109,8 +108,8 @@ public class AmplNetworkReaderTest {
         StringToIntMapper<AmplSubset> mapper2 = AmplUtil.createMapper(network2);
 
         ReadOnlyDataSource dataSource2 = new ResourceDataSource("vsc-test",
-                                                                new ResourceSet("/outputs/",
-                                                                                "vsc-test_vsc_converter_stations.txt"));
+                new ResourceSet("/outputs/",
+                        "vsc-test_vsc_converter_stations.txt"));
 
         AmplNetworkReader reader2 = new AmplNetworkReader(dataSource2, network2, mapper2);
         testVsc(network2, reader2);
@@ -122,10 +121,10 @@ public class AmplNetworkReaderTest {
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
         ReadOnlyDataSource dataSource = new ResourceDataSource("lcc-test-with-various-variants",
-                                                               new ResourceSet("/outputs/",
-                                                                               "lcc-test-with-various-variants_hvdc.txt",
-                                                                               "lcc-test-with-various-variants_shunts.txt",
-                                                                               "lcc-test-with-various-variants_lcc_converter_stations.txt"));
+                new ResourceSet("/outputs/",
+                        "lcc-test-with-various-variants_hvdc.txt",
+                        "lcc-test-with-various-variants_shunts.txt",
+                        "lcc-test-with-various-variants_lcc_converter_stations.txt"));
 
         AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, 3, mapper);
         testHvdc(network, reader);
@@ -136,8 +135,8 @@ public class AmplNetworkReaderTest {
         StringToIntMapper<AmplSubset> mapper2 = AmplUtil.createMapper(network2);
 
         ReadOnlyDataSource dataSource2 = new ResourceDataSource("vsc-test-with-various-variants",
-                                                                new ResourceSet("/outputs/",
-                                                                                "vsc-test-with-various-variants_vsc_converter_stations.txt"));
+                new ResourceSet("/outputs/",
+                        "vsc-test-with-various-variants_vsc_converter_stations.txt"));
 
         AmplNetworkReader reader2 = new AmplNetworkReader(dataSource2, network2, 3, mapper2);
         testVsc(network2, reader2);
@@ -149,11 +148,23 @@ public class AmplNetworkReaderTest {
         StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
 
         ReadOnlyDataSource dataSource = new ResourceDataSource("svc-test",
-                                                               new ResourceSet("/outputs/",
-                                                                               "svc-test_static_var_compensators.txt"));
+                new ResourceSet("/outputs/",
+                        "svc-test_static_var_compensators.txt"));
 
         AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, mapper);
         testSvc(network, reader);
+    }
+
+    @Test
+    public void readBattery() throws IOException {
+        Network network = BatteryNetworkFactory.create();
+        StringToIntMapper<AmplSubset> mapper = AmplUtil.createMapper(network);
+
+        ReadOnlyDataSource dataSource = new ResourceDataSource("battery-test",
+                new ResourceSet("/outputs/", "battery-test_batteries.txt"));
+
+        AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, mapper);
+        testBatteries(network, reader);
     }
 
     private void testGenerators(Network network, AmplNetworkReader reader) throws IOException {
@@ -173,6 +184,24 @@ public class AmplNetworkReaderTest {
         assertEquals(300.0, generator.getTerminal().getP(), 0.0);
         assertEquals(150.0, generator.getTargetQ(), 0.0);
         assertEquals(150.0, generator.getTerminal().getQ(), 0.0);
+    }
+
+    private void testBatteries(Network network, AmplNetworkReader reader) throws IOException {
+        Battery battery = network.getBattery("BAT");
+
+        assertEquals(9999.99, battery.getP0(), 0.0);
+        assertEquals(9999.99, battery.getQ0(), 0.0);
+        assertEquals(-9999.99, battery.getMinP(), 0.0);
+        assertEquals(9999.99, battery.getMaxP(), 0.0);
+        assertEquals(-605.0, battery.getTerminal().getP(), 0.0);
+        assertEquals(-225.0, battery.getTerminal().getQ(), 0.0);
+
+        reader.readBatteries();
+
+        assertEquals(12.0, battery.getP0(), 0.0);
+        assertEquals(13.0, battery.getQ0(), 0.0);
+        assertEquals(300.0, battery.getTerminal().getP(), 0.0);
+        assertEquals(150.0, battery.getTerminal().getQ(), 0.0);
     }
 
     private void testLoads(Network network, AmplNetworkReader reader) throws IOException {
@@ -225,8 +254,8 @@ public class AmplNetworkReaderTest {
         assertEquals(1, ptc.getTapPosition());
 
         ReadOnlyDataSource dataSource = new ResourceDataSource("ptc-test",
-                                                               new ResourceSet("/outputs/",
-                                                                               "ptc-test_ptc.txt"));
+                new ResourceSet("/outputs/",
+                        "ptc-test_ptc.txt"));
 
         AmplNetworkReader reader = new AmplNetworkReader(dataSource, network, mapper);
         reader.readPhaseTapChangers();
@@ -235,8 +264,7 @@ public class AmplNetworkReaderTest {
     }
 
     private void testBuses(Network network, AmplNetworkReader reader) throws IOException {
-
-        Optional<Bus> bx = network.getVoltageLevelStream().map(vl -> vl.getBusView().getBus("VLGEN_0")).filter(Objects::nonNull).findFirst();
+        Optional<Bus> bx = Optional.ofNullable(network.getBusView().getBus("VLGEN_0"));
         if (bx.isPresent()) {
             Bus b = bx.get();
             assertTrue(Double.isNaN(b.getAngle()));
@@ -246,8 +274,7 @@ public class AmplNetworkReaderTest {
         }
 
         reader.readBuses();
-
-        Optional<Bus> bx2 = network.getVoltageLevelStream().map(vl -> vl.getBusView().getBus("VLGEN_0")).filter(Objects::nonNull).findFirst();
+        Optional<Bus> bx2 = Optional.ofNullable(network.getBusView().getBus("VLGEN_0"));
         if (bx2.isPresent()) {
             Bus b = bx2.get();
             assertEquals(Math.toDegrees(2d), b.getAngle(), 0.0);

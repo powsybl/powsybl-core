@@ -14,6 +14,7 @@ import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowFactory;
 import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.interceptors.CurrentLimitViolationInterceptor;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
@@ -117,7 +118,7 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
 
                                         resultBuilder.contingency(contingency)
                                                 .setComputationOk(lfResult.isOk());
-                                        violationDetector.checkAll(network, resultBuilder::addViolation);
+                                        violationDetector.checkAll(contingency, network, resultBuilder::addViolation);
                                         resultBuilder.endContingency();
                                         network.getVariantManager().removeVariant(postContStateId);
 
