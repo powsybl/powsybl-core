@@ -80,7 +80,8 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <java.version>11</java.version>
+        <!-- javac's source and target arguments accept both 1.8 and 8, but release accepts only 8 -->
+        <java.version>8</java.version>
 
         <maven.antrun.version>1.8</maven.antrun.version>
         <maven.assembly.version>3.1.0</maven.assembly.version>
