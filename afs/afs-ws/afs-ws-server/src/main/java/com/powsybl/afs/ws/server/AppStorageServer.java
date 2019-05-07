@@ -192,13 +192,13 @@ public class AppStorageServer {
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("fileSystems/{fileSystemName}/nodes/{nodeId}/enable")
+    @Path("fileSystems/{fileSystemName}/nodes/{nodeId}/consistent")
     @ApiOperation (value = "")
     @ApiResponses (value = {@ApiResponse(code = 200, message = ""), @ApiResponse(code = 500, message = "Error")})
-    public Response setEnable(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
+    public Response consistent(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
                                    @ApiParam(value = "File system name") @PathParam("nodeId") String nodeId) {
         AppStorage storage = appDataBean.getStorage(fileSystemName);
-        storage.enable(nodeId);
+        storage.consistent(nodeId);
         return Response.ok().build();
     }
 
@@ -329,13 +329,13 @@ public class AppStorageServer {
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    @Path("fileSystems/{fileSystemName}/nodes/{nodeId}/isEnable")
+    @Path("fileSystems/{fileSystemName}/nodes/{nodeId}/isConsistent")
     @ApiOperation (value = "", response = Boolean.class)
     @ApiResponses (value = {@ApiResponse(code = 200, message = ""), @ApiResponse(code = 404, message = ""), @ApiResponse(code = 500, message = "Error")})
     public Response isEnable(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
                                @ApiParam(value = "Node ID") @PathParam("nodeId") String nodeId) {
         AppStorage storage = appDataBean.getStorage(fileSystemName);
-        boolean isEnable = storage.isEnable(nodeId);
+        boolean isEnable = storage.isConsistent(nodeId);
         return Response.ok().entity(isEnable).build();
     }
 

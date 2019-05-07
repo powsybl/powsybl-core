@@ -60,7 +60,7 @@ public class DefaultListenableAppStorageTest {
 
         Mockito.when(storage.dataExists(Mockito.anyString(), Mockito.anyString())).thenAnswer(i -> data.get() != null);
 
-        Mockito.when(storage.isEnable("node1")).thenReturn(true);
+        Mockito.when(storage.isConsistent("node1")).thenReturn(true);
 
         listenableStorage = new DefaultListenableAppStorage(storage);
         listenableStorage.addListener(l);
@@ -114,8 +114,8 @@ public class DefaultListenableAppStorageTest {
         listenableStorage.flush();
         assertEquals(new NodeEventList(new TimeSeriesCleared("node1")), lastEventList);
 
-        listenableStorage.enable("node1");
-        assertTrue(listenableStorage.isEnable("node1"));
+        listenableStorage.consistent("node1");
+        assertTrue(listenableStorage.isConsistent("node1"));
 
     }
 

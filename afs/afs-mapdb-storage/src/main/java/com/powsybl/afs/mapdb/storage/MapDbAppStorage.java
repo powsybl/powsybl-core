@@ -241,7 +241,7 @@ public class MapDbAppStorage implements AppStorage {
 
     private void checkEnabled(UUID nodeUuid) {
         NodeInfo nodeInfo = nodeInfoMap.get(nodeUuid);
-        if (!nodeInfo.isEnable()) {
+        if (!nodeInfo.isConsistent()) {
             throw createNodeDisabledException(nodeUuid);
         }
     }
@@ -274,8 +274,8 @@ public class MapDbAppStorage implements AppStorage {
             rootNodeInfo = createNode(null, name, nodePseudoClass, "", 0, new NodeGenericMetadata());
             rootNodeVar.set(rootNodeInfo);
         }
-        this.enable(rootNodeInfo.getId());
-        rootNodeInfo.enable();
+        this.consistent(rootNodeInfo.getId());
+        rootNodeInfo.consistent();
         return rootNodeInfo;
     }
 
@@ -303,10 +303,10 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     @Override
-    public void enable(String nodeId) {
+    public void consistent(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
         NodeInfo nodeInfo = getNodeInfo(nodeId);
-        nodeInfo.enable();
+        nodeInfo.consistent();
         nodeInfoMap.put(nodeUuid, nodeInfo);
     }
 
@@ -325,10 +325,10 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     @Override
-    public boolean isEnable(String nodeId) {
+    public boolean isConsistent(String nodeId) {
         checkNodeId(nodeId);
         NodeInfo nodeInfo = getNodeInfo(nodeId);
-        return nodeInfo.isEnable();
+        return nodeInfo.isConsistent();
     }
 
     @Override
@@ -339,7 +339,7 @@ public class MapDbAppStorage implements AppStorage {
         if (childNodes == null) {
             throw createNodeNotFoundException(nodeUuid);
         }
-        return childNodes.stream().map(this::getNodeInfo).filter(NodeInfo::isEnable).collect(Collectors.toList());
+        return childNodes.stream().map(this::getNodeInfo).filter(NodeInfo::isConsistent).collect(Collectors.toList());
     }
 
     @Override
@@ -349,7 +349,7 @@ public class MapDbAppStorage implements AppStorage {
         Objects.requireNonNull(name);
         checkNodeExists(parentNodeUuid);
         UUID childNodeUuid = childNodeMap.get(new NamedLink(parentNodeUuid, name));
-        return Optional.ofNullable(childNodeUuid).map(this::getNodeInfo).filter(NodeInfo::isEnable);
+        return Optional.ofNullable(childNodeUuid).map(this::getNodeInfo).filter(NodeInfo::isConsistent);
     }
 
     @Override
@@ -358,7 +358,7 @@ public class MapDbAppStorage implements AppStorage {
         checkEnabled(nodeUuid);
         checkNodeExists(nodeUuid);
         UUID parentNodeUuid = parentNodeMap.get(nodeUuid);
-        return Optional.ofNullable(parentNodeUuid).map(this::getNodeInfo).filter(NodeInfo::isEnable);
+        return Optional.ofNullable(parentNodeUuid).map(this::getNodeInfo).filter(NodeInfo::isConsistent);
     }
 
     @Override
@@ -555,6 +555,7 @@ public class MapDbAppStorage implements AppStorage {
     public boolean timeSeriesExists(String nodeId, String timeSeriesName) {
         UUID nodeUuid = checkNodeId(nodeId);
         checkNodeExists(nodeUuid);
+        checkEnabled(nodeUuid);
         Objects.requireNonNull(timeSeriesName);
         Set<String> timeSeriesNames = timeSeriesNamesMap.get(nodeUuid);
         return timeSeriesNames != null && timeSeriesNames.contains(timeSeriesName);
@@ -719,7 +720,7 @@ public class MapDbAppStorage implements AppStorage {
         if (dependencyNodes == null) {
             return Collections.emptySet();
         }
-        return dependencyNodes.stream().map(this::getNodeInfo).filter(NodeInfo::isEnable).collect(Collectors.toCollection(LinkedHashSet::new));
+        return dependencyNodes.stream().map(this::getNodeInfo).filter(NodeInfo::isConsistent).collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     @Override
@@ -731,7 +732,7 @@ public class MapDbAppStorage implements AppStorage {
             throw createNodeNotFoundException(nodeUuid);
         }
         return dependencyNodes.stream()
-                              .filter(namedLink -> getNodeInfo(namedLink.getNodeUuid()).isEnable())
+                              .filter(namedLink -> getNodeInfo(namedLink.getNodeUuid()).isConsistent())
                               .map(namedLink -> new NodeDependency(namedLink.getName(), getNodeInfo(namedLink.getNodeUuid())))
                               .collect(Collectors.toSet());
     }
@@ -746,7 +747,7 @@ public class MapDbAppStorage implements AppStorage {
         }
         return backwardDependencyNodes.stream()
                                       .map(this::getNodeInfo)
-                                      .filter(NodeInfo::isEnable)
+                                      .filter(NodeInfo::isConsistent)
                                       .collect(Collectors.toSet());
     }
 

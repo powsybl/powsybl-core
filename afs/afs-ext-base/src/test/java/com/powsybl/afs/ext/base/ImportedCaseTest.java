@@ -79,11 +79,10 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
     public void setup() throws IOException {
         super.setup();
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
-        storage.enable(rootFolderInfo.getId());
 
         NodeInfo nodeInfo = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "Test format", Case.VERSION,
                 new NodeGenericMetadata().setString("format", TestImporter.FORMAT));
-        storage.enable(nodeInfo.getId());
+        storage.consistent(nodeInfo.getId());
 
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         Files.createFile(fileSystem.getPath("/work/network.tst"));
@@ -109,14 +108,10 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
 
         // create project
         Project project = root.createProject("project");
-        storage.enable(project.getId());
-        storage.enable(project.getRootFolder().getId());
-
         assertNotNull(project);
 
         // create project folder
         ProjectFolder folder = project.getRootFolder().createFolder("folder");
-        storage.enable(folder.getId());
         assertTrue(folder.getChildren().isEmpty());
 
         // import case into project
@@ -131,7 +126,6 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
                 .withParameter("param1", "true")
                 .withParameters(ImmutableMap.of("param2", "1"))
                 .build();
-        storage.enable(importedCase.getId());
         assertNotNull(importedCase);
         assertFalse(importedCase.isFolder());
         assertNotNull(importedCase.getNetwork());
@@ -166,28 +160,23 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
         Folder root = afs.getRootFolder();
         // create project
         Project project = root.createProject("project");
-        storage.enable(project.getId());
-        storage.enable(project.getRootFolder().getId());
 
         assertNotNull(project);
 
         // create project folder
         ProjectFolder folder = project.getRootFolder().createFolder("folder");
-        storage.enable(folder.getId());
         assertTrue(folder.getChildren().isEmpty());
 
         ImportedCase importedCase = folder.fileBuilder(ImportedCaseBuilder.class)
                 .withFile(fileSystem.getPath("/work/network.tst"))
                 .withName("test")
                 .build();
-        storage.enable(importedCase.getId());
         assertNotNull(importedCase);
         assertEquals("test", importedCase.getName());
 
         ImportedCase importedCase2 = folder.fileBuilder(ImportedCaseBuilder.class)
                 .withFile(fileSystem.getPath("/work/network.tst"))
                 .build();
-        storage.enable(importedCase2.getId());
         assertNotNull(importedCase2);
         assertEquals("network", importedCase2.getName());
     }
@@ -197,13 +186,10 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
         Folder root = afs.getRootFolder();
         // create project
         Project project = root.createProject("project");
-        storage.enable(project.getId());
-        storage.enable(project.getRootFolder().getId());
         assertNotNull(project);
 
         // create project folder
         ProjectFolder folder = project.getRootFolder().createFolder("folder");
-        storage.enable(folder.getId());
         assertTrue(folder.getChildren().isEmpty());
 
         Network network = NetworkFactory.create("NetworkID", "scripting");
@@ -212,15 +198,12 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
                 .withNetwork(network)
                 .build();
         assertNotNull(importedCase1);
-        storage.enable(importedCase1.getId());
         assertEquals("test", importedCase1.getName());
 
         ImportedCase importedCase2 = folder.fileBuilder(ImportedCaseBuilder.class)
                 .withNetwork(network)
                 .build();
-        storage.enable(importedCase2.getId());
         assertNotNull(importedCase2);
         assertEquals("NetworkID", importedCase2.getName());
-
     }
 }

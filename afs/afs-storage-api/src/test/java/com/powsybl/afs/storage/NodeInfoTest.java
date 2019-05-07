@@ -38,9 +38,9 @@ public class NodeInfoTest {
                                          .setBoolean("b1", true));
         NodeInfo info2 = objectMapper.readValue(objectMapper.writeValueAsString(info), NodeInfo.class);
         assertEquals(info, info2);
-        assertFalse(info.isEnable());
-        info.enable();
-        assertTrue(info.isEnable());
+        assertFalse(info.isConsistent());
+        info.consistent();
+        assertTrue(info.isConsistent());
         info.setVersion(1);
         assertEquals(1, info.getVersion());
         assertNotEquals("A non NodeInfo object", info);

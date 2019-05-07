@@ -29,7 +29,7 @@ public class NodeInfo {
 
     private int version;
 
-    private boolean enable = false;
+    private boolean consistent = false;
 
     private final NodeGenericMetadata genericMetadata;
 
@@ -43,12 +43,6 @@ public class NodeInfo {
         this.modificationTime = modificationTime;
         this.version = version;
         this.genericMetadata = Objects.requireNonNull(genericMetadata);
-    }
-
-    public NodeInfo(String id, String name, String pseudoClass, String description, long creationTime, long modificationTime,
-                    int version, NodeGenericMetadata genericMetadata, boolean enable) {
-        this(id, name, pseudoClass, description, creationTime, modificationTime, version, genericMetadata);
-        this.enable = enable;
     }
 
     /**
@@ -109,12 +103,12 @@ public class NodeInfo {
         return this;
     }
 
-    public boolean isEnable() {
-        return enable;
+    public boolean isConsistent() {
+        return consistent;
     }
 
-    public NodeInfo enable() {
-        this.enable = true;
+    public NodeInfo consistent() {
+        this.consistent = true;
         return this;
     }
 

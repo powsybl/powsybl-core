@@ -371,7 +371,6 @@ public class AppStorageArchive {
 
     private void unarchive(NodeInfo parentNodeInfo, Path nodeDir, UnarchiveContext context) throws IOException {
         NodeInfo newNodeInfo = readNodeInfo(parentNodeInfo, nodeDir, context);
-        storage.enable(newNodeInfo.getId());
 
         context.getDependencies().put(newNodeInfo.getId(), readDependencies(nodeDir));
 
@@ -379,6 +378,7 @@ public class AppStorageArchive {
 
         readTimeSeries(newNodeInfo, nodeDir);
 
+        storage.consistent(newNodeInfo.getId());
         storage.flush();
 
         unarchiveChildren(newNodeInfo, nodeDir, context);

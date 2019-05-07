@@ -88,7 +88,7 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
         NodeInfo folderInfo = storage.getChildNode(info.getId(), name)
                 .orElseGet(() -> {
                     NodeInfo newFolderInfo = storage.createNode(info.getId(), name, PSEUDO_CLASS, "", VERSION, new NodeGenericMetadata());
-                    storage.enable(newFolderInfo.getId());
+                    storage.consistent(newFolderInfo.getId());
                     storage.flush();
                     return newFolderInfo;
                 });
@@ -103,10 +103,10 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
         NodeInfo projectInfo = storage.getChildNode(info.getId(), name)
                 .orElseGet(() -> {
                     NodeInfo newProjectInfo = storage.createNode(info.getId(), name, Project.PSEUDO_CLASS, "", Project.VERSION, new NodeGenericMetadata());
-                    storage.enable(newProjectInfo.getId());
+                    storage.consistent(newProjectInfo.getId());
                     // create root project folder
                     NodeInfo newProjectInfoRootFolder = storage.createNode(newProjectInfo.getId(), Project.ROOT_FOLDER_NAME, ProjectFolder.PSEUDO_CLASS, "", ProjectFolder.VERSION, new NodeGenericMetadata());
-                    storage.enable(newProjectInfoRootFolder.getId());
+                    storage.consistent(newProjectInfoRootFolder.getId());
                     storage.flush();
                     return newProjectInfo;
                 });

@@ -106,7 +106,7 @@ public class SecurityAnalysisTool implements Tool {
                         .argName("FILE")
                         .build());
                 options.addOption(Option.builder().longOpt(WITH_EXTENSIONS_OPTION)
-                        .desc("the extension list to enable")
+                        .desc("the extension list to consistent")
                         .hasArg()
                         .argName("EXTENSIONS")
                         .build());

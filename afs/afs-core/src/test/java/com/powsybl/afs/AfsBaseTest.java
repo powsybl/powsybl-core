@@ -58,8 +58,7 @@ public class AfsBaseTest {
         Folder root = afs.getRootFolder();
         assertNotNull(root);
         Folder dir1 = root.createFolder("dir1");
-        dir1.enable();
-        assertTrue(storage.isEnable(dir1.getId()));
+        assertTrue(storage.isConsistent(dir1.getId()));
         assertNotNull(dir1);
         dir1.createFolder("dir2");
         dir1.createFolder("dir3");

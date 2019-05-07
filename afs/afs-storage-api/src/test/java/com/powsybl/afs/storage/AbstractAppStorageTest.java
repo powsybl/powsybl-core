@@ -98,7 +98,7 @@ public abstract class AbstractAppStorageTest {
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists(storage.getFileSystemName(), FOLDER_PSEUDO_CLASS);
         storage.flush();
 
-        assertTrue(storage.isEnable(rootFolderInfo.getId()));
+        assertTrue(storage.isConsistent(rootFolderInfo.getId()));
 
         // check event
         assertEventStack(new NodeCreated(rootFolderInfo.getId(), null));
@@ -121,7 +121,7 @@ public abstract class AbstractAppStorageTest {
         // 2) create a test folder
         NodeInfo testFolderInfo = storage.createNode(rootFolderInfo.getId(), "test", FOLDER_PSEUDO_CLASS, "", 0,
                 new NodeGenericMetadata().setString("k", "v"));
-        storage.enable(testFolderInfo.getId());
+        storage.consistent(testFolderInfo.getId());
         storage.flush();
 
         // check event
@@ -180,9 +180,9 @@ public abstract class AbstractAppStorageTest {
                                          .setBoolean("b1", false));
         NodeInfo testData3Info = storage.createNode(testFolderInfo.getId(), "data3", DATA_FILE_CLASS, "", 0, new NodeGenericMetadata());
 
-        storage.enable(testDataInfo.getId());
-        storage.enable(testData2Info.getId());
-        storage.enable(testData3Info.getId());
+        storage.consistent(testDataInfo.getId());
+        storage.consistent(testData2Info.getId());
+        storage.consistent(testData3Info.getId());
         storage.flush();
 
         // check events
@@ -450,15 +450,15 @@ public abstract class AbstractAppStorageTest {
         // 18) change parent test
         NodeInfo folder1Info = storage.createNode(rootFolderInfo.getId(), "test1", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
         NodeInfo folder2Info = storage.createNode(rootFolderInfo.getId(), "test2", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
-        storage.enable(folder1Info.getId());
-        storage.enable(folder2Info.getId());
+        storage.consistent(folder1Info.getId());
+        storage.consistent(folder2Info.getId());
         storage.flush();
 
         discardEvents(2);
 
         // create a file in folder 1
         NodeInfo fileInfo = storage.createNode(folder1Info.getId(), "file", "file-type", "", 0, new NodeGenericMetadata());
-        storage.enable(fileInfo.getId());
+        storage.consistent(fileInfo.getId());
         storage.flush();
 
         discardEvents(1);
@@ -481,8 +481,8 @@ public abstract class AbstractAppStorageTest {
         // create root node and 2 folders
         NodeInfo folder3Info = storage.createNode(rootFolderInfo.getId(), "test3", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
         NodeInfo folder4Info = storage.createNode(rootFolderInfo.getId(), "test4", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
-        storage.enable(folder3Info.getId());
-        storage.enable(folder4Info.getId());
+        storage.consistent(folder3Info.getId());
+        storage.consistent(folder4Info.getId());
         storage.flush();
 
         discardEvents(2);
@@ -503,11 +503,11 @@ public abstract class AbstractAppStorageTest {
 
         // 19) rename node test
         NodeInfo folder5Info = storage.createNode(rootFolderInfo.getId(), "test5", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
-        storage.enable(folder5Info.getId());
+        storage.consistent(folder5Info.getId());
         NodeInfo folder51Info = storage.createNode(folder5Info.getId(), "child_of_test5", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
         NodeInfo folder52Info = storage.createNode(folder5Info.getId(), "another_child_of_test5", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
-        storage.enable(folder51Info.getId());
-        storage.enable(folder52Info.getId());
+        storage.consistent(folder51Info.getId());
+        storage.consistent(folder52Info.getId());
         storage.flush();
 
         String newName = "newtest5";
@@ -521,7 +521,7 @@ public abstract class AbstractAppStorageTest {
         assertTrue(storage.getChildNode(folder5Info.getId(), "another_child_of_test5").isPresent());
 
         NodeInfo folder6Info = storage.createNode(rootFolderInfo.getId(), "test6", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
-        storage.enable(folder6Info.getId());
+        storage.consistent(folder6Info.getId());
         try {
             storage.renameNode(folder6Info.getId(), null);
             fail();
@@ -529,7 +529,7 @@ public abstract class AbstractAppStorageTest {
         }
 
         NodeInfo folder7Info = storage.createNode(rootFolderInfo.getId(), "test7", FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
-        storage.enable(folder7Info.getId());
+        storage.consistent(folder7Info.getId());
         try {
             storage.renameNode(folder7Info.getId(), "");
             fail();

@@ -184,12 +184,12 @@ public class RemoteAppStorage implements AppStorage {
     }
 
     @Override
-    public boolean isEnable(String nodeId) {
+    public boolean isConsistent(String nodeId) {
         Objects.requireNonNull(nodeId);
 
         LOGGER.debug("isWritable(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
 
-        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/isEnable")
+        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/isConsistent")
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .resolveTemplate(NODE_ID, nodeId)
                 .request(MediaType.TEXT_PLAIN)
@@ -228,15 +228,15 @@ public class RemoteAppStorage implements AppStorage {
     }
 
     @Override
-    public void enable(String nodeId) {
+    public void consistent(String nodeId) {
         Objects.requireNonNull(nodeId);
 
         // flush buffer to keep change order
         changeBuffer.flush();
 
-        LOGGER.debug("enable(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
+        LOGGER.debug("consistent(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
 
-        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/enable")
+        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/consistent")
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .resolveTemplate(NODE_ID, nodeId)
                 .request()

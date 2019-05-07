@@ -6,6 +6,7 @@
  */
 package com.powsybl.afs.storage;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.timeseries.*;
 
 import java.io.InputStream;
@@ -45,7 +46,9 @@ public interface AppStorage extends AutoCloseable {
 
     boolean isWritable(String nodeId);
 
-    boolean isEnable(String nodeId);
+    default boolean isConsistent(String nodeId) {
+        throw new PowsyblException("Not implemented");
+    }
 
     /**
      * Gets NodeInfo object for the node with ID {@code nodeId}.
@@ -54,7 +57,9 @@ public interface AppStorage extends AutoCloseable {
 
     void setDescription(String nodeId, String description);
 
-    void enable(String nodeId);
+    default void consistent(String nodeId) {
+        throw new PowsyblException("Not implemented");
+    }
 
     void updateModificationTime(String nodeId);
 

@@ -39,8 +39,6 @@ public class ModificationScriptTest extends AbstractProjectFileTest {
     @Test
     public void test() {
         Project project = afs.getRootFolder().createProject("project");
-        storage.enable(project.getId());
-        storage.enable(project.getRootFolder().getId());
 
         ProjectFolder rootFolder = project.getRootFolder();
 
@@ -74,7 +72,6 @@ public class ModificationScriptTest extends AbstractProjectFileTest {
                 .withType(ScriptType.GROOVY)
                 .withContent("println 'hello'")
                 .build();
-        storage.enable(script.getId());
 
         assertNotNull(script);
         assertEquals("script", script.getName());

@@ -63,13 +63,13 @@ public class ForwardingAppStorage implements AppStorage {
     }
 
     @Override
-    public void enable(String nodeId) {
-        storage.enable(nodeId);
+    public void consistent(String nodeId) {
+        storage.consistent(nodeId);
     }
 
     @Override
-    public boolean isEnable(String nodeId) {
-        return storage.isEnable(nodeId);
+    public boolean isConsistent(String nodeId) {
+        return storage.isConsistent(nodeId);
     }
 
     @Override

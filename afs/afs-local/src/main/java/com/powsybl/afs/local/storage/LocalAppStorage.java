@@ -194,7 +194,7 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
-    public void enable(String nodeId) {
+    public void consistent(String nodeId) {
         throw new AssertionError();
     }
 
@@ -269,7 +269,7 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
-    public boolean isEnable(String nodeId) {
+    public boolean isConsistent(String nodeId) {
         return true;
     }
 
