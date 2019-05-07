@@ -45,6 +45,12 @@ public class NodeInfo {
         this.genericMetadata = Objects.requireNonNull(genericMetadata);
     }
 
+    public NodeInfo(String id, String name, String pseudoClass, String description, long creationTime, long modificationTime,
+                    int version, NodeGenericMetadata genericMetadata, boolean consistent) {
+        this(id, name, pseudoClass, description, creationTime, modificationTime, version, genericMetadata);
+        this.consistent = consistent;
+    }
+
     /**
      * Returns the ID of this node, uniquely identifying it in the file system.
      */
