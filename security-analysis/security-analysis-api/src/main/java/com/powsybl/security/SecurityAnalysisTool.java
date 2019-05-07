@@ -17,6 +17,7 @@ import com.powsybl.contingency.ContingenciesProviders;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.tools.AbstractImportingTool;
 import com.powsybl.iidm.tools.ConversionToolUtils;
 import com.powsybl.security.converter.SecurityAnalysisResultExporters;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
@@ -52,7 +53,7 @@ import static com.powsybl.tools.ToolConstants.TASK_COUNT;
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 @AutoService(Tool.class)
-public class SecurityAnalysisTool implements Tool {
+public class SecurityAnalysisTool extends AbstractImportingTool {
 
     @Override
     public Command getCommand() {
@@ -147,10 +148,6 @@ public class SecurityAnalysisTool implements Tool {
 
     protected TableFormatterConfig createTableFormatterConfig() {
         return TableFormatterConfig.load();
-    }
-
-    protected ImportConfig createImportConfig(CommandLine line) {
-        return ConversionToolUtils.createImportConfig(line);
     }
 
     private static Optional<String> getOptionValue(CommandLine line, String option) {

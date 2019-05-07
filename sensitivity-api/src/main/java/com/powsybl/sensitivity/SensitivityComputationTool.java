@@ -17,6 +17,7 @@ import com.powsybl.commons.io.table.TableFormatterFactory;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.tools.AbstractImportingTool;
 import com.powsybl.iidm.tools.ConversionToolUtils;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
@@ -40,16 +41,12 @@ import static com.powsybl.iidm.tools.ConversionToolUtils.*;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 @AutoService(Tool.class)
-public class SensitivityComputationTool implements Tool {
+public class SensitivityComputationTool extends AbstractImportingTool {
 
     private static final String CASE_FILE_OPTION = "case-file";
     private static final String OUTPUT_FILE_OPTION = "output-file";
     private static final String OUTPUT_FORMAT_OPTION = "output-format";
     private static final String FACTORS_FILE_OPTION = "factors-file";
-
-    protected ImportConfig createImportConfig(CommandLine line) {
-        return ConversionToolUtils.createImportConfig(line);
-    }
 
     @Override
     public Command getCommand() {

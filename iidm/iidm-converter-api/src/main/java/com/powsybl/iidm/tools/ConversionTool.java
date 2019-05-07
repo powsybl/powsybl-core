@@ -13,7 +13,6 @@ import com.powsybl.commons.datasource.DefaultDataSourceObserver;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.import_.GroovyScriptPostProcessor;
-import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.tools.Command;
@@ -34,16 +33,12 @@ import static com.powsybl.iidm.tools.ConversionToolUtils.*;
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 @AutoService(Tool.class)
-public class ConversionTool implements Tool {
+public class ConversionTool extends AbstractImportingTool {
 
     private static final String INPUT_FILE = "input-file";
     private static final String OUTPUT_FORMAT = "output-format";
     private static final String OUTPUT_FILE = "output-file";
     private static final String GROOVY_SCRIPT = "groovy-script";
-
-    protected ImportConfig createImportConfig(CommandLine line) {
-        return ConversionToolUtils.createImportConfig(line);
-    }
 
     @Override
     public Command getCommand() {
