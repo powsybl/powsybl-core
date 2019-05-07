@@ -125,7 +125,8 @@ public abstract class AbstractAppStorageTest {
         storage.flush();
 
         // check event
-        assertEventStack(new NodeCreated(testFolderInfo.getId(), rootFolderInfo.getId()));
+        assertEventStack(new NodeCreated(testFolderInfo.getId(), rootFolderInfo.getId()),
+                new NodeConsistent(testFolderInfo.getId()));
 
         // assert parent of test folder is root folder
         assertEquals(rootFolderInfo, storage.getParentNode(testFolderInfo.getId()).orElseThrow(AssertionError::new));
@@ -188,7 +189,10 @@ public abstract class AbstractAppStorageTest {
         // check events
         assertEventStack(new NodeCreated(testDataInfo.getId(), testFolderInfo.getId()),
                      new NodeCreated(testData2Info.getId(), testFolderInfo.getId()),
-                     new NodeCreated(testData3Info.getId(), testFolderInfo.getId()));
+                     new NodeCreated(testData3Info.getId(), testFolderInfo.getId()),
+                     new NodeConsistent(testDataInfo.getId()),
+                     new NodeConsistent(testData2Info.getId()),
+                     new NodeConsistent(testData3Info.getId()));
 
         // check info are correctly stored even with metadata
         assertEquals(testData2Info, storage.getNodeInfo(testData2Info.getId()));
@@ -454,14 +458,14 @@ public abstract class AbstractAppStorageTest {
         storage.consistent(folder2Info.getId());
         storage.flush();
 
-        discardEvents(2);
+        discardEvents(4);
 
         // create a file in folder 1
         NodeInfo fileInfo = storage.createNode(folder1Info.getId(), "file", "file-type", "", 0, new NodeGenericMetadata());
         storage.consistent(fileInfo.getId());
         storage.flush();
 
-        discardEvents(1);
+        discardEvents(2);
 
         // check parent folder
         assertEquals(folder1Info, storage.getParentNode(fileInfo.getId()).orElseThrow(AssertionError::new));
