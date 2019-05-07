@@ -155,7 +155,7 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-cgmes-conversion</artifactId>
+            <artifactId>powsybl-cgmes-converter</artifactId>
             <version>${project.version}</version>
         </dependency>
 

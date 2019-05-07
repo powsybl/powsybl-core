@@ -23,7 +23,7 @@
 
     <modules>
         <module>cgmes-conformity</module>
-        <module>cgmes-conversion</module>
+        <module>cgmes-converter</module>
         <module>cgmes-model</module>
         <module>cgmes-model-alternatives</module>
     </modules>
