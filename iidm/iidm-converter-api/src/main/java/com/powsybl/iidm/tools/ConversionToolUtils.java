@@ -114,7 +114,7 @@ public final class ConversionToolUtils {
 
     public static ImportConfig createImportConfig(CommandLine line, ImportConfig importConfig) {
         if (line.hasOption(SKIP_POSTPROC)) {
-            importConfig.setPostProcessors();
+            importConfig.clearPostProcessors();
         }
         return importConfig;
     }

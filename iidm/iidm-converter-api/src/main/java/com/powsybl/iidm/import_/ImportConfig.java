@@ -51,8 +51,13 @@ public class ImportConfig {
         return postProcessors;
     }
 
+    /**
+     * This method (as well as {@link #setPostProcessors(String...)} exists to anticipate evolutions of this class
+     * (i.e. addition of other attributes): it allows to set custom post processors on an ImportConfig instance
+     * where all the future potential other attributes have been loaded from the configuration file.
+     */
     public ImportConfig setPostProcessors(List<String> postProcessors) {
-        this.postProcessors = postProcessors;
+        this.postProcessors = Objects.requireNonNull(postProcessors);
         return this;
     }
 
@@ -61,12 +66,17 @@ public class ImportConfig {
     }
 
     public ImportConfig addPostProcessor(String postProcessor) {
-        postProcessors.add(postProcessor);
+        postProcessors.add(Objects.requireNonNull(postProcessor));
         return this;
     }
 
     public ImportConfig removePostProcessor(String postProcessor) {
         postProcessors.remove(postProcessor);
+        return this;
+    }
+
+    public ImportConfig clearPostProcessors() {
+        postProcessors.clear();
         return this;
     }
 

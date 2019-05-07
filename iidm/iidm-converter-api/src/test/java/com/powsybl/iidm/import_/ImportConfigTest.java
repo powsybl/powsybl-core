@@ -84,4 +84,11 @@ public class ImportConfigTest {
         ImportConfig importConfig = new ImportConfig("foo", "bar");
         checkImportConfig(importConfig.removePostProcessor("bar"), "foo");
     }
+
+    @Test
+    public void clearPostProcessors() {
+        ImportConfig importConfig = new ImportConfig("foo", "bar")
+                .clearPostProcessors();
+        assertTrue(importConfig.getPostProcessors().isEmpty());
+    }
 }
