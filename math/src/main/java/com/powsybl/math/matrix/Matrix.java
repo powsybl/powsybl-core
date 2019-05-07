@@ -53,6 +53,7 @@ public interface Matrix {
         /**
          * @deprecated Use {@link #onElement(int, int, double)} instead.
          */
+        @Deprecated
         default void onValue(int i, int j, double value) {
             onElement(i, j, value);
         }
