@@ -61,12 +61,12 @@ public class ImportConfig {
     }
 
     public ImportConfig addPostProcessor(String postProcessor) {
-        this.postProcessors.add(postProcessor);
+        postProcessors.add(postProcessor);
         return this;
     }
 
     public ImportConfig removePostProcessor(String postProcessor) {
-        this.postProcessors.remove(postProcessor);
+        postProcessors.remove(postProcessor);
         return this;
     }
 
