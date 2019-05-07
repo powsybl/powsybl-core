@@ -37,6 +37,6 @@ public class NodeConsistent extends NodeEvent {
 
     @Override
     public String toString() {
-        return "NodeConsistent(id=" + id + " + )";
+        return "NodeConsistent(id=" + id + ")";
     }
 }
