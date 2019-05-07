@@ -29,7 +29,6 @@ public class NodeInfoSerializer implements Serializer<NodeInfo>, Serializable {
         out.writeUTF(nodeInfo.getName());
         out.writeUTF(nodeInfo.getPseudoClass());
         out.writeUTF(nodeInfo.getDescription());
-        out.writeBoolean(nodeInfo.isConsistent());
         out.writeLong(nodeInfo.getCreationTime());
         out.writeLong(nodeInfo.getModificationTime());
         out.writeInt(nodeInfo.getVersion());
@@ -53,6 +52,7 @@ public class NodeInfoSerializer implements Serializer<NodeInfo>, Serializable {
             out.writeUTF(e.getKey());
             out.writeBoolean(e.getValue());
         }
+        out.writeBoolean(nodeInfo.isConsistent());
     }
 
     @Override
@@ -61,7 +61,6 @@ public class NodeInfoSerializer implements Serializer<NodeInfo>, Serializable {
         String name = input.readUTF();
         String pseudoClass = input.readUTF();
         String description = input.readUTF();
-        boolean consistent = input.readBoolean();
         long creationTime = input.readLong();
         long modificationTime = input.readLong();
         int version = input.readInt();
@@ -83,8 +82,13 @@ public class NodeInfoSerializer implements Serializer<NodeInfo>, Serializable {
             metadata.setBoolean(input.readUTF(), input.readBoolean());
         }
         NodeInfo nodeInfo = new NodeInfo(nodeId, name, pseudoClass, description, creationTime, modificationTime, version, metadata);
-        if (consistent) {
-            nodeInfo.consistent();
+        try {
+            boolean consistent = input.readBoolean();
+            if (consistent) {
+                nodeInfo.consistent();
+            }
+        } catch (IOException e) {
+            // Stored NodeInfo hasn't a consistent field
         }
         return nodeInfo;
     }
