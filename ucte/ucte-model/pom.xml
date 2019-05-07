@@ -18,9 +18,9 @@
         <version>3.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>powsybl-ucte-converter</artifactId>
-    <name>UCTE converter implementation</name>
-    <description>A converter implementation for UCTE networks</description>
+    <artifactId>powsybl-ucte-model</artifactId>
+    <name>UCTE network model</name>
+    <description>UCTE-DEF network model</description>
 
     <build>
         <plugins>
@@ -30,7 +30,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>com.powsybl.ucte.converter</Automatic-Module-Name>
+                            <Automatic-Module-Name>com.powsybl.ucte.model</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
@@ -41,8 +41,12 @@
     <dependencies>
         <!-- Compilation dependencies -->
         <dependency>
-            <groupId>com.google.auto.service</groupId>
-            <artifactId>auto-service</artifactId>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.jgrapht</groupId>
+            <artifactId>jgrapht-core</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -50,21 +54,21 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-iidm-converter-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-entsoe-util</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-ucte-model</artifactId>
+            <artifactId>powsybl-commons</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <!-- Test dependencies -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava-testlib</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.jimfs</groupId>
+            <artifactId>jimfs</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -77,8 +81,9 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-iidm-impl</artifactId>
+            <artifactId>powsybl-commons</artifactId>
             <version>${project.version}</version>
+            <type>test-jar</type>
             <scope>test</scope>
         </dependency>
     </dependencies>

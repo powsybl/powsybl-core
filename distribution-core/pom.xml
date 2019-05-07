@@ -361,7 +361,7 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-ucte-network</artifactId>
+            <artifactId>powsybl-ucte-model</artifactId>
             <version>${project.version}</version>
         </dependency>
 

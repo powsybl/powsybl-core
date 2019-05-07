@@ -25,7 +25,7 @@
 
     <modules>
         <module>ucte-converter</module>
-        <module>ucte-network</module>
+        <module>ucte-model</module>
     </modules>
 
 </project>

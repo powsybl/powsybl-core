@@ -19,11 +19,11 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.*;
-import com.powsybl.ucte.network.*;
-import com.powsybl.ucte.network.ext.UcteNetworkExt;
-import com.powsybl.ucte.network.ext.UcteSubstation;
-import com.powsybl.ucte.network.ext.UcteVoltageLevel;
-import com.powsybl.ucte.network.io.UcteReader;
+import com.powsybl.ucte.model.*;
+import com.powsybl.ucte.model.ext.UcteNetworkExt;
+import com.powsybl.ucte.model.ext.UcteSubstation;
+import com.powsybl.ucte.model.ext.UcteVoltageLevel;
+import com.powsybl.ucte.model.io.UcteReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
