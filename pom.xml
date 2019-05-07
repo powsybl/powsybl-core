@@ -378,6 +378,27 @@
 
     <profiles>
         <profile>
+            <id>java9+</id>
+            <activation>
+                <jdk>[9,)</jdk>
+            </activation>
+            <build>
+                <!-- This is merged in the main configuration but plexus-compiler-javac is smart enough
+                  to ignore the source and target arguments when the release argument is supplied. -->
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-compiler-plugin</artifactId>
+                            <configuration>
+                                <release>${java.version}</release>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+        <profile>
             <id>jacoco</id>
             <activation>
                 <activeByDefault>false</activeByDefault>
