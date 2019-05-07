@@ -9,8 +9,8 @@ package com.powsybl.cgmes.converter.elements;
 
 import com.powsybl.cgmes.converter.Context;
 import com.powsybl.cgmes.converter.CountryConversion;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.api.Country;
+import com.powsybl.iidm.api.Substation;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**

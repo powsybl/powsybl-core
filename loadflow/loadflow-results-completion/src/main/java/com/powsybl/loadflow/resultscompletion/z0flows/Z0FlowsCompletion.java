@@ -8,8 +8,8 @@ package com.powsybl.loadflow.resultscompletion.z0flows;
 
 import java.util.*;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Bus;
+import com.powsybl.iidm.api.Network;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

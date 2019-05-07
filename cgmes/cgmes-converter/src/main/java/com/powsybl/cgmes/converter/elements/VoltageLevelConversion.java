@@ -9,10 +9,10 @@ package com.powsybl.cgmes.converter.elements;
 
 import com.powsybl.cgmes.converter.Context;
 import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.VoltageLevelAdder;
+import com.powsybl.iidm.api.Substation;
+import com.powsybl.iidm.api.TopologyKind;
+import com.powsybl.iidm.api.VoltageLevel;
+import com.powsybl.iidm.api.VoltageLevelAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**

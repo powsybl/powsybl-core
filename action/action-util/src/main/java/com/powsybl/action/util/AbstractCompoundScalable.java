@@ -6,8 +6,8 @@
  */
 package com.powsybl.action.util;
 
-import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Injection;
+import com.powsybl.iidm.api.Network;
 
 import java.util.List;
 import java.util.Objects;

@@ -10,8 +10,8 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.AbstractConvertersTest;
-import com.powsybl.iidm.network.LoadType;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.LoadType;
+import com.powsybl.iidm.api.Network;
 import org.junit.*;
 import org.mockito.Mockito;
 

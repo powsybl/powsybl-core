@@ -7,7 +7,7 @@
 package com.powsybl.contingency.tasks;
 
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

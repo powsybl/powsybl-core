@@ -11,9 +11,9 @@ import java.util.Objects;
 
 import com.powsybl.cgmes.converter.Context;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.HvdcConverterStation;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.HvdcLineAdder;
+import com.powsybl.iidm.api.HvdcConverterStation;
+import com.powsybl.iidm.api.HvdcLine;
+import com.powsybl.iidm.api.HvdcLineAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**

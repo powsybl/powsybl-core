@@ -7,7 +7,7 @@
 
 package com.powsybl.cgmes.converter.test.network.compare;
 
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

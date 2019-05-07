@@ -19,7 +19,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

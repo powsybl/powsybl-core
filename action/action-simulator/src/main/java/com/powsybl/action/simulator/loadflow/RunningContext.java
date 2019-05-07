@@ -6,7 +6,7 @@
  */
 package com.powsybl.action.simulator.loadflow;
 
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 import com.powsybl.contingency.Contingency;
 
 import java.util.*;

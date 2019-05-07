@@ -9,9 +9,9 @@ package com.powsybl.action.util;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.tasks.ModificationTask;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.PhaseTapChanger;
+import com.powsybl.iidm.api.TwoWindingsTransformer;
 
 import java.util.Objects;
 

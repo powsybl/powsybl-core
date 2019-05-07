@@ -21,9 +21,9 @@ import com.powsybl.commons.io.table.TableFormatterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Bus;
+import com.powsybl.iidm.api.Generator;
+import com.powsybl.iidm.api.Network;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**

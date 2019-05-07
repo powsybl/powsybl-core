@@ -15,7 +15,7 @@ import org.junit.Test;
 
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.cgmes.converter.CountryConversion;
-import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.api.Country;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

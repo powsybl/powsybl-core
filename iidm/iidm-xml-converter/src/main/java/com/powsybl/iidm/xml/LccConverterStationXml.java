@@ -7,9 +7,9 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.LccConverterStation;
-import com.powsybl.iidm.network.LccConverterStationAdder;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.api.LccConverterStation;
+import com.powsybl.iidm.api.LccConverterStationAdder;
+import com.powsybl.iidm.api.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
 

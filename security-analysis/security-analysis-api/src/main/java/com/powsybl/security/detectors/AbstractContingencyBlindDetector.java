@@ -6,10 +6,10 @@
  */
 package com.powsybl.security.detectors;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.api.Branch;
+import com.powsybl.iidm.api.Bus;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.VoltageLevel;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationDetector;
 

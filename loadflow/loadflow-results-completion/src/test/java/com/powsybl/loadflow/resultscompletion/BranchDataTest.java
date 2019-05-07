@@ -10,7 +10,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import com.powsybl.iidm.network.util.BranchData;
+import com.powsybl.iidm.api.util.BranchData;
 
 /**
  *

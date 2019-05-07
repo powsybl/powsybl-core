@@ -7,7 +7,7 @@
 package com.powsybl.loadflow.mock;
 
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowFactory;
 

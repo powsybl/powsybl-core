@@ -16,7 +16,7 @@ import com.powsybl.commons.io.table.TableFormatterConfig;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.Test;
 
-import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.api.Branch;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.LimitViolationsResult;

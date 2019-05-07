@@ -7,7 +7,7 @@
 package com.powsybl.iidm.import_;
 
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 
 /**
  *

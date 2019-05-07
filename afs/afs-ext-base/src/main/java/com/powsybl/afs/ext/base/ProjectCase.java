@@ -6,7 +6,7 @@
  */
 package com.powsybl.afs.ext.base;
 
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 
 /**
  * Common interface for project files able to provide a Network.

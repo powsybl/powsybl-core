@@ -10,7 +10,7 @@ package com.powsybl.cgmes.conformity.test;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

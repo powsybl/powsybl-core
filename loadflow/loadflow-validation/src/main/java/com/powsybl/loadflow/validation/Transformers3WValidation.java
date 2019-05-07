@@ -17,10 +17,10 @@ import com.powsybl.commons.io.table.TableFormatterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
-import com.powsybl.iidm.network.util.TwtData;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.ThreeWindingsTransformer;
+import com.powsybl.iidm.api.ThreeWindingsTransformer.Side;
+import com.powsybl.iidm.api.util.TwtData;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**

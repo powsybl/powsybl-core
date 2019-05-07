@@ -24,7 +24,7 @@ import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.import_.ImportersLoader;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 
 import java.io.IOException;
 import java.io.OutputStreamWriter;

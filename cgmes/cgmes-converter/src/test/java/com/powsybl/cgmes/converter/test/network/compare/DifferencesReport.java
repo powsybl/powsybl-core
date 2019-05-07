@@ -12,7 +12,7 @@ import java.util.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.api.Identifiable;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

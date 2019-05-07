@@ -7,9 +7,9 @@
 package com.powsybl.loadflow;
 
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VariantManager;
-import com.powsybl.iidm.network.VariantManagerConstants;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.VariantManager;
+import com.powsybl.iidm.api.VariantManagerConstants;
 import com.powsybl.scripting.groovy.AbstractGroovyScriptTest;
 import com.powsybl.scripting.groovy.GroovyScriptExtension;
 import org.junit.Before;

@@ -7,14 +7,14 @@
 
 package com.powsybl.cgmes.converter.elements;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.api.*;
 import com.powsybl.cgmes.converter.Context;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.api.Branch;
+import com.powsybl.iidm.api.DanglingLine;
+import com.powsybl.iidm.api.Identifiable;
+import com.powsybl.iidm.api.Switch;
+import com.powsybl.iidm.api.Terminal;
+import com.powsybl.iidm.api.TwoWindingsTransformer;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**

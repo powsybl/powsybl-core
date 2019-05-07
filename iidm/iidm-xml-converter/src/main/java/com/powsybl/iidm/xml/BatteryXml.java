@@ -7,9 +7,9 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.BatteryAdder;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.api.Battery;
+import com.powsybl.iidm.api.BatteryAdder;
+import com.powsybl.iidm.api.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
 

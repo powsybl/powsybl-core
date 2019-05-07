@@ -15,7 +15,7 @@ import com.powsybl.afs.ext.base.ProjectCaseListener;
 import com.powsybl.afs.ext.base.ScriptType;
 import com.powsybl.afs.ws.client.utils.ClientUtils;
 import com.powsybl.afs.ws.client.utils.RemoteServiceConfig;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

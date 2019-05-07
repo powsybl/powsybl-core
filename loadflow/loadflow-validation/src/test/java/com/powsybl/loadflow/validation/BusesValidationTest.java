@@ -12,13 +12,13 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.stream.Stream;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.api.*;
 import org.apache.commons.io.output.NullWriter;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.powsybl.iidm.network.Terminal.BusView;
+import com.powsybl.iidm.api.Terminal.BusView;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**

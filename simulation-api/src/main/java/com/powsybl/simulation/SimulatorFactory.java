@@ -8,7 +8,7 @@ package com.powsybl.simulation;
 
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 
 /**
  *

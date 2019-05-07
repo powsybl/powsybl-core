@@ -7,9 +7,9 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.ShuntCompensatorAdder;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.api.ShuntCompensator;
+import com.powsybl.iidm.api.ShuntCompensatorAdder;
+import com.powsybl.iidm.api.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
 

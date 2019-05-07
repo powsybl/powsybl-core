@@ -17,15 +17,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.powsybl.iidm.network.Branch.Side;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.RatioTapChangerStep;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.Terminal.BusView;
+import com.powsybl.iidm.api.Branch.Side;
+import com.powsybl.iidm.api.Bus;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.RatioTapChanger;
+import com.powsybl.iidm.api.RatioTapChangerStep;
+import com.powsybl.iidm.api.Terminal;
+import com.powsybl.iidm.api.Terminal.BusView;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.api.TwoWindingsTransformer;
 
 /**
  *

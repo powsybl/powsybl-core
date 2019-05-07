@@ -10,7 +10,7 @@ import com.powsybl.afs.ProjectFile;
 import com.powsybl.afs.ext.base.ProjectCase;
 import com.powsybl.afs.ext.base.ScriptType;
 import com.powsybl.afs.ws.server.utils.JwtTokenNeeded;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 import com.powsybl.iidm.xml.NetworkXml;
 import com.powsybl.afs.ws.server.utils.AppDataBean;
 

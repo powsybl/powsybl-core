@@ -1,7 +1,7 @@
 package com.powsybl.entsoe.util;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.api.*;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
 import org.junit.Test;

@@ -12,12 +12,12 @@ import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.export.ExportOptions;
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TopologyLevel;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.network.test.BusbarSectionExt;
-import com.powsybl.iidm.network.test.NetworkTest1Factory;
+import com.powsybl.iidm.api.BusbarSection;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.TopologyLevel;
+import com.powsybl.iidm.api.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.api.test.BusbarSectionExt;
+import com.powsybl.iidm.api.test.NetworkTest1Factory;
 import org.joda.time.DateTime;
 import org.junit.Test;
 

@@ -12,7 +12,7 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.IidmImportExportMode;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 import org.junit.Before;
 import org.junit.Test;
 

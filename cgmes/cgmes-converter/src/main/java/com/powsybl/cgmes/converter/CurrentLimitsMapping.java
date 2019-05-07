@@ -6,7 +6,7 @@
  */
 package com.powsybl.cgmes.converter;
 
-import com.powsybl.iidm.network.CurrentLimitsAdder;
+import com.powsybl.iidm.api.CurrentLimitsAdder;
 
 import java.util.HashMap;
 import java.util.Map;

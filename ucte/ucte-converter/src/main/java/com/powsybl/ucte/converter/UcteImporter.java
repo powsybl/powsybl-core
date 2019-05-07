@@ -18,7 +18,7 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.entsoe.util.*;
 import com.powsybl.iidm.import_.Importer;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.api.*;
 import com.powsybl.ucte.model.*;
 import com.powsybl.ucte.model.ext.UcteNetworkExt;
 import com.powsybl.ucte.model.ext.UcteSubstation;

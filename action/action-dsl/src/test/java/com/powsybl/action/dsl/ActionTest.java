@@ -8,8 +8,8 @@ package com.powsybl.action.dsl;
 
 import com.powsybl.contingency.tasks.GeneratorTripping;
 import com.powsybl.contingency.tasks.ModificationTask;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
 import org.mockito.Mockito;
 

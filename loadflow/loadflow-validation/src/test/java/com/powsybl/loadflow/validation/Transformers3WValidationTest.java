@@ -18,8 +18,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.util.TwtTestData;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.util.TwtTestData;
 
 /**
  *

@@ -14,7 +14,7 @@ import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.extensions.ExtensionJsonSerializer;
-import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.api.Country;
 import com.powsybl.security.LimitViolation;
 
 import java.io.IOException;

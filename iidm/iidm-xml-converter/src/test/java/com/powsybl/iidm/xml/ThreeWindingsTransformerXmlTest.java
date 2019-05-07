@@ -11,7 +11,7 @@ import java.io.IOException;
 import org.junit.Test;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
+import com.powsybl.iidm.api.test.ThreeWindingsTransformerNetworkFactory;
 
 /**
  * @author Luma Zamarreno <zamarrenolm at aia.es>

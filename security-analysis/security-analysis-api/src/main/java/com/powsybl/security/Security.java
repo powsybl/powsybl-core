@@ -8,8 +8,8 @@
 package com.powsybl.security;
 
 import com.powsybl.commons.io.table.*;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.Country;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 
 import java.io.IOException;

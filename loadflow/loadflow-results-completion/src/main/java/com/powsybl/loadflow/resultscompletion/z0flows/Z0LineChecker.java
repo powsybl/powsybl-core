@@ -6,7 +6,7 @@
  */
 package com.powsybl.loadflow.resultscompletion.z0flows;
 
-import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.api.Line;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

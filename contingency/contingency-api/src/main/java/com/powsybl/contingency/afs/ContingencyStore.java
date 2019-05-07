@@ -13,7 +13,7 @@ import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.json.ContingencyJsonModule;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -8,8 +8,8 @@
 package com.powsybl.cgmes.converter.elements;
 
 import com.powsybl.cgmes.converter.Context;
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.BusbarSectionAdder;
+import com.powsybl.iidm.api.BusbarSection;
+import com.powsybl.iidm.api.BusbarSectionAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**

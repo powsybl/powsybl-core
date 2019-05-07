@@ -8,7 +8,7 @@ package com.powsybl.contingency.tasks;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.api.*;
 
 import java.util.Objects;
 import java.util.Set;

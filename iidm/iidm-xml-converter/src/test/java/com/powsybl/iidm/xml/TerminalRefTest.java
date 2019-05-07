@@ -13,7 +13,7 @@ import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersLoaderList;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 import org.junit.Test;
 import org.mockito.Mockito;
 

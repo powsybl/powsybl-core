@@ -16,13 +16,13 @@ import com.powsybl.cgmes.converter.Context;
 import com.powsybl.cgmes.converter.CountryConversion;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.api.Bus;
+import com.powsybl.iidm.api.BusbarSection;
+import com.powsybl.iidm.api.Country;
+import com.powsybl.iidm.api.Switch;
+import com.powsybl.iidm.api.Terminal;
+import com.powsybl.iidm.api.TopologyKind;
+import com.powsybl.iidm.api.VoltageLevel;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**

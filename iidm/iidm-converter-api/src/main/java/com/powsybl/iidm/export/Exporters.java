@@ -13,7 +13,7 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceObserver;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.FileDataSource;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;

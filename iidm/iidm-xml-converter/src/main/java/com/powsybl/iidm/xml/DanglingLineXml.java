@@ -7,9 +7,9 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.DanglingLineAdder;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.api.DanglingLine;
+import com.powsybl.iidm.api.DanglingLineAdder;
+import com.powsybl.iidm.api.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
 

@@ -6,9 +6,9 @@
  */
 package com.powsybl.security;
 
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.api.Country;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
 
 import java.util.Arrays;

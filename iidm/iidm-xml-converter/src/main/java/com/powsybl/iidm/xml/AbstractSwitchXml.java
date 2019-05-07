@@ -6,9 +6,9 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.iidm.network.IdentifiableAdder;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.api.IdentifiableAdder;
+import com.powsybl.iidm.api.Switch;
+import com.powsybl.iidm.api.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
 

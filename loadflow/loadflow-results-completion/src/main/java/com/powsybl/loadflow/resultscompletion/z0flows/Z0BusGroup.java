@@ -14,9 +14,9 @@ import org.jgrapht.graph.SimpleWeightedGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.api.Bus;
+import com.powsybl.iidm.api.Line;
+import com.powsybl.iidm.api.Terminal;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

@@ -15,8 +15,8 @@ import java.util.List;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.util.StringToIntMapper;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.HvdcLine;
+import com.powsybl.iidm.api.Network;
 
 /**
 *

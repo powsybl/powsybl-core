@@ -15,15 +15,16 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.api.Bus;
+import com.powsybl.iidm.api.Country;
+import com.powsybl.iidm.api.Generator;
+import com.powsybl.iidm.api.Line;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.NetworkFactory;
+import com.powsybl.iidm.api.Substation;
+import com.powsybl.iidm.api.TopologyKind;
+import com.powsybl.iidm.api.TwoWindingsTransformer;
+import com.powsybl.iidm.api.VoltageLevel;
 import com.powsybl.iidm.xml.XMLImporter;
 
 /**

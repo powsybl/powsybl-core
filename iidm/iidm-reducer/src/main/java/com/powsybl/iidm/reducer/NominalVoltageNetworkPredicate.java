@@ -6,8 +6,8 @@
  */
 package com.powsybl.iidm.reducer;
 
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.api.Substation;
+import com.powsybl.iidm.api.VoltageLevel;
 
 import java.util.Objects;
 

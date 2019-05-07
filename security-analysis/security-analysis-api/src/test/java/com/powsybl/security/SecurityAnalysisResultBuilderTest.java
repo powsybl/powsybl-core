@@ -1,9 +1,9 @@
 package com.powsybl.security;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.VoltageLevel;
+import com.powsybl.iidm.api.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.interceptors.RunningContext;
 import org.junit.Test;
 

@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.anonymizer;
 
-import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.api.Country;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

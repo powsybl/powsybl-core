@@ -11,7 +11,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.powsybl.cgmes.converter.elements.AbstractIdentifiedObjectConversion;
-import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.api.Country;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

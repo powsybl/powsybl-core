@@ -6,7 +6,7 @@
  */
 package com.powsybl.afs.ext.base;
 
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 import groovy.lang.Binding;
 import groovy.lang.GroovyShell;
 import groovy.lang.MissingMethodException;

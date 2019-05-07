@@ -21,7 +21,7 @@ import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 import com.powsybl.iidm.tools.ConversionToolUtils;
 import com.powsybl.security.Security;
 import com.powsybl.security.SecurityAnalysisResult;

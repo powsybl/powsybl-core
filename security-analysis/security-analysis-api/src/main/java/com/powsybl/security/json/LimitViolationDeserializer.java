@@ -14,7 +14,7 @@ import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.extensions.*;
 import com.powsybl.commons.json.JsonUtil;
-import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.api.Branch;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
 

@@ -9,9 +9,9 @@ package com.powsybl.iidm.dsv;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.MemDataSource;
-import com.powsybl.iidm.network.HvdcLine;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.test.*;
+import com.powsybl.iidm.api.HvdcLine;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.test.*;
 
 import org.junit.Assert;
 import org.junit.Test;

@@ -6,9 +6,9 @@
  */
 package com.powsybl.loadflow.resultscompletion.z0flows;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.api.Branch;
+import com.powsybl.iidm.api.Bus;
+import com.powsybl.iidm.api.Terminal;
 
 import java.util.Objects;
 

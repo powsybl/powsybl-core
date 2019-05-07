@@ -6,7 +6,7 @@
  */
 package com.powsybl.security;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.api.*;
 
 import java.util.Objects;
 import java.util.Optional;

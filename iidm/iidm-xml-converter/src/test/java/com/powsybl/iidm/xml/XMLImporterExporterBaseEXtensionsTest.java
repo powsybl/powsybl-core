@@ -9,7 +9,7 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.*;
 import com.powsybl.iidm.IidmImportExportMode;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;

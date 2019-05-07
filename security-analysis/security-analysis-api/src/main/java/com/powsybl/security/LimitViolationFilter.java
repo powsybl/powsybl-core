@@ -8,8 +8,8 @@
 package com.powsybl.security;
 
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Country;
+import com.powsybl.iidm.api.Network;
 
 import java.util.*;
 import java.util.stream.Collectors;

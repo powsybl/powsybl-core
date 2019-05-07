@@ -6,8 +6,8 @@
  */
 package com.powsybl.security.afs;
 
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.api.*;
+import com.powsybl.iidm.api.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
 import com.powsybl.security.LimitViolationsResult;

@@ -39,11 +39,11 @@ import com.powsybl.cgmes.converter.test.ConversionTester;
 import com.powsybl.cgmes.converter.test.network.compare.ComparisonConfig;
 import com.powsybl.computation.ComputationManager;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.api.Bus;
+import com.powsybl.iidm.api.Country;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.Substation;
+import com.powsybl.iidm.api.TopologyKind;
 
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.mock.LoadFlowFactoryMock;

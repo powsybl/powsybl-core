@@ -6,9 +6,9 @@
  */
 package com.powsybl.action.simulator;
 
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.api.Line;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.test.EurostagTutorialExample1Factory;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

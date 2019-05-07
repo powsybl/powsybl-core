@@ -7,9 +7,9 @@
 package com.powsybl.action.util;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Injection;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Identifiable;
+import com.powsybl.iidm.api.Injection;
+import com.powsybl.iidm.api.Network;
 
 import java.util.Objects;
 

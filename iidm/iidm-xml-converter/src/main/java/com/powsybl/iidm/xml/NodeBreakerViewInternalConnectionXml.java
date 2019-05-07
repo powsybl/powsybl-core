@@ -11,7 +11,7 @@ import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
 import javax.xml.stream.XMLStreamException;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.api.VoltageLevel;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

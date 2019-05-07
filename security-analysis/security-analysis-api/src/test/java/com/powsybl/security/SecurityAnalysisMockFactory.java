@@ -7,7 +7,7 @@
 package com.powsybl.security;
 
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 
 import java.util.concurrent.CompletableFuture;
 

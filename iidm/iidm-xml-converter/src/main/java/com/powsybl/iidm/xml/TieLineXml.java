@@ -7,9 +7,9 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TieLine;
-import com.powsybl.iidm.network.TieLineAdder;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.TieLine;
+import com.powsybl.iidm.api.TieLineAdder;
 
 import javax.xml.stream.XMLStreamException;
 

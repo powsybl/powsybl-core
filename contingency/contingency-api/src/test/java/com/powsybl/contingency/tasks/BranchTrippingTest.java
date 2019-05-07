@@ -10,9 +10,9 @@ import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.BranchContingency;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
+import com.powsybl.iidm.api.*;
+import com.powsybl.iidm.api.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.api.test.FictitiousSwitchFactory;
 import org.junit.Test;
 
 import java.util.Collections;

@@ -7,7 +7,7 @@
 package com.powsybl.security;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 import org.joda.time.DateTime;
 
 import java.util.Objects;

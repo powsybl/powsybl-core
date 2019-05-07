@@ -8,8 +8,8 @@ package com.powsybl.iidm.import_;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.test.EurostagTutorialExample1Factory;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;

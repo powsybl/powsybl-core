@@ -14,9 +14,9 @@ import java.util.stream.Stream;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.api.Generator;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.Terminal;
 
 /**
  *

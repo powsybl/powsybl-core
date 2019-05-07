@@ -14,7 +14,7 @@ import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorConfig;
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorObserver;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
 import groovy.lang.GroovyCodeSource;
 import groovy.lang.GroovyShell;

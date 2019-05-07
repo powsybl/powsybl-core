@@ -9,7 +9,7 @@ package com.powsybl.security.distributed;
 import com.powsybl.computation.Partition;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 
 import java.util.ArrayList;
 import java.util.List;

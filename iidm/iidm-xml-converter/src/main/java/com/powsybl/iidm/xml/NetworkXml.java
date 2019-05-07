@@ -24,7 +24,7 @@ import com.powsybl.iidm.anonymizer.SimpleAnonymizer;
 import com.powsybl.iidm.export.BusFilter;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.import_.ImportOptions;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.api.*;
 import javanet.staxutils.IndentingXMLStreamWriter;
 import org.apache.commons.io.FilenameUtils;
 import org.joda.time.DateTime;

@@ -20,7 +20,7 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,11 +31,11 @@ import com.powsybl.commons.extensions.Extension;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.util.StringToIntMapper;
-import com.powsybl.iidm.network.CurrentLimits.TemporaryLimit;
-import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
-import com.powsybl.iidm.network.util.ConnectedComponents;
-import com.powsybl.iidm.network.util.SV;
+import com.powsybl.iidm.api.CurrentLimits.TemporaryLimit;
+import com.powsybl.iidm.api.HvdcConverterStation.HvdcType;
+import com.powsybl.iidm.api.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.api.util.ConnectedComponents;
+import com.powsybl.iidm.api.util.SV;
 
 import static com.powsybl.iidm.dsv.AmplConstants.DEFAULT_VARIANT_INDEX;
 import static com.powsybl.iidm.dsv.AmplConstants.VARIANT;

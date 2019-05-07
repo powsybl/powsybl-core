@@ -7,10 +7,10 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.LoadAdder;
-import com.powsybl.iidm.network.LoadType;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.api.Load;
+import com.powsybl.iidm.api.LoadAdder;
+import com.powsybl.iidm.api.LoadType;
+import com.powsybl.iidm.api.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
 

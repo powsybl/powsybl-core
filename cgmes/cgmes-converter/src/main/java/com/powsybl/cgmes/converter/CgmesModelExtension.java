@@ -10,7 +10,7 @@ import java.util.Objects;
 
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

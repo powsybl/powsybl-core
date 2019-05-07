@@ -8,7 +8,7 @@ package com.powsybl.entsoe.util;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.api.Country;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;

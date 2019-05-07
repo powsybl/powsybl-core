@@ -18,7 +18,7 @@ import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
-import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.api.Branch;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
 

@@ -11,7 +11,7 @@ import com.powsybl.afs.ServiceExtension;
 import com.powsybl.afs.ext.base.LocalNetworkCacheServiceExtension;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 import com.powsybl.security.*;
 import com.powsybl.security.afs.SecurityAnalysisRunnerTest;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;

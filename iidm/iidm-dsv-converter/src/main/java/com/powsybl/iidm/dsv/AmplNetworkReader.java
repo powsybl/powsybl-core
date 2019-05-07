@@ -8,9 +8,9 @@ package com.powsybl.iidm.dsv;
 
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.util.StringToIntMapper;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.HvdcLine.ConvertersMode;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.api.*;
+import com.powsybl.iidm.api.HvdcLine.ConvertersMode;
+import com.powsybl.iidm.api.StaticVarCompensator.RegulationMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -6,7 +6,7 @@
  */
 package com.powsybl.security;
 
-import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.api.Branch;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 

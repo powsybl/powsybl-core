@@ -11,8 +11,8 @@ import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.commons.xml.XmlWriterContext;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.test.LoadZipModel;
+import com.powsybl.iidm.api.Load;
+import com.powsybl.iidm.api.test.LoadZipModel;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;

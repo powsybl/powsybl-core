@@ -6,7 +6,7 @@
  */
 package com.powsybl.contingency.tasks;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.api.*;
 
 import java.util.Objects;
 import java.util.Set;

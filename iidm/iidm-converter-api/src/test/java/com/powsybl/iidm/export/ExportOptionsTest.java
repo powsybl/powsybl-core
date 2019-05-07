@@ -8,7 +8,7 @@ package com.powsybl.iidm.export;
 
 import com.google.common.collect.Sets;
 import com.powsybl.iidm.IidmImportExportMode;
-import com.powsybl.iidm.network.TopologyLevel;
+import com.powsybl.iidm.api.TopologyLevel;
 import org.junit.Test;
 
 import java.util.HashSet;

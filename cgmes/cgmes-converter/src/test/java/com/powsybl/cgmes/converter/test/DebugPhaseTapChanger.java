@@ -13,9 +13,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.util.BranchData;
+import com.powsybl.iidm.api.Branch;
+import com.powsybl.iidm.api.TwoWindingsTransformer;
+import com.powsybl.iidm.api.util.BranchData;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

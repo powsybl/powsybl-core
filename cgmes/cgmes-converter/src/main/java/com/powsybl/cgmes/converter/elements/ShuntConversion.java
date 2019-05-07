@@ -10,8 +10,8 @@ package com.powsybl.cgmes.converter.elements;
 import com.powsybl.cgmes.converter.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.ShuntCompensatorAdder;
+import com.powsybl.iidm.api.ShuntCompensator;
+import com.powsybl.iidm.api.ShuntCompensatorAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 

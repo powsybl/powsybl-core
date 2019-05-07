@@ -7,7 +7,7 @@
 package com.powsybl.sensitivity.mock;
 
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 import com.powsybl.sensitivity.JsonSensitivityFactorsProvider;
 import com.powsybl.sensitivity.SensitivityComputation;
 import com.powsybl.sensitivity.SensitivityComputationFactory;

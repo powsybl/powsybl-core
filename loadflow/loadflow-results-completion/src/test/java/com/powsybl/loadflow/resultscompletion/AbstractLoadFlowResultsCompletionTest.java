@@ -6,9 +6,9 @@
  */
 package com.powsybl.loadflow.resultscompletion;
 
-import com.powsybl.iidm.network.Branch.Side;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.Terminal.BusView;
+import com.powsybl.iidm.api.Branch.Side;
+import com.powsybl.iidm.api.*;
+import com.powsybl.iidm.api.Terminal.BusView;
 
 import static org.junit.Assert.assertEquals;
 
@@ -19,17 +19,17 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Matchers;
 import org.mockito.Mockito;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.RatioTapChangerStep;
-import com.powsybl.iidm.network.ShuntCompensator;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg1;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg2or3;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.api.Bus;
+import com.powsybl.iidm.api.Line;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.RatioTapChanger;
+import com.powsybl.iidm.api.RatioTapChangerStep;
+import com.powsybl.iidm.api.ShuntCompensator;
+import com.powsybl.iidm.api.Terminal;
+import com.powsybl.iidm.api.ThreeWindingsTransformer;
+import com.powsybl.iidm.api.ThreeWindingsTransformer.Leg1;
+import com.powsybl.iidm.api.ThreeWindingsTransformer.Leg2or3;
+import com.powsybl.iidm.api.TwoWindingsTransformer;
 
 /**
  *

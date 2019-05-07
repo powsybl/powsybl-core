@@ -12,14 +12,14 @@ import org.joda.time.DateTime;
 import org.junit.Test;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
+import com.powsybl.iidm.api.Country;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.NetworkFactory;
+import com.powsybl.iidm.api.Substation;
+import com.powsybl.iidm.api.SwitchKind;
+import com.powsybl.iidm.api.TopologyKind;
+import com.powsybl.iidm.api.VoltageLevel;
+import com.powsybl.iidm.api.VoltageLevel.NodeBreakerView;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

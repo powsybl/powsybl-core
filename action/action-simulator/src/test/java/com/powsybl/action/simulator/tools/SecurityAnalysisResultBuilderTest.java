@@ -8,7 +8,7 @@ package com.powsybl.action.simulator.tools;
 
 import com.powsybl.action.simulator.loadflow.RunningContext;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.api.Branch;
 import com.powsybl.security.*;
 import org.junit.Test;
 

@@ -10,9 +10,9 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.commons.util.StringToIntMapper;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
-import com.powsybl.iidm.network.test.*;
+import com.powsybl.iidm.api.*;
+import com.powsybl.iidm.api.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.api.test.*;
 import org.junit.Test;
 
 import java.io.IOException;

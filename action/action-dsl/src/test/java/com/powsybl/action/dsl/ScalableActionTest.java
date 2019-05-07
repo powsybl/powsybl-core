@@ -6,10 +6,10 @@
  */
 package com.powsybl.action.dsl;
 
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.api.Generator;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.VoltageLevel;
+import com.powsybl.iidm.api.test.EurostagTutorialExample1Factory;
 import groovy.lang.GroovyCodeSource;
 import org.junit.Before;
 import org.junit.Test;

@@ -13,7 +13,7 @@ import com.powsybl.afs.ext.base.AbstractModificationScript;
 import com.powsybl.afs.ext.base.ScriptType;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -6,10 +6,10 @@
  */
 package com.powsybl.action.util;
 
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.test.NetworkTest1Factory;
+import com.powsybl.iidm.api.Generator;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.Switch;
+import com.powsybl.iidm.api.test.NetworkTest1Factory;
 import org.junit.Assert;
 import org.junit.Test;
 

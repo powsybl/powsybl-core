@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.api.*;
 
 import javax.xml.stream.XMLStreamException;
 import java.util.Arrays;

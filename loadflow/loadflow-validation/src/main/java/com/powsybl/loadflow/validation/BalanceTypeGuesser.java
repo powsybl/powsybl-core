@@ -12,8 +12,8 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.Objects;
 import java.util.stream.Stream;
 
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Generator;
+import com.powsybl.iidm.api.Network;
 
 /**
  *

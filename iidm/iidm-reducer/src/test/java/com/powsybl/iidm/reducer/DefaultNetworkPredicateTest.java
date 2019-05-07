@@ -6,8 +6,8 @@
  */
 package com.powsybl.iidm.reducer;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.test.EurostagTutorialExample1Factory;
 import org.junit.Test;
 
 import static org.junit.Assert.assertTrue;

@@ -9,7 +9,7 @@ package com.powsybl.loadflow.validation;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.commons.io.table.TableFormatterConfig;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 import java.io.IOException;

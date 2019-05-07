@@ -7,10 +7,10 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.MinMaxReactiveLimits;
-import com.powsybl.iidm.network.ReactiveCapabilityCurve;
-import com.powsybl.iidm.network.ReactiveCapabilityCurveAdder;
-import com.powsybl.iidm.network.ReactiveLimitsHolder;
+import com.powsybl.iidm.api.MinMaxReactiveLimits;
+import com.powsybl.iidm.api.ReactiveCapabilityCurve;
+import com.powsybl.iidm.api.ReactiveCapabilityCurveAdder;
+import com.powsybl.iidm.api.ReactiveLimitsHolder;
 
 import javax.xml.stream.XMLStreamException;
 

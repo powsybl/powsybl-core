@@ -8,7 +8,7 @@ package com.powsybl.action.simulator;
 
 import com.powsybl.action.dsl.ActionDslException;
 import com.powsybl.action.dsl.ActionDslLoader;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 import groovy.lang.GroovyCodeSource;
 import groovy.lang.GroovyShell;
 import org.junit.Rule;

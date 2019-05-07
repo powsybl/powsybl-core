@@ -8,7 +8,7 @@ package com.powsybl.action.dsl.task;
 
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.tasks.ModificationTask;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 import groovy.lang.Closure;
 
 import java.util.Objects;

@@ -7,8 +7,8 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
+import com.powsybl.iidm.api.*;
+import com.powsybl.iidm.api.ThreeWindingsTransformerAdder.LegAdder;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;

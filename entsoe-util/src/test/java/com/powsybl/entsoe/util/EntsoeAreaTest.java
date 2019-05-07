@@ -6,7 +6,7 @@
  */
 package com.powsybl.entsoe.util;
 
-import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.api.Substation;
 import org.junit.Test;
 import org.mockito.Mockito;
 

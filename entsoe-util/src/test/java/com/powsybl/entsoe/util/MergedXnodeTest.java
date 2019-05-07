@@ -6,7 +6,7 @@
  */
 package com.powsybl.entsoe.util;
 
-import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.api.Line;
 import org.junit.Test;
 import org.mockito.Mockito;
 

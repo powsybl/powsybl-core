@@ -14,12 +14,12 @@ import org.apache.commons.math3.complex.Complex;
 import com.powsybl.cgmes.converter.Context;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.iidm.network.DanglingLine;
-import com.powsybl.iidm.network.DanglingLineAdder;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.LineAdder;
-import com.powsybl.iidm.network.TieLineAdder;
-import com.powsybl.iidm.network.util.SV;
+import com.powsybl.iidm.api.DanglingLine;
+import com.powsybl.iidm.api.DanglingLineAdder;
+import com.powsybl.iidm.api.Line;
+import com.powsybl.iidm.api.LineAdder;
+import com.powsybl.iidm.api.TieLineAdder;
+import com.powsybl.iidm.api.util.SV;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**

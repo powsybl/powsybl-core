@@ -7,7 +7,7 @@
 package com.powsybl.iidm.dsv;
 
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.iidm.network.HvdcLine;
+import com.powsybl.iidm.api.HvdcLine;
 
 /**
 *

@@ -6,7 +6,7 @@
  */
 package com.powsybl.cgmes.converter;
 
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 import com.powsybl.triplestore.api.TripleStore;
 
 /**

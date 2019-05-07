@@ -9,8 +9,8 @@ package com.powsybl.contingency;
 import com.powsybl.commons.extensions.AbstractExtendable;
 import com.powsybl.contingency.tasks.CompoundModificationTask;
 import com.powsybl.contingency.tasks.ModificationTask;
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Branch;
+import com.powsybl.iidm.api.Network;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

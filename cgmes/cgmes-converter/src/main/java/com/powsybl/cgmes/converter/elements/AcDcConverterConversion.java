@@ -10,10 +10,10 @@ package com.powsybl.cgmes.converter.elements;
 import java.util.Objects;
 
 import com.powsybl.cgmes.converter.Context;
-import com.powsybl.iidm.network.HvdcConverterStation;
-import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
-import com.powsybl.iidm.network.LccConverterStationAdder;
-import com.powsybl.iidm.network.VscConverterStationAdder;
+import com.powsybl.iidm.api.HvdcConverterStation;
+import com.powsybl.iidm.api.HvdcConverterStation.HvdcType;
+import com.powsybl.iidm.api.LccConverterStationAdder;
+import com.powsybl.iidm.api.VscConverterStationAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**

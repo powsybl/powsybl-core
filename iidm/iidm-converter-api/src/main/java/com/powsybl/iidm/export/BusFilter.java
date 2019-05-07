@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.export;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.api.*;
 
 import java.util.HashSet;
 import java.util.Objects;

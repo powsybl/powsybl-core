@@ -7,7 +7,7 @@
 package com.powsybl.afs.ext.base;
 
 import com.powsybl.afs.ProjectFile;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 
 /**
  * Provides caching capabilities for loaded {@code Network} objects.

@@ -11,10 +11,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.converter.Context;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.LineAdder;
-import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.api.Line;
+import com.powsybl.iidm.api.LineAdder;
+import com.powsybl.iidm.api.SwitchKind;
+import com.powsybl.iidm.api.VoltageLevel;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**

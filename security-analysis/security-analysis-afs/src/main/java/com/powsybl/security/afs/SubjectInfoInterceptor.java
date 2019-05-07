@@ -6,7 +6,7 @@
  */
 package com.powsybl.security.afs;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.api.*;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationsResult;
 import com.powsybl.security.PostContingencyResult;

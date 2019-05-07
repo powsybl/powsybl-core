@@ -10,8 +10,8 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.iidm.export.ExportOptions;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
+import com.powsybl.iidm.api.*;
+import com.powsybl.iidm.api.test.FictitiousSwitchFactory;
 import org.junit.Before;
 import org.junit.Test;
 

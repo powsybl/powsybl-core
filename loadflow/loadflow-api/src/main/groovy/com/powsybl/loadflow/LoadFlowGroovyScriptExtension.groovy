@@ -11,7 +11,7 @@ import com.google.common.base.Supplier
 import com.google.common.base.Suppliers
 import com.powsybl.commons.config.ComponentDefaultConfig
 import com.powsybl.computation.ComputationManager
-import com.powsybl.iidm.network.Network
+import com.powsybl.iidm.api.Network
 import com.powsybl.scripting.groovy.GroovyScriptExtension
 
 /**

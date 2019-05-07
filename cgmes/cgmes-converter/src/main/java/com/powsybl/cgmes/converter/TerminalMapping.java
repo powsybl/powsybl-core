@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.powsybl.cgmes.model.CgmesModelException;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.api.Terminal;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**

@@ -11,8 +11,8 @@ import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.import_.ImportOptions;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.test.MultipleExtensionsTestNetworkFactory;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;

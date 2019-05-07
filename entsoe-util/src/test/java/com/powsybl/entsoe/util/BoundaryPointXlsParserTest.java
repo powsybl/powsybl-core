@@ -6,7 +6,7 @@
  */
 package com.powsybl.entsoe.util;
 
-import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.api.Country;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;

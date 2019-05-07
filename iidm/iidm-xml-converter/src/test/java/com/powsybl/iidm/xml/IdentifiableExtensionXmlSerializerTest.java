@@ -14,8 +14,8 @@ import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.export.ExportOptions;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.test.*;
+import com.powsybl.iidm.api.*;
+import com.powsybl.iidm.api.test.*;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;

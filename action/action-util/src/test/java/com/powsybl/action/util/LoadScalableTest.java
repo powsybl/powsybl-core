@@ -8,8 +8,8 @@ package com.powsybl.action.util;
 
 import com.powsybl.action.util.Scalable.ScalingConvention;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Load;
+import com.powsybl.iidm.api.Network;
 import org.junit.Before;
 import org.junit.Test;
 

@@ -7,7 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.iidm.network.test.SvcTestCaseFactory;
+import com.powsybl.iidm.api.test.SvcTestCaseFactory;
 import org.junit.Test;
 
 import java.io.IOException;

@@ -8,7 +8,7 @@ package com.powsybl.action.dsl;
 
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.tasks.ModificationTask;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 
 import java.util.ArrayList;
 import java.util.List;

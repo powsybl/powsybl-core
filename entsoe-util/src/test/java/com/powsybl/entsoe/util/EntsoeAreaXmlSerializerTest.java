@@ -1,10 +1,10 @@
 package com.powsybl.entsoe.util;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.api.Country;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.NetworkFactory;
+import com.powsybl.iidm.api.Substation;
 import com.powsybl.iidm.xml.NetworkXml;
 import org.joda.time.DateTime;
 import org.junit.Test;

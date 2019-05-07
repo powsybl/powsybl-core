@@ -8,11 +8,11 @@
 package com.powsybl.cgmes.converter.elements;
 
 import com.powsybl.cgmes.converter.Context;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
-import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.Leg1Adder;
-import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.Leg2or3Adder;
-import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
+import com.powsybl.iidm.api.ThreeWindingsTransformer;
+import com.powsybl.iidm.api.ThreeWindingsTransformerAdder;
+import com.powsybl.iidm.api.ThreeWindingsTransformerAdder.Leg1Adder;
+import com.powsybl.iidm.api.ThreeWindingsTransformerAdder.Leg2or3Adder;
+import com.powsybl.iidm.api.ThreeWindingsTransformerAdder.LegAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 

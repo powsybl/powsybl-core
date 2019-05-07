@@ -8,7 +8,7 @@ package com.powsybl.entsoe.util;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.api.Country;
 
 import java.util.Collection;
 import java.util.concurrent.locks.Lock;

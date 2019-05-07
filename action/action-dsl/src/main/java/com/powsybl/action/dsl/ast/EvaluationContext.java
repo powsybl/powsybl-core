@@ -7,7 +7,7 @@
 package com.powsybl.action.dsl.ast;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

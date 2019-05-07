@@ -7,10 +7,10 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.BusbarSection;
-import com.powsybl.iidm.network.BusbarSectionAdder;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.api.Bus;
+import com.powsybl.iidm.api.BusbarSection;
+import com.powsybl.iidm.api.BusbarSectionAdder;
+import com.powsybl.iidm.api.VoltageLevel;
 
 import javax.xml.stream.XMLStreamException;
 

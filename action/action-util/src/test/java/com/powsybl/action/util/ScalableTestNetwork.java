@@ -6,7 +6,7 @@
  */
 package com.powsybl.action.util;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.api.*;
 
 /**
  * @author Ameni Walha <ameni.walha at rte-france.com>

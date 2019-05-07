@@ -6,11 +6,11 @@
  */
 package com.powsybl.security.detectors;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.api.Branch;
+import com.powsybl.iidm.api.Line;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.VoltageLevel;
+import com.powsybl.iidm.api.test.EurostagTutorialExample1Factory;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationDetector;
 import com.powsybl.security.LimitViolationType;

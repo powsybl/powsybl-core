@@ -7,11 +7,11 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlUtil;
-import com.powsybl.iidm.network.RatioTapChanger;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.ThreeWindingsTransformerAdder;
-import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
+import com.powsybl.iidm.api.RatioTapChanger;
+import com.powsybl.iidm.api.Substation;
+import com.powsybl.iidm.api.ThreeWindingsTransformer;
+import com.powsybl.iidm.api.ThreeWindingsTransformerAdder;
+import com.powsybl.iidm.api.ThreeWindingsTransformerAdder.LegAdder;
 
 import javax.xml.stream.XMLStreamException;
 

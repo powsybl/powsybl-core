@@ -7,7 +7,7 @@
 package com.powsybl.action.simulator.loadflow;
 
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 import org.junit.Before;
 import org.junit.Test;
 

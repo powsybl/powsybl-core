@@ -8,8 +8,8 @@ package com.powsybl.afs;
 
 import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Substation;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.Substation;
 import org.junit.After;
 import org.junit.Before;
 import org.mockito.Mockito;

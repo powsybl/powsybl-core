@@ -8,7 +8,7 @@ package com.powsybl.action.simulator.loadflow;
 
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 
 import org.junit.Test;
 import org.mockito.Mockito;

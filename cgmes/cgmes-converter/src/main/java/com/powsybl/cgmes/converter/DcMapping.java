@@ -10,7 +10,7 @@ package com.powsybl.cgmes.converter;
 import java.util.*;
 
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.HvdcConverterStation;
+import com.powsybl.iidm.api.HvdcConverterStation;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**

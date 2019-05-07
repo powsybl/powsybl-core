@@ -13,7 +13,7 @@ import com.powsybl.contingency.tasks.ModificationTask
 import com.powsybl.dsl.DslLoader
 import com.powsybl.dsl.ast.BooleanLiteralNode
 import com.powsybl.dsl.ast.ExpressionNode
-import com.powsybl.iidm.network.Network
+import com.powsybl.iidm.api.Network
 import org.codehaus.groovy.control.CompilationFailedException
 import org.slf4j.LoggerFactory
 

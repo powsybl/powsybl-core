@@ -12,10 +12,10 @@ import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.entsoe.util.EntsoeArea;
 import com.powsybl.entsoe.util.EntsoeGeographicalCode;
 import com.powsybl.entsoe.util.MergedXnode;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TieLine;
+import com.powsybl.iidm.api.Country;
+import com.powsybl.iidm.api.Line;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.TieLine;
 import org.junit.Test;
 
 import static org.junit.Assert.*;

@@ -10,7 +10,7 @@ import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.AbstractOptions;
 import com.powsybl.iidm.IidmImportExportMode;
-import com.powsybl.iidm.network.TopologyLevel;
+import com.powsybl.iidm.api.TopologyLevel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

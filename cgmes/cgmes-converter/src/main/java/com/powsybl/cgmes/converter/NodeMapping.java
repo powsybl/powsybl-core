@@ -8,8 +8,8 @@
 package com.powsybl.cgmes.converter;
 
 import com.powsybl.cgmes.model.CgmesTerminal;
-import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.api.SwitchKind;
+import com.powsybl.iidm.api.VoltageLevel;
 
 import java.util.HashMap;
 import java.util.Map;

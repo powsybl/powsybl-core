@@ -9,9 +9,9 @@ package com.powsybl.cgmes.converter.elements;
 
 import com.powsybl.cgmes.converter.Context;
 import com.powsybl.cgmes.model.PowerFlow;
-import com.powsybl.iidm.network.EnergySource;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.GeneratorAdder;
+import com.powsybl.iidm.api.EnergySource;
+import com.powsybl.iidm.api.Generator;
+import com.powsybl.iidm.api.GeneratorAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**

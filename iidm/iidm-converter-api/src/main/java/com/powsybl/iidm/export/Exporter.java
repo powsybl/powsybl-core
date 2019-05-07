@@ -7,7 +7,7 @@
 package com.powsybl.iidm.export;
 
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 import java.util.Properties;
 
 /**

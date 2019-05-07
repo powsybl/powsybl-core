@@ -10,7 +10,7 @@ import com.powsybl.afs.AfsException;
 import com.powsybl.afs.DependencyCache;
 import com.powsybl.afs.ProjectFile;
 import com.powsybl.afs.ProjectFileCreationContext;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 
 import java.util.Collections;
 import java.util.Objects;

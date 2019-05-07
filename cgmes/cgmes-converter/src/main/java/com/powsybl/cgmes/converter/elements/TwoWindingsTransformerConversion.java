@@ -9,8 +9,8 @@ package com.powsybl.cgmes.converter.elements;
 
 import com.powsybl.cgmes.converter.Context;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
-import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
+import com.powsybl.iidm.api.TwoWindingsTransformer;
+import com.powsybl.iidm.api.TwoWindingsTransformerAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 

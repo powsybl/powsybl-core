@@ -11,13 +11,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import com.powsybl.iidm.api.Generator;
+import com.powsybl.iidm.api.Identifiable;
+import com.powsybl.iidm.api.Terminal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.converter.Conversion.Config;
 import com.powsybl.cgmes.converter.elements.ACLineSegmentConversion;
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 import com.powsybl.triplestore.api.PropertyBags;
 
 /**

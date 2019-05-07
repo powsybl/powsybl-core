@@ -16,7 +16,7 @@ import com.powsybl.dsl.ExpressionDslLoader
 import com.powsybl.dsl.ast.ArithmeticBinaryOperator
 import com.powsybl.dsl.ast.ExpressionHelper
 import com.powsybl.dsl.ast.ExpressionNode
-import com.powsybl.iidm.network.*
+import com.powsybl.iidm.api.*
 import org.codehaus.groovy.control.CompilationFailedException
 
 import static com.powsybl.dsl.GroovyDslConstants.SCRIPT_IS_RUNNING

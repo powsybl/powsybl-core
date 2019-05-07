@@ -13,8 +13,8 @@ import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.export.Exporter;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.TopologyLevel;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.TopologyLevel;
 
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;

@@ -10,8 +10,8 @@ package com.powsybl.cgmes.converter;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.api.ThreeWindingsTransformer;
+import com.powsybl.iidm.api.TwoWindingsTransformer;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

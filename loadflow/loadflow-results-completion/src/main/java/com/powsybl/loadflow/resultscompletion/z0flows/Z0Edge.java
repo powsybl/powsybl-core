@@ -14,7 +14,7 @@ import java.util.Objects;
 
 import org.jgrapht.graph.DefaultWeightedEdge;
 
-import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.api.Line;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>

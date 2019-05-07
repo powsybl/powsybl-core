@@ -8,9 +8,9 @@
 package com.powsybl.cgmes.converter.elements;
 
 import com.powsybl.cgmes.converter.Context;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.LoadAdder;
-import com.powsybl.iidm.network.LoadType;
+import com.powsybl.iidm.api.Load;
+import com.powsybl.iidm.api.LoadAdder;
+import com.powsybl.iidm.api.LoadType;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**

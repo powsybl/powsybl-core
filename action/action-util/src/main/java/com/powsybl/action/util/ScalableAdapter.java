@@ -7,7 +7,7 @@
 package com.powsybl.action.util;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.api.*;
 
 import java.util.List;
 import java.util.Objects;

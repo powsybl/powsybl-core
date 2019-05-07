@@ -10,8 +10,8 @@ import com.google.auto.service.AutoService;
 import com.google.common.io.CharStreams;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.util.Networks;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.util.Networks;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

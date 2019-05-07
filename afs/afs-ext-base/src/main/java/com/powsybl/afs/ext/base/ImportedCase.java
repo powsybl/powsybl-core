@@ -13,7 +13,7 @@ import com.powsybl.afs.storage.AppStorageDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.import_.ImportersLoader;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

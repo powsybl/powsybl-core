@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.converter.Conversion;
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Bus;
+import com.powsybl.iidm.api.Network;
 import com.powsybl.triplestore.api.PropertyBags;
 
 /**

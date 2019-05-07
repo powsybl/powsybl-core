@@ -8,8 +8,8 @@
 package com.powsybl.cgmes.converter.elements;
 
 import com.powsybl.cgmes.converter.Context;
-import com.powsybl.iidm.network.StaticVarCompensator;
-import com.powsybl.iidm.network.StaticVarCompensatorAdder;
+import com.powsybl.iidm.api.StaticVarCompensator;
+import com.powsybl.iidm.api.StaticVarCompensatorAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**

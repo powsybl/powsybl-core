@@ -10,7 +10,7 @@ import com.powsybl.afs.AfsException;
 import com.powsybl.afs.ProjectFile;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.import_.Importer;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 import groovy.json.JsonOutput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

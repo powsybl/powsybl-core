@@ -8,8 +8,8 @@ package com.powsybl.action.simulator;
 
 import com.powsybl.action.simulator.loadflow.*;
 import com.powsybl.commons.io.table.TableFormatterConfig;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Line;
+import com.powsybl.iidm.api.Network;
 import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
 import org.junit.Test;
 import java.util.ArrayList;

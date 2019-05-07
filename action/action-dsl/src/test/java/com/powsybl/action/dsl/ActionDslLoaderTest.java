@@ -8,9 +8,9 @@ package com.powsybl.action.dsl;
 
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.ContingencyElement;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.PhaseTapChanger;
+import com.powsybl.iidm.api.test.EurostagTutorialExample1Factory;
 import groovy.lang.GroovyCodeSource;
 import groovy.lang.MissingMethodException;
 import org.junit.Before;

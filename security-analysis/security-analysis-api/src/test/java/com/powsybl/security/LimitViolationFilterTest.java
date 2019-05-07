@@ -14,8 +14,8 @@ import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
 
-import com.powsybl.iidm.network.Branch;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Branch;
+import com.powsybl.iidm.api.Network;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +25,7 @@ import com.google.common.jimfs.Jimfs;
 
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
-import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.api.Country;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>

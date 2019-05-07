@@ -9,11 +9,11 @@ package com.powsybl.contingency.tasks;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.contingency.GeneratorContingency;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
-import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.Switch;
+import com.powsybl.iidm.api.Terminal;
+import com.powsybl.iidm.api.test.EurostagTutorialExample1Factory;
+import com.powsybl.iidm.api.test.FictitiousSwitchFactory;
 import org.junit.Test;
 
 import java.util.Collections;

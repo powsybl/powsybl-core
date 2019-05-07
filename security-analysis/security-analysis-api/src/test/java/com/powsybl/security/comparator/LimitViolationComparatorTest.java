@@ -14,7 +14,7 @@ import java.util.List;
 
 import org.junit.Test;
 
-import com.powsybl.iidm.network.Branch;
+import com.powsybl.iidm.api.Branch;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.LimitViolationType;
 

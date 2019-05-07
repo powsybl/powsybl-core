@@ -7,7 +7,7 @@
 package com.powsybl.entsoe.util;
 
 import com.powsybl.commons.extensions.AbstractExtension;
-import com.powsybl.iidm.network.Line;
+import com.powsybl.iidm.api.Line;
 
 import java.util.Objects;
 

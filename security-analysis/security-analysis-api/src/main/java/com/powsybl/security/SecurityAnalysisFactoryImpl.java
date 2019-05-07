@@ -9,7 +9,7 @@ package com.powsybl.security;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 import com.powsybl.loadflow.LoadFlowFactory;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 

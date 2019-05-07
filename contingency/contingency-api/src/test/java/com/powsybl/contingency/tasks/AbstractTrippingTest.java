@@ -6,8 +6,8 @@
  */
 package com.powsybl.contingency.tasks;
 
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Switch;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.Switch;
 
 import java.util.List;
 import java.util.Objects;

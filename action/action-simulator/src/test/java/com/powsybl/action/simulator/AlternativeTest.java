@@ -7,9 +7,9 @@
 package com.powsybl.action.simulator;
 
 import com.powsybl.action.simulator.loadflow.LoadFlowActionSimulatorObserver;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Generator;
+import com.powsybl.iidm.api.Load;
+import com.powsybl.iidm.api.Network;
 import org.junit.Test;
 import org.mockito.Mockito;
 

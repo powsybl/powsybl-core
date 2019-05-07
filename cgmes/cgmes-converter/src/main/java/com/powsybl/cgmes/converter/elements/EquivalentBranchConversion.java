@@ -8,8 +8,8 @@
 package com.powsybl.cgmes.converter.elements;
 
 import com.powsybl.cgmes.converter.Context;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.LineAdder;
+import com.powsybl.iidm.api.Line;
+import com.powsybl.iidm.api.LineAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 
 /**

@@ -14,7 +14,7 @@ import com.powsybl.afs.ext.base.ProjectCase;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.EmptyContingencyListProvider;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 import com.powsybl.security.SecurityAnalysis;
 import com.powsybl.security.SecurityAnalysisFactory;
 import com.powsybl.security.SecurityAnalysisParameters;

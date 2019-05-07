@@ -7,7 +7,7 @@
 package com.powsybl.contingency.dsl;
 
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 
 import java.io.InputStream;
 import java.nio.file.Path;

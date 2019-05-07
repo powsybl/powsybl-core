@@ -9,7 +9,7 @@ package com.powsybl.action.simulator.loadflow;
 import com.powsybl.action.dsl.ActionDb;
 import com.powsybl.computation.Partition;
 import com.powsybl.computation.local.LocalComputationManager;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 
 import java.io.IOException;
 import java.util.Arrays;

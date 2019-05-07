@@ -3,7 +3,7 @@ package com.powsybl.contingency.dsl
 import com.powsybl.contingency.*
 import com.powsybl.dsl.DslException
 import com.powsybl.dsl.DslLoader
-import com.powsybl.iidm.network.*
+import com.powsybl.iidm.api.*
 import org.codehaus.groovy.control.CompilationFailedException
 import org.slf4j.LoggerFactory
 

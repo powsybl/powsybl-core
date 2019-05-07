@@ -6,7 +6,7 @@
  */
 package com.powsybl.security;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.api.*;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>

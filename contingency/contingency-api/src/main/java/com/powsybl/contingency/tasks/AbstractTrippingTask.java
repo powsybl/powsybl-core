@@ -7,9 +7,9 @@
 package com.powsybl.contingency.tasks;
 
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.Switch;
-import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.Switch;
+import com.powsybl.iidm.api.Terminal;
 
 import java.util.HashSet;
 import java.util.Set;

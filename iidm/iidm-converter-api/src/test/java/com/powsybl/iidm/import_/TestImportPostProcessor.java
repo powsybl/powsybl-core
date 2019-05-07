@@ -7,8 +7,8 @@
 package com.powsybl.iidm.import_;
 
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.LoadType;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.LoadType;
+import com.powsybl.iidm.api.Network;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>

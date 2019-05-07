@@ -18,7 +18,7 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.ImportersLoaderList;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;

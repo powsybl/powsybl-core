@@ -14,8 +14,8 @@ import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.contingency.BranchContingency;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Line;
+import com.powsybl.iidm.api.Network;
 import org.junit.Test;
 import org.mockito.Mockito;
 

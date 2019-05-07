@@ -20,7 +20,7 @@ import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.ContingenciesProviderFactory;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 import com.powsybl.iidm.tools.ConversionToolUtils;
 import com.powsybl.simulation.securityindexes.SecurityIndex;
 import com.powsybl.simulation.securityindexes.SecurityIndexId;

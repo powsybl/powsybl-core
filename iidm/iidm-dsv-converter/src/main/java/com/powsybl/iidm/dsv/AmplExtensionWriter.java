@@ -11,7 +11,7 @@ import java.util.List;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.util.StringToIntMapper;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 
 /**
 *

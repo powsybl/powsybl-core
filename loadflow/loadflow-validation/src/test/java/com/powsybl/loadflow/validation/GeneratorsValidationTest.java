@@ -17,12 +17,12 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.ReactiveLimits;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.Terminal.BusView;
+import com.powsybl.iidm.api.Bus;
+import com.powsybl.iidm.api.Generator;
+import com.powsybl.iidm.api.Network;
+import com.powsybl.iidm.api.ReactiveLimits;
+import com.powsybl.iidm.api.Terminal;
+import com.powsybl.iidm.api.Terminal.BusView;
 import com.powsybl.loadflow.validation.io.ValidationWriter;
 
 /**

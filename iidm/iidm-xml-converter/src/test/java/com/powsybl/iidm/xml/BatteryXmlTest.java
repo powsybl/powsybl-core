@@ -7,7 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.iidm.network.test.BatteryNetworkFactory;
+import com.powsybl.iidm.api.test.BatteryNetworkFactory;
 import org.junit.Test;
 
 import java.io.IOException;

@@ -8,8 +8,8 @@
 package com.powsybl.iidm.dsv;
 
 import com.powsybl.commons.util.StringToIntMapper;
-import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.HvdcConverterStation.HvdcType;
+import com.powsybl.iidm.api.*;
+import com.powsybl.iidm.api.HvdcConverterStation.HvdcType;
 
 /**
  *

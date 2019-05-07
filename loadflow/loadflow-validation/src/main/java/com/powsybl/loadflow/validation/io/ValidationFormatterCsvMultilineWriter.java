@@ -17,10 +17,10 @@ import org.apache.commons.lang3.ArrayUtils;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
-import com.powsybl.iidm.network.Branch.Side;
-import com.powsybl.iidm.network.StaticVarCompensator.RegulationMode;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.util.TwtData;
+import com.powsybl.iidm.api.Branch.Side;
+import com.powsybl.iidm.api.StaticVarCompensator.RegulationMode;
+import com.powsybl.iidm.api.ThreeWindingsTransformer;
+import com.powsybl.iidm.api.util.TwtData;
 import com.powsybl.loadflow.validation.ValidationType;
 
 /**

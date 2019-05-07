@@ -11,7 +11,7 @@ import com.powsybl.iidm.anonymizer.Anonymizer;
 import com.powsybl.iidm.AbstractConverterContext;
 import com.powsybl.iidm.export.BusFilter;
 import com.powsybl.iidm.export.ExportOptions;
-import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.api.Identifiable;
 
 import javax.xml.stream.XMLStreamWriter;
 import java.util.Collections;

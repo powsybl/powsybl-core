@@ -6,7 +6,7 @@
  */
 package com.powsybl.iidm.reducer;
 
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>

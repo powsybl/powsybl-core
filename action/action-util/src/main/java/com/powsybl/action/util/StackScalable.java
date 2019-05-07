@@ -6,7 +6,7 @@
  */
 package com.powsybl.action.util;
 
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 
 import java.util.Arrays;
 import java.util.List;

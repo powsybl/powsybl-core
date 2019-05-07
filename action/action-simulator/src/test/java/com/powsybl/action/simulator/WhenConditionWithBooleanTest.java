@@ -6,8 +6,8 @@
  */
 package com.powsybl.action.simulator;
 
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Load;
+import com.powsybl.iidm.api.Network;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

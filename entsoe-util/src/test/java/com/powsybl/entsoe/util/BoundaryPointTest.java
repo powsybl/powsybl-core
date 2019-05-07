@@ -6,7 +6,7 @@
  */
 package com.powsybl.entsoe.util;
 
-import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.api.Country;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;

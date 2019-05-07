@@ -7,7 +7,7 @@
 package com.powsybl.loadflow.validation;
 
 import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 
 /**
  * A computation carried out on a network, which result

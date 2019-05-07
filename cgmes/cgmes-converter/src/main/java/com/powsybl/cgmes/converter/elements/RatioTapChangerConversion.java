@@ -14,10 +14,10 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.converter.Context;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.RatioTapChangerAdder;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.iidm.api.RatioTapChangerAdder;
+import com.powsybl.iidm.api.Terminal;
+import com.powsybl.iidm.api.ThreeWindingsTransformer;
+import com.powsybl.iidm.api.TwoWindingsTransformer;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
