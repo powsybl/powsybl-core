@@ -24,6 +24,7 @@ import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.util.URIUtil;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryResults;
@@ -204,8 +205,13 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
             IRI predicate = cnx.getValueFactory().createIRI(objNs + property);
             Statement st;
             if (statement.isResource(name)) {
-                String namespace = cnx.getNamespace(statement.namespacePrefix(name));
-                IRI object = cnx.getValueFactory().createIRI(namespace, statement.get(name));
+                IRI object;
+                if (URIUtil.isValidURIReference(statement.get(name))) { // the value already contains the namespace
+                    object = cnx.getValueFactory().createIRI(statement.get(name));
+                } else { // the value is an id, add the base namespace
+                    String namespace = cnx.getNamespace(statement.namespacePrefix(name));
+                    object = cnx.getValueFactory().createIRI(namespace, statement.get(name));
+                }
                 st = cnx.getValueFactory().createStatement(resource, predicate, object);
             } else {
                 Literal object = cnx.getValueFactory().createLiteral(statement.get(name));
