@@ -68,7 +68,7 @@ public class ConversionToolTest extends AbstractToolTest {
         assertOption(tool.getCommand().getOptions(), "groovy-script", false, true);
         assertOption(tool.getCommand().getOptions(), "import-parameters", false, true);
         assertOption(tool.getCommand().getOptions(), "I", false, true);
-        assertOption(tool.getCommand().getOptions(), "import-parameters", false, true);
+        assertOption(tool.getCommand().getOptions(), "export-parameters", false, true);
         assertOption(tool.getCommand().getOptions(), "E", false, true);
         assertOption(tool.getCommand().getOptions(), "skip-postproc", false, false);
     }

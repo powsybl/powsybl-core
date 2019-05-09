@@ -61,6 +61,11 @@ public class ImportConfigTest {
     }
 
     @Test
+    public void loadDefault() {
+        assertTrue(ImportConfig.load(platformConfig).getPostProcessors().isEmpty());
+    }
+
+    @Test
     public void load() {
         MapModuleConfig moduleConfig = platformConfig.createModuleConfig("import");
         moduleConfig.setStringListProperty("postProcessors", Arrays.asList("foo", "bar"));
