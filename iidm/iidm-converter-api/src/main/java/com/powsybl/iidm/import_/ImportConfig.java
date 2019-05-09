@@ -16,9 +16,7 @@ import java.util.*;
  */
 public class ImportConfig {
 
-    private static final List<String> DEFAULT_POST_PROCESSORS = new ArrayList<>();
-
-    private List<String> postProcessors = new ArrayList<>();
+    private final List<String> postProcessors;
 
     public static ImportConfig load() {
         return load(PlatformConfig.defaultConfig());
@@ -29,14 +27,15 @@ public class ImportConfig {
         List<String> postProcessors;
         if (platformConfig.moduleExists("import")) {
             ModuleConfig config = platformConfig.getModuleConfig("import");
-            postProcessors = config.getStringListProperty("postProcessors", DEFAULT_POST_PROCESSORS);
+            postProcessors = config.getStringListProperty("postProcessors", new ArrayList<>());
         } else {
-            postProcessors = DEFAULT_POST_PROCESSORS;
+            postProcessors = new ArrayList<>();
         }
         return new ImportConfig(postProcessors);
     }
 
     public ImportConfig() {
+        this(new ArrayList<>());
     }
 
     public ImportConfig(String... postProcessors) {
@@ -57,12 +56,13 @@ public class ImportConfig {
      * where all the future potential other attributes have been loaded from the configuration file.
      */
     public ImportConfig setPostProcessors(List<String> postProcessors) {
-        this.postProcessors = Objects.requireNonNull(postProcessors);
+        this.postProcessors.clear();
+        this.postProcessors.addAll(Objects.requireNonNull(postProcessors));
         return this;
     }
 
     public ImportConfig setPostProcessors(String... postProcessors) {
-        return setPostProcessors(new ArrayList<>(Arrays.asList(postProcessors)));
+        return setPostProcessors(Arrays.asList(postProcessors));
     }
 
     public ImportConfig addPostProcessor(String postProcessor) {
