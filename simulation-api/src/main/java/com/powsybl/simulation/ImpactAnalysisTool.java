@@ -18,7 +18,6 @@ import com.powsybl.commons.io.table.Column;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.ContingenciesProviderFactory;
-import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.tools.ConversionToolUtils;
@@ -41,9 +40,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParameterOption;
-import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParametersFileOption;
-import static com.powsybl.iidm.tools.ConversionToolUtils.readProperties;
+import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 
 /**
  *
@@ -97,6 +94,7 @@ public class ImpactAnalysisTool implements Tool {
                         .hasArg()
                         .argName("FILE")
                         .build());
+                options.addOption(createSkipPostProcOption());
                 options.addOption(createImportParametersFileOption());
                 options.addOption(createImportParameterOption());
                 return options;
@@ -269,7 +267,7 @@ public class ImpactAnalysisTool implements Tool {
         context.getOutputStream().println("loading case " + caseFile + "...");
         // load the network
         Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
+        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), createImportConfig(line), inputParams);
         if (network == null) {
             throw new PowsyblException("Case '" + caseFile + "' not found");
         }
@@ -295,7 +293,7 @@ public class ImpactAnalysisTool implements Tool {
         }
         Map<String, Map<SecurityIndexId, SecurityIndex>> securityIndexesPerCase = new LinkedHashMap<>();
         Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        Importers.loadNetworks(caseFile, false, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams, network -> {
+        Importers.loadNetworks(caseFile, false, context.getShortTimeExecutionComputationManager(), createImportConfig(line), inputParams, network -> {
             try {
                 Multimap<String, SecurityIndex> securityIndexesPerContingency
                         = runImpactAnalysis(network, contingencyIds, context.getShortTimeExecutionComputationManager(),
