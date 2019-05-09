@@ -10,7 +10,6 @@ import com.google.auto.service.AutoService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
@@ -39,9 +38,7 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParameterOption;
-import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParametersFileOption;
-import static com.powsybl.iidm.tools.ConversionToolUtils.readProperties;
+import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 
 /**
  *
@@ -130,6 +127,7 @@ public class ValidationTool implements Tool {
                     .hasArg()
                     .argName("FILE")
                     .build());
+            options.addOption(createSkipPostProcOption());
             options.addOption(createImportParametersFileOption());
             options.addOption(createImportParameterOption());
             return options;
@@ -209,7 +207,7 @@ public class ValidationTool implements Tool {
     private Network loadNetwork(Path caseFile, CommandLine line, ToolRunningContext context) throws IOException {
         context.getOutputStream().println("Loading case " + caseFile);
         Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
+        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), createImportConfig(line), inputParams);
         if (network == null) {
             throw new PowsyblException("Case " + caseFile + " not found");
         }
