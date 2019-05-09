@@ -19,7 +19,6 @@ import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.Partition;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.export.Exporters;
-import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.tools.ConversionToolUtils;
@@ -51,9 +50,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.powsybl.action.simulator.tools.ActionSimulatorToolConstants.*;
-import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParameterOption;
-import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParametersFileOption;
-import static com.powsybl.iidm.tools.ConversionToolUtils.readProperties;
+import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 import static com.powsybl.tools.ToolConstants.TASK;
 import static com.powsybl.tools.ToolConstants.TASK_COUNT;
 
@@ -150,6 +147,7 @@ public class ActionSimulatorTool implements Tool {
                         .desc("export case after each round")
                         .required(false)
                         .build());
+                options.addOption(createSkipPostProcOption());
                 options.addOption(createImportParametersFileOption());
                 options.addOption(createImportParameterOption());
                 return options;
@@ -256,7 +254,7 @@ public class ActionSimulatorTool implements Tool {
         // load network
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
+        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), createImportConfig(line), inputParams);
 
         try {
             // load actions from Groovy DSL

@@ -53,7 +53,7 @@ public class ActionSimulatorToolTest extends AbstractToolTest {
     public void assertCommand() {
         Command command = tool.getCommand();
 
-        assertCommand(command, "action-simulator", 15, 2);
+        assertCommand(command, "action-simulator", 16, 2);
         assertOption(command.getOptions(), "case-file", true, true);
         assertOption(command.getOptions(), "dsl-file", true, true);
         assertOption(command.getOptions(), "contingencies", false, true);
@@ -67,6 +67,7 @@ public class ActionSimulatorToolTest extends AbstractToolTest {
         assertOption(command.getOptions(), "task-count", false, true);
         assertOption(command.getOptions(), "task", false, true);
         assertOption(command.getOptions(), "export-after-each-round", false, false);
+        assertOption(command.getOptions(), "skip-postproc", false, false);
     }
 
     @Before
