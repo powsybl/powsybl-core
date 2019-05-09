@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import com.powsybl.afs.storage.events.NodeEvent;
 
-public class EventSourcing {
+public class EventStore {
 
     private KafkaTemplate<Object, Object> template;
 

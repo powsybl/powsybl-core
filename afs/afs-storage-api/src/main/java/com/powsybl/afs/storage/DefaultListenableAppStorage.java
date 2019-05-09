@@ -39,11 +39,11 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
 
     private final Lock lock = new ReentrantLock();
 
-    private EventSourcing eventSourcing;
+    private EventStore eventStore;
 
     public DefaultListenableAppStorage(AppStorage storage) {
         super(storage);
-        eventSourcing = new EventSourcing();
+        eventStore = new EventStore();
     }
 
     private void addEvent(NodeEvent event) {
@@ -53,7 +53,7 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
         } finally {
             lock.unlock();
         }
-        eventSourcing.addEvent(event, super.getFileSystemName());
+        eventStore.addEvent(event, super.getFileSystemName());
     }
 
     @Override
