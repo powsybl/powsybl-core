@@ -32,9 +32,9 @@ public abstract class AbstractMatrixTest {
 
     protected Matrix createA(MatrixFactory matrixFactory) {
         Matrix a = matrixFactory.create(3, 2, 3);
-        a.setValue(0, 0, 1);
-        a.setValue(2, 0, 2);
-        a.setValue(1, 1, 3);
+        a.set(0, 0, 1);
+        a.set(2, 0, 2);
+        a.set(1, 1, 3);
         return a;
     }
 
@@ -42,8 +42,8 @@ public abstract class AbstractMatrixTest {
     public void testMultiplication() throws Exception {
         Matrix a = createA(getMatrixFactory());
         Matrix b = getMatrixFactory().create(2, 1, 2);
-        b.setValue(0, 0, 4);
-        b.setValue(1, 0, 5);
+        b.set(0, 0, 4);
+        b.set(1, 0, 5);
 
         Matrix cs = a.times(b);
         DenseMatrix c = cs.toDense();
@@ -95,22 +95,22 @@ public abstract class AbstractMatrixTest {
     public void testDecompose() throws Exception {
         Matrix matrix = getMatrixFactory().create(5, 5, 12);
 
-        matrix.setValue(0, 0, 2);
-        matrix.setValue(1, 0, 3);
+        matrix.set(0, 0, 2);
+        matrix.set(1, 0, 3);
 
-        matrix.setValue(0, 1, 3);
-        matrix.setValue(2, 1, -1);
-        matrix.setValue(4, 1, 4);
+        matrix.set(0, 1, 3);
+        matrix.set(2, 1, -1);
+        matrix.set(4, 1, 4);
 
-        matrix.setValue(1, 2, 4);
-        matrix.setValue(2, 2, -3);
-        matrix.setValue(3, 2, 1);
-        matrix.setValue(4, 2, 2);
+        matrix.set(1, 2, 4);
+        matrix.set(2, 2, -3);
+        matrix.set(3, 2, 1);
+        matrix.set(4, 2, 2);
 
-        matrix.setValue(2, 3, 2);
+        matrix.set(2, 3, 2);
 
-        matrix.setValue(1, 4, 6);
-        matrix.setValue(4, 4, 1);
+        matrix.set(1, 4, 6);
+        matrix.set(4, 4, 1);
 
         try (LUDecomposition decomposition = matrix.decomposeLU()) {
             double[] x = {8, 45, -3, 3, 19};
@@ -118,28 +118,28 @@ public abstract class AbstractMatrixTest {
             assertArrayEquals(new double[]{1, 2, 3, 4, 5}, x, EPSILON);
 
             DenseMatrix x2 = new DenseMatrix(5, 2);
-            x2.setValue(0, 0, 8);
-            x2.setValue(1, 0, 45);
-            x2.setValue(2, 0, -3);
-            x2.setValue(3, 0, 3);
-            x2.setValue(4, 0, 19);
-            x2.setValue(0, 1, 8);
-            x2.setValue(1, 1, 45);
-            x2.setValue(2, 1, -3);
-            x2.setValue(3, 1, 3);
-            x2.setValue(4, 1, 19);
+            x2.set(0, 0, 8);
+            x2.set(1, 0, 45);
+            x2.set(2, 0, -3);
+            x2.set(3, 0, 3);
+            x2.set(4, 0, 19);
+            x2.set(0, 1, 8);
+            x2.set(1, 1, 45);
+            x2.set(2, 1, -3);
+            x2.set(3, 1, 3);
+            x2.set(4, 1, 19);
 
             decomposition.solve(x2);
-            assertEquals(1, x2.getValue(0, 0), EPSILON);
-            assertEquals(2, x2.getValue(1, 0), EPSILON);
-            assertEquals(3, x2.getValue(2, 0), EPSILON);
-            assertEquals(4, x2.getValue(3, 0), EPSILON);
-            assertEquals(5, x2.getValue(4, 0), EPSILON);
-            assertEquals(1, x2.getValue(0, 1), EPSILON);
-            assertEquals(2, x2.getValue(1, 1), EPSILON);
-            assertEquals(3, x2.getValue(2, 1), EPSILON);
-            assertEquals(4, x2.getValue(3, 1), EPSILON);
-            assertEquals(5, x2.getValue(4, 1), EPSILON);
+            assertEquals(1, x2.get(0, 0), EPSILON);
+            assertEquals(2, x2.get(1, 0), EPSILON);
+            assertEquals(3, x2.get(2, 0), EPSILON);
+            assertEquals(4, x2.get(3, 0), EPSILON);
+            assertEquals(5, x2.get(4, 0), EPSILON);
+            assertEquals(1, x2.get(0, 1), EPSILON);
+            assertEquals(2, x2.get(1, 1), EPSILON);
+            assertEquals(3, x2.get(2, 1), EPSILON);
+            assertEquals(4, x2.get(3, 1), EPSILON);
+            assertEquals(5, x2.get(4, 1), EPSILON);
         }
     }
 
@@ -168,28 +168,40 @@ public abstract class AbstractMatrixTest {
     @Test
     public void testAddValue() {
         Matrix a = getMatrixFactory().create(2, 2, 2);
-        a.addValue(0, 0, 1d);
-        a.addValue(0, 0, 1d);
-        a.addValue(1, 1, 1d);
-        a.addValue(1, 1, 2d);
+        a.add(0, 0, 1d);
+        a.add(0, 0, 1d);
+        a.add(1, 1, 1d);
+        a.add(1, 1, 2d);
 
         DenseMatrix b = a.toDense();
-        assertEquals(2d, b.getValue(0, 0), 0d);
-        assertEquals(0d, b.getValue(1, 0), 0d);
-        assertEquals(0d, b.getValue(0, 1), 0d);
-        assertEquals(3d, b.getValue(1, 1), 0d);
+        assertEquals(2d, b.get(0, 0), 0d);
+        assertEquals(0d, b.get(1, 0), 0d);
+        assertEquals(0d, b.get(0, 1), 0d);
+        assertEquals(3d, b.get(1, 1), 0d);
     }
 
     @Test
     public void testAddValue2() {
         Matrix a = getMatrixFactory().create(2, 2, 2);
-        a.addValue(0, 0, 1d);
-        a.addValue(0, 1, 1d);
+        a.add(0, 0, 1d);
+        a.add(0, 1, 1d);
 
         DenseMatrix b = a.toDense();
-        assertEquals(1d, b.getValue(0, 0), 0d);
-        assertEquals(0d, b.getValue(1, 0), 0d);
-        assertEquals(1d, b.getValue(0, 1), 0d);
-        assertEquals(0d, b.getValue(1, 1), 0d);
+        assertEquals(1d, b.get(0, 0), 0d);
+        assertEquals(0d, b.get(1, 0), 0d);
+        assertEquals(1d, b.get(0, 1), 0d);
+        assertEquals(0d, b.get(1, 1), 0d);
+    }
+
+    @Test
+    public void testDeprecated() {
+        Matrix a = getMatrixFactory().create(2, 2, 2);
+        assertEquals(a.getRowCount(), a.getM());
+        assertEquals(a.getColumnCount(), a.getN());
+        a.setValue(0, 0, 1d);
+        a.setValue(0, 1, 1d);
+        assertEquals(1d, a.toDense().get(0, 1), 0d);
+        a.addValue(0, 1, 2d);
+        assertEquals(3d, a.toDense().get(0, 1), 0d);
     }
 }

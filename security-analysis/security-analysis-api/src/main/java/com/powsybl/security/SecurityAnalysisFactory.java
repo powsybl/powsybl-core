@@ -8,6 +8,7 @@ package com.powsybl.security;
 
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 
 /**
  *

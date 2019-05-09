@@ -49,8 +49,8 @@ public class SparseMatrixTest extends AbstractMatrixTest {
     public void testSparsePrint() throws IOException {
         Matrix a = createA(matrixFactory);
         String expected = String.join(System.lineSeparator(),
-                "m=3",
-                "n=2",
+                "rowCount=3",
+                "columnCount=2",
                 "columnStart=[0, 2, 3]",
                 "rowIndices={0, 2, 1}",
                 "values={1.0, 2.0, 3.0}")
@@ -61,8 +61,8 @@ public class SparseMatrixTest extends AbstractMatrixTest {
     @Test(expected = PowsyblException.class)
     public void testWrongColumnOrder() {
         Matrix a = matrixFactory.create(2, 2, 2);
-        a.setValue(0, 0, 1d);
-        a.setValue(0, 1, 1d);
-        a.setValue(1, 0, 1d);
+        a.set(0, 0, 1d);
+        a.set(0, 1, 1d);
+        a.set(1, 0, 1d);
     }
 }

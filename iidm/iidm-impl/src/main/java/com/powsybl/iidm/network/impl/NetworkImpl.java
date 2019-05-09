@@ -75,6 +75,13 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             return getVoltageLevelStream().mapToInt(vl -> vl.getBusBreakerView().getSwitchCount()).sum();
         }
 
+        @Override
+        public Bus getBus(String id) {
+            return getVoltageLevelStream().map(vl -> vl.getBusBreakerView().getBus(id))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
+        }
     }
 
     private final BusBreakerViewImpl busBreakerView = new BusBreakerViewImpl();
@@ -95,6 +102,14 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         @Override
         public Collection<Component> getConnectedComponents() {
             return Collections.unmodifiableList(variants.get().connectedComponentsManager.getConnectedComponents());
+        }
+
+        @Override
+        public Bus getBus(String id) {
+            return getVoltageLevelStream().map(vl -> vl.getBusView().getBus(id))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
         }
 
     }
@@ -982,6 +997,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                     mergedLine.id, mergedLine.xnode, mergedLine.country1, mergedLine.country2);
             TieLineAdderImpl la = newTieLine()
                     .setId(mergedLine.id)
+                    .setName(mergedLine.half1.name + " + " + mergedLine.half2.name)
                     .setVoltageLevel1(mergedLine.voltageLevel1)
                     .setVoltageLevel2(mergedLine.voltageLevel2)
                     .line1().setId(mergedLine.half1.id)
