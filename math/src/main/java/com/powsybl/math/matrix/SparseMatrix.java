@@ -88,6 +88,48 @@ class SparseMatrix extends AbstractMatrix {
 
     private int currentColumn = -1; // just for matrix filling
 
+    /**
+     * Create a sparse matrix from its internal structure vectors.
+     * This constructor is only called on C++ side.
+     *
+     * @param rowCount row count
+     * @param columnCount column count
+     * @param columnStart column start vector
+     * @param rowIndices row indices vector
+     * @param values value vector
+     */
+    SparseMatrix(int rowCount, int columnCount, int[] columnStart, int[] rowIndices, double[] values) {
+        this.rowCount = rowCount;
+        this.columnCount = columnCount;
+        this.columnStart = Objects.requireNonNull(columnStart);
+        columnValueCount = new int[columnCount];
+        this.rowIndices = new TIntArrayListHack(Objects.requireNonNull(rowIndices));
+        this.values = new TDoubleArrayListHack(Objects.requireNonNull(values));
+        fillColumnValueCount(this.columnCount, this.columnStart, columnValueCount, this.values);
+    }
+
+    private static void fillColumnValueCount(int columnCount, int[] columnStart, int[] columnValueCount, TDoubleArrayListHack values) {
+        int lastNonEmptyColumn = -1;
+        for (int column = 0; column < columnCount; column++) {
+            if (columnStart[column] != -1) {
+                if (lastNonEmptyColumn != -1) {
+                    columnValueCount[lastNonEmptyColumn] = columnStart[column] - columnStart[lastNonEmptyColumn];
+                }
+                lastNonEmptyColumn = column;
+            }
+        }
+        if (lastNonEmptyColumn != -1) {
+            columnValueCount[lastNonEmptyColumn] = values.size() - columnStart[lastNonEmptyColumn];
+        }
+    }
+
+    /**
+     * Create an empty sparse matrix.
+     *
+     * @param rowCount row count
+     * @param columnCount column count
+     * @param estimatedNonZeroValueCount estimated number of non zero values (used for internal pre-allocation)
+     */
     SparseMatrix(int rowCount, int columnCount, int estimatedNonZeroValueCount) {
         this.rowCount = rowCount;
         this.columnCount = columnCount;
@@ -106,6 +148,15 @@ class SparseMatrix extends AbstractMatrix {
      */
     int[] getColumnStart() {
         return columnStart;
+    }
+
+    /**
+     * Get column value count vector.
+     *
+     * @return column value count vector.
+     */
+    int[] getColumnValueCount() {
+        return columnValueCount;
     }
 
     /**
