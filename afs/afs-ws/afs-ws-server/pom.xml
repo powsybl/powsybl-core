@@ -143,6 +143,7 @@
                     <reuseForks>false</reuseForks>
                     <systemPropertyVariables>
                         <java.util.logging.manager>org.jboss.logmanager.LogManager</java.util.logging.manager>
+                        <maven.home>${maven.home}</maven.home>
                         <jboss.socket.binding.port-offset>1000</jboss.socket.binding.port-offset>
                     </systemPropertyVariables>
                     <redirectTestOutputToFile>false</redirectTestOutputToFile>
