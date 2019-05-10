@@ -34,28 +34,28 @@ public class LoadFlowExtensionGroovyScriptTest extends AbstractGroovyScriptTest 
     public void setUp() throws Exception {
         super.setUp();
 
-        // create loadflow factory mock
-        LoadFlowResult result = Mockito.mock(LoadFlowResult.class);
-        Mockito.when(result.isOk())
-                .thenReturn(true);
-        LoadFlow loadFlow = Mockito.mock(LoadFlow.class);
-        Mockito.when(loadFlow.run(Mockito.anyString(), Mockito.any()))
-                .thenReturn(CompletableFuture.completedFuture(result));
-        loadFlowFactory = Mockito.mock(LoadFlowFactory.class);
-        Mockito.when(loadFlowFactory.create(Mockito.any(Network.class), Mockito.any(ComputationManager.class), Mockito.anyInt()))
-                .thenReturn(loadFlow);
-
-        // create variant manager
-        VariantManager variantManager = Mockito.mock(VariantManager.class);
-        Mockito.when(variantManager.getWorkingVariantId())
-                .thenReturn(VariantManagerConstants.INITIAL_VARIANT_ID);
-
-        // create network mock
-        fooNetwork = Mockito.mock(Network.class);
-        Mockito.when(fooNetwork.getId())
-                .thenReturn("test");
-        Mockito.when(fooNetwork.getVariantManager())
-                .thenReturn(variantManager);
+//        // create loadflow factory mock
+//        LoadFlowResult result = Mockito.mock(LoadFlowResult.class);
+//        Mockito.when(result.isOk())
+//                .thenReturn(true);
+//        LoadFlow loadFlow = Mockito.mock(LoadFlow.class);
+//        Mockito.when(loadFlow.run(Mockito.anyString(), Mockito.any()))
+//                .thenReturn(CompletableFuture.completedFuture(result));
+//        loadFlowFactory = Mockito.mock(LoadFlowFactory.class);
+//        Mockito.when(loadFlowFactory.create(Mockito.any(Network.class), Mockito.any(ComputationManager.class), Mockito.anyInt()))
+//                .thenReturn(loadFlow);
+//
+//        // create variant manager
+//        VariantManager variantManager = Mockito.mock(VariantManager.class);
+//        Mockito.when(variantManager.getWorkingVariantId())
+//                .thenReturn(VariantManagerConstants.INITIAL_VARIANT_ID);
+//
+//        // create network mock
+//        fooNetwork = Mockito.mock(Network.class);
+//        Mockito.when(fooNetwork.getId())
+//                .thenReturn("test");
+//        Mockito.when(fooNetwork.getVariantManager())
+//                .thenReturn(variantManager);
     }
 
     @Override

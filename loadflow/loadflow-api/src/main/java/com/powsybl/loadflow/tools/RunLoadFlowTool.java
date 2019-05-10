@@ -8,22 +8,20 @@ package com.powsybl.loadflow.tools;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.commons.io.table.*;
-import com.powsybl.iidm.tools.ConversionToolUtils;
-import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.loadflow.json.JsonLoadFlowParameters;
-import com.powsybl.tools.Command;
-import com.powsybl.tools.Tool;
-import com.powsybl.tools.ToolRunningContext;
 import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.tools.ConversionToolUtils;
 import com.powsybl.loadflow.LoadFlow;
-import com.powsybl.loadflow.LoadFlowFactory;
+import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
+import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 import com.powsybl.loadflow.json.LoadFlowResultSerializer;
+import com.powsybl.tools.Command;
+import com.powsybl.tools.Tool;
+import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -40,7 +38,6 @@ import java.util.Arrays;
 import java.util.Properties;
 
 import static com.powsybl.iidm.tools.ConversionToolUtils.*;
-import static com.powsybl.iidm.tools.ConversionToolUtils.createExportParametersFileOption;
 
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
@@ -137,7 +134,6 @@ public class RunLoadFlowTool implements Tool {
         Path outputFile = null;
         Format format = null;
         Path outputCaseFile = null;
-        ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
 
         ImportConfig importConfig = (!skipPostProc) ? ImportConfig.load() : new ImportConfig();
         // process a single network: output-file/output-format options available
@@ -162,7 +158,7 @@ public class RunLoadFlowTool implements Tool {
         if (network == null) {
             throw new PowsyblException("Case '" + caseFile + "' not found");
         }
-        LoadFlow loadFlow = defaultConfig.newFactoryImpl(LoadFlowFactory.class).create(network, context.getShortTimeExecutionComputationManager(), 0);
+        LoadFlow loadFlow = LoadFlow.on(network);
 
         LoadFlowParameters params = LoadFlowParameters.load();
         if (line.hasOption(PARAMETERS_FILE)) {
@@ -170,7 +166,7 @@ public class RunLoadFlowTool implements Tool {
             JsonLoadFlowParameters.update(params, parametersFile);
         }
 
-        LoadFlowResult result = loadFlow.run(network.getVariantManager().getWorkingVariantId(), params).join();
+        LoadFlowResult result = loadFlow.run(context.getShortTimeExecutionComputationManager(), params);
 
         if (outputFile != null) {
             exportResult(result, context, outputFile, format);
