@@ -239,7 +239,7 @@ public class MapDbAppStorage implements AppStorage {
         return new AfsStorageException(NODE + nodeUuid + " is disabled");
     }
 
-    private void checkConsistent(UUID nodeUuid) {
+    private void checkConsistency(UUID nodeUuid) {
         NodeInfo nodeInfo = nodeInfoMap.get(nodeUuid);
         if (!nodeInfo.isConsistent()) {
             throw createNodeDisabledException(nodeUuid);
@@ -274,8 +274,8 @@ public class MapDbAppStorage implements AppStorage {
             rootNodeInfo = createNode(null, name, nodePseudoClass, "", 0, new NodeGenericMetadata());
             rootNodeVar.set(rootNodeInfo);
         }
-        this.consistent(rootNodeInfo.getId());
-        rootNodeInfo.consistent();
+        this.setConsistent(rootNodeInfo.getId());
+        rootNodeInfo.setConsistent();
         return rootNodeInfo;
     }
 
@@ -303,10 +303,10 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     @Override
-    public void consistent(String nodeId) {
+    public void setConsistent(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
         NodeInfo nodeInfo = getNodeInfo(nodeId);
-        nodeInfo.consistent();
+        nodeInfo.setConsistent();
         nodeInfoMap.put(nodeUuid, nodeInfo);
     }
 
@@ -334,7 +334,7 @@ public class MapDbAppStorage implements AppStorage {
     @Override
     public List<NodeInfo> getChildNodes(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
-        checkConsistent(nodeUuid);
+        checkConsistency(nodeUuid);
         List<UUID> childNodes = childNodesMap.get(nodeUuid);
         if (childNodes == null) {
             throw createNodeNotFoundException(nodeUuid);
@@ -345,7 +345,7 @@ public class MapDbAppStorage implements AppStorage {
     @Override
     public Optional<NodeInfo> getChildNode(String parentString, String name) {
         UUID parentNodeUuid = checkNodeId(parentString);
-        checkConsistent(parentNodeUuid);
+        checkConsistency(parentNodeUuid);
         Objects.requireNonNull(name);
         checkNodeExists(parentNodeUuid);
         UUID childNodeUuid = childNodeMap.get(new NamedLink(parentNodeUuid, name));
@@ -355,7 +355,7 @@ public class MapDbAppStorage implements AppStorage {
     @Override
     public Optional<NodeInfo> getParentNode(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
-        checkConsistent(nodeUuid);
+        checkConsistency(nodeUuid);
         checkNodeExists(nodeUuid);
         UUID parentNodeUuid = parentNodeMap.get(nodeUuid);
         return Optional.ofNullable(parentNodeUuid).map(this::getNodeInfo).filter(NodeInfo::isConsistent);
@@ -391,7 +391,7 @@ public class MapDbAppStorage implements AppStorage {
         Objects.requireNonNull(nodePseudoClass);
         if (parentNodeUuid != null) {
             checkNodeExists(parentNodeUuid);
-            checkConsistent(parentNodeUuid);
+            checkConsistency(parentNodeUuid);
             // check parent node does not already have a child with the same name
             if (childNodeMap.containsKey(new NamedLink(parentNodeUuid, name))) {
                 throw new AfsStorageException(NODE + parentNodeUuid + " already have a child named " + name);
@@ -543,7 +543,7 @@ public class MapDbAppStorage implements AppStorage {
     public Set<String> getTimeSeriesNames(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
         checkNodeExists(nodeUuid);
-        checkConsistent(nodeUuid);
+        checkConsistency(nodeUuid);
         Set<String> names = timeSeriesNamesMap.get(nodeUuid);
         if (names == null) {
             return Collections.emptySet();
@@ -555,7 +555,7 @@ public class MapDbAppStorage implements AppStorage {
     public boolean timeSeriesExists(String nodeId, String timeSeriesName) {
         UUID nodeUuid = checkNodeId(nodeId);
         checkNodeExists(nodeUuid);
-        checkConsistent(nodeUuid);
+        checkConsistency(nodeUuid);
         Objects.requireNonNull(timeSeriesName);
         Set<String> timeSeriesNames = timeSeriesNamesMap.get(nodeUuid);
         return timeSeriesNames != null && timeSeriesNames.contains(timeSeriesName);
@@ -564,7 +564,7 @@ public class MapDbAppStorage implements AppStorage {
     @Override
     public List<TimeSeriesMetadata> getTimeSeriesMetadata(String nodeId, Set<String> timeSeriesNames) {
         UUID nodeUuid = checkNodeId(nodeId);
-        checkConsistent(nodeUuid);
+        checkConsistency(nodeUuid);
         Objects.requireNonNull(timeSeriesNames);
         List<TimeSeriesMetadata> metadataList = new ArrayList<>();
         for (String timeSeriesName : timeSeriesNames) {
@@ -580,7 +580,7 @@ public class MapDbAppStorage implements AppStorage {
     public Set<Integer> getTimeSeriesDataVersions(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
         checkNodeExists(nodeUuid);
-        checkConsistent(nodeUuid);
+        checkConsistency(nodeUuid);
         return Stream.concat(doubleTimeSeriesChunksMap.keySet().stream(),
                 stringTimeSeriesChunksMap.keySet().stream())
                 .map(TimeSeriesChunkKey::getTimeSeriesKey)
@@ -593,7 +593,7 @@ public class MapDbAppStorage implements AppStorage {
     public Set<Integer> getTimeSeriesDataVersions(String nodeId, String timeSeriesName) {
         UUID nodeUuid = checkNodeId(nodeId);
         checkNodeExists(nodeUuid);
-        checkConsistent(nodeUuid);
+        checkConsistency(nodeUuid);
         Objects.requireNonNull(timeSeriesName);
         return Stream.concat(doubleTimeSeriesChunksMap.keySet().stream(),
                              stringTimeSeriesChunksMap.keySet().stream())
@@ -629,7 +629,7 @@ public class MapDbAppStorage implements AppStorage {
         Map<String, List<C>> getTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version, ConcurrentMap<TimeSeriesChunkKey, C> map) {
         UUID nodeUuid = checkNodeId(nodeId);
         Objects.requireNonNull(timeSeriesNames);
-        checkConsistent(nodeUuid);
+        checkConsistency(nodeUuid);
         TimeSeriesVersions.check(version);
         Objects.requireNonNull(map);
         Map<String, List<C>> timeSeriesData = new HashMap<>();
@@ -726,7 +726,7 @@ public class MapDbAppStorage implements AppStorage {
     @Override
     public Set<NodeDependency> getDependencies(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
-        checkConsistent(nodeUuid);
+        checkConsistency(nodeUuid);
         List<NamedLink> dependencyNodes = dependencyNodesMap.get(nodeUuid);
         if (dependencyNodes == null) {
             throw createNodeNotFoundException(nodeUuid);
@@ -740,7 +740,7 @@ public class MapDbAppStorage implements AppStorage {
     @Override
     public Set<NodeInfo> getBackwardDependencies(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
-        checkConsistent(nodeUuid);
+        checkConsistency(nodeUuid);
         List<UUID> backwardDependencyNodes = backwardDependencyNodesMap.get(nodeUuid);
         if (backwardDependencyNodes == null) {
             throw createNodeNotFoundException(nodeUuid);

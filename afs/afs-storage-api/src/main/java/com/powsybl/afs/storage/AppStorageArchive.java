@@ -378,7 +378,7 @@ public class AppStorageArchive {
 
         readTimeSeries(newNodeInfo, nodeDir);
 
-        storage.consistent(newNodeInfo.getId());
+        storage.setConsistent(newNodeInfo.getId());
         storage.flush();
 
         unarchiveChildren(newNodeInfo, nodeDir, context);

@@ -47,7 +47,7 @@ public class ContingencyStoreBuilder implements ProjectFileBuilder<ContingencySt
         NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, ContingencyStore.PSEUDO_CLASS,
                 "", ContingencyStore.VERSION, new NodeGenericMetadata());
 
-        context.getStorage().consistent(info.getId());
+        context.getStorage().setConsistent(info.getId());
 
         context.getStorage().flush();
 

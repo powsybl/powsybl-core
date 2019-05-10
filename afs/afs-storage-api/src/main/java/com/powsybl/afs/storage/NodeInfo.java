@@ -113,7 +113,7 @@ public class NodeInfo {
         return consistent;
     }
 
-    public NodeInfo consistent() {
+    public NodeInfo setConsistent() {
         this.consistent = true;
         return this;
     }

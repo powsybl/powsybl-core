@@ -194,7 +194,7 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
-    public void consistent(String nodeId) {
+    public void setConsistent(String nodeId) {
         throw new AssertionError();
     }
 

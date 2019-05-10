@@ -82,7 +82,7 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
 
         NodeInfo nodeInfo = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "Test format", Case.VERSION,
                 new NodeGenericMetadata().setString("format", TestImporter.FORMAT));
-        storage.consistent(nodeInfo.getId());
+        storage.setConsistent(nodeInfo.getId());
 
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         Files.createFile(fileSystem.getPath("/work/network.tst"));

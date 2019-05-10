@@ -41,6 +41,7 @@ public interface AppStorage extends AutoCloseable {
 
     /**
      * Creates a new node in the tree under a parent node. Returns {@code NodeInfo} corresponding to the newly created node.
+     * Node is inconsistent when created,{@link #setConsistent()} method should be used to make a node consistent
      */
     NodeInfo createNode(String parentNodeId, String name, String nodePseudoClass, String description, int version, NodeGenericMetadata genericMetadata);
 
@@ -57,24 +58,24 @@ public interface AppStorage extends AutoCloseable {
 
     void setDescription(String nodeId, String description);
 
-    default void consistent(String nodeId) {
+    default void setConsistent(String nodeId) {
         throw new PowsyblException("Not implemented");
     }
 
     void updateModificationTime(String nodeId);
 
     /**
-     * Gets {@code NodeInfo} for child nodes of the node with ID {@code nodeId}.
+     * Gets {@code NodeInfo} for consistent child nodes of the node with ID {@code nodeId}.
      */
     List<NodeInfo> getChildNodes(String nodeId);
 
     /**
-     * Gets {@code NodeInfo} for child node with name {@code name} of the node with ID {@code nodeId}, empty if such a node does not exist.
+     * Gets {@code NodeInfo} for child node with name {@code name} of the node with ID {@code nodeId}, empty if such a node does not exist or node is inconsistent.
      */
     Optional<NodeInfo> getChildNode(String nodeId, String name);
 
     /**
-     * Gets {@code NodeInfo} for parent node of the node with ID {@code nodeId}, empty if such a node does not exist.
+     * Gets {@code NodeInfo} for parent node of the node with ID {@code nodeId}, empty if such a node does not exist or inconsistent.
      */
     Optional<NodeInfo> getParentNode(String nodeId);
 

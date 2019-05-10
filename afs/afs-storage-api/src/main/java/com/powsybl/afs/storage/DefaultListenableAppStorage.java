@@ -66,8 +66,8 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
     }
 
     @Override
-    public void consistent(String nodeId) {
-        super.consistent(nodeId);
+    public void setConsistent(String nodeId) {
+        super.setConsistent(nodeId);
         addEvent(new NodeConsistent(nodeId));
     }
 

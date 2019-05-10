@@ -60,7 +60,7 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
         NodeInfo nodeInfo = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "", Case.VERSION,
                 new NodeGenericMetadata().setString(Case.FORMAT, TestImporter.FORMAT));
-        storage.consistent(nodeInfo.getId());
+        storage.setConsistent(nodeInfo.getId());
 
     }
 

@@ -62,12 +62,12 @@ public abstract class AbstractAppStorageArchiveTest {
     public void archive() throws IOException  {
         // create test case
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists(storage.getFileSystemName(), AbstractAppStorageTest.FOLDER_PSEUDO_CLASS);
-        storage.consistent(rootFolderInfo.getId());
+        storage.setConsistent(rootFolderInfo.getId());
 
         NodeInfo folder1Info = storage.createNode(rootFolderInfo.getId(), "folder1", AbstractAppStorageTest.FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
-        storage.consistent(folder1Info.getId());
+        storage.setConsistent(folder1Info.getId());
         NodeInfo file1Info = storage.createNode(folder1Info.getId(), "file1", AbstractAppStorageTest.DATA_FILE_CLASS, "", 0, new NodeGenericMetadata().setInt("i1", 1));
-        storage.consistent(file1Info.getId());
+        storage.setConsistent(file1Info.getId());
 
         try (OutputStream os = storage.writeBinaryData(file1Info.getId(), "data1")) {
             os.write("hello".getBytes(StandardCharsets.UTF_8));
@@ -84,10 +84,10 @@ public abstract class AbstractAppStorageArchiveTest {
         storage.addDoubleTimeSeriesData(file1Info.getId(), 0, "ts1 hello", chunks);
 
         NodeInfo folder2Info = storage.createNode(rootFolderInfo.getId(), "folder2", AbstractAppStorageTest.FOLDER_PSEUDO_CLASS, "", 0, new NodeGenericMetadata());
-        storage.consistent(folder2Info.getId());
+        storage.setConsistent(folder2Info.getId());
         NodeInfo file2Info = storage.createNode(folder2Info.getId(), "file2", AbstractAppStorageTest.DATA_FILE_CLASS, "", 0, new NodeGenericMetadata()
                 .setString("s1", "a"));
-        storage.consistent(file2Info.getId());
+        storage.setConsistent(file2Info.getId());
 
         storage.addDependency(file1Info.getId(), "dependency1", file2Info.getId());
 
@@ -99,13 +99,13 @@ public abstract class AbstractAppStorageArchiveTest {
 
         // unarchive to the second storage
         NodeInfo newRootFolderInfo = storage2.createRootNodeIfNotExists(storage2.getFileSystemName(), AbstractAppStorageTest.FOLDER_PSEUDO_CLASS);
-        storage2.consistent(newRootFolderInfo.getId());
+        storage2.setConsistent(newRootFolderInfo.getId());
 
         new AppStorageArchive(storage2).unarchiveChildren(newRootFolderInfo, workDir);
 
         // check we have same data in storage and storage2
         NodeInfo rootFolderInfo2 = storage2.createRootNodeIfNotExists(storage.getFileSystemName(), AbstractAppStorageTest.FOLDER_PSEUDO_CLASS);
-        storage2.consistent(rootFolderInfo2.getId());
+        storage2.setConsistent(rootFolderInfo2.getId());
 
         assertEquals(2, storage2.getChildNodes(rootFolderInfo2.getId()).size());
         NodeInfo newFolder1Info = storage2.getChildNode(rootFolderInfo2.getId(), "folder1").orElse(null);

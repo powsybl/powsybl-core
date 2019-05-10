@@ -228,15 +228,15 @@ public class RemoteAppStorage implements AppStorage {
     }
 
     @Override
-    public void consistent(String nodeId) {
+    public void setConsistent(String nodeId) {
         Objects.requireNonNull(nodeId);
 
         // flush buffer to keep change order
         changeBuffer.flush();
 
-        LOGGER.debug("consistent(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
+        LOGGER.debug("setConsistent(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
 
-        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/consistent")
+        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/setConsistent")
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .resolveTemplate(NODE_ID, nodeId)
                 .request()

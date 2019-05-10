@@ -85,10 +85,11 @@ public class NodeInfoSerializer implements Serializer<NodeInfo>, Serializable {
         try {
             boolean consistent = input.readBoolean();
             if (consistent) {
-                nodeInfo.consistent();
+                nodeInfo.setConsistent();
             }
         } catch (IOException e) {
-            // Stored NodeInfo hasn't a consistent field
+            // Old nodes considered as consistent nodes
+            nodeInfo.setConsistent();
         }
         return nodeInfo;
     }

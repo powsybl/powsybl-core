@@ -69,7 +69,7 @@ public class ActionScriptBuilder implements ProjectFileBuilder<ActionScript> {
             throw new UncheckedIOException(e);
         }
 
-        context.getStorage().consistent(info.getId());
+        context.getStorage().setConsistent(info.getId());
 
         context.getStorage().flush();
 

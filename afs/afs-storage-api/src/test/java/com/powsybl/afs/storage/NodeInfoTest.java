@@ -39,7 +39,7 @@ public class NodeInfoTest {
         NodeInfo info2 = objectMapper.readValue(objectMapper.writeValueAsString(info), NodeInfo.class);
         assertEquals(info, info2);
         assertFalse(info.isConsistent());
-        info.consistent();
+        info.setConsistent();
         assertTrue(info.isConsistent());
         info.setVersion(1);
         assertEquals(1, info.getVersion());
