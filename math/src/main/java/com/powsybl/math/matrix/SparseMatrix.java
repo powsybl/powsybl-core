@@ -56,12 +56,12 @@ class SparseMatrix extends AbstractMatrix {
     /**
      * Row count.
      */
-    private final int m;
+    private final int rowCount;
 
     /**
      * Column count.
      */
-    private final int n;
+    private final int columnCount;
 
     /**
      * Column start index in {@link #values} array.
@@ -82,20 +82,20 @@ class SparseMatrix extends AbstractMatrix {
 
     private int currentColumn = -1; // just for matrix filling
 
-    SparseMatrix(int m, int n, int[] columnStart, int[] rowIndices, double[] values) {
-        this.m = m;
-        this.n = n;
+    SparseMatrix(int rowCount, int columnCount, int[] columnStart, int[] rowIndices, double[] values) {
+        this.rowCount = rowCount;
+        this.columnCount = columnCount;
         this.columnStart = Objects.requireNonNull(columnStart);
         this.rowIndices = new TIntArrayListHack(Objects.requireNonNull(rowIndices));
         this.values = new TDoubleArrayListHack(Objects.requireNonNull(values));
     }
 
-    SparseMatrix(int m, int n, int estimatedNonZeroValueCount) {
-        this.m = m;
-        this.n = n;
-        columnStart = new int[n + 1];
+    SparseMatrix(int rowCount, int columnCount, int estimatedNonZeroValueCount) {
+        this.rowCount = rowCount;
+        this.columnCount = columnCount;
+        columnStart = new int[columnCount + 1];
         Arrays.fill(columnStart, -1);
-        this.columnStart[n] = 0;
+        this.columnStart[columnCount] = 0;
         rowIndices = new TIntArrayListHack(estimatedNonZeroValueCount);
         values = new TDoubleArrayListHack(estimatedNonZeroValueCount);
     }
@@ -131,16 +131,16 @@ class SparseMatrix extends AbstractMatrix {
      * {@inheritDoc}
      */
     @Override
-    public int getM() {
-        return m;
+    public int getRowCount() {
+        return rowCount;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public int getN() {
-        return n;
+    public int getColumnCount() {
+        return columnCount;
     }
 
     /**
@@ -153,7 +153,7 @@ class SparseMatrix extends AbstractMatrix {
      * @throws PowsyblException if values are filled in wrong order.
      */
     @Override
-    public void setValue(int i, int j, double value) {
+    public void set(int i, int j, double value) {
         if (j == currentColumn) {
             // ok, continue to fill row
         } else if (j > currentColumn) {
@@ -178,7 +178,7 @@ class SparseMatrix extends AbstractMatrix {
      * @throws PowsyblException if values are filled in wrong order.
      */
     @Override
-    public void addValue(int i, int j, double value) {
+    public void add(int i, int j, double value) {
         boolean startNewColumn = false;
         if (j == currentColumn) {
             // ok, continue to fill row
@@ -221,8 +221,8 @@ class SparseMatrix extends AbstractMatrix {
             throw new PowsyblException("Sparse and dense matrix multiplication is not supported");
         }
         SparseMatrix o = (SparseMatrix) other;
-        return times(m, n, columnStart, rowIndices.getData(), values.getData(),
-                     o.m, o.n, o.columnStart, o.rowIndices.getData(), o.values.getData());
+        return times(rowCount, columnCount, columnStart, rowIndices.getData(), values.getData(),
+                     o.rowCount, o.columnCount, o.columnStart, o.rowIndices.getData(), o.values.getData());
     }
 
     /**
@@ -230,7 +230,7 @@ class SparseMatrix extends AbstractMatrix {
      */
     @Override
     public void iterateNonZeroValue(ElementHandler handler) {
-        for (int j = 0; j < n; j++) {
+        for (int j = 0; j < columnCount; j++) {
             iterateNonZeroValueOfColumn(j, handler);
         }
     }
@@ -246,7 +246,7 @@ class SparseMatrix extends AbstractMatrix {
             for (int v = first; v < last; v++) {
                 int i = rowIndices.getQuick(v);
                 double value = values.getQuick(v);
-                handler.onValue(i, j, value);
+                handler.onElement(i, j, value);
             }
         }
     }
@@ -300,8 +300,8 @@ class SparseMatrix extends AbstractMatrix {
      */
     @Override
     public void print(PrintStream out, List<String> rowNames, List<String> columnNames) {
-        out.println("m=" + m);
-        out.println("n=" + n);
+        out.println("rowCount=" + rowCount);
+        out.println("columnCount=" + columnCount);
         out.println("columnStart=" + Arrays.toString(columnStart));
         out.println("rowIndices=" + rowIndices);
         out.println("values=" + values);
@@ -312,7 +312,7 @@ class SparseMatrix extends AbstractMatrix {
      */
     @Override
     public int hashCode() {
-        return m + n + Arrays.hashCode(columnStart) + rowIndices.hashCode() + values.hashCode();
+        return rowCount + columnCount + Arrays.hashCode(columnStart) + rowIndices.hashCode() + values.hashCode();
     }
 
     /**
@@ -322,8 +322,8 @@ class SparseMatrix extends AbstractMatrix {
     public boolean equals(Object obj) {
         if (obj instanceof SparseMatrix) {
             SparseMatrix other = (SparseMatrix) obj;
-            return m == other.m &&
-                    n == other.n &&
+            return rowCount == other.rowCount &&
+                    columnCount == other.columnCount &&
                     Arrays.equals(columnStart, other.columnStart) &&
                     rowIndices.equals(other.rowIndices) &&
                     values.equals(other.values);

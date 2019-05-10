@@ -20,6 +20,7 @@ public final class SecurityAnalysisToolConstants {
     public static final String WITH_EXTENSIONS_OPTION = "with-extensions";
     public static final String EXTERNAL = "external";
     public static final String OUTPUT_LOG_OPTION = "log-file";
+    public static final String SKIP_POSTPROC_OPTION = "skip-postproc";
 
     private SecurityAnalysisToolConstants() {
     }

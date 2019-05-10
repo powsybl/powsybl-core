@@ -28,8 +28,8 @@ public abstract class AbstractMatrix implements Matrix {
     @Override
     public Matrix copy(MatrixFactory factory) {
         Objects.requireNonNull(factory);
-        Matrix matrix = factory.create(getM(), getN(), getEstimatedNonZeroValueCount());
-        iterateNonZeroValue(matrix::setValue);
+        Matrix matrix = factory.create(getRowCount(), getColumnCount(), getEstimatedNonZeroValueCount());
+        iterateNonZeroValue(matrix::set);
         return matrix;
     }
 }
