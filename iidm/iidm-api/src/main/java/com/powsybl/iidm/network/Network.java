@@ -191,6 +191,19 @@ public interface Network extends Container<Network> {
     Iterable<Substation> getSubstations(Country country, String tsoId, String... geographicalTags);
 
     /**
+     * Get substation located in a specific county, TSO and marked with a list
+     * of geographical tag.
+     *
+     * @param country the country name, if empty string, the filtering will be on
+     *                  substations without country, if <code>null</code> there is no
+     *                  filtering on countries
+     * @param tsoId the id of the TSO, if <code>null</code> there is no
+     *                  filtering on TSOs
+     * @param geographicalTags a list a geographical tags
+     */
+    Iterable<Substation> getSubstations(String country, String tsoId, String... geographicalTags);
+
+    /**
      * Get a substation.
      *
      * @param id the id of the substation

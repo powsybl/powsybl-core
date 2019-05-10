@@ -20,8 +20,8 @@ class Boundary {
     private final Country country2;
 
     Boundary(Country country1, Country country2) {
-        this.country1 = Objects.requireNonNull(country1);
-        this.country2 = Objects.requireNonNull(country2);
+        this.country1 = country1;
+        this.country2 = country2;
     }
 
     @Override
