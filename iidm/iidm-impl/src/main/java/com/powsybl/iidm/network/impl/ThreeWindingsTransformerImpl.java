@@ -294,11 +294,14 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
     private final Leg3Impl leg3;
 
-    ThreeWindingsTransformerImpl(String id, String name, Leg1Impl leg1, Leg2Impl leg2, Leg3Impl leg3) {
+    private final double ratedU0;
+
+    ThreeWindingsTransformerImpl(String id, String name, Leg1Impl leg1, Leg2Impl leg2, Leg3Impl leg3, double ratedU0) {
         super(id, name);
         this.leg1 = Objects.requireNonNull(leg1);
         this.leg2 = Objects.requireNonNull(leg2);
         this.leg3 = Objects.requireNonNull(leg3);
+        this.ratedU0 = ratedU0;
     }
 
     @Override
@@ -324,6 +327,11 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     @Override
     public Leg3Impl getLeg3() {
         return leg3;
+    }
+
+    @Override
+    public double getRatedU0() {
+        return ratedU0;
     }
 
     @Override

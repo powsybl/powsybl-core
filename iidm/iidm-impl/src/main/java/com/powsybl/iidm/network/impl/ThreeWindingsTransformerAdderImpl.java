@@ -15,7 +15,8 @@ import com.powsybl.iidm.network.impl.ThreeWindingsTransformerImpl.Leg3Impl;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeWindingsTransformerAdderImpl> implements ThreeWindingsTransformerAdder {
+class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeWindingsTransformerAdderImpl>
+    implements ThreeWindingsTransformerAdder {
 
     abstract class AbstractLegBaseAdder<L extends AbstractLegBaseAdder<L>> implements Validable {
 
@@ -122,10 +123,10 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         protected TerminalExt checkAndGetTerminal() {
             return new TerminalBuilder(getNetwork().getRef(), this)
-                    .setNode(node)
-                    .setBus(bus)
-                    .setConnectableBus(connectableBus)
-                    .build();
+                .setNode(node)
+                .setBus(bus)
+                .setConnectableBus(connectableBus)
+                .build();
         }
 
         protected VoltageLevelExt checkAndGetVoltageLevel() {
@@ -135,12 +136,12 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             VoltageLevelExt voltageLevel = getNetwork().getVoltageLevel(voltageLevelId);
             if (voltageLevel == null) {
                 throw new ValidationException(this, "voltage level '" + voltageLevelId
-                        + "' not found");
+                    + "' not found");
             }
             if (voltageLevel.getSubstation() != substation) {
                 throw new ValidationException(this,
                     "voltage level shall belong to the substation '"
-                    + substation.getId() + "'");
+                        + substation.getId() + "'");
             }
             return voltageLevel;
         }
@@ -220,8 +221,16 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
     private TerminalExt terminal3;
 
+    private double ratedU0 = 1.0;
+
     ThreeWindingsTransformerAdderImpl(SubstationImpl substation) {
         this.substation = substation;
+    }
+
+    @Override
+    public ThreeWindingsTransformerAdder setRatedU0(double ratedU0) {
+        this.ratedU0 = ratedU0;
+        return this;
     }
 
     @Override
@@ -268,8 +277,8 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         voltageLevel2.attach(terminal2, true);
         voltageLevel3.attach(terminal3, true);
 
-        ThreeWindingsTransformerImpl transformer
-                = new ThreeWindingsTransformerImpl(id, getName(), leg1, leg2, leg3);
+        ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(id, getName(), leg1, leg2, leg3,
+            ratedU0);
         leg1.setTransformer(transformer);
         leg2.setTransformer(transformer);
         leg3.setTransformer(transformer);

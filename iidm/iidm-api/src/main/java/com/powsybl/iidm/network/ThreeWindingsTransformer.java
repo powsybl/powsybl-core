@@ -129,6 +129,8 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
 
     }
 
+    double getRatedU0();
+
     Terminal getTerminal(Side side);
 
     /**

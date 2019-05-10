@@ -39,6 +39,8 @@ public interface ThreeWindingsTransformerAdder extends IdentifiableAdder<ThreeWi
         ThreeWindingsTransformerAdder add();
     }
 
+    ThreeWindingsTransformerAdder setRatedU0(double ratedU0);
+
     LegAdder newLeg1();
 
     LegAdder newLeg2();
