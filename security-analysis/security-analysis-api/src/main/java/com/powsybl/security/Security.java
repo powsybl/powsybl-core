@@ -8,6 +8,7 @@
 package com.powsybl.security;
 
 import com.powsybl.commons.io.table.*;
+import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 
@@ -203,7 +204,7 @@ public final class Security {
             try {
                 formatter.writeCell(writeName ? violation.getSubjectName() : violation.getSubjectId())
                          .writeCell(LimitViolationHelper.getVoltageLevelId(violation, network, writeName))
-                         .writeCell(LimitViolationHelper.getCountry(violation, network).name())
+                         .writeCell(LimitViolationHelper.getCountry(violation, network).map(Country::name).orElse(""))
                          .writeCell((int) LimitViolationHelper.getNominalVoltage(violation, network))
                          .writeCell(violation.getLimitType().name())
                          .writeCell(getViolationName(violation))
@@ -296,7 +297,7 @@ public final class Security {
                 formatter.writeEmptyCell()
                         .writeCell(writeName ? violation.getSubjectName() : violation.getSubjectId())
                         .writeCell(LimitViolationHelper.getVoltageLevelId(violation, network, writeName))
-                        .writeCell(LimitViolationHelper.getCountry(violation, network).name())
+                        .writeCell(LimitViolationHelper.getCountry(violation, network).map(Country::name).orElse(""))
                         .writeCell((int) LimitViolationHelper.getNominalVoltage(violation, network))
                         .writeCell(violation.getLimitType().name())
                         .writeCell(getViolationName(violation))
@@ -524,7 +525,7 @@ public final class Security {
                         .writeEmptyCell()
                         .writeCell(writeName ? violation.getSubjectName() : violation.getSubjectId())
                         .writeCell(LimitViolationHelper.getVoltageLevelId(violation, network, writeName))
-                        .writeCell(LimitViolationHelper.getCountry(violation, network).name())
+                        .writeCell(LimitViolationHelper.getCountry(violation, network).map(Country::name).orElse(""))
                         .writeCell((int) LimitViolationHelper.getNominalVoltage(violation, network))
                         .writeCell(violation.getLimitType().name())
                         .writeCell(getViolationName(violation))
