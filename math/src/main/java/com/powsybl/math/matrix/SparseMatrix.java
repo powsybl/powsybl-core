@@ -65,9 +65,9 @@ class SparseMatrix extends AbstractMatrix {
 
     /**
      * Column start index in {@link #values} array.
-     * Length of this vector is the number of column.
+     * Length of this vector is the number of column, plus one last element at the end for value count.
      */
-    private final int[] columnStart; // plus value count in the last element
+    private final int[] columnStart;
 
     /**
      * Row index for each of the {@link #values}.
@@ -242,8 +242,19 @@ class SparseMatrix extends AbstractMatrix {
     public void iterateNonZeroValueOfColumn(int j, ElementHandler handler) {
         int first = columnStart[j];
         if (first != -1) {
-            int last = j < columnStart.length - 1 ? columnStart[j + 1] : values.size();
-            for (int v = first; v < last; v++) {
+            // to find last column value, we have to go until next non empty column
+            int lastExclusive = -1;
+            if (j < columnCount - 1) {
+                for (int k = j + 1; k < columnCount; k++) {
+                    if (columnStart[k] != -1) {
+                        lastExclusive = columnStart[k];
+                    }
+                }
+            }
+            if (lastExclusive == -1) {
+                lastExclusive = values.size();
+            }
+            for (int v = first; v < lastExclusive; v++) {
                 int i = rowIndices.getQuick(v);
                 double value = values.getQuick(v);
                 handler.onElement(i, j, value);
