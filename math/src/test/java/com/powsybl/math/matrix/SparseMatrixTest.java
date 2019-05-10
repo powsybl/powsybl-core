@@ -52,6 +52,7 @@ public class SparseMatrixTest extends AbstractMatrixTest {
                 "rowCount=3",
                 "columnCount=2",
                 "columnStart=[0, 2, 3]",
+                "columnValueCount=[2, 1]",
                 "rowIndices={0, 2, 1}",
                 "values={1.0, 2.0, 3.0}")
                 + System.lineSeparator();

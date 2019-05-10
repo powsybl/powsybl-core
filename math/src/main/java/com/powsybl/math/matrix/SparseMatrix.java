@@ -70,6 +70,12 @@ class SparseMatrix extends AbstractMatrix {
     private final int[] columnStart;
 
     /**
+     * Column value count.
+     * Length of this vector is the number of column.
+     */
+    private final int[] columnValueCount;
+
+    /**
      * Row index for each of the {@link #values}.
      * Length of this vector is the number of values.
      */
@@ -82,18 +88,11 @@ class SparseMatrix extends AbstractMatrix {
 
     private int currentColumn = -1; // just for matrix filling
 
-    SparseMatrix(int rowCount, int columnCount, int[] columnStart, int[] rowIndices, double[] values) {
-        this.rowCount = rowCount;
-        this.columnCount = columnCount;
-        this.columnStart = Objects.requireNonNull(columnStart);
-        this.rowIndices = new TIntArrayListHack(Objects.requireNonNull(rowIndices));
-        this.values = new TDoubleArrayListHack(Objects.requireNonNull(values));
-    }
-
     SparseMatrix(int rowCount, int columnCount, int estimatedNonZeroValueCount) {
         this.rowCount = rowCount;
         this.columnCount = columnCount;
         columnStart = new int[columnCount + 1];
+        columnValueCount = new int[columnCount];
         Arrays.fill(columnStart, -1);
         this.columnStart[columnCount] = 0;
         rowIndices = new TIntArrayListHack(estimatedNonZeroValueCount);
@@ -166,6 +165,7 @@ class SparseMatrix extends AbstractMatrix {
         values.add(value);
         rowIndices.add(i);
         columnStart[columnStart.length - 1] = values.size();
+        columnValueCount[j]++;
     }
 
     /**
@@ -197,6 +197,7 @@ class SparseMatrix extends AbstractMatrix {
             values.add(value);
             rowIndices.add(i);
             columnStart[columnStart.length - 1] = values.size();
+            columnValueCount[j]++;
         }
     }
 
@@ -242,19 +243,7 @@ class SparseMatrix extends AbstractMatrix {
     public void iterateNonZeroValueOfColumn(int j, ElementHandler handler) {
         int first = columnStart[j];
         if (first != -1) {
-            // to find last column value, we have to go until next non empty column
-            int lastExclusive = -1;
-            if (j < columnCount - 1) {
-                for (int k = j + 1; k < columnCount; k++) {
-                    if (columnStart[k] != -1) {
-                        lastExclusive = columnStart[k];
-                    }
-                }
-            }
-            if (lastExclusive == -1) {
-                lastExclusive = values.size();
-            }
-            for (int v = first; v < lastExclusive; v++) {
+            for (int v = first; v < first + columnValueCount[j]; v++) {
                 int i = rowIndices.getQuick(v);
                 double value = values.getQuick(v);
                 handler.onElement(i, j, value);
@@ -314,6 +303,7 @@ class SparseMatrix extends AbstractMatrix {
         out.println("rowCount=" + rowCount);
         out.println("columnCount=" + columnCount);
         out.println("columnStart=" + Arrays.toString(columnStart));
+        out.println("columnValueCount=" + Arrays.toString(columnValueCount));
         out.println("rowIndices=" + rowIndices);
         out.println("values=" + values);
     }
@@ -323,7 +313,7 @@ class SparseMatrix extends AbstractMatrix {
      */
     @Override
     public int hashCode() {
-        return rowCount + columnCount + Arrays.hashCode(columnStart) + rowIndices.hashCode() + values.hashCode();
+        return rowCount + columnCount + Arrays.hashCode(columnStart) + Arrays.hashCode(columnValueCount) + rowIndices.hashCode() + values.hashCode();
     }
 
     /**
@@ -336,6 +326,7 @@ class SparseMatrix extends AbstractMatrix {
             return rowCount == other.rowCount &&
                     columnCount == other.columnCount &&
                     Arrays.equals(columnStart, other.columnStart) &&
+                    Arrays.equals(columnValueCount, other.columnValueCount) &&
                     rowIndices.equals(other.rowIndices) &&
                     values.equals(other.values);
         }
