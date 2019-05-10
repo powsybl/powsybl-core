@@ -56,10 +56,9 @@ public class UcteExporterTest {
 
         addThreeWindingTransformers(exportTestNetwork);
 
-        FileDataSource fds = new FileDataSource(FileSystems.getDefault().getPath("./"), "test"); //TODO remove this when ready to merge
-        new UcteExporter().export(exportTestNetwork, null, fds); //TODO remove this when ready to merge
-        //new UcteExporter().export(network, null, fds); //TODO remove this when ready to merge
-
+//        FileDataSource fds = new FileDataSource(FileSystems.getDefault().getPath("./"), "test"); //TODO remove this when ready to merge
+//        new UcteExporter().export(exportTestNetwork, null, fds); //TODO remove this when ready to merge
+//        new UcteExporter().export(network, null, fds); //TODO remove this when ready to merge
         MemDataSource exportedDataSource = new MemDataSource();
         new UcteExporter().export(exportTestNetwork, null, exportedDataSource);
         try (Reader exportedData = new InputStreamReader(new ByteArrayInputStream(exportedDataSource.getData(null, "uct")))) {
@@ -117,9 +116,12 @@ public class UcteExporterTest {
     public void createLineFromNonCompliantIdDanglingLineTest() {
         Network networkWithDL = DanglingLineNetworkFactory.create();
         UcteNetwork ucteNetwork = new UcteNetworkImpl();
+        //no ucteXnodeCode
         ucteExporter.createLineFromNonCompliantIdDanglingLine(ucteNetwork, networkWithDL.getDanglingLine("DL"));
-        assertEquals(1, ucteNetwork.getLines().size());
-        assertEquals("XVL   9a FVL   9a a", ucteNetwork.getLines().toArray()[0].toString());
+        assertEquals(0, ucteNetwork.getLines().size());
+        //with ucteXnodeCode
+        // ucteExporter.createLineFromNonCompliantIdDanglingLine(ucteNetwork, networkWithDL.getDanglingLine("DL")); //todo : finish test
+
     }
 
     @Test

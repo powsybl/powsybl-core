@@ -325,12 +325,9 @@ public class UcteExporter implements Exporter {
         String ucteXnodeCode = null;
         if (danglingLine.getUcteXnodeCode() != null) {
             ucteXnodeCode = danglingLine.getUcteXnodeCode();
-        } else { //FIXME how to handle the case when the ucteXnodeCode is not there ?
-            ucteXnodeCode = new UcteNodeCode(
-                    UcteCountryCode.XX, //OK
-                    "aaaaaa", //FIXME
-                    UcteVoltageLevelCode.VL_500, //FIXME
-                    '1').toString(); //FIXME
+        } else {
+            LOGGER.warn("The dangling line {} will be ignored : no ucteXnodeCode found", danglingLine.getId());
+            return;
         }
         UcteNodeCode ucteNodeCode1 = createUcteNodeCode(ucteXnodeCode,
                 danglingLine.getTerminal().getVoltageLevel(),
@@ -339,6 +336,11 @@ public class UcteExporter implements Exporter {
                 danglingLine.getTerminal().getBusBreakerView().getConnectableBus().getVoltageLevel(),
                 danglingLine.getTerminal().getBusBreakerView().getConnectableBus().getVoltageLevel().getSubstation().getCountry().toString());
         UcteElementId ucteElementId = generateUcteElementId(danglingLine.getId(), ucteNodeCode1, ucteNodeCode2);
+
+        if (danglingLine.getCurrentLimits() == null) {
+            LOGGER.warn("The dangling line {} will be ignored : no current limit found", danglingLine.getId());
+            return;
+        }
 
         UcteLine ucteLine = new UcteLine(ucteElementId,
                 UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION,
@@ -645,9 +647,14 @@ public class UcteExporter implements Exporter {
         Terminal t1 = twt.getLeg1().getTerminal();
         Terminal t2 = twt.getLeg2().getTerminal();
         Terminal t3 = twt.getLeg3().getTerminal();
+        String country = "";
 
+        if (!twt.getSubstation().getCountry().isPresent()) {
+            LOGGER.warn("Three windings transformer {} ignored : its substation has no country set", twt.getId());
+            return;
+        }
         UcteNodeCode fictiveNodeCode = new UcteNodeCode(
-                UcteCountryCode.valueOf(twt.getSubstation().getCountry().toString()),
+                UcteCountryCode.valueOf(twt.getSubstation().getCountry().get().toString()),
                 "FICTIVE",
                 UcteVoltageLevelCode.VL_500,
                 '1');
@@ -878,10 +885,10 @@ public class UcteExporter implements Exporter {
             alphaList[j] = twoWindingsTransformer.getPhaseTapChanger().getStep(i).getAlpha();
             j++;
         }
-        alphaMin = Doubles.min(alphaList);
-        alphaMax = Doubles.max(alphaList);
+        alphaMin = Math.toRadians(Doubles.min(alphaList));
+        alphaMax = Math.toRadians(Doubles.max(alphaList));
 
-        return 2 * (Math.tan(alphaMax / 2) - Math.tan(alphaMin / 2)) / (tabNumber - 1);  //FIXME : is this right ? it doesn't give the wanted result anyway
+        return 100 * (2 * (Math.tan(alphaMax / 2) - Math.tan(alphaMin / 2)) / (tabNumber - 1));
     }
 
     /**
@@ -895,16 +902,18 @@ public class UcteExporter implements Exporter {
         PhaseTapChanger phaseTapChanger = twoWindingsTransformer.getPhaseTapChanger();
         int lowTapPosition = phaseTapChanger.getLowTapPosition();
         int highTapPosition = phaseTapChanger.getHighTapPosition();
-        double lowPositionAlpha = -phaseTapChanger.getStep(lowTapPosition).getAlpha();
+        int tapNumber = phaseTapChanger.getStepCount();
+        double lowPositionAlpha = Math.toRadians(-phaseTapChanger.getStep(lowTapPosition).getAlpha());
         double lowPositionRho = 1 / phaseTapChanger.getStep(lowTapPosition).getRho();
-        double highPositionAlpha = -phaseTapChanger.getStep(highTapPosition).getAlpha();
+        double highPositionAlpha = Math.toRadians(-phaseTapChanger.getStep(highTapPosition).getAlpha());
         double highPositionRho = 1 / phaseTapChanger.getStep(highTapPosition).getRho();
         double xa = lowPositionRho * Math.cos(lowPositionAlpha);
-        double ya = lowPositionRho * Math.sin(lowPositionRho);
-        double xb = highPositionRho + Math.cos(highPositionAlpha);
-        double yb = highPositionRho + Math.sin(highPositionAlpha);
+        double ya = lowPositionRho * Math.sin(lowPositionAlpha);
+        double xb = highPositionRho * Math.cos(highPositionAlpha);
+        double yb = highPositionRho * Math.sin(highPositionAlpha);
         double distance = Math.sqrt(Math.pow(xb - xa, 2) + Math.pow(yb - ya, 2));
-        return 100 * distance / (highTapPosition + Math.abs(lowTapPosition));   //FIXME : is this right ? it doesn't give the wanted result anyway
+        double du = 100 * distance / (tapNumber - 1);
+        return BigDecimal.valueOf(du).setScale(4, RoundingMode.HALF_UP).doubleValue();
     }
 
     /**
@@ -917,23 +926,23 @@ public class UcteExporter implements Exporter {
         PhaseTapChanger phaseTapChanger = twoWindingsTransformer.getPhaseTapChanger();
         int lowTapPosition = phaseTapChanger.getLowTapPosition();
         int highTapPosition = phaseTapChanger.getHighTapPosition();
-        double lowPositionAlpha = -phaseTapChanger.getStep(lowTapPosition).getAlpha();
+        double lowPositionAlpha = Math.toRadians(-phaseTapChanger.getStep(lowTapPosition).getAlpha());
         double lowPositionRho = 1 / phaseTapChanger.getStep(lowTapPosition).getRho();
-        double highPositionAlpha = -phaseTapChanger.getStep(highTapPosition).getAlpha();
+        double highPositionAlpha = Math.toRadians(-phaseTapChanger.getStep(highTapPosition).getAlpha());
         double highPositionRho = 1 / phaseTapChanger.getStep(highTapPosition).getRho();
         double xa = lowPositionRho * Math.cos(lowPositionAlpha);
-        double ya = lowPositionRho * Math.sin(lowPositionRho);
-        double xb = highPositionRho + Math.cos(highPositionAlpha);
-        double yb = highPositionRho + Math.sin(highPositionAlpha);
-        return Math.atan((yb - ya) / (xb - xa));    //FIXME : is this right ? it doesn't give the wanted result anyway
+        double ya = lowPositionRho * Math.sin(lowPositionAlpha);
+        double xb = highPositionRho * Math.cos(highPositionAlpha);
+        double yb = highPositionRho * Math.sin(highPositionAlpha);
+        return Math.toDegrees(Math.atan((yb - ya) / (xb - xa)));
     }
 
     /**
      * @param twoWindingsTransformer The twoWindingsTransformer containing the PhaseTapChanger we want to convert
      * @return P (MW) of the angle regulation for the two windings transformer
      */
-    private float calculateAngleP(TwoWindingsTransformer twoWindingsTransformer) { //TODO where do I find P ?
-        return 0;
+    private float calculateAngleP(TwoWindingsTransformer twoWindingsTransformer) {
+        return (float) twoWindingsTransformer.getPhaseTapChanger().getRegulationValue();
     }
 
     /**
@@ -1042,7 +1051,7 @@ public class UcteExporter implements Exporter {
                 ucteNodeCode = new UcteNodeCode(
                         UcteCountryCode.valueOf(country),
                         voltageNameOrId,
-                        UcteVoltageLevelCode.VL_500,  // FIXME where do i find the voltageLvlCode since voltageLevelCodeFromIidmVoltage(voltageLevel.getNominalV()) is not good and a bus.getV() may be null
+                        voltageLevelCodeFromIidmVoltage(voltageLevel.getNominalV()),
                         //voltageLevelCodeFromIidmVoltage(voltageLevel.getNominalV()),
                         (char) busbar
                 );
@@ -1082,7 +1091,7 @@ public class UcteExporter implements Exporter {
             ucteNodeCode = new UcteNodeCode(
                     UcteCountryCode.valueOf(country),
                     substationName + generatedGeographicalName.substring(0, 3),
-                    voltageLevelCodeFromIidmVoltage(voltageLevel.getNominalV()), // FIXME where do i find the voltageLvlCode since voltageLevelCodeFromIidmVoltage(voltageLevel.getNominalV()) is not good and a bus.getV() may be null
+                    voltageLevelCodeFromIidmVoltage(voltageLevel.getNominalV()),
                     generatedGeographicalName.charAt(3)
             );
         } while (iidmIdToUcteNodeCodeId.values().contains(ucteNodeCode));

@@ -94,25 +94,25 @@ public enum UcteVoltageLevelCode {
     }
 
     public static UcteVoltageLevelCode voltageLevelCodeFromIidmVoltage(double nominalV) {
-        if (nominalV == 27) {
+        if (nominalV >= 0.01 && nominalV <= 27) {
             return UcteVoltageLevelCode.VL_27;
-        } else if (nominalV == 70) {
+        } else if (nominalV > 27 && nominalV <= 90) {
             return UcteVoltageLevelCode.VL_70;
-        } else if (nominalV == 110) {
+        } else if (nominalV > 90 && nominalV <= 113) {
             return UcteVoltageLevelCode.VL_110;
-        } else if (nominalV == 120) {
+        } else if (nominalV > 113 && nominalV <= 134) {
             return UcteVoltageLevelCode.VL_120;
-        } else if (nominalV == 150) {
+        } else if (nominalV > 134 && nominalV <= 180) {
             return UcteVoltageLevelCode.VL_150;
-        } else if (nominalV == 220) {
+        } else if (nominalV > 180 && nominalV <= 280) {
             return UcteVoltageLevelCode.VL_220;
-        } else if (nominalV == 330) {
+        } else if (nominalV > 280 && nominalV <= 350) {
             return UcteVoltageLevelCode.VL_330;
-        } else if (nominalV == 380) {
+        } else if (nominalV > 350 && nominalV <= 430) {
             return UcteVoltageLevelCode.VL_380;
-        } else if (nominalV == 500) {
+        } else if (nominalV > 430 && nominalV <= 600) {
             return UcteVoltageLevelCode.VL_500;
-        } else if (nominalV == 750) {
+        } else if (nominalV > 600 && nominalV <= 800) {
             return UcteVoltageLevelCode.VL_750;
         } else {
             throw new IllegalArgumentException("This voltage doesn't refer to a voltage level");
