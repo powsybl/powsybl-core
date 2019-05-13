@@ -67,7 +67,7 @@ public class Conversion {
         Function<PropertyBag, AbstractObjectConversion> convf;
 
         cgmes.terminals().forEach(p -> context.terminalMapping().buildTopologicalNodesMapping(p));
-        cgmes.regulatingControls().forEach(p -> context.regulatingControlMapping().buildRegulatingControlMapping(p));
+        cgmes.regulatingControls().forEach(p -> context.regulatingControlMapping().cacheRegulatingControls(p));
 
         convert(cgmes.substations(), s -> new SubstationConversion(s, context));
         convert(cgmes.voltageLevels(), vl -> new VoltageLevelConversion(vl, context));

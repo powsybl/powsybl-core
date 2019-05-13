@@ -47,16 +47,16 @@ public class RegulatingControlMapping {
         }
     }
 
-    private Map<String, RegulatingControl> regulatingControlMapping = new HashMap<>();
+    private Map<String, RegulatingControl> cachedRegulatingControls = new HashMap<>();
 
-    public void buildRegulatingControlMapping(PropertyBag p) {
-        regulatingControlMapping.put(p.getId(REGULATING_CONTROL), new RegulatingControl(p));
+    public void cacheRegulatingControls(PropertyBag p) {
+        cachedRegulatingControls.put(p.getId(REGULATING_CONTROL), new RegulatingControl(p));
     }
 
     public void setRegulatingControl(String idEq, PropertyBag p, GeneratorAdder adder, VoltageLevel vl) {
         if (p.containsKey(REGULATING_CONTROL)) {
             String controlId = p.getId(REGULATING_CONTROL);
-            RegulatingControl control = regulatingControlMapping.get(controlId);
+            RegulatingControl control = cachedRegulatingControls.get(controlId);
             if (control != null) {
                 if (control.mode.endsWith("voltage")) {
                     setTargetValue(control.targetValue, vl.getNominalV(), controlId, adder);
@@ -66,7 +66,7 @@ public class RegulatingControlMapping {
                 } else {
                     context.ignored(control.mode, String.format("Unsupported regulation mode for generator %s", idEq));
                 }
-                regulatingControlMapping.remove(controlId);
+                cachedRegulatingControls.remove(controlId);
             } else {
                 context.missing(String.format("Regulating control %s for equipment %s", controlId, idEq));
             }
@@ -82,7 +82,7 @@ public class RegulatingControlMapping {
             control.idEq = idEq;
             return;
         }
-        regulatingControlMapping.remove(controlId);
+        cachedRegulatingControls.remove(controlId);
     }
 
     private void setTargetValue(double targetValue, double defaultValue, String controlId, GeneratorAdder adder) {
@@ -98,7 +98,7 @@ public class RegulatingControlMapping {
     public void setRegulatingControl(PropertyBag p, Terminal defaultTerminal, RatioTapChangerAdder adder) {
         if (p.containsKey(TAP_CHANGER_CONTROL)) {
             String controlId = p.getId(TAP_CHANGER_CONTROL);
-            RegulatingControl control = regulatingControlMapping.get(controlId);
+            RegulatingControl control = cachedRegulatingControls.get(controlId);
             if (control != null) {
                 if (control.mode.endsWith("voltage") || (p.containsKey("tculControlMode") && p.get("tculControlMode").endsWith("volt"))) {
                     addRegulatingControlVoltage(p, control, adder, defaultTerminal, context);
@@ -106,7 +106,7 @@ public class RegulatingControlMapping {
                 } else if (!control.mode.endsWith("fixed")) {
                     context.fixed(control.mode, "Unsupported regulation mode for Ratio tap changer. Considered as a fixed ratio tap changer.");
                 }
-                regulatingControlMapping.remove(controlId);
+                cachedRegulatingControls.remove(controlId);
             } else {
                 context.missing(String.format("Regulating control %s", controlId));
             }
@@ -138,12 +138,12 @@ public class RegulatingControlMapping {
                 return;
             }
         }
-        regulatingControlMapping.remove(p.getId(TAP_CHANGER_CONTROL));
+        cachedRegulatingControls.remove(p.getId(TAP_CHANGER_CONTROL));
     }
 
     public void setRegulatingControl(PropertyBag p, Terminal defaultTerminal, PhaseTapChangerAdder adder, TwoWindingsTransformer t2w) {
         if (p.containsKey(TAP_CHANGER_CONTROL)) {
-            RegulatingControl control = regulatingControlMapping.get(p.getId(TAP_CHANGER_CONTROL));
+            RegulatingControl control = cachedRegulatingControls.get(p.getId(TAP_CHANGER_CONTROL));
             if (control != null) {
                 int side = context.tapChangerTransformers().whichSide(p.getId("PhaseTapChanger"));
                 if (control.mode.endsWith("currentflow")) {
@@ -155,7 +155,7 @@ public class RegulatingControlMapping {
                 } else if (!control.mode.endsWith("fixed")) {
                     context.fixed(control.mode, "Unsupported regulating mode for Phase tap changer. Considered as FIXED_TAP");
                 }
-                regulatingControlMapping.remove(p.getId(TAP_CHANGER_CONTROL));
+                cachedRegulatingControls.remove(p.getId(TAP_CHANGER_CONTROL));
             } else {
                 context.missing(String.format("Regulating control %s", p.getId(TAP_CHANGER_CONTROL)));
             }
@@ -194,12 +194,12 @@ public class RegulatingControlMapping {
                 return;
             }
         }
-        regulatingControlMapping.remove(p.getId(TAP_CHANGER_CONTROL));
+        cachedRegulatingControls.remove(p.getId(TAP_CHANGER_CONTROL));
     }
 
     public void setAllRemoteRegulatingTerminals() {
-        regulatingControlMapping.entrySet().removeIf(this::setRemoteRegulatingTerminal);
-        regulatingControlMapping.forEach((key, value) -> context.pending("Regulating terminal", String.format("The setting of the regulating terminal of the regulating control %s is not handled.", key)));
+        cachedRegulatingControls.entrySet().removeIf(this::setRemoteRegulatingTerminal);
+        cachedRegulatingControls.forEach((key, value) -> context.pending("Regulating terminal", String.format("The setting of the regulating terminal of the regulating control %s is not handled.", key)));
     }
 
     private boolean setRemoteRegulatingTerminal(Map.Entry<String, RegulatingControl> entry) {
