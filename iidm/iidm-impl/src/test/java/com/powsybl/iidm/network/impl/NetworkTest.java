@@ -52,7 +52,7 @@ public class NetworkTest {
         Substation substation1 = network.getSubstation("substation1");
         assertNotNull(substation1);
         assertEquals("substation1", substation1.getId());
-        assertSame(country1, substation1.getCountry());
+        assertSame(country1, substation1.getCountry().orElse(null));
         assertEquals(1, substation1.getGeographicalTags().size());
         assertTrue(substation1.getGeographicalTags().contains("region1"));
         assertEquals(1, Iterables.size(network.getVoltageLevels()));
@@ -138,6 +138,19 @@ public class NetworkTest {
     }
 
     @Test
+    public void testNetwork1WithoutCountry() {
+        Network network = NetworkTest1Factory.create();
+
+        Substation substation1 = network.getSubstation("substation1");
+        substation1.setCountry(null);
+
+        assertEquals(0, Iterables.size(network.getCountries()));
+        assertEquals(0, network.getCountryCount());
+        assertEquals(1, Iterables.size(network.getSubstations("", "TSO1", "region1")));
+        assertFalse(substation1.getCountry().isPresent());
+    }
+
+    @Test
     public void testNetworkWithBattery() {
         Network network = BatteryNetworkFactory.create();
         assertEquals(1, Iterables.size(network.getCountries()));
@@ -156,7 +169,7 @@ public class NetworkTest {
         Substation substation1 = network.getSubstation("P1");
         assertNotNull(substation1);
         assertEquals("P1", substation1.getId());
-        assertSame(country1, substation1.getCountry());
+        assertSame(country1, substation1.getCountry().orElse(null));
         assertEquals(1, substation1.getGeographicalTags().size());
         assertTrue(substation1.getGeographicalTags().contains("A"));
         assertEquals(1, Iterables.size(substation1.getVoltageLevels()));
@@ -187,7 +200,7 @@ public class NetworkTest {
         Substation substation2 = network.getSubstation("P2");
         assertNotNull(substation2);
         assertEquals("P2", substation2.getId());
-        assertSame(country1, substation2.getCountry());
+        assertSame(country1, substation2.getCountry().orElse(null));
         assertEquals(1, substation2.getGeographicalTags().size());
         assertTrue(substation2.getGeographicalTags().contains("B"));
         assertEquals(1, Iterables.size(substation1.getVoltageLevels()));

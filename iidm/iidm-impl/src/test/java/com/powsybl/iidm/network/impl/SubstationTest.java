@@ -40,25 +40,23 @@ public class SubstationTest {
                                 .add();
         assertEquals("sub", substation.getId());
         assertEquals("sub_name", substation.getName());
-        assertEquals(Country.AD, substation.getCountry());
+        assertEquals(Country.AD, substation.getCountry().orElse(null));
         assertEquals("TSO", substation.getTso());
         assertEquals(ContainerType.SUBSTATION, substation.getContainerType());
 
         // setter and getter
         substation.setCountry(Country.AF);
-        assertEquals(Country.AF, substation.getCountry());
+        assertEquals(Country.AF, substation.getCountry().orElse(null));
         substation.setTso("new tso");
         assertEquals("new tso", substation.getTso());
     }
 
     @Test
-    public void invalidCountry() {
-        thrown.expect(ValidationException.class);
-        thrown.expectMessage("country is invalid");
-        network.newSubstation()
-                .setId("no_country")
-                .setName("sub_name")
-            .add();
+    public void emptyCountry() {
+        Substation s = network.newSubstation()
+                .setId("undefined_country")
+                .add();
+        assertFalse(s.getCountry().isPresent());
     }
 
     @Test

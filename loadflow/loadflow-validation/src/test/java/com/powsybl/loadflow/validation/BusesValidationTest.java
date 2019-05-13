@@ -9,6 +9,7 @@ package com.powsybl.loadflow.validation;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
 import java.util.stream.Stream;
 
 import com.powsybl.iidm.network.*;
@@ -51,7 +52,9 @@ public class BusesValidationTest extends AbstractValidationTest {
     private Bus bus;
 
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
+        super.setUp();
+
         Terminal loadTerminal = Mockito.mock(Terminal.class);
         Mockito.when(loadTerminal.getP()).thenReturn(loadP);
         Mockito.when(loadTerminal.getQ()).thenReturn(loadQ);
@@ -117,49 +120,55 @@ public class BusesValidationTest extends AbstractValidationTest {
 
     @Test
     public void checkBusesValues() {
-        assertTrue(BusesValidation.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                                              lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, looseConfig, NullWriter.NULL_WRITER));
-        assertFalse(BusesValidation.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                                               lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, strictConfig, NullWriter.NULL_WRITER));
-        assertFalse(BusesValidation.checkBuses("test", loadP, 174.4932, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                                               lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, looseConfig, NullWriter.NULL_WRITER));
+        assertTrue(BusesValidation.INSTANCE.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+                                              lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, looseConfig, formatterConfig, NullWriter.NULL_WRITER));
+        assertFalse(BusesValidation.INSTANCE.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+                                               lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, strictConfig, formatterConfig, NullWriter.NULL_WRITER));
+        assertFalse(BusesValidation.INSTANCE.checkBuses("test", loadP, 174.4932, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+                                               lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, looseConfig, formatterConfig, NullWriter.NULL_WRITER));
         // check NaN values
-        assertFalse(BusesValidation.checkBuses("test", Double.NaN, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                                               lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, looseConfig, NullWriter.NULL_WRITER));
-        assertFalse(BusesValidation.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                                               lineP, lineQ, danglingLineP, danglingLineQ, twtP, Double.NaN, tltP, tltQ, mainComponent, looseConfig, NullWriter.NULL_WRITER));
+        assertFalse(BusesValidation.INSTANCE.checkBuses("test", Double.NaN, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+                                               lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, looseConfig, formatterConfig, NullWriter.NULL_WRITER));
+        assertFalse(BusesValidation.INSTANCE.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+                                               lineP, lineQ, danglingLineP, danglingLineQ, twtP, Double.NaN, tltP, tltQ, mainComponent, looseConfig, formatterConfig, NullWriter.NULL_WRITER));
         looseConfig.setOkMissingValues(true);
-        assertTrue(BusesValidation.checkBuses("test", Double.NaN, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                                              lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, looseConfig, NullWriter.NULL_WRITER));
-        assertTrue(BusesValidation.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
-                                              lineP, lineQ, danglingLineP, danglingLineQ, twtP, Double.NaN, tltP, tltQ, mainComponent, looseConfig, NullWriter.NULL_WRITER));
+        assertTrue(BusesValidation.INSTANCE.checkBuses("test", Double.NaN, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+                                              lineP, lineQ, danglingLineP, danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, looseConfig, formatterConfig, NullWriter.NULL_WRITER));
+        assertTrue(BusesValidation.INSTANCE.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ,
+                                              lineP, lineQ, danglingLineP, danglingLineQ, twtP, Double.NaN, tltP, tltQ, mainComponent, looseConfig, formatterConfig, NullWriter.NULL_WRITER));
         looseConfig.setOkMissingValues(false);
         // check main component
-        assertFalse(BusesValidation.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP,
-                                               danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, strictConfig, NullWriter.NULL_WRITER));
+        assertFalse(BusesValidation.INSTANCE.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP,
+                                               danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, strictConfig, formatterConfig, NullWriter.NULL_WRITER));
         mainComponent = false;
-        assertTrue(BusesValidation.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP,
-                                              danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(BusesValidation.INSTANCE.checkBuses("test", loadP, loadQ, genP, genQ, batP, batQ, shuntP, shuntQ, svcP, svcQ, vscCSP, vscCSQ, lineP, lineQ, danglingLineP,
+                                              danglingLineQ, twtP, twtQ, tltP, tltQ, mainComponent, strictConfig, formatterConfig, NullWriter.NULL_WRITER));
     }
 
     @Test
     public void checkBuses() {
-        assertTrue(BusesValidation.checkBuses(bus, looseConfig, NullWriter.NULL_WRITER));
-        assertFalse(BusesValidation.checkBuses(bus, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(BusesValidation.INSTANCE.checkBuses(bus, looseConfig, formatterConfig, NullWriter.NULL_WRITER));
+        assertFalse(BusesValidation.INSTANCE.checkBuses(bus, strictConfig, formatterConfig, NullWriter.NULL_WRITER));
     }
 
     @Test
-    public void checkNetworkBuses() {
+    public void checkNetworkBuses() throws IOException {
         Network.BusView networkBusView = Mockito.mock(Network.BusView.class);
         Mockito.when(networkBusView.getBusStream()).thenAnswer(dummy -> Stream.of(bus));
         Network network = Mockito.mock(Network.class);
         Mockito.when(network.getId()).thenReturn("network");
         Mockito.when(network.getBusView()).thenReturn(networkBusView);
 
-        assertTrue(BusesValidation.checkBuses(network, looseConfig, NullWriter.NULL_WRITER));
-        assertFalse(BusesValidation.checkBuses(network, strictConfig, NullWriter.NULL_WRITER));
+        assertTrue(BusesValidation.INSTANCE.checkBuses(network, looseConfig, formatterConfig, NullWriter.NULL_WRITER));
+        assertFalse(BusesValidation.INSTANCE.checkBuses(network, strictConfig, formatterConfig, NullWriter.NULL_WRITER));
 
-        ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), looseConfig, NullWriter.NULL_WRITER, ValidationType.BUSES);
+        assertTrue(BusesValidation.INSTANCE.checkBuses(network, looseConfig, formatterConfig, data));
+        assertFalse(BusesValidation.INSTANCE.checkBuses(network, strictConfig, formatterConfig, data));
+
+        assertTrue(ValidationType.BUSES.check(network, looseConfig, formatterConfig, tmpDir));
+        assertFalse(ValidationType.BUSES.check(network, strictConfig, formatterConfig, tmpDir));
+
+        ValidationWriter validationWriter = ValidationUtils.createValidationWriter(network.getId(), looseConfig, formatterConfig, NullWriter.NULL_WRITER, ValidationType.BUSES);
         assertTrue(ValidationType.BUSES.check(network, looseConfig, validationWriter));
     }
 
