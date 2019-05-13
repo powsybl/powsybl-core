@@ -144,7 +144,6 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
                 new NodeGenericMetadata().setString(Case.FORMAT, ImporterMock.FORMAT));
         storage.setConsistent(caseNode.getId());
         storage.setConsistent(caseNode2.getId());
-
     }
 
     @Test

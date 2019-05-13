@@ -64,7 +64,6 @@ public class DefaultListenableAppStorageTest {
 
         listenableStorage = new DefaultListenableAppStorage(storage);
         listenableStorage.addListener(l);
-
     }
 
     @After

@@ -61,7 +61,6 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
         NodeInfo nodeInfo = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "", Case.VERSION,
                 new NodeGenericMetadata().setString(Case.FORMAT, TestImporter.FORMAT));
         storage.setConsistent(nodeInfo.getId());
-
     }
 
     @Test
@@ -86,6 +85,7 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
                 .withType(ScriptType.GROOVY)
                 .withContent("print 'hello'")
                 .build();
+
         // create virtual by applying groovy script on imported case
         try {
             VirtualCase virtualCase = folder.fileBuilder(VirtualCaseBuilder.class)
@@ -119,6 +119,7 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
                 .withCase(importedCase)
                 .withScript(script)
                 .build();
+
         assertEquals("network2", virtualCase.getName());
         assertTrue(virtualCase.getCase().isPresent());
         assertTrue(virtualCase.getScript().isPresent());

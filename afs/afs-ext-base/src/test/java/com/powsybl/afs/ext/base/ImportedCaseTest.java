@@ -92,12 +92,14 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
     @After
     public void tearDown() throws IOException {
         fileSystem.close();
+
         super.tearDown();
     }
 
     @Test
     public void test() {
         Folder root = afs.getRootFolder();
+
         // check case exist
         assertEquals(1, root.getChildren().size());
         assertTrue(root.getChildren().get(0) instanceof Case);
@@ -158,9 +160,9 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
     @Test
     public void testFile() {
         Folder root = afs.getRootFolder();
+
         // create project
         Project project = root.createProject("project");
-
         assertNotNull(project);
 
         // create project folder
@@ -184,6 +186,7 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
     @Test
     public void testNetwork() {
         Folder root = afs.getRootFolder();
+
         // create project
         Project project = root.createProject("project");
         assertNotNull(project);
