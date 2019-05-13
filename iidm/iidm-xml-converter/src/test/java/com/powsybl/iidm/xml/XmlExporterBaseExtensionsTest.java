@@ -8,9 +8,9 @@ package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.MemDataSource;
-import com.powsybl.iidm.IidmImportExportMode;
-import com.powsybl.iidm.export.ExportOptions;
-import com.powsybl.iidm.import_.ImportOptions;
+import com.powsybl.iidm.api.converter.IidmImportExportMode;
+import com.powsybl.iidm.api.converter.ExportOptions;
+import com.powsybl.iidm.api.converter.ImportOptions;
 import com.powsybl.iidm.api.Network;
 import com.powsybl.iidm.api.test.MultipleExtensionsTestNetworkFactory;
 import org.junit.Test;

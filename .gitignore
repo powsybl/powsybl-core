@@ -42,8 +42,7 @@
 /dsl/target/
 /entsoe-util/target/
 /iidm/target/
-/iidm/iidm-api/target
-/iidm/iidm-converter-api/target/
+/iidm/iidm-api/target/
 /iidm/iidm-dsv-converter/target/
 /iidm/iidm-impl/target/
 /iidm/iidm-reducer/target/

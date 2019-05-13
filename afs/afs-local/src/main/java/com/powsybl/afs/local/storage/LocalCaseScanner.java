@@ -8,7 +8,7 @@ package com.powsybl.afs.local.storage;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.import_.*;
+import com.powsybl.iidm.api.converter.*;
 
 import java.nio.file.Files;
 import java.nio.file.Path;

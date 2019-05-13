@@ -14,10 +14,10 @@ import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
-import com.powsybl.iidm.import_.ImportConfig;
-import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.api.converter.ImportConfig;
+import com.powsybl.iidm.api.converter.Importers;
 import com.powsybl.iidm.api.Network;
-import com.powsybl.iidm.tools.ConversionToolUtils;
+import com.powsybl.iidm.api.converter.ConversionToolUtils;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -34,9 +34,9 @@ import java.io.Writer;
 import java.nio.file.Path;
 import java.util.Properties;
 
-import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParameterOption;
-import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParametersFileOption;
-import static com.powsybl.iidm.tools.ConversionToolUtils.readProperties;
+import static com.powsybl.iidm.api.converter.ConversionToolUtils.createImportParameterOption;
+import static com.powsybl.iidm.api.converter.ConversionToolUtils.createImportParametersFileOption;
+import static com.powsybl.iidm.api.converter.ConversionToolUtils.readProperties;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}

@@ -11,7 +11,7 @@ import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
-import com.powsybl.iidm.export.ExportOptions;
+import com.powsybl.iidm.api.converter.ExportOptions;
 import com.powsybl.iidm.api.BusbarSection;
 import com.powsybl.iidm.api.Network;
 import com.powsybl.iidm.api.TopologyLevel;

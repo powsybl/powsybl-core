@@ -13,7 +13,7 @@ import com.powsybl.commons.extensions.AbstractExtension;
 import com.powsybl.commons.extensions.ExtensionXmlSerializer;
 import com.powsybl.commons.xml.XmlReaderContext;
 import com.powsybl.commons.xml.XmlWriterContext;
-import com.powsybl.iidm.export.ExportOptions;
+import com.powsybl.iidm.api.converter.ExportOptions;
 import com.powsybl.iidm.api.*;
 import com.powsybl.iidm.api.test.*;
 import org.junit.Test;

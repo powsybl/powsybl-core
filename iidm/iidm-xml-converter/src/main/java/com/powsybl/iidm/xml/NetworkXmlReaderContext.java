@@ -7,9 +7,9 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlReaderContext;
-import com.powsybl.iidm.AbstractConverterContext;
-import com.powsybl.iidm.anonymizer.Anonymizer;
-import com.powsybl.iidm.import_.ImportOptions;
+import com.powsybl.iidm.api.converter.AbstractConverterContext;
+import com.powsybl.iidm.api.anonymizer.Anonymizer;
+import com.powsybl.iidm.api.converter.ImportOptions;
 
 import javax.xml.stream.XMLStreamReader;
 import java.util.ArrayList;

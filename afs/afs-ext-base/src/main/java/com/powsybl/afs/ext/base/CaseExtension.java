@@ -9,8 +9,8 @@ package com.powsybl.afs.ext.base;
 import com.google.auto.service.AutoService;
 import com.powsybl.afs.FileCreationContext;
 import com.powsybl.afs.FileExtension;
-import com.powsybl.iidm.import_.ImportersLoader;
-import com.powsybl.iidm.import_.ImportersServiceLoader;
+import com.powsybl.iidm.api.converter.ImportersLoader;
+import com.powsybl.iidm.api.converter.ImportersServiceLoader;
 
 import java.util.Objects;
 

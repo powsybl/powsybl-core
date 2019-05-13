@@ -7,10 +7,10 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.xml.XmlWriterContext;
-import com.powsybl.iidm.anonymizer.Anonymizer;
-import com.powsybl.iidm.AbstractConverterContext;
-import com.powsybl.iidm.export.BusFilter;
-import com.powsybl.iidm.export.ExportOptions;
+import com.powsybl.iidm.api.anonymizer.Anonymizer;
+import com.powsybl.iidm.api.converter.AbstractConverterContext;
+import com.powsybl.iidm.api.converter.BusFilter;
+import com.powsybl.iidm.api.converter.ExportOptions;
 import com.powsybl.iidm.api.Identifiable;
 
 import javax.xml.stream.XMLStreamWriter;

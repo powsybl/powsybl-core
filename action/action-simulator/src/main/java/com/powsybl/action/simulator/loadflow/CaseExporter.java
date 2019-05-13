@@ -10,9 +10,9 @@ import com.powsybl.commons.datasource.CompressionFormat;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.export.Exporters;
-import com.powsybl.iidm.export.ExportersLoader;
-import com.powsybl.iidm.export.ExportersServiceLoader;
+import com.powsybl.iidm.api.converter.Exporters;
+import com.powsybl.iidm.api.converter.ExportersLoader;
+import com.powsybl.iidm.api.converter.ExportersServiceLoader;
 import com.powsybl.security.LimitViolation;
 
 import java.nio.file.Path;

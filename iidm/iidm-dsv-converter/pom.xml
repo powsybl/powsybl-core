@@ -18,8 +18,8 @@
     </parent>
 
     <artifactId>powsybl-iidm-dsv-converter</artifactId>
-    <name>AMPL converter implementation</name>
-    <description>A converter implementation based on CSV-like files</description>
+    <name>DSV converter implementation</name>
+    <description>A converter implementation based on CSV-like files (compatible with AMPL)</description>
 
     <build>
         <plugins>
@@ -45,7 +45,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-iidm-converter-api</artifactId>
+            <artifactId>powsybl-iidm-api</artifactId>
             <version>${project.version}</version>
         </dependency>
 

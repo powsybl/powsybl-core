@@ -10,15 +10,15 @@ import com.google.auto.service.AutoService;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.commons.io.table.*;
-import com.powsybl.iidm.tools.ConversionToolUtils;
+import com.powsybl.iidm.api.converter.ConversionToolUtils;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
-import com.powsybl.iidm.export.Exporters;
-import com.powsybl.iidm.import_.ImportConfig;
-import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.api.converter.Exporters;
+import com.powsybl.iidm.api.converter.ImportConfig;
+import com.powsybl.iidm.api.converter.Importers;
 import com.powsybl.iidm.api.Network;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowFactory;
@@ -39,8 +39,8 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Properties;
 
-import static com.powsybl.iidm.tools.ConversionToolUtils.*;
-import static com.powsybl.iidm.tools.ConversionToolUtils.createExportParametersFileOption;
+import static com.powsybl.iidm.api.converter.ConversionToolUtils.*;
+import static com.powsybl.iidm.api.converter.ConversionToolUtils.createExportParametersFileOption;
 
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>

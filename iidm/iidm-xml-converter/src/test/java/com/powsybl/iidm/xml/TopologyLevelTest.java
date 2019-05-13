@@ -9,7 +9,7 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
-import com.powsybl.iidm.export.ExportOptions;
+import com.powsybl.iidm.api.converter.ExportOptions;
 import com.powsybl.iidm.api.*;
 import com.powsybl.iidm.api.test.FictitiousSwitchFactory;
 import org.junit.Before;

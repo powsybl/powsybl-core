@@ -18,11 +18,11 @@ import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.Partition;
 import com.powsybl.contingency.Contingency;
-import com.powsybl.iidm.export.Exporters;
-import com.powsybl.iidm.import_.ImportConfig;
-import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.api.converter.Exporters;
+import com.powsybl.iidm.api.converter.ImportConfig;
+import com.powsybl.iidm.api.converter.Importers;
 import com.powsybl.iidm.api.Network;
-import com.powsybl.iidm.tools.ConversionToolUtils;
+import com.powsybl.iidm.api.converter.ConversionToolUtils;
 import com.powsybl.security.Security;
 import com.powsybl.security.SecurityAnalysisResult;
 import com.powsybl.security.converter.SecurityAnalysisResultExporters;
@@ -51,9 +51,9 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.powsybl.action.simulator.tools.ActionSimulatorToolConstants.*;
-import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParameterOption;
-import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParametersFileOption;
-import static com.powsybl.iidm.tools.ConversionToolUtils.readProperties;
+import static com.powsybl.iidm.api.converter.ConversionToolUtils.createImportParameterOption;
+import static com.powsybl.iidm.api.converter.ConversionToolUtils.createImportParametersFileOption;
+import static com.powsybl.iidm.api.converter.ConversionToolUtils.readProperties;
 import static com.powsybl.tools.ToolConstants.TASK;
 import static com.powsybl.tools.ToolConstants.TASK_COUNT;
 

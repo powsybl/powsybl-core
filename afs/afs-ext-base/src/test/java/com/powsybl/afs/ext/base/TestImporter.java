@@ -9,10 +9,10 @@ package com.powsybl.afs.ext.base;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.import_.Importer;
+import com.powsybl.iidm.api.converter.Importer;
 import com.powsybl.iidm.api.Network;
-import com.powsybl.iidm.parameters.Parameter;
-import com.powsybl.iidm.parameters.ParameterType;
+import com.powsybl.iidm.api.converter.Parameter;
+import com.powsybl.iidm.api.converter.ParameterType;
 
 import java.io.IOException;
 import java.io.UncheckedIOException;

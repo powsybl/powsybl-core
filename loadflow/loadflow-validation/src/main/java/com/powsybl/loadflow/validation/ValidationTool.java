@@ -10,11 +10,11 @@ import com.google.auto.service.AutoService;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.import_.ImportConfig;
-import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.api.converter.ImportConfig;
+import com.powsybl.iidm.api.converter.Importers;
 import com.powsybl.iidm.api.Network;
 import com.powsybl.iidm.api.VariantManagerConstants;
-import com.powsybl.iidm.tools.ConversionToolUtils;
+import com.powsybl.iidm.api.converter.ConversionToolUtils;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.io.ValidationWriters;
@@ -39,9 +39,9 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParameterOption;
-import static com.powsybl.iidm.tools.ConversionToolUtils.createImportParametersFileOption;
-import static com.powsybl.iidm.tools.ConversionToolUtils.readProperties;
+import static com.powsybl.iidm.api.converter.ConversionToolUtils.createImportParameterOption;
+import static com.powsybl.iidm.api.converter.ConversionToolUtils.createImportParametersFileOption;
+import static com.powsybl.iidm.api.converter.ConversionToolUtils.readProperties;
 
 /**
  *

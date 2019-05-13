@@ -12,7 +12,7 @@ import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.ContingenciesProviderFactory;
 import com.powsybl.contingency.EmptyContingencyListProvider;
-import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.api.converter.Importers;
 import com.powsybl.iidm.api.Network;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 

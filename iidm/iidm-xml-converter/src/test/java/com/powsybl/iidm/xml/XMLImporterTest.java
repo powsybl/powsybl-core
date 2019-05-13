@@ -11,7 +11,7 @@ import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
-import com.powsybl.iidm.IidmImportExportMode;
+import com.powsybl.iidm.api.converter.IidmImportExportMode;
 import com.powsybl.iidm.api.Network;
 import org.junit.Before;
 import org.junit.Test;

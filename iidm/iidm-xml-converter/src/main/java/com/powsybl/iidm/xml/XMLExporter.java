@@ -9,16 +9,16 @@ package com.powsybl.iidm.xml;
 import com.google.auto.service.AutoService;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.iidm.ConversionParameters;
-import com.powsybl.iidm.IidmImportExportMode;
-import com.powsybl.iidm.export.ExportOptions;
-import com.powsybl.iidm.export.Exporter;
+import com.powsybl.iidm.api.converter.ConversionParameters;
+import com.powsybl.iidm.api.converter.IidmImportExportMode;
+import com.powsybl.iidm.api.converter.ExportOptions;
+import com.powsybl.iidm.api.converter.Exporter;
 import com.powsybl.iidm.api.Network;
 import com.powsybl.iidm.api.TopologyLevel;
 
-import com.powsybl.iidm.parameters.Parameter;
-import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
-import com.powsybl.iidm.parameters.ParameterType;
+import com.powsybl.iidm.api.converter.Parameter;
+import com.powsybl.iidm.api.converter.ParameterDefaultValueConfig;
+import com.powsybl.iidm.api.converter.ParameterType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

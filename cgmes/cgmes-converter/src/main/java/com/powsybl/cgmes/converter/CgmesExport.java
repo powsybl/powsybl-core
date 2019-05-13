@@ -18,7 +18,7 @@ import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.Subset;
 import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.iidm.export.Exporter;
+import com.powsybl.iidm.api.converter.Exporter;
 import com.powsybl.iidm.api.*;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;

@@ -12,9 +12,9 @@ import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
-import com.powsybl.iidm.import_.ImportConfig;
-import com.powsybl.iidm.import_.ImportersLoader;
-import com.powsybl.iidm.import_.ImportersLoaderList;
+import com.powsybl.iidm.api.converter.ImportConfig;
+import com.powsybl.iidm.api.converter.ImportersLoader;
+import com.powsybl.iidm.api.converter.ImportersLoaderList;
 import org.junit.Before;
 import org.junit.Test;
 

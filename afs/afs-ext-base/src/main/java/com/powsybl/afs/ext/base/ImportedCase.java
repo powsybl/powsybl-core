@@ -11,8 +11,8 @@ import com.powsybl.afs.ProjectFile;
 import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.storage.AppStorageDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
-import com.powsybl.iidm.import_.Importer;
-import com.powsybl.iidm.import_.ImportersLoader;
+import com.powsybl.iidm.api.converter.Importer;
+import com.powsybl.iidm.api.converter.ImportersLoader;
 import com.powsybl.iidm.api.Network;
 
 import java.io.IOException;

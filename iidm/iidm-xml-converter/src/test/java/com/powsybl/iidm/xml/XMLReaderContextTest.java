@@ -7,7 +7,7 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.iidm.IidmImportExportMode;
+import com.powsybl.iidm.api.converter.IidmImportExportMode;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
