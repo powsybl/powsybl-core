@@ -331,15 +331,25 @@ public class MapDbAppStorage implements AppStorage {
         return nodeInfo.isConsistent();
     }
 
-    @Override
-    public List<NodeInfo> getChildNodes(String nodeId) {
+    private List<UUID> getAllChildNodes(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
-        checkConsistency(nodeUuid);
         List<UUID> childNodes = childNodesMap.get(nodeUuid);
         if (childNodes == null) {
             throw createNodeNotFoundException(nodeUuid);
         }
+        return childNodes;
+    }
+
+    @Override
+    public List<NodeInfo> getChildNodes(String nodeId) {
+        List<UUID> childNodes = getAllChildNodes(nodeId);
         return childNodes.stream().map(this::getNodeInfo).filter(NodeInfo::isConsistent).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<NodeInfo> getInconsistentChildNodes(String nodeId) {
+        List<UUID> childNodes = getAllChildNodes(nodeId);
+        return childNodes.stream().map(this::getNodeInfo).filter(nodeInfo -> !nodeInfo.isConsistent()).collect(Collectors.toList());
     }
 
     @Override

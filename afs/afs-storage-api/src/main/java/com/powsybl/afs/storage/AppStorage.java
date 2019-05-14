@@ -11,10 +11,7 @@ import com.powsybl.timeseries.*;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  *
@@ -25,6 +22,9 @@ import java.util.Set;
  * <p>
  * An AppStorage implements low level methods to walk through a filesystem and to write and read data from this filesystem.
  * It relies on nodes uniquely identified by and ID.
+ *
+ * AppStorage handle only consistent nodes, inconsistent ones are filtered by the api.
+ * By default, nodes are created inconsistent , they have to be set consistent explicitly by calling the {@link #setConsistent(String nodeId)} method
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -41,7 +41,6 @@ public interface AppStorage extends AutoCloseable {
 
     /**
      * Creates a new node in the tree under a parent node. Returns {@code NodeInfo} corresponding to the newly created node.
-     * Node is inconsistent when created,{@link #setConsistent()} method should be used to make a node consistent
      */
     NodeInfo createNode(String parentNodeId, String name, String nodePseudoClass, String description, int version, NodeGenericMetadata genericMetadata);
 
@@ -68,6 +67,21 @@ public interface AppStorage extends AutoCloseable {
      * Gets {@code NodeInfo} for consistent child nodes of the node with ID {@code nodeId}.
      */
     List<NodeInfo> getChildNodes(String nodeId);
+
+    /**
+     * Gets {@code NodeInfo} for consistent child nodes of the node with ID {@code nodeId}.
+     */
+    default List<NodeInfo> getInconsistentChildNodes(String nodeId) {
+        List<NodeInfo> emptyList;
+        emptyList = new ArrayList<>();
+        return emptyList;
+    }
+
+    /**
+     * Remove the node with ID {@code nodeId}.
+     */
+    default void removeNode(String nodeId) {
+    }
 
     /**
      * Gets {@code NodeInfo} for child node with name {@code name} of the node with ID {@code nodeId}, empty if such a node does not exist or node is inconsistent.

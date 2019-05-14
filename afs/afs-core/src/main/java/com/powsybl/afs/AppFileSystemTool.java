@@ -7,6 +7,7 @@
 package com.powsybl.afs;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.Tool;
@@ -17,6 +18,7 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -29,6 +31,11 @@ public class AppFileSystemTool implements Tool {
     public static final String ARCHIVE = "archive";
     public static final String UNARCHIVE = "unarchive";
     public static final String DIR = "dir";
+    public static final String LS_INCONSISTENT_NODES = "ls-inconsistent-nodes";
+    public static final String SET_INCONSISTENT_NODES = "set-inconsistent-nodes";
+    public static final String RM_INCONSISTENT_NODES = "rm-inconsistent-nodes";
+
+
 
     protected AppData createAppData(ToolRunningContext context) {
         return new AppData(context.getShortTimeExecutionComputationManager(),
@@ -74,6 +81,27 @@ public class AppFileSystemTool implements Tool {
                 topLevelOptions.addOption(Option.builder()
                         .longOpt(UNARCHIVE)
                         .desc("unarchive file system")
+                        .hasArg()
+                        .optionalArg(true)
+                        .argName("FILE_SYSTEM_NAME")
+                        .build());
+                topLevelOptions.addOption(Option.builder()
+                        .longOpt(LS_INCONSISTENT_NODES)
+                        .desc("list the inconsistent nodes")
+                        .hasArg()
+                        .optionalArg(true)
+                        .argName("FILE_SYSTEM_NAME")
+                        .build());
+                topLevelOptions.addOption(Option.builder()
+                        .longOpt(SET_INCONSISTENT_NODES)
+                        .desc("make inconsistent nodes consistent")
+                        .hasArg()
+                        .optionalArg(true)
+                        .argName("FILE_SYSTEM_NAME")
+                        .build());
+                topLevelOptions.addOption(Option.builder()
+                        .longOpt(RM_INCONSISTENT_NODES)
+                        .desc("remove inconsistent nodes")
                         .hasArg()
                         .optionalArg(true)
                         .argName("FILE_SYSTEM_NAME")
@@ -147,6 +175,94 @@ public class AppFileSystemTool implements Tool {
         }
     }
 
+    private List<NodeInfo> getAllInconsistentNodes(AppFileSystem fs, String nodeId) {
+        List<NodeInfo> nodeInfos = fs.getStorage().getInconsistentChildNodes(nodeId);
+        // now get recursively inconsistent nodes of consistent child nodes
+        for (NodeInfo nodeInfo : fs.getStorage().getChildNodes(nodeId)) {
+            nodeInfos.addAll(fs.getStorage().getInconsistentChildNodes(nodeInfo.getId()));
+        }
+        return nodeInfos;
+    }
+
+    private void runLsInconsistentNodes(CommandLine line, ToolRunningContext context) {
+        try (AppData appData = createAppData(context)) {
+            String fileSystemName = line.getOptionValue(LS_INCONSISTENT_NODES);
+            if (fileSystemName == null) {
+                for (AppFileSystem afs : appData.getFileSystems()) {
+                    List<NodeInfo> nodeInfos = getAllInconsistentNodes(afs, afs.getRootFolder().getId());
+                    if (!nodeInfos.isEmpty()) {
+                        context.getOutputStream().println(afs.getName() + ":");
+                        nodeInfos.forEach(nodeInfo -> context.getOutputStream().print(nodeInfo.getName() + " "));
+                    }
+                }
+            } else {
+                AppFileSystem fs = appData.getFileSystem(fileSystemName);
+                if (fs == null) {
+                    throw new AfsException("File system '" + fileSystemName + "' not found");
+                }
+                List<NodeInfo> nodeInfos = getAllInconsistentNodes(fs, fs.getRootFolder().getId());
+                if (!nodeInfos.isEmpty()) {
+                    context.getOutputStream().println(fileSystemName + ":");
+                    nodeInfos.forEach(nodeInfo -> context.getOutputStream().print(nodeInfo.getName()));
+                }
+            }
+        }
+    }
+
+    private void runSetInconsistentNodes(CommandLine line, ToolRunningContext context) {
+        try (AppData appData = createAppData(context)) {
+            String fileSystemName = line.getOptionValue(SET_INCONSISTENT_NODES);
+            if (fileSystemName == null) {
+                for (AppFileSystem afs : appData.getFileSystems()) {
+                    List<NodeInfo> nodeInfos = getAllInconsistentNodes(afs, afs.getRootFolder().getId());
+                    if (!nodeInfos.isEmpty()) {
+                        context.getOutputStream().println(afs.getName() + ":");
+                        nodeInfos.forEach(nodeInfo -> { afs.getStorage().setConsistent(nodeInfo.getId());
+                            context.getOutputStream().print(nodeInfo.getName() + " ");}
+                        );
+                    }
+                }
+            } else {
+                AppFileSystem fs = appData.getFileSystem(fileSystemName);
+                if (fs == null) {
+                    throw new AfsException("File system '" + fileSystemName + "' not found");
+                }
+                List<NodeInfo> nodeInfos = getAllInconsistentNodes(fs, fs.getRootFolder().getId());
+                if (!nodeInfos.isEmpty()) {
+                    context.getOutputStream().println(fileSystemName + ":");
+                    nodeInfos.forEach(nodeInfo -> { fs.getStorage().setConsistent(nodeInfo.getId());
+                        context.getOutputStream().print(nodeInfo.getName() + " ");}
+                    );
+                }
+            }
+        }
+    }
+
+    private void runRemoveInconsistentNodes(CommandLine line, ToolRunningContext context) {
+        try (AppData appData = createAppData(context)) {
+            String fileSystemName = line.getOptionValue(RM_INCONSISTENT_NODES);
+            if (fileSystemName == null) {
+                for (AppFileSystem afs : appData.getFileSystems()) {
+                    List<NodeInfo> nodeInfos = getAllInconsistentNodes(afs, afs.getRootFolder().getId());
+                    if (!nodeInfos.isEmpty()) {
+                        context.getOutputStream().println(afs.getName() + " cleaned");
+                        nodeInfos.forEach(nodeInfo -> afs.getStorage().removeNode(nodeInfo.getId()));
+                    }
+                }
+            } else {
+                AppFileSystem fs = appData.getFileSystem(fileSystemName);
+                if (fs == null) {
+                    throw new AfsException("File system '" + fileSystemName + "' not found");
+                }
+                List<NodeInfo> nodeInfos = getAllInconsistentNodes(fs, fs.getRootFolder().getId());
+                if (!nodeInfos.isEmpty()) {
+                    context.getOutputStream().println(fileSystemName + " cleaned");
+                    nodeInfos.forEach(nodeInfo -> fs.getStorage().removeNode(nodeInfo.getId()));
+                }
+            }
+        }
+    }
+
     @Override
     public void run(CommandLine line, ToolRunningContext context) {
         if (line.hasOption(LS)) {
@@ -155,6 +271,12 @@ public class AppFileSystemTool implements Tool {
             runArchive(line, context);
         } else if (line.hasOption(UNARCHIVE)) {
             runUnarchive(line, context);
+        } else if (line.hasOption(LS_INCONSISTENT_NODES)) {
+            runLsInconsistentNodes(line, context);
+        } else if (line.hasOption(SET_INCONSISTENT_NODES)) {
+            runSetInconsistentNodes(line, context);
+        } else if (line.hasOption(RM_INCONSISTENT_NODES)) {
+            runRemoveInconsistentNodes(line, context);
         } else {
             Command command = getCommand();
             CommandLineTools.printCommandUsage(command.getName(), command.getOptions(), command.getUsageFooter(), context.getErrorStream());

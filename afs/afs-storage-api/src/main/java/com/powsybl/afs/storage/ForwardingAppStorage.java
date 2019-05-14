@@ -83,6 +83,11 @@ public class ForwardingAppStorage implements AppStorage {
     }
 
     @Override
+    public List<NodeInfo> getInconsistentChildNodes(String nodeId) {
+        return storage.getInconsistentChildNodes(nodeId);
+    }
+
+    @Override
     public Optional<NodeInfo> getChildNode(String nodeId, String name) {
         return storage.getChildNode(nodeId, name);
     }

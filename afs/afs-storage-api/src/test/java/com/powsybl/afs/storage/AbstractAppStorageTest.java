@@ -125,8 +125,7 @@ public abstract class AbstractAppStorageTest {
         storage.flush();
 
         // check event
-        assertEventStack(new NodeCreated(testFolderInfo.getId(), rootFolderInfo.getId()),
-                new NodeConsistent(testFolderInfo.getId()));
+        assertEventStack(new NodeCreated(testFolderInfo.getId(), rootFolderInfo.getId()), new NodeConsistent(testFolderInfo.getId()));
 
         // assert parent of test folder is root folder
         assertEquals(rootFolderInfo, storage.getParentNode(testFolderInfo.getId()).orElseThrow(AssertionError::new));
