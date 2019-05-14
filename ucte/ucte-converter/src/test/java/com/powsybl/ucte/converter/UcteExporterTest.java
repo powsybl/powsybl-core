@@ -20,6 +20,7 @@ import org.junit.rules.ExpectedException;
 
 import java.io.*;
 import java.nio.file.FileSystems;
+import java.util.Collection;
 
 import static org.junit.Assert.*;
 
@@ -32,6 +33,8 @@ public class UcteExporterTest {
     private static Network transfomerRegulationNetwork;
     private static Network exportTestNetwork;
     private static Network iidmNetwork;
+    private static Network iidmTieLineNetwork;
+    private static Network iidmSwitchNetwork;
     private UcteExporter ucteExporter = new UcteExporter();
 
     @Rule
@@ -46,19 +49,12 @@ public class UcteExporterTest {
         iidmNetwork = EurostagTutorialExample1Factory.create();
         iidmNetwork.getLine("NHV1_NHV2_1").getProperties().setProperty(UcteImporter.REFERENCE_VOLTAGE, "15.8");
         iidmNetwork.getLine("NHV1_NHV2_1").getProperties().setProperty(UcteImporter.GEOGRAPHICAL_NAME_PROPERTY_KEY, "geographicalName");
+        createTieLineNetwork();
+        createNetworkWithSwitch();
     }
 
     @Test
     public void exportUcteTest() throws IOException {
-//        ReadOnlyDataSource dataSource = new ResourceDataSource("20100505_0330_FO3_UX3",
-//                new ResourceSet("/", "20100505_0330_FO3_UX3.uct"));
-//        Network network = new UcteImporter().importData(dataSource, null);
-
-        addThreeWindingTransformers(exportTestNetwork);
-
-//        FileDataSource fds = new FileDataSource(FileSystems.getDefault().getPath("./"), "test"); //TODO remove this when ready to merge
-//        new UcteExporter().export(exportTestNetwork, null, fds); //TODO remove this when ready to merge
-//        new UcteExporter().export(network, null, fds); //TODO remove this when ready to merge
         MemDataSource exportedDataSource = new MemDataSource();
         new UcteExporter().export(exportTestNetwork, null, exportedDataSource);
         try (Reader exportedData = new InputStreamReader(new ByteArrayInputStream(exportedDataSource.getData(null, "uct")))) {
@@ -71,47 +67,6 @@ public class UcteExporterTest {
         new UcteExporter().export(null, null, null);
     }
 
-    private void addThreeWindingTransformers(Network network) {
-        network.getSubstation("F_SU1_").newThreeWindingsTransformer()
-                .setId("3WT")
-                .newLeg1()
-                .setVoltageLevel("F_SU1_1")
-                .setBus("F_SU1_11")
-                .setR(17.424)
-                .setX(1.7424)
-                .setG(0.00573921028466483)
-                .setB(0.000573921028466483)
-                .setRatedU(132.0)
-                .add()
-                .newLeg2()
-                .setVoltageLevel("F_SU1_2")
-                .setBus("F_SU1_21")
-                .setR(1.089)
-                .setX(0.1089)
-                .setRatedU(33.0)
-                .add()
-                .newLeg3()
-                .setVoltageLevel("F_SU1_3")
-                .setBus("F_SU1_31")
-                .setR(0.121)
-                .setX(0.0121)
-                .setRatedU(11.0)
-                .add()
-                .add();
-
-        network.getThreeWindingsTransformer("3WT").getLeg1().newCurrentLimits()
-                .setPermanentLimit(100.0)
-                .add();
-
-        network.getThreeWindingsTransformer("3WT").getLeg2().newCurrentLimits()
-                .setPermanentLimit(100.0)
-                .add();
-
-        network.getThreeWindingsTransformer("3WT").getLeg3().newCurrentLimits()
-                .setPermanentLimit(100.0)
-                .add();
-    }
-
     @Test
     public void createLineFromNonCompliantIdDanglingLineTest() {
         Network networkWithDL = DanglingLineNetworkFactory.create();
@@ -121,6 +76,7 @@ public class UcteExporterTest {
         assertEquals(0, ucteNetwork.getLines().size());
         //with ucteXnodeCode
         // ucteExporter.createLineFromNonCompliantIdDanglingLine(ucteNetwork, networkWithDL.getDanglingLine("DL")); //todo : finish test
+        networkWithDL.getDanglingLine("DL").getUcteXnodeCode();
 
     }
 
@@ -134,28 +90,24 @@ public class UcteExporterTest {
             ucteExporter.generateUcteNodeCode("test", iidmNetwork.getVoltageLevel("VLHV1"), UcteCountryCode.FR.toString());
         }
         ucteExporter.generateUcteNodeCode("test", iidmNetwork.getVoltageLevel("VLHV1"), UcteCountryCode.FR.toString());
-        assertEquals("FP1aaf1x", ucteExporter.iidmIdToUcteNodeCodeId.get("test").toString());
+        assertEquals("FP1aac1F", ucteExporter.iidmIdToUcteNodeCodeId.get("test").toString());
     }
 
     @Test
     public void incrementGeneratedGeographicalNameTest() {
         assertEquals("aaab", ucteExporter.incrementGeneratedGeographicalName("aaaa"));
-        assertEquals("aaba", ucteExporter.incrementGeneratedGeographicalName("aaaz"));
+        assertEquals("aaaA", ucteExporter.incrementGeneratedGeographicalName("aaaz"));
+        assertEquals("aaba", ucteExporter.incrementGeneratedGeographicalName("aaa9"));
         assertEquals("tryc", ucteExporter.incrementGeneratedGeographicalName("trybr"));
-        assertEquals("zaaa", ucteExporter.incrementGeneratedGeographicalName("yzzz"));
-        assertEquals("zfaa", ucteExporter.incrementGeneratedGeographicalName("zezz"));
+        assertEquals("zaaa", ucteExporter.incrementGeneratedGeographicalName("y999"));
+        assertEquals("zfaa", ucteExporter.incrementGeneratedGeographicalName("ze99"));
         try {
             ucteExporter.incrementGeneratedGeographicalName("aze");
             fail();
         } catch (IllegalArgumentException exception) {
             assertEquals("The string to increment is not long enough (should be at least 4)", exception.getMessage());
         }
-        try {
-            ucteExporter.incrementGeneratedGeographicalName("zzzz");
-            fail();
-        } catch (UcteException exception) {
-            assertEquals("This network cannot be exported, too much identical ids", exception.getMessage());
-        }
+
     }
 
     @Test
@@ -227,6 +179,57 @@ public class UcteExporterTest {
     }
 
     @Test
+    public void generateUcteElementIdTest() {
+        UcteNodeCode ucteNodeCode1 = new UcteNodeCode(UcteCountryCode.AL, "geographicalTest", UcteVoltageLevelCode.VL_110, '1');
+        UcteNodeCode ucteNodeCode2 = new UcteNodeCode(UcteCountryCode.AL, "geographical2Test", UcteVoltageLevelCode.VL_150, '2');
+        ucteExporter.generateUcteElementId("testId", ucteNodeCode1, ucteNodeCode2);
+        assertEquals("AgeographicalTest51 Ageographical2Test32 a", ucteExporter.generateUcteElementId("testId", ucteNodeCode1, ucteNodeCode2).toString());
+        assertEquals(ucteExporter.iidmIdToUcteElementId.get("testId"), ucteExporter.generateUcteElementId("testId", ucteNodeCode1, ucteNodeCode2));
+        assertEquals("AgeographicalTest51 Ageographical2Test32 a", ucteExporter.generateUcteElementId("testId", ucteNodeCode1, ucteNodeCode2).toString());
+        ucteExporter.generateUcteElementId("testId2", ucteNodeCode1, ucteNodeCode2);
+        assertEquals("AgeographicalTest51 Ageographical2Test32 b", ucteExporter.generateUcteElementId("testId2", ucteNodeCode1, ucteNodeCode2).toString());
+        assertEquals(ucteExporter.iidmIdToUcteElementId.get("testId"), ucteExporter.generateUcteElementId("testId", ucteNodeCode1, ucteNodeCode2));
+        assertEquals("AgeographicalTest51 Ageographical2Test32 b", ucteExporter.generateUcteElementId("testId2", ucteNodeCode1, ucteNodeCode2).toString());
+
+    }
+
+    @Test
+    public void convertIidmIdToUcteNodeCodeTest() {
+        VoltageLevel voltageLevel = iidmNetwork.getVoltageLevel("VLHV1");
+        String country = "FR";
+        ucteExporter.convertIidmIdToUcteNodeCode("idtest", voltageLevel, country);
+        assertEquals("FVLHV11a", ucteExporter.iidmIdToUcteNodeCodeId.get("idtest").toString());
+        assertEquals(ucteExporter.iidmIdToUcteNodeCodeId.get("idtest"), ucteExporter.iidmIdToUcteNodeCodeId.get("idtest"));
+        ucteExporter.convertIidmIdToUcteNodeCode("idtest2", voltageLevel, country);
+        assertEquals("FVLHV11b", ucteExporter.iidmIdToUcteNodeCodeId.get("idtest2").toString());
+        assertEquals(ucteExporter.iidmIdToUcteNodeCodeId.get("idtest2"), ucteExporter.iidmIdToUcteNodeCodeId.get("idtest2"));
+
+    }
+
+    @Test
+    public void createTieLineWithGeneratedIdsTest() {
+        UcteNetworkImpl ucteNetwork = new UcteNetworkImpl();
+        assertEquals(0, ucteNetwork.getLines().size());
+        ucteExporter.createTieLineWithGeneratedIds(ucteNetwork, iidmTieLineNetwork.getLine("l1 + l2"));
+        assertEquals(2, ucteNetwork.getLines().size());
+        Collection<UcteLine> ucteLines = ucteNetwork.getLines();
+        assertEquals("Xvl1  1a Fvl1  1a a", ucteLines.toArray()[0].toString());
+        assertEquals("Xvl1  1a Bvl2  1a a", ucteLines.toArray()[1].toString());
+    }
+
+    @Test
+    public void convertSwitchTest() {
+        UcteNetwork ucteNetwork = new UcteNetworkImpl();
+        assertEquals(0, ucteNetwork.getLines().size());
+        ucteExporter.convertSwitches(ucteNetwork, iidmSwitchNetwork.getVoltageLevel("VL1"));
+        assertEquals(1, ucteNetwork.getLines().size());
+        assertEquals("EVL1  1a EVL1  1b a", ucteNetwork.getLines().toArray()[0].toString());
+        ucteExporter.convertSwitches(ucteNetwork, iidmSwitchNetwork.getVoltageLevel("VL2"));
+        assertEquals(2, ucteNetwork.getLines().size());
+        assertEquals("FVL2  1a FVL2  1b a", ucteNetwork.getLines().toArray()[1].toString());
+    }
+
+    @Test
     public void getGeographicalNamePropertyTest() {
         assertEquals("geographicalName", ucteExporter.getGeographicalNameProperty(iidmNetwork.getLine("NHV1_NHV2_1")));
         assertNotEquals("wrong", ucteExporter.getGeographicalNameProperty(iidmNetwork.getLine("NHV1_NHV2_1")));
@@ -252,5 +255,162 @@ public class UcteExporterTest {
     public void getCommentTest() {
         assertEquals("IIDM to UCTE converter", ucteExporter.getComment());
         assertNotEquals("UCTE to IIDM converter", ucteExporter.getComment());
+    }
+
+    private static void createTieLineNetwork() {
+        iidmTieLineNetwork = NetworkFactory.create("iidmTieLineNetwork", "test");
+        Substation s1 = iidmTieLineNetwork.newSubstation()
+                .setId("s1")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl1 = s1.newVoltageLevel()
+                .setId("vl1")
+                .setNominalV(380.0)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        Bus b1 = vl1.getBusBreakerView().newBus()
+                .setId("b1")
+                .add();
+        vl1.newGenerator()
+                .setId("g1")
+                .setBus("b1")
+                .setConnectableBus("b1")
+                .setTargetP(100.0)
+                .setTargetV(400.0)
+                .setVoltageRegulatorOn(true)
+                .setMinP(50.0)
+                .setMaxP(150.0)
+                .add();
+        Substation s2 = iidmTieLineNetwork.newSubstation()
+                .setId("s2")
+                .setCountry(Country.BE)
+                .add();
+        VoltageLevel vl2 = s2.newVoltageLevel()
+                .setId("vl2")
+                .setNominalV(380.0)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        vl2.getBusBreakerView().newBus()
+                .setId("b2")
+                .add();
+        vl2.newLoad()
+                .setId("ld1")
+                .setConnectableBus("b2")
+                .setBus("b2")
+                .setP0(0.0)
+                .setQ0(0.0)
+                .add();
+        iidmTieLineNetwork.newTieLine()
+                .setId("l1 + l2")
+                .setVoltageLevel1("vl1")
+                .setConnectableBus1("b1")
+                .setBus1("b1")
+                .setVoltageLevel2("vl2")
+                .setConnectableBus2("b2")
+                .setBus2("b2")
+                .line1()
+                .setId("l1")
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setG2(0.0)
+                .setB1(0.0)
+                .setB2(0.0)
+                .setXnodeP(0.0)
+                .setXnodeQ(0.0)
+                .line2()
+                .setId("l2")
+                .setR(1.0)
+                .setX(1.0)
+                .setG1(0.0)
+                .setG2(0.0)
+                .setB1(0.0)
+                .setB2(0.0)
+                .setXnodeP(0.0)
+                .setXnodeQ(0.0)
+                .setUcteXnodeCode("XNODE")
+                .add().addExtension(MergedXnode.class,
+                new MergedXnode(iidmTieLineNetwork.getLine("l1 + l2"), 1, 1, 1, 0, 0, 0,
+                        "l1", "l2", "testXnode"));
+
+        iidmTieLineNetwork.getLine("l1 + l2").newCurrentLimits1()
+                 .setPermanentLimit(100)
+                 .beginTemporaryLimit()
+                 .setName("5'")
+                 .setAcceptableDuration(5 * 60)
+                 .setValue(1400)
+                 .endTemporaryLimit()
+                 .add();
+    }
+
+    private static void createNetworkWithSwitch() {
+        // For the buses to be valid they have to be connected to at least one branch
+        iidmSwitchNetwork = NetworkFactory.create("iidmSwitchNetwork", "test");
+        Substation s1 = iidmSwitchNetwork.newSubstation()
+                .setId("S1")
+                .setCountry(Country.ES)
+                .add();
+        VoltageLevel vl1 = s1.newVoltageLevel()
+                .setId("VL1")
+                .setNominalV(400f)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        Substation s2 = iidmSwitchNetwork.newSubstation()
+                .setId("S2")
+                .setCountry(Country.FR)
+                .add();
+        VoltageLevel vl2 = s2.newVoltageLevel()
+                .setId("VL2")
+                .setNominalV(400f)
+                .setTopologyKind(TopologyKind.BUS_BREAKER)
+                .add();
+        vl1.getBusBreakerView().newBus()
+                .setId("B1a")
+                .add();
+        vl1.newLoad()
+                .setId("L1")
+                .setBus("B1a")
+                .setP0(1)
+                .setQ0(0)
+                .add();
+        vl1.getBusBreakerView().newBus()
+                .setId("B1b")
+                .add();
+        vl1.newGenerator()
+                .setId("G1")
+                .setBus("B1b")
+                .setMinP(0)
+                .setMaxP(1)
+                .setTargetP(1)
+                .setTargetQ(0)
+                .setVoltageRegulatorOn(false)
+                .add();
+        vl1.getBusBreakerView().newSwitch()
+                .setId("SW")
+                .setOpen(false)
+                .setBus1("B1a")
+                .setBus2("B1b")
+                .add();
+        vl2.getBusBreakerView().newBus()
+                .setId("B2")
+                .add();
+        vl2.newLoad()
+                .setId("L2")
+                .setBus("B2")
+                .setP0(1)
+                .setQ0(0)
+                .add();
+        vl2.getBusBreakerView().newBus()
+                .setId("B2a")
+                .add();
+        vl2.getBusBreakerView().newBus()
+                .setId("B2b")
+                .add();
+        vl2.getBusBreakerView().newSwitch()
+                .setId("IdWithMoreThan18CharacterButStillNonUcteCompliant")
+                .setOpen(false)
+                .setBus1("B2a")
+                .setBus2("B2b")
+                .add();
     }
 }

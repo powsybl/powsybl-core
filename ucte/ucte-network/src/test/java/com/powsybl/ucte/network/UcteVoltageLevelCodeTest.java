@@ -10,8 +10,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static com.powsybl.ucte.network.UcteVoltageLevelCode.isVoltageLevel;
-import static com.powsybl.ucte.network.UcteVoltageLevelCode.voltageLevelCodeFromChar;
+import static com.powsybl.ucte.network.UcteVoltageLevelCode.*;
 import static org.junit.Assert.*;
 import static org.junit.Assert.assertFalse;
 
@@ -47,7 +46,7 @@ public class UcteVoltageLevelCodeTest {
     }
 
     @Test
-    public void voltageLevelCodeFromIidmVoltageTest() {
+    public void voltageLevelCodeFromCharTest() {
         assertSame(UcteVoltageLevelCode.VL_750, voltageLevelCodeFromChar('0'));
         assertSame(UcteVoltageLevelCode.VL_500, voltageLevelCodeFromChar('9'));
         assertSame(UcteVoltageLevelCode.VL_380, voltageLevelCodeFromChar('1'));
@@ -60,5 +59,23 @@ public class UcteVoltageLevelCodeTest {
         assertSame(UcteVoltageLevelCode.VL_27, voltageLevelCodeFromChar('7'));
         exception.expect(IllegalArgumentException.class);
         assertSame(new IllegalArgumentException(), voltageLevelCodeFromChar('&'));
+    }
+
+    @Test
+    public void voltageLevelCodeFromIidmVoltageTest() {
+        assertSame(UcteVoltageLevelCode.VL_27, voltageLevelCodeFromIidmVoltage(15));
+        assertSame(VL_70, voltageLevelCodeFromIidmVoltage(80));
+        assertSame(VL_110, voltageLevelCodeFromIidmVoltage(105));
+        assertSame(VL_120, voltageLevelCodeFromIidmVoltage(122));
+        assertSame(VL_150, voltageLevelCodeFromIidmVoltage(175));
+        assertSame(VL_220, voltageLevelCodeFromIidmVoltage(210));
+        assertSame(VL_330, voltageLevelCodeFromIidmVoltage(320));
+        assertSame(VL_380, voltageLevelCodeFromIidmVoltage(385));
+        assertSame(VL_500, voltageLevelCodeFromIidmVoltage(530));
+        assertSame(VL_750, voltageLevelCodeFromIidmVoltage(760));
+        try {
+            voltageLevelCodeFromIidmVoltage(1000);
+            fail();
+        } catch (IllegalArgumentException ignored) { }
     }
 }
