@@ -20,7 +20,7 @@ public class BranchDataTest extends AbstractLoadFlowResultsCompletionTest {
 
     @Test
     public void testLine() {
-        BranchData lineData = new BranchData(line, 0.1f, false);
+        BranchData lineData = new BranchData(line, 0.1f, false, false);
         assertEquals(lineP1, lineData.getComputedP1(), 0.0001);
         assertEquals(lineQ1, lineData.getComputedQ1(), 0.0001);
         assertEquals(lineP2, lineData.getComputedP2(), 0.0001);

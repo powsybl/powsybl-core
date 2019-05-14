@@ -449,8 +449,12 @@ public abstract class AbstractTransformerFullConversion
         }
         TapChanger tapChanger = new TapChanger();
         int lowStep = ratioTapChanger.asInt("lowStep");
+        int highStep = ratioTapChanger.asInt("highStep");
         int neutralStep = ratioTapChanger.asInt("neutralStep");
         double position = ratioTapChanger.asDouble("SVtapStep", neutralStep);
+        if (position > highStep || position < lowStep) {
+            position = neutralStep;
+        }
         tapChanger.setLowTapPosition(lowStep).setTapPosition((int) position);
 
         addRatioRegulationMode(ratioTapChanger, rtcTerminal, tapChanger);
@@ -553,8 +557,12 @@ public abstract class AbstractTransformerFullConversion
         }
         TapChanger tapChanger = new TapChanger();
         int lowStep = phaseTapChanger.asInt("lowStep");
+        int highStep = phaseTapChanger.asInt("highStep");
         int neutralStep = phaseTapChanger.asInt("neutralStep");
         double position = phaseTapChanger.asDouble("SVtapStep", neutralStep);
+        if (position > highStep || position < lowStep) {
+            position = neutralStep;
+        }
         tapChanger.setLowTapPosition(lowStep).setTapPosition((int) position);
 
         addPhaseRegulatingControl(phaseTapChanger, ptcTerminal, ratedU, tapChanger);

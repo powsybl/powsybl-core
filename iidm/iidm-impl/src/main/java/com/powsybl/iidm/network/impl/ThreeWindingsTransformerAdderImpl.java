@@ -105,16 +105,16 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
                 throw new ValidationException(this, "x is not set");
             }
             if (Double.isNaN(g1)) {
-                throw new ValidationException(this, "g is not set");
+                throw new ValidationException(this, "g1 is not set");
             }
             if (Double.isNaN(b1)) {
-                throw new ValidationException(this, "b is not set");
+                throw new ValidationException(this, "b1 is not set");
             }
             if (Double.isNaN(g2)) {
-                throw new ValidationException(this, "g is not set");
+                throw new ValidationException(this, "g2 is not set");
             }
             if (Double.isNaN(b2)) {
-                throw new ValidationException(this, "b is not set");
+                throw new ValidationException(this, "b2 is not set");
             }
             if (Double.isNaN(ratedU)) {
                 throw new ValidationException(this, "rated u is not set");

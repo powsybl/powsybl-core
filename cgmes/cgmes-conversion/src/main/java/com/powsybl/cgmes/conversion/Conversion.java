@@ -75,11 +75,11 @@ public class Conversion {
         convert(cgmes.substations(), s -> new SubstationConversion(s, context));
         convert(cgmes.voltageLevels(), vl -> new VoltageLevelConversion(vl, context));
         PropertyBags nodes = context.nodeBreaker()
-                ? cgmes.connectivityNodes()
-                : cgmes.topologicalNodes();
+            ? cgmes.connectivityNodes()
+            : cgmes.topologicalNodes();
         String nodeTypeName = context.nodeBreaker()
-                ? "ConnectivityNode"
-                : "TopologicalNode";
+            ? "ConnectivityNode"
+            : "TopologicalNode";
         convert(nodes, n -> new NodeConversion(nodeTypeName, n, context));
         if (!context.config().createBusbarSectionForEveryConnectivityNode()) {
             convert(cgmes.busBarSections(), bbs -> new BusbarSectionConversion(bbs, context));
@@ -136,8 +136,8 @@ public class Conversion {
     }
 
     private void convert(
-            PropertyBags elements,
-            Function<PropertyBag, AbstractObjectConversion> f) {
+        PropertyBags elements,
+        Function<PropertyBag, AbstractObjectConversion> f) {
         String conversion = null;
         profiling.start();
         for (PropertyBag element : elements) {
@@ -185,9 +185,9 @@ public class Conversion {
     private void assignNetworkProperties(Context context) {
         profiling.start();
         context.network().getProperties().put(NETWORK_PS_CGMES_MODEL_DETAIL,
-                context.nodeBreaker()
-                        ? NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER
-                        : NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH);
+            context.nodeBreaker()
+                ? NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER
+                : NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH);
         DateTime modelScenarioTime = cgmes.scenarioTime();
         DateTime modelCreated = cgmes.created();
         long forecastDistance = new Duration(modelCreated, modelScenarioTime).getStandardMinutes();
@@ -257,58 +257,59 @@ public class Conversion {
             powerTransformerPhaseTapChanger.put(id, phase);
         });
         cgmes.groupedTransformerEnds().entrySet()
-                .forEach(tends -> {
-                    String t = tends.getKey();
-                    PropertyBags ends = tends.getValue();
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Transformer {}, {}-winding", t, ends.size());
-                        ends.forEach(e -> LOG.debug(e.tabulateLocals("TransformerEnd")));
-                    }
-                    AbstractConductingEquipmentConversion c = null;
-                    if (ends.size() == 2) {
-                        c = new TwoWindingsTransformerFullConversion(ends, powerTransformerRatioTapChanger, powerTransformerPhaseTapChanger,
-                                context);
-                    } else if (ends.size() == 3) {
-                        c = new ThreeWindingsTransformerFullConversion(ends, powerTransformerRatioTapChanger,
-                                powerTransformerPhaseTapChanger, context);
-                    } else {
-                        String what = String.format("PowerTransformer %s", t);
-                        String reason = String.format("Has %d ends. Only 2 or 3 ends are supported",
-                                ends.size());
-                        context.invalid(what, reason);
-                    }
-                    if (c != null && c.valid()) {
-                        c.convert();
-                    }
-                });
+            .forEach(tends -> {
+                String t = tends.getKey();
+                PropertyBags ends = tends.getValue();
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Transformer {}, {}-winding", t, ends.size());
+                    ends.forEach(e -> LOG.debug(e.tabulateLocals("TransformerEnd")));
+                }
+                AbstractConductingEquipmentConversion c = null;
+                if (ends.size() == 2) {
+                    c = new TwoWindingsTransformerFullConversion(ends, powerTransformerRatioTapChanger,
+                        powerTransformerPhaseTapChanger,
+                        context);
+                } else if (ends.size() == 3) {
+                    c = new ThreeWindingsTransformerFullConversion(ends, powerTransformerRatioTapChanger,
+                        powerTransformerPhaseTapChanger, context);
+                } else {
+                    String what = String.format("PowerTransformer %s", t);
+                    String reason = String.format("Has %d ends. Only 2 or 3 ends are supported",
+                        ends.size());
+                    context.invalid(what, reason);
+                }
+                if (c != null && c.valid()) {
+                    c.convert();
+                }
+            });
         profiling.end("Transfomers");
     }
 
     private void convertTransformers(Context context) {
         profiling.start();
         cgmes.groupedTransformerEnds().entrySet()
-                .forEach(tends -> {
-                    String t = tends.getKey();
-                    PropertyBags ends = tends.getValue();
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Transformer {}, {}-winding", t, ends.size());
-                        ends.forEach(e -> LOG.debug(e.tabulateLocals("TransformerEnd")));
-                    }
-                    AbstractConductingEquipmentConversion c = null;
-                    if (ends.size() == 2) {
-                        c = new TwoWindingsTransformerConversion(ends, context);
-                    } else if (ends.size() == 3) {
-                        c = new ThreeWindingsTransformerConversion(ends, context);
-                    } else {
-                        String what = String.format("PowerTransformer %s", t);
-                        String reason = String.format("Has %d ends. Only 2 or 3 ends are supported",
-                                ends.size());
-                        context.invalid(what, reason);
-                    }
-                    if (c != null && c.valid()) {
-                        c.convert();
-                    }
-                });
+            .forEach(tends -> {
+                String t = tends.getKey();
+                PropertyBags ends = tends.getValue();
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Transformer {}, {}-winding", t, ends.size());
+                    ends.forEach(e -> LOG.debug(e.tabulateLocals("TransformerEnd")));
+                }
+                AbstractConductingEquipmentConversion c = null;
+                if (ends.size() == 2) {
+                    c = new TwoWindingsTransformerConversion(ends, context);
+                } else if (ends.size() == 3) {
+                    c = new ThreeWindingsTransformerConversion(ends, context);
+                } else {
+                    String what = String.format("PowerTransformer %s", t);
+                    String reason = String.format("Has %d ends. Only 2 or 3 ends are supported",
+                        ends.size());
+                    context.invalid(what, reason);
+                }
+                if (c != null && c.valid()) {
+                    c.convert();
+                }
+            });
         profiling.end("Transfomers");
     }
 
@@ -334,7 +335,7 @@ public class Conversion {
             String name = vl.getSubstation().getName() + "-" + vl.getName();
             name = name.replace('/', '-');
             Path file = Paths.get(System.getProperty("java.io.tmpdir"),
-                    "temp-cgmes-" + name + ".dot");
+                "temp-cgmes-" + name + ".dot");
             try {
                 vl.exportTopology(file);
             } catch (IOException e) {
@@ -585,6 +586,14 @@ public class Conversion {
             this.xfmr3PhaseAngleClockStarBusSide = xfmr3PhaseAngleClockStarBusSide;
         }
 
+        public boolean isXfmr3Ratio0StarBusSide() {
+            return xfmr3Ratio0StarBusSide;
+        }
+
+        public void setXfmr3Ratio0StarBusSide(boolean xfmr3Ratio0StarBusSide) {
+            this.xfmr3Ratio0StarBusSide = xfmr3Ratio0StarBusSide;
+        }
+
         public boolean isXfmr3Ratio0NetworkSide() {
             return xfmr3Ratio0NetworkSide;
         }
@@ -593,50 +602,78 @@ public class Conversion {
             this.xfmr3Ratio0NetworkSide = xfmr3Ratio0NetworkSide;
         }
 
-        private boolean convertBoundary                                 = false;
+        public boolean isXfmr3Ratio0End1() {
+            return xfmr3Ratio0End1;
+        }
+
+        public void setXfmr3Ratio0End1(boolean xfmr3Ratio0End1) {
+            this.xfmr3Ratio0End1 = xfmr3Ratio0End1;
+        }
+
+        public boolean isXfmr3Ratio0End2() {
+            return xfmr3Ratio0End2;
+        }
+
+        public void setXfmr3Ratio0End2(boolean xfmr3Ratio0End2) {
+            this.xfmr3Ratio0End2 = xfmr3Ratio0End2;
+        }
+
+        public boolean isXfmr3Ratio0End3() {
+            return xfmr3Ratio0End3;
+        }
+
+        public void setXfmr3Ratio0End3(boolean xfmr3Ratio0End3) {
+            this.xfmr3Ratio0End3 = xfmr3Ratio0End3;
+        }
+
+        private boolean convertBoundary = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
-        private double  lowImpedanceLineR                               = 0.05;
-        private double  lowImpedanceLineX                               = 0.05;
+        private double lowImpedanceLineR = 0.05;
+        private double lowImpedanceLineX = 0.05;
 
-        private boolean createBusbarSectionForEveryConnectivityNode     = false;
+        private boolean createBusbarSectionForEveryConnectivityNode = false;
 
-        private boolean xfmr2RatioPhaseEnd1                             = false;
-        private boolean xfmr2RatioPhaseEnd2                             = false;
-        private boolean xfmr2RatioPhaseEnd1End2                         = false;
-        private boolean xfmr2RatioPhaseRtc                              = false;
-        private boolean xfmr2Phase1Negate                               = false;
-        private boolean xfmr2Phase2Negate                               = false;
-        private boolean xfmr2ShuntEnd1                                  = false;
-        private boolean xfmr2ShuntEnd2                                  = false;
-        private boolean xfmr2ShuntEnd1End2                              = false;
-        private boolean xfmr2ShuntSplit                                 = false;
-        private boolean xfmr2PhaseAngleClockEnd1End2                    = false;
-        private boolean xfmr2PhaseAngleClock1Negate                     = false;
-        private boolean xfmr2PhaseAngleClock2Negate                     = false;
-        private boolean xfmr2Ratio0End1                                 = false;
-        private boolean xfmr2Ratio0End2                                 = false;
-        private boolean xfmr2Ratio0Rtc                                  = false;
-        private boolean xfmr2Ratio0X                                    = false;
+        private boolean xfmr2RatioPhaseEnd1 = false;
+        private boolean xfmr2RatioPhaseEnd2 = false;
+        private boolean xfmr2RatioPhaseEnd1End2 = false;
+        private boolean xfmr2RatioPhaseRtc = false;
+        private boolean xfmr2Phase1Negate = false;
+        private boolean xfmr2Phase2Negate = false;
+        private boolean xfmr2ShuntEnd1 = false;
+        private boolean xfmr2ShuntEnd2 = false;
+        private boolean xfmr2ShuntEnd1End2 = false;
+        private boolean xfmr2ShuntSplit = false;
+        private boolean xfmr2PhaseAngleClockEnd1End2 = false;
+        private boolean xfmr2PhaseAngleClock1Negate = false;
+        private boolean xfmr2PhaseAngleClock2Negate = false;
+        private boolean xfmr2Ratio0End1 = false;
+        private boolean xfmr2Ratio0End2 = false;
+        private boolean xfmr2Ratio0Rtc = false;
+        private boolean xfmr2Ratio0X = false;
 
-        private boolean xfmr3RatioPhaseNetworkSide                      = false;
-        private boolean xfmr3ShuntNetworkSide                           = false;
-        private boolean xfmr3ShuntStarBusSide                           = false;
-        private boolean xfmr3ShuntSplit                                 = false;
-        private boolean xfmr3PhaseAngleClockNetworkSide                 = false;
-        private boolean xfmr3PhaseAngleClockStarBusSide                 = false;
-        private boolean xfmr3Ratio0NetworkSide                          = false;
+        private boolean xfmr3RatioPhaseNetworkSide = false;
+        private boolean xfmr3ShuntNetworkSide = false;
+        private boolean xfmr3ShuntStarBusSide = false;
+        private boolean xfmr3ShuntSplit = false;
+        private boolean xfmr3PhaseAngleClockNetworkSide = false;
+        private boolean xfmr3PhaseAngleClockStarBusSide = false;
+        private boolean xfmr3Ratio0StarBusSide = false;
+        private boolean xfmr3Ratio0NetworkSide = false;
+        private boolean xfmr3Ratio0End1 = false;
+        private boolean xfmr3Ratio0End2 = false;
+        private boolean xfmr3Ratio0End3 = false;
     }
 
-    private final CgmesModel                     cgmes;
-    private final Config                         config;
+    private final CgmesModel cgmes;
+    private final Config config;
     private final List<CgmesImportPostProcessor> postProcessors;
 
-    private Profiling                            profiling;
+    private Profiling profiling;
 
-    private static final Logger                  LOG                                        = LoggerFactory
-            .getLogger(Conversion.class);
+    private static final Logger LOG = LoggerFactory
+        .getLogger(Conversion.class);
 
-    public static final String                   NETWORK_PS_CGMES_MODEL_DETAIL              = "CGMESModelDetail";
-    public static final String                   NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH   = "bus-branch";
-    public static final String                   NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER = "node-breaker";
+    public static final String NETWORK_PS_CGMES_MODEL_DETAIL = "CGMESModelDetail";
+    public static final String NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH = "bus-branch";
+    public static final String NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER = "node-breaker";
 }

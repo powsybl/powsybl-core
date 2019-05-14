@@ -2,6 +2,9 @@ package com.powsybl.cgmes.conversion.elements.full;
 
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -347,6 +350,10 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
         TwoWindingsTransformer tx = adder.add();
         convertedTerminals(tx.getTerminal1(), tx.getTerminal2());
 
+        /*if (id.equals("_f9aec7ee-396b-4401-aebf-31644eb4b06d")) {
+            LOG.info("rtc1 {} ptc1 {}", convertedModel.end1.ratioTapChanger, convertedModel.end1.phaseTapChanger);
+        }*/
+
         setToIidmRatioTapChanger(convertedModel, tx);
         setToIidmPhaseTapChanger(convertedModel, tx);
     }
@@ -554,4 +561,6 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
     private final PropertyBag ptc2;
     private final int         phaseAngleClock1;
     private final int         phaseAngleClock2;
+    private static final Logger LOG = LoggerFactory.getLogger(TwoWindingsTransformerFullConversion.class);
+
 }

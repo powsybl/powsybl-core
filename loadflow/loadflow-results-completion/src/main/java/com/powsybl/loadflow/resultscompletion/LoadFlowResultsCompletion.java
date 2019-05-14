@@ -66,7 +66,8 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
             .forEach(line -> {
                 BranchData lineData = new BranchData(line,
                                                      parameters.getEpsilonX(),
-                                                     parameters.isApplyReactanceCorrection());
+                                                     parameters.isApplyReactanceCorrection(),
+                                                     parameters.isStructuralRatioLineOn());
                 completeTerminalData(line.getTerminal(Side.ONE), Side.ONE, lineData);
                 completeTerminalData(line.getTerminal(Side.TWO), Side.TWO, lineData);
             });
@@ -123,7 +124,7 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
             return r;
         };
         Z0FlowsCompletion z0FlowsCompletion = new Z0FlowsCompletion(network, z0checker);
-        z0FlowsCompletion.complete();
+        //z0FlowsCompletion.complete();
     }
 
     private void completeTerminalData(Terminal terminal, Side side, BranchData branchData) {

@@ -27,16 +27,8 @@ public class BranchDataTest {
     public void testDanglingLine() {
         BranchTestCase t = lineEnd2Disconnected();
 
-        // The expected values at the other end will be the same when we disconnect end
-        // 1 or end 2
-        // If we use the same voltage at the connected end
-        double expectedU = 381.9095;
-        double expectedTheta = -0.000503;
-
         // First obtain results when end 2 is disconnected
-        BranchData b2disconnected = checkTestCase("End 2 disconnected", t);
-        assertEquals(expectedU, b2disconnected.getComputedU2(), t.config.toleranceVoltage);
-        assertEquals(expectedTheta, b2disconnected.getComputedTheta2(), t.config.toleranceVoltage);
+        checkTestCase("End 2 disconnected", t);
 
         // Now change the disconnected end and check the same results are obtained
         t.bus2.u = t.bus1.u;
@@ -49,9 +41,7 @@ public class BranchDataTest {
         t.expectedFlow2.q = t.expectedFlow1.q;
         t.expectedFlow1.p = 0.0;
         t.expectedFlow1.q = 0.0;
-        BranchData b1disconnected = checkTestCase("End 1 disconnected", t);
-        assertEquals(expectedU, b1disconnected.getComputedU1(), t.config.toleranceVoltage);
-        assertEquals(expectedTheta, b1disconnected.getComputedTheta1(), t.config.toleranceVoltage);
+        checkTestCase("End 1 disconnected", t);
     }
 
     @Test
@@ -60,20 +50,11 @@ public class BranchDataTest {
         t.branch.id = "Dangling-Y1-Y2-different";
         // End 1 admittance to ground has different value of End 2
         t.branch.end1.b = t.branch.end2.b * 2;
-        double expectedU;
-        double expectedTheta;
 
-        // When end 2 is disconnected, the voltage at end 2
-        // should be the same that was obtained when Y1 = Y2
-        // because the voltage at end 2 depends only on Ytr and Y2
-        expectedU = 381.9095;
-        expectedTheta = -0.000503;
         // But the flow seen at end 1 will be different
         t.expectedFlow1.p = 0.0072927;
         t.expectedFlow1.q = -43.392559;
-        BranchData b2disconnected = checkTestCase("End 2 disconnected", t);
-        assertEquals(expectedU, b2disconnected.getComputedU2(), t.config.toleranceVoltage);
-        assertEquals(expectedTheta, b2disconnected.getComputedTheta2(), t.config.toleranceVoltage);
+        checkTestCase("End 2 disconnected", t);
 
         // Now when we disconnect end 1 both the voltage drop and
         // the expected values for flow are different
@@ -83,15 +64,12 @@ public class BranchDataTest {
         t.bus1.theta = Double.NaN;
         t.branch.end2.connected = true;
         t.branch.end1.connected = false;
-        expectedU = 383.838188;
-        expectedTheta = -0.001010;
+
         t.expectedFlow1.p = 0.0;
         t.expectedFlow1.q = 0.0;
         t.expectedFlow2.p = 0.02946635;
         t.expectedFlow2.q = -43.611687;
-        BranchData b1disconnected = checkTestCase("End 1 disconnected", t);
-        assertEquals(expectedU, b1disconnected.getComputedU1(), t.config.toleranceVoltage);
-        assertEquals(expectedTheta, b1disconnected.getComputedTheta1(), t.config.toleranceVoltage);
+        checkTestCase("End 1 disconnected", t);
     }
 
     private BranchTestCase lineEnd2Disconnected() {
@@ -780,9 +758,6 @@ public class BranchDataTest {
         LOG.debug("");
         LOG.debug("Results for " + title + " branch " + b.getId());
         LOG.debug("End1");
-        LOG.debug(String.format("    V          = %14.6f  %14.6f",
-                b.getComputedU1(),
-                Math.toDegrees(b.getComputedTheta1())));
         LOG.debug(String.format("    S expected = %14.6f  %14.6f",
                 t.expectedFlow1.p,
                 t.expectedFlow1.q));
@@ -796,9 +771,6 @@ public class BranchDataTest {
                 t.config.toleranceFlow,
                 t.config.toleranceFlow));
         LOG.debug("End2");
-        LOG.debug(String.format("    V          = %14.6f  %14.6f",
-                b.getComputedU2(),
-                Math.toDegrees(b.getComputedTheta2())));
         LOG.debug(String.format("    S expected = %14.6f  %14.6f",
                 t.expectedFlow2.p,
                 t.expectedFlow2.q));

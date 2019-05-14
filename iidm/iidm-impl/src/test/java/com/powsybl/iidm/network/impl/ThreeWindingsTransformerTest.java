@@ -235,14 +235,14 @@ public class ThreeWindingsTransformerTest {
     @Test
     public void invalidLeg1ArgumentsG() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("g is not set");
+        thrown.expectMessage("g1 is not set");
         createThreeWindingsTransformerWithLeg1(1.0, 2.0, Double.NaN, 4.0, 5.0);
     }
 
     @Test
     public void invalidLeg1ArgumentsB() {
         thrown.expect(ValidationException.class);
-        thrown.expectMessage("b is not set");
+        thrown.expectMessage("b1 is not set");
         createThreeWindingsTransformerWithLeg1(1.0, 2.0, 3.0, Double.NaN, 5.0);
     }
 
