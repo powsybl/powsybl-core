@@ -204,7 +204,7 @@ public class AppStorageServer {
 
     @PUT
     @Consumes(MediaType.APPLICATION_JSON)
-    @Path("fileSystems/{fileSystemName}/nodes/{nodeId}/setConsistent")
+    @Path("fileSystems/{fileSystemName}/nodes/{nodeId}/consistent")
     @ApiOperation (value = "")
     @ApiResponses (value = {@ApiResponse(code = 200, message = ""), @ApiResponse(code = 500, message = "Error")})
     public Response consistent(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
