@@ -15,10 +15,21 @@ import java.util.Objects;
  */
 class DenseLUDecomposition implements LUDecomposition {
 
-    private final Jama.LUDecomposition decomposition;
+    private final DenseMatrix matrix;
 
-    DenseLUDecomposition(Jama.LUDecomposition decomposition) {
-        this.decomposition = Objects.requireNonNull(decomposition);
+    private Jama.LUDecomposition decomposition;
+
+    DenseLUDecomposition(DenseMatrix matrix) {
+        this.matrix = Objects.requireNonNull(matrix);
+        decomposition = matrix.toJamaMatrix().lu();
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void reload() {
+        decomposition = matrix.toJamaMatrix().lu();
     }
 
     /**

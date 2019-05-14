@@ -54,6 +54,38 @@ class SparseMatrix extends AbstractMatrix {
     }
 
     /**
+     * Sparse Element implementation.
+     * An element in a sparse matrix is defined by its index in the values vector.
+     */
+    class SparseElement implements Element {
+
+        /**
+         * Index of the element in the values vector.
+         */
+        private final int valueIndex;
+
+        SparseElement(int valueIndex) {
+            this.valueIndex = valueIndex;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void set(double value) {
+            values.setQuick(valueIndex, value);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void add(double value) {
+            values.setQuick(valueIndex, values.getQuick(valueIndex) + value);
+        }
+    }
+
+    /**
      * Row count.
      */
     private final int rowCount;
@@ -193,6 +225,15 @@ class SparseMatrix extends AbstractMatrix {
         return columnCount;
     }
 
+    private void checkBounds(int i, int j) {
+        if (i < 0 || i > rowCount) {
+            throw new IllegalArgumentException("Row index out of bound [0, " + (rowCount - 1) + "]");
+        }
+        if (j < 0 || j > columnCount) {
+            throw new IllegalArgumentException("Column index out of bound [0, " + (columnCount - 1) + "]");
+        }
+    }
+
     /**
      * {@inheritDoc}
      *
@@ -204,6 +245,7 @@ class SparseMatrix extends AbstractMatrix {
      */
     @Override
     public void set(int i, int j, double value) {
+        checkBounds(i, j);
         if (j == currentColumn) {
             // ok, continue to fill row
         } else if (j > currentColumn) {
@@ -230,6 +272,7 @@ class SparseMatrix extends AbstractMatrix {
      */
     @Override
     public void add(int i, int j, double value) {
+        checkBounds(i, j);
         boolean startNewColumn = false;
         if (j == currentColumn) {
             // ok, continue to fill row
@@ -243,13 +286,36 @@ class SparseMatrix extends AbstractMatrix {
         }
         if (!startNewColumn && i == rowIndices.get(rowIndices.size() - 1)) {
             int vi = values.size() - 1;
-            values.set(vi, values.get(vi) + value);
+            values.setQuick(vi, values.getQuick(vi) + value);
         } else {
             values.add(value);
             rowIndices.add(i);
             columnStart[columnStart.length - 1] = values.size();
             columnValueCount[j]++;
         }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * <p>
+     * As sparse matrix is stored in CSC format. Columns must be filled in ascending order but values inside a column
+     * may be filled in any order.
+     * </p>
+     * @throws PowsyblException if values are filled in wrong order.
+     */
+    @Override
+    public Element addAndGetElement(int i, int j, double value) {
+        add(i, j, value);
+        return new SparseElement(values.size() - 1);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void reset() {
+        values.fill(0d);
     }
 
     /**

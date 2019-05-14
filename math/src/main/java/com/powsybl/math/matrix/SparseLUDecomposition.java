@@ -7,6 +7,7 @@
 package com.powsybl.math.matrix;
 
 import java.nio.ByteBuffer;
+import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -18,9 +19,12 @@ import java.util.UUID;
  */
 class SparseLUDecomposition implements LUDecomposition {
 
+    private final SparseMatrix matrix;
+
     private final String id;
 
     SparseLUDecomposition(SparseMatrix matrix) {
+        this.matrix = Objects.requireNonNull(matrix);
         if (matrix.getRowCount() != matrix.getColumnCount()) {
             throw new IllegalArgumentException("matrix is not square");
         }
@@ -32,9 +36,21 @@ class SparseLUDecomposition implements LUDecomposition {
 
     private native void release(String id);
 
+    private native void update(String id, int[] ap, int[] ai, double[] ax);
+
     private native void solve(String id, double[] b);
 
     private native void solve2(String id, int m, int n, ByteBuffer b);
+
+    /**
+     * {@inheritDoc}
+     *
+     * The structure of the matrix is not supposed to have changed, only non zero values.
+     */
+    @Override
+    public void reload() {
+        update(id, matrix.getColumnStart(), matrix.getRowIndices(), matrix.getValues());
+    }
 
     /**
      * {@inheritDoc}

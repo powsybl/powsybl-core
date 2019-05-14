@@ -22,6 +22,12 @@ package com.powsybl.math.matrix;
 public interface LUDecomposition extends AutoCloseable {
 
     /**
+     * Method to call when matrix has been updated to refresh LU decomposition so that new data can be taken into
+     * account in next {@link #solve(double[])} or {@link #solve(DenseMatrix)}.
+     */
+    void reload();
+
+    /**
      * Solve A * x = b where b is a column vector.
      *
      * @param b a column vector

@@ -157,6 +157,31 @@ JNIEXPORT void JNICALL Java_com_powsybl_math_matrix_SparseLUDecomposition_init(J
 
 /*
  * Class:     com.powsybl_math_matrix_SparseLUDecomposition
+ * Method:    update
+ * Signature: (Ljava/lang/String;[I[I[D)V
+ */
+JNIEXPORT void JNICALL Java_com_powsybl_math_matrix_SparseLUDecomposition_update(JNIEnv * env, jobject, jstring j_id, jintArray j_ap, jintArray j_ai, jdoubleArray j_ax) {
+    try {
+        std::string id = powsybl::jni::StringUTF(env, j_id).toStr();
+        powsybl::jni::IntArray ap(env, j_ap);
+        powsybl::jni::IntArray ai(env, j_ai);
+        powsybl::jni::DoubleArray ax(env, j_ax);
+
+        std::shared_ptr<LUContext> context = MANAGER->findContext(id);
+
+        int ok = klu_refactor(ap.get(), ai.get(), ax.get(), context->symbolic, context->numeric, &context->common);
+        if (ok == 0) {
+            throw std::runtime_error("klu_refactor error " + context->error());
+        }
+    } catch (const std::exception& e) {
+        powsybl::jni::throwJavaLangRuntimeException(env, e.what());
+    } catch (...) {
+        powsybl::jni::throwJavaLangRuntimeException(env, "Unknown exception");
+    }
+}
+
+/*
+ * Class:     com.powsybl_math_matrix_SparseLUDecomposition
  * Method:    release
  * Signature: (Ljava/lang/String;)V
  */

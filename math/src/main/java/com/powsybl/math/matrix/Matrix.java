@@ -37,6 +37,27 @@ public interface Matrix {
     }
 
     /**
+     * An element of the matrix.
+     * Used to later update a value.
+     */
+    interface Element {
+
+        /**
+         * Set element value.
+         *
+         * @param value to value to set
+         */
+        void set(double value);
+
+        /**
+         * Add value to the element.
+         *
+         * @param value value to add
+         */
+        void add(double value);
+    }
+
+    /**
      * Handler used to iterate a matrix and get values.
      */
     interface ElementHandler {
@@ -116,12 +137,27 @@ public interface Matrix {
     void add(int i, int j, double value);
 
     /**
+     * Add value at row {@code i} and column {@code j} and get an {@code #Element} to later update the element.
+     *
+     * @param i row index
+     * @param j column index
+     * @param value the value to add at row {@code i} and column {@code j}
+     * @return an element at row {@code i} and column {@code j}
+     */
+    Element addAndGetElement(int i, int j, double value);
+
+    /**
      * @deprecated Use {@link #add(int, int, double)} instead.
      */
     @Deprecated
     default void addValue(int i, int j, double value) {
         add(i, j, value);
     }
+
+    /**
+     * Fill matrix with zeros.
+     */
+    void reset();
 
     /**
      * Get LU decomposition utility class for this matrix.

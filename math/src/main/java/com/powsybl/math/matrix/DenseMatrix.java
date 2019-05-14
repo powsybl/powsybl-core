@@ -21,14 +21,52 @@ import java.util.Objects;
  */
 public class DenseMatrix extends AbstractMatrix {
 
+    /**
+     * Dense element implementation.
+     * An element in a dense matrix is defined by its row index and column index.
+     */
+    class DenseElement implements Element {
+
+        /**
+         * Row index.
+         */
+        private final int i;
+
+        /**
+         * Column index.
+         */
+        private final int j;
+
+        DenseElement(int i, int j) {
+            this.i = i;
+            this.j = j;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void set(double value) {
+            DenseMatrix.this.set(i, j, value);
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void add(double value) {
+            DenseMatrix.this.add(i, j, value);
+        }
+    }
+
     private final int rowCount;
 
     private final int columnCount;
 
     private final ByteBuffer buffer;
 
-    private static ByteBuffer createBuffer(int m, int n) {
-        return ByteBuffer.allocateDirect(m * n * Double.BYTES)
+    private static ByteBuffer createBuffer(int rowCount, int columnCount) {
+        return ByteBuffer.allocateDirect(rowCount * columnCount * Double.BYTES)
                 .order(ByteOrder.LITTLE_ENDIAN);
     }
 
@@ -113,6 +151,25 @@ public class DenseMatrix extends AbstractMatrix {
      * {@inheritDoc}
      */
     @Override
+    public Element addAndGetElement(int i, int j, double value) {
+        add(i, j, value);
+        return new DenseElement(i, j);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void reset() {
+        for (int k = 0; k < rowCount * columnCount; k++) {
+            buffer.putDouble(k * Double.BYTES, 0);
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     public int getRowCount() {
         return rowCount;
     }
@@ -159,7 +216,7 @@ public class DenseMatrix extends AbstractMatrix {
      */
     @Override
     public LUDecomposition decomposeLU() {
-        return new DenseLUDecomposition(toJamaMatrix().lu());
+        return new DenseLUDecomposition(this);
     }
 
     /**
