@@ -337,8 +337,8 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
             }
             LOGGER.trace("Update bus topology of voltage level {}", NodeBreakerVoltageLevel.this.id);
             Map<String, CalculatedBus> id2bus = new LinkedHashMap<>();
-            CalculatedBus[] node2bus = new CalculatedBus[graph.getMaxVertex()];
-            boolean[] encountered = new boolean[graph.getMaxVertex()];
+            CalculatedBus[] node2bus = new CalculatedBus[graph.getVertexCapacity()];
+            boolean[] encountered = new boolean[graph.getVertexCapacity()];
             Arrays.fill(encountered, false);
             for (int e : graph.getEdges()) {
                 traverse(graph.getEdgeVertex1(e), encountered, terminate, id2bus, node2bus);
@@ -929,7 +929,7 @@ class NodeBreakerVoltageLevel extends AbstractVoltageLevel {
 
         int node = ((NodeTerminal) terminal).getNode();
 
-        assert node >= 0 && node < graph.getMaxVertex();
+        assert node >= 0 && node < graph.getVertexCapacity();
         assert graph.getVertexObject(node) == terminal;
 
         graph.setVertexObject(node, null);
