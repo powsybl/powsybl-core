@@ -34,6 +34,7 @@ public class AppFileSystemTool implements Tool {
     public static final String LS_INCONSISTENT_NODES = "ls-inconsistent-nodes";
     public static final String SET_INCONSISTENT_NODES = "set-inconsistent-nodes";
     public static final String RM_INCONSISTENT_NODES = "rm-inconsistent-nodes";
+    public static final String FILE_SYSTEM_NAME = "FILE_SYSTEM_NAME";
 
     protected AppData createAppData(ToolRunningContext context) {
         return new AppData(context.getShortTimeExecutionComputationManager(),
@@ -74,35 +75,38 @@ public class AppFileSystemTool implements Tool {
                         .desc("archive file system")
                         .hasArg()
                         .optionalArg(true)
-                        .argName("FILE_SYSTEM_NAME")
+                        .argName(FILE_SYSTEM_NAME)
                         .build());
                 topLevelOptions.addOption(Option.builder()
                         .longOpt(UNARCHIVE)
                         .desc("unarchive file system")
                         .hasArg()
                         .optionalArg(true)
-                        .argName("FILE_SYSTEM_NAME")
+                        .argName(FILE_SYSTEM_NAME)
                         .build());
                 topLevelOptions.addOption(Option.builder()
                         .longOpt(LS_INCONSISTENT_NODES)
                         .desc("list the inconsistent nodes")
                         .hasArg()
                         .optionalArg(true)
-                        .argName("FILE_SYSTEM_NAME")
+                        .argName(FILE_SYSTEM_NAME)
                         .build());
                 topLevelOptions.addOption(Option.builder()
                         .longOpt(SET_INCONSISTENT_NODES)
                         .desc("make inconsistent nodes consistent")
-                        .hasArg()
                         .optionalArg(true)
-                        .argName("FILE_SYSTEM_NAME")
+                        .argName(FILE_SYSTEM_NAME + "> <NODE_ID")
+                        .numberOfArgs(2)
+                        .valueSeparator(',')
                         .build());
                 topLevelOptions.addOption(Option.builder()
                         .longOpt(RM_INCONSISTENT_NODES)
                         .desc("remove inconsistent nodes")
                         .hasArg()
                         .optionalArg(true)
-                        .argName("FILE_SYSTEM_NAME")
+                        .argName(FILE_SYSTEM_NAME + "> <NODE_ID")
+                        .numberOfArgs(2)
+                        .valueSeparator(',')
                         .build());
                 options.addOptionGroup(topLevelOptions);
                 options.addOption(Option.builder()
@@ -190,7 +194,7 @@ public class AppFileSystemTool implements Tool {
                     List<NodeInfo> nodeInfos = getAllInconsistentNodes(afs, afs.getRootFolder().getId());
                     if (!nodeInfos.isEmpty()) {
                         context.getOutputStream().println(afs.getName() + ":");
-                        nodeInfos.forEach(nodeInfo -> context.getOutputStream().print(nodeInfo.getName() + " "));
+                        nodeInfos.forEach(nodeInfo -> context.getOutputStream().print(nodeInfo.getId() + " "));
                     }
                 }
             } else {
@@ -201,64 +205,97 @@ public class AppFileSystemTool implements Tool {
                 List<NodeInfo> nodeInfos = getAllInconsistentNodes(fs, fs.getRootFolder().getId());
                 if (!nodeInfos.isEmpty()) {
                     context.getOutputStream().println(fileSystemName + ":");
-                    nodeInfos.forEach(nodeInfo -> context.getOutputStream().print(nodeInfo.getName()));
+                    nodeInfos.forEach(nodeInfo -> context.getOutputStream().print(nodeInfo.getId() + " "));
                 }
+            }
+        }
+    }
+
+    private void printSettedNodes(ToolRunningContext context, AppFileSystem fs, String nodeId) {
+        List<NodeInfo> nodeInfos = getAllInconsistentNodes(fs, fs.getRootFolder().getId());
+        if (!nodeInfos.isEmpty()) {
+            context.getOutputStream().println(fs.getName() + ":");
+            if (nodeId == null) {
+                nodeInfos.forEach(nodeInfo -> {
+                    fs.getStorage().setConsistent(nodeInfo.getId());
+                    context.getOutputStream().print(nodeInfo.getId() + " ");
+                });
+            } else {
+                nodeInfos.forEach(nodeInfo -> {
+                    if (nodeId.equals(nodeInfo.getId())) {
+                        fs.getStorage().setConsistent(nodeInfo.getId());
+                        context.getOutputStream().print(nodeInfo.getId() + " ");
+                    }
+                });
             }
         }
     }
 
     private void runSetInconsistentNodes(CommandLine line, ToolRunningContext context) {
         try (AppData appData = createAppData(context)) {
-            String fileSystemName = line.getOptionValue(SET_INCONSISTENT_NODES);
+            String[] values = line.getOptionValues(SET_INCONSISTENT_NODES);
+            String fileSystemName = null;
+            String nodeId = null;
+            if (values != null && values.length == 2) {
+                fileSystemName = values[0];
+                nodeId = values[1];
+            } else if (values != null && values.length == 1) {
+                fileSystemName = values[0];
+            }
+
             if (fileSystemName == null) {
                 for (AppFileSystem afs : appData.getFileSystems()) {
-                    List<NodeInfo> nodeInfos = getAllInconsistentNodes(afs, afs.getRootFolder().getId());
-                    if (!nodeInfos.isEmpty()) {
-                        context.getOutputStream().println(afs.getName() + ":");
-                        nodeInfos.forEach(nodeInfo -> {
-                            afs.getStorage().setConsistent(nodeInfo.getId());
-                            context.getOutputStream().print(nodeInfo.getName() + " ");
-                        });
-                    }
+                    printSettedNodes(context, afs, nodeId);
                 }
             } else {
-                AppFileSystem fs = appData.getFileSystem(fileSystemName);
-                if (fs == null) {
+                AppFileSystem afs = appData.getFileSystem(fileSystemName);
+                if (afs == null) {
                     throw new AfsException("File system '" + fileSystemName + "' not found");
                 }
-                List<NodeInfo> nodeInfos = getAllInconsistentNodes(fs, fs.getRootFolder().getId());
-                if (!nodeInfos.isEmpty()) {
-                    context.getOutputStream().println(fileSystemName + ":");
-                    nodeInfos.forEach(nodeInfo -> {
-                        fs.getStorage().setConsistent(nodeInfo.getId());
-                        context.getOutputStream().print(nodeInfo.getName() + " ");
-                    });
-                }
+                printSettedNodes(context, afs, nodeId);
+            }
+        }
+    }
+
+    private void removeNodes(ToolRunningContext context, AppFileSystem afs, String nodeId) {
+        List<NodeInfo> nodeInfos = getAllInconsistentNodes(afs, afs.getRootFolder().getId());
+        if (!nodeInfos.isEmpty()) {
+            if (nodeId == null) {
+                nodeInfos.forEach(nodeInfo -> afs.getStorage().deleteNode(nodeInfo.getId()));
+                context.getOutputStream().println(afs.getName() + " cleaned");
+            } else {
+                nodeInfos.forEach(nodeInfo -> {
+                    if (nodeId.equals(nodeInfo.getId())) {
+                        afs.getStorage().deleteNode(nodeInfo.getId());
+                    }
+                });
+                context.getOutputStream().println(afs.getName() + " cleaned");
             }
         }
     }
 
     private void runRemoveInconsistentNodes(CommandLine line, ToolRunningContext context) {
         try (AppData appData = createAppData(context)) {
-            String fileSystemName = line.getOptionValue(RM_INCONSISTENT_NODES);
+            String[] values = line.getOptionValues(RM_INCONSISTENT_NODES);
+            String fileSystemName = null;
+            String nodeId = null;
+            if (values != null && values.length == 2) {
+                fileSystemName = values[0];
+                nodeId = values[1];
+            } else if (values != null && values.length == 1) {
+                fileSystemName = values[0];
+            }
+
             if (fileSystemName == null) {
                 for (AppFileSystem afs : appData.getFileSystems()) {
-                    List<NodeInfo> nodeInfos = getAllInconsistentNodes(afs, afs.getRootFolder().getId());
-                    if (!nodeInfos.isEmpty()) {
-                        context.getOutputStream().println(afs.getName() + " cleaned");
-                        nodeInfos.forEach(nodeInfo -> afs.getStorage().deleteNode(nodeInfo.getId()));
-                    }
+                    removeNodes(context, afs, nodeId);
                 }
             } else {
-                AppFileSystem fs = appData.getFileSystem(fileSystemName);
-                if (fs == null) {
+                AppFileSystem afs = appData.getFileSystem(fileSystemName);
+                if (afs == null) {
                     throw new AfsException("File system '" + fileSystemName + "' not found");
                 }
-                List<NodeInfo> nodeInfos = getAllInconsistentNodes(fs, fs.getRootFolder().getId());
-                if (!nodeInfos.isEmpty()) {
-                    context.getOutputStream().println(fileSystemName + " cleaned");
-                    nodeInfos.forEach(nodeInfo -> fs.getStorage().deleteNode(nodeInfo.getId()));
-                }
+                removeNodes(context, afs, nodeId);
             }
         }
     }

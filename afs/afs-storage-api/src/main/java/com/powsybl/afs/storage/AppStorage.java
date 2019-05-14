@@ -23,8 +23,6 @@ import java.util.*;
  * An AppStorage implements low level methods to walk through a filesystem and to write and read data from this filesystem.
  * It relies on nodes uniquely identified by and ID.
  *
- * AppStorage handles only consistent nodes, inconsistent ones are filtered by the api.
- * By default, nodes are created inconsistent , they have to be set consistent explicitly by calling the {@link #setConsistent(String nodeId)} method
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -41,11 +39,15 @@ public interface AppStorage extends AutoCloseable {
 
     /**
      * Creates a new node in the tree under a parent node. Returns {@code NodeInfo} corresponding to the newly created node.
+     * The new node is by default inconsistent, {@link #setConsistent(String nodeId)} method should explicitly be called to set it consistent.
      */
     NodeInfo createNode(String parentNodeId, String name, String nodePseudoClass, String description, int version, NodeGenericMetadata genericMetadata);
 
     boolean isWritable(String nodeId);
 
+    /**
+     * Return true if the node with ID {@code nodeId} is consistent, otherwise it returns false .
+     */
     default boolean isConsistent(String nodeId) {
         throw new PowsyblException("Not implemented");
     }

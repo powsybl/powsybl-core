@@ -82,17 +82,19 @@ public class AppFileSystemToolTest extends AbstractToolTest {
     @Test
     public void testLsInconsistentNodes() throws IOException {
         assertCommand(new String[] {"afs", "--ls-inconsistent-nodes", "mem"}, 0, "mem:\n" +
-                "test", "");
+                "[a-z0-9]+-[a-z0-9]+-[a-z0-9]+-[a-z0-9]+", "");
         assertCommand(new String[] {"afs", "--ls-inconsistent-nodes"}, 0, "mem:\n" +
-                "test", "");
+                "[a-z0-9]+-[a-z0-9]+-[a-z0-9]+-[a-z0-9]+", "");
     }
 
     @Test
     public void testSetInconsistentNodes() throws IOException {
         assertCommand(new String[] {"afs", "--set-inconsistent-nodes", "mem"}, 0, "mem:\n" +
-                "test", "");
+                "[a-z0-9]+-[a-z0-9]+-[a-z0-9]+-[a-z0-9]+", "");
         assertCommand(new String[] {"afs", "--set-inconsistent-nodes"}, 0, "mem:\n" +
-                "test", "");
+                "[a-z0-9]+-[a-z0-9]+-[a-z0-9]+-[a-z0-9]+", "");
+        assertCommand(new String[] {"afs", "--ls-inconsistent-nodes", "mem", "nodeId"}, 0, "mem:\n" +
+                "[a-z0-9]+-[a-z0-9]+-[a-z0-9]+-[a-z0-9]+", "");
     }
 
     @Test
