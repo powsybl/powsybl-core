@@ -61,7 +61,7 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
 
     protected String                   twt3wId = "twt3w";
     protected double                   leg1P   = 99.218431;
-    protected double                   leg1Q   = 3.304328;
+    protected double                   leg1Q   = 2.747147;
     protected double                   leg2P   = -216.19819;
     protected double                   leg2Q   = -85.368180;
     protected double                   leg3P   = 118;
@@ -263,6 +263,7 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(twt3w.getLeg1()).thenReturn(leg1);
         Mockito.when(twt3w.getLeg2()).thenReturn(leg2);
         Mockito.when(twt3w.getLeg3()).thenReturn(leg3);
+        Mockito.when(twt3w.getRatedU0()).thenReturn(400.0);
 
         Network.BusView busView = Mockito.mock(Network.BusView.class);
         Mockito.when(busView.getBusStream()).thenAnswer(dummy -> Stream.of(lineBus1, lineBus2,

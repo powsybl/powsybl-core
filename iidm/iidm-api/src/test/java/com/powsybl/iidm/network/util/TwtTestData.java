@@ -27,12 +27,12 @@ public class TwtTestData {
     public static double P3 = 118;
     public static double Q3 = 92.612077;
 
-    public static double COMPUTED_P1 = 99.2366;
-    public static double COMPUTED_Q1 = 3.00581;
-    public static double COMPUTED_P2 = -216.1928;
-    public static double COMPUTED_Q2 = -85.6264;
-    public static double COMPUTED_P3 = 117.9754;
-    public static double COMPUTED_Q3 = 92.3782;
+    public static double COMPUTED_P1 = 99.2273;
+    public static double COMPUTED_Q1 = 2.74715;
+    public static double COMPUTED_P2 = -216.196;
+    public static double COMPUTED_Q2 = -85.4905;
+    public static double COMPUTED_P3 = 117.988;
+    public static double COMPUTED_Q3 = 92.5008;
 
     public static double U1 = 412.989001;
     public static double ANGLE1 = -6.78071;
@@ -42,8 +42,9 @@ public class TwtTestData {
     public static double ANGLE3 = -6.6508;
 
     public static double STAR_U = 412.66200701692287;
-    public static double STAR_ANGLE = -7.353779246544198;
+    public static double STAR_ANGLE = -7.353684117386063;
 
+    public static double RATED_U0 = 400;
     public static double R1 = 0.898462;
     public static double X1 = 17.204128;
     public static double G11 = 0;
@@ -154,6 +155,7 @@ public class TwtTestData {
         Mockito.when(twt3w.getLeg1()).thenReturn(leg1);
         Mockito.when(twt3w.getLeg2()).thenReturn(leg2);
         Mockito.when(twt3w.getLeg3()).thenReturn(leg3);
+        Mockito.when(twt3w.getRatedU0()).thenReturn(RATED_U0);
     }
 
     public ThreeWindingsTransformer get3WTransformer() {
