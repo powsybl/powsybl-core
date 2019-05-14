@@ -39,6 +39,7 @@ public class LocalTaskMonitorTest extends AbstractProjectFileTest {
         FooFile foo = test.getRootFolder().fileBuilder(FooFileBuilder.class)
                 .withName("foo")
                 .build();
+
         try (TaskMonitor monitor = new LocalTaskMonitor()) {
             Deque<TaskEvent> events = new ArrayDeque<>();
             TaskListener listener = new TaskListener() {

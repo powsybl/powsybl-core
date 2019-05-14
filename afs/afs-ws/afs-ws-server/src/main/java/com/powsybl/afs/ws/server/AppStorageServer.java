@@ -207,7 +207,7 @@ public class AppStorageServer {
     @Path("fileSystems/{fileSystemName}/nodes/{nodeId}/consistent")
     @ApiOperation (value = "")
     @ApiResponses (value = {@ApiResponse(code = 200, message = ""), @ApiResponse(code = 500, message = "Error")})
-    public Response consistent(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
+    public Response setConsistent(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
                                    @ApiParam(value = "File system name") @PathParam("nodeId") String nodeId) {
         AppStorage storage = appDataBean.getStorage(fileSystemName);
         storage.setConsistent(nodeId);

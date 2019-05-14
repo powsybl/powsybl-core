@@ -39,7 +39,6 @@ public class ModificationScriptTest extends AbstractProjectFileTest {
     @Test
     public void test() {
         Project project = afs.getRootFolder().createProject("project");
-
         ProjectFolder rootFolder = project.getRootFolder();
 
         // create groovy script
@@ -72,7 +71,6 @@ public class ModificationScriptTest extends AbstractProjectFileTest {
                 .withType(ScriptType.GROOVY)
                 .withContent("println 'hello'")
                 .build();
-
         assertNotNull(script);
         assertEquals("script", script.getName());
         assertFalse(script.isFolder());

@@ -236,7 +236,7 @@ public class RemoteAppStorage implements AppStorage {
 
         LOGGER.debug("setConsistent(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
 
-        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/setConsistent")
+        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/consistent")
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .resolveTemplate(NODE_ID, nodeId)
                 .request()
