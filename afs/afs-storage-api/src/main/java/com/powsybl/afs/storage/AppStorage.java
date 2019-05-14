@@ -78,12 +78,6 @@ public interface AppStorage extends AutoCloseable {
     }
 
     /**
-     * Remove the node with ID {@code nodeId}.
-     */
-    default void removeNode(String nodeId) {
-    }
-
-    /**
      * Gets {@code NodeInfo} for child node with name {@code name} of the node with ID {@code nodeId}, empty if such a node does not exist or node is inconsistent.
      */
     Optional<NodeInfo> getChildNode(String nodeId, String name);

@@ -35,11 +35,9 @@ public class AppFileSystemTool implements Tool {
     public static final String SET_INCONSISTENT_NODES = "set-inconsistent-nodes";
     public static final String RM_INCONSISTENT_NODES = "rm-inconsistent-nodes";
 
-
-
     protected AppData createAppData(ToolRunningContext context) {
         return new AppData(context.getShortTimeExecutionComputationManager(),
-                           context.getLongTimeExecutionComputationManager());
+                context.getLongTimeExecutionComputationManager());
     }
 
     @Override
@@ -217,9 +215,10 @@ public class AppFileSystemTool implements Tool {
                     List<NodeInfo> nodeInfos = getAllInconsistentNodes(afs, afs.getRootFolder().getId());
                     if (!nodeInfos.isEmpty()) {
                         context.getOutputStream().println(afs.getName() + ":");
-                        nodeInfos.forEach(nodeInfo -> { afs.getStorage().setConsistent(nodeInfo.getId());
-                            context.getOutputStream().print(nodeInfo.getName() + " ");}
-                        );
+                        nodeInfos.forEach(nodeInfo -> {
+                            afs.getStorage().setConsistent(nodeInfo.getId());
+                            context.getOutputStream().print(nodeInfo.getName() + " ");
+                        });
                     }
                 }
             } else {
@@ -230,9 +229,10 @@ public class AppFileSystemTool implements Tool {
                 List<NodeInfo> nodeInfos = getAllInconsistentNodes(fs, fs.getRootFolder().getId());
                 if (!nodeInfos.isEmpty()) {
                     context.getOutputStream().println(fileSystemName + ":");
-                    nodeInfos.forEach(nodeInfo -> { fs.getStorage().setConsistent(nodeInfo.getId());
-                        context.getOutputStream().print(nodeInfo.getName() + " ");}
-                    );
+                    nodeInfos.forEach(nodeInfo -> {
+                        fs.getStorage().setConsistent(nodeInfo.getId());
+                        context.getOutputStream().print(nodeInfo.getName() + " ");
+                    });
                 }
             }
         }
@@ -246,7 +246,7 @@ public class AppFileSystemTool implements Tool {
                     List<NodeInfo> nodeInfos = getAllInconsistentNodes(afs, afs.getRootFolder().getId());
                     if (!nodeInfos.isEmpty()) {
                         context.getOutputStream().println(afs.getName() + " cleaned");
-                        nodeInfos.forEach(nodeInfo -> afs.getStorage().removeNode(nodeInfo.getId()));
+                        nodeInfos.forEach(nodeInfo -> afs.getStorage().deleteNode(nodeInfo.getId()));
                     }
                 }
             } else {
@@ -257,7 +257,7 @@ public class AppFileSystemTool implements Tool {
                 List<NodeInfo> nodeInfos = getAllInconsistentNodes(fs, fs.getRootFolder().getId());
                 if (!nodeInfos.isEmpty()) {
                     context.getOutputStream().println(fileSystemName + " cleaned");
-                    nodeInfos.forEach(nodeInfo -> fs.getStorage().removeNode(nodeInfo.getId()));
+                    nodeInfos.forEach(nodeInfo -> fs.getStorage().deleteNode(nodeInfo.getId()));
                 }
             }
         }
