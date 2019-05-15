@@ -68,17 +68,11 @@ class SparseMatrix extends AbstractMatrix {
             this.valueIndex = valueIndex;
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public void set(double value) {
             values.setQuick(valueIndex, value);
         }
 
-        /**
-         * {@inheritDoc}
-         */
         @Override
         public void add(double value) {
             values.setQuick(valueIndex, values.getQuick(valueIndex) + value);
@@ -163,6 +157,12 @@ class SparseMatrix extends AbstractMatrix {
      * @param estimatedNonZeroValueCount estimated number of non zero values (used for internal pre-allocation)
      */
     SparseMatrix(int rowCount, int columnCount, int estimatedNonZeroValueCount) {
+        if (rowCount < 0) {
+            throw new IllegalArgumentException("row count has to be positive");
+        }
+        if (columnCount < 0) {
+            throw new IllegalArgumentException("column count has to be positive");
+        }
         this.rowCount = rowCount;
         this.columnCount = columnCount;
         columnStart = new int[columnCount + 1];
@@ -209,29 +209,14 @@ class SparseMatrix extends AbstractMatrix {
         return values.getData();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int getRowCount() {
         return rowCount;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int getColumnCount() {
         return columnCount;
-    }
-
-    private void checkBounds(int i, int j) {
-        if (i < 0 || i > rowCount) {
-            throw new IllegalArgumentException("Row index out of bound [0, " + (rowCount - 1) + "]");
-        }
-        if (j < 0 || j > columnCount) {
-            throw new IllegalArgumentException("Column index out of bound [0, " + (columnCount - 1) + "]");
-        }
     }
 
     /**
@@ -310,17 +295,11 @@ class SparseMatrix extends AbstractMatrix {
         return new SparseElement(values.size() - 1);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void reset() {
         values.fill(0d);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public LUDecomposition decomposeLU() {
         checkNativeInit();
@@ -329,9 +308,6 @@ class SparseMatrix extends AbstractMatrix {
 
     private native SparseMatrix times(int m1, int n1, int[] ap1, int[] ai1, double[] ax1, int m2, int n2, int[] ap2, int[] ai2, double[] ax2);
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Matrix times(Matrix other) {
         checkNativeInit();
@@ -343,9 +319,6 @@ class SparseMatrix extends AbstractMatrix {
                      o.rowCount, o.columnCount, o.columnStart, o.rowIndices.getData(), o.values.getData());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void iterateNonZeroValue(ElementHandler handler) {
         for (int j = 0; j < columnCount; j++) {
@@ -353,9 +326,6 @@ class SparseMatrix extends AbstractMatrix {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void iterateNonZeroValueOfColumn(int j, ElementHandler handler) {
         int first = columnStart[j];
@@ -368,25 +338,16 @@ class SparseMatrix extends AbstractMatrix {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public DenseMatrix toDense() {
         return (DenseMatrix) to(new DenseMatrixFactory());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public SparseMatrix toSparse() {
         return this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Matrix to(MatrixFactory factory) {
         Objects.requireNonNull(factory);
@@ -396,25 +357,16 @@ class SparseMatrix extends AbstractMatrix {
         return copy(factory);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected int getEstimatedNonZeroValueCount() {
         return values.size();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void print(PrintStream out) {
         print(out, null, null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void print(PrintStream out, List<String> rowNames, List<String> columnNames) {
         out.println("rowCount=" + rowCount);
@@ -425,17 +377,11 @@ class SparseMatrix extends AbstractMatrix {
         out.println("values=" + values);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int hashCode() {
         return rowCount + columnCount + Arrays.hashCode(columnStart) + Arrays.hashCode(columnValueCount) + rowIndices.hashCode() + values.hashCode();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof SparseMatrix) {

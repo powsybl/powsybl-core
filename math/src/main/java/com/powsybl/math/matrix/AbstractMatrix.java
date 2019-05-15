@@ -23,6 +23,21 @@ public abstract class AbstractMatrix implements Matrix {
     protected abstract int getEstimatedNonZeroValueCount();
 
     /**
+     * Check that row {@code i} and column {@code j} are in matrix bounds.
+     *
+     * @param i row index
+     * @param j column index
+     */
+    protected void checkBounds(int i, int j) {
+        if (i < 0 || i >= getRowCount()) {
+            throw new IllegalArgumentException("Row index out of bound [0, " + (getRowCount() - 1) + "]");
+        }
+        if (j < 0 || j >= getColumnCount()) {
+            throw new IllegalArgumentException("Column index out of bound [0, " + (getColumnCount() - 1) + "]");
+        }
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override

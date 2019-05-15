@@ -24,35 +24,23 @@ class DenseLUDecomposition implements LUDecomposition {
         decomposition = matrix.toJamaMatrix().lu();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void reload() {
         decomposition = matrix.toJamaMatrix().lu();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void solve(double[] b) {
         Jama.Matrix x = decomposition.solve(new Jama.Matrix(b, b.length));
         System.arraycopy(x.getColumnPackedCopy(), 0, b, 0, b.length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void solve(DenseMatrix b) {
         Jama.Matrix x = decomposition.solve(b.toJamaMatrix());
         b.setValues(x.getColumnPackedCopy());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void close() {
         // nothing to close

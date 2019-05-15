@@ -39,6 +39,42 @@ public abstract class AbstractMatrixTest {
     }
 
     @Test
+    public void checkBoundsTest() {
+        try {
+            Matrix a = getMatrixFactory().create(-1, 1, 1);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+        try {
+            Matrix a = getMatrixFactory().create(1, -1, 1);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+        Matrix a = getMatrixFactory().create(1, 1, 1);
+        try {
+            a.set(2, 0, 0);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+        try {
+            a.set(0, 1, 0);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+        try {
+            a.add(2, 0, 0);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+        try {
+            a.add(0, 1, 0);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+
+    }
+
+    @Test
     public void testMultiplication() throws Exception {
         Matrix a = createA(getMatrixFactory());
         Matrix b = getMatrixFactory().create(2, 1, 2);

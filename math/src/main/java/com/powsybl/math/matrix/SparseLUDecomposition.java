@@ -52,25 +52,16 @@ class SparseLUDecomposition implements LUDecomposition {
         update(id, matrix.getColumnStart(), matrix.getRowIndices(), matrix.getValues());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void solve(double[] b) {
         solve(id, b);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void solve(DenseMatrix b) {
         solve2(id, b.getRowCount(), b.getColumnCount(), b.getBuffer());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void close() {
         release(id);

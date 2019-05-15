@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -69,6 +69,8 @@ public class DenseMatrixTest extends AbstractMatrixTest {
     public void testToSparse() {
         DenseMatrix a = (DenseMatrix) createA(matrixFactory);
         SparseMatrix a2 = a.toSparse();
+        assertNotNull(a2);
+        assertSame(a2, a2.toSparse());
         DenseMatrix a3 = a2.toDense();
         assertEquals(a, a3);
     }
