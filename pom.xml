@@ -128,7 +128,7 @@
         <commonslang3.version>3.4</commonslang3.version>
         <commonsmath3.version>3.6.1</commonsmath3.version>
         <gdata.version>1.41.1_1</gdata.version>
-        <graphvizjava.version>0.8.0</graphvizjava.version>
+        <graphvizjava.version>0.8.4</graphvizjava.version>
         <groovy.version>2.4.12</groovy.version>
         <guava.version>20.0</guava.version>
         <jackson.version>2.8.11.3</jackson.version>
@@ -163,7 +163,6 @@
         <tyrus.version>1.13.1</tyrus.version>
         <wildfly.dist.version>11.0.0.Final</wildfly.dist.version>
         <wildflyarquilliancontainerembedded.version>2.1.0.Final</wildflyarquilliancontainerembedded.version>
-        <xmlapis.version>1.4.01</xmlapis.version>
         <xmlunit.version>2.3.0</xmlunit.version>
     </properties>
 
@@ -801,12 +800,6 @@
                 <groupId>org.xmlunit</groupId>
                 <artifactId>xmlunit-core</artifactId>
                 <version>${xmlunit.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>xml-apis</groupId>
-                <artifactId>xml-apis</artifactId>
-                <version>${xmlapis.version}</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
