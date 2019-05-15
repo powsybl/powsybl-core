@@ -19,7 +19,7 @@ public class SparseMatrixFactory implements MatrixFactory {
      * {@inheritDoc}
      */
     @Override
-    public SparseMatrix create(int m, int n, int estimatedNonZeroValueCount) {
-        return new SparseMatrix(m, n, estimatedNonZeroValueCount);
+    public SparseMatrix create(int rowCount, int columnCount, int estimatedNonZeroValueCount) {
+        return new SparseMatrix(rowCount, columnCount, estimatedNonZeroValueCount);
     }
 }

@@ -31,7 +31,7 @@ public interface Matrix {
         Objects.requireNonNull(matrixFactory);
         Matrix m = matrixFactory.create(c.length, 1, c.length);
         for (int i = 0; i < c.length; i++) {
-            m.setValue(i, 0, c[i]);
+            m.set(i, 0, c[i]);
         }
         return m;
     }
@@ -42,13 +42,21 @@ public interface Matrix {
     interface ElementHandler {
 
         /**
-         * This method is called for each value of the matrix.
+         * This method is called for each element of the matrix.
          *
          * @param i row index
          * @param j column index
-         * @param value the value at position (i, j)
+         * @param value the value at position ({@code i}, {@code j})
          */
-        void onValue(int i, int j, double value);
+        void onElement(int i, int j, double value);
+
+        /**
+         * @deprecated Use {@link #onElement(int, int, double)} instead.
+         */
+        @Deprecated
+        default void onValue(int i, int j, double value) {
+            onElement(i, j, value);
+        }
     }
 
     /**
@@ -56,32 +64,64 @@ public interface Matrix {
      *
      * @return row count
      */
-    int getM();
+    int getRowCount();
+
+    /**
+     * @deprecated Use {@link #getRowCount()} instead.
+     */
+    @Deprecated
+    default int getM() {
+        return getRowCount();
+    }
 
     /**
      * Get column count.
      *
      * @return column count
      */
-    int getN();
+    int getColumnCount();
 
     /**
-     * Set value at row i and column j.
+     * @deprecated Use {@link #getColumnCount()} instead.
+     */
+    @Deprecated
+    default int getN() {
+        return getColumnCount();
+    }
+
+    /**
+     * Set value at row {@code i} and column {@code j}.
      *
      * @param i row index
      * @param j column index
-     * @param value the value to set
+     * @param value the value to set at row {@code i} and column {@code j}
      */
-    void setValue(int i, int j, double value);
+    void set(int i, int j, double value);
 
     /**
-     * Add value at row i and column j.
+     * @deprecated Use {@link #set(int, int, double)} instead.
+     */
+    @Deprecated
+    default void setValue(int i, int j, double value) {
+        set(i, j, value);
+    }
+
+    /**
+     * Add value at row {@code i} and column {@code j}.
      *
      * @param i row index
      * @param j column index
-     * @param value the value to add
+     * @param value the value to add at row {@code i} and column {@code j}
      */
-    void addValue(int i, int j, double value);
+    void add(int i, int j, double value);
+
+    /**
+     * @deprecated Use {@link #add(int, int, double)} instead.
+     */
+    @Deprecated
+    default void addValue(int i, int j, double value) {
+        add(i, j, value);
+    }
 
     /**
      * Get LU decomposition utility class for this matrix.
@@ -99,7 +139,7 @@ public interface Matrix {
     Matrix times(Matrix other);
 
     /**
-     * Iterate over non zero values of the matrix. At each non zero value {@link ElementHandler#onValue(int, int, double)}
+     * Iterate over non zero values of the matrix. At each non zero value {@link ElementHandler#onElement(int, int, double)}
      * is called.
      *
      * @param handler the element handler
@@ -107,9 +147,10 @@ public interface Matrix {
     void iterateNonZeroValue(ElementHandler handler);
 
     /**
-     * Iterate over non zero values of the j column of the matrix. At each non zero value {@link ElementHandler#onValue(int, int, double)}
+     * Iterate over non zero values of the {@code j} column of the matrix. At each non zero value {@link ElementHandler#onElement(int, int, double)}
      * is called.
      *
+     * @param j column index
      * @param handler the element handler
      */
     void iterateNonZeroValueOfColumn(int j, ElementHandler handler);
