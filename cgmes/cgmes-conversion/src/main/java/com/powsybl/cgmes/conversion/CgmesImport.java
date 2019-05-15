@@ -258,6 +258,7 @@ public class CgmesImport implements Importer {
             Collections.emptyList());
 
     private static final List<Parameter> STATIC_PARAMETERS = ImmutableList.of(
+            ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
             CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
             CONVERT_BOUNDARY_PARAMETER,
             CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
