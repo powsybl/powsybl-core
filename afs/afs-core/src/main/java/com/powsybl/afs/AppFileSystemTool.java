@@ -27,14 +27,16 @@ import java.util.Optional;
 @AutoService(Tool.class)
 public class AppFileSystemTool implements Tool {
 
-    public static final String LS = "ls";
-    public static final String ARCHIVE = "archive";
-    public static final String UNARCHIVE = "unarchive";
-    public static final String DIR = "dir";
-    public static final String LS_INCONSISTENT_NODES = "ls-inconsistent-nodes";
-    public static final String SET_INCONSISTENT_NODES = "set-inconsistent-nodes";
-    public static final String RM_INCONSISTENT_NODES = "rm-inconsistent-nodes";
-    public static final String FILE_SYSTEM_NAME = "FILE_SYSTEM_NAME";
+    private static final String LS = "ls";
+    private static final String ARCHIVE = "archive";
+    private static final String UNARCHIVE = "unarchive";
+    private static final String DIR = "dir";
+    private static final String LS_INCONSISTENT_NODES = "ls-inconsistent-nodes";
+    private static final String SET_INCONSISTENT_NODES = "set-inconsistent-nodes";
+    private static final String RM_INCONSISTENT_NODES = "rm-inconsistent-nodes";
+    private static final String FILE_SYSTEM_NAME = "FILE_SYSTEM_NAME";
+    private static final String FILE_SYSTEM = "File system'";
+    private static final String NOT_FOUND = "not found'";
 
     protected AppData createAppData(ToolRunningContext context) {
         return new AppData(context.getShortTimeExecutionComputationManager(),
@@ -200,7 +202,7 @@ public class AppFileSystemTool implements Tool {
             } else {
                 AppFileSystem fs = appData.getFileSystem(fileSystemName);
                 if (fs == null) {
-                    throw new AfsException("File system '" + fileSystemName + "' not found");
+                    throw new AfsException(FILE_SYSTEM + fileSystemName + NOT_FOUND);
                 }
                 List<NodeInfo> nodeInfos = getAllInconsistentNodes(fs, fs.getRootFolder().getId());
                 if (!nodeInfos.isEmpty()) {
@@ -250,7 +252,7 @@ public class AppFileSystemTool implements Tool {
             } else {
                 AppFileSystem afs = appData.getFileSystem(fileSystemName);
                 if (afs == null) {
-                    throw new AfsException("File system '" + fileSystemName + "' not found");
+                    throw new AfsException(FILE_SYSTEM + fileSystemName + NOT_FOUND);
                 }
                 printSettedNodes(context, afs, nodeId);
             }
@@ -293,7 +295,7 @@ public class AppFileSystemTool implements Tool {
             } else {
                 AppFileSystem afs = appData.getFileSystem(fileSystemName);
                 if (afs == null) {
-                    throw new AfsException("File system '" + fileSystemName + "' not found");
+                    throw new AfsException(FILE_SYSTEM + fileSystemName + NOT_FOUND);
                 }
                 removeNodes(context, afs, nodeId);
             }
