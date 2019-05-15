@@ -34,8 +34,8 @@ public class SecurityAnalysisExecutionInput {
     private NetworkVariant networkVariant;
     private ByteSource contingenciesSource;
     private SecurityAnalysisParameters parameters;
-    private List<String> resultExtensions = new ArrayList<>();
-    private Set<LimitViolationType> violationTypes = EnumSet.noneOf(LimitViolationType.class);
+    private final List<String> resultExtensions = new ArrayList<>();
+    private final Set<LimitViolationType> violationTypes = EnumSet.noneOf(LimitViolationType.class);
 
     public Optional<ByteSource> getContingenciesSource() {
         return Optional.ofNullable(contingenciesSource);
@@ -83,7 +83,7 @@ public class SecurityAnalysisExecutionInput {
     }
 
     public SecurityAnalysisExecutionInput setParameters(SecurityAnalysisParameters parameters) {
-        this.parameters = parameters;
+        this.parameters = Objects.requireNonNull(parameters);
         return this;
     }
 

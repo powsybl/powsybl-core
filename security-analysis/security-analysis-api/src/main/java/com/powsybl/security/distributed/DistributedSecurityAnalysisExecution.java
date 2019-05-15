@@ -35,7 +35,7 @@ public class DistributedSecurityAnalysisExecution implements SecurityAnalysisExe
     public DistributedSecurityAnalysisExecution(ExternalSecurityAnalysisConfig config, int subtaskCount) {
         this.config = requireNonNull(config);
         checkArgument(subtaskCount > 0, "Sub-tasks count must be positive.");
-        this.subtaskCount = subtaskCount;
+        this.subtaskCount = checkSubtaskCount(subtaskCount);
     }
 
     @Override
@@ -55,4 +55,10 @@ public class DistributedSecurityAnalysisExecution implements SecurityAnalysisExe
         ExecutionHandler<SecurityAnalysisResultWithLog> executionHandler = SecurityAnalysisExecutionHandlers.distributedWithLog(data, subtaskCount);
         return computationManager.execute(itoolsEnv, executionHandler);
     }
+
+    private static int checkSubtaskCount(int count) {
+        checkArgument(count > 0, "Sub-tasks count must be positive.");
+        return count;
+    }
+
 }
