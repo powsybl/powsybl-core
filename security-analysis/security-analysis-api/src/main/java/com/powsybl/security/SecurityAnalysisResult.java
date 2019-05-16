@@ -8,6 +8,7 @@ package com.powsybl.security;
 
 import com.powsybl.commons.extensions.AbstractExtendable;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
@@ -21,6 +22,10 @@ public class SecurityAnalysisResult extends AbstractExtendable<SecurityAnalysisR
     private final LimitViolationsResult preContingencyResult;
 
     private final List<PostContingencyResult> postContingencyResults;
+
+    public static SecurityAnalysisResult empty() {
+        return new SecurityAnalysisResult(LimitViolationsResult.empty(), Collections.emptyList());
+    }
 
     public SecurityAnalysisResult(LimitViolationsResult preContingencyResult,
                                   List<PostContingencyResult> postContingencyResults) {

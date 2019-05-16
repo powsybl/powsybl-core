@@ -39,9 +39,9 @@ public class UcteImporterTest {
 
         Network network = new UcteImporter().importData(dataSource, null);
 
-        assertEquals(Country.ES, network.getSubstation("EHORTA").getCountry());
+        assertEquals(Country.ES, network.getSubstation("EHORTA").getCountry().orElse(null));
         assertEquals(1, network.getSubstation("EHORTA").getVoltageLevelStream().count());
-        assertEquals(Country.BE, network.getSubstation("BHORTA").getCountry());
+        assertEquals(Country.BE, network.getSubstation("BHORTA").getCountry().orElse(null));
         assertEquals(1, network.getSubstation("BHORTA").getVoltageLevelStream().count());
 
     }

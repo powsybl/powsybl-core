@@ -9,6 +9,7 @@ package com.powsybl.security;
 import com.powsybl.iidm.network.*;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -39,7 +40,7 @@ public final class LimitViolationHelper {
         }
     }
 
-    public static Country getCountry(LimitViolation limitViolation, Network network) {
+    public static Optional<Country> getCountry(LimitViolation limitViolation, Network network) {
         VoltageLevel voltageLevel = getVoltageLevel(limitViolation, network);
 
         return voltageLevel.getSubstation().getCountry();
