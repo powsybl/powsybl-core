@@ -42,10 +42,35 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
     public LoadFlowResultsCompletion(LoadFlowResultsCompletionParameters parameters, LoadFlowParameters lfParameters) {
         this.parameters = Objects.requireNonNull(parameters);
         this.lfParameters = Objects.requireNonNull(lfParameters);
+        // A line is considered Z0 (null impedance) if and only if
+        // it is connected at both ends and the voltage at end buses are the same
+        this.z0checker = (Line l) -> {
+            if (!l.getTerminal1().isConnected()) {
+                return false;
+            }
+            if (!l.getTerminal2().isConnected()) {
+                return false;
+            }
+            Bus b1 = l.getTerminal1().getBusView().getBus();
+            Bus b2 = l.getTerminal2().getBusView().getBus();
+            Objects.requireNonNull(b1);
+            Objects.requireNonNull(b2);
+            double threshold = parameters.getZ0ThresholdDiffVoltageAngle();
+            boolean r = Math.abs(b1.getV() - b2.getV()) < threshold
+                    && Math.abs(b1.getAngle() - b2.getAngle()) < threshold;
+            if (r) {
+                LOGGER.debug("Line Z0 {} ({}) dV = {}, dA = {}", l.getName(), l.getId(), Math.abs(b1.getV() - b2.getV()), Math.abs(b1.getAngle() - b2.getAngle()));
+            }
+            return r;
+        };
     }
 
     public LoadFlowResultsCompletion() {
         this(LoadFlowResultsCompletionParameters.load(), LoadFlowParameters.load());
+    }
+
+    public Z0LineChecker z0checker() {
+        return z0checker;
     }
 
     @Override
@@ -102,27 +127,6 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
             completeTerminalData(twt.getLeg3().getTerminal(), ThreeWindingsTransformer.Side.THREE, twtData);
         });
 
-        // A line is considered Z0 (null impedance) if and only if
-        // it is connected at both ends and the voltage at end buses are the same
-        Z0LineChecker z0checker = (Line l) -> {
-            if (!l.getTerminal1().isConnected()) {
-                return false;
-            }
-            if (!l.getTerminal2().isConnected()) {
-                return false;
-            }
-            Bus b1 = l.getTerminal1().getBusView().getBus();
-            Bus b2 = l.getTerminal2().getBusView().getBus();
-            Objects.requireNonNull(b1);
-            Objects.requireNonNull(b2);
-            double threshold = parameters.getZ0ThresholdDiffVoltageAngle();
-            boolean r = Math.abs(b1.getV() - b2.getV()) < threshold
-                    && Math.abs(b1.getAngle() - b2.getAngle()) < threshold;
-            if (r) {
-                LOGGER.debug("Line Z0 {} ({}) dV = {}, dA = {}", l.getName(), l.getId(), Math.abs(b1.getV() - b2.getV()), Math.abs(b1.getAngle() - b2.getAngle()));
-            }
-            return r;
-        };
         Z0FlowsCompletion z0FlowsCompletion = new Z0FlowsCompletion(network, z0checker);
         z0FlowsCompletion.complete();
     }
@@ -153,4 +157,5 @@ public class LoadFlowResultsCompletion implements CandidateComputation {
         }
     }
 
+    private final Z0LineChecker z0checker;
 }
