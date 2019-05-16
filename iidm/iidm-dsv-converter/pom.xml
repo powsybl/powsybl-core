@@ -29,7 +29,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Automatic-Module-Name>com.powsybl.iidm.dsv</Automatic-Module-Name>
+                            <Automatic-Module-Name>com.powsybl.iidm.dsv.converter</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
