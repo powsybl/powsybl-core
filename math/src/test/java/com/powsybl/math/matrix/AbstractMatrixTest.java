@@ -194,6 +194,14 @@ public abstract class AbstractMatrixTest {
     }
 
     @Test
+    public void testIssueWithEmptyColumns() {
+        Matrix a = getMatrixFactory().create(2, 2, 2);
+        a.set(0, 0, 1d);
+        // second column is empty
+        assertEquals(1, a.toDense().get(0, 0), 0d);
+    }
+
+    @Test
     public void testDeprecated() {
         Matrix a = getMatrixFactory().create(2, 2, 2);
         assertEquals(a.getRowCount(), a.getM());
