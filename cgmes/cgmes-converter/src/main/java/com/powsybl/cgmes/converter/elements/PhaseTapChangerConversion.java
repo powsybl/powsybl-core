@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.converter.Context;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.api.PhaseTapChanger;
+
 import com.powsybl.iidm.api.PhaseTapChangerAdder;
 import com.powsybl.iidm.api.Terminal;
 import com.powsybl.iidm.api.ThreeWindingsTransformer;

@@ -5,7 +5,7 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 package com.powsybl.cgmes.converter.test.conformity.modified;
-import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
+import static com.powsybl.iidm.api.PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
 import static org.junit.Assert.*;
 
 import java.io.IOException;

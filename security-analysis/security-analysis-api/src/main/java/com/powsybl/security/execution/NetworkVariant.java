@@ -6,7 +6,7 @@
  */
 package com.powsybl.security.execution;
 
-import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.api.Network;
 
 import static java.util.Objects.requireNonNull;
 

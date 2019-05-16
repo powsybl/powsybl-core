@@ -16,7 +16,6 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.datasource.ResourceDataSource;
 import com.powsybl.commons.datasource.ResourceSet;
 import com.powsybl.iidm.api.Bus;
-import com.powsybl.iidm.api.Country;
 import com.powsybl.iidm.api.Generator;
 import com.powsybl.iidm.api.Line;
 import com.powsybl.iidm.api.Network;

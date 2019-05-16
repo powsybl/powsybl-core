@@ -10,7 +10,7 @@ package com.powsybl.cgmes.converter;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.powsybl.cgmes.converter.elements.AbstractIdentifiedObjectConversion;
+
 import com.powsybl.iidm.api.Country;
 
 /**

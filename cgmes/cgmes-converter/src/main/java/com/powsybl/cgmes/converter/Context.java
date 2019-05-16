@@ -11,9 +11,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import com.powsybl.iidm.api.Generator;
-import com.powsybl.iidm.api.Identifiable;
-import com.powsybl.iidm.api.Terminal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
