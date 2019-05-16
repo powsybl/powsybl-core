@@ -6,7 +6,11 @@
  */
 package com.powsybl.commons.io;
 
+import com.google.common.base.Preconditions;
+import com.google.common.io.ByteSource;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.UncheckedIOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -80,5 +84,22 @@ public final class FileUtil {
             Files.copy(path, toPath.resolve(relativize.toString()), copyOption);
             return FileVisitResult.CONTINUE;
         }
+    }
+
+    /**
+     * Simplistic implementation of byte source based on a {@link Path}, waiting for guava 21.
+     * @param path
+     * @param openOptions
+     * @return
+     */
+    public static ByteSource asByteSource(Path path, OpenOption... openOptions) {
+        Objects.requireNonNull(path);
+        Preconditions.checkArgument(Files.isReadable(path), "Path %s is not readable.", path);
+        return new ByteSource() {
+            @Override
+            public InputStream openStream() throws IOException {
+                return Files.newInputStream(path, openOptions);
+            }
+        };
     }
 }
