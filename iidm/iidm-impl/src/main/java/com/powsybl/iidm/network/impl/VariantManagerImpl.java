@@ -99,11 +99,21 @@ public class VariantManagerImpl implements VariantManager {
 
     @Override
     public void cloneVariant(String sourceVariantId, String targetVariantId) {
-        cloneVariant(sourceVariantId, Collections.singletonList(targetVariantId));
+        cloneVariant(sourceVariantId, Collections.singletonList(targetVariantId), false);
+    }
+
+    @Override
+    public void cloneVariant(String sourceVariantId, String targetVariantId, boolean mayOverwrite) {
+        cloneVariant(sourceVariantId, Collections.singletonList(targetVariantId), mayOverwrite);
     }
 
     @Override
     public void cloneVariant(String sourceVariantId, List<String> targetVariantIds) {
+        cloneVariant(sourceVariantId, targetVariantIds, false);
+    }
+
+    @Override
+    public void cloneVariant(String sourceVariantId, List<String> targetVariantIds, boolean mayOverwrite) {
         if (targetVariantIds.isEmpty()) {
             throw new IllegalArgumentException("Empty target variant id list");
         }
@@ -112,11 +122,15 @@ public class VariantManagerImpl implements VariantManager {
         int initVariantArraySize = variantArraySize;
         int extendedCount = 0;
         List<Integer> recycled = new ArrayList<>();
+        List<Integer> overwritten = new ArrayList<>();
         for (String targetVariantId : targetVariantIds) {
             if (id2index.containsKey(targetVariantId)) {
-                throw new PowsyblException("Target variant '" + targetVariantId + "' already exists");
-            }
-            if (unusedIndexes.isEmpty()) {
+                if (mayOverwrite) {
+                    overwritten.add(id2index.get(targetVariantId));
+                } else {
+                    throw new PowsyblException("Target variant '" + targetVariantId + "' already exists");
+                }
+            } else if (unusedIndexes.isEmpty()) {
                 // extend variant array size
                 id2index.put(targetVariantId, variantArraySize);
                 variantArraySize++;
@@ -128,6 +142,18 @@ public class VariantManagerImpl implements VariantManager {
                 recycled.add(index);
             }
         }
+
+        allocateVariantArrayElements(sourceIndex, recycled, overwritten);
+
+        if (extendedCount > 0) {
+            for (MultiVariantObject obj : getStafulObjects()) {
+                obj.extendVariantArraySize(initVariantArraySize, extendedCount, sourceIndex);
+            }
+            LOGGER.trace("Extending variant array size to {} (+{})", variantArraySize, extendedCount);
+        }
+    }
+
+    private void allocateVariantArrayElements(Integer sourceIndex, List<Integer> recycled, List<Integer> overwritten) {
         if (!recycled.isEmpty()) {
             int[] indexes = Ints.toArray(recycled);
             for (MultiVariantObject obj : getStafulObjects()) {
@@ -137,11 +163,14 @@ public class VariantManagerImpl implements VariantManager {
                 LOGGER.trace("Recycling variant array indexes {}", Arrays.toString(indexes));
             }
         }
-        if (extendedCount > 0) {
+        if (!overwritten.isEmpty()) {
+            int[] indexes = Ints.toArray(overwritten);
             for (MultiVariantObject obj : getStafulObjects()) {
-                obj.extendVariantArraySize(initVariantArraySize, extendedCount, sourceIndex);
+                obj.allocateVariantArrayElement(indexes, sourceIndex);
             }
-            LOGGER.trace("Extending variant array size to {} (+{})", variantArraySize, extendedCount);
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("Overwriting variant array indexes {}", Arrays.toString(indexes));
+            }
         }
     }
 
