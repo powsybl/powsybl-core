@@ -88,6 +88,8 @@ public interface CgmesModel {
 
     PropertyBags phaseTapChangers();
 
+    PropertyBags regulatingControls();
+
     PropertyBags energyConsumers();
 
     PropertyBags energySources();
