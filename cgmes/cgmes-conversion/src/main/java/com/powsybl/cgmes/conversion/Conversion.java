@@ -67,6 +67,7 @@ public class Conversion {
         Function<PropertyBag, AbstractObjectConversion> convf;
 
         cgmes.terminals().forEach(p -> context.terminalMapping().buildTopologicalNodesMapping(p));
+        cgmes.regulatingControls().forEach(p -> context.regulatingControlMapping().cacheRegulatingControls(p));
 
         convert(cgmes.substations(), s -> new SubstationConversion(s, context));
         convert(cgmes.voltageLevels(), vl -> new VoltageLevelConversion(vl, context));
@@ -111,7 +112,7 @@ public class Conversion {
         context.currentLimitsMapping().addAll();
 
         // set all remote regulating terminals
-        context.setAllRemoteRegulatingTerminals();
+        context.regulatingControlMapping().setAllRemoteRegulatingTerminals();
 
         voltageAngles(nodes, context);
         if (context.config().debugTopology()) {
@@ -304,7 +305,12 @@ public class Conversion {
         }
 
         public boolean allowUnsupportedTapChangers() {
-            return true;
+            return allowUnsupportedTapChangers;
+        }
+
+        public Config setAllowUnsupportedTapChangers(boolean allowUnsupportedTapChangers) {
+            this.allowUnsupportedTapChangers = allowUnsupportedTapChangers;
+            return this;
         }
 
         public boolean useNodeBreaker() {
@@ -323,8 +329,9 @@ public class Conversion {
             return convertBoundary;
         }
 
-        public void setConvertBoundary(boolean convertBoundary) {
+        public Config setConvertBoundary(boolean convertBoundary) {
             this.convertBoundary = convertBoundary;
+            return this;
         }
 
         public boolean mergeLinesUsingQuadripole() {
@@ -335,8 +342,9 @@ public class Conversion {
             return changeSignForShuntReactivePowerFlowInitialState;
         }
 
-        public void setChangeSignForShuntReactivePowerFlowInitialState(boolean b) {
+        public Config setChangeSignForShuntReactivePowerFlowInitialState(boolean b) {
             changeSignForShuntReactivePowerFlowInitialState = b;
+            return this;
         }
 
         public boolean computeFlowsAtBoundaryDanglingLines() {
@@ -347,10 +355,12 @@ public class Conversion {
             return createBusbarSectionForEveryConnectivityNode;
         }
 
-        public void setCreateBusbarSectionForEveryConnectivityNode(boolean b) {
+        public Config setCreateBusbarSectionForEveryConnectivityNode(boolean b) {
             createBusbarSectionForEveryConnectivityNode = b;
+            return this;
         }
 
+        private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
         private double lowImpedanceLineR = 0.05;

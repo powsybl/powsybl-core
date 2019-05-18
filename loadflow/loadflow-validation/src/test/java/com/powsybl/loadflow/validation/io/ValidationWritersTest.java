@@ -15,6 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Set;
 
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -34,7 +35,9 @@ import com.powsybl.loadflow.validation.ValidationType;
  */
 public class ValidationWritersTest {
 
-    private final ValidationConfig config = new ValidationConfig(ValidationConfig.THRESHOLD_DEFAULT, ValidationConfig.VERBOSE_DEFAULT, LoadFlowFactoryMock.class,
+    private final TableFormatterConfig formatterConfig = new TableFormatterConfig();
+
+    private final ValidationConfig validationConfig = new ValidationConfig(ValidationConfig.THRESHOLD_DEFAULT, ValidationConfig.VERBOSE_DEFAULT, LoadFlowFactoryMock.class,
                                                                  ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT, ValidationConfig.EPSILON_X_DEFAULT,
                                                                  ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT, ValidationOutputWriter.CSV_MULTILINE,
                                                                  new LoadFlowParameters(), ValidationConfig.OK_MISSING_VALUES_DEFAULT,
@@ -50,7 +53,7 @@ public class ValidationWritersTest {
     public void setUp() throws IOException {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         Path folder = Files.createDirectory(fileSystem.getPath("/folder"));
-        validationWriters = new ValidationWriters("network", usedValidationTypes, folder, config);
+        validationWriters = new ValidationWriters("network", usedValidationTypes, folder, validationConfig, formatterConfig);
     }
 
     @Test

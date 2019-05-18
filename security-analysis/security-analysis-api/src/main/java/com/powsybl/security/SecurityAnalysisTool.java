@@ -19,6 +19,7 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.tools.ConversionToolUtils;
 import com.powsybl.security.converter.SecurityAnalysisResultExporters;
+import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.distributed.DistributedSecurityAnalysis;
 import com.powsybl.security.distributed.ExternalSecurityAnalysis;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
@@ -123,6 +124,9 @@ public class SecurityAnalysisTool implements Tool {
                 options.addOption(Option.builder().longOpt(EXTERNAL)
                         .desc("external execution")
                         .build());
+                options.addOption(Option.builder().longOpt(SKIP_POSTPROC_OPTION)
+                        .desc("skip network importer post processors (when configured)")
+                        .build());
                 options.addOption(createImportParametersFileOption());
                 options.addOption(createImportParameterOption());
                 options.addOption(Option.builder().longOpt(OUTPUT_LOG_OPTION)
@@ -141,6 +145,10 @@ public class SecurityAnalysisTool implements Tool {
                 );
             }
         };
+    }
+
+    protected TableFormatterConfig createTableFormatterConfig() {
+        return TableFormatterConfig.load();
     }
 
     private static Optional<String> getOptionValue(CommandLine line, String option) {
@@ -223,7 +231,9 @@ public class SecurityAnalysisTool implements Tool {
 
         context.getOutputStream().println("Loading network '" + caseFile + "'");
         Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), ImportConfig.load(), inputParams);
+        boolean skipPostProc = line.hasOption(SKIP_POSTPROC_OPTION);
+        ImportConfig importConfig = (!skipPostProc) ? ImportConfig.load() : new ImportConfig();
+        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), importConfig, inputParams);
         network.getVariantManager().allowVariantMultiThreadAccess(true);
 
         LimitViolationFilter limitViolationFilter = LimitViolationFilter.load();
@@ -261,7 +271,7 @@ public class SecurityAnalysisTool implements Tool {
         } else {
             // To avoid the closing of System.out
             Writer writer = new OutputStreamWriter(context.getOutputStream());
-            Security.print(result, network, writer, new AsciiTableFormatterFactory(), TableFormatterConfig.load());
+            Security.print(result, network, writer, new AsciiTableFormatterFactory(), createTableFormatterConfig());
         }
     }
 }

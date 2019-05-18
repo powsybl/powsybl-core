@@ -6,7 +6,6 @@
  */
 package com.powsybl.iidm.xml;
 
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.xml.XmlUtil;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.ThreeWindingsTransformerAdder.LegAdder;
@@ -190,40 +189,19 @@ public abstract class AbstractConnectableXml<T extends Connectable, A extends Id
         }
     }
 
+    /**
+     * @deprecated Use {@link TerminalRefXml#writeTerminalRef(Terminal, NetworkXmlWriterContext, String)} instead.
+     */
+    @Deprecated
     protected static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String elementName) throws XMLStreamException {
-        Connectable c = t.getConnectable();
-        if (!context.getFilter().test(c)) {
-            throw new PowsyblException("Oups, terminal ref point to a filtered equipment " + c.getId());
-        }
-        context.getWriter().writeEmptyElement(IIDM_URI, elementName);
-        context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(c.getId()));
-        if (c.getTerminals().size() > 1) {
-            if (c instanceof Injection) {
-                // nothing to do
-            } else if (c instanceof Branch) {
-                Branch branch = (Branch) c;
-                context.getWriter().writeAttribute("side", branch.getSide(t).name());
-            } else if (c instanceof ThreeWindingsTransformer) {
-                ThreeWindingsTransformer twt = (ThreeWindingsTransformer) c;
-                context.getWriter().writeAttribute("side", twt.getSide(t).name());
-            } else {
-                throw new AssertionError("Unexpected Connectable instance: " + c.getClass());
-            }
-        }
+        TerminalRefXml.writeTerminalRef(t, context, elementName);
     }
 
+    /**
+     * @deprecated Use {@link TerminalRefXml#readTerminalRef(Network, String, String)} instead.
+     */
+    @Deprecated
     protected static Terminal readTerminalRef(Network network, String id, String side) {
-        Identifiable identifiable = network.getIdentifiable(id);
-        if (identifiable instanceof Injection) {
-            return ((Injection) identifiable).getTerminal();
-        } else if (identifiable instanceof Branch) {
-            return side.equals(Branch.Side.ONE.name()) ? ((Branch) identifiable).getTerminal1()
-                : ((Branch) identifiable).getTerminal2();
-        } else if (identifiable instanceof ThreeWindingsTransformer) {
-            ThreeWindingsTransformer twt = (ThreeWindingsTransformer) identifiable;
-            return twt.getTerminal(ThreeWindingsTransformer.Side.valueOf(side));
-        } else {
-            throw new AssertionError("Unexpected Identifiable instance: " + identifiable.getClass());
-        }
+        return TerminalRefXml.readTerminalRef(network, id, side);
     }
 }

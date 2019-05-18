@@ -150,12 +150,6 @@ public final class ValidationUtil {
         }
     }
 
-    static void checkCountry(Validable validable, Country country) {
-        if (country == null) {
-            throw new ValidationException(validable, "country is invalid");
-        }
-    }
-
     static void checkNominalV(Validable validable, double nominalV) {
         if (Double.isNaN(nominalV) || nominalV <= 0) {
             throw new ValidationException(validable, "nominal voltage is invalid");
