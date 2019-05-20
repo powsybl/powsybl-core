@@ -11,16 +11,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Identifiable;
-import com.powsybl.iidm.network.Terminal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Conversion.Config;
 import com.powsybl.cgmes.conversion.elements.ACLineSegmentConversion;
 import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Terminal;
 import com.powsybl.triplestore.api.PropertyBags;
 
 /**
@@ -46,6 +46,7 @@ public class Context {
         tapChangerTransformers = new TapChangerTransformers();
         dcMapping = new DcMapping(this);
         currentLimitsMapping = new CurrentLimitsMapping(this);
+        regulatingControlMapping = new RegulatingControlMapping(this);
         nodeMapping = new NodeMapping();
 
         ratioTapChangerTables = new HashMap<>();
@@ -100,6 +101,10 @@ public class Context {
 
     public CurrentLimitsMapping currentLimitsMapping() {
         return currentLimitsMapping;
+    }
+
+    public RegulatingControlMapping regulatingControlMapping() {
+        return regulatingControlMapping;
     }
 
     public static String boundaryVoltageLevelId(String nodeId) {
@@ -243,6 +248,7 @@ public class Context {
     private final TapChangerTransformers tapChangerTransformers;
     private final DcMapping dcMapping;
     private final CurrentLimitsMapping currentLimitsMapping;
+    private final RegulatingControlMapping regulatingControlMapping;
 
     private final Map<String, PropertyBags> ratioTapChangerTables;
     private final Map<String, PropertyBags> phaseTapChangerTables;

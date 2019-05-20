@@ -81,7 +81,7 @@ public class UcteImporter implements Importer {
      */
     private static EntsoeGeographicalCode getRegionalGeographicalCode(Substation substation) {
         //Currently only DE has subregions
-        if (substation.getCountry() != Country.DE) {
+        if (substation.getCountry().map(country -> country != Country.DE).orElse(true)) {
             return null;
         }
         EntsoeGeographicalCode res = Enums.getIfPresent(EntsoeGeographicalCode.class, substation.getName().substring(0, 2)).orNull();

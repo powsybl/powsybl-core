@@ -228,13 +228,7 @@ WHERE {
         cim:TapChanger.stepVoltageIncrement ?stepVoltageIncrement ;
         cim:RatioTapChanger.TransformerWinding ?TransformerWinding .
     ?Terminal cim:Terminal.ConductingEquipment ?TransformerWinding .
-    OPTIONAL {
-        ?RatioTapChanger cim:TapChanger.RegulatingControl ?TapChangerControl .
-        ?TapChangerControl
-            cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;
-            cim:RegulatingControl.mode ?regulatingControlMode
-        BIND ( "true" AS ?regulatingControlEnabled )
-    }
+    OPTIONAL { ?RatioTapChanger cim:TapChanger.RegulatingControl ?TapChangerControl }
 }}
 OPTIONAL { GRAPH ?graphSV {
     ?SvTapStep
@@ -264,12 +258,7 @@ WHERE {
     OPTIONAL { ?PhaseTapChanger cim:PhaseTapChanger.windingConnectionAngle ?windingConnectionAngle }
     OPTIONAL { ?PhaseTapChanger cim:PhaseTapChanger.xStepMax ?xStepMax ; cim:PhaseTapChanger.xStepMin ?xStepMin    }
     OPTIONAL { ?PhaseTapChanger cim:PhaseTapChanger.stepPhaseShiftIncrement ?stepPhaseShiftIncrement }
-    OPTIONAL {
-            ?PhaseTapChanger cim:TapChanger.RegulatingControl ?RegulatingControl .
-            ?RegulatingControl
-                cim:RegulatingControl.targetValue ?targetValue ;
-                cim:RegulatingControl.mode ?mode .
-    }
+    OPTIONAL { ?PhaseTapChanger cim:TapChanger.RegulatingControl ?RegulatingControl }
 }}
 OPTIONAL { GRAPH ?graphSV {
     ?SVTapStep
@@ -333,16 +322,29 @@ WHERE {
         cim:GeneratingUnit.maxOperatingP ?maxP ;
         cim:IdentifiedObject.name ?name .
     ?Terminal cim:Terminal.ConductingEquipment ?SynchronousMachine .
-    OPTIONAL {
-        ?SynchronousMachine cim:RegulatingCondEq.RegulatingControl ?RegulatingControl .
-        ?RegulatingControl
-            cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;
-            cim:RegulatingControl.Terminal ?regulatingControlTerminal ;
-            cim:RegulatingControl.mode ?regulatingControlMode .
-            { GRAPH ?graphTP {
-                ?regulatingControlTerminal
-                    cim:Terminal.TopologicalNode ?regTopologicalNode
-            }}
+    OPTIONAL { ?SynchronousMachine cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
+}}
+}
+
+# query: regulatingControls
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    {
+        ?RegulatingControl a cim:RegulatingControl
     }
+    UNION
+    {
+        ?RegulatingControl a cim:TapChangerControl
+    }
+    ?RegulatingControl
+        cim:RegulatingControl.mode ?mode ;
+        cim:RegulatingControl.targetValue ?targetValue ;
+        cim:RegulatingControl.Terminal ?Terminal .
+        { GRAPH ?graphTP {
+            ?Terminal
+                cim:Terminal.TopologicalNode ?topologicalNode
+        }}
+        BIND ( "true" AS ?enabled )
 }}
 }
