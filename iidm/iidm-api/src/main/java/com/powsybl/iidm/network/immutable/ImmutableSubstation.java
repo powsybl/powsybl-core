@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.*;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -38,7 +39,7 @@ final class ImmutableSubstation extends AbstractImmutableIdentifiable<Substation
      * {@inheritDoc}
      */
     @Override
-    public Country getCountry() {
+    public Optional<Country> getCountry() {
         return identifiable.getCountry();
     }
 

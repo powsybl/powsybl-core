@@ -89,6 +89,8 @@ public class ImmutableTest {
     private static final List<Branch> MOCK_BRANCH_LIST = Collections.singletonList(mock(TwoWindingsTransformer.class));
     private static final Supplier<Stream<Branch>> MOCK_BRANCH_STREAM = () -> MOCK_BRANCH_LIST.stream();
 
+    private static final String EXPECTED_UNMODIFIABLE_MSG = "Unmodifiable identifiable";
+
     @Test
     public void testBus() {
         Bus delegate = mock(Bus.class);
@@ -235,14 +237,27 @@ public class ImmutableTest {
             sut.cloneVariant("a", "b");
             fail();
         } catch (Exception e) {
-            assertEquals("Unmodifiable identifiable", e.getMessage());
+            assertEquals(EXPECTED_UNMODIFIABLE_MSG, e.getMessage());
         }
         try {
             sut.removeVariant("q");
             fail();
         } catch (Exception e) {
-            assertEquals("Unmodifiable identifiable", e.getMessage());
+            assertEquals(EXPECTED_UNMODIFIABLE_MSG, e.getMessage());
         }
+        try {
+            sut.cloneVariant("q", "target", false);
+            fail();
+        } catch (Exception e) {
+            assertEquals(EXPECTED_UNMODIFIABLE_MSG, e.getMessage());
+        }
+        try {
+            sut.cloneVariant("q", new ArrayList<>(), true);
+            fail();
+        } catch (Exception e) {
+            assertEquals(EXPECTED_UNMODIFIABLE_MSG, e.getMessage());
+        }
+
         sut.allowVariantMultiThreadAccess(false);
         verify(delegate, ONCE).allowVariantMultiThreadAccess(false);
         assertFalse(sut.isVariantMultiThreadAccessAllowed());
@@ -273,6 +288,8 @@ public class ImmutableTest {
             // ignored
         }
 
+        when(delegate.getVoltageLevelCount()).thenReturn(1);
+        assertEquals(1, sut.getVoltageLevelCount());
         when(delegate.getVoltageLevels()).thenReturn(MOCK_VL_LIST);
         when(delegate.getVoltageLevelStream()).thenReturn(MOCK_VL_STREAM.get());
         assertElementType(ImmutableVoltageLevel.class, sut.getVoltageLevels(), sut.getVoltageLevelStream());
@@ -282,6 +299,11 @@ public class ImmutableTest {
         when(delegate.getSubstations()).thenReturn(MOCK_SUB_LIST);
         when(delegate.getSubstationStream()).thenReturn(MOCK_SUB_STREAM.get());
         assertElementType(ImmutableSubstation.class, sut.getSubstations(), sut.getSubstationStream());
+        List<String> mockTags = Arrays.asList("tag1", "tag2");
+        when(delegate.getSubstations("fr", "tso", "tag1", "tag2")).thenReturn(MOCK_SUB_LIST);
+        assertElementType(ImmutableSubstation.class, sut.getSubstations("fr", "tso", "tag1", "tag2"));
+        when(delegate.getSubstations(Country.FR, "tso", "tag1", "tag2")).thenReturn(MOCK_SUB_LIST);
+        assertElementType(ImmutableSubstation.class, sut.getSubstations(Country.FR, "tso", "tag1", "tag2"));
 
         when(delegate.getLineCount()).thenReturn(2);
         assertEquals(2, sut.getLineCount());
@@ -513,6 +535,9 @@ public class ImmutableTest {
         Substation delegate = mock(Substation.class);
         Substation sut = new ImmutableSubstation(delegate, new ImmutableCacheIndex(mock(Network.class)));
 
+        when(delegate.getCountry()).thenReturn(Optional.of(Country.FR));
+        assertEquals(Optional.of(Country.FR), sut.getCountry());
+
         when(delegate.getTwoWindingsTransformerCount()).thenReturn(1);
         assertEquals(1, sut.getTwoWindingsTransformerCount());
         when(delegate.getTwoWindingsTransformers()).thenReturn(MOCK_2WT_LIST);
@@ -536,10 +561,14 @@ public class ImmutableTest {
     }
 
     private static <T extends Identifiable> void assertElementType(Class expectedClazz, Iterable<T> iterable, Stream<T> stream) {
+        assertElementType(expectedClazz, iterable);
+        stream.findAny().ifPresent(e -> assertEquals(expectedClazz, e.getClass()));
+    }
+
+    private static <T extends Identifiable> void assertElementType(Class expectedClazz, Iterable<T> iterable) {
         Iterator<T> iterator = iterable.iterator();
         assertTrue(iterator.hasNext());
         assertEquals(expectedClazz, iterator.next().getClass());
-        stream.findAny().ifPresent(e -> assertEquals(expectedClazz, e.getClass()));
     }
 
 }

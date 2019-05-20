@@ -60,7 +60,25 @@ final class ImmutableVariantManager implements VariantManager {
      * @return
      */
     @Override
+    public void cloneVariant(String sourceVariantId, List<String> targetVariantIds, boolean mayOverwrite) {
+        throw ImmutableNetwork.createUnmodifiableNetworkException();
+    }
+
+    /**
+     * Mutative operation is not allowed. It will throw an exception in runtime.
+     * @return
+     */
+    @Override
     public void cloneVariant(String sourceVariantId, String targetVariantId) {
+        throw ImmutableNetwork.createUnmodifiableNetworkException();
+    }
+
+    /**
+     * Mutative operation is not allowed. It will throw an exception in runtime.
+     * @return
+     */
+    @Override
+    public void cloneVariant(String sourceVariantId, String targetVariantId, boolean mayOverwrite) {
         throw ImmutableNetwork.createUnmodifiableNetworkException();
     }
 

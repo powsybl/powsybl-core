@@ -158,6 +158,15 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
      * Substations are wrapped in {@link ImmutableSubstation}.
      */
     @Override
+    public Iterable<Substation> getSubstations(String country, String tsoId, String... geographicalTags) {
+        return Iterables.transform(identifiable.getSubstations(country, tsoId, geographicalTags), cache::getSubstation);
+    }
+
+    /**
+     * {@inheritDoc}
+     * Substations are wrapped in {@link ImmutableSubstation}.
+     */
+    @Override
     public Substation getSubstation(String id) {
         return cache.getSubstation(identifiable.getSubstation(id));
     }
@@ -771,6 +780,11 @@ public final class ImmutableNetwork extends AbstractImmutableIdentifiable<Networ
     @Override
     public HvdcLine getHvdcLine(String id) {
         return cache.getHvdcLine(identifiable.getHvdcLine(id));
+    }
+
+    @Override
+    public HvdcLine getHvdcLine(HvdcConverterStation converterStation) {
+        return cache.getHvdcLine(identifiable.getHvdcLine(converterStation));
     }
 
     /**
