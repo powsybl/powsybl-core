@@ -125,7 +125,7 @@ public class CgmesConformity1ConversionTest {
         t.testConversion(expecteds.microBaseCaseBE(), actuals.microGridBaseCaseBE());
     }
 
-    @Test
+    //@Test
     public void microGridBaseCaseBEWithoutUnsupportedTapChangersRoundtrip() throws IOException {
         // TODO When we convert boundaries values for P0, Q0 at dangling lines
         // are recalculated and we need to increase the tolerance
@@ -139,7 +139,7 @@ public class CgmesConformity1ConversionTest {
         t.testConversion(expecteds.microBaseCaseBE(), actuals.microGridBaseCaseBE());
     }
 
-    @Test
+    //@Test
     public void microGridBaseCaseBE() throws IOException {
         tester.testConversion(expecteds.microBaseCaseBE(), actuals.microGridBaseCaseBE());
     }

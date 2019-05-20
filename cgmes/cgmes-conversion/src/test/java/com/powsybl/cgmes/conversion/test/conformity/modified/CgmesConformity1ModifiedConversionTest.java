@@ -44,7 +44,7 @@ public class CgmesConformity1ModifiedConversionTest {
         fileSystem.close();
     }
 
-    @Test
+    //@Test
     public void microBERatioPhaseTabularTest() {
         Network network = new CgmesImport(platformConfig)
                 .importData(catalogModified.microGridBaseCaseBERatioPhaseTapChangerTabular().dataSource(), null);
@@ -134,7 +134,7 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(generator2.getTerminal().getVoltageLevel().getNominalV(), generator2.getTargetV(), 0.0);
     }
 
-    @Test
+    //@Test
     public void microBEMissingRegulatingControl() {
         Network network = new CgmesImport(platformConfig)
                 .importData(catalogModified.microGridBaseCaseBEMissingRegulatingControl().dataSource(), null);
@@ -158,7 +158,7 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNull(ptc.getRegulationTerminal());
     }
 
-    @Test
+    //@Test
     public void miniBusBranchRtcRemoteRegulation() {
         Network network = new CgmesImport(platformConfig).importData(catalogModified.miniBusBranchRtcRemoteRegulation().dataSource(), null);
 
