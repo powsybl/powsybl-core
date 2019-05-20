@@ -52,7 +52,6 @@ public class NodeInfoSerializer implements Serializer<NodeInfo>, Serializable {
             out.writeUTF(e.getKey());
             out.writeBoolean(e.getValue());
         }
-        out.writeBoolean(nodeInfo.isConsistent());
     }
 
     @Override
@@ -81,16 +80,6 @@ public class NodeInfoSerializer implements Serializer<NodeInfo>, Serializable {
         for (int i = 0; i < booleanMetadataSize; i++) {
             metadata.setBoolean(input.readUTF(), input.readBoolean());
         }
-        NodeInfo nodeInfo = new NodeInfo(nodeId, name, pseudoClass, description, creationTime, modificationTime, version, metadata);
-        try {
-            boolean consistent = input.readBoolean();
-            if (consistent) {
-                nodeInfo.setConsistent();
-            }
-        } catch (IOException e) {
-            // Old nodes considered as consistent nodes
-            nodeInfo.setConsistent();
-        }
-        return nodeInfo;
+        return new NodeInfo(nodeId, name, pseudoClass, description, creationTime, modificationTime, version, metadata);
     }
 }

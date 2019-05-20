@@ -187,7 +187,7 @@ public class RemoteAppStorage implements AppStorage {
     public boolean isConsistent(String nodeId) {
         Objects.requireNonNull(nodeId);
 
-        LOGGER.debug("isWritable(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
+        LOGGER.debug("isConsistent(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/isConsistent")
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
@@ -334,13 +334,8 @@ public class RemoteAppStorage implements AppStorage {
         }
     }
 
-    @Override
-    public List<NodeInfo> getChildNodes(String nodeId) {
-        Objects.requireNonNull(nodeId);
-
-        LOGGER.debug("getChildNodes(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
-
-        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/children")
+    private List<NodeInfo> getResponse(String targetUrl, String nodeId) {
+        Response response = webTarget.path(targetUrl)
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .resolveTemplate(NODE_ID, nodeId)
                 .request(MediaType.APPLICATION_JSON)
@@ -355,23 +350,22 @@ public class RemoteAppStorage implements AppStorage {
     }
 
     @Override
+    public List<NodeInfo> getChildNodes(String nodeId) {
+        Objects.requireNonNull(nodeId);
+
+        LOGGER.debug("getChildNodes(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
+
+        return getResponse("fileSystems/{fileSystemName}/nodes/{nodeId}/children", nodeId);
+
+    }
+
+    @Override
     public List<NodeInfo> getInconsistentChildNodes(String nodeId) {
         Objects.requireNonNull(nodeId);
 
         LOGGER.debug("getInconsistentChildNodes(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
 
-        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/inconsistentChildrenNodes")
-                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
-                .resolveTemplate(NODE_ID, nodeId)
-                .request(MediaType.APPLICATION_JSON)
-                .header(HttpHeaders.AUTHORIZATION, token)
-                .get();
-        try {
-            return readEntityIfOk(response, new GenericType<List<NodeInfo>>() {
-            });
-        } finally {
-            response.close();
-        }
+        return getResponse("fileSystems/{fileSystemName}/nodes/{nodeId}/inconsistentChildrenNodes", nodeId);
     }
 
     @Override

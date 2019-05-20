@@ -78,7 +78,7 @@ public class ModificationScriptBuilder implements ProjectFileBuilder<Modificatio
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-        info.setConsistent();
+
         context.getStorage().setConsistent(info.getId());
 
         context.getStorage().flush();

@@ -29,8 +29,6 @@ public class NodeInfo {
 
     private int version;
 
-    private boolean consistent = false;
-
     private final NodeGenericMetadata genericMetadata;
 
     public NodeInfo(String id, String name, String pseudoClass, String description, long creationTime, long modificationTime,
@@ -43,12 +41,6 @@ public class NodeInfo {
         this.modificationTime = modificationTime;
         this.version = version;
         this.genericMetadata = Objects.requireNonNull(genericMetadata);
-    }
-
-    public NodeInfo(String id, String name, String pseudoClass, String description, long creationTime, long modificationTime,
-                    int version, NodeGenericMetadata genericMetadata, boolean consistent) {
-        this(id, name, pseudoClass, description, creationTime, modificationTime, version, genericMetadata);
-        this.consistent = consistent;
     }
 
     /**
@@ -106,15 +98,6 @@ public class NodeInfo {
 
     public NodeInfo setVersion(int version) {
         this.version = version;
-        return this;
-    }
-
-    public boolean isConsistent() {
-        return consistent;
-    }
-
-    public NodeInfo setConsistent() {
-        this.consistent = true;
         return this;
     }
 
