@@ -40,7 +40,7 @@ public class Project extends File {
     ProjectNode createProjectNode(NodeInfo nodeInfo) {
         Objects.requireNonNull(nodeInfo);
         if (ProjectFolder.PSEUDO_CLASS.equals(nodeInfo.getPseudoClass())) {
-            return new ProjectFolder(new ProjectFileCreationContext(nodeInfo, storage, this));
+            return createProjectFolder(nodeInfo);
         } else {
             return createProjectFile(nodeInfo);
         }
@@ -56,4 +56,10 @@ public class Project extends File {
             return new UnknownProjectFile(context);
         }
     }
+
+    public ProjectFolder createProjectFolder(NodeInfo nodeInfo) {
+        Objects.requireNonNull(nodeInfo);
+        return new ProjectFolder(new ProjectFileCreationContext(nodeInfo, storage, this));
+    }
+
 }

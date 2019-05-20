@@ -134,6 +134,36 @@ public class AppFileSystem implements AutoCloseable {
         return (T) projectFile;
     }
 
+    /**
+     * Get a project folder by its ID.
+     */
+    public ProjectFolder findProjectFolder(String projectFolderId) {
+
+        Objects.requireNonNull(projectFolderId);
+
+        // get file info
+        NodeInfo projectFolderInfo = storage.getNodeInfo(projectFolderId);
+
+        // walk the node hierarchy until finding a project
+        NodeInfo parentInfo = storage.getParentNode(projectFolderInfo.getId()).orElse(null);
+
+        while (parentInfo != null && !Project.PSEUDO_CLASS.equals(parentInfo.getPseudoClass())) {
+            parentInfo = storage.getParentNode(parentInfo.getId()).orElse(null);
+        }
+
+        if (parentInfo == null) {
+            throw new AfsException("Node '" + projectFolderId + "' is probably not a project folder, parent project has not been found");
+        }
+
+        // create the project
+        Project project = new Project(new FileCreationContext(parentInfo, storage, this));
+
+        // then create the projectFolder
+        ProjectFolder projectFolder = project.createProjectFolder(projectFolderInfo);
+
+        return projectFolder;
+    }
+
     public TaskMonitor getTaskMonitor() {
         return taskMonitor;
     }
