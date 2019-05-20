@@ -1,0 +1,223 @@
+package com.powsybl.triplestore.impl.rdf4j.test;
+
+import static org.junit.Assert.assertFalse;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiConsumer;
+
+import javax.xml.transform.Source;
+
+import org.eclipse.rdf4j.IsolationLevels;
+import org.eclipse.rdf4j.model.IRI;
+import org.eclipse.rdf4j.model.Literal;
+import org.eclipse.rdf4j.model.Resource;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.rio.RDFHandlerException;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.xmlunit.builder.DiffBuilder;
+import org.xmlunit.builder.Input;
+import org.xmlunit.diff.Diff;
+
+import com.powsybl.commons.datasource.DataSource;
+import com.powsybl.commons.datasource.MemDataSource;
+import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
+import com.powsybl.triplestore.impl.rdf4j.TripleStoreRDF4J;
+
+public class PowsyblWriterSequenceFixTest {
+
+    PropertyBags objects = new PropertyBags();
+    List<String> objectProperties = Arrays.asList("id", "property1", "property2");
+    String namespace = "http://test/";
+    String contextName = "context1";
+    String qualifiedContextName = "http://test/" + contextName;
+    String objectType = "http://test/type1";
+    String expected = "/fix-powsybl-writer-objects.xml";
+
+    @Before
+    public void setUp() {
+        PropertyBag object;
+
+        object = new PropertyBag(objectProperties);
+        object.put("id", "object1");
+        object.put("property1", "object1-property1-value");
+        object.put("property2", "object1-property2-value");
+        objects.add(object);
+
+        object = new PropertyBag(objectProperties);
+        object.put("id", "object2");
+        object.put("property1", "object2-property1-value");
+        object.put("property2", "object2-property2-value");
+        objects.add(object);
+    }
+
+    // The statements to be written by PowsyblWriter are stored in a Model,
+    // Model extends from a Set<Statement>,
+    // so no particular iteration order is guaranteed
+
+    // PowsyblWriter tries to group together all the predicates of the same subject,
+    // it needs to handle the statements in a particular order:
+    // all statements of same subject received in sequence,
+    // the first one being an rdf:type predicate that will be used to reify
+
+    // When we use Rio.write (flag writeBySubject == false),
+    // the statements will be sent to PowsyblWriters with the default iterator,
+    // if they have been inserted in an order that does not match the expected one,
+    // we will end up with an RDFHandlerException
+
+    // When we force TripleStoreRDF4J to write by subject
+    // (flag writeBySubject == true),
+    // it does not matter in which order the statements
+    // have been added to the triple store,
+    // all attempts to write them to XML should be successful
+
+    @Test(expected = RDFHandlerException.class)
+    public void testRioWriteWithBadAddSequence() {
+        test(false, this::addPropertiesObjects);
+    }
+
+    @Test(expected = RDFHandlerException.class)
+    public void testRioWriteWithProperObjectSequenceBadTypeSequence() {
+        test(false, this::addObjectPropertiesType);
+    }
+
+    @Test
+    public void testRioWriteWithProperAddSequence() {
+        test(false, this::addObjectTypeProperties);
+    }
+
+    @Test
+    public void testRioWriteOverrideWithBadAddSequence() {
+        test(true, this::addPropertiesObjects);
+    }
+
+    @Test
+    public void testRioWriteOverrideWithProperObjectSequenceBadTypeSequence() {
+        test(true, this::addObjectPropertiesType);
+    }
+
+    void test(boolean writeBySubject, BiConsumer<RepositoryConnection, Map<PropertyBag, IRI>> adder) {
+        TripleStoreRDF4J ts = new TripleStoreRDF4J();
+        ts.setWriteBySubject(writeBySubject);
+        addStatements(ts, adder);
+        writeAndCompareWithExpected(ts);
+    }
+
+    void writeAndCompareWithExpected(TripleStoreRDF4J ts) {
+        DataSource ds = new MemDataSource();
+        ts.write(ds);
+
+        try (InputStream is = ds.newInputStream(contextName)) {
+            compareXml(getClass().getResourceAsStream(expected), is);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    static void compareXml(InputStream expected, InputStream actual) {
+        Source sexpected = Input.fromStream(expected).build();
+        Source sactual = Input.fromStream(actual).build();
+        Diff myDiff = DiffBuilder
+            .compare(sexpected)
+            .withTest(sactual)
+            .ignoreWhitespace()
+            .ignoreComments()
+            .build();
+        boolean hasDiff = myDiff.hasDifferences();
+        if (hasDiff) {
+            LOG.error(myDiff.toString());
+        }
+        assertFalse(hasDiff);
+    }
+
+    void addStatements(TripleStoreRDF4J ts, BiConsumer<RepositoryConnection, Map<PropertyBag, IRI>> adder) {
+        try (RepositoryConnection cnx = ts.repository().getConnection()) {
+            cnx.setIsolationLevel(IsolationLevels.NONE);
+            Map<PropertyBag, IRI> objectSubject = new HashMap<>();
+            adder.accept(cnx, objectSubject);
+        }
+    }
+
+    void addObjectPropertiesType(RepositoryConnection cnx, Map<PropertyBag, IRI> objectSubject) {
+        objects.forEach(object -> {
+            objectProperties.forEach(property -> {
+                addStatement(cnx, property, object, objectSubject);
+            });
+            addObjectTypeStatement(
+                cnx,
+                subject(cnx, object, objectSubject),
+                objectType);
+        });
+    }
+
+    void addObjectTypeProperties(RepositoryConnection cnx, Map<PropertyBag, IRI> objectSubject) {
+        objects.forEach(object -> {
+            addObjectTypeStatement(
+                cnx,
+                subject(cnx, object, objectSubject),
+                objectType);
+            objectProperties.forEach(property -> {
+                addStatement(cnx, property, object, objectSubject);
+            });
+        });
+    }
+
+    void addPropertiesObjects(RepositoryConnection cnx, Map<PropertyBag, IRI> objectSubject) {
+        objects.forEach(object -> addObjectTypeStatement(
+            cnx,
+            subject(cnx, object, objectSubject),
+            objectType));
+        objectProperties.forEach(property -> {
+            objects.forEach(object -> {
+                addStatement(cnx, property, object, objectSubject);
+            });
+        });
+    }
+
+    void addStatement(
+        RepositoryConnection cnx,
+        String property,
+        PropertyBag object,
+        Map<PropertyBag, IRI> objectSubject) {
+
+        IRI predicate = cnx.getValueFactory().createIRI(objectType + "." + property);
+        Literal value = cnx.getValueFactory().createLiteral(object.get(property));
+        Statement st = cnx.getValueFactory().createStatement(
+            subject(cnx, object, objectSubject),
+            predicate,
+            value);
+        Resource context = cnx.getValueFactory().createIRI(qualifiedContextName);
+        cnx.add(st, context);
+    }
+
+    void addObjectTypeStatement(RepositoryConnection cnx, IRI subject, String objectType) {
+        IRI objectTypeIRI = cnx.getValueFactory().createIRI(objectType);
+        Statement subjectTypeStatement = cnx.getValueFactory().createStatement(
+            subject,
+            RDF.TYPE,
+            objectTypeIRI);
+        Resource context = cnx.getValueFactory().createIRI(qualifiedContextName);
+        cnx.add(subjectTypeStatement, context);
+    }
+
+    IRI subject(
+        RepositoryConnection cnx,
+        PropertyBag object,
+        Map<PropertyBag, IRI> objectSubject) {
+        return objectSubject.computeIfAbsent(
+            object,
+            o -> cnx.getValueFactory().createIRI(namespace + o.get("id")));
+    }
+
+    private static final Logger LOG = LoggerFactory.getLogger(PowsyblWriterSequenceFixTest.class);
+}

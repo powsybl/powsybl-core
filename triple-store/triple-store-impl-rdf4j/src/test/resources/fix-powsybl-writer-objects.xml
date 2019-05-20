@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+
+<type1 xmlns="http://test/" rdf:ID="http://test/object1">
+	<type1.id xmlns="http://test/">object1</type1.id>
+	<type1.property1 xmlns="http://test/">object1-property1-value</type1.property1>
+	<type1.property2 xmlns="http://test/">object1-property2-value</type1.property2>
+</type1>
+
+<type1 xmlns="http://test/" rdf:ID="http://test/object2">
+	<type1.id xmlns="http://test/">object2</type1.id>
+	<type1.property1 xmlns="http://test/">object2-property1-value</type1.property1>
+	<type1.property2 xmlns="http://test/">object2-property2-value</type1.property2>
+</type1>
+
+</rdf:RDF>

@@ -21,6 +21,7 @@ import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Namespace;
+import org.eclipse.rdf4j.model.NamespaceAware;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
@@ -57,6 +58,14 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     public TripleStoreRDF4J() {
         repo = new SailRepository(new MemoryStore());
         repo.initialize();
+    }
+
+    public Repository repository() {
+        return repo;
+    }
+
+    public void setWriteBySubject(boolean writeBySubject) {
+        this.writeBySubject = writeBySubject;
     }
 
     @Override
@@ -175,7 +184,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         try (RepositoryConnection conn = repo.getConnection()) {
             conn.setIsolationLevel(IsolationLevels.NONE);
 
-            String name = null;
+            String name = graph;
             RepositoryResult<Resource> ctxs = conn.getContextIDs();
             while (ctxs.hasNext()) {
                 String ctx = ctxs.next().stringValue();
@@ -192,7 +201,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     }
 
     private static void createStatements(RepositoryConnection cnx, String objType, PropertyBag statement,
-            Resource context) {
+        Resource context) {
         UUID uuid = new UUID();
         IRI resource = uuid.evaluate(cnx.getValueFactory());
         IRI parentPredicate = RDF.TYPE;
@@ -216,12 +225,40 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         });
     }
 
-    private static void write(Model m, OutputStream out) {
+    private void write(Model model, OutputStream out) {
         try (PrintStream pout = new PrintStream(out)) {
-            RDFWriter w = new PowsyblWriter(pout);
-            w.getWriterConfig().set(BasicWriterSettings.PRETTY_PRINT, true);
-            Rio.write(m, w);
+            RDFWriter writer = new PowsyblWriter(pout);
+            writer.getWriterConfig().set(BasicWriterSettings.PRETTY_PRINT, true);
+            if (writeBySubject) {
+                rioWriteBySubject(model, writer);
+            } else {
+                Rio.write(model, writer);
+            }
         }
+    }
+
+    private void rioWriteBySubject(Model model, RDFWriter writer) {
+        writer.startRDF();
+        if (model instanceof NamespaceAware) {
+            for (Namespace nextNamespace : model.getNamespaces()) {
+                writer.handleNamespace(nextNamespace.getPrefix(), nextNamespace.getName());
+            }
+        }
+        for (final Resource subject : model.subjects()) {
+            // First write the statements RDF.TYPE for this subject
+            // A resource may be described as an instance of more than one class
+            for (final Statement st0 : model.filter(subject, RDF.TYPE, null)) {
+                writer.handleStatement(st0);
+            }
+            // Then all the other statements
+            for (final Statement st : model.filter(subject, null, null)) {
+                if (st.getPredicate().equals(RDF.TYPE)) {
+                    continue;
+                }
+                writer.handleStatement(st);
+            }
+        }
+        writer.endRDF();
     }
 
     private static int statementsCount(RepositoryConnection conn, Resource ctx) {
@@ -252,6 +289,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     }
 
     private final Repository repo;
+    private boolean writeBySubject = true;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TripleStoreRDF4J.class);
 }
