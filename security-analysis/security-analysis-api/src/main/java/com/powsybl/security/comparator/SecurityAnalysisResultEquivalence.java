@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.google.common.base.Equivalence;
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.security.LimitViolation;
 import com.powsybl.security.PostContingencyResult;
 import com.powsybl.security.SecurityAnalysisResult;
@@ -26,8 +27,12 @@ public class SecurityAnalysisResultEquivalence extends Equivalence<SecurityAnaly
     private SecurityAnalysisResultComparisonWriter comparisonWriter;
 
     public SecurityAnalysisResultEquivalence(double threshold, Writer writer) {
+        this(threshold, writer, TableFormatterConfig.load());
+    }
+
+    public SecurityAnalysisResultEquivalence(double threshold, Writer writer, TableFormatterConfig formatterConfig) {
         this.threshold = threshold;
-        this.comparisonWriter = new SecurityAnalysisResultComparisonWriter(writer);
+        this.comparisonWriter = new SecurityAnalysisResultComparisonWriter(writer, formatterConfig);
     }
 
     @Override

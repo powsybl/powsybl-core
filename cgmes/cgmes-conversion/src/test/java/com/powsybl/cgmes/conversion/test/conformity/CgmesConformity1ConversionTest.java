@@ -10,12 +10,16 @@ package com.powsybl.cgmes.conversion.test.conformity;
 import static org.junit.Assert.assertEquals;
 
 import java.io.IOException;
+
+import java.util.*;
+
 import java.nio.file.FileSystem;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+
 import java.util.stream.Collectors;
 
 import com.google.common.jimfs.Jimfs;
@@ -122,6 +126,20 @@ public class CgmesConformity1ConversionTest {
     }
 
     @Test
+    public void microGridBaseCaseBEWithoutUnsupportedTapChangersRoundtrip() throws IOException {
+        // TODO When we convert boundaries values for P0, Q0 at dangling lines
+        // are recalculated and we need to increase the tolerance
+        Properties properties = new Properties();
+        properties.put(CgmesImport.ALLOW_UNSUPPORTED_TAP_CHANGERS, "false");
+        ConversionTester t = new ConversionTester(
+                properties,
+                TripleStoreFactory.onlyDefaultImplementation(),
+                new ComparisonConfig().tolerance(1e-5));
+        t.setTestExportImportCgmes(true);
+        t.testConversion(expecteds.microBaseCaseBE(), actuals.microGridBaseCaseBE());
+    }
+
+    @Test
     public void microGridBaseCaseBE() throws IOException {
         tester.testConversion(expecteds.microBaseCaseBE(), actuals.microGridBaseCaseBE());
     }
@@ -183,6 +201,8 @@ public class CgmesConformity1ConversionTest {
                 Country.NL),
             t.lastConvertedNetwork().getSubstationStream()
                 .map(Substation::getCountry)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toSet()));
     }
 

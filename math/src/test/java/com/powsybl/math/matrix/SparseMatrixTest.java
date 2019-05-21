@@ -11,6 +11,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assume.assumeTrue;
 
@@ -49,9 +50,10 @@ public class SparseMatrixTest extends AbstractMatrixTest {
     public void testSparsePrint() throws IOException {
         Matrix a = createA(matrixFactory);
         String expected = String.join(System.lineSeparator(),
-                "m=3",
-                "n=2",
+                "rowCount=3",
+                "columnCount=2",
                 "columnStart=[0, 2, 3]",
+                "columnValueCount=[2, 1]",
                 "rowIndices={0, 2, 1}",
                 "values={1.0, 2.0, 3.0}")
                 + System.lineSeparator();
@@ -61,8 +63,14 @@ public class SparseMatrixTest extends AbstractMatrixTest {
     @Test(expected = PowsyblException.class)
     public void testWrongColumnOrder() {
         Matrix a = matrixFactory.create(2, 2, 2);
-        a.setValue(0, 0, 1d);
-        a.setValue(0, 1, 1d);
-        a.setValue(1, 0, 1d);
+        a.set(0, 0, 1d);
+        a.set(0, 1, 1d);
+        a.set(1, 0, 1d);
+    }
+
+    @Test
+    public void testInitSparseMatrixFromCpp() {
+        SparseMatrix m = new SparseMatrix(2, 5, new int[] {0, -1, 2, -1, 3, 4}, new int[] {0, 1, 0, 1}, new double[] {1d, 2d, 3d, 4d});
+        assertArrayEquals(new int[] {2, 0, 1, 0, 1}, m.getColumnValueCount());
     }
 }

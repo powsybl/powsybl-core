@@ -126,12 +126,12 @@ public class ThreeWindingsTransformerConversion extends AbstractConductingEquipm
 
         // We do not follow here the same schema of two-windings,
         // we are saving for later all possible tap changers
-        context.tapChangerTransformers().add(rtc1, tx, 1);
-        context.tapChangerTransformers().add(rtc2, tx, 2);
-        context.tapChangerTransformers().add(rtc3, tx, 3);
-        context.tapChangerTransformers().add(ptc1, tx, 1);
-        context.tapChangerTransformers().add(ptc2, tx, 2);
-        context.tapChangerTransformers().add(ptc3, tx, 3);
+        context.tapChangerTransformers().add(rtc1, tx, "rtc", 1);
+        context.tapChangerTransformers().add(rtc2, tx, "rtc", 2);
+        context.tapChangerTransformers().add(rtc3, tx, "rtc", 3);
+        context.tapChangerTransformers().add(ptc1, tx, "ptc", 1);
+        context.tapChangerTransformers().add(ptc2, tx, "ptc", 2);
+        context.tapChangerTransformers().add(ptc3, tx, "ptc", 3);
     }
 
     private final PropertyBag winding1;

@@ -21,6 +21,10 @@ public class LimitViolationsResult {
 
     private final List<String> actionsTaken;
 
+    public static LimitViolationsResult empty() {
+        return new LimitViolationsResult(true, Collections.emptyList());
+    }
+
     public LimitViolationsResult(boolean computationOk, List<LimitViolation> limitViolations) {
         this(computationOk, limitViolations, Collections.emptyList());
     }
@@ -42,4 +46,5 @@ public class LimitViolationsResult {
     public List<String> getActionsTaken() {
         return actionsTaken;
     }
+
 }

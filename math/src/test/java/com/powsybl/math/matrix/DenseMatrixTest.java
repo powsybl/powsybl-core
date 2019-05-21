@@ -58,11 +58,11 @@ public class DenseMatrixTest extends AbstractMatrixTest {
     @Test
     public void testCreateFromColumn() {
         DenseMatrix a = Matrix.createFromColumn(new double[] {1d, 2d, 3d}, matrixFactory).toDense();
-        assertEquals(3, a.getM());
-        assertEquals(1, a.getN());
-        assertEquals(1d, a.getValue(0, 0), 0d);
-        assertEquals(2d, a.getValue(1, 0), 0d);
-        assertEquals(3d, a.getValue(2, 0), 0d);
+        assertEquals(3, a.getRowCount());
+        assertEquals(1, a.getColumnCount());
+        assertEquals(1d, a.get(0, 0), 0d);
+        assertEquals(2d, a.get(1, 0), 0d);
+        assertEquals(3d, a.get(2, 0), 0d);
     }
 
     @Test

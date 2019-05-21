@@ -75,6 +75,13 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             return getVoltageLevelStream().mapToInt(vl -> vl.getBusBreakerView().getSwitchCount()).sum();
         }
 
+        @Override
+        public Bus getBus(String id) {
+            return getVoltageLevelStream().map(vl -> vl.getBusBreakerView().getBus(id))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
+        }
     }
 
     private final BusBreakerViewImpl busBreakerView = new BusBreakerViewImpl();
@@ -95,6 +102,14 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         @Override
         public Collection<Component> getConnectedComponents() {
             return Collections.unmodifiableList(variants.get().connectedComponentsManager.getConnectedComponents());
+        }
+
+        @Override
+        public Bus getBus(String id) {
+            return getVoltageLevelStream().map(vl -> vl.getBusView().getBus(id))
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
         }
 
     }
@@ -171,7 +186,10 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public Set<Country> getCountries() {
-        return getSubstationStream().map(Substation::getCountry).collect(Collectors.toCollection(() -> EnumSet.noneOf(Country.class)));
+        return getSubstationStream()
+                .map(Substation::getCountry)
+                .filter(Optional::isPresent).map(Optional::get)
+                .collect(Collectors.toCollection(() -> EnumSet.noneOf(Country.class)));
     }
 
     @Override
@@ -201,6 +219,11 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
 
     @Override
     public Iterable<Substation> getSubstations(Country country, String tsoId, String... geographicalTags) {
+        return getSubstations(Optional.ofNullable(country).map(Country::getName).orElse(null), tsoId, geographicalTags);
+    }
+
+    @Override
+    public Iterable<Substation> getSubstations(String country, String tsoId, String... geographicalTags) {
         return Substations.filter(getSubstations(), country, tsoId, geographicalTags);
     }
 
@@ -958,8 +981,8 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
             l.q1 = t1.getQ();
             l.p2 = t2.getP();
             l.q2 = t2.getQ();
-            l.country1 = vl1.getSubstation().getCountry();
-            l.country2 = vl2.getSubstation().getCountry();
+            l.country1 = vl1.getSubstation().getCountry().orElse(null);
+            l.country2 = vl2.getSubstation().getCountry().orElse(null);
             lines.add(l);
 
             // remove the 2 dangling lines
@@ -974,6 +997,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
                     mergedLine.id, mergedLine.xnode, mergedLine.country1, mergedLine.country2);
             TieLineAdderImpl la = newTieLine()
                     .setId(mergedLine.id)
+                    .setName(mergedLine.half1.name + " + " + mergedLine.half2.name)
                     .setVoltageLevel1(mergedLine.voltageLevel1)
                     .setVoltageLevel2(mergedLine.voltageLevel2)
                     .line1().setId(mergedLine.half1.id)
