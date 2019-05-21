@@ -41,18 +41,12 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
             targetQ = -f.q();
         }
 
-        RegulatingControlConversion.Data control = RegulatingControlConversion.convert(
-                iidmId(),
-                p,
-                voltageLevel(),
-                context);
-        GeneratorAdder adder = voltageLevel().newGenerator()
-                .setMinP(minP)
+        GeneratorAdder adder = voltageLevel().newGenerator();
+        context.regulatingControlMapping().setRegulatingControl(iidmId(), p, adder, voltageLevel());
+        adder.setMinP(minP)
                 .setMaxP(maxP)
-                .setVoltageRegulatorOn(control.on())
                 .setTargetP(targetP)
                 .setTargetQ(targetQ)
-                .setTargetV(control.targetV())
                 .setEnergySource(fromGeneratingUnitType(generatingUnitType))
                 .setRatedS(ratedS);
         identify(adder);
