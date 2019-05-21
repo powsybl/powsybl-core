@@ -179,21 +179,12 @@ public class AppFileSystemTool implements Tool {
         }
     }
 
-    private List<NodeInfo> getAllInconsistentNodes(AppFileSystem fs, String nodeId) {
-        List<NodeInfo> nodeInfos = fs.getStorage().getInconsistentChildNodes(nodeId);
-        // now get recursively inconsistent nodes of consistent child nodes
-        for (NodeInfo nodeInfo : fs.getStorage().getChildNodes(nodeId)) {
-            nodeInfos.addAll(fs.getStorage().getInconsistentChildNodes(nodeInfo.getId()));
-        }
-        return nodeInfos;
-    }
-
     private void runLsInconsistentNodes(CommandLine line, ToolRunningContext context) {
         try (AppData appData = createAppData(context)) {
             String fileSystemName = line.getOptionValue(LS_INCONSISTENT_NODES);
             if (fileSystemName == null) {
                 for (AppFileSystem afs : appData.getFileSystems()) {
-                    List<NodeInfo> nodeInfos = getAllInconsistentNodes(afs, afs.getRootFolder().getId());
+                    List<NodeInfo> nodeInfos = afs.getStorage().getInconsistentNodes(afs.getRootFolder().getId());
                     if (!nodeInfos.isEmpty()) {
                         context.getOutputStream().println(afs.getName() + ":");
                         nodeInfos.forEach(nodeInfo -> context.getOutputStream().print(nodeInfo.getId() + " "));
@@ -204,7 +195,7 @@ public class AppFileSystemTool implements Tool {
                 if (fs == null) {
                     throw new AfsException(FILE_SYSTEM + fileSystemName + NOT_FOUND);
                 }
-                List<NodeInfo> nodeInfos = getAllInconsistentNodes(fs, fs.getRootFolder().getId());
+                List<NodeInfo> nodeInfos = fs.getStorage().getInconsistentNodes(fs.getRootFolder().getId());
                 if (!nodeInfos.isEmpty()) {
                     context.getOutputStream().println(fileSystemName + ":");
                     nodeInfos.forEach(nodeInfo -> context.getOutputStream().print(nodeInfo.getId() + " "));
@@ -214,7 +205,7 @@ public class AppFileSystemTool implements Tool {
     }
 
     private void printSettedNodes(ToolRunningContext context, AppFileSystem fs, String nodeId) {
-        List<NodeInfo> nodeInfos = getAllInconsistentNodes(fs, fs.getRootFolder().getId());
+        List<NodeInfo> nodeInfos = fs.getStorage().getInconsistentNodes(fs.getRootFolder().getId());
         if (!nodeInfos.isEmpty()) {
             context.getOutputStream().println(fs.getName() + ":");
             if (nodeId == null) {
@@ -260,7 +251,7 @@ public class AppFileSystemTool implements Tool {
     }
 
     private void removeNodes(ToolRunningContext context, AppFileSystem afs, String nodeId) {
-        List<NodeInfo> nodeInfos = getAllInconsistentNodes(afs, afs.getRootFolder().getId());
+        List<NodeInfo> nodeInfos = afs.getStorage().getInconsistentNodes(afs.getRootFolder().getId());
         if (!nodeInfos.isEmpty()) {
             if (nodeId == null) {
                 nodeInfos.forEach(nodeInfo -> afs.getStorage().deleteNode(nodeInfo.getId()));

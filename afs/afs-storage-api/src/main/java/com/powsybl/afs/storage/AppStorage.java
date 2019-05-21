@@ -73,7 +73,7 @@ public interface AppStorage extends AutoCloseable {
     /**
      * Gets {@code NodeInfo} for consistent child nodes of the node with ID {@code nodeId}.
      */
-    default List<NodeInfo> getInconsistentChildNodes(String nodeId) {
+    default List<NodeInfo> getInconsistentNodes(String nodeId) {
         return Collections.emptyList();
     }
 

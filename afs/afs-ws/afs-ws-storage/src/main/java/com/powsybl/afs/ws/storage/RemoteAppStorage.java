@@ -360,10 +360,10 @@ public class RemoteAppStorage implements AppStorage {
     }
 
     @Override
-    public List<NodeInfo> getInconsistentChildNodes(String nodeId) {
+    public List<NodeInfo> getInconsistentNodes(String nodeId) {
         Objects.requireNonNull(nodeId);
 
-        LOGGER.debug("getInconsistentChildNodes(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
+        LOGGER.debug("getInconsistentNodes(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
 
         return getResponse("fileSystems/{fileSystemName}/nodes/{nodeId}/inconsistentChildrenNodes", nodeId);
     }

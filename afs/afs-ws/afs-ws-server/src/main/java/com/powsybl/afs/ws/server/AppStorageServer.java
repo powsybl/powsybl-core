@@ -95,7 +95,7 @@ public class AppStorageServer {
     public Response getInconsistentChildrenNodes(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
                                   @ApiParam(value = "Node ID") @PathParam("nodeId") String nodeId) {
         AppStorage storage = appDataBean.getStorage(fileSystemName);
-        List<NodeInfo> childNodes = storage.getInconsistentChildNodes(nodeId);
+        List<NodeInfo> childNodes = storage.getInconsistentNodes(nodeId);
         return Response.ok().entity(childNodes).build();
     }
 
