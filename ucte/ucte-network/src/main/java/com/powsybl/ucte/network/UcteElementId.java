@@ -12,7 +12,7 @@ import java.util.Objects;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class UcteElementId {
+public class UcteElementId implements Comparable<UcteElementId> {
 
     private final UcteNodeCode nodeCode1;
     private final UcteNodeCode nodeCode2;
@@ -77,4 +77,8 @@ public class UcteElementId {
         return nodeCode1.toString() + " " + nodeCode2.toString() + " " + orderCode;
     }
 
+    @Override
+    public int compareTo(UcteElementId ucteElementId) {
+        return this.toString().compareTo(ucteElementId.toString());
+    }
 }

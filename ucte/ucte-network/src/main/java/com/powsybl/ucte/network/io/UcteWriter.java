@@ -61,9 +61,9 @@ public class UcteWriter {
             }
             nodes.add(node);
         }
+
         nodesByCountry.forEach((ucteCountryCode, ucteNodes) ->
-                ucteNodes.sort((UcteNode ucteNode1, UcteNode ucteNode2) ->
-                ucteNode1.getCode().toString().compareTo(ucteNode2.getCode().toString())));
+                ucteNodes.sort(Comparator.comparing(UcteNode::getCode)));
         for (Map.Entry<UcteCountryCode, List<UcteNode>> entry : nodesByCountry.entrySet()) {
             UcteCountryCode countryCode = entry.getKey();
             List<UcteNode> nodes = entry.getValue();
@@ -103,17 +103,23 @@ public class UcteWriter {
         LOGGER.trace("Writing line block");
         writer.writeString("##L", 0, 3);
         writer.newLine();
-        ArrayList<UcteLine> linesList = new ArrayList<>(network.getLines());
-        linesList.sort((line1, line2) -> line1.getId().toString().compareTo(line2.getId().toString()));
-        for (UcteLine l : linesList) {
-            writeElementId(l.getId(), writer);
-            writer.writeInteger(l.getStatus().getCode(), 20);
-            writer.writeFloat(l.getResistance(), 22, 28);
-            writer.writeFloat(l.getReactance(), 29, 35);
-            writer.writeFloat((float) (l.getSusceptance() / Math.pow(10, -6)), 36, 44);
-            writer.writeInteger(l.getCurrentLimit(), 45, 51);
-            writer.writeString(l.getElementName(), 52, 64);
+        network.getLines().stream().sorted(Comparator.comparing(UcteLine::getId))
+                .forEach(ucteLine -> writeLine(writer, ucteLine));
+
+    }
+
+    private void writeLine(UcteRecordWriter writer, UcteLine ucteLine) {
+        writeElementId(ucteLine.getId(), writer);
+        writer.writeInteger(ucteLine.getStatus().getCode(), 20);
+        writer.writeFloat(ucteLine.getResistance(), 22, 28);
+        writer.writeFloat(ucteLine.getReactance(), 29, 35);
+        writer.writeFloat((float) (ucteLine.getSusceptance() / Math.pow(10, -6)), 36, 44);
+        writer.writeInteger(ucteLine.getCurrentLimit(), 45, 51);
+        writer.writeString(ucteLine.getElementName(), 52, 64);
+        try {
             writer.newLine();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -122,7 +128,7 @@ public class UcteWriter {
         writer.writeString("##T", 0, 3);
         writer.newLine();
         ArrayList<UcteTransformer> transformersList = new ArrayList<>(network.getTransformers());
-        transformersList.sort((transformer1, transformer2) -> transformer1.getId().toString().compareTo(transformer2.getId().toString()));
+        transformersList.sort(Comparator.comparing(UcteTransformer::getId));
         for (UcteTransformer t : transformersList) {
             writeElementId(t.getId(), writer);
             writer.writeInteger(t.getStatus().getCode(), 20);
@@ -159,13 +165,18 @@ public class UcteWriter {
         LOGGER.trace("Writing regulation block");
         writer.writeString("##R", 0, 3);
         writer.newLine();
-        ArrayList<UcteRegulation> regulationsList = new ArrayList<>(network.getRegulations());
-        regulationsList.sort((regulation1, regulation2) -> regulation1.getTransfoId().toString().compareTo(regulation2.getTransfoId().toString()));
-        for (UcteRegulation r : regulationsList) {
-            writeElementId(r.getTransfoId(), writer);
-            writePhaseRegulation(r.getPhaseRegulation(), writer);
-            writeAngleRegulation(r.getAngleRegulation(), writer);
+        network.getRegulations().stream().sorted(Comparator.comparing(UcteRegulation::getTransfoId))
+                .forEach(ucteRegulation -> writeRegulation(writer, ucteRegulation));
+    }
+
+    private void writeRegulation(UcteRecordWriter writer, UcteRegulation ucteRegulation) {
+        writeElementId(ucteRegulation.getTransfoId(), writer);
+        writePhaseRegulation(ucteRegulation.getPhaseRegulation(), writer);
+        writeAngleRegulation(ucteRegulation.getAngleRegulation(), writer);
+        try {
             writer.newLine();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -181,3 +192,4 @@ public class UcteWriter {
     }
 
 }
+

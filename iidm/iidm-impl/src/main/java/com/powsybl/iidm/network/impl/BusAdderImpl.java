@@ -15,7 +15,6 @@ import com.powsybl.iidm.network.BusAdder;
 class BusAdderImpl extends AbstractIdentifiableAdder<BusAdderImpl> implements BusAdder {
 
     private final BusBreakerVoltageLevel voltageLevel;
-    private double voltageReference = Double.NaN;
 
     BusAdderImpl(BusBreakerVoltageLevel voltageLevel) {
         this.voltageLevel = voltageLevel;
@@ -32,16 +31,9 @@ class BusAdderImpl extends AbstractIdentifiableAdder<BusAdderImpl> implements Bu
     }
 
     @Override
-    public BusAdder setV(double v) {
-        voltageReference = v;
-        return this;
-    }
-
-    @Override
     public ConfiguredBus add() {
         String id = checkAndGetUniqueId();
         ConfiguredBusImpl bus = new ConfiguredBusImpl(id, getName(), voltageLevel);
-        bus.setV(voltageReference);
         voltageLevel.addBus(bus);
         getNetwork().getListeners().notifyCreation(bus);
         return bus;

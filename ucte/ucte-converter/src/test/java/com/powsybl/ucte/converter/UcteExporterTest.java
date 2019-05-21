@@ -47,7 +47,6 @@ public class UcteExporterTest {
         dataSource = new ResourceDataSource("exportTest", new ResourceSet("/", "exportTest.uct"));
         exportTestNetwork = new UcteImporter().importData(dataSource, null);
         iidmNetwork = EurostagTutorialExample1Factory.create();
-        iidmNetwork.getLine("NHV1_NHV2_1").getProperties().setProperty(UcteImporter.REFERENCE_VOLTAGE, "15.8");
         iidmNetwork.getLine("NHV1_NHV2_1").getProperties().setProperty(UcteImporter.GEOGRAPHICAL_NAME_PROPERTY_KEY, "geographicalName");
         createTieLineNetwork();
         createNetworkWithSwitch();
@@ -182,14 +181,14 @@ public class UcteExporterTest {
     public void generateUcteElementIdTest() {
         UcteNodeCode ucteNodeCode1 = new UcteNodeCode(UcteCountryCode.AL, "geographicalTest", UcteVoltageLevelCode.VL_110, '1');
         UcteNodeCode ucteNodeCode2 = new UcteNodeCode(UcteCountryCode.AL, "geographical2Test", UcteVoltageLevelCode.VL_150, '2');
-        ucteExporter.generateUcteElementId("testId", ucteNodeCode1, ucteNodeCode2);
-        assertEquals("AgeographicalTest51 Ageographical2Test32 a", ucteExporter.generateUcteElementId("testId", ucteNodeCode1, ucteNodeCode2).toString());
-        assertEquals(ucteExporter.iidmIdToUcteElementId.get("testId"), ucteExporter.generateUcteElementId("testId", ucteNodeCode1, ucteNodeCode2));
-        assertEquals("AgeographicalTest51 Ageographical2Test32 a", ucteExporter.generateUcteElementId("testId", ucteNodeCode1, ucteNodeCode2).toString());
-        ucteExporter.generateUcteElementId("testId2", ucteNodeCode1, ucteNodeCode2);
-        assertEquals("AgeographicalTest51 Ageographical2Test32 b", ucteExporter.generateUcteElementId("testId2", ucteNodeCode1, ucteNodeCode2).toString());
-        assertEquals(ucteExporter.iidmIdToUcteElementId.get("testId"), ucteExporter.generateUcteElementId("testId", ucteNodeCode1, ucteNodeCode2));
-        assertEquals("AgeographicalTest51 Ageographical2Test32 b", ucteExporter.generateUcteElementId("testId2", ucteNodeCode1, ucteNodeCode2).toString());
+        ucteExporter.generateUcteElementId("testId", ucteNodeCode1, ucteNodeCode2, null);
+        assertEquals("AgeographicalTest51 Ageographical2Test32 a", ucteExporter.generateUcteElementId("testId", ucteNodeCode1, ucteNodeCode2, null).toString());
+        assertEquals(ucteExporter.iidmIdToUcteElementId.get("testId"), ucteExporter.generateUcteElementId("testId", ucteNodeCode1, ucteNodeCode2, null));
+        assertEquals("AgeographicalTest51 Ageographical2Test32 a", ucteExporter.generateUcteElementId("testId", ucteNodeCode1, ucteNodeCode2, null).toString());
+        ucteExporter.generateUcteElementId("testId2", ucteNodeCode1, ucteNodeCode2, null);
+        assertEquals("AgeographicalTest51 Ageographical2Test32 b", ucteExporter.generateUcteElementId("testId2", ucteNodeCode1, ucteNodeCode2, null).toString());
+        assertEquals(ucteExporter.iidmIdToUcteElementId.get("testId"), ucteExporter.generateUcteElementId("testId", ucteNodeCode1, ucteNodeCode2, null));
+        assertEquals("AgeographicalTest51 Ageographical2Test32 b", ucteExporter.generateUcteElementId("testId2", ucteNodeCode1, ucteNodeCode2, null).toString());
 
     }
 
@@ -235,14 +234,6 @@ public class UcteExporterTest {
         assertNotEquals("wrong", ucteExporter.getGeographicalNameProperty(iidmNetwork.getLine("NHV1_NHV2_1")));
         assertEquals("", ucteExporter.getGeographicalNameProperty(iidmNetwork.getLine("NHV1_NHV2_2")));
         assertNotEquals("false", ucteExporter.getGeographicalNameProperty(iidmNetwork.getLine("NHV1_NHV2_2")));
-    }
-
-    @Test
-    public void getReferenceVoltagePropertyTest() {
-        assertEquals(15.8, ucteExporter.getReferenceVoltageProperty(iidmNetwork.getLine("NHV1_NHV2_1")), 0.01);
-        assertNotEquals(16, ucteExporter.getReferenceVoltageProperty(iidmNetwork.getLine("NHV1_NHV2_1")), 0.01);
-        assertEquals(Float.NaN, ucteExporter.getReferenceVoltageProperty(iidmNetwork.getLine("NHV1_NHV2_2")), 0.01);
-        assertNotEquals(1, ucteExporter.getReferenceVoltageProperty(iidmNetwork.getLine("NHV1_NHV2_2")), 0.01);
     }
 
     @Test

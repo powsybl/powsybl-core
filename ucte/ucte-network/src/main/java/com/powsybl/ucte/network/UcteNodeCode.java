@@ -18,7 +18,7 @@ import static com.powsybl.ucte.network.UcteVoltageLevelCode.isVoltageLevel;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class UcteNodeCode {
+public class UcteNodeCode implements Comparable<UcteNodeCode> {
 
     private UcteCountryCode ucteCountryCode;
     private String geographicalSpot;
@@ -143,4 +143,8 @@ public class UcteNodeCode {
         return ucteCountryCode.getUcteCode() + Strings.padEnd(geographicalSpot, 5, ' ') + voltageLevelCode.ordinal() + (busbar != null ? busbar : ' ');
     }
 
+    @Override
+    public int compareTo(UcteNodeCode ucteNodeCode) {
+        return this.toString().compareTo(ucteNodeCode.toString());
+    }
 }

@@ -46,9 +46,9 @@ public class UcteImporter implements Importer {
     static final String CURRENT_LIMIT_PROPERTY_KEY = "currentLimit";
     static final String ELEMENT_NAME_PROPERTY_KEY = "elementName";
     static final String GEOGRAPHICAL_NAME_PROPERTY_KEY = "geographicalName";
-    static final String REFERENCE_VOLTAGE = "referenceVoltage";
+    static final String ORDER_CODE = "orderCode";
 
-    static final int DEFAULT_SWICH_MAX_CURRENT = 999999;
+    static final int DEFAULT_MAX_CURRENT = 999999;
 
     private static float getConductance(UcteTransformer ucteTransfo) {
         float g = 0;
@@ -95,7 +95,6 @@ public class UcteImporter implements Importer {
 
             Bus bus = voltageLevel.getBusBreakerView().newBus()
                     .setId(ucteNodeCode.toString())
-                    .setV(ucteNode.getVoltageReference())
                     .add();
 
             addGeographicalNameProperty(ucteNode, bus);
@@ -335,7 +334,6 @@ public class UcteImporter implements Importer {
 
         addElementNameProperty(ucteLine, dl);
         addGeographicalNameProperty(xnode, dl);
-        addReferenceVoltageProperty(xnode, dl);
     }
 
     private static void createCoupler(UcteNetworkExt ucteNetwork, Network network,
@@ -370,6 +368,7 @@ public class UcteImporter implements Importer {
                     .add();
 
             addCurrentLimitProperty(ucteLine, couplerSwitch);
+            addOrderCodeProperty(ucteLine, couplerSwitch);
             addElementNameProperty(ucteLine, couplerSwitch);
         }
     }
@@ -393,6 +392,7 @@ public class UcteImporter implements Importer {
                 .add();
 
         addCurrentLimitProperty(ucteLine, couplerSwitch);
+        addOrderCodeProperty(ucteLine, couplerSwitch);
         addElementNameProperty(ucteLine, couplerSwitch);
     }
 
@@ -780,15 +780,9 @@ public class UcteImporter implements Importer {
         }
     }
 
-    private static void addElementNameProperty(UcteLine ucteLine, Identifiable identifiable) {
-        if (ucteLine.getElementName() != null) {
-            identifiable.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteLine.getElementName());
-        }
-    }
-
-    private static void addElementNameProperty(UcteTransformer ucteTransfo, Identifiable identifiable) {
-        if (ucteTransfo.getElementName() != null) {
-            identifiable.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteTransfo.getElementName());
+    private static void addElementNameProperty(UcteElement ucteElement, Identifiable identifiable) {
+        if (ucteElement.getElementName() != null) {
+            identifiable.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteElement.getElementName());
         }
     }
 
@@ -819,23 +813,8 @@ public class UcteImporter implements Importer {
         }
     }
 
-    private static void addReferenceVoltageProperty(UcteNetwork ucteNetwork, TieLine tieLine, DanglingLine dl1, DanglingLine dl2) {
-        Optional<UcteNodeCode> optUcteNodeCode1 = UcteNodeCode.parseUcteNodeCode(dl1.getUcteXnodeCode());
-        Optional<UcteNodeCode> optUcteNodeCode2 = UcteNodeCode.parseUcteNodeCode(dl2.getUcteXnodeCode());
-
-        if (optUcteNodeCode1.isPresent()) {
-            UcteNode ucteNode = ucteNetwork.getNode(optUcteNodeCode1.get());
-            tieLine.getProperties().setProperty(REFERENCE_VOLTAGE, String.valueOf(ucteNode.getVoltageReference()));
-        }
-
-        if (optUcteNodeCode2.isPresent()) {
-            UcteNode ucteNode = ucteNetwork.getNode(optUcteNodeCode2.get());
-            tieLine.getProperties().setProperty(REFERENCE_VOLTAGE, String.valueOf(ucteNode.getVoltageReference()));
-        }
-    }
-
-    private static void addReferenceVoltageProperty(UcteNode ucteNode, Identifiable identifiable) {
-        identifiable.getProperties().setProperty(REFERENCE_VOLTAGE, String.valueOf(ucteNode.getVoltageReference()));
+    private static void addOrderCodeProperty(UcteLine ucteLine, Switch sw) {
+        sw.getProperties().setProperty(ORDER_CODE, String.valueOf(ucteLine.getId().toString().charAt(ucteLine.getId().toString().length() - 1)));
     }
 
     @Override
@@ -934,7 +913,6 @@ public class UcteImporter implements Importer {
 
                 addElementNameProperty(mergeLine, dl1, dl2);
                 addGeographicalNameProperty(ucteNetwork, mergeLine, dl1, dl2);
-                addReferenceVoltageProperty(ucteNetwork, mergeLine, dl1, dl2);
 
                 if (dl1.getCurrentLimits() != null) {
                     mergeLine.newCurrentLimits1()
