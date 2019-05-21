@@ -44,8 +44,11 @@ done
 options+=" -Dpowsybl.config.dirs=$powsybl_config_dirs"
 [ -n "$powsybl_config_name" ] && options+=" -Dpowsybl.config.name=$powsybl_config_name"
 options+=" -Dlogback.configurationFile="
-[ -f "$powsybl_config_dirs/logback-itools.xml" ] && options+="$powsybl_config_dirs" || options+="$installDir/etc"
-options+="/logback-itools.xml"
+logFile="$installDir/etc/logback-itools.xml"
+for dir in ${powsybl_config_dirs//:/ }; do
+    [ -f "$dir/logback-itools.xml" ] && logFile="$dir/logback-itools.xml"
+done
+options+="$logFile"
 [ -z "$java_xmx" ] && java_xmx=8G
 
 if $parallel ; then
