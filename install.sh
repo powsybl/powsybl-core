@@ -11,6 +11,7 @@ sourceDir=$(dirname $(readlink -f $0))
 ## install default settings
 ###############################################################################
 powsybl_prefix=$HOME/powsybl
+powsybl_cpp=true
 
 thirdparty_build=true
 thirdparty_prefix=$HOME/powsybl_thirdparty
@@ -50,6 +51,7 @@ usage() {
     echo "Options:"
     echo "  --help                   Display this help"
     echo "  --prefix                 Set the installation directory (default is $HOME/powsybl)"
+    echo "  --without-cpp            Disable C++ modules compilation"
     echo ""
     echo "Thirdparty options:"
     echo "  --with-thirdparty        Enable the compilation of thirdparty libraries (default)"
@@ -92,6 +94,7 @@ writeEmptyLine() {
 writeSettings() {
     writeComment " -- Global options --"
     writeSetting "powsybl_prefix" ${powsybl_prefix}
+    writeSetting "powsybl_cpp" ${powsybl_cpp}
 
     writeEmptyLine
 
@@ -109,7 +112,7 @@ writeSettings() {
 ###############################################################################
 buildthirdparty()
 {
-    if [[ $thirdparty_clean = true || $powsybl_compile = true ]]; then
+    if [[ ($powsybl_cpp = true) && ($thirdparty_clean = true || $powsybl_compile = true) ]]; then
         echo "** C++ thirdparty libraries"
 
         if [ $thirdparty_clean = true ]; then
@@ -136,7 +139,7 @@ buildthirdparty()
 ###############################################################################
 powsybl_cpp()
 {
-    if [[ $powsybl_clean = true || $powsybl_compile = true || $powsybl_docs = true ]]; then
+    if [[ ($powsybl_cpp = true) && ($powsybl_clean = true || $powsybl_compile = true || $powsybl_docs = true) ]]; then
         echo "** C++ modules"
 
         powsybl_builddir=$sourceDir/build
@@ -201,7 +204,7 @@ powsybl_install()
 
 ## Parse command line
 ###############################################################################
-powsybl_options="prefix:"
+powsybl_options="prefix:,without-cpp"
 thirdparty_options="with-thirdparty,without-thirdparty,thirdparty-prefix:,thirdparty-download,thirdparty-packs:"
 
 opts=`getopt -o '' --long "help,$powsybl_options,$thirdparty_options" -n 'install.sh' -- "$@"`
@@ -210,6 +213,7 @@ while true; do
     case "$1" in
         # Options
         --prefix) powsybl_prefix=$2 ; shift 2 ;;
+        --without-cpp) powsybl_cpp=false ; shift ;;
 
         # Third-party options
         --with-thirdparty) thirdparty_build=true ; shift ;;
