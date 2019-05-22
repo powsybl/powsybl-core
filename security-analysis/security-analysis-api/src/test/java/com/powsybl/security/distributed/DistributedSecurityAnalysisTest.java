@@ -54,10 +54,6 @@ public class DistributedSecurityAnalysisTest {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         workingDir = fileSystem.getPath("/working-dir");
         Files.createDirectory(workingDir);
-
-        cm = mock(ComputationManager.class);
-        EurostagTutorialExample1Factory.create();
-        contingencies = newContingenciesProvider();
     }
 
     @After

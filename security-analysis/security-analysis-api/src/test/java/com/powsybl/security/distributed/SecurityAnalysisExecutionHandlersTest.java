@@ -11,10 +11,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteSource;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
-import com.powsybl.computation.CommandExecution;
-import com.powsybl.computation.DefaultExecutionReport;
-import com.powsybl.computation.ExecutionHandler;
-import com.powsybl.computation.SimpleCommand;
+import com.powsybl.computation.*;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.VariantManagerConstants;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -267,13 +264,6 @@ public class SecurityAnalysisExecutionHandlersTest {
     @Test
     public void distributedAfterWithLogs() throws IOException {
         JsonSecurityAnalysisResultExporter exporter = new JsonSecurityAnalysisResultExporter();
-        try (Writer writer = Files.newBufferedWriter(workingDir.resolve("task_0_result.json"))) {
-            exporter.export(resultForContingency("c1"), writer);
-        }
-
-        try (Writer writer = Files.newBufferedWriter(workingDir.resolve("task_1_result.json"))) {
-            exporter.export(resultForContingency("c2"), writer);
-        }
 
         Set<String> expectedLogs = ImmutableSet.of("logs_0.zip",
                 "security-analysis-task_0.out",
@@ -286,6 +276,24 @@ public class SecurityAnalysisExecutionHandlersTest {
         }
 
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
+        ExecutionHandler<SecurityAnalysisResultWithLog> handler2 = SecurityAnalysisExecutionHandlers.distributedWithLog(input, 2);
+        try {
+            handler2.after(workingDir, new DefaultExecutionReport());
+            fail();
+        } catch (ComputationException ce) {
+            assertEquals("logs", ce.getErrLogs().get("security-analysis-task_0.err"));
+            assertEquals("logs", ce.getErrLogs().get("security-analysis-task_1.err"));
+            assertEquals("logs", ce.getOutLogs().get("security-analysis-task_0.out"));
+            assertEquals("logs", ce.getOutLogs().get("security-analysis-task_1.out"));
+        }
+
+        try (Writer writer = Files.newBufferedWriter(workingDir.resolve("task_0_result.json"))) {
+            exporter.export(resultForContingency("c1"), writer);
+        }
+
+        try (Writer writer = Files.newBufferedWriter(workingDir.resolve("task_1_result.json"))) {
+            exporter.export(resultForContingency("c2"), writer);
+        }
         ExecutionHandler<SecurityAnalysisResultWithLog> handler = SecurityAnalysisExecutionHandlers.distributedWithLog(input, 2);
 
         SecurityAnalysisResultWithLog resultWithLog = handler.after(workingDir, new DefaultExecutionReport());
@@ -307,9 +315,6 @@ public class SecurityAnalysisExecutionHandlersTest {
     @Test
     public void forwardedAfterWithLogs() throws IOException {
         JsonSecurityAnalysisResultExporter exporter = new JsonSecurityAnalysisResultExporter();
-        try (Writer writer = Files.newBufferedWriter(workingDir.resolve("result.json"))) {
-            exporter.export(resultForContingency("c1"), writer);
-        }
 
         Set<String> expectedLogs = ImmutableSet.of("logs.zip",
                 "security-analysis.out",
@@ -320,8 +325,21 @@ public class SecurityAnalysisExecutionHandlersTest {
         }
 
         SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
+
+        ExecutionHandler<SecurityAnalysisResultWithLog> handler2 = SecurityAnalysisExecutionHandlers.forwardedWithLogs(input, 2);
+        try {
+            SecurityAnalysisResultWithLog after = handler2.after(workingDir, new DefaultExecutionReport());
+            fail();
+        } catch (ComputationException ce) {
+            assertEquals("logs", ce.getErrLogs().get("security-analysis.err"));
+            assertEquals("logs", ce.getOutLogs().get("security-analysis.out"));
+        }
+
         ExecutionHandler<SecurityAnalysisResultWithLog> handler = SecurityAnalysisExecutionHandlers.forwardedWithLogs(input, 2);
 
+        try (Writer writer = Files.newBufferedWriter(workingDir.resolve("result.json"))) {
+            exporter.export(resultForContingency("c1"), writer);
+        }
         SecurityAnalysisResultWithLog resultWithLog = handler.after(workingDir, new DefaultExecutionReport());
         SecurityAnalysisResult result = resultWithLog.getResult();
 
