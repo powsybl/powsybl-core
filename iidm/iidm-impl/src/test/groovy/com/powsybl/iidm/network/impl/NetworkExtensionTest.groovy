@@ -64,4 +64,3 @@ class NetworkExtensionTest {
         assertEquals(6, network.getShunt("SHUNT").getCurrentSectionCount())
     }
 }
-
