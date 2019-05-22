@@ -110,6 +110,11 @@ public class LocalAppStorage implements AppStorage {
         return false;
     }
 
+    @Override
+    public boolean isLocalSystem() {
+        return true;
+    }
+
     private Path nodeIdToPath(String nodeId) {
         Objects.requireNonNull(nodeId);
         try {

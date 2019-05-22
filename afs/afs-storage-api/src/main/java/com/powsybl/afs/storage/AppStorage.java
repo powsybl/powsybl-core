@@ -32,6 +32,10 @@ public interface AppStorage extends AutoCloseable {
 
     boolean isRemote();
 
+    default boolean isLocalSystem() {
+        return false;
+    }
+
     /**
      * Returns the root node of the tree, creating it if it does not exist.
      */

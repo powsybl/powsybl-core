@@ -170,4 +170,8 @@ public abstract class AbstractNodeBase<F> {
         }
         return childNodes.stream().filter(nodeInfo -> !nodeInfo.getId().equals(getId())).anyMatch(nodeInfo -> nodeInfo.getName().equals(name));
     }
+
+    public boolean isLocal() {
+        return storage.isLocalSystem();
+    }
 }
