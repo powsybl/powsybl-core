@@ -40,17 +40,22 @@ for ((i=0; i<${#args[@]}; i++)); do
     esac
 done
 
+options=()
 [ -n "$powsybl_config_dirs" ] || powsybl_config_dirs="$installDir/etc:${HOME}/.itools"
-options+=" -Dpowsybl.config.dirs=$powsybl_config_dirs"
-[ -n "$powsybl_config_name" ] && options+=" -Dpowsybl.config.name=$powsybl_config_name"
-options+=" -Dlogback.configurationFile="
+options+=(' -Dpowsybl.config.dirs=$powsybl_config_dirs')
+[ -n "$powsybl_config_name" ] && options+=(' -Dpowsybl.config.name=$powsybl_config_name')
+
 logFile="$installDir/etc/logback-itools.xml"
-for dir in ${powsybl_config_dirs//:/ }; do
+separator=$IFS
+IFS=':'
+read -ra list <<< "$powsybl_config_dirs"
+for dir in "${list[@]}"; do
     [ -f "$dir/logback-itools.xml" ] && logFile="$dir/logback-itools.xml"
 done
-options+="$logFile"
-[ -z "$java_xmx" ] && java_xmx=8G
+IFS=$separator
+options+=(' -Dlogback.configurationFile=$logFile')
 
+[ -z "$java_xmx" ] && java_xmx=8G
 if $parallel ; then
     # check mpirun is in the path
     [[ $(type -P mpirun) ]] ||  { echo "mpirun is not in the path" 1>&2; exit 1; }
