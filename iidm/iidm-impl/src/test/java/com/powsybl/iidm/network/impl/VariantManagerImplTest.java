@@ -18,6 +18,7 @@ import org.junit.Test;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.*;
 
@@ -322,5 +323,30 @@ public class VariantManagerImplTest {
         manager.cloneVariant(variante1, VariantManagerConstants.INITIAL_VARIANT_ID, true);
         manager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertEquals(605.0, generator.getTargetP(), 0.0);
+    }
+
+    @Test
+    public void testMultipleSetAllowMultiThreadTrue() throws Exception {
+        NetworkIndex index = new NetworkIndex();
+        VariantManager variantManager = new VariantManagerImpl(index);
+        variantManager.allowVariantMultiThreadAccess(true);
+        CountDownLatch cdl1 = new CountDownLatch(1);
+        Exception[] exceptionThrown = new Exception[1];
+        (new Thread() {
+            public void run() {
+                try {
+                    variantManager.allowVariantMultiThreadAccess(true);
+                    exceptionThrown[0] = null;
+                } catch (Exception e) {
+                    exceptionThrown[0] = e;
+                } finally {
+                    cdl1.countDown();
+                }
+            }
+        }).start();
+        cdl1.await();
+        if (exceptionThrown[0] != null) {
+            throw new AssertionError(exceptionThrown[0]);
+        }
     }
 }
