@@ -30,6 +30,12 @@ public interface Substation extends Container<Substation> {
      */
     Optional<Country> getCountry();
 
+    /**
+     * Get country to which the substation belongs if it is defined, null otherwise.
+     * @return the country to which the substation belongs if it is defined, null otherwise.
+     */
+    Country getNullableCountry();
+
     Substation setCountry(Country country);
 
     /**
