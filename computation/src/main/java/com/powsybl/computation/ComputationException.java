@@ -48,7 +48,7 @@ public class ComputationException extends PowsyblException {
         return addErrLog(path.getFileName().toString(), readFile(path));
     }
 
-    private String readFile(Path path) {
+    private static String readFile(Path path) {
         try (BufferedReader br = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
             StringBuilder content = new StringBuilder();
             String line;
@@ -88,6 +88,7 @@ public class ComputationException extends PowsyblException {
     }
 
     public ComputationException addException(Exception e) {
+        Objects.requireNonNull(e);
         exceptions.add(e);
         return this;
     }

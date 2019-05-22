@@ -20,6 +20,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
@@ -45,7 +46,7 @@ public class ComputationExceptionTest {
                 w2.write("bar");
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            fail();
         }
     }
 
@@ -63,7 +64,6 @@ public class ComputationExceptionTest {
                 .addErrLog("err", "errLog");
         assertEquals("outLog", sut.getOutLogs().get("out"));
         assertEquals("errLog", sut.getErrLogs().get("err"));
-
     }
 
     @After
