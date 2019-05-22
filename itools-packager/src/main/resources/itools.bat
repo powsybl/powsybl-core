@@ -54,9 +54,9 @@ if not "%powsybl_config_name%" == "" ( set options=%options% -Dpowsybl.config.na
 
 set options=%options% -Dlogback.configurationFile="
 set logFile=%installDir%\etc\logback-itools.xml
-for %%dir in ("%powsybl_config_dirs:;=";"%") do (
-    if exist %dir%\logback-itools.xml (
-        set logFile=%dir%\logback-itools.xml
+for %%G in ("%powsybl_config_dirs:;=";"%") do (
+    if exist %%G\logback-itools.xml (
+        set logFile=%%G\logback-itools.xml
     )
 )
 set options=%options%%logFile%"
