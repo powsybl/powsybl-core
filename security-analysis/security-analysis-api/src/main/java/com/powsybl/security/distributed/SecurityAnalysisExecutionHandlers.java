@@ -8,6 +8,7 @@ package com.powsybl.security.distributed;
 
 import com.google.common.base.Preconditions;
 import com.powsybl.commons.compress.ZipHelper;
+import com.powsybl.computation.ComputationException;
 import com.powsybl.computation.ExecutionHandler;
 import com.powsybl.computation.Partition;
 import com.powsybl.security.SecurityAnalysisResult;
@@ -110,13 +111,22 @@ public final class SecurityAnalysisExecutionHandlers {
     }
 
     public static SecurityAnalysisResultWithLog readSingleResultWithLogs(Path workingDir) {
-        SecurityAnalysisResult re = readSingleResult(workingDir);
-        List<String> collectedLogsFilename = new ArrayList<>();
-        collectedLogsFilename.add(workingDir.relativize(getLogPath(workingDir)).toString()); // logs_IDX.zip
-        collectedLogsFilename.add(SA_CMD_ID + ".out");
-        collectedLogsFilename.add(SA_CMD_ID + ".err");
-        byte[] logBytes = ZipHelper.archiveFilesToZipBytes(workingDir, collectedLogsFilename);
-        return new SecurityAnalysisResultWithLog(re, logBytes);
+        try {
+            SecurityAnalysisResult re = readSingleResult(workingDir); // throws UncheckedIOException
+            List<String> collectedLogsFilename = new ArrayList<>();
+            collectedLogsFilename.add(workingDir.relativize(getLogPath(workingDir)).toString()); // logs_IDX.zip
+            collectedLogsFilename.add(SA_CMD_ID + ".out");
+            collectedLogsFilename.add(SA_CMD_ID + ".err");
+            byte[] logBytes = ZipHelper.archiveFilesToZipBytes(workingDir, collectedLogsFilename);
+            return new SecurityAnalysisResultWithLog(re, logBytes);
+        } catch (Exception e) {
+            ComputationException ce = new ComputationException(e);
+            String outLogName = SA_CMD_ID + ".out";
+            String errLogName = SA_CMD_ID + ".err";
+            ce.addOutLog(workingDir.resolve(outLogName))
+                    .addErrLog(workingDir.resolve(errLogName));
+            throw ce;
+        }
     }
 
     public static void forwardedOptions(Path workingDir, SecurityAnalysisCommandOptions options, Integer taskCount) {
@@ -155,15 +165,30 @@ public final class SecurityAnalysisExecutionHandlers {
     }
 
     public static SecurityAnalysisResultWithLog readResultsWithLogs(Path workingDir, int subtaskCount) {
-        SecurityAnalysisResult re = readResults(workingDir, subtaskCount);
-        List<String> collectedLogsFilename = new ArrayList<>();
-        for (int i = 0; i < subtaskCount; i++) {
-            collectedLogsFilename.add(workingDir.relativize(getLogPathForTask(workingDir, i)).toString()); // logs_IDX.zip
-            collectedLogsFilename.add(SA_TASK_CMD_ID + "_" + i + ".out");
-            collectedLogsFilename.add(SA_TASK_CMD_ID + "_" + i + ".err");
+        try {
+            SecurityAnalysisResult re = readResults(workingDir, subtaskCount);
+            List<String> collectedLogsFilename = new ArrayList<>();
+            for (int i = 0; i < subtaskCount; i++) {
+                collectedLogsFilename.add(workingDir.relativize(getLogPathForTask(workingDir, i)).toString()); // logs_IDX.zip
+                collectedLogsFilename.add(SA_TASK_CMD_ID + "_" + i + ".out");
+                collectedLogsFilename.add(SA_TASK_CMD_ID + "_" + i + ".err");
+            }
+            byte[] logBytes = ZipHelper.archiveFilesToZipBytes(workingDir, collectedLogsFilename);
+            return new SecurityAnalysisResultWithLog(re, logBytes);
+        } catch (Exception e) {
+            throw generateExceptionWithLogs(e, workingDir, subtaskCount);
         }
-        byte[] logBytes = ZipHelper.archiveFilesToZipBytes(workingDir, collectedLogsFilename);
-        return new SecurityAnalysisResultWithLog(re, logBytes);
+    }
+
+    private static ComputationException generateExceptionWithLogs(Exception causedBy, Path workingDir, int count) {
+        ComputationException computationException = new ComputationException(causedBy);
+        IntStream.range(0, count).forEach(i -> {
+            String outLogName = SA_TASK_CMD_ID + "_" + i + ".out";
+            String errLogName = SA_TASK_CMD_ID + "_" + i + ".err";
+            computationException.addOutLog(workingDir.resolve(outLogName))
+                    .addErrLog(workingDir.resolve(errLogName));
+        });
+        return computationException;
     }
 
     public static Path getLogPathForTask(Path workingDir, int taskNumber) {

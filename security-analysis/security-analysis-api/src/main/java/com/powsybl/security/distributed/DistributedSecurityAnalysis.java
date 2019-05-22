@@ -65,7 +65,8 @@ public class DistributedSecurityAnalysis extends ExternalSecurityAnalysis {
 
         List<Contingency> contingencies = contingenciesProvider.getContingencies(network);
         int actualTaskCount = Math.min(taskCount, Math.max(1, contingencies.size()));
-        return computationManager.execute(itoolsEnv,
+        CompletableFuture<SecurityAnalysisResultWithLog> execute = computationManager.execute(itoolsEnv,
                 SecurityAnalysisExecutionHandlers.distributedWithLog(input, actualTaskCount));
+        return execute;
     }
 }

@@ -7,6 +7,7 @@
 package com.powsybl.security.distributed;
 
 import com.google.common.io.ByteSource;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.*;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXml;
@@ -100,9 +101,18 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
      */
     @Override
     public R after(Path workingDir, ExecutionReport report) throws IOException {
-        super.after(workingDir, report);
-        LOGGER.debug("End of command execution in {}. ", workingDir);
-        return reader.read(workingDir);
+        try {
+            R r = reader.read(workingDir); // throw ComputationException
+            LOGGER.debug("End of command execution in {}. ", workingDir);
+            return r;
+        } catch (ComputationException e) {
+            try {
+                super.after(workingDir, report); // throw PowsybleException
+            } catch (PowsyblException pe) {
+                e.addException(pe);
+            }
+            throw e;
+        }
     }
 
     /**
