@@ -57,7 +57,7 @@ public class Project extends File {
         }
     }
 
-    public ProjectFolder createProjectFolder(NodeInfo nodeInfo) {
+    ProjectFolder createProjectFolder(NodeInfo nodeInfo) {
         Objects.requireNonNull(nodeInfo);
         return new ProjectFolder(new ProjectFileCreationContext(nodeInfo, storage, this));
     }
