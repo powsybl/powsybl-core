@@ -100,7 +100,6 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-afs-network-server</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -125,14 +124,12 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-afs-ws-server</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-afs-ws-server-utils</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -343,14 +340,12 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-triple-store-impl-jena</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-triple-store-impl-blazegraph</artifactId>
             <version>${project.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
