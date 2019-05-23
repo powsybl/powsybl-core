@@ -23,6 +23,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.java2d.pipe.hw.AccelDeviceEventNotifier;
 
 
 /**
@@ -43,7 +44,12 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
 
     public DefaultListenableAppStorage(AppStorage storage) {
         super(storage);
-        eventStore = new EventStore();
+        eventStore = new KafKaEventStore();
+    }
+
+    public DefaultListenableAppStorage(AppStorage storage, EventStore eventStore) {
+        super(storage);
+        this.eventStore = eventStore;
     }
 
     private void addEvent(NodeEvent event) {
@@ -53,7 +59,7 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
         } finally {
             lock.unlock();
         }
-        eventStore.addEvent(event, super.getFileSystemName());
+        eventStore.pushEvent(event, super.getFileSystemName());
     }
 
     @Override

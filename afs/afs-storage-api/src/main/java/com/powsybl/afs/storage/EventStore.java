@@ -1,55 +1,18 @@
-package com.powsybl.afs.storage;
-
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.KafkaHeaders;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.stereotype.Service;
-
+package com.powsybl.afs.storage; /**
+ * Copyright (c) 2019, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 import com.powsybl.afs.storage.events.NodeEvent;
 
-public class EventStore {
+/**
+ * An event store
+ *
+ * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
+ */
+public interface EventStore {
+    public void pushEvent(NodeEvent event, String fileSystem);
 
-    private KafkaTemplate<Object, Object> template;
-
-    public void addEvent(NodeEvent event, String fileSystem) {
-        if (this.template == null) {
-            this.template = BeanUtil.getBean(KafkaTemplate.class);
-        }
-        if (this.template != null) {
-            Message<NodeEvent> message = MessageBuilder
-                .withPayload(event)
-                .setHeader(KafkaHeaders.TOPIC, "nodeEvent")
-                .setHeader(KafkaHeaders.MESSAGE_KEY, "999")
-                .setHeader(KafkaHeaders.PARTITION_ID, 0)
-                .setHeader("X-Custom-Header", "Sending Custom Header with Imagrid")
-                .setHeader("X-Event", NodeEvent.class.getName())
-                .setHeader("X-Path", "fileSystems")
-                .setHeader("X-FileSystemName", fileSystem)
-                .build();
-            this.template.send(message);
-            this.template.flush();
-        }
-    }
-}
-
-@Service
-class BeanUtil implements ApplicationContextAware {
-    private static ApplicationContext context;
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        context = applicationContext;
-    }
-
-    public static <T> T getBean(Class<T> beanClass) {
-        if (context == null) {
-            return null;
-        }
-        return context.getBean(beanClass);
-    }
+    public void addTopic() ;
 }
