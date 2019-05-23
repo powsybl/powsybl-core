@@ -57,6 +57,19 @@ public interface VariantManager {
     void cloneVariant(String sourceVariantId, List<String> targetVariantIds);
 
     /**
+     * Create or overwrite a variant by cloning an existing one.
+     *
+     * @param sourceVariantId the source variant id
+     * @param targetVariantIds the target variant id list (the ones that will be created/overwritten)
+     * @param mayOverwrite indicates if the target can be overwritten when it already exists
+     * @throws com.powsybl.commons.PowsyblException
+     *                       if a variant with an id of targetVariantIds already exists and
+     *                       the mayOverwrite parameter is set to {@code false}
+     */
+    void cloneVariant(String sourceVariantId, List<String> targetVariantIds, boolean mayOverwrite);
+
+
+    /**
      * Create a new variant by cloning an existing one.
      *
      * @param sourceVariantId the source variant id
@@ -66,6 +79,18 @@ public interface VariantManager {
      *                         the id targetVariantId already exists
      */
     void cloneVariant(String sourceVariantId, String targetVariantId);
+
+    /**
+     * Create or overwrite a variant by cloning an existing one.
+     *
+     * @param sourceVariantId the source variant id
+     * @param targetVariantId the target variant id list (the one that will be created/overwritten)
+     * @param mayOverwrite indicates if the target can be overwritten when it already exists
+     * @throws com.powsybl.commons.PowsyblException
+     *      *                         if a variant with the id of targetVariantId already exists and
+     *      *                         the mayOverwrite parameter is set to {@code false}
+     */
+    void cloneVariant(String sourceVariantId, String targetVariantId, boolean mayOverwrite);
 
     /**
      * Remove a variant.
