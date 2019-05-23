@@ -14,5 +14,5 @@ import com.powsybl.afs.storage.events.NodeEvent;
 public interface EventStore {
     public void pushEvent(NodeEvent event, String fileSystem);
 
-    public void addTopic() ;
+    public void addTopic();
 }
