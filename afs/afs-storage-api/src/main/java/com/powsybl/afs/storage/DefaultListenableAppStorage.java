@@ -39,14 +39,14 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
 
     private final Lock lock = new ReentrantLock();
 
-    private EventStore eventStore;
+    private EventsStore eventStore;
 
     public DefaultListenableAppStorage(AppStorage storage) {
         super(storage);
-        eventStore = new KafKaEventStore();
+        eventStore = new KafKaEventsStore();
     }
 
-    public DefaultListenableAppStorage(AppStorage storage, EventStore eventStore) {
+    public DefaultListenableAppStorage(AppStorage storage, EventsStore eventStore) {
         super(storage);
         this.eventStore = eventStore;
     }
