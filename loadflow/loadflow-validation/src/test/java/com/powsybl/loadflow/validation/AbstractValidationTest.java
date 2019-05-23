@@ -6,14 +6,32 @@
  */
 package com.powsybl.loadflow.validation;
 
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
+import org.junit.After;
+import org.junit.Before;
+import org.mockito.Mockito;
+
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 /**
  *
  * @author Massimo Ferraro <massimo.ferraro@techrain.eu>
  */
 public abstract class AbstractValidationTest {
+
+    private FileSystem fileSystem;
+
+    protected Path tmpDir;
+    protected Path data;
+
+    protected final TableFormatterConfig formatterConfig = Mockito.mock(TableFormatterConfig.class);
 
     protected final ValidationConfig looseConfig = new ValidationConfig(0.1, true, LoadFlowFactoryMock.class, ValidationConfig.TABLE_FORMATTER_FACTORY_DEFAULT,
                                                                         ValidationConfig.EPSILON_X_DEFAULT, ValidationConfig.APPLY_REACTANCE_CORRECTION_DEFAULT,
@@ -26,4 +44,15 @@ public abstract class AbstractValidationTest {
                                                                          ValidationConfig.NO_REQUIREMENT_IF_REACTIVE_BOUND_INVERSION_DEFAULT, ValidationConfig.COMPARE_RESULTS_DEFAULT,
                                                                          ValidationConfig.CHECK_MAIN_COMPONENT_ONLY_DEFAULT, ValidationConfig.NO_REQUIREMENT_IF_SETPOINT_OUTSIDE_POWERS_BOUNDS);
 
+    @Before
+    public void setUp() throws IOException {
+        fileSystem = Jimfs.newFileSystem(Configuration.unix());
+        tmpDir = Files.createDirectories(fileSystem.getPath("tmp"));
+        data = tmpDir.resolve("data");
+    }
+
+    @After
+    public void tearDown() throws IOException {
+        fileSystem.close();
+    }
 }

@@ -9,10 +9,7 @@ package com.powsybl.iidm.network.util;
 
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.io.table.AbstractTableFormatter;
-import com.powsybl.commons.io.table.AsciiTableFormatter;
-import com.powsybl.commons.io.table.Column;
-import com.powsybl.commons.io.table.HorizontalAlignment;
+import com.powsybl.commons.io.table.*;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 
@@ -108,6 +105,10 @@ public final class Networks {
     }
 
     public static void printBalanceSummary(String title, Network network, Writer writer) throws IOException {
+        printBalanceSummary(title, network, TableFormatterConfig.load(), writer);
+    }
+
+    public static void printBalanceSummary(String title, Network network, TableFormatterConfig formatterConfig, Writer writer) throws IOException {
         Objects.requireNonNull(title);
         Objects.requireNonNull(network);
         Objects.requireNonNull(writer);
@@ -121,7 +122,7 @@ public final class Networks {
         addGenerators(network, balanceMainCC, balanceOtherCC);
         addShuntCompensators(network, balanceMainCC, balanceOtherCC);
 
-        logOtherCC(writer, title, () -> writeInTable(balanceMainCC, balanceOtherCC), balanceOtherCC);
+        logOtherCC(writer, title, () -> writeInTable(balanceMainCC, balanceOtherCC, formatterConfig), balanceOtherCC);
     }
 
     private static void addBuses(Network network, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
@@ -255,9 +256,9 @@ public final class Networks {
         }
     }
 
-    private static String writeInTable(ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
+    private static String writeInTable(ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC, TableFormatterConfig formatterConfig) {
         Writer writer = new StringWriter();
-        try (AbstractTableFormatter formatter = new AsciiTableFormatter(writer, null,
+        try (AbstractTableFormatter formatter = new AsciiTableFormatter(writer, null, formatterConfig,
                 new Column("")
                         .setTitleHorizontalAlignment(HorizontalAlignment.CENTER),
                 new Column("Main CC connected/disconnected")

@@ -424,18 +424,7 @@ WHERE {
              cim:TapChanger.TapChangerControl ?TapChangerControl ;
              cim:TapChanger.ltcFlag ?ltcFlag ;
              # ??? FIXME what is the difference between tculControlMode and TapChangerControl RegulatingControl.mode ?
-             cim:RatioTapChanger.tculControlMode ?tculControlMode .
-        ?TapChangerControl
-             cim:RegulatingControl.mode ?regulatingControlMode ;
-             cim:RegulatingControl.Terminal ?RegulatingControlTerminal .
-        OPTIONAL { GRAPH ?graphSSH {
-            ?TapChangerControl
-                cim:RegulatingControl.enabled ?regulatingControlEnabled ;
-                cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;
-                cim:RegulatingControl.targetDeadband ?regulatingControlTargetDeadband ;
-                cim:RegulatingControl.targetValueUnitMultiplier ?regulatingControlTargetValueUnitMultiplier ;
-                cim:RegulatingControl.discrete ?regulatingControlDiscrete .
-        }}
+             cim:RatioTapChanger.tculControlMode ?tculControlMode
     }
     OPTIONAL {
     	?RatioTapChanger cim:RatioTapChanger.RatioTapChangerTable ?RatioTapChangerTable 
@@ -514,20 +503,7 @@ WHERE {
     OPTIONAL {
         ?PhaseTapChanger
             cim:TapChanger.ltcFlag ?ltcFlag ;
-            cim:TapChanger.TapChangerControl ?TapChangerControl .
-        ?TapChangerControl
-            cim:RegulatingControl.mode ?regulatingControlMode ;
-            cim:RegulatingControl.Terminal ?RegulatingControlTerminal .
-        OPTIONAL { GRAPH ?graphSSH {
-            ?TapChangerControl
-                cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;
-                cim:RegulatingControl.enabled ?regulatingControlEnabled ;
-                cim:RegulatingControl.targetValueUnitMultiplier ?regulatingControlTargetValueUnitMultiplier ;
-                cim:RegulatingControl.discrete ?regulatingControlDiscrete .
-            OPTIONAL {
-                ?TapChangerControl cim:RegulatingControl.targetDeadband ?regulatingControlTargetDeadband
-            }
-        }}
+            cim:TapChanger.TapChangerControl ?TapChangerControl
     }
 }}
 OPTIONAL { GRAPH ?graphSV {
@@ -552,6 +528,35 @@ WHERE {
     OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.x ?x }
     OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.g ?g }
     OPTIONAL { ?PhaseTapChangerTablePoint cim:TapChangerTablePoint.b ?b }
+}
+
+# query: regulatingControls
+SELECT *
+WHERE {
+{ GRAPH ?graph {
+    {
+        ?RegulatingControl a cim:RegulatingControl
+    }
+    UNION
+    {
+        ?RegulatingControl a cim:TapChangerControl
+    }
+    ?RegulatingControl
+        cim:RegulatingControl.mode ?mode ;
+        cim:RegulatingControl.Terminal ?Terminal .
+        { GRAPH ?graphTP {
+            ?Terminal
+                cim:Terminal.TopologicalNode ?topologicalNode
+        }}
+}}
+{ GRAPH ?graphSSH {
+    ?RegulatingControl
+        cim:RegulatingControl.enabled ?enabled ;
+        cim:RegulatingControl.targetValue ?targetValue ;
+        cim:RegulatingControl.targetValueUnitMultiplier ?targetValueUnitMultiplier ;
+        cim:RegulatingControl.discrete ?discrete .
+    OPTIONAL { ?RegulatingControl cim:RegulatingControl.targetDeadband ?targetDeadband }
+}}
 }
 
 # query: energyConsumers
@@ -603,20 +608,7 @@ WHERE {
     ?Terminal cim:Terminal.ConductingEquipment ?ShuntCompensator .
     OPTIONAL { ?ShuntCompensator cim:LinearShuntCompensator.gPerSection ?gPerSection }
     OPTIONAL { ?ShuntCompensator cim:LinearShuntCompensator.bPerSection ?bPerSection } 
-    OPTIONAL {
-        ?ShuntCompensator cim:RegulatingCondEq.RegulatingControl ?RegulatingControl .
-        ?RegulatingControl
-            cim:RegulatingControl.mode ?regulatingControlMode ;
-            cim:RegulatingControl.Terminal ?RegulatingControlTerminal .
-            { GRAPH ?graphSSH {
-                ?RegulatingControl
-                    cim:RegulatingControl.targetValue ?targetValue ;
-                    cim:RegulatingControl.enabled ?enabled ;
-                    cim:RegulatingControl.targetDeadband ?targetDeadband ;
-                    cim:RegulatingControl.targetValueUnitMultiplier ?targetValueUnitMultiplier ;
-                    cim:RegulatingControl.discrete ?discrete .
-            }}
-    }
+    OPTIONAL { ?ShuntCompensator cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
 }}
 OPTIONAL { GRAPH ?graphSV  {
     ?SvShuntCompensatorSections
@@ -661,24 +653,7 @@ WHERE {
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.minQ ?minQ }
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.maxQ ?maxQ }
     OPTIONAL { ?SynchronousMachine cim:SynchronousMachine.InitialReactiveCapabilityCurve ?ReactiveCapabilityCurve }
-    OPTIONAL {
-        ?SynchronousMachine cim:RegulatingCondEq.RegulatingControl ?RegulatingControl .
-        ?RegulatingControl
-            cim:RegulatingControl.Terminal ?regulatingControlTerminal ;
-            cim:RegulatingControl.mode ?regulatingControlMode .
-            { GRAPH ?graphTP {
-                ?regulatingControlTerminal
-                    cim:Terminal.TopologicalNode ?regTopologicalNode
-            }}
-        OPTIONAL { GRAPH ?graphSSH1 {
-            ?RegulatingControl
-                cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;
-                cim:RegulatingControl.enabled ?regulatingControlEnabled .
-        }}
-        OPTIONAL { GRAPH ?graphSSH2 {
-            ?regulatingControlTerminal cim:ACDCTerminal.connected ?regulatingControlTerminalConnected
-        }}
-    }
+    OPTIONAL { ?SynchronousMachine cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
     OPTIONAL { GRAPH ?graphSSH3 {
     	?SynchronousMachine 
     		cim:RotatingMachine.p ?p ;
@@ -734,24 +709,7 @@ WHERE {
     ?Terminal cim:Terminal.ConductingEquipment ?ExternalNetworkInjection
     OPTIONAL { ?ExternalNetworkInjection cim:ExternalNetworkInjection.minQ ?minQ }
     OPTIONAL { ?ExternalNetworkInjection cim:ExternalNetworkInjection.maxQ ?maxQ }
-    OPTIONAL {
-        ?ExternalNetworkInjection cim:RegulatingCondEq.RegulatingControl ?RegulatingControl .
-        ?RegulatingControl
-            cim:RegulatingControl.Terminal ?regulatingControlTerminal ;
-            cim:RegulatingControl.mode ?regulatingControlMode .
-            { GRAPH ?graphTP {
-                ?regulatingControlTerminal
-                    cim:Terminal.TopologicalNode ?regTopologicalNode
-            }}
-        OPTIONAL { GRAPH ?graphSSH1 {
-            ?RegulatingControl
-                cim:RegulatingControl.targetValue ?regulatingControlTargetValue ;
-                cim:RegulatingControl.enabled ?regulatingControlEnabled
-        }}
-        OPTIONAL { GRAPH ?graphSSH2 {
-            ?regulatingControlTerminal cim:ACDCTerminal.connected ?regulatingControlTerminalConnected
-        }}
-    }
+    OPTIONAL { ?ExternalNetworkInjection cim:RegulatingCondEq.RegulatingControl ?RegulatingControl }
 }}
 OPTIONAL { GRAPH ?graphSSH3  {
     ?ExternalNetworkInjection
