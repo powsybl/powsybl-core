@@ -87,6 +87,18 @@ public class AppStorageServer {
         return Response.ok().entity(childNodes).build();
     }
 
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    @Path("fileSystems/{fileSystemName}/nodes/{nodeId}/inconsistentChildrenNodes")
+    @ApiOperation (value = "Get inconsistent child nodes", response = List.class)
+    @ApiResponses (value = {@ApiResponse(code = 200, message = "The list of inconsistent chid nodes"), @ApiResponse(code = 404, message = "Thera are no inconsistent child nodes"), @ApiResponse(code = 500, message = "Error")})
+    public Response getInconsistentChildrenNodes(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
+                                  @ApiParam(value = "Node ID") @PathParam("nodeId") String nodeId) {
+        AppStorage storage = appDataBean.getStorage(fileSystemName);
+        List<NodeInfo> childNodes = storage.getInconsistentNodes(nodeId);
+        return Response.ok().entity(childNodes).build();
+    }
+
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
@@ -187,6 +199,18 @@ public class AppStorageServer {
                                    @ApiParam(value = "Description") String description) {
         AppStorage storage = appDataBean.getStorage(fileSystemName);
         storage.setDescription(nodeId, description);
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Path("fileSystems/{fileSystemName}/nodes/{nodeId}/consistent")
+    @ApiOperation (value = "")
+    @ApiResponses (value = {@ApiResponse(code = 200, message = ""), @ApiResponse(code = 500, message = "Error")})
+    public Response setConsistent(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
+                                   @ApiParam(value = "File system name") @PathParam("nodeId") String nodeId) {
+        AppStorage storage = appDataBean.getStorage(fileSystemName);
+        storage.setConsistent(nodeId);
         return Response.ok().build();
     }
 
@@ -313,6 +337,18 @@ public class AppStorageServer {
         AppStorage storage = appDataBean.getStorage(fileSystemName);
         boolean writable = storage.isWritable(nodeId);
         return Response.ok().entity(writable).build();
+    }
+
+    @GET
+    @Produces(MediaType.TEXT_PLAIN)
+    @Path("fileSystems/{fileSystemName}/nodes/{nodeId}/isConsistent")
+    @ApiOperation (value = "", response = Boolean.class)
+    @ApiResponses (value = {@ApiResponse(code = 200, message = ""), @ApiResponse(code = 404, message = ""), @ApiResponse(code = 500, message = "Error")})
+    public Response isConsistent(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
+                               @ApiParam(value = "Node ID") @PathParam("nodeId") String nodeId) {
+        AppStorage storage = appDataBean.getStorage(fileSystemName);
+        boolean isConsistent = storage.isConsistent(nodeId);
+        return Response.ok().entity(isConsistent).build();
     }
 
     @GET

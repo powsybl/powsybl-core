@@ -40,6 +40,7 @@ public class ContingencyStoreTest extends AbstractProjectFileTest {
     public void test() {
         // create project in the root folder
         Project project = afs.getRootFolder().createProject("project");
+        storage.setConsistent(project.getId());
 
         // create contingency list
         ContingencyStore contingencyStore = project.getRootFolder().fileBuilder(ContingencyStoreBuilder.class)

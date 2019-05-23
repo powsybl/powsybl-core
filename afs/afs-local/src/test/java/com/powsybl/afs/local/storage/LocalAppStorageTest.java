@@ -69,6 +69,12 @@ public class LocalAppStorageTest {
         fileSystem.close();
     }
 
+    @Test(expected = AssertionError.class)
+    public void testConsistent() {
+        NodeInfo rootNodeInfo = storage.createRootNodeIfNotExists("mem", Folder.PSEUDO_CLASS);
+        storage.setConsistent(rootNodeInfo.getId());
+    }
+
     @Test
     public void test() {
         NodeInfo rootNodeInfo = storage.createRootNodeIfNotExists("mem", Folder.PSEUDO_CLASS);

@@ -109,6 +109,17 @@ public class NodeEventTest {
     }
 
     @Test
+    public void nodeConsistent() throws IOException {
+        NodeConsistent nodeConsistent = new NodeConsistent("a");
+        assertEquals("a", nodeConsistent.getId());
+        assertEquals("NodeConsistent(id=a)", nodeConsistent.toString());
+        assertEquals(NodeEventType.NODE_CONSISTENT, nodeConsistent.getType());
+
+        NodeConsistent nodeConsistent1 = objectMapper.readValue(objectMapper.writeValueAsString(nodeConsistent), NodeConsistent.class);
+        assertEquals(nodeConsistent, nodeConsistent1);
+    }
+
+    @Test
     public void nodeDataUpdatedTest() throws IOException {
         NodeDataUpdated updated = new NodeDataUpdated("a", "b");
         assertEquals("a", updated.getId());

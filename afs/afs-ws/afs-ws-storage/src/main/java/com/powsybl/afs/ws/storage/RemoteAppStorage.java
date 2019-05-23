@@ -79,8 +79,8 @@ public class RemoteAppStorage implements AppStorage {
         client = createClient();
 
         webTarget = getWebTarget(client, baseUri)
-                          .register(WriterInterceptorGzipCli.class)
-                          .register(ReaderInterceptorGzip.class);
+                .register(WriterInterceptorGzipCli.class)
+                .register(ReaderInterceptorGzip.class);
 
         changeBuffer = new StorageChangeBuffer(changeSet -> {
             LOGGER.debug("flush(fileSystemName={}, size={})", fileSystemName, changeSet.getChanges().size());
@@ -184,6 +184,25 @@ public class RemoteAppStorage implements AppStorage {
     }
 
     @Override
+    public boolean isConsistent(String nodeId) {
+        Objects.requireNonNull(nodeId);
+
+        LOGGER.debug("isConsistent(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
+
+        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/isConsistent")
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
+                .request(MediaType.TEXT_PLAIN)
+                .header(HttpHeaders.AUTHORIZATION, token)
+                .get();
+        try {
+            return readEntityIfOk(response, Boolean.class);
+        } finally {
+            response.close();
+        }
+    }
+
+    @Override
     public void setDescription(String nodeId, String description) {
         Objects.requireNonNull(nodeId);
         Objects.requireNonNull(description);
@@ -201,6 +220,30 @@ public class RemoteAppStorage implements AppStorage {
                 .header(HttpHeaders.CONTENT_ENCODING, "gzip")
                 .acceptEncoding("gzip")
                 .put(Entity.text(description));
+        try {
+            checkOk(response);
+        } finally {
+            response.close();
+        }
+    }
+
+    @Override
+    public void setConsistent(String nodeId) {
+        Objects.requireNonNull(nodeId);
+
+        // flush buffer to keep change order
+        changeBuffer.flush();
+
+        LOGGER.debug("setConsistent(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
+
+        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/consistent")
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .resolveTemplate(NODE_ID, nodeId)
+                .request()
+                .header(HttpHeaders.AUTHORIZATION, token)
+                .header(HttpHeaders.CONTENT_ENCODING, "gzip")
+                .acceptEncoding("gzip")
+                .put(Entity.json(true));
         try {
             checkOk(response);
         } finally {
@@ -291,13 +334,8 @@ public class RemoteAppStorage implements AppStorage {
         }
     }
 
-    @Override
-    public List<NodeInfo> getChildNodes(String nodeId) {
-        Objects.requireNonNull(nodeId);
-
-        LOGGER.debug("getChildNodes(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
-
-        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/children")
+    private List<NodeInfo> getResponse(String targetUrl, String nodeId) {
+        Response response = webTarget.path(targetUrl)
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .resolveTemplate(NODE_ID, nodeId)
                 .request(MediaType.APPLICATION_JSON)
@@ -309,6 +347,25 @@ public class RemoteAppStorage implements AppStorage {
         } finally {
             response.close();
         }
+    }
+
+    @Override
+    public List<NodeInfo> getChildNodes(String nodeId) {
+        Objects.requireNonNull(nodeId);
+
+        LOGGER.debug("getChildNodes(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
+
+        return getResponse("fileSystems/{fileSystemName}/nodes/{nodeId}/children", nodeId);
+
+    }
+
+    @Override
+    public List<NodeInfo> getInconsistentNodes(String nodeId) {
+        Objects.requireNonNull(nodeId);
+
+        LOGGER.debug("getInconsistentNodes(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
+
+        return getResponse("fileSystems/{fileSystemName}/nodes/{nodeId}/inconsistentChildrenNodes", nodeId);
     }
 
     @Override

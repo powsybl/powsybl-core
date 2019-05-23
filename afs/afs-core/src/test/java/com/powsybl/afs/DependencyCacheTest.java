@@ -49,6 +49,7 @@ public class DependencyCacheTest extends AbstractProjectFileTest {
         @Override
         public Tic build() {
             NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, "TIC", "", 0, new NodeGenericMetadata());
+            context.getStorage().setConsistent(info.getId());
             return new Tic(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));
         }
     }
@@ -112,6 +113,7 @@ public class DependencyCacheTest extends AbstractProjectFileTest {
         @Override
         public Tac build() {
             NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), "tac", "TAC", "", 0, new NodeGenericMetadata());
+            context.getStorage().setConsistent(info.getId());
             return new Tac(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));
         }
     }
