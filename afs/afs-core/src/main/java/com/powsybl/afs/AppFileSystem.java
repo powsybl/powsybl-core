@@ -16,7 +16,6 @@ import com.powsybl.afs.storage.NodeInfo;
 import java.util.Objects;
 
 /**
- *
  * An AppFileSystem instance is a tree of {@link Node} objects, starting with its root folder.
  * <p>
  * {@link Node} objects may be {@link Folder}s or {@link File}, or any new file type added
@@ -109,18 +108,7 @@ public class AppFileSystem implements AutoCloseable {
 
         // get file info
         NodeInfo projectFileInfo = storage.getNodeInfo(projectFileId);
-
-        // walk the node hierarchy until finding a project
-        NodeInfo parentInfo = storage.getParentNode(projectFileInfo.getId()).orElse(null);
-        while (parentInfo != null && !Project.PSEUDO_CLASS.equals(parentInfo.getPseudoClass())) {
-            parentInfo = storage.getParentNode(parentInfo.getId()).orElse(null);
-        }
-        if (parentInfo == null) {
-            throw new AfsException("Node '" + projectFileId + "' is probably not a project file, parent project has not been found");
-        }
-
-        // create the project
-        Project project = new Project(new FileCreationContext(parentInfo, storage, this));
+        Project project = createProject(projectFileId, projectFileInfo, "' is probably not a project file, parent project has not been found");
 
         // then create the file
         ProjectFile projectFile = project.createProjectFile(projectFileInfo);
@@ -140,26 +128,29 @@ public class AppFileSystem implements AutoCloseable {
     public ProjectFolder findProjectFolder(String projectFolderId) {
 
         Objects.requireNonNull(projectFolderId);
-
         // get file info
         NodeInfo projectFolderInfo = storage.getNodeInfo(projectFolderId);
 
         // walk the node hierarchy until finding a project
-        NodeInfo parentInfo = storage.getParentNode(projectFolderInfo.getId()).orElse(null);
+        Project project = createProject(projectFolderId, projectFolderInfo, "' is probably not a project folder, parent project has not been found");
+
+        // then create and return the projectFolder
+
+        return project.createProjectFolder(projectFolderInfo);
+    }
+
+    private Project createProject(String projectNodeId, NodeInfo projectNodeInfo, String s) {
+        // walk the node hierarchy until finding a project
+        NodeInfo parentInfo = storage.getParentNode(projectNodeInfo.getId()).orElse(null);
         while (parentInfo != null && !Project.PSEUDO_CLASS.equals(parentInfo.getPseudoClass())) {
             parentInfo = storage.getParentNode(parentInfo.getId()).orElse(null);
         }
         if (parentInfo == null) {
-            throw new AfsException("Node '" + projectFolderId + "' is probably not a project folder, parent project has not been found");
+            throw new AfsException("Node '" + projectNodeId + s);
         }
 
         // create the project
-        Project project = new Project(new FileCreationContext(parentInfo, storage, this));
-
-        // then create the projectFolder
-        ProjectFolder projectFolder = project.createProjectFolder(projectFolderInfo);
-
-        return projectFolder;
+        return new Project(new FileCreationContext(parentInfo, storage, this));
     }
 
     public TaskMonitor getTaskMonitor() {
