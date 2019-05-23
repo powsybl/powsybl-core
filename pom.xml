@@ -19,7 +19,7 @@
 
     <name>powsybl</name>
     <description>A framework to build power system oriented software</description>
-    <url>http://www.powsybl.com</url>
+    <url>https://www.powsybl.org</url>
 
     <licenses>
         <license>
