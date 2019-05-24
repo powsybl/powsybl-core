@@ -144,4 +144,24 @@ public interface TwoWindingsTransformer extends Branch<TwoWindingsTransformer>, 
      */
     TwoWindingsTransformer setRatedU2(double ratedU2);
 
+    /**
+     * Get the primary winding phase angle clock.
+     */
+    int getPhaseAngleClock1();
+
+    /**
+     * Set the primary winding phase angle clock.
+     */
+    TwoWindingsTransformer setPhaseAngleClock1(int phaseAngleClock1);
+
+    /**
+     * Get the secondary winding phase angle clock.
+     */
+    int getPhaseAngleClock2();
+
+    /**
+     * Set the secondary winding phase angle clock.
+     */
+    TwoWindingsTransformer setPhaseAngleClock2(int phaseAngleClock2);
+
 }

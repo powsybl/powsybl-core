@@ -33,6 +33,10 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
 
     private double ratedU2 = Double.NaN;
 
+    private int phaseAngleClock1 = 0;
+
+    private int phaseAngleClock2 = 0;
+
     TwoWindingsTransformerAdderImpl(SubstationImpl substation) {
         this.substation = substation;
     }
@@ -92,6 +96,18 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
     @Override
     public TwoWindingsTransformerAdder setRatedU2(double ratedU2) {
         this.ratedU2 = ratedU2;
+        return this;
+    }
+
+    @Override
+    public TwoWindingsTransformerAdder setPhaseAngleClock1(int phaseAngleClock1) {
+        this.phaseAngleClock1 = phaseAngleClock1;
+        return this;
+    }
+
+    @Override
+    public TwoWindingsTransformerAdder setPhaseAngleClock2(int phaseAngleClock2) {
+        this.phaseAngleClock2 = phaseAngleClock2;
         return this;
     }
 

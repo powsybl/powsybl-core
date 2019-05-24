@@ -34,6 +34,10 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
 
     private double ratedU2;
 
+    private int phaseAngleClock1;
+
+    private int phaseAngleClock2;
+
     private RatioTapChangerImpl ratioTapChanger;
 
     private PhaseTapChangerImpl phaseTapChanger;
@@ -173,6 +177,32 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
         double oldValue = this.ratedU2;
         this.ratedU2 = ratedU2;
         notifyUpdate("ratedU2", oldValue, ratedU2);
+        return this;
+    }
+
+    @Override
+    public int getPhaseAngleClock1() {
+        return phaseAngleClock1;
+    }
+
+    @Override
+    public TwoWindingsTransformerImpl setPhaseAngleClock1(int phaseAngleClock1) {
+        double oldValue = this.phaseAngleClock1;
+        this.phaseAngleClock1 = phaseAngleClock1;
+        notifyUpdate("phaseAngleClock1", oldValue, phaseAngleClock1);
+        return this;
+    }
+
+    @Override
+    public int getPhaseAngleClock2() {
+        return phaseAngleClock2;
+    }
+
+    @Override
+    public TwoWindingsTransformerImpl setPhaseAngleClock2(int phaseAngleClock2) {
+        double oldValue = this.phaseAngleClock2;
+        this.phaseAngleClock2 = phaseAngleClock2;
+        notifyUpdate("phaseAngleClock2", oldValue, phaseAngleClock2);
         return this;
     }
 
