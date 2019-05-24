@@ -36,6 +36,8 @@ public interface ThreeWindingsTransformerAdder extends IdentifiableAdder<ThreeWi
 
         L setRatedU(double ratedU);
 
+        L setPhaseAngleClock(int phaseAngleClock);
+
         ThreeWindingsTransformerAdder add();
     }
 
