@@ -28,6 +28,10 @@ public interface TwoWindingsTransformerAdder extends BranchAdder<TwoWindingsTran
 
     TwoWindingsTransformerAdder setRatedU2(double ratedU2);
 
+    TwoWindingsTransformerAdder setPhaseAngleClock1(int phaseAngleClock1);
+
+    TwoWindingsTransformerAdder setPhaseAngleClock2(int phaseAngleClock2);
+
     TwoWindingsTransformer add();
 
 }
