@@ -7,11 +7,10 @@
 package com.powsybl.computation;
 
 import com.powsybl.commons.PowsyblException;
+import org.apache.commons.compress.utils.IOUtils;
 
 import javax.annotation.Nullable;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -27,6 +26,8 @@ public class ComputationException extends PowsyblException {
     private final Map<String, String> outMsgByLogFileName = new HashMap<>();
 
     private final Map<String, String> errMsgByLogFileName = new HashMap<>();
+
+    private final Map<String, byte[]> zipBytesByFileName = new HashMap<>();
 
     private final List<Exception> exceptions = new ArrayList<>();
 
@@ -46,6 +47,29 @@ public class ComputationException extends PowsyblException {
     public ComputationException addErrLog(Path path) {
         Objects.requireNonNull(path);
         return addErrLog(path.getFileName().toString(), readFile(path));
+    }
+
+    public ComputationException addFileIfExists(Path path) {
+        if (!Files.exists(path)) {
+            return this;
+        }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (InputStream inputStream = Files.newInputStream(path)) {
+            IOUtils.copy(inputStream, baos);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        try {
+            baos.close();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        zipBytesByFileName.put(path.getParent().relativize(path).toString(), baos.toByteArray());
+        return this;
+    }
+
+    public Map<String, byte[]> getZipBytes() {
+        return zipBytesByFileName;
     }
 
     private static String readFile(Path path) {
@@ -93,4 +117,7 @@ public class ComputationException extends PowsyblException {
         return this;
     }
 
+    public List<Exception> getExceptions() {
+        return exceptions;
+    }
 }

@@ -19,8 +19,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
@@ -53,7 +52,7 @@ public class ComputationExceptionTest {
     @Test
     public void test() {
         RuntimeException runtimeException = new RuntimeException();
-        ComputationException sut = new ComputationException(runtimeException);
+        ComputationException sut = new ComputationException("msg");
         sut.addOutLog(f1).addErrLog(f2);
         String outLog = sut.getOutLogs().get("f1.out");
         String errLog = sut.getErrLogs().get("f2.err");
@@ -61,9 +60,16 @@ public class ComputationExceptionTest {
         assertEquals("bar", errLog);
 
         sut.addOutLog("out", "outLog")
-                .addErrLog("err", "errLog");
+                .addErrLog("err", "errLog")
+                .addFileIfExists(workingDir.resolve("notExists"))
+                .addException(runtimeException);
         assertEquals("outLog", sut.getOutLogs().get("out"));
         assertEquals("errLog", sut.getErrLogs().get("err"));
+        assertEquals(runtimeException, sut.getExceptions().get(0));
+        assertTrue(sut.getZipBytes().isEmpty());
+
+        sut.addFileIfExists(f1);
+        assertEquals("foo", new String(sut.getZipBytes().get("f1.out")));
     }
 
     @After

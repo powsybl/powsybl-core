@@ -115,18 +115,27 @@ public final class SecurityAnalysisExecutionHandlers {
             SecurityAnalysisResult re = readSingleResult(workingDir); // throws UncheckedIOException
             List<String> collectedLogsFilename = new ArrayList<>();
             collectedLogsFilename.add(workingDir.relativize(getLogPath(workingDir)).toString()); // logs_IDX.zip
-            collectedLogsFilename.add(SA_CMD_ID + ".out");
-            collectedLogsFilename.add(SA_CMD_ID + ".err");
+            collectedLogsFilename.add(saCmdOutLogName());
+            collectedLogsFilename.add(saCmdErrLogName());
             byte[] logBytes = ZipHelper.archiveFilesToZipBytes(workingDir, collectedLogsFilename);
             return new SecurityAnalysisResultWithLog(re, logBytes);
         } catch (Exception e) {
             ComputationException ce = new ComputationException(e);
-            String outLogName = SA_CMD_ID + ".out";
-            String errLogName = SA_CMD_ID + ".err";
+            String outLogName = saCmdOutLogName();
+            String errLogName = saCmdErrLogName();
             ce.addOutLog(workingDir.resolve(outLogName))
-                    .addErrLog(workingDir.resolve(errLogName));
+                    .addErrLog(workingDir.resolve(errLogName))
+                    .addFileIfExists(getLogPath(workingDir));
             throw ce;
         }
+    }
+
+    private static String saCmdOutLogName() {
+        return SA_CMD_ID + ".out";
+    }
+
+    private static String saCmdErrLogName() {
+        return SA_CMD_ID + ".err";
     }
 
     public static void forwardedOptions(Path workingDir, SecurityAnalysisCommandOptions options, Integer taskCount) {
@@ -170,8 +179,8 @@ public final class SecurityAnalysisExecutionHandlers {
             List<String> collectedLogsFilename = new ArrayList<>();
             for (int i = 0; i < subtaskCount; i++) {
                 collectedLogsFilename.add(workingDir.relativize(getLogPathForTask(workingDir, i)).toString()); // logs_IDX.zip
-                collectedLogsFilename.add(SA_TASK_CMD_ID + "_" + i + ".out");
-                collectedLogsFilename.add(SA_TASK_CMD_ID + "_" + i + ".err");
+                collectedLogsFilename.add(satOutName(i));
+                collectedLogsFilename.add(satErrName(i));
             }
             byte[] logBytes = ZipHelper.archiveFilesToZipBytes(workingDir, collectedLogsFilename);
             return new SecurityAnalysisResultWithLog(re, logBytes);
@@ -183,12 +192,21 @@ public final class SecurityAnalysisExecutionHandlers {
     private static ComputationException generateExceptionWithLogs(Exception causedBy, Path workingDir, int count) {
         ComputationException computationException = new ComputationException(causedBy);
         IntStream.range(0, count).forEach(i -> {
-            String outLogName = SA_TASK_CMD_ID + "_" + i + ".out";
-            String errLogName = SA_TASK_CMD_ID + "_" + i + ".err";
+            String outLogName = satOutName(i);
+            String errLogName = satErrName(i);
             computationException.addOutLog(workingDir.resolve(outLogName))
-                    .addErrLog(workingDir.resolve(errLogName));
+                    .addErrLog(workingDir.resolve(errLogName))
+                    .addFileIfExists(getLogPathForTask(workingDir, i));
         });
         return computationException;
+    }
+
+    private static String satErrName(int i) {
+        return SA_TASK_CMD_ID + "_" + i + ".err";
+    }
+
+    private static String satOutName(int i) {
+        return SA_TASK_CMD_ID + "_" + i + ".out";
     }
 
     public static Path getLogPathForTask(Path workingDir, int taskNumber) {

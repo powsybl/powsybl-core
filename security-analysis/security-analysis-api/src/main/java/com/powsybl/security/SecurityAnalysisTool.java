@@ -7,8 +7,10 @@
 package com.powsybl.security;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.commons.compress.ZipHelper;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
+import com.powsybl.computation.ComputationException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.Partition;
 import com.powsybl.contingency.ContingenciesProvider;
@@ -40,6 +42,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.tools.ConversionToolUtils.*;
@@ -155,23 +158,46 @@ public class SecurityAnalysisTool implements Tool {
         return line.hasOption(option) ? Optional.of(line.getOptionValue(option)) : Optional.empty();
     }
 
+    private static void copyBytesToPath(byte[] bytes, Path dest) {
+        try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+             OutputStream fos = Files.newOutputStream(dest)) {
+            IOUtils.copy(bis, fos);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+    }
+
     private static SecurityAnalysisResult runSecurityAnalysis(CommandLine line, ToolRunningContext context, ContingenciesProvider contingenciesProvider, SecurityAnalysisParameters parameters, SecurityAnalysis securityAnalysis, String currentState) {
         SecurityAnalysisResult result;
         if (!line.hasOption(OUTPUT_LOG_OPTION)) {
             result = securityAnalysis.run(currentState, parameters, contingenciesProvider).join();
         } else {
-            SecurityAnalysisResultWithLog resultWithLog = securityAnalysis.runWithLog(currentState, parameters, contingenciesProvider).join();
-            result = resultWithLog.getResult();
-            // copy log bytes to file
-            resultWithLog.getLogBytes().ifPresent(logBytes -> {
-                Path outlogDest = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_OPTION));
-                try (ByteArrayInputStream bis = new ByteArrayInputStream(logBytes);
-                     OutputStream fos = Files.newOutputStream(outlogDest)) {
-                    IOUtils.copy(bis, fos);
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
+            try {
+                SecurityAnalysisResultWithLog resultWithLog = securityAnalysis.runWithLog(currentState, parameters, contingenciesProvider).join();
+                result = resultWithLog.getResult();
+                // copy log bytes to file
+                resultWithLog.getLogBytes().ifPresent(logBytes -> {
+                    Path outlogDest = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_OPTION));
+                    copyBytesToPath(logBytes, outlogDest);
+                });
+            } catch (CompletionException e) {
+                if (e.getCause() instanceof ComputationException) {
+                    ComputationException computationException = (ComputationException) e.getCause();
+                    Map<String, String> merged = new HashMap<>(computationException.getOutLogs());
+                    merged.putAll(computationException.getErrLogs());
+                    Map<String, byte[]> bytesByName =
+                            merged.entrySet().stream()
+                                    .collect(Collectors.toMap(
+                                            Map.Entry::getKey,
+                                        entry -> entry.getValue().getBytes()
+                                    ));
+                    bytesByName.putAll(computationException.getZipBytes());
+                    byte[] bytes = ZipHelper.archiveBytesByNameToZipBytes(bytesByName);
+                    Path outlogDest = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_OPTION));
+                    copyBytesToPath(bytes, outlogDest);
                 }
-            });
+                throw e;
+            }
         }
         return result;
     }

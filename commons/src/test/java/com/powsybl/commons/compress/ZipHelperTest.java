@@ -22,6 +22,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.zip.GZIPOutputStream;
 
 import static org.junit.Assert.*;
@@ -68,6 +72,37 @@ public class ZipHelperTest {
         } catch (IOException e) {
             fail();
         }
+    }
+
+    @Test
+    public void testStringsAndStream() throws IOException {
+        Map<String, byte[]> contentByName = new HashMap<>();
+        contentByName.put("fooName", "fooLog".getBytes());
+        contentByName.put("barName", "barLog".getBytes());
+        byte[] bytes = ZipHelper.archiveBytesByNameToZipBytes(contentByName);
+        try (ZipArchiveInputStream zis = new ZipArchiveInputStream(new ByteArrayInputStream(bytes))) {
+            assertEquals("fooName", zis.getNextZipEntry().getName());
+            assertEquals("barName", zis.getNextZipEntry().getName());
+            assertNull(zis.getNextZipEntry());
+        } catch (IOException e) {
+            fail();
+        }
+
+        Map<String, byte[]> zips = new HashMap<>();
+        zips.put("fooName", "fooLog".getBytes());
+        zips.put("barName", "barLog".getBytes());
+        zips.put("foobar.zip", bytes);
+        byte[] bytes1 = ZipHelper.archiveBytesByNameToZipBytes(zips);
+        Set<String> actualEntryNames = new HashSet<>();
+        try (ZipArchiveInputStream zis = new ZipArchiveInputStream(new ByteArrayInputStream(bytes1))) {
+            actualEntryNames.add(zis.getNextZipEntry().getName());
+            actualEntryNames.add(zis.getNextZipEntry().getName());
+            actualEntryNames.add(zis.getNextZipEntry().getName());
+            assertNull(zis.getNextZipEntry());
+        } catch (IOException e) {
+            fail();
+        }
+        assertEquals(zips.keySet(), actualEntryNames);
     }
 
     @After
