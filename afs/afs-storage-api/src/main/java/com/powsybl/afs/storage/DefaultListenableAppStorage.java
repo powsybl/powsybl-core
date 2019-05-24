@@ -21,17 +21,12 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-
 /**
  * A storage implementation which adds notification features to another underlying, wrapped, storage.
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class DefaultListenableAppStorage extends ForwardingAppStorage implements ListenableAppStorage {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultListenableAppStorage.class);
 
     private final WeakListenerList<AppStorageListener> listeners = new WeakListenerList<>();
 
