@@ -10,6 +10,7 @@ import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProviderFactory;
 import com.powsybl.iidm.import_.ImportConfig;
@@ -46,7 +47,12 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        tool = new SecurityAnalysisTool();
+        tool = new SecurityAnalysisTool() {
+            @Override
+            protected TableFormatterConfig createTableFormatterConfig() {
+                return new TableFormatterConfig();
+            }
+        };
         Files.createFile(fileSystem.getPath("network.xml"));
     }
 
@@ -57,7 +63,7 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
 
     @Override
     public void assertCommand() {
-        assertCommand(tool.getCommand(), "security-analysis", 13, 1);
+        assertCommand(tool.getCommand(), "security-analysis", 14, 1);
         assertOption(tool.getCommand().getOptions(), "case-file", true, true);
         assertOption(tool.getCommand().getOptions(), "parameters-file", false, true);
         assertOption(tool.getCommand().getOptions(), "limit-types", false, true);
@@ -69,6 +75,7 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
         assertOption(tool.getCommand().getOptions(), "task", false, true);
         assertOption(tool.getCommand().getOptions(), "external", false, false);
         assertOption(tool.getCommand().getOptions(), "log-file", false, true);
+        assertOption(tool.getCommand().getOptions(), "skip-postproc", false, false);
     }
 
     @Test
@@ -93,6 +100,7 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
             when(cl.getOptionProperties(any())).thenReturn(new Properties());
             // tigger runWithLog()
             when(cl.hasOption("log-file")).thenReturn(true);
+            when(cl.hasOption("skip-postproc")).thenReturn(true);
             when(cl.getOptionValue("log-file")).thenReturn("out.zip");
 
             when(context.getShortTimeExecutionComputationManager()).thenReturn(cm);

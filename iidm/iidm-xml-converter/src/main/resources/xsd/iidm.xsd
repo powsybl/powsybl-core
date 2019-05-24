@@ -63,7 +63,7 @@
                     </xs:choice>
                 </xs:sequence>
                 <xs:attribute name="tso" use="optional" type="iidm:nonEmptyString"/>
-                <xs:attribute name="country" use="required" type="iidm:nonEmptyString"/>
+                <xs:attribute name="country" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="geographicalTags" use="optional" type="iidm:nonEmptyString"/>
             </xs:extension>
         </xs:complexContent>

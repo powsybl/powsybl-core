@@ -9,10 +9,7 @@ package com.powsybl.iidm.network.util;
 
 import com.google.common.collect.ImmutableMap;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.io.table.AbstractTableFormatter;
-import com.powsybl.commons.io.table.AsciiTableFormatter;
-import com.powsybl.commons.io.table.Column;
-import com.powsybl.commons.io.table.HorizontalAlignment;
+import com.powsybl.commons.io.table.*;
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 
@@ -24,6 +21,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
@@ -92,7 +90,28 @@ public final class Networks {
         private double disconnectedShuntNegativeVolume = 0.0;
     }
 
-    public static void printBalanceSummary(String title, Network network, Logger logger) {
+    /**
+     * @deprecated Use {@link #printBalanceSummary(String, Network, Writer)} instead.
+     */
+    @Deprecated
+    public static void printBalanceSummary(String title, Network network, Logger logger) throws IOException {
+        Objects.requireNonNull(logger);
+        if (logger.isDebugEnabled()) {
+            try (Writer writer = new StringWriter()) {
+                printBalanceSummary(title, network, writer);
+                logger.debug(writer.toString());
+            }
+        }
+    }
+
+    public static void printBalanceSummary(String title, Network network, Writer writer) throws IOException {
+        printBalanceSummary(title, network, TableFormatterConfig.load(), writer);
+    }
+
+    public static void printBalanceSummary(String title, Network network, TableFormatterConfig formatterConfig, Writer writer) throws IOException {
+        Objects.requireNonNull(title);
+        Objects.requireNonNull(network);
+        Objects.requireNonNull(writer);
 
         ConnectedPower balanceMainCC = new ConnectedPower();
         ConnectedPower balanceOtherCC = new ConnectedPower();
@@ -103,7 +122,7 @@ public final class Networks {
         addGenerators(network, balanceMainCC, balanceOtherCC);
         addShuntCompensators(network, balanceMainCC, balanceOtherCC);
 
-        logOtherCC(logger, title, () -> writeInTable(balanceMainCC, balanceOtherCC), balanceOtherCC);
+        logOtherCC(writer, title, () -> writeInTable(balanceMainCC, balanceOtherCC, formatterConfig), balanceOtherCC);
     }
 
     private static void addBuses(Network network, ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
@@ -237,17 +256,17 @@ public final class Networks {
         }
     }
 
-    private static String writeInTable(ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC) {
+    private static String writeInTable(ConnectedPower balanceMainCC, ConnectedPower balanceOtherCC, TableFormatterConfig formatterConfig) {
         Writer writer = new StringWriter();
-        try (AbstractTableFormatter formatter = new AsciiTableFormatter(writer, null,
-                     new Column("")
-                             .setTitleHorizontalAlignment(HorizontalAlignment.CENTER),
-                     new Column("Main CC connected/disconnected")
-                             .setColspan(2)
-                             .setTitleHorizontalAlignment(HorizontalAlignment.CENTER),
-                     new Column("Others CC connected/disconnected")
-                             .setColspan(2)
-                             .setTitleHorizontalAlignment(HorizontalAlignment.CENTER))) {
+        try (AbstractTableFormatter formatter = new AsciiTableFormatter(writer, null, formatterConfig,
+                new Column("")
+                        .setTitleHorizontalAlignment(HorizontalAlignment.CENTER),
+                new Column("Main CC connected/disconnected")
+                        .setColspan(2)
+                        .setTitleHorizontalAlignment(HorizontalAlignment.CENTER),
+                new Column("Others CC connected/disconnected")
+                        .setColspan(2)
+                        .setTitleHorizontalAlignment(HorizontalAlignment.CENTER))) {
             formatter.writeCell("Bus count")
                     .writeCell(Integer.toString(balanceMainCC.busCount), 2)
                     .writeCell(Integer.toString(balanceOtherCC.busCount), 2);
@@ -295,25 +314,23 @@ public final class Networks {
         return writer.toString();
     }
 
-    private static void logOtherCC(Logger logger, String title, Supplier<String> tableSupplier, ConnectedPower balanceOtherCC) {
-        if (logger.isDebugEnabled()) {
-            logger.debug("Active balance at step '{}':\n{}", title, tableSupplier.get());
-        }
+    private static void logOtherCC(Writer writer, String title, Supplier<String> tableSupplier, ConnectedPower balanceOtherCC) throws IOException {
+        writer.write("Active balance at step '" + title + "':" + System.lineSeparator() + tableSupplier.get());
 
         if (!balanceOtherCC.connectedLoads.isEmpty()) {
-            logger.trace("Connected loads in other CC: {}", balanceOtherCC.connectedLoads);
+            writer.write("Connected loads in other CC: " + balanceOtherCC.connectedLoads + System.lineSeparator());
         }
         if (!balanceOtherCC.disconnectedLoads.isEmpty()) {
-            logger.trace("Disconnected loads in other CC: {}", balanceOtherCC.disconnectedLoads);
+            writer.write("Disconnected loads in other CC: " + balanceOtherCC.disconnectedLoads + System.lineSeparator());
         }
         if (!balanceOtherCC.connectedGenerators.isEmpty()) {
-            logger.trace("Connected generators in other CC: {}", balanceOtherCC.connectedGenerators);
+            writer.write("Connected generators in other CC: " + balanceOtherCC.connectedGenerators + System.lineSeparator());
         }
         if (!balanceOtherCC.disconnectedGenerators.isEmpty()) {
-            logger.trace("Disconnected generators in other CC: {}", balanceOtherCC.disconnectedGenerators);
+            writer.write("Disconnected generators in other CC: " + balanceOtherCC.disconnectedGenerators + System.lineSeparator());
         }
         if (!balanceOtherCC.disconnectedShunts.isEmpty()) {
-            logger.trace("Disconnected shunts in other CC: {}", balanceOtherCC.disconnectedShunts);
+            writer.write("Disconnected shunts in other CC: " + balanceOtherCC.disconnectedShunts + System.lineSeparator());
         }
     }
 

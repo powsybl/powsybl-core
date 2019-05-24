@@ -19,7 +19,7 @@ public class DenseMatrixFactory implements MatrixFactory {
      * {@inheritDoc}
      */
     @Override
-    public DenseMatrix create(int m, int n, int estimatedNonZeroValueCount) {
-        return new DenseMatrix(m, n);
+    public DenseMatrix create(int rowCount, int columnCount, int estimatedNonZeroValueCount) {
+        return new DenseMatrix(rowCount, columnCount);
     }
 }

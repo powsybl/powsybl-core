@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.network;
 
+import com.powsybl.commons.PowsyblException;
 import org.joda.time.DateTime;
 
 import java.util.Collection;
@@ -70,6 +71,13 @@ public interface Network extends Container<Network> {
          * Get the switch count.
          */
         int getSwitchCount();
+
+        /**
+         * Get a Bus.
+         */
+        default Bus getBus(String id) {
+            throw new PowsyblException("Method should be overridden in the current implementation");
+        }
     }
 
     /**
@@ -92,6 +100,13 @@ public interface Network extends Container<Network> {
          * @see VariantManager
          */
         Stream<Bus> getBusStream();
+
+        /**
+         * Get a Bus.
+         */
+        default Bus getBus(String id) {
+            throw new PowsyblException("Method should be overridden in the current implementation");
+        }
 
         /**
          * Get all connected compoments.
@@ -174,6 +189,19 @@ public interface Network extends Container<Network> {
      * @param geographicalTags a list a geographical tags
      */
     Iterable<Substation> getSubstations(Country country, String tsoId, String... geographicalTags);
+
+    /**
+     * Get substation located in a specific county, TSO and marked with a list
+     * of geographical tag.
+     *
+     * @param country the country name, if empty string, the filtering will be on
+     *                  substations without country, if <code>null</code> there is no
+     *                  filtering on countries
+     * @param tsoId the id of the TSO, if <code>null</code> there is no
+     *                  filtering on TSOs
+     * @param geographicalTags a list a geographical tags
+     */
+    Iterable<Substation> getSubstations(String country, String tsoId, String... geographicalTags);
 
     /**
      * Get a substation.
