@@ -39,6 +39,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         private double ratedU;
 
+        private int phaseAngleClock;
+
         private CurrentLimits limits;
 
         private RatioTapChangerImpl ratioTapChanger;
@@ -144,6 +146,15 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
                 throw new ValidationException(this, "rated U is invalid");
             }
             this.ratedU = ratedU;
+            return (T) this;
+        }
+
+        public int getPhaseAngleClock() {
+            return phaseAngleClock;
+        }
+
+        public T setPhaseAngleClock(int phaseAngleClock) {
+            this.phaseAngleClock = phaseAngleClock;
             return (T) this;
         }
 

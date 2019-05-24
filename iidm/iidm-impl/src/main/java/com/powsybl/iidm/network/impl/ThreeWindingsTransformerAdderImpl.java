@@ -42,6 +42,8 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         protected double ratedU = Double.NaN;
 
+        protected int phaseAngleClock = 0;
+
         public L setVoltageLevel(String voltageLevelId) {
             this.voltageLevelId = voltageLevelId;
             return (L) this;
@@ -94,6 +96,11 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         public L setRatedU(double ratedU) {
             this.ratedU = ratedU;
+            return (L) this;
+        }
+
+        public L setPhaseAngleClock(int phaseAngleClock) {
+            this.phaseAngleClock = phaseAngleClock;
             return (L) this;
         }
 
