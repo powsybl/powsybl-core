@@ -43,7 +43,7 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
 
     public DefaultListenableAppStorage(AppStorage storage) {
         super(storage);
-        eventStore = new KafKaEventsStore();
+        eventStore = new InMemoryEventsStore();
     }
 
     public DefaultListenableAppStorage(AppStorage storage, EventsStore eventStore) {
