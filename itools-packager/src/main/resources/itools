@@ -42,18 +42,18 @@ done
 
 options=()
 [ -n "$powsybl_config_dirs" ] || powsybl_config_dirs="$installDir/etc:${HOME}/.itools"
-options+=(' -Dpowsybl.config.dirs=$powsybl_config_dirs')
-[ -n "$powsybl_config_name" ] && options+=(' -Dpowsybl.config.name=$powsybl_config_name')
+options[0]=-Dpowsybl.config.dirs=$powsybl_config_dirs
+[ -n "$powsybl_config_name" ] && options[1]=-Dpowsybl.config.name=$powsybl_config_name
 
 logFile="$installDir/etc/logback-itools.xml"
 separator=$IFS
 IFS=':'
 read -ra list <<< "$powsybl_config_dirs"
 for dir in "${list[@]}"; do
-    [ -f "$dir/logback-itools.xml" ] && logFile="$dir/logback-itools.xml"
+    [ -f "$dir/logback-itools.xml" ] && logFile=$dir/logback-itools.xml
 done
 IFS=$separator
-options+=(' -Dlogback.configurationFile=$logFile')
+options[2]=-Dlogback.configurationFile=$logFile
 
 [ -z "$java_xmx" ] && java_xmx=8G
 if $parallel ; then
@@ -65,6 +65,6 @@ else
     $JAVA_BIN \
 -Xmx$java_xmx \
 -cp "$installDir/share/java/*" \
-$options \
+"${options[0]}" "${options[1]}" "${options[2]}" \
 com.powsybl.tools.Main "${args[@]}"
 fi
