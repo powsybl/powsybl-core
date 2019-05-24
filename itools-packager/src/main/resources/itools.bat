@@ -48,7 +48,7 @@ if "%~1"=="" ( goto done ) else (
 :done
 
 set options=
-if %powsybl_config_dirs% == "" ( set powsybl_config_dirs=%installDir%\etc;%HOMEDRIVE%%HOMEPATH%\.itools)
+if not defined powsybl_config_dirs ( set powsybl_config_dirs=%installDir%\etc;%HOMEDRIVE%%HOMEPATH%\.itools)
 set options=%options% -Dpowsybl.config.dirs=%powsybl_config_dirs%
 if not "%powsybl_config_name%" == "" ( set options=%options% -Dpowsybl.config.name=%powsybl_config_name%)
 
