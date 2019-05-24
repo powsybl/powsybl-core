@@ -57,6 +57,12 @@ public class ContingencyElementDeserializer extends StdDeserializer<ContingencyE
                 case GENERATOR:
                     return new GeneratorContingency(id);
 
+                case STATIC_VAR_COMPENSATOR:
+                    return new StaticVarCompensatorContingency(id);
+
+                case SHUNT_COMPENSATOR:
+                    return new ShuntCompensatorContingency(id);
+
                 case HVDC_LINE:
                     return new HvdcLineContingency(id, voltageLevelId);
 
