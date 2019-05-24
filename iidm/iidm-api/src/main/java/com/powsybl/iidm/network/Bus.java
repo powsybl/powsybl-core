@@ -177,22 +177,6 @@ public interface Bus extends Identifiable<Bus> {
     Stream<Load> getLoadStream();
 
     /**
-     * @deprecated Use {@link #getShuntCompensators()} instead.
-     */
-    @Deprecated
-    default Iterable<ShuntCompensator> getShunts() {
-        return getShuntCompensators();
-    }
-
-    /**
-     * @deprecated Use {@link #getShuntCompensatorStream()} instead.
-     */
-    @Deprecated
-    default Stream<ShuntCompensator> getShuntStream() {
-        return getShuntCompensatorStream();
-    }
-
-    /**
      * Get shunt compensators connected to the bus.
      */
     Iterable<ShuntCompensator> getShuntCompensators();

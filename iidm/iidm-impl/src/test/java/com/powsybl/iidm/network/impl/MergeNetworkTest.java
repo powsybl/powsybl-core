@@ -66,6 +66,7 @@ public class MergeNetworkTest {
         addDanglingLine("dl1", "code", "dl2", "code");
         merge.merge(n1, n2);
         assertNotNull(merge.getLine("dl1 + dl2"));
+        assertEquals("dl1_name + dl2_name", merge.getLine("dl1 + dl2").getName());
     }
 
     private void addSubstation(Network network, String substationId) {
@@ -108,6 +109,7 @@ public class MergeNetworkTest {
     private void addDanglingLine(String dl1, String code1, String dl2, String code2) {
         n1.getVoltageLevel("vl1").newDanglingLine()
                 .setId(dl1)
+                .setName(dl1 + "_name")
                 .setConnectableBus("b1")
                 .setBus("b1")
                 .setP0(0.0)
@@ -120,6 +122,7 @@ public class MergeNetworkTest {
                 .add();
         n2.getVoltageLevel("vl2").newDanglingLine()
                 .setId(dl2)
+                .setName(dl2 + "_name")
                 .setConnectableBus("b2")
                 .setBus("b2")
                 .setP0(0.0)

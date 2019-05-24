@@ -388,7 +388,7 @@ public final class Importers {
         if (importer != null) {
             return importer.importData(dataSource, parameters);
         }
-        return null;
+        throw new PowsyblException("Unsupported file format or invalid file.");
     }
 
     public static Network loadNetwork(Path file, ComputationManager computationManager, ImportConfig config, Properties parameters) {
@@ -410,7 +410,7 @@ public final class Importers {
         if (importer != null) {
             return importer.importData(dataSource, parameters);
         }
-        return null;
+        throw new PowsyblException("Unsupported file format or invalid file.");
     }
 
     public static Network loadNetwork(String filename, InputStream data, ComputationManager computationManager, ImportConfig config, Properties parameters) {

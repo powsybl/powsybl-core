@@ -6,9 +6,11 @@
  */
 package com.powsybl.computation;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
+import com.google.common.collect.ImmutableList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,10 +22,30 @@ public class DefaultExecutionReport implements ExecutionReport {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultExecutionReport.class);
 
+    private static final ExecutionReport OK = new DefaultExecutionReport();
+
     private final List<ExecutionError> errors;
 
+    /**
+     * An execution report with no execution error.
+     * @return an execution report with no execution error.
+     */
+    public static ExecutionReport ok() {
+        return OK;
+    }
+
+    /**
+     * Create an execution report with no execution error.
+     */
+    public DefaultExecutionReport() {
+        this(Collections.emptyList());
+    }
+
+    /**
+     * Create an execution report with the specified list of execution errors.
+     */
     public DefaultExecutionReport(List<ExecutionError> errors) {
-        this.errors = Objects.requireNonNull(errors);
+        this.errors = ImmutableList.copyOf(Objects.requireNonNull(errors));
     }
 
     @Override
