@@ -17,7 +17,9 @@ import static org.junit.Assert.assertNotNull
  * @author Chamseddine BENHAMED <chamseddine.benhamed at rte-france.com>
  */
 class NetworkExtensionTest {
+
     private Network network
+
     @Before
     void prepareNetwork(){
         network = Network.create("test", "test")
