@@ -10,9 +10,9 @@ import com.powsybl.afs.AfsException;
 import com.powsybl.afs.ProjectFileBuildContext;
 import com.powsybl.afs.ProjectFileBuilder;
 import com.powsybl.afs.ProjectFileCreationContext;
-import com.powsybl.afs.storage.AppStorageDataSource;
-import com.powsybl.afs.storage.NodeGenericMetadata;
-import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.afs.ext.base.events.CaseImported;
+import com.powsybl.afs.storage.*;
+import com.powsybl.afs.storage.events.NodeEventType;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.MemDataSource;
@@ -59,6 +59,8 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
     private final Properties parameters = new Properties();
 
+    private EventsStore eventStore;
+
     public ImportedCaseBuilder(ProjectFileBuildContext context, ImportersLoader importersLoader, ImportConfig importConfig) {
         this(context, new ExportersServiceLoader(), importersLoader, importConfig);
     }
@@ -68,6 +70,7 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
         this.exportersLoader = Objects.requireNonNull(exportersLoader);
         this.importersLoader = Objects.requireNonNull(importersLoader);
         this.importConfig = Objects.requireNonNull(importConfig);
+        this.eventStore = new KafKaEventsStore();
     }
 
     public ImportedCaseBuilder withName(String name) {
@@ -123,6 +126,12 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
         return this;
     }
 
+    public ImportedCaseBuilder withEventStore(EventsStore eventStore) {
+        Objects.requireNonNull(eventStore);
+        this.eventStore = eventStore;
+        return this;
+    }
+
     @Override
     public ImportedCase build() {
         if (dataSource == null) {
@@ -150,6 +159,7 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
             throw new UncheckedIOException(e);
         }
         context.getStorage().setConsistent(info.getId());
+        eventStore.pushEvent(new CaseImported(info.getId(), context.getFolderInfo().getId()), context.getStorage().getFileSystemName(), String.valueOf(NodeEventType.CASE_IMPORTED));
         context.getStorage().flush();
 
         return new ImportedCase(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()),

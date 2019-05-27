@@ -17,13 +17,13 @@ public class KafKaEventsStore implements EventsStore {
 
     private Producer<String, NodeEvent> producer;
 
-    KafKaEventsStore() {
+    public KafKaEventsStore() {
         producer = ProducerFactory.create();
     }
 
     @Override
-    public void pushEvent(NodeEvent event, String fileSystem) {
-        ProducerRecord<String, NodeEvent> record = new ProducerRecord<>(String.valueOf(event.getType()), event);
+    public void pushEvent(NodeEvent event, String fileSystem, String topic) {
+        ProducerRecord<String, NodeEvent> record = new ProducerRecord<>(topic, event);
         producer.send(record);
     }
 }

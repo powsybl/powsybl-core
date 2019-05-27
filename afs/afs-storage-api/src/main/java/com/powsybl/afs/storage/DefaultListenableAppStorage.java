@@ -53,7 +53,7 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
         } finally {
             lock.unlock();
         }
-        eventStore.pushEvent(event, super.getFileSystemName());
+        eventStore.pushEvent(event, super.getFileSystemName(), String.valueOf(event.getType()));
     }
 
     @Override
