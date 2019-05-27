@@ -36,9 +36,12 @@ import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.io.IOUtils;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -159,9 +162,8 @@ public class SecurityAnalysisTool implements Tool {
     }
 
     private static void copyBytesToPath(byte[] bytes, Path dest) {
-        try (ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-             OutputStream fos = Files.newOutputStream(dest)) {
-            IOUtils.copy(bis, fos);
+        try {
+            Files.write(dest, bytes);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -189,7 +191,7 @@ public class SecurityAnalysisTool implements Tool {
                             merged.entrySet().stream()
                                     .collect(Collectors.toMap(
                                             Map.Entry::getKey,
-                                        entry -> entry.getValue().getBytes()
+                                        entry -> entry.getValue().getBytes(StandardCharsets.UTF_8)
                                     ));
                     bytesByName.putAll(computationException.getZipBytes());
                     byte[] bytes = ZipHelper.archiveBytesByNameToZipBytes(bytesByName);

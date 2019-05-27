@@ -102,14 +102,19 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
     @Override
     public R after(Path workingDir, ExecutionReport report) throws IOException {
         try {
-            R r = reader.read(workingDir); // throw ComputationException
+            // read results and logs in case of runWithLog()
+            // 1. run() and no exception, after() would be skipped. (As it do nothing, if no errors)
+            // 2. run() and exception, an exception(NoSuchFileException) would be thrown.
+            // 3. runWithLog() and no exception
+            // 4. runWithLog() and exception, a ComputationException will be re-thrown
+            R r = reader.read(workingDir); // throw ComputationException in runWithLog()
             LOGGER.debug("End of command execution in {}. ", workingDir);
             return r;
         } catch (ComputationException e) {
             try {
                 super.after(workingDir, report); // throw PowsybleException
             } catch (PowsyblException pe) {
-                e.addException(pe);
+                // ignored
             }
             throw e;
         }

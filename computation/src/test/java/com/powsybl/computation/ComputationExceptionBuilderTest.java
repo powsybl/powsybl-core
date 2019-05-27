@@ -19,12 +19,13 @@ import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 /**
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
-public class ComputationExceptionTest {
+public class ComputationExceptionBuilderTest {
 
     private FileSystem fileSystem;
     private Path workingDir;
@@ -52,24 +53,26 @@ public class ComputationExceptionTest {
     @Test
     public void test() {
         RuntimeException runtimeException = new RuntimeException();
-        ComputationException sut = new ComputationException("msg");
-        sut.addOutLog(f1).addErrLog(f2);
-        String outLog = sut.getOutLogs().get("f1.out");
-        String errLog = sut.getErrLogs().get("f2.err");
+        ComputationExceptionBuilder ceb = new ComputationExceptionBuilder(runtimeException);
+        ceb.addOutLogIfExists(f1).addErrLogIfExists(f2);
+        ComputationException computationException = ceb.build();
+        String outLog = computationException.getOutLogs().get("f1.out");
+        String errLog = computationException.getErrLogs().get("f2.err");
         assertEquals("foo", outLog);
         assertEquals("bar", errLog);
 
-        sut.addOutLog("out", "outLog")
+        ComputationExceptionBuilder ceb2 = new ComputationExceptionBuilder(runtimeException);
+        ceb2.addOutLog("out", "outLog")
                 .addErrLog("err", "errLog")
-                .addFileIfExists(workingDir.resolve("notExists"))
+                .addZipFileIfExists(workingDir.resolve("notExists"))
+                .addZipFileIfExists(f1)
                 .addException(runtimeException);
-        assertEquals("outLog", sut.getOutLogs().get("out"));
-        assertEquals("errLog", sut.getErrLogs().get("err"));
-        assertEquals(runtimeException, sut.getExceptions().get(0));
-        assertTrue(sut.getZipBytes().isEmpty());
+        ComputationException computationException2 = ceb2.build();
+        assertEquals("outLog", computationException2.getOutLogs().get("out"));
+        assertEquals("errLog", computationException2.getErrLogs().get("err"));
+        assertEquals(runtimeException, computationException2.getExceptions().get(0));
+        assertEquals("foo", new String(computationException2.getZipBytes().get("f1.out")));
 
-        sut.addFileIfExists(f1);
-        assertEquals("foo", new String(sut.getZipBytes().get("f1.out")));
     }
 
     @After

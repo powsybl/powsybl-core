@@ -9,6 +9,7 @@ package com.powsybl.security.distributed;
 import com.google.common.base.Preconditions;
 import com.powsybl.commons.compress.ZipHelper;
 import com.powsybl.computation.ComputationException;
+import com.powsybl.computation.ComputationExceptionBuilder;
 import com.powsybl.computation.ExecutionHandler;
 import com.powsybl.computation.Partition;
 import com.powsybl.security.SecurityAnalysisResult;
@@ -120,13 +121,13 @@ public final class SecurityAnalysisExecutionHandlers {
             byte[] logBytes = ZipHelper.archiveFilesToZipBytes(workingDir, collectedLogsFilename);
             return new SecurityAnalysisResultWithLog(re, logBytes);
         } catch (Exception e) {
-            ComputationException ce = new ComputationException(e);
+            ComputationExceptionBuilder ceb = new ComputationExceptionBuilder(e);
             String outLogName = saCmdOutLogName();
             String errLogName = saCmdErrLogName();
-            ce.addOutLog(workingDir.resolve(outLogName))
-                    .addErrLog(workingDir.resolve(errLogName))
-                    .addFileIfExists(getLogPath(workingDir));
-            throw ce;
+            ceb.addOutLogIfExists(workingDir.resolve(outLogName))
+                    .addErrLogIfExists(workingDir.resolve(errLogName))
+                    .addZipFileIfExists(getLogPath(workingDir));
+            throw ceb.build();
         }
     }
 
@@ -190,15 +191,15 @@ public final class SecurityAnalysisExecutionHandlers {
     }
 
     private static ComputationException generateExceptionWithLogs(Exception causedBy, Path workingDir, int count) {
-        ComputationException computationException = new ComputationException(causedBy);
+        ComputationExceptionBuilder ceb = new ComputationExceptionBuilder(causedBy);
         IntStream.range(0, count).forEach(i -> {
             String outLogName = satOutName(i);
             String errLogName = satErrName(i);
-            computationException.addOutLog(workingDir.resolve(outLogName))
-                    .addErrLog(workingDir.resolve(errLogName))
-                    .addFileIfExists(getLogPathForTask(workingDir, i));
+            ceb.addOutLogIfExists(workingDir.resolve(outLogName))
+                    .addErrLogIfExists(workingDir.resolve(errLogName))
+                    .addZipFileIfExists(getLogPathForTask(workingDir, i));
         });
-        return computationException;
+        return ceb.build();
     }
 
     private static String satErrName(int i) {
