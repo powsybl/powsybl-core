@@ -15,7 +15,7 @@ public final class NetworkFactoryConstants {
      * Default IIDM implementation name, this is a reserved name and no other implementation are allowed to use the
      * same name.
      */
-    public static String DEFAULT = "Default";
+    public static final String DEFAULT = "Default";
 
     private NetworkFactoryConstants() {
     }
