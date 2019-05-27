@@ -12,5 +12,17 @@ package com.powsybl.iidm.network;
  */
 public interface NetworkFactoryService {
 
+    /**
+     * Get network factory name.
+     *
+     * @return network factory name
+     */
+    String getName();
+
+    /**
+     * Create network factory instance.
+     *
+     * @return network factor instance
+     */
     NetworkFactory createNetworkFactory();
 }

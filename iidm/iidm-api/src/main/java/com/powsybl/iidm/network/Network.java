@@ -129,7 +129,26 @@ public interface Network extends Container<Network> {
      * @return an empty network
      */
     static Network create(String id, String sourceFormat) {
-        return NetworkFactory.getDefault().createNetwork(id, sourceFormat);
+        return NetworkFactory.findDefault().createNetwork(id, sourceFormat);
+    }
+
+    /**
+     * Just being able to name method create et not createNetwork. Create is not available in {@link NetworkFactory} for backward
+     * compatibility reason. To cleanup when {@link NetworkFactory#create(String, String)} will be removed.
+     */
+    interface PrettyNetworkFactory {
+
+        Network create(String id, String sourceFormat);
+    }
+
+    /**
+     * Get network factory named {@code name}.
+     *
+     * @param name name of the {@link NetworkFactory}
+     * @return network factory with  the given name
+     */
+    static PrettyNetworkFactory with(String name) {
+        return (id, sourceFormat) -> NetworkFactory.find(name).createNetwork(id, sourceFormat);
     }
 
     /**

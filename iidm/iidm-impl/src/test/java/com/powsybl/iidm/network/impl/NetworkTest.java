@@ -421,4 +421,24 @@ public class NetworkTest {
         voltageLevel.getNodeBreakerView().getTerminal2("fictitiousSwitchId");
     }
 
+    @Test
+    public void testCreate() {
+        // check default implementation is used
+        Network network = Network.create("test", "test");
+        assertTrue(network instanceof NetworkImpl);
+    }
+
+    @Test
+    public void testWith() {
+        // check default implementation is returned
+        Network network = Network.with("Default").create("test", "test");
+        assertTrue(network instanceof NetworkImpl);
+
+        // check that an exception is thrown if implementation is not found
+        try {
+            Network.with("???").create("test", "test");
+            fail();
+        } catch (PowsyblException ignored) {
+        }
+    }
 }

@@ -41,7 +41,7 @@ public class Conversion {
     }
 
     public Conversion(CgmesModel cgmes, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors) {
-        this(cgmes, config, postProcessors, NetworkFactory.getDefault());
+        this(cgmes, config, postProcessors, NetworkFactory.findDefault());
     }
 
     public Conversion(CgmesModel cgmes, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors,

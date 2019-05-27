@@ -460,7 +460,7 @@ public final class NetworkXml {
     }
 
     public static Network read(InputStream is, ImportOptions config, Anonymizer anonymizer) {
-        return read(is, config, anonymizer, NetworkFactory.getDefault());
+        return read(is, config, anonymizer, NetworkFactory.findDefault());
     }
 
     public static Network read(InputStream is, ImportOptions config, Anonymizer anonymizer, NetworkFactory networkFactory) {
@@ -579,7 +579,7 @@ public final class NetworkXml {
     public static Network read(Path xmlFile, ImportOptions options) throws IOException {
         DataSource dataSource = getDataSourceFromPath(xmlFile);
         String ext = getFileExtensionFromPath(xmlFile);
-        return read(dataSource, NetworkFactory.getDefault(), options, ext);
+        return read(dataSource, NetworkFactory.findDefault(), options, ext);
     }
 
     public static Network validateAndRead(Path xmlFile) {

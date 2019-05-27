@@ -62,7 +62,7 @@ public interface Importer {
      */
     @Deprecated
     default Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
-        return importData(dataSource, NetworkFactory.getDefault(), parameters);
+        return importData(dataSource, NetworkFactory.findDefault(), parameters);
     }
 
     /**

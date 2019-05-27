@@ -8,6 +8,7 @@ package com.powsybl.iidm.network.impl;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.NetworkFactoryConstants;
 import com.powsybl.iidm.network.NetworkFactoryService;
 
 /**
@@ -16,6 +17,11 @@ import com.powsybl.iidm.network.NetworkFactoryService;
  */
 @AutoService(NetworkFactoryService.class)
 public class NetworkFactoryServiceImpl implements NetworkFactoryService {
+
+    @Override
+    public String getName() {
+        return NetworkFactoryConstants.DEFAULT;
+    }
 
     @Override
     public NetworkFactory createNetworkFactory() {

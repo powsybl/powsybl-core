@@ -9,7 +9,7 @@ package com.powsybl.iidm.network;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.ServiceLoaderCache;
 
-import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -27,20 +27,27 @@ public interface NetworkFactory {
     Network createNetwork(String id, String sourceFormat);
 
     /**
-     * Get default {@code NetworkFactory} instance. A unique implementation of {@code NetworkFactoryService} configured
-     * for {@code ServiceLoader} is supposed to be found in the classpath.
+     * Find a {@code NetworkFactory} instance base on its name.
+     *
+     * @param name name of the {@code NetworkFactory}
+     * @return {@code NetworkFactory} instance with the given name.
+     */
+    static NetworkFactory find(String name) {
+        Objects.requireNonNull(name);
+        return new ServiceLoaderCache<>(NetworkFactoryService.class).getServices().stream()
+                .filter(s -> s.getName().equals(name))
+                .findFirst()
+                .orElseThrow(() -> new PowsyblException("'" + name + "' IIDM implementation not found"))
+                .createNetworkFactory();
+    }
+
+    /**
+     * Find default {@code NetworkFactory} instance.
      *
      * @return default {@code NetworkFactory} instance.
      */
-    static NetworkFactory getDefault() {
-        List<NetworkFactoryService> services = new ServiceLoaderCache<>(NetworkFactoryService.class).getServices();
-        if (services.isEmpty()) {
-            throw new PowsyblException("No IIDM implementation found");
-        }
-        if (services.size() > 1) {
-            throw new PowsyblException("Multiple IIDM implementations found");
-        }
-        return services.get(0).createNetworkFactory();
+    static NetworkFactory findDefault() {
+        return find(NetworkFactoryConstants.DEFAULT);
     }
 
     /**
@@ -48,6 +55,6 @@ public interface NetworkFactory {
      */
     @Deprecated
     static Network create(String id, String sourceFormat) {
-        return getDefault().createNetwork(id, sourceFormat);
+        return findDefault().createNetwork(id, sourceFormat);
     }
 }
