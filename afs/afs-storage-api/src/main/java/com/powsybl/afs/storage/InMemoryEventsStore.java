@@ -11,7 +11,7 @@ public class InMemoryEventsStore implements EventsStore {
 
     private HashMap<String, List<NodeEvent>> topics;
 
-    InMemoryEventsStore() {
+    public InMemoryEventsStore() {
         topics = new HashMap<>();
     }
 

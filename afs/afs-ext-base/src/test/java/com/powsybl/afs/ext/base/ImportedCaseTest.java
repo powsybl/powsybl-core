@@ -13,6 +13,7 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.afs.*;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
+import com.powsybl.afs.storage.InMemoryEventsStore;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.commons.config.PlatformConfig;
@@ -127,6 +128,7 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
                 .withCase(aCase)
                 .withParameter("param1", "true")
                 .withParameters(ImmutableMap.of("param2", "1"))
+                .withEventStore(new InMemoryEventsStore())
                 .build();
         assertNotNull(importedCase);
         assertFalse(importedCase.isFolder());
