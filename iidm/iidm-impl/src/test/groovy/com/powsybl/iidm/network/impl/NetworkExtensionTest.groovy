@@ -20,7 +20,7 @@ class NetworkExtensionTest {
     private Network network
     @Before
     void prepareNetwork(){
-        network = NetworkFactory.create("test", "test")
+        network = Network.create("test", "test")
         Substation substation = network.newSubstation()
                 .setCountry(Country.AF)
                 .setTso("tso")

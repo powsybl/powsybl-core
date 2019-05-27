@@ -8,29 +8,46 @@ package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.ServiceLoaderCache;
+
 import java.util.List;
 
 /**
- * To create a new empty network:
- *<pre>
- *    Network n = NetworkFactory.create("test");
- *</pre>
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public final class NetworkFactory {
+public interface NetworkFactory {
 
-    private static final ServiceLoaderCache<NetworkFactoryService> LOADER
-            = new ServiceLoaderCache(NetworkFactoryService.class);
+    /**
+     * Create a network.
+     *
+     * @param id id of the network
+     * @param sourceFormat source format
+     * @return a network
+     */
+    Network createNetwork(String id, String sourceFormat);
 
-    private NetworkFactory() {
-    }
-
-    public static Network create(String id, String sourceFormat) {
-        List<NetworkFactoryService> services = LOADER.getServices();
+    /**
+     * Get default {@code NetworkFactory} instance. A unique implementation of {@code NetworkFactoryService} configured
+     * for {@code ServiceLoader} is supposed to be found in the classpath.
+     *
+     * @return default {@code NetworkFactory} instance.
+     */
+    static NetworkFactory getDefault() {
+        List<NetworkFactoryService> services = new ServiceLoaderCache<>(NetworkFactoryService.class).getServices();
         if (services.isEmpty()) {
             throw new PowsyblException("No IIDM implementation found");
         }
-        return services.get(0).createNetwork(id, sourceFormat);
+        if (services.size() > 1) {
+            throw new PowsyblException("Multiple IIDM implementations found");
+        }
+        return services.get(0).createNetworkFactory();
+    }
+
+    /**
+     * @deprecated Use {@link Network#create(String, String)} instead.
+     */
+    @Deprecated
+    static Network create(String id, String sourceFormat) {
+        return getDefault().createNetwork(id, sourceFormat);
     }
 }

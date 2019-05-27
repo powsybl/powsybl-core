@@ -379,7 +379,7 @@ public class NetworkTest {
     @Test
     public void testSetterGetter() {
         String sourceFormat = "test_sourceFormat";
-        Network network = NetworkFactory.create("test", sourceFormat);
+        Network network = Network.create("test", sourceFormat);
         DateTime caseDate = new DateTime();
         network.setCaseDate(caseDate);
         assertEquals(caseDate, network.getCaseDate());

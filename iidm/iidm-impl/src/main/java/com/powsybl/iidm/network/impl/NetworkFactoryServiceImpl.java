@@ -6,18 +6,19 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.Network;
+import com.google.auto.service.AutoService;
+import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.network.NetworkFactoryService;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@AutoService(NetworkFactoryService.class)
 public class NetworkFactoryServiceImpl implements NetworkFactoryService {
 
     @Override
-    public Network createNetwork(String id, String sourceFormat) {
-        return new NetworkImpl(id, id, sourceFormat);
+    public NetworkFactory createNetworkFactory() {
+        return new NetworkFactoryImpl();
     }
-
 }

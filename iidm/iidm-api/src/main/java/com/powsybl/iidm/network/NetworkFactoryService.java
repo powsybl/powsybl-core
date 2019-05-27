@@ -12,5 +12,5 @@ package com.powsybl.iidm.network;
  */
 public interface NetworkFactoryService {
 
-    Network createNetwork(String id, String sourceFormat);
+    NetworkFactory createNetworkFactory();
 }
