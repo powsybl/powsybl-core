@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iidm:network xmlns:iidm="http://www.itesla_project.eu/schema/iidm/1_0" xmlns:mock="http://www.itesla_project.eu/schema/iidm/ext/terminal_mock/1_0" id="sim1" caseDate="2013-01-15T18:45:00.000+01:00" forecastDistance="0" sourceFormat="test">
+    <iidm:extension id="LOAD">
+        <mock:terminalMock>
+            <mock:terminal id="LOAD"/>
+        </mock:terminalMock>
+    </iidm:extension>
+</iidm:network>

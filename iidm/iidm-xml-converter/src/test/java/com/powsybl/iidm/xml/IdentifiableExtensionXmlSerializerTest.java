@@ -16,6 +16,7 @@ import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
+import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -25,9 +26,7 @@ import java.io.InputStream;
 
 import javax.xml.stream.XMLStreamException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -198,5 +197,25 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractConverterTes
             assertNotNull(source2);
             assertEquals(sourceData, source2.getSourceData());
         }
+    }
+
+    @Test
+    public void testTerminalExtension() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
+
+        Load load = network.getLoad("LOAD");
+        TerminalMockExt terminalMockExt = new TerminalMockExt(load);
+        assertSame(load.getTerminal(), terminalMockExt.getTerminal());
+        load.addExtension(TerminalMockExt.class, terminalMockExt);
+
+        Network network2 = roundTripXmlTest(network,
+                NetworkXml::writeAndValidate,
+                NetworkXml::read,
+                "/eurostag-tutorial-example1-with-terminalMock-ext.xml");
+        Load loadXml = network2.getLoad("LOAD");
+        TerminalMockExt terminalMockExtXml = loadXml.getExtension(TerminalMockExt.class);
+        assertNotNull(terminalMockExtXml);
+        assertSame(loadXml.getTerminal(), terminalMockExtXml.getTerminal());
     }
 }

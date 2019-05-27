@@ -9,8 +9,12 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.IidmImportExportMode;
+import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
+import com.powsybl.iidm.network.test.TerminalMockExt;
+import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -26,14 +30,19 @@ import static org.junit.Assert.*;
 
 public class XmlExporterBaseOneExtensionPerFileTest extends AbstractConverterTest {
 
-    public void exporterOneFilePerExtensionType(Network network, String xiidmBaseRef, List<String> extensionsList) throws IOException {
-
+    private MemDataSource export(Network network, List<String> extensionsList) {
         Properties properties = new Properties();
         properties.put(XMLExporter.EXPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
         properties.put(XMLExporter.EXTENSIONS_LIST, extensionsList);
 
         MemDataSource dataSource = new MemDataSource();
         new XMLExporter(platformConfig).export(network, properties, dataSource);
+        return dataSource;
+    }
+
+    private void exporterOneFilePerExtensionType(Network network, String xiidmBaseRef, List<String> extensionsList) throws IOException {
+        MemDataSource dataSource = export(network, extensionsList);
+
         // check the base exported file and compare it to iidmBaseRef reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
             assertNotNull(is);
@@ -69,5 +78,27 @@ public class XmlExporterBaseOneExtensionPerFileTest extends AbstractConverterTes
     public void exportAllExtensionsTest() throws IOException {
         List<String> extensionsList = Arrays.asList("loadFoo", "loadBar");
         exporterOneFilePerExtensionType(MultipleExtensionsTestNetworkFactory.create(), "/multiple-extensions.xiidm", extensionsList);
+    }
+
+    @Test
+    public void exportTerminalExtTest() throws IOException {
+        Network network = EurostagTutorialExample1Factory.create();
+        network.setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
+        Load load = network.getLoad("LOAD");
+        TerminalMockExt terminalMockExt = new TerminalMockExt(load);
+        assertSame(load.getTerminal(), terminalMockExt.getTerminal());
+        load.addExtension(TerminalMockExt.class, terminalMockExt);
+
+        MemDataSource dataSource = export(network, Collections.singletonList("terminalMock"));
+
+        try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
+            assertNotNull(is);
+            compareXml(getClass().getResourceAsStream("/eurostag-tutorial-example1.xml"), is);
+        }
+
+        try (InputStream is = new ByteArrayInputStream(dataSource.getData("-terminalMock.xiidm"))) {
+            assertNotNull(is);
+            compareXml(getClass().getResourceAsStream("/eurostag-tutorial-example1-terminalMock.xml"), is);
+        }
     }
 }
