@@ -54,7 +54,7 @@ In this other table, I listed all the **powsybl-core** modules and the proposed 
 | powsybl-iidm-xml-converter | package: com.powsybl.iidm.xml -> com.powsybl.iidm.xml.converter, automatic module name: com.powsybl.iidm.xml -> com.powsybl.iidm.xml.converter | Converter naming strategy |
 | powsybl-itools-packager | None | N/A |
 | powsybl-loadflow-api | automatic module name: com.powsybl.loadflow.api -> com.powsybl.loadflow | API naming strategy |
-| powsybl-loadflow-results-completion | package: com.powsybl.loadflow.results.completion | Good practice is to have the automatic module name identical to root package name |
+| powsybl-loadflow-results-completion | package: com.powsybl.loadflow.resultscompletion -> com.powsybl.loadflow.results.completion | Good practice is to have the automatic module name identical to root package name |
 | powsybl-loadflow-validation | None | N/A | 
 | powsybl-math | None | N/A |
 | powsybl-scripting | None | N/A |
