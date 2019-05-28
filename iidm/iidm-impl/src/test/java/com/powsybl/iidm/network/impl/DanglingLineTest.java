@@ -28,7 +28,7 @@ public class DanglingLineTest {
 
     @Before
     public void initNetwork() {
-        network = NetworkFactory.create("test", "test");
+        network = Network.create("test", "test");
         Substation substation = network.newSubstation()
                 .setId("sub")
                 .setCountry(Country.FR)

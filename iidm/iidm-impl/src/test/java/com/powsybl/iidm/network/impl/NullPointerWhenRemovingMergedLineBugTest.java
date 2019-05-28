@@ -18,7 +18,7 @@ public class NullPointerWhenRemovingMergedLineBugTest {
 
     @Test
     public void test() {
-        Network n1 = NetworkFactory.create("n1", "test");
+        Network n1 = Network.create("n1", "test");
         Substation s1 = n1.newSubstation()
                 .setId("s1")
                 .setCountry(Country.FR)
@@ -43,7 +43,7 @@ public class NullPointerWhenRemovingMergedLineBugTest {
                 .setB(0)
                 .setUcteXnodeCode("XNODE")
                 .add();
-        Network n2 = NetworkFactory.create("n2", "test");
+        Network n2 = Network.create("n2", "test");
         Substation s2 = n2.newSubstation()
                 .setId("s2")
                 .setCountry(Country.BE)

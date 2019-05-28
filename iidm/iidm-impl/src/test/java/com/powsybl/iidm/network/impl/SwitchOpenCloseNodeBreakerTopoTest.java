@@ -19,7 +19,7 @@ import static org.junit.Assert.assertNotNull;
 public class SwitchOpenCloseNodeBreakerTopoTest {
 
     private Network createNetwork() {
-        Network network = NetworkFactory.create("test", "test");
+        Network network = Network.create("test", "test");
         Substation s = network.newSubstation()
                 .setId("S")
                 .setCountry(Country.FR)
