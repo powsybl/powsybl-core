@@ -13,7 +13,8 @@ import com.powsybl.iidm.network.TwoWindingsTransformerAdder;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTransformerAdderImpl> implements TwoWindingsTransformerAdder {
+class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTransformerAdderImpl>
+    implements TwoWindingsTransformerAdder {
 
     private final SubstationImpl substation;
 
@@ -28,6 +29,10 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
     private double ratedU1 = Double.NaN;
 
     private double ratedU2 = Double.NaN;
+
+    private int phaseAngleClock1 = 0;
+
+    private int phaseAngleClock2 = 0;
 
     TwoWindingsTransformerAdderImpl(SubstationImpl substation) {
         this.substation = substation;
@@ -80,15 +85,27 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
     }
 
     @Override
+    public TwoWindingsTransformerAdder setPhaseAngleClock1(int phaseAngleClock1) {
+        this.phaseAngleClock1 = phaseAngleClock1;
+        return this;
+    }
+
+    @Override
+    public TwoWindingsTransformerAdder setPhaseAngleClock2(int phaseAngleClock2) {
+        this.phaseAngleClock2 = phaseAngleClock2;
+        return this;
+    }
+
+    @Override
     public TwoWindingsTransformer add() {
         String id = checkAndGetUniqueId();
         VoltageLevelExt voltageLevel1 = checkAndGetVoltageLevel1();
         VoltageLevelExt voltageLevel2 = checkAndGetVoltageLevel2();
         if (voltageLevel1.getSubstation() != substation || voltageLevel2.getSubstation() != substation) {
             throw new ValidationException(this,
-                    "the 2 windings of the transformer shall belong to the substation '"
-                    + substation.getId() + "' ('" + voltageLevel1.getSubstation().getId() + "', '"
-                    + voltageLevel2.getSubstation().getId() + "')");
+                "the 2 windings of the transformer shall belong to the substation '" + substation.getId() + "' ('"
+                    + voltageLevel1.getSubstation().getId() + "', '" + voltageLevel2.getSubstation().getId()
+                    + "')");
         }
         TerminalExt terminal1 = checkAndGetTerminal1();
         TerminalExt terminal2 = checkAndGetTerminal2();
@@ -100,11 +117,8 @@ class TwoWindingsTransformerAdderImpl extends AbstractBranchAdder<TwoWindingsTra
         ValidationUtil.checkRatedU1(this, ratedU1);
         ValidationUtil.checkRatedU2(this, ratedU2);
 
-        TwoWindingsTransformerImpl transformer
-                = new TwoWindingsTransformerImpl(id, getName(),
-                                                 voltageLevel1.getSubstation(),
-                                                 r, x, g, b,
-                                                 ratedU1, ratedU2);
+        TwoWindingsTransformerImpl transformer = new TwoWindingsTransformerImpl(id, getName(),
+            voltageLevel1.getSubstation(), r, x, g, b, ratedU1, ratedU2);
         terminal1.setNum(1);
         terminal2.setNum(2);
         transformer.addTerminal(terminal1);

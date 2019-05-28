@@ -14,7 +14,8 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> implements TwoWindingsTransformer, RatioTapChangerParent {
+class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
+    implements TwoWindingsTransformer, RatioTapChangerParent {
 
     private final SubstationImpl substation;
 
@@ -30,13 +31,16 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
 
     private double ratedU2;
 
+    private int phaseAngleClock1;
+
+    private int phaseAngleClock2;
+
     private RatioTapChangerImpl ratioTapChanger;
 
     private PhaseTapChangerImpl phaseTapChanger;
 
-    TwoWindingsTransformerImpl(String id, String name,
-            SubstationImpl substation,
-            double r, double x, double g, double b, double ratedU1, double ratedU2) {
+    TwoWindingsTransformerImpl(String id, String name, SubstationImpl substation, double r, double x, double g,
+        double b, double ratedU1, double ratedU2) {
         super(id, name);
         this.substation = substation;
         this.r = r;
@@ -128,6 +132,19 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
     }
 
     @Override
+    public int getPhaseAngleClock1() {
+        return phaseAngleClock1;
+    }
+
+    @Override
+    public TwoWindingsTransformerImpl setPhaseAngleClock1(int phaseAngleClock1) {
+        double oldValue = this.phaseAngleClock1;
+        this.phaseAngleClock1 = phaseAngleClock1;
+        notifyUpdate("phaseAngleClock1", oldValue, phaseAngleClock1);
+        return this;
+    }
+
+    @Override
     public double getRatedU2() {
         return ratedU2;
     }
@@ -138,6 +155,19 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
         double oldValue = this.ratedU2;
         this.ratedU2 = ratedU2;
         notifyUpdate("ratedU2", oldValue, ratedU2);
+        return this;
+    }
+
+    @Override
+    public int getPhaseAngleClock2() {
+        return phaseAngleClock2;
+    }
+
+    @Override
+    public TwoWindingsTransformerImpl setPhaseAngleClock2(int phaseAngleClock2) {
+        double oldValue = this.phaseAngleClock2;
+        this.phaseAngleClock2 = phaseAngleClock2;
+        notifyUpdate("phaseAngleClock2", oldValue, phaseAngleClock2);
         return this;
     }
 
@@ -232,4 +262,5 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
     protected String getTypeDescription() {
         return "2 windings transformer";
     }
+
 }
