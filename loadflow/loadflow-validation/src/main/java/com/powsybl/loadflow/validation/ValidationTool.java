@@ -8,12 +8,14 @@ package com.powsybl.loadflow.validation;
 
 import com.google.auto.service.AutoService;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
-import com.powsybl.iidm.tools.ConversionToolUtils;
+import com.powsybl.iidm.tools.ConversionOption;
+import com.powsybl.iidm.tools.DefaultConversionOption;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.io.ValidationWriters;
@@ -34,10 +36,10 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.powsybl.iidm.tools.ConversionToolConstants.CASE_FILE;
 import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 
 /**
@@ -47,7 +49,6 @@ import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 @AutoService(Tool.class)
 public class ValidationTool implements Tool {
 
-    private static final String CASE_FILE = "case-file";
     private static final String OUTPUT_FOLDER = "output-folder";
     private static final String LOAD_FLOW = "load-flow";
     private static final String VERBOSE = "verbose";
@@ -57,6 +58,13 @@ public class ValidationTool implements Tool {
     private static final String GROOVY_SCRIPT = "groovy-script";
     private static final String RUN_COMPUTATION = "run-computation";
     private static final String COMPARE_CASE_FILE = "compare-case-file";
+    private static final Supplier<ConversionOption> LOADER = Suppliers.memoize(() -> new DefaultConversionOption(CASE_FILE));
+
+    private final ConversionOption conversionOption;
+
+    public ValidationTool() {
+        this.conversionOption = LOADER.get();
+    }
 
     private static final Command COMMAND = new Command() {
 
@@ -147,7 +155,6 @@ public class ValidationTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        Path caseFile = Paths.get(line.getOptionValue(CASE_FILE));
         Path outputFolder = Paths.get(line.getOptionValue(OUTPUT_FOLDER));
         if (!Files.exists(outputFolder)) {
             Files.createDirectories(outputFolder);
@@ -170,7 +177,7 @@ public class ValidationTool implements Tool {
                                     .map(ValidationType::valueOf)
                                     .collect(Collectors.toSet());
         }
-        Network network = loadNetwork(caseFile, line, context);
+        Network network = conversionOption.read(line, context);
         if (line.hasOption(GROOVY_SCRIPT)) {
             runGroovyScript(Paths.get(line.getOptionValue(GROOVY_SCRIPT)), network, context);
         }
@@ -196,22 +203,11 @@ public class ValidationTool implements Tool {
             if (config.isCompareResults() && ComparisonType.BASECASE.equals(comparisonType)) {
                 Preconditions.checkArgument(line.hasOption(COMPARE_CASE_FILE),
                         "Basecases comparison requires to provide a second basecase (option --" + COMPARE_CASE_FILE + ").");
-                Path compareCaseFile = Paths.get(line.getOptionValue(COMPARE_CASE_FILE));
-                Network compareNetwork = loadNetwork(compareCaseFile, line, context);
+                Network compareNetwork = conversionOption.read(COMPARE_CASE_FILE, line, context);
                 context.getOutputStream().println("Running validation on network " + compareNetwork.getId() + " to compare");
                 runValidation(compareNetwork, config, validationTypes, validationWriters, context);
             }
         }
-    }
-
-    private Network loadNetwork(Path caseFile, CommandLine line, ToolRunningContext context) throws IOException {
-        context.getOutputStream().println("Loading case " + caseFile);
-        Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), createImportConfig(line), inputParams);
-        if (network == null) {
-            throw new PowsyblException("Case " + caseFile + " not found");
-        }
-        return network;
     }
 
     private void runGroovyScript(Path script, Network network, ToolRunningContext context) {

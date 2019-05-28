@@ -6,16 +6,16 @@
  */
 package com.powsybl.iidm.tools;
 
-import com.powsybl.iidm.import_.ImportConfig;
-import com.powsybl.tools.Tool;
-import org.apache.commons.cli.CommandLine;
-
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public abstract class AbstractImportingTool implements Tool {
+public final class ConversionToolConstants {
 
-    protected ImportConfig createImportConfig(CommandLine line) {
-        return ConversionToolUtils.createImportConfig(line);
+    public static final String CASE_FILE = "case-file";
+    public static final String INPUT_FILE = "input-file";
+    public static final String OUTPUT_FILE = "output-file";
+    public static final String OUTPUT_FORMAT = "output-format";
+
+    private ConversionToolConstants() {
     }
 }

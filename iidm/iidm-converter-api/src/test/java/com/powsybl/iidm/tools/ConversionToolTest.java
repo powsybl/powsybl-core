@@ -9,10 +9,13 @@ package com.powsybl.iidm.tools;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.iidm.import_.Importers;
+import com.powsybl.iidm.network.Network;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.CommandLineTools;
 import com.powsybl.tools.Tool;
 import com.powsybl.iidm.import_.ImportConfig;
+import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,6 +23,10 @@ import org.junit.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Collections;
+import java.util.Properties;
+
+import static com.powsybl.iidm.tools.ConversionToolConstants.INPUT_FILE;
+import static com.powsybl.iidm.tools.ConversionToolUtils.readProperties;
 
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -29,12 +36,18 @@ public class ConversionToolTest extends AbstractToolTest {
     private PlatformConfig platformConfig;
 
     private ConversionTool createConversionTool() {
-        return new ConversionTool() {
+        return new ConversionTool(new DefaultConversionOption(INPUT_FILE) {
             @Override
-            protected ImportConfig createImportConfig(CommandLine line) {
-                return ConversionToolUtils.createImportConfig(line, ImportConfig.load(platformConfig));
+            public Network read(CommandLine line, ToolRunningContext context) throws IOException {
+                String inputFile = line.getOptionValue(INPUT_FILE);
+                context.getOutputStream().println("Loading network " + inputFile + "...");
+                Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
+                return Importers.loadNetwork(context.getFileSystem().getPath(inputFile),
+                        context.getShortTimeExecutionComputationManager(),
+                        ConversionToolUtils.createImportConfig(line, ImportConfig.load(platformConfig)),
+                        inputParams);
             }
-        };
+        });
     }
 
     @Before

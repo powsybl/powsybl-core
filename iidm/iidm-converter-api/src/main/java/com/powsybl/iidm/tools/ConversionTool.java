@@ -7,13 +7,11 @@
 package com.powsybl.iidm.tools;
 
 import com.google.auto.service.AutoService;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.datasource.DataSource;
-import com.powsybl.commons.datasource.DefaultDataSourceObserver;
-import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.import_.GroovyScriptPostProcessor;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
@@ -23,8 +21,10 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import java.nio.file.Path;
-import java.util.Properties;
 
+import static com.powsybl.iidm.tools.ConversionToolConstants.INPUT_FILE;
+import static com.powsybl.iidm.tools.ConversionToolConstants.OUTPUT_FILE;
+import static com.powsybl.iidm.tools.ConversionToolConstants.OUTPUT_FORMAT;
 import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 
 /**
@@ -33,12 +33,20 @@ import static com.powsybl.iidm.tools.ConversionToolUtils.*;
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 @AutoService(Tool.class)
-public class ConversionTool extends AbstractImportingTool {
+public class ConversionTool implements Tool {
 
-    private static final String INPUT_FILE = "input-file";
-    private static final String OUTPUT_FORMAT = "output-format";
-    private static final String OUTPUT_FILE = "output-file";
     private static final String GROOVY_SCRIPT = "groovy-script";
+    private static final Supplier<ConversionOption> LOADER = Suppliers.memoize(() -> new DefaultConversionOption(INPUT_FILE));
+
+    private final ConversionOption conversionOption;
+
+    public ConversionTool() {
+        this(LOADER.get());
+    }
+
+    public ConversionTool(ConversionOption conversionOption) {
+        this.conversionOption = conversionOption;
+    }
 
     @Override
     public Command getCommand() {
@@ -102,17 +110,12 @@ public class ConversionTool extends AbstractImportingTool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        String inputFile = line.getOptionValue(INPUT_FILE);
         String outputFormat = line.getOptionValue(OUTPUT_FORMAT);
-        String outputFile = line.getOptionValue(OUTPUT_FILE);
-
-        Exporter exporter = Exporters.getExporter(outputFormat);
-        if (exporter == null) {
+        if (Exporters.getExporter(outputFormat) == null) {
             throw new PowsyblException("Target format " + outputFormat + " not supported");
         }
 
-        Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        Network network = Importers.loadNetwork(context.getFileSystem().getPath(inputFile), context.getShortTimeExecutionComputationManager(), createImportConfig(line), inputParams);
+        Network network = conversionOption.read(line, context);
 
         if (line.hasOption(GROOVY_SCRIPT)) {
             Path groovyScript = context.getFileSystem().getPath(line.getOptionValue(GROOVY_SCRIPT));
@@ -120,13 +123,6 @@ public class ConversionTool extends AbstractImportingTool {
             new GroovyScriptPostProcessor(groovyScript).process(network, context.getShortTimeExecutionComputationManager());
         }
 
-        Properties outputParams = readProperties(line, ConversionToolUtils.OptionType.EXPORT, context);
-        DataSource ds2 = Exporters.createDataSource(context.getFileSystem().getPath(outputFile), new DefaultDataSourceObserver() {
-            @Override
-            public void opened(String streamName) {
-                context.getOutputStream().println("Generating file " + streamName + "...");
-            }
-        });
-        exporter.export(network, outputParams, ds2);
+        conversionOption.write(network, line, context);
     }
 }

@@ -7,18 +7,19 @@
 package com.powsybl.loadflow.tools;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.PowsyblException;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.commons.io.table.*;
+import com.powsybl.iidm.tools.ConversionOption;
 import com.powsybl.iidm.tools.ConversionToolUtils;
+import com.powsybl.iidm.tools.DefaultConversionOption;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
 import com.powsybl.iidm.export.Exporters;
-import com.powsybl.iidm.import_.ImportConfig;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowFactory;
@@ -39,6 +40,7 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Properties;
 
+import static com.powsybl.iidm.tools.ConversionToolConstants.CASE_FILE;
 import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 import static com.powsybl.iidm.tools.ConversionToolUtils.createExportParametersFileOption;
 
@@ -48,12 +50,18 @@ import static com.powsybl.iidm.tools.ConversionToolUtils.createExportParametersF
 @AutoService(Tool.class)
 public class RunLoadFlowTool implements Tool {
 
-    private static final String CASE_FILE = "case-file";
     private static final String PARAMETERS_FILE = "parameters-file";
     private static final String OUTPUT_FILE = "output-file";
     private static final String OUTPUT_FORMAT = "output-format";
     private static final String OUTPUT_CASE_FORMAT = "output-case-format";
     private static final String OUTPUT_CASE_FILE = "output-case-file";
+    private static final Supplier<ConversionOption> LOADER = Suppliers.memoize(() -> new DefaultConversionOption(CASE_FILE));
+
+    private final ConversionOption conversionOption;
+
+    public RunLoadFlowTool() {
+        this.conversionOption = LOADER.get();
+    }
 
     private enum Format {
         CSV,
@@ -129,13 +137,11 @@ public class RunLoadFlowTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE));
         Path outputFile = null;
         Format format = null;
         Path outputCaseFile = null;
         ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
 
-        ImportConfig importConfig = createImportConfig(line);
         // process a single network: output-file/output-format options available
         if (line.hasOption(OUTPUT_FILE)) {
             outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE));
@@ -152,12 +158,7 @@ public class RunLoadFlowTool implements Tool {
             }
         }
 
-        context.getOutputStream().println("Loading network '" + caseFile + "'");
-        Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), importConfig, inputParams);
-        if (network == null) {
-            throw new PowsyblException("Case '" + caseFile + "' not found");
-        }
+        Network network = conversionOption.read(line, context);
         LoadFlow loadFlow = defaultConfig.newFactoryImpl(LoadFlowFactory.class).create(network, context.getShortTimeExecutionComputationManager(), 0);
 
         LoadFlowParameters params = LoadFlowParameters.load();

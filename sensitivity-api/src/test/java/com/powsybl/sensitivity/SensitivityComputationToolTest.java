@@ -8,6 +8,7 @@ package com.powsybl.sensitivity;
 
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.tools.ConversionToolUtils;
+import com.powsybl.iidm.tools.DefaultConversionOption;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.Tool;
 import org.apache.commons.cli.CommandLine;
@@ -17,6 +18,8 @@ import org.junit.Test;
 import java.io.IOException;
 import java.util.Collections;
 
+import static com.powsybl.iidm.tools.ConversionToolConstants.CASE_FILE;
+
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
@@ -24,12 +27,12 @@ public class SensitivityComputationToolTest extends AbstractToolTest {
 
     private static final String COMMAND_NAME = "sensitivity-computation";
 
-    private final SensitivityComputationTool tool = new SensitivityComputationTool() {
+    private final SensitivityComputationTool tool = new SensitivityComputationTool(new DefaultConversionOption(CASE_FILE) {
         @Override
-        protected ImportConfig createImportConfig(CommandLine line) {
-            return ConversionToolUtils.createImportConfig(line, new ImportConfig());
+        public ImportConfig createImportConfig(CommandLine line) {
+            return ConversionToolUtils.createImportConfig(line, ImportConfig.load(platformConfig));
         }
-    };
+    });
 
     @Override
     @Before

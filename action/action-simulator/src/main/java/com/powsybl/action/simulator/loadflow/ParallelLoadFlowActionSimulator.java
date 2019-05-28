@@ -26,6 +26,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
 import static com.powsybl.action.simulator.tools.ActionSimulatorToolConstants.*;
+import static com.powsybl.iidm.tools.ConversionToolConstants.CASE_FILE;
 import static com.powsybl.tools.ToolConstants.TASK;
 
 /**

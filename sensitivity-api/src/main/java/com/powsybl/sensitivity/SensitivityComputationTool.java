@@ -7,18 +7,17 @@
 package com.powsybl.sensitivity;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.PowsyblException;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.Column;
 import com.powsybl.commons.io.table.TableFormatter;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.commons.io.table.TableFormatterFactory;
-import com.powsybl.iidm.import_.ImportConfig;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.tools.AbstractImportingTool;
-import com.powsybl.iidm.tools.ConversionToolUtils;
+import com.powsybl.iidm.tools.ConversionOption;
+import com.powsybl.iidm.tools.DefaultConversionOption;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -33,20 +32,30 @@ import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.nio.file.Path;
-import java.util.Properties;
 
+import static com.powsybl.iidm.tools.ConversionToolConstants.CASE_FILE;
 import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 @AutoService(Tool.class)
-public class SensitivityComputationTool extends AbstractImportingTool {
+public class SensitivityComputationTool implements Tool {
 
-    private static final String CASE_FILE_OPTION = "case-file";
     private static final String OUTPUT_FILE_OPTION = "output-file";
     private static final String OUTPUT_FORMAT_OPTION = "output-format";
     private static final String FACTORS_FILE_OPTION = "factors-file";
+    private static final Supplier<ConversionOption> LOADER = Suppliers.memoize(() -> new DefaultConversionOption(CASE_FILE));
+
+    private final ConversionOption conversionOption;
+
+    public SensitivityComputationTool() {
+        this(LOADER.get());
+    }
+
+    public SensitivityComputationTool(ConversionOption conversionOption) {
+        this.conversionOption = conversionOption;
+    }
 
     @Override
     public Command getCommand() {
@@ -69,7 +78,7 @@ public class SensitivityComputationTool extends AbstractImportingTool {
             @Override
             public Options getOptions() {
                 Options options = new Options();
-                options.addOption(Option.builder().longOpt(CASE_FILE_OPTION)
+                options.addOption(Option.builder().longOpt(CASE_FILE)
                         .desc("the case path")
                         .hasArg()
                         .argName("FILE")
@@ -106,12 +115,10 @@ public class SensitivityComputationTool extends AbstractImportingTool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));
         Path outputFile = null;
         String format = null;
         ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
 
-        ImportConfig importConfig = createImportConfig(line);
         // process a single network: output-file/output-format options available
         if (line.hasOption(OUTPUT_FILE_OPTION)) {
             outputFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_FILE_OPTION));
@@ -123,12 +130,7 @@ public class SensitivityComputationTool extends AbstractImportingTool {
 
         Path sensitivityFactorsFile = context.getFileSystem().getPath(line.getOptionValue(FACTORS_FILE_OPTION));
 
-        context.getOutputStream().println("Loading network '" + caseFile + "'");
-        Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), importConfig, inputParams);
-        if (network == null) {
-            throw new PowsyblException("Case '" + caseFile + "' not found");
-        }
+        Network network = conversionOption.read(line, context);
         SensitivityComputation sensitivityComputation = defaultConfig.newFactoryImpl(SensitivityComputationFactory.class).create(network, context.getShortTimeExecutionComputationManager(), 0);
 
         SensitivityComputationParameters params = SensitivityComputationParameters.load();

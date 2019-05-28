@@ -7,6 +7,8 @@
 package com.powsybl.security;
 
 import com.google.auto.service.AutoService;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.ComputationManager;
@@ -14,11 +16,9 @@ import com.powsybl.computation.Partition;
 import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.ContingenciesProviderFactory;
 import com.powsybl.contingency.ContingenciesProviders;
-import com.powsybl.iidm.import_.ImportConfig;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.tools.AbstractImportingTool;
-import com.powsybl.iidm.tools.ConversionToolUtils;
+import com.powsybl.iidm.tools.ConversionOption;
+import com.powsybl.iidm.tools.DefaultConversionOption;
 import com.powsybl.security.converter.SecurityAnalysisResultExporters;
 import com.powsybl.security.detectors.DefaultLimitViolationDetector;
 import com.powsybl.security.distributed.DistributedSecurityAnalysis;
@@ -43,6 +43,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.iidm.tools.ConversionToolConstants.CASE_FILE;
 import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 import static com.powsybl.security.SecurityAnalysisToolConstants.*;
 import static com.powsybl.tools.ToolConstants.TASK;
@@ -53,7 +54,19 @@ import static com.powsybl.tools.ToolConstants.TASK_COUNT;
  * @author Teofil Calin BANC <teofil-calin.banc at rte-france.com>
  */
 @AutoService(Tool.class)
-public class SecurityAnalysisTool extends AbstractImportingTool {
+public class SecurityAnalysisTool implements Tool {
+
+    private static final Supplier<ConversionOption> LOADER = Suppliers.memoize(() -> new DefaultConversionOption(CASE_FILE));
+
+    private final ConversionOption conversionOption;
+
+    public SecurityAnalysisTool() {
+        this(LOADER.get());
+    }
+
+    public SecurityAnalysisTool(ConversionOption conversionOption) {
+        this.conversionOption = conversionOption;
+    }
 
     @Override
     public Command getCommand() {
@@ -76,7 +89,7 @@ public class SecurityAnalysisTool extends AbstractImportingTool {
             @Override
             public Options getOptions() {
                 Options options = new Options();
-                options.addOption(Option.builder().longOpt(CASE_FILE_OPTION)
+                options.addOption(Option.builder().longOpt(CASE_FILE)
                         .desc("the case path")
                         .hasArg()
                         .argName("FILE")
@@ -200,8 +213,6 @@ public class SecurityAnalysisTool extends AbstractImportingTool {
     }
 
     void run(CommandLine line, ToolRunningContext context, ContingenciesProviderFactory cf, SecurityAnalysisFactory factory) throws Exception {
-        Path caseFile = context.getFileSystem().getPath(line.getOptionValue(CASE_FILE_OPTION));
-
         Set<LimitViolationType> limitViolationTypes = line.hasOption(LIMIT_TYPES_OPTION)
                 ? Arrays.stream(line.getOptionValue(LIMIT_TYPES_OPTION).split(",")).map(LimitViolationType::valueOf).collect(Collectors.toSet())
                 : EnumSet.allOf(LimitViolationType.class);
@@ -228,10 +239,7 @@ public class SecurityAnalysisTool extends AbstractImportingTool {
         // Contingencies file
         Path contingenciesFile = getOptionValue(line, CONTINGENCIES_FILE_OPTION).map(context.getFileSystem()::getPath).orElse(null);
 
-        context.getOutputStream().println("Loading network '" + caseFile + "'");
-        Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        ImportConfig importConfig = createImportConfig(line);
-        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), importConfig, inputParams);
+        Network network = conversionOption.read(line, context);
         network.getVariantManager().allowVariantMultiThreadAccess(true);
 
         LimitViolationFilter limitViolationFilter = LimitViolationFilter.load();

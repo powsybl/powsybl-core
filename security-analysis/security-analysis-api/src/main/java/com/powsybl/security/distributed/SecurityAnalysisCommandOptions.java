@@ -17,6 +17,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static com.powsybl.security.tools.SecurityAnalysisToolConstants.*;
+import static com.powsybl.iidm.tools.ConversionToolConstants.CASE_FILE;
 import static com.powsybl.tools.ToolConstants.TASK;
 import static com.powsybl.tools.ToolConstants.TASK_COUNT;
 import static java.util.Objects.requireNonNull;
@@ -167,7 +168,7 @@ public class SecurityAnalysisCommandOptions {
                 .id(id)
                 .program(itoolsCommand != null ? itoolsCommand : getDefaultItoolsCommand())
                 .arg("security-analysis")
-                .option(CASE_FILE_OPTION, pathToString(caseFile));
+                .option(CASE_FILE, pathToString(caseFile));
 
         setOptionIfPresent(commandBuilder, PARAMETERS_FILE_OPTION, parametersFile, this::pathToString);
         setOptionIfPresent(commandBuilder, CONTINGENCIES_FILE_OPTION, contingenciesFile, this::pathToString);

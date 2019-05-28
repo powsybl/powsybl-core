@@ -9,7 +9,13 @@ package com.powsybl.action.simulator.tools;
 public final class ActionSimulatorToolConstants {
 
     public static final String APPLY_IF_SOLVED_VIOLATIONS = "apply-if-solved-violations";
+
+    /**
+     * @deprecated Use instead {@link com.powsybl.iidm.tools.ConversionToolConstants#CASE_FILE}
+     */
+    @Deprecated
     public static final String CASE_FILE = "case-file";
+
     public static final String CONTINGENCIES = "contingencies";
     public static final String DSL_FILE = "dsl-file";
     public static final String OUTPUT_CASE_FOLDER = "output-case-folder";

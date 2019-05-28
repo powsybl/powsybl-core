@@ -7,6 +7,8 @@
 package com.powsybl.simulation;
 
 import com.google.auto.service.AutoService;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
@@ -20,7 +22,9 @@ import com.powsybl.contingency.ContingenciesProvider;
 import com.powsybl.contingency.ContingenciesProviderFactory;
 import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.tools.ConversionOption;
 import com.powsybl.iidm.tools.ConversionToolUtils;
+import com.powsybl.iidm.tools.DefaultConversionOption;
 import com.powsybl.simulation.securityindexes.SecurityIndex;
 import com.powsybl.simulation.securityindexes.SecurityIndexId;
 import com.powsybl.simulation.securityindexes.SecurityIndexType;
@@ -40,6 +44,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static com.powsybl.iidm.tools.ConversionToolConstants.CASE_FILE;
 import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 
 /**
@@ -52,9 +57,15 @@ public class ImpactAnalysisTool implements Tool {
     private static final Logger LOGGER = LoggerFactory.getLogger(ImpactAnalysisTool.class);
 
     private static final char CSV_SEPARATOR = ';';
-    private static final String CASE_FILE = "case-file";
     private static final String CONTINGENCIES = "contingencies";
     private static final String OUTPUT_CSV_FILE = "output-csv-file";
+    private static final Supplier<ConversionOption> LOADER = Suppliers.memoize(() -> new DefaultConversionOption(CASE_FILE));
+
+    private final ConversionOption conversionOption;
+
+    public ImpactAnalysisTool() {
+        this.conversionOption = LOADER.get();
+    }
 
     @Override
     public Command getCommand() {
@@ -256,21 +267,15 @@ public class ImpactAnalysisTool implements Tool {
         SimulatorFactory simulatorFactory = defaultConfig.newFactoryImpl(SimulatorFactory.class);
 
         if (Files.isRegularFile(caseFile)) {
-            runSingleAnalysis(line, context, caseFile, outputCsvFile, contingencyIds, contingenciesProvider, simulatorFactory);
+            runSingleAnalysis(line, context, outputCsvFile, contingencyIds, contingenciesProvider, simulatorFactory);
         } else if (Files.isDirectory(caseFile)) {
             runMultipleAnalyses(line, context, caseFile, outputCsvFile, contingencyIds, contingenciesProvider, simulatorFactory);
         }
     }
 
-    private void runSingleAnalysis(CommandLine line, ToolRunningContext context, Path caseFile, Path outputCsvFile, Set<String> contingencyIds, ContingenciesProvider contingenciesProvider,
+    private void runSingleAnalysis(CommandLine line, ToolRunningContext context, Path outputCsvFile, Set<String> contingencyIds, ContingenciesProvider contingenciesProvider,
                                    SimulatorFactory simulatorFactory) throws Exception {
-        context.getOutputStream().println("loading case " + caseFile + "...");
-        // load the network
-        Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), createImportConfig(line), inputParams);
-        if (network == null) {
-            throw new PowsyblException("Case '" + caseFile + "' not found");
-        }
+        Network network = conversionOption.read(line, context);
         network.getVariantManager().allowVariantMultiThreadAccess(true);
 
         Multimap<String, SecurityIndex> securityIndexesPerContingency
@@ -307,7 +312,7 @@ public class ImpactAnalysisTool implements Tool {
             } catch (Exception e) {
                 LOGGER.error(e.toString(), e);
             }
-        }, dataSource -> context.getOutputStream().println("loading case " + dataSource.getBaseName() + "..."));
+        }, dataSource -> context.getOutputStream().println("Loading network " + dataSource.getBaseName() + "..."));
 
         writeCsv(securityIndexesPerCase, outputCsvFile);
     }

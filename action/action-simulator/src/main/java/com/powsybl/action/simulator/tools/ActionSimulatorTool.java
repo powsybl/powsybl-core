@@ -7,6 +7,8 @@
 package com.powsybl.action.simulator.tools;
 
 import com.google.auto.service.AutoService;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.powsybl.action.dsl.ActionDb;
 import com.powsybl.action.dsl.ActionDslLoader;
 import com.powsybl.action.dsl.DefaultActionDslLoaderObserver;
@@ -19,9 +21,9 @@ import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.Partition;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.export.Exporters;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.tools.ConversionToolUtils;
+import com.powsybl.iidm.tools.ConversionOption;
+import com.powsybl.iidm.tools.DefaultConversionOption;
 import com.powsybl.security.Security;
 import com.powsybl.security.SecurityAnalysisResult;
 import com.powsybl.security.converter.SecurityAnalysisResultExporters;
@@ -50,6 +52,7 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static com.powsybl.action.simulator.tools.ActionSimulatorToolConstants.*;
+import static com.powsybl.iidm.tools.ConversionToolConstants.CASE_FILE;
 import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 import static com.powsybl.tools.ToolConstants.TASK;
 import static com.powsybl.tools.ToolConstants.TASK_COUNT;
@@ -60,7 +63,14 @@ import static com.powsybl.tools.ToolConstants.TASK_COUNT;
 @AutoService(Tool.class)
 public class ActionSimulatorTool implements Tool {
 
+    private static final Supplier<ConversionOption> LOADER = Suppliers.memoize(() -> new DefaultConversionOption(CASE_FILE));
     private static final Logger LOGGER = LoggerFactory.getLogger(ActionSimulatorTool.class);
+
+    private final ConversionOption conversionOption;
+
+    public ActionSimulatorTool() {
+        this.conversionOption = LOADER.get();
+    }
 
     @Override
     public Command getCommand() {
@@ -252,9 +262,7 @@ public class ActionSimulatorTool implements Tool {
         observers.add(createLogPrinter(context, verbose));
 
         // load network
-        context.getOutputStream().println("Loading network '" + caseFile + "'");
-        Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), createImportConfig(line), inputParams);
+        Network network = conversionOption.read(line, context);
 
         try {
             // load actions from Groovy DSL

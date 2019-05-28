@@ -6,11 +6,15 @@
  */
 package com.powsybl.security;
 
+import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProviderFactory;
-import com.powsybl.iidm.import_.ImportConfig;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.tools.ConversionOption;
 import com.powsybl.iidm.tools.ConversionToolUtils;
+import com.powsybl.iidm.tools.DefaultConversionOption;
+import com.powsybl.iidm.xml.XMLImporter;
 import com.powsybl.tools.AbstractToolTest;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -19,11 +23,15 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.Properties;
 
+import static com.powsybl.iidm.import_.Importers.createDataSource;
+import static com.powsybl.iidm.tools.ConversionToolConstants.CASE_FILE;
+import static com.powsybl.iidm.tools.ConversionToolUtils.readProperties;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -38,16 +46,19 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        tool = new SecurityAnalysisTool() {
-
+        ConversionOption conversionOption = new DefaultConversionOption(CASE_FILE) {
+            @Override
+            public Network read(CommandLine line, ToolRunningContext context) throws IOException {
+                String inputFile = line.getOptionValue(CASE_FILE);
+                Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
+                ReadOnlyDataSource dataSource = createDataSource(context.getFileSystem().getPath(inputFile));
+                return new XMLImporter(platformConfig).importData(dataSource, inputParams);
+            }
+        };
+        tool = new SecurityAnalysisTool(conversionOption) {
             @Override
             protected TableFormatterConfig createTableFormatterConfig() {
                 return new TableFormatterConfig();
-            }
-
-            @Override
-            protected ImportConfig createImportConfig(CommandLine line) {
-                return ConversionToolUtils.createImportConfig(line, new ImportConfig());
             }
         };
         Files.createFile(fileSystem.getPath("network.xml"));
@@ -82,6 +93,15 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
 
     @Test
     public void testRunWithLog() throws Exception {
+        tool = new SecurityAnalysisTool(new DefaultConversionOption(CASE_FILE) {
+            @Override
+            public Network read(CommandLine line, ToolRunningContext context) throws IOException {
+                String inputFile = line.getOptionValue(CASE_FILE);
+                Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
+                ReadOnlyDataSource dataSource = createDataSource(context.getFileSystem().getPath(inputFile));
+                return new NetworkImporterMock().importData(dataSource, inputParams);
+            }
+        });
         try (ByteArrayOutputStream bout = new ByteArrayOutputStream();
              ByteArrayOutputStream berr = new ByteArrayOutputStream();
              PrintStream out = new PrintStream(bout);

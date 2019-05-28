@@ -11,7 +11,12 @@ package com.powsybl.security.tools;
  */
 public final class SecurityAnalysisToolConstants {
 
+    /**
+     * @deprecated Use instead {@link com.powsybl.iidm.tools.ConversionToolConstants#CASE_FILE}
+     */
+    @Deprecated
     public static final String CASE_FILE_OPTION = "case-file";
+
     public static final String PARAMETERS_FILE_OPTION = "parameters-file";
     public static final String LIMIT_TYPES_OPTION = "limit-types";
     public static final String OUTPUT_FILE_OPTION = "output-file";
