@@ -15,7 +15,8 @@ import com.powsybl.iidm.network.impl.ThreeWindingsTransformerImpl.Leg3Impl;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeWindingsTransformerAdderImpl> implements ThreeWindingsTransformerAdder {
+class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeWindingsTransformerAdderImpl>
+    implements ThreeWindingsTransformerAdder {
 
     abstract class AbstractLegBaseAdder<L extends AbstractLegBaseAdder<L>> implements Validable {
 
@@ -32,6 +33,8 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         protected double x = Double.NaN;
 
         protected double ratedU = Double.NaN;
+
+        protected int phaseAngleClock = 0;
 
         public L setVoltageLevel(String voltageLevelId) {
             this.voltageLevelId = voltageLevelId;
@@ -68,6 +71,11 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             return (L) this;
         }
 
+        public L setPhaseAngleClock(int phaseAngleClock) {
+            this.phaseAngleClock = phaseAngleClock;
+            return (L) this;
+        }
+
         protected void checkParams() {
             if (Double.isNaN(r)) {
                 throw new ValidationException(this, "r is not set");
@@ -82,10 +90,10 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         protected TerminalExt checkAndGetTerminal() {
             return new TerminalBuilder(getNetwork().getRef(), this)
-                    .setNode(node)
-                    .setBus(bus)
-                    .setConnectableBus(connectableBus)
-                    .build();
+                .setNode(node)
+                .setBus(bus)
+                .setConnectableBus(connectableBus)
+                .build();
         }
 
         protected VoltageLevelExt checkAndGetVoltageLevel() {
@@ -95,12 +103,12 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             VoltageLevelExt voltageLevel = getNetwork().getVoltageLevel(voltageLevelId);
             if (voltageLevel == null) {
                 throw new ValidationException(this, "voltage level '" + voltageLevelId
-                        + "' not found");
+                    + "' not found");
             }
             if (voltageLevel.getSubstation() != substation) {
                 throw new ValidationException(this,
                     "voltage level shall belong to the substation '"
-                    + substation.getId() + "'");
+                        + substation.getId() + "'");
             }
             return voltageLevel;
         }
@@ -255,8 +263,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         voltageLevel2.attach(terminal2, true);
         voltageLevel3.attach(terminal3, true);
 
-        ThreeWindingsTransformerImpl transformer
-                = new ThreeWindingsTransformerImpl(id, getName(), leg1, leg2, leg3);
+        ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(id, getName(), leg1, leg2, leg3);
         leg1.setTransformer(transformer);
         leg2.setTransformer(transformer);
         leg3.setTransformer(transformer);

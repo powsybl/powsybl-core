@@ -8,19 +8,23 @@ package com.powsybl.iidm.network;
 
 /**
  * A 3 windings power transformer.
- *<p>
- * The equivalent star model used is:
- * <div>
- *    <object data="doc-files/threeWindingsTransformer.svg" type="image/svg+xml">
- *    </object>
- * </div>
- * <p>Side 1 is the primary (high voltage), side 2 and side 3 can be indifferently
+ * <p>
+ * The equivalent star model used is: <div>
+ * <object data="doc-files/threeWindingsTransformer.svg" type="image/svg+xml">
+ * </object> </div>
+ * <p>
+ * Side 1 is the primary (high voltage), side 2 and side 3 can be indifferently
  * the secondary (medium voltage) or the tertiary voltage (low voltage).
- * <p>b1 and g1 unit is siemens.
- * <p>r1, r2, r3, x1, x2 and x3 unit is ohm.
- * <p>A 3 windings transformer is connected to 3 voltage levels (side 1, side 2 and side 3)
- * that belong to the same substation.
- * <p>To create a 3 windings transformer, see {@link ThreeWindingsTransformerAdder}
+ * <p>
+ * b1 and g1 unit is siemens.
+ * <p>
+ * r1, r2, r3, x1, x2 and x3 unit is ohm.
+ * <p>
+ * A 3 windings transformer is connected to 3 voltage levels (side 1, side 2 and
+ * side 3) that belong to the same substation.
+ * <p>
+ * To create a 3 windings transformer, see {@link ThreeWindingsTransformerAdder}
+ *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @see RatioTapChanger
  * @see PhaseTapChanger
@@ -42,26 +46,22 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
         Terminal getTerminal();
 
         /**
-         * Get the nominal series resistance specified in ohm at the voltage of
-         * the leg.
+         * Get the nominal series resistance specified in ohm at the voltage of the leg.
          */
         double getR();
 
         /**
-         * Set the nominal series resistance specified in ohm at the voltage of
-         * the leg.
+         * Set the nominal series resistance specified in ohm at the voltage of the leg.
          */
         L setR(double r);
 
         /**
-         * Get the nominal series reactance specified in ohm at the voltage of
-         * the leg.
+         * Get the nominal series reactance specified in ohm at the voltage of the leg.
          */
         double getX();
 
         /**
-         * Set the nominal series reactance specified in ohm at the voltage of
-         * the leg.
+         * Set the nominal series reactance specified in ohm at the voltage of the leg.
          */
         L setX(double x);
 
@@ -75,6 +75,16 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
          */
         L setRatedU(double ratedU);
 
+        /**
+         * Get the phase angle clock.
+         */
+        int getPhaseAngleClock();
+
+        /**
+         * Set the phase angle clock.
+         */
+        L setPhaseAngleClock(int phaseAngleClock);
+
         CurrentLimits getCurrentLimits();
 
         CurrentLimitsAdder newCurrentLimits();
@@ -87,26 +97,26 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
     interface Leg1 extends LegBase<Leg1> {
 
         /**
-         * Get the nominal magnetizing conductance specified in S at the voltage
-         * of the leg.
+         * Get the nominal magnetizing conductance specified in S at the voltage of the
+         * leg.
          */
         double getG();
 
         /**
-         * Set the nominal magnetizing conductance specified in S at the voltage
-         * of the leg.
+         * Set the nominal magnetizing conductance specified in S at the voltage of the
+         * leg.
          */
         Leg1 setG(double g);
 
         /**
-         * Get the nominal magnetizing susceptance specified in S at the voltage
-         * of the leg.
+         * Get the nominal magnetizing susceptance specified in S at the voltage of the
+         * leg.
          */
         double getB();
 
         /**
-         * Set the nominal magnetizing susceptance specified in S at the voltage
-         * of the leg.
+         * Set the nominal magnetizing susceptance specified in S at the voltage of the
+         * leg.
          */
         Leg1 setB(double b);
 

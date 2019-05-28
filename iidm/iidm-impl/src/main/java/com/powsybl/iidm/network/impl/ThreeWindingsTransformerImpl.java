@@ -14,7 +14,8 @@ import java.util.Objects;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTransformer> implements ThreeWindingsTransformer {
+class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTransformer>
+    implements ThreeWindingsTransformer {
 
     abstract static class AbstractLegBase<T extends AbstractLegBase<T>> implements Validable, CurrentLimitsOwner<Void> {
 
@@ -25,6 +26,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         private double x;
 
         private double ratedU;
+
+        private int phaseAngleClock;
 
         private CurrentLimits limits;
 
@@ -75,6 +78,15 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
                 throw new ValidationException(this, "rated U is invalid");
             }
             this.ratedU = ratedU;
+            return (T) this;
+        }
+
+        public int getPhaseAngleClock() {
+            return phaseAngleClock;
+        }
+
+        public T setPhaseAngleClock(int phaseAngleClock) {
+            this.phaseAngleClock = phaseAngleClock;
             return (T) this;
         }
 
@@ -161,7 +173,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
     }
 
-    private abstract static class AbstractLeg2or3<T extends AbstractLeg2or3<T>> extends AbstractLegBase<T> implements RatioTapChangerParent {
+    private abstract static class AbstractLeg2or3<T extends AbstractLeg2or3<T>> extends AbstractLegBase<T>
+        implements RatioTapChangerParent {
 
         private RatioTapChangerImpl ratioTapChanger;
 
