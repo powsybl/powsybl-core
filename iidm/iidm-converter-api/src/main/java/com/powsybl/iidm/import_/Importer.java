@@ -58,7 +58,7 @@ public interface Importer {
 
 
     /**
-     * @deprecated Use {@link Importer##importData(ReadOnlyDataSource, NetworkFactory, Properties)} instead.
+     * @deprecated Use {@link Importer#importData(ReadOnlyDataSource, NetworkFactory, Properties)} instead.
      */
     @Deprecated
     default Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
