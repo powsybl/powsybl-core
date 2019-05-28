@@ -32,10 +32,10 @@ In this other table, I listed all the **powsybl-core** modules and the proposed 
 | powsybl-afs-ws-storage | None | N/A |
 | powsybl-afs-ws-utils | None | N/A |
 | powsybl-ampl-converter | moved in iidm module, artifactId: powsybl-ampl-converter -> powsybl-iidm-dsv-converter, automatic module name: com.powsybl.ampl.converter -> com.powsybl.iidm.dsv.converter, package: com.powsybl.ampl.converter -> com.powsybl.iidm.dsv.converter | This module does not converts IIDM networks into AMPL networks, it converts them in Delimiter-separated values (DSV) files compatible with AMPL processing |
-| **powsybl-cgmes-conformity** | **package: com.powsybl.cgmes.conformity.test -> com.powsybl.cgmes.conformity OR artifactId: powsybl-cgmes-conformity -> powsybl.cgmes-conformity-test and automatic module name: com.powsybl.cgmes.conformity -> com.powsybl.cgmes.conformity.test** | **Good practice is to have the automatic module name identical to root package name** |
+| powsybl-cgmes-conformity | artifactId: powsybl-cgmes-conformity -> powsybl.cgmes-conformity-test and automatic module name: com.powsybl.cgmes.conformity -> com.powsybl.cgmes.conformity.test | Good practice is to have the automatic module name identical to root package name + this module only contains test code |
 | powsybl-cgmes-conversion | artifactId: powsybl-cgmes-conversion -> powsybl-cgmes-converter, automatic module name: com.powsybl.cgmes.conversion -> com.powsybl.cgmes.converter, package: com.powsybl.cgmes.conversion -> com.powsybl.cgmes.converter | Converter naming strategy |
 | powsybl-cgmes-model | artifactId: powsybl-cgmes-model -> powsybl-cgmes-network, automatic module name: com.powsybl.cgmes.model -> com.powsybl.cgmes.network, package: com.powsybl.cgmes.model -> com.powsybl.cgmes.network | Network model naming strategy |
-| **powsybl-cgmes-model-alternatives** | **package: com.powsybl.cgmes.alternatives.test -> com.powsybl.cgmes.alternatives OR artifactId: powsybl-cgmes-model-alternatives -> powsybl.cgmes-model-alternatives-test and automatic module name: com.powsybl.cgmes.alternatives -> com.powsybl.cgmes.alternatives.test** | **Good practice is to have the automatic module name identical to root package name** |
+| powsybl-cgmes-model-alternatives | artifactId: powsybl-cgmes-model-alternatives -> powsybl.cgmes-model-alternatives-test and automatic module name: com.powsybl.cgmes.alternatives -> com.powsybl.cgmes.alternatives.test | Good practice is to have the automatic module name identical to root package name + this module only contains test code |
 | powsybl-cim-anonymiser | package: com.powsybl.cim -> com.powsybl.cim.anonymiser | Good practice is to have the automatic module name identical to root package name and com.powsybl.cim is too generic regarding what the module does |
 | powsybl-commons | None | N/A |
 | powsybl-computation | artifactId: powsybl-computation -> powsybl-computation-api, automatic module name: com.powsybl.computation.api -> com.powsybl.computation | API naming strategy |
@@ -62,10 +62,10 @@ In this other table, I listed all the **powsybl-core** modules and the proposed 
 | powsybl-security-analysis-afs-local | None | N/A | 
 | powsybl-security-analysis-api | None | N/A |
 | powsybl-sensitivity-api | automatic module name: com.powsybl.sensitivity.api -> com.powsybl.sensitivity | API naming strategy |
-| powsybl-simulation-api | automatic module name: com.powsybl.simulation.api -> com.powsybl.simulation | API naming strategy |
+| **powsybl-simulation-api** | **artifactId: powsybl-simulation-api -> powsybl-time-domain-simulation-api, automatic module name: com.powsybl.simulation.api -> com.powsybl.time.domain.simulation, package: com.powsybl.simulation -> com.powsybl.time.domain.simulation** | **API naming strategy + Name too generic** |
 | powsybl-time-series-api | automatic module name: com.powsybl.timeseries.api -> com.powsybl.timeseries | API naming strategy |
 | powsybl-tools | None | N/A |
-| powsybl-triple-store-api | automatic module name: com.powsybl.triplestore.api -> com.powsybl.triplestore, package: com.powsybl.triplestore.api -> com.powsybl.triplestore | API naming strategy |
+| powsybl-triple-store-api | artifactId: powsybl-triple-store-api -> powsybl-triplestore-api, automatic module name: com.powsybl.triplestore.api -> com.powsybl.triplestore, package: com.powsybl.triplestore.api -> com.powsybl.triplestore | API naming strategy |
 | powsybl-triple-store-impl-blazegraph | None | N/A |
 | powsybl -triple-store-impl-jena | None | N/A |
 | powsybl-triple-store-impl-rdf4j | None | N/A |
