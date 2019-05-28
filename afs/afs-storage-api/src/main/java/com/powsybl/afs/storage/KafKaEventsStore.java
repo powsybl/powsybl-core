@@ -18,7 +18,7 @@ public class KafKaEventsStore implements EventsStore {
     private Producer<String, NodeEvent> producer;
 
     public KafKaEventsStore() {
-        producer = ProducerFactory.create();
+        producer = ProducerFactory.create(KafkaConfig.load());
     }
 
     @Override

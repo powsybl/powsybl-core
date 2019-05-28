@@ -21,13 +21,12 @@ public final class ProducerFactory {
 
     private ProducerFactory() { }
 
-    public static Producer<String, NodeEvent> create() {
+    public static Producer<String, NodeEvent> create(KafkaConfig config) {
         Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KafkaConstants.KAFKA_BROKERS);
-        props.put(ProducerConfig.CLIENT_ID_CONFIG, KafkaConstants.CLIENT_ID);
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getKafkaBrokers());
+        props.put(ProducerConfig.CLIENT_ID_CONFIG, config.getClientId());
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, NodeEventSerializer.class.getName());
         return new KafkaProducer<>(props);
     }
-
 }
