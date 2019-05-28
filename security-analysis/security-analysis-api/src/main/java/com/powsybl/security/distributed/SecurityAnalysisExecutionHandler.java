@@ -101,22 +101,30 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
      */
     @Override
     public R after(Path workingDir, ExecutionReport report) throws IOException {
+        // read results and logs in case of runWithLog()
+        // 1. run() and no exception, after() do nothing and continue read json (As it do nothing, if no errors)
+        // 2. run() and exception, an exception(PowsyblException:Error during the execution) would be thrown.
+        // 3. runWithLog() and no exception
+        // 4. runWithLog() and exception, a ComputationException will be re-thrown
+        PowsyblException rootException = null;
         try {
-            // read results and logs in case of runWithLog()
-            // 1. run() and no exception, after() would be skipped. (As it do nothing, if no errors)
-            // 2. run() and exception, an exception(NoSuchFileException) would be thrown.
-            // 3. runWithLog() and no exception
-            // 4. runWithLog() and exception, a ComputationException will be re-thrown
+            super.after(workingDir, report); // throw PowsybleException
+        } catch (PowsyblException pe) {
+            // ignored
+            rootException = pe;
+        }
+        try {
             R r = reader.read(workingDir); // throw ComputationException in runWithLog()
             LOGGER.debug("End of command execution in {}. ", workingDir);
             return r;
         } catch (ComputationException e) {
-            try {
-                super.after(workingDir, report); // throw PowsybleException
-            } catch (PowsyblException pe) {
-                // ignored
+            throw new ComputationException(e, rootException);
+        } catch (UncheckedIOException ioException) {
+            if (rootException != null) {
+                throw rootException;
+            } else {
+                throw ioException;
             }
-            throw e;
         }
     }
 

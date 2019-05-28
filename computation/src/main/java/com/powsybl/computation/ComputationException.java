@@ -8,10 +8,7 @@ package com.powsybl.computation;
 
 import com.powsybl.commons.PowsyblException;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * An immutable class contains all types of log collected.
@@ -27,6 +24,10 @@ public final class ComputationException extends PowsyblException {
     private final Map<String, byte[]> zipBytesByFileName;
 
     private final List<Exception> exceptions;
+
+    public ComputationException(ComputationException wrappedException, Exception e) {
+        this(wrappedException.getOutLogs(), wrappedException.getErrLogs(), wrappedException.getZipBytes(), Arrays.asList(wrappedException, e));
+    }
 
     ComputationException(Map<String, String> outMap, Map<String, String> errMap, Map<String, byte[]> zipMap, List<Exception> exceptions) {
         outMsgByLogFileName = Collections.unmodifiableMap(Objects.requireNonNull(outMap));
