@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteSource;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.*;
 import com.powsybl.contingency.Contingency;
 import com.powsybl.iidm.network.VariantManagerConstants;
@@ -23,6 +24,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -231,11 +233,21 @@ public class SecurityAnalysisExecutionHandlersTest {
             exporter.export(resultForContingency("c1"), writer);
         }
 
+        SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
+
+        ExecutionHandler<SecurityAnalysisResult> handler3 = SecurityAnalysisExecutionHandlers.distributed(input, 2);
+        try {
+            Command cmd = Mockito.mock(Command.class);
+            handler3.after(workingDir, new DefaultExecutionReport(Collections.singletonList(new ExecutionError(cmd, 0, 42))));
+            fail();
+        } catch (PowsyblException pe) {
+            assertEquals("Error during the execution in directory  /work exit codes: Task 0 : 42", pe.getMessage());
+        }
+
         try (Writer writer = Files.newBufferedWriter(workingDir.resolve("task_1_result.json"))) {
             exporter.export(resultForContingency("c2"), writer);
         }
 
-        SecurityAnalysisExecutionInput input = new SecurityAnalysisExecutionInput();
         ExecutionHandler<SecurityAnalysisResult> handler = SecurityAnalysisExecutionHandlers.distributed(input, 2);
 
         SecurityAnalysisResult result = handler.after(workingDir, new DefaultExecutionReport());
@@ -285,6 +297,15 @@ public class SecurityAnalysisExecutionHandlersTest {
             assertEquals("logs", ce.getErrLogs().get("security-analysis-task_1.err"));
             assertEquals("logs", ce.getOutLogs().get("security-analysis-task_0.out"));
             assertEquals("logs", ce.getOutLogs().get("security-analysis-task_1.out"));
+        }
+
+        try {
+            Command cmd = Mockito.mock(Command.class);
+            handler2.after(workingDir, new DefaultExecutionReport(Collections.singletonList(new ExecutionError(cmd, 0, 42))));
+            fail();
+        } catch (Exception e) {
+            // ignored
+            assertTrue(e instanceof ComputationException);
         }
 
         try (Writer writer = Files.newBufferedWriter(workingDir.resolve("task_0_result.json"))) {

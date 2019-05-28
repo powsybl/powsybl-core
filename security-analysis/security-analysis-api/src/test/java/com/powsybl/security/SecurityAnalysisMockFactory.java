@@ -6,10 +6,13 @@
  */
 package com.powsybl.security;
 
+import com.powsybl.computation.ComputationException;
+import com.powsybl.computation.ComputationExceptionBuilder;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -20,7 +23,17 @@ import static org.mockito.Mockito.when;
  */
 public class SecurityAnalysisMockFactory implements SecurityAnalysisFactory {
 
-    static SecurityAnalysis mock;
+    private SecurityAnalysis mock;
+
+    private final boolean failed;
+
+    SecurityAnalysisMockFactory() {
+        this(false);
+    }
+
+    SecurityAnalysisMockFactory(boolean failed) {
+        this.failed = failed;
+    }
 
     @Override
     public SecurityAnalysis create(Network network, ComputationManager computationManager, int priority) {
@@ -47,8 +60,17 @@ public class SecurityAnalysisMockFactory implements SecurityAnalysisFactory {
         SecurityAnalysisResultWithLog sarl = new SecurityAnalysisResultWithLog(sar, "hi".getBytes());
         when(cfSarl.join()).thenReturn(sarl);
         when(cfSar.join()).thenReturn(sar);
-        when(mock.runWithLog(any(), any(), any())).thenReturn(cfSarl);
-        when(mock.run(any(), any(), any())).thenReturn(cfSar);
+        if (!failed) {
+            when(mock.runWithLog(any(), any(), any())).thenReturn(cfSarl);
+            when(mock.run(any(), any(), any())).thenReturn(cfSar);
+        } else {
+            ComputationExceptionBuilder ceb = new ComputationExceptionBuilder(new RuntimeException("test"));
+            ceb.addOutLog("out", "outLog")
+                    .addErrLog("err", "errLog");
+            ComputationException computationException = ceb.build();
+            when(mock.runWithLog(any(), any(), any())).thenThrow(new CompletionException(computationException));
+            when(mock.run(any(), any(), any())).thenThrow(new CompletionException(computationException));
+        }
         return mock;
     }
 }

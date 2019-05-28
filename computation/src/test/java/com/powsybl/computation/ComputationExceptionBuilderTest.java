@@ -66,6 +66,8 @@ public class ComputationExceptionBuilderTest {
                 .addErrLog("err", "errLog")
                 .addZipFileIfExists(workingDir.resolve("notExists"))
                 .addZipFileIfExists(f1)
+                .addZipFileIfExists(null)
+                .addException(null)
                 .addException(runtimeException);
         ComputationException computationException2 = ceb2.build();
         assertEquals("outLog", computationException2.getOutLogs().get("out"));

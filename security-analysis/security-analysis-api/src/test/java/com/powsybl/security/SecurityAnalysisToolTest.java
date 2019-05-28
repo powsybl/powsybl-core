@@ -11,6 +11,7 @@ import com.powsybl.commons.config.MapModuleConfig;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.commons.io.table.TableFormatterConfig;
+import com.powsybl.computation.ComputationException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.contingency.ContingenciesProviderFactory;
 import com.powsybl.iidm.import_.ImportConfig;
@@ -30,7 +31,10 @@ import java.io.PrintStream;
 import java.nio.file.Files;
 import java.util.Collections;
 import java.util.Properties;
+import java.util.concurrent.CompletionException;
 
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
@@ -121,6 +125,15 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
             // execute
             tool.run(cl, context, mock(ContingenciesProviderFactory.class), saFactory);
             verify(sa, times(1)).run(any(), any(), any());
+
+            // exception happens
+            SecurityAnalysisFactory saFactory2 = new SecurityAnalysisMockFactory(true);
+            try {
+                tool.run(cl, context, mock(ContingenciesProviderFactory.class), saFactory2);
+                fail();
+            } catch (CompletionException exception) {
+                assertTrue(exception.getCause() instanceof ComputationException);
+            }
         }
     }
 
