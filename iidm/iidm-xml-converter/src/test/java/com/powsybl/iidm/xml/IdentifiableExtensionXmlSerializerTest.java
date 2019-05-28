@@ -16,7 +16,6 @@ import com.powsybl.commons.xml.XmlWriterContext;
 import com.powsybl.iidm.export.ExportOptions;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.*;
-import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -201,15 +200,7 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractConverterTes
 
     @Test
     public void testTerminalExtension() throws IOException {
-        Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
-
-        Load load = network.getLoad("LOAD");
-        TerminalMockExt terminalMockExt = new TerminalMockExt(load);
-        assertSame(load.getTerminal(), terminalMockExt.getTerminal());
-        load.addExtension(TerminalMockExt.class, terminalMockExt);
-
-        Network network2 = roundTripXmlTest(network,
+        Network network2 = roundTripXmlTest(EurostagTutorialExample1Factory.createWithTerminalMockExt(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
                 "/eurostag-tutorial-example1-with-terminalMock-ext.xml");

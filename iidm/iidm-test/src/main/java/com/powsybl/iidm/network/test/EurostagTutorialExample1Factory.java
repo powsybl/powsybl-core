@@ -384,4 +384,15 @@ public final class EurostagTutorialExample1Factory {
         return network;
     }
 
+    public static Network createWithTerminalMockExt() {
+        Network network = create();
+        network.setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
+
+        Load load = network.getLoad("LOAD");
+        TerminalMockExt terminalMockExt = new TerminalMockExt(load);
+        load.addExtension(TerminalMockExt.class, terminalMockExt);
+
+        return network;
+    }
+
 }

@@ -9,12 +9,9 @@ package com.powsybl.iidm.xml;
 import com.powsybl.commons.AbstractConverterTest;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.IidmImportExportMode;
-import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
-import com.powsybl.iidm.network.test.TerminalMockExt;
-import org.joda.time.DateTime;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -40,13 +37,13 @@ public class XmlExporterBaseOneExtensionPerFileTest extends AbstractConverterTes
         return dataSource;
     }
 
-    private void exporterOneFilePerExtensionType(Network network, String xiidmBaseRef, List<String> extensionsList) throws IOException {
+    private void exporterOneFilePerExtensionType(Network network, List<String> extensionsList) throws IOException {
         MemDataSource dataSource = export(network, extensionsList);
 
         // check the base exported file and compare it to iidmBaseRef reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
             assertNotNull(is);
-            compareXml(getClass().getResourceAsStream(xiidmBaseRef), is);
+            compareXml(getClass().getResourceAsStream("/multiple-extensions.xiidm"), is);
         }
 
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("-loadBar.xiidm"))) {
@@ -62,8 +59,8 @@ public class XmlExporterBaseOneExtensionPerFileTest extends AbstractConverterTes
 
     @Test(expected = NullPointerException.class)
     public void exportOneExtensionTypeTest() throws IOException {
-        List<String> extensionsList = Arrays.asList("loadBar");
-        exporterOneFilePerExtensionType(MultipleExtensionsTestNetworkFactory.create(), "/multiple-extensions.xiidm", extensionsList);
+        List<String> extensionsList = Collections.singletonList("loadBar");
+        exporterOneFilePerExtensionType(MultipleExtensionsTestNetworkFactory.create(), extensionsList);
     }
 
     @Test
@@ -77,19 +74,12 @@ public class XmlExporterBaseOneExtensionPerFileTest extends AbstractConverterTes
     @Test
     public void exportAllExtensionsTest() throws IOException {
         List<String> extensionsList = Arrays.asList("loadFoo", "loadBar");
-        exporterOneFilePerExtensionType(MultipleExtensionsTestNetworkFactory.create(), "/multiple-extensions.xiidm", extensionsList);
+        exporterOneFilePerExtensionType(MultipleExtensionsTestNetworkFactory.create(), extensionsList);
     }
 
     @Test
     public void exportTerminalExtTest() throws IOException {
-        Network network = EurostagTutorialExample1Factory.create();
-        network.setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
-        Load load = network.getLoad("LOAD");
-        TerminalMockExt terminalMockExt = new TerminalMockExt(load);
-        assertSame(load.getTerminal(), terminalMockExt.getTerminal());
-        load.addExtension(TerminalMockExt.class, terminalMockExt);
-
-        MemDataSource dataSource = export(network, Collections.singletonList("terminalMock"));
+        MemDataSource dataSource = export(EurostagTutorialExample1Factory.createWithTerminalMockExt(), Collections.singletonList("terminalMock"));
 
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
             assertNotNull(is);
