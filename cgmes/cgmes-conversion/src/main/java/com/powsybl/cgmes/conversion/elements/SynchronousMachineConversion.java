@@ -25,8 +25,8 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
 
     @Override
     public void convert() {
-        double minP = p.asDouble("minP", 0);
-        double maxP = p.asDouble("maxP", 0);
+        double minP = p.asDouble("minP", -Double.MAX_VALUE);
+        double maxP = p.asDouble("maxP", Double.MAX_VALUE);
         double ratedS = p.asDouble("ratedS");
         ratedS = ratedS > 0 ? ratedS : Double.NaN;
         String generatingUnitType = p.getLocal("generatingUnitType");
