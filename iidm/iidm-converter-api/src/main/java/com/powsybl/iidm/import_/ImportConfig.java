@@ -47,7 +47,7 @@ public class ImportConfig {
     }
 
     public List<String> getPostProcessors() {
-        return postProcessors;
+        return Collections.unmodifiableList(postProcessors);
     }
 
     /**
