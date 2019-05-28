@@ -102,7 +102,7 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
     @Override
     public R after(Path workingDir, ExecutionReport report) throws IOException {
         // read results and logs in case of runWithLog()
-        // 1. run() and no exception, after() do nothing and continue read json (As it do nothing, if no errors)
+        // 1. run() and no exception, after() do nothing and continue read json
         // 2. run() and exception, an exception(PowsyblException:Error during the execution) would be thrown.
         // 3. runWithLog() and no exception
         // 4. runWithLog() and exception, a ComputationException will be re-thrown
@@ -110,7 +110,6 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
         try {
             super.after(workingDir, report); // throw PowsybleException
         } catch (PowsyblException pe) {
-            // ignored
             rootException = pe;
         }
         try {
