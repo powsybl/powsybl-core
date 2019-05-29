@@ -184,7 +184,7 @@ public class AppFileSystemTool implements Tool {
             String fileSystemName = line.getOptionValue(LS_INCONSISTENT_NODES);
             if (fileSystemName == null) {
                 for (AppFileSystem afs : appData.getFileSystems()) {
-                    List<NodeInfo> nodeInfos = afs.getStorage().getInconsistentNodes(afs.getRootFolder().getId());
+                    List<NodeInfo> nodeInfos = afs.getStorage().getInconsistentNodes();
                     if (!nodeInfos.isEmpty()) {
                         context.getOutputStream().println(afs.getName() + ":");
                         nodeInfos.forEach(nodeInfo -> context.getOutputStream().print(nodeInfo.getId() + " "));
@@ -195,7 +195,7 @@ public class AppFileSystemTool implements Tool {
                 if (fs == null) {
                     throw new AfsException(FILE_SYSTEM + fileSystemName + NOT_FOUND);
                 }
-                List<NodeInfo> nodeInfos = fs.getStorage().getInconsistentNodes(fs.getRootFolder().getId());
+                List<NodeInfo> nodeInfos = fs.getStorage().getInconsistentNodes();
                 if (!nodeInfos.isEmpty()) {
                     context.getOutputStream().println(fileSystemName + ":");
                     nodeInfos.forEach(nodeInfo -> context.getOutputStream().print(nodeInfo.getId() + " "));
@@ -205,7 +205,7 @@ public class AppFileSystemTool implements Tool {
     }
 
     private void printSettedNodes(ToolRunningContext context, AppFileSystem fs, String nodeId) {
-        List<NodeInfo> nodeInfos = fs.getStorage().getInconsistentNodes(fs.getRootFolder().getId());
+        List<NodeInfo> nodeInfos = fs.getStorage().getInconsistentNodes();
         if (!nodeInfos.isEmpty()) {
             context.getOutputStream().println(fs.getName() + ":");
             if (nodeId == null) {
@@ -251,7 +251,7 @@ public class AppFileSystemTool implements Tool {
     }
 
     private void removeNodes(ToolRunningContext context, AppFileSystem afs, String nodeId) {
-        List<NodeInfo> nodeInfos = afs.getStorage().getInconsistentNodes(afs.getRootFolder().getId());
+        List<NodeInfo> nodeInfos = afs.getStorage().getInconsistentNodes();
         if (!nodeInfos.isEmpty()) {
             if (nodeId == null) {
                 nodeInfos.forEach(nodeInfo -> afs.getStorage().deleteNode(nodeInfo.getId()));

@@ -334,8 +334,13 @@ public class RemoteAppStorage implements AppStorage {
         }
     }
 
-    private List<NodeInfo> getResponse(String targetUrl, String nodeId) {
-        Response response = webTarget.path(targetUrl)
+    @Override
+    public List<NodeInfo> getChildNodes(String nodeId) {
+        Objects.requireNonNull(nodeId);
+
+        LOGGER.debug("getChildNodes(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
+
+        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/children")
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .resolveTemplate(NODE_ID, nodeId)
                 .request(MediaType.APPLICATION_JSON)
@@ -350,22 +355,20 @@ public class RemoteAppStorage implements AppStorage {
     }
 
     @Override
-    public List<NodeInfo> getChildNodes(String nodeId) {
-        Objects.requireNonNull(nodeId);
+    public List<NodeInfo> getInconsistentNodes() {
+        LOGGER.debug("getInconsistentNodes(fileSystemName={})", fileSystemName);
 
-        LOGGER.debug("getChildNodes(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
-
-        return getResponse("fileSystems/{fileSystemName}/nodes/{nodeId}/children", nodeId);
-
-    }
-
-    @Override
-    public List<NodeInfo> getInconsistentNodes(String nodeId) {
-        Objects.requireNonNull(nodeId);
-
-        LOGGER.debug("getInconsistentNodes(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
-
-        return getResponse("fileSystems/{fileSystemName}/nodes/{nodeId}/inconsistentChildrenNodes", nodeId);
+        Response response = webTarget.path("fileSystems/{fileSystemName}/inconsistentChildrenNodes")
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, token)
+                .get();
+        try {
+            return readEntityIfOk(response, new GenericType<List<NodeInfo>>() {
+            });
+        } finally {
+            response.close();
+        }
     }
 
     @Override

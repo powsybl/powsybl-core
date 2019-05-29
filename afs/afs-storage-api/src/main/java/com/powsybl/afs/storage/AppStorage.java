@@ -59,6 +59,9 @@ public interface AppStorage extends AutoCloseable {
 
     void setDescription(String nodeId, String description);
 
+    /**
+     * mark the node with ID {@code nodeId} as consistent node.
+     */
     default void setConsistent(String nodeId) {
         throw new PowsyblException("Not implemented");
     }
@@ -71,9 +74,9 @@ public interface AppStorage extends AutoCloseable {
     List<NodeInfo> getChildNodes(String nodeId);
 
     /**
-     * Gets {@code NodeInfo} for consistent child nodes of the node with ID {@code nodeId}.
+     * Gets {@code NodeInfo} for all inconsistent nodes.
      */
-    default List<NodeInfo> getInconsistentNodes(String nodeId) {
+    default List<NodeInfo> getInconsistentNodes() {
         return Collections.emptyList();
     }
 

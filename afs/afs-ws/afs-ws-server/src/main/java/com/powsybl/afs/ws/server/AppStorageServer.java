@@ -89,13 +89,12 @@ public class AppStorageServer {
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("fileSystems/{fileSystemName}/nodes/{nodeId}/inconsistentChildrenNodes")
+    @Path("fileSystems/{fileSystemName}/inconsistentChildrenNodes")
     @ApiOperation (value = "Get inconsistent child nodes", response = List.class)
     @ApiResponses (value = {@ApiResponse(code = 200, message = "The list of inconsistent chid nodes"), @ApiResponse(code = 404, message = "Thera are no inconsistent child nodes"), @ApiResponse(code = 500, message = "Error")})
-    public Response getInconsistentChildrenNodes(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
-                                  @ApiParam(value = "Node ID") @PathParam("nodeId") String nodeId) {
+    public Response getInconsistentChildrenNodes(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName) {
         AppStorage storage = appDataBean.getStorage(fileSystemName);
-        List<NodeInfo> childNodes = storage.getInconsistentNodes(nodeId);
+        List<NodeInfo> childNodes = storage.getInconsistentNodes();
         return Response.ok().entity(childNodes).build();
     }
 

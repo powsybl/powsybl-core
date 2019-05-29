@@ -349,8 +349,7 @@ public class MapDbAppStorage implements AppStorage {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public List<NodeInfo> getInconsistentNodes(String nodeId) {
+    private List<NodeInfo> getInconsistentNodes(String nodeId) {
         List<UUID> childNodes = getAllChildNodes(nodeId);
 
         List<NodeInfo> inconsistentNodesInfos =  childNodes.stream().map(this::getNodeInfo)
@@ -365,6 +364,14 @@ public class MapDbAppStorage implements AppStorage {
             inconsistentNodesInfos.addAll(this.getInconsistentNodes(nodeInfo.getId()));
         }
         return inconsistentNodesInfos;
+    }
+
+    @Override
+    public List<NodeInfo> getInconsistentNodes() {
+        if (rootNodeVar != null) {
+            return getInconsistentNodes(rootNodeVar.get().getId());
+        }
+        return Collections.emptyList();
     }
 
     @Override
