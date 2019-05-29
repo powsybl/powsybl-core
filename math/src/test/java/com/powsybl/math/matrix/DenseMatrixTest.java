@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 import static org.junit.Assert.*;
 
@@ -30,6 +31,15 @@ public class DenseMatrixTest extends AbstractMatrixTest {
     @Override
     public MatrixFactory getOtherMatrixFactory() {
         return otherMatrixFactory;
+    }
+
+    @Test
+    public void invalidBufferCapacity() {
+        try {
+            new DenseMatrix(2, 2, () -> ByteBuffer.allocate(3));
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
     }
 
     @Test

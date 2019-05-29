@@ -13,6 +13,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * Dense matrix implementation based on an array of {@code rowCount} * {@code columnCount} double values.
@@ -70,23 +71,24 @@ public class DenseMatrix extends AbstractMatrix {
     }
 
     public DenseMatrix(int rowCount, int columnCount) {
-        this(rowCount, columnCount, createBuffer(rowCount, columnCount));
+        this(rowCount, columnCount, () -> createBuffer(rowCount, columnCount));
     }
 
-    public DenseMatrix(int rowCount, int columnCount, ByteBuffer buffer) {
+    public DenseMatrix(int rowCount, int columnCount, Supplier<ByteBuffer> bufferSupplier) {
         if (rowCount < 0) {
             throw new IllegalArgumentException("row count has to be positive");
         }
         if (columnCount < 0) {
             throw new IllegalArgumentException("column count has to be positive");
         }
+        this.rowCount = rowCount;
+        this.columnCount = columnCount;
+        Objects.requireNonNull(bufferSupplier);
+        buffer = bufferSupplier.get();
         if (buffer.capacity() != rowCount * columnCount * Double.BYTES) {
             throw new IllegalArgumentException("values size (" + buffer.capacity() +
                     ") is incorrect (should be " + rowCount * columnCount + ")");
         }
-        this.rowCount = rowCount;
-        this.columnCount = columnCount;
-        this.buffer = Objects.requireNonNull(buffer);
     }
 
     public DenseMatrix(Jama.Matrix matrix) {
