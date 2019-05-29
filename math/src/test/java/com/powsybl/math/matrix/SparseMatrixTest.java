@@ -57,6 +57,7 @@ public class SparseMatrixTest extends AbstractMatrixTest {
                 "values={1.0, 2.0, 3.0}")
                 + System.lineSeparator();
         assertEquals(expected, print(a, null, null));
+        assertEquals(expected, print(a));
     }
 
     @Test(expected = PowsyblException.class)
@@ -94,6 +95,15 @@ public class SparseMatrixTest extends AbstractMatrixTest {
                 fail();
             } catch (PowsyblException ignored) {
             }
+        }
+    }
+
+    @Test
+    public void timeToDenseNotSupportedTest() {
+        try {
+            new SparseMatrix(2, 2, 2).times(new DenseMatrix(2, 2));
+            fail();
+        } catch (PowsyblException ignored) {
         }
     }
 }

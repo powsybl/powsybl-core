@@ -127,6 +127,16 @@ public abstract class AbstractMatrixTest {
         return bos.toString(StandardCharsets.UTF_8.name());
     }
 
+    protected String print(Matrix matrix) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            matrix.print(new PrintStream(bos));
+        } finally {
+            bos.close();
+        }
+        return bos.toString(StandardCharsets.UTF_8.name());
+    }
+
     @Test
     public void testDecompose() throws Exception {
         Matrix matrix = getMatrixFactory().create(5, 5, 12);

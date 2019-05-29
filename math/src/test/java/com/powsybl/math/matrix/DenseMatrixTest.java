@@ -51,6 +51,7 @@ public class DenseMatrixTest extends AbstractMatrixTest {
                 " 2.0 0.0")
                 + System.lineSeparator();
         assertEquals(expected, print(a, null, null));
+        assertEquals(expected, print(a));
     }
 
     @Test
