@@ -189,7 +189,7 @@ public class RemoteAppStorage implements AppStorage {
 
         LOGGER.debug("isConsistent(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
 
-        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/isConsistent")
+        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/consistent")
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .resolveTemplate(NODE_ID, nodeId)
                 .request(MediaType.TEXT_PLAIN)
@@ -358,7 +358,7 @@ public class RemoteAppStorage implements AppStorage {
     public List<NodeInfo> getInconsistentNodes() {
         LOGGER.debug("getInconsistentNodes(fileSystemName={})", fileSystemName);
 
-        Response response = webTarget.path("fileSystems/{fileSystemName}/inconsistentChildrenNodes")
+        Response response = webTarget.path("fileSystems/{fileSystemName}/inconsistentChildNodes")
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .request(MediaType.APPLICATION_JSON)
                 .header(HttpHeaders.AUTHORIZATION, token)
