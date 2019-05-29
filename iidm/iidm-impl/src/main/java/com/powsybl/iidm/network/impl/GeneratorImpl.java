@@ -96,7 +96,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     @Override
     public GeneratorImpl setMaxP(double maxP) {
         ValidationUtil.checkMaxP(this, maxP);
-        ValidationUtil.checkActivePowerLimits(this, minP, maxP, getTargetP());
+        ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         double oldValue = this.maxP;
         this.maxP = maxP;
         notifyUpdate("maxP", oldValue, maxP);
@@ -111,7 +111,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     @Override
     public GeneratorImpl setMinP(double minP) {
         ValidationUtil.checkMinP(this, minP);
-        ValidationUtil.checkActivePowerLimits(this, minP, maxP, getTargetP());
+        ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         double oldValue = this.minP;
         this.minP = minP;
         notifyUpdate("minP", oldValue, minP);
@@ -152,7 +152,6 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     @Override
     public GeneratorImpl setTargetP(double targetP) {
         ValidationUtil.checkActivePowerSetpoint(this, targetP);
-        ValidationUtil.checkActivePowerLimits(this, minP, maxP, targetP);
         double oldValue = this.targetP.set(getNetwork().getVariantIndex(), targetP);
         notifyUpdate("targetP", oldValue, targetP);
         return this;
