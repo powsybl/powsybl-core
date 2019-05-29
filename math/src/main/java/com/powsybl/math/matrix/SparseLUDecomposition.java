@@ -6,6 +6,8 @@
  */
 package com.powsybl.math.matrix;
 
+import com.powsybl.commons.PowsyblException;
+
 import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.UUID;
@@ -23,6 +25,8 @@ class SparseLUDecomposition implements LUDecomposition {
 
     private final String id;
 
+    private int valueCount;
+
     SparseLUDecomposition(SparseMatrix matrix) {
         this.matrix = Objects.requireNonNull(matrix);
         if (matrix.getRowCount() != matrix.getColumnCount()) {
@@ -30,6 +34,7 @@ class SparseLUDecomposition implements LUDecomposition {
         }
         this.id = UUID.randomUUID().toString();
         init(id, matrix.getColumnStart(), matrix.getRowIndices(), matrix.getValues());
+        valueCount = matrix.getValues().length;
     }
 
     private native void init(String id, int[] ap, int[] ai, double[] ax);
@@ -43,12 +48,22 @@ class SparseLUDecomposition implements LUDecomposition {
     private native void solve2(String id, int m, int n, ByteBuffer b);
 
     /**
+     * Check no elements have been added since first decomposition
+     */
+    private void checkMatrixStructure() {
+        if (matrix.getValues().length != valueCount) {
+            throw new PowsyblException("New elements have been added to the sparse matrix since initial decomposition");
+        }
+    }
+
+    /**
      * {@inheritDoc}
      *
      * The structure of the matrix is not supposed to have changed, only non zero values.
      */
     @Override
-    public void reload() {
+    public void redecompose() {
+        checkMatrixStructure();
         update(id, matrix.getColumnStart(), matrix.getRowIndices(), matrix.getValues());
     }
 

@@ -25,7 +25,7 @@ class DenseLUDecomposition implements LUDecomposition {
     }
 
     @Override
-    public void reload() {
+    public void redecompose() {
         decomposition = matrix.toJamaMatrix().lu();
     }
 
