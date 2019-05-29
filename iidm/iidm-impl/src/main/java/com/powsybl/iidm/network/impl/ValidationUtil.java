@@ -32,16 +32,20 @@ public final class ValidationUtil {
         }
     }
 
-    static void checkActivePowerLimits(Validable validable, double minP, double maxP, double p) {
+    static void checkActivePowerLimits(Validable validable, double minP, double maxP) {
         if (minP > maxP) {
-            throw new ValidationException(validable,
-                    "invalid active limits [" + minP + ", " + maxP + "]");
+            throw new ValidationException(validable, "invalid active limits [" + minP + ", " + maxP + "]");
         }
+    }
+
+    static void checkActivePowerLimits(Validable validable, double minP, double maxP, double p) {
+        checkActivePowerLimits(validable, minP, maxP);
+
         if (p > maxP) {
-            throw new ValidationException(validable, "invalid active power p > maxP : " + p + " > " + maxP);
+            throw new ValidationException(validable, "invalid active power p > maxP: " + p + " > " + maxP);
         }
         if (p < minP) {
-            throw new ValidationException(validable, "invalid active power p < minP : " + p + " < " + minP);
+            throw new ValidationException(validable, "invalid active power p < minP: " + p + " < " + minP);
         }
     }
 

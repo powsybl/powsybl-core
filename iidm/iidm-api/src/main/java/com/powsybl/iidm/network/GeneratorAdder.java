@@ -57,7 +57,7 @@ public interface GeneratorAdder extends InjectionAdder<GeneratorAdder> {
      *      - network of regulatingTerminal's voltageLevel is the network of the generator
      *      - targetP is not equal to Double.NaN -> targetP is set
      *      - targetP is not equal to Double.NaN -> targetP is set
-     *      - minP <= targetP <= maxP
+     *      - minP <= maxP
      *      - ratedS is set and ratedS > 0
      * @return {@link Generator}
      */
