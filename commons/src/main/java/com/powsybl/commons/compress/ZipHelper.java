@@ -82,7 +82,7 @@ public final class ZipHelper {
                     }
                     zos.closeArchiveEntry();
                 } catch (IOException e) {
-                    throw new UncheckedIOException(e);
+                    // ignored and continue
                 }
             });
             zos.flush();
