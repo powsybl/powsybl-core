@@ -246,7 +246,8 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     private void checkConsistency(UUID nodeUuid) {
-        if (!nodeConsistencyMap.get(nodeUuid)) {
+        Boolean consistent = nodeConsistencyMap.get(nodeUuid);
+        if (consistent != null && !consistent) {
             throw createNodeDisabledException(nodeUuid);
         }
     }
@@ -330,7 +331,8 @@ public class MapDbAppStorage implements AppStorage {
     @Override
     public boolean isConsistent(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
-        return nodeConsistencyMap.get(nodeUuid);
+        Boolean consistent = nodeConsistencyMap.get(nodeUuid);
+        return consistent == null || consistent;
     }
 
     private List<UUID> getAllChildNodes(String nodeId) {
