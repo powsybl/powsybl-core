@@ -12,14 +12,12 @@ import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.commons.io.table.*;
 import com.powsybl.iidm.tools.ConversionOption;
-import com.powsybl.iidm.tools.ConversionToolUtils;
 import com.powsybl.iidm.tools.DefaultConversionOption;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
-import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowFactory;
@@ -38,11 +36,8 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.Properties;
 
 import static com.powsybl.iidm.tools.ConversionToolConstants.CASE_FILE;
-import static com.powsybl.iidm.tools.ConversionToolUtils.*;
-import static com.powsybl.iidm.tools.ConversionToolUtils.createExportParametersFileOption;
 
 /**
  * @author Christian Biasuzzi <christian.biasuzzi@techrain.it>
@@ -55,7 +50,7 @@ public class RunLoadFlowTool implements Tool {
     private static final String OUTPUT_FORMAT = "output-format";
     private static final String OUTPUT_CASE_FORMAT = "output-case-format";
     private static final String OUTPUT_CASE_FILE = "output-case-file";
-    private static final Supplier<ConversionOption> LOADER = Suppliers.memoize(() -> new DefaultConversionOption(CASE_FILE));
+    private static final Supplier<ConversionOption> LOADER = Suppliers.memoize(() -> new DefaultConversionOption(CASE_FILE, OUTPUT_CASE_FILE, OUTPUT_CASE_FORMAT));
 
     private final ConversionOption conversionOption;
 
@@ -89,12 +84,8 @@ public class RunLoadFlowTool implements Tool {
             @Override
             public Options getOptions() {
                 Options options = new Options();
-                options.addOption(Option.builder().longOpt(CASE_FILE)
-                        .desc("the case path")
-                        .hasArg()
-                        .argName("FILE")
-                        .required()
-                        .build());
+                conversionOption.addImportOptions(options);
+                conversionOption.addExportOptions(options, false);
                 options.addOption(Option.builder().longOpt(PARAMETERS_FILE)
                         .desc("loadflow parameters as JSON file")
                         .hasArg()
@@ -110,21 +101,6 @@ public class RunLoadFlowTool implements Tool {
                         .hasArg()
                         .argName("FORMAT")
                         .build());
-                options.addOption(createSkipPostProcOption());
-                options.addOption(Option.builder().longOpt(OUTPUT_CASE_FORMAT)
-                        .desc("modified network output format " + Exporters.getFormats())
-                        .hasArg()
-                        .argName("CASEFORMAT")
-                        .build());
-                options.addOption(Option.builder().longOpt(OUTPUT_CASE_FILE)
-                        .desc("modified network base name")
-                        .hasArg()
-                        .argName("FILE")
-                        .build());
-                options.addOption(createImportParametersFileOption());
-                options.addOption(createImportParameterOption());
-                options.addOption(createExportParametersFileOption());
-                options.addOption(createExportParameterOption());
                 return options;
             }
 
@@ -139,7 +115,6 @@ public class RunLoadFlowTool implements Tool {
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
         Path outputFile = null;
         Format format = null;
-        Path outputCaseFile = null;
         ComponentDefaultConfig defaultConfig = ComponentDefaultConfig.load();
 
         // process a single network: output-file/output-format options available
@@ -149,13 +124,6 @@ public class RunLoadFlowTool implements Tool {
                 throw new ParseException("Missing required option: " + OUTPUT_FORMAT);
             }
             format = Format.valueOf(line.getOptionValue(OUTPUT_FORMAT));
-        }
-
-        if (line.hasOption(OUTPUT_CASE_FILE)) {
-            outputCaseFile = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_CASE_FILE));
-            if (!line.hasOption(OUTPUT_CASE_FORMAT)) {
-                throw new ParseException("Missing required option: " + OUTPUT_CASE_FORMAT);
-            }
         }
 
         Network network = conversionOption.read(line, context);
@@ -176,10 +144,11 @@ public class RunLoadFlowTool implements Tool {
         }
 
         // exports the modified network to the filesystem, if requested
-        if (outputCaseFile != null) {
-            String outputCaseFormat = line.getOptionValue(OUTPUT_CASE_FORMAT);
-            Properties outputParams = readProperties(line, ConversionToolUtils.OptionType.EXPORT, context);
-            Exporters.export(outputCaseFormat, network, outputParams, outputCaseFile);
+        if (line.hasOption(OUTPUT_CASE_FILE)) {
+            if (!line.hasOption(OUTPUT_CASE_FORMAT)) {
+                throw new ParseException("Missing required option: " + OUTPUT_CASE_FORMAT);
+            }
+            conversionOption.write(network, line, context);
         }
     }
 

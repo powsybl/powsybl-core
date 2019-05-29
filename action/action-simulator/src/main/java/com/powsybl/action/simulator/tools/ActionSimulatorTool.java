@@ -53,7 +53,6 @@ import java.util.stream.Collectors;
 
 import static com.powsybl.action.simulator.tools.ActionSimulatorToolConstants.*;
 import static com.powsybl.iidm.tools.ConversionToolConstants.CASE_FILE;
-import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 import static com.powsybl.tools.ToolConstants.TASK;
 import static com.powsybl.tools.ToolConstants.TASK_COUNT;
 
@@ -93,12 +92,7 @@ public class ActionSimulatorTool implements Tool {
             @Override
             public Options getOptions() {
                 Options options = new Options();
-                options.addOption(Option.builder().longOpt(CASE_FILE)
-                        .desc("the case path")
-                        .hasArg()
-                        .argName("FILE")
-                        .required()
-                        .build());
+                conversionOption.addImportOptions(options);
                 options.addOption(Option.builder().longOpt(DSL_FILE)
                         .desc("the Groovy DSL path")
                         .hasArg()
@@ -157,9 +151,6 @@ public class ActionSimulatorTool implements Tool {
                         .desc("export case after each round")
                         .required(false)
                         .build());
-                options.addOption(createSkipPostProcOption());
-                options.addOption(createImportParametersFileOption());
-                options.addOption(createImportParameterOption());
                 return options;
             }
 

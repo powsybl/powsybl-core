@@ -39,5 +39,7 @@ public class RunLoadFlowToolTest extends AbstractToolTest {
         assertOption(command.getOptions(), "skip-postproc", false, false);
         assertOption(command.getOptions(), "import-parameters", false, true);
         assertOption(command.getOptions(), "I", false, true);
+        assertOption(command.getOptions(), "export-parameters", false, true);
+        assertOption(command.getOptions(), "E", false, true);
     }
 }

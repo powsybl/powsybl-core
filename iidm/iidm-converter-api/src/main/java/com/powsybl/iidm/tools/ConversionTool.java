@@ -9,7 +9,6 @@ package com.powsybl.iidm.tools;
 import com.google.auto.service.AutoService;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.import_.GroovyScriptPostProcessor;
 import com.powsybl.iidm.network.Network;
@@ -22,10 +21,6 @@ import org.apache.commons.cli.Options;
 
 import java.nio.file.Path;
 
-import static com.powsybl.iidm.tools.ConversionToolConstants.INPUT_FILE;
-import static com.powsybl.iidm.tools.ConversionToolConstants.OUTPUT_FILE;
-import static com.powsybl.iidm.tools.ConversionToolConstants.OUTPUT_FORMAT;
-import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 
 /**
  *
@@ -36,7 +31,7 @@ import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 public class ConversionTool implements Tool {
 
     private static final String GROOVY_SCRIPT = "groovy-script";
-    private static final Supplier<ConversionOption> LOADER = Suppliers.memoize(() -> new DefaultConversionOption(INPUT_FILE));
+    private static final Supplier<ConversionOption> LOADER = Suppliers.memoize(() -> new DefaultConversionOption());
 
     private final ConversionOption conversionOption;
 
@@ -70,29 +65,8 @@ public class ConversionTool implements Tool {
             @Override
             public Options getOptions() {
                 Options options = new Options();
-                options.addOption(Option.builder().longOpt(INPUT_FILE)
-                        .desc("the input file")
-                        .hasArg()
-                        .argName("INPUT_FILE")
-                        .required()
-                        .build());
-                options.addOption(Option.builder().longOpt(OUTPUT_FORMAT)
-                        .desc("the output file format")
-                        .hasArg()
-                        .argName("OUTPUT_FORMAT")
-                        .required()
-                        .build());
-                options.addOption(Option.builder().longOpt(OUTPUT_FILE)
-                        .desc("the output file")
-                        .hasArg()
-                        .argName("OUTPUT_FILE")
-                        .required()
-                        .build());
-                options.addOption(createSkipPostProcOption());
-                options.addOption(createImportParametersFileOption());
-                options.addOption(createImportParameterOption());
-                options.addOption(createExportParametersFileOption());
-                options.addOption(createExportParameterOption());
+                conversionOption.addImportOptions(options);
+                conversionOption.addExportOptions(options, true);
                 options.addOption(Option.builder().longOpt(GROOVY_SCRIPT)
                         .desc("Groovy script to change the network")
                         .hasArg()
@@ -110,11 +84,6 @@ public class ConversionTool implements Tool {
 
     @Override
     public void run(CommandLine line, ToolRunningContext context) throws Exception {
-        String outputFormat = line.getOptionValue(OUTPUT_FORMAT);
-        if (Exporters.getExporter(outputFormat) == null) {
-            throw new PowsyblException("Target format " + outputFormat + " not supported");
-        }
-
         Network network = conversionOption.read(line, context);
 
         if (line.hasOption(GROOVY_SCRIPT)) {

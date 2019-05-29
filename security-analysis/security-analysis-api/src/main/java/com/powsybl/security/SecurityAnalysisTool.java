@@ -44,7 +44,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.tools.ConversionToolConstants.CASE_FILE;
-import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 import static com.powsybl.security.SecurityAnalysisToolConstants.*;
 import static com.powsybl.tools.ToolConstants.TASK;
 import static com.powsybl.tools.ToolConstants.TASK_COUNT;
@@ -89,12 +88,7 @@ public class SecurityAnalysisTool implements Tool {
             @Override
             public Options getOptions() {
                 Options options = new Options();
-                options.addOption(Option.builder().longOpt(CASE_FILE)
-                        .desc("the case path")
-                        .hasArg()
-                        .argName("FILE")
-                        .required()
-                        .build());
+                conversionOption.addImportOptions(options);
                 options.addOption(Option.builder().longOpt(PARAMETERS_FILE_OPTION)
                         .desc("loadflow parameters as JSON file")
                         .hasArg()
@@ -138,9 +132,6 @@ public class SecurityAnalysisTool implements Tool {
                 options.addOption(Option.builder().longOpt(EXTERNAL)
                         .desc("external execution")
                         .build());
-                options.addOption(createSkipPostProcOption());
-                options.addOption(createImportParametersFileOption());
-                options.addOption(createImportParameterOption());
                 options.addOption(Option.builder().longOpt(OUTPUT_LOG_OPTION)
                         .desc("log output path (.zip")
                         .hasArg()

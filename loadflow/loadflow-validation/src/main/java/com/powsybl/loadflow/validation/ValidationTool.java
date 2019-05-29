@@ -40,7 +40,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.powsybl.iidm.tools.ConversionToolConstants.CASE_FILE;
-import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 
 /**
  *
@@ -66,91 +65,80 @@ public class ValidationTool implements Tool {
         this.conversionOption = LOADER.get();
     }
 
-    private static final Command COMMAND = new Command() {
-
-        @Override
-        public String getName() {
-            return "loadflow-validation";
-        }
-
-        @Override
-        public String getTheme() {
-            return "Computation";
-        }
-
-        @Override
-        public String getDescription() {
-            return "Validate load-flow results of a network";
-        }
-
-        @Override
-        public Options getOptions() {
-            Options options = new Options();
-            options.addOption(Option.builder().longOpt(CASE_FILE)
-                    .desc("case file path")
-                    .hasArg()
-                    .argName("FILE")
-                    .required()
-                    .build());
-            options.addOption(Option.builder().longOpt(OUTPUT_FOLDER)
-                    .desc("output folder path")
-                    .hasArg()
-                    .argName("FOLDER")
-                    .required()
-                    .build());
-            options.addOption(Option.builder().longOpt(LOAD_FLOW)
-                    .desc("run loadflow")
-                    .build());
-            options.addOption(Option.builder().longOpt(RUN_COMPUTATION)
-                    .desc("run a computation on the network before validation, available computations are "
-                            + Arrays.toString(CandidateComputations.getComputationsNames().toArray()))
-                    .hasArg()
-                    .argName("COMPUTATION")
-                    .build());
-            options.addOption(Option.builder().longOpt(VERBOSE)
-                    .desc("verbose output")
-                    .build());
-            options.addOption(Option.builder().longOpt(OUTPUT_FORMAT)
-                    .desc("output format " + Arrays.toString(ValidationOutputWriter.values()))
-                    .hasArg()
-                    .argName("VALIDATION_WRITER")
-                    .build());
-            options.addOption(Option.builder().longOpt(TYPES)
-                    .desc("validation types " + Arrays.toString(ValidationType.values()) + " to run, all of them if the option if not specified")
-                    .hasArg()
-                    .argName("VALIDATION_TYPE,VALIDATION_TYPE,...")
-                    .build());
-            options.addOption(Option.builder().longOpt(COMPARE_RESULTS)
-                    .desc("compare results of two validations, printing output files with results of both ones. Available comparisons are " + Arrays.toString(ComparisonType.values()))
-                    .hasArg()
-                    .argName("COMPARISON_TYPE")
-                    .build());
-            options.addOption(Option.builder().longOpt(COMPARE_CASE_FILE)
-                    .desc("path to the case file to compare")
-                    .hasArg()
-                    .argName("FILE")
-                    .build());
-            options.addOption(Option.builder().longOpt(GROOVY_SCRIPT)
-                    .desc("groovy script to run before validation")
-                    .hasArg()
-                    .argName("FILE")
-                    .build());
-            options.addOption(createSkipPostProcOption());
-            options.addOption(createImportParametersFileOption());
-            options.addOption(createImportParameterOption());
-            return options;
-        }
-
-        @Override
-        public String getUsageFooter() {
-            return null;
-        }
-
-    };
-
     @Override
     public Command getCommand() {
-        return COMMAND;
+        return new Command() {
+
+            @Override
+            public String getName() {
+                return "loadflow-validation";
+            }
+
+            @Override
+            public String getTheme() {
+                return "Computation";
+            }
+
+            @Override
+            public String getDescription() {
+                return "Validate load-flow results of a network";
+            }
+
+            @Override
+            public Options getOptions() {
+                Options options = new Options();
+                conversionOption.addImportOptions(options);
+                options.addOption(Option.builder().longOpt(OUTPUT_FOLDER)
+                        .desc("output folder path")
+                        .hasArg()
+                        .argName("FOLDER")
+                        .required()
+                        .build());
+                options.addOption(Option.builder().longOpt(LOAD_FLOW)
+                        .desc("run loadflow")
+                        .build());
+                options.addOption(Option.builder().longOpt(RUN_COMPUTATION)
+                        .desc("run a computation on the network before validation, available computations are "
+                                + Arrays.toString(CandidateComputations.getComputationsNames().toArray()))
+                        .hasArg()
+                        .argName("COMPUTATION")
+                        .build());
+                options.addOption(Option.builder().longOpt(VERBOSE)
+                        .desc("verbose output")
+                        .build());
+                options.addOption(Option.builder().longOpt(OUTPUT_FORMAT)
+                        .desc("output format " + Arrays.toString(ValidationOutputWriter.values()))
+                        .hasArg()
+                        .argName("VALIDATION_WRITER")
+                        .build());
+                options.addOption(Option.builder().longOpt(TYPES)
+                        .desc("validation types " + Arrays.toString(ValidationType.values()) + " to run, all of them if the option if not specified")
+                        .hasArg()
+                        .argName("VALIDATION_TYPE,VALIDATION_TYPE,...")
+                        .build());
+                options.addOption(Option.builder().longOpt(COMPARE_RESULTS)
+                        .desc("compare results of two validations, printing output files with results of both ones. Available comparisons are " + Arrays.toString(ComparisonType.values()))
+                        .hasArg()
+                        .argName("COMPARISON_TYPE")
+                        .build());
+                options.addOption(Option.builder().longOpt(COMPARE_CASE_FILE)
+                        .desc("path to the case file to compare")
+                        .hasArg()
+                        .argName("FILE")
+                        .build());
+                options.addOption(Option.builder().longOpt(GROOVY_SCRIPT)
+                        .desc("groovy script to run before validation")
+                        .hasArg()
+                        .argName("FILE")
+                        .build());
+                return options;
+            }
+
+            @Override
+            public String getUsageFooter() {
+                return null;
+            }
+        };
     }
 
     @Override

@@ -34,7 +34,6 @@ import java.io.Writer;
 import java.nio.file.Path;
 
 import static com.powsybl.iidm.tools.ConversionToolConstants.CASE_FILE;
-import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 
 /**
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
@@ -78,12 +77,7 @@ public class SensitivityComputationTool implements Tool {
             @Override
             public Options getOptions() {
                 Options options = new Options();
-                options.addOption(Option.builder().longOpt(CASE_FILE)
-                        .desc("the case path")
-                        .hasArg()
-                        .argName("FILE")
-                        .required()
-                        .build());
+                conversionOption.addImportOptions(options);
                 options.addOption(Option.builder().longOpt(FACTORS_FILE_OPTION)
                         .desc("sensitivity factors input file path")
                         .hasArg()
@@ -100,9 +94,6 @@ public class SensitivityComputationTool implements Tool {
                         .hasArg()
                         .argName("FORMAT")
                         .build());
-                options.addOption(createSkipPostProcOption());
-                options.addOption(createImportParametersFileOption());
-                options.addOption(createImportParameterOption());
                 return options;
             }
 

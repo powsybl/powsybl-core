@@ -89,12 +89,7 @@ public class ImpactAnalysisTool implements Tool {
             @Override
             public Options getOptions() {
                 Options options = new Options();
-                options.addOption(Option.builder().longOpt(CASE_FILE)
-                        .desc("the case path")
-                        .hasArg()
-                        .argName("FILE")
-                        .required()
-                        .build());
+                conversionOption.addImportOptions(options);
                 options.addOption(Option.builder().longOpt(CONTINGENCIES)
                         .desc("contingencies to test separated by , (all the db in not set)")
                         .hasArg()
@@ -105,9 +100,6 @@ public class ImpactAnalysisTool implements Tool {
                         .hasArg()
                         .argName("FILE")
                         .build());
-                options.addOption(createSkipPostProcOption());
-                options.addOption(createImportParametersFileOption());
-                options.addOption(createImportParameterOption());
                 return options;
             }
 
@@ -298,7 +290,7 @@ public class ImpactAnalysisTool implements Tool {
         }
         Map<String, Map<SecurityIndexId, SecurityIndex>> securityIndexesPerCase = new LinkedHashMap<>();
         Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-        Importers.loadNetworks(caseFile, false, context.getShortTimeExecutionComputationManager(), createImportConfig(line), inputParams, network -> {
+        Importers.loadNetworks(caseFile, false, context.getShortTimeExecutionComputationManager(), conversionOption.createImportConfig(line), inputParams, network -> {
             try {
                 Multimap<String, SecurityIndex> securityIndexesPerContingency
                         = runImpactAnalysis(network, contingencyIds, context.getShortTimeExecutionComputationManager(),

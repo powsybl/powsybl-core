@@ -16,23 +16,70 @@ import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.tools.ToolRunningContext;
 import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
 
 import java.io.IOException;
+import java.util.Objects;
 import java.util.Properties;
 
+import static com.powsybl.iidm.tools.ConversionToolConstants.INPUT_FILE;
 import static com.powsybl.iidm.tools.ConversionToolConstants.OUTPUT_FILE;
 import static com.powsybl.iidm.tools.ConversionToolConstants.OUTPUT_FORMAT;
-import static com.powsybl.iidm.tools.ConversionToolUtils.readProperties;
+import static com.powsybl.iidm.tools.ConversionToolUtils.*;
 
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public class DefaultConversionOption implements ConversionOption {
 
-    private final String readOption;
+    private final String inputFileOption;
+    private final String outputFileOption;
+    private final String outputFormatOption;
 
-    public DefaultConversionOption(String readOption) {
-        this.readOption = readOption;
+    public DefaultConversionOption() {
+        this(INPUT_FILE);
+    }
+
+    public DefaultConversionOption(String inputFileOption) {
+        this(inputFileOption, OUTPUT_FILE, OUTPUT_FORMAT);
+    }
+
+    public DefaultConversionOption(String inputFileOption, String outputFileOption, String outputFormatOption) {
+        this.inputFileOption = Objects.requireNonNull(inputFileOption);
+        this.outputFileOption = Objects.requireNonNull(outputFileOption);
+        this.outputFormatOption = Objects.requireNonNull(outputFormatOption);
+    }
+
+    @Override
+    public void addImportOptions(Options options) {
+        options.addOption(Option.builder().longOpt(inputFileOption)
+                .desc("the input network path")
+                .hasArg()
+                .argName(inputFileOption)
+                .required()
+                .build());
+        options.addOption(createSkipPostProcOption());
+        options.addOption(createImportParametersFileOption());
+        options.addOption(createImportParameterOption());
+    }
+
+    @Override
+    public void addExportOptions(Options options, boolean required) {
+        options.addOption(Option.builder().longOpt(outputFormatOption)
+                .desc("the output network format")
+                .hasArg()
+                .argName(outputFormatOption)
+                .required(required)
+                .build());
+        options.addOption(Option.builder().longOpt(outputFileOption)
+                .desc("the output network file")
+                .hasArg()
+                .argName(outputFileOption)
+                .required(required)
+                .build());
+        options.addOption(createExportParametersFileOption());
+        options.addOption(createExportParameterOption());
     }
 
     @Override
@@ -42,7 +89,7 @@ public class DefaultConversionOption implements ConversionOption {
 
     @Override
     public Network read(CommandLine line, ToolRunningContext context) throws IOException {
-        return read(readOption, line, context);
+        return read(inputFileOption, line, context);
     }
 
     @Override
@@ -59,8 +106,11 @@ public class DefaultConversionOption implements ConversionOption {
 
     @Override
     public void write(Network network, CommandLine line, ToolRunningContext context) throws IOException {
-        Exporter exporter = Exporters.getExporter(line.getOptionValue(OUTPUT_FORMAT));
-        String outputFile = line.getOptionValue(OUTPUT_FILE);
+        Exporter exporter = Exporters.getExporter(line.getOptionValue(outputFormatOption));
+        if (exporter == null) {
+            throw new PowsyblException("Target format " + line.getOptionValue(outputFormatOption) + " not supported");
+        }
+        String outputFile = line.getOptionValue(outputFileOption);
         Properties outputParams = readProperties(line, ConversionToolUtils.OptionType.EXPORT, context);
         DataSource ds2 = Exporters.createDataSource(context.getFileSystem().getPath(outputFile), new DefaultDataSourceObserver() {
             @Override
