@@ -39,7 +39,7 @@ class SparseLUDecomposition implements LUDecomposition {
 
     private int getMatrixValueCount() {
         int[] columnStart = matrix.getColumnStart();
-        return columnStart[columnStart.length -1];
+        return columnStart[columnStart.length - 1];
     }
 
     private native void init(String id, int[] ap, int[] ai, double[] ax);
