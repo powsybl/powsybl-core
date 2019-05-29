@@ -178,7 +178,7 @@ public abstract class AbstractMatrixTest {
             assertEquals(5, x2.get(4, 1), EPSILON);
 
             e.set(5);
-            decomposition.redecompose();
+            decomposition.update();
             double[] x3 = {8, 45, -3, 3, 19};
             decomposition.solve(x3);
             assertArrayEquals(new double[]{-0.010526315789474902, 2.673684210526316, 0.6, 0.7368421052631579, 7.105263157894737}, x3, EPSILON);

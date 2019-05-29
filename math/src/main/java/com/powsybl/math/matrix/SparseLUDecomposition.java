@@ -34,7 +34,12 @@ class SparseLUDecomposition implements LUDecomposition {
         }
         this.id = UUID.randomUUID().toString();
         init(id, matrix.getColumnStart(), matrix.getRowIndices(), matrix.getValues());
-        valueCount = matrix.getValues().length;
+        valueCount = getMatrixValueCount();
+    }
+
+    private int getMatrixValueCount() {
+        int[] columnStart = matrix.getColumnStart();
+        return columnStart[columnStart.length -1];
     }
 
     private native void init(String id, int[] ap, int[] ai, double[] ax);
@@ -51,8 +56,8 @@ class SparseLUDecomposition implements LUDecomposition {
      * Check no elements have been added since first decomposition
      */
     private void checkMatrixStructure() {
-        if (matrix.getValues().length != valueCount) {
-            throw new PowsyblException("New elements have been added to the sparse matrix since initial decomposition");
+        if (getMatrixValueCount() != valueCount) {
+            throw new PowsyblException("Elements have been added to the sparse matrix since initial decomposition");
         }
     }
 
@@ -62,7 +67,7 @@ class SparseLUDecomposition implements LUDecomposition {
      * The structure of the matrix is not supposed to have changed, only non zero values.
      */
     @Override
-    public void redecompose() {
+    public void update() {
         checkMatrixStructure();
         update(id, matrix.getColumnStart(), matrix.getRowIndices(), matrix.getValues());
     }
