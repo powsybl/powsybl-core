@@ -20,6 +20,7 @@ import com.powsybl.iidm.IidmImportExportMode;
 import com.powsybl.iidm.import_.ImportOptions;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 import com.powsybl.iidm.parameters.ParameterType;
@@ -166,7 +167,7 @@ public class XMLImporter implements Importer {
     }
 
     @Override
-    public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
+    public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters) {
         Objects.requireNonNull(dataSource);
         Network network;
 
@@ -183,7 +184,7 @@ public class XMLImporter implements Importer {
                         + "." + Joiner.on("|").join(EXTENSIONS) + " not found");
             }
 
-            network = NetworkXml.read(dataSource, options, ext);
+            network = NetworkXml.read(dataSource, networkFactory, options, ext);
             LOGGER.debug("XIIDM import done in {} ms", System.currentTimeMillis() - startTime);
         } catch (IOException e) {
             throw new PowsyblException(e);
