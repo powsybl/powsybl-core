@@ -9,7 +9,7 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.iidm.network.*;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -18,7 +18,7 @@ public class ConnectedComponentWithTieLineBugTest {
 
     @Test
     public void test() {
-        Network n = NetworkFactory.create("n", "test");
+        Network n = Network.create("n", "test");
         Substation s1 = n.newSubstation()
                 .setId("s1")
                 .setCountry(Country.FR)

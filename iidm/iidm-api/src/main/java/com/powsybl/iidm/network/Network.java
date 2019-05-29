@@ -16,7 +16,10 @@ import java.util.stream.Stream;
 /**
  * A power network model.
  *
- * <p>To create a new network, use {@link NetworkFactory}.
+ * To create a new empty network with default implementation:
+ *<pre>
+ *    Network n = Network.create("test", "test");
+ *</pre>
  *
  * <p>The network is initially created with one variant identified by
  * <code>VariantManagerConstants.INITIAL_VARIANT_ID</code>. {@link VariantManager} is
@@ -116,6 +119,36 @@ public interface Network extends Container<Network> {
          */
         Collection<Component> getConnectedComponents();
 
+    }
+
+    /**
+     * Create an empty network using default implementation.
+     *
+     * @param id id of the network
+     * @param sourceFormat source  format
+     * @return an empty network
+     */
+    static Network create(String id, String sourceFormat) {
+        return NetworkFactory.findDefault().createNetwork(id, sourceFormat);
+    }
+
+    /**
+     * Just being able to name method create et not createNetwork. Create is not available in {@link NetworkFactory} for backward
+     * compatibility reason. To cleanup when {@link NetworkFactory#create(String, String)} will be removed.
+     */
+    interface PrettyNetworkFactory {
+
+        Network create(String id, String sourceFormat);
+    }
+
+    /**
+     * Get network factory named {@code name}.
+     *
+     * @param name name of the {@link NetworkFactory}
+     * @return network factory with  the given name
+     */
+    static PrettyNetworkFactory with(String name) {
+        return (id, sourceFormat) -> NetworkFactory.find(name).createNetwork(id, sourceFormat);
     }
 
     /**

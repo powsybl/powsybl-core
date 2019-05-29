@@ -12,7 +12,6 @@ import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 
 /**
- *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class GeneratorImpl extends AbstractConnectable<Generator> implements Generator, ReactiveLimitsOwner {
@@ -97,7 +96,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     @Override
     public GeneratorImpl setMaxP(double maxP) {
         ValidationUtil.checkMaxP(this, maxP);
-        ValidationUtil.checkActiveLimits(this, minP, maxP);
+        ValidationUtil.checkActivePowerLimits(this, minP, maxP, getTargetP());
         double oldValue = this.maxP;
         this.maxP = maxP;
         notifyUpdate("maxP", oldValue, maxP);
@@ -112,7 +111,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     @Override
     public GeneratorImpl setMinP(double minP) {
         ValidationUtil.checkMinP(this, minP);
-        ValidationUtil.checkActiveLimits(this, minP, maxP);
+        ValidationUtil.checkActivePowerLimits(this, minP, maxP, getTargetP());
         double oldValue = this.minP;
         this.minP = minP;
         notifyUpdate("minP", oldValue, minP);
@@ -153,6 +152,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     @Override
     public GeneratorImpl setTargetP(double targetP) {
         ValidationUtil.checkActivePowerSetpoint(this, targetP);
+        ValidationUtil.checkActivePowerLimits(this, minP, maxP, targetP);
         double oldValue = this.targetP.set(getNetwork().getVariantIndex(), targetP);
         notifyUpdate("targetP", oldValue, targetP);
         return this;
@@ -211,13 +211,13 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     }
 
     @Override
-    public void setReactiveLimits(ReactiveLimits reactiveLimits) {
-        this.reactiveLimits.setReactiveLimits(reactiveLimits);
+    public ReactiveLimits getReactiveLimits() {
+        return reactiveLimits.getReactiveLimits();
     }
 
     @Override
-    public ReactiveLimits getReactiveLimits() {
-        return reactiveLimits.getReactiveLimits();
+    public void setReactiveLimits(ReactiveLimits reactiveLimits) {
+        this.reactiveLimits.setReactiveLimits(reactiveLimits);
     }
 
     @Override
