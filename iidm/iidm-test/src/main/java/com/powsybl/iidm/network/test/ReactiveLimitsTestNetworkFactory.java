@@ -18,7 +18,7 @@ public final class ReactiveLimitsTestNetworkFactory {
     }
 
     public static Network create() {
-        Network network = NetworkFactory.create("ReactiveLimits", "???");
+        Network network = Network.create("ReactiveLimits", "???");
         network.setCaseDate(DateTime.parse("2016-01-01T10:00:00.000+02:00"));
         Substation s = network.newSubstation()
                 .setId("S")

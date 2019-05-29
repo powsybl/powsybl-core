@@ -17,7 +17,7 @@ public final class DanglingLineNetworkFactory {
     }
 
     public static Network create() {
-        Network network = NetworkFactory.create("dangling-line", "test");
+        Network network = Network.create("dangling-line", "test");
 
         Substation substation = network.newSubstation()
             .setId("S")
