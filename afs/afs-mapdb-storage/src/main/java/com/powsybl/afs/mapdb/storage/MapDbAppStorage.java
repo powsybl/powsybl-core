@@ -347,7 +347,7 @@ public class MapDbAppStorage implements AppStorage {
     @Override
     public List<NodeInfo> getChildNodes(String nodeId) {
         List<UUID> childNodes = getAllChildNodes(nodeId);
-        return childNodes.stream().map(this::getNodeInfo).filter(nodeInfo -> this.isConsistent(nodeInfo.getId()))
+        return childNodes.stream().map(this::getNodeInfo).filter(nodeInfo -> isConsistent(nodeInfo.getId()))
                 .collect(Collectors.toList());
     }
 
@@ -355,10 +355,10 @@ public class MapDbAppStorage implements AppStorage {
         List<UUID> childNodes = getAllChildNodes(nodeId);
 
         List<NodeInfo> inconsistentNodesInfos =  childNodes.stream().map(this::getNodeInfo)
-                .filter(nodeInfo -> !this.isConsistent(nodeInfo.getId()))
+                .filter(nodeInfo -> !isConsistent(nodeInfo.getId()))
                 .collect(Collectors.toList());
         List<NodeInfo> consistentNodesInfos =  childNodes.stream().map(this::getNodeInfo)
-                .filter(nodeInfo -> this.isConsistent(nodeInfo.getId()))
+                .filter(nodeInfo -> isConsistent(nodeInfo.getId()))
                 .collect(Collectors.toList());
 
         // now get recursively inconsistent nodes of consistent child nodes
@@ -383,7 +383,7 @@ public class MapDbAppStorage implements AppStorage {
         Objects.requireNonNull(name);
         checkNodeExists(parentNodeUuid);
         UUID childNodeUuid = childNodeMap.get(new NamedLink(parentNodeUuid, name));
-        return Optional.ofNullable(childNodeUuid).map(this::getNodeInfo).filter(nodeInfo -> this.isConsistent(nodeInfo.getId()));
+        return Optional.ofNullable(childNodeUuid).map(this::getNodeInfo).filter(nodeInfo -> isConsistent(nodeInfo.getId()));
     }
 
     @Override
@@ -392,7 +392,7 @@ public class MapDbAppStorage implements AppStorage {
         checkConsistency(nodeUuid);
         checkNodeExists(nodeUuid);
         UUID parentNodeUuid = parentNodeMap.get(nodeUuid);
-        return Optional.ofNullable(parentNodeUuid).map(this::getNodeInfo).filter(nodeInfo -> this.isConsistent(nodeInfo.getId()));
+        return Optional.ofNullable(parentNodeUuid).map(this::getNodeInfo).filter(nodeInfo -> isConsistent(nodeInfo.getId()));
     }
 
     @Override
@@ -756,7 +756,7 @@ public class MapDbAppStorage implements AppStorage {
         if (dependencyNodes == null) {
             return Collections.emptySet();
         }
-        return dependencyNodes.stream().map(this::getNodeInfo).filter(nodeInfo -> this.isConsistent(nodeInfo.getId()))
+        return dependencyNodes.stream().map(this::getNodeInfo).filter(nodeInfo -> isConsistent(nodeInfo.getId()))
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
@@ -769,7 +769,7 @@ public class MapDbAppStorage implements AppStorage {
             throw createNodeNotFoundException(nodeUuid);
         }
         return dependencyNodes.stream()
-                              .filter(namedLink -> this.isConsistent(getNodeInfo(namedLink.getNodeUuid()).getId()))
+                              .filter(namedLink -> isConsistent(getNodeInfo(namedLink.getNodeUuid()).getId()))
                               .map(namedLink -> new NodeDependency(namedLink.getName(), getNodeInfo(namedLink.getNodeUuid())))
                               .collect(Collectors.toSet());
     }
@@ -784,7 +784,7 @@ public class MapDbAppStorage implements AppStorage {
         }
         return backwardDependencyNodes.stream()
                                       .map(this::getNodeInfo)
-                                      .filter(nodeInfo -> this.isConsistent(nodeInfo.getId()))
+                                      .filter(nodeInfo -> isConsistent(nodeInfo.getId()))
                                       .collect(Collectors.toSet());
     }
 
