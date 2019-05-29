@@ -31,7 +31,7 @@ import java.nio.file.Path;
 public class ConversionTool implements Tool {
 
     private static final String GROOVY_SCRIPT = "groovy-script";
-    private static final Supplier<ConversionOption> LOADER = Suppliers.memoize(() -> new DefaultConversionOption());
+    private static final Supplier<ConversionOption> LOADER = Suppliers.memoize(DefaultConversionOption::new);
 
     private final ConversionOption conversionOption;
 

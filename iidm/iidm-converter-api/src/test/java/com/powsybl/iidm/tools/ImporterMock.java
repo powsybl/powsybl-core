@@ -11,7 +11,9 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.parameters.Parameter;
+import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.Properties;
@@ -48,12 +50,17 @@ public class ImporterMock implements Importer {
     }
 
     @Override
-    public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
-        assertEquals(2, parameters.size());
-        assertEquals("value1", parameters.getProperty("param1"));
-        assertEquals("value", parameters.getProperty("import.parameter"));
-
-        return null;
+    public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters) {
+        if (parameters.getProperty("null", "false").equals("true")) {
+            return null;
+        } else {
+            assertEquals(2, parameters.size());
+            assertEquals("value1", parameters.getProperty("param1"));
+            assertEquals("value", parameters.getProperty("import.parameter"));
+            Network network = Mockito.mock(Network.class);
+            Mockito.when(network.getLineCount()).thenReturn(2);
+            return network;
+        }
     }
 
     @Override

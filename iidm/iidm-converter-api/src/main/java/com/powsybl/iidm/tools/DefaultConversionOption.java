@@ -9,7 +9,6 @@ package com.powsybl.iidm.tools;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DefaultDataSourceObserver;
-import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.Importers;
@@ -106,18 +105,26 @@ public class DefaultConversionOption implements ConversionOption {
 
     @Override
     public void write(Network network, CommandLine line, ToolRunningContext context) throws IOException {
-        Exporter exporter = Exporters.getExporter(line.getOptionValue(outputFormatOption));
-        if (exporter == null) {
-            throw new PowsyblException("Target format " + line.getOptionValue(outputFormatOption) + " not supported");
-        }
         String outputFile = line.getOptionValue(outputFileOption);
-        Properties outputParams = readProperties(line, ConversionToolUtils.OptionType.EXPORT, context);
-        DataSource ds2 = Exporters.createDataSource(context.getFileSystem().getPath(outputFile), new DefaultDataSourceObserver() {
+        DataSource ds = Exporters.createDataSource(context.getFileSystem().getPath(outputFile), new DefaultDataSourceObserver() {
             @Override
             public void opened(String streamName) {
                 context.getOutputStream().println("Generating file " + streamName + "...");
             }
         });
-        exporter.export(network, outputParams, ds2);
+        Exporters.export(line.getOptionValue(outputFormatOption), network,
+                readProperties(line, ConversionToolUtils.OptionType.EXPORT, context), ds);
+    }
+
+    String getInputFileOption() {
+        return inputFileOption;
+    }
+
+    String getOutputFileOption() {
+        return outputFileOption;
+    }
+
+    String getOutputFormatOption() {
+        return outputFormatOption;
     }
 }

@@ -11,6 +11,8 @@ import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.iidm.export.Exporter;
 import com.powsybl.iidm.network.Network;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.util.Properties;
 
 import static org.junit.Assert.assertEquals;
@@ -40,5 +42,15 @@ public class ExporterMock implements Exporter {
         assertEquals(2, parameters.size());
         assertEquals("value2", parameters.getProperty("param2"));
         assertEquals("value", parameters.getProperty("export.parameter"));
+
+        write(dataSource);
+    }
+
+    private void write(DataSource dataSource) {
+        try {
+            dataSource.newOutputStream("-OUT", "txt", false);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 }

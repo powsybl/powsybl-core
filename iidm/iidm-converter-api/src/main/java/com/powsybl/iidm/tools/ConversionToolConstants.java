@@ -12,9 +12,12 @@ package com.powsybl.iidm.tools;
 public final class ConversionToolConstants {
 
     public static final String CASE_FILE = "case-file";
+    public static final String EXPORT_PARAMETERS = "export-parameters";
+    public static final String IMPORT_PARAMETERS = "import-parameters";
     public static final String INPUT_FILE = "input-file";
     public static final String OUTPUT_FILE = "output-file";
     public static final String OUTPUT_FORMAT = "output-format";
+    public static final String SKIP_POSTPROC = "skip-postproc";
 
     private ConversionToolConstants() {
     }

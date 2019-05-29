@@ -17,14 +17,14 @@ import java.nio.file.Files;
 import java.util.Objects;
 import java.util.Properties;
 
+import static com.powsybl.iidm.tools.ConversionToolConstants.EXPORT_PARAMETERS;
+import static com.powsybl.iidm.tools.ConversionToolConstants.IMPORT_PARAMETERS;
+import static com.powsybl.iidm.tools.ConversionToolConstants.SKIP_POSTPROC;
+
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
 public final class ConversionToolUtils {
-
-    private static final String IMPORT_PARAMETERS = "import-parameters";
-    private static final String EXPORT_PARAMETERS = "export-parameters";
-    private static final String SKIP_POSTPROC = "skip-postproc";
 
     public enum OptionType {
         IMPORT(IMPORT_PARAMETERS, 'I'),

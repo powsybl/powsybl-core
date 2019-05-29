@@ -129,7 +129,7 @@ public abstract class AbstractToolTest {
         assertEquals(requiredOptionCount, command.getOptions().getRequiredOptions().size());
     }
 
-    protected void assertOption(Options options, String optionName, boolean isRequired, boolean hasArgument) {
+    public static void assertOption(Options options, String optionName, boolean isRequired, boolean hasArgument) {
         Option option = options.getOption(optionName);
         assertNotNull(option);
         assertEquals(isRequired, option.isRequired());
