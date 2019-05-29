@@ -41,16 +41,27 @@ public abstract class AbstractMatrixTest {
     @Test
     public void checkBoundsTest() {
         try {
-            Matrix a = getMatrixFactory().create(-1, 1, 1);
+            getMatrixFactory().create(-1, 1, 1);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
         try {
-            Matrix a = getMatrixFactory().create(1, -1, 1);
+            getMatrixFactory().create(1, -1, 1);
             fail();
         } catch (IllegalArgumentException ignored) {
         }
+
         Matrix a = getMatrixFactory().create(1, 1, 1);
+        try {
+            a.set(-1, 0, 0);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+        try {
+            a.set(0, -1, 0);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
         try {
             a.set(2, 0, 0);
             fail();
