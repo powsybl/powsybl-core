@@ -163,8 +163,8 @@ public class TapChangerTest {
         createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, terminal);
         createThreeWindingTransformer();
         ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer("twt2");
-        ThreeWindingsTransformer.Leg2or3 leg2 = threeWindingsTransformer.getLeg2();
-        ThreeWindingsTransformer.Leg2or3 leg3 = threeWindingsTransformer.getLeg3();
+        ThreeWindingsTransformer.LegBase leg2 = threeWindingsTransformer.getLeg2();
+        ThreeWindingsTransformer.LegBase leg3 = threeWindingsTransformer.getLeg3();
         PhaseTapChanger phaseTapChanger = twt.getPhaseTapChanger();
         RatioTapChanger ratioTapChanger = twt.getRatioTapChanger();
         RatioTapChanger ratioTapChangerInLeg2 = leg2.getRatioTapChanger();
@@ -460,6 +460,8 @@ public class TapChangerTest {
                 .newLeg2()
                     .setR(2.03)
                     .setX(2.04)
+                    .setG(0.0)
+                    .setB(0.0)
                     .setRatedU(2.05)
                     .setVoltageLevel("vl2")
                     .setConnectableBus("busB")
@@ -467,14 +469,16 @@ public class TapChangerTest {
                 .newLeg3()
                     .setR(3.3)
                     .setX(3.4)
+                    .setG(0.0)
+                    .setB(0.0)
                     .setRatedU(3.5)
                     .setVoltageLevel("vl2")
                     .setConnectableBus("busB")
                 .add()
                 .add();
         ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer("twt2");
-        ThreeWindingsTransformer.Leg2or3 leg2 = threeWindingsTransformer.getLeg2();
-        ThreeWindingsTransformer.Leg2or3 leg3 = threeWindingsTransformer.getLeg3();
+        ThreeWindingsTransformer.LegBase leg2 = threeWindingsTransformer.getLeg2();
+        ThreeWindingsTransformer.LegBase leg3 = threeWindingsTransformer.getLeg3();
         leg2.newRatioTapChanger()
                 .setTargetV(10.0)
                 .setLoadTapChangingCapabilities(false)

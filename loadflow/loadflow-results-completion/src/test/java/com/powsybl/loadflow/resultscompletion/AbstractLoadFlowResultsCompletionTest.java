@@ -27,8 +27,7 @@ import com.powsybl.iidm.network.RatioTapChangerStep;
 import com.powsybl.iidm.network.ShuntCompensator;
 import com.powsybl.iidm.network.Terminal;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg1;
-import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg2or3;
+import com.powsybl.iidm.network.ThreeWindingsTransformer.LegBase;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 
 /**
@@ -209,7 +208,7 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(leg1Terminal.getQ()).thenReturn(leg1Q);
         Mockito.when(leg1Terminal.getBusView()).thenReturn(leg1BusView);
 
-        Leg1 leg1 = Mockito.mock(Leg1.class);
+        LegBase leg1 = Mockito.mock(LegBase.class);
         Mockito.when(leg1.getR()).thenReturn(0.898462);
         Mockito.when(leg1.getX()).thenReturn(17.204128);
         Mockito.when(leg1.getRatedU()).thenReturn(400.0);
@@ -232,7 +231,7 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(leg2Terminal.getQ()).thenReturn(leg2Q);
         Mockito.when(leg2Terminal.getBusView()).thenReturn(leg2BusView);
 
-        Leg2or3 leg2 = Mockito.mock(Leg2or3.class);
+        LegBase leg2 = Mockito.mock(LegBase.class);
         Mockito.when(leg2.getR()).thenReturn(1.070770247933884);
         Mockito.when(leg2.getX()).thenReturn(19.6664);
         Mockito.when(leg2.getRatedU()).thenReturn(220.0);
@@ -253,7 +252,7 @@ public abstract class AbstractLoadFlowResultsCompletionTest {
         Mockito.when(leg3Terminal.getQ()).thenReturn(leg3Q);
         Mockito.when(leg3Terminal.getBusView()).thenReturn(leg3BusView);
 
-        Leg2or3 leg3 = Mockito.mock(Leg2or3.class);
+        LegBase leg3 = Mockito.mock(LegBase.class);
         Mockito.when(leg3.getR()).thenReturn(4.837006802721089);
         Mockito.when(leg3.getX()).thenReturn(21.76072562358277);
         Mockito.when(leg3.getRatedU()).thenReturn(21.0);

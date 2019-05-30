@@ -6,18 +6,22 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
-
 import java.util.Objects;
 
-/**
- *
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
- */
-class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTransformer>
-    implements ThreeWindingsTransformer {
+import com.powsybl.iidm.network.ConnectableType;
+import com.powsybl.iidm.network.CurrentLimits;
+import com.powsybl.iidm.network.CurrentLimitsAdder;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.Terminal;
+import com.powsybl.iidm.network.ThreeWindingsTransformer;
 
-    abstract static class AbstractLegBase<T extends AbstractLegBase<T>> implements Validable, CurrentLimitsOwner<Void> {
+/**
+ * @author Jos� Antonio Marqu�s <marquesja at aia.es>
+ * @author Marcos de Miguel <demiguelm at aia.es>
+ */
+class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTransformer> implements ThreeWindingsTransformer {
+
+    abstract static class AbstractLegBase<T extends AbstractLegBase<T>> implements Validable, CurrentLimitsOwner<Void>, RatioTapChangerParent, PhaseTapChangerParent {
 
         protected ThreeWindingsTransformerImpl transformer;
 
@@ -25,15 +29,25 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         private double x;
 
+        private double g;
+
+        private double b;
+
         private double ratedU;
 
         private int phaseAngleClock;
 
         private CurrentLimits limits;
 
-        AbstractLegBase(double r, double x, double ratedU) {
+        private RatioTapChangerImpl ratioTapChanger;
+
+        private PhaseTapChangerImpl phaseTapChanger;
+
+        AbstractLegBase(double r, double x, double g, double b, double ratedU) {
             this.r = r;
             this.x = x;
+            this.g = g;
+            this.b = b;
             this.ratedU = ratedU;
         }
 
@@ -66,6 +80,30 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
                 throw new ValidationException(this, "x is invalid");
             }
             this.x = x;
+            return (T) this;
+        }
+
+        public double getG() {
+            return g;
+        }
+
+        public T setG(double g) {
+            if (Double.isNaN(g)) {
+                throw new ValidationException(this, "g is invalid");
+            }
+            this.g = g;
+            return (T) this;
+        }
+
+        public double getB() {
+            return b;
+        }
+
+        public T setB(double b) {
+            if (Double.isNaN(b)) {
+                throw new ValidationException(this, "b is invalid");
+            }
+            this.b = b;
             return (T) this;
         }
 
@@ -109,6 +147,37 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             return transformer;
         }
 
+        public RatioTapChangerAdderImpl newRatioTapChanger() {
+            return new RatioTapChangerAdderImpl(this);
+        }
+
+        public RatioTapChangerImpl getRatioTapChanger() {
+            return ratioTapChanger;
+        }
+
+        public PhaseTapChangerAdderImpl newPhaseTapChanger() {
+            return new PhaseTapChangerAdderImpl(this);
+        }
+
+        public PhaseTapChangerImpl getPhaseTapChanger() {
+            return phaseTapChanger;
+        }
+
+        @Override
+        public NetworkImpl getNetwork() {
+            return transformer.getSubstation().getNetwork();
+        }
+
+        @Override
+        public void setRatioTapChanger(RatioTapChangerImpl ratioTapChanger) {
+            this.ratioTapChanger = ratioTapChanger;
+        }
+
+        @Override
+        public void setPhaseTapChanger(PhaseTapChangerImpl phaseTapChanger) {
+            this.phaseTapChanger = phaseTapChanger;
+        }
+
         @Override
         public String getMessageHeader() {
             return getTypeDescription() + " '" + transformer.getId() + "': ";
@@ -116,49 +185,20 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
     }
 
-    static class Leg1Impl extends AbstractLegBase<Leg1Impl> implements Leg1 {
-
-        private double g;
-
-        private double b;
+    static class Leg1Impl extends AbstractLegBase<Leg1Impl> implements LegBase<Leg1Impl> {
 
         Leg1Impl(double r, double x, double g, double b, double ratedU) {
-            super(r, x, ratedU);
-            this.g = g;
-            this.b = b;
-        }
-
-        @Override
-        public double getG() {
-            return g;
-        }
-
-        @Override
-        public Leg1Impl setG(double g) {
-            if (Double.isNaN(g)) {
-                throw new ValidationException(this, "g is invalid");
-            }
-            this.g = g;
-            return this;
-        }
-
-        @Override
-        public double getB() {
-            return b;
-        }
-
-        @Override
-        public Leg1Impl setB(double b) {
-            if (Double.isNaN(b)) {
-                throw new ValidationException(this, "b is invalid");
-            }
-            this.b = b;
-            return this;
+            super(r, x, g, b, ratedU);
         }
 
         @Override
         public TerminalExt getTerminal() {
             return transformer.terminals.get(0);
+        }
+
+        @Override
+        public String getTapChangerAttribute() {
+            return "ratioTapChanger1";
         }
 
         @Override
@@ -173,39 +213,10 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
     }
 
-    private abstract static class AbstractLeg2or3<T extends AbstractLeg2or3<T>> extends AbstractLegBase<T>
-        implements RatioTapChangerParent {
+    static class Leg2Impl extends AbstractLegBase<Leg2Impl> implements LegBase<Leg2Impl> {
 
-        private RatioTapChangerImpl ratioTapChanger;
-
-        AbstractLeg2or3(double r, double x, double ratedU) {
-            super(r, x, ratedU);
-        }
-
-        public RatioTapChangerAdderImpl newRatioTapChanger() {
-            return new RatioTapChangerAdderImpl(this);
-        }
-
-        public RatioTapChangerImpl getRatioTapChanger() {
-            return ratioTapChanger;
-        }
-
-        @Override
-        public NetworkImpl getNetwork() {
-            return transformer.getSubstation().getNetwork();
-        }
-
-        @Override
-        public void setRatioTapChanger(RatioTapChangerImpl ratioTapChanger) {
-            this.ratioTapChanger = ratioTapChanger;
-        }
-
-    }
-
-    static class Leg2Impl extends AbstractLeg2or3<Leg2Impl> implements Leg2or3 {
-
-        Leg2Impl(double r, double x, double ratedU) {
-            super(r, x, ratedU);
+        Leg2Impl(double r, double x, double g, double b, double ratedU) {
+            super(r, x, g, b, ratedU);
         }
 
         @Override
@@ -230,10 +241,10 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
     }
 
-    static class Leg3Impl extends AbstractLeg2or3<Leg3Impl> implements Leg2or3 {
+    static class Leg3Impl extends AbstractLegBase<Leg3Impl> implements LegBase<Leg3Impl> {
 
-        Leg3Impl(double r, double x, double ratedU) {
-            super(r, x, ratedU);
+        Leg3Impl(double r, double x, double g, double b, double ratedU) {
+            super(r, x, g, b, ratedU);
         }
 
         @Override
@@ -264,11 +275,14 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
     private final Leg3Impl leg3;
 
-    ThreeWindingsTransformerImpl(String id, String name, Leg1Impl leg1, Leg2Impl leg2, Leg3Impl leg3) {
+    private final double ratedU0;
+
+    ThreeWindingsTransformerImpl(String id, String name, Leg1Impl leg1, Leg2Impl leg2, Leg3Impl leg3, double ratedU0) {
         super(id, name);
         this.leg1 = Objects.requireNonNull(leg1);
         this.leg2 = Objects.requireNonNull(leg2);
         this.leg3 = Objects.requireNonNull(leg3);
+        this.ratedU0 = ratedU0;
     }
 
     @Override
@@ -294,6 +308,11 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     @Override
     public Leg3Impl getLeg3() {
         return leg3;
+    }
+
+    @Override
+    public double getRatedU0() {
+        return ratedU0;
     }
 
     @Override
@@ -331,44 +350,92 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        if (leg1.getRatioTapChanger() != null) {
+            leg1.getRatioTapChanger().extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        }
         if (leg2.getRatioTapChanger() != null) {
             leg2.getRatioTapChanger().extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         }
         if (leg3.getRatioTapChanger() != null) {
             leg3.getRatioTapChanger().extendVariantArraySize(initVariantArraySize, number, sourceIndex);
         }
+        if (leg1.getPhaseTapChanger() != null) {
+            leg1.getPhaseTapChanger().extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        }
+        if (leg2.getPhaseTapChanger() != null) {
+            leg2.getPhaseTapChanger().extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        }
+        if (leg3.getPhaseTapChanger() != null) {
+            leg3.getPhaseTapChanger().extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        }
     }
 
     @Override
     public void reduceVariantArraySize(int number) {
         super.reduceVariantArraySize(number);
+        if (leg1.getRatioTapChanger() != null) {
+            leg1.getRatioTapChanger().reduceVariantArraySize(number);
+        }
         if (leg2.getRatioTapChanger() != null) {
             leg2.getRatioTapChanger().reduceVariantArraySize(number);
         }
         if (leg3.getRatioTapChanger() != null) {
             leg3.getRatioTapChanger().reduceVariantArraySize(number);
         }
+        if (leg1.getPhaseTapChanger() != null) {
+            leg1.getPhaseTapChanger().reduceVariantArraySize(number);
+        }
+        if (leg2.getPhaseTapChanger() != null) {
+            leg2.getPhaseTapChanger().reduceVariantArraySize(number);
+        }
+        if (leg3.getPhaseTapChanger() != null) {
+            leg3.getPhaseTapChanger().reduceVariantArraySize(number);
+        }
     }
 
     @Override
     public void deleteVariantArrayElement(int index) {
         super.deleteVariantArrayElement(index);
+        if (leg1.getRatioTapChanger() != null) {
+            leg1.getRatioTapChanger().deleteVariantArrayElement(index);
+        }
         if (leg2.getRatioTapChanger() != null) {
             leg2.getRatioTapChanger().deleteVariantArrayElement(index);
         }
         if (leg3.getRatioTapChanger() != null) {
             leg3.getRatioTapChanger().deleteVariantArrayElement(index);
         }
+        if (leg1.getPhaseTapChanger() != null) {
+            leg1.getPhaseTapChanger().deleteVariantArrayElement(index);
+        }
+        if (leg2.getPhaseTapChanger() != null) {
+            leg2.getPhaseTapChanger().deleteVariantArrayElement(index);
+        }
+        if (leg3.getPhaseTapChanger() != null) {
+            leg3.getPhaseTapChanger().deleteVariantArrayElement(index);
+        }
     }
 
     @Override
     public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
         super.allocateVariantArrayElement(indexes, sourceIndex);
+        if (leg1.getRatioTapChanger() != null) {
+            leg1.getRatioTapChanger().allocateVariantArrayElement(indexes, sourceIndex);
+        }
         if (leg2.getRatioTapChanger() != null) {
             leg2.getRatioTapChanger().allocateVariantArrayElement(indexes, sourceIndex);
         }
         if (leg3.getRatioTapChanger() != null) {
             leg3.getRatioTapChanger().allocateVariantArrayElement(indexes, sourceIndex);
+        }
+        if (leg1.getPhaseTapChanger() != null) {
+            leg1.getPhaseTapChanger().allocateVariantArrayElement(indexes, sourceIndex);
+        }
+        if (leg2.getPhaseTapChanger() != null) {
+            leg2.getPhaseTapChanger().allocateVariantArrayElement(indexes, sourceIndex);
+        }
+        if (leg3.getPhaseTapChanger() != null) {
+            leg3.getPhaseTapChanger().allocateVariantArrayElement(indexes, sourceIndex);
         }
     }
 

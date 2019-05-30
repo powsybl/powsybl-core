@@ -403,8 +403,12 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                             new Column(THETA2),
                                             new Column(THETA3),
                                             new Column("starTheta"),
-                                            new Column("g"),
-                                            new Column("b"),
+                                            new Column("g1"),
+                                            new Column("b1"),
+                                            new Column("g2"),
+                                            new Column("b2"),
+                                            new Column("g3"),
+                                            new Column("b3"),
                                             new Column("r1"),
                                             new Column("r2"),
                                             new Column("r3"),
@@ -446,8 +450,12 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                                 new Column(THETA2 + POST_COMPUTATION_SUFFIX),
                                                 new Column(THETA3 + POST_COMPUTATION_SUFFIX),
                                                 new Column("starTheta" + POST_COMPUTATION_SUFFIX),
-                                                new Column("g" + POST_COMPUTATION_SUFFIX),
-                                                new Column("b" + POST_COMPUTATION_SUFFIX),
+                                                new Column("g1" + POST_COMPUTATION_SUFFIX),
+                                                new Column("b1" + POST_COMPUTATION_SUFFIX),
+                                                new Column("g2" + POST_COMPUTATION_SUFFIX),
+                                                new Column("b2" + POST_COMPUTATION_SUFFIX),
+                                                new Column("g3" + POST_COMPUTATION_SUFFIX),
+                                                new Column("b3" + POST_COMPUTATION_SUFFIX),
                                                 new Column("r1" + POST_COMPUTATION_SUFFIX),
                                                 new Column("r2" + POST_COMPUTATION_SUFFIX),
                                                 new Column("r3" + POST_COMPUTATION_SUFFIX),
@@ -778,8 +786,12 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(twtData.getTheta(ThreeWindingsTransformer.Side.TWO))
                                  .writeCell(twtData.getTheta(ThreeWindingsTransformer.Side.THREE))
                                  .writeCell(twtData.getStarTheta())
-                                 .writeCell(twtData.getG())
-                                 .writeCell(twtData.getB())
+                                 .writeCell(twtData.getG(ThreeWindingsTransformer.Side.ONE))
+                                 .writeCell(twtData.getB(ThreeWindingsTransformer.Side.ONE))
+                                 .writeCell(twtData.getG(ThreeWindingsTransformer.Side.TWO))
+                                 .writeCell(twtData.getB(ThreeWindingsTransformer.Side.TWO))
+                                 .writeCell(twtData.getG(ThreeWindingsTransformer.Side.THREE))
+                                 .writeCell(twtData.getB(ThreeWindingsTransformer.Side.THREE))
                                  .writeCell(twtData.getR(ThreeWindingsTransformer.Side.ONE))
                                  .writeCell(twtData.getR(ThreeWindingsTransformer.Side.TWO))
                                  .writeCell(twtData.getR(ThreeWindingsTransformer.Side.THREE))
@@ -796,7 +808,7 @@ public class ValidationFormatterCsvWriter extends AbstractValidationFormatterWri
                                  .writeCell(twtData.isMainComponent(ThreeWindingsTransformer.Side.TWO))
                                  .writeCell(twtData.isMainComponent(ThreeWindingsTransformer.Side.THREE))
                                  .writeCell(getValidated(validated)) :
-                        formatter.writeEmptyCells(26);
+                        formatter.writeEmptyCells(30);
         }
         return formatter;
     }

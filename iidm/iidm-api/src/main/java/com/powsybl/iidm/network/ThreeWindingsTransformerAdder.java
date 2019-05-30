@@ -26,6 +26,10 @@ public interface ThreeWindingsTransformerAdder extends IdentifiableAdder<ThreeWi
 
         L setX(double x);
 
+        L setG(double g);
+
+        L setB(double b);
+
         L setRatedU(double ratedU);
 
         L setPhaseAngleClock(int phaseAngleClock);
@@ -33,23 +37,13 @@ public interface ThreeWindingsTransformerAdder extends IdentifiableAdder<ThreeWi
         ThreeWindingsTransformerAdder add();
     }
 
-    public interface Leg1Adder extends LegAdder<Leg1Adder> {
+    ThreeWindingsTransformerAdder setRatedU0(double ratedU0);
 
-        Leg1Adder setG(double g);
+    LegAdder newLeg1();
 
-        Leg1Adder setB(double b);
+    LegAdder newLeg2();
 
-    }
-
-    public interface Leg2or3Adder extends LegAdder<Leg2or3Adder> {
-
-    }
-
-    Leg1Adder newLeg1();
-
-    Leg2or3Adder newLeg2();
-
-    Leg2or3Adder newLeg3();
+    LegAdder newLeg3();
 
     ThreeWindingsTransformer add();
 
