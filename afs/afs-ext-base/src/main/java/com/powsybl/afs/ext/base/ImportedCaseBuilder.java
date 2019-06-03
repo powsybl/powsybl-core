@@ -149,7 +149,7 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-
+        context.getStorage().setConsistent(info.getId());
         context.getStorage().flush();
 
         return new ImportedCase(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()),

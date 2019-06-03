@@ -14,7 +14,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -38,5 +38,8 @@ public class NodeInfoTest {
                                          .setBoolean("b1", true));
         NodeInfo info2 = objectMapper.readValue(objectMapper.writeValueAsString(info), NodeInfo.class);
         assertEquals(info, info2);
+        info.setVersion(1);
+        assertEquals(1, info.getVersion());
+        assertNotEquals("A non NodeInfo object", info);
     }
 }

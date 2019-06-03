@@ -63,6 +63,16 @@ public class ForwardingAppStorage implements AppStorage {
     }
 
     @Override
+    public void setConsistent(String nodeId) {
+        storage.setConsistent(nodeId);
+    }
+
+    @Override
+    public boolean isConsistent(String nodeId) {
+        return storage.isConsistent(nodeId);
+    }
+
+    @Override
     public void updateModificationTime(String nodeId) {
         storage.updateModificationTime(nodeId);
     }
@@ -70,6 +80,11 @@ public class ForwardingAppStorage implements AppStorage {
     @Override
     public List<NodeInfo> getChildNodes(String nodeId) {
         return storage.getChildNodes(nodeId);
+    }
+
+    @Override
+    public List<NodeInfo> getInconsistentNodes() {
+        return storage.getInconsistentNodes();
     }
 
     @Override
