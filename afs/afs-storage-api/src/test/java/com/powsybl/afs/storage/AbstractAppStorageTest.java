@@ -81,17 +81,6 @@ public abstract class AbstractAppStorageTest {
         }
     }
 
-    @Test(expected = AfsStorageException.class)
-    public void testDisabledNode() {
-        NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists(storage.getFileSystemName(), FOLDER_PSEUDO_CLASS);
-        storage.flush();
-        NodeInfo testFolderInfo = storage.createNode(rootFolderInfo.getId(), "test", FOLDER_PSEUDO_CLASS, "", 0,
-                new NodeGenericMetadata().setString("k", "v"));
-        storage.createNode(testFolderInfo.getId(), "test", FOLDER_PSEUDO_CLASS, "", 0,
-                new NodeGenericMetadata().setString("k", "v"));
-        storage.flush();
-    }
-
     @Test
     public void test() throws IOException, InterruptedException {
         // 1) create root folder
