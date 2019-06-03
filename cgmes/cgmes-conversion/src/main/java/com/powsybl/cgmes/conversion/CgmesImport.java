@@ -22,6 +22,7 @@ import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.iidm.ConversionParameters;
 import com.powsybl.iidm.import_.Importer;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.parameters.Parameter;
 import com.powsybl.iidm.parameters.ParameterDefaultValueConfig;
 import com.powsybl.iidm.parameters.ParameterType;
@@ -95,9 +96,9 @@ public class CgmesImport implements Importer {
     }
 
     @Override
-    public Network importData(ReadOnlyDataSource ds, Properties p) {
+    public Network importData(ReadOnlyDataSource ds, NetworkFactory networkFactory, Properties p) {
         CgmesModel cgmes = CgmesModelFactory.create(ds, boundary(p), tripleStore(p));
-        Network network = new Conversion(cgmes, config(p), activatedPostProcessors(p)).convert();
+        Network network = new Conversion(cgmes, config(p), activatedPostProcessors(p), networkFactory).convert();
         if (storeCgmesModelAsNetworkExtension(p)) {
             // Store a reference to the original CGMES model inside the IIDM network
             // We could also add listeners to be aware of changes in IIDM data

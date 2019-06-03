@@ -17,8 +17,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
@@ -93,6 +92,31 @@ public class BatteryTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("invalid active limits");
         createBattery("invalid", 11, 12, 20.0, 11.0);
+    }
+
+    /**
+     * This test goal is to check if the conditions:
+     * . minP <= p0 <= maxP
+     * . minP <= maxP
+     * Are performed by the Battery adders and setters.
+     * <p>
+     * For a Battery it is expected that the current power is between this bounds
+     */
+    @Test
+    public void invalidPowerBounds() {
+        try {
+            createBattery("invalid", 0.0, 12.0, 10.0, 20.0);
+            fail("Should throw an exception");
+        } catch (ValidationException e) {
+            assertEquals("Battery 'invalid': invalid active power p < minP: 0.0 < 10.0", e.getMessage());
+        }
+
+        try {
+            createBattery("invalid", 30.0, 12.0, 10.0, 20.0);
+            fail("Should throw an exception");
+        } catch (ValidationException e) {
+            assertEquals("Battery 'invalid': invalid active power p > maxP: 30.0 > 20.0", e.getMessage());
+        }
     }
 
     @Test

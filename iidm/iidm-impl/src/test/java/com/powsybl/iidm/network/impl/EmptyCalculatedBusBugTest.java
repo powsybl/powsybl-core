@@ -18,7 +18,7 @@ import static org.junit.Assert.assertEquals;
 public class EmptyCalculatedBusBugTest {
 
     private Network createNetwork(boolean retained) {
-        Network network = NetworkFactory.create("test", "test");
+        Network network = Network.create("test", "test");
         Substation s = network.newSubstation()
                 .setId("S")
                 .setCountry(Country.FR)

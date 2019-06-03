@@ -14,7 +14,7 @@ public final class NoEquipmentNetworkFactory {
     }
 
     public static Network create() {
-        Network network = NetworkFactory.create("test", "test");
+        Network network = Network.create("test", "test");
         Substation substation = network.newSubstation()
                     .setId("sub")
                     .setCountry(Country.FR)
