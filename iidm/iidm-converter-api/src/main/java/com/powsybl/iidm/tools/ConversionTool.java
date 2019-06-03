@@ -12,6 +12,7 @@ import com.google.common.base.Suppliers;
 import com.powsybl.iidm.export.Exporters;
 import com.powsybl.iidm.import_.GroovyScriptPostProcessor;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.tools.AbstractCommand;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -45,22 +46,9 @@ public class ConversionTool implements Tool {
 
     @Override
     public Command getCommand() {
-        return new Command() {
-
-            @Override
-            public String getName() {
-                return "convert-network";
-            }
-
-            @Override
-            public String getTheme() {
-                return "Data conversion";
-            }
-
-            @Override
-            public String getDescription() {
-                return "convert a network from one format to another";
-            }
+        return new AbstractCommand("convert-network",
+                "Data conversion",
+                "convert a network from one format to another") {
 
             @Override
             public Options getOptions() {

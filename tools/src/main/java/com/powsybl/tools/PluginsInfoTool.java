@@ -31,30 +31,11 @@ public class PluginsInfoTool implements Tool {
 
     private static final int MAX_IDS_LENGTH = 100;
 
-    private static final Command COMMAND = new Command() {
-        @Override
-        public String getName() {
-            return "plugins-info";
-        }
-
-        @Override
-        public String getTheme() {
-            return "Misc";
-        }
-
-        @Override
-        public String getDescription() {
-            return "List the available plugins";
-        }
+    private static final Command COMMAND = new AbstractCommand("plugins-info", "Misc", "List the available plugins") {
 
         @Override
         public Options getOptions() {
             return new Options();
-        }
-
-        @Override
-        public String getUsageFooter() {
-            return null;
         }
     };
 

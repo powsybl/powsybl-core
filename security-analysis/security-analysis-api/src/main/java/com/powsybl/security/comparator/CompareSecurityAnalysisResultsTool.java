@@ -10,6 +10,7 @@ import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import com.powsybl.tools.AbstractCommand;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -37,22 +38,9 @@ public class CompareSecurityAnalysisResultsTool implements Tool {
 
     @Override
     public Command getCommand() {
-        return new Command() {
-
-            @Override
-            public String getName() {
-                return "compare-security-analysis-results";
-            }
-
-            @Override
-            public String getTheme() {
-                return "Computation";
-            }
-
-            @Override
-            public String getDescription() {
-                return "Compare security analysis results";
-            }
+        return new AbstractCommand("compare-security-analysis-results",
+                "Computation",
+                "Compare security analysis results") {
 
             @Override
             public Options getOptions() {
@@ -82,12 +70,6 @@ public class CompareSecurityAnalysisResultsTool implements Tool {
                         .build());
                 return options;
             }
-
-            @Override
-            public String getUsageFooter() {
-                return null;
-            }
-
         };
     }
 

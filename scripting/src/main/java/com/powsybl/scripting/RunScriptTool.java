@@ -10,6 +10,7 @@ import com.google.auto.service.AutoService;
 import com.powsybl.afs.*;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.scripting.groovy.GroovyScripts;
+import com.powsybl.tools.AbstractCommand;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -33,21 +34,9 @@ public class RunScriptTool implements Tool {
 
     public static final String FILE = "file";
 
-    private static final Command COMMAND = new Command() {
-        @Override
-        public String getName() {
-            return "run-script";
-        }
-
-        @Override
-        public String getTheme() {
-            return "Script";
-        }
-
-        @Override
-        public String getDescription() {
-            return "run script (only groovy is supported)";
-        }
+    private static final Command COMMAND = new AbstractCommand("run-script",
+            "Script",
+            "run script (only groovy is supported)") {
 
         @Override
         public Options getOptions() {
@@ -60,11 +49,6 @@ public class RunScriptTool implements Tool {
                     .argName("FILE")
                     .build());
             return options;
-        }
-
-        @Override
-        public String getUsageFooter() {
-            return null;
         }
     };
 

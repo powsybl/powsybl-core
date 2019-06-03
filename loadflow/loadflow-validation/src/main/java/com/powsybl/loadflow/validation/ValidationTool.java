@@ -19,6 +19,7 @@ import com.powsybl.iidm.tools.DefaultConversionOption;
 import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.validation.io.ValidationWriters;
+import com.powsybl.tools.AbstractCommand;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -67,22 +68,9 @@ public class ValidationTool implements Tool {
 
     @Override
     public Command getCommand() {
-        return new Command() {
-
-            @Override
-            public String getName() {
-                return "loadflow-validation";
-            }
-
-            @Override
-            public String getTheme() {
-                return "Computation";
-            }
-
-            @Override
-            public String getDescription() {
-                return "Validate load-flow results of a network";
-            }
+        return new AbstractCommand("loadflow-validation",
+                "Computation",
+                "Validate load-flow results of a network") {
 
             @Override
             public Options getOptions() {
@@ -132,11 +120,6 @@ public class ValidationTool implements Tool {
                         .argName("FILE")
                         .build());
                 return options;
-            }
-
-            @Override
-            public String getUsageFooter() {
-                return null;
             }
         };
     }

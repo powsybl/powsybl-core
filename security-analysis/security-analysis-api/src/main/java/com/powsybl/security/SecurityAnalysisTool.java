@@ -28,6 +28,7 @@ import com.powsybl.security.distributed.SubContingenciesProvider;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptors;
 import com.powsybl.security.json.JsonSecurityAnalysisParameters;
+import com.powsybl.tools.AbstractCommand;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -69,21 +70,9 @@ public class SecurityAnalysisTool implements Tool {
 
     @Override
     public Command getCommand() {
-        return new Command() {
-            @Override
-            public String getName() {
-                return "security-analysis";
-            }
-
-            @Override
-            public String getTheme() {
-                return "Computation";
-            }
-
-            @Override
-            public String getDescription() {
-                return "Run security analysis";
-            }
+        return new AbstractCommand("security-analysis",
+                "Computation",
+                "Run security analysis") {
 
             @Override
             public Options getOptions() {

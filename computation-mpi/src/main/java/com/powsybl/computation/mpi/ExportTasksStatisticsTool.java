@@ -7,6 +7,7 @@
 package com.powsybl.computation.mpi;
 
 import com.google.auto.service.AutoService;
+import com.powsybl.tools.AbstractCommand;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -32,21 +33,9 @@ public class ExportTasksStatisticsTool implements Tool {
 
     @Override
     public Command getCommand() {
-        return new Command() {
-            @Override
-            public String getName() {
-                return "export-tasks-statistics";
-            }
-
-            @Override
-            public String getTheme() {
-                return "MPI statistics";
-            }
-
-            @Override
-            public String getDescription() {
-                return "export tasks statistics to CSV";
-            }
+        return new AbstractCommand("export-tasks-statistics",
+                "MPI statistics",
+                "export tasks statistics to CSV") {
 
             @Override
             public Options getOptions() {
@@ -70,11 +59,6 @@ public class ExportTasksStatisticsTool implements Tool {
                         .required()
                         .build());
                 return options;
-            }
-
-            @Override
-            public String getUsageFooter() {
-                return null;
             }
         };
     }

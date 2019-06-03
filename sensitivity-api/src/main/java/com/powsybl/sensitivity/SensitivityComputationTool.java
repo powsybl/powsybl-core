@@ -18,6 +18,7 @@ import com.powsybl.commons.io.table.TableFormatterFactory;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.tools.ConversionOption;
 import com.powsybl.iidm.tools.DefaultConversionOption;
+import com.powsybl.tools.AbstractCommand;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -58,21 +59,9 @@ public class SensitivityComputationTool implements Tool {
 
     @Override
     public Command getCommand() {
-        return new Command() {
-            @Override
-            public String getName() {
-                return "sensitivity-computation";
-            }
-
-            @Override
-            public String getTheme() {
-                return "Computation";
-            }
-
-            @Override
-            public String getDescription() {
-                return "Run sensitivity computation";
-            }
+        return new AbstractCommand("sensitivity-computation",
+                "Computation",
+                "Run sensitivity computation") {
 
             @Override
             public Options getOptions() {
@@ -95,11 +84,6 @@ public class SensitivityComputationTool implements Tool {
                         .argName("FORMAT")
                         .build());
                 return options;
-            }
-
-            @Override
-            public String getUsageFooter() {
-                return null;
             }
         };
     }

@@ -15,6 +15,7 @@ import com.powsybl.iidm.tools.ConversionOption;
 import com.powsybl.iidm.tools.DefaultConversionOption;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.json.JsonLoadFlowParameters;
+import com.powsybl.tools.AbstractCommand;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -65,21 +66,9 @@ public class RunLoadFlowTool implements Tool {
 
     @Override
     public Command getCommand() {
-        return new Command() {
-            @Override
-            public String getName() {
-                return "loadflow";
-            }
-
-            @Override
-            public String getTheme() {
-                return "Computation";
-            }
-
-            @Override
-            public String getDescription() {
-                return "Run loadflow";
-            }
+        return new AbstractCommand("loadflow",
+                "Computation",
+                "Run loadflow") {
 
             @Override
             public Options getOptions() {
@@ -102,11 +91,6 @@ public class RunLoadFlowTool implements Tool {
                         .argName("FORMAT")
                         .build());
                 return options;
-            }
-
-            @Override
-            public String getUsageFooter() {
-                return null;
             }
         };
     }

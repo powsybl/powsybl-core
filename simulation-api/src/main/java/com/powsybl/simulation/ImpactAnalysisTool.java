@@ -28,6 +28,7 @@ import com.powsybl.iidm.tools.DefaultConversionOption;
 import com.powsybl.simulation.securityindexes.SecurityIndex;
 import com.powsybl.simulation.securityindexes.SecurityIndexId;
 import com.powsybl.simulation.securityindexes.SecurityIndexType;
+import com.powsybl.tools.AbstractCommand;
 import com.powsybl.tools.Command;
 import com.powsybl.tools.Tool;
 import com.powsybl.tools.ToolRunningContext;
@@ -69,22 +70,9 @@ public class ImpactAnalysisTool implements Tool {
 
     @Override
     public Command getCommand() {
-        return new Command() {
-
-            @Override
-            public String getName() {
-                return "run-impact-analysis";
-            }
-
-            @Override
-            public String getTheme() {
-                return "Computation";
-            }
-
-            @Override
-            public String getDescription() {
-                return "run an impact analysis";
-            }
+        return new AbstractCommand("run-impact-analysis",
+                "Computation",
+                "run an impact analysis") {
 
             @Override
             public Options getOptions() {
@@ -101,11 +89,6 @@ public class ImpactAnalysisTool implements Tool {
                         .argName("FILE")
                         .build());
                 return options;
-            }
-
-            @Override
-            public String getUsageFooter() {
-                return null;
             }
         };
     }
