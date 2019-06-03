@@ -22,7 +22,6 @@ import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.xml.XMLExporter;
 import com.powsybl.iidm.xml.XMLImporter;
 import org.junit.After;
@@ -79,8 +78,10 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
     public void setup() throws IOException {
         super.setup();
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
-        storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "Test format", Case.VERSION,
+
+        NodeInfo nodeInfo = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "Test format", Case.VERSION,
                 new NodeGenericMetadata().setString("format", TestImporter.FORMAT));
+        storage.setConsistent(nodeInfo.getId());
 
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         Files.createFile(fileSystem.getPath("/work/network.tst"));
@@ -193,7 +194,7 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
         ProjectFolder folder = project.getRootFolder().createFolder("folder");
         assertTrue(folder.getChildren().isEmpty());
 
-        Network network = NetworkFactory.create("NetworkID", "scripting");
+        Network network = Network.create("NetworkID", "scripting");
         ImportedCase importedCase1 = folder.fileBuilder(ImportedCaseBuilder.class)
                 .withName("test")
                 .withNetwork(network)
@@ -206,6 +207,5 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
                 .build();
         assertNotNull(importedCase2);
         assertEquals("NetworkID", importedCase2.getName());
-
     }
 }

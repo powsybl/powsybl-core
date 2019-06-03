@@ -13,7 +13,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 
 public class VoltageLevelTest {
 
@@ -25,7 +26,7 @@ public class VoltageLevelTest {
 
     @Before
     public void setUp() {
-        network = NetworkFactory.create("test", "test");
+        network = Network.create("test", "test");
         substation = network.newSubstation()
                                 .setCountry(Country.AF)
                                 .setTso("tso")

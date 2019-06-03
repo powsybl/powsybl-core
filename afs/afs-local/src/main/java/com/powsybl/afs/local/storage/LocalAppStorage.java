@@ -194,6 +194,11 @@ public class LocalAppStorage implements AppStorage {
     }
 
     @Override
+    public void setConsistent(String nodeId) {
+        throw new AssertionError();
+    }
+
+    @Override
     public void renameNode(String nodeId, String name) {
         throw new AssertionError();
     }
@@ -261,6 +266,11 @@ public class LocalAppStorage implements AppStorage {
     @Override
     public boolean isWritable(String nodeId) {
         return false;
+    }
+
+    @Override
+    public boolean isConsistent(String nodeId) {
+        return true;
     }
 
     @Override
