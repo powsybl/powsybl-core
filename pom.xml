@@ -120,7 +120,6 @@
         </sonar.exclusions>
 
         <arquillianbom.version>1.2.0.Final</arquillianbom.version>
-        <asm.version>7.0</asm.version>
         <assertj.version>3.11.0</assertj.version>
         <autoservice.version>1.0-rc2</autoservice.version>
         <blazegraph.version>2.1.4</blazegraph.version>
