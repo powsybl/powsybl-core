@@ -6,6 +6,7 @@
  */
 package com.powsybl.iidm.tools;
 
+import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.ComputationManager;
@@ -49,7 +50,7 @@ public class DefaultConversionOptionTest {
 
     @Before
     public void setUp() throws IOException {
-        fs = Jimfs.newFileSystem();
+        fs = Jimfs.newFileSystem(Configuration.unix());
         try (BufferedWriter writer = Files.newBufferedWriter(fs.getPath("/input.txt"))) {
             writer.write("");
         }
