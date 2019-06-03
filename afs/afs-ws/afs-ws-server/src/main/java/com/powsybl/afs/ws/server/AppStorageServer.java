@@ -340,7 +340,7 @@ public class AppStorageServer {
 
     @GET
     @Produces(MediaType.TEXT_PLAIN)
-    @Path("fileSystems/{fileSystemName}/nodes/{nodeId}/consistent")
+    @Path("fileSystems/{fileSystemName}/nodes/{nodeId}/isConsistent")
     @ApiOperation (value = "", response = Boolean.class)
     @ApiResponses (value = {@ApiResponse(code = 200, message = ""), @ApiResponse(code = 404, message = ""), @ApiResponse(code = 500, message = "Error")})
     public Response isConsistent(@ApiParam(value = "File system name") @PathParam("fileSystemName") String fileSystemName,
