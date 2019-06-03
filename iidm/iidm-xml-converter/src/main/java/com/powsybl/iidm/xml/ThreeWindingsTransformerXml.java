@@ -102,8 +102,8 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         double x3 = XmlUtil.readDoubleAttribute(context.getReader(), "x3");
         double ratedU3 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU3");
         LegAdder legAdder1 = adder.newLeg1().setR(r1).setX(x1).setG(g1).setB(b1).setRatedU(ratedU1);
-        LegAdder legAdder2 = adder.newLeg2().setR(r2).setX(x2).setRatedU(ratedU2);
-        LegAdder legAdder3 = adder.newLeg3().setR(r3).setX(x3).setRatedU(ratedU3);
+        LegAdder legAdder2 = adder.newLeg2().setR(r2).setX(x2).setG(0.0).setB(0.0).setRatedU(ratedU2);
+        LegAdder legAdder3 = adder.newLeg3().setR(r3).setX(x3).setG(0.0).setB(0.0).setRatedU(ratedU3);
         readNodeOrBus(1, legAdder1, context);
         readNodeOrBus(2, legAdder2, context);
         readNodeOrBus(3, legAdder3, context);

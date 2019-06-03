@@ -15,7 +15,8 @@ import com.powsybl.iidm.network.impl.ThreeWindingsTransformerImpl.Leg3Impl;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeWindingsTransformerAdderImpl> implements ThreeWindingsTransformerAdder {
+class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeWindingsTransformerAdderImpl>
+    implements ThreeWindingsTransformerAdder {
 
     abstract class AbstractLegBaseAdder<L extends AbstractLegBaseAdder<L>> implements Validable {
 
@@ -31,7 +32,13 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         protected double x = Double.NaN;
 
+        protected double g = Double.NaN;
+
+        protected double b = Double.NaN;
+
         protected double ratedU = Double.NaN;
+
+        protected int phaseAngleClock = 0;
 
         public L setVoltageLevel(String voltageLevelId) {
             this.voltageLevelId = voltageLevelId;
@@ -63,8 +70,23 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             return (L) this;
         }
 
+        public L setG(double g) {
+            this.g = g;
+            return (L) this;
+        }
+
+        public L setB(double b) {
+            this.b = b;
+            return (L) this;
+        }
+
         public L setRatedU(double ratedU) {
             this.ratedU = ratedU;
+            return (L) this;
+        }
+
+        public L setPhaseAngleClock(int phaseAngleClock) {
+            this.phaseAngleClock = phaseAngleClock;
             return (L) this;
         }
 
@@ -75,6 +97,12 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             if (Double.isNaN(x)) {
                 throw new ValidationException(this, "x is not set");
             }
+            if (Double.isNaN(g)) {
+                throw new ValidationException(this, "g is not set");
+            }
+            if (Double.isNaN(b)) {
+                throw new ValidationException(this, "b is not set");
+            }
             if (Double.isNaN(ratedU)) {
                 throw new ValidationException(this, "rated u is not set");
             }
@@ -82,10 +110,10 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
         protected TerminalExt checkAndGetTerminal() {
             return new TerminalBuilder(getNetwork().getRef(), this)
-                    .setNode(node)
-                    .setBus(bus)
-                    .setConnectableBus(connectableBus)
-                    .build();
+                .setNode(node)
+                .setBus(bus)
+                .setConnectableBus(connectableBus)
+                .build();
         }
 
         protected VoltageLevelExt checkAndGetVoltageLevel() {
@@ -95,45 +123,18 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             VoltageLevelExt voltageLevel = getNetwork().getVoltageLevel(voltageLevelId);
             if (voltageLevel == null) {
                 throw new ValidationException(this, "voltage level '" + voltageLevelId
-                        + "' not found");
+                    + "' not found");
             }
             if (voltageLevel.getSubstation() != substation) {
                 throw new ValidationException(this,
                     "voltage level shall belong to the substation '"
-                    + substation.getId() + "'");
+                        + substation.getId() + "'");
             }
             return voltageLevel;
         }
     }
 
-    class Leg1AdderImpl extends AbstractLegBaseAdder<Leg1AdderImpl> implements Leg1Adder {
-
-        protected double g = Double.NaN;
-
-        protected double b = Double.NaN;
-
-        @Override
-        public Leg1AdderImpl setG(double g) {
-            this.g = g;
-            return this;
-        }
-
-        @Override
-        public Leg1AdderImpl setB(double b) {
-            this.b = b;
-            return this;
-        }
-
-        @Override
-        protected void checkParams() {
-            super.checkParams();
-            if (Double.isNaN(g)) {
-                throw new ValidationException(this, "g is not set");
-            }
-            if (Double.isNaN(b)) {
-                throw new ValidationException(this, "b is not set");
-            }
-        }
+    class Leg1AdderImpl extends AbstractLegBaseAdder<Leg1AdderImpl> implements LegAdder<Leg1AdderImpl> {
 
         @Override
         public ThreeWindingsTransformerAdderImpl add() {
@@ -151,14 +152,14 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
     }
 
-    class Leg2AdderImpl extends AbstractLegBaseAdder<Leg2AdderImpl> implements Leg2or3Adder {
+    class Leg2AdderImpl extends AbstractLegBaseAdder<Leg2AdderImpl> implements LegAdder<Leg2AdderImpl> {
 
         @Override
         public ThreeWindingsTransformerAdderImpl add() {
             checkParams();
             voltageLevel2 = checkAndGetVoltageLevel();
             terminal2 = checkAndGetTerminal();
-            leg2 = new Leg2Impl(r, x, ratedU);
+            leg2 = new Leg2Impl(r, x, g, b, ratedU);
             return ThreeWindingsTransformerAdderImpl.this;
         }
 
@@ -169,14 +170,14 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
     }
 
-    class Leg3AdderImpl extends AbstractLegBaseAdder<Leg3AdderImpl> implements Leg2or3Adder {
+    class Leg3AdderImpl extends AbstractLegBaseAdder<Leg3AdderImpl> implements LegAdder<Leg3AdderImpl> {
 
         @Override
         public ThreeWindingsTransformerAdderImpl add() {
             checkParams();
             voltageLevel3 = checkAndGetVoltageLevel();
             terminal3 = checkAndGetTerminal();
-            leg3 = new Leg3Impl(r, x, ratedU);
+            leg3 = new Leg3Impl(r, x, g, b, ratedU);
             return ThreeWindingsTransformerAdderImpl.this;
         }
 
@@ -207,8 +208,16 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
 
     private TerminalExt terminal3;
 
+    private double ratedU0 = 1.0;
+
     ThreeWindingsTransformerAdderImpl(SubstationImpl substation) {
         this.substation = substation;
+    }
+
+    @Override
+    public ThreeWindingsTransformerAdder setRatedU0(double ratedU0) {
+        this.ratedU0 = ratedU0;
+        return this;
     }
 
     @Override
@@ -255,8 +264,8 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
         voltageLevel2.attach(terminal2, true);
         voltageLevel3.attach(terminal3, true);
 
-        ThreeWindingsTransformerImpl transformer
-                = new ThreeWindingsTransformerImpl(id, getName(), leg1, leg2, leg3);
+        ThreeWindingsTransformerImpl transformer = new ThreeWindingsTransformerImpl(id, getName(), leg1, leg2, leg3,
+            ratedU0);
         leg1.setTransformer(transformer);
         leg2.setTransformer(transformer);
         leg3.setTransformer(transformer);
