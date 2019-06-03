@@ -8,10 +8,7 @@ package com.powsybl.afs;
 
 import com.google.auto.service.AutoService;
 import com.powsybl.afs.storage.NodeInfo;
-import com.powsybl.tools.Command;
-import com.powsybl.tools.CommandLineTools;
-import com.powsybl.tools.Tool;
-import com.powsybl.tools.ToolRunningContext;
+import com.powsybl.tools.*;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionGroup;
@@ -45,21 +42,9 @@ public class AppFileSystemTool implements Tool {
 
     @Override
     public Command getCommand() {
-        return new Command() {
-            @Override
-            public String getName() {
-                return "afs";
-            }
-
-            @Override
-            public String getTheme() {
-                return "Application file system";
-            }
-
-            @Override
-            public String getDescription() {
-                return "application file system command line tool";
-            }
+        return new AbstractCommand("afs",
+                "Application file system",
+                "application file system command line tool") {
 
             @Override
             public Options getOptions() {
@@ -118,11 +103,6 @@ public class AppFileSystemTool implements Tool {
                         .argName("DIR")
                         .build());
                 return options;
-            }
-
-            @Override
-            public String getUsageFooter() {
-                return null;
             }
         };
     }
