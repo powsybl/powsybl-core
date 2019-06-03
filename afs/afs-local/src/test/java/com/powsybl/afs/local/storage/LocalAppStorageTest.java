@@ -80,6 +80,7 @@ public class LocalAppStorageTest {
         NodeInfo rootNodeInfo = storage.createRootNodeIfNotExists("mem", Folder.PSEUDO_CLASS);
         assertEquals("mem", rootNodeInfo.getName());
         assertFalse(storage.isWritable(rootNodeInfo.getId()));
+        assertTrue(storage.isConsistent(rootNodeInfo.getId()));
         assertFalse(storage.getParentNode(rootNodeInfo.getId()).isPresent());
         assertEquals(ImmutableList.of("%2Fcases%2Fn.tst", "%2Fcases%2Fn2.tst"),
                      storage.getChildNodes(rootNodeInfo.getId()).stream().map(NodeInfo::getId).collect(Collectors.toList()));

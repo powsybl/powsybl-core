@@ -352,20 +352,24 @@ public class RemoteAppStorage implements AppStorage {
     @Override
     public List<NodeInfo> getChildNodes(String nodeId) {
         Objects.requireNonNull(nodeId);
-
         LOGGER.debug("getChildNodes(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
-
         return getResponse("fileSystems/{fileSystemName}/nodes/{nodeId}/children", nodeId);
-
     }
 
-    @Override
-    public List<NodeInfo> getInconsistentNodes(String nodeId) {
-        Objects.requireNonNull(nodeId);
+    public List<NodeInfo> getInconsistentNodes() {
+        LOGGER.debug("getInconsistentNodes(fileSystemName={})", fileSystemName);
 
-        LOGGER.debug("getInconsistentNodes(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
-
-        return getResponse("fileSystems/{fileSystemName}/nodes/{nodeId}/inconsistentChildrenNodes", nodeId);
+        Response response = webTarget.path("fileSystems/{fileSystemName}/inconsistentChildNodes")
+                .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
+                .request(MediaType.APPLICATION_JSON)
+                .header(HttpHeaders.AUTHORIZATION, token)
+                .get();
+        try {
+            return readEntityIfOk(response, new GenericType<List<NodeInfo>>() {
+            });
+        } finally {
+            response.close();
+        }
     }
 
     @Override

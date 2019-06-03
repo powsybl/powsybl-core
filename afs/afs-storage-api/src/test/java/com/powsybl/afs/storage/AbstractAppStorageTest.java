@@ -81,17 +81,6 @@ public abstract class AbstractAppStorageTest {
         }
     }
 
-    @Test(expected = AfsStorageException.class)
-    public void testDisabledNode() {
-        NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists(storage.getFileSystemName(), FOLDER_PSEUDO_CLASS);
-        storage.flush();
-        NodeInfo testFolderInfo = storage.createNode(rootFolderInfo.getId(), "test", FOLDER_PSEUDO_CLASS, "", 0,
-                new NodeGenericMetadata().setString("k", "v"));
-        storage.createNode(testFolderInfo.getId(), "test", FOLDER_PSEUDO_CLASS, "", 0,
-                new NodeGenericMetadata().setString("k", "v"));
-        storage.flush();
-    }
-
     @Test
     public void test() throws IOException, InterruptedException {
         // 1) create root folder
@@ -121,8 +110,17 @@ public abstract class AbstractAppStorageTest {
         // 2) create a test folder
         NodeInfo testFolderInfo = storage.createNode(rootFolderInfo.getId(), "test", FOLDER_PSEUDO_CLASS, "", 0,
                 new NodeGenericMetadata().setString("k", "v"));
+        storage.flush();
+
+        assertFalse(storage.isConsistent(testFolderInfo.getId()));
+        assertEquals(1, storage.getInconsistentNodes().size());
+        assertEquals(testFolderInfo.getId(), storage.getInconsistentNodes().get(0).getId());
+
         storage.setConsistent(testFolderInfo.getId());
         storage.flush();
+
+        assertTrue(storage.isConsistent(testFolderInfo.getId()));
+        assertTrue(storage.getInconsistentNodes().isEmpty());
 
         // check event
         assertEventStack(new NodeCreated(testFolderInfo.getId(), rootFolderInfo.getId()), new NodeConsistent(testFolderInfo.getId()));

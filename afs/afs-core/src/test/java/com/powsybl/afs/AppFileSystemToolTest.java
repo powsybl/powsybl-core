@@ -64,7 +64,7 @@ public class AppFileSystemToolTest extends AbstractToolTest {
         assertOption(command.getOptions(), "archive", false, true);
         assertOption(command.getOptions(), "unarchive", false, true);
         assertOption(command.getOptions(), "ls-inconsistent-nodes", false, true);
-        assertOption(command.getOptions(), "set-inconsistent-nodes", false, true);
+        assertOption(command.getOptions(), "fix-inconsistent-nodes", false, true);
         assertOption(command.getOptions(), "rm-inconsistent-nodes", false, true);
 
         assertEquals("Application file system", command.getTheme());
@@ -81,25 +81,25 @@ public class AppFileSystemToolTest extends AbstractToolTest {
     @Test
     public void testLsInconsistentNodes() throws IOException {
         assertCommand(new String[] {"afs", "--ls-inconsistent-nodes", "mem"}, 0, "mem:"
-                + System.lineSeparator() + "[a-z0-9-]+ ", "");
+                + System.lineSeparator() + "[a-z0-9-]+" + System.lineSeparator(), "");
         assertCommand(new String[] {"afs", "--ls-inconsistent-nodes"}, 0, "mem:"
-                + System.lineSeparator() + "[a-z0-9-]+ ", "");
+                + System.lineSeparator() + "[a-z0-9-]+" + System.lineSeparator(), "");
     }
 
     @Test
-    public void testSetInconsistentNodes() throws IOException {
-        assertCommand(new String[] {"afs", "--set-inconsistent-nodes", "mem"}, 0, "mem:"
-                + System.lineSeparator() + "[a-z0-9-]+ ", "");
-        assertCommand(new String[] {"afs", "--set-inconsistent-nodes"}, 0, "mem:"
-                + System.lineSeparator() + "[a-z0-9-]+ ", "");
+    public void testFixInconsistentNodes() throws IOException {
+        assertCommand(new String[] {"afs", "--fix-inconsistent-nodes", "mem"}, 0, "mem:"
+                + System.lineSeparator() + "[a-z0-9-]+ fixed", "");
+        assertCommand(new String[] {"afs", "--fix-inconsistent-nodes"}, 3, "", "");
         assertCommand(new String[] {"afs", "--ls-inconsistent-nodes", "mem", "nodeId"}, 0, "mem:"
-                + System.lineSeparator() + "[a-z0-9-]+ ", "");
+                + System.lineSeparator() + "[a-z0-9-]+" + System.lineSeparator(), "");
     }
 
     @Test
     public void testRemoveInconsistentNodes() throws IOException {
-        assertCommand(new String[] {"afs", "--rm-inconsistent-nodes", "mem"}, 0, "mem cleaned", "");
-        assertCommand(new String[] {"afs", "--rm-inconsistent-nodes"}, 0, "mem cleaned", "");
+        assertCommand(new String[] {"afs", "--rm-inconsistent-nodes", "mem"}, 0, "mem:"
+                + System.lineSeparator() + "[a-z0-9-]+ cleaned", "");
+        assertCommand(new String[] {"afs", "--rm-inconsistent-nodes"}, 3, "", "");
     }
 
 }
