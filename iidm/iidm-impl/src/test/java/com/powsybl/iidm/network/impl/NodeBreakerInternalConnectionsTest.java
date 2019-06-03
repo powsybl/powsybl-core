@@ -17,7 +17,7 @@ public class NodeBreakerInternalConnectionsTest {
 
     @Test
     public void testTraversalInternalConnections() {
-        Network network = NetworkFactory.create("testTraversalInternalConnections", "test");
+        Network network = Network.create("testTraversalInternalConnections", "test");
         InternalConnections all = new InternalConnections();
         createNetwork(network, all);
         VoltageLevel vl = network.getVoltageLevel("S5 10kV");

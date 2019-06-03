@@ -40,6 +40,9 @@ public class GeneratorTest {
         assertEquals(EnergySource.HYDRO, generator.getEnergySource());
         generator.setEnergySource(EnergySource.NUCLEAR);
         assertEquals(EnergySource.NUCLEAR, generator.getEnergySource());
+        double targetP = 15.0;
+        generator.setTargetP(targetP);
+        assertEquals(targetP, generator.getTargetP(), 0.0);
         double minP = 10.0;
         generator.setMinP(minP);
         assertEquals(minP, generator.getMinP(), 0.0);
@@ -100,12 +103,30 @@ public class GeneratorTest {
                 30.0, 40.0, false, 20.0);
     }
 
+    /**
+     * This test goal is to check if targetP is allowed to be freely set outside of the bounds defined by minP and maxP.
+     * <p>
+     * For a Battery it is expected that the current power is between this bounds but it is not mandatory for a Generator
+     */
+    @Test
+    public void invalidPowerBounds() {
+        // targetP < minP
+        Generator invalidMinGenerator = createGenerator("invalid_min", EnergySource.HYDRO, 20.0, 10.0, 20.0,
+                0.0, 40.0, false, 20.0);
+        invalidMinGenerator.remove();
+
+        // targetP > maxP
+        createGenerator("invalid_max", EnergySource.HYDRO, 20.0, 10.0, 20.0,
+                30.0, 40.0, false, 20.0);
+
+    }
+
     @Test
     public void invalidRatedS() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("Invalid value of rated S");
         createGenerator("invalid", EnergySource.HYDRO, 20.0, 11., 0.0,
-                30.0, 40.0, false, 20.0);
+                15.0, 40.0, false, 20.0);
     }
 
     @Test
@@ -113,7 +134,7 @@ public class GeneratorTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("Invalid value of rated S");
         createGenerator("invalid", EnergySource.HYDRO, 20.0, 11., -1.0,
-                30.0, 40.0, false, 20.0);
+                15.0, 40.0, false, 20.0);
     }
 
     @Test
@@ -143,11 +164,11 @@ public class GeneratorTest {
     @Test
     public void duplicateEquipment() {
         createGenerator("duplicate", EnergySource.HYDRO, 20.0, 11., 2.0,
-                30.0, 40.0, true, 2.0);
+                15.0, 40.0, true, 2.0);
         thrown.expect(PowsyblException.class);
         thrown.expectMessage("contains an object 'GeneratorImpl' with the id 'duplicate'");
         createGenerator("duplicate", EnergySource.HYDRO, 20.0, 11., 2.0,
-                30.0, 40.0, true, 2.0);
+                15.0, 40.0, true, 2.0);
     }
 
     @Test
@@ -161,17 +182,17 @@ public class GeneratorTest {
     @Test
     public void testAdder() {
         voltageLevel.newGenerator()
-                        .setId("gen_id")
-                        .setVoltageRegulatorOn(true)
-                        .setEnergySource(EnergySource.NUCLEAR)
-                        .setMaxP(100.0)
-                        .setMinP(10.0)
-                        .setRatedS(2.0)
-                        .setTargetP(30.0)
-                        .setTargetQ(20.0)
-                        .setNode(1)
-                        .setTargetV(31.0)
-                    .add();
+                .setId("gen_id")
+                .setVoltageRegulatorOn(true)
+                .setEnergySource(EnergySource.NUCLEAR)
+                .setMaxP(100.0)
+                .setMinP(10.0)
+                .setRatedS(2.0)
+                .setTargetP(30.0)
+                .setTargetQ(20.0)
+                .setNode(1)
+                .setTargetV(31.0)
+                .add();
         Generator generator = network.getGenerator("gen_id");
         assertNotNull(generator);
         assertEquals("gen_id", generator.getId());
@@ -188,7 +209,7 @@ public class GeneratorTest {
     @Test
     public void testRemove() {
         createGenerator("toRemove", EnergySource.HYDRO, 20.0, 11., 2.0,
-                30.0, 40.0, true, 2.0);
+                15.0, 40.0, true, 2.0);
         int count = network.getGeneratorCount();
         Generator generator = network.getGenerator("toRemove");
         assertNotNull(generator);
@@ -202,7 +223,7 @@ public class GeneratorTest {
     public void testSetterGetterInMultiVariants() {
         VariantManager variantManager = network.getVariantManager();
         createGenerator("testMultiVariant", EnergySource.HYDRO, 20.0, 11., 2.0,
-                30.0, 40.0, true, 2.0);
+                15.0, 40.0, true, 2.0);
         Generator generator = network.getGenerator("testMultiVariant");
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
@@ -210,12 +231,12 @@ public class GeneratorTest {
         variantManager.setWorkingVariant("s4");
         // check values cloned by extend
         assertTrue(generator.isVoltageRegulatorOn());
-        assertEquals(30.0, generator.getTargetP(), 0.0);
+        assertEquals(15.0, generator.getTargetP(), 0.0);
         assertEquals(40.0, generator.getTargetQ(), 0.0);
         assertEquals(2.0, generator.getTargetV(), 0.0);
         // change values in s4
         generator.setVoltageRegulatorOn(false);
-        generator.setTargetP(9.1);
+        generator.setTargetP(12.1);
         generator.setTargetQ(9.2);
         generator.setTargetV(9.3);
 
@@ -226,14 +247,14 @@ public class GeneratorTest {
         variantManager.setWorkingVariant("s2b");
         // check values cloned by allocate
         assertFalse(generator.isVoltageRegulatorOn());
-        assertEquals(9.1, generator.getTargetP(), 0.0);
+        assertEquals(12.1, generator.getTargetP(), 0.0);
         assertEquals(9.2, generator.getTargetQ(), 0.0);
         assertEquals(9.3, generator.getTargetV(), 0.0);
 
         // recheck initial variant value
         variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
         assertTrue(generator.isVoltageRegulatorOn());
-        assertEquals(30.0, generator.getTargetP(), 0.0);
+        assertEquals(15.0, generator.getTargetP(), 0.0);
         assertEquals(40.0, generator.getTargetQ(), 0.0);
         assertEquals(2.0, generator.getTargetV(), 0.0);
 
@@ -247,19 +268,19 @@ public class GeneratorTest {
         }
     }
 
-    private void createGenerator(String id, EnergySource source, double maxP, double minP, double ratedS,
+    private Generator createGenerator(String id, EnergySource source, double maxP, double minP, double ratedS,
                                  double activePowerSetpoint, double reactivePowerSetpoint, boolean regulatorOn, double voltageSetpoint) {
-        voltageLevel.newGenerator()
-                        .setId(id)
-                        .setVoltageRegulatorOn(regulatorOn)
-                        .setEnergySource(source)
-                        .setMaxP(maxP)
-                        .setMinP(minP)
-                        .setRatedS(ratedS)
-                        .setTargetP(activePowerSetpoint)
-                        .setTargetQ(reactivePowerSetpoint)
-                        .setNode(1)
-                        .setTargetV(voltageSetpoint)
-                    .add();
+        return voltageLevel.newGenerator()
+                .setId(id)
+                .setVoltageRegulatorOn(regulatorOn)
+                .setEnergySource(source)
+                .setMaxP(maxP)
+                .setMinP(minP)
+                .setRatedS(ratedS)
+                .setTargetP(activePowerSetpoint)
+                .setTargetQ(reactivePowerSetpoint)
+                .setNode(1)
+                .setTargetV(voltageSetpoint)
+                .add();
     }
 }

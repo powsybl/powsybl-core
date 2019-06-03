@@ -47,5 +47,19 @@ public interface GeneratorAdder extends InjectionAdder<GeneratorAdder> {
 
     GeneratorAdder setRatedS(double ratedS);
 
+    /**
+     * Build the Generator object.
+     * This are the checks that are performed before creating the object :
+     *      - energySource is set
+     *      - minP is not equal to Double.NaN -> minP is set
+     *      - maxP is not equal to Double.NaN -> maxP is set
+     *      - regulatingTerminal is set
+     *      - network of regulatingTerminal's voltageLevel is the network of the generator
+     *      - targetP is not equal to Double.NaN -> targetP is set
+     *      - targetP is not equal to Double.NaN -> targetP is set
+     *      - minP <= maxP
+     *      - ratedS is set and ratedS > 0
+     * @return {@link Generator}
+     */
     Generator add();
 }

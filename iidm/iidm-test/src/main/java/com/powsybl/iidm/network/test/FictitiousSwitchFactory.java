@@ -18,7 +18,7 @@ public final class FictitiousSwitchFactory {
     }
 
     public static Network create() {
-        Network network = NetworkFactory.create("fictitious", "test");
+        Network network = Network.create("fictitious", "test");
         network.setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
         network.setForecastDistance(0);
 
