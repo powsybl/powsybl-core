@@ -21,8 +21,10 @@ import java.util.List;
 import java.util.zip.GZIPInputStream;
 
 /**
+ * @deprecated Use {@link ZipPackager} instead.
  * @author Yichen TANG <yichen.tang at rte-france.com>
  */
+@Deprecated
 public final class ZipHelper {
 
     /**
