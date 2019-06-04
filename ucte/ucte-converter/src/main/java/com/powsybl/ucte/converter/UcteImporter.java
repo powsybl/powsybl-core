@@ -915,7 +915,7 @@ public class UcteImporter implements Importer {
     }
 
     @Override
-    public Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
+    public Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters) {
         try {
             String ext = findExtension(dataSource, true);
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(dataSource.newInputStream(null, ext)))) {
@@ -927,7 +927,7 @@ public class UcteImporter implements Importer {
 
                 EntsoeFileName ucteFileName = EntsoeFileName.parse(fileName);
 
-                Network network = NetworkFactory.create(fileName, "UCTE");
+                Network network = networkFactory.createNetwork(fileName, "UCTE");
                 network.setCaseDate(ucteFileName.getDate());
                 network.setForecastDistance(ucteFileName.getForecastDistance());
 

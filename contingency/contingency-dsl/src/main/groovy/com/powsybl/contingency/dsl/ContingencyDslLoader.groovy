@@ -1,3 +1,9 @@
+/**
+ * Copyright (c) 2018, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
 package com.powsybl.contingency.dsl
 
 import com.powsybl.contingency.*
@@ -66,6 +72,10 @@ class ContingencyDslLoader extends DslLoader {
                     elements.add(new GeneratorContingency(equipment))
                 } else if (identifiable instanceof BusbarSection) {
                     elements.add(new BusbarSectionContingency(equipment))
+                } else if (identifiable instanceof ShuntCompensator) {
+                    elements.add(new ShuntCompensatorContingency(equipment))
+                } else if (identifiable instanceof StaticVarCompensator) {
+                    elements.add(new StaticVarCompensatorContingency(equipment))
                 } else {
                     LOGGER.warn("Equipment type {} not supported in contingencies", identifiable.getClass().name)
                     valid = false

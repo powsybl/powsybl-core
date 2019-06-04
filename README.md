@@ -38,17 +38,19 @@ Most of the powsybl-core project is written in Java, with additional C++ compone
 
 To run all the tests, simply launch the following command from the root of the repository:
 ```
-$ mvn package
+$> mvn package
 ```
 
 Modify some existing tests or create your own new tests to experiment with the framework! If it suits you better, import the project in an IDE and use the IDE to launch your own main classes. If you know java and maven and want to do things manually, you can also use maven directly to compute the classpath of all the project jars and run anything you want with it.
 
 Read [Contributing.md](https://github.com/powsybl/.github/blob/master/CONTRIBUTING.md) for more in-depth explanations on how to run code.
 
+Read [Install](#install) to generate an installed iTools distribution, a standalone external folder that contains all the built objects required to run powsybl programs.
+
 ## Full Project Build
-In order to fully build the project, in addition to the java you need:
+In order to fully build the project (i.e. Java and C++ modules), in addition to the java requirements, you need:
   * CMake *(2.6 or greater)*
-  * Recent C++ compiler (GNU g++ or Clang)
+  * A recent C++ compiler (GNU g++ or Clang)
   * OpenMPI *(1.8.3 or greater)*
   * Some development packages (zlib, bzip2)
 
@@ -65,27 +67,35 @@ $> export LD_LIBRARY_PATH=<INSTALL_DIR>/lib:$LD_LIBRARY_PATH
 ```
 
 ### zlib (required)
-In order to build Boost external package, you have to install [zlib](http://www.zlib.net/) library.
+In order to build the Boost external package, you have to install [zlib](http://www.zlib.net/) library.
 ```
 $> yum install zlib-devel
 ```
 
 ### bzip2 (required)
-In order to build Boost external package, you have to install [bzip](http://www.bzip.org/) library.
+In order to build the Boost external package, you have to install [bzip](http://www.bzip.org/) library.
 ```
 $> yum install bzip2-devel
 ```
 
+If you want, you can now run cmake manually to compile the code. However, an easier alternative is to use the install.sh script (with C++ modules) described below. The C++ compilation will be done automatically as part of the installation process.
+
 ## Install
-To easily compile, you can use the toolchain:
+An iTools distribution can be generated and installed. The installation is a standalone external folder that contains all the built objects required to run powsybl programs through the itools command-line interface. This repository contains the install.sh script to do so easily. By default, the install.sh will download dependencies from the Internet, compile code and finally copy the resulting iTools distribution to the install folder.
+
+For most users, create the java only distribution with:
 ```
-$> git clone https://github.com/powsybl/powsybl-core.git
+$> ./install.sh --without-cpp
+```
+This will run the maven build and copy the result to the install folder.
+
+In the case you do require the C++ modules, run:
+```
 $> ./install.sh
 ```
-By default, the toolchain will:
-  * download and compile all external packages from the Internet
-  * compile C++ and Java modules
-  * install the platform
+This will run both the C++ build and the java build and copy their results to the install folder.
+
+A more detailled description of the install.sh script options follows:
 
 ### Targets
 
@@ -101,8 +111,8 @@ By default, the toolchain will:
 
 ### Options
 
-The toolchain options are saved in the *install.cfg* configuration file. This configuration file is loaded and updated
-each time you use the toolchain.
+The install.sh script options are saved in the *install.cfg* configuration file. This configuration file is loaded and updated
+each time you use the install.sh script.
 
 #### Global options
 
@@ -110,7 +120,7 @@ each time you use the toolchain.
 | ------ | ----------- | ------------- |
 | --help | Display this help | |
 | --prefix | Set the installation directory | $HOME/powsybl |
-| --package-type | Set the package format. The supported formats are zip, tar, tar.gz and tar.bz2 | zip |
+| --without-cpp | Disable C++ modules compilation | |
 
 #### Third-parties
 
@@ -126,7 +136,7 @@ each time you use the toolchain.
 ```
 #  -- Global options --
 powsybl_prefix=$HOME/powsybl
-powsybl_package_type=zip
+powsybl_cpp=false
 
 #  -- Thirdparty libraries --
 thirdparty_build=true

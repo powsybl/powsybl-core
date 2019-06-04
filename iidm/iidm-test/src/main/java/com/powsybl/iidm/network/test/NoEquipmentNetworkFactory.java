@@ -18,8 +18,7 @@ public final class NoEquipmentNetworkFactory {
     }
 
     public static Network create() {
-        Network network = NetworkFactory.create("test", "test");
-        network.setCaseDate(DateTime.parse("2016-10-18T10:06:00.000+02:00"));
+        Network network = Network.create("test", "test");
         Substation substation = network.newSubstation()
                     .setId("sub")
                     .setCountry(Country.FR)
