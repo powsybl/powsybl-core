@@ -68,7 +68,8 @@ public class ZipPackagerTest {
         ZipPackager zipPackager = new ZipPackager();
         zipPackager.addPaths(workingDir, "f1", "f2", "f3.gz")
                 .addString("k1", "v1")
-                .addString("k2", "v2")
+                .addString("k2", "é")
+                .addString("k3", "î", StandardCharsets.ISO_8859_1)
                 .addBytes("nested.zip", nestedZipBytes);
         byte[] zipBytes = zipPackager.toZipBytes();
 
@@ -80,7 +81,8 @@ public class ZipPackagerTest {
         assertEquals("bar", IOUtils.toString(zipFile.getInputStream("f2"), StandardCharsets.UTF_8));
         assertEquals("hello", IOUtils.toString(zipFile.getInputStream("f3"), StandardCharsets.UTF_8));
         assertEquals("v1", IOUtils.toString(zipFile.getInputStream("k1"), StandardCharsets.UTF_8));
-        assertEquals("v2", IOUtils.toString(zipFile.getInputStream("k2"), StandardCharsets.UTF_8));
+        assertEquals("é", IOUtils.toString(zipFile.getInputStream("k2"), StandardCharsets.UTF_8));
+        assertEquals("î", IOUtils.toString(zipFile.getInputStream("k3"), StandardCharsets.ISO_8859_1));
 
         assertArrayEquals(nestedZipBytes, IOUtils.toByteArray(zipFile.getInputStream("nested.zip")));
 

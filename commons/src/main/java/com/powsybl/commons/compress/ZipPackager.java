@@ -12,6 +12,8 @@ import org.apache.commons.compress.utils.IOUtils;
 
 import javax.annotation.Nullable;
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -84,9 +86,20 @@ public class ZipPackager {
      * @return
      */
     public ZipPackager addString(String key, String content) {
+        return addString(key, content, StandardCharsets.UTF_8);
+    }
+
+    /**
+     * @param key
+     * @param content
+     * @param charset be used to encode content
+     * @return
+     */
+    public ZipPackager addString(String key, String content, Charset charset) {
         Objects.requireNonNull(key);
         Objects.requireNonNull(content);
-        return addBytes(key, content.getBytes());
+        Objects.requireNonNull(charset);
+        return addBytes(key, content.getBytes(charset));
     }
 
     /**
