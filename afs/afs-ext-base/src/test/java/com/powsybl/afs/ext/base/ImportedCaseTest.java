@@ -78,8 +78,10 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
     public void setup() throws IOException {
         super.setup();
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
-        storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "Test format", Case.VERSION,
+
+        NodeInfo nodeInfo = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "Test format", Case.VERSION,
                 new NodeGenericMetadata().setString("format", TestImporter.FORMAT));
+        storage.setConsistent(nodeInfo.getId());
 
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         Files.createFile(fileSystem.getPath("/work/network.tst"));
@@ -205,6 +207,5 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
                 .build();
         assertNotNull(importedCase2);
         assertEquals("NetworkID", importedCase2.getName());
-
     }
 }
