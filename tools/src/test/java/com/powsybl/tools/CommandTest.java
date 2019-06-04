@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
-public class AbstractCommandTest {
+public class CommandTest {
 
     private static final Options OPTIONS = new Options();
 
