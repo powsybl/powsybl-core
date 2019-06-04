@@ -6,6 +6,8 @@
  */
 package com.powsybl.tools;
 
+import java.util.Objects;
+
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
@@ -16,8 +18,8 @@ public abstract class AbstractCommand implements Command {
     private final String description;
 
     protected AbstractCommand(String name, String theme, String description) {
-        this.name = name;
-        this.theme = theme;
+        this.name = Objects.requireNonNull(name);
+        this.theme = Objects.requireNonNull(theme);
         this.description = description;
     }
 
