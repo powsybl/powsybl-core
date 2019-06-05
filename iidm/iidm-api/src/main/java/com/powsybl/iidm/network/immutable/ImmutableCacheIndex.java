@@ -32,8 +32,6 @@ class ImmutableCacheIndex {
 
     private final Network network;
 
-    private ImmutableNetwork immutableNetwork;
-
     private VariantManager cachedVariantManager;
 
     ImmutableCacheIndex(Network network) {

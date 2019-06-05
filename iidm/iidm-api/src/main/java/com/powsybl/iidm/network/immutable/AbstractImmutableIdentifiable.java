@@ -21,7 +21,7 @@ import java.util.stream.Collectors;
  */
 abstract class AbstractImmutableIdentifiable<I extends Identifiable<I>> implements Identifiable<I> {
 
-    protected static ExtensionProviders<ImmutableWrapperExtension> PROVIDERS;
+    protected static ExtensionProviders<ImmutableWrapperExtension> providers;
 
     protected final I identifiable;
 
@@ -66,8 +66,8 @@ abstract class AbstractImmutableIdentifiable<I extends Identifiable<I>> implemen
         throw ImmutableNetwork.createUnmodifiableNetworkException();
     }
 
-    private void lazyInitExtProviders() {
-        PROVIDERS = ExtensionProviders.createProvider(ImmutableWrapperExtension.class, AbstractImmutableWrapperExtension.IMMU_WRAPPER_EXT_CATE_NAME);
+    private static void lazyInitExtProviders() {
+        providers = ExtensionProviders.createProvider(ImmutableWrapperExtension.class, AbstractImmutableWrapperExtension.IMMU_WRAPPER_EXT_CATE_NAME);
     }
 
     @Override
@@ -77,10 +77,10 @@ abstract class AbstractImmutableIdentifiable<I extends Identifiable<I>> implemen
 
     @Override
     public <E extends Extension<I>> E getExtensionByName(String name) {
-        if (PROVIDERS == null) {
+        if (providers == null) {
             lazyInitExtProviders();
         }
-        ImmutableWrapperExtension immutableWrapperExtension = PROVIDERS.findProvider(name);
+        ImmutableWrapperExtension immutableWrapperExtension = providers.findProvider(name);
         if (immutableWrapperExtension != null) {
             return (E) immutableWrapperExtension.wrap(identifiable.getExtensionByName(name), this);
         } else {
@@ -100,7 +100,7 @@ abstract class AbstractImmutableIdentifiable<I extends Identifiable<I>> implemen
     @Override
     public <E extends Extension<I>> Collection<E> getExtensions() {
         return identifiable.getExtensions().stream()
-                .map(e -> e.getName())
+                .map(Extension::getName)
                 .map(this::getExtensionByName)
                 .map(e -> (E) e)
                 .collect(Collectors.toList());

@@ -44,6 +44,14 @@ final class ImmutableSubstation extends AbstractImmutableIdentifiable<Substation
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Country getNullableCountry() {
+        return identifiable.getNullableCountry();
+    }
+
+    /**
      * Mutative operation is not allowed. It will throw an exception in runtime.
      * @return
      */

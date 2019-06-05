@@ -147,11 +147,6 @@ public class ImmutableNetworkTest {
     }
 
     @Test
-    public void testBusView() {
-
-    }
-
-    @Test
     public void withExtentsions() {
         Network network = MultipleExtensionsTestNetworkFactory.create();
         network.getSubstation("S").addExtension(SubstationShutdownExtension.class, new SubstationShutdownExtension());
