@@ -29,21 +29,18 @@ public class ZipPackager {
     private final ByteArrayOutputStream baos = new ByteArrayOutputStream();
     private final ZipArchiveOutputStream zos = new ZipArchiveOutputStream(baos);
 
-    public ZipPackager() {
-    }
-
     /**
      * If the path to file is null or not exists, the method does nothing.
      * If the file is in .gz(detected by last 3 characters) format, the method decompresses .gz file first.
      * @param path the file to add in zip bytes
-     * @return
+     * @return a reference to this object
      */
     public ZipPackager addPath(@Nullable Path path) {
         if (path == null || !Files.exists(path)) {
             return this;
         }
         String filename = path.getFileName().toString();
-        boolean isGzFile = filename.endsWith(".GZ") || filename.endsWith(".gz");
+        boolean isGzFile = filename.toLowerCase().endsWith(".gz");
         ZipArchiveEntry entry;
         if (isGzFile) {
             entry = new ZipArchiveEntry(filename.substring(0, filename.length() - 3));
@@ -66,7 +63,7 @@ public class ZipPackager {
     /**
      * @param baseDir the base directory of all files
      * @param filenames all files to add in zip bytes
-     * @return
+     * @return a reference to this object
      */
     public ZipPackager addPaths(Path baseDir, List<String> filenames) {
         Objects.requireNonNull(baseDir);
@@ -75,6 +72,11 @@ public class ZipPackager {
         return this;
     }
 
+    /**
+     * @param baseDir the base directory of all files
+     * @param filenames all files to add in zip bytes
+     * @return a reference to this object
+     */
     public ZipPackager addPaths(Path root, String... filenames) {
         return addPaths(root, Arrays.asList(filenames));
     }
@@ -83,17 +85,18 @@ public class ZipPackager {
      * Key as zip entry name. Both key and content must not be null.
      * @param key
      * @param content
-     * @return
+     * @return a reference to this object
      */
     public ZipPackager addString(String key, String content) {
         return addString(key, content, StandardCharsets.UTF_8);
     }
 
     /**
+     * Key as zip entry name. Both key and content must not be null.
      * @param key
      * @param content
      * @param charset be used to encode content
-     * @return
+     * @return a reference to this object
      */
     public ZipPackager addString(String key, String content, Charset charset) {
         Objects.requireNonNull(key);
@@ -106,7 +109,7 @@ public class ZipPackager {
      * Key as zip entry name. Both key and bytes must not be null.
      * @param key
      * @param bytes
-     * @return
+     * @return a reference to this object
      */
     public ZipPackager addBytes(String key, byte[] bytes) {
         Objects.requireNonNull(key);

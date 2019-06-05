@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 import java.util.zip.GZIPOutputStream;
 
 import static org.junit.Assert.*;
@@ -76,13 +77,12 @@ public class ZipPackagerTest {
         IOUtils.copy(new ByteArrayInputStream(zipBytes), Files.newOutputStream(workingDir.resolve("res.zip")));
 
         ZipFile zipFile = new ZipFile(workingDir.resolve("res.zip"));
-        InputStream f1 = zipFile.getInputStream("f1");
-        assertEquals("foo", IOUtils.toString(zipFile.getInputStream("f1"), StandardCharsets.UTF_8));
-        assertEquals("bar", IOUtils.toString(zipFile.getInputStream("f2"), StandardCharsets.UTF_8));
-        assertEquals("hello", IOUtils.toString(zipFile.getInputStream("f3"), StandardCharsets.UTF_8));
-        assertEquals("v1", IOUtils.toString(zipFile.getInputStream("k1"), StandardCharsets.UTF_8));
-        assertEquals("é", IOUtils.toString(zipFile.getInputStream("k2"), StandardCharsets.UTF_8));
-        assertEquals("î", IOUtils.toString(zipFile.getInputStream("k3"), StandardCharsets.ISO_8859_1));
+        assertEquals("foo", IOUtils.toString(Objects.requireNonNull(zipFile.getInputStream("f1")), StandardCharsets.UTF_8));
+        assertEquals("bar", IOUtils.toString(Objects.requireNonNull(zipFile.getInputStream("f2")), StandardCharsets.UTF_8));
+        assertEquals("hello", IOUtils.toString(Objects.requireNonNull(zipFile.getInputStream("f3")), StandardCharsets.UTF_8));
+        assertEquals("v1", IOUtils.toString(Objects.requireNonNull(zipFile.getInputStream("k1")), StandardCharsets.UTF_8));
+        assertEquals("é", IOUtils.toString(Objects.requireNonNull(zipFile.getInputStream("k2")), StandardCharsets.UTF_8));
+        assertEquals("î", IOUtils.toString(Objects.requireNonNull(zipFile.getInputStream("k3")), StandardCharsets.ISO_8859_1));
 
         assertArrayEquals(nestedZipBytes, IOUtils.toByteArray(zipFile.getInputStream("nested.zip")));
 
