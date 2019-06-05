@@ -140,4 +140,18 @@ public class ZipPackager {
         }
         return baos.toByteArray();
     }
+
+    /**
+     * If the file is in .gz(detected by last 3 characters) format, the method decompresses .gz file first.
+     * @param baseDir the base directory contaions files to zip
+     * @param fileNames the files to be added in zip
+     * @return bytes in zip format
+     */
+    public static byte[] archiveFilesToZipBytes(Path baseDir, List<String> fileNames) {
+        return new ZipPackager().addPaths(baseDir, fileNames).toZipBytes();
+    }
+
+    public static byte[] archiveFilesToZipBytes(Path workingDir, String... fileNames) {
+        return archiveFilesToZipBytes(workingDir, Arrays.asList(fileNames));
+    }
 }

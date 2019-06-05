@@ -75,7 +75,6 @@ public class ZipPackagerTest {
         byte[] zipBytes = zipPackager.toZipBytes();
 
         IOUtils.copy(new ByteArrayInputStream(zipBytes), Files.newOutputStream(workingDir.resolve("res.zip")));
-
         ZipFile zipFile = new ZipFile(workingDir.resolve("res.zip"));
         assertEquals("foo", IOUtils.toString(Objects.requireNonNull(zipFile.getInputStream("f1")), StandardCharsets.UTF_8));
         assertEquals("bar", IOUtils.toString(Objects.requireNonNull(zipFile.getInputStream("f2")), StandardCharsets.UTF_8));
@@ -93,6 +92,15 @@ public class ZipPackagerTest {
         } catch (NullPointerException e) {
             // ignored
         }
+
+        // static methods
+        byte[] bytes = ZipPackager.archiveFilesToZipBytes(workingDir, "f1", "f2", "f3.gz");
+
+        IOUtils.copy(new ByteArrayInputStream(zipBytes), Files.newOutputStream(workingDir.resolve("static.zip")));
+        ZipFile zipFile2 = new ZipFile(workingDir.resolve("static.zip"));
+        assertEquals("foo", IOUtils.toString(Objects.requireNonNull(zipFile2.getInputStream("f1")), StandardCharsets.UTF_8));
+        assertEquals("bar", IOUtils.toString(Objects.requireNonNull(zipFile2.getInputStream("f2")), StandardCharsets.UTF_8));
+        assertEquals("hello", IOUtils.toString(Objects.requireNonNull(zipFile2.getInputStream("f3")), StandardCharsets.UTF_8));
     }
 
     private byte[] emptyZipBytes() {
