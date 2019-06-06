@@ -41,9 +41,15 @@ public class Conversion {
     }
 
     public Conversion(CgmesModel cgmes, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors) {
+        this(cgmes, config, postProcessors, NetworkFactory.findDefault());
+    }
+
+    public Conversion(CgmesModel cgmes, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors,
+                      NetworkFactory networkFactory) {
         this.cgmes = Objects.requireNonNull(cgmes);
         this.config = Objects.requireNonNull(config);
         this.postProcessors = Objects.requireNonNull(postProcessors);
+        this.networkFactory = Objects.requireNonNull(networkFactory);
     }
 
     public void report(Consumer<String> out) {
@@ -158,7 +164,7 @@ public class Conversion {
         profiling.start();
         String networkId = cgmes.modelId();
         String sourceFormat = "CGMES";
-        Network network = NetworkFactory.create(networkId, sourceFormat);
+        Network network = networkFactory.createNetwork(networkId, sourceFormat);
         profiling.end("createNetwork");
         return network;
     }
@@ -373,6 +379,7 @@ public class Conversion {
     private final CgmesModel cgmes;
     private final Config config;
     private final List<CgmesImportPostProcessor> postProcessors;
+    private final NetworkFactory networkFactory;
 
     private Profiling profiling;
 

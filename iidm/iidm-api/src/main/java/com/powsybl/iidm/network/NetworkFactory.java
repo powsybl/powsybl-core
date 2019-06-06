@@ -8,29 +8,53 @@ package com.powsybl.iidm.network;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.ServiceLoaderCache;
-import java.util.List;
+
+import java.util.Objects;
 
 /**
- * To create a new empty network:
- *<pre>
- *    Network n = NetworkFactory.create("test");
- *</pre>
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public final class NetworkFactory {
+public interface NetworkFactory {
 
-    private static final ServiceLoaderCache<NetworkFactoryService> LOADER
-            = new ServiceLoaderCache(NetworkFactoryService.class);
+    /**
+     * Create a network.
+     *
+     * @param id id of the network
+     * @param sourceFormat source format
+     * @return a network
+     */
+    Network createNetwork(String id, String sourceFormat);
 
-    private NetworkFactory() {
+    /**
+     * Find a {@code NetworkFactory} instance base on its name.
+     *
+     * @param name name of the {@code NetworkFactory}
+     * @return {@code NetworkFactory} instance with the given name.
+     */
+    static NetworkFactory find(String name) {
+        Objects.requireNonNull(name);
+        return new ServiceLoaderCache<>(NetworkFactoryService.class).getServices().stream()
+                .filter(s -> s.getName().equals(name))
+                .findFirst()
+                .orElseThrow(() -> new PowsyblException("'" + name + "' IIDM implementation not found"))
+                .createNetworkFactory();
     }
 
-    public static Network create(String id, String sourceFormat) {
-        List<NetworkFactoryService> services = LOADER.getServices();
-        if (services.isEmpty()) {
-            throw new PowsyblException("No IIDM implementation found");
-        }
-        return services.get(0).createNetwork(id, sourceFormat);
+    /**
+     * Find default {@code NetworkFactory} instance.
+     *
+     * @return default {@code NetworkFactory} instance.
+     */
+    static NetworkFactory findDefault() {
+        return find(NetworkFactoryConstants.DEFAULT);
+    }
+
+    /**
+     * @deprecated Use {@link Network#create(String, String)} instead.
+     */
+    @Deprecated
+    static Network create(String id, String sourceFormat) {
+        return findDefault().createNetwork(id, sourceFormat);
     }
 }

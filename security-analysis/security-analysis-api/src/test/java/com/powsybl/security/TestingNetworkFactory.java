@@ -17,7 +17,7 @@ public final class TestingNetworkFactory {
     }
 
     public static Network create() {
-        Network network = NetworkFactory.create("test", "test");
+        Network network = Network.create("test", "test");
 
         Substation s1 = network.newSubstation()
             .setId("S1")

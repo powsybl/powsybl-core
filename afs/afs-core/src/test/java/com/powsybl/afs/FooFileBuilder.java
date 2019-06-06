@@ -44,6 +44,7 @@ class FooFileBuilder implements ProjectFileBuilder<FooFile> {
         }
         String pseudoClass = "foo";
         NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, pseudoClass, "", 0, new NodeGenericMetadata());
+        context.getStorage().setConsistent(info.getId());
         return new FooFile(new ProjectFileCreationContext(info,
                                                           context.getStorage(),
                                                           context.getProject()));
