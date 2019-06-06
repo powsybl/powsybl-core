@@ -32,7 +32,7 @@ Here is how to configure itools package Maven plugin in your project
                     <execution>
                         <phase>package</phase>
                         <goals>
-                            <goal>package-zip</goal>
+                            <goal>package</goal>
                         </goals>
                     </execution>
                 </executions>
