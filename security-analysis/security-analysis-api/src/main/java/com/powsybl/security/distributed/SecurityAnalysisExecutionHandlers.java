@@ -7,7 +7,7 @@
 package com.powsybl.security.distributed;
 
 import com.google.common.base.Preconditions;
-import com.powsybl.commons.compress.ZipHelper;
+import com.powsybl.commons.compress.ZipPackager;
 import com.powsybl.computation.ComputationException;
 import com.powsybl.computation.ComputationExceptionBuilder;
 import com.powsybl.computation.ExecutionHandler;
@@ -118,7 +118,7 @@ public final class SecurityAnalysisExecutionHandlers {
             collectedLogsFilename.add(workingDir.relativize(getLogPath(workingDir)).toString()); // logs_IDX.zip
             collectedLogsFilename.add(saCmdOutLogName());
             collectedLogsFilename.add(saCmdErrLogName());
-            byte[] logBytes = ZipHelper.archiveFilesToZipBytes(workingDir, collectedLogsFilename);
+            byte[] logBytes = ZipPackager.archiveFilesToZipBytes(workingDir, collectedLogsFilename);
             return new SecurityAnalysisResultWithLog(re, logBytes);
         } catch (Exception e) {
             ComputationExceptionBuilder ceb = new ComputationExceptionBuilder(e);
@@ -183,7 +183,7 @@ public final class SecurityAnalysisExecutionHandlers {
                 collectedLogsFilename.add(satOutName(i));
                 collectedLogsFilename.add(satErrName(i));
             }
-            byte[] logBytes = ZipHelper.archiveFilesToZipBytes(workingDir, collectedLogsFilename);
+            byte[] logBytes = ZipPackager.archiveFilesToZipBytes(workingDir, collectedLogsFilename);
             return new SecurityAnalysisResultWithLog(re, logBytes);
         } catch (Exception e) {
             throw generateExceptionWithLogs(e, workingDir, subtaskCount);
