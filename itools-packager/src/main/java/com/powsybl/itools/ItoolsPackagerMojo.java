@@ -167,7 +167,6 @@ public class ItoolsPackagerMojo extends AbstractMojo {
             // create package
             String archiveNameNotNull = archiveName != null ? archiveName : packageNameNotNull;
             new PackageMojo().createPackage(packageDir, targetDir, archiveNameNotNull);
-
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
