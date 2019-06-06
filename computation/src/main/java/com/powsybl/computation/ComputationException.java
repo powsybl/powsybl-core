@@ -7,6 +7,7 @@
 package com.powsybl.computation;
 
 import com.powsybl.commons.PowsyblException;
+import com.powsybl.commons.compress.ZipPackager;
 
 import java.util.*;
 
@@ -21,18 +22,18 @@ public final class ComputationException extends PowsyblException {
 
     private final Map<String, String> errMsgByLogFileName;
 
-    private final Map<String, byte[]> zipBytesByFileName;
+    private final Map<String, byte[]> bytesByFileName;
 
     private final List<Exception> exceptions;
 
     public ComputationException(ComputationException wrappedException, Exception e) {
-        this(wrappedException.getOutLogs(), wrappedException.getErrLogs(), wrappedException.getZipBytes(), Arrays.asList(wrappedException, e));
+        this(wrappedException.getOutLogs(), wrappedException.getErrLogs(), wrappedException.getFileBytes(), Arrays.asList(wrappedException, e));
     }
 
-    ComputationException(Map<String, String> outMap, Map<String, String> errMap, Map<String, byte[]> zipMap, List<Exception> exceptions) {
+    ComputationException(Map<String, String> outMap, Map<String, String> errMap, Map<String, byte[]> fileBytesMap, List<Exception> exceptions) {
         outMsgByLogFileName = Collections.unmodifiableMap(Objects.requireNonNull(outMap));
         errMsgByLogFileName = Collections.unmodifiableMap(Objects.requireNonNull(errMap));
-        zipBytesByFileName = Collections.unmodifiableMap(Objects.requireNonNull(zipMap));
+        bytesByFileName = Collections.unmodifiableMap(Objects.requireNonNull(fileBytesMap));
         this.exceptions = Collections.unmodifiableList(Objects.requireNonNull(exceptions));
     }
 
@@ -53,11 +54,11 @@ public final class ComputationException extends PowsyblException {
     }
 
     /**
-     * Returns a map which zip file name is {@literal key}, and zip bytes is {@literal value}
+     * Returns a map which file name is {@literal key}, and bytes is {@literal value}
      * @return
      */
-    public Map<String, byte[]> getZipBytes() {
-        return zipBytesByFileName;
+    public Map<String, byte[]> getFileBytes() {
+        return bytesByFileName;
     }
 
     /**
@@ -65,5 +66,16 @@ public final class ComputationException extends PowsyblException {
      */
     public List<Exception> getExceptions() {
         return exceptions;
+    }
+
+    /**
+     * Serialize logs(.out/.err/files) to zip bytes.
+     */
+    public byte[] toZipBytes() {
+        ZipPackager zipPackager = new ZipPackager();
+        outMsgByLogFileName.forEach((k, v) -> zipPackager.addString(k, v == null ? "" : v));
+        errMsgByLogFileName.forEach((k, v) -> zipPackager.addString(k, v == null ? "" : v));
+        bytesByFileName.forEach(zipPackager::addBytes);
+        return zipPackager.toZipBytes();
     }
 }

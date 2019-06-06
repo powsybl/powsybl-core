@@ -126,7 +126,7 @@ public final class SecurityAnalysisExecutionHandlers {
             String errLogName = saCmdErrLogName();
             ceb.addOutLogIfExists(workingDir.resolve(outLogName))
                     .addErrLogIfExists(workingDir.resolve(errLogName))
-                    .addZipFileIfExists(getLogPath(workingDir));
+                    .addFileIfExists(getLogPath(workingDir));
             throw ceb.build();
         }
     }
@@ -197,7 +197,7 @@ public final class SecurityAnalysisExecutionHandlers {
             String errLogName = satErrName(i);
             ceb.addOutLogIfExists(workingDir.resolve(outLogName))
                     .addErrLogIfExists(workingDir.resolve(errLogName))
-                    .addZipFileIfExists(getLogPathForTask(workingDir, i));
+                    .addFileIfExists(getLogPathForTask(workingDir, i));
         });
         return ceb.build();
     }

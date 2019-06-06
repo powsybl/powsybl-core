@@ -6,18 +6,6 @@
  */
 package com.powsybl.commons.compress;
 
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
-import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
-import org.apache.commons.compress.utils.IOUtils;
-
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.zip.GZIPInputStream;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
@@ -44,40 +32,6 @@ public final class ZipHelper {
 
     public static byte[] archiveFilesToZipBytes(Path workingDir, String... fileNames) {
         return archiveFilesToZipBytes(workingDir, Arrays.asList(fileNames));
-    }
-
-    /**
-     * Generates a zip file's bytes
-     * @param bytesByName map's {@literal key} as entry name, {@literal value} as content in the zip file
-     * @return a zip file in bytes
-     */
-    public static byte[] archiveBytesByNameToZipBytes(Map<String, byte[]> bytesByName) {
-        Objects.requireNonNull(bytesByName);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try (ZipArchiveOutputStream zos = new ZipArchiveOutputStream(baos)) {
-            bytesByName.forEach((name, bytes) -> {
-                ZipArchiveEntry entry = new ZipArchiveEntry(name);
-                try {
-                    zos.putArchiveEntry(entry);
-                    try (InputStream inputStream = new ByteArrayInputStream(bytes)) {
-                        IOUtils.copy(inputStream, zos);
-                    }
-                    zos.closeArchiveEntry();
-                } catch (IOException e) {
-                    // ignored and continue
-                }
-            });
-            zos.flush();
-            zos.finish();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        try {
-            baos.close();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-        return baos.toByteArray();
     }
 
     private ZipHelper() {

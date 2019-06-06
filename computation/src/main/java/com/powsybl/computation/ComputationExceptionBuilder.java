@@ -25,7 +25,7 @@ public class ComputationExceptionBuilder {
 
     private final Map<String, String> outMsgByLogFileName = new HashMap<>();
     private final Map<String, String> errMsgByLogFileName = new HashMap<>();
-    private final Map<String, byte[]> zipBytesByFileName = new HashMap<>();
+    private final Map<String, byte[]> bytesByFileName = new HashMap<>();
     private final List<Exception> exceptions = new ArrayList<>();
 
     public ComputationExceptionBuilder(Exception exception) {
@@ -82,16 +82,16 @@ public class ComputationExceptionBuilder {
     }
 
     /**
-     * @param path to the potential .zip file
+     * @param path to the potential file
      * @return
      */
-    public ComputationExceptionBuilder addZipFileIfExists(@Nullable Path path) {
+    public ComputationExceptionBuilder addFileIfExists(@Nullable Path path) {
         if (path == null || !Files.exists(path)) {
             return this;
         }
         try {
             byte[] bytes = Files.readAllBytes(path);
-            zipBytesByFileName.put(path.getFileName().toString(), bytes);
+            bytesByFileName.put(path.getFileName().toString(), bytes);
         } catch (IOException e) {
             LOGGER.warn("Can not read zip file '{}'", path);
         }
@@ -112,7 +112,7 @@ public class ComputationExceptionBuilder {
     }
 
     public ComputationException build() {
-        return new ComputationException(outMsgByLogFileName, errMsgByLogFileName, zipBytesByFileName, exceptions);
+        return new ComputationException(outMsgByLogFileName, errMsgByLogFileName, bytesByFileName, exceptions);
     }
 
     private static void readFileToMap(Path path, Map<String, String> map) {

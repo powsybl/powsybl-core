@@ -7,7 +7,6 @@
 package com.powsybl.security;
 
 import com.google.auto.service.AutoService;
-import com.powsybl.commons.compress.ZipHelper;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.ComputationException;
@@ -41,7 +40,6 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UncheckedIOException;
 import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -185,16 +183,7 @@ public class SecurityAnalysisTool implements Tool {
             } catch (CompletionException e) {
                 if (e.getCause() instanceof ComputationException) {
                     ComputationException computationException = (ComputationException) e.getCause();
-                    Map<String, String> merged = new HashMap<>(computationException.getOutLogs());
-                    merged.putAll(computationException.getErrLogs());
-                    Map<String, byte[]> bytesByName =
-                            merged.entrySet().stream()
-                                    .collect(Collectors.toMap(
-                                            Map.Entry::getKey,
-                                        entry -> entry.getValue().getBytes(StandardCharsets.UTF_8)
-                                    ));
-                    bytesByName.putAll(computationException.getZipBytes());
-                    byte[] bytes = ZipHelper.archiveBytesByNameToZipBytes(bytesByName);
+                    byte[] bytes = computationException.toZipBytes();
                     Path outlogDest = context.getFileSystem().getPath(line.getOptionValue(OUTPUT_LOG_OPTION));
                     copyBytesToPath(bytes, outlogDest);
                 }

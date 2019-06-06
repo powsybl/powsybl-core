@@ -8,16 +8,20 @@ package com.powsybl.computation;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import net.java.truevfs.comp.zip.ZipFile;
+import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
@@ -51,7 +55,7 @@ public class ComputationExceptionBuilderTest {
     }
 
     @Test
-    public void test() {
+    public void test() throws IOException {
         RuntimeException runtimeException = new RuntimeException();
         ComputationExceptionBuilder ceb = new ComputationExceptionBuilder(runtimeException);
         ceb.addOutLogIfExists(f1).addErrLogIfExists(f2);
@@ -64,16 +68,23 @@ public class ComputationExceptionBuilderTest {
         ComputationExceptionBuilder ceb2 = new ComputationExceptionBuilder(runtimeException);
         ceb2.addOutLog("out", "outLog")
                 .addErrLog("err", "errLog")
-                .addZipFileIfExists(workingDir.resolve("notExists"))
-                .addZipFileIfExists(f1)
-                .addZipFileIfExists(null)
+                .addFileIfExists(workingDir.resolve("notExists"))
+                .addFileIfExists(f1)
+                .addFileIfExists(null)
                 .addException(null)
                 .addException(runtimeException);
         ComputationException computationException2 = ceb2.build();
         assertEquals("outLog", computationException2.getOutLogs().get("out"));
         assertEquals("errLog", computationException2.getErrLogs().get("err"));
         assertEquals(runtimeException, computationException2.getExceptions().get(0));
-        assertEquals("foo", new String(computationException2.getZipBytes().get("f1.out")));
+        assertEquals("foo", new String(computationException2.getFileBytes().get("f1.out")));
+
+        byte[] bytes = computationException2.toZipBytes();
+        IOUtils.copy(new ByteArrayInputStream(bytes), Files.newOutputStream(workingDir.resolve("test.zip")));
+        ZipFile strZipFile = new ZipFile(workingDir.resolve("test.zip"));
+        assertEquals("outLog", IOUtils.toString(Objects.requireNonNull(strZipFile.getInputStream("out")), StandardCharsets.UTF_8));
+        assertEquals("errLog", IOUtils.toString(Objects.requireNonNull(strZipFile.getInputStream("err")), StandardCharsets.UTF_8));
+        assertEquals("foo", IOUtils.toString(Objects.requireNonNull(strZipFile.getInputStream("f1.out")), StandardCharsets.UTF_8));
 
     }
 
