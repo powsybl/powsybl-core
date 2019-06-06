@@ -22,7 +22,7 @@ public final class EurostagTutorialExample1Factory {
     }
 
     public static Network create() {
-        Network network = NetworkFactory.create("sim1", "test");
+        Network network = Network.create("sim1", "test");
         Substation p1 = network.newSubstation()
                 .setId("P1")
                 .setCountry(Country.FR)

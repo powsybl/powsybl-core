@@ -50,6 +50,11 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
     }
 
     @Override
+    public Country getNullableCountry() {
+        return country;
+    }
+
+    @Override
     public SubstationImpl setCountry(Country country) {
         String oldValue = Optional.ofNullable(this.country).map(Enum::toString).orElse("");
         this.country = country;

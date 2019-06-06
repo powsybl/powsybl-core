@@ -15,9 +15,6 @@ package com.powsybl.math.matrix;
  */
 public class DenseMatrixFactory implements MatrixFactory {
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public DenseMatrix create(int rowCount, int columnCount, int estimatedNonZeroValueCount) {
         return new DenseMatrix(rowCount, columnCount);
