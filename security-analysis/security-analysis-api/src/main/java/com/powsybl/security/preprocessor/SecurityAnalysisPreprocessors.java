@@ -20,6 +20,8 @@ import java.io.UncheckedIOException;
 import java.util.List;
 import java.util.Optional;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  *
  * Provides instances of {@link SecurityAnalysisPreprocessor}s or factories.
@@ -101,6 +103,8 @@ public final class SecurityAnalysisPreprocessors {
      */
     public static SecurityAnalysisPreprocessor contingenciesPreprocessor(ContingenciesProviderFactory factory,
                                                                    ByteSource source) {
+        requireNonNull(factory);
+        requireNonNull(source);
         return configuration -> configuration.setContingencies(newContingenciesProvider(factory, source));
     }
 

@@ -246,7 +246,7 @@ public class SecurityAnalysisTool implements Tool {
         return network;
     }
 
-    public static void uncheckedWriteBytes(byte[] bytes, Path path) {
+    private static void uncheckedWriteBytes(byte[] bytes, Path path) {
         try {
             Files.write(path, bytes);
         } catch (IOException e) {

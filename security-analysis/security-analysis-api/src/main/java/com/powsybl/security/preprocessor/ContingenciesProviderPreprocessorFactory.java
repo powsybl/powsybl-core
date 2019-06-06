@@ -9,6 +9,8 @@ package com.powsybl.security.preprocessor;
 import com.google.common.io.ByteSource;
 import com.powsybl.contingency.ContingenciesProviderFactory;
 
+import java.util.Objects;
+
 /**
  * A factory which creates preprocessors that read contingencies according to a
  * {@link ContingenciesProviderFactory}
@@ -20,7 +22,7 @@ public class ContingenciesProviderPreprocessorFactory implements SecurityAnalysi
     private final ContingenciesProviderFactory contingenciesProviderFactory;
 
     public ContingenciesProviderPreprocessorFactory(ContingenciesProviderFactory contingenciesProviderFactory) {
-        this.contingenciesProviderFactory = contingenciesProviderFactory;
+        this.contingenciesProviderFactory = Objects.requireNonNull(contingenciesProviderFactory);
     }
 
     @Override
