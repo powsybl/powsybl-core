@@ -12,5 +12,5 @@ import com.powsybl.afs.storage.events.NodeEvent;
  * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
  */
 public interface EventsStore {
-    void pushEvent(NodeEvent event, String fileSystem, String topic);
+    void pushEvent(NodeEvent event, String topic);
 }

@@ -6,6 +6,8 @@
  */
 package com.powsybl.afs;
 
+import com.powsybl.afs.storage.EventsStore;
+import com.powsybl.afs.storage.InMemoryEventsStore;
 import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.commons.util.ServiceLoaderCache;
 import com.powsybl.computation.ComputationManager;
@@ -63,27 +65,40 @@ public class AppData implements AutoCloseable {
 
     private final Set<Class<? extends ProjectFile>> projectFileClasses = new HashSet<>();
 
+    private EventsStore eventsStore;
+
     private Map<ServiceExtension.ServiceKey, Object> services;
 
     private SecurityTokenProvider tokenProvider = () -> null;
 
     public AppData(ComputationManager shortTimeExecutionComputationManager, ComputationManager longTimeExecutionComputationManager) {
         this(shortTimeExecutionComputationManager, longTimeExecutionComputationManager,
-                getDefaultFileSystemProviders(), getDefaultFileExtensions(), getDefaultProjectFileExtensions(), getDefaultServiceExtensions());
+                getDefaultFileSystemProviders(), getDefaultFileExtensions(), getDefaultProjectFileExtensions(), getDefaultServiceExtensions(),
+                getDefaultEventsStore());
     }
 
     public AppData(ComputationManager shortTimeExecutionComputationManager,
                    ComputationManager longTimeExecutionComputationManager, List<AppFileSystemProvider> fileSystemProviders) {
         this(shortTimeExecutionComputationManager, longTimeExecutionComputationManager,
-                fileSystemProviders, getDefaultFileExtensions(), getDefaultProjectFileExtensions(), getDefaultServiceExtensions());
+                fileSystemProviders, getDefaultFileExtensions(), getDefaultProjectFileExtensions(), getDefaultServiceExtensions(),
+                getDefaultEventsStore());
     }
 
     public AppData(ComputationManager shortTimeExecutionComputationManager, ComputationManager longTimeExecutionComputationManager,
                    List<AppFileSystemProvider> fileSystemProviders, List<FileExtension> fileExtensions,
                    List<ProjectFileExtension> projectFileExtensions, List<ServiceExtension> serviceExtensions) {
+        this(shortTimeExecutionComputationManager, longTimeExecutionComputationManager, fileSystemProviders, fileExtensions,
+                projectFileExtensions, serviceExtensions, getDefaultEventsStore());
+    }
+
+    public AppData(ComputationManager shortTimeExecutionComputationManager, ComputationManager longTimeExecutionComputationManager,
+                   List<AppFileSystemProvider> fileSystemProviders, List<FileExtension> fileExtensions,
+                   List<ProjectFileExtension> projectFileExtensions, List<ServiceExtension> serviceExtensions, EventsStore eventsStore) {
         Objects.requireNonNull(fileSystemProviders);
         Objects.requireNonNull(fileExtensions);
         Objects.requireNonNull(projectFileExtensions);
+        Objects.requireNonNull(eventsStore);
+        this.eventsStore = eventsStore;
         this.shortTimeExecutionComputationManager = Objects.requireNonNull(shortTimeExecutionComputationManager);
         this.longTimeExecutionComputationManager = longTimeExecutionComputationManager;
         this.fileSystemProviders = Objects.requireNonNull(fileSystemProviders);
@@ -110,6 +125,10 @@ public class AppData implements AutoCloseable {
 
     private static List<ProjectFileExtension> getDefaultProjectFileExtensions() {
         return new ServiceLoaderCache<>(ProjectFileExtension.class).getServices();
+    }
+
+    private static EventsStore getDefaultEventsStore() {
+        return new InMemoryEventsStore();
     }
 
     private static List<ServiceExtension> getDefaultServiceExtensions() {
@@ -283,6 +302,13 @@ public class AppData implements AutoCloseable {
             throw new AfsException("No service found for class " + serviceClass);
         }
         return service;
+    }
+
+    /**
+     * get the appData event Store instance.
+     */
+    public EventsStore getEventsStore() {
+        return eventsStore;
     }
 
     /**

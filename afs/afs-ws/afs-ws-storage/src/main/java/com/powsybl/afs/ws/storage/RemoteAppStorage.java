@@ -334,8 +334,11 @@ public class RemoteAppStorage implements AppStorage {
         }
     }
 
-    private List<NodeInfo> getResponse(String targetUrl, String nodeId) {
-        Response response = webTarget.path(targetUrl)
+    @Override
+    public List<NodeInfo> getChildNodes(String nodeId) {
+        Objects.requireNonNull(nodeId);
+        LOGGER.debug("getChildNodes(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
+        Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/children")
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .resolveTemplate(NODE_ID, nodeId)
                 .request(MediaType.APPLICATION_JSON)
@@ -347,13 +350,6 @@ public class RemoteAppStorage implements AppStorage {
         } finally {
             response.close();
         }
-    }
-
-    @Override
-    public List<NodeInfo> getChildNodes(String nodeId) {
-        Objects.requireNonNull(nodeId);
-        LOGGER.debug("getChildNodes(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
-        return getResponse("fileSystems/{fileSystemName}/nodes/{nodeId}/children", nodeId);
     }
 
     @Override

@@ -216,6 +216,20 @@ public interface AppStorage extends AutoCloseable {
     void removeDependency(String nodeId, String name, String toNodeId);
 
     /**
+     * Set the event store to be used.
+     */
+    default void setEventStore(EventsStore eventStore) {
+        throw new PowsyblException("Not implemented yet");
+    }
+
+    /**
+     * Get the event store.
+     */
+    default EventsStore getEventStore() {
+        throw new PowsyblException("Not implemented yet");
+    }
+
+    /**
      * Flush any changes to underlying storage.
      */
     void flush();

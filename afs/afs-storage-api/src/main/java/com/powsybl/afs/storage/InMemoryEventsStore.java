@@ -25,7 +25,7 @@ public class InMemoryEventsStore implements EventsStore {
     }
 
     @Override
-    public void pushEvent(NodeEvent event, String fileSystem, String topic) {
+    public void pushEvent(NodeEvent event, String topic) {
         if (topics.containsKey(topic)) {
             topics.get(topic).add(event);
         } else {

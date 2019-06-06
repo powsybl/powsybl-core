@@ -22,7 +22,7 @@ public class KafKaEventsStore implements EventsStore {
     }
 
     @Override
-    public void pushEvent(NodeEvent event, String fileSystem, String topic) {
+    public void pushEvent(NodeEvent event, String topic) {
         ProducerRecord<String, NodeEvent> record = new ProducerRecord<>(topic, event);
         producer.send(record);
     }

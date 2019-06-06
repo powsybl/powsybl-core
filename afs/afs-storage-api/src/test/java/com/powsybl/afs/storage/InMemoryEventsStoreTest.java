@@ -30,7 +30,7 @@ public class InMemoryEventsStoreTest {
     @Test
     public void eventsStoreTest() throws IOException {
         NodeEvent nodeEvent = new NodeCreated("id", "parentId");
-        eventsStore.pushEvent(nodeEvent, null, String.valueOf(nodeEvent.getType()));
+        eventsStore.pushEvent(nodeEvent, String.valueOf(nodeEvent.getType()));
         assertEquals(1, eventsStore.getTopics().size());
         assertNotNull(eventsStore.getTopics().get(String.valueOf(nodeEvent.getType())));
     }
