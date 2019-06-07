@@ -6,7 +6,7 @@
  */
 package com.powsybl.afs.ws.server;
 
-import com.powsybl.afs.storage.ListenableAppStorage;
+import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.events.AppStorageListener;
 import com.powsybl.afs.ws.server.utils.AppDataBean;
 import com.powsybl.afs.ws.utils.AfsRestApi;
@@ -37,7 +37,7 @@ public class NodeEventServer {
     public void onOpen(@PathParam("fileSystemName") String fileSystemName, Session session) {
         LOGGER.debug("WebSocket session '{}' opened for file system '{}'", session.getId(), fileSystemName);
 
-        ListenableAppStorage storage = appDataBean.getStorage(fileSystemName);
+        AppStorage storage = appDataBean.getStorage(fileSystemName);
 
         AppStorageListener listener = eventList -> {
             if (session.isOpen()) {
@@ -59,7 +59,7 @@ public class NodeEventServer {
     }
 
     private void removeSession(String fileSystemName, Session session) {
-        ListenableAppStorage storage = appDataBean.getStorage(fileSystemName);
+        AppStorage storage = appDataBean.getStorage(fileSystemName);
 
         AppStorageListener listener = (AppStorageListener) session.getUserProperties().get("listener");
         storage.removeListener(listener);

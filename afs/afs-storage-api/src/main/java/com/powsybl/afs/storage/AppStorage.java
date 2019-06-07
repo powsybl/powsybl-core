@@ -6,6 +6,7 @@
  */
 package com.powsybl.afs.storage;
 
+import com.powsybl.afs.storage.events.AppStorageListener;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.timeseries.*;
 
@@ -226,6 +227,27 @@ public interface AppStorage extends AutoCloseable {
      * Get the event store.
      */
     default EventsStore getEventStore() {
+        throw new PowsyblException("Not implemented yet");
+    }
+
+    /**
+     * Add a listener to the AppStorage.
+     */
+    default void addListener(AppStorageListener l) {
+        throw new PowsyblException("Not implemented yet");
+    }
+
+    /**
+     * remove a listener from the AppStorage.
+     */
+    default void removeListener(AppStorageListener l) {
+        throw new PowsyblException("Not implemented yet");
+    }
+
+    /**
+     * Remove all listeners from the AppStorage.
+     */
+    default void removeListeners() {
         throw new PowsyblException("Not implemented yet");
     }
 

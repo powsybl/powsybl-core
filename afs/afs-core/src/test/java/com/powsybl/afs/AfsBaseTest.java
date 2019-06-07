@@ -9,7 +9,6 @@ package com.powsybl.afs;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.DefaultListenableAppStorage;
 import com.powsybl.afs.storage.InMemoryEventsStore;
 import com.powsybl.computation.ComputationManager;
 import org.junit.After;
@@ -34,12 +33,13 @@ public class AfsBaseTest {
 
     @Before
     public void setup() {
-        storage = new DefaultListenableAppStorage(MapDbAppStorage.createMem("mem"));
+        storage = MapDbAppStorage.createMem("mem");
 
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
         afs = new AppFileSystem("mem", true, storage);
         ad = new AppData(computationManager, computationManager, Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
                 Collections.emptyList(), Collections.singletonList(new FooFileExtension()), Collections.emptyList());
+        storage.setEventStore(ad.getEventsStore());
         afs.setData(ad);
     }
 

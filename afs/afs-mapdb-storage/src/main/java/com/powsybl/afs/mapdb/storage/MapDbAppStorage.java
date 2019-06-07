@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.powsybl.afs.storage.*;
 import com.powsybl.afs.storage.events.*;
+import com.powsybl.commons.util.WeakListenerList;
 import com.powsybl.timeseries.*;
 import org.apache.commons.lang3.SystemUtils;
 import org.mapdb.Atomic;
@@ -24,6 +25,8 @@ import java.io.*;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -95,6 +98,12 @@ public class MapDbAppStorage implements AppStorage {
     private final ConcurrentMap<UUID, List<UUID>> backwardDependencyNodesMap;
 
     private EventsStore eventsStore;
+
+    private final WeakListenerList<AppStorageListener> listeners = new WeakListenerList<>();
+
+    private NodeEventList eventList = new NodeEventList();
+
+    private final Lock lock = new ReentrantLock();
 
     protected MapDbAppStorage(String fileSystemName, Supplier<DB> db) {
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
@@ -289,8 +298,6 @@ public class MapDbAppStorage implements AppStorage {
         }
         UUID nodeUuid = checkNodeId(rootNodeInfo.getId());
         nodeConsistencyMap.put(nodeUuid, true);
-        pushEvent(new NodeCreated(rootNodeInfo.getId(), null),
-                String.valueOf(NodeEventType.NODE_CREATED));
         return rootNodeInfo;
     }
 
@@ -461,7 +468,7 @@ public class MapDbAppStorage implements AppStorage {
         dependencyNodesMap.put(nodeUuid, new ArrayList<>());
         backwardDependencyNodesMap.put(nodeUuid, new ArrayList<>());
         nodeConsistencyMap.put(nodeUuid, false);
-        pushEvent(new NodeCreated(nodeUuid.toString(), null),
+        pushEvent(new NodeCreated(nodeUuid.toString(), parentNodeId),
                 String.valueOf(NodeEventType.NODE_CREATED));
         return nodeInfo;
     }
@@ -583,8 +590,10 @@ public class MapDbAppStorage implements AppStorage {
         Objects.requireNonNull(name);
         boolean removed = removeFromSet(dataNamesMap, nodeUuid, name);
         dataMap.remove(new NamedLink(nodeUuid, name));
-        pushEvent(new NodeDataRemoved(nodeId, name),
-                String.valueOf(NodeEventType.NODE_DATA_REMOVED));
+        if (removed) {
+            pushEvent(new NodeDataRemoved(nodeId, name),
+                    String.valueOf(NodeEventType.NODE_DATA_REMOVED));
+        }
         return removed;
     }
 
@@ -781,7 +790,7 @@ public class MapDbAppStorage implements AppStorage {
         addToList(backwardDependencyNodesMap, toNodeUuid, nodeUuid);
         pushEvent(new DependencyAdded(nodeId, name),
                 String.valueOf(NodeEventType.DEPENDENCY_ADDED));
-        pushEvent(new BackwardDependencyAdded(nodeId, name),
+        pushEvent(new BackwardDependencyAdded(toNodeId, name),
                 String.valueOf(NodeEventType.BACKWARD_DEPENDENCY_ADDED));
     }
 
@@ -838,7 +847,7 @@ public class MapDbAppStorage implements AppStorage {
         removeFromList(backwardDependencyNodesMap, toNodeUuid, nodeUuid);
         pushEvent(new DependencyRemoved(nodeId, name),
                 String.valueOf(NodeEventType.DEPENDENCY_REMOVED));
-        pushEvent(new BackwardDependencyRemoved(nodeId, name),
+        pushEvent(new BackwardDependencyRemoved(toNodeId, name),
                 String.valueOf(NodeEventType.BACKWARD_DEPENDENCY_REMOVED));
     }
 
@@ -855,6 +864,14 @@ public class MapDbAppStorage implements AppStorage {
     @Override
     public void flush() {
         db.commit();
+        lock.lock();
+        try {
+            listeners.log();
+            listeners.notify(l -> l.onEvents(eventList));
+            eventList = new NodeEventList();
+        } finally {
+            lock.unlock();
+        }
     }
 
     @Override
@@ -869,10 +886,26 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     private void pushEvent(NodeEvent event, String topic) {
-        if (this.eventsStore == null) {
+        eventList.addEvent(event);
+        if (eventsStore == null) {
             logger.warn("Event can't be pushed : No EventStore instance is available.");
             return;
         }
-        this.eventsStore.pushEvent(event, topic);
+        eventsStore.pushEvent(event, topic);
+    }
+
+    @Override
+    public void addListener(AppStorageListener l) {
+        listeners.add(l);
+    }
+
+    @Override
+    public void removeListener(AppStorageListener l) {
+        listeners.remove(l);
+    }
+
+    @Override
+    public void removeListeners() {
+        listeners.removeAll();
     }
 }

@@ -9,8 +9,6 @@ package com.powsybl.afs;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.DefaultListenableAppStorage;
-import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.afs.storage.NodeInfo;
 
 import java.util.Objects;
@@ -43,7 +41,7 @@ public class AppFileSystem implements AutoCloseable {
 
     private final boolean remotelyAccessible;
 
-    private final ListenableAppStorage storage;
+    private final AppStorage storage;
 
     private final Supplier<NodeInfo> rootNodeInfo;
 
@@ -52,10 +50,10 @@ public class AppFileSystem implements AutoCloseable {
     private AppData data;
 
     public AppFileSystem(String name, boolean remotelyAccessible, AppStorage storage) {
-        this(name, remotelyAccessible, new DefaultListenableAppStorage(storage), new LocalTaskMonitor());
+        this(name, remotelyAccessible, storage, new LocalTaskMonitor());
     }
 
-    public AppFileSystem(String name, boolean remotelyAccessible, ListenableAppStorage storage, TaskMonitor taskMonitor) {
+    public AppFileSystem(String name, boolean remotelyAccessible, AppStorage storage, TaskMonitor taskMonitor) {
         this.name = Objects.requireNonNull(name);
         this.remotelyAccessible = remotelyAccessible;
         this.storage = Objects.requireNonNull(storage);
@@ -71,7 +69,7 @@ public class AppFileSystem implements AutoCloseable {
         return remotelyAccessible;
     }
 
-    ListenableAppStorage getStorage() {
+    AppStorage getStorage() {
         return storage;
     }
 

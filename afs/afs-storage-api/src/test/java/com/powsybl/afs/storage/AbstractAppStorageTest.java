@@ -40,7 +40,7 @@ public abstract class AbstractAppStorageTest {
     static final String FOLDER_PSEUDO_CLASS = "folder";
     static final String DATA_FILE_CLASS = "data";
 
-    private ListenableAppStorage storage;
+    private AppStorage storage;
 
     private BlockingQueue<NodeEvent> eventStack;
 
@@ -51,13 +51,7 @@ public abstract class AbstractAppStorageTest {
     @Before
     public void setUp() throws Exception {
         eventStack = new LinkedBlockingQueue<>();
-
-        AppStorage storage = createStorage();
-        if (storage instanceof ListenableAppStorage) {
-            this.storage = (ListenableAppStorage) storage;
-        } else {
-            this.storage = new DefaultListenableAppStorage(storage);
-        }
+        this.storage = createStorage();
         this.storage.addListener(l);
     }
 
