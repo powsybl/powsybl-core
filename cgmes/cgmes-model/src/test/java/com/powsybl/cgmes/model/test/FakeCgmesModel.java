@@ -41,6 +41,7 @@ public final class FakeCgmesModel implements CgmesModel {
     private PropertyBags transformerEnds;
     private PropertyBags ratioTapChangers;
     private PropertyBags phaseTapChangers;
+    private PropertyBags regulatingControls;
     private PropertyBags energyConsumers;
     private PropertyBags energySources;
     private PropertyBags shuntCompensators;
@@ -76,6 +77,7 @@ public final class FakeCgmesModel implements CgmesModel {
         transformerEnds = new PropertyBags();
         ratioTapChangers = new PropertyBags();
         phaseTapChangers = new PropertyBags();
+        regulatingControls = new PropertyBags();
         energyConsumers = new PropertyBags();
         energySources = new PropertyBags();
         shuntCompensators = new PropertyBags();
@@ -364,6 +366,11 @@ public final class FakeCgmesModel implements CgmesModel {
     @Override
     public PropertyBags phaseTapChangers() {
         return phaseTapChangers;
+    }
+
+    @Override
+    public PropertyBags regulatingControls() {
+        return regulatingControls;
     }
 
     @Override

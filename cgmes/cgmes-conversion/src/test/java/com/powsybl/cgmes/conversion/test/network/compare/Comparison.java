@@ -471,6 +471,20 @@ public class Comparison {
                         expected.getRegulationTerminal().getConnectable(),
                         actual.getRegulationTerminal().getConnectable());
             }
+
+            if (expected.getRegulationTerminal() != null || actual.getRegulationTerminal() != null) {
+                if (expected.getRegulationTerminal() == null) {
+                    diff.unexpected("Tap changer regulating terminal");
+                    return;
+                }
+                if (actual.getRegulationTerminal() == null) {
+                    diff.missing("TapChanger regulating terminal");
+                    return;
+                }
+                equivalent("tapChanger.getRegulationTerminal",
+                        expected.getRegulationTerminal().getBusBreakerView().getBus(),
+                        actual.getRegulationTerminal().getBusBreakerView().getBus());
+            }
         }
     }
 

@@ -15,7 +15,7 @@ public class BusTest {
 
     @Test
     public void testSetterGetter() {
-        Network network = NetworkFactory.create("test", "test");
+        Network network = Network.create("test", "test");
         Substation substation = network.newSubstation()
                                     .setCountry(Country.AF)
                                     .setTso("tso")

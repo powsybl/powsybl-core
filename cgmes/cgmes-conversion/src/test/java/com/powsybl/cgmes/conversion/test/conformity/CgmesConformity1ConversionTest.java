@@ -126,6 +126,20 @@ public class CgmesConformity1ConversionTest {
     }
 
     @Test
+    public void microGridBaseCaseBEWithoutUnsupportedTapChangersRoundtrip() throws IOException {
+        // TODO When we convert boundaries values for P0, Q0 at dangling lines
+        // are recalculated and we need to increase the tolerance
+        Properties properties = new Properties();
+        properties.put(CgmesImport.ALLOW_UNSUPPORTED_TAP_CHANGERS, "false");
+        ConversionTester t = new ConversionTester(
+                properties,
+                TripleStoreFactory.onlyDefaultImplementation(),
+                new ComparisonConfig().tolerance(1e-5));
+        t.setTestExportImportCgmes(true);
+        t.testConversion(expecteds.microBaseCaseBE(), actuals.microGridBaseCaseBE());
+    }
+
+    @Test
     public void microGridBaseCaseBE() throws IOException {
         tester.testConversion(expecteds.microBaseCaseBE(), actuals.microGridBaseCaseBE());
     }

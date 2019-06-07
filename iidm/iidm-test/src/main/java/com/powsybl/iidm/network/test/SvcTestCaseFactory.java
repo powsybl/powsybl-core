@@ -28,7 +28,7 @@ public final class SvcTestCaseFactory {
     }
 
     public static Network create() {
-        Network network = NetworkFactory.create("svcTestCase", "code");
+        Network network = Network.create("svcTestCase", "code");
         network.setCaseDate(DateTime.parse("2016-06-29T14:54:03.427+02:00"));
         Substation s1 = network.newSubstation()
                 .setId("S1")

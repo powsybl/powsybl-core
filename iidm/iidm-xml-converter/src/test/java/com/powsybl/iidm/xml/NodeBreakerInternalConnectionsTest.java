@@ -6,20 +6,13 @@
  */
 package com.powsybl.iidm.xml;
 
-import java.io.IOException;
-
+import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
 import org.joda.time.DateTime;
 import org.junit.Test;
 
-import com.powsybl.commons.AbstractConverterTest;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.SwitchKind;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.iidm.network.VoltageLevel.NodeBreakerView;
+import java.io.IOException;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -36,9 +29,8 @@ public class NodeBreakerInternalConnectionsTest extends AbstractConverterTest {
     }
 
     private Network networkWithInternalConnections() {
-        Network network = NetworkFactory
-                .create("internal-connections", "test")
-                .setCaseDate(DateTime.parse("2018-11-08T12:33:26.208+01:00"));
+        Network network = Network.create("internal-connections", "test")
+                                 .setCaseDate(DateTime.parse("2018-11-08T12:33:26.208+01:00"));
 
         Substation s1 = network.newSubstation()
                 .setId("s1")
