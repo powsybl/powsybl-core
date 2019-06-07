@@ -8,7 +8,6 @@ package com.powsybl.scripting.groovy;
 
 import com.powsybl.afs.*;
 import com.powsybl.afs.storage.*;
-import com.powsybl.afs.storage.events.AppStorageListener;
 import com.powsybl.computation.ComputationManager;
 import org.junit.After;
 import org.junit.Before;
