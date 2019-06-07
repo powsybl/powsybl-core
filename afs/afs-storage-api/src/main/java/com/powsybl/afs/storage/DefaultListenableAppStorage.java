@@ -26,6 +26,10 @@ import java.util.concurrent.locks.ReentrantLock;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+/**
+ * @deprecated  events can be listened directly from an AppStorage.
+ */
+@Deprecated
 public class DefaultListenableAppStorage extends ForwardingAppStorage implements ListenableAppStorage {
 
     private final WeakListenerList<AppStorageListener> listeners = new WeakListenerList<>();
