@@ -141,10 +141,10 @@ public class ItoolsPackagerMojo extends AbstractMojo {
                 FileStore fileStore = Files.getFileStore(file);
                 if (fileStore.supportsFileAttributeView(PosixFileAttributeView.class)) {
                     Set<PosixFilePermission> perms = EnumSet.of(PosixFilePermission.OWNER_READ,
-                            PosixFilePermission.OWNER_WRITE,
-                            PosixFilePermission.OWNER_EXECUTE,
-                            PosixFilePermission.GROUP_READ,
-                            PosixFilePermission.GROUP_EXECUTE);
+                                                                PosixFilePermission.OWNER_WRITE,
+                                                                PosixFilePermission.OWNER_EXECUTE,
+                                                                PosixFilePermission.GROUP_READ,
+                                                                PosixFilePermission.GROUP_EXECUTE);
                     Files.setPosixFilePermissions(file, perms);
                 }
             }
