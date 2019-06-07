@@ -108,7 +108,7 @@ public class AppFileSystem implements AutoCloseable {
 
         // get file info
         NodeInfo projectFileInfo = storage.getNodeInfo(projectFileId);
-        Project project = createProject(projectFileId, projectFileInfo, "' is probably not a project file, parent project has not been found");
+        Project project = createProject(projectFileId, projectFileInfo);
 
         // then create the file
         ProjectFile projectFile = project.createProjectFile(projectFileInfo);
@@ -132,21 +132,21 @@ public class AppFileSystem implements AutoCloseable {
         NodeInfo projectFolderInfo = storage.getNodeInfo(projectFolderId);
 
         // walk the node hierarchy until finding a project
-        Project project = createProject(projectFolderId, projectFolderInfo, "' is probably not a project folder, parent project has not been found");
+        Project project = createProject(projectFolderId, projectFolderInfo);
 
         // then create and return the projectFolder
 
         return project.createProjectFolder(projectFolderInfo);
     }
 
-    private Project createProject(String projectNodeId, NodeInfo projectNodeInfo, String s) {
+    private Project createProject(String projectNodeId, NodeInfo projectNodeInfo) {
         // walk the node hierarchy until finding a project
         NodeInfo parentInfo = storage.getParentNode(projectNodeInfo.getId()).orElse(null);
         while (parentInfo != null && !Project.PSEUDO_CLASS.equals(parentInfo.getPseudoClass())) {
             parentInfo = storage.getParentNode(parentInfo.getId()).orElse(null);
         }
         if (parentInfo == null) {
-            throw new AfsException("Node '" + projectNodeId + s);
+            throw new AfsException("Node '" + projectNodeId + " parent project cannot be found.");
         }
 
         // create the project
