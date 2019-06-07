@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.DefaultListenableAppStorage;
+import com.powsybl.afs.storage.InMemoryEventsStore;
 import com.powsybl.computation.ComputationManager;
 import org.junit.After;
 import org.junit.Before;
@@ -49,6 +50,7 @@ public class AfsBaseTest {
 
     @Test
     public void baseTest() {
+        assertSame(InMemoryEventsStore.class, ad.getEventsStore().getClass());
         assertSame(afs, ad.getFileSystem("mem"));
         assertNull(ad.getFileSystem("???"));
         assertEquals(Collections.singletonList("mem"), ad.getRemotelyAccessibleFileSystemNames());

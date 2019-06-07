@@ -17,6 +17,8 @@ import org.mapdb.Atomic;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.Serializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.time.ZonedDateTime;
@@ -53,6 +55,8 @@ public class MapDbAppStorage implements AppStorage {
             return maker.make();
         });
     }
+
+    private  final Logger logger = LoggerFactory.getLogger(MapDbAppStorage.class);
 
     private final String fileSystemName;
 
@@ -93,7 +97,6 @@ public class MapDbAppStorage implements AppStorage {
     private EventsStore eventsStore;
 
     protected MapDbAppStorage(String fileSystemName, Supplier<DB> db) {
-        this.eventsStore = new InMemoryEventsStore();
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
         this.db = db.get();
 
@@ -286,7 +289,7 @@ public class MapDbAppStorage implements AppStorage {
         }
         UUID nodeUuid = checkNodeId(rootNodeInfo.getId());
         nodeConsistencyMap.put(nodeUuid, true);
-        eventsStore.pushEvent(new NodeCreated(rootNodeInfo.getId(), null),
+        pushEvent(new NodeCreated(rootNodeInfo.getId(), null),
                 String.valueOf(NodeEventType.NODE_CREATED));
         return rootNodeInfo;
     }
@@ -312,7 +315,7 @@ public class MapDbAppStorage implements AppStorage {
         NodeInfo nodeInfo = getNodeInfo(nodeId);
         nodeInfo.setDescription(description);
         nodeInfoMap.put(nodeUuid, nodeInfo);
-        eventsStore.pushEvent(new NodeDescriptionUpdated(nodeId, description),
+        pushEvent(new NodeDescriptionUpdated(nodeId, description),
                 String.valueOf(NodeEventType.NODE_DESCRIPTION_UPDATED));
     }
 
@@ -320,7 +323,7 @@ public class MapDbAppStorage implements AppStorage {
     public void setConsistent(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
         nodeConsistencyMap.put(nodeUuid, true);
-        eventsStore.pushEvent(new NodeConsistent(nodeId),
+        pushEvent(new NodeConsistent(nodeId),
                 String.valueOf(NodeEventType.NODE_CONSISTENT));
     }
 
@@ -427,7 +430,7 @@ public class MapDbAppStorage implements AppStorage {
         addToList(childNodesMap, newParentNodeUuid, nodeUuid);
         childNodeMap.put(new NamedLink(newParentNodeUuid, name), nodeUuid);
 
-        eventsStore.pushEvent(new ParentChanged(nodeId),
+        pushEvent(new ParentChanged(nodeId),
                 String.valueOf(NodeEventType.PARENT_CHANGED));
     }
 
@@ -458,7 +461,7 @@ public class MapDbAppStorage implements AppStorage {
         dependencyNodesMap.put(nodeUuid, new ArrayList<>());
         backwardDependencyNodesMap.put(nodeUuid, new ArrayList<>());
         nodeConsistencyMap.put(nodeUuid, false);
-        eventsStore.pushEvent(new NodeCreated(nodeUuid.toString(), null),
+        pushEvent(new NodeCreated(nodeUuid.toString(), null),
                 String.valueOf(NodeEventType.NODE_CREATED));
         return nodeInfo;
     }
@@ -474,7 +477,7 @@ public class MapDbAppStorage implements AppStorage {
         });
         nodeInfo.setName(name);
         nodeInfoMap.put(nodeUuid, nodeInfo);
-        eventsStore.pushEvent(new NodeNameUpdated(nodeId, name),
+        pushEvent(new NodeNameUpdated(nodeId, name),
                 String.valueOf(NodeEventType.NODE_NAME_UPDATED));
     }
 
@@ -482,7 +485,7 @@ public class MapDbAppStorage implements AppStorage {
     public String deleteNode(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
         UUID parentNodeUuid = deleteNode(nodeUuid);
-        eventsStore.pushEvent(new NodeRemoved(nodeId, parentNodeUuid.toString()),
+        pushEvent(new NodeRemoved(nodeId, parentNodeUuid.toString()),
                 String.valueOf(NodeEventType.NODE_REMOVED));
         return parentNodeUuid.toString();
     }
@@ -555,7 +558,7 @@ public class MapDbAppStorage implements AppStorage {
                 // store the byte array
                 dataMap.put(new NamedLink(nodeUuid, name), toByteArray());
                 addToSet(dataNamesMap, nodeUuid, name);
-                eventsStore.pushEvent(new NodeDataUpdated(nodeId, name),
+                pushEvent(new NodeDataUpdated(nodeId, name),
                         String.valueOf(NodeEventType.NODE_DATA_UPDATED));
             }
         };
@@ -580,7 +583,7 @@ public class MapDbAppStorage implements AppStorage {
         Objects.requireNonNull(name);
         boolean removed = removeFromSet(dataNamesMap, nodeUuid, name);
         dataMap.remove(new NamedLink(nodeUuid, name));
-        eventsStore.pushEvent(new NodeDataRemoved(nodeId, name),
+        pushEvent(new NodeDataRemoved(nodeId, name),
                 String.valueOf(NodeEventType.NODE_DATA_REMOVED));
         return removed;
     }
@@ -596,7 +599,7 @@ public class MapDbAppStorage implements AppStorage {
         }
         addToSet(timeSeriesNamesMap, nodeUuid, metadata.getName());
         timeSeriesMetadataMap.put(new NamedLink(nodeUuid, metadata.getName()), metadata);
-        eventsStore.pushEvent(new TimeSeriesCreated(nodeId, metadata.getName()),
+        pushEvent(new TimeSeriesCreated(nodeId, metadata.getName()),
                 String.valueOf(NodeEventType.TIME_SERIES_CREATED));
     }
 
@@ -738,7 +741,7 @@ public class MapDbAppStorage implements AppStorage {
     @Override
     public void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleDataChunk> chunks) {
         addTimeSeriesData(nodeId, version, timeSeriesName, chunks, doubleTimeSeriesChunksMap);
-        eventsStore.pushEvent(new TimeSeriesDataUpdated(nodeId, timeSeriesName),
+        pushEvent(new TimeSeriesDataUpdated(nodeId, timeSeriesName),
                 String.valueOf(NodeEventType.TIME_SERIES_DATA_UPDATED));
     }
 
@@ -750,7 +753,7 @@ public class MapDbAppStorage implements AppStorage {
     @Override
     public void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringDataChunk> chunks) {
         addTimeSeriesData(nodeId, version, timeSeriesName, chunks, stringTimeSeriesChunksMap);
-        eventsStore.pushEvent(new TimeSeriesDataUpdated(nodeId, timeSeriesName),
+        pushEvent(new TimeSeriesDataUpdated(nodeId, timeSeriesName),
                 String.valueOf(NodeEventType.TIME_SERIES_DATA_UPDATED));
     }
 
@@ -762,7 +765,7 @@ public class MapDbAppStorage implements AppStorage {
             names.forEach(name -> timeSeriesMetadataMap.remove(new NamedLink(nodeUuid, name)));
             timeSeriesNamesMap.remove(nodeUuid);
         }
-        eventsStore.pushEvent(new TimeSeriesCleared(nodeId),
+        pushEvent(new TimeSeriesCleared(nodeId),
                 String.valueOf(NodeEventType.TIME_SERIES_CLEARED));
     }
 
@@ -776,9 +779,9 @@ public class MapDbAppStorage implements AppStorage {
         addToList(dependencyNodesMap, nodeUuid, new NamedLink(toNodeUuid, name));
         addToList(dependencyNodesByNameMap, new NamedLink(nodeUuid, name), toNodeUuid);
         addToList(backwardDependencyNodesMap, toNodeUuid, nodeUuid);
-        eventsStore.pushEvent(new DependencyAdded(nodeId, name),
+        pushEvent(new DependencyAdded(nodeId, name),
                 String.valueOf(NodeEventType.DEPENDENCY_ADDED));
-        eventsStore.pushEvent(new BackwardDependencyAdded(nodeId, name),
+        pushEvent(new BackwardDependencyAdded(nodeId, name),
                 String.valueOf(NodeEventType.BACKWARD_DEPENDENCY_ADDED));
     }
 
@@ -833,9 +836,9 @@ public class MapDbAppStorage implements AppStorage {
         removeFromList(dependencyNodesMap, nodeUuid, new NamedLink(toNodeUuid, name));
         removeFromList(dependencyNodesByNameMap, new NamedLink(nodeUuid, name), toNodeUuid);
         removeFromList(backwardDependencyNodesMap, toNodeUuid, nodeUuid);
-        eventsStore.pushEvent(new DependencyRemoved(nodeId, name),
+        pushEvent(new DependencyRemoved(nodeId, name),
                 String.valueOf(NodeEventType.DEPENDENCY_REMOVED));
-        eventsStore.pushEvent(new BackwardDependencyRemoved(nodeId, name),
+        pushEvent(new BackwardDependencyRemoved(nodeId, name),
                 String.valueOf(NodeEventType.BACKWARD_DEPENDENCY_REMOVED));
     }
 
@@ -863,5 +866,13 @@ public class MapDbAppStorage implements AppStorage {
     public void close() {
         db.commit();
         db.close();
+    }
+
+    private void pushEvent(NodeEvent event, String topic) {
+        if (this.eventsStore == null) {
+            logger.warn("Event can't be pushed : No EventStore instance is available.");
+            return;
+        }
+        this.eventsStore.pushEvent(event, topic);
     }
 }
