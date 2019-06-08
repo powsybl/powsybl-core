@@ -430,6 +430,16 @@ public class UcteExporter implements Exporter {
         }
     }
 
+    String xnodeCodeForLine(Line line) {
+        MergedXnode mergedXnode = line.getExtension(MergedXnode.class);
+        if (mergedXnode != null) {
+            return mergedXnode.getCode();
+        } else {
+            TieLine tieLine = (TieLine) line;
+            return tieLine.getUcteXnodeCode();
+        }
+    }
+
     /**
      * Converts the {@link Line} (being a {@link TieLine}) to two {@link UcteLine}
      * and a Xnode ({@link UcteExporter#createXnodeFromTieLine(UcteNetwork, UcteNodeCode, Line)}.
@@ -496,23 +506,23 @@ public class UcteExporter implements Exporter {
      * @see UcteExporter#generateUcteElementId(String, UcteNodeCode, UcteNodeCode, Character)
      */
     void createTieLineWithGeneratedIds(UcteNetwork ucteNetwork, Line line) {
-        MergedXnode mergedXnode = line.getExtension(MergedXnode.class);
-        VoltageLevel terminal1VoltageLevel = line.getTerminal1().getBusBreakerView().getBus().getVoltageLevel();
-        VoltageLevel terminal2VoltageLevel = line.getTerminal2().getBusBreakerView().getBus().getVoltageLevel();
+        String xnodeCode = xnodeCodeForLine(line);
+        VoltageLevel terminal1VoltageLevel = line.getTerminal1().getVoltageLevel();
+        VoltageLevel terminal2VoltageLevel = line.getTerminal2().getVoltageLevel();
         Optional<Country> substation1Country = terminal1VoltageLevel.getSubstation().getCountry();
         Optional<Country> substation2Country = terminal2VoltageLevel.getSubstation().getCountry();
 
-        if (mergedXnode == null || !substation1Country.isPresent() || !substation2Country.isPresent()) {
+        if (xnodeCode == null || !substation1Country.isPresent() || !substation2Country.isPresent()) {
             throw new UcteException("TieLine " + line.getId() + NO_COUNTRY_FOUND);
         }
 
-        UcteNodeCode ucteNodeCode1 = createUcteNodeCode(line.getTerminal1().getBusBreakerView().getBus().getId(),
+        UcteNodeCode ucteNodeCode1 = createUcteNodeCode(line.getTerminal1().getBusBreakerView().getConnectableBus().getId(),
                 terminal1VoltageLevel,
                 substation1Country.get().toString());
-        UcteNodeCode ucteNodeCode2 = createUcteNodeCode(line.getTerminal2().getBusBreakerView().getBus().getId(),
+        UcteNodeCode ucteNodeCode2 = createUcteNodeCode(line.getTerminal2().getBusBreakerView().getConnectableBus().getId(),
                 terminal2VoltageLevel,
                 substation2Country.get().toString());
-        UcteNodeCode ucteNodeCodeXnode = createUcteNodeCode(mergedXnode.getCode(),
+        UcteNodeCode ucteNodeCodeXnode = createUcteNodeCode(xnodeCode,
                 terminal1VoltageLevel,
                 UcteCountryCode.XX.toString());
         createXnodeFromTieLine(ucteNetwork, ucteNodeCodeXnode, line);
@@ -538,7 +548,8 @@ public class UcteExporter implements Exporter {
      */
     private void createXnodeFromTieLine(UcteNetwork ucteNetwork, UcteNodeCode ucteNodeCode, Line line) {
         String geographicalName = "";
-        if (ucteNodeCode.toString().equals(line.getExtension(MergedXnode.class).getCode())) {
+        String xnodeCode = xnodeCodeForLine(line);
+        if (ucteNodeCode.toString().equals(xnodeCode)) {
             geographicalName = getGeographicalNameProperty(line);
         }
         if (ucteNodeCode.getUcteCountryCode() == UcteCountryCode.XX) {
@@ -969,6 +980,7 @@ public class UcteExporter implements Exporter {
      * @return true if the parameter is a tie line
      */
     boolean isUcteTieLineId(Line line) {
+
         MergedXnode mergedXnode = line.getExtension(MergedXnode.class);
 
         return mergedXnode != null

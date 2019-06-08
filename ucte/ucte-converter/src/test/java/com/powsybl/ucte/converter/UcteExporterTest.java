@@ -8,6 +8,7 @@ package com.powsybl.ucte.converter;
 
 import com.powsybl.commons.datasource.*;
 import com.powsybl.entsoe.util.MergedXnode;
+import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
@@ -19,7 +20,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.io.*;
-import java.nio.file.FileSystems;
 import java.util.Collection;
 
 import static org.junit.Assert.*;
@@ -35,6 +35,7 @@ public class UcteExporterTest {
     private static Network iidmNetwork;
     private static Network iidmTieLineNetwork;
     private static Network iidmSwitchNetwork;
+    private static Network mergedNetwork;
     private UcteExporter ucteExporter = new UcteExporter();
 
     @Rule
@@ -42,14 +43,15 @@ public class UcteExporterTest {
 
     @BeforeClass
     public static void setUpBeforeClass() {
-        ReadOnlyDataSource dataSource = new ResourceDataSource("transformerRegulation", new ResourceSet("/", "transformerRegulation.uct"));
-        transfomerRegulationNetwork = new UcteImporter().importData(dataSource, null);
-        dataSource = new ResourceDataSource("exportTest", new ResourceSet("/", "exportTest.uct"));
-        exportTestNetwork = new UcteImporter().importData(dataSource, null);
+        transfomerRegulationNetwork = Importers.loadNetwork("transformerRegulation.uct", UcteExporterTest.class.getResourceAsStream("/transformerRegulation.uct"));
+        exportTestNetwork = Importers.loadNetwork("exportTest.uct", UcteExporterTest.class.getResourceAsStream("/exportTest.uct"));
         iidmNetwork = EurostagTutorialExample1Factory.create();
         iidmNetwork.getLine("NHV1_NHV2_1").getProperties().setProperty(UcteImporter.GEOGRAPHICAL_NAME_PROPERTY_KEY, "geographicalName");
         createTieLineNetwork();
         createNetworkWithSwitch();
+        mergedNetwork = Network.create("Merged network", "UCTE");
+        mergedNetwork.merge(Importers.loadNetwork("frTestGridForMerging.uct", UcteExporterTest.class.getResourceAsStream("/frTestGridForMerging.uct")));
+        mergedNetwork.merge(Importers.loadNetwork("beTestGridForMerging.uct", UcteExporterTest.class.getResourceAsStream("/beTestGridForMerging.uct")));
     }
 
     @Test
@@ -57,8 +59,7 @@ public class UcteExporterTest {
         MemDataSource exportedDataSource = new MemDataSource();
         new UcteExporter().export(exportTestNetwork, null, exportedDataSource);
         try (Reader exportedData = new InputStreamReader(new ByteArrayInputStream(exportedDataSource.getData(null, "uct")))) {
-            Reader expectedData = new InputStreamReader(
-                    new FileInputStream(FileSystems.getDefault().getPath("./src/test/resources/expectedExport.uct").toFile()));
+            Reader expectedData = new InputStreamReader(UcteExporter.class.getResourceAsStream("/expectedExport.uct"));
             assertTrue(IOUtils.contentEqualsIgnoreEOL(expectedData, exportedData));
         }
 
@@ -106,7 +107,6 @@ public class UcteExporterTest {
         } catch (IllegalArgumentException exception) {
             assertEquals("The string to increment is not long enough (should be at least 4)", exception.getMessage());
         }
-
     }
 
     @Test
@@ -122,8 +122,7 @@ public class UcteExporterTest {
 
     @Test
     public void createUcteNodeCodeTest() {
-        ReadOnlyDataSource dataSource = new ResourceDataSource("countryIssue", new ResourceSet("/", "countryIssue.uct"));
-        Network network = new UcteImporter().importData(dataSource, null);
+        Network network = Importers.loadNetwork("countryIssue.uct", UcteExporter.class.getResourceAsStream("/countryIssue.uct"));
         UcteExporter ucteExporter = new UcteExporter();
         assertEquals(new UcteNodeCode(UcteCountryCode.ES, "HORTA", UcteVoltageLevelCode.VL_220, '1'), ucteExporter.createUcteNodeCode("EHORTA21", network.getVoltageLevel("EHORTA2"), "ES"));
         assertNotEquals(new UcteNodeCode(UcteCountryCode.ES, "HORTA", UcteVoltageLevelCode.VL_110, '1'), ucteExporter.createUcteNodeCode("EHORTA21", network.getVoltageLevel("EHORTA2"), "ES"));
@@ -248,8 +247,14 @@ public class UcteExporterTest {
         assertNotEquals("UCTE to IIDM converter", ucteExporter.getComment());
     }
 
+    @Test
+    public void ucteSourcedMergeExportTest() {
+        MemDataSource exportedDataSource = new MemDataSource();
+        new UcteExporter().export(mergedNetwork, null, exportedDataSource);
+    }
+
     private static void createTieLineNetwork() {
-        iidmTieLineNetwork = NetworkFactory.create("iidmTieLineNetwork", "test");
+        iidmTieLineNetwork = Network.create("iidmTieLineNetwork", "test");
         Substation s1 = iidmTieLineNetwork.newSubstation()
                 .setId("s1")
                 .setCountry(Country.FR)
@@ -336,7 +341,7 @@ public class UcteExporterTest {
 
     private static void createNetworkWithSwitch() {
         // For the buses to be valid they have to be connected to at least one branch
-        iidmSwitchNetwork = NetworkFactory.create("iidmSwitchNetwork", "test");
+        iidmSwitchNetwork = Network.create("iidmSwitchNetwork", "test");
         Substation s1 = iidmSwitchNetwork.newSubstation()
                 .setId("S1")
                 .setCountry(Country.ES)
