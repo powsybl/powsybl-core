@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.powsybl.afs.storage.NodeAccessRights;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 
@@ -28,6 +29,7 @@ public class NodeInfoJsonDeserializer extends StdDeserializer<NodeInfo> {
         long creationTime = -1;
         long modificationTime = -1;
         int version = -1;
+        NodeAccessRights accessRights;
         NodeGenericMetadata metadata;
     }
 
@@ -78,6 +80,11 @@ public class NodeInfoJsonDeserializer extends StdDeserializer<NodeInfo> {
                 parsingContext.metadata = new NodeGenericMetadataJsonDeserializer().deserialize(jsonParser, deserializationContext);
                 break;
 
+            case NodeInfoJsonSerializer.ACCESS_RIGHTS:
+                jsonParser.nextToken();
+                parsingContext.accessRights = new NodeAccessRightsJsonDeserializer().deserialize(jsonParser, deserializationContext);
+                break;
+
             default:
                 throw new AssertionError("Unexpected field: " + jsonParser.getCurrentName());
 
@@ -96,6 +103,7 @@ public class NodeInfoJsonDeserializer extends StdDeserializer<NodeInfo> {
             }
         }
         return new NodeInfo(parsingContext.id, parsingContext.name, parsingContext.pseudoClass, parsingContext.description,
-                            parsingContext.creationTime, parsingContext.modificationTime, parsingContext.version, parsingContext.metadata);
+                            parsingContext.creationTime, parsingContext.modificationTime, parsingContext.version,
+                            parsingContext.metadata, parsingContext.accessRights);
     }
 }

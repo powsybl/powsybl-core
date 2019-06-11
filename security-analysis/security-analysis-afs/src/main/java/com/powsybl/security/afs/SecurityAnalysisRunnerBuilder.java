@@ -8,6 +8,7 @@ package com.powsybl.security.afs;
 
 import com.powsybl.afs.*;
 import com.powsybl.afs.ext.base.ProjectCase;
+import com.powsybl.afs.storage.NodeAccessRights;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.security.SecurityAnalysisParameters;
@@ -80,7 +81,7 @@ public class SecurityAnalysisRunnerBuilder implements ProjectFileBuilder<Securit
 
         // create project file
         NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, SecurityAnalysisRunner.PSEUDO_CLASS,
-                                                        "", SecurityAnalysisRunner.VERSION, new NodeGenericMetadata());
+                                                        "", SecurityAnalysisRunner.VERSION, new NodeGenericMetadata(), new NodeAccessRights());
 
         // create case link
         context.getStorage().addDependency(info.getId(), SecurityAnalysisRunner.CASE_DEPENDENCY_NAME, aCase.getId());

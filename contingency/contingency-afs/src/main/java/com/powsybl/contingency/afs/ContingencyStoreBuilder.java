@@ -10,6 +10,7 @@ import com.powsybl.afs.AfsException;
 import com.powsybl.afs.ProjectFileBuildContext;
 import com.powsybl.afs.ProjectFileBuilder;
 import com.powsybl.afs.ProjectFileCreationContext;
+import com.powsybl.afs.storage.NodeAccessRights;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 
@@ -45,7 +46,7 @@ public class ContingencyStoreBuilder implements ProjectFileBuilder<ContingencySt
 
         // create project file
         NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, ContingencyStore.PSEUDO_CLASS,
-                "", ContingencyStore.VERSION, new NodeGenericMetadata());
+                "", ContingencyStore.VERSION, new NodeGenericMetadata(), new NodeAccessRights());
 
         context.getStorage().setConsistent(info.getId());
 

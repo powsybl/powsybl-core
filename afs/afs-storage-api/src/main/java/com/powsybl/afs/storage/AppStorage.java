@@ -41,7 +41,7 @@ public interface AppStorage extends AutoCloseable {
      * Creates a new node in the tree under a parent node. Returns {@code NodeInfo} corresponding to the newly created node.
      * The new node is by default inconsistent, {@link #setConsistent(String nodeId)} method should explicitly be called to set it consistent.
      */
-    NodeInfo createNode(String parentNodeId, String name, String nodePseudoClass, String description, int version, NodeGenericMetadata genericMetadata);
+    NodeInfo createNode(String parentNodeId, String name, String nodePseudoClass, String description, int version, NodeGenericMetadata genericMetadata, NodeAccessRights accessRights);
 
     boolean isWritable(String nodeId);
 

@@ -6,6 +6,7 @@
  */
 package com.powsybl.afs;
 
+import com.powsybl.afs.storage.NodeAccessRights;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.afs.storage.events.AppStorageListener;
@@ -108,7 +109,7 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
     public ProjectFolder createFolder(String name) {
         NodeInfo folderInfo = storage.getChildNode(info.getId(), name)
                 .orElseGet(() -> {
-                    NodeInfo newFolderInfo = storage.createNode(ProjectFolder.this.info.getId(), name, PSEUDO_CLASS, "", VERSION, new NodeGenericMetadata());
+                    NodeInfo newFolderInfo = storage.createNode(ProjectFolder.this.info.getId(), name, PSEUDO_CLASS, "", VERSION, new NodeGenericMetadata(), new NodeAccessRights());
                     storage.setConsistent(newFolderInfo.getId());
                     storage.flush();
                     return newFolderInfo;

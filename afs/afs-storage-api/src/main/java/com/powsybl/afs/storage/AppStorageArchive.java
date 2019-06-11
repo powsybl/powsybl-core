@@ -243,7 +243,7 @@ public class AppStorageArchive {
         try (Reader reader = Files.newBufferedReader(nodeDir.resolve("info.json"), StandardCharsets.UTF_8)) {
             nodeInfo = mapper.readerFor(NodeInfo.class).readValue(reader);
             newNodeInfo = storage.createNode(context.getIdMapping(parentNodeInfo.getId()), nodeInfo.getName(), nodeInfo.getPseudoClass(), nodeInfo.getDescription(),
-                        nodeInfo.getVersion(), nodeInfo.getGenericMetadata());
+                        nodeInfo.getVersion(), nodeInfo.getGenericMetadata(), nodeInfo.getAccessRights());
             context.getIdMapping().put(nodeInfo.getId(), newNodeInfo.getId());
         }
 

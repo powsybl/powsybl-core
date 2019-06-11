@@ -9,6 +9,7 @@ package com.powsybl.afs;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
+import com.powsybl.afs.storage.NodeAccessRights;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import org.junit.Test;
@@ -48,7 +49,7 @@ public class DependencyCacheTest extends AbstractProjectFileTest {
 
         @Override
         public Tic build() {
-            NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, "TIC", "", 0, new NodeGenericMetadata());
+            NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, "TIC", "", 0, new NodeGenericMetadata(), new NodeAccessRights());
             context.getStorage().setConsistent(info.getId());
             return new Tic(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));
         }
@@ -112,7 +113,7 @@ public class DependencyCacheTest extends AbstractProjectFileTest {
 
         @Override
         public Tac build() {
-            NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), "tac", "TAC", "", 0, new NodeGenericMetadata());
+            NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), "tac", "TAC", "", 0, new NodeGenericMetadata(), new NodeAccessRights());
             context.getStorage().setConsistent(info.getId());
             return new Tac(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));
         }

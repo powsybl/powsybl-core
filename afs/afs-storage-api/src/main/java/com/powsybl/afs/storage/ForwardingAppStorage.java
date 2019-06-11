@@ -43,8 +43,8 @@ public class ForwardingAppStorage implements AppStorage {
     }
 
     @Override
-    public NodeInfo createNode(String parentNodeId, String name, String nodePseudoClass, String description, int version, NodeGenericMetadata genericMetadata) {
-        return storage.createNode(parentNodeId, name, nodePseudoClass, description, version, genericMetadata);
+    public NodeInfo createNode(String parentNodeId, String name, String nodePseudoClass, String description, int version, NodeGenericMetadata genericMetadata, NodeAccessRights accessRights) {
+        return storage.createNode(parentNodeId, name, nodePseudoClass, description, version, genericMetadata, accessRights);
     }
 
     @Override

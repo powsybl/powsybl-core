@@ -7,6 +7,7 @@
 package com.powsybl.afs;
 
 import com.powsybl.afs.storage.AppStorageArchive;
+import com.powsybl.afs.storage.NodeAccessRights;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 
@@ -87,7 +88,7 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
     public Folder createFolder(String name) {
         NodeInfo folderInfo = storage.getChildNode(info.getId(), name)
                 .orElseGet(() -> {
-                    NodeInfo newFolderInfo = storage.createNode(info.getId(), name, PSEUDO_CLASS, "", VERSION, new NodeGenericMetadata());
+                    NodeInfo newFolderInfo = storage.createNode(info.getId(), name, PSEUDO_CLASS, "", VERSION, new NodeGenericMetadata(), new NodeAccessRights());
                     storage.setConsistent(newFolderInfo.getId());
                     storage.flush();
                     return newFolderInfo;
@@ -102,10 +103,10 @@ public class Folder extends Node implements FolderBase<Node, Folder> {
     public Project createProject(String name) {
         NodeInfo projectInfo = storage.getChildNode(info.getId(), name)
                 .orElseGet(() -> {
-                    NodeInfo newProjectInfo = storage.createNode(info.getId(), name, Project.PSEUDO_CLASS, "", Project.VERSION, new NodeGenericMetadata());
+                    NodeInfo newProjectInfo = storage.createNode(info.getId(), name, Project.PSEUDO_CLASS, "", Project.VERSION, new NodeGenericMetadata(), new NodeAccessRights());
                     storage.setConsistent(newProjectInfo.getId());
                     // create root project folder
-                    NodeInfo newProjectInfoRootFolder = storage.createNode(newProjectInfo.getId(), Project.ROOT_FOLDER_NAME, ProjectFolder.PSEUDO_CLASS, "", ProjectFolder.VERSION, new NodeGenericMetadata());
+                    NodeInfo newProjectInfoRootFolder = storage.createNode(newProjectInfo.getId(), Project.ROOT_FOLDER_NAME, ProjectFolder.PSEUDO_CLASS, "", ProjectFolder.VERSION, new NodeGenericMetadata(), new NodeAccessRights());
                     storage.setConsistent(newProjectInfoRootFolder.getId());
                     storage.flush();
                     return newProjectInfo;

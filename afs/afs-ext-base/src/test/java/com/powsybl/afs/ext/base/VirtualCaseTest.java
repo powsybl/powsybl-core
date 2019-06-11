@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.afs.*;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
+import com.powsybl.afs.storage.NodeAccessRights;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.iidm.import_.ImportConfig;
@@ -59,7 +60,7 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
         super.setup();
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
         NodeInfo nodeInfo = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "", Case.VERSION,
-                new NodeGenericMetadata().setString(Case.FORMAT, TestImporter.FORMAT));
+                new NodeGenericMetadata().setString(Case.FORMAT, TestImporter.FORMAT), new NodeAccessRights());
         storage.setConsistent(nodeInfo.getId());
     }
 

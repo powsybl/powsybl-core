@@ -31,8 +31,10 @@ public class NodeInfo {
 
     private final NodeGenericMetadata genericMetadata;
 
+    private final NodeAccessRights accessRights;
+
     public NodeInfo(String id, String name, String pseudoClass, String description, long creationTime, long modificationTime,
-                    int version, NodeGenericMetadata genericMetadata) {
+                    int version, NodeGenericMetadata genericMetadata, NodeAccessRights accessRights) {
         this.id = Objects.requireNonNull(id);
         this.name = checkName(name);
         this.pseudoClass = Objects.requireNonNull(pseudoClass);
@@ -41,6 +43,7 @@ public class NodeInfo {
         this.modificationTime = modificationTime;
         this.version = version;
         this.genericMetadata = Objects.requireNonNull(genericMetadata);
+        this.accessRights = accessRights;
     }
 
     /**
@@ -105,9 +108,13 @@ public class NodeInfo {
         return genericMetadata;
     }
 
+    public NodeAccessRights getAccessRights() {
+        return accessRights;
+    }
+
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, pseudoClass, description, creationTime, modificationTime, version, genericMetadata);
+        return Objects.hash(id, name, pseudoClass, description, creationTime, modificationTime, version, genericMetadata, accessRights);
     }
 
     @Override
@@ -117,7 +124,7 @@ public class NodeInfo {
             return id.equals(other.id) && name.equals(other.name) && pseudoClass.equals(other.pseudoClass) &&
                     description.equals(other.description) && creationTime == other.creationTime &&
                     modificationTime == other.modificationTime && version == other.version &&
-                    genericMetadata.equals(other.genericMetadata);
+                    genericMetadata.equals(other.genericMetadata) && accessRights.equals(other.accessRights);
         }
         return false;
     }
@@ -127,6 +134,6 @@ public class NodeInfo {
         return "NodeInfo(id=" + id + ", name=" + name + ", pseudoClass=" + pseudoClass +
                 ", description=" + description + ", creationTime=" + creationTime +
                 ", modificationTime=" + modificationTime + ", version=" + version +
-                ", genericMetadata=" + genericMetadata + ")";
+                ", genericMetadata=" + genericMetadata + ", accessRights=" + accessRights + ")";
     }
 }

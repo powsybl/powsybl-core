@@ -11,6 +11,7 @@ import com.powsybl.afs.ProjectFileBuildContext;
 import com.powsybl.afs.ProjectFileBuilder;
 import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.storage.AppStorageDataSource;
+import com.powsybl.afs.storage.NodeAccessRights;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.commons.datasource.DataSource;
@@ -138,7 +139,7 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
         // create project file
         NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, ImportedCase.PSEUDO_CLASS, "", ImportedCase.VERSION,
-                new NodeGenericMetadata().setString(ImportedCase.FORMAT, importer.getFormat()));
+                new NodeGenericMetadata().setString(ImportedCase.FORMAT, importer.getFormat()), new NodeAccessRights());
 
         // store case data
         importer.copy(dataSource, new AppStorageDataSource(context.getStorage(), info.getId(), info.getName()));

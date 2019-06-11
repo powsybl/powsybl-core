@@ -13,6 +13,7 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.afs.*;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
+import com.powsybl.afs.storage.NodeAccessRights;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.iidm.export.ExportersLoader;
@@ -76,9 +77,8 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
     public void setup() throws IOException {
         super.setup();
         NodeInfo rootFolderInfo = storage.createRootNodeIfNotExists("root", Folder.PSEUDO_CLASS);
-
         NodeInfo nodeInfo = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "Test format", Case.VERSION,
-                new NodeGenericMetadata().setString("format", TestImporter.FORMAT));
+                new NodeGenericMetadata().setString("format", TestImporter.FORMAT), new NodeAccessRights());
         storage.setConsistent(nodeInfo.getId());
 
         fileSystem = Jimfs.newFileSystem(Configuration.unix());

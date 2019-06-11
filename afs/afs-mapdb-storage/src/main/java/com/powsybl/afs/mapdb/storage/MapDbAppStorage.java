@@ -277,7 +277,7 @@ public class MapDbAppStorage implements AppStorage {
     public NodeInfo createRootNodeIfNotExists(String name, String nodePseudoClass) {
         NodeInfo rootNodeInfo = rootNodeVar.get();
         if (rootNodeInfo == null) {
-            rootNodeInfo = createNode(null, name, nodePseudoClass, "", 0, new NodeGenericMetadata());
+            rootNodeInfo = createNode(null, name, nodePseudoClass, "", 0, new NodeGenericMetadata(), new NodeAccessRights());
             rootNodeVar.set(rootNodeInfo);
         }
         UUID nodeUuid = checkNodeId(rootNodeInfo.getId());
@@ -419,7 +419,7 @@ public class MapDbAppStorage implements AppStorage {
     }
 
     @Override
-    public NodeInfo createNode(String parentNodeId, String name, String nodePseudoClass, String description, int version, NodeGenericMetadata genericMetadata) {
+    public NodeInfo createNode(String parentNodeId, String name, String nodePseudoClass, String description, int version, NodeGenericMetadata genericMetadata, NodeAccessRights accessRights) {
         UUID parentNodeUuid = checkNullableNodeId(parentNodeId);
         Objects.requireNonNull(name);
         Objects.requireNonNull(nodePseudoClass);
@@ -433,7 +433,7 @@ public class MapDbAppStorage implements AppStorage {
         }
         UUID nodeUuid = UUID.randomUUID();
         long creationTime = ZonedDateTime.now().toInstant().toEpochMilli();
-        NodeInfo nodeInfo = new NodeInfo(nodeUuid.toString(), name, nodePseudoClass, description, creationTime, creationTime, version, genericMetadata);
+        NodeInfo nodeInfo = new NodeInfo(nodeUuid.toString(), name, nodePseudoClass, description, creationTime, creationTime, version, genericMetadata, accessRights);
         nodeInfoMap.put(nodeUuid, nodeInfo);
         dataNamesMap.put(nodeUuid, Collections.emptySet());
         childNodesMap.put(nodeUuid, new ArrayList<>());

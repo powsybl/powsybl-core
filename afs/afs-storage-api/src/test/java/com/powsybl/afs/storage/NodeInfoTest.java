@@ -35,7 +35,8 @@ public class NodeInfoTest {
                 new NodeGenericMetadata().setString("s1", "s1")
                                          .setDouble("d1", 1d)
                                          .setInt("i1", 2)
-                                         .setBoolean("b1", true));
+                                         .setBoolean("b1", true),
+                new NodeAccessRights().setGroupRights("group1", (short) 2).setGroupRights("group2", (short) 4).setUserRights("user1", (short) 6));
         NodeInfo info2 = objectMapper.readValue(objectMapper.writeValueAsString(info), NodeInfo.class);
         assertEquals(info, info2);
         info.setVersion(1);

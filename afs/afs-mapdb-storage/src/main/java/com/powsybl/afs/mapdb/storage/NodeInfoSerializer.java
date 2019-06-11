@@ -6,6 +6,7 @@
  */
 package com.powsybl.afs.mapdb.storage;
 
+import com.powsybl.afs.storage.NodeAccessRights;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import org.mapdb.DataInput2;
@@ -15,6 +16,7 @@ import org.mapdb.Serializer;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -53,6 +55,20 @@ public class NodeInfoSerializer implements Serializer<NodeInfo>, Serializable {
             out.writeUTF(e.getKey());
             out.writeBoolean(e.getValue());
         }
+        out.writeInt(nodeInfo.getAccessRights().getUsersRights().size());
+        for (Map.Entry<String, Short> e : nodeInfo.getAccessRights().getUsersRights().entrySet()) {
+            out.writeUTF(e.getKey());
+            out.writeShort(e.getValue());
+        }
+        out.writeInt(nodeInfo.getAccessRights().getGroupsRights().size());
+        for (Map.Entry<String, Short> e : nodeInfo.getAccessRights().getGroupsRights().entrySet()) {
+            out.writeUTF(e.getKey());
+            out.writeShort(e.getValue());
+        }
+        out.writeInt(Objects.isNull(nodeInfo.getAccessRights().getOthersRights()) ? 0 : 1);
+        if (!Objects.isNull(nodeInfo.getAccessRights().getOthersRights())) {
+            out.writeShort(nodeInfo.getAccessRights().getOthersRights());
+        }
     }
 
     @Override
@@ -82,7 +98,20 @@ public class NodeInfoSerializer implements Serializer<NodeInfo>, Serializable {
         for (int i = 0; i < booleanMetadataSize; i++) {
             metadata.setBoolean(input.readUTF(), input.readBoolean());
         }
-        // Check storage version here to deserialize further version specific data
-        return new NodeInfo(nodeId, name, pseudoClass, description, creationTime, modificationTime, version, metadata);
+        NodeAccessRights accessRights = new NodeAccessRights();
+        int usersRightsSize = input.readInt();
+        for (int i = 0; i < usersRightsSize; i++) {
+            accessRights.setUserRights(input.readUTF(), input.readShort());
+        }
+        int groupsRightsSize = input.readInt();
+        for (int i = 0; i < groupsRightsSize; i++) {
+            accessRights.setGroupRights(input.readUTF(), input.readShort());
+        }
+        int othersRightsSize = input.readInt();
+        for (int i = 0; i < othersRightsSize; i++) {
+            accessRights.setOthersRights(input.readShort());
+        }
+
+        return new NodeInfo(nodeId, name, pseudoClass, description, creationTime, modificationTime, version, metadata, accessRights);
     }
 }

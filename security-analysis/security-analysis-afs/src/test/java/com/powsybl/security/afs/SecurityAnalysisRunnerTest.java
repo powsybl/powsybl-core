@@ -12,6 +12,7 @@ import com.powsybl.afs.*;
 import com.powsybl.afs.ext.base.*;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
+import com.powsybl.afs.storage.NodeAccessRights;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.commons.datasource.DataSource;
@@ -137,11 +138,11 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
 
         // create network.net
         NodeInfo caseNode = storage.createNode(rootFolderInfo.getId(), "network", Case.PSEUDO_CLASS, "", Case.VERSION,
-                new NodeGenericMetadata().setString(Case.FORMAT, ImporterMock.FORMAT));
+                new NodeGenericMetadata().setString(Case.FORMAT, ImporterMock.FORMAT), new NodeAccessRights());
 
         // create network2.net
         NodeInfo caseNode2 = storage.createNode(rootFolderInfo.getId(), "network2", Case.PSEUDO_CLASS, "", Case.VERSION,
-                new NodeGenericMetadata().setString(Case.FORMAT, ImporterMock.FORMAT));
+                new NodeGenericMetadata().setString(Case.FORMAT, ImporterMock.FORMAT), new NodeAccessRights());
         storage.setConsistent(caseNode.getId());
         storage.setConsistent(caseNode2.getId());
     }

@@ -8,6 +8,7 @@ package com.powsybl.afs;
 
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
+import com.powsybl.afs.storage.NodeAccessRights;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.tools.AbstractToolTest;
@@ -44,7 +45,8 @@ public class AppFileSystemToolTest extends AbstractToolTest {
                 afs.getRootFolder().createProject("test_project1");
                 afs.getRootFolder().createProject("test_project2");
                 storage.createNode(afs.getRootFolder().getId(), "test", FOLDER_PSEUDO_CLASS, "", 0,
-                        new NodeGenericMetadata().setString("k", "v"));
+                        new NodeGenericMetadata().setString("k", "v"),
+                        new NodeAccessRights());
                 storage.flush();
                 return appData;
             }

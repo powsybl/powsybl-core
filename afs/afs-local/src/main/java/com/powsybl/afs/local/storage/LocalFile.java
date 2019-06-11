@@ -6,6 +6,7 @@
  */
 package com.powsybl.afs.local.storage;
 
+import com.powsybl.afs.storage.NodeAccessRights;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.timeseries.*;
 
@@ -26,6 +27,8 @@ public interface LocalFile extends LocalNode {
     String getDescription();
 
     NodeGenericMetadata getGenericMetadata();
+
+    NodeAccessRights getAccessRights();
 
     Optional<InputStream> readBinaryData(String name);
 

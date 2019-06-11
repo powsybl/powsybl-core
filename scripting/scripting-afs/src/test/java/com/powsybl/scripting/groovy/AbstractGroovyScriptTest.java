@@ -64,7 +64,7 @@ public abstract class AbstractGroovyScriptTest {
                 .thenAnswer(invocationOnMock -> new NodeInfo("id",
                                                              (String) invocationOnMock.getArguments()[0],
                                                              (String) invocationOnMock.getArguments()[1],
-                                                             "", 0L, 0L, 0, new NodeGenericMetadata()));
+                                                             "", 0L, 0L, 0, new NodeGenericMetadata(), new NodeAccessRights()));
         return storage;
     }
 

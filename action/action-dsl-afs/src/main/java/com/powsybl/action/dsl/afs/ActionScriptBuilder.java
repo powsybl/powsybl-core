@@ -11,6 +11,7 @@ import com.powsybl.afs.AfsException;
 import com.powsybl.afs.ProjectFileBuildContext;
 import com.powsybl.afs.ProjectFileBuilder;
 import com.powsybl.afs.ProjectFileCreationContext;
+import com.powsybl.afs.storage.NodeAccessRights;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 
@@ -59,7 +60,7 @@ public class ActionScriptBuilder implements ProjectFileBuilder<ActionScript> {
 
         // create project file
         NodeInfo info = context.getStorage().createNode(context.getFolderInfo().getId(), name, ActionScript.PSEUDO_CLASS, "", ActionScript.VERSION,
-                new NodeGenericMetadata());
+                new NodeGenericMetadata(), new NodeAccessRights());
 
         // store script
         try (Reader reader = new StringReader(content);

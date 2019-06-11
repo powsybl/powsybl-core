@@ -11,10 +11,7 @@ import com.powsybl.afs.AfsException;
 import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.ProjectFile;
 import com.powsybl.afs.TaskMonitor;
-import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.NodeDependency;
-import com.powsybl.afs.storage.NodeGenericMetadata;
-import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.afs.storage.*;
 import com.powsybl.afs.storage.buffer.*;
 import com.powsybl.afs.ws.server.utils.JwtTokenNeeded;
 import com.powsybl.afs.ws.server.utils.AppDataBean;
@@ -112,7 +109,7 @@ public class AppStorageServer {
                                @ApiParam(value = "Version") @QueryParam("version") int version,
                                @ApiParam(value = "Node Meta Data") NodeGenericMetadata nodeMetadata) {
         AppStorage storage = appDataBean.getStorage(fileSystemName);
-        NodeInfo newNodeInfo =  storage.createNode(nodeId, childName, nodePseudoClass, description, version, nodeMetadata);
+        NodeInfo newNodeInfo =  storage.createNode(nodeId, childName, nodePseudoClass, description, version, nodeMetadata, new NodeAccessRights());
         return Response.ok().entity(newNodeInfo).build();
     }
 

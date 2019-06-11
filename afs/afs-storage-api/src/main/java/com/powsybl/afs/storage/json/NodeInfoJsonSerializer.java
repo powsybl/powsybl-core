@@ -26,6 +26,7 @@ public class NodeInfoJsonSerializer extends StdSerializer<NodeInfo> {
     static final String MODIFICATION_TIME = "modificationTime";
     static final String VERSION = "version";
     static final String METADATA = "metadata";
+    static final String ACCESS_RIGHTS = "accessRights";
 
     public NodeInfoJsonSerializer() {
         super(NodeInfo.class);
@@ -43,6 +44,8 @@ public class NodeInfoJsonSerializer extends StdSerializer<NodeInfo> {
         jsonGenerator.writeNumberField(VERSION, nodeInfo.getVersion());
         jsonGenerator.writeFieldName(METADATA);
         new NodeGenericMetadataJsonSerializer().serialize(nodeInfo.getGenericMetadata(), jsonGenerator, serializerProvider);
+        jsonGenerator.writeFieldName(ACCESS_RIGHTS);
+        new NodeAccessRightsJsonSerializer().serialize(nodeInfo.getAccessRights(), jsonGenerator, serializerProvider);
         jsonGenerator.writeEndObject();
     }
 }

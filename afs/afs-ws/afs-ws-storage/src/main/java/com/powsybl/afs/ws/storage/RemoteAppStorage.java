@@ -11,6 +11,7 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeDependency;
 import com.powsybl.afs.storage.NodeGenericMetadata;
+import com.powsybl.afs.storage.NodeAccessRights;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.afs.storage.buffer.StorageChangeBuffer;
 import com.powsybl.afs.ws.client.utils.ClientUtils;
@@ -302,18 +303,19 @@ public class RemoteAppStorage implements AppStorage {
 
     @Override
     public NodeInfo createNode(String parentNodeId, String name, String nodePseudoClass, String description, int version,
-                               NodeGenericMetadata genericMetadata) {
+                               NodeGenericMetadata genericMetadata, NodeAccessRights accessRights) {
         Objects.requireNonNull(parentNodeId);
         Objects.requireNonNull(name);
         Objects.requireNonNull(nodePseudoClass);
         Objects.requireNonNull(description);
         Objects.requireNonNull(genericMetadata);
+        Objects.requireNonNull(accessRights);
 
         // flush buffer to keep change order
         changeBuffer.flush();
 
-        LOGGER.debug("createNode(fileSystemName={}, parentNodeId={}, name={}, nodePseudoClass={}, description={}, version={}, genericMetadata={})",
-                fileSystemName, parentNodeId, name, nodePseudoClass, description, version, genericMetadata);
+        LOGGER.debug("createNode(fileSystemName={}, parentNodeId={}, name={}, nodePseudoClass={}, description={}, version={}, genericMetadata={}, accessRights={})",
+                fileSystemName, parentNodeId, name, nodePseudoClass, description, version, genericMetadata, accessRights);
 
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/children/{childName}")
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)

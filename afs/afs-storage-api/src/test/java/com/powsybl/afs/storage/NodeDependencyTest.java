@@ -22,11 +22,11 @@ public class NodeDependencyTest {
 
     @Test
     public void test() throws IOException {
-        NodeInfo info = new NodeInfo("a", "b", "c", "d", 1000000, 1000001, 0, new NodeGenericMetadata());
+        NodeInfo info = new NodeInfo("a", "b", "c", "d", 1000000, 1000001, 0, new NodeGenericMetadata(), new NodeAccessRights());
         NodeDependency dependency = new NodeDependency("l", info);
         assertEquals("l", dependency.getName());
         assertEquals(info, dependency.getNodeInfo());
-        assertEquals("NodeDependency(name=l, nodeInfo=NodeInfo(id=a, name=b, pseudoClass=c, description=d, creationTime=1000000, modificationTime=1000001, version=0, genericMetadata=NodeGenericMetadata(stringMetadata={}, doubleMetadata={}, intMetadata={}, booleanMetadata={})))", dependency.toString());
+        assertEquals("NodeDependency(name=l, nodeInfo=NodeInfo(id=a, name=b, pseudoClass=c, description=d, creationTime=1000000, modificationTime=1000001, version=0, genericMetadata=NodeGenericMetadata(stringMetadata={}, doubleMetadata={}, intMetadata={}, booleanMetadata={}), accessRights=NodeAccessRights(usersRights={}, groupsRights={}, othersRights=null)))", dependency.toString());
 
         ObjectMapper objectMapper = JsonUtil.createObjectMapper()
                 .registerModule(new AppStorageJsonModule());

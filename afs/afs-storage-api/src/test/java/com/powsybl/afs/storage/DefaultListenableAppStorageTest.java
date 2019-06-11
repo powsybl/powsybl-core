@@ -44,8 +44,8 @@ public class DefaultListenableAppStorageTest {
     @Before
     public void setUp() {
         AppStorage storage = Mockito.mock(AppStorage.class);
-        Mockito.when(storage.createNode(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.any(NodeGenericMetadata.class)))
-                .thenReturn(new NodeInfo("node2", "nodeName", "", "", 0, 0, 0, new NodeGenericMetadata()));
+        Mockito.when(storage.createNode(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyInt(), Mockito.any(NodeGenericMetadata.class), Mockito.any(NodeAccessRights.class)))
+                .thenReturn(new NodeInfo("node2", "nodeName", "", "", 0, 0, 0, new NodeGenericMetadata(), new NodeAccessRights()));
         Mockito.when(storage.deleteNode("node2")).thenReturn("node1");
         Mockito.when(storage.writeBinaryData(Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(new ByteArrayOutputStream() {
@@ -73,7 +73,7 @@ public class DefaultListenableAppStorageTest {
 
     @Test
     public void test() throws IOException {
-        listenableStorage.createNode("node1", "node2", "file", "", 0, new NodeGenericMetadata());
+        listenableStorage.createNode("node1", "node2", "file", "", 0, new NodeGenericMetadata(), new NodeAccessRights());
         listenableStorage.flush();
         assertEquals(new NodeEventList(new NodeCreated("node2", "node1")), lastEventList);
 
