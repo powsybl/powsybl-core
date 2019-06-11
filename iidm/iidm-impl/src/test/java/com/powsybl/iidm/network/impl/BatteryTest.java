@@ -7,15 +7,15 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -132,6 +132,78 @@ public class BatteryTest {
         thrown.expect(PowsyblException.class);
         thrown.expectMessage("with the id 'BAT'");
         createBattery("BAT", 11.0, 12, 10, 20.0);
+    }
+
+    @Test
+    public void testAdder() {
+        voltageLevel.newBattery()
+                .setId("bat_id")
+                .setMaxP(20.0)
+                .setMinP(10.0)
+                .setP0(15.0)
+                .setQ0(10.0)
+                .setBus("NBAT")
+                .add();
+        Battery battery = network.getBattery("bat_id");
+        assertNotNull(battery);
+        assertEquals("bat_id", battery.getId());
+        assertEquals(20.0, battery.getMaxP(), 0.0);
+        assertEquals(10.0, battery.getMinP(), 0.0);
+        assertEquals(15.0, battery.getP0(), 0.0);
+        assertEquals(10.0, battery.getQ0(), 0.0);
+    }
+
+    @Test
+    public void testRemove() {
+        createBattery("toRemove", 11.0, 12, 10, 20.0);
+        int count = network.getBatteryCount();
+        Battery battery = network.getBattery("toRemove");
+        assertNotNull(battery);
+        battery.remove();
+        assertNotNull(battery);
+        assertEquals(count - 1, network.getBatteryCount());
+        assertNull(network.getBattery("toRemove"));
+    }
+
+    @Test
+    public void testSetterGetterInMultiVariants() {
+        VariantManager variantManager = network.getVariantManager();
+        createBattery("testMultiVariant", 11.0, 12, 10, 20.0);
+
+        Battery battery = network.getBattery("testMultiVariant");
+        List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
+
+        variantManager.setWorkingVariant("s4");
+        // check values cloned by extend
+        assertEquals(11.0, battery.getP0(), 0.0);
+        assertEquals(12.0, battery.getQ0(), 0.0);
+        // change values in s4
+        battery.setP0(11.1);
+        battery.setQ0(12.2);
+
+        // remove s2
+        variantManager.removeVariant("s2");
+
+        variantManager.cloneVariant("s4", "s2b");
+        variantManager.setWorkingVariant("s2b");
+        // check values cloned by allocate
+        assertEquals(11.1, battery.getP0(), 0.0);
+        assertEquals(12.2, battery.getQ0(), 0.0);
+
+        // recheck initial variant value
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertEquals(11.0, battery.getP0(), 0.0);
+        assertEquals(12.0, battery.getQ0(), 0.0);
+
+        // remove working variant s4
+        variantManager.setWorkingVariant("s4");
+        variantManager.removeVariant("s4");
+        try {
+            battery.getP0();
+            fail();
+        } catch (Exception ignored) {
+        }
     }
 
     private void createBattery(String id, double p0, double q0, double minP, double maxP) {

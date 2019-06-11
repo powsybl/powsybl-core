@@ -145,7 +145,7 @@
         <jodatime.version>2.9.7</jodatime.version>
         <junit.version>4.12</junit.version>
         <logback.version>1.1.8</logback.version>
-        <mapdb.version>3.0.3</mapdb.version>
+        <mapdb.version>3.0.6</mapdb.version>
         <maven.core.version>3.3.9</maven.core.version>
         <maven.plugin.annotations.version>3.6.0</maven.plugin.annotations.version>
         <mockito.version>1.10.19</mockito.version>

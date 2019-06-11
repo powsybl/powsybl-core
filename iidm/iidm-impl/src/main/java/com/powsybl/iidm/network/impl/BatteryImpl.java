@@ -188,4 +188,40 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
         return new MinMaxReactiveLimitsAdderImpl(this);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        p0.ensureCapacity(p0.size() + number);
+        q0.ensureCapacity(q0.size() + number);
+        for (int i = 0; i < number; i++) {
+            p0.add(p0.get(sourceIndex));
+            q0.add(q0.get(sourceIndex));
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void reduceVariantArraySize(int number) {
+        super.reduceVariantArraySize(number);
+        p0.remove(p0.size() - number, number);
+        q0.remove(q0.size() - number, number);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+        super.allocateVariantArrayElement(indexes, sourceIndex);
+        for (int index : indexes) {
+            p0.set(index, p0.get(sourceIndex));
+            q0.set(index, q0.get(sourceIndex));
+        }
+    }
 }
