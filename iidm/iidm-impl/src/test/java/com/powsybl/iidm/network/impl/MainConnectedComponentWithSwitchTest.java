@@ -12,6 +12,10 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+/**
+ * @author Nicolas Lhuillier <nicolas.lhuillier@rte-france.com>
+ * @author Mathieu Bague <mathieu.bague@rte-france.com>
+ */
 public class MainConnectedComponentWithSwitchTest {
 
     @Test
