@@ -8,11 +8,11 @@ package com.powsybl.ucte.converter;
 
 import com.powsybl.commons.datasource.*;
 import com.powsybl.entsoe.util.MergedXnode;
-import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.DanglingLineNetworkFactory;
 import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.ucte.network.*;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -22,6 +22,7 @@ import org.junit.rules.ExpectedException;
 import java.io.*;
 import java.util.Collection;
 
+import static com.powsybl.ucte.converter.UcteConstants.GEOGRAPHICAL_NAME_PROPERTY_KEY;
 import static org.junit.Assert.*;
 
 /**
@@ -41,17 +42,27 @@ public class UcteExporterTest {
     @Rule
     public final ExpectedException exception = ExpectedException.none();
 
+    /**
+     * Utility method to load a network file from resource directory without calling
+     * @param filePath path of the file relative to resources directory
+     * @return imported network
+     */
+    private static Network loadNetworkFromResourceFile(String filePath) {
+        ReadOnlyDataSource dataSource = new ResourceDataSource(FilenameUtils.getBaseName(filePath), new ResourceSet(FilenameUtils.getPath(filePath), FilenameUtils.getName(filePath)));
+        return new UcteImporter().importData(dataSource, null);
+    }
+
     @BeforeClass
     public static void setUpBeforeClass() {
-        transfomerRegulationNetwork = Importers.loadNetwork("transformerRegulation.uct", UcteExporterTest.class.getResourceAsStream("/transformerRegulation.uct"));
-        exportTestNetwork = Importers.loadNetwork("exportTest.uct", UcteExporterTest.class.getResourceAsStream("/exportTest.uct"));
+        transfomerRegulationNetwork = loadNetworkFromResourceFile("/transformerRegulation.uct");
+        exportTestNetwork = loadNetworkFromResourceFile("/exportTest.uct");
         iidmNetwork = EurostagTutorialExample1Factory.create();
-        iidmNetwork.getLine("NHV1_NHV2_1").getProperties().setProperty(UcteImporter.GEOGRAPHICAL_NAME_PROPERTY_KEY, "geographicalName");
+        iidmNetwork.getLine("NHV1_NHV2_1").getProperties().setProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, "geographicalName");
         createTieLineNetwork();
         createNetworkWithSwitch();
         mergedNetwork = Network.create("Merged network", "UCTE");
-        mergedNetwork.merge(Importers.loadNetwork("frTestGridForMerging.uct", UcteExporterTest.class.getResourceAsStream("/frTestGridForMerging.uct")));
-        mergedNetwork.merge(Importers.loadNetwork("beTestGridForMerging.uct", UcteExporterTest.class.getResourceAsStream("/beTestGridForMerging.uct")));
+        mergedNetwork.merge(loadNetworkFromResourceFile("/frTestGridForMerging.uct"));
+        mergedNetwork.merge(loadNetworkFromResourceFile("/beTestGridForMerging.uct"));
     }
 
     @Test
@@ -122,7 +133,7 @@ public class UcteExporterTest {
 
     @Test
     public void createUcteNodeCodeTest() {
-        Network network = Importers.loadNetwork("countryIssue.uct", UcteExporter.class.getResourceAsStream("/countryIssue.uct"));
+        Network network = loadNetworkFromResourceFile("/countryIssue.uct");
         UcteExporter ucteExporter = new UcteExporter();
         assertEquals(new UcteNodeCode(UcteCountryCode.ES, "HORTA", UcteVoltageLevelCode.VL_220, '1'), ucteExporter.createUcteNodeCode("EHORTA21", network.getVoltageLevel("EHORTA2"), "ES"));
         assertNotEquals(new UcteNodeCode(UcteCountryCode.ES, "HORTA", UcteVoltageLevelCode.VL_110, '1'), ucteExporter.createUcteNodeCode("EHORTA21", network.getVoltageLevel("EHORTA2"), "ES"));

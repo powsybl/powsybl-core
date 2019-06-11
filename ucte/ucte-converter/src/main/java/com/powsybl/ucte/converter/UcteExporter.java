@@ -23,13 +23,12 @@ import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import static com.powsybl.ucte.converter.UcteImporter.ELEMENT_NAME_PROPERTY_KEY;
+import static com.powsybl.ucte.converter.UcteConstants.*;
 import static com.powsybl.ucte.network.UcteNodeCode.isUcteNodeId;
 import static com.powsybl.ucte.network.UcteNodeCode.parseUcteNodeCode;
 import static com.powsybl.ucte.network.UcteVoltageLevelCode.voltageLevelCodeFromIidmVoltage;
 
 /**
- *
  * @author Abdelsalem HEDHILI < abdelsalem.hedhili at rte-france.com >
  */
 @AutoService(Exporter.class)
@@ -186,8 +185,8 @@ public class UcteExporter implements Exporter {
             LOGGER.warn("Bus {} has more than 1 generator", bus.getId());
         }
 
-        if (bus.getProperties().containsKey(UcteImporter.GEOGRAPHICAL_NAME_PROPERTY_KEY)) {
-            geographicalName = bus.getProperties().getProperty(UcteImporter.GEOGRAPHICAL_NAME_PROPERTY_KEY);
+        if (bus.getProperties().containsKey(GEOGRAPHICAL_NAME_PROPERTY_KEY)) {
+            geographicalName = bus.getProperties().getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY);
         }
 
         UcteNodeCode ucteNodeCode = createUcteNodeCode(bus.getId(), voltageLevel, country.get().toString());
@@ -289,7 +288,7 @@ public class UcteExporter implements Exporter {
             throw new UcteException("Dangling line " + danglingLine.getId() + " : XnodeCode not found");
         }
 
-        String geographicalName = danglingLine.getProperties().getProperty(UcteImporter.GEOGRAPHICAL_NAME_PROPERTY_KEY, null);
+        String geographicalName = danglingLine.getProperties().getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, null);
 
         ucteNetwork.addNode(new UcteNode(
                 optUcteXNodeCode.get(),
@@ -371,8 +370,8 @@ public class UcteExporter implements Exporter {
         UcteElementId ucteElementId = generateUcteElementId(danglingLine.getId(), ucteNodeCode1, ucteNodeCode2, null);
 
         if (danglingLine.getCurrentLimits() == null) {
-            currentLimit = UcteImporter.DEFAULT_MAX_CURRENT;
-            LOGGER.warn("The dangling line {} current limit is undefined, set value to {}", danglingLine.getId(), UcteImporter.DEFAULT_MAX_CURRENT);
+            currentLimit = DEFAULT_MAX_CURRENT;
+            LOGGER.warn("The dangling line {} current limit is undefined, set value to {}", danglingLine.getId(), DEFAULT_MAX_CURRENT);
         } else {
             currentLimit = (int) danglingLine.getCurrentLimits().getPermanentLimit();
         }
@@ -401,7 +400,7 @@ public class UcteExporter implements Exporter {
         Iterable<Switch> switchIterator = voltageLevel.getBusBreakerView().getSwitches();
         for (Switch sw : switchIterator) {
             LOGGER.debug("Converting switch {}", sw.getId());
-            String orderCodeProperty = sw.getProperties().getProperty(UcteImporter.ORDER_CODE, null);
+            String orderCodeProperty = sw.getProperties().getProperty(ORDER_CODE, null);
             Character orderCode = null;
             if (orderCodeProperty != null) {
                 orderCode = orderCodeProperty.charAt(0);
@@ -476,8 +475,8 @@ public class UcteExporter implements Exporter {
                         createXnodeFromTieLine(ucteNetwork, ucteNodeCode, line)
                 );
 
-                String elementName1 = line.getProperties().getProperty(UcteImporter.ELEMENT_NAME_PROPERTY_KEY + "_1", null);
-                String elementName2 = line.getProperties().getProperty(UcteImporter.ELEMENT_NAME_PROPERTY_KEY + "_2", null);
+                String elementName1 = line.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", null);
+                String elementName2 = line.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", null);
 
                 UcteElementId ucteElementId1 = new UcteElementId(ucteNodeCodeList.get(0), ucteNodeCodeList.get(1), line.getId().charAt(18));
                 UcteElementId ucteElementId2 = new UcteElementId(ucteNodeCodeList.get(2), ucteNodeCodeList.get(3), line.getId().charAt(40));
@@ -995,37 +994,35 @@ public class UcteExporter implements Exporter {
     }
 
     private void setSwitchCurrentLimit(UcteLine ucteLine, Switch sw) {
-        if (sw.getProperties().containsKey(UcteImporter.CURRENT_LIMIT_PROPERTY_KEY)) {
+        if (sw.getProperties().containsKey(CURRENT_LIMIT_PROPERTY_KEY)) {
             try {
-                ucteLine.setCurrentLimit(Integer.parseInt(sw.getProperties().getProperty(UcteImporter.CURRENT_LIMIT_PROPERTY_KEY)));
+                ucteLine.setCurrentLimit(Integer.parseInt(sw.getProperties().getProperty(CURRENT_LIMIT_PROPERTY_KEY)));
             } catch (NumberFormatException exception) {
-                ucteLine.setCurrentLimit(UcteImporter.DEFAULT_MAX_CURRENT);
-                LOGGER.warn("Switch {}: No current limit, set value to {}", sw.getId(), UcteImporter.DEFAULT_MAX_CURRENT);
+                ucteLine.setCurrentLimit(DEFAULT_MAX_CURRENT);
+                LOGGER.warn("Switch {}: No current limit, set value to {}", sw.getId(), DEFAULT_MAX_CURRENT);
             }
         } else {
-            ucteLine.setCurrentLimit(UcteImporter.DEFAULT_MAX_CURRENT);
-            LOGGER.warn("Switch {}: No current limit, set value to {}", sw.getId(), UcteImporter.DEFAULT_MAX_CURRENT);
+            ucteLine.setCurrentLimit(DEFAULT_MAX_CURRENT);
+            LOGGER.warn("Switch {}: No current limit, set value to {}", sw.getId(), DEFAULT_MAX_CURRENT);
         }
     }
 
     String getGeographicalNameProperty(Line line) {
-        if (line.getProperties().containsKey(UcteImporter.GEOGRAPHICAL_NAME_PROPERTY_KEY)) {
-            return line.getProperties().getProperty(UcteImporter.GEOGRAPHICAL_NAME_PROPERTY_KEY);
-        }
-        return "";
+        return line.getProperties().getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, "");
     }
 
     UctePowerPlantType energySourceToUctePowerPlantType(EnergySource energySource) {
-        if (EnergySource.HYDRO == energySource) {
-            return UctePowerPlantType.H;
-        } else if (EnergySource.NUCLEAR == energySource) {
-            return UctePowerPlantType.N;
-        } else if (EnergySource.THERMAL == energySource) {
-            return UctePowerPlantType.C;
-        } else if (EnergySource.WIND == energySource) {
-            return UctePowerPlantType.W;
-        } else {
-            return UctePowerPlantType.F;
+        switch (energySource) {
+            case HYDRO:
+                return UctePowerPlantType.H;
+            case NUCLEAR:
+                return UctePowerPlantType.N;
+            case THERMAL:
+                return UctePowerPlantType.C;
+            case WIND:
+                return UctePowerPlantType.W;
+            default:
+                return UctePowerPlantType.F;
         }
     }
 
@@ -1067,6 +1064,6 @@ public class UcteExporter implements Exporter {
         } else {
             charAt3 = (char) POSSIBLE_CHARACTER.get(POSSIBLE_CHARACTER.indexOf(charAt3) + 1);
         }
-        return String.valueOf(charAt0) + String.valueOf(charAt1) + String.valueOf(charAt2) + String.valueOf(charAt3);
+        return String.format("%s%s%s%s", charAt0, charAt1, charAt2, charAt3);
     }
 }

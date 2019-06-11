@@ -31,6 +31,8 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static com.powsybl.ucte.converter.UcteConstants.*;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -42,13 +44,6 @@ public class UcteImporter implements Importer {
     private static final float LINE_MIN_Z = 0.05f;
 
     private static final String[] EXTENSIONS = {"uct", "UCT"};
-
-    static final String CURRENT_LIMIT_PROPERTY_KEY = "currentLimit";
-    static final String ELEMENT_NAME_PROPERTY_KEY = "elementName";
-    static final String GEOGRAPHICAL_NAME_PROPERTY_KEY = "geographicalName";
-    static final String ORDER_CODE = "orderCode";
-
-    static final int DEFAULT_MAX_CURRENT = 999999;
 
     private static float getConductance(UcteTransformer ucteTransfo) {
         float g = 0;
@@ -786,9 +781,9 @@ public class UcteImporter implements Importer {
         }
     }
 
-    private static void addCurrentLimitProperty(UcteLine ucteLine, Identifiable identifiable) {
+    private static void addCurrentLimitProperty(UcteLine ucteLine, Switch aSwitch) {
         if (ucteLine.getCurrentLimit() != null) {
-            identifiable.getProperties().setProperty(CURRENT_LIMIT_PROPERTY_KEY, String.valueOf(ucteLine.getCurrentLimit()));
+            aSwitch.getProperties().setProperty(CURRENT_LIMIT_PROPERTY_KEY, String.valueOf(ucteLine.getCurrentLimit()));
         }
     }
 
