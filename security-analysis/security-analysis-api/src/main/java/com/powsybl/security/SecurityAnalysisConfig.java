@@ -6,7 +6,6 @@
  */
 package com.powsybl.security;
 
-import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 
 import java.util.Objects;
@@ -59,11 +58,9 @@ public class SecurityAnalysisConfig {
      */
     public static SecurityAnalysisConfig load(PlatformConfig platformConfig) {
         Objects.requireNonNull(platformConfig);
-        String preprocessorName = null;
-        if (platformConfig.moduleExists("security-analysis")) {
-            ModuleConfig config = platformConfig.getModuleConfig("security-analysis");
-            preprocessorName = config.getOptionalStringProperty("preprocessor").orElse(null);
-        }
-        return new SecurityAnalysisConfig(preprocessorName);
+        return platformConfig.getOptionalModuleConfig("security-analysis")
+                .flatMap(module -> module.getOptionalStringProperty("preprocessor"))
+                .map(SecurityAnalysisConfig::new)
+                .orElseGet(SecurityAnalysisConfig::new);
     }
 }

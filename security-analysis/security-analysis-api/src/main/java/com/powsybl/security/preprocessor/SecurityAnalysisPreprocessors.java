@@ -41,6 +41,7 @@ public final class SecurityAnalysisPreprocessors {
      * @return the factory corresponding to the specified name.
      */
     public static SecurityAnalysisPreprocessorFactory factoryForName(String name) {
+        requireNonNull(name);
         List<SecurityAnalysisPreprocessorFactory> factories = new ServiceLoaderCache<>(SecurityAnalysisPreprocessorFactory.class).getServices();
         return factories.stream()
                 .filter(f -> f.getName().equals(name))

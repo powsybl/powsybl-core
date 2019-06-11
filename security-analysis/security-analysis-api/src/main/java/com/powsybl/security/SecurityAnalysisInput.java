@@ -14,6 +14,7 @@ import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessor;
 import com.powsybl.security.execution.NetworkVariant;
 import com.powsybl.security.interceptors.SecurityAnalysisInterceptor;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -74,7 +75,7 @@ public class SecurityAnalysisInput {
     }
 
     public Set<SecurityAnalysisInterceptor> getInterceptors() {
-        return interceptors;
+        return Collections.unmodifiableSet(interceptors);
     }
 
     public SecurityAnalysisInput setDetector(LimitViolationDetector detector) {
