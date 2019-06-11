@@ -418,11 +418,11 @@ WHERE {
         cim:TapChanger.normalStep ?normalStep ;
         cim:TapChanger.neutralU ?neutralU ;
         cim:RatioTapChanger.stepVoltageIncrement ?stepVoltageIncrement ;
+        cim:TapChanger.ltcFlag ?ltcFlag ;
         cim:RatioTapChanger.TransformerEnd ?TransformerEnd .
     OPTIONAL {
         ?RatioTapChanger
              cim:TapChanger.TapChangerControl ?TapChangerControl ;
-             cim:TapChanger.ltcFlag ?ltcFlag ;
              # ??? FIXME what is the difference between tculControlMode and TapChangerControl RegulatingControl.mode ?
              cim:RatioTapChanger.tculControlMode ?tculControlMode
     }
@@ -484,6 +484,7 @@ WHERE {
         cim:TapChanger.neutralStep ?neutralStep ;
         cim:TapChanger.normalStep ?normalStep ;
         cim:TapChanger.neutralU ?neutralU ;
+        cim:TapChanger.ltcFlag ?ltcFlag ;
         cim:PhaseTapChanger.TransformerEnd ?TransformerEnd .
     ?TransformerEnd
         a cim:PowerTransformerEnd ;
@@ -502,7 +503,6 @@ WHERE {
     }
     OPTIONAL {
         ?PhaseTapChanger
-            cim:TapChanger.ltcFlag ?ltcFlag ;
             cim:TapChanger.TapChangerControl ?TapChangerControl
     }
 }}
