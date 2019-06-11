@@ -7,6 +7,8 @@
 package com.powsybl.afs.ext.base;
 
 import com.powsybl.afs.ext.base.events.CaseImported;
+import com.powsybl.afs.ext.base.events.ScriptModified;
+import com.powsybl.afs.ext.base.events.VirtualCaseCreated;
 import com.powsybl.afs.storage.events.*;
 import org.junit.Test;
 
@@ -29,5 +31,27 @@ public class EventsTest {
 
         CaseImported caseImported2 = new CaseImported("a", "c");
         assertNotEquals(caseImported, caseImported2);
+    }
+
+    @Test
+    public void scriptModifiedTest() throws IOException {
+        ScriptModified scriptModified = new ScriptModified("a", "b");
+        assertEquals("a", scriptModified.getId());
+        assertEquals(NodeEventType.SCRIPT_MODIFIED, scriptModified.getType());
+        assertEquals("b", scriptModified.getParentId());
+
+        ScriptModified scriptModified2 = new ScriptModified("a", "c");
+        assertNotEquals(scriptModified, scriptModified2);
+    }
+
+    @Test
+    public void virtualCaseCreatedTest() throws IOException {
+        VirtualCaseCreated virtualCaseCreated = new VirtualCaseCreated("a", "b");
+        assertEquals("a", virtualCaseCreated.getId());
+        assertEquals(NodeEventType.VIRTUAL_CASE_CREATED, virtualCaseCreated.getType());
+        assertEquals("b", virtualCaseCreated.getParentId());
+
+        VirtualCaseCreated virtualCaseCreated2 = new VirtualCaseCreated("a", "c");
+        assertNotEquals(virtualCaseCreated, virtualCaseCreated2);
     }
 }

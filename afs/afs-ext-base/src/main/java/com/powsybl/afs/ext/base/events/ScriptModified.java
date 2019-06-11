@@ -16,14 +16,14 @@ import java.util.Objects;
 /**
  * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
  */
-public class CaseImported extends NodeEvent {
+public class ScriptModified extends NodeEvent {
 
     @JsonProperty("parentId")
     protected final String parentId;
 
     @JsonCreator
-    public CaseImported(@JsonProperty("id") String id, @JsonProperty("parentId") String parentId) {
-        super(id, NodeEventType.CASE_IMPORTED);
+    public ScriptModified(@JsonProperty("id") String id, @JsonProperty("parentId") String parentId) {
+        super(id, NodeEventType.SCRIPT_MODIFIED);
         this.parentId = parentId;
     }
 
@@ -38,8 +38,8 @@ public class CaseImported extends NodeEvent {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof CaseImported) {
-            CaseImported other = (CaseImported) obj;
+        if (obj instanceof ScriptModified) {
+            ScriptModified other = (ScriptModified) obj;
             return id.equals(other.id) && Objects.equals(parentId, other.parentId);
         }
         return false;
@@ -47,6 +47,6 @@ public class CaseImported extends NodeEvent {
 
     @Override
     public String toString() {
-        return "CaseImported(id=" + id + ", parentId=" + parentId + ")";
+        return "ScriptModified(id=" + id + ", parentId=" + parentId + ")";
     }
 }
