@@ -39,11 +39,7 @@ public class ComputationExceptionBuilder {
      * @return
      */
     public ComputationExceptionBuilder addOutLogIfExists(@Nullable Path path) {
-        if (path == null || !Files.exists(path)) {
-            return this;
-        }
-        readFileToMap(path, outMsgByLogFileName);
-        return this;
+        return readFileToMap(path, outMsgByLogFileName);
     }
 
     /**
@@ -63,11 +59,7 @@ public class ComputationExceptionBuilder {
      * @return
      */
     public ComputationExceptionBuilder addErrLogIfExists(@Nullable Path path) {
-        if (path == null || !Files.exists(path)) {
-            return this;
-        }
-        readFileToMap(path, errMsgByLogFileName);
-        return this;
+        return readFileToMap(path, errMsgByLogFileName);
     }
 
     /**
@@ -115,12 +107,17 @@ public class ComputationExceptionBuilder {
         return new ComputationException(outMsgByLogFileName, errMsgByLogFileName, bytesByFileName, exceptions);
     }
 
-    private static void readFileToMap(Path path, Map<String, String> map) {
+    private ComputationExceptionBuilder readFileToMap(@Nullable Path path, Map<String, String> map) {
+        if (path == null || !Files.exists(path)) {
+            return this;
+        }
+
         try {
             byte[] bytes = Files.readAllBytes(path);
             map.put(path.getFileName().toString(), new String(bytes, StandardCharsets.UTF_8));
         } catch (IOException e) {
             LOGGER.warn("Can not read log file '{}'", path);
         }
+        return this;
     }
 }
