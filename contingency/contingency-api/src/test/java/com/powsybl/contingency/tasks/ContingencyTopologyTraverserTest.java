@@ -21,7 +21,7 @@ public class ContingencyTopologyTraverserTest {
 
     @Test
     public void test() {
-        Network network = NetworkFactory.create("test", "");
+        Network network = Network.create("test", "");
         Substation s1 = network.newSubstation()
                 .setId("s1")
                 .setCountry(Country.FR)

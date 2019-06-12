@@ -21,6 +21,7 @@ public class TapChangerTransformers {
     public TapChangerTransformers() {
         transformers2 = new HashMap<>();
         transformers3 = new HashMap<>();
+        types = new HashMap<>();
         sides = new HashMap<>();
     }
 
@@ -36,13 +37,19 @@ public class TapChangerTransformers {
         return transformers3.get(tc);
     }
 
-    public void add(String tc, TwoWindingsTransformer tx, int side) {
+    public String type(String tc) {
+        return types.get(tc);
+    }
+
+    public void add(String tc, TwoWindingsTransformer tx, String type, int side) {
         transformers2.put(tc, tx);
+        types.put(tc, type);
         sides.put(tc, side);
     }
 
-    public void add(String tc, ThreeWindingsTransformer tx, int side) {
+    public void add(String tc, ThreeWindingsTransformer tx, String type, int side) {
         transformers3.put(tc, tx);
+        types.put(tc, type);
         sides.put(tc, side);
     }
 
@@ -52,5 +59,6 @@ public class TapChangerTransformers {
 
     private final Map<String, TwoWindingsTransformer> transformers2;
     private final Map<String, ThreeWindingsTransformer> transformers3;
+    private final Map<String, String> types;
     private final Map<String, Integer> sides;
 }

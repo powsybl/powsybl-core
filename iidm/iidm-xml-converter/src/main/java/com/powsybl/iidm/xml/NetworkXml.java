@@ -551,6 +551,10 @@ public final class NetworkXml {
     }
 
     public static Network read(InputStream is, ImportOptions config, Anonymizer anonymizer) {
+        return read(is, config, anonymizer, NetworkFactory.findDefault());
+    }
+
+    public static Network read(InputStream is, ImportOptions config, Anonymizer anonymizer, NetworkFactory networkFactory) {
         try {
             XMLStreamReader reader = XML_INPUT_FACTORY_SUPPLIER.get().createXMLStreamReader(is);
             int state = reader.next();
@@ -562,7 +566,7 @@ public final class NetworkXml {
             int forecastDistance = XmlUtil.readOptionalIntegerAttribute(reader, FORECAST_DISTANCE, 0);
             String sourceFormat = reader.getAttributeValue(null, SOURCE_FORMAT);
 
-            Network network = NetworkFactory.create(id, sourceFormat);
+            Network network = networkFactory.createNetwork(id, sourceFormat);
             network.setCaseDate(date);
             network.setForecastDistance(forecastDistance);
 
@@ -626,7 +630,7 @@ public final class NetworkXml {
         }
     }
 
-    public static Network read(ReadOnlyDataSource dataSource, ImportOptions options, String dataSourceExt) throws IOException {
+    public static Network read(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, ImportOptions options, String dataSourceExt) throws IOException {
         Objects.requireNonNull(dataSource);
         Network network;
         Anonymizer anonymizer = null;
@@ -639,7 +643,7 @@ public final class NetworkXml {
         }
         //Read the base file with the extensions declared in the extensions list
         try (InputStream isb = dataSource.newInputStream(null, dataSourceExt)) {
-            network = NetworkXml.read(isb, options, anonymizer);
+            network = NetworkXml.read(isb, options, anonymizer, networkFactory);
         }
         if (!options.withNoExtension()) {
             switch (options.getMode()) {
@@ -666,7 +670,7 @@ public final class NetworkXml {
     public static Network read(Path xmlFile, ImportOptions options) throws IOException {
         DataSource dataSource = getDataSourceFromPath(xmlFile);
         String ext = getFileExtensionFromPath(xmlFile);
-        return read(dataSource, options, ext);
+        return read(dataSource, NetworkFactory.findDefault(), options, ext);
     }
 
     public static Network validateAndRead(Path xmlFile) {

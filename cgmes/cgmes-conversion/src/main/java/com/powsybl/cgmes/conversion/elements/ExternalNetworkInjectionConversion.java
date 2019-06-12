@@ -25,8 +25,8 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
 
     @Override
     public void convert() {
-        double minP = p.asDouble("minP", 0);
-        double maxP = p.asDouble("maxP", 0);
+        double minP = p.asDouble("minP", -Double.MAX_VALUE);
+        double maxP = p.asDouble("maxP", Double.MAX_VALUE);
 
         double targetP = 0;
         double targetQ = 0;
@@ -36,18 +36,12 @@ public class ExternalNetworkInjectionConversion extends AbstractReactiveLimitsOw
             targetQ = -f.q();
         }
 
-        RegulatingControlConversion.Data control = RegulatingControlConversion.convert(
-                iidmId(),
-                p,
-                voltageLevel(),
-                context);
-        GeneratorAdder adder = voltageLevel().newGenerator()
-                .setMinP(minP)
+        GeneratorAdder adder = voltageLevel().newGenerator();
+        context.regulatingControlMapping().setRegulatingControl(iidmId(), p, adder, voltageLevel());
+        adder.setMinP(minP)
                 .setMaxP(maxP)
-                .setVoltageRegulatorOn(control.on())
                 .setTargetP(targetP)
                 .setTargetQ(targetQ)
-                .setTargetV(control.targetV())
                 .setEnergySource(EnergySource.OTHER);
         identify(adder);
         connect(adder);

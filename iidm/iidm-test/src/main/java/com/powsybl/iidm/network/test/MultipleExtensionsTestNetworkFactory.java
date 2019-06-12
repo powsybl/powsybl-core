@@ -18,7 +18,7 @@ public final class MultipleExtensionsTestNetworkFactory {
     }
 
     public static Network create() {
-        Network network = NetworkFactory.create("test", "test");
+        Network network = Network.create("test", "test");
         network.setCaseDate(DateTime.parse("2017-11-17T12:00:00+01:00"));
         Substation s = network.newSubstation()
                 .setId("S")

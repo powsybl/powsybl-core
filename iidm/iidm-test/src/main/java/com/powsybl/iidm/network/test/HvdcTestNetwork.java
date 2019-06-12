@@ -22,7 +22,7 @@ public final class HvdcTestNetwork {
     }
 
     private static Network createBase() {
-        Network network = NetworkFactory.create("hvdctest", "test");
+        Network network = Network.create("hvdctest", "test");
         network.setCaseDate(DateTime.parse("2016-06-27T16:34:55.930+02:00"));
         Substation s1 = network.newSubstation()
                 .setId("S1")

@@ -7,18 +7,17 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.Battery;
-import com.powsybl.iidm.network.ConnectableType;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.BatteryNetworkFactory;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 /**
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
@@ -95,6 +94,31 @@ public class BatteryTest {
         createBattery("invalid", 11, 12, 20.0, 11.0);
     }
 
+    /**
+     * This test goal is to check if the conditions:
+     * . minP <= p0 <= maxP
+     * . minP <= maxP
+     * Are performed by the Battery adders and setters.
+     * <p>
+     * For a Battery it is expected that the current power is between this bounds
+     */
+    @Test
+    public void invalidPowerBounds() {
+        try {
+            createBattery("invalid", 0.0, 12.0, 10.0, 20.0);
+            fail("Should throw an exception");
+        } catch (ValidationException e) {
+            assertEquals("Battery 'invalid': invalid active power p < minP: 0.0 < 10.0", e.getMessage());
+        }
+
+        try {
+            createBattery("invalid", 30.0, 12.0, 10.0, 20.0);
+            fail("Should throw an exception");
+        } catch (ValidationException e) {
+            assertEquals("Battery 'invalid': invalid active power p > maxP: 30.0 > 20.0", e.getMessage());
+        }
+    }
+
     @Test
     public void duplicateEquipment() {
         createBattery("duplicate", 11.0, 12, 10, 20.0);
@@ -108,6 +132,78 @@ public class BatteryTest {
         thrown.expect(PowsyblException.class);
         thrown.expectMessage("with the id 'BAT'");
         createBattery("BAT", 11.0, 12, 10, 20.0);
+    }
+
+    @Test
+    public void testAdder() {
+        voltageLevel.newBattery()
+                .setId("bat_id")
+                .setMaxP(20.0)
+                .setMinP(10.0)
+                .setP0(15.0)
+                .setQ0(10.0)
+                .setBus("NBAT")
+                .add();
+        Battery battery = network.getBattery("bat_id");
+        assertNotNull(battery);
+        assertEquals("bat_id", battery.getId());
+        assertEquals(20.0, battery.getMaxP(), 0.0);
+        assertEquals(10.0, battery.getMinP(), 0.0);
+        assertEquals(15.0, battery.getP0(), 0.0);
+        assertEquals(10.0, battery.getQ0(), 0.0);
+    }
+
+    @Test
+    public void testRemove() {
+        createBattery("toRemove", 11.0, 12, 10, 20.0);
+        int count = network.getBatteryCount();
+        Battery battery = network.getBattery("toRemove");
+        assertNotNull(battery);
+        battery.remove();
+        assertNotNull(battery);
+        assertEquals(count - 1, network.getBatteryCount());
+        assertNull(network.getBattery("toRemove"));
+    }
+
+    @Test
+    public void testSetterGetterInMultiVariants() {
+        VariantManager variantManager = network.getVariantManager();
+        createBattery("testMultiVariant", 11.0, 12, 10, 20.0);
+
+        Battery battery = network.getBattery("testMultiVariant");
+        List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
+
+        variantManager.setWorkingVariant("s4");
+        // check values cloned by extend
+        assertEquals(11.0, battery.getP0(), 0.0);
+        assertEquals(12.0, battery.getQ0(), 0.0);
+        // change values in s4
+        battery.setP0(11.1);
+        battery.setQ0(12.2);
+
+        // remove s2
+        variantManager.removeVariant("s2");
+
+        variantManager.cloneVariant("s4", "s2b");
+        variantManager.setWorkingVariant("s2b");
+        // check values cloned by allocate
+        assertEquals(11.1, battery.getP0(), 0.0);
+        assertEquals(12.2, battery.getQ0(), 0.0);
+
+        // recheck initial variant value
+        variantManager.setWorkingVariant(VariantManagerConstants.INITIAL_VARIANT_ID);
+        assertEquals(11.0, battery.getP0(), 0.0);
+        assertEquals(12.0, battery.getQ0(), 0.0);
+
+        // remove working variant s4
+        variantManager.setWorkingVariant("s4");
+        variantManager.removeVariant("s4");
+        try {
+            battery.getP0();
+            fail();
+        } catch (Exception ignored) {
+        }
     }
 
     private void createBattery(String id, double p0, double q0, double minP, double maxP) {

@@ -7,12 +7,12 @@
 
 package com.powsybl.cgmes.conformity.test;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 public class CgmesConformity1NetworkCatalog {
 
     public Network microBE(String modelId) {
-        Network network = NetworkFactory.create(modelId, "no-format");
+        Network network = Network.create(modelId, "no-format");
 
         Substation sBrussels = network.newSubstation()
                 .setId("_37e14a0f-5e34-4647-a062-8bfd9305fa9d")
@@ -511,8 +511,7 @@ public class CgmesConformity1NetworkCatalog {
             rtca.setLoadTapChangingCapabilities(true)
                     .setRegulating(false)
                     .setTargetV(Float.NaN)
-                    // TODO Set the right regulation terminal
-                    .setRegulationTerminal(txBE22.getTerminal(side));
+                    .setRegulationTerminal(txBE22.getTerminal2());
             rtca.add();
         }
         TwoWindingsTransformer txBE21;
@@ -966,7 +965,7 @@ public class CgmesConformity1NetworkCatalog {
         ptca.setRegulating(regulating)
                 .setRegulationMode(mode)
                 .setRegulationValue(regulationValue)
-                .setRegulationTerminal(tx.getTerminal1())
+                .setRegulationTerminal(tx.getTerminal2())
                 .add();
     }
 

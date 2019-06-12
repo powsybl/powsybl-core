@@ -18,6 +18,12 @@
     "id" : "GEN",
     "type" : "GENERATOR"
   }, {
+    "id" : "SC",
+    "type" : "SHUNT_COMPENSATOR"
+  }, {
+    "id" : "SVC",
+    "type" : "STATIC_VAR_COMPENSATOR"
+  }, {
     "id" : "BBS1",
     "type" : "BUSBAR_SECTION"
   } ],

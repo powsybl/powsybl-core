@@ -142,6 +142,14 @@ public class SecurityAnalysisResultBuilder {
         return res;
     }
 
+    /**
+     * Provides access to the security analysis running context to children classes.
+     * @return the security analysis running context.
+     */
+    protected RunningContext getContext() {
+        return context;
+    }
+
     private interface ResultBuilder {
 
         void setComputationOk(boolean computationOk);
