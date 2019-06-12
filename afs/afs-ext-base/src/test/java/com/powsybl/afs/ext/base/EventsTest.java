@@ -14,8 +14,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -28,9 +27,12 @@ public class EventsTest {
         assertEquals("a", caseImported.getId());
         assertEquals(NodeEventType.CASE_IMPORTED, caseImported.getType());
         assertEquals("b", caseImported.getParentId());
+        assertNotNull(caseImported.toString());
 
         CaseImported caseImported2 = new CaseImported("a", "c");
         assertNotEquals(caseImported, caseImported2);
+        assertNotEquals(caseImported.hashCode(), caseImported2.hashCode());
+        assertNotEquals(caseImported, new ScriptModified("", ""));
     }
 
     @Test
@@ -39,9 +41,13 @@ public class EventsTest {
         assertEquals("a", scriptModified.getId());
         assertEquals(NodeEventType.SCRIPT_MODIFIED, scriptModified.getType());
         assertEquals("b", scriptModified.getParentId());
+        assertNotNull(scriptModified.toString());
 
         ScriptModified scriptModified2 = new ScriptModified("a", "c");
         assertNotEquals(scriptModified, scriptModified2);
+        assertNotEquals(scriptModified.hashCode(), scriptModified2.hashCode());
+        assertNotEquals(scriptModified, new CaseImported("", ""));
+
     }
 
     @Test
@@ -50,8 +56,11 @@ public class EventsTest {
         assertEquals("a", virtualCaseCreated.getId());
         assertEquals(NodeEventType.VIRTUAL_CASE_CREATED, virtualCaseCreated.getType());
         assertEquals("b", virtualCaseCreated.getParentId());
+        assertNotNull(virtualCaseCreated.toString());
 
         VirtualCaseCreated virtualCaseCreated2 = new VirtualCaseCreated("a", "c");
         assertNotEquals(virtualCaseCreated, virtualCaseCreated2);
+        assertNotEquals(virtualCaseCreated.hashCode(), virtualCaseCreated2.hashCode());
+        assertNotEquals(virtualCaseCreated, new CaseImported("", ""));
     }
 }
