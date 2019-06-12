@@ -11,29 +11,24 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.powsybl.afs.storage.*;
 import com.powsybl.afs.storage.events.*;
-import com.powsybl.commons.util.WeakListenerList;
 import com.powsybl.timeseries.*;
 import org.apache.commons.lang3.SystemUtils;
 import org.mapdb.Atomic;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.Serializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.time.ZonedDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class MapDbAppStorage implements AppStorage {
+public class MapDbAppStorage extends AbstractAppStorage {
 
     public static MapDbAppStorage createMem(String fileSystemName) {
         DBMaker.Maker maker = DBMaker.memoryDB();
@@ -58,8 +53,6 @@ public class MapDbAppStorage implements AppStorage {
             return maker.make();
         });
     }
-
-    private  final Logger logger = LoggerFactory.getLogger(MapDbAppStorage.class);
 
     private final String fileSystemName;
 
@@ -98,12 +91,6 @@ public class MapDbAppStorage implements AppStorage {
     private final ConcurrentMap<UUID, List<UUID>> backwardDependencyNodesMap;
 
     private EventsStore eventsStore;
-
-    private final WeakListenerList<AppStorageListener> listeners = new WeakListenerList<>();
-
-    private NodeEventList eventList = new NodeEventList();
-
-    private final Lock lock = new ReentrantLock();
 
     protected MapDbAppStorage(String fileSystemName, Supplier<DB> db) {
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
@@ -864,14 +851,7 @@ public class MapDbAppStorage implements AppStorage {
     @Override
     public void flush() {
         db.commit();
-        lock.lock();
-        try {
-            listeners.log();
-            listeners.notify(l -> l.onEvents(eventList));
-            eventList = new NodeEventList();
-        } finally {
-            lock.unlock();
-        }
+        super.flush();
     }
 
     @Override
@@ -883,29 +863,5 @@ public class MapDbAppStorage implements AppStorage {
     public void close() {
         db.commit();
         db.close();
-    }
-
-    private void pushEvent(NodeEvent event, String topic) {
-        eventList.addEvent(event);
-        if (eventsStore == null) {
-            logger.warn("Event can't be pushed : No EventStore instance is available.");
-            return;
-        }
-        eventsStore.pushEvent(event, topic);
-    }
-
-    @Override
-    public void addListener(AppStorageListener l) {
-        listeners.add(l);
-    }
-
-    @Override
-    public void removeListener(AppStorageListener l) {
-        listeners.remove(l);
-    }
-
-    @Override
-    public void removeListeners() {
-        listeners.removeAll();
     }
 }
