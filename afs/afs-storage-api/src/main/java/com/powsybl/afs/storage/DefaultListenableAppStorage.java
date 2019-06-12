@@ -21,16 +21,17 @@ import java.util.List;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 /**
  * A storage implementation which adds notification features to another underlying, wrapped, storage.
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-/**
- * @deprecated  events can be listened directly from an AppStorage.
- */
-@Deprecated
 public class DefaultListenableAppStorage extends ForwardingAppStorage implements ListenableAppStorage {
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultListenableAppStorage.class);
 
     private final WeakListenerList<AppStorageListener> listeners = new WeakListenerList<>();
 
@@ -38,16 +39,8 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
 
     private final Lock lock = new ReentrantLock();
 
-    private EventsStore eventStore;
-
     public DefaultListenableAppStorage(AppStorage storage) {
         super(storage);
-        eventStore = new InMemoryEventsStore();
-    }
-
-    public DefaultListenableAppStorage(AppStorage storage, EventsStore eventStore) {
-        super(storage);
-        this.eventStore = eventStore;
     }
 
     private void addEvent(NodeEvent event) {
@@ -57,7 +50,6 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
         } finally {
             lock.unlock();
         }
-        eventStore.pushEvent(event, String.valueOf(event.getType()));
     }
 
     @Override
@@ -78,12 +70,6 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
     public void setDescription(String nodeId, String description) {
         super.setDescription(nodeId, description);
         addEvent(new NodeDescriptionUpdated(nodeId, description));
-    }
-
-    @Override
-    public void setConsistent(String nodeId) {
-        super.setConsistent(nodeId);
-        addEvent(new NodeConsistent(nodeId));
     }
 
     @Override
