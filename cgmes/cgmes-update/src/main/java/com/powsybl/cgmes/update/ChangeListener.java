@@ -22,28 +22,26 @@ import com.powsybl.iidm.network.NetworkListener;
 public class ChangeListener implements NetworkListener {
     // class register network changes, and add to list
 
-    public ChangeListener(Network network) {
+    public ChangeListener(Network network, String variant) {
         this.network = Objects.requireNonNull(network);
         this.changeList = new ArrayList<Changes>();
+        this.variant = variant;
     }
 
     public void onCreation(Identifiable identifiable) {
         LOGGER.info("calling onCreation method");
-        String variant = network.getVariantManager().getWorkingVariantId();
         Changes change = new Changes(identifiable, variant);
         changeList.add(change);
     }
 
     public void onRemoval(Identifiable identifiable) {
         LOGGER.info("calling onRemoval method");
-        String variant = network.getVariantManager().getWorkingVariantId();
         Changes change = new Changes(identifiable, variant);
         changeList.add(change);
     }
 
     public void onUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
         LOGGER.info("calling onUpdate method");
-        String variant = network.getVariantManager().getWorkingVariantId();
         Changes change = new Changes(identifiable, attribute, oldValue, newValue, variant);
         changeList.add(change);
     }
@@ -51,5 +49,6 @@ public class ChangeListener implements NetworkListener {
     private static final Logger LOGGER = LoggerFactory.getLogger(ChangeListener.class);
     private final Network network;
     private List<Changes> changeList;
+    String variant;
 
 }
