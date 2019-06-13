@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.test;
 import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 
+import java.util.Objects;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
@@ -21,8 +23,14 @@ public final class HvdcTestNetwork {
     private HvdcTestNetwork() {
     }
 
-    private static Network createBase() {
-        Network network = Network.create("hvdctest", "test");
+    public static Network createBase() {
+        return createBase(NetworkFactory.findDefault());
+    }
+
+    private static Network createBase(NetworkFactory networkFactory) {
+        Objects.requireNonNull(networkFactory);
+
+        Network network = networkFactory.createNetwork("hvdctest", "test");
         network.setCaseDate(DateTime.parse("2016-06-27T16:34:55.930+02:00"));
         Substation s1 = network.newSubstation()
                 .setId("S1")
@@ -85,7 +93,11 @@ public final class HvdcTestNetwork {
     }
 
     public static Network createVsc() {
-        Network network = createBase();
+        return createVsc(NetworkFactory.findDefault());
+    }
+
+    public static Network createVsc(NetworkFactory networkFactory) {
+        Network network = createBase(networkFactory);
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         VscConverterStation cs1 = vl1.newVscConverterStation()
                 .setId("C1")
@@ -129,7 +141,11 @@ public final class HvdcTestNetwork {
     }
 
     public static Network createLcc() {
-        Network network = createBase();
+        return createLcc(NetworkFactory.findDefault());
+    }
+
+    public static Network createLcc(NetworkFactory networkFactory) {
+        Network network = createBase(networkFactory);
         VoltageLevel vl1 = network.getVoltageLevel("VL1");
         ShuntCompensator shunt1 = vl1.newShuntCompensator()
                 .setId("C1_Filter1")
