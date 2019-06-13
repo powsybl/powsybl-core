@@ -22,10 +22,12 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
+ * @deprecated
  * A storage implementation which adds notification features to another underlying, wrapped, storage.
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
+@Deprecated
 public class DefaultListenableAppStorage extends ForwardingAppStorage implements ListenableAppStorage {
     private final WeakListenerList<AppStorageListener> listeners = new WeakListenerList<>();
 

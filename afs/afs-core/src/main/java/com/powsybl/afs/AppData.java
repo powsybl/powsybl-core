@@ -73,15 +73,13 @@ public class AppData implements AutoCloseable {
 
     public AppData(ComputationManager shortTimeExecutionComputationManager, ComputationManager longTimeExecutionComputationManager) {
         this(shortTimeExecutionComputationManager, longTimeExecutionComputationManager,
-                getDefaultFileSystemProviders(), getDefaultFileExtensions(), getDefaultProjectFileExtensions(), getDefaultServiceExtensions(),
-                getDefaultEventsStore());
+                getDefaultFileSystemProviders(), getDefaultFileExtensions(), getDefaultProjectFileExtensions(), getDefaultServiceExtensions(), getDefaultEventsStore());
     }
 
     public AppData(ComputationManager shortTimeExecutionComputationManager,
                    ComputationManager longTimeExecutionComputationManager, List<AppFileSystemProvider> fileSystemProviders) {
         this(shortTimeExecutionComputationManager, longTimeExecutionComputationManager,
-                fileSystemProviders, getDefaultFileExtensions(), getDefaultProjectFileExtensions(), getDefaultServiceExtensions(),
-                getDefaultEventsStore());
+                fileSystemProviders, getDefaultFileExtensions(), getDefaultProjectFileExtensions(), getDefaultServiceExtensions(), getDefaultEventsStore());
     }
 
     public AppData(ComputationManager shortTimeExecutionComputationManager, ComputationManager longTimeExecutionComputationManager,
