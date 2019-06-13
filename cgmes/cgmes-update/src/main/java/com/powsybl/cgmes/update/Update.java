@@ -10,7 +10,7 @@ public class Update {
     void addListener(Network network) {
 
         LOGGER.info("Calling addListener on changes...");
-        
+
         String variant = network.getVariantManager().getWorkingVariantId();
         ChangeListener changes = new ChangeListener(network, variant);
         network.addListener(changes);
