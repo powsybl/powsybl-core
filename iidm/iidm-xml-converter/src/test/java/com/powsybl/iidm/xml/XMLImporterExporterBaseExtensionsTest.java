@@ -23,10 +23,9 @@ import static org.junit.Assert.assertEquals;
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
  */
-public class XMLImporterExporterBaseEXtensionsTest extends AbstractConverterTest {
+public class XMLImporterExporterBaseExtensionsTest extends AbstractConverterTest {
 
-    public void importExport(String xiidmBaseRef, String xiidmExtRef) throws IOException {
-
+    private void importExport(String xiidmBaseRef, String xiidmExtRef) throws IOException {
         Properties exportProperties = new Properties();
         exportProperties.put(XMLExporter.EXPORT_MODE, String.valueOf(IidmImportExportMode.EXTENSIONS_IN_ONE_SEPARATED_FILE));
         List<String> exportExtensionsList = Arrays.asList("loadFoo", "loadBar");
