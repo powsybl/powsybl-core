@@ -58,6 +58,7 @@ public interface BatteryAdder extends InjectionAdder<BatteryAdder> {
      *      - minP is not equal to Double.NaN -> minP is set
      *      - maxP is not equal to Double.NaN -> maxP is set
      *      - minP is less than maxP
+     *      - minP <= p0 <= maxP
      * @return {@link Battery}
      */
     Battery add();

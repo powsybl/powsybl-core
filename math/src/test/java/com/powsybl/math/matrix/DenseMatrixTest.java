@@ -10,8 +10,9 @@ import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -33,6 +34,15 @@ public class DenseMatrixTest extends AbstractMatrixTest {
     }
 
     @Test
+    public void invalidBufferCapacity() {
+        try {
+            new DenseMatrix(2, 2, () -> ByteBuffer.allocate(3));
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+    }
+
+    @Test
     public void testDensePrint() throws IOException {
         Matrix a = createA(matrixFactory);
         String expected = String.join(System.lineSeparator(),
@@ -41,6 +51,7 @@ public class DenseMatrixTest extends AbstractMatrixTest {
                 " 2.0 0.0")
                 + System.lineSeparator();
         assertEquals(expected, print(a, null, null));
+        assertEquals(expected, print(a));
     }
 
     @Test
@@ -69,6 +80,8 @@ public class DenseMatrixTest extends AbstractMatrixTest {
     public void testToSparse() {
         DenseMatrix a = (DenseMatrix) createA(matrixFactory);
         SparseMatrix a2 = a.toSparse();
+        assertNotNull(a2);
+        assertSame(a2, a2.toSparse());
         DenseMatrix a3 = a2.toDense();
         assertEquals(a, a3);
     }

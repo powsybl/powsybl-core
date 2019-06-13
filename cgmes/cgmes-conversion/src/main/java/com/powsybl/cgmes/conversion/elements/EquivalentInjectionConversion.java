@@ -25,8 +25,8 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
 
     @Override
     public void convert() {
-        double minP = p.asDouble("minP", 0);
-        double maxP = p.asDouble("maxP", 0);
+        double minP = p.asDouble("minP", -Double.MAX_VALUE);
+        double maxP = p.asDouble("maxP", Double.MAX_VALUE);
         EnergySource energySource = EnergySource.OTHER;
         PowerFlow f = powerFlow();
 
