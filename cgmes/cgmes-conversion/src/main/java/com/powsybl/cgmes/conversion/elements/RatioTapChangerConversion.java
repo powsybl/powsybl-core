@@ -35,6 +35,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         highStep = rtc.asInt("highStep");
         neutralStep = rtc.asInt("neutralStep");
         position = fromContinuous(p.asDouble("SVtapStep", neutralStep));
+        ltcFlag = rtc.asBoolean("ltcFlag", false);
     }
 
     @Override
@@ -83,7 +84,10 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         } else {
             addStepsFromStepVoltageIncrement(rtca);
         }
+
+        rtca.setLoadTapChangingCapabilities(ltcFlag);
         context.regulatingControlMapping().setRegulatingControl(p, terminal(), rtca);
+
         rtca.add();
     }
 
@@ -242,6 +246,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
     private final int highStep;
     private final int neutralStep;
     private final int position;
+    private final boolean ltcFlag;
 
     private static final Logger LOG = LoggerFactory.getLogger(RatioTapChangerConversion.class);
 }
