@@ -25,9 +25,7 @@ import java.io.InputStream;
 
 import javax.xml.stream.XMLStreamException;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -198,5 +196,17 @@ public class IdentifiableExtensionXmlSerializerTest extends AbstractConverterTes
             assertNotNull(source2);
             assertEquals(sourceData, source2.getSourceData());
         }
+    }
+
+    @Test
+    public void testTerminalExtension() throws IOException {
+        Network network2 = roundTripXmlTest(EurostagTutorialExample1Factory.createWithTerminalMockExt(),
+                NetworkXml::writeAndValidate,
+                NetworkXml::read,
+                "/eurostag-tutorial-example1-with-terminalMock-ext.xml");
+        Load loadXml = network2.getLoad("LOAD");
+        TerminalMockExt terminalMockExtXml = loadXml.getExtension(TerminalMockExt.class);
+        assertNotNull(terminalMockExtXml);
+        assertSame(loadXml.getTerminal(), terminalMockExtXml.getTerminal());
     }
 }
