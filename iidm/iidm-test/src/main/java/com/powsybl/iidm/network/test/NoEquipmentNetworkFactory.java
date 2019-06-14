@@ -8,13 +8,21 @@ package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.Objects;
+
 public final class NoEquipmentNetworkFactory {
 
     private NoEquipmentNetworkFactory() {
     }
 
     public static Network create() {
-        Network network = Network.create("test", "test");
+        return create(NetworkFactory.findDefault());
+    }
+
+    public static Network create(NetworkFactory networkFactory) {
+        Objects.requireNonNull(networkFactory);
+
+        Network network = networkFactory.createNetwork("test", "test");
         Substation substation = network.newSubstation()
                     .setId("sub")
                     .setCountry(Country.FR)
