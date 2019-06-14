@@ -163,12 +163,12 @@ public class TapChangerTest {
         createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, terminal);
         createThreeWindingTransformer();
         ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer("twt2");
-        ThreeWindingsTransformer.Leg2or3 leg2 = threeWindingsTransformer.getLeg2();
-        ThreeWindingsTransformer.Leg2or3 leg3 = threeWindingsTransformer.getLeg3();
+        ThreeWindingsTransformer.Leg leg2 = threeWindingsTransformer.getLeg2();
+        ThreeWindingsTransformer.Leg leg3 = threeWindingsTransformer.getLeg3();
         PhaseTapChanger phaseTapChanger = twt.getPhaseTapChanger();
         RatioTapChanger ratioTapChanger = twt.getRatioTapChanger();
-        RatioTapChanger ratioTapChangerInLeg2 = leg2.getRatioTapChanger();
-        RatioTapChanger ratioTapChangerInLeg3 = leg3.getRatioTapChanger();
+        RatioTapChanger ratioTapChangerInLeg2 = leg2.getTapChanger(RatioTapChanger.class);
+        RatioTapChanger ratioTapChangerInLeg3 = leg3.getTapChanger(RatioTapChanger.class);
 
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
@@ -473,8 +473,8 @@ public class TapChangerTest {
                 .add()
                 .add();
         ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer("twt2");
-        ThreeWindingsTransformer.Leg2or3 leg2 = threeWindingsTransformer.getLeg2();
-        ThreeWindingsTransformer.Leg2or3 leg3 = threeWindingsTransformer.getLeg3();
+        ThreeWindingsTransformer.Leg leg2 = threeWindingsTransformer.getLeg2();
+        ThreeWindingsTransformer.Leg leg3 = threeWindingsTransformer.getLeg3();
         leg2.newRatioTapChanger()
                 .setTargetV(10.0)
                 .setLoadTapChangingCapabilities(false)

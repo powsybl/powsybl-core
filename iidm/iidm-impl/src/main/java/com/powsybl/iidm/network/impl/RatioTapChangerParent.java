@@ -12,7 +12,7 @@ package com.powsybl.iidm.network.impl;
  */
 interface RatioTapChangerParent extends TapChangerParent {
 
-    String getTapChangerAttribute();
+    String getRatioTapChangerAttribute();
 
     void setRatioTapChanger(RatioTapChangerImpl ratioTapChanger);
 

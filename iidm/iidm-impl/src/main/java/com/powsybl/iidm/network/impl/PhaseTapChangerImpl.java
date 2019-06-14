@@ -12,11 +12,13 @@ import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.List;
 
+import static com.powsybl.iidm.network.TapChanger.Kind.PHASE_TAP_CHANGER;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl, PhaseTapChangerImpl, PhaseTapChangerStepImpl>
+class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, PhaseTapChangerImpl, PhaseTapChangerStepImpl>
                           implements PhaseTapChanger {
 
     private RegulationMode regulationMode;
@@ -25,7 +27,7 @@ class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl,
 
     private final TDoubleArrayList regulationValue;
 
-    PhaseTapChangerImpl(TwoWindingsTransformerImpl parent, int lowTapPosition,
+    PhaseTapChangerImpl(PhaseTapChangerParent parent, int lowTapPosition,
                         List<PhaseTapChangerStepImpl> steps, TerminalExt regulationTerminal,
                         int tapPosition, boolean regulating, RegulationMode regulationMode, double regulationValue) {
         super(parent.getNetwork().getRef(), parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating);
@@ -108,6 +110,11 @@ class PhaseTapChangerImpl extends AbstractTapChanger<TwoWindingsTransformerImpl,
 
     @Override
     protected String getTapChangerAttribute() {
-        return "phaseTapChanger";
+        return parent.getPhaseTapChangerAttribute();
+    }
+
+    @Override
+    public Kind getKind() {
+        return PHASE_TAP_CHANGER;
     }
 }

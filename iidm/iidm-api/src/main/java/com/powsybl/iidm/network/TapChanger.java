@@ -94,4 +94,12 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
      */
     void remove();
 
+    enum Kind {
+        RATIO_TAP_CHANGER,
+        PHASE_TAP_CHANGER
+    }
+
+    default Kind getKind() {
+        throw new UnsupportedOperationException();
+    }
 }

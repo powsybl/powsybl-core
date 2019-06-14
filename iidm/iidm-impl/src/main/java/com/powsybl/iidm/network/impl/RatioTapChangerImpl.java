@@ -11,6 +11,8 @@ import com.powsybl.iidm.network.Terminal;
 import gnu.trove.list.array.TDoubleArrayList;
 import java.util.List;
 
+import static com.powsybl.iidm.network.TapChanger.Kind.RATIO_TAP_CHANGER;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -105,6 +107,11 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
 
     @Override
     protected String getTapChangerAttribute() {
-        return parent.getTapChangerAttribute();
+        return parent.getRatioTapChangerAttribute();
+    }
+
+    @Override
+    public Kind getKind() {
+        return RATIO_TAP_CHANGER;
     }
 }

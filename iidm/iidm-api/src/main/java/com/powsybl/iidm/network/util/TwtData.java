@@ -8,15 +8,14 @@ package com.powsybl.iidm.network.util;
 
 import java.util.Objects;
 
-import com.powsybl.iidm.network.RatioTapChanger;
+import com.powsybl.iidm.network.*;
 import org.apache.commons.math3.complex.Complex;
 import org.apache.commons.math3.complex.ComplexUtils;
 
-import com.powsybl.iidm.network.Bus;
-import com.powsybl.iidm.network.RatioTapChangerStep;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Leg;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.Side;
+
+import static com.powsybl.iidm.network.TapChanger.Kind.RATIO_TAP_CHANGER;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -173,7 +172,7 @@ public class TwtData {
 
     private static double rho(Leg leg, double ratedU0) {
         double rho = ratedU0 / leg.getRatedU();
-        if (leg.getTapChanger(RatioTapChanger.class) != null) {
+        if (leg.getTapChanger() != null && leg.getTapChanger().getKind().equals(RATIO_TAP_CHANGER)) {
             RatioTapChangerStep step = leg.getTapChanger(RatioTapChanger.class).getCurrentStep();
             if (step != null) {
                 rho *= step.getRho();
@@ -184,7 +183,7 @@ public class TwtData {
 
     private static double adjustedR(Leg leg) {
         double r = leg.getR();
-        if (leg.getTapChanger(RatioTapChanger.class) != null) {
+        if (leg.getTapChanger() != null && leg.getTapChanger().getKind().equals(RATIO_TAP_CHANGER)) {
             RatioTapChangerStep step = leg.getTapChanger(RatioTapChanger.class).getCurrentStep();
             if (step != null) {
                 r *= 1 + step.getR() / 100;
@@ -195,7 +194,7 @@ public class TwtData {
 
     private static double adjustedX(Leg leg) {
         double x = leg.getX();
-        if (leg.getTapChanger(RatioTapChanger.class) != null) {
+        if (leg.getTapChanger() != null && leg.getTapChanger().getKind().equals(RATIO_TAP_CHANGER)) {
             RatioTapChangerStep step = leg.getTapChanger(RatioTapChanger.class).getCurrentStep();
             if (step != null) {
                 x *= 1 + step.getX() / 100;

@@ -67,7 +67,7 @@ public class ThreeWindingsTransformerTest {
         assertEquals(substation.getThreeWindingsTransformerStream().count(), substation.getThreeWindingsTransformerCount());
 
         // leg1 adder
-        ThreeWindingsTransformer.Leg1 leg1 = transformer.getLeg1();
+        ThreeWindingsTransformer.Leg leg1 = transformer.getLeg1();
         assertEquals(1.3, leg1.getR(), 0.0);
         assertEquals(1.4, leg1.getX(), 0.0);
         assertEquals(1.1, leg1.getRatedU(), 0.0);
@@ -85,8 +85,8 @@ public class ThreeWindingsTransformerTest {
         assertEquals(2.3, leg1.getB(), 0.0);
 
         // leg2/3 adder
-        ThreeWindingsTransformer.Leg2or3 leg2 = transformer.getLeg2();
-        ThreeWindingsTransformer.Leg2or3 leg3 = transformer.getLeg3();
+        ThreeWindingsTransformer.Leg leg2 = transformer.getLeg2();
+        ThreeWindingsTransformer.Leg leg3 = transformer.getLeg3();
         assertEquals(2.03, leg2.getR(), 0.0);
         assertEquals(2.04, leg2.getX(), 0.0);
         assertEquals(2.05, leg2.getRatedU(), 0.0);
@@ -138,7 +138,7 @@ public class ThreeWindingsTransformerTest {
                                                 .setRho(1.0)
                                             .endStep()
                                             .add();
-        assertSame(ratioTapChangerInLeg2, leg2.getRatioTapChanger());
+        assertSame(ratioTapChangerInLeg2, leg2.getTapChanger(RatioTapChanger.class));
         CurrentLimits currentLimitsInLeg2 = leg2.newCurrentLimits()
                                         .setPermanentLimit(100)
                                         .beginTemporaryLimit()
@@ -178,7 +178,7 @@ public class ThreeWindingsTransformerTest {
                                                         .setRho(1.0)
                                                     .endStep()
                                                     .add();
-        assertSame(ratioTapChangerInLeg3, leg3.getRatioTapChanger());
+        assertSame(ratioTapChangerInLeg3, leg3.getTapChanger(RatioTapChanger.class));
         CurrentLimits currentLimitsInLeg3 = leg3.newCurrentLimits()
                 .setPermanentLimit(100)
                 .beginTemporaryLimit()
