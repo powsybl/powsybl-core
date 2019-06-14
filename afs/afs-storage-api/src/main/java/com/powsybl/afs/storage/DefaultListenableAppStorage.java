@@ -22,7 +22,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
- * @deprecated
+ * @deprecated events can be listened directly from an AppStorage.
  * A storage implementation which adds notification features to another underlying, wrapped, storage.
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -66,6 +66,12 @@ public class DefaultListenableAppStorage extends ForwardingAppStorage implements
     public void setDescription(String nodeId, String description) {
         super.setDescription(nodeId, description);
         addEvent(new NodeDescriptionUpdated(nodeId, description));
+    }
+
+    @Override
+    public void setConsistent(String nodeId) {
+        super.setConsistent(nodeId);
+        addEvent(new NodeConsistent(nodeId));
     }
 
     @Override

@@ -308,7 +308,6 @@ public class AppFileSystemTool implements Tool {
             runUnarchive(line, context);
         } else if (line.hasOption(LS_INCONSISTENT_NODES)) {
             runLsInconsistentNodes(line, context);
-
         } else if (line.hasOption(FIX_INCONSISTENT_NODES)) {
             runFixInconsistentNodes(line, context);
         } else if (line.hasOption(RM_INCONSISTENT_NODES)) {

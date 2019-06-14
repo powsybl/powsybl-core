@@ -18,11 +18,7 @@ import java.util.Map;
  */
 public class InMemoryEventsStore implements EventsStore {
 
-    private HashMap<String, List<NodeEvent>> topics;
-
-    public InMemoryEventsStore() {
-        topics = new HashMap<>();
-    }
+    private final Map<String, List> topics = new HashMap<>();
 
     @Override
     public void pushEvent(NodeEvent event, String topic) {
@@ -35,7 +31,7 @@ public class InMemoryEventsStore implements EventsStore {
         }
     }
 
-    Map<String, List<NodeEvent>> getTopics() {
+    Map<String, List> getTopics() {
         return topics;
     }
 }
