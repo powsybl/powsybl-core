@@ -35,13 +35,13 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     /**
      * Find a terminal to retrieve voltage, angle or connected and synchronous component numbers.
      * If the terminals list contains at least one element, we use the first terminal as reference.
-     * Otherwise this method try to find a terminal which does not belong to this bus, but to the same "electrical" bus
+     * Otherwise this method tries to find a terminal which does not belong to this bus, but to the same "electrical" bus
      * and therefore can be used as reference.
      *
      * @param voltageLevel The {@literal VoltageLevel} instance to traverse
-     * @param nodes The nodes belong to this bus
+     * @param nodes The nodes which belong to this bus
      * @param terminals The terminals belong to this bus
-     * @return The first terminal of the {@param terminals} list, or a terminal which belongs to an equivalent "electrical" bus.
+     * @return The first terminal of the {@code terminals} list, or a terminal which belongs to an equivalent "electrical" bus.
      */
     private static NodeTerminal findTerminal(NodeBreakerVoltageLevel voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals) {
         if (!terminals.isEmpty()) {
