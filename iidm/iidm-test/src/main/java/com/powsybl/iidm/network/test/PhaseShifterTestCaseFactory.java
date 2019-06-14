@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.test;
 import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 
+import java.util.Objects;
+
 /**
  * A very small network to test phase shifters.
  *
@@ -27,7 +29,13 @@ public final class PhaseShifterTestCaseFactory {
     }
 
     public static Network create() {
-        Network network = Network.create("phaseShifterTestCase", "code");
+        return create(NetworkFactory.findDefault());
+    }
+
+    public static Network create(NetworkFactory networkFactory) {
+        Objects.requireNonNull(networkFactory);
+
+        Network network = networkFactory.createNetwork("phaseShifterTestCase", "code");
         network.setCaseDate(DateTime.parse("2016-10-18T10:06:00.000+02:00"));
         Substation s1 = network.newSubstation()
                 .setId("S1")

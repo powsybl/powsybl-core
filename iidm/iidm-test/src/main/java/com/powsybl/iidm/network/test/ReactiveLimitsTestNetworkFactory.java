@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.test;
 import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 
+import java.util.Objects;
+
 /**
  * @author Miora Ralambotiana <miora.ralambotiana at rte-france.com>
  */
@@ -18,7 +20,13 @@ public final class ReactiveLimitsTestNetworkFactory {
     }
 
     public static Network create() {
-        Network network = Network.create("ReactiveLimits", "???");
+        return create(NetworkFactory.findDefault());
+    }
+
+    public static Network create(NetworkFactory networkFactory) {
+        Objects.requireNonNull(networkFactory);
+
+        Network network = networkFactory.createNetwork("ReactiveLimits", "???");
         network.setCaseDate(DateTime.parse("2016-01-01T10:00:00.000+02:00"));
         Substation s = network.newSubstation()
                 .setId("S")
