@@ -7,6 +7,7 @@
 package com.powsybl.security;
 
 import com.powsybl.commons.config.ComponentDefaultConfig;
+import com.powsybl.commons.config.PlatformConfig;
 
 /**
  * @author Sylvain Leclerc <sylvain.leclerc at rte-france.com>
@@ -20,7 +21,14 @@ public final class SecurityAnalysisFactories {
      * Returns a factory as defined in the {@link ComponentDefaultConfig}.
      */
     public static SecurityAnalysisFactory newDefaultFactory() {
-        return ComponentDefaultConfig.load().newFactoryImpl(SecurityAnalysisFactory.class);
+        return newDefaultFactory(PlatformConfig.defaultConfig());
+    }
+
+    /**
+     * Returns a factory as defined in the {@link ComponentDefaultConfig}.
+     */
+    public static SecurityAnalysisFactory newDefaultFactory(PlatformConfig platformConfig) {
+        return ComponentDefaultConfig.load(platformConfig).newFactoryImpl(SecurityAnalysisFactory.class);
     }
 
 }
