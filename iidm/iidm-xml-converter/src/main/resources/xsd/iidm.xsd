@@ -368,7 +368,11 @@
                 <xs:attribute name="x2" use="required" type="xs:double"/>
                 <xs:attribute name="x3" use="required" type="xs:double"/>
                 <xs:attribute name="g1" use="required" type="xs:double"/>
+                <xs:attribute name="g2" use="optional" type="xs:double"/>
+                <xs:attribute name="g3" use="optional" type="xs:double"/>
                 <xs:attribute name="b1" use="required" type="xs:double"/>
+                <xs:attribute name="b2" use="optional" type="xs:double"/>
+                <xs:attribute name="b3" use="optional" type="xs:double"/>
                 <xs:attribute name="node1" use="optional" type="xs:int"/>
                 <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="voltageLevelId1" use="required" type="iidm:nonEmptyString"/>
