@@ -6,6 +6,7 @@
  */
 package com.powsybl.afs.storage;
 
+import com.powsybl.afs.storage.events.AppStorageListener;
 import com.powsybl.afs.storage.events.NodeEvent;
 
 /**
@@ -13,4 +14,24 @@ import com.powsybl.afs.storage.events.NodeEvent;
  */
 public interface EventsStore {
     void pushEvent(NodeEvent event, String topic);
+
+    /**
+     * Add a listener to the EventsStore.
+     */
+    void addListener(AppStorageListener l);
+
+    /**
+     * remove a listener from the EventsStore.
+     */
+    void removeListener(AppStorageListener l);
+
+    /**
+     * Remove all listeners from the EventsStore.
+     */
+    void removeListeners();
+
+    /**
+     * Flush any changes to underlying EventsStore.
+     */
+    void flush();
 }

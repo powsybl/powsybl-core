@@ -19,7 +19,7 @@ import java.util.*;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ForwardingAppStorage implements AppStorage {
+public class ForwardingAppStorage extends AbstractAppStorage {
 
     private final AppStorage storage;
 

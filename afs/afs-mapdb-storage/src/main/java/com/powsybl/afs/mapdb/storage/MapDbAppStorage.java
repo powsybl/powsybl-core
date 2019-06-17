@@ -839,19 +839,9 @@ public class MapDbAppStorage extends AbstractAppStorage {
     }
 
     @Override
-    public void setEventStore(EventsStore eventStore) {
-        this.eventsStore = eventStore;
-    }
-
-    @Override
-    public EventsStore getEventStore() {
-        return this.eventsStore;
-    }
-
-    @Override
     public void flush() {
         db.commit();
-        super.flush();
+        eventsStore.flush();
     }
 
     @Override

@@ -34,7 +34,7 @@ public abstract class AbstractModificationScript extends ProjectFile implements 
     public AbstractModificationScript(ProjectFileCreationContext context, int codeVersion, String scriptContentName) {
         super(context, codeVersion);
         this.scriptContentName = Objects.requireNonNull(scriptContentName);
-        storage.addListener(l);
+        storage.getEventsStore().addListener(l);
     }
 
     private void processEvents(List<NodeEvent> events, String nodeId, List<ScriptListener> listeners) {

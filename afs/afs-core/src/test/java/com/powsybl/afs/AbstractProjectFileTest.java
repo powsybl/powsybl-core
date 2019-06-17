@@ -60,7 +60,6 @@ public abstract class AbstractProjectFileTest {
                          getProjectFileExtensions(),
                          getServiceExtensions());
         afs.setData(ad);
-        storage.setEventStore(ad.getEventsStore());
     }
 
     @After

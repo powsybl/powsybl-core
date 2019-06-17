@@ -8,10 +8,7 @@ package com.powsybl.afs.ws.storage;
 
 import com.google.common.io.ByteStreams;
 import com.google.common.util.concurrent.UncheckedExecutionException;
-import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.NodeDependency;
-import com.powsybl.afs.storage.NodeGenericMetadata;
-import com.powsybl.afs.storage.NodeInfo;
+import com.powsybl.afs.storage.*;
 import com.powsybl.afs.storage.buffer.StorageChangeBuffer;
 import com.powsybl.afs.ws.client.utils.ClientUtils;
 import com.powsybl.afs.ws.utils.AfsRestApi;
@@ -45,7 +42,7 @@ import static com.powsybl.afs.ws.client.utils.ClientUtils.*;
  * @author Ali Tahanout <ali.tahanout at rte-france.com>
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class RemoteAppStorage implements AppStorage {
+public class RemoteAppStorage extends AbstractAppStorage {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteAppStorage.class);
 
@@ -68,14 +65,14 @@ public class RemoteAppStorage implements AppStorage {
 
     private boolean closed = false;
 
-    public RemoteAppStorage(String fileSystemName, URI baseUri) {
-        this(fileSystemName, baseUri, "");
+    public RemoteAppStorage(String fileSystemName, URI baseUri, EventsStore eventsStore) {
+        this(fileSystemName, baseUri, "", eventsStore);
     }
 
-    public RemoteAppStorage(String fileSystemName, URI baseUri, String token) {
+    public RemoteAppStorage(String fileSystemName, URI baseUri, String token, EventsStore eventsStore) {
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
         this.token = token;
-
+        this.eventsStore = eventsStore;
         client = createClient();
 
         webTarget = getWebTarget(client, baseUri)
@@ -960,6 +957,7 @@ public class RemoteAppStorage implements AppStorage {
     @Override
     public void flush() {
         changeBuffer.flush();
+        eventsStore.flush();
     }
 
     @Override

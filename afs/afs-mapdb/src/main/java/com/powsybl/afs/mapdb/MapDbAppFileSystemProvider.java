@@ -11,11 +11,11 @@ import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.AppFileSystemProvider;
 import com.powsybl.afs.AppFileSystemProviderContext;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
+import com.powsybl.afs.storage.EventsStore;
 
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
 /**
@@ -26,32 +26,24 @@ public class MapDbAppFileSystemProvider implements AppFileSystemProvider {
 
     private final List<MapDbAppFileSystemConfig> configs;
 
-    private BiFunction<String, Path, MapDbAppStorage> storageProvider;
+    private TriFunction<String, Path, EventsStore, MapDbAppStorage> storageProvider;
 
     public MapDbAppFileSystemProvider() {
-        this(MapDbAppFileSystemConfig.load());
-    }
-
-    public MapDbAppFileSystemProvider(List<MapDbAppFileSystemConfig> configs) {
-        this.configs = Objects.requireNonNull(configs);
-        this.storageProvider = null;
+        this(MapDbAppFileSystemConfig.load(), (name, path, eventsStore) -> MapDbAppStorage.createMmapFile(name, path.toFile(), eventsStore));
     }
 
     public MapDbAppFileSystemProvider(List<MapDbAppFileSystemConfig> configs,
-                                      BiFunction<String, Path, MapDbAppStorage> storageProvider) {
+                                      TriFunction<String, Path, EventsStore, MapDbAppStorage> storageProvider) {
         this.configs = Objects.requireNonNull(configs);
         this.storageProvider = Objects.requireNonNull(storageProvider);
     }
 
     @Override
     public List<AppFileSystem> getFileSystems(AppFileSystemProviderContext context) {
-        if (storageProvider == null) {
-            storageProvider =  (name, path) -> MapDbAppStorage.createMmapFile(name, path.toFile(), context.getEventsStore());
-        }
 
         return configs.stream()
                 .map(config ->  {
-                    MapDbAppStorage storage = storageProvider.apply(config.getDriveName(), config.getDbFile());
+                    MapDbAppStorage storage = storageProvider.apply(config.getDriveName(), config.getDbFile(), context.getEventsStore());
                     return new MapDbAppFileSystem(config.getDriveName(), config.isRemotelyAccessible(), storage);
                 })
                 .collect(Collectors.toList());

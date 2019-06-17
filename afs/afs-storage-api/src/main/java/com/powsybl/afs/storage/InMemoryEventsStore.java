@@ -6,32 +6,66 @@
  */
 package com.powsybl.afs.storage;
 
+import com.powsybl.afs.storage.events.AppStorageListener;
 import com.powsybl.afs.storage.events.NodeEvent;
+import com.powsybl.afs.storage.events.NodeEventList;
+import com.powsybl.commons.util.WeakListenerList;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
  */
 public class InMemoryEventsStore implements EventsStore {
 
-    private final Map<String, List> topics = new HashMap<>();
+    private final Map<String, List<NodeEvent>> topics = new HashMap<>();
+
+    private final WeakListenerList<AppStorageListener> listeners = new WeakListenerList<>();
+
+    private NodeEventList eventList = new NodeEventList();
+
+    private final Lock lock = new ReentrantLock();
 
     @Override
     public void pushEvent(NodeEvent event, String topic) {
-        if (topics.containsKey(topic)) {
-            topics.get(topic).add(event);
-        } else {
-            ArrayList<NodeEvent> topicEvents = new ArrayList<>();
-            topicEvents.add(event);
-            topics.put(topic, topicEvents);
+        eventList.addEvent(event);
+        topics.computeIfAbsent(topic, k -> new ArrayList<>());
+        topics.get(topic).add(event);
+    }
+
+    Map<String, List<NodeEvent>> getTopics() {
+        return topics;
+    }
+
+    @Override
+    public void flush() {
+        lock.lock();
+        try {
+            listeners.log();
+            listeners.notify(l -> l.onEvents(eventList));
+            eventList = new NodeEventList();
+        } finally {
+            lock.unlock();
         }
     }
 
-    Map<String, List> getTopics() {
-        return topics;
+    @Override
+    public void addListener(AppStorageListener l) {
+        listeners.add(l);
+    }
+
+    @Override
+    public void removeListener(AppStorageListener l) {
+        listeners.remove(l);
+    }
+
+    @Override
+    public void removeListeners() {
+        listeners.removeAll();
     }
 }

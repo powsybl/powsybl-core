@@ -58,7 +58,7 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
 
     public ProjectFolder(ProjectFileCreationContext context) {
         super(context, VERSION, true);
-        storage.addListener(l);
+        storage.getEventsStore().addListener(l);
     }
 
     /**
