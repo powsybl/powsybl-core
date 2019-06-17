@@ -42,7 +42,7 @@ import static com.powsybl.afs.ws.client.utils.ClientUtils.*;
  * @author Ali Tahanout <ali.tahanout at rte-france.com>
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class RemoteAppStorage extends AbstractAppStorage {
+public class RemoteAppStorage implements AppStorage {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteAppStorage.class);
 
@@ -65,14 +65,14 @@ public class RemoteAppStorage extends AbstractAppStorage {
 
     private boolean closed = false;
 
-    public RemoteAppStorage(String fileSystemName, URI baseUri, EventsStore eventsStore) {
-        this(fileSystemName, baseUri, "", eventsStore);
+    public RemoteAppStorage(String fileSystemName, URI baseUri) {
+        this(fileSystemName, baseUri, "");
     }
 
-    public RemoteAppStorage(String fileSystemName, URI baseUri, String token, EventsStore eventsStore) {
+    public RemoteAppStorage(String fileSystemName, URI baseUri, String token) {
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
         this.token = token;
-        this.eventsStore = eventsStore;
+
         client = createClient();
 
         webTarget = getWebTarget(client, baseUri)
@@ -334,7 +334,9 @@ public class RemoteAppStorage extends AbstractAppStorage {
     @Override
     public List<NodeInfo> getChildNodes(String nodeId) {
         Objects.requireNonNull(nodeId);
+
         LOGGER.debug("getChildNodes(fileSystemName={}, nodeId={})", fileSystemName, nodeId);
+
         Response response = webTarget.path("fileSystems/{fileSystemName}/nodes/{nodeId}/children")
                 .resolveTemplate(FILE_SYSTEM_NAME, fileSystemName)
                 .resolveTemplate(NODE_ID, nodeId)
@@ -716,6 +718,11 @@ public class RemoteAppStorage extends AbstractAppStorage {
     }
 
     @Override
+    public EventsStore getEventsStore() {
+        return null;
+    }
+
+    @Override
     public void createTimeSeries(String nodeId, TimeSeriesMetadata metadata) {
         Objects.requireNonNull(nodeId);
         Objects.requireNonNull(metadata);
@@ -957,7 +964,6 @@ public class RemoteAppStorage extends AbstractAppStorage {
     @Override
     public void flush() {
         changeBuffer.flush();
-        eventsStore.flush();
     }
 
     @Override

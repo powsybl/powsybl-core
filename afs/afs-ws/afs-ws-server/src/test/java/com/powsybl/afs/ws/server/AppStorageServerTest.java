@@ -8,10 +8,11 @@ package com.powsybl.afs.ws.server;
 
 import com.powsybl.afs.storage.AbstractAppStorageTest;
 import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.InMemoryEventsStore;
+import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.afs.ws.client.utils.ClientUtils;
 import com.powsybl.afs.ws.client.utils.UserSession;
 import com.powsybl.afs.ws.storage.RemoteAppStorage;
+import com.powsybl.afs.ws.storage.RemoteListenableAppStorage;
 import com.powsybl.commons.exceptions.UncheckedUriSyntaxException;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
@@ -49,15 +50,15 @@ public class AppStorageServerTest extends AbstractAppStorageTest {
     @Deployment
     public static WebArchive createTestArchive() {
         File[] filesLib = Maven.configureResolver()
-                               .useLegacyLocalRepo(true)
-                               .withMavenCentralRepo(false)
-                               .withClassPathResolution(true)
-                               .loadPomFromFile("pom.xml")
-                               .importRuntimeDependencies()
-                               .resolve("org.mockito:mockito-all",
-                                        "com.powsybl:powsybl-afs-mapdb")
-                               .withTransitivity()
-                               .asFile();
+                .useLegacyLocalRepo(true)
+                .withMavenCentralRepo(false)
+                .withClassPathResolution(true)
+                .loadPomFromFile("pom.xml")
+                .importRuntimeDependencies()
+                .resolve("org.mockito:mockito-all",
+                        "com.powsybl:powsybl-afs-mapdb")
+                .withTransitivity()
+                .asFile();
 
         return ShrinkWrap.create(WebArchive.class, "afs-ws-server-test.war")
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml")
@@ -82,9 +83,8 @@ public class AppStorageServerTest extends AbstractAppStorageTest {
     @Override
     protected AppStorage createStorage() {
         URI restUri = getRestUri();
-        RemoteAppStorage storage = new RemoteAppStorage(AppDataBeanMock.TEST_FS_NAME, restUri, userSession.getToken(),
-                new InMemoryEventsStore());
-        return storage;
+        RemoteAppStorage storage = new RemoteAppStorage(AppDataBeanMock.TEST_FS_NAME, restUri, userSession.getToken());
+        return new RemoteListenableAppStorage(storage, restUri);
     }
 
     @Test
