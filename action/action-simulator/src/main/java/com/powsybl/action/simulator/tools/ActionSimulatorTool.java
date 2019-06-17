@@ -7,8 +7,6 @@
 package com.powsybl.action.simulator.tools;
 
 import com.google.auto.service.AutoService;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.powsybl.action.dsl.ActionDb;
 import com.powsybl.action.dsl.ActionDslLoader;
 import com.powsybl.action.dsl.DefaultActionDslLoaderObserver;
@@ -62,13 +60,12 @@ import static com.powsybl.tools.ToolConstants.TASK_COUNT;
 @AutoService(Tool.class)
 public class ActionSimulatorTool implements Tool {
 
-    private static final Supplier<ConversionOption> LOADER = Suppliers.memoize(() -> new DefaultConversionOption(CASE_FILE));
     private static final Logger LOGGER = LoggerFactory.getLogger(ActionSimulatorTool.class);
 
     private final ConversionOption conversionOption;
 
     public ActionSimulatorTool() {
-        this.conversionOption = LOADER.get();
+        this.conversionOption = new DefaultConversionOption(CASE_FILE);
     }
 
     @Override

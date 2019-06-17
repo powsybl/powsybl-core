@@ -7,8 +7,6 @@
 package com.powsybl.simulation;
 
 import com.google.auto.service.AutoService;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
@@ -60,12 +58,11 @@ public class ImpactAnalysisTool implements Tool {
     private static final char CSV_SEPARATOR = ';';
     private static final String CONTINGENCIES = "contingencies";
     private static final String OUTPUT_CSV_FILE = "output-csv-file";
-    private static final Supplier<ConversionOption> LOADER = Suppliers.memoize(() -> new DefaultConversionOption(CASE_FILE));
 
     private final ConversionOption conversionOption;
 
     public ImpactAnalysisTool() {
-        this.conversionOption = LOADER.get();
+        this.conversionOption = new DefaultConversionOption(CASE_FILE);
     }
 
     @Override

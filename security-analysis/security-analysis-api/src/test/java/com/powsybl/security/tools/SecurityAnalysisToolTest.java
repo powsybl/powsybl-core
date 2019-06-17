@@ -9,12 +9,16 @@ package com.powsybl.security.tools;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteSource;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.computation.ComputationException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.import_.ImportConfig;
+import com.powsybl.iidm.import_.Importers;
 import com.powsybl.iidm.import_.ImportersLoaderList;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.tools.ConversionToolUtils;
+import com.powsybl.iidm.tools.DefaultConversionOption;
 import com.powsybl.security.*;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
 import com.powsybl.security.execution.SecurityAnalysisExecutionBuilder;
@@ -39,6 +43,8 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.CompletionException;
 
+import static com.powsybl.iidm.tools.ConversionToolConstants.CASE_FILE;
+import static com.powsybl.iidm.tools.ConversionToolUtils.readProperties;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
 import static org.junit.Assert.*;
@@ -56,7 +62,19 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
     @Before
     public void setUp() throws Exception {
         super.setUp();
-        tool = new SecurityAnalysisTool();
+        tool = new SecurityAnalysisTool(new DefaultConversionOption(CASE_FILE) {
+            @Override
+            public Network read(String commandOption, CommandLine line, ToolRunningContext context) throws IOException {
+                String inputFile = line.getOptionValue(commandOption);
+                context.getOutputStream().println("Loading network " + inputFile + "...");
+                Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
+                Network network = Importers.loadNetwork(context.getFileSystem().getPath(inputFile), context.getShortTimeExecutionComputationManager(), new ImportConfig(), inputParams, new ImportersLoaderList(new NetworkImporterMock()));
+                if (network == null) {
+                    throw new PowsyblException("Network " + inputFile + " not found");
+                }
+                return network;
+            }
+        });
         Files.createFile(fileSystem.getPath("network.xml"));
     }
 
@@ -175,7 +193,7 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
                 mock(ComputationManager.class), mock(ComputationManager.class));
 
         CommandLine cli = mockCommandLine(ImmutableMap.of("case-file", "network.xml"), Collections.emptySet());
-        SecurityAnalysisTool.readNetwork(cli, context, ImportConfig::new, new ImportersLoaderList(new NetworkImporterMock()));
+        tool.readNetwork(cli, context);
     }
 
     @Test
@@ -200,8 +218,6 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
             // execute
             tool.run(cl, context, builder,
                     SecurityAnalysisParameters::new,
-                    ImportConfig::new,
-                    new ImportersLoaderList(new NetworkImporterMock()),
                     TableFormatterConfig::new);
 
             // verify that runWithLog() called instead of run();
@@ -212,8 +228,6 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
             // execute
             tool.run(cl, context, builder,
                     SecurityAnalysisParameters::new,
-                    ImportConfig::new,
-                    new ImportersLoaderList(new NetworkImporterMock()),
                     TableFormatterConfig::new);
             verify(sa, times(1)).run(any(), any(), any());
 

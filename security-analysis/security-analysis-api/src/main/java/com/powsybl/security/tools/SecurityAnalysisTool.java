@@ -16,13 +16,10 @@ import com.powsybl.computation.ComputationException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.Partition;
 import com.powsybl.contingency.ContingenciesProviders;
-import com.powsybl.iidm.import_.ImportConfig;
-import com.powsybl.iidm.import_.Importers;
-import com.powsybl.iidm.import_.ImportersLoader;
-import com.powsybl.iidm.import_.ImportersServiceLoader;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
-import com.powsybl.iidm.tools.ConversionToolUtils;
+import com.powsybl.iidm.tools.ConversionOption;
+import com.powsybl.iidm.tools.DefaultConversionOption;
 import com.powsybl.security.*;
 import com.powsybl.security.converter.SecurityAnalysisResultExporters;
 import com.powsybl.security.distributed.ExternalSecurityAnalysisConfig;
@@ -34,10 +31,7 @@ import com.powsybl.security.interceptors.SecurityAnalysisInterceptors;
 import com.powsybl.security.json.JsonSecurityAnalysisParameters;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessorFactory;
 import com.powsybl.security.preprocessor.SecurityAnalysisPreprocessors;
-import com.powsybl.tools.Command;
-import com.powsybl.tools.Tool;
-import com.powsybl.tools.ToolOptions;
-import com.powsybl.tools.ToolRunningContext;
+import com.powsybl.tools.*;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
@@ -55,7 +49,7 @@ import java.util.concurrent.CompletionException;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import static com.powsybl.iidm.tools.ConversionToolUtils.*;
+import static com.powsybl.iidm.tools.ConversionToolConstants.CASE_FILE;
 import static com.powsybl.security.tools.SecurityAnalysisToolConstants.*;
 import static com.powsybl.tools.ToolConstants.TASK;
 import static com.powsybl.tools.ToolConstants.TASK_COUNT;
@@ -67,33 +61,26 @@ import static com.powsybl.tools.ToolConstants.TASK_COUNT;
 @AutoService(Tool.class)
 public class SecurityAnalysisTool implements Tool {
 
+    private final ConversionOption conversionOption;
+
+    public SecurityAnalysisTool() {
+        this(new DefaultConversionOption(CASE_FILE));
+    }
+
+    public SecurityAnalysisTool(ConversionOption conversionOption) {
+        this.conversionOption = conversionOption;
+    }
+
     @Override
     public Command getCommand() {
-        return new Command() {
-            @Override
-            public String getName() {
-                return "security-analysis";
-            }
-
-            @Override
-            public String getTheme() {
-                return "Computation";
-            }
-
-            @Override
-            public String getDescription() {
-                return "Run security analysis";
-            }
+        return new AbstractCommand("security-analysis",
+                "Computation",
+                "Run security analysis") {
 
             @Override
             public Options getOptions() {
                 Options options = new Options();
-                options.addOption(Option.builder().longOpt(CASE_FILE_OPTION)
-                        .desc("the case path")
-                        .hasArg()
-                        .argName("FILE")
-                        .required()
-                        .build());
+                conversionOption.addImportOptions(options);
                 options.addOption(Option.builder().longOpt(PARAMETERS_FILE_OPTION)
                         .desc("loadflow parameters as JSON file")
                         .hasArg()
@@ -137,11 +124,6 @@ public class SecurityAnalysisTool implements Tool {
                 options.addOption(Option.builder().longOpt(EXTERNAL)
                         .desc("external execution")
                         .build());
-                options.addOption(Option.builder().longOpt(SKIP_POSTPROC_OPTION)
-                        .desc("skip network importer post processors (when configured)")
-                        .build());
-                options.addOption(createImportParametersFileOption());
-                options.addOption(createImportParameterOption());
                 options.addOption(Option.builder().longOpt(OUTPUT_LOG_OPTION)
                         .desc("log output path (.zip")
                         .hasArg()
@@ -243,16 +225,8 @@ public class SecurityAnalysisTool implements Tool {
         }
     }
 
-    static Network readNetwork(CommandLine line, ToolRunningContext context, Supplier<ImportConfig> importConfigLoader, ImportersLoader importersLoader) throws IOException {
-        ToolOptions options = new ToolOptions(line, context);
-        Path caseFile = options.getPath(CASE_FILE_OPTION)
-                .orElseThrow(AssertionError::new);
-        boolean skipPostProc = options.hasOption(SKIP_POSTPROC_OPTION);
-        Properties inputParams = readProperties(line, ConversionToolUtils.OptionType.IMPORT, context);
-
-        context.getOutputStream().println("Loading network '" + caseFile + "'");
-        ImportConfig importConfig = (!skipPostProc) ? importConfigLoader.get() : new ImportConfig();
-        Network network = Importers.loadNetwork(caseFile, context.getShortTimeExecutionComputationManager(), importConfig, inputParams, importersLoader);
+    Network readNetwork(CommandLine line, ToolRunningContext context) throws IOException {
+        Network network = conversionOption.read(line, context);
         network.getVariantManager().allowVariantMultiThreadAccess(true);
         return network;
     }
@@ -270,16 +244,12 @@ public class SecurityAnalysisTool implements Tool {
         run(line, context,
                 createBuilder(PlatformConfig.defaultConfig()),
                 SecurityAnalysisParameters::load,
-                ImportConfig::load,
-                new ImportersServiceLoader(),
                 TableFormatterConfig::load);
     }
 
     void run(CommandLine line, ToolRunningContext context,
              SecurityAnalysisExecutionBuilder executionBuilder,
              Supplier<SecurityAnalysisParameters> parametersLoader,
-             Supplier<ImportConfig> importConfigLoader,
-             ImportersLoader importersLoader,
              Supplier<TableFormatterConfig> tableFormatterConfigLoader) throws Exception {
 
         ToolOptions options = new ToolOptions(line, context);
@@ -293,7 +263,7 @@ public class SecurityAnalysisTool implements Tool {
                             .orElseThrow(() -> new ParseException("Missing required option: " + OUTPUT_FORMAT_OPTION));
         }
 
-        Network network = readNetwork(line, context, importConfigLoader, importersLoader);
+        Network network = readNetwork(line, context);
 
         SecurityAnalysisExecutionInput executionInput = new SecurityAnalysisExecutionInput()
                 .setNetworkVariant(network, VariantManagerConstants.INITIAL_VARIANT_ID)

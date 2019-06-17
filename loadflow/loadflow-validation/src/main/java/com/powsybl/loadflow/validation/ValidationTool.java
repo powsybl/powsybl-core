@@ -8,8 +8,6 @@ package com.powsybl.loadflow.validation;
 
 import com.google.auto.service.AutoService;
 import com.google.common.base.Preconditions;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.google.common.collect.Sets;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Network;
@@ -58,12 +56,11 @@ public class ValidationTool implements Tool {
     private static final String GROOVY_SCRIPT = "groovy-script";
     private static final String RUN_COMPUTATION = "run-computation";
     private static final String COMPARE_CASE_FILE = "compare-case-file";
-    private static final Supplier<ConversionOption> LOADER = Suppliers.memoize(() -> new DefaultConversionOption(CASE_FILE));
 
     private final ConversionOption conversionOption;
 
     public ValidationTool() {
-        this.conversionOption = LOADER.get();
+        this.conversionOption = new DefaultConversionOption(CASE_FILE);
     }
 
     @Override

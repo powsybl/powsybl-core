@@ -7,8 +7,6 @@
 package com.powsybl.loadflow.tools;
 
 import com.google.auto.service.AutoService;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.commons.io.table.*;
 import com.powsybl.iidm.tools.ConversionOption;
@@ -51,12 +49,11 @@ public class RunLoadFlowTool implements Tool {
     private static final String OUTPUT_FORMAT = "output-format";
     private static final String OUTPUT_CASE_FORMAT = "output-case-format";
     private static final String OUTPUT_CASE_FILE = "output-case-file";
-    private static final Supplier<ConversionOption> LOADER = Suppliers.memoize(() -> new DefaultConversionOption(CASE_FILE, OUTPUT_CASE_FILE, OUTPUT_CASE_FORMAT));
 
     private final ConversionOption conversionOption;
 
     public RunLoadFlowTool() {
-        this.conversionOption = LOADER.get();
+        this.conversionOption = new DefaultConversionOption(CASE_FILE, OUTPUT_CASE_FILE, OUTPUT_CASE_FORMAT);
     }
 
     private enum Format {

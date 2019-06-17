@@ -7,8 +7,6 @@
 package com.powsybl.sensitivity;
 
 import com.google.auto.service.AutoService;
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.powsybl.commons.config.ComponentDefaultConfig;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.Column;
@@ -45,12 +43,11 @@ public class SensitivityComputationTool implements Tool {
     private static final String OUTPUT_FILE_OPTION = "output-file";
     private static final String OUTPUT_FORMAT_OPTION = "output-format";
     private static final String FACTORS_FILE_OPTION = "factors-file";
-    private static final Supplier<ConversionOption> LOADER = Suppliers.memoize(() -> new DefaultConversionOption(CASE_FILE));
 
     private final ConversionOption conversionOption;
 
     public SensitivityComputationTool() {
-        this(LOADER.get());
+        this(new DefaultConversionOption(CASE_FILE));
     }
 
     public SensitivityComputationTool(ConversionOption conversionOption) {
