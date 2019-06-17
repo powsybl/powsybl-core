@@ -253,10 +253,10 @@ public class RegulatingControlMapping {
         }
         if (context.tapChangerTransformers().type(tc).equals("rtc")) {
             if (context.tapChangerTransformers().whichSide(tc) == 2) {
-                t3w.getLeg2().getRatioTapChanger().setRegulationTerminal(regTerminal);
+                t3w.getLeg2().getTapChanger(RatioTapChanger.class).setRegulationTerminal(regTerminal);
                 return true;
             } else if (context.tapChangerTransformers().whichSide(tc) == 3) {
-                t3w.getLeg3().getRatioTapChanger().setRegulationTerminal(regTerminal);
+                t3w.getLeg3().getTapChanger(RatioTapChanger.class).setRegulationTerminal(regTerminal);
                 return true;
             }
         }

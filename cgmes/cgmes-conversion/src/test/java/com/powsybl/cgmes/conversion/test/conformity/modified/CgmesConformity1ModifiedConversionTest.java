@@ -170,8 +170,8 @@ public class CgmesConformity1ModifiedConversionTest {
         assertSame(twt2.getTerminal1().getBusBreakerView().getBus(), regulatingTerminal.getBusBreakerView().getBus());
 
         ThreeWindingsTransformer twt3 = network.getThreeWindingsTransformer("_5d38b7ed-73fd-405a-9cdb-78425e003773");
-        RatioTapChanger rtc2 = twt3.getLeg3().getRatioTapChanger();
-        assertNotNull(rtc2);
+        assertNotNull(twt3.getLeg3().getTapChanger());
+        RatioTapChanger rtc2 = twt3.getLeg3().getTapChanger(RatioTapChanger.class);
         Terminal regulatingTerminal2 = rtc2.getRegulationTerminal();
         assertNotNull(regulatingTerminal2);
         assertSame(network.getVoltageLevel("_93778e52-3fd5-456d-8b10-987c3e6bc47e").getBusBreakerView().getBus("_03163ede-7eec-457f-8641-365982227d7c"),
