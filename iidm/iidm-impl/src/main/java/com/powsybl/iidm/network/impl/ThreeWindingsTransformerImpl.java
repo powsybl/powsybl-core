@@ -43,12 +43,13 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         private PhaseTapChangerImpl phaseTapChanger;
 
-        AbstractLegBase(double r, double x, double g, double b, double ratedU) {
+        AbstractLegBase(double r, double x, double g, double b, double ratedU, int phaseAngleClock) {
             this.r = r;
             this.x = x;
             this.g = g;
             this.b = b;
             this.ratedU = ratedU;
+            this.phaseAngleClock = phaseAngleClock;
         }
 
         void setTransformer(ThreeWindingsTransformerImpl transformer) {
@@ -187,8 +188,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
     static class Leg1Impl extends AbstractLegBase<Leg1Impl> implements LegBase<Leg1Impl> {
 
-        Leg1Impl(double r, double x, double g, double b, double ratedU) {
-            super(r, x, g, b, ratedU);
+        Leg1Impl(double r, double x, double g, double b, double ratedU, int phaseAngleClock) {
+            super(r, x, g, b, ratedU, phaseAngleClock);
         }
 
         @Override
@@ -215,8 +216,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
     static class Leg2Impl extends AbstractLegBase<Leg2Impl> implements LegBase<Leg2Impl> {
 
-        Leg2Impl(double r, double x, double g, double b, double ratedU) {
-            super(r, x, g, b, ratedU);
+        Leg2Impl(double r, double x, double g, double b, double ratedU, int phaseAngleClock) {
+            super(r, x, g, b, ratedU, phaseAngleClock);
         }
 
         @Override
@@ -243,8 +244,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
     static class Leg3Impl extends AbstractLegBase<Leg3Impl> implements LegBase<Leg3Impl> {
 
-        Leg3Impl(double r, double x, double g, double b, double ratedU) {
-            super(r, x, g, b, ratedU);
+        Leg3Impl(double r, double x, double g, double b, double ratedU, int phaseAngleClock) {
+            super(r, x, g, b, ratedU, phaseAngleClock);
         }
 
         @Override

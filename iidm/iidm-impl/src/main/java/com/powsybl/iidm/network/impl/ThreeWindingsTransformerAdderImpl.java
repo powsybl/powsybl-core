@@ -106,6 +106,9 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             if (Double.isNaN(ratedU)) {
                 throw new ValidationException(this, "rated u is not set");
             }
+            if (Double.isNaN(phaseAngleClock)) {
+                throw new ValidationException(this, "phaseAngleClock is not set");
+            }
         }
 
         protected TerminalExt checkAndGetTerminal() {
@@ -141,7 +144,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             checkParams();
             voltageLevel1 = checkAndGetVoltageLevel();
             terminal1 = checkAndGetTerminal();
-            leg1 = new Leg1Impl(r, x, g, b, ratedU);
+            leg1 = new Leg1Impl(r, x, g, b, ratedU, phaseAngleClock);
             return ThreeWindingsTransformerAdderImpl.this;
         }
 
@@ -159,7 +162,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             checkParams();
             voltageLevel2 = checkAndGetVoltageLevel();
             terminal2 = checkAndGetTerminal();
-            leg2 = new Leg2Impl(r, x, g, b, ratedU);
+            leg2 = new Leg2Impl(r, x, g, b, ratedU, phaseAngleClock);
             return ThreeWindingsTransformerAdderImpl.this;
         }
 
@@ -177,7 +180,7 @@ class ThreeWindingsTransformerAdderImpl extends AbstractIdentifiableAdder<ThreeW
             checkParams();
             voltageLevel3 = checkAndGetVoltageLevel();
             terminal3 = checkAndGetTerminal();
-            leg3 = new Leg3Impl(r, x, g, b, ratedU);
+            leg3 = new Leg3Impl(r, x, g, b, ratedU, phaseAngleClock);
             return ThreeWindingsTransformerAdderImpl.this;
         }
 
