@@ -83,7 +83,7 @@ public class DefaultConversionOption implements ConversionOption {
 
     @Override
     public ImportConfig createImportConfig(CommandLine line) {
-        return ConversionToolUtils.createImportConfig(line);
+        return ConversionToolUtils.createImportConfig(line, ImportConfig.load());
     }
 
     @Override
