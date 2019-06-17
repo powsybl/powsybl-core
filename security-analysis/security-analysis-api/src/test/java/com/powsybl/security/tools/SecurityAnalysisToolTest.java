@@ -217,12 +217,11 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
                     TableFormatterConfig::new);
             verify(sa, times(1)).run(any(), any(), any());
 
-
             // exception happens
             SecurityAnalysisFactory saFactory2 = new SecurityAnalysisMockFactory(true);
             SecurityAnalysisExecutionBuilder builder2 = new SecurityAnalysisExecutionBuilder(ExternalSecurityAnalysisConfig::new,
-                    () -> saFactory2,
-                    executionInput -> new SecurityAnalysisInput(executionInput.getNetworkVariant()));
+                () -> saFactory2,
+                executionInput -> new SecurityAnalysisInput(executionInput.getNetworkVariant()));
             try {
                 tool.run(cl, context, builder2,
                         SecurityAnalysisParameters::new,
