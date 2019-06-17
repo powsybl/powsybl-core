@@ -11,7 +11,6 @@ import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.AppFileSystemProvider;
 import com.powsybl.afs.AppFileSystemProviderContext;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
-import com.powsybl.afs.storage.InMemoryEventsStore;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -27,10 +26,15 @@ public class MapDbAppFileSystemProvider implements AppFileSystemProvider {
 
     private final List<MapDbAppFileSystemConfig> configs;
 
-    private final BiFunction<String, Path, MapDbAppStorage> storageProvider;
+    private BiFunction<String, Path, MapDbAppStorage> storageProvider;
 
     public MapDbAppFileSystemProvider() {
-        this(MapDbAppFileSystemConfig.load(), (name, path) -> MapDbAppStorage.createMmapFile(name, path.toFile(), new InMemoryEventsStore()));
+        this(MapDbAppFileSystemConfig.load());
+    }
+
+    public MapDbAppFileSystemProvider(List<MapDbAppFileSystemConfig> configs) {
+        this.configs = Objects.requireNonNull(configs);
+        this.storageProvider = null;
     }
 
     public MapDbAppFileSystemProvider(List<MapDbAppFileSystemConfig> configs,
@@ -41,6 +45,10 @@ public class MapDbAppFileSystemProvider implements AppFileSystemProvider {
 
     @Override
     public List<AppFileSystem> getFileSystems(AppFileSystemProviderContext context) {
+        if (storageProvider == null) {
+            storageProvider =  (name, path) -> MapDbAppStorage.createMmapFile(name, path.toFile(), context.getEventsStore());
+        }
+
         return configs.stream()
                 .map(config ->  {
                     MapDbAppStorage storage = storageProvider.apply(config.getDriveName(), config.getDbFile());

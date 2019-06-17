@@ -136,7 +136,7 @@ public class AppData implements AutoCloseable {
     private void loadFileSystems() {
         if (fileSystems == null) {
             fileSystems = new HashMap<>();
-            AppFileSystemProviderContext context = new AppFileSystemProviderContext(shortTimeExecutionComputationManager, tokenProvider.getToken());
+            AppFileSystemProviderContext context = new AppFileSystemProviderContext(shortTimeExecutionComputationManager, tokenProvider.getToken(), eventsStore);
             for (AppFileSystemProvider provider : fileSystemProviders) {
                 for (AppFileSystem fileSystem : provider.getFileSystems(context)) {
                     fileSystem.setData(this);

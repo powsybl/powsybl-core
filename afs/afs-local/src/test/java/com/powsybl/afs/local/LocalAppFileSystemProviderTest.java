@@ -12,6 +12,7 @@ import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.AppFileSystemProviderContext;
 import com.powsybl.afs.local.storage.LocalCaseScanner;
 import com.powsybl.afs.local.storage.LocalFileScanner;
+import com.powsybl.afs.storage.InMemoryEventsStore;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.ImportersLoaderList;
@@ -52,7 +53,7 @@ public class LocalAppFileSystemProviderTest {
         List<AppFileSystem> fileSystems = new LocalAppFileSystemProvider(Collections.singletonList(config),
                                                                          Collections.singletonList(extension),
                                                                          Collections.emptyList())
-                .getFileSystems(new AppFileSystemProviderContext(computationManager, null));
+                .getFileSystems(new AppFileSystemProviderContext(computationManager, null, new InMemoryEventsStore()));
         assertEquals(1, fileSystems.size());
         assertTrue(fileSystems.get(0) instanceof LocalAppFileSystem);
         assertEquals("drive", fileSystems.get(0).getName());
