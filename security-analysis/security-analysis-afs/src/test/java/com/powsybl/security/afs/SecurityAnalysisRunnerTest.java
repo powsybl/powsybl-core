@@ -12,6 +12,7 @@ import com.powsybl.afs.*;
 import com.powsybl.afs.ext.base.*;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
+import com.powsybl.afs.storage.InMemoryEventsStore;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.commons.datasource.DataSource;
@@ -108,7 +109,7 @@ public class SecurityAnalysisRunnerTest extends AbstractProjectFileTest {
 
     @Override
     protected AppStorage createStorage() {
-        return MapDbAppStorage.createMem("mem");
+        return MapDbAppStorage.createMem("mem", new InMemoryEventsStore());
     }
 
     @Override

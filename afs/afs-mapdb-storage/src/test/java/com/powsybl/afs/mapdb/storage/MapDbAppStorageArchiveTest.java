@@ -8,6 +8,7 @@ package com.powsybl.afs.mapdb.storage;
 
 import com.powsybl.afs.storage.AbstractAppStorageArchiveTest;
 import com.powsybl.afs.storage.AppStorage;
+import com.powsybl.afs.storage.InMemoryEventsStore;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -16,6 +17,6 @@ public class MapDbAppStorageArchiveTest extends AbstractAppStorageArchiveTest {
 
     @Override
     protected AppStorage createStorage() {
-        return MapDbAppStorage.createMem("mem");
+        return MapDbAppStorage.createMem("mem", new InMemoryEventsStore());
     }
 }

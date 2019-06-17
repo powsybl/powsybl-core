@@ -12,6 +12,7 @@ import com.powsybl.afs.Project;
 import com.powsybl.afs.ProjectFileExtension;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
+import com.powsybl.afs.storage.InMemoryEventsStore;
 import com.powsybl.contingency.BranchContingency;
 import com.powsybl.contingency.Contingency;
 import org.junit.Test;
@@ -28,7 +29,7 @@ public class ContingencyStoreTest extends AbstractProjectFileTest {
 
     @Override
     protected AppStorage createStorage() {
-        return MapDbAppStorage.createMem("mem");
+        return MapDbAppStorage.createMem("mem", new InMemoryEventsStore());
     }
 
     @Override

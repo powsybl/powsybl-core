@@ -37,10 +37,11 @@ public class AppFileSystemToolTest extends AbstractToolTest {
         tool = new AppFileSystemTool() {
             @Override
             protected AppData createAppData(ToolRunningContext context) {
-                AppStorage storage = MapDbAppStorage.createMem("mem");
-                AppFileSystem afs = new AppFileSystem("mem", false, storage);
-                AppData appData = new AppData(computationManager, computationManager, Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
+                AppData appData = new AppData(computationManager, computationManager, Collections.emptyList(),
                         Collections.emptyList(), Collections.emptyList(), Collections.emptyList());
+                AppStorage storage = MapDbAppStorage.createMem("mem", appData.getEventsStore());
+                AppFileSystem afs = new AppFileSystem("mem", false, storage);
+                appData.addFileSystem(afs);
                 afs.getRootFolder().createProject("test_project1");
                 afs.getRootFolder().createProject("test_project2");
                 storage.createNode(afs.getRootFolder().getId(), "test", FOLDER_PSEUDO_CLASS, "", 0,

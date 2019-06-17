@@ -30,17 +30,17 @@ import java.util.stream.Stream;
  */
 public class MapDbAppStorage extends AbstractAppStorage {
 
-    public static MapDbAppStorage createMem(String fileSystemName) {
+    public static MapDbAppStorage createMem(String fileSystemName, EventsStore eventsStore) {
         DBMaker.Maker maker = DBMaker.memoryDB();
-        return new MapDbAppStorage(fileSystemName, maker::make);
+        return new MapDbAppStorage(fileSystemName, maker::make, eventsStore);
     }
 
-    public static MapDbAppStorage createHeap(String fileSystemName) {
+    public static MapDbAppStorage createHeap(String fileSystemName, EventsStore eventsStore) {
         DBMaker.Maker maker = DBMaker.heapDB();
-        return new MapDbAppStorage(fileSystemName, maker::make);
+        return new MapDbAppStorage(fileSystemName, maker::make, eventsStore);
     }
 
-    public static MapDbAppStorage createMmapFile(String fileSystemName, File dbFile) {
+    public static MapDbAppStorage createMmapFile(String fileSystemName, File dbFile, EventsStore eventsStore) {
         return new MapDbAppStorage(fileSystemName, () -> {
             DBMaker.Maker maker = DBMaker.fileDB(dbFile)
                     .transactionEnable();
@@ -51,7 +51,7 @@ public class MapDbAppStorage extends AbstractAppStorage {
                         .fileMmapPreclearDisable();
             }
             return maker.make();
-        });
+        }, eventsStore);
     }
 
     private final String fileSystemName;
@@ -90,9 +90,7 @@ public class MapDbAppStorage extends AbstractAppStorage {
 
     private final ConcurrentMap<UUID, List<UUID>> backwardDependencyNodesMap;
 
-    private EventsStore eventsStore;
-
-    protected MapDbAppStorage(String fileSystemName, Supplier<DB> db) {
+    protected MapDbAppStorage(String fileSystemName, Supplier<DB> db, EventsStore eventsStore) {
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
         this.db = db.get();
 
@@ -158,6 +156,8 @@ public class MapDbAppStorage extends AbstractAppStorage {
         backwardDependencyNodesMap = this.db
                 .hashMap("backwardDependencyNodes", UuidSerializer.INSTANCE, UuidListSerializer.INSTANCE)
                 .createOrOpen();
+
+        this.eventsStore = eventsStore;
     }
 
     private static <K, V> Map<K, Set<V>> addToSet(Map<K, Set<V>> map, K key, V value) {

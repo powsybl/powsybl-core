@@ -33,14 +33,15 @@ public class AfsBaseTest {
 
     @Before
     public void setup() {
-        storage = MapDbAppStorage.createMem("mem");
-
         ComputationManager computationManager = Mockito.mock(ComputationManager.class);
-        afs = new AppFileSystem("mem", true, storage);
-        ad = new AppData(computationManager, computationManager, Collections.singletonList(computationManager1 -> Collections.singletonList(afs)),
+        ad = new AppData(computationManager, computationManager, Collections.emptyList(),
                 Collections.emptyList(), Collections.singletonList(new FooFileExtension()), Collections.emptyList());
-        storage.setEventStore(ad.getEventsStore());
+
+        storage = MapDbAppStorage.createMem("mem", ad.getEventsStore());
+
+        afs = new AppFileSystem("mem", true, storage);
         afs.setData(ad);
+        ad.addFileSystem(afs);
     }
 
     @After
