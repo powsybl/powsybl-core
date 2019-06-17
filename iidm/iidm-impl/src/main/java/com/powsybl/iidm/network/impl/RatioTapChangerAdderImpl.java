@@ -34,70 +34,15 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
     private TerminalExt regulationTerminal;
 
-    class StepAdderImpl implements StepAdder {
-
-        private double rho = Double.NaN;
-
-        private double r = Double.NaN;
-
-        private double x = Double.NaN;
-
-        private double g = Double.NaN;
-
-        private double b = Double.NaN;
+    class StepAdderImpl extends AbstractTapChangerStepAdder<StepAdderImpl> implements StepAdder {
 
         @Override
-        public StepAdder setRho(double rho) {
-            this.rho = rho;
-            return this;
-        }
-
-        @Override
-        public StepAdder setR(double r) {
-            this.r = r;
-            return this;
-        }
-
-        @Override
-        public StepAdder setX(double x) {
-            this.x = x;
-            return this;
-        }
-
-        @Override
-        public StepAdder setG(double g) {
-            this.g = g;
-            return this;
-        }
-
-        @Override
-        public StepAdder setB(double b) {
-            this.b = b;
-            return this;
-        }
-
-        @Override
-        public RatioTapChangerAdder endStep() {
-            if (Double.isNaN(rho)) {
-                throw new ValidationException(parent, "step rho is not set");
-            }
-            if (Double.isNaN(r)) {
-                throw new ValidationException(parent, "step r is not set");
-            }
-            if (Double.isNaN(x)) {
-                throw new ValidationException(parent, "step x is not set");
-            }
-            if (Double.isNaN(g)) {
-                throw new ValidationException(parent, "step g is not set");
-            }
-            if (Double.isNaN(b)) {
-                throw new ValidationException(parent, "step b is not set");
-            }
+        public RatioTapChangerAdderImpl endStep() {
+            checkValues(parent);
             RatioTapChangerStepImpl step = new RatioTapChangerStepImpl(rho, r, x, g, b);
             steps.add(step);
             return RatioTapChangerAdderImpl.this;
         }
-
     }
 
     RatioTapChangerAdderImpl(RatioTapChangerParent parent) {

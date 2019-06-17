@@ -26,6 +26,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         protected ThreeWindingsTransformerImpl transformer;
 
+        private int leg;
+
         private double r;
 
         private double x;
@@ -40,7 +42,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         private TapChangerHolderImpl tapChanger;
 
-        AbstractLeg(double r, double x, double g, double b, double ratedU) {
+        AbstractLeg(int leg, double r, double x, double g, double b, double ratedU) {
+            this.leg = leg;
             this.r = r;
             this.x = x;
             this.g = g;
@@ -54,7 +57,26 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
         }
 
         public TerminalExt getTerminal() {
-            return transformer.terminals.get(0);
+            return transformer.terminals.get(leg - 1);
+        }
+
+        @Override
+        public String getRatioTapChangerAttribute() {
+            return "ratioTapChanger" + leg;
+        }
+
+        @Override
+        public String getPhaseTapChangerAttribute() {
+            return "phaseTapChanger" + leg;
+        }
+
+        public String getTypeDescription() {
+            return "3 windings transformer leg " + leg;
+        }
+
+        @Override
+        public String toString() {
+            return transformer.getId() + " leg " + leg;
         }
 
         public double getR() {
@@ -166,8 +188,6 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             return transformer.getSubstation().getNetwork();
         }
 
-        protected abstract String getTypeDescription();
-
         public Identifiable getTransformer() {
             return transformer;
         }
@@ -182,99 +202,22 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
     static class Leg1Impl extends AbstractLeg<Leg1Impl> implements Leg {
 
         Leg1Impl(double r, double x, double g, double b, double ratedU) {
-            super(r, x, g, b, ratedU);
-        }
-
-        @Override
-        public TerminalExt getTerminal() {
-            return transformer.terminals.get(0);
-        }
-
-        @Override
-        public String getRatioTapChangerAttribute() {
-            return "ratioTapChanger1";
-        }
-
-        @Override
-        public String getPhaseTapChangerAttribute() {
-            return "phaseTapChanger1";
-        }
-
-        @Override
-        public String getTypeDescription() {
-            return "3 windings transformer leg 1";
-        }
-
-        @Override
-        public String toString() {
-            return transformer.getId() + " leg 1";
+            super(1, r, x, g, b, ratedU);
         }
     }
 
     static class Leg2Impl extends AbstractLeg<Leg2Impl> implements Leg {
 
         Leg2Impl(double r, double x, double g, double b, double ratedU) {
-            super(r, x, g, b, ratedU);
+            super(2, r, x, g, b, ratedU);
         }
-
-        @Override
-        public TerminalExt getTerminal() {
-            return transformer.terminals.get(1);
-        }
-
-        @Override
-        public String getRatioTapChangerAttribute() {
-            return "ratioTapChanger2";
-        }
-
-        @Override
-        public String getPhaseTapChangerAttribute() {
-            return "phaseTapChanger2";
-        }
-
-        @Override
-        public String getTypeDescription() {
-            return "3 windings transformer leg 2";
-        }
-
-        @Override
-        public String toString() {
-            return transformer.getId() + " leg 2";
-        }
-
     }
 
     static class Leg3Impl extends AbstractLeg<Leg3Impl> implements Leg {
 
         Leg3Impl(double r, double x, double g, double b, double ratedU) {
-            super(r, x, g, b, ratedU);
+            super(3, r, x, g, b, ratedU);
         }
-
-        @Override
-        public TerminalExt getTerminal() {
-            return transformer.terminals.get(2);
-        }
-
-        @Override
-        public String getRatioTapChangerAttribute() {
-            return "ratioTapChanger3";
-        }
-
-        @Override
-        public String getPhaseTapChangerAttribute() {
-            return "phaseTapChanger3";
-        }
-
-        @Override
-        public String getTypeDescription() {
-            return "3 windings transformer leg 3";
-        }
-
-        @Override
-        public String toString() {
-            return transformer.getId() + " leg 3";
-        }
-
     }
 
     private final Leg1Impl leg1;
