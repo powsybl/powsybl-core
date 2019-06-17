@@ -16,7 +16,10 @@ package com.powsybl.iidm.network;
  * </div>
  * <p>Side 1 is the primary (high voltage), side 2 and side 3 can be indifferently
  * the secondary (medium voltage) or the tertiary voltage (low voltage).
- * <p>b1 and g1 unit is siemens.
+ * <p>Each side can have no tap changer or exactly one ratio tap changer or exactly one phase tap changer.
+ * <p>For each tap changer, rho with a value superior to 1 means a positive voltage variation on the side the tap changer is located.
+ * <p>For each phase tap changer, alpha with a positive value means a positive angle variation on the side the phase tap changer is located.
+ * <p>b1, b2, b3, g1, g2 and g3 unit is siemens.
  * <p>r1, r2, r3, x1, x2 and x3 unit is ohm.
  * <p>A 3 windings transformer is connected to 3 voltage levels (side 1, side 2 and side 3)
  * that belong to the same substation.
