@@ -212,16 +212,16 @@ public class AmplNetworkReader {
         int num = Integer.parseInt(tokens[1]);
         int tap = Integer.parseInt(tokens[2]);
         String id = mapper.getId(AmplSubset.RATIO_TAP_CHANGER, num);
-        if (id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(AmplConstants.LEG3_SUFFIX)) {
+        if (id.endsWith(AmplConstants.LEG2_SUFFIX) || id.endsWith(AmplConstants.LEG3_SUFFIX)) { // TODO : update for t3w
             ThreeWindingsTransformer twt = network.getThreeWindingsTransformer(id.substring(0, id.indexOf(AmplConstants.LEG2_SUFFIX)));
             if (twt == null) {
                 throw new AmplException("Invalid three windings transformer id '" + id + "'");
             }
             if (id.endsWith(AmplConstants.LEG2_SUFFIX)) {
-                RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
+                RatioTapChanger rtc2 = twt.getLeg2().getTapChanger(RatioTapChanger.class);
                 rtc2.setTapPosition(rtc2.getLowTapPosition() + tap - 1);
             } else if (id.endsWith(AmplConstants.LEG3_SUFFIX)) {
-                RatioTapChanger rtc3 = twt.getLeg3().getRatioTapChanger();
+                RatioTapChanger rtc3 = twt.getLeg3().getTapChanger(RatioTapChanger.class);
                 rtc3.setTapPosition(rtc3.getLowTapPosition() + tap - 1);
             } else {
                 throw new AssertionError();
@@ -244,6 +244,7 @@ public class AmplNetworkReader {
         return this;
     }
 
+    // TODO: update for t3w
     private Void readPhaseTapChanger(String[] tokens) {
         int num = Integer.parseInt(tokens[1]);
         int tap = Integer.parseInt(tokens[2]);

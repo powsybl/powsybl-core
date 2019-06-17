@@ -11,14 +11,8 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Set;
 
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
@@ -761,6 +755,8 @@ public class AmplNetworkWriter {
         }
     }
 
+
+    // TODO: update AMPL conversion for t3w
     private void writeThreeWindingsTransformers(AmplExportContext context, TableFormatter formatter) throws IOException {
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
             Terminal t1 = twt.getLeg1().getTerminal();
@@ -811,8 +807,14 @@ public class AmplNetworkWriter {
             double ratedU3 = twt.getLeg3().getRatedU();
             double ratio2 = ratedU1 / ratedU2;
             double ratio3 = ratedU1 / ratedU3;
-            RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
-            RatioTapChanger rtc3 = twt.getLeg2().getRatioTapChanger();
+            RatioTapChanger rtc2 = Optional.ofNullable(twt.getLeg2().getTapChanger())
+                    .filter(tapChanger -> tapChanger.getKind().equals(TapChanger.Kind.RATIO_TAP_CHANGER))
+                    .map(tapChanger -> twt.getLeg2().getTapChanger(RatioTapChanger.class))
+                    .orElse(null);
+            RatioTapChanger rtc3 = Optional.ofNullable(twt.getLeg3().getTapChanger())
+                    .filter(tapChanger -> tapChanger.getKind().equals(TapChanger.Kind.RATIO_TAP_CHANGER))
+                    .map(tapChanger -> twt.getLeg3().getTapChanger(RatioTapChanger.class))
+                    .orElse(null);
             int rtc2Num = rtc2 != null ? mapper.getInt(AmplSubset.RATIO_TAP_CHANGER, id2) : -1;
             int rtc3Num = rtc3 != null ? mapper.getInt(AmplSubset.RATIO_TAP_CHANGER, id3) : -1;
 
@@ -1024,8 +1026,8 @@ public class AmplNetworkWriter {
 
     private void writeThreeWindingsTransformerTapChangerTable(TableFormatter formatter) throws IOException {
         for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
-            RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
-            if (rtc2 != null) {
+            if (twt.getLeg2().getTapChanger() != null && twt.getLeg2().getTapChanger().getKind().equals(TapChanger.Kind.RATIO_TAP_CHANGER)) {
+                RatioTapChanger rtc2 = twt.getLeg2().getTapChanger(RatioTapChanger.class);
                 String id = twt.getId() + "_leg2_ratio_table";
 
                 Terminal t2 = twt.getLeg2().getTerminal();
@@ -1035,8 +1037,8 @@ public class AmplNetworkWriter {
                 writeRatioTapChanger(formatter, id, zb2, twt.getLeg2().getX(), rtc2);
             }
 
-            RatioTapChanger rtc3 = twt.getLeg3().getRatioTapChanger();
-            if (rtc3 != null) {
+            if (twt.getLeg3().getTapChanger() != null && twt.getLeg3().getTapChanger().getKind().equals(TapChanger.Kind.RATIO_TAP_CHANGER)) {
+                RatioTapChanger rtc3 = twt.getLeg3().getTapChanger(RatioTapChanger.class);
                 String id = twt.getId() + "_leg3_ratio_table";
 
                 Terminal t3 = twt.getLeg3().getTerminal();
@@ -1128,14 +1130,14 @@ public class AmplNetworkWriter {
                 }
             }
             for (ThreeWindingsTransformer twt : network.getThreeWindingsTransformers()) {
-                RatioTapChanger rtc2 = twt.getLeg2().getRatioTapChanger();
-                if (rtc2 != null) {
+                if (twt.getLeg2().getTapChanger() != null && twt.getLeg2().getTapChanger().getKind().equals(TapChanger.Kind.RATIO_TAP_CHANGER)) {
+                    RatioTapChanger rtc2 = twt.getLeg2().getTapChanger(RatioTapChanger.class);
                     String rtc2Id = twt.getId() + AmplConstants.LEG2_SUFFIX;
                     String tcs2Id = twt.getId() + "_leg2_ratio_table";
                     writeRatioTapChanger(formatter, rtc2Id, rtc2, tcs2Id);
                 }
-                RatioTapChanger rtc3 = twt.getLeg3().getRatioTapChanger();
-                if (rtc3 != null) {
+                if (twt.getLeg3().getTapChanger() != null && twt.getLeg3().getTapChanger().getKind().equals(TapChanger.Kind.RATIO_TAP_CHANGER)) {
+                    RatioTapChanger rtc3 = twt.getLeg3().getTapChanger(RatioTapChanger.class);
                     String rtc3Id = twt.getId() + AmplConstants.LEG3_SUFFIX;
                     String tcs3Id = twt.getId() + "_leg3_ratio_table";
                     writeRatioTapChanger(formatter, rtc3Id, rtc3, tcs3Id);
