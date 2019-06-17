@@ -40,7 +40,7 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
     private PhaseTapChangerImpl phaseTapChanger;
 
     TwoWindingsTransformerImpl(String id, String name, SubstationImpl substation, double r, double x, double g,
-        double b, double ratedU1, double ratedU2) {
+        double b, double ratedU1, double ratedU2, int phaseAngleClock1, int phaseAngleClock2) {
         super(id, name);
         this.substation = substation;
         this.r = r;
@@ -49,6 +49,8 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer>
         this.b = b;
         this.ratedU1 = ratedU1;
         this.ratedU2 = ratedU2;
+        this.phaseAngleClock1 = phaseAngleClock1;
+        this.phaseAngleClock2 = phaseAngleClock2;
     }
 
     @Override
