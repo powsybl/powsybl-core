@@ -109,6 +109,46 @@ public class ThreeWindingsTransformerTest {
         leg3.setRatedU(1.2);
         assertEquals(1.2, leg3.getRatedU(), 0.0);
 
+        RatioTapChanger ratioTapChangerInLeg1 = leg1.newRatioTapChanger()
+                                            .setTargetV(200.0)
+                                            .setLoadTapChangingCapabilities(false)
+                                            .setLowTapPosition(0)
+                                            .setTapPosition(0)
+                                            .setRegulating(false)
+                                            .setRegulationTerminal(transformer.getTerminal(ThreeWindingsTransformer.Side.TWO))
+                                            .beginStep()
+                                                .setR(39.78473)
+                                                .setX(39.784725)
+                                                .setG(0.0)
+                                                .setB(0.0)
+                                                .setRho(1.0)
+                                            .endStep()
+                                            .beginStep()
+                                                .setR(39.78474)
+                                                .setX(39.784726)
+                                                .setG(0.0)
+                                                .setB(0.0)
+                                                .setRho(1.0)
+                                            .endStep()
+                                            .beginStep()
+                                                .setR(39.78475)
+                                                .setX(39.784727)
+                                                .setG(0.0)
+                                                .setB(0.0)
+                                                .setRho(1.0)
+                                            .endStep()
+                                            .add();
+        assertSame(ratioTapChangerInLeg1, leg1.getTapChanger(RatioTapChanger.class));
+        CurrentLimits currentLimitsInLeg1 = leg1.newCurrentLimits()
+                .setPermanentLimit(100)
+                .beginTemporaryLimit()
+                .setName("20'")
+                .setAcceptableDuration(20 * 60)
+                .setValue(1200)
+                .endTemporaryLimit()
+                .add();
+        assertSame(currentLimitsInLeg1, leg1.getCurrentLimits());
+
         RatioTapChanger ratioTapChangerInLeg2 = leg2.newRatioTapChanger()
                                             .setTargetV(200.0)
                                             .setLoadTapChangingCapabilities(false)
@@ -149,9 +189,7 @@ public class ThreeWindingsTransformerTest {
                                     .add();
         assertSame(currentLimitsInLeg2, leg2.getCurrentLimits());
 
-        RatioTapChanger ratioTapChangerInLeg3 = leg3.newRatioTapChanger()
-                                                    .setTargetV(200.0)
-                                                    .setLoadTapChangingCapabilities(false)
+        PhaseTapChanger phaseTapChangerInLeg3 = leg3.newPhaseTapChanger()
                                                     .setLowTapPosition(0)
                                                     .setTapPosition(0)
                                                     .setRegulating(false)
@@ -162,6 +200,7 @@ public class ThreeWindingsTransformerTest {
                                                         .setG(0.0)
                                                         .setB(0.0)
                                                         .setRho(1.0)
+                                                        .setAlpha(0.0)
                                                     .endStep()
                                                     .beginStep()
                                                         .setR(39.78474)
@@ -169,6 +208,7 @@ public class ThreeWindingsTransformerTest {
                                                         .setG(0.0)
                                                         .setB(0.0)
                                                         .setRho(1.0)
+                                                        .setAlpha(0.0)
                                                     .endStep()
                                                     .beginStep()
                                                         .setR(39.78475)
@@ -176,9 +216,11 @@ public class ThreeWindingsTransformerTest {
                                                         .setG(0.0)
                                                         .setB(0.0)
                                                         .setRho(1.0)
+                                                        .setAlpha(0.0)
                                                     .endStep()
                                                     .add();
-        assertSame(ratioTapChangerInLeg3, leg3.getTapChanger(RatioTapChanger.class));
+        assertSame(phaseTapChangerInLeg3, leg3.getTapChanger(PhaseTapChanger.class));
+
         CurrentLimits currentLimitsInLeg3 = leg3.newCurrentLimits()
                 .setPermanentLimit(100)
                 .beginTemporaryLimit()
@@ -197,35 +239,67 @@ public class ThreeWindingsTransformerTest {
     }
 
     @Test
-    public void invalidLeg1ArgumentsR() {
+    public void invalidLegArgumentsR() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("r is invalid");
+        createThreeWindingsTransformerWithLeg1(1.0, 2.0, 3.0, 4.0, 5.0);
+        substation.getThreeWindingsTransformerStream().findFirst().map(twt -> twt.getLeg1().setR(Double.NaN));
+    }
+
+    @Test
+    public void invalidLegArgumentsX() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("x is invalid");
+        createThreeWindingsTransformerWithLeg1(1.0, 2.0, 3.0, 4.0, 5.0);
+        substation.getThreeWindingsTransformerStream().findFirst().map(twt -> twt.getLeg1().setX(Double.NaN));
+    }
+
+    @Test
+    public void invalidLegArgumentsG() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("g is invalid");
+        createThreeWindingsTransformerWithLeg1(1.0, 2.0, 3.0, 4.0, 5.0);
+        substation.getThreeWindingsTransformerStream().findFirst().map(twt -> twt.getLeg1().setG(Double.NaN));
+    }
+
+    @Test
+    public void invalidLegArgumentsB() {
+        thrown.expect(ValidationException.class);
+        thrown.expectMessage("b is invalid");
+        createThreeWindingsTransformerWithLeg1(1.0, 2.0, 3.0, 4.0, 5.0);
+        substation.getThreeWindingsTransformerStream().findFirst().map(twt -> twt.getLeg1().setB(Double.NaN));
+    }
+
+    @Test
+    public void invalidLeg1AdderArgumentsR() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("r is not set");
         createThreeWindingsTransformerWithLeg1(Double.NaN, 2.0, 3.0, 4.0, 5.0);
     }
 
     @Test
-    public void invalidLeg1ArgumentsX() {
+    public void invalidLeg1AdderArgumentsX() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("x is not set");
         createThreeWindingsTransformerWithLeg1(1.0, Double.NaN, 3.0, 4.0, 5.0);
     }
 
     @Test
-    public void invalidLeg1ArgumentsG() {
+    public void invalidLeg1AdderArgumentsG() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("g is not set");
         createThreeWindingsTransformerWithLeg1(1.0, 2.0, Double.NaN, 4.0, 5.0);
     }
 
     @Test
-    public void invalidLeg1ArgumentsB() {
+    public void invalidLeg1AdderArgumentsB() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("b is not set");
         createThreeWindingsTransformerWithLeg1(1.0, 2.0, 3.0, Double.NaN, 5.0);
     }
 
     @Test
-    public void invalidLeg1ArgumentsRatedU() {
+    public void invalidLeg1AdderArgumentsRatedU() {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("rated u is not set");
         createThreeWindingsTransformerWithLeg1(1.0, 2.0, 3.0, 4.0, Double.NaN);

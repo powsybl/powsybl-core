@@ -163,10 +163,12 @@ public class TapChangerTest {
         createRatioTapChangerWith3Steps(0, 1, true, true, 10.0, terminal);
         createThreeWindingTransformer();
         ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer("twt2");
+        ThreeWindingsTransformer.Leg leg1 = threeWindingsTransformer.getLeg1();
         ThreeWindingsTransformer.Leg leg2 = threeWindingsTransformer.getLeg2();
         ThreeWindingsTransformer.Leg leg3 = threeWindingsTransformer.getLeg3();
         PhaseTapChanger phaseTapChanger = twt.getPhaseTapChanger();
         RatioTapChanger ratioTapChanger = twt.getRatioTapChanger();
+        PhaseTapChanger phaseTapChangerInLeg1 = leg1.getTapChanger(PhaseTapChanger.class);
         RatioTapChanger ratioTapChangerInLeg2 = leg2.getTapChanger(RatioTapChanger.class);
         RatioTapChanger ratioTapChangerInLeg3 = leg3.getTapChanger(RatioTapChanger.class);
 
@@ -181,6 +183,9 @@ public class TapChangerTest {
         assertEquals(1, ratioTapChanger.getTapPosition());
         assertTrue(ratioTapChanger.isRegulating());
         assertEquals(10.0, ratioTapChanger.getTargetV(), 0.0);
+        assertEquals(1, phaseTapChangerInLeg1.getTapPosition());
+        assertTrue(phaseTapChangerInLeg1.isRegulating());
+        assertEquals(10.0, phaseTapChangerInLeg1.getRegulationValue(), 0.0);
         assertEquals(1, ratioTapChangerInLeg2.getTapPosition());
         assertTrue(ratioTapChangerInLeg2.isRegulating());
         assertEquals(10.0, ratioTapChangerInLeg2.getTargetV(), 0.0);
@@ -195,6 +200,9 @@ public class TapChangerTest {
         ratioTapChanger.setTapPosition(0);
         ratioTapChanger.setRegulating(false);
         ratioTapChanger.setTargetV(3.5);
+        phaseTapChangerInLeg1.setTapPosition(0);
+        phaseTapChangerInLeg1.setRegulating(false);
+        phaseTapChangerInLeg1.setRegulationValue(9.9);
         ratioTapChangerInLeg2.setTapPosition(2);
         ratioTapChangerInLeg2.setRegulating(false);
         ratioTapChangerInLeg2.setTargetV(31.5);
@@ -214,6 +222,9 @@ public class TapChangerTest {
         assertEquals(0, ratioTapChanger.getTapPosition());
         assertFalse(ratioTapChanger.isRegulating());
         assertEquals(3.5, ratioTapChanger.getTargetV(), 0.0);
+        assertEquals(0, phaseTapChangerInLeg1.getTapPosition());
+        assertFalse(phaseTapChangerInLeg1.isRegulating());
+        assertEquals(9.9, phaseTapChangerInLeg1.getRegulationValue(), 0.0);
         assertEquals(2, ratioTapChangerInLeg2.getTapPosition());
         assertFalse(ratioTapChangerInLeg2.isRegulating());
         assertEquals(31.5, ratioTapChangerInLeg2.getTargetV(), 0.0);
@@ -229,6 +240,9 @@ public class TapChangerTest {
         assertEquals(1, ratioTapChanger.getTapPosition());
         assertTrue(ratioTapChanger.isRegulating());
         assertEquals(10.0, ratioTapChanger.getTargetV(), 0.0);
+        assertEquals(1, phaseTapChangerInLeg1.getTapPosition());
+        assertTrue(phaseTapChangerInLeg1.isRegulating());
+        assertEquals(10.0, phaseTapChangerInLeg1.getRegulationValue(), 0.0);
         assertEquals(1, ratioTapChangerInLeg2.getTapPosition());
         assertTrue(ratioTapChangerInLeg2.isRegulating());
         assertEquals(10.0, ratioTapChangerInLeg2.getTargetV(), 0.0);
@@ -241,6 +255,7 @@ public class TapChangerTest {
         variantManager.removeVariant("s4");
         getTapPositionThrowsException(phaseTapChanger);
         getTapPositionThrowsException(ratioTapChanger);
+        getTapPositionThrowsException(phaseTapChangerInLeg1);
         getTapPositionThrowsException(ratioTapChangerInLeg2);
         getTapPositionThrowsException(ratioTapChangerInLeg3);
     }
@@ -473,8 +488,33 @@ public class TapChangerTest {
                 .add()
                 .add();
         ThreeWindingsTransformer threeWindingsTransformer = network.getThreeWindingsTransformer("twt2");
+        ThreeWindingsTransformer.Leg leg1 = threeWindingsTransformer.getLeg1();
         ThreeWindingsTransformer.Leg leg2 = threeWindingsTransformer.getLeg2();
         ThreeWindingsTransformer.Leg leg3 = threeWindingsTransformer.getLeg3();
+        leg1.newPhaseTapChanger()
+                .setTapPosition(1)
+                .setLowTapPosition(0)
+                .setRegulating(true)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
+                .setRegulationValue(10.0)
+                .setRegulationTerminal(threeWindingsTransformer.getTerminal(ThreeWindingsTransformer.Side.TWO))
+                .beginStep()
+                    .setR(1.0)
+                    .setX(2.0)
+                    .setG(3.0)
+                    .setB(4.0)
+                    .setAlpha(5.0)
+                    .setRho(6.0)
+                .endStep()
+                .beginStep()
+                    .setR(1.0)
+                    .setX(2.0)
+                    .setG(3.0)
+                    .setB(4.0)
+                    .setAlpha(5.0)
+                    .setRho(6.0)
+                .endStep()
+                .add();
         leg2.newRatioTapChanger()
                 .setTargetV(10.0)
                 .setLoadTapChangingCapabilities(false)

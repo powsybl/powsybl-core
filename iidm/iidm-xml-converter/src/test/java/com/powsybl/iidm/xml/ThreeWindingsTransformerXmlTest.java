@@ -19,10 +19,26 @@ import com.powsybl.iidm.network.test.ThreeWindingsTransformerNetworkFactory;
 public class ThreeWindingsTransformerXmlTest extends AbstractConverterTest {
 
     @Test
-    public void roundTripTest() throws IOException {
+    public void currentLimitsRoundTripTest() throws IOException {
         roundTripXmlTest(ThreeWindingsTransformerNetworkFactory.createWithCurrentLimits(),
                          NetworkXml::writeAndValidate,
                          NetworkXml::read,
                          "/threeWindingsTransformerRoundTripRef.xml");
+    }
+
+    @Test
+    public void ratioTapChangerRoundTripTest() throws IOException {
+        roundTripXmlTest(ThreeWindingsTransformerNetworkFactory.createWithRatioTapChangerInLeg1(),
+                NetworkXml::writeAndValidate,
+                NetworkXml::read,
+                "/threeWindingsTransformerRtcRoundTripRef.xml");
+    }
+
+    @Test
+    public void phaseTapChangerRoundTripTest() throws IOException {
+        roundTripXmlTest(ThreeWindingsTransformerNetworkFactory.createWithPhaseTapChangers(),
+                NetworkXml::writeAndValidate,
+                NetworkXml::read,
+                "/threeWindingsTransformerPtcRoundTripRef.xml");
     }
 }

@@ -225,6 +225,128 @@ public final class ThreeWindingsTransformerNetworkFactory {
         return network;
     }
 
+    public static Network createWithRatioTapChangerInLeg1() {
+        Network network = create();
+
+        network.getThreeWindingsTransformer("3WT").getLeg1().newRatioTapChanger()
+                .beginStep()
+                    .setRho(0.9)
+                    .setR(0.9801)
+                    .setX(0.09801)
+                    .setG(0.08264462809917356)
+                    .setB(0.008264462809917356)
+                .endStep()
+                .beginStep()
+                    .setRho(1.0)
+                    .setR(1.089)
+                    .setX(0.1089)
+                    .setG(0.09182736455463728)
+                    .setB(0.009182736455463728)
+                .endStep()
+                .setTapPosition(0)
+                .setRegulating(false)
+                .setLoadTapChangingCapabilities(false)
+                .setTargetV(10.0)
+                .add();
+
+        return network;
+    }
+
+    public static Network createWithPhaseTapChangers() {
+        Network network = create();
+
+        ThreeWindingsTransformer twt = network.getThreeWindingsTransformer("3WT");
+
+        twt.getLeg1().newPhaseTapChanger()
+                .beginStep()
+                    .setAlpha(0.1)
+                    .setRho(0.9)
+                    .setR(0.9801)
+                    .setX(0.09801)
+                    .setG(0.08264462809917356)
+                    .setB(0.008264462809917356)
+                .endStep()
+                .beginStep()
+                    .setAlpha(0.0)
+                    .setRho(1.0)
+                    .setR(1.089)
+                    .setX(0.1089)
+                    .setG(0.09182736455463728)
+                    .setB(0.009182736455463728)
+                .endStep()
+                .setTapPosition(0)
+                .setRegulating(false)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP)
+                .setRegulationValue(10.0)
+                .add();
+
+        twt.getLeg2().newPhaseTapChanger()
+                .beginStep()
+                    .setAlpha(0.0)
+                    .setRho(0.9)
+                    .setR(0.9801)
+                    .setX(0.09801)
+                    .setG(0.08264462809917356)
+                    .setB(0.008264462809917356)
+                .endStep()
+                .beginStep()
+                    .setAlpha(0.5)
+                    .setRho(1.0)
+                    .setR(1.089)
+                    .setX(0.1089)
+                    .setG(0.09182736455463728)
+                    .setB(0.009182736455463728)
+                .endStep()
+                .beginStep()
+                    .setAlpha(0.2)
+                    .setRho(1.1)
+                    .setR(1.1979)
+                    .setX(0.11979)
+                    .setG(0.10101010101010101)
+                    .setB(0.010101010101010101)
+                .endStep()
+                .setTapPosition(2)
+                .setRegulationValue(1.0)
+                .setRegulating(true)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
+                .setRegulationTerminal(twt.getTerminal(ThreeWindingsTransformer.Side.TWO))
+                .add();
+
+        twt.getLeg3().newPhaseTapChanger()
+                .beginStep()
+                    .setAlpha(0.3)
+                    .setRho(0.9)
+                    .setR(0.1089)
+                    .setX(0.01089)
+                    .setG(0.8264462809917356)
+                    .setB(0.08264462809917356)
+                .endStep()
+                .beginStep()
+                    .setAlpha(0.0)
+                    .setRho(1.0)
+                    .setR(0.121)
+                    .setX(0.0121)
+                    .setG(0.8264462809917356)
+                    .setB(0.08264462809917356)
+                .endStep()
+                .beginStep()
+                    .setAlpha(0.1)
+                    .setRho(1.1)
+                    .setR(0.1331)
+                    .setX(0.01331)
+                    .setG(0.9090909090909092)
+                    .setB(0.09090909090909092)
+                .endStep()
+                .setTapPosition(0)
+                .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
+                .setRegulating(true)
+                .setRegulationValue(1.0)
+                .setRegulationTerminal(twt.getTerminal(ThreeWindingsTransformer.Side.TWO))
+                .add();
+
+        return network;
+    }
+
     private ThreeWindingsTransformerNetworkFactory() {
     }
 }
