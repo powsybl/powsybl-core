@@ -8,11 +8,9 @@ package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
+import gnu.trove.list.array.TIntArrayList;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -26,9 +24,44 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
     private final List<NodeTerminal> terminals;
 
-    CalculatedBusImpl(String id, VoltageLevelExt voltageLevel, List<NodeTerminal> terminals) {
+    private NodeTerminal terminalRef;
+
+    CalculatedBusImpl(String id, NodeBreakerVoltageLevel voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals) {
         super(id, voltageLevel);
         this.terminals = Objects.requireNonNull(terminals);
+        this.terminalRef = findTerminal(voltageLevel, nodes, terminals);
+    }
+
+    /**
+     * Find a terminal to retrieve voltage, angle or connected and synchronous component numbers.
+     * If the terminals list contains at least one element, we use the first terminal as reference.
+     * Otherwise this method tries to find a terminal which does not belong to this bus, but to the same "electrical" bus
+     * and therefore can be used as reference.
+     *
+     * @param voltageLevel The {@literal VoltageLevel} instance to traverse
+     * @param nodes The nodes which belong to this bus
+     * @param terminals The terminals belong to this bus
+     * @return The first terminal of the {@code terminals} list, or a terminal which belongs to an equivalent "electrical" bus.
+     */
+    private static NodeTerminal findTerminal(NodeBreakerVoltageLevel voltageLevel, TIntArrayList nodes, List<NodeTerminal> terminals) {
+        if (!terminals.isEmpty()) {
+            return terminals.get(0);
+        }
+
+        NodeTerminal[] terminal = new NodeTerminal[1];
+
+        // Traverse the graph until a valid NodeTerminal is found
+        VoltageLevel.NodeBreakerView.Traverser traverser = (node1, sw, node2) -> {
+            if (sw.isOpen()) {
+                return false;
+            }
+            terminal[0] = (NodeTerminal) voltageLevel.getNodeBreakerView().getTerminal(node2);
+            return terminal[0] == null;
+        };
+
+        voltageLevel.getNodeBreakerView().traverse(nodes.getQuick(0), traverser);
+
+        return terminal[0];
     }
 
     private void checkValidity() {
@@ -46,6 +79,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
         valid = false;
         voltageLevel = null;
         terminals.clear();
+        terminalRef = null;
     }
 
     @Override
@@ -89,10 +123,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public double getV() {
         checkValidity();
-        if (terminals.isEmpty()) {
-            return Double.NaN;
-        }
-        return terminals.get(0).getV();
+        return terminalRef == null ? Double.NaN : terminalRef.getV();
     }
 
     @Override
@@ -107,10 +138,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
     @Override
     public double getAngle() {
         checkValidity();
-        if (terminals.isEmpty()) {
-            return Double.NaN;
-        }
-        return terminals.get(0).getAngle();
+        return terminalRef == null ? Double.NaN : terminalRef.getAngle();
     }
 
     @Override
@@ -138,7 +166,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
         checkValidity();
         NetworkImpl.ConnectedComponentsManager ccm = voltageLevel.getNetwork().getConnectedComponentsManager();
         ccm.update();
-        return terminals.isEmpty() ? null : ccm.getComponent(terminals.get(0).getConnectedComponentNumber());
+        return terminalRef == null ? null : ccm.getComponent(terminalRef.getConnectedComponentNumber());
     }
 
     @Override
@@ -154,7 +182,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
         checkValidity();
         NetworkImpl.SynchronousComponentsManager scm = voltageLevel.getNetwork().getSynchronousComponentsManager();
         scm.update();
-        return terminals.isEmpty() ? null : scm.getComponent(terminals.get(0).getSynchronousComponentNumber());
+        return terminalRef == null ? null : scm.getComponent(terminalRef.getSynchronousComponentNumber());
     }
 
     @Override
