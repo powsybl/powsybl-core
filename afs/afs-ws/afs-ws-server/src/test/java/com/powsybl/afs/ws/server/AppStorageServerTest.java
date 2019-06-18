@@ -8,7 +8,6 @@ package com.powsybl.afs.ws.server;
 
 import com.powsybl.afs.storage.AbstractAppStorageTest;
 import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.afs.ws.client.utils.ClientUtils;
 import com.powsybl.afs.ws.client.utils.UserSession;
 import com.powsybl.afs.ws.storage.RemoteAppStorage;
