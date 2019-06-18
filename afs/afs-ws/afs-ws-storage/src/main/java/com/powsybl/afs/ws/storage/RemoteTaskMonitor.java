@@ -37,7 +37,6 @@ import java.util.UUID;
 import static com.powsybl.afs.ws.client.utils.ClientUtils.checkOk;
 import static com.powsybl.afs.ws.client.utils.ClientUtils.readEntityIfOk;
 import static com.powsybl.afs.ws.storage.RemoteAppStorage.getWebTarget;
-import static com.powsybl.afs.ws.storage.RemoteListenableAppStorage.getWebSocketUri;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -144,7 +143,7 @@ public class RemoteTaskMonitor implements TaskMonitor {
     public void addListener(TaskListener listener) {
         Objects.requireNonNull(listener);
 
-        URI wsUri = getWebSocketUri(restUri);
+        URI wsUri = RemoteEventsStore.getWebSocketUri(restUri);
         URI endPointUri = URI.create(wsUri + "/messages/" + AfsRestApi.RESOURCE_ROOT + "/" +
                 AfsRestApi.VERSION + "/task_events/" + fileSystemName + "/" + listener.getProjectId());
 

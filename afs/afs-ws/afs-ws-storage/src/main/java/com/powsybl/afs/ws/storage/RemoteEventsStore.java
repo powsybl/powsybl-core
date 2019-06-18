@@ -12,6 +12,7 @@ import com.powsybl.afs.storage.events.AppStorageListener;
 import com.powsybl.afs.storage.events.NodeEvent;
 import com.powsybl.afs.ws.client.utils.UncheckedDeploymentException;
 import com.powsybl.afs.ws.utils.AfsRestApi;
+import com.powsybl.commons.exceptions.UncheckedUriSyntaxException;
 import com.powsybl.commons.util.WeakListenerList;
 
 import javax.websocket.ContainerProvider;
@@ -20,6 +21,7 @@ import javax.websocket.WebSocketContainer;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +36,7 @@ public class RemoteEventsStore implements EventsStore {
     private final WeakListenerList<AppStorageListener> listeners = new WeakListenerList<>();
 
     public RemoteEventsStore(AppStorage storage, URI restUri) {
-        URI wsUri = RemoteListenableAppStorage.getWebSocketUri(restUri);
+        URI wsUri = getWebSocketUri(restUri);
         URI endPointUri = URI.create(wsUri + "/messages/" + AfsRestApi.RESOURCE_ROOT + "/" +
                 AfsRestApi.VERSION + "/node_events/" + storage.getFileSystemName());
 
@@ -63,6 +65,25 @@ public class RemoteEventsStore implements EventsStore {
     public void flush() {
         // Nothing to do
         // RemoteAppStorage --> flush in the server side
+    }
+
+    static URI getWebSocketUri(URI restUri) {
+        try {
+            String wsScheme;
+            switch (restUri.getScheme()) {
+                case "http":
+                    wsScheme = "ws";
+                    break;
+                case "https":
+                    wsScheme = "wss";
+                    break;
+                default:
+                    throw new AssertionError("Unexpected scheme " + restUri.getScheme());
+            }
+            return new URI(wsScheme, restUri.getUserInfo(), restUri.getHost(), restUri.getPort(), restUri.getPath(), restUri.getQuery(), null);
+        } catch (URISyntaxException e) {
+            throw new UncheckedUriSyntaxException(e);
+        }
     }
 
     @Override

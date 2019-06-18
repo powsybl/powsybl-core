@@ -65,14 +65,14 @@ public class RemoteAppStorage extends AbstractAppStorage {
 
     private boolean closed = false;
 
-    public RemoteAppStorage(String fileSystemName, URI baseUri, EventsStore eventsStore) {
-        this(fileSystemName, baseUri, "", eventsStore);
+    public RemoteAppStorage(String fileSystemName, URI baseUri) {
+        this(fileSystemName, baseUri, "");
     }
 
-    public RemoteAppStorage(String fileSystemName, URI baseUri, String token, EventsStore eventsStore) {
+    public RemoteAppStorage(String fileSystemName, URI baseUri, String token) {
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
         this.token = token;
-        this.eventsStore = eventsStore;
+        this.eventsStore = new RemoteEventsStore(this, baseUri);
 
         client = createClient();
 
