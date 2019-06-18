@@ -89,6 +89,14 @@ public interface TapChanger<C extends TapChanger<C, S>, S extends TapChangerStep
      */
     C setRegulationTerminal(Terminal regulationTerminal);
 
+    default double getTargetDeadband() {
+        throw new UnsupportedOperationException();
+    }
+
+    default C setTargetDeadband(double targetDeadband) {
+        throw new UnsupportedOperationException();
+    }
+
     /**
      * Remove the tap changer.
      */
