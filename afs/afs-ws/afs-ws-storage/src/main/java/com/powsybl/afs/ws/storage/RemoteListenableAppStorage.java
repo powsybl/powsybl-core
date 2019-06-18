@@ -6,49 +6,37 @@
  */
 package com.powsybl.afs.ws.storage;
 
+import com.powsybl.afs.storage.EventsStore;
 import com.powsybl.afs.storage.ForwardingAppStorage;
-import com.powsybl.afs.storage.ListenableAppStorage;
 import com.powsybl.afs.storage.events.AppStorageListener;
 import com.powsybl.commons.exceptions.UncheckedUriSyntaxException;
 import com.powsybl.commons.util.WeakListenerList;
-import com.powsybl.afs.ws.client.utils.UncheckedDeploymentException;
-import com.powsybl.afs.ws.utils.AfsRestApi;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.websocket.ContainerProvider;
-import javax.websocket.DeploymentException;
-import javax.websocket.WebSocketContainer;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class RemoteListenableAppStorage extends ForwardingAppStorage implements ListenableAppStorage {
+public class RemoteListenableAppStorage extends ForwardingAppStorage {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteListenableAppStorage.class);
 
     private final WeakListenerList<AppStorageListener> listeners = new WeakListenerList<>();
 
+    private final RemoteEventsStore eventsStore;
+
     public RemoteListenableAppStorage(RemoteAppStorage storage, URI restUri) {
         super(storage);
+        this.eventsStore = new RemoteEventsStore(storage, restUri);
+    }
 
-        URI wsUri = getWebSocketUri(restUri);
-        URI endPointUri = URI.create(wsUri + "/messages/" + AfsRestApi.RESOURCE_ROOT + "/" +
-                AfsRestApi.VERSION + "/node_events/" + storage.getFileSystemName());
-        LOGGER.debug("Connecting to node event websocket at {}", endPointUri);
-
-        WebSocketContainer container = ContainerProvider.getWebSocketContainer();
-        try {
-            container.connectToServer(new NodeEventClient(storage.getFileSystemName(), listeners), endPointUri);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        } catch (DeploymentException e) {
-            throw new UncheckedDeploymentException(e);
-        }
+    @Override
+    public EventsStore getEventsStore() {
+        return eventsStore;
     }
 
     static URI getWebSocketUri(URI restUri) {
@@ -68,20 +56,5 @@ public class RemoteListenableAppStorage extends ForwardingAppStorage implements 
         } catch (URISyntaxException e) {
             throw new UncheckedUriSyntaxException(e);
         }
-    }
-
-    @Override
-    public void addListener(AppStorageListener l) {
-        listeners.add(l);
-    }
-
-    @Override
-    public void removeListener(AppStorageListener l) {
-        listeners.remove(l);
-    }
-
-    @Override
-    public void removeListeners() {
-        listeners.removeAll();
     }
 }

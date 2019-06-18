@@ -42,7 +42,7 @@ import static com.powsybl.afs.ws.client.utils.ClientUtils.*;
  * @author Ali Tahanout <ali.tahanout at rte-france.com>
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class RemoteAppStorage implements AppStorage {
+public class RemoteAppStorage extends AbstractAppStorage {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RemoteAppStorage.class);
 
@@ -65,13 +65,14 @@ public class RemoteAppStorage implements AppStorage {
 
     private boolean closed = false;
 
-    public RemoteAppStorage(String fileSystemName, URI baseUri) {
-        this(fileSystemName, baseUri, "");
+    public RemoteAppStorage(String fileSystemName, URI baseUri, EventsStore eventsStore) {
+        this(fileSystemName, baseUri, "", eventsStore);
     }
 
-    public RemoteAppStorage(String fileSystemName, URI baseUri, String token) {
+    public RemoteAppStorage(String fileSystemName, URI baseUri, String token, EventsStore eventsStore) {
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
         this.token = token;
+        this.eventsStore = eventsStore;
 
         client = createClient();
 
@@ -719,7 +720,7 @@ public class RemoteAppStorage implements AppStorage {
 
     @Override
     public EventsStore getEventsStore() {
-        return null;
+        return eventsStore;
     }
 
     @Override

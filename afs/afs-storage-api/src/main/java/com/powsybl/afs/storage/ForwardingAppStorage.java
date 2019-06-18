@@ -19,7 +19,7 @@ import java.util.*;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class ForwardingAppStorage extends AbstractAppStorage {
+public class ForwardingAppStorage implements AppStorage {
 
     private final AppStorage storage;
 
@@ -230,5 +230,9 @@ public class ForwardingAppStorage extends AbstractAppStorage {
     @Override
     public void close() {
         storage.close();
+    }
+
+    public EventsStore getEventsStore() {
+        return storage.getEventsStore();
     }
 }
