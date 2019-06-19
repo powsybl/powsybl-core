@@ -20,6 +20,10 @@ public class BooleanLiteralNode extends AbstractLiteralNode {
         this.value = value;
     }
 
+    public static BooleanLiteralNode of(boolean value) {
+        return value ? TRUE : FALSE;
+    }
+
     @Override
     public LiteralType getType() {
         return LiteralType.BOOLEAN;
