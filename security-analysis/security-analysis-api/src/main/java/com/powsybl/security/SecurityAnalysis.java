@@ -36,6 +36,37 @@ public interface SecurityAnalysis {
 
     CompletableFuture<SecurityAnalysisResult> run(String workingVariantId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider);
 
+    /**
+     * To be consistent with {@link #run(String, SecurityAnalysisParameters, ContingenciesProvider)}, this method would also complete exceptionally
+     * if there are exceptions thrown. But the original exception would be wrapped in {@link com.powsybl.computation.ComputationException}, and those .out/.err log file's contents
+     * are be collected in the {@link com.powsybl.computation.ComputationException} too.
+     *
+     *
+     * <pre> {@code
+     * try {
+     *       SecurityAnalysisResultWithLog resultWithLog = securityAnalysis.runWithLog(currentState, parameters, contingenciesProvider).join();
+     *       result = resultWithLog.getResult();
+     *   } catch (CompletionException e) {
+     *       if (e.getCause() instanceof ComputationException) {
+     *           ComputationException computationException = (ComputationException) e.getCause();
+     *           System.out.println("Consume exception...");
+     *           computationException.getOutLogs().forEach((name, content) -> {
+     *               System.out.println("-----" + name + "----");
+     *               System.out.println(content);
+     *           });
+     *           computationException.getErrLogs().forEach((name, content) -> {
+     *               System.out.println("-----" + name + "----");
+     *               System.out.println(content);
+     *           });
+     *       }
+     *       throw e;
+     *   }
+     * }</pre>
+     * @param workingVariantId
+     * @param parameters
+     * @param contingenciesProvider
+     * @return
+     */
     default CompletableFuture<SecurityAnalysisResultWithLog> runWithLog(String workingVariantId, SecurityAnalysisParameters parameters, ContingenciesProvider contingenciesProvider) {
         return run(workingVariantId, parameters, contingenciesProvider).thenApply(r -> new SecurityAnalysisResultWithLog(r, null));
     }

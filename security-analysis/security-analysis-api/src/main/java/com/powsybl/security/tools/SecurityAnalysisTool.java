@@ -12,6 +12,7 @@ import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.io.FileUtil;
 import com.powsybl.commons.io.table.AsciiTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterConfig;
+import com.powsybl.computation.ComputationException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.computation.Partition;
 import com.powsybl.contingency.ContingenciesProviders;
@@ -50,6 +51,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Properties;
+import java.util.concurrent.CompletionException;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -225,11 +227,20 @@ public class SecurityAnalysisTool implements Tool {
                                                              SecurityAnalysisExecution execution,
                                                              SecurityAnalysisExecutionInput input,
                                                              Path logPath) {
-        SecurityAnalysisResultWithLog resultWithLog = execution.executeWithLog(computationManager, input).join();
-        // copy log bytes to file
-        resultWithLog.getLogBytes()
-                .ifPresent(logBytes -> uncheckedWriteBytes(logBytes, logPath));
-        return resultWithLog.getResult();
+        try {
+            SecurityAnalysisResultWithLog resultWithLog = execution.executeWithLog(computationManager, input).join();
+            // copy log bytes to file
+            resultWithLog.getLogBytes()
+                    .ifPresent(logBytes -> uncheckedWriteBytes(logBytes, logPath));
+            return resultWithLog.getResult();
+        } catch (CompletionException e) {
+            if (e.getCause() instanceof ComputationException) {
+                ComputationException computationException = (ComputationException) e.getCause();
+                byte[] bytes = computationException.toZipBytes();
+                uncheckedWriteBytes(bytes, logPath);
+            }
+            throw e;
+        }
     }
 
     static Network readNetwork(CommandLine line, ToolRunningContext context, Supplier<ImportConfig> importConfigLoader, ImportersLoader importersLoader) throws IOException {
