@@ -10,16 +10,17 @@ package com.powsybl.loadflow;
 import com.google.common.collect.ImmutableList;
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.VariantManager;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import sun.nio.ch.Net;
 
 import java.nio.file.FileSystem;
-import java.util.List;
 
 import static org.junit.Assert.*;
 
@@ -32,10 +33,21 @@ public class LoadFlowTest {
 
     private InMemoryPlatformConfig platformConfig;
 
+    private Network network;
+
+    private VariantManager variantManager;
+
+    private ComputationManager computationManager;
+
     @Before
     public void setUp() throws Exception {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         platformConfig = new InMemoryPlatformConfig(fileSystem);
+        network = Mockito.mock(Network.class);
+        variantManager = Mockito.mock(VariantManager.class);
+        Mockito.when(network.getVariantManager()).thenReturn(variantManager);
+        Mockito.when(variantManager.getWorkingVariantId()).thenReturn("v");
+        computationManager = Mockito.mock(ComputationManager.class);
     }
 
     @After
@@ -44,9 +56,46 @@ public class LoadFlowTest {
     }
 
     @Test
-    public void test() {
-        List<LoadFlowProvider> providers = ImmutableList.of(new FakeLoadFlowProvider());
-        Network network = Mockito.mock(Network.class);
-        LoadFlowResult result = LoadFlow.on(network, providers, platformConfig).run();
+    public void testDefaultOneProvider() {
+        // case with only one provider, no need for config
+        LoadFlow defaultLoadFlow = LoadFlow.findDefault(ImmutableList.of(new FakeLoadFlowProvider()), platformConfig);
+        assertEquals("FakeLoadFlow", defaultLoadFlow.getName());
+        LoadFlowResult result = defaultLoadFlow.run(network, computationManager, new LoadFlowParameters());
+        assertNotNull(result);
+    }
+
+    @Test
+    public void testDefaultTwoProviders() {
+        // case with 2 providers without any config, an exception is expected
+        try {
+            LoadFlow.findDefault(ImmutableList.of(new FakeLoadFlowProvider(), new AnotherFakeLoadFlowProvider()), platformConfig);
+            fail();
+        } catch (PowsyblException ignored) {
+        }
+    }
+
+    @Test
+    public void testDefaultNoProvider() {
+        // case without any provider
+        try {
+            LoadFlow.findDefault(ImmutableList.of(), platformConfig);
+            fail();
+        } catch (PowsyblException ignored) {
+        }
+    }
+
+    @Test
+    public void testTwoProviders() {
+        // case with 2 providers without any config but specifying which one to use programmatically
+        LoadFlow otherLoadFlow = LoadFlow.find("AnotherFakeLoadFlow", ImmutableList.of(new FakeLoadFlowProvider(), new AnotherFakeLoadFlowProvider()), platformConfig);
+        assertEquals("AnotherFakeLoadFlow", otherLoadFlow.getName());
+    }
+
+    @Test
+    public void testDefaultTwoProvidersPlatformConfig() {
+        // case with 2 providers without any config but specifying which one to use in platform config
+        platformConfig.createModuleConfig("load-flow").setStringProperty("default", "AnotherFakeLoadFlow");
+        LoadFlow otherLoadFlow2 = LoadFlow.findDefault(ImmutableList.of(new FakeLoadFlowProvider(), new AnotherFakeLoadFlowProvider()), platformConfig);
+        assertEquals("AnotherFakeLoadFlow", otherLoadFlow2.getName());
     }
 }

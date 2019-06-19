@@ -29,76 +29,87 @@ public class LoadFlow implements Versionable {
     private static final Supplier<List<LoadFlowProvider>> PROVIDERS_SUPPLIERS
             = Suppliers.memoize(() -> new ServiceLoaderCache<>(LoadFlowProvider.class).getServices());
 
-    private final Network network;
-
     private final LoadFlowProvider provider;
 
     private final PlatformConfig platformConfig;
 
-    public LoadFlow(Network network, LoadFlowProvider provider, PlatformConfig platformConfig) {
-        this.network = Objects.requireNonNull(network);
+    public LoadFlow(LoadFlowProvider provider, PlatformConfig platformConfig) {
         this.provider = Objects.requireNonNull(provider);
         this.platformConfig = Objects.requireNonNull(platformConfig);
     }
 
-    public static LoadFlow on(Network network) {
-        return on(network, PROVIDERS_SUPPLIERS.get(), PlatformConfig.defaultConfig());
+    public static LoadFlow find(String name) {
+        return find(name, PROVIDERS_SUPPLIERS.get(), PlatformConfig.defaultConfig());
     }
 
-    static LoadFlow on(Network network, List<LoadFlowProvider> providers, PlatformConfig platformConfig) {
+    public static LoadFlow find(String name, List<LoadFlowProvider> providers, PlatformConfig platformConfig) {
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(providers);
+
+        LoadFlowProvider provider = providers.stream()
+                .filter(p -> p.getName().equals(name))
+                .findFirst()
+                .orElseThrow(() -> new PowsyblException("Loadflow " + name + " found"));
+
+        return new LoadFlow(provider, platformConfig);
+    }
+
+    public static LoadFlow findDefault() {
+        return findDefault(PROVIDERS_SUPPLIERS.get(), PlatformConfig.defaultConfig());
+    }
+
+    static LoadFlow findDefault(List<LoadFlowProvider> providers, PlatformConfig platformConfig) {
+        Objects.requireNonNull(providers);
+        Objects.requireNonNull(platformConfig);
+
         if (providers.isEmpty()) {
             throw new PowsyblException("No loadflow providers found");
         }
-        LoadFlowProvider provider;
         if (providers.size() == 1) {
-            provider = providers.get(0);
+            return new LoadFlow(providers.get(0), platformConfig);
         } else {
             // try to find a loadflow config to known which implementation has to be chosen
-            String defaultLoadFlow = platformConfig.getOptionalModuleConfig("load-flow")
+            String name = platformConfig.getOptionalModuleConfig("load-flow")
                     .flatMap(mc -> mc.getOptionalStringProperty("default"))
                     .orElseThrow(() -> new PowsyblException("Loadflow configuration not found"));
-            provider = providers.stream()
-                    .filter(p -> p.getName().equals(defaultLoadFlow))
-                    .findFirst()
-                    .orElseThrow(() -> new PowsyblException("Loadflow "  + defaultLoadFlow + " found"));
+            return find(name, providers, platformConfig);
         }
-        return new LoadFlow(network, provider, platformConfig);
     }
 
-    public CompletableFuture<LoadFlowResult> runAsync(String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
+    public CompletableFuture<LoadFlowResult> runAsync(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
         Objects.requireNonNull(workingStateId);
         Objects.requireNonNull(parameters);
         return provider.run(network, computationManager, workingStateId, parameters);
     }
 
-    public CompletableFuture<LoadFlowResult> runAsync(ComputationManager computationManager, LoadFlowParameters parameters) {
-        return runAsync(network.getVariantManager().getWorkingVariantId(), computationManager, parameters);
+    public CompletableFuture<LoadFlowResult> runAsync(Network network, ComputationManager computationManager, LoadFlowParameters parameters) {
+        return runAsync(network, network.getVariantManager().getWorkingVariantId(), computationManager, parameters);
     }
 
-    public CompletableFuture<LoadFlowResult> runAsync(LoadFlowParameters parameters) {
-        return runAsync(LocalComputationManager.getDefault(), parameters);
+    public CompletableFuture<LoadFlowResult> runAsync(Network network, LoadFlowParameters parameters) {
+        return runAsync(network, LocalComputationManager.getDefault(), parameters);
     }
 
-    public CompletableFuture<LoadFlowResult> runAsync() {
-        return runAsync(LoadFlowParameters.load(platformConfig));
+    public CompletableFuture<LoadFlowResult> runAsync(Network network) {
+        return runAsync(network, LoadFlowParameters.load(platformConfig));
     }
 
-    public LoadFlowResult run(String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
+    public LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
         Objects.requireNonNull(workingStateId);
         Objects.requireNonNull(parameters);
         return provider.run(network, computationManager, workingStateId, parameters).join();
     }
 
-    public LoadFlowResult run(ComputationManager computationManager, LoadFlowParameters parameters) {
-        return run(network.getVariantManager().getWorkingVariantId(), computationManager, parameters);
+    public LoadFlowResult run(Network network, ComputationManager computationManager, LoadFlowParameters parameters) {
+        return run(network, network.getVariantManager().getWorkingVariantId(), computationManager, parameters);
     }
 
-    public LoadFlowResult run(LoadFlowParameters parameters) {
-        return run(LocalComputationManager.getDefault(), parameters);
+    public LoadFlowResult run(Network network, LoadFlowParameters parameters) {
+        return run(network, LocalComputationManager.getDefault(), parameters);
     }
 
-    public LoadFlowResult run() {
-        return run(LoadFlowParameters.load(platformConfig));
+    public LoadFlowResult run(Network network) {
+        return run(network, LoadFlowParameters.load(platformConfig));
     }
 
     @Override

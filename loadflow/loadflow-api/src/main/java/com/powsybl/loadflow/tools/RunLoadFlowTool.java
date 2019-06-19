@@ -158,7 +158,6 @@ public class RunLoadFlowTool implements Tool {
         if (network == null) {
             throw new PowsyblException("Case '" + caseFile + "' not found");
         }
-        LoadFlow loadFlow = LoadFlow.on(network);
 
         LoadFlowParameters params = LoadFlowParameters.load();
         if (line.hasOption(PARAMETERS_FILE)) {
@@ -166,7 +165,7 @@ public class RunLoadFlowTool implements Tool {
             JsonLoadFlowParameters.update(params, parametersFile);
         }
 
-        LoadFlowResult result = loadFlow.run(context.getShortTimeExecutionComputationManager(), params);
+        LoadFlowResult result = LoadFlow.findDefault().run(network, context.getShortTimeExecutionComputationManager(), params);
 
         if (outputFile != null) {
             exportResult(result, context, outputFile, format);
