@@ -530,5 +530,8 @@ public abstract class AbstractAppStorageTest {
             fail();
         } catch (Exception ignored) {
         }
+
+        // 19 check that eventsStore is not null
+        assertNotNull(storage.getEventsStore());
     }
 }
