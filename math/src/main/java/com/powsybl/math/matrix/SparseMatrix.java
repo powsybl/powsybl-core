@@ -54,6 +54,32 @@ class SparseMatrix extends AbstractMatrix {
     }
 
     /**
+     * Sparse Element implementation.
+     * An element in a sparse matrix is defined by its index in the values vector.
+     */
+    class SparseElement implements Element {
+
+        /**
+         * Index of the element in the values vector.
+         */
+        private final int valueIndex;
+
+        SparseElement(int valueIndex) {
+            this.valueIndex = valueIndex;
+        }
+
+        @Override
+        public void set(double value) {
+            values.setQuick(valueIndex, value);
+        }
+
+        @Override
+        public void add(double value) {
+            values.setQuick(valueIndex, values.getQuick(valueIndex) + value);
+        }
+    }
+
+    /**
      * Row count.
      */
     private final int rowCount;
@@ -65,9 +91,15 @@ class SparseMatrix extends AbstractMatrix {
 
     /**
      * Column start index in {@link #values} array.
+     * Length of this vector is the number of column, plus one last element at the end for value count.
+     */
+    private final int[] columnStart;
+
+    /**
+     * Column value count.
      * Length of this vector is the number of column.
      */
-    private final int[] columnStart; // plus value count in the last element
+    private final int[] columnValueCount;
 
     /**
      * Row index for each of the {@link #values}.
@@ -82,18 +114,59 @@ class SparseMatrix extends AbstractMatrix {
 
     private int currentColumn = -1; // just for matrix filling
 
+    /**
+     * Create a sparse matrix from its internal structure vectors.
+     * This constructor is only called on C++ side.
+     *
+     * @param rowCount row count
+     * @param columnCount column count
+     * @param columnStart column start vector
+     * @param rowIndices row indices vector
+     * @param values value vector
+     */
     SparseMatrix(int rowCount, int columnCount, int[] columnStart, int[] rowIndices, double[] values) {
         this.rowCount = rowCount;
         this.columnCount = columnCount;
         this.columnStart = Objects.requireNonNull(columnStart);
+        columnValueCount = new int[columnCount];
         this.rowIndices = new TIntArrayListHack(Objects.requireNonNull(rowIndices));
         this.values = new TDoubleArrayListHack(Objects.requireNonNull(values));
+        fillColumnValueCount(this.columnCount, this.columnStart, columnValueCount, this.values);
     }
 
+    private static void fillColumnValueCount(int columnCount, int[] columnStart, int[] columnValueCount, TDoubleArrayListHack values) {
+        int lastNonEmptyColumn = -1;
+        for (int column = 0; column < columnCount; column++) {
+            if (columnStart[column] != -1) {
+                if (lastNonEmptyColumn != -1) {
+                    columnValueCount[lastNonEmptyColumn] = columnStart[column] - columnStart[lastNonEmptyColumn];
+                }
+                lastNonEmptyColumn = column;
+            }
+        }
+        if (lastNonEmptyColumn != -1) {
+            columnValueCount[lastNonEmptyColumn] = values.size() - columnStart[lastNonEmptyColumn];
+        }
+    }
+
+    /**
+     * Create an empty sparse matrix.
+     *
+     * @param rowCount row count
+     * @param columnCount column count
+     * @param estimatedNonZeroValueCount estimated number of non zero values (used for internal pre-allocation)
+     */
     SparseMatrix(int rowCount, int columnCount, int estimatedNonZeroValueCount) {
+        if (rowCount < 0) {
+            throw new IllegalArgumentException("row count has to be positive");
+        }
+        if (columnCount < 0) {
+            throw new IllegalArgumentException("column count has to be positive");
+        }
         this.rowCount = rowCount;
         this.columnCount = columnCount;
         columnStart = new int[columnCount + 1];
+        columnValueCount = new int[columnCount];
         Arrays.fill(columnStart, -1);
         this.columnStart[columnCount] = 0;
         rowIndices = new TIntArrayListHack(estimatedNonZeroValueCount);
@@ -107,6 +180,15 @@ class SparseMatrix extends AbstractMatrix {
      */
     int[] getColumnStart() {
         return columnStart;
+    }
+
+    /**
+     * Get column value count vector.
+     *
+     * @return column value count vector.
+     */
+    int[] getColumnValueCount() {
+        return columnValueCount;
     }
 
     /**
@@ -127,17 +209,11 @@ class SparseMatrix extends AbstractMatrix {
         return values.getData();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int getRowCount() {
         return rowCount;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int getColumnCount() {
         return columnCount;
@@ -154,6 +230,7 @@ class SparseMatrix extends AbstractMatrix {
      */
     @Override
     public void set(int i, int j, double value) {
+        checkBounds(i, j);
         if (j == currentColumn) {
             // ok, continue to fill row
         } else if (j > currentColumn) {
@@ -166,6 +243,7 @@ class SparseMatrix extends AbstractMatrix {
         values.add(value);
         rowIndices.add(i);
         columnStart[columnStart.length - 1] = values.size();
+        columnValueCount[j]++;
     }
 
     /**
@@ -179,6 +257,7 @@ class SparseMatrix extends AbstractMatrix {
      */
     @Override
     public void add(int i, int j, double value) {
+        checkBounds(i, j);
         boolean startNewColumn = false;
         if (j == currentColumn) {
             // ok, continue to fill row
@@ -192,17 +271,35 @@ class SparseMatrix extends AbstractMatrix {
         }
         if (!startNewColumn && i == rowIndices.get(rowIndices.size() - 1)) {
             int vi = values.size() - 1;
-            values.set(vi, values.get(vi) + value);
+            values.setQuick(vi, values.getQuick(vi) + value);
         } else {
             values.add(value);
             rowIndices.add(i);
             columnStart[columnStart.length - 1] = values.size();
+            columnValueCount[j]++;
         }
     }
 
     /**
      * {@inheritDoc}
+     *
+     * <p>
+     * As sparse matrix is stored in CSC format. Columns must be filled in ascending order but values inside a column
+     * may be filled in any order.
+     * </p>
+     * @throws PowsyblException if values are filled in wrong order.
      */
+    @Override
+    public Element addAndGetElement(int i, int j, double value) {
+        add(i, j, value);
+        return new SparseElement(values.size() - 1);
+    }
+
+    @Override
+    public void reset() {
+        values.fill(0d);
+    }
+
     @Override
     public LUDecomposition decomposeLU() {
         checkNativeInit();
@@ -211,9 +308,6 @@ class SparseMatrix extends AbstractMatrix {
 
     private native SparseMatrix times(int m1, int n1, int[] ap1, int[] ai1, double[] ax1, int m2, int n2, int[] ap2, int[] ai2, double[] ax2);
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Matrix times(Matrix other) {
         checkNativeInit();
@@ -225,9 +319,6 @@ class SparseMatrix extends AbstractMatrix {
                      o.rowCount, o.columnCount, o.columnStart, o.rowIndices.getData(), o.values.getData());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void iterateNonZeroValue(ElementHandler handler) {
         for (int j = 0; j < columnCount; j++) {
@@ -235,15 +326,11 @@ class SparseMatrix extends AbstractMatrix {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void iterateNonZeroValueOfColumn(int j, ElementHandler handler) {
         int first = columnStart[j];
         if (first != -1) {
-            int last = j < columnStart.length - 1 ? columnStart[j + 1] : values.size();
-            for (int v = first; v < last; v++) {
+            for (int v = first; v < first + columnValueCount[j]; v++) {
                 int i = rowIndices.getQuick(v);
                 double value = values.getQuick(v);
                 handler.onElement(i, j, value);
@@ -251,25 +338,16 @@ class SparseMatrix extends AbstractMatrix {
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public DenseMatrix toDense() {
         return (DenseMatrix) to(new DenseMatrixFactory());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public SparseMatrix toSparse() {
         return this;
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public Matrix to(MatrixFactory factory) {
         Objects.requireNonNull(factory);
@@ -279,45 +357,31 @@ class SparseMatrix extends AbstractMatrix {
         return copy(factory);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     protected int getEstimatedNonZeroValueCount() {
         return values.size();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void print(PrintStream out) {
         print(out, null, null);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void print(PrintStream out, List<String> rowNames, List<String> columnNames) {
         out.println("rowCount=" + rowCount);
         out.println("columnCount=" + columnCount);
         out.println("columnStart=" + Arrays.toString(columnStart));
+        out.println("columnValueCount=" + Arrays.toString(columnValueCount));
         out.println("rowIndices=" + rowIndices);
         out.println("values=" + values);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public int hashCode() {
-        return rowCount + columnCount + Arrays.hashCode(columnStart) + rowIndices.hashCode() + values.hashCode();
+        return rowCount + columnCount + Arrays.hashCode(columnStart) + Arrays.hashCode(columnValueCount) + rowIndices.hashCode() + values.hashCode();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof SparseMatrix) {
@@ -325,6 +389,7 @@ class SparseMatrix extends AbstractMatrix {
             return rowCount == other.rowCount &&
                     columnCount == other.columnCount &&
                     Arrays.equals(columnStart, other.columnStart) &&
+                    Arrays.equals(columnValueCount, other.columnValueCount) &&
                     rowIndices.equals(other.rowIndices) &&
                     values.equals(other.values);
         }

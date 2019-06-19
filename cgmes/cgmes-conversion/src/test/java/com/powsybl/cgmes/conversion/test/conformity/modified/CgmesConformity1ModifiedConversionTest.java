@@ -4,20 +4,16 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-
 package com.powsybl.cgmes.conversion.test.conformity.modified;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
+import static org.junit.Assert.*;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 
 import com.powsybl.iidm.network.*;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
@@ -49,11 +45,11 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void microBERatioPhaseTabularTest() throws IOException {
+    public void microBERatioPhaseTabularTest() {
         Network network = new CgmesImport(platformConfig)
-            .importData(catalogModified.microGridBaseCaseBERatioPhaseTapChangerTabular().dataSource(), null);
+                .importData(catalogModified.microGridBaseCaseBERatioPhaseTapChangerTabular().dataSource(), null);
         RatioTapChanger rtc = network.getTwoWindingsTransformer("_b94318f6-6d24-4f56-96b9-df2531ad6543")
-            .getRatioTapChanger();
+                .getRatioTapChanger();
         assertEquals(6, rtc.getStepCount());
         // ratio is missing for step 3
         // ratio is defined explicitly as 1.0 for step 4
@@ -65,7 +61,7 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(0.0, rtc.getStep(6).getX(), 0);
 
         PhaseTapChanger ptc = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0")
-            .getPhaseTapChanger();
+                .getPhaseTapChanger();
         // r,x not defined for step 1
         // ratio not defined for any step
         assertEquals(4, ptc.getStepCount());
@@ -79,7 +75,7 @@ public class CgmesConformity1ModifiedConversionTest {
     @Test
     public void microBEReactiveCapabilityCurve() {
         Network network = new CgmesImport(platformConfig)
-            .importData(catalogModified.microGridBaseCaseBEReactiveCapabilityCurve().dataSource(), null);
+                .importData(catalogModified.microGridBaseCaseBEReactiveCapabilityCurve().dataSource(), null);
         ReactiveLimits rl = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0").getReactiveLimits();
         assertEquals(ReactiveLimitsKind.CURVE, rl.getKind());
         ReactiveCapabilityCurve rcc = (ReactiveCapabilityCurve) rl;
@@ -101,13 +97,95 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
-    public void miniNodeBreakerTestLimits() throws IOException {
+    public void microBEPtcCurrentLimiter() {
+        Network network = new CgmesImport(platformConfig)
+                .importData(catalogModified.microGridBaseCaseBEPtcCurrentLimiter().dataSource(), null);
+
+        PhaseTapChanger ptc = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
+        assertNotNull(ptc);
+        assertEquals(CURRENT_LIMITER, ptc.getRegulationMode());
+    }
+
+    @Test
+    public void microBEInvalidRegulatingControl() {
+        Network network = new CgmesImport(platformConfig)
+                .importData(catalogModified.microGridBaseCaseBEInvalidRegulatingControl().dataSource(), null);
+
+        Generator generator1 = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0");
+        assertFalse(generator1.isVoltageRegulatorOn());
+        assertTrue(Double.isNaN(generator1.getTargetV()));
+        assertSame(generator1.getTerminal(), generator1.getRegulatingTerminal());
+
+        RatioTapChanger rtc = network.getTwoWindingsTransformer("_e482b89a-fa84-4ea9-8e70-a83d44790957").getRatioTapChanger();
+        assertNotNull(rtc);
+        assertFalse(rtc.hasLoadTapChangingCapabilities());
+        assertTrue(Double.isNaN(rtc.getTargetV()));
+        assertFalse(rtc.isRegulating());
+        assertNull(rtc.getRegulationTerminal());
+
+        PhaseTapChanger ptc = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
+        assertNotNull(ptc);
+        assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, ptc.getRegulationMode());
+        assertTrue(Double.isNaN(ptc.getRegulationValue()));
+        assertFalse(ptc.isRegulating());
+        assertNull(ptc.getRegulationTerminal());
+
+        Generator generator2 = network.getGenerator("_550ebe0d-f2b2-48c1-991f-cebea43a21aa");
+        assertEquals(generator2.getTerminal().getVoltageLevel().getNominalV(), generator2.getTargetV(), 0.0);
+    }
+
+    @Test
+    public void microBEMissingRegulatingControl() {
+        Network network = new CgmesImport(platformConfig)
+                .importData(catalogModified.microGridBaseCaseBEMissingRegulatingControl().dataSource(), null);
+
+        Generator generator = network.getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0");
+        assertFalse(generator.isVoltageRegulatorOn());
+        assertTrue(Double.isNaN(generator.getTargetV()));
+
+        RatioTapChanger rtc = network.getTwoWindingsTransformer("_b94318f6-6d24-4f56-96b9-df2531ad6543").getRatioTapChanger();
+        assertNotNull(rtc);
+        assertFalse(rtc.hasLoadTapChangingCapabilities());
+        assertTrue(Double.isNaN(rtc.getTargetV()));
+        assertFalse(rtc.isRegulating());
+        assertNull(rtc.getRegulationTerminal());
+
+        PhaseTapChanger ptc = network.getTwoWindingsTransformer("_a708c3bc-465d-4fe7-b6ef-6fa6408a62b0").getPhaseTapChanger();
+        assertNotNull(ptc);
+        assertEquals(PhaseTapChanger.RegulationMode.FIXED_TAP, ptc.getRegulationMode());
+        assertTrue(Double.isNaN(ptc.getRegulationValue()));
+        assertFalse(ptc.isRegulating());
+        assertNull(ptc.getRegulationTerminal());
+    }
+
+    @Test
+    public void miniBusBranchRtcRemoteRegulation() {
+        Network network = new CgmesImport(platformConfig).importData(catalogModified.miniBusBranchRtcRemoteRegulation().dataSource(), null);
+
+        TwoWindingsTransformer twt2 = network.getTwoWindingsTransformer("_813365c3-5be7-4ef0-a0a7-abd1ae6dc174");
+        RatioTapChanger rtc = twt2.getRatioTapChanger();
+        assertNotNull(rtc);
+        Terminal regulatingTerminal = rtc.getRegulationTerminal();
+        assertNotNull(regulatingTerminal);
+        assertSame(twt2.getTerminal1().getBusBreakerView().getBus(), regulatingTerminal.getBusBreakerView().getBus());
+
+        ThreeWindingsTransformer twt3 = network.getThreeWindingsTransformer("_5d38b7ed-73fd-405a-9cdb-78425e003773");
+        RatioTapChanger rtc2 = twt3.getLeg3().getRatioTapChanger();
+        assertNotNull(rtc2);
+        Terminal regulatingTerminal2 = rtc2.getRegulationTerminal();
+        assertNotNull(regulatingTerminal2);
+        assertSame(network.getVoltageLevel("_93778e52-3fd5-456d-8b10-987c3e6bc47e").getBusBreakerView().getBus("_03163ede-7eec-457f-8641-365982227d7c"),
+                regulatingTerminal2.getBusBreakerView().getBus());
+    }
+
+    @Test
+    public void miniNodeBreakerTestLimits() {
         // Original test case
         Network network0 = new CgmesImport(platformConfig).importData(catalog.miniNodeBreaker().dataSource(), null);
         // The case has been manually modified to have OperationalLimits
         // defined for Equipment
         Network network1 = new CgmesImport(platformConfig)
-            .importData(catalogModified.miniNodeBreakerLimitsforEquipment().dataSource(), null);
+                .importData(catalogModified.miniNodeBreakerLimitsforEquipment().dataSource(), null);
 
         double tol = 0;
 

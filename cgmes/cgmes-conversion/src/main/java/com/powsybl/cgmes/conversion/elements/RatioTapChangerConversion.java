@@ -35,6 +35,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         highStep = rtc.asInt("highStep");
         neutralStep = rtc.asInt("neutralStep");
         position = fromContinuous(p.asDouble("SVtapStep", neutralStep));
+        ltcFlag = rtc.asBoolean("ltcFlag", false);
     }
 
     @Override
@@ -83,12 +84,10 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         } else {
             addStepsFromStepVoltageIncrement(rtca);
         }
-        String tapChangerControl = p.getId("TapChangerControl");
-        if (tapChangerControl != null) {
-            addRegulatingControl(rtca);
-        } else {
-            rtca.setLoadTapChangingCapabilities(false);
-        }
+
+        rtca.setLoadTapChangingCapabilities(ltcFlag);
+        context.regulatingControlMapping().setRegulatingControl(p, terminal(), rtca);
+
         rtca.add();
     }
 
@@ -103,7 +102,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
             } else if (side == 2) {
                 return tx3.getLeg2().newRatioTapChanger();
             } else if (side == 3) {
-                return tx3.getLeg2().newRatioTapChanger();
+                return tx3.getLeg3().newRatioTapChanger();
             }
         }
         return null;
@@ -217,43 +216,6 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         return false;
     }
 
-    private void addRegulatingControl(RatioTapChangerAdder rtca) {
-        String mode = p.getLocal("regulatingControlMode").toLowerCase();
-        if (mode.endsWith("voltage")) {
-            addRegulatingControlVoltage(rtca);
-        } else if (mode.endsWith("fixed")) {
-            rtca.setLoadTapChangingCapabilities(false);
-        } else {
-            rtca.setLoadTapChangingCapabilities(false);
-            ignored(mode, "Unsupported regulation mode");
-        }
-    }
-
-    private void addRegulatingControlVoltage(RatioTapChangerAdder rtca) {
-        double regulatingControlValue = p.asDouble("regulatingControlTargetValue");
-        boolean regulating = p.asBoolean("regulatingControlEnabled", false);
-        // Even if regulating is false, we reset the target voltage if it is not valid
-        double targetV = regulatingControlValue;
-        if (targetV <= 0) {
-            String reg = p.getId("TapChangerControl");
-            ignored(reg, String.format("Regulating control has a bad target voltage %f", targetV));
-            regulating = false;
-            targetV = Float.NaN;
-        }
-        Terminal regulationTerminal = null;
-        // TODO Find the Network terminal mapped to the rtc terminal,
-        // If original terminal has not been mapped,
-        // find the IIDM terminal of the CGMES topological node
-        // associated with the rtc terminal
-        // (Check code in CIM1 Importer)
-        regulationTerminal = terminal();
-
-        rtca.setLoadTapChangingCapabilities(true)
-            .setRegulating(regulating)
-            .setTargetV(targetV)
-            .setRegulationTerminal(regulationTerminal);
-    }
-
     private Terminal terminal() {
         int side = context.tapChangerTransformers().whichSide(id);
         if (tx2 != null) {
@@ -284,6 +246,7 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
     private final int highStep;
     private final int neutralStep;
     private final int position;
+    private final boolean ltcFlag;
 
     private static final Logger LOG = LoggerFactory.getLogger(RatioTapChangerConversion.class);
 }

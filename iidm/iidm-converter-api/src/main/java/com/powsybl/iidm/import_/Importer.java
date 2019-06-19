@@ -9,6 +9,7 @@ package com.powsybl.iidm.import_;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.NetworkFactory;
 import com.powsybl.iidm.parameters.Parameter;
 
 import java.util.Collections;
@@ -55,14 +56,26 @@ public interface Importer {
      */
     boolean exists(ReadOnlyDataSource dataSource);
 
+
+    /**
+     * @deprecated Use {@link Importer#importData(ReadOnlyDataSource, NetworkFactory, Properties)} instead.
+     */
+    @Deprecated
+    default Network importData(ReadOnlyDataSource dataSource, Properties parameters) {
+        return importData(dataSource, NetworkFactory.findDefault(), parameters);
+    }
+
     /**
      * Create a model.
      *
      * @param dataSource data source
+     * @param networkFactory network factory
      * @param parameters some properties to configure the import
      * @return the model
      */
-    Network importData(ReadOnlyDataSource dataSource, Properties parameters);
+    default Network importData(ReadOnlyDataSource dataSource, NetworkFactory networkFactory, Properties parameters) {
+        throw new UnsupportedOperationException("Not implemented");
+    }
 
     /**
      * Copy data from one data source to another.

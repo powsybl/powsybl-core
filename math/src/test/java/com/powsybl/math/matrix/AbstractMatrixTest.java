@@ -39,6 +39,53 @@ public abstract class AbstractMatrixTest {
     }
 
     @Test
+    public void checkBoundsTest() {
+        try {
+            getMatrixFactory().create(-1, 1, 1);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+        try {
+            getMatrixFactory().create(1, -1, 1);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+
+        Matrix a = getMatrixFactory().create(1, 1, 1);
+        try {
+            a.set(-1, 0, 0);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+        try {
+            a.set(0, -1, 0);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+        try {
+            a.set(2, 0, 0);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+        try {
+            a.set(0, 1, 0);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+        try {
+            a.add(2, 0, 0);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+        try {
+            a.add(0, 1, 0);
+            fail();
+        } catch (IllegalArgumentException ignored) {
+        }
+
+    }
+
+    @Test
     public void testMultiplication() throws Exception {
         Matrix a = createA(getMatrixFactory());
         Matrix b = getMatrixFactory().create(2, 1, 2);
@@ -91,6 +138,16 @@ public abstract class AbstractMatrixTest {
         return bos.toString(StandardCharsets.UTF_8.name());
     }
 
+    protected String print(Matrix matrix) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            matrix.print(new PrintStream(bos));
+        } finally {
+            bos.close();
+        }
+        return bos.toString(StandardCharsets.UTF_8.name());
+    }
+
     @Test
     public void testDecompose() throws Exception {
         Matrix matrix = getMatrixFactory().create(5, 5, 12);
@@ -104,7 +161,7 @@ public abstract class AbstractMatrixTest {
 
         matrix.set(1, 2, 4);
         matrix.set(2, 2, -3);
-        matrix.set(3, 2, 1);
+        Matrix.Element e = matrix.addAndGetElement(3, 2, 1);
         matrix.set(4, 2, 2);
 
         matrix.set(2, 3, 2);
@@ -140,6 +197,23 @@ public abstract class AbstractMatrixTest {
             assertEquals(3, x2.get(2, 1), EPSILON);
             assertEquals(4, x2.get(3, 1), EPSILON);
             assertEquals(5, x2.get(4, 1), EPSILON);
+
+            e.set(4);
+            e.add(1);
+            decomposition.update();
+            double[] x3 = {8, 45, -3, 3, 19};
+            decomposition.solve(x3);
+            assertArrayEquals(new double[]{-0.010526315789474902, 2.673684210526316, 0.6, 0.7368421052631579, 7.105263157894737}, x3, EPSILON);
+        }
+    }
+
+    @Test
+    public void testDecomposeNonSquare() {
+        Matrix matrix = getMatrixFactory().create(1, 2, 4);
+        try {
+            matrix.decomposeLU();
+            fail();
+        } catch (Exception ignored) {
         }
     }
 
@@ -191,6 +265,43 @@ public abstract class AbstractMatrixTest {
         assertEquals(0d, b.get(1, 0), 0d);
         assertEquals(1d, b.get(0, 1), 0d);
         assertEquals(0d, b.get(1, 1), 0d);
+    }
+
+    @Test
+    public void testIssueWithEmptyColumns() {
+        Matrix a = getMatrixFactory().create(2, 2, 2);
+        a.set(0, 0, 1d);
+        // second column is empty
+        assertEquals(1, a.toDense().get(0, 0), 0d);
+    }
+
+    @Test
+    public void testReset() {
+        Matrix a = getMatrixFactory().create(3, 3, 3);
+        // 1 0 4
+        // 0 2 0
+        // 0 3 0
+        Matrix.Element e1 = a.addAndGetElement(0, 0, 1d);
+        Matrix.Element e2 = a.addAndGetElement(1, 1, 2d);
+        Matrix.Element e3 = a.addAndGetElement(2, 1, 3d);
+        Matrix.Element e4 = a.addAndGetElement(0, 2, 4d);
+
+        a.reset();
+
+        assertEquals(0d, a.toDense().get(0, 0), 0d);
+        assertEquals(0d, a.toDense().get(1, 1), 0d);
+        assertEquals(0d, a.toDense().get(2, 1), 0d);
+        assertEquals(0d, a.toDense().get(0, 2), 0d);
+
+        e1.set(5d);
+        e2.set(6d);
+        e3.set(7d);
+        e4.set(8d);
+
+        assertEquals(5d, a.toDense().get(0, 0), 0d);
+        assertEquals(6d, a.toDense().get(1, 1), 0d);
+        assertEquals(7d, a.toDense().get(2, 1), 0d);
+        assertEquals(8d, a.toDense().get(0, 2), 0d);
     }
 
     @Test

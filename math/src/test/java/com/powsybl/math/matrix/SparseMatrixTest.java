@@ -11,7 +11,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.junit.Assume.assumeTrue;
 
 /**
@@ -52,17 +52,58 @@ public class SparseMatrixTest extends AbstractMatrixTest {
                 "rowCount=3",
                 "columnCount=2",
                 "columnStart=[0, 2, 3]",
+                "columnValueCount=[2, 1]",
                 "rowIndices={0, 2, 1}",
                 "values={1.0, 2.0, 3.0}")
                 + System.lineSeparator();
         assertEquals(expected, print(a, null, null));
+        assertEquals(expected, print(a));
     }
 
     @Test(expected = PowsyblException.class)
     public void testWrongColumnOrder() {
         Matrix a = matrixFactory.create(2, 2, 2);
         a.set(0, 0, 1d);
+        a.set(1, 0, 1d);
         a.set(0, 1, 1d);
         a.set(1, 0, 1d);
+    }
+
+    @Test
+    public void testInitSparseMatrixFromCpp() {
+        SparseMatrix m = new SparseMatrix(2, 5, new int[] {0, -1, 2, -1, 3, 4}, new int[] {0, 1, 0, 1}, new double[] {1d, 2d, 3d, 4d});
+        assertArrayEquals(new int[] {2, 0, 1, 0, 1}, m.getColumnValueCount());
+    }
+
+    @Test
+    public void testRedecompose() {
+        assumeTrue(SparseMatrix.NATIVE_INIT);
+
+        Matrix matrix = getMatrixFactory().create(2, 2, 2);
+        matrix.set(0, 0, 3);
+        matrix.set(1, 0, 4);
+        matrix.set(0, 1, 1);
+
+        try (LUDecomposition decomposition = matrix.decomposeLU()) {
+            // fine
+            decomposition.update();
+
+            // error as an element has been added
+            matrix.set(1, 1, 2);
+            try {
+                decomposition.update();
+                fail();
+            } catch (PowsyblException ignored) {
+            }
+        }
+    }
+
+    @Test
+    public void timeToDenseNotSupportedTest() {
+        try {
+            new SparseMatrix(2, 2, 2).times(new DenseMatrix(2, 2));
+            fail();
+        } catch (PowsyblException ignored) {
+        }
     }
 }
