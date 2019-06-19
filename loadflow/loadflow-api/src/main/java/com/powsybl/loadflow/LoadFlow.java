@@ -42,14 +42,14 @@ public class LoadFlow implements Versionable {
         return find(name, PROVIDERS_SUPPLIERS.get(), PlatformConfig.defaultConfig());
     }
 
-    public static LoadFlow find(String name, List<LoadFlowProvider> providers, PlatformConfig platformConfig) {
+    static LoadFlow find(String name, List<LoadFlowProvider> providers, PlatformConfig platformConfig) {
         Objects.requireNonNull(name);
         Objects.requireNonNull(providers);
 
         LoadFlowProvider provider = providers.stream()
                 .filter(p -> p.getName().equals(name))
                 .findFirst()
-                .orElseThrow(() -> new PowsyblException("Loadflow " + name + " found"));
+                .orElseThrow(() -> new PowsyblException("Loadflow '" + name + "' not found"));
 
         return new LoadFlow(provider, platformConfig);
     }

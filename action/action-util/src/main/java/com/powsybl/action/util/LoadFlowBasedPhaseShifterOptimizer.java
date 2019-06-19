@@ -7,13 +7,10 @@
 package com.powsybl.action.util;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.commons.exceptions.UncheckedIllegalAccessException;
-import com.powsybl.commons.exceptions.UncheckedInstantiationException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.loadflow.LoadFlow;
-import com.powsybl.loadflow.LoadFlowFactory;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
 import org.slf4j.Logger;
@@ -33,18 +30,21 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
 
     private final LoadFlowBasedPhaseShifterOptimizerConfig config;
 
+    private final LoadFlow loadFlow;
+
     public LoadFlowBasedPhaseShifterOptimizer(ComputationManager computationManager, LoadFlowBasedPhaseShifterOptimizerConfig config) {
         this.computationManager = Objects.requireNonNull(computationManager);
         this.config = Objects.requireNonNull(config);
+        loadFlow = config.getLoadFlowName().map(LoadFlow::find).orElseGet(LoadFlow::findDefault);
     }
 
     public LoadFlowBasedPhaseShifterOptimizer(ComputationManager computationManager) {
         this(computationManager, LoadFlowBasedPhaseShifterOptimizerConfig.load());
     }
 
-    private void runLoadFlow(LoadFlow loadFlow, String workingStateId) {
+    private void runLoadFlow(Network network, String workingStateId) {
         try {
-            LoadFlowResult result = loadFlow.run(workingStateId, LoadFlowParameters.load()).join();
+            LoadFlowResult result = loadFlow.run(network, workingStateId, computationManager, LoadFlowParameters.load());
             if (!result.isOk()) {
                 throw new PowsyblException("Load flow diverged during phase shifter optimization");
             }
@@ -79,9 +79,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
         network.getVariantManager().cloneVariant(stateId, tmpStateId);
         try {
             network.getVariantManager().setWorkingVariant(tmpStateId);
-            LoadFlowFactory loadFlowFactory = config.getLoadFlowFactoryClass().newInstance();
-            LoadFlow loadFlow = loadFlowFactory.create(network, computationManager, 0);
-            runLoadFlow(loadFlow, tmpStateId);
+            runLoadFlow(network, tmpStateId);
             if (phaseShifter.getTerminal1().getI() >= phaseShifter.getCurrentLimits1().getPermanentLimit()) {
                 throw new PowsyblException("Phase shifter already overloaded");
             }
@@ -98,7 +96,7 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
                 phaseShifter.getPhaseTapChanger().setTapPosition(tapPos);
 
                 // run load flow
-                runLoadFlow(loadFlow, tmpStateId);
+                runLoadFlow(network, tmpStateId);
 
                 // wrong direction, negate the increment
                 if (getI(phaseShifter) < i) {
@@ -116,16 +114,12 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
                 phaseShifter.getPhaseTapChanger().setTapPosition(optimalTap);
 
                 // just to be sure, check that with the previous tap, phase shifter is not overloaded...
-                runLoadFlow(loadFlow, tmpStateId);
+                runLoadFlow(network, tmpStateId);
                 // check there phase shifter is not overloaded
                 if (getI(phaseShifter) >= limit) {
                     throw new AssertionError("Phase shifter should not be overload");
                 }
             }
-        } catch (IllegalAccessException e) {
-            throw new UncheckedIllegalAccessException(e);
-        } catch (InstantiationException e) {
-            throw new UncheckedInstantiationException(e);
         } finally {
             // don't forget to remove the temporary state!
             network.getVariantManager().removeVariant(tmpStateId);

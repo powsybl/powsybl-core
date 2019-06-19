@@ -62,7 +62,11 @@ public class MapModuleConfig extends AbstractMapModuleConfig {
     }
 
     public void setStringProperty(String name, String value) {
-        properties.put(Objects.requireNonNull(name), Objects.requireNonNull(value));
+        if (value == null) {
+            properties.remove(name);
+        } else {
+            properties.put(Objects.requireNonNull(name), value);
+        }
     }
 
     public void setStringListProperty(String name, List<String> value) {

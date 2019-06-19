@@ -58,8 +58,8 @@ public class LoadFlowTest {
     @Test
     public void testDefaultOneProvider() {
         // case with only one provider, no need for config
-        LoadFlow defaultLoadFlow = LoadFlow.findDefault(ImmutableList.of(new FakeLoadFlowProvider()), platformConfig);
-        assertEquals("FakeLoadFlow", defaultLoadFlow.getName());
+        LoadFlow defaultLoadFlow = LoadFlow.findDefault(ImmutableList.of(new LoadFlowProviderMock()), platformConfig);
+        assertEquals("LoadFlowMock", defaultLoadFlow.getName());
         LoadFlowResult result = defaultLoadFlow.run(network, computationManager, new LoadFlowParameters());
         assertNotNull(result);
     }
@@ -68,7 +68,7 @@ public class LoadFlowTest {
     public void testDefaultTwoProviders() {
         // case with 2 providers without any config, an exception is expected
         try {
-            LoadFlow.findDefault(ImmutableList.of(new FakeLoadFlowProvider(), new AnotherFakeLoadFlowProvider()), platformConfig);
+            LoadFlow.findDefault(ImmutableList.of(new LoadFlowProviderMock(), new AnotherLoadFlowProviderMock()), platformConfig);
             fail();
         } catch (PowsyblException ignored) {
         }
@@ -87,15 +87,15 @@ public class LoadFlowTest {
     @Test
     public void testTwoProviders() {
         // case with 2 providers without any config but specifying which one to use programmatically
-        LoadFlow otherLoadFlow = LoadFlow.find("AnotherFakeLoadFlow", ImmutableList.of(new FakeLoadFlowProvider(), new AnotherFakeLoadFlowProvider()), platformConfig);
-        assertEquals("AnotherFakeLoadFlow", otherLoadFlow.getName());
+        LoadFlow otherLoadFlow = LoadFlow.find("AnotherLoadFlowMock", ImmutableList.of(new LoadFlowProviderMock(), new AnotherLoadFlowProviderMock()), platformConfig);
+        assertEquals("AnotherLoadFlowMock", otherLoadFlow.getName());
     }
 
     @Test
     public void testDefaultTwoProvidersPlatformConfig() {
         // case with 2 providers without any config but specifying which one to use in platform config
-        platformConfig.createModuleConfig("load-flow").setStringProperty("default", "AnotherFakeLoadFlow");
-        LoadFlow otherLoadFlow2 = LoadFlow.findDefault(ImmutableList.of(new FakeLoadFlowProvider(), new AnotherFakeLoadFlowProvider()), platformConfig);
-        assertEquals("AnotherFakeLoadFlow", otherLoadFlow2.getName());
+        platformConfig.createModuleConfig("load-flow").setStringProperty("default", "AnotherLoadFlowMock");
+        LoadFlow otherLoadFlow2 = LoadFlow.findDefault(ImmutableList.of(new LoadFlowProviderMock(), new AnotherLoadFlowProviderMock()), platformConfig);
+        assertEquals("AnotherLoadFlowMock", otherLoadFlow2.getName());
     }
 }

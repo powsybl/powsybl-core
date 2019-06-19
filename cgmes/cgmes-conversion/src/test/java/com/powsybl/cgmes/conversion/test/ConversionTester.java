@@ -7,24 +7,6 @@
 
 package com.powsybl.cgmes.conversion.test;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.IOException;
-import java.nio.file.FileSystem;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.List;
-import java.util.Properties;
-import java.util.function.Consumer;
-
-import com.powsybl.commons.io.table.TableFormatterConfig;
-import com.powsybl.commons.config.PlatformConfig;
-import org.mockito.Mockito;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conversion.CgmesExport;
@@ -36,17 +18,32 @@ import com.powsybl.cgmes.conversion.test.network.compare.ComparisonConfig;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
+import com.powsybl.commons.io.table.TableFormatterConfig;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.XMLExporter;
 import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletion;
 import com.powsybl.loadflow.resultscompletion.LoadFlowResultsCompletionParameters;
 import com.powsybl.loadflow.validation.ValidationConfig;
 import com.powsybl.loadflow.validation.ValidationType;
 import com.powsybl.triplestore.api.TripleStoreFactory;
+import org.mockito.Mockito;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
+import java.util.Properties;
+import java.util.function.Consumer;
+
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -229,7 +226,7 @@ public class ConversionTester {
         InMemoryPlatformConfig pconfig = new InMemoryPlatformConfig(fs);
         pconfig
                 .createModuleConfig("componentDefaultConfig")
-                .setStringProperty("LoadFlowFactory", LoadFlowFactoryMock.class.getCanonicalName());
+                .setStringProperty("LoadFlowFactory", "LoadFlowMock");
         ValidationConfig config = ValidationConfig.load(pconfig);
         config.setVerbose(true);
         config.setThreshold(threshold);

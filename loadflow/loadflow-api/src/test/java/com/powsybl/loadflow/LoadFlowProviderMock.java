@@ -17,7 +17,7 @@ import java.util.concurrent.CompletableFuture;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(LoadFlowProvider.class)
-public class AnotherFakeLoadFlowProvider implements LoadFlowProvider {
+public class LoadFlowProviderMock implements LoadFlowProvider {
 
     @Override
     public CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingStateId, LoadFlowParameters parameters) {
@@ -26,7 +26,7 @@ public class AnotherFakeLoadFlowProvider implements LoadFlowProvider {
 
     @Override
     public String getName() {
-        return "AnotherFakeLoadFlow";
+        return "LoadFlowMock";
     }
 
     @Override
