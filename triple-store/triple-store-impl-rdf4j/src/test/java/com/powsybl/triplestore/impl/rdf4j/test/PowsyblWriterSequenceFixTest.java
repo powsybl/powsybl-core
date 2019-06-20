@@ -1,3 +1,10 @@
+/**
+ * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
 package com.powsybl.triplestore.impl.rdf4j.test;
 
 import static org.junit.Assert.assertFalse;
@@ -34,21 +41,22 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.impl.rdf4j.TripleStoreRDF4J;
 
+/**
+ * @author Luma Zamarreño <zamarrenolm at aia.es>
+ */
 public class PowsyblWriterSequenceFixTest {
 
-    PropertyBags objects = new PropertyBags();
-    List<String> objectProperties = Arrays.asList("id", "property1", "property2");
-    String namespace = "http://test/";
-    String contextName = "context1";
-    String qualifiedContextName = "http://test/" + contextName;
-    String objectType = "http://test/type1";
-    String expected = "/fix-powsybl-writer-objects.xml";
+    private final PropertyBags objects = new PropertyBags();
+    private final List<String> objectProperties = Arrays.asList("id", "property1", "property2");
+    private final String namespace = "http://test/";
+    private final String contextName = "context1";
+    private final String qualifiedContextName = "http://test/" + contextName;
+    private final String objectType = "http://test/type1";
+    private final String expected = "/fix-powsybl-writer-objects.xml";
 
     @Before
     public void setUp() {
-        PropertyBag object;
-
-        object = new PropertyBag(objectProperties);
+        PropertyBag object = new PropertyBag(objectProperties);
         object.put("id", "object1");
         object.put("property1", "object1-property1-value");
         object.put("property2", "object1-property2-value");
@@ -106,14 +114,14 @@ public class PowsyblWriterSequenceFixTest {
         test(true, this::addObjectPropertiesType);
     }
 
-    void test(boolean writeBySubject, BiConsumer<RepositoryConnection, Map<PropertyBag, IRI>> adder) {
+    private void test(boolean writeBySubject, BiConsumer<RepositoryConnection, Map<PropertyBag, IRI>> adder) {
         TripleStoreRDF4J ts = new TripleStoreRDF4J();
         ts.setWriteBySubject(writeBySubject);
         addStatements(ts, adder);
         writeAndCompareWithExpected(ts);
     }
 
-    void writeAndCompareWithExpected(TripleStoreRDF4J ts) {
+    private void writeAndCompareWithExpected(TripleStoreRDF4J ts) {
         DataSource ds = new MemDataSource();
         ts.write(ds);
 
@@ -124,7 +132,7 @@ public class PowsyblWriterSequenceFixTest {
         }
     }
 
-    static void compareXml(InputStream expected, InputStream actual) {
+    private static void compareXml(InputStream expected, InputStream actual) {
         Source sexpected = Input.fromStream(expected).build();
         Source sactual = Input.fromStream(actual).build();
         Diff myDiff = DiffBuilder
@@ -140,15 +148,15 @@ public class PowsyblWriterSequenceFixTest {
         assertFalse(hasDiff);
     }
 
-    void addStatements(TripleStoreRDF4J ts, BiConsumer<RepositoryConnection, Map<PropertyBag, IRI>> adder) {
-        try (RepositoryConnection cnx = ts.repository().getConnection()) {
+    private void addStatements(TripleStoreRDF4J ts, BiConsumer<RepositoryConnection, Map<PropertyBag, IRI>> adder) {
+        try (RepositoryConnection cnx = ts.getRepository().getConnection()) {
             cnx.setIsolationLevel(IsolationLevels.NONE);
             Map<PropertyBag, IRI> objectSubject = new HashMap<>();
             adder.accept(cnx, objectSubject);
         }
     }
 
-    void addObjectPropertiesType(RepositoryConnection cnx, Map<PropertyBag, IRI> objectSubject) {
+    private void addObjectPropertiesType(RepositoryConnection cnx, Map<PropertyBag, IRI> objectSubject) {
         objects.forEach(object -> {
             objectProperties.forEach(property -> {
                 addStatement(cnx, property, object, objectSubject);
@@ -160,7 +168,7 @@ public class PowsyblWriterSequenceFixTest {
         });
     }
 
-    void addObjectTypeProperties(RepositoryConnection cnx, Map<PropertyBag, IRI> objectSubject) {
+    private void addObjectTypeProperties(RepositoryConnection cnx, Map<PropertyBag, IRI> objectSubject) {
         objects.forEach(object -> {
             addObjectTypeStatement(
                 cnx,
@@ -172,7 +180,7 @@ public class PowsyblWriterSequenceFixTest {
         });
     }
 
-    void addPropertiesObjects(RepositoryConnection cnx, Map<PropertyBag, IRI> objectSubject) {
+    private void addPropertiesObjects(RepositoryConnection cnx, Map<PropertyBag, IRI> objectSubject) {
         objects.forEach(object -> addObjectTypeStatement(
             cnx,
             subject(cnx, object, objectSubject),
@@ -184,7 +192,7 @@ public class PowsyblWriterSequenceFixTest {
         });
     }
 
-    void addStatement(
+    private void addStatement(
         RepositoryConnection cnx,
         String property,
         PropertyBag object,
@@ -200,7 +208,7 @@ public class PowsyblWriterSequenceFixTest {
         cnx.add(st, context);
     }
 
-    void addObjectTypeStatement(RepositoryConnection cnx, IRI subject, String objectType) {
+    private void addObjectTypeStatement(RepositoryConnection cnx, IRI subject, String objectType) {
         IRI objectTypeIRI = cnx.getValueFactory().createIRI(objectType);
         Statement subjectTypeStatement = cnx.getValueFactory().createStatement(
             subject,
@@ -210,7 +218,7 @@ public class PowsyblWriterSequenceFixTest {
         cnx.add(subjectTypeStatement, context);
     }
 
-    IRI subject(
+    private IRI subject(
         RepositoryConnection cnx,
         PropertyBag object,
         Map<PropertyBag, IRI> objectSubject) {

@@ -60,7 +60,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         repo.initialize();
     }
 
-    public Repository repository() {
+    public Repository getRepository() {
         return repo;
     }
 
@@ -230,14 +230,14 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
             RDFWriter writer = new PowsyblWriter(pout);
             writer.getWriterConfig().set(BasicWriterSettings.PRETTY_PRINT, true);
             if (writeBySubject) {
-                rioWriteBySubject(model, writer);
+                writeBySubject(model, writer);
             } else {
                 Rio.write(model, writer);
             }
         }
     }
 
-    private void rioWriteBySubject(Model model, RDFWriter writer) {
+    private void writeBySubject(Model model, RDFWriter writer) {
         writer.startRDF();
         if (model instanceof NamespaceAware) {
             for (Namespace nextNamespace : model.getNamespaces()) {
