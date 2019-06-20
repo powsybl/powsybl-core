@@ -49,6 +49,7 @@ public class InMemoryEventsStore implements EventsStore {
             listeners.log();
             listeners.notify(l -> l.onEvents(eventList));
             eventList = new NodeEventList();
+            topics.clear();
         } finally {
             lock.unlock();
         }

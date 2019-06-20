@@ -13,6 +13,7 @@ import com.powsybl.afs.storage.events.*;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import static org.junit.Assert.*;
 
@@ -23,13 +24,14 @@ public class EventsTest {
 
     @Test
     public void caseImportedTest() throws IOException {
-        CaseImported caseImported = new CaseImported("a", "b");
+        CaseImported caseImported = new CaseImported("a", "b", Paths.get("/tmp/foo"));
         assertEquals("a", caseImported.getId());
         assertEquals(NodeEventType.CASE_IMPORTED, caseImported.getType());
         assertEquals("b", caseImported.getParentId());
         assertNotNull(caseImported.toString());
+        assertEquals(Paths.get("/tmp/foo"), caseImported.getPath());
 
-        CaseImported caseImported2 = new CaseImported("a", "c");
+        CaseImported caseImported2 = new CaseImported("a", "c", Paths.get("/tmp/foo"));
         assertNotEquals(caseImported, caseImported2);
         assertNotEquals(caseImported.hashCode(), caseImported2.hashCode());
         assertNotEquals(caseImported, new ScriptModified("", ""));
@@ -46,7 +48,7 @@ public class EventsTest {
         ScriptModified scriptModified2 = new ScriptModified("a", "c");
         assertNotEquals(scriptModified, scriptModified2);
         assertNotEquals(scriptModified.hashCode(), scriptModified2.hashCode());
-        assertNotEquals(scriptModified, new CaseImported("", ""));
+        assertNotEquals(scriptModified, new CaseImported("", "", Paths.get("/tmp/foo")));
 
     }
 
@@ -61,6 +63,6 @@ public class EventsTest {
         VirtualCaseCreated virtualCaseCreated2 = new VirtualCaseCreated("a", "c");
         assertNotEquals(virtualCaseCreated, virtualCaseCreated2);
         assertNotEquals(virtualCaseCreated.hashCode(), virtualCaseCreated2.hashCode());
-        assertNotEquals(virtualCaseCreated, new CaseImported("", ""));
+        assertNotEquals(virtualCaseCreated, new CaseImported("", "", Paths.get("/tmp/foo")));
     }
 }

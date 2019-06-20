@@ -143,7 +143,7 @@ public class RemoteTaskMonitor implements TaskMonitor {
     public void addListener(TaskListener listener) {
         Objects.requireNonNull(listener);
 
-        URI wsUri = RemoteEventsStore.getWebSocketUri(restUri);
+        URI wsUri = SocketsUtils.getWebSocketUri(restUri);
         URI endPointUri = URI.create(wsUri + "/messages/" + AfsRestApi.RESOURCE_ROOT + "/" +
                 AfsRestApi.VERSION + "/task_events/" + fileSystemName + "/" + listener.getProjectId());
 

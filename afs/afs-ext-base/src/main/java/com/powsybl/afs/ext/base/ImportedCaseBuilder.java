@@ -53,6 +53,8 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
     private String name;
 
+    private Path file;
+
     private ReadOnlyDataSource dataSource;
 
     private Importer importer;
@@ -86,6 +88,7 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
     }
 
     public ImportedCaseBuilder withFile(Path file) {
+        this.file = file;
         withDatasource(Importers.createDataSource(file));
         if (name == null) {
             name = DataSourceUtil.getBaseName(file);
@@ -154,7 +157,7 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
         context.getStorage().flush();
 
         context.getStorage().getEventsStore().pushEvent(new CaseImported(info.getId(),
-                context.getFolderInfo().getId()), NodeEventType.CASE_IMPORTED.name());
+                context.getFolderInfo().getId(), file), NodeEventType.CASE_IMPORTED.name());
 
         return new ImportedCase(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()),
                                 importersLoader);

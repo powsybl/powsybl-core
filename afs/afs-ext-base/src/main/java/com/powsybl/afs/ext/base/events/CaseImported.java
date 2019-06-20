@@ -11,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.afs.storage.events.NodeEvent;
 import com.powsybl.afs.storage.events.NodeEventType;
 
+import java.nio.file.Path;
 import java.util.Objects;
 
 /**
@@ -21,14 +22,23 @@ public class CaseImported extends NodeEvent {
     @JsonProperty("parentId")
     protected final String parentId;
 
+    @JsonProperty("path")
+    protected final Path path;
+
     @JsonCreator
-    public CaseImported(@JsonProperty("id") String id, @JsonProperty("parentId") String parentId) {
+    public CaseImported(@JsonProperty("id") String id, @JsonProperty("parentId") String parentId,
+                        @JsonProperty("path") Path path) {
         super(id, NodeEventType.CASE_IMPORTED);
         this.parentId = parentId;
+        this.path = path;
     }
 
     public String getParentId() {
         return parentId;
+    }
+
+    public Path getPath() {
+        return path;
     }
 
     @Override
@@ -40,13 +50,13 @@ public class CaseImported extends NodeEvent {
     public boolean equals(Object obj) {
         if (obj instanceof CaseImported) {
             CaseImported other = (CaseImported) obj;
-            return id.equals(other.id) && Objects.equals(parentId, other.parentId);
+            return id.equals(other.id) && Objects.equals(parentId, other.parentId) && path.equals(other.path);
         }
         return false;
     }
 
     @Override
     public String toString() {
-        return "CaseImported(id=" + id + ", parentId=" + parentId + ")";
+        return "CaseImported(id=" + id + ", parentId=" + parentId + ", path=" + path + ")";
     }
 }
