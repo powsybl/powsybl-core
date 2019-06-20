@@ -86,11 +86,6 @@ public class PlatformConfig {
      */
     private static ModuleConfigRepository loadModuleRepository(Path configDir, String configName) {
         Path yamlConfigFile = configDir.resolve(configName + ".yml");
-        try {
-            throw new Exception();
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
         if (Files.exists(yamlConfigFile)) {
             LOGGER.info("Platform configuration defined by YAML file {}", yamlConfigFile);
             return new YamlModuleConfigRepository(yamlConfigFile);
