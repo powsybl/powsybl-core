@@ -9,10 +9,11 @@ package com.powsybl.math.matrix;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.trove.TDoubleArrayListHack;
 import com.powsybl.commons.util.trove.TIntArrayListHack;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.scijava.nativelib.NativeLoader;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.io.UncheckedIOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -26,30 +27,14 @@ import java.util.Objects;
  */
 class SparseMatrix extends AbstractMatrix {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(SparseMatrix.class);
-
-    /**
-     * Flag that indicates if native library has been loaded.
-     */
-    static final boolean NATIVE_INIT;
-
     private static native void nativeInit();
 
     static {
-        boolean pb = false;
         try {
-            System.loadLibrary("mathjni");
+            NativeLoader.loadLibrary("math");
             nativeInit();
-        } catch (UnsatisfiedLinkError e) {
-            LOGGER.warn("Cannot load native math library");
-            pb = true;
-        }
-        NATIVE_INIT = !pb;
-    }
-
-    private static void checkNativeInit() {
-        if (!NATIVE_INIT) {
-            throw new PowsyblException("Native init has failed");
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
         }
     }
 
@@ -302,7 +287,6 @@ class SparseMatrix extends AbstractMatrix {
 
     @Override
     public LUDecomposition decomposeLU() {
-        checkNativeInit();
         return new SparseLUDecomposition(this);
     }
 
@@ -310,7 +294,6 @@ class SparseMatrix extends AbstractMatrix {
 
     @Override
     public Matrix times(Matrix other) {
-        checkNativeInit();
         if (!(other instanceof SparseMatrix)) {
             throw new PowsyblException("Sparse and dense matrix multiplication is not supported");
         }

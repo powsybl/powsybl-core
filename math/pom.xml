@@ -48,6 +48,16 @@
             <groupId>gov.nist.math</groupId>
             <artifactId>jama</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.scijava</groupId>
+            <artifactId>native-lib-loader</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.powsybl</groupId>
+            <artifactId>powsybl-math-linux_64</artifactId>
+            <version>${powsyblmathnative.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>${project.groupId}</groupId>

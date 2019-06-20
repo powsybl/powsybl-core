@@ -12,7 +12,6 @@ import org.junit.Test;
 import java.io.IOException;
 
 import static org.junit.Assert.*;
-import static org.junit.Assume.assumeTrue;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -31,18 +30,6 @@ public class SparseMatrixTest extends AbstractMatrixTest {
     @Override
     public MatrixFactory getOtherMatrixFactory() {
         return otherMatrixFactory;
-    }
-
-    @Override
-    public void testMultiplication() throws Exception {
-        assumeTrue(SparseMatrix.NATIVE_INIT);
-        super.testMultiplication();
-    }
-
-    @Override
-    public void testDecompose() throws Exception {
-        assumeTrue(SparseMatrix.NATIVE_INIT);
-        super.testDecompose();
     }
 
     @Test
@@ -77,8 +64,6 @@ public class SparseMatrixTest extends AbstractMatrixTest {
 
     @Test
     public void testRedecompose() {
-        assumeTrue(SparseMatrix.NATIVE_INIT);
-
         Matrix matrix = getMatrixFactory().create(2, 2, 2);
         matrix.set(0, 0, 3);
         matrix.set(1, 0, 4);
