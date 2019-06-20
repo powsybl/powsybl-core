@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.ByteSource;
 import com.powsybl.commons.io.table.TableFormatterConfig;
+import com.powsybl.computation.ComputationException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.import_.ImportConfig;
 import com.powsybl.iidm.import_.ImportersLoaderList;
@@ -36,6 +37,7 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.CompletionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
@@ -214,6 +216,22 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
                     new ImportersLoaderList(new NetworkImporterMock()),
                     TableFormatterConfig::new);
             verify(sa, times(1)).run(any(), any(), any());
+
+            // exception happens
+            SecurityAnalysisFactory saFactory2 = new SecurityAnalysisMockFactory(true);
+            SecurityAnalysisExecutionBuilder builder2 = new SecurityAnalysisExecutionBuilder(ExternalSecurityAnalysisConfig::new,
+                () -> saFactory2,
+                executionInput -> new SecurityAnalysisInput(executionInput.getNetworkVariant()));
+            try {
+                tool.run(cl, context, builder2,
+                        SecurityAnalysisParameters::new,
+                        ImportConfig::new,
+                        new ImportersLoaderList(new NetworkImporterMock()),
+                        TableFormatterConfig::new);
+                fail();
+            } catch (CompletionException exception) {
+                assertTrue(exception.getCause() instanceof ComputationException);
+            }
         }
     }
 }
