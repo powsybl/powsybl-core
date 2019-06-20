@@ -46,6 +46,22 @@ public class Contingency extends AbstractExtendable<Contingency> {
         return true;
     }
 
+    private static boolean checkStaticVarCompensatorContingency(Contingency contingency, StaticVarCompensatorContingency element, Network network) {
+        if (network.getStaticVarCompensator(element.getId()) == null) {
+            LOGGER.warn("StaticVarCompensator '{}' of contingency '{}' not found", element.getId(), contingency.getId());
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean checkShuntCompensatorContingency(Contingency contingency, ShuntCompensatorContingency element, Network network) {
+        if (network.getShuntCompensator(element.getId()) == null) {
+            LOGGER.warn("ShuntCompensator '{}' of contingency '{}' not found", element.getId(), contingency.getId());
+            return false;
+        }
+        return true;
+    }
+
     private static boolean checkSidedContingency(Contingency contingency, AbstractSidedContingency element, Network network) {
         Branch branch = network.getBranch(element.getId());
         if (branch == null || (element.getVoltageLevelId() != null &&
@@ -73,6 +89,12 @@ public class Contingency extends AbstractExtendable<Contingency> {
             switch (element.getType()) {
                 case GENERATOR:
                     valid = checkGeneratorContingency(contingency, (GeneratorContingency) element, network);
+                    break;
+                case STATIC_VAR_COMPENSATOR:
+                    valid = checkStaticVarCompensatorContingency(contingency, (StaticVarCompensatorContingency) element, network);
+                    break;
+                case SHUNT_COMPENSATOR:
+                    valid = checkShuntCompensatorContingency(contingency, (ShuntCompensatorContingency) element, network);
                     break;
 
                 case BRANCH:

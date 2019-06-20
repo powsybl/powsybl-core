@@ -8,6 +8,8 @@ package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.Objects;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -18,7 +20,13 @@ public final class NetworkTest1Factory {
     }
 
     public static Network create() {
-        Network network = NetworkFactory.create("network1", "test");
+        return create(NetworkFactory.findDefault());
+    }
+
+    public static Network create(NetworkFactory networkFactory) {
+        Objects.requireNonNull(networkFactory);
+
+        Network network = networkFactory.createNetwork("network1", "test");
         Substation substation1 = network.newSubstation()
                 .setId("substation1")
                 .setCountry(Country.FR)

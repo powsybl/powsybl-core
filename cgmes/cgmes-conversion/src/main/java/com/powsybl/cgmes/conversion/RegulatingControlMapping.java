@@ -120,7 +120,6 @@ public class RegulatingControlMapping {
             adder.setRegulating(control.enabled || p.asBoolean("tapChangerControlEnabled", false))
                     .setTargetV(control.targetValue);
         }
-        adder.setLoadTapChangingCapabilities(true);
         setRegulatingTerminal(p, control, defaultTerminal, adder);
     }
 

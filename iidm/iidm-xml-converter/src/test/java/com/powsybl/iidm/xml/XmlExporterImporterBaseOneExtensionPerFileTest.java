@@ -7,10 +7,14 @@
 package com.powsybl.iidm.xml;
 
 import com.powsybl.commons.AbstractConverterTest;
+import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.MemDataSource;
 import com.powsybl.iidm.IidmImportExportMode;
+import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.test.EurostagTutorialExample1Factory;
 import com.powsybl.iidm.network.test.MultipleExtensionsTestNetworkFactory;
+import com.powsybl.iidm.network.test.TerminalMockExt;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -20,6 +24,7 @@ import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertSame;
 
 /**
  * @author Chamseddine BENHAMED  <chamseddine.benhamed at rte-france.com>
@@ -27,8 +32,7 @@ import static org.junit.Assert.assertNotNull;
 
 public class XmlExporterImporterBaseOneExtensionPerFileTest extends AbstractConverterTest {
 
-    public void exporteImportOneFilePerExtensionType(Network network, String xiidmBaseRef) throws IOException {
-        List<String> extensions = Arrays.asList("loadFoo", "loadBar");
+    private MemDataSource exportOneFilePerExtensionType(Network network, List<String> extensions) {
         Properties exportProperties = new Properties();
         exportProperties.put(XMLExporter.EXPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
         exportProperties.put(XMLExporter.EXTENSIONS_LIST, extensions);
@@ -36,9 +40,25 @@ public class XmlExporterImporterBaseOneExtensionPerFileTest extends AbstractConv
         MemDataSource dataSource = new MemDataSource();
         new XMLExporter(platformConfig).export(network, exportProperties, dataSource);
 
+        return dataSource;
+    }
+
+    private Network importOneFilePerExtensionType(DataSource dataSource, List<String> extensions) {
+        Properties importProperties = new Properties();
+        importProperties.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
+        importProperties.put(XMLImporter.EXTENSIONS_LIST, extensions);
+        return new XMLImporter(platformConfig).importData(dataSource, importProperties);
+    }
+
+    @Test
+    public void testMultipleExtensions() throws IOException {
+        Network network = MultipleExtensionsTestNetworkFactory.create();
+        List<String> extensions = Arrays.asList("loadFoo", "loadBar");
+        MemDataSource dataSource = exportOneFilePerExtensionType(network, extensions);
+
         // check the base exported file and compare it to iidmBaseRef reference file
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("", "xiidm"))) {
-            compareXml(getClass().getResourceAsStream(xiidmBaseRef), is);
+            compareXml(getClass().getResourceAsStream("/multiple-extensions.xiidm"), is);
         }
 
         try (InputStream is = new ByteArrayInputStream(dataSource.getData("-loadBar.xiidm"))) {
@@ -49,12 +69,8 @@ public class XmlExporterImporterBaseOneExtensionPerFileTest extends AbstractConv
             compareXml(getClass().getResourceAsStream("/multiple-extensions-loadFoo.xiidm"), is);
         }
 
-        Properties importProperties = new Properties();
-        importProperties.put(XMLImporter.IMPORT_MODE, String.valueOf(IidmImportExportMode.ONE_SEPARATED_FILE_PER_EXTENSION_TYPE));
-        importProperties.put(XMLImporter.EXTENSIONS_LIST, extensions);
-        XMLImporter importer = new XMLImporter(platformConfig);
+        Network n = importOneFilePerExtensionType(dataSource, extensions);
 
-        Network n = importer.importData(dataSource, importProperties);
         assertNotNull(n);
         assertEquals(2, network.getLoad("LOAD").getExtensions().size());
         assertEquals(1, network.getLoad("LOAD2").getExtensions().size());
@@ -66,8 +82,13 @@ public class XmlExporterImporterBaseOneExtensionPerFileTest extends AbstractConv
     }
 
     @Test
-    public void test() throws IOException {
-        exporteImportOneFilePerExtensionType(MultipleExtensionsTestNetworkFactory.create(),
-                "/multiple-extensions.xiidm");
+    public void testTerminalMockExtension() {
+        MemDataSource dataSource = exportOneFilePerExtensionType(EurostagTutorialExample1Factory.createWithTerminalMockExt(), Collections.singletonList("terminalMock"));
+        Network network2 = importOneFilePerExtensionType(dataSource, Collections.singletonList("terminalMock"));
+
+        Load load2 = network2.getLoad("LOAD");
+        TerminalMockExt terminalMockExt2 = load2.getExtension(TerminalMockExt.class);
+        assertNotNull(terminalMockExt2);
+        assertSame(load2.getTerminal(), terminalMockExt2.getTerminal());
     }
 }

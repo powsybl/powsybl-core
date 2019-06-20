@@ -17,7 +17,7 @@ public final class ScalableTestNetwork {
     }
 
     public static Network createNetwork() {
-        Network network = NetworkFactory.create("network", "test");
+        Network network = Network.create("network", "test");
         Substation s = network.newSubstation()
                 .setId("s")
                 .setCountry(Country.US)

@@ -60,6 +60,8 @@ public class DefaultListenableAppStorageTest {
 
         Mockito.when(storage.dataExists(Mockito.anyString(), Mockito.anyString())).thenAnswer(i -> data.get() != null);
 
+        Mockito.when(storage.isConsistent("node1")).thenReturn(true);
+
         listenableStorage = new DefaultListenableAppStorage(storage);
         listenableStorage.addListener(l);
     }
@@ -110,6 +112,10 @@ public class DefaultListenableAppStorageTest {
         listenableStorage.clearTimeSeries("node1");
         listenableStorage.flush();
         assertEquals(new NodeEventList(new TimeSeriesCleared("node1")), lastEventList);
+
+        listenableStorage.setConsistent("node1");
+        assertTrue(listenableStorage.isConsistent("node1"));
+
     }
 
     // data updated event should only be raised once write is finished

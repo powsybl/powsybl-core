@@ -111,10 +111,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     }
 
     public C setRegulationTerminal(Terminal regulationTerminal) {
-        if (regulationTerminal == null) {
-            throw new ValidationException(parent, "regulation terminal is null");
-        }
-        if (((TerminalExt) regulationTerminal).getVoltageLevel().getNetwork() != getNetwork()) {
+        if (regulationTerminal != null && ((TerminalExt) regulationTerminal).getVoltageLevel().getNetwork() != getNetwork()) {
             throw new ValidationException(parent, "regulation terminal is not part of the network");
         }
         this.regulationTerminal = (TerminalExt) regulationTerminal;

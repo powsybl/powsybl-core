@@ -11,15 +11,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.PhaseTapChangerAdder;
-import com.powsybl.iidm.network.Terminal;
-import com.powsybl.iidm.network.ThreeWindingsTransformer;
-import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -42,6 +39,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         neutralStep = ptc.asInt("neutralStep");
         defaultStep = ptc.asInt("normalStep", neutralStep);
         side = context.tapChangerTransformers().whichSide(id);
+        ltcFlag = ptc.asBoolean("ltcFlag", false);
     }
 
     @Override
@@ -121,6 +119,14 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         }
 
         context.regulatingControlMapping().setRegulatingControl(p, regTerminal(), ptca, tx);
+
+        // If ltcFlag is false, ptc is considered as not under load tap changing capabilities which is
+        // equivalent to FIXED_TAP regulation mode. If ltcFlag is true, it does not influence the import
+        // of ptc.
+        if (!ltcFlag) {
+            ptca.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
+        }
+
         ptca.add();
     }
 
@@ -443,6 +449,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
     private final int neutralStep;
     private final int defaultStep;
     private final int side;
+    private final boolean ltcFlag;
 
     private boolean configIsInvertVoltageStepIncrementOutOfPhase;
 

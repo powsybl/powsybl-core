@@ -6,14 +6,12 @@
  */
 package com.powsybl.afs.storage;
 
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.timeseries.*;
 
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  *
@@ -24,6 +22,7 @@ import java.util.Set;
  * <p>
  * An AppStorage implements low level methods to walk through a filesystem and to write and read data from this filesystem.
  * It relies on nodes uniquely identified by and ID.
+ *
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -40,10 +39,18 @@ public interface AppStorage extends AutoCloseable {
 
     /**
      * Creates a new node in the tree under a parent node. Returns {@code NodeInfo} corresponding to the newly created node.
+     * The new node is by default inconsistent, {@link #setConsistent(String nodeId)} method should explicitly be called to set it consistent.
      */
     NodeInfo createNode(String parentNodeId, String name, String nodePseudoClass, String description, int version, NodeGenericMetadata genericMetadata);
 
     boolean isWritable(String nodeId);
+
+    /**
+     * Return true if the node with ID {@code nodeId} is consistent, otherwise it returns false .
+     */
+    default boolean isConsistent(String nodeId) {
+        throw new PowsyblException("Not implemented");
+    }
 
     /**
      * Gets NodeInfo object for the node with ID {@code nodeId}.
@@ -52,20 +59,34 @@ public interface AppStorage extends AutoCloseable {
 
     void setDescription(String nodeId, String description);
 
+    /**
+     * mark the node with ID {@code nodeId} as consistent node.
+     */
+    default void setConsistent(String nodeId) {
+        throw new PowsyblException("Not implemented");
+    }
+
     void updateModificationTime(String nodeId);
 
     /**
-     * Gets {@code NodeInfo} for child nodes of the node with ID {@code nodeId}.
+     * Gets {@code NodeInfo} for consistent child nodes of the node with ID {@code nodeId}.
      */
     List<NodeInfo> getChildNodes(String nodeId);
 
     /**
-     * Gets {@code NodeInfo} for child node with name {@code name} of the node with ID {@code nodeId}, empty if such a node does not exist.
+     * Gets {@code NodeInfo} for all inconsistent nodes.
+     */
+    default List<NodeInfo> getInconsistentNodes() {
+        return Collections.emptyList();
+    }
+
+    /**
+     * Gets {@code NodeInfo} for child node with name {@code name} of the node with ID {@code nodeId}, empty if such a node does not exist or node is inconsistent.
      */
     Optional<NodeInfo> getChildNode(String nodeId, String name);
 
     /**
-     * Gets {@code NodeInfo} for parent node of the node with ID {@code nodeId}, empty if such a node does not exist.
+     * Gets {@code NodeInfo} for parent node of the node with ID {@code nodeId}, empty if such a node does not exist or inconsistent.
      */
     Optional<NodeInfo> getParentNode(String nodeId);
 
