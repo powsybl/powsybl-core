@@ -57,6 +57,7 @@ public class TapChangerTest {
                                                 .setTapPosition(1)
                                                 .setLowTapPosition(0)
                                                 .setRegulating(true)
+                                                .setTargetDeadband(1.0)
                                                 .setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
                                                 .setRegulationValue(10.0)
                                                 .setRegulationTerminal(terminal)
@@ -81,6 +82,7 @@ public class TapChangerTest {
         assertEquals(0, phaseTapChanger.getLowTapPosition());
         assertEquals(1, phaseTapChanger.getHighTapPosition());
         assertTrue(phaseTapChanger.isRegulating());
+        assertEquals(1.0, phaseTapChanger.getTargetDeadband(), 0.0);
         assertEquals(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, phaseTapChanger.getRegulationMode());
         assertEquals(terminal, phaseTapChanger.getRegulationTerminal());
         assertEquals(10.0, phaseTapChanger.getRegulationValue(), 0.0);
@@ -91,6 +93,8 @@ public class TapChangerTest {
         assertSame(phaseTapChanger.getCurrentStep(), phaseTapChanger.getStep(0));
         phaseTapChanger.setRegulationValue(5.0);
         assertEquals(5.0, phaseTapChanger.getRegulationValue(), 0.0);
+        phaseTapChanger.setTargetDeadband(0.5);
+        assertEquals(0.5, phaseTapChanger.getTargetDeadband(), 0.0);
         phaseTapChanger.setRegulating(false);
         assertFalse(phaseTapChanger.isRegulating());
         phaseTapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
@@ -303,6 +307,7 @@ public class TapChangerTest {
                                                 .setTapPosition(1)
                                                 .setLoadTapChangingCapabilities(false)
                                                 .setRegulating(true)
+                                                .setTargetDeadband(1.0)
                                                 .setTargetV(220.0)
                                                 .setRegulationTerminal(twt.getTerminal1())
                                                 .beginStep()
@@ -330,7 +335,8 @@ public class TapChangerTest {
         assertEquals(0, ratioTapChanger.getLowTapPosition());
         assertEquals(1, ratioTapChanger.getTapPosition());
         assertFalse(ratioTapChanger.hasLoadTapChangingCapabilities());
-        ratioTapChanger.setRegulating(true);
+        assertTrue(ratioTapChanger.isRegulating());
+        assertEquals(1.0, ratioTapChanger.getTargetDeadband(), 0.0);
         assertEquals(220.0, ratioTapChanger.getTargetV(), 0.0);
         assertSame(twt.getTerminal1(), ratioTapChanger.getRegulationTerminal());
         assertEquals(3, ratioTapChanger.getStepCount());
@@ -342,6 +348,8 @@ public class TapChangerTest {
         assertEquals(110.0, ratioTapChanger.getTargetV(), 0.0);
         ratioTapChanger.setRegulating(false);
         assertFalse(ratioTapChanger.isRegulating());
+        ratioTapChanger.setTargetDeadband(0.5);
+        assertEquals(0.5, ratioTapChanger.getTargetDeadband(), 0.0);
         ratioTapChanger.setRegulationTerminal(twt.getTerminal2());
         assertSame(twt.getTerminal2(), ratioTapChanger.getRegulationTerminal());
 
