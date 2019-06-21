@@ -52,13 +52,11 @@ public class RemoteEventsStore implements EventsStore {
 
     @Override
     public void pushEvent(NodeEvent event, String topic) {
-        // Nothing to do
-        // RemoteAppStorage --> push in server side
         topics.computeIfAbsent(topic, k -> new ArrayList<>());
         topics.get(topic).add(event);
     }
 
-    Map<String, List<NodeEvent>> getTopics() {
+    public Map<String, List<NodeEvent>> getTopics() {
         return topics;
     }
 
