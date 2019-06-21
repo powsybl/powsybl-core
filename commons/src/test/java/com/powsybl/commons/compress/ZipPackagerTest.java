@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.zip.GZIPOutputStream;
 
@@ -101,6 +102,15 @@ public class ZipPackagerTest {
         assertEquals("foo", IOUtils.toString(Objects.requireNonNull(zipFile2.getInputStream("f1")), StandardCharsets.UTF_8));
         assertEquals("bar", IOUtils.toString(Objects.requireNonNull(zipFile2.getInputStream("f2")), StandardCharsets.UTF_8));
         assertEquals("hello", IOUtils.toString(Objects.requireNonNull(zipFile2.getInputStream("f3")), StandardCharsets.UTF_8));
+
+        HashMap<String, byte[]> stringHashMap = new HashMap<>();
+        stringHashMap.put("k1", "foo".getBytes(StandardCharsets.UTF_8));
+        stringHashMap.put("k2", "bar".getBytes(StandardCharsets.UTF_8));
+        byte[] strMapBytes = ZipPackager.archiveBytesByNameToZipBytes(stringHashMap);
+        IOUtils.copy(new ByteArrayInputStream(strMapBytes), Files.newOutputStream(workingDir.resolve("str.zip")));
+        ZipFile strZipFile = new ZipFile(workingDir.resolve("str.zip"));
+        assertEquals("foo", IOUtils.toString(Objects.requireNonNull(strZipFile.getInputStream("k1")), StandardCharsets.UTF_8));
+        assertEquals("bar", IOUtils.toString(Objects.requireNonNull(strZipFile.getInputStream("k2")), StandardCharsets.UTF_8));
     }
 
     private byte[] emptyZipBytes() {
