@@ -35,7 +35,9 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         private double ratedU;
 
-        private int phaseAngleClock;
+        private int phaseAngleClock1;
+
+        private int phaseAngleClock2;
 
         private CurrentLimits limits;
 
@@ -43,13 +45,14 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
         private PhaseTapChangerImpl phaseTapChanger;
 
-        AbstractLegBase(double r, double x, double g, double b, double ratedU, int phaseAngleClock) {
+        AbstractLegBase(double r, double x, double g, double b, double ratedU, int phaseAngleClock1, int phaseAngleClock2) {
             this.r = r;
             this.x = x;
             this.g = g;
             this.b = b;
             this.ratedU = ratedU;
-            this.phaseAngleClock = phaseAngleClock;
+            this.phaseAngleClock1 = phaseAngleClock1;
+            this.phaseAngleClock2 = phaseAngleClock2;
         }
 
         void setTransformer(ThreeWindingsTransformerImpl transformer) {
@@ -120,12 +123,21 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
             return (T) this;
         }
 
-        public int getPhaseAngleClock() {
-            return phaseAngleClock;
+        public int getPhaseAngleClock1() {
+            return phaseAngleClock1;
         }
 
-        public T setPhaseAngleClock(int phaseAngleClock) {
-            this.phaseAngleClock = phaseAngleClock;
+        public T setPhaseAngleClock1(int phaseAngleClock1) {
+            this.phaseAngleClock1 = phaseAngleClock1;
+            return (T) this;
+        }
+
+        public int getPhaseAngleClock2() {
+            return phaseAngleClock2;
+        }
+
+        public T setPhaseAngleClock2(int phaseAngleClock2) {
+            this.phaseAngleClock2 = phaseAngleClock2;
             return (T) this;
         }
 
@@ -188,8 +200,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
     static class Leg1Impl extends AbstractLegBase<Leg1Impl> implements LegBase<Leg1Impl> {
 
-        Leg1Impl(double r, double x, double g, double b, double ratedU, int phaseAngleClock) {
-            super(r, x, g, b, ratedU, phaseAngleClock);
+        Leg1Impl(double r, double x, double g, double b, double ratedU, int phaseAngleClock1, int phaseAngleClock2) {
+            super(r, x, g, b, ratedU, phaseAngleClock1, phaseAngleClock2);
         }
 
         @Override
@@ -216,8 +228,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
     static class Leg2Impl extends AbstractLegBase<Leg2Impl> implements LegBase<Leg2Impl> {
 
-        Leg2Impl(double r, double x, double g, double b, double ratedU, int phaseAngleClock) {
-            super(r, x, g, b, ratedU, phaseAngleClock);
+        Leg2Impl(double r, double x, double g, double b, double ratedU, int phaseAngleClock1, int phaseAngleClock2) {
+            super(r, x, g, b, ratedU, phaseAngleClock1, phaseAngleClock2);
         }
 
         @Override
@@ -244,8 +256,8 @@ class ThreeWindingsTransformerImpl extends AbstractConnectable<ThreeWindingsTran
 
     static class Leg3Impl extends AbstractLegBase<Leg3Impl> implements LegBase<Leg3Impl> {
 
-        Leg3Impl(double r, double x, double g, double b, double ratedU, int phaseAngleClock) {
-            super(r, x, g, b, ratedU, phaseAngleClock);
+        Leg3Impl(double r, double x, double g, double b, double ratedU, int phaseAngleClock1, int phaseAngleClock2) {
+            super(r, x, g, b, ratedU, phaseAngleClock1, phaseAngleClock2);
         }
 
         @Override

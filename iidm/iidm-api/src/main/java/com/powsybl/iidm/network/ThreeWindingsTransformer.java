@@ -100,14 +100,24 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
         L setRatedU(double ratedU);
 
         /**
-         * Get the phase angle clock.
+         * Get the phase angle clock end1
          */
-        int getPhaseAngleClock();
+        int getPhaseAngleClock1();
 
         /**
-         * Set the phase angle clock.
+         * Set the phase angle clock end1.
          */
-        L setPhaseAngleClock(int phaseAngleClock);
+        L setPhaseAngleClock1(int phaseAngleClock1);
+
+        /**
+         * Get the phase angle clock end2
+         */
+        int getPhaseAngleClock2();
+
+        /**
+         * Set the phase angle clock end2.
+         */
+        L setPhaseAngleClock2(int phaseAngleClock2);
 
         CurrentLimits getCurrentLimits();
 
