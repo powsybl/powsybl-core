@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.*;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * ArrayIndexOutOfBoundsException fix test
@@ -47,5 +48,28 @@ public class EmptyCalculatedBusBugTest {
 
         network = createNetwork(true);
         assertEquals(2, network.getVoltageLevel("VL").getBusBreakerView().getBusStream().count());
+    }
+
+    @Test
+    public void testNullPointer() {
+        Network network = createNetwork(true);
+
+        VoltageLevel vl = network.getVoltageLevel("VL");
+        vl.getNodeBreakerView()
+                .setNodeCount(3)
+                .newInternalConnection()
+                .setId("IC")
+                .setNode1(1)
+                .setNode2(2)
+                .add();
+
+        Load l1 = vl.newLoad()
+                .setId("L1")
+                .setNode(0)
+                .setP0(100.0)
+                .setQ0(50.0)
+                .add();
+
+        assertNotNull(l1.getTerminal().getBusBreakerView().getBus());
     }
 }
