@@ -52,7 +52,7 @@ class CalculatedBusImpl extends AbstractBus implements CalculatedBus {
 
         // Traverse the graph until a valid NodeTerminal is found
         VoltageLevel.NodeBreakerView.Traverser traverser = (node1, sw, node2) -> {
-            if (sw.isOpen()) {
+            if (sw != null && sw.isOpen()) {
                 return false;
             }
             terminal[0] = (NodeTerminal) voltageLevel.getNodeBreakerView().getTerminal(node2);
