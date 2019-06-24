@@ -31,6 +31,7 @@
         <module>iidm-test</module>
         <module>iidm-util</module>
         <module>iidm-xml-converter</module>
+        <module>iidm-extensions</module>
     </modules>
 
 </project>
