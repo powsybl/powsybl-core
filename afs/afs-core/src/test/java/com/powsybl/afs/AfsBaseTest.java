@@ -205,4 +205,17 @@ public class AfsBaseTest {
         assertEquals(1, test2.getChildren().size());
     }
 
+    @Test
+    public void findProjectFolderTest() {
+
+        Project project = afs.getRootFolder().createProject("test");
+        ProjectFolder test1 = project.getRootFolder().createFolder("test1");
+        ProjectFolder projectFolderResult = afs.findProjectFolder(test1.getId());
+        assertNotNull(projectFolderResult);
+        assertEquals(test1.getId(), projectFolderResult.getId());
+        assertEquals(test1.getParentInfo(), projectFolderResult.getParentInfo());
+        assertEquals(test1.getCreationDate(), projectFolderResult.getCreationDate());
+        assertEquals(test1.getModificationDate(), projectFolderResult.getModificationDate());
+
+    }
 }
