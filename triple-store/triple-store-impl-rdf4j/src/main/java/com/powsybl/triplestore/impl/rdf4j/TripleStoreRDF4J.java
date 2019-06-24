@@ -14,6 +14,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.eclipse.rdf4j.IsolationLevels;
@@ -30,7 +31,6 @@ import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryResults;
 import org.eclipse.rdf4j.query.TupleQuery;
 import org.eclipse.rdf4j.query.TupleQueryResult;
-import org.eclipse.rdf4j.query.algebra.evaluation.function.rdfterm.UUID;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
 import org.eclipse.rdf4j.repository.RepositoryResult;
@@ -192,8 +192,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     private static String createStatements(RepositoryConnection cnx, String objNs, String objType,
         PropertyBag statement,
         Resource context) {
-        UUID uuid = new UUID();
-        IRI resource = uuid.evaluate(cnx.getValueFactory());
+        IRI resource = cnx.getValueFactory().createIRI(cnx.getNamespace("data"), "_" + UUID.randomUUID().toString());
         IRI parentPredicate = RDF.TYPE;
         IRI parentObject = cnx.getValueFactory().createIRI(objNs + objType);
         Statement parentSt = cnx.getValueFactory().createStatement(resource, parentPredicate, parentObject);
@@ -219,7 +218,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
             }
             cnx.add(st, context);
         });
-        return "_" + resource.getLocalName();
+        return resource.getLocalName();
     }
 
     private static void write(Model m, OutputStream out) {

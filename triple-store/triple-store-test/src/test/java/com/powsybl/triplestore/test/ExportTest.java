@@ -92,39 +92,45 @@ public class ExportTest {
 
     @Test
     public void test() throws IOException {
-//        for (String implementation : TripleStoreFactory.allImplementations()) {
-        String implementation = "rdf4j";
-        // create export triple store
-        TripleStore exportTripleStore = TripleStoreFactory.create(implementation);
-        // add namespaces to triple store
-        exportTripleStore.addNamespace("data", baseNamespace);
-        exportTripleStore.addNamespace("cim", cimNamespace);
-        // create context
-        String contextName = networkId + "_" + "EQ" + "_" + implementation + ".xml";
-        // add statements to triple stores
-        // add base voltage statements
-        String baseVoltageId = exportTripleStore.add(contextName, cimNamespace, "BaseVoltage", createBaseVoltageProperties());
-        // add voltage levels statements
-        PropertyBags voltageLevelsProperties = new PropertyBags();
-        voltageLevelsProperties.add(createVoltageLevelProperties(baseVoltageId, vl1Name, substation1Id));
-        voltageLevelsProperties.add(createVoltageLevelProperties(baseVoltageId, vl2Name, substation2Id));
-        exportTripleStore.add(contextName, cimNamespace, "VoltageLevel", voltageLevelsProperties);
-        // export triple store
-        DataSource dataSource = new FileDataSource(exportFolder, networkId);
-        exportTripleStore.write(dataSource);
+        for (String implementation : TripleStoreFactory.allImplementations()) {
+            // create export triple store
+            TripleStore exportTripleStore = TripleStoreFactory.create(implementation);
+            // add namespaces to triple store
+            exportTripleStore.addNamespace("data", baseNamespace);
+            exportTripleStore.addNamespace("cim", cimNamespace);
+            // create context
+            String contextName = networkId + "_" + "EQ" + "_" + implementation + ".xml";
+            // add statements to triple stores
+            // add base voltage statements
+            String baseVoltageId = exportTripleStore.add(contextName, cimNamespace, "BaseVoltage", createBaseVoltageProperties());
+            // add voltage levels statements
+            PropertyBags voltageLevelsProperties = new PropertyBags();
+            voltageLevelsProperties.add(createVoltageLevelProperties(baseVoltageId, vl1Name, substation1Id));
+            voltageLevelsProperties.add(createVoltageLevelProperties(baseVoltageId, vl2Name, substation2Id));
+            exportTripleStore.add(contextName, cimNamespace, "VoltageLevel", voltageLevelsProperties);
+            checkRepository(exportTripleStore, baseVoltageId);
 
-        // create import triple store
-        TripleStore importTripleStore = TripleStoreFactory.create(implementation);
-        // import data into triple store
-        try (InputStream is = dataSource.newInputStream(contextName)) {
-            importTripleStore.read(is, "http://" + networkId, contextName);
+            // export triple store
+            DataSource dataSource = new FileDataSource(exportFolder, networkId + "_" + implementation);
+            exportTripleStore.write(dataSource);
+
+            // create import triple store
+            TripleStore importTripleStore = TripleStoreFactory.create(implementation);
+            // import data into triple store
+            try (InputStream is = dataSource.newInputStream(contextName)) {
+                importTripleStore.read(is, "http://" + networkId, contextName);
+            }
+            checkRepository(importTripleStore, baseVoltageId);
         }
+    }
+
+    private void checkRepository(TripleStore tripleStore, String baseVoltageId) {
         // check namespaces
-        assertTrue(importTripleStore.getNamespaces().contains(new PrefixNamespace("data", baseNamespace)));
-        assertTrue(importTripleStore.getNamespaces().contains(new PrefixNamespace("cim", cimNamespace)));
+        assertTrue(tripleStore.getNamespaces().contains(new PrefixNamespace("data", baseNamespace)));
+        assertTrue(tripleStore.getNamespaces().contains(new PrefixNamespace("cim", cimNamespace)));
         // query import triple store
-        importTripleStore.defineQueryPrefix("cim", cimNamespace);
-        PropertyBags results = importTripleStore.query(query);
+        tripleStore.defineQueryPrefix("cim", cimNamespace);
+        PropertyBags results = tripleStore.query(query);
         // check query results
         assertEquals(2, results.size());
         results.forEach(result -> {
@@ -136,6 +142,6 @@ public class ExportTest {
             assertEquals(bvName, result.get("bvName"));
             assertEquals(nominalVoltage, result.asDouble("nominalVoltage"), 0);
         });
-//        }
     }
+
 }

@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -35,7 +36,6 @@ import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.impl.Util;
 import org.apache.jena.shared.PropertyNotFoundException;
-import org.apache.jena.shared.uuid.JenaUUID;
 import org.apache.jena.vocabulary.RDF;
 
 import com.powsybl.commons.datasource.DataSource;
@@ -184,7 +184,7 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
 
     private String createStatements(Model m, String objNs, String objType, PropertyBag statement) {
 
-        Resource resource = m.createResource(JenaUUID.generate().asString());
+        Resource resource = m.createResource(m.getNsPrefixURI("data") + "_" + UUID.randomUUID().toString());
         Property parentPredicate = RDF.type;
         Resource parentObject = m.createResource(objNs + objType);
         Statement parentSt = m.createStatement(resource, parentPredicate, parentObject);
@@ -205,7 +205,7 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
             }
             m.add(st);
         });
-        return resource.toString();
+        return resource.getLocalName();
     }
 
     private QueryExecution queryExecutionFromQueryText(String query) {

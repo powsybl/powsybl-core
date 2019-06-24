@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
@@ -32,7 +33,6 @@ import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.QueryResults;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
-import org.openrdf.query.algebra.evaluation.function.rdfterm.UUID;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -310,10 +310,9 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         PropertyBag statement,
         Resource context) {
         try {
-            UUID uuid = new UUID();
-            URI resource = uuid.evaluate(cnx.getValueFactory());
+            URI resource = cnx.getValueFactory().createURI(cnx.getNamespace("data"), "_" + UUID.randomUUID().toString());
             URI parentPredicate = RDF.TYPE;
-            Literal parentObject = cnx.getValueFactory().createLiteral(objNs + objType);
+            URI parentObject = cnx.getValueFactory().createURI(objNs + objType);
             Statement parentSt = cnx.getValueFactory().createStatement(resource, parentPredicate, parentObject);
             cnx.add(parentSt, context);
 
@@ -398,7 +397,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     }
 
     private static void addNamespaceForBase(RepositoryConnection cnx, String base) throws RepositoryException {
-        cnx.setNamespace("data", base + "#");
+        cnx.setNamespace("data", base + "/#");
     }
 
     private Resource context(RepositoryConnection conn, String contextName) {
