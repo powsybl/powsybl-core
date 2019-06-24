@@ -28,10 +28,10 @@ public class ActivePowerControlTest {
         assertEquals("BAT", activePowerControl.getExtendable().getId());
 
         assertTrue(activePowerControl.isParticipate());
-        assertEquals(activePowerControl.getDroop(), 4f, 0f);
+        assertEquals(4f, activePowerControl.getDroop(), 0f);
         activePowerControl.setParticipate(false);
         assertFalse(activePowerControl.isParticipate());
         activePowerControl.setDroop(6f);
-        assertEquals(activePowerControl.getDroop(), 6f, 0f);
+        assertEquals(6f, activePowerControl.getDroop(), 0f);
     }
 }
