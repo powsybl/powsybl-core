@@ -55,7 +55,7 @@
 
         <dependency>
             <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-math-linux_64</artifactId>
+            <artifactId>powsybl-math-native</artifactId>
             <version>${powsyblmathnative.version}</version>
         </dependency>
 
