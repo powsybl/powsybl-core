@@ -1,0 +1,71 @@
+#
+# Copyright (c) 2017, RTE (http://www.rte-france.com)
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+# query: insertNickName
+prefix : <http://example/>
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+INSERT DATA { :bob foaf:nick "BG" } 
+
+# query: deleteLastName
+prefix : <http://example/>
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+DELETE { ?x foaf:lastName ?y }
+WHERE {
+	?x foaf:lastName ?y .
+	FILTER (?y = "Channing")
+}
+
+# query: selectNickName
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT * { ?x 
+                foaf:mailbox ?mbox ;
+			    foaf:nick ?nick	}
+
+# query: selectLastName
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT * { ?x
+              foaf:mailbox ?mbox ;
+              foaf:lastName ?lastName
+}
+
+# query: updateLastNameGraph
+# We need to specify the graph, otherwise insert will be done into default graph.
+prefix : <http://example/>
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+WITH <contexts:foaf/abc-lastNames.ttl> 
+DELETE { ?x foaf:lastName ?y }
+INSERT {:bob foaf:lastName "Grebenshchikov" }
+WHERE {	?x foaf:lastName ?y .
+	    FILTER (?y = "Channing")
+}
+
+# query: updatePersonTwoGraphs
+prefix : <http://example/>
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+DELETE { GRAPH <contexts:foaf/abc-lastNames.ttl> {?x foaf:lastName ?y} 
+		 GRAPH <contexts:foaf/abc-nicks.ttl> {?x foaf:mailbox ?y} 
+}
+INSERT {
+	GRAPH <contexts:foaf/abc-lastNames.ttl> { :bob foaf:lastName "Grebenshchikov"}
+	GRAPH <contexts:foaf/abc-nicks.ttl> { :alice foaf:mailbox "mailto:alice@exampleNew"}
+}
+USING <contexts:foaf/abc-lastNames.ttl>
+USING <contexts:foaf/abc-nicks.ttl>
+WHERE {
+		?x foaf:lastName|foaf:mailbox ?y .
+	    FILTER (?y = "Channing"
+	    		||  
+	    		?y = <mailto:alice@example>)
+}
+
+
+# query: selectLastNameGraphs
+prefix foaf: <http://xmlns.com/foaf/0.1/>
+SELECT * {
+    { GRAPH ?graphPersons { ?x foaf:mailbox ?mbox } }
+    { GRAPH ?graphLastnames { ?x foaf:lastName ?lastName } }
+}
+			 
