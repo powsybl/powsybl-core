@@ -24,4 +24,5 @@ addons:
             secure: ${SONAR_TOKEN}
 
 script:
-- mvn clean verify -Pjacoco coveralls:report sonar:sonar
+- mvn clean verify -Pjacoco coveralls:report
+- if [ "$TRAVIS_OS_NAME" = "linux" ]; then mvn sonar:sonar; fi
