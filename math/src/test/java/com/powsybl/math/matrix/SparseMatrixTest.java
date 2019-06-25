@@ -69,6 +69,15 @@ public class SparseMatrixTest extends AbstractMatrixTest {
         a.set(1, 0, 1d);
     }
 
+    @Test(expected = PowsyblException.class)
+    public void testWrongColumnOrderWithAdd() {
+        Matrix a = matrixFactory.create(2, 2, 2);
+        a.add(0, 0, 1d);
+        a.add(1, 0, 1d);
+        a.add(0, 1, 1d);
+        a.add(1, 0, 1d);
+    }
+
     @Test
     public void testInitSparseMatrixFromCpp() {
         SparseMatrix m = new SparseMatrix(2, 5, new int[] {0, -1, 2, -1, 3, 4}, new int[] {0, 1, 0, 1}, new double[] {1d, 2d, 3d, 4d});
