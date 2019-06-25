@@ -392,7 +392,6 @@
                     <copyToLib>
                         <files>
                             <file>${project.basedir}/../build/lib/libmaster.so</file>
-                            <file>${project.basedir}/../build/lib/libmathjni.so</file>
                         </files>
                     </copyToLib>
                     <copyToEtc>

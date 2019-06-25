@@ -56,7 +56,6 @@
         <dependency>
             <groupId>com.powsybl</groupId>
             <artifactId>powsybl-math-native</artifactId>
-            <version>${powsyblmathnative.version}</version>
         </dependency>
 
         <dependency>
