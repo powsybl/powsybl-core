@@ -38,7 +38,7 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
         THREE
     }
 
-    interface LegBase<L extends LegBase> extends RatioTapChangerHolder {
+    interface LegBase<L extends LegBase> extends RatioTapChangerHolder, PhaseTapChangerHolder {
 
         /**
          * Get the terminal the leg is connected to.
