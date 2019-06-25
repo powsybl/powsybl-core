@@ -122,6 +122,9 @@ public interface CgmesModel {
 
     PropertyBags dcTerminalsTP();
 
+    // TODO (elena) check method
+    void updateCgmesfromIidm();
+
     void clear(Subset subset);
 
     void add(String contextName, String type, PropertyBags objects);

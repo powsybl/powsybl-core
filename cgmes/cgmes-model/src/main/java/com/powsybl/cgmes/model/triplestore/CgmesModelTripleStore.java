@@ -85,7 +85,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
                     return true;
                 }
             }
-            return false; // If we have a query for model profiles but none of the profiles contains "EquipmentCore", equipment core is not available
+            return false; // If we have a query for model profiles but none of the profiles contains
+                          // "EquipmentCore", equipment core is not available
         }
         // If we do not have a query for model profiles we assume equipment core is
         // available
@@ -400,6 +401,14 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         return namedQuery("dcTerminalsTP");
     }
 
+    // TODO elena: add to CgmesModel interface, add namedQueryFordUpdate() to call
+    // update()
+    // from each TripleStore... in impl (e.g. TripleStoreRDF4J)
+    @Override
+    public void updateCgmesfromIidm() {
+        namedQueryFordUpdate("updateCgmesfromIidm2");
+    }
+
     public PropertyBags namedQuery(String name, String... params) {
         String queryText = queryCatalog.get(name);
         if (queryText == null) {
@@ -419,8 +428,28 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         return r;
     }
 
+    // TODO elena
+    public void namedQueryFordUpdate(String name, String... params) {
+        String queryText = queryCatalog.get(name);
+        if (queryText == null) {
+            LOG.warn("Query [{}] not found in catalog", name);
+        }
+        queryText = injectParams(queryText, params);
+        final long t0 = System.currentTimeMillis();
+        String r = update(queryText);
+        final long t1 = System.currentTimeMillis();
+        if (LOG.isDebugEnabled()) {
+            LOG.debug("dt query {} {} ms", name, t1 - t0);
+        }
+    }
+
     public PropertyBags query(String queryText) {
         return tripleStore.query(queryText);
+    }
+
+    // TODO elena
+    public String update(String queryText) {
+        return tripleStore.update(queryText);
     }
 
     @Override

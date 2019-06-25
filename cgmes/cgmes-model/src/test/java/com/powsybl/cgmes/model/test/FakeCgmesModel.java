@@ -97,6 +97,7 @@ public final class FakeCgmesModel implements CgmesModel {
         return Mockito.mock(TripleStore.class);
     }
 
+    @Override
     public boolean hasEquipmentCore() {
         return true;
     }
@@ -116,10 +117,12 @@ public final class FakeCgmesModel implements CgmesModel {
         return this;
     }
 
+    @Override
     public boolean isNodeBreaker() {
         return isNodeBreaker;
     }
 
+    @Override
     public boolean hasBoundary() {
         return false;
     }
@@ -531,5 +534,10 @@ public final class FakeCgmesModel implements CgmesModel {
     @Override
     public double nominalVoltage(String baseVoltageId) {
         return Double.NaN;
+    }
+
+    // TODO elena
+    @Override
+    public void updateCgmesfromIidm() {
     }
 }

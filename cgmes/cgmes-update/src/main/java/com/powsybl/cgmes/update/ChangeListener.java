@@ -1,17 +1,7 @@
-/**
- * Copyright (c) 2017-2018, RTE (http://www.rte-france.com)
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
- */
-
 package com.powsybl.cgmes.update;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-//import com.powsybl.iidm.network.NetworkFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,35 +10,49 @@ import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkListener;
 
 public class ChangeListener implements NetworkListener {
-    // class register network changes, and add to list
+    /**
+     * *class to register network changes, and add to changeList
+     *
+     * @param network    represent a grid network object
+     * @param changeList is an empty list to ctore iidm changes
+     */
 
-    public ChangeListener(Network network, String variant) {
-        this.network = Objects.requireNonNull(network);
-        this.changeList = new ArrayList<Changes>();
-        this.variant = variant;
+    public ChangeListener(Network network, List<IidmChangesObject> changeList) {
+        this.network = network;
+        this.changeList = changeList;
     }
 
+    @Override
     public void onCreation(Identifiable identifiable) {
-        LOGGER.info("calling onCreation method");
-        Changes change = new Changes(identifiable, variant);
+        LOGGER.info("Calling onCreation method...");
+        String variant = network.getVariantManager().getWorkingVariantId();
+        IidmChangesObject change = new IidmChangesObject(identifiable, variant);
         changeList.add(change);
+        // TODO remove prints
+        System.out.println("variant is " + change.getVariant() + "\nattribute is " + change.getAttribute());
     }
 
+    @Override
     public void onRemoval(Identifiable identifiable) {
-        LOGGER.info("calling onRemoval method");
-        Changes change = new Changes(identifiable, variant);
+        LOGGER.info("Calling onRemoval method...");
+        String variant = network.getVariantManager().getWorkingVariantId();
+        IidmChangesObject change = new IidmChangesObject(identifiable, variant);
         changeList.add(change);
     }
 
+    @Override
     public void onUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
-        LOGGER.info("calling onUpdate method");
-        Changes change = new Changes(identifiable, attribute, oldValue, newValue, variant);
+        LOGGER.info("Calling onUpdate method...");
+        String variant = network.getVariantManager().getWorkingVariantId();
+        IidmChangesObject change = new IidmChangesObject(identifiable, attribute, oldValue, newValue, variant);
         changeList.add(change);
+        // TODO remove prints
+        System.out.println("variant is " + change.getVariant() + "\nidentifiable " + identifiable.getName()
+            + "\nattribute is " + change.getAttribute()
+            + "\noldValue " + oldValue.toString() + "\nnewValue " + newValue.toString());
     }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(ChangeListener.class);
     private final Network network;
-    private List<Changes> changeList;
-    String variant;
-
+    private List<IidmChangesObject> changeList;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChangeListener.class);
 }

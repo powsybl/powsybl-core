@@ -150,6 +150,14 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     }
 
     @Override
+    public String update(String query) {
+        // TODO elena
+        System.out.println("Update string from jena:\n " + query);
+        String echo = "updateing jena";
+        return echo;
+    }
+
+    @Override
     public void add(String graph, String objType, PropertyBags statements) {
         String name = null;
         Iterator<String> k = dataset.listNames();

@@ -247,6 +247,13 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     }
 
     @Override
+    public String update(String query) {
+        // TODO elena
+        System.out.println("Update string from blazergraph:\n " + query);
+        return query;
+    }
+
+    @Override
     public void add(String graph, String objType, PropertyBags statements) {
         RepositoryConnection cnx = null;
         try {

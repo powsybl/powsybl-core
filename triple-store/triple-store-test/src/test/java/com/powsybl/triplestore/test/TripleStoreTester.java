@@ -13,6 +13,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -65,7 +66,14 @@ public class TripleStoreTester {
             int size = expected.values().iterator().next().size();
             assertEquals(size, results.size());
             expected.keySet()
-                    .forEach(property -> assertEquals(expected.get(property), results.pluckLocals(property)));
+                .forEach(property -> assertEquals(expected.get(property), results.pluckLocals(property)));
+        }
+    }
+
+    void testUpdate(String queryText) {
+        // TODO elena
+        for (String impl : implementations) {
+            tripleStores.get(impl).update(queryText);
         }
     }
 
