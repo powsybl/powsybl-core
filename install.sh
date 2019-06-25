@@ -51,7 +51,7 @@ usage() {
 writeSetting() {
     if [[ $# -lt 2 || $# -gt 3 ]]; then
         echo "WARNING: writeSetting <setting> <value> [comment (true|false)]"
-        exit 1CMake
+        exit 1
     fi
 
     SETTING=$1
