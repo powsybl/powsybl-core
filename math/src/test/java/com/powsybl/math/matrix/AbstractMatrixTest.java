@@ -86,7 +86,7 @@ public abstract class AbstractMatrixTest {
     }
 
     @Test
-    public void testMultiplication() throws Exception {
+    public void testMultiplication() {
         Matrix a = createA(getMatrixFactory());
         Matrix b = getMatrixFactory().create(2, 1, 2);
         b.set(0, 0, 4);
@@ -95,11 +95,11 @@ public abstract class AbstractMatrixTest {
         Matrix cs = a.times(b);
         DenseMatrix c = cs.toDense();
 
-        assertEquals(3, c.getM());
-        assertEquals(1, c.getN());
-        assertEquals(4, c.getValue(0, 0), EPSILON);
-        assertEquals(15, c.getValue(1, 0), EPSILON);
-        assertEquals(8, c.getValue(2, 0), EPSILON);
+        assertEquals(3, c.getRowCount());
+        assertEquals(1, c.getColumnCount());
+        assertEquals(4, c.get(0, 0), EPSILON);
+        assertEquals(15, c.get(1, 0), EPSILON);
+        assertEquals(8, c.get(2, 0), EPSILON);
     }
 
     @Test
