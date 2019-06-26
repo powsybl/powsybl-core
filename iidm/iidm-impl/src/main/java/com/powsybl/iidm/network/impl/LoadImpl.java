@@ -10,6 +10,7 @@ import com.powsybl.iidm.network.ConnectableType;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.LoadType;
 import com.powsybl.iidm.network.impl.util.Ref;
+
 import gnu.trove.list.array.TDoubleArrayList;
 
 /**
@@ -79,8 +80,9 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
     @Override
     public LoadImpl setP0(double p0) {
         ValidationUtil.checkP0(this, p0);
-        double oldValue = this.p0.set(network.get().getVariantIndex(), p0);
-        notifyUpdate("p0", oldValue, p0);
+        int variantIndex = network.get().getVariantIndex();
+        double oldValue = this.p0.set(variantIndex, p0);
+        notifyUpdate("p0", variantIndex, oldValue, p0);
         return this;
     }
 
@@ -92,8 +94,9 @@ class LoadImpl extends AbstractConnectable<Load> implements Load {
     @Override
     public LoadImpl setQ0(double q0) {
         ValidationUtil.checkQ0(this, q0);
-        double oldValue = this.q0.set(network.get().getVariantIndex(), q0);
-        notifyUpdate("q0", oldValue, q0);
+        int variantIndex = network.get().getVariantIndex();
+        double oldValue = this.q0.set(variantIndex, q0);
+        notifyUpdate("q0", variantIndex, oldValue, q0);
         return this;
     }
 

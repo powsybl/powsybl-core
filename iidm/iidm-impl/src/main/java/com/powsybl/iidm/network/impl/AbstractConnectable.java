@@ -56,6 +56,10 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         getNetwork().getListeners().notifyUpdate(this, attribute, oldValue, newValue);
     }
 
+    protected void notifyUpdate(String attribute, int variantIndex, Object oldValue, Object newValue) {
+        getNetwork().getListeners().notifyUpdate(this, attribute, variantIndex, oldValue, newValue);
+    }
+
     @Override
     public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
         super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
