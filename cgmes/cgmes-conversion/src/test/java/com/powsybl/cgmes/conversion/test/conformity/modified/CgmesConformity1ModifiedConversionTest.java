@@ -96,6 +96,7 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(200, mm.getMaxQ(), 0);
     }
 
+    @Ignore("Test cgmes extended conversion ")
     @Test
     public void microBEPtcCurrentLimiter() {
         Network network = new CgmesImport(platformConfig)
@@ -134,6 +135,7 @@ public class CgmesConformity1ModifiedConversionTest {
         assertEquals(generator2.getTerminal().getVoltageLevel().getNominalV(), generator2.getTargetV(), 0.0);
     }
 
+    @Ignore("Test cgmes extended conversion ")
     @Test
     public void microBEMissingRegulatingControl() {
         Network network = new CgmesImport(platformConfig)
@@ -143,7 +145,8 @@ public class CgmesConformity1ModifiedConversionTest {
         assertFalse(generator.isVoltageRegulatorOn());
         assertTrue(Double.isNaN(generator.getTargetV()));
 
-        RatioTapChanger rtc = network.getTwoWindingsTransformer("_b94318f6-6d24-4f56-96b9-df2531ad6543").getRatioTapChanger();
+        RatioTapChanger rtc = network.getTwoWindingsTransformer("_b94318f6-6d24-4f56-96b9-df2531ad6543")
+            .getRatioTapChanger();
         assertNotNull(rtc);
         assertFalse(rtc.hasLoadTapChangingCapabilities());
         assertTrue(Double.isNaN(rtc.getTargetV()));
@@ -158,6 +161,7 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNull(ptc.getRegulationTerminal());
     }
 
+    @Ignore("Test cgmes extended conversion ")
     @Test
     public void miniBusBranchRtcRemoteRegulation() {
         Network network = new CgmesImport(platformConfig).importData(catalogModified.miniBusBranchRtcRemoteRegulation().dataSource(), null);

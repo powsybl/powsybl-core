@@ -20,7 +20,14 @@ public class TwtDataTest {
 
     @Test
     public void test() {
-        TwtData twtData = new TwtData(new TwtTestData().get3WTransformer(), 0, false);
+        TwtData twtData = new TwtData(new TwtTestData().get3WTransformer(), 0, false, false);
+
+        assertEquals(TwtTestData.COMPUTED_P1, twtData.getComputedP(Side.ONE), .000001);
+        assertEquals(TwtTestData.COMPUTED_Q1, twtData.getComputedQ(Side.ONE), .000001);
+        assertEquals(TwtTestData.COMPUTED_P2, twtData.getComputedP(Side.TWO), .000001);
+        assertEquals(TwtTestData.COMPUTED_Q2, twtData.getComputedQ(Side.TWO), .000001);
+        assertEquals(TwtTestData.COMPUTED_P3, twtData.getComputedP(Side.THREE), .000001);
+        assertEquals(TwtTestData.COMPUTED_Q3, twtData.getComputedQ(Side.THREE), .000001);
 
         assertEquals(TwtTestData.P1, twtData.getComputedP(Side.ONE), .3);
         assertEquals(TwtTestData.Q1, twtData.getComputedQ(Side.ONE), .3);

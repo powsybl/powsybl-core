@@ -44,19 +44,21 @@ public final class Transformers3WValidation extends AbstractTransformersValidati
 
         LOGGER.info("Checking 3W transformers of network {}", network.getId());
         return network.getThreeWindingsTransformerStream()
-                .sorted(Comparator.comparing(ThreeWindingsTransformer::getId))
-                .map(twt -> checkTransformer(twt, config, twtsWriter))
-                .reduce(Boolean::logicalAnd)
-                .orElse(true);
+            .sorted(Comparator.comparing(ThreeWindingsTransformer::getId))
+            .map(twt -> checkTransformer(twt, config, twtsWriter))
+            .reduce(Boolean::logicalAnd)
+            .orElse(true);
     }
 
-    public boolean checkTransformer(ThreeWindingsTransformer twt, ValidationConfig validationConfig, TableFormatterConfig formatterConfig, Writer writer) {
+    public boolean checkTransformer(ThreeWindingsTransformer twt, ValidationConfig validationConfig,
+        TableFormatterConfig formatterConfig, Writer writer) {
         Objects.requireNonNull(twt);
         Objects.requireNonNull(validationConfig);
         Objects.requireNonNull(formatterConfig);
         Objects.requireNonNull(writer);
 
-        try (ValidationWriter twtsWriter = ValidationUtils.createValidationWriter(twt.getId(), validationConfig, formatterConfig, writer, ValidationType.TWTS3W)) {
+        try (ValidationWriter twtsWriter = ValidationUtils.createValidationWriter(twt.getId(), validationConfig,
+            formatterConfig, writer, ValidationType.TWTS3W)) {
             return checkTransformer(twt, validationConfig, twtsWriter);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
@@ -67,13 +69,15 @@ public final class Transformers3WValidation extends AbstractTransformersValidati
         return checkTransformer(twt, config, TABLE_FORMATTER_CONFIG.get(), writer);
     }
 
-    public boolean checkTransformer(ThreeWindingsTransformer twt, ValidationConfig validationConfig, ValidationWriter twtsWriter) {
+    public boolean checkTransformer(ThreeWindingsTransformer twt, ValidationConfig validationConfig,
+        ValidationWriter twtsWriter) {
         Objects.requireNonNull(twt);
         Objects.requireNonNull(validationConfig);
         Objects.requireNonNull(twtsWriter);
 
         boolean validated = true;
-        TwtData twtData = new TwtData(twt, validationConfig.getEpsilonX(), validationConfig.applyReactanceCorrection());
+        TwtData twtData = new TwtData(twt, validationConfig.getEpsilonX(), validationConfig.applyReactanceCorrection(),
+            false);
         validated &= checkLeg(twtData, Side.ONE, validationConfig);
         validated &= checkLeg(twtData, Side.TWO, validationConfig);
         validated &= checkLeg(twtData, Side.THREE, validationConfig);
@@ -90,12 +94,16 @@ public final class Transformers3WValidation extends AbstractTransformersValidati
     private static boolean checkLeg(TwtData twtData, Side side, ValidationConfig validationConfig) {
         boolean validated = true;
         if (twtData.isConnected(side) && twtData.isMainComponent(side)) {
-            if (ValidationUtils.areNaN(validationConfig, twtData.getP(side), twtData.getComputedP(side)) || Math.abs(twtData.getP(side) - twtData.getComputedP(side)) > validationConfig.getThreshold()) {
-                LOGGER.warn("{} {}: {} side {}, P {} {}", ValidationType.TWTS3W, ValidationUtils.VALIDATION_ERROR, twtData.getId(), side, twtData.getP(side), twtData.getComputedP(side));
+            if (ValidationUtils.areNaN(validationConfig, twtData.getP(side), twtData.getComputedP(side))
+                || Math.abs(twtData.getP(side) - twtData.getComputedP(side)) > validationConfig.getThreshold()) {
+                LOGGER.warn("{} {}: {} side {}, P {} {}", ValidationType.TWTS3W, ValidationUtils.VALIDATION_ERROR,
+                    twtData.getId(), side, twtData.getP(side), twtData.getComputedP(side));
                 validated = false;
             }
-            if (ValidationUtils.areNaN(validationConfig, twtData.getQ(side), twtData.getComputedQ(side)) || Math.abs(twtData.getQ(side) - twtData.getComputedQ(side)) > validationConfig.getThreshold()) {
-                LOGGER.warn("{} {}: {} side {}, Q {} {}", ValidationType.TWTS3W, ValidationUtils.VALIDATION_ERROR, twtData.getId(), side, twtData.getQ(side), twtData.getComputedQ(side));
+            if (ValidationUtils.areNaN(validationConfig, twtData.getQ(side), twtData.getComputedQ(side))
+                || Math.abs(twtData.getQ(side) - twtData.getComputedQ(side)) > validationConfig.getThreshold()) {
+                LOGGER.warn("{} {}: {} side {}, Q {} {}", ValidationType.TWTS3W, ValidationUtils.VALIDATION_ERROR,
+                    twtData.getId(), side, twtData.getQ(side), twtData.getComputedQ(side));
                 validated = false;
             }
         }

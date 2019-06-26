@@ -8,6 +8,8 @@
 package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.elements.*;
+import com.powsybl.cgmes.conversion.elements.full.ThreeWindingsTransformerFullConversion;
+import com.powsybl.cgmes.conversion.elements.full.TwoWindingsTransformerFullConversion;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.iidm.network.Network;
@@ -32,6 +34,8 @@ import java.util.function.Function;
  */
 public class Conversion {
 
+    private static final boolean EXTENDED_CGMES_CONVERSION = true;
+
     public Conversion(CgmesModel cgmes) {
         this(cgmes, new Config());
     }
@@ -45,7 +49,7 @@ public class Conversion {
     }
 
     public Conversion(CgmesModel cgmes, Conversion.Config config, List<CgmesImportPostProcessor> postProcessors,
-                      NetworkFactory networkFactory) {
+        NetworkFactory networkFactory) {
         this.cgmes = Objects.requireNonNull(cgmes);
         this.config = Objects.requireNonNull(config);
         this.postProcessors = Objects.requireNonNull(postProcessors);
@@ -78,11 +82,11 @@ public class Conversion {
         convert(cgmes.substations(), s -> new SubstationConversion(s, context));
         convert(cgmes.voltageLevels(), vl -> new VoltageLevelConversion(vl, context));
         PropertyBags nodes = context.nodeBreaker()
-                ? cgmes.connectivityNodes()
-                : cgmes.topologicalNodes();
+            ? cgmes.connectivityNodes()
+            : cgmes.topologicalNodes();
         String nodeTypeName = context.nodeBreaker()
-                ? "ConnectivityNode"
-                : "TopologicalNode";
+            ? "ConnectivityNode"
+            : "TopologicalNode";
         convert(nodes, n -> new NodeConversion(nodeTypeName, n, context));
         if (!context.config().createBusbarSectionForEveryConnectivityNode()) {
             convert(cgmes.busBarSections(), bbs -> new BusbarSectionConversion(bbs, context));
@@ -105,10 +109,14 @@ public class Conversion {
         convertACLineSegmentsToLines(context);
         convert(cgmes.equivalentBranches(), eqb -> new EquivalentBranchConversion(eqb, context));
         convert(cgmes.seriesCompensators(), sc -> new SeriesCompensatorConversion(sc, context));
-        convertTransformers(context);
 
-        convert(cgmes.ratioTapChangers(), rtc -> new RatioTapChangerConversion(rtc, context));
-        convert(cgmes.phaseTapChangers(), ptc -> new PhaseTapChangerConversion(ptc, context));
+        if (EXTENDED_CGMES_CONVERSION) {
+            convertFullTransformers(context);
+        } else {
+            convertTransformers(context);
+            convert(cgmes.ratioTapChangers(), rtc -> new RatioTapChangerConversion(rtc, context));
+            convert(cgmes.phaseTapChangers(), ptc -> new PhaseTapChangerConversion(ptc, context));
+        }
 
         // DC Converters must be converted first
         convert(cgmes.acDcConverters(), c -> new AcDcConverterConversion(c, context));
@@ -135,8 +143,8 @@ public class Conversion {
     }
 
     private void convert(
-            PropertyBags elements,
-            Function<PropertyBag, AbstractObjectConversion> f) {
+        PropertyBags elements,
+        Function<PropertyBag, AbstractObjectConversion> f) {
         String conversion = null;
         profiling.start();
         for (PropertyBag element : elements) {
@@ -175,6 +183,7 @@ public class Conversion {
         context.substationIdMapping().build();
         context.dc().initialize();
         context.loadRatioTapChangerTables();
+        context.loadPhaseTapChangerTables();
         context.loadReactiveCapabilityCurveData();
         profiling.end("createContext");
         return context;
@@ -183,9 +192,9 @@ public class Conversion {
     private void assignNetworkProperties(Context context) {
         profiling.start();
         context.network().getProperties().put(NETWORK_PS_CGMES_MODEL_DETAIL,
-                context.nodeBreaker()
-                        ? NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER
-                        : NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH);
+            context.nodeBreaker()
+                ? NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER
+                : NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH);
         DateTime modelScenarioTime = cgmes.scenarioTime();
         DateTime modelCreated = cgmes.created();
         long forecastDistance = new Duration(modelCreated, modelScenarioTime).getStandardMinutes();
@@ -242,31 +251,72 @@ public class Conversion {
         profiling.end("ACLineSegments");
     }
 
+    private void convertFullTransformers(Context context) {
+        profiling.start();
+        Map<String, PropertyBag> powerTransformerRatioTapChanger = new HashMap<>();
+        Map<String, PropertyBag> powerTransformerPhaseTapChanger = new HashMap<>();
+        cgmes.ratioTapChangers().forEach(ratio -> {
+            String id = ratio.getId("RatioTapChanger");
+            powerTransformerRatioTapChanger.put(id, ratio);
+        });
+        cgmes.phaseTapChangers().forEach(phase -> {
+            String id = phase.getId("PhaseTapChanger");
+            powerTransformerPhaseTapChanger.put(id, phase);
+        });
+        cgmes.groupedTransformerEnds().entrySet()
+            .forEach(tends -> {
+                String t = tends.getKey();
+                PropertyBags ends = tends.getValue();
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Transformer {}, {}-winding", t, ends.size());
+                    ends.forEach(e -> LOG.debug(e.tabulateLocals("TransformerEnd")));
+                }
+                AbstractConductingEquipmentConversion c = null;
+                if (ends.size() == 2) {
+                    c = new TwoWindingsTransformerFullConversion(ends, powerTransformerRatioTapChanger,
+                        powerTransformerPhaseTapChanger,
+                        context);
+                } else if (ends.size() == 3) {
+                    c = new ThreeWindingsTransformerFullConversion(ends, powerTransformerRatioTapChanger,
+                        powerTransformerPhaseTapChanger, context);
+                } else {
+                    String what = String.format("PowerTransformer %s", t);
+                    String reason = String.format("Has %d ends. Only 2 or 3 ends are supported",
+                        ends.size());
+                    context.invalid(what, reason);
+                }
+                if (c != null && c.valid()) {
+                    c.convert();
+                }
+            });
+        profiling.end("Transfomers");
+    }
+
     private void convertTransformers(Context context) {
         profiling.start();
         cgmes.groupedTransformerEnds().entrySet()
-                .forEach(tends -> {
-                    String t = tends.getKey();
-                    PropertyBags ends = tends.getValue();
-                    if (LOG.isDebugEnabled()) {
-                        LOG.debug("Transformer {}, {}-winding", t, ends.size());
-                        ends.forEach(e -> LOG.debug(e.tabulateLocals("TransformerEnd")));
-                    }
-                    AbstractConductingEquipmentConversion c = null;
-                    if (ends.size() == 2) {
-                        c = new TwoWindingsTransformerConversion(ends, context);
-                    } else if (ends.size() == 3) {
-                        c = new ThreeWindingsTransformerConversion(ends, context);
-                    } else {
-                        String what = String.format("PowerTransformer %s", t);
-                        String reason = String.format("Has %d ends. Only 2 or 3 ends are supported",
-                                ends.size());
-                        context.invalid(what, reason);
-                    }
-                    if (c != null && c.valid()) {
-                        c.convert();
-                    }
-                });
+            .forEach(tends -> {
+                String t = tends.getKey();
+                PropertyBags ends = tends.getValue();
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Transformer {}, {}-winding", t, ends.size());
+                    ends.forEach(e -> LOG.debug(e.tabulateLocals("TransformerEnd")));
+                }
+                AbstractConductingEquipmentConversion c = null;
+                if (ends.size() == 2) {
+                    c = new TwoWindingsTransformerConversion(ends, context);
+                } else if (ends.size() == 3) {
+                    c = new ThreeWindingsTransformerConversion(ends, context);
+                } else {
+                    String what = String.format("PowerTransformer %s", t);
+                    String reason = String.format("Has %d ends. Only 2 or 3 ends are supported",
+                        ends.size());
+                    context.invalid(what, reason);
+                }
+                if (c != null && c.valid()) {
+                    c.convert();
+                }
+            });
         profiling.end("Transfomers");
     }
 
@@ -291,7 +341,8 @@ public class Conversion {
         context.network().getVoltageLevels().forEach(vl -> {
             String name = vl.getSubstation().getName() + "-" + vl.getName();
             name = name.replace('/', '-');
-            Path file = Paths.get(System.getProperty("java.io.tmpdir"), "temp-cgmes-" + name + ".dot");
+            Path file = Paths.get(System.getProperty("java.io.tmpdir"),
+                "temp-cgmes-" + name + ".dot");
             try {
                 vl.exportTopology(file);
             } catch (IOException e) {
@@ -366,6 +417,261 @@ public class Conversion {
             return this;
         }
 
+        public boolean isXfmr2RatioPhaseEnd1() {
+            return xfmr2RatioPhaseEnd1;
+        }
+
+        public void setXfmr2RatioPhaseEnd1(boolean xfmr2RatioPhaseEnd1) {
+            this.xfmr2RatioPhaseEnd1 = xfmr2RatioPhaseEnd1;
+        }
+
+        public boolean isXfmr2RatioPhaseEnd2() {
+            return xfmr2RatioPhaseEnd2;
+        }
+
+        public void setXfmr2RatioPhaseEnd2(boolean xfmr2RatioPhaseEnd2) {
+            this.xfmr2RatioPhaseEnd2 = xfmr2RatioPhaseEnd2;
+        }
+
+        public boolean isXfmr2RatioPhaseEnd1End2() {
+            return xfmr2RatioPhaseEnd1End2;
+        }
+
+        public void setXfmr2RatioPhaseEnd1End2(boolean xfmr2RatioPhaseEnd1End2) {
+            this.xfmr2RatioPhaseEnd1End2 = xfmr2RatioPhaseEnd1End2;
+        }
+
+        public boolean isXfmr2RatioPhaseRtc() {
+            return xfmr2RatioPhaseRtc;
+        }
+
+        public void setXfmr2RatioPhaseRtc(boolean xfmr2RatioPhaseRtc) {
+            this.xfmr2RatioPhaseRtc = xfmr2RatioPhaseRtc;
+        }
+
+        public boolean isXfmr2Phase1Negate() {
+            return xfmr2Phase1Negate;
+        }
+
+        public void setXfmr2Phase1Negate(boolean xfmr2Phase1Negate) {
+            this.xfmr2Phase1Negate = xfmr2Phase1Negate;
+        }
+
+        public boolean isXfmr2Phase2Negate() {
+            return xfmr2Phase2Negate;
+        }
+
+        public void setXfmr2Phase2Negate(boolean xfmr2Phase2Negate) {
+            this.xfmr2Phase2Negate = xfmr2Phase2Negate;
+        }
+
+        public boolean isXfmr2ShuntEnd1() {
+            return xfmr2ShuntEnd1;
+        }
+
+        public void setXfmr2ShuntEnd1(boolean xfmr2ShuntEnd1) {
+            this.xfmr2ShuntEnd1 = xfmr2ShuntEnd1;
+        }
+
+        public boolean isXfmr2ShuntEnd2() {
+            return xfmr2ShuntEnd2;
+        }
+
+        public void setXfmr2ShuntEnd2(boolean xfmr2ShuntEnd2) {
+            this.xfmr2ShuntEnd2 = xfmr2ShuntEnd2;
+        }
+
+        public boolean isXfmr2ShuntEnd1End2() {
+            return xfmr2ShuntEnd1End2;
+        }
+
+        public void setXfmr2ShuntEnd1End2(boolean xfmr2ShuntEnd1End2) {
+            this.xfmr2ShuntEnd1End2 = xfmr2ShuntEnd1End2;
+        }
+
+        public boolean isXfmr2ShuntSplit() {
+            return xfmr2ShuntSplit;
+        }
+
+        public void setXfmr2ShuntSplit(boolean xfmr2ShuntSplit) {
+            this.xfmr2ShuntSplit = xfmr2ShuntSplit;
+        }
+
+        public boolean isXfmr2PhaseAngleClockEnd1End2() {
+            return xfmr2PhaseAngleClockEnd1End2;
+        }
+
+        public void setXfmr2PhaseAngleClockEnd1End2(boolean xfmr2PhaseAngleClockEnd1End2) {
+            this.xfmr2PhaseAngleClockEnd1End2 = xfmr2PhaseAngleClockEnd1End2;
+        }
+
+        public boolean isXfmr2PhaseAngleClock1Negate() {
+            return xfmr2PhaseAngleClock1Negate;
+        }
+
+        public void setXfmr2PhaseAngleClock1Negate(boolean xfmr2PhaseAngleClock1Negate) {
+            this.xfmr2PhaseAngleClock1Negate = xfmr2PhaseAngleClock1Negate;
+        }
+
+        public boolean isXfmr2PhaseAngleClock2Negate() {
+            return xfmr2PhaseAngleClock2Negate;
+        }
+
+        public void setXfmr2PhaseAngleClock2Negate(boolean xfmr2PhaseAngleClock2Negate) {
+            this.xfmr2PhaseAngleClock2Negate = xfmr2PhaseAngleClock2Negate;
+        }
+
+        public boolean isXfmr2Ratio0End1() {
+            return xfmr2Ratio0End1;
+        }
+
+        public void setXfmr2Ratio0End1(boolean xfmr2Ratio0End1) {
+            this.xfmr2Ratio0End1 = xfmr2Ratio0End1;
+        }
+
+        public boolean isXfmr2Ratio0End2() {
+            return xfmr2Ratio0End2;
+        }
+
+        public void setXfmr2Ratio0End2(boolean xfmr2Ratio0End2) {
+            this.xfmr2Ratio0End2 = xfmr2Ratio0End2;
+        }
+
+        public boolean isXfmr2Ratio0Rtc() {
+            return xfmr2Ratio0Rtc;
+        }
+
+        public void setXfmr2Ratio0Rtc(boolean xfmr2Ratio0Rtc) {
+            this.xfmr2Ratio0Rtc = xfmr2Ratio0Rtc;
+        }
+
+        public boolean isXfmr2Ratio0X() {
+            return xfmr2Ratio0X;
+        }
+
+        public void setXfmr2Ratio0X(boolean xfmr2Ratio0X) {
+            this.xfmr2Ratio0X = xfmr2Ratio0X;
+        }
+
+        public boolean isXfmr3RatioPhaseNetworkSide() {
+            return xfmr3RatioPhaseNetworkSide;
+        }
+
+        public void setXfmr3RatioPhaseNetworkSide(boolean xfmr3RatioPhaseNetworkSide) {
+            this.xfmr3RatioPhaseNetworkSide = xfmr3RatioPhaseNetworkSide;
+        }
+
+        public boolean isXfmr3ShuntNetworkSide() {
+            return xfmr3ShuntNetworkSide;
+        }
+
+        public void setXfmr3ShuntNetworkSide(boolean xfmr3ShuntNetworkSide) {
+            this.xfmr3ShuntNetworkSide = xfmr3ShuntNetworkSide;
+        }
+
+        public boolean isXfmr3ShuntStarBusSide() {
+            return xfmr3ShuntStarBusSide;
+        }
+
+        public void setXfmr3ShuntStarBusSide(boolean xfmr3ShuntStarBusSide) {
+            this.xfmr3ShuntStarBusSide = xfmr3ShuntStarBusSide;
+        }
+
+        public boolean isXfmr3ShuntSplit() {
+            return xfmr3ShuntSplit;
+        }
+
+        public void setXfmr3ShuntSplit(boolean xfmr3ShuntSplit) {
+            this.xfmr3ShuntSplit = xfmr3ShuntSplit;
+        }
+
+        public boolean isXfmr3PhaseAngleClockNetworkSide() {
+            return xfmr3PhaseAngleClockNetworkSide;
+        }
+
+        public void setXfmr3PhaseAngleClockNetworkSide(boolean xfmr3PhaseAngleClockNetworkSide) {
+            this.xfmr3PhaseAngleClockNetworkSide = xfmr3PhaseAngleClockNetworkSide;
+        }
+
+        public boolean isXfmr3PhaseAngleClockStarBusSide() {
+            return xfmr3PhaseAngleClockStarBusSide;
+        }
+
+        public void setXfmr3PhaseAngleClockStarBusSide(boolean xfmr3PhaseAngleClockStarBusSide) {
+            this.xfmr3PhaseAngleClockStarBusSide = xfmr3PhaseAngleClockStarBusSide;
+        }
+
+        public boolean isXfmr3Ratio0StarBusSide() {
+            return xfmr3Ratio0StarBusSide;
+        }
+
+        public void setXfmr3Ratio0StarBusSide(boolean xfmr3Ratio0StarBusSide) {
+            this.xfmr3Ratio0StarBusSide = xfmr3Ratio0StarBusSide;
+        }
+
+        public boolean isXfmr3Ratio0NetworkSide() {
+            return xfmr3Ratio0NetworkSide;
+        }
+
+        public void setXfmr3Ratio0NetworkSide(boolean xfmr3Ratio0NetworkSide) {
+            this.xfmr3Ratio0NetworkSide = xfmr3Ratio0NetworkSide;
+        }
+
+        public boolean isXfmr3Ratio0End1() {
+            return xfmr3Ratio0End1;
+        }
+
+        public void setXfmr3Ratio0End1(boolean xfmr3Ratio0End1) {
+            this.xfmr3Ratio0End1 = xfmr3Ratio0End1;
+        }
+
+        public boolean isXfmr3Ratio0End2() {
+            return xfmr3Ratio0End2;
+        }
+
+        public void setXfmr3Ratio0End2(boolean xfmr3Ratio0End2) {
+            this.xfmr3Ratio0End2 = xfmr3Ratio0End2;
+        }
+
+        public boolean isXfmr3Ratio0End3() {
+            return xfmr3Ratio0End3;
+        }
+
+        public void setXfmr3Ratio0End3(boolean xfmr3Ratio0End3) {
+            this.xfmr3Ratio0End3 = xfmr3Ratio0End3;
+        }
+
+        public void reset() {
+            this.xfmr2RatioPhaseEnd1 = false;
+            this.xfmr2RatioPhaseEnd2 = false;
+            this.xfmr2RatioPhaseEnd1End2 = false;
+            this.xfmr2RatioPhaseRtc = false;
+            this.xfmr2Phase1Negate = false;
+            this.xfmr2Phase2Negate = false;
+            this.xfmr2ShuntEnd1 = false;
+            this.xfmr2ShuntEnd2 = false;
+            this.xfmr2ShuntEnd1End2 = false;
+            this.xfmr2ShuntSplit = false;
+            this.xfmr2PhaseAngleClockEnd1End2 = false;
+            this.xfmr2PhaseAngleClock1Negate = false;
+            this.xfmr2PhaseAngleClock2Negate = false;
+            this.xfmr2Ratio0End1 = false;
+            this.xfmr2Ratio0End2 = false;
+            this.xfmr2Ratio0Rtc = false;
+            this.xfmr2Ratio0X = false;
+            this.xfmr3RatioPhaseNetworkSide = false;
+            this.xfmr3ShuntNetworkSide = false;
+            this.xfmr3ShuntStarBusSide = false;
+            this.xfmr3ShuntSplit = false;
+            this.xfmr3PhaseAngleClockNetworkSide = false;
+            this.xfmr3PhaseAngleClockStarBusSide = false;
+            this.xfmr3Ratio0StarBusSide = false;
+            this.xfmr3Ratio0NetworkSide = false;
+            this.xfmr3Ratio0End1 = false;
+            this.xfmr3Ratio0End2 = false;
+            this.xfmr3Ratio0End3 = false;
+        }
+
         private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
@@ -374,6 +680,42 @@ public class Conversion {
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
 
+        // Default configuration
+        private boolean xfmr2RatioPhaseEnd1 = false;
+        private boolean xfmr2RatioPhaseEnd2 = false;
+        // private boolean xfmr2RatioPhaseEnd1End2 = true;
+        private boolean xfmr2RatioPhaseEnd1End2 = true;
+        private boolean xfmr2RatioPhaseRtc = false;
+        private boolean xfmr2Phase1Negate = false;
+        private boolean xfmr2Phase2Negate = false;
+        private boolean xfmr2ShuntEnd1 = true;
+        // private boolean xfmr2ShuntEnd1 = false;
+        private boolean xfmr2ShuntEnd2 = false;
+        private boolean xfmr2ShuntEnd1End2 = false;
+        private boolean xfmr2ShuntSplit = false;
+        private boolean xfmr2PhaseAngleClockEnd1End2 = false;
+        private boolean xfmr2PhaseAngleClock1Negate = false;
+        private boolean xfmr2PhaseAngleClock2Negate = false;
+        private boolean xfmr2Ratio0End1 = false;
+        // private boolean xfmr2Ratio0End2 = true;
+        private boolean xfmr2Ratio0End2 = false;
+        private boolean xfmr2Ratio0Rtc = false;
+        private boolean xfmr2Ratio0X = false;
+
+        private boolean xfmr3RatioPhaseNetworkSide = true;
+        // private boolean xfmr3RatioPhaseNetworkSide = false;
+        private boolean xfmr3ShuntNetworkSide = true;
+        // private boolean xfmr3ShuntNetworkSide = false;
+        private boolean xfmr3ShuntStarBusSide = false;
+        private boolean xfmr3ShuntSplit = false;
+        private boolean xfmr3PhaseAngleClockNetworkSide = false;
+        private boolean xfmr3PhaseAngleClockStarBusSide = false;
+        private boolean xfmr3Ratio0StarBusSide = true;
+        // private boolean xfmr3Ratio0StarBusSide = false;
+        private boolean xfmr3Ratio0NetworkSide = false;
+        private boolean xfmr3Ratio0End1 = false;
+        private boolean xfmr3Ratio0End2 = false;
+        private boolean xfmr3Ratio0End3 = false;
     }
 
     private final CgmesModel cgmes;
@@ -383,7 +725,8 @@ public class Conversion {
 
     private Profiling profiling;
 
-    private static final Logger LOG = LoggerFactory.getLogger(Conversion.class);
+    private static final Logger LOG = LoggerFactory
+        .getLogger(Conversion.class);
 
     public static final String NETWORK_PS_CGMES_MODEL_DETAIL = "CGMESModelDetail";
     public static final String NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH = "bus-branch";

@@ -110,21 +110,62 @@ public class RegulatingControlMapping {
         adder.setLoadTapChangingCapabilities(false);
     }
 
-    private void addRegulatingControlVoltage(PropertyBag p, RegulatingControl control, RatioTapChangerAdder adder, Terminal defaultTerminal, Context context) {
+    // TODO Ver que hago JAM
+    public double getRtcRegulatingVoltage(PropertyBag p) {
+        if (p.containsKey(TAP_CHANGER_CONTROL)) {
+            String controlId = p.getId(TAP_CHANGER_CONTROL);
+
+            RegulatingControl control = cachedRegulatingControls.get(controlId);
+            if (control == null) {
+                return Double.NaN;
+            }
+            if (control.mode.endsWith("voltage") || (p.containsKey("tculControlMode") && p.get("tculControlMode").endsWith("volt"))) {
+
+                if (control.targetValue > 0.0) {
+                    return control.targetValue;
+                }
+            }
+        }
+        return Double.NaN;
+    }
+
+    // TODO Ver que hago JAM
+    public String getRtcRegulatingTerminal(PropertyBag p) {
+        if (p.containsKey(TAP_CHANGER_CONTROL)) {
+            String controlId = p.getId(TAP_CHANGER_CONTROL);
+
+            RegulatingControl control = cachedRegulatingControls.get(controlId);
+            if (control == null) {
+                return null;
+            }
+            // if (control.mode.endsWith("voltage")
+            // || (p.containsKey("tculControlMode") &&
+            // p.get("tculControlMode").endsWith("volt"))) {
+
+            return control.cgmesTerminal;
+            // }
+        }
+        return null;
+    }
+
+    private void addRegulatingControlVoltage(PropertyBag p, RegulatingControl control, RatioTapChangerAdder adder,
+        Terminal defaultTerminal, Context context) {
         // Even if regulating is false, we reset the target voltage if it is not valid
         if (control.targetValue <= 0) {
-            context.ignored(p.getId(TAP_CHANGER_CONTROL), String.format("Regulating control has a bad target voltage %f", control.targetValue));
+            context.ignored(p.getId(TAP_CHANGER_CONTROL),
+                String.format("Regulating control has a bad target voltage %f", control.targetValue));
             adder.setRegulating(false)
-                    .setTargetV(Double.NaN);
+                .setTargetV(Double.NaN);
         } else {
             adder.setRegulating(control.enabled || p.asBoolean("tapChangerControlEnabled", false))
-                    .setTargetV(control.targetValue);
+                .setTargetV(control.targetValue);
         }
         adder.setLoadTapChangingCapabilities(true);
         setRegulatingTerminal(p, control, defaultTerminal, adder);
     }
 
-    private void setRegulatingTerminal(PropertyBag p, RegulatingControl control, Terminal defaultTerminal, RatioTapChangerAdder adder) {
+    private void setRegulatingTerminal(PropertyBag p, RegulatingControl control, Terminal defaultTerminal,
+        RatioTapChangerAdder adder) {
         if (context.terminalMapping().find(control.cgmesTerminal) != null) {
             adder.setRegulationTerminal(context.terminalMapping().find(control.cgmesTerminal));
             control.idsEq.put(p.getId("RatioTapChanger"), true);

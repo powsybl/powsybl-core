@@ -21,18 +21,18 @@ import com.powsybl.iidm.network.ThreeWindingsTransformer.LegBase;
 public class TwtTestData {
 
     public static double P1 = 99.218431;
-    public static double Q1 = 3.304328;
+    public static double Q1 = 2.7304328;
     public static double P2 = -216.19819;
     public static double Q2 = -85.368180;
     public static double P3 = 118;
     public static double Q3 = 92.612077;
 
-    public static double COMPUTED_P1 = 99.2366;
-    public static double COMPUTED_Q1 = 3.00581;
-    public static double COMPUTED_P2 = -216.1928;
-    public static double COMPUTED_Q2 = -85.6264;
-    public static double COMPUTED_P3 = 117.9754;
-    public static double COMPUTED_Q3 = 92.3782;
+    public static double COMPUTED_P1 = 99.227288294050368;
+    public static double COMPUTED_Q1 = 2.747147185209846;
+    public static double COMPUTED_P2 = -216.195866533486196;
+    public static double COMPUTED_Q2 = -85.490493190353362;
+    public static double COMPUTED_P3 = 117.988318295632794;
+    public static double COMPUTED_Q3 = 92.500849015581423;
 
     public static double U1 = 412.989001;
     public static double ANGLE1 = -6.78071;
@@ -41,23 +41,30 @@ public class TwtTestData {
     public static double U3 = 21.987;
     public static double ANGLE3 = -6.6508;
 
-    public static double STAR_U = 412.66853716385845;
-    public static double STAR_ANGLE = -7.353779246544198;
+    public static double STAR_U = 412.662007016922757;
+    public static double STAR_ANGLE = -7.353686938578365;
 
+    public static double RATED_U0 = 400;
     public static double R1 = 0.898462;
     public static double X1 = 17.204128;
-    public static double G1 = 0;
-    public static double B1 = 2.4375E-6;
+    public static double G11 = 0;
+    public static double B11 = 2.4375E-6;
+    public static double G12 = 0;
+    public static double B12 = 0;
     public static double RATED_U1 = 400;
     public static double R2 = 1.070770247933884;
     public static double X2 = 19.6664;
-    public static double G2 = 0;
-    public static double B2 = 0;
+    public static double G21 = 0;
+    public static double B21 = 0;
+    public static double G22 = 0;
+    public static double B22 = 0;
     public static double RATED_U2 = 220;
     public static double R3 = 4.837006802721089;
     public static double X3 = 21.76072562358277;
-    public static double G3 = 0;
-    public static double B3 = 0;
+    public static double G31 = 0;
+    public static double B31 = 0;
+    public static double G32 = 0;
+    public static double B32 = 0;
     public static double RATED_U3 = 21;
 
     public static boolean CONNECTED1 = true;
@@ -89,8 +96,8 @@ public class TwtTestData {
         Mockito.when(leg1.getR()).thenReturn(R1);
         Mockito.when(leg1.getX()).thenReturn(X1);
         Mockito.when(leg1.getRatedU()).thenReturn(RATED_U1);
-        Mockito.when(leg1.getB()).thenReturn(B1);
-        Mockito.when(leg1.getG()).thenReturn(G1);
+        Mockito.when(leg1.getB()).thenReturn(B11 + B12);
+        Mockito.when(leg1.getG()).thenReturn(G11 + G12);
         Mockito.when(leg1.getTerminal()).thenReturn(leg1Terminal);
 
         Bus leg2Bus = Mockito.mock(Bus.class);
@@ -110,8 +117,8 @@ public class TwtTestData {
         LegBase leg2 = Mockito.mock(LegBase.class);
         Mockito.when(leg2.getR()).thenReturn(R2);
         Mockito.when(leg2.getX()).thenReturn(X2);
-        Mockito.when(leg2.getB()).thenReturn(B2);
-        Mockito.when(leg2.getG()).thenReturn(G2);
+        Mockito.when(leg2.getB()).thenReturn(B21 + B22);
+        Mockito.when(leg2.getG()).thenReturn(G21 + G22);
         Mockito.when(leg2.getRatedU()).thenReturn(RATED_U2);
         Mockito.when(leg2.getTerminal()).thenReturn(leg2Terminal);
 
@@ -132,8 +139,8 @@ public class TwtTestData {
         LegBase leg3 = Mockito.mock(LegBase.class);
         Mockito.when(leg3.getR()).thenReturn(R3);
         Mockito.when(leg3.getX()).thenReturn(X3);
-        Mockito.when(leg3.getB()).thenReturn(B3);
-        Mockito.when(leg3.getG()).thenReturn(G3);
+        Mockito.when(leg3.getB()).thenReturn(B31 + B32);
+        Mockito.when(leg3.getG()).thenReturn(G31 + G32);
         Mockito.when(leg3.getRatedU()).thenReturn(RATED_U3);
         Mockito.when(leg3.getTerminal()).thenReturn(leg3Terminal);
 
@@ -142,6 +149,7 @@ public class TwtTestData {
         Mockito.when(twt3w.getLeg1()).thenReturn(leg1);
         Mockito.when(twt3w.getLeg2()).thenReturn(leg2);
         Mockito.when(twt3w.getLeg3()).thenReturn(leg3);
+        Mockito.when(twt3w.getRatedU0()).thenReturn(RATED_U0);
     }
 
     public ThreeWindingsTransformer get3WTransformer() {

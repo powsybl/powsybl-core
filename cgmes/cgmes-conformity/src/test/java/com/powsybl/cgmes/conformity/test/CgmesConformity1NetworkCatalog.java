@@ -906,12 +906,12 @@ public class CgmesConformity1NetworkCatalog {
             if (type == PhaseTapChangerType.ASYMMETRICAL) {
                 double dx = (n * du - du0) * Math.cos(theta);
                 double dy = (n * du - du0) * Math.sin(theta);
-                alpha = Math.atan2(dy, 1 + dx);
+                alpha = -Math.atan2(dy, 1 + dx);
                 rho = 1 / Math.hypot(dy, 1 + dx);
                 LOG.debug("EXPECTED    n,dx,dy,alpha,rho  {} {} {} {} {}", n, dx, dy, alpha, rho);
             } else if (type == PhaseTapChangerType.SYMMETRICAL) {
                 double dy = (n * du / 2 - du0) * Math.sin(theta);
-                alpha = 2 * Math.asin(dy);
+                alpha = -2 * Math.asin(dy);
                 rho = 1.0;
                 LOG.debug("EXPECTED    n,dy,alpha,rho  {} {} {} {}", n, dy, alpha, rho);
             } else {
