@@ -115,4 +115,9 @@ public class SparseMatrixTest extends AbstractMatrixTest {
         } catch (PowsyblException ignored) {
         }
     }
+
+    @Test
+    public void loadLibraryTest() {
+        assertFalse(SparseMatrix.loadLibrary("foo"));
+    }
 }

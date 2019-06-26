@@ -37,16 +37,20 @@ class SparseMatrix extends AbstractMatrix {
 
     private static native void nativeInit();
 
-    static {
-        boolean pb = false;
+    static boolean loadLibrary(String name) {
+        Objects.requireNonNull(name);
         try {
-            NativeLoader.loadLibrary("math");
+            NativeLoader.loadLibrary(name);
             nativeInit();
+            return true;
         } catch (IOException e) {
             LOGGER.warn("Cannot load native math library");
-            pb = true;
+            return false;
         }
-        NATIVE_INIT = !pb;
+    }
+
+    static {
+        NATIVE_INIT = loadLibrary("math");
     }
 
     private static void checkNativeInit() {
