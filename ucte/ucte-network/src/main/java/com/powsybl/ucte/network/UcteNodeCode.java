@@ -97,10 +97,11 @@ public class UcteNodeCode implements Comparable<UcteNodeCode> {
     }
 
     /**
-     * Convert a string into a UcteNodeCode if possible, ie the string is compatible with the ucteNodeCode format
+     * Convert a string into a UcteNodeCode if possible, i.e. the string is compatible with the ucteNodeCode format
      * @param id to convert into a UcteNodeCode
      * @return an Optional that may contain a UcteNodeCode
      */
+    //TODO : Need to find a way to handle non UCTE ids
     public static Optional<UcteNodeCode> parseUcteNodeCode(String id) {
         UcteNodeCode ucteNodeCode = null;
         if (isUcteNodeId(id)) {
@@ -145,6 +146,9 @@ public class UcteNodeCode implements Comparable<UcteNodeCode> {
 
     @Override
     public int compareTo(UcteNodeCode ucteNodeCode) {
+        if (ucteNodeCode == null) {
+            throw new IllegalArgumentException("ucteNodeCode should not be null");
+        }
         return this.toString().compareTo(ucteNodeCode.toString());
     }
 }

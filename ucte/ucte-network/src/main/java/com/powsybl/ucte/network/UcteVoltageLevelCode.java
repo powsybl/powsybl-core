@@ -6,6 +6,12 @@
  */
 package com.powsybl.ucte.network;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.util.Objects;
+import java.util.Properties;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -89,38 +95,47 @@ public enum UcteVoltageLevelCode {
         } else if (code == '9') {
             return UcteVoltageLevelCode.VL_500;
         } else {
-            throw new IllegalArgumentException("This code doesn't refer to a voltage level");
+            throw new IllegalArgumentException("'" + code + "' doesn't refer to a voltage level");
         }
     }
 
     public static UcteVoltageLevelCode voltageLevelCodeFromIidmVoltage(double nominalV) {
-        if (nominalV >= 0.01 && nominalV <= 27) {
+        Properties prop = new Properties();
+        try {
+            ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+            InputStream inputStream = Objects.requireNonNull(classLoader.getResource("voltageConversion.properties")).openStream();
+            prop.load(inputStream);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+
+        if (nominalV >= Double.valueOf(prop.getProperty("VL27.min")) && nominalV <= Double.valueOf(prop.getProperty("VL27.max"))) {
             return UcteVoltageLevelCode.VL_27;
-        } else if (nominalV > 27 && nominalV <= 90) {
+        } else if (nominalV > Double.valueOf(prop.getProperty("VL70.min")) && nominalV <= Double.valueOf(prop.getProperty("VL70.max"))) {
             return UcteVoltageLevelCode.VL_70;
-        } else if (nominalV > 90 && nominalV <= 113) {
+        } else if (nominalV > Double.valueOf(prop.getProperty("VL110.min")) && nominalV <= Double.valueOf(prop.getProperty("VL110.max"))) {
             return UcteVoltageLevelCode.VL_110;
-        } else if (nominalV > 113 && nominalV <= 134) {
+        } else if (nominalV > Double.valueOf(prop.getProperty("VL120.min")) && nominalV <= Double.valueOf(prop.getProperty("VL120.max"))) {
             return UcteVoltageLevelCode.VL_120;
-        } else if (nominalV > 134 && nominalV <= 180) {
+        } else if (nominalV > Double.valueOf(prop.getProperty("VL150.min")) && nominalV <= Double.valueOf(prop.getProperty("VL150.max"))) {
             return UcteVoltageLevelCode.VL_150;
-        } else if (nominalV > 180 && nominalV <= 280) {
+        } else if (nominalV > Double.valueOf(prop.getProperty("VL220.min")) && nominalV <= Double.valueOf(prop.getProperty("VL220.max"))) {
             return UcteVoltageLevelCode.VL_220;
-        } else if (nominalV > 280 && nominalV <= 350) {
+        } else if (nominalV > Double.valueOf(prop.getProperty("VL330.min")) && nominalV <= Double.valueOf(prop.getProperty("VL330.max"))) {
             return UcteVoltageLevelCode.VL_330;
-        } else if (nominalV > 350 && nominalV <= 430) {
+        } else if (nominalV > Double.valueOf(prop.getProperty("VL380.min")) && nominalV <= Double.valueOf(prop.getProperty("VL380.max"))) {
             return UcteVoltageLevelCode.VL_380;
-        } else if (nominalV > 430 && nominalV <= 600) {
+        } else if (nominalV > Double.valueOf(prop.getProperty("VL500.min")) && nominalV <= Double.valueOf(prop.getProperty("VL500.max"))) {
             return UcteVoltageLevelCode.VL_500;
-        } else if (nominalV > 600 && nominalV <= 800) {
+        } else if (nominalV > Double.valueOf(prop.getProperty("VL750.min")) && nominalV <= Double.valueOf(prop.getProperty("VL750.max"))) {
             return UcteVoltageLevelCode.VL_750;
         } else {
-            throw new IllegalArgumentException("This voltage doesn't refer to a voltage level");
+            throw new IllegalArgumentException("'" + nominalV + "' doesn't refer to a voltage level");
         }
     }
 
     public static boolean isVoltageLevel(char character) {
-        return (int) character >= 48 && (int) character <= 57;
+        return (int) character >= '0' && (int) character <= '9';
     }
 
     /**

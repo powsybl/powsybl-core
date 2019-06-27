@@ -49,7 +49,7 @@ public class UcteExporterTest {
      */
     private static Network loadNetworkFromResourceFile(String filePath) {
         ReadOnlyDataSource dataSource = new ResourceDataSource(FilenameUtils.getBaseName(filePath), new ResourceSet(FilenameUtils.getPath(filePath), FilenameUtils.getName(filePath)));
-        return new UcteImporter().importData(dataSource, null);
+        return new UcteImporter().importData(dataSource, NetworkFactory.findDefault(), null);
     }
 
     @BeforeClass
@@ -341,13 +341,22 @@ public class UcteExporterTest {
                         "l1", "l2", "testXnode"));
 
         iidmTieLineNetwork.getLine("l1 + l2").newCurrentLimits1()
-                 .setPermanentLimit(100)
-                 .beginTemporaryLimit()
-                 .setName("5'")
-                 .setAcceptableDuration(5 * 60)
-                 .setValue(1400)
-                 .endTemporaryLimit()
-                 .add();
+                .setPermanentLimit(100)
+                .beginTemporaryLimit()
+                .setName("5'")
+                .setAcceptableDuration(5 * 60)
+                .setValue(1400)
+                .endTemporaryLimit()
+                .add();
+
+        iidmTieLineNetwork.getLine("l1 + l2").newCurrentLimits2()
+                .setPermanentLimit(150)
+                .beginTemporaryLimit()
+                .setName("6'")
+                .setAcceptableDuration(5 * 60)
+                .setValue(1400)
+                .endTemporaryLimit()
+                .add();
     }
 
     private static void createNetworkWithSwitch() {

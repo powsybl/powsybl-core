@@ -79,6 +79,9 @@ public class UcteElementId implements Comparable<UcteElementId> {
 
     @Override
     public int compareTo(UcteElementId ucteElementId) {
+        if (ucteElementId == null) {
+            throw new IllegalArgumentException("ucteElementId should not be null");
+        }
         return this.toString().compareTo(ucteElementId.toString());
     }
 }

@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -103,12 +104,14 @@ public class UcteWriter {
         LOGGER.trace("Writing line block");
         writer.writeString("##L", 0, 3);
         writer.newLine();
-        network.getLines().stream().sorted(Comparator.comparing(UcteLine::getId))
-                .forEach(ucteLine -> writeLine(writer, ucteLine));
-
+        List<UcteLine> lines = new ArrayList<>(network.getLines());
+        lines.sort(Comparator.comparing(UcteLine::getId));
+        for (UcteLine ucteLine : lines) {
+            writeLine(writer, ucteLine);
+        }
     }
 
-    private void writeLine(UcteRecordWriter writer, UcteLine ucteLine) {
+    private void writeLine(UcteRecordWriter writer, UcteLine ucteLine) throws IOException {
         writeElementId(ucteLine.getId(), writer);
         writer.writeInteger(ucteLine.getStatus().getCode(), 20);
         writer.writeFloat(ucteLine.getResistance(), 22, 28);
@@ -116,19 +119,15 @@ public class UcteWriter {
         writer.writeFloat((float) (ucteLine.getSusceptance() / Math.pow(10, -6)), 36, 44);
         writer.writeInteger(ucteLine.getCurrentLimit(), 45, 51);
         writer.writeString(ucteLine.getElementName(), 52, 64);
-        try {
-            writer.newLine();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        writer.newLine();
     }
 
     private void writeTransformerBlock(UcteRecordWriter writer) throws IOException {
         LOGGER.trace("Writing transformer block");
         writer.writeString("##T", 0, 3);
         writer.newLine();
-        ArrayList<UcteTransformer> transformersList = new ArrayList<>(network.getTransformers());
-        transformersList.sort(Comparator.comparing(UcteTransformer::getId));
+        List<UcteTransformer> transformersList =
+                network.getTransformers().stream().sorted(Comparator.comparing(UcteTransformer::getId)).collect(Collectors.toList());
         for (UcteTransformer t : transformersList) {
             writeElementId(t.getId(), writer);
             writer.writeInteger(t.getStatus().getCode(), 20);
@@ -165,19 +164,19 @@ public class UcteWriter {
         LOGGER.trace("Writing regulation block");
         writer.writeString("##R", 0, 3);
         writer.newLine();
-        network.getRegulations().stream().sorted(Comparator.comparing(UcteRegulation::getTransfoId))
-                .forEach(ucteRegulation -> writeRegulation(writer, ucteRegulation));
+        List<UcteRegulation> regulations = new ArrayList<>(network.getRegulations());
+        regulations.sort(Comparator.comparing(UcteRegulation::getTransfoId));
+        for (UcteRegulation ucteRegulation : regulations) {
+            writeRegulation(writer, ucteRegulation);
+        }
     }
 
-    private void writeRegulation(UcteRecordWriter writer, UcteRegulation ucteRegulation) {
+    private void writeRegulation(UcteRecordWriter writer, UcteRegulation ucteRegulation) throws IOException {
         writeElementId(ucteRegulation.getTransfoId(), writer);
         writePhaseRegulation(ucteRegulation.getPhaseRegulation(), writer);
         writeAngleRegulation(ucteRegulation.getAngleRegulation(), writer);
-        try {
-            writer.newLine();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        writer.newLine();
+
     }
 
     public void write(BufferedWriter bw) throws IOException {
