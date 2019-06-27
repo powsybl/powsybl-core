@@ -24,10 +24,4 @@ public class DefaultNetworkListener implements NetworkListener {
     public void onUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
         // empty default implementation
     }
-
-    @Override
-    public void onUpdate(Identifiable identifiable, String attribute, int variantIndex, Object oldValue,
-            Object newValue) {
-        // empty default implementation
-    }
 }
