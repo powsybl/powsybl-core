@@ -436,7 +436,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         }
         queryText = injectParams(queryText, params);
         final long t0 = System.currentTimeMillis();
-        String r = update(queryText);
+        update(queryText);
         final long t1 = System.currentTimeMillis();
         if (LOG.isDebugEnabled()) {
             LOG.debug("dt query {} {} ms", name, t1 - t0);
@@ -448,8 +448,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     // TODO elena
-    public String update(String queryText) {
-        return tripleStore.update(queryText);
+    public void update(String queryText) {
+        tripleStore.update(queryText);
     }
 
     @Override

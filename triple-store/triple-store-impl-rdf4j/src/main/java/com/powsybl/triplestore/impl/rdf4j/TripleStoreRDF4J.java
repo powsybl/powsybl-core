@@ -173,17 +173,15 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         return results;
     }
 
-    // TODO elena
     @Override
-    public String update(String query) {
+    public void update(String query) {
+        // TODO elena
         String updateStatement = adjustedQuery(query);
         try (RepositoryConnection conn = repo.getConnection()) {
             Update updateQuery = conn.prepareUpdate(QueryLanguage.SPARQL, updateStatement);
             updateQuery.execute();
-            String echo = "Executing update() from TripleStoreRDF4J";
-            return echo;
         } catch (UpdateExecutionException e) {
-            return e.toString();
+            LOGGER.debug(e.toString());
         }
     }
 
@@ -209,7 +207,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     }
 
     private static void createStatements(RepositoryConnection cnx, String objType, PropertyBag statement,
-            Resource context) {
+        Resource context) {
         UUID uuid = new UUID();
         IRI resource = uuid.evaluate(cnx.getValueFactory());
         IRI parentPredicate = RDF.TYPE;

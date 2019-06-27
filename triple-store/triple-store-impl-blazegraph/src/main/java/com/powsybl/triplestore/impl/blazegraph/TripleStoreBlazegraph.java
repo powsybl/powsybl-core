@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
+import org.openrdf.query.Update;
+import org.openrdf.query.UpdateExecutionException;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
 import org.openrdf.model.Namespace;
@@ -103,7 +105,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     }
 
     private static void read(String base, String name, InputStream is, RepositoryConnection cnx, Resource context)
-            throws RepositoryException {
+        throws RepositoryException {
         try {
             cnx.add(is, base, formatFromName(name), context);
         } catch (IOException x) {
@@ -170,7 +172,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
                         while (statements.hasNext()) {
                             Statement statement = statements.next();
                             out.println("        " + statement.getSubject() + " " + statement.getPredicate() + " "
-                                    + statement.getObject());
+                                + statement.getObject());
                         }
                     }
                 }
@@ -247,10 +249,33 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public String update(String query) {
+    public void update(String query) {
         // TODO elena
-        System.out.println("Update string from blazergraph:\n " + query);
-        return query;
+        RepositoryConnection cnx;
+        String updateStatement = adjustedQuery(query);
+        try {
+            cnx = repo.getConnection();
+            try {
+                Update updateQuery = cnx.prepareUpdate(QueryLanguage.SPARQL, updateStatement);
+                try {
+                    updateQuery.execute();
+                } catch (UpdateExecutionException e) {
+                    throw new TripleStoreException("Update using blazergraph", e);
+                } finally {
+                    if (cnx != null) {
+                        try {
+                            cnx.close();
+                        } catch (RepositoryException x) {
+                            LOG.error(x.getMessage());
+                        }
+                    }
+                }
+            } catch (MalformedQueryException e) {
+                throw new TripleStoreException(String.format("Query [%s]", query), e);
+            }
+        } catch (RepositoryException e) {
+            throw new TripleStoreException(String.format("Opening repo to update using blazergraph"), e);
+        }
     }
 
     @Override
@@ -274,7 +299,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     }
 
     private void addStatements(RepositoryConnection cnx, String graph, String objType, PropertyBags statements)
-            throws RepositoryException {
+        throws RepositoryException {
 
         cnx.begin();
 
@@ -297,7 +322,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     }
 
     private static void createStatements(RepositoryConnection cnx, String objType, PropertyBag statement,
-            Resource context) {
+        Resource context) {
         try {
             UUID uuid = new UUID();
             URI resource = uuid.evaluate(cnx.getValueFactory());

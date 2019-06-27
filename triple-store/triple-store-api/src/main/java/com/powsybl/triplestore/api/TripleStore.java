@@ -38,5 +38,5 @@ public interface TripleStore {
     Set<String> contextNames();
 
     // TODO elena
-    String update(String queryText);
+    void update(String queryText);
 }

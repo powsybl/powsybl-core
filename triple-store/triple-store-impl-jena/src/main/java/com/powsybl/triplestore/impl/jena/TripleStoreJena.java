@@ -34,6 +34,9 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.impl.Util;
 import org.apache.jena.shared.PropertyNotFoundException;
 import org.apache.jena.shared.uuid.JenaUUID;
+import org.apache.jena.update.UpdateAction;
+import org.apache.jena.update.UpdateFactory;
+import org.apache.jena.update.UpdateRequest;
 import org.apache.jena.vocabulary.RDF;
 
 import com.powsybl.commons.datasource.DataSource;
@@ -150,11 +153,12 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     }
 
     @Override
-    public String update(String query) {
+    public void update(String query) {
         // TODO elena
-        System.out.println("Update string from jena:\n " + query);
-        String echo = "updateing jena";
-        return echo;
+        // https://jena.apache.org/documentation/query/update.html
+        String updateStatement = adjustedQuery(query);
+        UpdateRequest request = UpdateFactory.create(updateStatement);
+        UpdateAction.execute(request, dataset);
     }
 
     @Override
