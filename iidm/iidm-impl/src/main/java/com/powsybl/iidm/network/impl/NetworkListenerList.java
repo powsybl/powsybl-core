@@ -49,7 +49,7 @@ class NetworkListenerList {
             for (NetworkListener listener : listeners) {
                 try {
                     listener.onUpdate(identifiable, attribute, variantIndex, oldValue, newValue);
-                } catch (Throwable t) {
+                } catch (Exception t) {
                     LOGGER.error(t.toString(), t);
                 }
             }
