@@ -52,7 +52,7 @@ public abstract class AbstractAppStorageTest {
     public void setUp() throws Exception {
         eventStack = new LinkedBlockingQueue<>();
         this.storage = createStorage();
-        this.storage.getEventsStore().addListener(l);
+        this.storage.getEventsBus().addListener(l);
     }
 
     @After
@@ -531,7 +531,7 @@ public abstract class AbstractAppStorageTest {
         } catch (Exception ignored) {
         }
 
-        // 19 check that eventsStore is not null
-        assertNotNull(storage.getEventsStore());
+        // 19 check that eventsBus is not null
+        assertNotNull(storage.getEventsBus());
     }
 }

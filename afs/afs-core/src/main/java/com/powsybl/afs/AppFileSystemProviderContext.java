@@ -6,7 +6,7 @@
  */
 package com.powsybl.afs;
 
-import com.powsybl.afs.storage.EventsStore;
+import com.powsybl.afs.storage.EventsBus;
 import com.powsybl.computation.ComputationManager;
 
 import java.util.Objects;
@@ -20,13 +20,13 @@ public class AppFileSystemProviderContext {
 
     private final String token;
 
-    private final EventsStore eventsStore;
+    private final EventsBus eventsBus;
 
-    public AppFileSystemProviderContext(ComputationManager computationManager, String token, EventsStore eventsStore) {
-        Objects.requireNonNull(eventsStore);
+    public AppFileSystemProviderContext(ComputationManager computationManager, String token, EventsBus eventsBus) {
+        Objects.requireNonNull(eventsBus);
         this.computationManager = Objects.requireNonNull(computationManager);
         this.token = token;
-        this.eventsStore = eventsStore;
+        this.eventsBus = eventsBus;
     }
 
     public ComputationManager getComputationManager() {
@@ -37,7 +37,7 @@ public class AppFileSystemProviderContext {
         return token;
     }
 
-    public EventsStore getEventsStore() {
-        return eventsStore;
+    public EventsBus getEventsBus() {
+        return eventsBus;
     }
 }

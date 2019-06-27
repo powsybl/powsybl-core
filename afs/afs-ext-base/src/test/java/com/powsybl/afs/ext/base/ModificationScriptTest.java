@@ -10,7 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.powsybl.afs.*;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.InMemoryEventsStore;
+import com.powsybl.afs.storage.InMemoryEventsBus;
 import org.junit.Test;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public class ModificationScriptTest extends AbstractProjectFileTest {
 
     @Override
     protected AppStorage createStorage() {
-        return MapDbAppStorage.createMem("mem", new InMemoryEventsStore());
+        return MapDbAppStorage.createMem("mem", new InMemoryEventsBus());
     }
 
     @Override

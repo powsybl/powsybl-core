@@ -13,7 +13,7 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.afs.*;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.InMemoryEventsStore;
+import com.powsybl.afs.storage.InMemoryEventsBus;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
 import com.powsybl.commons.config.PlatformConfig;
@@ -48,7 +48,7 @@ public class ImportedCaseTest extends AbstractProjectFileTest {
 
     @Override
     protected AppStorage createStorage() {
-        return MapDbAppStorage.createMem("mem", new InMemoryEventsStore());
+        return MapDbAppStorage.createMem("mem", new InMemoryEventsBus());
     }
 
     private ExportersLoader createExportersLoader() {

@@ -7,7 +7,7 @@
 package com.powsybl.afs.ws.storage;
 
 import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.EventsStore;
+import com.powsybl.afs.storage.EventsBus;
 import com.powsybl.afs.storage.events.AppStorageListener;
 import com.powsybl.afs.storage.events.NodeEvent;
 import com.powsybl.afs.ws.client.utils.UncheckedDeploymentException;
@@ -28,14 +28,14 @@ import java.util.Map;
 /**
  * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
  */
-public class RemoteEventsStore implements EventsStore {
+public class RemoteEventsBus implements EventsBus {
 
     // To trace events per topic locally
     private final Map<String, List<NodeEvent>> topics = new HashMap<>();
 
     private final WeakListenerList<AppStorageListener> listeners = new WeakListenerList<>();
 
-    public RemoteEventsStore(AppStorage storage, URI restUri) {
+    public RemoteEventsBus(AppStorage storage, URI restUri) {
         URI wsUri = SocketsUtils.getWebSocketUri(restUri);
         URI endPointUri = URI.create(wsUri + "/messages/" + AfsRestApi.RESOURCE_ROOT + "/" +
                 AfsRestApi.VERSION + "/node_events/" + storage.getFileSystemName());

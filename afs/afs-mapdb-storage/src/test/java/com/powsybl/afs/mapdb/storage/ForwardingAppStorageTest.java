@@ -9,7 +9,7 @@ package com.powsybl.afs.mapdb.storage;
 import com.powsybl.afs.storage.AbstractAppStorageTest;
 import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.ForwardingAppStorage;
-import com.powsybl.afs.storage.InMemoryEventsStore;
+import com.powsybl.afs.storage.InMemoryEventsBus;
 
 /**
  * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
@@ -18,6 +18,6 @@ public class ForwardingAppStorageTest extends AbstractAppStorageTest {
 
     @Override
     protected AppStorage createStorage() {
-        return new ForwardingAppStorage(MapDbAppStorage.createMem("mem", new InMemoryEventsStore()));
+        return new ForwardingAppStorage(MapDbAppStorage.createMem("mem", new InMemoryEventsBus()));
     }
 }

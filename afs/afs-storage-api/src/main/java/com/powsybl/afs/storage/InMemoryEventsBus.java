@@ -21,7 +21,7 @@ import java.util.concurrent.locks.ReentrantLock;
 /**
  * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
  */
-public class InMemoryEventsStore implements EventsStore {
+public class InMemoryEventsBus implements EventsBus {
 
     private final Map<String, List<NodeEvent>> topics = new HashMap<>();
 

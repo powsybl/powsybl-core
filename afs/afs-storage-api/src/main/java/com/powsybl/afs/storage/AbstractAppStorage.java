@@ -15,20 +15,20 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractAppStorage implements AppStorage {
 
-    protected EventsStore eventsStore;
+    protected EventsBus eventsBus;
 
     private  final Logger logger = LoggerFactory.getLogger(AbstractAppStorage.class);
 
     protected void pushEvent(NodeEvent event, String topic) {
-        if (eventsStore == null) {
+        if (eventsBus == null) {
             logger.warn("Event can't be pushed : No EventStore instance is available.");
             return;
         }
-        eventsStore.pushEvent(event, topic);
+        eventsBus.pushEvent(event, topic);
     }
 
     @Override
-    public EventsStore getEventsStore() {
-        return eventsStore;
+    public EventsBus getEventsBus() {
+        return eventsBus;
     }
 }

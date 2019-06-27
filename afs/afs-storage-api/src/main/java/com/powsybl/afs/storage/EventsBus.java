@@ -12,26 +12,26 @@ import com.powsybl.afs.storage.events.NodeEvent;
 /**
  * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
  */
-public interface EventsStore {
+public interface EventsBus {
     void pushEvent(NodeEvent event, String topic);
 
     /**
-     * Add a listener to the EventsStore.
+     * Add a listener to the EventsBus.
      */
     void addListener(AppStorageListener l);
 
     /**
-     * remove a listener from the EventsStore.
+     * remove a listener from the EventsBus.
      */
     void removeListener(AppStorageListener l);
 
     /**
-     * Remove all listeners from the EventsStore.
+     * Remove all listeners from the EventsBus.
      */
     void removeListeners();
 
     /**
-     * Flush any changes to underlying EventsStore.
+     * Flush any changes to underlying EventsBus.
      */
     void flush();
 }

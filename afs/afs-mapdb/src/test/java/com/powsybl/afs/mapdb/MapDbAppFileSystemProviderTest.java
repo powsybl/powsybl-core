@@ -11,7 +11,7 @@ import com.google.common.jimfs.Jimfs;
 import com.powsybl.afs.AppFileSystem;
 import com.powsybl.afs.AppFileSystemProviderContext;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
-import com.powsybl.afs.storage.InMemoryEventsStore;
+import com.powsybl.afs.storage.InMemoryEventsBus;
 import com.powsybl.computation.ComputationManager;
 import org.junit.After;
 import org.junit.Before;
@@ -54,7 +54,7 @@ public class MapDbAppFileSystemProviderTest {
         MapDbAppFileSystemConfig config = new MapDbAppFileSystemConfig("drive", true, dbFile);
         List<AppFileSystem> fileSystems = new MapDbAppFileSystemProvider(Collections.singletonList(config),
             (name, file, eventsStore) -> MapDbAppStorage.createMem(name, eventsStore))
-                .getFileSystems(new AppFileSystemProviderContext(computationManager, null, new InMemoryEventsStore()));
+                .getFileSystems(new AppFileSystemProviderContext(computationManager, null, new InMemoryEventsBus()));
         assertEquals(1, fileSystems.size());
         assertTrue(fileSystems.get(0) instanceof MapDbAppFileSystem);
         assertEquals("drive", fileSystems.get(0).getName());

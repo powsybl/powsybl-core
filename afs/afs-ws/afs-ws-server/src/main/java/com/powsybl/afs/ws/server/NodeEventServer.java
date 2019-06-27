@@ -52,7 +52,7 @@ public class NodeEventServer {
                 webSocketContext.removeSession(session);
             }
         };
-        storage.getEventsStore().addListener(listener);
+        storage.getEventsBus().addListener(listener);
         session.getUserProperties().put("listener", listener); // to prevent weak listener from being garbage collected
 
         webSocketContext.addSession(session);
@@ -62,7 +62,7 @@ public class NodeEventServer {
         AppStorage storage = appDataBean.getStorage(fileSystemName);
 
         AppStorageListener listener = (AppStorageListener) session.getUserProperties().get("listener");
-        storage.getEventsStore().removeListener(listener);
+        storage.getEventsBus().removeListener(listener);
 
         webSocketContext.removeSession(session);
     }

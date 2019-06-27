@@ -9,7 +9,7 @@ package com.powsybl.afs.ws.server;
 import com.powsybl.afs.AppData;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.InMemoryEventsStore;
+import com.powsybl.afs.storage.InMemoryEventsBus;
 import com.powsybl.afs.ws.server.utils.AppDataBean;
 import org.mockito.Mockito;
 
@@ -31,7 +31,7 @@ public class AppDataBeanMock extends AppDataBean {
     @Override
     public void init() {
         appData = Mockito.mock(AppData.class);
-        AppStorage storage = MapDbAppStorage.createMem(TEST_FS_NAME, new InMemoryEventsStore());
+        AppStorage storage = MapDbAppStorage.createMem(TEST_FS_NAME, new InMemoryEventsBus());
         Mockito.when(appData.getRemotelyAccessibleStorage(TEST_FS_NAME))
                 .thenReturn(storage);
         Mockito.when(appData.getRemotelyAccessibleFileSystemNames())

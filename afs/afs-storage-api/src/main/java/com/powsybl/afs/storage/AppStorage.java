@@ -218,7 +218,7 @@ public interface AppStorage extends AutoCloseable {
     /**
      * Get the events store.
      */
-    EventsStore getEventsStore();
+    EventsBus getEventsBus();
 
     /**
      * Flush any changes to underlying storage.

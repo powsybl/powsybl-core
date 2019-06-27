@@ -18,13 +18,13 @@ import static org.junit.Assert.*;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class InMemoryEventsStoreTest {
+public class InMemoryEventsBusTest {
 
-    private InMemoryEventsStore eventsStore;
+    private InMemoryEventsBus eventsStore;
 
     @Before
     public void setUp() throws Exception {
-        eventsStore = new InMemoryEventsStore();
+        eventsStore = new InMemoryEventsBus();
     }
 
     @Test

@@ -9,7 +9,7 @@ package com.powsybl.scripting.groovy;
 import com.powsybl.afs.AfsException;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.InMemoryEventsStore;
+import com.powsybl.afs.storage.InMemoryEventsBus;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -23,7 +23,7 @@ public class AfsExtensionErrorGroovyScriptTest extends AbstractGroovyScriptTest 
 
     @Override
     protected AppStorage createStorage() {
-        return MapDbAppStorage.createMem("mem", new InMemoryEventsStore());
+        return MapDbAppStorage.createMem("mem", new InMemoryEventsBus());
     }
 
     @Override

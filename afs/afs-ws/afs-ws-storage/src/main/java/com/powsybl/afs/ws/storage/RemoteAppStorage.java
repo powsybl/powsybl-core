@@ -72,7 +72,7 @@ public class RemoteAppStorage extends AbstractAppStorage {
     public RemoteAppStorage(String fileSystemName, URI baseUri, String token) {
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
         this.token = token;
-        this.eventsStore = new RemoteEventsStore(this, baseUri);
+        this.eventsBus = new RemoteEventsBus(this, baseUri);
 
         client = createClient();
 
@@ -719,8 +719,8 @@ public class RemoteAppStorage extends AbstractAppStorage {
     }
 
     @Override
-    public EventsStore getEventsStore() {
-        return eventsStore;
+    public EventsBus getEventsBus() {
+        return eventsBus;
     }
 
     @Override

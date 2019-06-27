@@ -232,7 +232,7 @@ public class ForwardingAppStorage implements AppStorage {
         storage.close();
     }
 
-    public EventsStore getEventsStore() {
-        return storage.getEventsStore();
+    public EventsBus getEventsBus() {
+        return storage.getEventsBus();
     }
 }

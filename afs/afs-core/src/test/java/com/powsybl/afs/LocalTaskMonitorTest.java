@@ -10,7 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.testing.EqualsTester;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.InMemoryEventsStore;
+import com.powsybl.afs.storage.InMemoryEventsBus;
 import com.powsybl.commons.json.JsonUtil;
 import org.junit.Test;
 
@@ -31,7 +31,7 @@ public class LocalTaskMonitorTest extends AbstractProjectFileTest {
 
     @Override
     protected AppStorage createStorage() {
-        return MapDbAppStorage.createMem("mem", new InMemoryEventsStore());
+        return MapDbAppStorage.createMem("mem", new InMemoryEventsBus());
     }
 
     @Test

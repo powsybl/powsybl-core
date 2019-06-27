@@ -9,7 +9,7 @@ package com.powsybl.afs;
 import com.google.common.collect.ImmutableList;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.InMemoryEventsStore;
+import com.powsybl.afs.storage.InMemoryEventsBus;
 import com.powsybl.computation.ComputationManager;
 import org.junit.After;
 import org.junit.Before;
@@ -37,7 +37,7 @@ public class AfsBaseTest {
         ad = new AppData(computationManager, computationManager, Collections.emptyList(),
                 Collections.emptyList(), Collections.singletonList(new FooFileExtension()), Collections.emptyList());
 
-        storage = MapDbAppStorage.createMem("mem", ad.getEventsStore());
+        storage = MapDbAppStorage.createMem("mem", ad.getEventsBus());
 
         afs = new AppFileSystem("mem", true, storage);
         afs.setData(ad);
@@ -51,7 +51,7 @@ public class AfsBaseTest {
 
     @Test
     public void baseTest() {
-        assertSame(InMemoryEventsStore.class, ad.getEventsStore().getClass());
+        assertSame(InMemoryEventsBus.class, ad.getEventsBus().getClass());
         assertSame(afs, ad.getFileSystem("mem"));
         assertNull(ad.getFileSystem("???"));
         assertEquals(Collections.singletonList("mem"), ad.getRemotelyAccessibleFileSystemNames());
