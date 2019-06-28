@@ -452,6 +452,9 @@ public class Comparison {
             compare("tapChanger.tapPosition",
                     expected.getTapPosition(),
                     actual.getTapPosition());
+            compare("tapChanger.targetDeadband",
+                    expected.getTargetDeadband(),
+                    actual.getTargetDeadband());
             compare("tapChanger.stepCount", expected.getStepCount(), actual.getStepCount());
             // Check steps
             for (int k = expected.getLowTapPosition(); k <= expected.getStepCount(); k++) {
