@@ -128,6 +128,9 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     }
 
     public C setTargetDeadband(double targetDeadband) {
+        if (!Double.isNaN(targetDeadband) && targetDeadband < 0) {
+            throw new ValidationException(parent, "Unexpected value for target deadband of phase tap changer: " + targetDeadband);
+        }
         this.targetDeadband.set(network.get().getVariantIndex(), targetDeadband);
         return (C) this;
     }
