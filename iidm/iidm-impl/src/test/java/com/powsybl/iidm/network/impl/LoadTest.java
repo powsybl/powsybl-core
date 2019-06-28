@@ -118,8 +118,12 @@ public class LoadTest {
         // Simulate exception for onUpdate calls
         Mockito.doThrow(new PowsyblException()).when(mockedListener).onUpdate(load, "p0", 0, p0OldValue, -1.0);
 
-        // Change values P0, in order to call NetworkListener::onUpdate
-        load.setP0(-1.0);
+        try {
+            // Change values P0, in order to call NetworkListener::onUpdate
+            load.setP0(-1.0);
+        } catch (PowsyblException e) {
+            fail("Exception must be catch by NetworkListenerList");
+        }
 
         // Remove observer changes
         network.removeListener(mockedListener);
@@ -128,11 +132,11 @@ public class LoadTest {
     @Test
     public void duplicateEquipment() {
         voltageLevel.newLoad()
-                        .setId("duplicate")
-                        .setP0(2.0)
-                        .setQ0(1.0)
-                        .setNode(1)
-                    .add();
+                .setId("duplicate")
+                .setP0(2.0)
+                .setQ0(1.0)
+                .setNode(1)
+                .add();
         thrown.expect(PowsyblException.class);
         thrown.expectMessage("with the id 'duplicate'");
         createLoad("duplicate", 2.0, 1.0);
@@ -149,12 +153,12 @@ public class LoadTest {
     @Test
     public void testAdder() {
         Load load = voltageLevel.newLoad()
-                        .setId("testAdder")
-                        .setP0(2.0)
-                        .setQ0(1.0)
-                        .setLoadType(LoadType.AUXILIARY)
-                        .setNode(1)
-                    .add();
+                .setId("testAdder")
+                .setP0(2.0)
+                .setQ0(1.0)
+                .setLoadType(LoadType.AUXILIARY)
+                .setNode(1)
+                .add();
         assertEquals(2.0, load.getP0(), 0.0);
         assertEquals(1.0, load.getQ0(), 0.0);
         assertEquals("testAdder", load.getId());
@@ -226,11 +230,11 @@ public class LoadTest {
 
     private void createLoad(String id, double p0, double q0) {
         voltageLevel.newLoad()
-                        .setId(id)
-                        .setP0(p0)
-                        .setQ0(q0)
-                        .setNode(1)
-                    .add();
+                .setId(id)
+                .setP0(p0)
+                .setQ0(q0)
+                .setNode(1)
+                .add();
     }
 
 }
