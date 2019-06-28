@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.impl;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 import com.powsybl.iidm.network.test.FictitiousSwitchFactory;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,19 +37,14 @@ public class LoadTest {
     @Test
     public void testSetterGetter() {
         Load load = network.getLoad("CE");
-
         load.setP0(-1.0);
         assertEquals(-1.0, load.getP0(), 0.0);
-
         load.setQ0(-2.0);
         assertEquals(-2.0, load.getQ0(), 0.0);
-
         load.setP0(1.0);
         assertEquals(1.0, load.getP0(), 0.0);
-
         load.setQ0(0.0);
         assertEquals(0.0, load.getQ0(), 0.0);
-
         load.setLoadType(LoadType.AUXILIARY);
         assertEquals(LoadType.AUXILIARY, load.getLoadType());
     }
@@ -90,7 +84,10 @@ public class LoadTest {
         Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(load, "q0", 0, q0OldValue, -2.0);
 
         // At this point
-        // no more changes is taking account
+        // no more changes is taking into account
+
+        // Simulate exception for onUpdate calls
+        Mockito.doThrow(new PowsyblException()).when(mockedListener).onUpdate(load, "p0", 0, p0OldValue, -1.0);
 
         // Case when same values P0 & Q0 are set
         load.setP0(-1.0);
@@ -105,38 +102,13 @@ public class LoadTest {
     }
 
     @Test
-    public void testThrowableChangesNotification() {
-        // Changes listener
-        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
-        // Set observer changes
-        network.addListener(mockedListener);
-
-        // Tested instance
-        Load load = network.getLoad("CE");
-        // Get initial values
-        double p0OldValue = load.getP0();
-        // Simulate exception for onUpdate calls
-        Mockito.doThrow(new PowsyblException()).when(mockedListener).onUpdate(load, "p0", 0, p0OldValue, -1.0);
-
-        try {
-            // Change values P0, in order to call NetworkListener::onUpdate
-            load.setP0(-1.0);
-        } catch (PowsyblException e) {
-            fail("Exception must be catch by NetworkListenerList");
-        }
-
-        // Remove observer changes
-        network.removeListener(mockedListener);
-    }
-
-    @Test
     public void duplicateEquipment() {
         voltageLevel.newLoad()
-                .setId("duplicate")
-                .setP0(2.0)
-                .setQ0(1.0)
-                .setNode(1)
-                .add();
+                        .setId("duplicate")
+                        .setP0(2.0)
+                        .setQ0(1.0)
+                        .setNode(1)
+                    .add();
         thrown.expect(PowsyblException.class);
         thrown.expectMessage("with the id 'duplicate'");
         createLoad("duplicate", 2.0, 1.0);
@@ -153,12 +125,12 @@ public class LoadTest {
     @Test
     public void testAdder() {
         Load load = voltageLevel.newLoad()
-                .setId("testAdder")
-                .setP0(2.0)
-                .setQ0(1.0)
-                .setLoadType(LoadType.AUXILIARY)
-                .setNode(1)
-                .add();
+                        .setId("testAdder")
+                        .setP0(2.0)
+                        .setQ0(1.0)
+                        .setLoadType(LoadType.AUXILIARY)
+                        .setNode(1)
+                    .add();
         assertEquals(2.0, load.getP0(), 0.0);
         assertEquals(1.0, load.getQ0(), 0.0);
         assertEquals("testAdder", load.getId());
@@ -190,8 +162,8 @@ public class LoadTest {
         Load load = network.getLoad("testMultiVariant");
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, variantsToAdd);
-        variantManager.setWorkingVariant("s4");
 
+        variantManager.setWorkingVariant("s4");
         // check values cloned by extend
         assertEquals(0.6d, load.getP0(), 0.0);
         assertEquals(0.7d, load.getQ0(), 0.0);
@@ -230,11 +202,11 @@ public class LoadTest {
 
     private void createLoad(String id, double p0, double q0) {
         voltageLevel.newLoad()
-                .setId(id)
-                .setP0(p0)
-                .setQ0(q0)
-                .setNode(1)
-                .add();
+                        .setId(id)
+                        .setP0(p0)
+                        .setQ0(q0)
+                        .setNode(1)
+                    .add();
     }
 
 }
