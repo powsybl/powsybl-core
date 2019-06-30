@@ -22,6 +22,17 @@ import com.powsybl.triplestore.api.PropertyBags;
 public abstract class AbstractTransformerFullConversion
     extends AbstractConductingEquipmentConversion {
 
+    protected static final String STRING_POWER_TRANSFORMER = "PowerTransformer";
+    protected static final String STRING_R = "r";
+    protected static final String STRING_X = "x";
+    protected static final String STRING_RATIO_TAP_CHANGER  = "RatioTapChanger";
+    protected static final String STRING_PHASE_TAP_CHANGER  = "PhaseTapChanger";
+    protected static final String STRING_RATEDU = "ratedU";
+    protected static final String STRING_G = "g";
+    protected static final String STRING_B = "b";
+    protected static final String STRING_PHASE_ANGLE_CLOCK = "phaseAngleClock";
+    protected static final String STRING_STEP_VOLTAGE_INCREMENT = "stepVoltageIncrement";
+
     protected enum TapChangerType {
         NULL, FIXED, NON_REGULATING, REGULATING
     }

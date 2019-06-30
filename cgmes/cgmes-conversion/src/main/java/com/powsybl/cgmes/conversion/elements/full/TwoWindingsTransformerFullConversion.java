@@ -24,28 +24,9 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
     public TwoWindingsTransformerFullConversion(PropertyBags ends,
         Map<String, PropertyBag> powerTransformerRatioTapChanger,
         Map<String, PropertyBag> powerTransformerPhaseTapChanger, Context context) {
-        super("PowerTransformer", ends, context);
-        PropertyBag end1 = ends.get(0);
-        PropertyBag end2 = ends.get(1);
-        r1 = end1.asDouble("r");
-        x1 = end1.asDouble("x");
-        g1 = end1.asDouble("g", 0);
-        b1 = end1.asDouble("b");
-        r2 = end2.asDouble("r");
-        x2 = end2.asDouble("x");
-        g2 = end2.asDouble("g", 0);
-        b2 = end2.asDouble("b");
-        String ratedU = "ratedU";
-        ratedU1 = end1.asDouble(ratedU);
-        ratedU2 = end2.asDouble(ratedU);
-        terminal1 = end1.getId(CgmesNames.TERMINAL);
-        terminal2 = end2.getId(CgmesNames.TERMINAL);
-        rtc1 = getTransformerTapChanger(end1, "RatioTapChanger", powerTransformerRatioTapChanger);
-        ptc1 = getTransformerTapChanger(end1, "PhaseTapChanger", powerTransformerPhaseTapChanger);
-        rtc2 = getTransformerTapChanger(end2, "RatioTapChanger", powerTransformerRatioTapChanger);
-        ptc2 = getTransformerTapChanger(end2, "PhaseTapChanger", powerTransformerPhaseTapChanger);
-        phaseAngleClock1 = end1.asInt("phaseAngleClock", 0);
-        phaseAngleClock2 = end2.asInt("phaseAngleClock", 0);
+        super(STRING_POWER_TRANSFORMER, ends, context);
+        this.powerTransformerRatioTapChanger = powerTransformerRatioTapChanger;
+        this.powerTransformerPhaseTapChanger = powerTransformerPhaseTapChanger;
     }
 
     @Override
@@ -58,9 +39,25 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
     }
 
     private CgmesModel load() {
+        // ends = ps
+        PropertyBag end1 = ps.get(0);
+        PropertyBag end2 = ps.get(1);
 
-        double r = r1 + r2;
+        double x1 = end1.asDouble(STRING_X);
+        double x2 = end2.asDouble(STRING_X);
+        double r = end1.asDouble(STRING_R) + end2.asDouble(STRING_R);
         double x = x1 + x2;
+
+        String terminal1 = end1.getId(CgmesNames.TERMINAL);
+        String terminal2 = end2.getId(CgmesNames.TERMINAL);
+
+        PropertyBag rtc1 = getTransformerTapChanger(end1, STRING_RATIO_TAP_CHANGER, powerTransformerRatioTapChanger);
+        PropertyBag ptc1 = getTransformerTapChanger(end1, STRING_PHASE_TAP_CHANGER, powerTransformerPhaseTapChanger);
+        PropertyBag rtc2 = getTransformerTapChanger(end2, STRING_RATIO_TAP_CHANGER, powerTransformerRatioTapChanger);
+        PropertyBag ptc2 = getTransformerTapChanger(end2, STRING_PHASE_TAP_CHANGER, powerTransformerPhaseTapChanger);
+
+        double ratedU1 = end1.asDouble(STRING_RATEDU);
+        double ratedU2 = end2.asDouble(STRING_RATEDU);
 
         TapChanger ratioTapChanger1 = getRatioTapChanger(rtc1, terminal1);
         TapChanger ratioTapChanger2 = getRatioTapChanger(rtc2, terminal2);
@@ -68,12 +65,12 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
         TapChanger phaseTapChanger2 = getPhaseTapChanger(ptc2, terminal2, ratedU2, x);
 
         CgmesModel cgmesModel = new CgmesModel();
-        cgmesModel.end1.g = g1;
-        cgmesModel.end1.b = b1;
+        cgmesModel.end1.g = end1.asDouble(STRING_G, 0);
+        cgmesModel.end1.b = end1.asDouble(STRING_B);
         cgmesModel.end1.ratioTapChanger = ratioTapChanger1;
         cgmesModel.end1.phaseTapChanger = phaseTapChanger1;
         cgmesModel.end1.ratedU = ratedU1;
-        cgmesModel.end1.phaseAngleClock = phaseAngleClock1;
+        cgmesModel.end1.phaseAngleClock = end1.asInt(STRING_PHASE_ANGLE_CLOCK, 0);
         cgmesModel.end1.terminal = terminal1;
 
         if (x1 == 0.0) {
@@ -81,14 +78,14 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
         } else {
             cgmesModel.end1.xIsZero = false;
         }
-        cgmesModel.end1.rtcDefined = rtc1 != null && rtc1.asDouble("stepVoltageIncrement") != 0.0;
+        cgmesModel.end1.rtcDefined = rtc1 != null && rtc1.asDouble(STRING_STEP_VOLTAGE_INCREMENT) != 0.0;
 
-        cgmesModel.end2.g = g2;
-        cgmesModel.end2.b = b2;
+        cgmesModel.end2.g = end2.asDouble(STRING_G, 0);
+        cgmesModel.end2.b = end2.asDouble(STRING_B);
         cgmesModel.end2.ratioTapChanger = ratioTapChanger2;
         cgmesModel.end2.phaseTapChanger = phaseTapChanger2;
         cgmesModel.end2.ratedU = ratedU2;
-        cgmesModel.end2.phaseAngleClock = phaseAngleClock2;
+        cgmesModel.end2.phaseAngleClock = end2.asInt(STRING_PHASE_ANGLE_CLOCK, 0);
         cgmesModel.end2.terminal = terminal2;
 
         if (x2 == 0.0) {
@@ -96,7 +93,7 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
         } else {
             cgmesModel.end2.xIsZero = false;
         }
-        cgmesModel.end2.rtcDefined = rtc2 != null && rtc2.asDouble("stepVoltageIncrement") != 0.0;
+        cgmesModel.end2.rtcDefined = rtc2 != null && rtc2.asDouble(STRING_STEP_VOLTAGE_INCREMENT) != 0.0;
 
         cgmesModel.r = r;
         cgmesModel.x = x;
@@ -427,23 +424,6 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
         int phaseAngleClock;
     }
 
-    private final double r1;
-    private final double x1;
-    private final double b1;
-    private final double g1;
-    private final double r2;
-    private final double x2;
-    private final double b2;
-    private final double g2;
-    private final double ratedU1;
-    private final double ratedU2;
-    private final String terminal1;
-    private final String terminal2;
-    private final PropertyBag rtc1;
-    private final PropertyBag rtc2;
-    private final PropertyBag ptc1;
-    private final PropertyBag ptc2;
-    private final int phaseAngleClock1;
-    private final int phaseAngleClock2;
-
+    private final Map<String, PropertyBag> powerTransformerRatioTapChanger;
+    private final Map<String, PropertyBag> powerTransformerPhaseTapChanger;
 }

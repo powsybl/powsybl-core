@@ -25,46 +25,9 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
     public ThreeWindingsTransformerFullConversion(PropertyBags ends,
         Map<String, PropertyBag> powerTransformerRatioTapChanger,
         Map<String, PropertyBag> powerTransformerPhaseTapChanger, Context context) {
-        super("PowerTransformer", ends, context);
-        PropertyBag winding1 = ends.get(0);
-        PropertyBag winding2 = ends.get(1);
-        PropertyBag winding3 = ends.get(2);
-        String ratedU = "ratedU";
-
-        rtc1 = getTransformerTapChanger(winding1, "RatioTapChanger",
-            powerTransformerRatioTapChanger);
-        ptc1 = getTransformerTapChanger(winding1, "PhaseTapChanger",
-            powerTransformerPhaseTapChanger);
-        rtc2 = getTransformerTapChanger(winding2, "RatioTapChanger",
-            powerTransformerRatioTapChanger);
-        ptc2 = getTransformerTapChanger(winding2, "PhaseTapChanger",
-            powerTransformerPhaseTapChanger);
-        rtc3 = getTransformerTapChanger(winding3, "RatioTapChanger",
-            powerTransformerRatioTapChanger);
-        ptc3 = getTransformerTapChanger(winding3, "PhaseTapChanger",
-            powerTransformerPhaseTapChanger);
-
-        r1 = winding1.asDouble("r");
-        x1 = winding1.asDouble("x");
-        g1 = winding1.asDouble("g", 0);
-        b1 = winding1.asDouble("b");
-        r2 = winding2.asDouble("r");
-        x2 = winding2.asDouble("x");
-        g2 = winding2.asDouble("g", 0);
-        b2 = winding2.asDouble("b");
-        r3 = winding3.asDouble("r");
-        x3 = winding3.asDouble("x");
-        g3 = winding3.asDouble("g", 0);
-        b3 = winding3.asDouble("b");
-        ratedU1 = winding1.asDouble(ratedU);
-        ratedU2 = winding2.asDouble(ratedU);
-        ratedU3 = winding3.asDouble(ratedU);
-        terminal1 = winding1.getId(CgmesNames.TERMINAL);
-        terminal2 = winding2.getId(CgmesNames.TERMINAL);
-        terminal3 = winding3.getId(CgmesNames.TERMINAL);
-        phaseAngleClock1 = winding1.asInt("phaseAngleClock", 0);
-        phaseAngleClock2 = winding2.asInt("phaseAngleClock", 0);
-        phaseAngleClock3 = winding3.asInt("phaseAngleClock", 0);
+        super(STRING_POWER_TRANSFORMER, ends, context);
+        this.powerTransformerRatioTapChanger = powerTransformerRatioTapChanger;
+        this.powerTransformerPhaseTapChanger = powerTransformerPhaseTapChanger;
     }
 
     @Override
@@ -78,46 +41,38 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
     }
 
     private CgmesModel load() {
-
-        TapChanger ratioTapChanger1 = getRatioTapChanger(rtc1, terminal1);
-        TapChanger ratioTapChanger2 = getRatioTapChanger(rtc2, terminal2);
-        TapChanger ratioTapChanger3 = getRatioTapChanger(rtc3, terminal3);
-        TapChanger phaseTapChanger1 = getPhaseTapChanger(ptc1, terminal1, ratedU1, x1);
-        TapChanger phaseTapChanger2 = getPhaseTapChanger(ptc2, terminal2, ratedU2, x2);
-        TapChanger phaseTapChanger3 = getPhaseTapChanger(ptc3, terminal3, ratedU3, x3);
-
         CgmesModel cgmesModel = new CgmesModel();
-        cgmesModel.winding1.r = r1;
-        cgmesModel.winding1.x = x1;
-        cgmesModel.winding1.g = g1;
-        cgmesModel.winding1.b = b1;
-        cgmesModel.winding1.ratioTapChanger = ratioTapChanger1;
-        cgmesModel.winding1.phaseTapChanger = phaseTapChanger1;
-        cgmesModel.winding1.ratedU = ratedU1;
-        cgmesModel.winding1.phaseAngleClock = phaseAngleClock1;
-        cgmesModel.winding1.terminal = terminal1;
 
-        cgmesModel.winding2.r = r2;
-        cgmesModel.winding2.x = x2;
-        cgmesModel.winding2.g = g2;
-        cgmesModel.winding2.b = b2;
-        cgmesModel.winding2.ratioTapChanger = ratioTapChanger2;
-        cgmesModel.winding2.phaseTapChanger = phaseTapChanger2;
-        cgmesModel.winding2.ratedU = ratedU2;
-        cgmesModel.winding2.phaseAngleClock = phaseAngleClock2;
-        cgmesModel.winding2.terminal = terminal2;
-
-        cgmesModel.winding3.r = r3;
-        cgmesModel.winding3.x = x3;
-        cgmesModel.winding3.g = g3;
-        cgmesModel.winding3.b = b3;
-        cgmesModel.winding3.ratioTapChanger = ratioTapChanger3;
-        cgmesModel.winding3.phaseTapChanger = phaseTapChanger3;
-        cgmesModel.winding3.ratedU = ratedU3;
-        cgmesModel.winding3.phaseAngleClock = phaseAngleClock3;
-        cgmesModel.winding3.terminal = terminal3;
+        // ends = ps
+        loadWinding(ps.get(0), cgmesModel.winding1);
+        loadWinding(ps.get(1), cgmesModel.winding2);
+        loadWinding(ps.get(2), cgmesModel.winding3);
 
         return cgmesModel;
+    }
+
+    private void loadWinding(PropertyBag winding, CgmesWinding cgmesModelWinding) {
+        PropertyBag rtc = getTransformerTapChanger(winding, STRING_RATIO_TAP_CHANGER,
+            powerTransformerRatioTapChanger);
+        PropertyBag ptc = getTransformerTapChanger(winding, STRING_PHASE_TAP_CHANGER,
+            powerTransformerPhaseTapChanger);
+
+        String terminal = winding.getId(CgmesNames.TERMINAL);
+        double ratedU = winding.asDouble(STRING_RATEDU);
+        double x = winding.asDouble(STRING_X);
+
+        TapChanger ratioTapChanger = getRatioTapChanger(rtc, terminal);
+        TapChanger phaseTapChanger = getPhaseTapChanger(ptc, terminal, ratedU, x);
+
+        cgmesModelWinding.r = winding.asDouble(STRING_R);
+        cgmesModelWinding.x = x;
+        cgmesModelWinding.g = winding.asDouble(STRING_G, 0);
+        cgmesModelWinding.b = winding.asDouble(STRING_B);
+        cgmesModelWinding.ratioTapChanger = ratioTapChanger;
+        cgmesModelWinding.phaseTapChanger = phaseTapChanger;
+        cgmesModelWinding.ratedU = ratedU;
+        cgmesModelWinding.phaseAngleClock = winding.asInt(STRING_PHASE_ANGLE_CLOCK, 0);
+        cgmesModelWinding.terminal = terminal;
     }
 
     private InterpretedModel interpret(CgmesModel cgmesModel, Conversion.Config alternative) {
@@ -512,31 +467,6 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
         TapChanger phaseTapChanger;
     }
 
-    private final double r1;
-    private final double x1;
-    private final double g1;
-    private final double b1;
-    private final double r2;
-    private final double x2;
-    private final double g2;
-    private final double b2;
-    private final double r3;
-    private final double x3;
-    private final double g3;
-    private final double b3;
-    private final double ratedU1;
-    private final double ratedU2;
-    private final double ratedU3;
-    private final String terminal1;
-    private final String terminal2;
-    private final String terminal3;
-    private final PropertyBag rtc1;
-    private final PropertyBag rtc2;
-    private final PropertyBag rtc3;
-    private final PropertyBag ptc1;
-    private final PropertyBag ptc2;
-    private final PropertyBag ptc3;
-    private final int phaseAngleClock1;
-    private final int phaseAngleClock2;
-    private final int phaseAngleClock3;
+    private final Map<String, PropertyBag> powerTransformerRatioTapChanger;
+    private final Map<String, PropertyBag> powerTransformerPhaseTapChanger;
 }
