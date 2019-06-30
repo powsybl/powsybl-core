@@ -91,9 +91,9 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
     private void interpretWinding(CgmesWinding cgmesModelWinding, Conversion.Config alternative,
         double ratedUf, InterpretedWinding interpretedModelWinding) {
 
-        TapChanger22 windingInterpretedTapChanger = ratioPhaseAlternative(cgmesModelWinding, alternative);
-        Shunt22 windingInterpretedShunt = shuntAlternative(cgmesModelWinding, alternative);
-        PhaseAngleClock02 windingInterpretedClock = phaseAngleClockAlternative(cgmesModelWinding, alternative);
+        TapChangerAll windingInterpretedTapChanger = ratioPhaseAlternative(cgmesModelWinding, alternative);
+        ShuntAll windingInterpretedShunt = shuntAlternative(cgmesModelWinding, alternative);
+        PhaseAngleClockAll windingInterpretedClock = phaseAngleClockAlternative(cgmesModelWinding, alternative);
         boolean windingRatio0AtEnd2 = ratio0Alternative(cgmesModelWinding, alternative);
 
         interpretedModelWinding.r = cgmesModelWinding.r;
@@ -115,7 +115,7 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
         interpretedModelWinding.ratio0AtEnd2 = windingRatio0AtEnd2;
     }
 
-    private TapChanger22 ratioPhaseAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
+    private TapChangerAll ratioPhaseAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
         TapChanger ratioTapChanger1 = null;
         TapChanger phaseTapChanger1 = null;
         TapChanger ratioTapChanger2 = null;
@@ -129,7 +129,7 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
             phaseTapChanger2 = cgmesWinding.phaseTapChanger;
         }
 
-        TapChanger22 tapChanger22 = new TapChanger22();
+        TapChangerAll tapChanger22 = new TapChangerAll();
         tapChanger22.ratioTapChanger1 = ratioTapChanger1;
         tapChanger22.phaseTapChanger1 = phaseTapChanger1;
         tapChanger22.ratioTapChanger2 = ratioTapChanger2;
@@ -138,7 +138,7 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
         return tapChanger22;
     }
 
-    private Shunt22 shuntAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
+    private ShuntAll shuntAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
         double g1 = 0.0;
         double b1 = 0.0;
         double g2 = 0.0;
@@ -156,7 +156,7 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
             b2 = cgmesWinding.b * 0.5;
         }
 
-        Shunt22 shunt22 = new Shunt22();
+        ShuntAll shunt22 = new ShuntAll();
         shunt22.g1 = g1;
         shunt22.b1 = b1;
         shunt22.g2 = g2;
@@ -165,7 +165,7 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
         return shunt22;
     }
 
-    private PhaseAngleClock02 phaseAngleClockAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
+    private PhaseAngleClockAll phaseAngleClockAlternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
         int phaseAngleClock1 = 0;
         int phaseAngleClock2 = 0;
 
@@ -177,7 +177,7 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
             }
         }
 
-        PhaseAngleClock02 phaseAngleClock02 = new PhaseAngleClock02();
+        PhaseAngleClockAll phaseAngleClock02 = new PhaseAngleClockAll();
         phaseAngleClock02.phaseAngleClock1 = phaseAngleClock1;
         phaseAngleClock02.phaseAngleClock2 = phaseAngleClock2;
 

@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.commons.math3.complex.Complex;
 
 import com.powsybl.cgmes.conversion.Context;
+import com.powsybl.cgmes.conversion.RegulatingControlMapping.TapChangerRegulatingControl;
 import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion;
 import com.powsybl.cgmes.conversion.elements.full.TapChanger.StepAdder;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -475,10 +476,10 @@ public abstract class AbstractTransformerFullConversion
 
     private void addRatioRegulationData(PropertyBag ratioTapChanger, String rtcTerminal,
         TapChanger tapChanger) {
-        boolean regulating = false;
-        String regulatingControlId = null;
-        tapChanger.setRegulating(regulating)
-            .setRegulatingControlId(regulatingControlId);
+        TapChangerRegulatingControl tcrc = context.regulatingControlMapping()
+            .getTapChangerRegulatingControl(ratioTapChanger);
+        tapChanger.setRegulating(tcrc.regulating)
+            .setRegulatingControlId(tcrc.regulatingControlId);
     }
 
     protected TapChanger getPhaseTapChanger(PropertyBag phaseTapChanger, String ptcTerminal,
@@ -630,10 +631,10 @@ public abstract class AbstractTransformerFullConversion
     }
 
     private void addPhaseRegulationData(PropertyBag ratioTapChanger, TapChanger tapChanger) {
-        boolean regulating = false;
-        String regulatingControlId = null;
-        tapChanger.setRegulating(regulating)
-            .setRegulatingControlId(regulatingControlId);
+        TapChangerRegulatingControl tcrc = context.regulatingControlMapping()
+            .getTapChangerRegulatingControl(ratioTapChanger);
+        tapChanger.setRegulating(tcrc.regulating)
+            .setRegulatingControlId(tcrc.regulatingControlId);
     }
 
     private boolean isSymmetrical(String tapChangerType) {
@@ -660,8 +661,6 @@ public abstract class AbstractTransformerFullConversion
         }
         return value;
     }
-
-    // return classes
 
     protected void setToIidmRatioTapChanger(TapChanger rtc, RatioTapChangerAdder rtca) {
         int lowStep = rtc.getLowTapPosition();
@@ -725,19 +724,19 @@ public abstract class AbstractTransformerFullConversion
         int phaseAngleClock;
     }
 
-    static class PhaseAngleClock02 {
+    static class PhaseAngleClockAll {
         int phaseAngleClock1;
         int phaseAngleClock2;
     }
 
-    static class Shunt22 {
+    static class ShuntAll {
         double g1;
         double b1;
         double g2;
         double b2;
     }
 
-    static class TapChanger22 {
+    static class TapChangerAll {
         TapChanger ratioTapChanger1;
         TapChanger phaseTapChanger1;
         TapChanger ratioTapChanger2;

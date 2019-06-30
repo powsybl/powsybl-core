@@ -110,44 +110,6 @@ public class RegulatingControlMapping {
         adder.setLoadTapChangingCapabilities(false);
     }
 
-    // TODO Ver que hago JAM
-    public double getRtcRegulatingVoltage(PropertyBag p) {
-        if (p.containsKey(TAP_CHANGER_CONTROL)) {
-            String controlId = p.getId(TAP_CHANGER_CONTROL);
-
-            RegulatingControl control = cachedRegulatingControls.get(controlId);
-            if (control == null) {
-                return Double.NaN;
-            }
-            if (control.mode.endsWith("voltage") || (p.containsKey("tculControlMode") && p.get("tculControlMode").endsWith("volt"))) {
-
-                if (control.targetValue > 0.0) {
-                    return control.targetValue;
-                }
-            }
-        }
-        return Double.NaN;
-    }
-
-    // TODO Ver que hago JAM
-    public String getRtcRegulatingTerminal(PropertyBag p) {
-        if (p.containsKey(TAP_CHANGER_CONTROL)) {
-            String controlId = p.getId(TAP_CHANGER_CONTROL);
-
-            RegulatingControl control = cachedRegulatingControls.get(controlId);
-            if (control == null) {
-                return null;
-            }
-            // if (control.mode.endsWith("voltage")
-            // || (p.containsKey("tculControlMode") &&
-            // p.get("tculControlMode").endsWith("volt"))) {
-
-            return control.cgmesTerminal;
-            // }
-        }
-        return null;
-    }
-
     private void addRegulatingControlVoltage(PropertyBag p, RegulatingControl control, RatioTapChangerAdder adder,
         Terminal defaultTerminal, Context context) {
         // Even if regulating is false, we reset the target voltage if it is not valid
@@ -313,5 +275,31 @@ public class RegulatingControlMapping {
         }
         g.setRegulatingTerminal(regTerminal);
         return true;
+    }
+
+    public TapChangerRegulatingControl getTapChangerRegulatingControl(PropertyBag p) {
+        boolean regulating = false;
+        String regulatingControlId = null;
+
+        if (p.containsKey(TAP_CHANGER_CONTROL)) {
+            String controlId = p.getId(TAP_CHANGER_CONTROL);
+
+            RegulatingControl control = cachedRegulatingControls.get(controlId);
+            if (control != null) {
+                regulating = true;
+                regulatingControlId = controlId;
+            }
+        }
+
+        TapChangerRegulatingControl trc = new TapChangerRegulatingControl();
+        trc.regulating = regulating;
+        trc.regulatingControlId = regulatingControlId;
+
+        return trc;
+    }
+
+    public static class TapChangerRegulatingControl {
+        public boolean regulating;
+        public String regulatingControlId;
     }
 }

@@ -103,10 +103,10 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
 
     private InterpretedModel interpret(CgmesModel cgmesModel, Conversion.Config alternative) {
 
-        TapChanger22 interpretedTapChanger = ratioPhaseAlternative(cgmesModel, alternative);
-        Shunt22 interpretedShunt = shuntAlternative(cgmesModel, alternative);
+        TapChangerAll interpretedTapChanger = ratioPhaseAlternative(cgmesModel, alternative);
+        ShuntAll interpretedShunt = shuntAlternative(cgmesModel, alternative);
 
-        PhaseAngleClock02 interpretedClock = phaseAngleClockAlternative(cgmesModel, alternative);
+        PhaseAngleClockAll interpretedClock = phaseAngleClockAlternative(cgmesModel, alternative);
         boolean ratio0AtEnd2 = ratio0Alternative(cgmesModel, alternative);
 
         InterpretedModel interpretedModel = new InterpretedModel();
@@ -134,7 +134,7 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
         return interpretedModel;
     }
 
-    private TapChanger22 ratioPhaseAlternative(CgmesModel cgmesModel, Conversion.Config alternative) {
+    private TapChangerAll ratioPhaseAlternative(CgmesModel cgmesModel, Conversion.Config alternative) {
         TapChanger ratioTapChanger1 = null;
         TapChanger phaseTapChanger1 = null;
         TapChanger ratioTapChanger2 = null;
@@ -168,7 +168,7 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
             negatePhaseTapChanger(phaseTapChanger2);
         }
 
-        TapChanger22 tapChanger22 = new TapChanger22();
+        TapChangerAll tapChanger22 = new TapChangerAll();
         tapChanger22.ratioTapChanger1 = ratioTapChanger1;
         tapChanger22.phaseTapChanger1 = phaseTapChanger1;
         tapChanger22.ratioTapChanger2 = ratioTapChanger2;
@@ -177,7 +177,7 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
         return tapChanger22;
     }
 
-    private Shunt22 shuntAlternative(CgmesModel cgmesModel, Conversion.Config alternative) {
+    private ShuntAll shuntAlternative(CgmesModel cgmesModel, Conversion.Config alternative) {
         double g1 = 0.0;
         double b1 = 0.0;
         double g2 = 0.0;
@@ -200,7 +200,7 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
             b2 = (cgmesModel.end1.b + cgmesModel.end2.b) * 0.5;
         }
 
-        Shunt22 shunt22 = new Shunt22();
+        ShuntAll shunt22 = new ShuntAll();
         shunt22.g1 = g1;
         shunt22.b1 = b1;
         shunt22.g2 = g2;
@@ -209,7 +209,7 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
         return shunt22;
     }
 
-    private PhaseAngleClock02 phaseAngleClockAlternative(CgmesModel cgmesModel, Conversion.Config alternative) {
+    private PhaseAngleClockAll phaseAngleClockAlternative(CgmesModel cgmesModel, Conversion.Config alternative) {
         int phaseAngleClock1 = 0;
         int phaseAngleClock2 = 0;
 
@@ -230,7 +230,7 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
             }
         }
 
-        PhaseAngleClock02 phaseAngleClock02 = new PhaseAngleClock02();
+        PhaseAngleClockAll phaseAngleClock02 = new PhaseAngleClockAll();
         phaseAngleClock02.phaseAngleClock1 = phaseAngleClock1;
         phaseAngleClock02.phaseAngleClock2 = phaseAngleClock2;
 
