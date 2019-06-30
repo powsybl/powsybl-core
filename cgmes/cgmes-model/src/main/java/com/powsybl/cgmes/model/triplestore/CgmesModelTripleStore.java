@@ -9,6 +9,8 @@ package com.powsybl.cgmes.model.triplestore;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -85,7 +87,9 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
                     return true;
                 }
             }
-            return false; // If we have a query for model profiles but none of the profiles contains "EquipmentCore", equipment core is not available
+            // We have a query for model profiles
+            // but none of the FullModel objects contains EquipmentCore profile
+            return false;
         }
         // If we do not have a query for model profiles we assume equipment core is
         // available
@@ -127,22 +131,46 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     public boolean isNodeBreaker() {
         // Optimization hint: consider caching the results of the query for model
         // profiles
-        if (queryCatalog.containsKey(MODEL_PROFILES)) {
-            PropertyBags r = namedQuery(MODEL_PROFILES);
-            if (r == null) {
-                return false;
-            }
-            for (PropertyBag m : r) {
-                String p = m.get(PROFILE);
-                if (p != null && p.contains("/EquipmentOperation/")) {
+        if (!queryCatalog.containsKey(MODEL_PROFILES)) {
+            return false;
+        }
+        PropertyBags r = namedQuery(MODEL_PROFILES);
+        if (r == null) {
+            return false;
+        }
+        // Only consider is node breaker if all models that have profile
+        // EquipmentCore or EquipmentBoundary
+        // also have EquipmentOperation or EquipmentBoundaryOperation
+        Map<String, Boolean> eqModelHasEquipmentOperationProfile = new HashMap<>();
+        for (PropertyBag mp : r) {
+            String m = mp.get("FullModel");
+            String p = mp.get(PROFILE);
+            if (p != null) {
+                if (p.contains("/EquipmentCore/") || p.contains("/EquipmentBoundary/")) {
+                    eqModelHasEquipmentOperationProfile.putIfAbsent(m, false);
+                }
+                if (p.contains("/EquipmentOperation/") || p.contains("/EquipmentBoundaryOperation/")) {
+                    eqModelHasEquipmentOperationProfile.put(m, true);
                     if (LOG.isInfoEnabled()) {
-                        LOG.info("Model is considered node-breaker because {} has profile {}", m.get("FullModel"), p);
+                        LOG.info("Model {} is considered node-breaker", m);
                     }
-                    return true;
                 }
             }
         }
-        return false;
+        boolean isNodeBreaker = eqModelHasEquipmentOperationProfile.values().stream().allMatch(Boolean::valueOf);
+        if (isNodeBreaker) {
+            LOG.info(
+                "All FullModel objects have EquipmentOperation profile, so conversion will be considered node-breaker");
+        } else {
+            LOG.info(
+                "Following FullModel objects do not have EquipmentOperation profile, so conversion will not be considered node-breaker:");
+            eqModelHasEquipmentOperationProfile.entrySet().forEach(meqop -> {
+                if (!meqop.getValue()) {
+                    LOG.info("    {}", meqop.getKey());
+                }
+            });
+        }
+        return isNodeBreaker;
     }
 
     @Override

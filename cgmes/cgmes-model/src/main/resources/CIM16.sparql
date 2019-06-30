@@ -680,9 +680,9 @@ WHERE {
 OPTIONAL { GRAPH ?graphSSH  {
     ?EquivalentInjection
         cim:EquivalentInjection.p ?p ;
-        cim:EquivalentInjection.q ?q ;
-        cim:EquivalentInjection.regulationStatus ?regulationStatus ;
-        cim:EquivalentInjection.regulationTarget ?regulationTarget .
+        cim:EquivalentInjection.q ?q .
+    OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.regulationStatus ?regulationStatus }
+    OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.regulationTarget ?regulationTarget }
 }}
 }
 
