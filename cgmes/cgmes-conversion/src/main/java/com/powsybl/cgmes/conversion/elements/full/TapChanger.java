@@ -3,8 +3,6 @@ package com.powsybl.cgmes.conversion.elements.full;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.powsybl.iidm.network.PhaseTapChanger;
-
 /**
  * @author José Antonio Marqués <marquesja at aia.es>
  * @author Marcos de Miguel <demiguelm at aia.es>
@@ -12,25 +10,22 @@ import com.powsybl.iidm.network.PhaseTapChanger;
 
 public class TapChanger {
 
-    private int                            lowTapPosition              = 0;
-    private Integer                        tapPosition;
-    private final List<StepAdder>          steps                       = new ArrayList<>();
-    private boolean                        loadTapChangingCapabilities = false;
-    private PhaseTapChanger.RegulationMode regulationMode              = PhaseTapChanger.RegulationMode.FIXED_TAP;
-    private boolean                        regulating                  = false;
-    private double                         regulationValue             = Double.NaN;
-    private String                         regulationTerminal;
+    private int lowTapPosition = 0;
+    private Integer tapPosition;
+    private final List<StepAdder> steps = new ArrayList<>();
+    private boolean regulating = false;
+    private String regulatingControlId;
 
     class StepAdder {
 
         private double angleRad = 0.0;
-        private double ratio    = 1.0;
-        private double r        = 0.0;
-        private double x        = 0.0;
-        private double g1       = 0.0;
-        private double b1       = 0.0;
-        private double g2       = 0.0;
-        private double b2       = 0.0;
+        private double ratio = 1.0;
+        private double r = 0.0;
+        private double x = 0.0;
+        private double g1 = 0.0;
+        private double b1 = 0.0;
+        private double g2 = 0.0;
+        private double b2 = 0.0;
 
         public StepAdder setAngle(double angle) {
             this.angleRad = angle;
@@ -120,28 +115,13 @@ public class TapChanger {
         return this;
     }
 
-    public TapChanger setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities) {
-        this.loadTapChangingCapabilities = loadTapChangingCapabilities;
-        return this;
-    }
-
     public TapChanger setRegulating(boolean regulating) {
         this.regulating = regulating;
         return this;
     }
 
-    public TapChanger setRegulationMode(PhaseTapChanger.RegulationMode regulationMode) {
-        this.regulationMode = regulationMode;
-        return this;
-    }
-
-    public TapChanger setRegulationValue(double regulationValue) {
-        this.regulationValue = regulationValue;
-        return this;
-    }
-
-    public TapChanger setRegulationTerminal(String regulationTerminal) {
-        this.regulationTerminal = regulationTerminal;
+    public TapChanger setRegulatingControlId(String regulatingControlId) {
+        this.regulatingControlId = regulatingControlId;
         return this;
     }
 
@@ -161,24 +141,15 @@ public class TapChanger {
         return steps;
     }
 
-    public boolean isLoadTapChangingCapabilities() {
-        return loadTapChangingCapabilities;
+    public int getHighTapPosition() {
+        return lowTapPosition + steps.size() - 1;
     }
 
     public boolean isRegulating() {
         return regulating;
     }
 
-    public PhaseTapChanger.RegulationMode getRegulationMode() {
-        return regulationMode;
+    public String getRegulatingControlId() {
+        return regulatingControlId;
     }
-
-    public double getRegulationValue() {
-        return regulationValue;
-    }
-
-    public String getRegulationTerminal() {
-        return regulationTerminal;
-    }
-
 }

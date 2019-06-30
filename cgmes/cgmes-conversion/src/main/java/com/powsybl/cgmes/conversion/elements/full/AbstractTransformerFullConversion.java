@@ -9,8 +9,8 @@ import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion;
 import com.powsybl.cgmes.conversion.elements.full.TapChanger.StepAdder;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.iidm.network.PhaseTapChanger;
-import com.powsybl.iidm.network.PhaseTapChanger.RegulationMode;
+import com.powsybl.iidm.network.PhaseTapChangerAdder;
+import com.powsybl.iidm.network.RatioTapChangerAdder;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
@@ -21,8 +21,6 @@ import com.powsybl.triplestore.api.PropertyBags;
 
 public abstract class AbstractTransformerFullConversion
     extends AbstractConductingEquipmentConversion {
-
-    private static final String REGULATING_CONTROL_ENABLED = "regulatingControlEnabled";
 
     protected enum TapChangerType {
         NULL, FIXED, NON_REGULATING, REGULATING
@@ -221,16 +219,13 @@ public abstract class AbstractTransformerFullConversion
     private TapChanger baseCloneTapChanger(TapChanger rtc) {
         TapChanger tapChanger = new TapChanger();
         boolean isRegulating = rtc.isRegulating();
-        RegulationMode regulationMode = rtc.getRegulationMode();
-        String regulationTerminal = rtc.getRegulationTerminal();
-        double regulationValue = rtc.getRegulationValue();
-        boolean isLoadTapChangingCapabilities = rtc.isLoadTapChangingCapabilities();
+        String regulatingControlId = rtc.getRegulatingControlId();
         int lowStep = rtc.getLowTapPosition();
         int position = rtc.getTapPosition();
-        tapChanger.setLowTapPosition(lowStep).setTapPosition((int) position)
-            .setLoadTapChangingCapabilities(isLoadTapChangingCapabilities)
-            .setRegulating(isRegulating).setRegulationMode(regulationMode)
-            .setRegulationTerminal(regulationTerminal).setRegulationValue(regulationValue);
+        tapChanger.setLowTapPosition(lowStep)
+            .setTapPosition((int) position)
+            .setRegulating(isRegulating)
+            .setRegulatingControlId(regulatingControlId);
         return tapChanger;
     }
 
@@ -263,9 +258,7 @@ public abstract class AbstractTransformerFullConversion
 
     private void resetTapChangerRegulation(TapChanger tapChanger) {
         tapChanger.setRegulating(false);
-        tapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.FIXED_TAP);
-        tapChanger.setRegulationValue(Double.NaN);
-        tapChanger.setRegulationTerminal(null);
+        tapChanger.setRegulatingControlId(null);
     }
 
     private TapChangerStepConversion calculateConversionStep(double ratio, double angle, double r,
@@ -284,23 +277,6 @@ public abstract class AbstractTransformerFullConversion
         step.b2 = 100 * (admittanceConversion(1 + b2 / 100, a) - 1);
         return step;
     }
-
-    // private TapChangerStepConversion calculateNeutralStep(double ratio, double
-    // angle) {
-    // TapChangerStepConversion step = new TapChangerStepConversion();
-    // Complex a = new Complex(ratio * Math.cos(Math.toRadians(angle)),
-    // ratio * Math.sin(Math.toRadians(angle)));
-    // Complex na = a.reciprocal();
-    // step.ratio = na.abs();
-    // step.angle = Math.toDegrees(na.getArgument());
-    // step.r = 0.0;
-    // step.x = 0.0;
-    // step.g1 = 0.0;
-    // step.b1 = 0.0;
-    // step.g2 = 0.0;
-    // step.b2 = 0.0;
-    // return step;
-    // }
 
     protected RatioConversion identityRatioConversion(double r, double x, double g1,
         double b1, double g2, double b2) {
@@ -399,33 +375,6 @@ public abstract class AbstractTransformerFullConversion
         return tc;
     }
 
-    protected TapChanger createPhaseAngleClockTapChanger(int phaseAngleClock) {
-        if (phaseAngleClock == 0) {
-            return null;
-        }
-        double degrees = getPhaseAngleClockDegrees(phaseAngleClock);
-        TapChanger tapChanger = new TapChanger();
-        tapChanger.setLowTapPosition(0);
-        tapChanger.setTapPosition(0);
-        tapChanger.setLoadTapChangingCapabilities(false);
-        tapChanger.beginStep()
-            .setRatio(1.0)
-            .setAngle(degrees)
-            .endStep();
-        resetTapChangerRegulation(tapChanger);
-        return tapChanger;
-    }
-
-    double getPhaseAngleClockDegrees(int phaseAngleClock) {
-        double phaseAngleClockDegree = 0.0;
-        phaseAngleClockDegree += phaseAngleClock * 30.0;
-        phaseAngleClockDegree = Math.IEEEremainder(phaseAngleClockDegree, 360.0);
-        if (phaseAngleClockDegree > 180.0) {
-            phaseAngleClockDegree -= 360.0;
-        }
-        return phaseAngleClockDegree;
-    }
-
     protected void negatePhaseTapChanger(TapChanger tc) {
         if (tc == null) {
             return;
@@ -463,7 +412,7 @@ public abstract class AbstractTransformerFullConversion
         }
         tapChanger.setLowTapPosition(lowStep).setTapPosition((int) position);
 
-        addRatioRegulationMode(ratioTapChanger, rtcTerminal, tapChanger);
+        addRatioRegulationData(ratioTapChanger, rtcTerminal, tapChanger);
 
         addRatioSteps(ratioTapChanger, tapChanger);
         return tapChanger;
@@ -513,97 +462,13 @@ public abstract class AbstractTransformerFullConversion
         }
     }
 
-    private void addRatioRegulationMode(PropertyBag ratioTapChanger, String rtcTerminal,
+    private void addRatioRegulationData(PropertyBag ratioTapChanger, String rtcTerminal,
         TapChanger tapChanger) {
-        String tapChangerControl = ratioTapChanger.getId("TapChangerControl");
-        if (tapChangerControl != null) {
-            addRatioRegulatingControl(ratioTapChanger, rtcTerminal, tapChanger);
-        } else {
-            tapChanger.setLoadTapChangingCapabilities(false);
-        }
+        boolean regulating = false;
+        String regulatingControlId = null;
+        tapChanger.setRegulating(regulating)
+            .setRegulatingControlId(regulatingControlId);
     }
-
-    private void addRatioRegulatingControl(PropertyBag ratioTapChanger, String rtcTerminal,
-        TapChanger tapChanger) {
-        double voltageTarget = context.regulatingControlMapping().getRtcRegulatingVoltage(ratioTapChanger);
-        if (!Double.isNaN(voltageTarget)) {
-            addRatioRegulatingControlVoltage(ratioTapChanger, rtcTerminal, voltageTarget, tapChanger);
-        } else {
-            tapChanger.setLoadTapChangingCapabilities(false);
-            //ignored(mode, "Unsupported regulation mode");
-        }
-    }
-
-    private void addRatioRegulatingControlVoltage(PropertyBag ratioTapChanger, String rtcTerminal,
-        double targetV, TapChanger tapChanger) {
-        boolean regulating = true;
-        double finalTargetV = targetV;
-        if (finalTargetV <= 0) {
-            String reg = ratioTapChanger.getId("TapChangerControl");
-            ignored(reg, String.format("Regulating control has a bad target voltage %f", targetV));
-            regulating = false;
-            finalTargetV = Float.NaN;
-        }
-
-        // JAM TODO
-        String terminal = context.regulatingControlMapping().getRtcRegulatingTerminal(ratioTapChanger);
-
-        String finalTerminal;
-        if (terminal != null) {
-            finalTerminal = terminal;
-        } else {
-            finalTerminal = rtcTerminal;
-        }
-
-        tapChanger.setLoadTapChangingCapabilities(true)
-            .setRegulating(regulating)
-            .setRegulationValue(finalTargetV)
-            .setRegulationTerminal(finalTerminal);
-    }
-
-    /***
-    private void addRatioRegulatingControl(PropertyBag ratioTapChanger, String rtcTerminal,
-        TapChanger tapChanger) {
-        String mode = ratioTapChanger.getLocal("regulatingControlMode").toLowerCase();
-        if (mode.endsWith("voltage")) {
-            addRatioRegulatingControlVoltage(ratioTapChanger, rtcTerminal, tapChanger);
-        } else if (mode.endsWith("fixed")) {
-            tapChanger.setLoadTapChangingCapabilities(false);
-        } else {
-            tapChanger.setLoadTapChangingCapabilities(false);
-            ignored(mode, "Unsupported regulation mode");
-        }
-    }
-
-    private void addRatioRegulatingControlVoltage(PropertyBag ratioTapChanger, String rtcTerminal,
-        TapChanger tapChanger) {
-        double regulatingControlValue = ratioTapChanger.asDouble("regulatingControlTargetValue");
-        boolean regulating = ratioTapChanger.asBoolean("regulatingControlEnabled", false);
-        // Even if regulating is false, we reset the target voltage if it is not valid
-        double targetV = regulatingControlValue;
-        if (targetV <= 0) {
-            String reg = ratioTapChanger.getId("TapChangerControl");
-            ignored(reg, String.format("Regulating control has a bad target voltage %f", targetV));
-            regulating = false;
-            targetV = Float.NaN;
-        }
-
-        // JAM TODO
-        String terminal = context.regulatingControlMapping().getRtcRegulatingTerminal(ratioTapChanger);
-
-        String finalTerminal;
-        if (terminal != null) {
-            finalTerminal = terminal;
-        } else {
-            finalTerminal = rtcTerminal;
-        }
-
-        tapChanger.setLoadTapChangingCapabilities(true)
-            .setRegulating(regulating)
-            .setRegulationValue(targetV)
-            .setRegulationTerminal(finalTerminal);
-    }
-    ***/
 
     protected TapChanger getPhaseTapChanger(PropertyBag phaseTapChanger, String ptcTerminal,
         double ratedU, double xtx) {
@@ -620,16 +485,7 @@ public abstract class AbstractTransformerFullConversion
         }
         tapChanger.setLowTapPosition(lowStep).setTapPosition((int) position);
 
-        // JAM TODO
-        String terminal = context.regulatingControlMapping().getRtcRegulatingTerminal(phaseTapChanger);
-
-        String finalTerminal;
-        if (terminal != null) {
-            finalTerminal = terminal;
-        } else {
-            finalTerminal = ptcTerminal;
-        }
-        addPhaseRegulatingControl(phaseTapChanger, finalTerminal, ratedU, tapChanger);
+        addPhaseRegulationData(phaseTapChanger, tapChanger);
 
         addPhaseSteps(phaseTapChanger, tapChanger, xtx);
         return tapChanger;
@@ -762,49 +618,11 @@ public abstract class AbstractTransformerFullConversion
             + (xStepMax - xStepMin) * Math.pow(Math.sin(alpha / 2) / Math.sin(alphaMax / 2), 2);
     }
 
-    private void addPhaseRegulatingControl(PropertyBag phaseTapChanger, String ptcTerminal,
-        double ratedU, TapChanger tapChanger) {
-        /***
-        String regulatingControl = phaseTapChanger.getId("TapChangerControl");
-        String regulatingControlMode = phaseTapChanger.getLocal("regulatingControlMode");
-        if (regulatingControl != null) {
-            if (regulatingControlMode.endsWith("currentFlow")) {
-                addCurrentFlowRegControl(phaseTapChanger, ptcTerminal, ratedU, tapChanger);
-            } else if (regulatingControlMode.endsWith("activePower")) {
-                addActivePowerRegControl(phaseTapChanger, ptcTerminal, tapChanger);
-            } else if (regulatingControlMode.endsWith("fixed")) {
-                // Nothing to do
-            } else {
-                ignored(regulatingControlMode, "Unsupported regulating mode");
-            }
-        }
-        ***/
-    }
-
-    private void addActivePowerRegControl(PropertyBag phaseTapChanger, String ptcTerminal,
-        TapChanger tapChanger) {
-        String treg = phaseTapChanger.getId("RegulatingControlTerminal");
-        boolean regulatingControlEnabled = phaseTapChanger.asBoolean(REGULATING_CONTROL_ENABLED,
-            true);
-        double targetV = phaseTapChanger.asDouble("regulatingControlTargetValue");
-
-        tapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
-            .setRegulationTerminal(ptcTerminal)
-            .setRegulating(regulatingControlEnabled)
-            .setRegulationValue(regulationValue(targetV, ptcTerminal, treg));
-    }
-
-    private void addCurrentFlowRegControl(PropertyBag phaseTapChanger, String ptcTerminal,
-        double ratedU, TapChanger tapChanger) {
-        String treg = phaseTapChanger.getId("RegulatingControlTerminal");
-        boolean regulatingControlEnabled = phaseTapChanger.asBoolean(REGULATING_CONTROL_ENABLED,
-            true);
-        double targetV = phaseTapChanger.asDouble("regulatingControlTargetValue");
-        targetV *= ratedU;
-        tapChanger.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
-            .setRegulationValue(regulationValue(targetV, ptcTerminal, treg))
-            .setRegulating(regulatingControlEnabled)
-            .setRegulationTerminal(ptcTerminal);
+    private void addPhaseRegulationData(PropertyBag ratioTapChanger, TapChanger tapChanger) {
+        boolean regulating = false;
+        String regulatingControlId = null;
+        tapChanger.setRegulating(regulating)
+            .setRegulatingControlId(regulatingControlId);
     }
 
     private boolean isSymmetrical(String tapChangerType) {
@@ -832,15 +650,88 @@ public abstract class AbstractTransformerFullConversion
         return value;
     }
 
-    // IIDM
-    private double regulationValue(double targetV, String ptcTerminal, String treg) {
-        if (!treg.equals(ptcTerminal)) {
-            return -targetV;
-        }
-        return targetV;
+    // return classes
+
+    protected void setToIidmRatioTapChanger(TapChanger rtc, RatioTapChangerAdder rtca) {
+        int lowStep = rtc.getLowTapPosition();
+        int position = rtc.getTapPosition();
+        rtca.setLowTapPosition(lowStep).setTapPosition((int) position);
+
+        rtc.getSteps().forEach(step -> {
+            double ratio0 = step.getRatio();
+            double r0 = step.getR();
+            double x0 = step.getX();
+            double b01 = step.getB1();
+            double g01 = step.getG1();
+            //double b02 = step.getB2();
+            //double g02 = step.getG2();
+            // Only b01 and g01 instead of b01 + b02 and g01 + g02
+            rtca.beginStep()
+                .setRho(1 / ratio0)
+                .setR(r0)
+                .setX(x0)
+                .setB(b01)
+                .setG(g01)
+                .endStep();
+        });
+        rtca.add();
     }
 
-    // return classes
+    protected void setToIidmPhaseTapChanger(TapChanger ptc, PhaseTapChangerAdder ptca) {
+        int lowStep = ptc.getLowTapPosition();
+        int position = ptc.getTapPosition();
+        ptca.setLowTapPosition(lowStep).setTapPosition((int) position);
+
+        ptc.getSteps().forEach(step -> {
+            double ratio0 = step.getRatio();
+            double angle0 = step.getAngle();
+            double r0 = step.getR();
+            double x0 = step.getX();
+            double b01 = step.getB1();
+            double g01 = step.getG1();
+            // double b02 = step.getB2();
+            // double g02 = step.getG2();
+            // Only b01 and g01 instead of b01 + b02 and g01 + g02
+            ptca.beginStep()
+                .setRho(1 / ratio0)
+                .setAlpha(-angle0)
+                .setR(r0)
+                .setX(x0)
+                .setB(b01)
+                .setG(g01)
+                .endStep();
+        });
+        ptca.add();
+    }
+
+    protected static class ConvertedEnd1 {
+        double g;
+        double b;
+        TapChanger ratioTapChanger;
+        TapChanger phaseTapChanger;
+        double ratedU;
+        String terminal;
+        int phaseAngleClock;
+    }
+
+    static class PhaseAngleClock02 {
+        int phaseAngleClock1;
+        int phaseAngleClock2;
+    }
+
+    static class Shunt22 {
+        double g1;
+        double b1;
+        double g2;
+        double b2;
+    }
+
+    static class TapChanger22 {
+        TapChanger ratioTapChanger1;
+        TapChanger phaseTapChanger1;
+        TapChanger ratioTapChanger2;
+        TapChanger phaseTapChanger2;
+    }
 
     static class TapChangerStepConversion {
         double ratio;
