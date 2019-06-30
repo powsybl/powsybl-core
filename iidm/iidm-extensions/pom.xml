@@ -25,13 +25,8 @@
     <dependencies>
         <!-- compile dependencies  -->
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.powsybl</groupId>
-            <artifactId>powsybl-iidm-test</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -58,20 +53,26 @@
         </dependency>
 
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-commons</artifactId>
             <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-impl</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>com.powsybl</groupId>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-test</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-xml-converter</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
