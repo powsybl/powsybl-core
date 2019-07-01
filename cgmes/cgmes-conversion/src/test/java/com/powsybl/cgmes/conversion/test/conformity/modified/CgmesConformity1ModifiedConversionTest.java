@@ -224,6 +224,19 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNull(tx1s.getCurrentLimits2());
     }
 
+    @Test
+    public void miniNodeBreakerInvalidT2w() {
+        Network network = new CgmesImport(platformConfig).importData(catalog.miniNodeBreaker().dataSource(),
+                NetworkFactory.findDefault(), null);
+        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer("_ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
+        assertNotNull(transformer);
+
+        Network invalidNetwork = new CgmesImport(platformConfig).importData(catalogModified.miniNodeBreakerInvalidT2w().dataSource(),
+                NetworkFactory.findDefault(), null);
+        TwoWindingsTransformer invalid = invalidNetwork.getTwoWindingsTransformer("_ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
+        assertNull(invalid);
+    }
+
     private static CgmesConformity1Catalog catalog;
     private static CgmesConformity1ModifiedCatalog catalogModified;
 
