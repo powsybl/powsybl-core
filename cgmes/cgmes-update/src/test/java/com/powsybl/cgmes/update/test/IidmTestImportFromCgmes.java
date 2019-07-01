@@ -22,9 +22,9 @@ import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.TripleStoreFactory;
 
-public class IidmImportFromCgmes {
+public class IidmTestImportFromCgmes {
 
-    public IidmImportFromCgmes(TestGridModel gm) {
+    public IidmTestImportFromCgmes(TestGridModel gm) {
         this.gridModel = gm;
     }
 
@@ -51,5 +51,5 @@ public class IidmImportFromCgmes {
     }
 
     private final TestGridModel gridModel;
-    private static final Logger LOGGER = LoggerFactory.getLogger(IidmImportFromCgmes.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(IidmTestImportFromCgmes.class);
 }

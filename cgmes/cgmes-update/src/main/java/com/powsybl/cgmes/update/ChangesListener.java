@@ -9,7 +9,7 @@ import com.powsybl.iidm.network.Identifiable;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.NetworkListener;
 
-public class ChangeListener implements NetworkListener {
+public class ChangesListener implements NetworkListener {
     /**
      * *class to register network changes, and add to changeList
      *
@@ -17,7 +17,7 @@ public class ChangeListener implements NetworkListener {
      * @param changeList is an empty list to ctore iidm changes
      */
 
-    public ChangeListener(Network network, List<IidmChangesObject> changeList) {
+    public ChangesListener(Network network, List<IidmChangesObject> changeList) {
         this.network = network;
         this.changeList = changeList;
     }
@@ -54,5 +54,5 @@ public class ChangeListener implements NetworkListener {
 
     private final Network network;
     private List<IidmChangesObject> changeList;
-    private static final Logger LOGGER = LoggerFactory.getLogger(ChangeListener.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChangesListener.class);
 }

@@ -538,6 +538,7 @@ public final class FakeCgmesModel implements CgmesModel {
 
     // TODO elena
     @Override
-    public void updateCgmesfromIidm() {
+    public PropertyBags updateCgmesfromIidmBySparql(String context, String identifiable, String newValue, String oldValue) {
+        return null;
     }
 }

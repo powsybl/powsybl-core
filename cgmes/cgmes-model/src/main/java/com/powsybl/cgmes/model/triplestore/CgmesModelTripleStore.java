@@ -405,8 +405,9 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     // update()
     // from each TripleStore... in impl (e.g. TripleStoreRDF4J)
     @Override
-    public void updateCgmesfromIidm() {
-        namedQueryFordUpdate("updateCgmesfromIidm2");
+    public PropertyBags updateCgmesfromIidmBySparql(String context, String identifiable, String newValue, String oldValue) {
+        // namedQueryFordUpdate("updateCgmesfromIidm", newValue, oldValue);
+        return namedQuery("getCgmesUpdated");
     }
 
     public PropertyBags namedQuery(String name, String... params) {
@@ -438,9 +439,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         final long t0 = System.currentTimeMillis();
         update(queryText);
         final long t1 = System.currentTimeMillis();
-        if (LOG.isDebugEnabled()) {
-            LOG.debug("dt query {} {} ms", name, t1 - t0);
-        }
+        LOG.info("dt query {} {} ms", name, t1 - t0);
     }
 
     public PropertyBags query(String queryText) {

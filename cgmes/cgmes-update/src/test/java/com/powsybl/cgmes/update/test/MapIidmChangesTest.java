@@ -25,29 +25,29 @@ public class MapIidmChangesTest {
 
     @BeforeClass
     public static void setUp() throws IOException {
-        TestGridModel gm = smallCasesCatalog.small1();
-        importToIidm = new IidmImportFromCgmes(gm);
+        TestGridModel testGridModel = smallCasesCatalog.small1();
+        iidmTestImportFromCgmes = new IidmTestImportFromCgmes(testGridModel);
     }
 
     // @Test
     public void changeIidmModelTest() throws IOException {
-        Network network = importToIidm.importTestModelFromCgmes();
+        Network network = iidmTestImportFromCgmes.importTestModelFromCgmes();
         if (modelNotEmpty(network)) {
-            ChangeIidmModel changedModel = new ChangeIidmModel(network);
-            changedModel.updateImportedModel();
+            ChangeTestIidmModel changeTestIidmModel = new ChangeTestIidmModel(network);
+            changeTestIidmModel.updateImportedTestModel();
         }
     }
 
     @Test
     public void mapIidmChangesToCgmesTest() throws IOException {
-        Network network = importToIidm.importTestModelFromCgmes();
+        Network network = iidmTestImportFromCgmes.importTestModelFromCgmes();
         if (modelNotEmpty(network)) {
-            ChangeIidmModel changedModel = new ChangeIidmModel(network);
-            changedModel.updateImportedModel();
-            CgmesModel cgmes = changedModel.mapIidmChangesToCgmesTester();
+            ChangeTestIidmModel changeTestIidmModel = new ChangeTestIidmModel(network);
+            changeTestIidmModel.updateImportedTestModel();
+            CgmesModel cgmes = changeTestIidmModel.mapIidmChangesToCgmesTester();
         }
     }
 
-    private static IidmImportFromCgmes importToIidm;
+    private static IidmTestImportFromCgmes iidmTestImportFromCgmes;
     private static Cim14SmallCasesCatalog smallCasesCatalog = new Cim14SmallCasesCatalog();
 }
