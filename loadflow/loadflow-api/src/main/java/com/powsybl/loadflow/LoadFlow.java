@@ -65,13 +65,20 @@ public class LoadFlow implements Versionable {
         if (providers.isEmpty()) {
             throw new PowsyblException("No loadflow providers found");
         }
+        String name = platformConfig.getOptionalModuleConfig("load-flow")
+                .flatMap(mc -> mc.getOptionalStringProperty("default"))
+                .orElse(null);
         if (providers.size() == 1) {
-            return new LoadFlow(providers.get(0), platformConfig);
+            LoadFlowProvider provider = providers.get(0);
+            if (name != null && !provider.getName().equals(name)) {
+                throw new PowsyblException("Loadflow '" + name + "' not found");
+            }
+            return new LoadFlow(provider, platformConfig);
         } else {
             // try to find a loadflow config to known which implementation has to be chosen
-            String name = platformConfig.getOptionalModuleConfig("load-flow")
-                    .flatMap(mc -> mc.getOptionalStringProperty("default"))
-                    .orElseThrow(() -> new PowsyblException("Loadflow configuration not found"));
+            if (name == null) {
+                throw new PowsyblException("Loadflow configuration not found");
+            }
             return find(name, providers, platformConfig);
         }
     }

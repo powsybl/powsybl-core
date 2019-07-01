@@ -98,4 +98,11 @@ public class LoadFlowTest {
         LoadFlow otherLoadFlow2 = LoadFlow.findDefault(ImmutableList.of(new LoadFlowProviderMock(), new AnotherLoadFlowProviderMock()), platformConfig);
         assertEquals("AnotherLoadFlowMock", otherLoadFlow2.getName());
     }
+
+    @Test(expected = PowsyblException.class)
+    public void testOneProviderAndMistakeInPlatformConfig() {
+        // case with 1 provider with config but with a name that is not the one of provider.
+        platformConfig.createModuleConfig("load-flow").setStringProperty("default", "AnotherLoadFlowMock");
+        LoadFlow.findDefault(ImmutableList.of(new LoadFlowProviderMock()), platformConfig);
+    }
 }

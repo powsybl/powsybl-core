@@ -28,13 +28,11 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
 
     private final ComputationManager computationManager;
 
-    private final LoadFlowBasedPhaseShifterOptimizerConfig config;
-
     private final LoadFlow loadFlow;
 
     public LoadFlowBasedPhaseShifterOptimizer(ComputationManager computationManager, LoadFlowBasedPhaseShifterOptimizerConfig config) {
         this.computationManager = Objects.requireNonNull(computationManager);
-        this.config = Objects.requireNonNull(config);
+        Objects.requireNonNull(config);
         loadFlow = config.getLoadFlowName().map(LoadFlow::find).orElseGet(LoadFlow::findDefault);
     }
 

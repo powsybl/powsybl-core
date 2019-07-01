@@ -17,5 +17,5 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface LoadFlowProvider extends Versionable {
 
-    CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingStateId, LoadFlowParameters parameters);
+    CompletableFuture<LoadFlowResult> run(Network network, ComputationManager computationManager, String workingVariantId, LoadFlowParameters parameters);
 }
