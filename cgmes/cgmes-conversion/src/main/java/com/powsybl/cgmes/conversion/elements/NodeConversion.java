@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.CountryConversion;
 import com.powsybl.cgmes.model.CgmesNames;
-import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.BusbarSection;
 import com.powsybl.iidm.network.Country;
@@ -90,12 +89,12 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         // Selection of country code when ENTSO-E extensions are present
         return CountryConversion.fromIsoCode(p.getLocal("fromEndIsoCode"))
                 .orElseGet(() -> CountryConversion.fromIsoCode(p.getLocal("toEndIsoCode"))
-                        .orElseThrow(() -> {
+                        .orElseGet(() -> {
                             String countryCodes = String.format("Country. ISO codes %s %s",
                                     p.getLocal("fromEndIsoCode"),
                                     p.getLocal("toEndIsoCode"));
-                            invalid(countryCodes);
-                            return new PowsyblException("Invalid " + countryCodes);
+                            ignored(countryCodes);
+                            return null;
                         }));
     }
 
