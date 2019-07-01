@@ -87,7 +87,7 @@ public class LoadFlowTest {
     @Test
     public void testTwoProviders() {
         // case with 2 providers without any config but specifying which one to use programmatically
-        LoadFlow otherLoadFlow = LoadFlow.find("AnotherLoadFlowMock", ImmutableList.of(new LoadFlowProviderMock(), new AnotherLoadFlowProviderMock()), platformConfig);
+        LoadFlow otherLoadFlow = LoadFlow.find("AnotherLoadFlowMock", ImmutableList.of(new LoadFlowProviderMock(), new AnotherLoadFlowProviderMock()));
         assertEquals("AnotherLoadFlowMock", otherLoadFlow.getName());
     }
 

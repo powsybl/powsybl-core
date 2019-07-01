@@ -31,22 +31,15 @@ public class LoadFlow implements Versionable {
 
     private final LoadFlowProvider provider;
 
-    private final PlatformConfig platformConfig;
-
-    public LoadFlow(LoadFlowProvider provider, PlatformConfig platformConfig) {
+    public LoadFlow(LoadFlowProvider provider) {
         this.provider = Objects.requireNonNull(provider);
-        this.platformConfig = Objects.requireNonNull(platformConfig);
     }
 
     public static LoadFlow find(String name) {
-        return find(name, PlatformConfig.defaultConfig());
+        return find(name, PROVIDERS_SUPPLIERS.get());
     }
 
-    public static LoadFlow find(String name, PlatformConfig platformConfig) {
-        return find(name, PROVIDERS_SUPPLIERS.get(), platformConfig);
-    }
-
-    static LoadFlow find(String name, List<LoadFlowProvider> providers, PlatformConfig platformConfig) {
+    public static LoadFlow find(String name, List<LoadFlowProvider> providers) {
         Objects.requireNonNull(name);
         Objects.requireNonNull(providers);
 
@@ -55,7 +48,7 @@ public class LoadFlow implements Versionable {
                 .findFirst()
                 .orElseThrow(() -> new PowsyblException("Loadflow '" + name + "' not found"));
 
-        return new LoadFlow(provider, platformConfig);
+        return new LoadFlow(provider);
     }
 
     public static LoadFlow findDefault() {
@@ -81,13 +74,13 @@ public class LoadFlow implements Versionable {
             if (name != null && !provider.getName().equals(name)) {
                 throw new PowsyblException("Loadflow '" + name + "' not found");
             }
-            return new LoadFlow(provider, platformConfig);
+            return new LoadFlow(provider);
         } else {
             // try to find a loadflow config to known which implementation has to be chosen
             if (name == null) {
                 throw new PowsyblException("Loadflow configuration not found");
             }
-            return find(name, providers, platformConfig);
+            return find(name, providers);
         }
     }
 
@@ -106,7 +99,7 @@ public class LoadFlow implements Versionable {
     }
 
     public CompletableFuture<LoadFlowResult> runAsync(Network network) {
-        return runAsync(network, LoadFlowParameters.load(platformConfig));
+        return runAsync(network, LoadFlowParameters.load());
     }
 
     public LoadFlowResult run(Network network, String workingStateId, ComputationManager computationManager, LoadFlowParameters parameters) {
@@ -124,7 +117,7 @@ public class LoadFlow implements Versionable {
     }
 
     public LoadFlowResult run(Network network) {
-        return run(network, LoadFlowParameters.load(platformConfig));
+        return run(network, LoadFlowParameters.load());
     }
 
     @Override
