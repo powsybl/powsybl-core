@@ -23,7 +23,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
 
 /**
  *
@@ -474,7 +474,7 @@ public class NetworkStateComparator {
     }
 
     private <T extends Identifiable> void createRowFooter(SheetContext<T> sheetContext, int diffColumnOffset,
-                                                          List<ColumnMapper<T>> mappers, int footerIndex, String title, BiFunction<String, String, String> function) {
+                                                          List<ColumnMapper<T>> mappers, int footerIndex, String title, BinaryOperator<String> function) {
         Row rowFooterMax = sheetContext.getSheet().createRow(sheetContext.getObjs().size() + 2 + footerIndex);
         Cell titleCell = rowFooterMax.createCell(diffColumnOffset - 1);
         titleCell.setCellValue(title);
