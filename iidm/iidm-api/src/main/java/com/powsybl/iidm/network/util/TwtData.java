@@ -9,8 +9,6 @@ package com.powsybl.iidm.network.util;
 import java.util.Objects;
 
 import org.apache.commons.math3.complex.Complex;
-import org.apache.commons.math3.complex.ComplexUtils;
-
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.ThreeWindingsTransformer;
 import com.powsybl.iidm.network.ThreeWindingsTransformer.LegBase;
@@ -142,20 +140,20 @@ public class TwtData {
         double rhof = 1.0;
         double alphaf = 0.0;
 
-        double angle1 = -alpha1 + Math.toRadians(getPhaseAngleClockDegrees(twt.getLeg1().getPhaseAngleClock1()));
-        double angle2 = -alpha2 + Math.toRadians(getPhaseAngleClockDegrees(twt.getLeg2().getPhaseAngleClock1()));
-        double angle3 = -alpha3 + Math.toRadians(getPhaseAngleClockDegrees(twt.getLeg3().getPhaseAngleClock1()));
-        double anglef1 = -alphaf + Math.toRadians(getPhaseAngleClockDegrees(twt.getLeg1().getPhaseAngleClock2()));
-        double anglef2 = -alphaf + Math.toRadians(getPhaseAngleClockDegrees(twt.getLeg2().getPhaseAngleClock2()));
-        double anglef3 = -alphaf + Math.toRadians(getPhaseAngleClockDegrees(twt.getLeg3().getPhaseAngleClock2()));
+        double angle1 = -alpha1 + Math.toRadians(LinkData.getPhaseAngleClockDegrees(twt.getLeg1().getPhaseAngleClock1()));
+        double angle2 = -alpha2 + Math.toRadians(LinkData.getPhaseAngleClockDegrees(twt.getLeg2().getPhaseAngleClock1()));
+        double angle3 = -alpha3 + Math.toRadians(LinkData.getPhaseAngleClockDegrees(twt.getLeg3().getPhaseAngleClock1()));
+        double anglef1 = -alphaf + Math.toRadians(LinkData.getPhaseAngleClockDegrees(twt.getLeg1().getPhaseAngleClock2()));
+        double anglef2 = -alphaf + Math.toRadians(LinkData.getPhaseAngleClockDegrees(twt.getLeg2().getPhaseAngleClock2()));
+        double anglef3 = -alphaf + Math.toRadians(LinkData.getPhaseAngleClockDegrees(twt.getLeg3().getPhaseAngleClock2()));
 
-        BranchAdmittanceMatrix branchAdmittanceLeg1 = calculateBranchAdmittance(r1, x1,
+        LinkData.BranchAdmittanceMatrix branchAdmittanceLeg1 = LinkData.calculateBranchAdmittance(r1, x1,
             1 / rho1, angle1, 1 / rhof, anglef1, new Complex(g11, b11), new Complex(g12, b12));
 
-        BranchAdmittanceMatrix branchAdmittanceLeg2 = calculateBranchAdmittance(r2, x2,
+        LinkData.BranchAdmittanceMatrix branchAdmittanceLeg2 = LinkData.calculateBranchAdmittance(r2, x2,
             1 / rho2, angle2, 1 / rhof, anglef2, new Complex(g21, b21), new Complex(g22, b22));
 
-        BranchAdmittanceMatrix branchAdmittanceLeg3 = calculateBranchAdmittance(r3, x3,
+        LinkData.BranchAdmittanceMatrix branchAdmittanceLeg3 = LinkData.calculateBranchAdmittance(r3, x3,
             1 / rho3, angle3, 1 / rhof, anglef3, new Complex(g31, b31), new Complex(g32, b32));
 
         connected1 = twt.getLeg1().getTerminal().isConnected();
@@ -174,7 +172,7 @@ public class TwtData {
 
         } else if (connected1 && connected2) {
 
-            Flow flow = calculateTwoConnectedLegsFlow(u1, theta1, u2, theta2,
+            LinkData.Flow flow = calculateTwoConnectedLegsFlow(u1, theta1, u2, theta2,
                 branchAdmittanceLeg1, branchAdmittanceLeg2, branchAdmittanceLeg3);
             computedP1 = flow.fromTo.getReal();
             computedQ1 = flow.fromTo.getImaginary();
@@ -185,7 +183,7 @@ public class TwtData {
 
         } else if (connected1 && connected3) {
 
-            Flow flow = calculateTwoConnectedLegsFlow(u1, theta1, u3, theta3,
+            LinkData.Flow flow = calculateTwoConnectedLegsFlow(u1, theta1, u3, theta3,
                 branchAdmittanceLeg1, branchAdmittanceLeg3, branchAdmittanceLeg2);
             computedP1 = flow.fromTo.getReal();
             computedQ1 = flow.fromTo.getImaginary();
@@ -196,7 +194,7 @@ public class TwtData {
 
         } else if (connected2 && connected3) {
 
-            Flow flow = calculateTwoConnectedLegsFlow(u2, theta2, u3, theta3,
+            LinkData.Flow flow = calculateTwoConnectedLegsFlow(u2, theta2, u3, theta3,
                 branchAdmittanceLeg2, branchAdmittanceLeg3, branchAdmittanceLeg1);
             computedP1 = 0.0;
             computedQ1 = 0.0;
@@ -207,7 +205,7 @@ public class TwtData {
 
         } else if (connected1) {
 
-            Complex flow = calculateOneConnectedLegsFlow(u1, theta1, branchAdmittanceLeg1,
+            Complex flow = calculateOneConnectedLegFlow(u1, theta1, branchAdmittanceLeg1,
                 branchAdmittanceLeg2, branchAdmittanceLeg3);
             computedP1 = flow.getReal();
             computedQ1 = flow.getImaginary();
@@ -218,7 +216,7 @@ public class TwtData {
 
         } else if (connected2) {
 
-            Complex flow = calculateOneConnectedLegsFlow(u2, theta2, branchAdmittanceLeg2,
+            Complex flow = calculateOneConnectedLegFlow(u2, theta2, branchAdmittanceLeg2,
                 branchAdmittanceLeg1, branchAdmittanceLeg3);
 
             computedP1 = 0.0;
@@ -230,7 +228,7 @@ public class TwtData {
 
         } else if (connected3) {
 
-            Complex flow = calculateOneConnectedLegsFlow(u3, theta3, branchAdmittanceLeg3,
+            Complex flow = calculateOneConnectedLegFlow(u3, theta3, branchAdmittanceLeg3,
                 branchAdmittanceLeg1, branchAdmittanceLeg2);
 
             computedP1 = 0.0;
@@ -251,32 +249,9 @@ public class TwtData {
         }
     }
 
-    private BranchAdmittanceMatrix calculateBranchAdmittance(double r, double x, double ratio1, double alpha1,
-        double ratio2, double alpha2, Complex ysh1, Complex ysh2) {
-
-        Complex a1 = ComplexUtils.polar2Complex(ratio1, alpha1);
-        Complex a2 = ComplexUtils.polar2Complex(ratio2, alpha2);
-
-        Complex ytr;
-        if (r == 0.0 && x == 0.0) {
-            ytr = Complex.ZERO;
-        } else {
-            ytr = new Complex(r, x).reciprocal();
-        }
-
-        BranchAdmittanceMatrix branchAdmittanceMatrix = new BranchAdmittanceMatrix();
-
-        branchAdmittanceMatrix.y11 = ytr.add(ysh1).divide(a1.conjugate().multiply(a1));
-        branchAdmittanceMatrix.y12 = ytr.negate().divide(a1.conjugate().multiply(a2));
-        branchAdmittanceMatrix.y21 = ytr.negate().divide(a2.conjugate().multiply(a1));
-        branchAdmittanceMatrix.y22 = ytr.add(ysh2).divide(a2.conjugate().multiply(a2));
-
-        return branchAdmittanceMatrix;
-    }
-
     private void calculateThreeConnectedLegsFlow(double u1, double theta1, double u2, double theta2,
-        double u3, double theta3, BranchAdmittanceMatrix branchAdmittanceLeg1,
-        BranchAdmittanceMatrix branchAdmittanceLeg2, BranchAdmittanceMatrix branchAdmittanceLeg3) {
+        double u3, double theta3, LinkData.BranchAdmittanceMatrix branchAdmittanceLeg1,
+        LinkData.BranchAdmittanceMatrix branchAdmittanceLeg2, LinkData.BranchAdmittanceMatrix branchAdmittanceLeg3) {
 
         Complex v1 = new Complex(u1 * Math.cos(theta1), u1 * Math.sin(theta1));
         Complex v2 = new Complex(u2 * Math.cos(theta2), u2 * Math.sin(theta2));
@@ -286,13 +261,13 @@ public class TwtData {
             .add(branchAdmittanceLeg3.y21.multiply(v3)).negate()
             .divide(branchAdmittanceLeg1.y22.add(branchAdmittanceLeg2.y22).add(branchAdmittanceLeg3.y22));
 
-        Flow flowLeg1 = flowBothEnds(branchAdmittanceLeg1.y11, branchAdmittanceLeg1.y12,
+        LinkData.Flow flowLeg1 = LinkData.flowBothEnds(branchAdmittanceLeg1.y11, branchAdmittanceLeg1.y12,
             branchAdmittanceLeg1.y21, branchAdmittanceLeg1.y22, v1, v0);
 
-        Flow flowLeg2 = flowBothEnds(branchAdmittanceLeg2.y11, branchAdmittanceLeg2.y12,
+        LinkData.Flow flowLeg2 = LinkData.flowBothEnds(branchAdmittanceLeg2.y11, branchAdmittanceLeg2.y12,
             branchAdmittanceLeg2.y21, branchAdmittanceLeg2.y22, v2, v0);
 
-        Flow flowLeg3 = flowBothEnds(branchAdmittanceLeg3.y11, branchAdmittanceLeg3.y12,
+        LinkData.Flow flowLeg3 = LinkData.flowBothEnds(branchAdmittanceLeg3.y11, branchAdmittanceLeg3.y12,
             branchAdmittanceLeg3.y21, branchAdmittanceLeg3.y22, v3, v0);
 
         computedP1 = flowLeg1.fromTo.getReal();
@@ -306,122 +281,48 @@ public class TwtData {
         starTheta = v0.getArgument();
     }
 
-    private Flow calculateTwoConnectedLegsFlow(double u1, double theta1, double u2, double theta2,
-        BranchAdmittanceMatrix admittanceMatrixLeg1, BranchAdmittanceMatrix admittanceMatrixLeg2,
-        BranchAdmittanceMatrix admittanceMatrixOpenLeg) {
+    private LinkData.Flow calculateTwoConnectedLegsFlow(double u1, double theta1, double u2, double theta2,
+        LinkData.BranchAdmittanceMatrix admittanceMatrixLeg1, LinkData.BranchAdmittanceMatrix admittanceMatrixLeg2,
+        LinkData.BranchAdmittanceMatrix admittanceMatrixOpenLeg) {
 
         Complex v1 = new Complex(u1 * Math.cos(theta1), u1 * Math.sin(theta1));
         Complex v2 = new Complex(u2 * Math.cos(theta2), u2 * Math.sin(theta2));
 
-        BranchAdmittanceMatrix admittance = calculateTwoConnectedLegsAdmittance(admittanceMatrixLeg1,
+        LinkData.BranchAdmittanceMatrix admittance = calculateTwoConnectedLegsAdmittance(admittanceMatrixLeg1,
             admittanceMatrixLeg2, admittanceMatrixOpenLeg);
 
-        return flowBothEnds(admittance.y11, admittance.y12, admittance.y21, admittance.y22, v1, v2);
+        return LinkData.flowBothEnds(admittance.y11, admittance.y12, admittance.y21, admittance.y22, v1, v2);
     }
 
-    private Complex calculateOneConnectedLegsFlow(double u, double theta,
-        BranchAdmittanceMatrix admittanceMatrixLeg, BranchAdmittanceMatrix admittanceMatrixFirstOpenLeg,
-        BranchAdmittanceMatrix admittanceMatrixSecondOpenLeg) {
+    private Complex calculateOneConnectedLegFlow(double u, double theta,
+        LinkData.BranchAdmittanceMatrix admittanceMatrixLeg, LinkData.BranchAdmittanceMatrix admittanceMatrixFirstOpenLeg,
+        LinkData.BranchAdmittanceMatrix admittanceMatrixSecondOpenLeg) {
 
         Complex ysh = calculateOneConnectedLegShunt(admittanceMatrixLeg,
             admittanceMatrixFirstOpenLeg, admittanceMatrixSecondOpenLeg);
 
-        return flowYshunt(ysh, u, theta);
+        return LinkData.flowYshunt(ysh, u, theta);
     }
 
-    private BranchAdmittanceMatrix calculateTwoConnectedLegsAdmittance(BranchAdmittanceMatrix firstCloseLeg,
-        BranchAdmittanceMatrix secondCloseLeg, BranchAdmittanceMatrix openLeg) {
+    private LinkData.BranchAdmittanceMatrix calculateTwoConnectedLegsAdmittance(LinkData.BranchAdmittanceMatrix firstCloseLeg,
+        LinkData.BranchAdmittanceMatrix secondCloseLeg, LinkData.BranchAdmittanceMatrix openLeg) {
 
-        Complex ysh = kronAntenna(openLeg.y11, openLeg.y12, openLeg.y21, openLeg.y22, true);
+        Complex ysh = LinkData.kronAntenna(openLeg.y11, openLeg.y12, openLeg.y21, openLeg.y22, true);
         Complex y22 = secondCloseLeg.y22.add(ysh);
 
-        return kronChain(firstCloseLeg.y11, firstCloseLeg.y12, firstCloseLeg.y21, firstCloseLeg.y22,
+        return LinkData.kronChain(firstCloseLeg.y11, firstCloseLeg.y12, firstCloseLeg.y21, firstCloseLeg.y22,
             secondCloseLeg.y11, secondCloseLeg.y12, secondCloseLeg.y21, y22);
     }
 
-    private Complex calculateOneConnectedLegShunt(BranchAdmittanceMatrix closeLeg,
-        BranchAdmittanceMatrix firstOpenLeg, BranchAdmittanceMatrix secondOpenLeg) {
-        Complex ysh1 = kronAntenna(firstOpenLeg.y11, firstOpenLeg.y12, firstOpenLeg.y21, firstOpenLeg.y22,
+    private Complex calculateOneConnectedLegShunt(LinkData.BranchAdmittanceMatrix closeLeg,
+        LinkData.BranchAdmittanceMatrix firstOpenLeg, LinkData.BranchAdmittanceMatrix secondOpenLeg) {
+        Complex ysh1 = LinkData.kronAntenna(firstOpenLeg.y11, firstOpenLeg.y12, firstOpenLeg.y21, firstOpenLeg.y22,
             true);
-        Complex ysh2 = kronAntenna(secondOpenLeg.y11, secondOpenLeg.y12, secondOpenLeg.y21,
+        Complex ysh2 = LinkData.kronAntenna(secondOpenLeg.y11, secondOpenLeg.y12, secondOpenLeg.y21,
             secondOpenLeg.y22, true);
         Complex y22 = closeLeg.y22.add(ysh1).add(ysh2);
 
-        return kronAntenna(closeLeg.y11, closeLeg.y12, closeLeg.y21, y22, false);
-    }
-
-    private Complex kronAntenna(Complex y11, Complex y12, Complex y21, Complex y22, boolean isOpenFrom) {
-        Complex ysh = Complex.ZERO;
-
-        if (isOpenFrom) {
-            if (!y11.equals(Complex.ZERO)) {
-                ysh = y22.subtract(y21.multiply(y12).divide(y11));
-            }
-        } else {
-            if (!y22.equals(Complex.ZERO)) {
-                ysh = y11.subtract(y12.multiply(y21).divide(y22));
-            }
-        }
-        return ysh;
-    }
-
-    private BranchAdmittanceMatrix kronChain(Complex yFirstConnected11, Complex yFirstConnected12,
-        Complex yFirstConnected21, Complex yFirstConnected22, Complex ySecondConnected11,
-        Complex ySecondConnected12, Complex ySecondConnected21, Complex ySecondConnected22) {
-        BranchAdmittanceMatrix admittance = new BranchAdmittanceMatrix();
-
-        admittance.y11 = yFirstConnected11.subtract(yFirstConnected21.multiply(yFirstConnected12)
-            .divide(yFirstConnected22.add(ySecondConnected22)));
-        admittance.y12 = ySecondConnected21.multiply(yFirstConnected12)
-            .divide(yFirstConnected22.add(ySecondConnected22)).negate();
-        admittance.y21 = yFirstConnected21.multiply(ySecondConnected12)
-            .divide(yFirstConnected22.add(ySecondConnected22)).negate();
-        admittance.y22 = ySecondConnected11.subtract(
-            ySecondConnected21.multiply(ySecondConnected12).divide(yFirstConnected22.add(ySecondConnected22)));
-
-        return admittance;
-    }
-
-    private Complex flowYshunt(Complex ysh, double u, double theta) {
-
-        Complex v = ComplexUtils.polar2Complex(u, theta);
-
-        return ysh.conjugate().multiply(v.conjugate().multiply(v));
-    }
-
-    private Flow flowBothEnds(Complex y11, Complex y12, Complex y21, Complex y22,
-        Complex v1, Complex v2) {
-
-        Flow flow = new Flow();
-        Complex ift = y12.multiply(v2).add(y11.multiply(v1));
-        flow.fromTo = ift.conjugate().multiply(v1);
-
-        Complex itf = y21.multiply(v1).add(y22.multiply(v2));
-        flow.toFrom = itf.conjugate().multiply(v2);
-
-        return flow;
-    }
-
-    double getPhaseAngleClockDegrees(int phaseAngleClock) {
-        double phaseAngleClockDegree = 0.0;
-        phaseAngleClockDegree += phaseAngleClock * 30.0;
-        phaseAngleClockDegree = Math.IEEEremainder(phaseAngleClockDegree, 360.0);
-        if (phaseAngleClockDegree > 180.0) {
-            phaseAngleClockDegree -= 360.0;
-        }
-        return phaseAngleClockDegree;
-    }
-
-    static class BranchAdmittanceMatrix {
-        Complex y11 = Complex.ZERO;
-        Complex y12 = Complex.ZERO;
-        Complex y21 = Complex.ZERO;
-        Complex y22 = Complex.ZERO;
-    }
-
-    static class Flow {
-        Complex fromTo = Complex.ZERO;
-        Complex toFrom = Complex.ZERO;
+        return LinkData.kronAntenna(closeLeg.y11, closeLeg.y12, closeLeg.y21, y22, false);
     }
 
     private static double getV(LegBase<?> leg) {

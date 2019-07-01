@@ -9,8 +9,6 @@ package com.powsybl.iidm.network.util;
 import java.util.Objects;
 
 import org.apache.commons.math3.complex.Complex;
-import org.apache.commons.math3.complex.ComplexUtils;
-
 import com.powsybl.iidm.network.Branch.Side;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Line;
@@ -294,14 +292,14 @@ public class BranchData {
             computedP2 = Double.NaN;
             computedQ2 = Double.NaN;
         } else {
-            double angle1 = -alpha1 + Math.toRadians(getPhaseAngleClockDegrees(phaseAngleClock1));
-            double angle2 = -alpha2 + Math.toRadians(getPhaseAngleClockDegrees(phaseAngleClock2));
+            double angle1 = -alpha1 + Math.toRadians(LinkData.getPhaseAngleClockDegrees(phaseAngleClock1));
+            double angle2 = -alpha2 + Math.toRadians(LinkData.getPhaseAngleClockDegrees(phaseAngleClock2));
 
-            BranchAdmittanceMatrix branchAdmittance = calculateBranchAdmittance(r, x,
+            LinkData.BranchAdmittanceMatrix branchAdmittance = LinkData.calculateBranchAdmittance(r, x,
                 1 / rho1, angle1, 1 / rho2, angle2, new Complex(g1, b1), new Complex(g2, b2));
 
             if (connected1 && connected2) {
-                Flow flow = flowBothEnds(branchAdmittance.y11, branchAdmittance.y12,
+                LinkData.Flow flow = LinkData.flowBothEnds(branchAdmittance.y11, branchAdmittance.y12,
                     branchAdmittance.y21, branchAdmittance.y22, u1, theta1, u2, theta2);
 
                 computedP1 = flow.fromTo.getReal();
@@ -310,18 +308,18 @@ public class BranchData {
                 computedQ2 = flow.toFrom.getImaginary();
             } else if (connected1) {
 
-                Complex ysh = kronAntenna(branchAdmittance.y11, branchAdmittance.y12,
+                Complex ysh = LinkData.kronAntenna(branchAdmittance.y11, branchAdmittance.y12,
                     branchAdmittance.y21, branchAdmittance.y22, false);
-                Complex sFrom = flowYshunt(ysh, u1, theta1);
+                Complex sFrom = LinkData.flowYshunt(ysh, u1, theta1);
 
                 computedP1 = sFrom.getReal();
                 computedQ1 = sFrom.getImaginary();
                 computedP2 = 0.0;
                 computedQ2 = 0.0;
             } else {
-                Complex ysh = kronAntenna(branchAdmittance.y11, branchAdmittance.y12,
+                Complex ysh = LinkData.kronAntenna(branchAdmittance.y11, branchAdmittance.y12,
                     branchAdmittance.y21, branchAdmittance.y22, true);
-                Complex sTo = flowYshunt(ysh, u2, theta2);
+                Complex sTo = LinkData.flowYshunt(ysh, u2, theta2);
 
                 computedP1 = 0.0;
                 computedQ1 = 0.0;
@@ -329,90 +327,6 @@ public class BranchData {
                 computedQ2 = sTo.getImaginary();
             }
         }
-    }
-
-    private BranchAdmittanceMatrix calculateBranchAdmittance(double r, double x, double ratio1, double alpha1,
-        double ratio2, double alpha2, Complex ysh1, Complex ysh2) {
-
-        Complex a1 = ComplexUtils.polar2Complex(ratio1, alpha1);
-        Complex a2 = ComplexUtils.polar2Complex(ratio2, alpha2);
-
-        Complex ytr;
-        if (r == 0.0 && x == 0.0) {
-            ytr = Complex.ZERO;
-        } else {
-            ytr = new Complex(r, x).reciprocal();
-        }
-
-        BranchAdmittanceMatrix branchAdmittance = new BranchAdmittanceMatrix();
-
-        branchAdmittance.y11 = ytr.add(ysh1).divide(a1.conjugate().multiply(a1));
-        branchAdmittance.y12 = ytr.negate().divide(a1.conjugate().multiply(a2));
-        branchAdmittance.y21 = ytr.negate().divide(a2.conjugate().multiply(a1));
-        branchAdmittance.y22 = ytr.add(ysh2).divide(a2.conjugate().multiply(a2));
-
-        return branchAdmittance;
-    }
-
-    private Complex kronAntenna(Complex y11, Complex y12, Complex y21, Complex y22, boolean isOpenFrom) {
-        Complex ysh = Complex.ZERO;
-
-        if (isOpenFrom) {
-            if (!y11.equals(Complex.ZERO)) {
-                ysh = y22.subtract(y21.multiply(y12).divide(y11));
-            }
-        } else {
-            if (!y22.equals(Complex.ZERO)) {
-                ysh = y11.subtract(y12.multiply(y21).divide(y22));
-            }
-        }
-        return ysh;
-    }
-
-    private Complex flowYshunt(Complex ysh, double u, double theta) {
-
-        Complex v = ComplexUtils.polar2Complex(u, theta);
-
-        Complex s = ysh.conjugate().multiply(v.conjugate().multiply(v));
-        return s;
-    }
-
-    private Flow flowBothEnds(Complex y11, Complex y12, Complex y21, Complex y22,
-        double u1, double theta1, double u2, double theta2) {
-
-        Complex v1 = ComplexUtils.polar2Complex(u1, theta1);
-        Complex v2 = ComplexUtils.polar2Complex(u2, theta2);
-
-        Flow flow = new Flow();
-        Complex ift = y12.multiply(v2).add(y11.multiply(v1));
-        flow.fromTo = ift.conjugate().multiply(v1);
-
-        Complex itf = y21.multiply(v1).add(y22.multiply(v2));
-        flow.toFrom = itf.conjugate().multiply(v2);
-
-        return flow;
-    }
-
-    double getPhaseAngleClockDegrees(int phaseAngleClock) {
-        double phaseAngleClockDegree = 0.0;
-        phaseAngleClockDegree += phaseAngleClock * 30.0;
-        phaseAngleClockDegree = Math.IEEEremainder(phaseAngleClockDegree, 360.0);
-        if (phaseAngleClockDegree > 180.0) {
-            phaseAngleClockDegree -= 360.0;
-        }
-        return phaseAngleClockDegree;
-    }
-
-    static class BranchAdmittanceMatrix {
-        Complex y11 = Complex.ZERO;
-        Complex y12 = Complex.ZERO;
-        Complex y21 = Complex.ZERO;
-        Complex y22 = Complex.ZERO;
-    }
-
-    static class Flow {
-        Complex fromTo = Complex.ZERO;
-        Complex toFrom = Complex.ZERO;
     }
 
     public String getId() {
