@@ -39,7 +39,11 @@ public class LoadFlow implements Versionable {
     }
 
     public static LoadFlow find(String name) {
-        return find(name, PROVIDERS_SUPPLIERS.get(), PlatformConfig.defaultConfig());
+        return find(name, PlatformConfig.defaultConfig());
+    }
+
+    public static LoadFlow find(String name, PlatformConfig platformConfig) {
+        return find(name, PROVIDERS_SUPPLIERS.get(), platformConfig);
     }
 
     static LoadFlow find(String name, List<LoadFlowProvider> providers, PlatformConfig platformConfig) {
@@ -55,7 +59,11 @@ public class LoadFlow implements Versionable {
     }
 
     public static LoadFlow findDefault() {
-        return findDefault(PROVIDERS_SUPPLIERS.get(), PlatformConfig.defaultConfig());
+        return findDefault(PlatformConfig.defaultConfig());
+    }
+
+    public static LoadFlow findDefault(PlatformConfig platformConfig) {
+        return findDefault(PROVIDERS_SUPPLIERS.get(), platformConfig);
     }
 
     static LoadFlow findDefault(List<LoadFlowProvider> providers, PlatformConfig platformConfig) {
