@@ -9,9 +9,11 @@ package com.powsybl.math.matrix;
 import com.powsybl.commons.PowsyblException;
 import com.powsybl.commons.util.trove.TDoubleArrayListHack;
 import com.powsybl.commons.util.trove.TIntArrayListHack;
+import org.scijava.nativelib.NativeLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Arrays;
 import java.util.List;
@@ -35,16 +37,20 @@ class SparseMatrix extends AbstractMatrix {
 
     private static native void nativeInit();
 
-    static {
-        boolean pb = false;
+    static boolean loadLibrary(String name) {
+        Objects.requireNonNull(name);
         try {
-            System.loadLibrary("mathjni");
+            NativeLoader.loadLibrary(name);
             nativeInit();
-        } catch (UnsatisfiedLinkError e) {
+            return true;
+        } catch (IOException e) {
             LOGGER.warn("Cannot load native math library");
-            pb = true;
+            return false;
         }
-        NATIVE_INIT = !pb;
+    }
+
+    static {
+        NATIVE_INIT = loadLibrary("math");
     }
 
     private static void checkNativeInit() {

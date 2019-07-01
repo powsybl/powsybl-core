@@ -34,7 +34,7 @@ public class SparseMatrixTest extends AbstractMatrixTest {
     }
 
     @Override
-    public void testMultiplication() throws Exception {
+    public void testMultiplication() {
         assumeTrue(SparseMatrix.NATIVE_INIT);
         super.testMultiplication();
     }
@@ -67,6 +67,15 @@ public class SparseMatrixTest extends AbstractMatrixTest {
         a.set(1, 0, 1d);
         a.set(0, 1, 1d);
         a.set(1, 0, 1d);
+    }
+
+    @Test(expected = PowsyblException.class)
+    public void testWrongColumnOrderWithAdd() {
+        Matrix a = matrixFactory.create(2, 2, 2);
+        a.add(0, 0, 1d);
+        a.add(1, 0, 1d);
+        a.add(0, 1, 1d);
+        a.add(1, 0, 1d);
     }
 
     @Test
@@ -105,5 +114,10 @@ public class SparseMatrixTest extends AbstractMatrixTest {
             fail();
         } catch (PowsyblException ignored) {
         }
+    }
+
+    @Test
+    public void loadLibraryTest() {
+        assertFalse(SparseMatrix.loadLibrary("foo"));
     }
 }
