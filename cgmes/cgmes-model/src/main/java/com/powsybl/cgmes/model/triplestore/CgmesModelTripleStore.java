@@ -407,7 +407,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     @Override
     public PropertyBags updateCgmesfromIidmBySparql(String context, String identifiable, String newValue, String oldValue) {
         // namedQueryFordUpdate("updateCgmesfromIidm", newValue, oldValue);
-        return namedQuery("getCgmesUpdated");
+        return namedQuery("getCgmesUpdated",context, identifiable, newValue, oldValue);
     }
 
     public PropertyBags namedQuery(String name, String... params) {

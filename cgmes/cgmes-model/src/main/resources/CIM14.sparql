@@ -368,25 +368,28 @@ WHERE{}
 
 # query: getCgmesUpdated
 prefix case:<http://case1/#>
-SELECT ?element ?property  ?value
-WHERE
-{ GRAPH <contexts:case1_EQ.xml> {
-		 {?element ?property  ?value .
-		 FILTER (
-		 ?element = <http://case1/#_GEN_____-GRID____-1_PT>) .}
-		 UNION
-		 {?element ?property  ?value ;
-		 		a cim:TransformerWinding ;
-		        cim:TransformerWinding.MemberOf_PowerTransformer ?PowerTransformer ;
-       			cim:TransformerWinding.windingType ?windingType ;
-		 		cim:TransformerWinding.g ?g ;
-       			cim:TransformerWinding.b ?b ;
-        		cim:TransformerWinding.r ?r ;
-        		cim:TransformerWinding.x ?x ;
-        		cim:TransformerWinding.ratedU ?ratedU
-		 FILTER (
-		 ?value = <http://case1/#_GEN_____-GRID____-1_PT>) .}
+SELECT *
+WHERE {
+{ GRAPH ?graphEQ {
+    ?PowerTransformer
+        a cim:PowerTransformer ;
+        cim:IdentifiedObject.name ?name .
+    ?TransformerWinding
+        a cim:TransformerWinding ;
+        cim:TransformerWinding.MemberOf_PowerTransformer ?PowerTransformer ;
+        cim:TransformerWinding.windingType ?windingType ;
+        cim:TransformerWinding.g ?g ;
+        cim:TransformerWinding.b ?b ;
+        cim:TransformerWinding.r ?r ;
+        cim:TransformerWinding.x ?x ;
+        cim:TransformerWinding.ratedU ?ratedU .
+    ?Terminal cim:Terminal.ConductingEquipment ?TransformerWinding .
+    FILTER ( CONTAINS(STR(?PowerTransformer), "{1}")) .
+    OPTIONAL { ?RatioTapChanger cim:RatioTapChanger.TransformerWinding ?TransformerWinding }
+    OPTIONAL { ?PhaseTapChanger cim:PhaseTapChanger.TransformerWinding ?TransformerWinding }
 }}
+BIND ( ?TransformerWinding AS ?TransformerEnd )
+}
 
 
 # query: tmp

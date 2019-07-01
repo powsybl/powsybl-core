@@ -42,7 +42,7 @@ public class CgmesFromIidmModifier {
 
         for (IidmChangesObject change : changes) {
             PropertyBags result = cgmes.updateCgmesfromIidmBySparql(contextName,
-                change.getIdentifiableId(),
+                change.getIdentifiable().toString(),
                 change.getOldValueString(),
                 change.getNewValueString());
             LOGGER.info("getting result......");
