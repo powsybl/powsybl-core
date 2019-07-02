@@ -120,6 +120,10 @@ public class Conversion {
         // set all remote regulating terminals
         context.regulatingControlMapping().setAllRemoteRegulatingTerminals();
 
+        if (config.convertSvInjections()) {
+            convert(cgmes.svInjections(), si -> new SvInjectionConversion(si, context));
+        }
+
         voltageAngles(nodes, context);
         if (context.config().debugTopology()) {
             debugTopology(context);
@@ -366,6 +370,15 @@ public class Conversion {
             return this;
         }
 
+        public boolean convertSvInjections() {
+            return convertSvInjections;
+        }
+
+        public Config setConvertSvInjections(boolean convertSvInjections) {
+            this.convertSvInjections = convertSvInjections;
+            return this;
+        }
+
         private boolean allowUnsupportedTapChangers = true;
         private boolean convertBoundary = false;
         private boolean changeSignForShuntReactivePowerFlowInitialState = false;
@@ -373,6 +386,7 @@ public class Conversion {
         private double lowImpedanceLineX = 0.05;
 
         private boolean createBusbarSectionForEveryConnectivityNode = false;
+        private boolean convertSvInjections = true;
 
     }
 
