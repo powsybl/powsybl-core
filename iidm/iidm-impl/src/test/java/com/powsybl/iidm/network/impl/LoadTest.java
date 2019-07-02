@@ -80,14 +80,17 @@ public class LoadTest {
         load.setQ0(-2.0);
 
         // Check update notification
-        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(load, "p0", 0, p0OldValue, -1.0);
-        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(load, "q0", 0, q0OldValue, -2.0);
+        Mockito.verify(mockedListener, Mockito.times(1))
+               .onUpdate(load, "p0", VariantManagerConstants.INITIAL_VARIANT_ID, p0OldValue, -1.0);
+        Mockito.verify(mockedListener, Mockito.times(1))
+               .onUpdate(load, "q0", VariantManagerConstants.INITIAL_VARIANT_ID, q0OldValue, -2.0);
 
         // At this point
         // no more changes is taking into account
 
         // Simulate exception for onUpdate calls
-        Mockito.doThrow(new PowsyblException()).when(mockedListener).onUpdate(load, "p0", 0, p0OldValue, -1.0);
+        Mockito.doThrow(new PowsyblException()).when(mockedListener)
+               .onUpdate(load, "p0", VariantManagerConstants.INITIAL_VARIANT_ID, p0OldValue, -1.0);
 
         // Case when same values P0 & Q0 are set
         load.setP0(-1.0);
@@ -171,8 +174,8 @@ public class LoadTest {
         load.setP0(3.0);
         load.setQ0(2.0);
         // Check P0 & Q0 update notification
-        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(load, "p0", 4, 0.6d, 3.0);
-        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(load, "q0", 4, 0.7d, 2.0);
+        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(load, "p0", "s4", 0.6d, 3.0);
+        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(load, "q0", "s4", 0.7d, 2.0);
 
         // remove s2
         variantManager.removeVariant("s2");

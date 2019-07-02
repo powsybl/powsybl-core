@@ -44,11 +44,11 @@ class NetworkListenerList {
         }
     }
 
-    void notifyUpdate(Identifiable identifiable, String attribute, int variantIndex, Object oldValue, Object newValue) {
+    void notifyUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
         if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
             for (NetworkListener listener : listeners) {
                 try {
-                    listener.onUpdate(identifiable, attribute, variantIndex, oldValue, newValue);
+                    listener.onUpdate(identifiable, attribute, variantId, oldValue, newValue);
                 } catch (Exception t) {
                     LOGGER.error(t.toString(), t);
                 }

@@ -81,10 +81,14 @@ public class VariantManagerImpl implements VariantManager {
         return index;
     }
 
+    public String getVariantId(int variantIndex) {
+        return id2index.inverse().get(variantIndex);
+    }
+
     @Override
     public String getWorkingVariantId() {
         int index = variantContext.getVariantIndex();
-        return id2index.inverse().get(index);
+        return getVariantId(index);
     }
 
     @Override
@@ -239,5 +243,4 @@ public class VariantManagerImpl implements VariantManager {
             variantContext.setVariantIndex(currentVariantIndex);
         }
     }
-
 }
