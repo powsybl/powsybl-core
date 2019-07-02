@@ -159,15 +159,11 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         if (!checkValidVoltageAngle(null)) {
             return;
         }
-        VoltageLevel vl;
-        if (insideBoundary() && context.config().convertBoundary()) {
-            vl = context.network().getVoltageLevel(Context.boundaryVoltageLevelId(this.id));
-        } else if (!insideBoundary()) {
-            vl = voltageLevel();
-        } else {
+
+        VoltageLevel vl = voltageLevel();
+        if (vl == null) { // if inside boundary but boundaries must not be converted
             return;
         }
-        Objects.requireNonNull(vl);
         VoltageLevel.NodeBreakerView topo = vl.getNodeBreakerView();
         String connectivityNode = id;
         int iidmNode = context.nodeMapping().iidmNodeForConnectivityNode(connectivityNode, vl);
@@ -184,7 +180,7 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
         }
         Bus bus = t.getBusView().getBus();
         if (bus == null) {
-            bus = t.getBusBreakerView().getConnectableBus();
+            bus = t.getBusBreakerView().getBus();
             if (bus == null) {
                 LOG.error("Can't find a Bus from Terminal to set Voltage, Angle. Connectivity Node {}", id);
                 return;
@@ -197,10 +193,15 @@ public class NodeConversion extends AbstractIdentifiedObjectConversion {
     }
 
     private VoltageLevel voltageLevel() {
-        String containerId = p.getId("ConnectivityNodeContainer");
-        String cgmesId = context.cgmes().container(containerId).voltageLevel();
-        String iidmId = context.namingStrategy().getId(CgmesNames.VOLTAGE_LEVEL, cgmesId);
-        return iidmId != null ? context.network().getVoltageLevel(iidmId) : null;
+        if (insideBoundary() && context.config().convertBoundary()) {
+            return context.network().getVoltageLevel(Context.boundaryVoltageLevelId(this.id));
+        } else if (!insideBoundary()) {
+            String containerId = p.getId("ConnectivityNodeContainer");
+            String cgmesId = context.cgmes().container(containerId).voltageLevel();
+            String iidmId = context.namingStrategy().getId(CgmesNames.VOLTAGE_LEVEL, cgmesId);
+            return iidmId != null ? context.network().getVoltageLevel(iidmId) : null;
+        }
+        return null;
     }
 
     private void newNode(VoltageLevel vl) {
