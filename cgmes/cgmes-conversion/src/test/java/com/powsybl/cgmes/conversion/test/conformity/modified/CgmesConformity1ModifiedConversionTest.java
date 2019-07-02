@@ -226,6 +226,9 @@ public class CgmesConformity1ModifiedConversionTest {
 
     @Test
     public void miniNodeBreakerInvalidT2w() {
+        platformConfig.createModuleConfig("import-export-parameters-default-value")
+                .setStringProperty("iidm.import.cgmes.convert-boundary", "true");
+
         Network network = new CgmesImport(platformConfig).importData(catalog.miniNodeBreaker().dataSource(),
                 NetworkFactory.findDefault(), null);
         TwoWindingsTransformer transformer = network.getTwoWindingsTransformer("_ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
@@ -241,5 +244,5 @@ public class CgmesConformity1ModifiedConversionTest {
     private static CgmesConformity1ModifiedCatalog catalogModified;
 
     private FileSystem fileSystem;
-    private PlatformConfig platformConfig;
+    private InMemoryPlatformConfig platformConfig;
 }
