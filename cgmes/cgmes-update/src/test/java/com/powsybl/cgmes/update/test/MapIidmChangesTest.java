@@ -48,6 +48,16 @@ public class MapIidmChangesTest {
         }
     }
 
+    @Test
+    public void copyCgmesGraphBySparqlTest() throws IOException {
+        Network network = iidmTestImportFromCgmes.importTestModelFromCgmes();
+        if (modelNotEmpty(network)) {
+            ChangeTestIidmModel changeTestIidmModel = new ChangeTestIidmModel(network);
+            changeTestIidmModel.updateImportedTestModel();
+            CgmesModel cgmes = changeTestIidmModel.mapIidmChangesToCgmesTester();
+        }
+    }
+
     private static IidmTestImportFromCgmes iidmTestImportFromCgmes;
     private static Cim14SmallCasesCatalog smallCasesCatalog = new Cim14SmallCasesCatalog();
 }

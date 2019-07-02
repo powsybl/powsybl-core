@@ -359,18 +359,19 @@ WHERE {	?x cim:IdentifiedObject.name ?y .
 }
 
 
-# query: updateCgmesfromIidm1
-prefix case:<http://case1/#>
-INSERT {GRAPH <contexts:case1_EQ.xml> { <case:_TW_PATL_OLT> cim:IdentifiedObject.name "NEW_OBJECT" .}}
-WHERE{}
-         {<http://case1/#_GEN_____-GRID____-1_PT> ?y ?z .}
+# query: copyCgmesGraph
+COPY {0} TO <contexts:case1_EQ_copy.xml>
 
+# query: getCgmesCopiedGraph
+SELECT ?element ?property ?value
+FROM  <contexts:case1_EQ_copy.xml>
+WHERE {?element ?property  ?value}
 
 # query: getCgmesUpdated
 prefix case:<http://case1/#>
 SELECT *
 WHERE {
-{ GRAPH ?graphEQ {
+{ GRAPH {0} {
     ?PowerTransformer
         a cim:PowerTransformer ;
         cim:IdentifiedObject.name ?name .

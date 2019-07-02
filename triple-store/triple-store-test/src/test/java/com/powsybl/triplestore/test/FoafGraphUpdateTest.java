@@ -23,7 +23,7 @@ public class FoafGraphUpdateTest {
     @Test
     public void testInsertNickName() {
         tester = new TripleStoreTester(
-            TripleStoreFactory.allImplementations(), base, inputs);
+            TripleStoreFactory.onlyDefaultImplementation(), base, inputs);
         tester.load();
         Expected expected = new Expected().expect("nick", "SweetCaroline", "Wonderland");
         tester.testQuery(queries.get("selectNickName"), expected);
