@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 
 import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import org.junit.*;
 
 import com.google.common.jimfs.Jimfs;
@@ -156,6 +157,18 @@ public class CgmesConformity1ModifiedConversionTest {
         assertTrue(Double.isNaN(ptc.getRegulationValue()));
         assertFalse(ptc.isRegulating());
         assertNull(ptc.getRegulationTerminal());
+    }
+
+    @Test
+    public void microBESvInjection() {
+        Network network = new CgmesImport(platformConfig)
+                .importData(catalogModified.microGridBaseCaseBEWithSvInjection().dataSource(),
+                        NetworkFactory.findDefault(), null);
+
+        Load load = network.getLoad("SvInjection");
+        assertNotNull(load);
+        assertEquals(-0.2, load.getP0(), 0.0);
+        assertEquals(-13.8, load.getQ0(), 0.0);
     }
 
     @Test
