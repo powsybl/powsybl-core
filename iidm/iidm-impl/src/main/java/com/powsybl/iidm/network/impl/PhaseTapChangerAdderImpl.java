@@ -189,22 +189,11 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
             throw new ValidationException(parent,
                 "Unexpected value for target deadband of phase tap changer: " + targetDeadband);
         }
-        // = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal,
-        // tapPosition, regulating, regulationMode, regulationValue);
 
         PhaseTapChangerImpl tapChanger = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal,
             tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
         parent.setPhaseTapChanger(tapChanger);
-//
-//       ValidationUtil.checkPhaseTapChangerRegulation(transformer, regulationMode, regulationValue, regulating, regulationTerminal, getNetwork());
-//        if (!Double.isNaN(targetDeadband) && targetDeadband < 0) {
-//            throw new ValidationException(transformer, "Unexpected value for target deadband of phase tap changer: " + targetDeadband);
-//        }
-//        PhaseTapChangerImpl tapChanger
-//                = new PhaseTapChangerImpl(transformer, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
-//        transformer.setPhaseTapChanger(tapChanger);
-//
+
         return tapChanger;
     }
-
 }
