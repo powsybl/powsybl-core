@@ -26,9 +26,10 @@ import java.io.IOException;
  * @author Amira KAHYA <amira.kahya at rte-france.com>
  */
 public class ProjectTest {
+    private static final String FOLDER_PSEUDO_CLASS = "folder";
+
     private AppStorage storage;
     private AppFileSystem afs;
-    static final String FOLDER_PSEUDO_CLASS = "folder";
 
     @Before
     public void setup() {
