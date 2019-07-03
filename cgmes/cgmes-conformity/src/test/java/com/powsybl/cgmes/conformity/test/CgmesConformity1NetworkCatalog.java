@@ -729,8 +729,8 @@ public class CgmesConformity1NetworkCatalog {
                 .setName("SVC-1230797516")
                 .setBus("_f70f6bad-eb8d-4b8f-8431-4ab93581514e")
                 .setConnectableBus("_f70f6bad-eb8d-4b8f-8431-4ab93581514e")
-                .setBmax(5062.5)
-                .setBmin(-5062.5)
+                .setBmax(1 / 5062.5)
+                .setBmin(1 / (-5062.5))
                 .setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
                 .setVoltageSetPoint(229.5)
                 .add();

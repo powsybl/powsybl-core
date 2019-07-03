@@ -192,6 +192,56 @@ public class RegulatingControlMapping {
         }
     }
 
+    public void setRegulatingControl(String idEq, PropertyBag p, StaticVarCompensatorAdder adder, VoltageLevel vl) {
+        if (!p.asBoolean("controlEnabled", false)) {
+            adder.setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
+            return;
+        }
+        if (p.containsKey(REGULATING_CONTROL)) {
+            RegulatingControl control = cachedRegulatingControls.get(p.getId(REGULATING_CONTROL));
+            if (control != null) {
+                if (!control.enabled) {
+                    adder.setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
+                    return;
+                }
+                if (context.terminalMapping().areAssociated(p.getId(TERMINAL), control.topologicalNode)) {
+                    setRegulatingControl(control, adder, idEq);
+                } else {
+                    context.pending(String.format("Remote control for static var compensator %s replaced by voltage local control at nominal voltage", idEq),
+                            "IIDM model does not support remote control for static var compensators");
+                    setDefaultRegulatingControl(p, adder, vl);
+                }
+            } else {
+                context.missing(String.format("Regulating control %s", p.getId(REGULATING_CONTROL)));
+                setDefaultRegulatingControl(p, adder, vl);
+            }
+        } else {
+            setDefaultRegulatingControl(p, adder, vl);
+        }
+    }
+
+    private static void setDefaultRegulatingControl(PropertyBag p, StaticVarCompensatorAdder adder, VoltageLevel vl) {
+        adder.setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE);
+        if (p.getId("controlMode").toLowerCase().endsWith("voltage")) {
+            adder.setVoltageSetPoint(p.asDouble("voltageSetPoint"));
+        } else {
+            adder.setVoltageSetPoint(vl.getNominalV());
+        }
+    }
+
+    private void setRegulatingControl(RegulatingControl control, StaticVarCompensatorAdder adder, String idEq) {
+        if (control.mode.toLowerCase().endsWith("voltage")) {
+            adder.setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
+                    .setVoltageSetPoint(control.targetValue);
+        } else if (control.mode.toLowerCase().endsWith("reactivepower")) {
+            adder.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER)
+                    .setReactivePowerSetPoint(control.targetValue);
+        } else {
+            context.fixed(control.mode, String.format("Invalid control mode for static var compensator %s. Regulating control is disabled", idEq));
+            adder.setRegulationMode(StaticVarCompensator.RegulationMode.OFF);
+        }
+    }
+
     public void setAllRemoteRegulatingTerminals() {
         cachedRegulatingControls.entrySet().removeIf(this::setRemoteRegulatingTerminal);
         cachedRegulatingControls.forEach((key, value) -> context.pending("Regulating terminal",
