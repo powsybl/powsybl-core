@@ -34,6 +34,26 @@ public abstract class AbstractTransformerFullConversion
     protected static final String STRING_B = "b";
     protected static final String STRING_PHASE_ANGLE_CLOCK = "phaseAngleClock";
     protected static final String STRING_STEP_VOLTAGE_INCREMENT = "stepVoltageIncrement";
+    protected static final String STRING_STEP_PHASE_SHIFT_INCREMENT = "stepPhaseShiftIncrement";
+
+    protected static final String STRING_LOW_STEP = "lowStep";
+    protected static final String STRING_HIGH_STEP = "highStep";
+    protected static final String STRING_NEUTRAL_STEP = "neutralStep";
+    protected static final String STRING_SV_TAP_STEP = "SVtapStep";
+    protected static final String STRING_LTC_FLAG = "ltcFlag";
+    protected static final String STRING_STEP = "step";
+    protected static final String STRING_RATIO = "ratio";
+    protected static final String STRING_ANGLE = "angle";
+    protected static final String STRING_PHASE_TAP_CHANGER_TYPE = "phaseTapChangerType";
+    protected static final String STRING_X_STEP_MIN = "xStepMin";
+    protected static final String STRING_X_STEP_MAX = "xStepMax";
+    protected static final String STRING_X_MIN = "xMin";
+    protected static final String STRING_X_MAX = "xMax";
+    protected static final String STRING_VOLTAGE_STEP_INCREMENT = "voltageStepIncrement";
+    protected static final String STRING_WINDING_CONNECTION_ANGLE = "windingConnectionAngle";
+    protected static final String STRING_SYMMETRICAL = "symmetrical";
+    protected static final String STRING_ASYMMETRICAL = "asymmetrical";
+    protected static final String STRING_TABULAR = "tabular";
 
     protected enum TapChangerType {
         NULL, FIXED, NON_REGULATING, REGULATING
@@ -231,12 +251,14 @@ public abstract class AbstractTransformerFullConversion
 
     private TapChanger baseCloneTapChanger(TapChanger rtc) {
         TapChanger tapChanger = new TapChanger();
+        boolean isLtcFlag = rtc.isLtcFlag();
         boolean isRegulating = rtc.isRegulating();
         String regulatingControlId = rtc.getRegulatingControlId();
         int lowStep = rtc.getLowTapPosition();
         int position = rtc.getTapPosition();
         tapChanger.setLowTapPosition(lowStep)
             .setTapPosition((int) position)
+            .setLtcFlag(isLtcFlag)
             .setRegulating(isRegulating)
             .setRegulatingControlId(regulatingControlId);
         return tapChanger;
@@ -416,14 +438,17 @@ public abstract class AbstractTransformerFullConversion
             return null;
         }
         TapChanger tapChanger = new TapChanger();
-        int lowStep = ratioTapChanger.asInt("lowStep");
-        int highStep = ratioTapChanger.asInt("highStep");
-        int neutralStep = ratioTapChanger.asInt("neutralStep");
-        double position = ratioTapChanger.asDouble("SVtapStep", neutralStep);
+        int lowStep = ratioTapChanger.asInt(STRING_LOW_STEP);
+        int highStep = ratioTapChanger.asInt(STRING_HIGH_STEP);
+        int neutralStep = ratioTapChanger.asInt(STRING_NEUTRAL_STEP);
+        double position = ratioTapChanger.asDouble(STRING_SV_TAP_STEP, neutralStep);
         if (position > highStep || position < lowStep) {
             position = neutralStep;
         }
         tapChanger.setLowTapPosition(lowStep).setTapPosition((int) position);
+
+        boolean ltcFlag = ratioTapChanger.asBoolean(STRING_LTC_FLAG, false);
+        tapChanger.setLtcFlag(ltcFlag);
 
         addRatioRegulationData(ratioTapChanger, rtcTerminal, tapChanger);
 
@@ -444,15 +469,15 @@ public abstract class AbstractTransformerFullConversion
         String tableId) {
         PropertyBags table = context.ratioTapChangerTable(tableId);
         Comparator<PropertyBag> byStep = Comparator
-            .comparingInt((PropertyBag p) -> p.asInt("step"));
+            .comparingInt((PropertyBag p) -> p.asInt(STRING_STEP));
         table.sort(byStep);
         for (PropertyBag point : table) {
-            int step = point.asInt("step");
-            double ratio = fixing(point, "ratio", 1.0, tableId, step);
-            double r = fixing(point, "r", 0, tableId, step);
-            double x = fixing(point, "x", 0, tableId, step);
-            double g = fixing(point, "g", 0, tableId, step);
-            double b = fixing(point, "b", 0, tableId, step);
+            int step = point.asInt(STRING_STEP);
+            double ratio = fixing(point, STRING_RATIO, 1.0, tableId, step);
+            double r = fixing(point, STRING_R, 0, tableId, step);
+            double x = fixing(point, STRING_X, 0, tableId, step);
+            double g = fixing(point, STRING_G, 0, tableId, step);
+            double b = fixing(point, STRING_B, 0, tableId, step);
             tapChanger.beginStep()
                 .setRatio(ratio)
                 .setR(r)
@@ -464,9 +489,9 @@ public abstract class AbstractTransformerFullConversion
     }
 
     private void addNonTabularRatioSteps(PropertyBag ratioTapChanger, TapChanger tapChanger) {
-        double stepVoltageIncrement = ratioTapChanger.asDouble("stepVoltageIncrement");
-        int highStep = ratioTapChanger.asInt("highStep");
-        int neutralStep = ratioTapChanger.asInt("neutralStep");
+        double stepVoltageIncrement = ratioTapChanger.asDouble(STRING_STEP_VOLTAGE_INCREMENT);
+        int highStep = ratioTapChanger.asInt(STRING_HIGH_STEP);
+        int neutralStep = ratioTapChanger.asInt(STRING_NEUTRAL_STEP);
         for (int step = tapChanger.getLowTapPosition(); step <= highStep; step++) {
             double ratio = 1.0 + (step - neutralStep) * (stepVoltageIncrement / 100.0);
             tapChanger.beginStep()
@@ -489,14 +514,17 @@ public abstract class AbstractTransformerFullConversion
             return null;
         }
         TapChanger tapChanger = new TapChanger();
-        int lowStep = phaseTapChanger.asInt("lowStep");
-        int highStep = phaseTapChanger.asInt("highStep");
-        int neutralStep = phaseTapChanger.asInt("neutralStep");
-        double position = phaseTapChanger.asDouble("SVtapStep", neutralStep);
+        int lowStep = phaseTapChanger.asInt(STRING_LOW_STEP);
+        int highStep = phaseTapChanger.asInt(STRING_HIGH_STEP);
+        int neutralStep = phaseTapChanger.asInt(STRING_NEUTRAL_STEP);
+        double position = phaseTapChanger.asDouble(STRING_SV_TAP_STEP, neutralStep);
         if (position > highStep || position < lowStep) {
             position = neutralStep;
         }
         tapChanger.setLowTapPosition(lowStep).setTapPosition((int) position);
+
+        boolean ltcFlag = phaseTapChanger.asBoolean(STRING_LTC_FLAG, false);
+        tapChanger.setLtcFlag(ltcFlag);
 
         addPhaseRegulationData(phaseTapChanger, tapChanger);
 
@@ -506,7 +534,7 @@ public abstract class AbstractTransformerFullConversion
 
     protected void addPhaseSteps(PropertyBag phaseTapChanger, TapChanger tapChanger, double xtx) {
         String tableId = phaseTapChanger.getId(CgmesNames.PHASE_TAP_CHANGER_TABLE);
-        String phaseTapChangerType = phaseTapChanger.getLocal("phaseTapChangerType").toLowerCase();
+        String phaseTapChangerType = phaseTapChanger.getLocal(STRING_PHASE_TAP_CHANGER_TYPE).toLowerCase();
         if (isTabular(phaseTapChangerType, tableId)) {
             addTabularPhaseSteps(phaseTapChanger, tapChanger, tableId);
         } else if (isAsymmetrical(phaseTapChangerType)) {
@@ -525,16 +553,16 @@ public abstract class AbstractTransformerFullConversion
             return;
         }
         Comparator<PropertyBag> byStep = Comparator
-            .comparingInt((PropertyBag p) -> p.asInt("step"));
+            .comparingInt((PropertyBag p) -> p.asInt(STRING_STEP));
         table.sort(byStep);
         for (PropertyBag point : table) {
-            int step = point.asInt("step");
-            double angle = fixing(point, "angle", 0.0, tableId, step);
-            double ratio = fixing(point, "ratio", 1.0, tableId, step);
-            double r = fixing(point, "r", 0, tableId, step);
-            double x = fixing(point, "x", 0, tableId, step);
-            double g = fixing(point, "g", 0, tableId, step);
-            double b = fixing(point, "b", 0, tableId, step);
+            int step = point.asInt(STRING_STEP);
+            double angle = fixing(point, STRING_ANGLE, 0.0, tableId, step);
+            double ratio = fixing(point, STRING_RATIO, 1.0, tableId, step);
+            double r = fixing(point, STRING_R, 0, tableId, step);
+            double x = fixing(point, STRING_X, 0, tableId, step);
+            double g = fixing(point, STRING_G, 0, tableId, step);
+            double b = fixing(point, STRING_B, 0, tableId, step);
             tapChanger.beginStep()
                 .setAngle(angle)
                 .setRatio(ratio)
@@ -548,11 +576,11 @@ public abstract class AbstractTransformerFullConversion
 
     private void addAsymmetricalPhaseSteps(PropertyBag phaseTapChanger, TapChanger tapChanger,
         String tableId, double xtx) {
-        int lowStep = phaseTapChanger.asInt("lowStep");
-        int highStep = phaseTapChanger.asInt("highStep");
-        int neutralStep = phaseTapChanger.asInt("neutralStep");
-        double stepVoltageIncrement = phaseTapChanger.asDouble("voltageStepIncrement");
-        double windingConnectionAngle = phaseTapChanger.asDouble("windingConnectionAngle");
+        int lowStep = phaseTapChanger.asInt(STRING_LOW_STEP);
+        int highStep = phaseTapChanger.asInt(STRING_HIGH_STEP);
+        int neutralStep = phaseTapChanger.asInt(STRING_NEUTRAL_STEP);
+        double stepVoltageIncrement = phaseTapChanger.asDouble(STRING_VOLTAGE_STEP_INCREMENT);
+        double windingConnectionAngle = phaseTapChanger.asDouble(STRING_WINDING_CONNECTION_ANGLE);
         for (int step = lowStep; step <= highStep; step++) {
             double dx = 1.0 + (step - neutralStep) * (stepVoltageIncrement / 100.0)
                 * Math.cos(Math.toRadians(windingConnectionAngle));
@@ -565,8 +593,8 @@ public abstract class AbstractTransformerFullConversion
                 .setRatio(ratio)
                 .endStep();
         }
-        double xMin = phaseTapChanger.asDouble("xStepMin", phaseTapChanger.asDouble("xMin"));
-        double xMax = phaseTapChanger.asDouble("xStepMax", phaseTapChanger.asDouble("xMax"));
+        double xMin = phaseTapChanger.asDouble(STRING_X_STEP_MIN, phaseTapChanger.asDouble(STRING_X_MIN));
+        double xMax = phaseTapChanger.asDouble(STRING_X_STEP_MAX, phaseTapChanger.asDouble(STRING_X_MAX));
         if (Double.isNaN(xMin) || Double.isNaN(xMax) || xMin < 0 || xMax <= 0 || xMin > xMax) {
             return;
         }
@@ -592,11 +620,11 @@ public abstract class AbstractTransformerFullConversion
 
     private void addSymmetricalPhaseSteps(PropertyBag phaseTapChanger, TapChanger tapChanger,
         String tableId, double xtx) {
-        int lowStep = phaseTapChanger.asInt("lowStep");
-        int highStep = phaseTapChanger.asInt("highStep");
-        int neutralStep = phaseTapChanger.asInt("neutralStep");
-        double stepVoltageIncrement = phaseTapChanger.asDouble("voltageStepIncrement");
-        double stepPhaseShiftIncrement = phaseTapChanger.asDouble("stepPhaseShiftIncrement");
+        int lowStep = phaseTapChanger.asInt(STRING_LOW_STEP);
+        int highStep = phaseTapChanger.asInt(STRING_HIGH_STEP);
+        int neutralStep = phaseTapChanger.asInt(STRING_NEUTRAL_STEP);
+        double stepVoltageIncrement = phaseTapChanger.asDouble(STRING_VOLTAGE_STEP_INCREMENT);
+        double stepPhaseShiftIncrement = phaseTapChanger.asDouble(STRING_STEP_PHASE_SHIFT_INCREMENT);
         for (int step = lowStep; step <= highStep; step++) {
             double angle = 0.0;
             if (!Double.isNaN(stepPhaseShiftIncrement) && stepPhaseShiftIncrement != 0.0) {
@@ -609,8 +637,8 @@ public abstract class AbstractTransformerFullConversion
                 .setAngle(angle)
                 .endStep();
         }
-        double xMin = phaseTapChanger.asDouble("xStepMin", phaseTapChanger.asDouble("xMin"));
-        double xMax = phaseTapChanger.asDouble("xStepMax", phaseTapChanger.asDouble("xMax"));
+        double xMin = phaseTapChanger.asDouble(STRING_X_STEP_MIN, phaseTapChanger.asDouble(STRING_X_MIN));
+        double xMax = phaseTapChanger.asDouble(STRING_X_STEP_MAX, phaseTapChanger.asDouble(STRING_X_MAX));
         if (Double.isNaN(xMin) || Double.isNaN(xMax) || xMin < 0 || xMax <= 0 || xMin > xMax) {
             return;
         }
@@ -639,15 +667,15 @@ public abstract class AbstractTransformerFullConversion
     }
 
     private boolean isSymmetrical(String tapChangerType) {
-        return tapChangerType != null && tapChangerType.endsWith("symmetrical");
+        return tapChangerType != null && tapChangerType.endsWith(STRING_SYMMETRICAL);
     }
 
     private boolean isAsymmetrical(String tapChangerType) {
-        return tapChangerType != null && tapChangerType.endsWith("asymmetrical");
+        return tapChangerType != null && tapChangerType.endsWith(STRING_ASYMMETRICAL);
     }
 
     private boolean isTabular(String tapChangerType, String tableId) {
-        return tableId != null && tapChangerType != null && tapChangerType.endsWith("tabular");
+        return tableId != null && tapChangerType != null && tapChangerType.endsWith(STRING_TABULAR);
     }
 
     private double fixing(PropertyBag point, String attr, double defaultValue, String tableId,
@@ -664,9 +692,10 @@ public abstract class AbstractTransformerFullConversion
     }
 
     protected void setToIidmRatioTapChanger(TapChanger rtc, RatioTapChangerAdder rtca) {
+        boolean isLtcFlag = rtc.isLtcFlag();
         int lowStep = rtc.getLowTapPosition();
         int position = rtc.getTapPosition();
-        rtca.setLowTapPosition(lowStep).setTapPosition((int) position);
+        rtca.setLoadTapChangingCapabilities(isLtcFlag).setLowTapPosition(lowStep).setTapPosition((int) position);
 
         rtc.getSteps().forEach(step -> {
             double ratio0 = step.getRatio();
@@ -674,8 +703,8 @@ public abstract class AbstractTransformerFullConversion
             double x0 = step.getX();
             double b01 = step.getB1();
             double g01 = step.getG1();
-            //double b02 = step.getB2();
-            //double g02 = step.getG2();
+            // double b02 = step.getB2();
+            // double g02 = step.getG2();
             // Only b01 and g01 instead of b01 + b02 and g01 + g02
             rtca.beginStep()
                 .setRho(1 / ratio0)
@@ -698,6 +727,7 @@ public abstract class AbstractTransformerFullConversion
     }
 
     protected void setToIidmPhaseTapChanger(TapChanger ptc, PhaseTapChangerAdder ptca) {
+        // TODO record LtcFlag
         int lowStep = ptc.getLowTapPosition();
         int position = ptc.getTapPosition();
         ptca.setLowTapPosition(lowStep).setTapPosition((int) position);

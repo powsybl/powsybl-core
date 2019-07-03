@@ -119,7 +119,7 @@ public class CgmesConformity1ModifiedConversionTest {
 
         RatioTapChanger rtc = network.getTwoWindingsTransformer("_e482b89a-fa84-4ea9-8e70-a83d44790957").getRatioTapChanger();
         assertNotNull(rtc);
-        assertFalse(rtc.hasLoadTapChangingCapabilities());
+        assertTrue(rtc.hasLoadTapChangingCapabilities());
         assertTrue(Double.isNaN(rtc.getTargetV()));
         assertFalse(rtc.isRegulating());
         assertNull(rtc.getRegulationTerminal());

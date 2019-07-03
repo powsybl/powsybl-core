@@ -13,6 +13,7 @@ public class TapChanger {
     private int lowTapPosition = 0;
     private Integer tapPosition;
     private final List<StepAdder> steps = new ArrayList<>();
+    private boolean ltcFlag = false;
     private boolean regulating = false;
     private String regulatingControlId;
 
@@ -115,6 +116,11 @@ public class TapChanger {
         return this;
     }
 
+    public TapChanger setLtcFlag(boolean ltcFlag) {
+        this.ltcFlag = ltcFlag;
+        return this;
+    }
+
     public TapChanger setRegulating(boolean regulating) {
         this.regulating = regulating;
         return this;
@@ -143,6 +149,10 @@ public class TapChanger {
 
     public int getHighTapPosition() {
         return lowTapPosition + steps.size() - 1;
+    }
+
+    public boolean isLtcFlag() {
+        return ltcFlag;
     }
 
     public boolean isRegulating() {
