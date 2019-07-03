@@ -236,6 +236,18 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNull(tx1s.getCurrentLimits2());
     }
 
+    @Test
+    public void miniNodeBreakerSvInjection() {
+        Network network = new CgmesImport(platformConfig)
+                .importData(catalogModified.miniNodeBreakerSvInjection().dataSource(),
+                        NetworkFactory.findDefault(), null);
+
+        Load load = network.getLoad("SvInjection");
+        assertNotNull(load);
+        assertEquals(-0.2, load.getP0(), 0.0);
+        assertEquals(-13.8, load.getQ0(), 0.0);
+    }
+
     private static CgmesConformity1Catalog catalog;
     private static CgmesConformity1ModifiedCatalog catalogModified;
 

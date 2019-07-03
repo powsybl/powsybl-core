@@ -29,7 +29,14 @@ public class SvInjectionConversion extends AbstractIdentifiedObjectConversion {
         } else {
             voltageLevel = associatedTerminal.getVoltageLevel();
             if (context.nodeBreaker()) {
-                node = associatedTerminal.getNodeBreakerView().getNode();
+                VoltageLevel vl = associatedTerminal.getVoltageLevel();
+                VoltageLevel.NodeBreakerView nb = vl.getNodeBreakerView();
+                node = nb.getNodeCount();
+                nb.setNodeCount(nb.getNodeCount() + 1);
+                vl.getNodeBreakerView().newInternalConnection()
+                        .setNode1(node)
+                        .setNode2(associatedTerminal.getNodeBreakerView().getNode())
+                        .add();
             }
         }
         if (!context.nodeBreaker()) {
