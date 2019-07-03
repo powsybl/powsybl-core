@@ -35,15 +35,6 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
             invalid("2 windings transformer end point at boundary is not supported");
             return false;
         }
-        // This should not happen,
-        // The substationIdMapping should ensure all two ends
-        // are in the same IIDM substation
-        if (voltageLevel(1).getSubstation() != voltageLevel(2).getSubstation()) {
-            String name1 = voltageLevel(1).getSubstation().getName();
-            String name2 = voltageLevel(2).getSubstation().getName();
-            invalid(String.format("different substations at ends %s %s", name1, name2));
-            return false;
-        }
         return true;
     }
 
