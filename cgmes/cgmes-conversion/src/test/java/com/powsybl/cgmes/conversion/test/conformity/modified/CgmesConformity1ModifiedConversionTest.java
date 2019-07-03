@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 
 import com.powsybl.iidm.network.*;
-import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import org.junit.*;
 
 import com.google.common.jimfs.Jimfs;
