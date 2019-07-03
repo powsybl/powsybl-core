@@ -7,6 +7,7 @@ import org.apache.commons.math3.complex.Complex;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.TapChangerRegulatingControl;
+import com.powsybl.cgmes.conversion.TransformerRegulatingControlMapping.RegulatingDataTapChanger;
 import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion;
 import com.powsybl.cgmes.conversion.elements.full.TapChanger.StepAdder;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -685,6 +686,15 @@ public abstract class AbstractTransformerFullConversion
                 .endStep();
         });
         rtca.add();
+    }
+
+    protected RegulatingDataTapChanger buildContextRegulatingDataTapChanger(TapChanger tc) {
+        if (tc != null) {
+            return context.transformerRegulatingControlMapping().buildRegulatingDataTapChanger(tc.isRegulating(),
+                tc.getRegulatingControlId());
+        } else {
+            return context.transformerRegulatingControlMapping().buildEmptyRegulatingDataTapChanger();
+        }
     }
 
     protected void setToIidmPhaseTapChanger(TapChanger ptc, PhaseTapChangerAdder ptca) {

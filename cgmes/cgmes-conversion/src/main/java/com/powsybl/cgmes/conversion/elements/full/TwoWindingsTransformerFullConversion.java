@@ -4,6 +4,8 @@ import java.util.Map;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
+import com.powsybl.cgmes.conversion.TransformerRegulatingControlMapping.RegulatingDataTapChanger;
+import com.powsybl.cgmes.conversion.elements.full.ThreeWindingsTransformerFullConversion.ConvertedModel;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
@@ -321,6 +323,8 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
 
         setToIidmRatioTapChanger(convertedModel, tx);
         setToIidmPhaseTapChanger(convertedModel, tx);
+
+        setRegulatingControlContext(tx, convertedModel);
     }
 
     private void setToIidmRatioTapChanger(ConvertedModel convertedModel, Connectable<?> tx) {
@@ -349,6 +353,12 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
 
         PhaseTapChangerAdder ptca = newPhaseTapChanger(tx);
         setToIidmPhaseTapChanger(ptc, ptca);
+    }
+
+    private void setRegulatingControlContext(Connectable<?> tx, ConvertedModel convertedModel) {
+        RegulatingDataTapChanger rdRtc = buildContextRegulatingDataTapChanger(convertedModel.end1.ratioTapChanger);
+        RegulatingDataTapChanger rdPtc = buildContextRegulatingDataTapChanger(convertedModel.end1.phaseTapChanger);
+        context.transformerRegulatingControlMapping().add(tx.getId(), rdRtc, rdPtc);
     }
 
     protected RatioTapChangerAdder newRatioTapChanger(Connectable<?> tx) {
