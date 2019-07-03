@@ -8,6 +8,8 @@ package com.powsybl.iidm.network.test;
 
 import com.powsybl.iidm.network.*;
 
+import java.util.Objects;
+
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
@@ -17,7 +19,13 @@ public final class DanglingLineNetworkFactory {
     }
 
     public static Network create() {
-        Network network = Network.create("dangling-line", "test");
+        return create(NetworkFactory.findDefault());
+    }
+
+    public static Network create(NetworkFactory networkFactory) {
+        Objects.requireNonNull(networkFactory);
+
+        Network network = networkFactory.createNetwork("dangling-line", "test");
 
         Substation substation = network.newSubstation()
             .setId("S")

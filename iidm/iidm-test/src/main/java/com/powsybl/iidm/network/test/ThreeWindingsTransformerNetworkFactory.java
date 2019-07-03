@@ -9,13 +9,21 @@ package com.powsybl.iidm.network.test;
 import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 
+import java.util.Objects;
+
 /**
  * @author Mathieu Bague <mathieu.bague at rte-france.com>
  */
 public final class ThreeWindingsTransformerNetworkFactory {
 
     public static Network create() {
-        Network network = Network.create("three-windings-transformer", "test");
+        return create(NetworkFactory.findDefault());
+    }
+
+    public static Network create(NetworkFactory networkFactory) {
+        Objects.requireNonNull(networkFactory);
+
+        Network network = networkFactory.createNetwork("three-windings-transformer", "test");
         network.setCaseDate(DateTime.parse("2018-03-05T13:30:30.486+01:00"));
         Substation substation = network.newSubstation()
             .setId("SUBSTATION")

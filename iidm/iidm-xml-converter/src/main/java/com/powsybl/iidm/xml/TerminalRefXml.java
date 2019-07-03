@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.iidm.network.*;
 
 import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
 
@@ -24,21 +25,25 @@ public final class TerminalRefXml {
     }
 
     public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName) throws XMLStreamException {
+        writeTerminalRef(t, context, namespace, elementName, context.getWriter());
+    }
+
+    public static void writeTerminalRef(Terminal t, NetworkXmlWriterContext context, String namespace, String elementName, XMLStreamWriter writer) throws XMLStreamException {
         Connectable c = t.getConnectable();
         if (!context.getFilter().test(c)) {
             throw new PowsyblException("Oups, terminal ref point to a filtered equipment " + c.getId());
         }
-        context.getWriter().writeEmptyElement(namespace, elementName);
-        context.getWriter().writeAttribute("id", context.getAnonymizer().anonymizeString(c.getId()));
+        writer.writeEmptyElement(namespace, elementName);
+        writer.writeAttribute("id", context.getAnonymizer().anonymizeString(c.getId()));
         if (c.getTerminals().size() > 1) {
             if (c instanceof Injection) {
                 // nothing to do
             } else if (c instanceof Branch) {
                 Branch branch = (Branch) c;
-                context.getWriter().writeAttribute("side", branch.getSide(t).name());
+                writer.writeAttribute("side", branch.getSide(t).name());
             } else if (c instanceof ThreeWindingsTransformer) {
                 ThreeWindingsTransformer twt = (ThreeWindingsTransformer) c;
-                context.getWriter().writeAttribute("side", twt.getSide(t).name());
+                writer.writeAttribute("side", twt.getSide(t).name());
             } else {
                 throw new AssertionError("Unexpected Connectable instance: " + c.getClass());
             }

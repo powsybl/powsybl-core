@@ -16,7 +16,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static com.powsybl.security.SecurityAnalysisToolConstants.*;
+import static com.powsybl.security.tools.SecurityAnalysisToolConstants.*;
 import static com.powsybl.tools.ToolConstants.TASK;
 import static com.powsybl.tools.ToolConstants.TASK_COUNT;
 import static java.util.Objects.requireNonNull;

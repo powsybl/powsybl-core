@@ -35,6 +35,7 @@ public class RegulatingControlMapping {
         private final String topologicalNode;
         private final boolean enabled;
         private final double targetValue;
+        private final double targetDeadband;
 
         private final Map<String, Boolean> idsEq = new HashMap<>();
 
@@ -44,6 +45,7 @@ public class RegulatingControlMapping {
             this.topologicalNode = p.getId("topologicalNode");
             this.enabled = p.asBoolean("enabled", true);
             this.targetValue = p.asDouble("targetValue");
+            this.targetDeadband = p.asDouble("targetDeadband", Double.NaN);
         }
     }
 
@@ -122,9 +124,9 @@ public class RegulatingControlMapping {
                 .setTargetV(Double.NaN);
         } else {
             adder.setRegulating(control.enabled || p.asBoolean("tapChangerControlEnabled", false))
+                .setTargetDeadband(control.targetDeadband)
                 .setTargetV(control.targetValue);
         }
-        adder.setLoadTapChangingCapabilities(true);
         setRegulatingTerminal(p, control, defaultTerminal, adder);
     }
 
@@ -162,12 +164,14 @@ public class RegulatingControlMapping {
     private void addCurrentFlowRegControl(PropertyBag p, RegulatingControl control, Terminal defaultTerminal, PhaseTapChangerAdder adder, int side, TwoWindingsTransformer t2w) {
         adder.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
                 .setRegulationValue(getTargetValue(control.targetValue, control.cgmesTerminal, side, t2w))
+                .setTargetDeadband(control.targetDeadband)
                 .setRegulating(control.enabled);
         setRegulatingTerminal(p, control, defaultTerminal, adder);
     }
 
     private void addActivePowerRegControl(PropertyBag p, RegulatingControl control, Terminal defaultTerminal, PhaseTapChangerAdder adder, int side, TwoWindingsTransformer t2w) {
         adder.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
+                .setTargetDeadband(control.targetDeadband)
                 .setRegulating(control.enabled)
                 .setRegulationValue(getTargetValue(-control.targetValue, control.cgmesTerminal, side, t2w));
         setRegulatingTerminal(p, control, defaultTerminal, adder);

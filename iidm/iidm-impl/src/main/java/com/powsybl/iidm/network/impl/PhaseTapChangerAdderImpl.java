@@ -32,6 +32,8 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
 
     private boolean regulating = false;
 
+    private double targetDeadband = Double.NaN;
+
     private TerminalExt regulationTerminal;
 
     class StepAdderImpl implements StepAdder {
@@ -150,6 +152,12 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
     }
 
     @Override
+    public PhaseTapChangerAdder setTargetDeadband(double targetDeadband) {
+        this.targetDeadband = targetDeadband;
+        return this;
+    }
+
+    @Override
     public PhaseTapChangerAdder setRegulationTerminal(Terminal regulationTerminal) {
         this.regulationTerminal = (TerminalExt) regulationTerminal;
         return this;
@@ -174,10 +182,28 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
                     + tapPosition + " [" + lowTapPosition + ", "
                     + highTapPosition + "]");
         }
-        ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue, regulating, regulationTerminal, getNetwork());
-        PhaseTapChangerImpl tapChanger
-                = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, regulationMode, regulationValue);
+
+        ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue, regulating,
+            regulationTerminal, getNetwork());
+        if (!Double.isNaN(targetDeadband) && targetDeadband < 0) {
+            throw new ValidationException(parent,
+                "Unexpected value for target deadband of phase tap changer: " + targetDeadband);
+        }
+        // = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal,
+        // tapPosition, regulating, regulationMode, regulationValue);
+
+        PhaseTapChangerImpl tapChanger = new PhaseTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal,
+            tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
         parent.setPhaseTapChanger(tapChanger);
+//
+//       ValidationUtil.checkPhaseTapChangerRegulation(transformer, regulationMode, regulationValue, regulating, regulationTerminal, getNetwork());
+//        if (!Double.isNaN(targetDeadband) && targetDeadband < 0) {
+//            throw new ValidationException(transformer, "Unexpected value for target deadband of phase tap changer: " + targetDeadband);
+//        }
+//        PhaseTapChangerImpl tapChanger
+//                = new PhaseTapChangerImpl(transformer, lowTapPosition, steps, regulationTerminal, tapPosition, regulating, regulationMode, regulationValue, targetDeadband);
+//        transformer.setPhaseTapChanger(tapChanger);
+//
         return tapChanger;
     }
 

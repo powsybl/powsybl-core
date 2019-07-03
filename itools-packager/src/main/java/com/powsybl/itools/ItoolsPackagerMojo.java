@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-@Mojo(name = "package-zip", requiresDependencyCollection = ResolutionScope.COMPILE_PLUS_RUNTIME, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
+@Mojo(name = "package-zip", requiresDependencyCollection = ResolutionScope.RUNTIME, requiresDependencyResolution = ResolutionScope.RUNTIME)
 public class ItoolsPackagerMojo extends AbstractMojo {
 
     @Parameter(readonly = true, defaultValue = "${project}")

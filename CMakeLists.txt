@@ -35,7 +35,6 @@ set(SUITESPARSE_HOME ${thirdparty_prefix}/suitesparse)
 
 add_subdirectory(jni-util)
 add_subdirectory(mpi-communication)
-add_subdirectory(math-jni)
 
 find_package(Doxygen)
 if(DOXYGEN_FOUND)
