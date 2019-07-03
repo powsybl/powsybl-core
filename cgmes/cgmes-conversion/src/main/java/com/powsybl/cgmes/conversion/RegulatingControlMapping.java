@@ -8,6 +8,7 @@ package com.powsybl.cgmes.conversion;
 
 import com.powsybl.cgmes.conversion.TransformerRegulatingControlMapping.RegulatingData;
 import com.powsybl.cgmes.conversion.TransformerRegulatingControlMapping.RegulatingDataTapChanger;
+import com.powsybl.cgmes.conversion.TransformerRegulatingControlMapping.RegulatingDataThree;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -285,6 +286,7 @@ public class RegulatingControlMapping {
 
     public void setAllRegulatingControls(Network network) {
         setTwoWindingsTransformersRegulatingControls(network);
+        setThreeWindingsTransformersRegulatingControls(network);
     }
 
     private void setTwoWindingsTransformersRegulatingControls(Network network) {
@@ -297,7 +299,73 @@ public class RegulatingControlMapping {
         RegulatingData rd = context.transformerRegulatingControlMapping().findTwo(twt.getId());
         if (rd != null) {
             setRtcRegulatingControl(twt.getRatioTapChanger(), rd.ratioTapChanger);
-            setPtcRegulatingControl(twt, twt.getPhaseTapChanger(), rd.phaseTapChanger);
+
+            Terminal defaultTerminal = getT2wDefaultTerminal(twt, rd.phaseTapChanger);
+            int targetValueSigne = getT2wPtcTargetValueSigne(twt, rd.phaseTapChanger, context);
+            setPtcRegulatingControl(defaultTerminal, targetValueSigne, twt.getPhaseTapChanger(), rd.phaseTapChanger);
+        }
+    }
+
+    private Terminal getT2wDefaultTerminal(TwoWindingsTransformer t2w, RegulatingDataTapChanger rd) {
+        if (rd == null || !rd.regulating) {
+            return t2w.getTerminal1();
+        }
+        int side = 1;
+        if (side == 1) {
+            return t2w.getTerminal1();
+        } else {
+            return t2w.getTerminal2();
+        }
+    }
+
+    private int getT2wPtcTargetValueSigne(TwoWindingsTransformer t2w, RegulatingDataTapChanger rd,
+        Context context) {
+        if (rd == null || !rd.regulating) {
+            return 1;
+        }
+        String controlId = rd.regulatingControlId;
+        if (controlId == null) {
+            return 1;
+        }
+        RegulatingControl control = cachedRegulatingControls.get(controlId);
+        if (control == null) {
+            return 1;
+        }
+        int side = 1; // rd.side;
+        if ((context.terminalMapping().find(control.cgmesTerminal).equals(t2w.getTerminal1()) && side == 2)
+            || (context.terminalMapping().find(control.cgmesTerminal).equals(t2w.getTerminal2()) && side == 1)) {
+            return -1;
+        }
+        return 1;
+    }
+
+    private void setThreeWindingsTransformersRegulatingControls(Network network) {
+        network.getThreeWindingsTransformerStream().forEach(twt -> {
+            setThreeWindingsTransformerRegulatingControls(twt);
+        });
+    }
+
+    private void setThreeWindingsTransformerRegulatingControls(ThreeWindingsTransformer twt) {
+        RegulatingDataThree rd = context.transformerRegulatingControlMapping().findThree(twt.getId());
+        if (rd != null) {
+            RegulatingData rd1 = rd.winding1;
+            if (rd1 != null) {
+                setRtcRegulatingControl(twt.getLeg1().getRatioTapChanger(), rd1.ratioTapChanger);
+                setPtcRegulatingControl(twt.getLeg1().getTerminal(), 1, twt.getLeg1().getPhaseTapChanger(),
+                    rd1.phaseTapChanger);
+            }
+            RegulatingData rd2 = rd.winding2;
+            if (rd2 != null) {
+                setRtcRegulatingControl(twt.getLeg2().getRatioTapChanger(), rd2.ratioTapChanger);
+                setPtcRegulatingControl(twt.getLeg2().getTerminal(), 1, twt.getLeg2().getPhaseTapChanger(),
+                    rd2.phaseTapChanger);
+            }
+            RegulatingData rd3 = rd.winding3;
+            if (rd3 != null) {
+                setRtcRegulatingControl(twt.getLeg3().getRatioTapChanger(), rd3.ratioTapChanger);
+                setPtcRegulatingControl(twt.getLeg3().getTerminal(), 1, twt.getLeg3().getPhaseTapChanger(),
+                    rd3.phaseTapChanger);
+            }
         }
     }
 
@@ -408,7 +476,7 @@ public class RegulatingControlMapping {
     });
 ****/
 
-    private void setPtcRegulatingControl(TwoWindingsTransformer twt, PhaseTapChanger ptc,
+    private void setPtcRegulatingControl(Terminal defaultTerminal, int targetValueSigne, PhaseTapChanger ptc,
         RegulatingDataTapChanger rd) {
         if (rd == null || !rd.regulating) {
             return;
@@ -426,55 +494,51 @@ public class RegulatingControlMapping {
             return;
         }
 
-        int side = 1;
         if (control.mode.endsWith("currentflow")) {
-            setPtcRegulatingControlCurrentFlow(twt, control, ptc, side, context);
+            setPtcRegulatingControlCurrentFlow(defaultTerminal, control, targetValueSigne, ptc, context);
         } else if (control.mode.endsWith("activepower")) {
-            setPtcRegulatingControlActivePower(twt, control, ptc, side, context);
+            setPtcRegulatingControlActivePower(defaultTerminal, control, targetValueSigne, ptc, context);
         } else if (!control.mode.endsWith("fixed")) {
             context.fixed(control.mode, "Unsupported regulating mode for Phase tap changer. Considered as FIXED_TAP");
         }
     }
 
-    private void setPtcRegulatingControlCurrentFlow(TwoWindingsTransformer twt, RegulatingControl control,
-        PhaseTapChanger ptc, int side,
-        Context context) {
+    private void setPtcRegulatingControlCurrentFlow(Terminal defaultTerminal, RegulatingControl control,
+        int targetValueSigne, PhaseTapChanger ptc, Context context) {
         ptc.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
-            .setRegulationValue(getTargetValue(control.targetValue, control.cgmesTerminal, side, twt))
+            .setRegulationValue(getTargetValue(control.targetValue, targetValueSigne))
             .setRegulating(control.enabled);
 
-        // Registrar el terminal
-        setRegulatingTerminal(twt, control, side, ptc);
+        setRegulatingTerminal(defaultTerminal, control, ptc);
     }
 
-    private void setPtcRegulatingControlActivePower(TwoWindingsTransformer twt, RegulatingControl control,
-        PhaseTapChanger ptc, int side,
-        Context context) {
+    private void setPtcRegulatingControlActivePower(Terminal defaultTerminal, RegulatingControl control,
+        int targetValueSigne, PhaseTapChanger ptc, Context context) {
         ptc.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
             .setRegulating(control.enabled)
-            .setRegulationValue(getTargetValue(-control.targetValue, control.cgmesTerminal, side, twt));
+            .setRegulationValue(
+                getTargetValue(-control.targetValue, targetValueSigne));
 
-        // Registrar el terminal
-        setRegulatingTerminal(twt, control, side, ptc);
+        setRegulatingTerminal(defaultTerminal, control, ptc);
     }
 
-    private void setRegulatingTerminal(TwoWindingsTransformer twt, RegulatingControl control, int side, PhaseTapChanger ptc) {
+    private void setRegulatingTerminal(Terminal defaultTerminal, RegulatingControl control, PhaseTapChanger ptc) {
         if (context.terminalMapping().find(control.cgmesTerminal) != null) {
             ptc.setRegulationTerminal(context.terminalMapping().find(control.cgmesTerminal));
             // String phaseTapChangerId,
             // control.idsEq.put(p.getId("PhaseTapChanger"), true);
         } else {
-            if (side == 1) {
-                ptc.setRegulationTerminal(twt.getTerminal1());
-            } else {
-                ptc.setRegulationTerminal(twt.getTerminal2());
-            }
+            ptc.setRegulationTerminal(defaultTerminal);
             // ptc.setRegulationTerminal(defaultTerminal);
             // if (!context.terminalMapping().areAssociated(p.getId(TERMINAL),
             // control.topologicalNode)) {
             // control.idsEq.put(p.getId("PhaseTapChanger"), false);
-            //ptc.setRegulating(false); // Evitar errores
+            // ptc.setRegulating(false); // Evitar errores
         }
+    }
+
+    private double getTargetValue(double targetValue, int signe) {
+        return targetValue * signe;
     }
 
     /***
