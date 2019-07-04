@@ -54,7 +54,7 @@ public class SvInjectionConversion extends AbstractIdentifiedObjectConversion {
     public boolean valid() {
         return voltageLevel != null
                 && ((context.nodeBreaker() && node != -1)
-                    || (context.nodeBreaker() && voltageLevel.getBusBreakerView().getBus(busId) != null));
+                    || (!context.nodeBreaker() && voltageLevel.getBusBreakerView().getBus(busId) != null));
     }
 
     @Override
