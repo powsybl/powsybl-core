@@ -143,11 +143,11 @@ public class CgmesConformity1ModifiedCatalog {
                 "MicroGrid-BaseCase-BE-With-Sv-Injection",
                 null,
                 new ResourceSet(baseModified,
-                        "MicroGridTestConfiguration_BC_BE_SV_V2.xml"),
-                new ResourceSet(base,
+                        "MicroGridTestConfiguration_BC_BE_SV_V2.xml",
                         "MicroGridTestConfiguration_BC_BE_EQ_V2.xml",
-                        "MicroGridTestConfiguration_BC_BE_SSH_V2.xml",
                         "MicroGridTestConfiguration_BC_BE_TP_V2.xml"),
+                new ResourceSet(base,
+                        "MicroGridTestConfiguration_BC_BE_SSH_V2.xml"),
                 new ResourceSet(baseBoundary, "MicroGridTestConfiguration_EQ_BD.xml",
                         "MicroGridTestConfiguration_TP_BD.xml"));
     }

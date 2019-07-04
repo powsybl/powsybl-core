@@ -150,9 +150,18 @@
     <cim:SvShuntCompensatorSections.sections>1</cim:SvShuntCompensatorSections.sections>
     <cim:SvShuntCompensatorSections.ShuntCompensator rdf:resource="#_002b0a40-3957-46db-b84a-30420083558f"/>
   </cim:SvShuntCompensatorSections>
-  <cim:SvInjection rdf:ID="SvInjection">
+  <cim:SvInjection rdf:ID="SvInjection1">
     <cim:SvInjection.pInjection>-0.2</cim:SvInjection.pInjection>
     <cim:SvInjection.qInjection>-13.8</cim:SvInjection.qInjection>
     <cim:SvInjection.TopologicalNode rdf:resource="#_e44141af-f1dc-44d3-bfa4-b674e5c953d7"/>
+  </cim:SvInjection>
+  <cim:SvInjection rdf:ID="SvInjection2">
+    <cim:SvInjection.pInjection>-0.2</cim:SvInjection.pInjection>
+    <cim:SvInjection.TopologicalNode rdf:resource="#_e44141af-f1dc-44d3-bfa4-b674e5c953d7"/>
+  </cim:SvInjection>
+  <cim:SvInjection rdf:ID="SvInjection3">
+    <cim:SvInjection.pInjection>-0.2</cim:SvInjection.pInjection>
+    <cim:SvInjection.qInjection>-13.8</cim:SvInjection.qInjection>
+    <cim:SvInjection.TopologicalNode rdf:resource="#topologicalNode"/>
   </cim:SvInjection>
 </rdf:RDF>
