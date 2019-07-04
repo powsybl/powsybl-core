@@ -173,7 +173,7 @@ public class CgmesConformity1ModifiedConversionTest {
     @Test
     public void microBEInvalidSvInjection() {
         Network network = new CgmesImport(platformConfig)
-                .importData(catalogModified.microGridBaseCaseBEWithSvInjection().dataSource(),
+                .importData(catalogModified.microGridBaseCaseBEInvalidSvInjection().dataSource(),
                         NetworkFactory.findDefault(), null);
 
         Load load = network.getLoad("SvInjection");
