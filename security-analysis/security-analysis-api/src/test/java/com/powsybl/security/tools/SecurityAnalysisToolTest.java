@@ -239,8 +239,6 @@ public class SecurityAnalysisToolTest extends AbstractToolTest {
             try {
                 tool.run(cl, context, builder2,
                         SecurityAnalysisParameters::new,
-                        ImportConfig::new,
-                        new ImportersLoaderList(new NetworkImporterMock()),
                         TableFormatterConfig::new);
                 fail();
             } catch (CompletionException exception) {
