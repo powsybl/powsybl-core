@@ -171,6 +171,16 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void microBEInvalidSvInjection() {
+        Network network = new CgmesImport(platformConfig)
+                .importData(catalogModified.microGridBaseCaseBEWithSvInjection().dataSource(),
+                        NetworkFactory.findDefault(), null);
+
+        Load load = network.getLoad("SvInjection");
+        assertNull(load);
+    }
+
+    @Test
     public void miniBusBranchRtcRemoteRegulation() {
         Network network = new CgmesImport(platformConfig).importData(catalogModified.miniBusBranchRtcRemoteRegulation().dataSource(), null);
 
