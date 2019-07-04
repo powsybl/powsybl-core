@@ -7,6 +7,7 @@
 package com.powsybl.security.distributed;
 
 import com.google.common.io.ByteSource;
+import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.*;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.xml.NetworkXml;
@@ -100,9 +101,30 @@ public class SecurityAnalysisExecutionHandler<R> extends AbstractExecutionHandle
      */
     @Override
     public R after(Path workingDir, ExecutionReport report) throws IOException {
-        super.after(workingDir, report);
-        LOGGER.debug("End of command execution in {}. ", workingDir);
-        return reader.read(workingDir);
+        // read results and logs in case of runWithLog()
+        // 1. run() and no exception, after() do nothing and continue read json
+        // 2. run() and exception, an exception(PowsyblException:Error during the execution) would be thrown.
+        // 3. runWithLog() and no exception
+        // 4. runWithLog() and exception, a ComputationException will be re-thrown
+        PowsyblException rootException = null;
+        try {
+            super.after(workingDir, report); // throw PowsybleException
+        } catch (PowsyblException pe) {
+            rootException = pe;
+        }
+        try {
+            R r = reader.read(workingDir); // throw ComputationException in runWithLog()
+            LOGGER.debug("End of command execution in {}. ", workingDir);
+            return r;
+        } catch (ComputationException e) {
+            throw new ComputationException(e, rootException);
+        } catch (UncheckedIOException ioException) {
+            if (rootException != null) {
+                throw rootException;
+            } else {
+                throw ioException;
+            }
+        }
     }
 
     /**

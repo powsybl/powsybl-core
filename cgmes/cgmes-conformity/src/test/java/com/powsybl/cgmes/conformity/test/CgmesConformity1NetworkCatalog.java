@@ -7,12 +7,12 @@
 
 package com.powsybl.cgmes.conformity.test;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.powsybl.iidm.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 public class CgmesConformity1NetworkCatalog {
 
     public Network microBE(String modelId) {
-        Network network = NetworkFactory.create(modelId, "no-format");
+        Network network = Network.create(modelId, "no-format");
 
         Substation sBrussels = network.newSubstation()
                 .setId("_37e14a0f-5e34-4647-a062-8bfd9305fa9d")
@@ -427,7 +427,8 @@ public class CgmesConformity1NetworkCatalog {
             Branch.Side side = Branch.Side.TWO;
             RatioTapChangerAdder rtca = tx.newRatioTapChanger()
                     .setLowTapPosition(low)
-                    .setTapPosition(18);
+                    .setTapPosition(18)
+                    .setTargetDeadband(0.5);
             for (int k = low; k <= high; k++) {
                 int n = k - neutral;
                 double du = voltageInc / 100;
@@ -563,7 +564,7 @@ public class CgmesConformity1NetworkCatalog {
                     xmin, xmax,
                     voltageInc, windingConnectionAngle,
                     PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL,
-                    true, -65.0);
+                    true, -65.0, 35.0);
         }
         {
             double p = -90;
@@ -788,7 +789,7 @@ public class CgmesConformity1NetworkCatalog {
                     xmin, xmax,
                     voltageInc, windingConnectionAngle,
                     PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, false,
-                    0.0);
+                    0.0, 0.5);
         }
         txBE22.newCurrentLimits1().setPermanentLimit(1705.8)
                 .beginTemporaryLimit()
@@ -821,7 +822,7 @@ public class CgmesConformity1NetworkCatalog {
                     xmin, xmax,
                     voltageInc, windingConnectionAngle,
                     PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL, true,
-                    -65.0);
+                    -65.0, 35.0);
         }
         txBE21.newCurrentLimits1().setPermanentLimit(938.2)
                 .beginTemporaryLimit()
@@ -880,7 +881,7 @@ public class CgmesConformity1NetworkCatalog {
             double voltageInc,
             double windingConnectionAngle,
             PhaseTapChanger.RegulationMode mode, boolean regulating,
-            double regulationValue) {
+            double regulationValue, double targetDeadband) {
         LOG.debug("EXPECTED tx {}", tx.getId());
         double rho0 = tx.getRatedU2() / tx.getRatedU1();
         double rho02 = rho0 * rho0;
@@ -965,6 +966,7 @@ public class CgmesConformity1NetworkCatalog {
         ptca.setRegulating(regulating)
                 .setRegulationMode(mode)
                 .setRegulationValue(regulationValue)
+                .setTargetDeadband(targetDeadband)
                 .setRegulationTerminal(tx.getTerminal2())
                 .add();
     }
