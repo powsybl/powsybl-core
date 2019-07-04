@@ -4,7 +4,8 @@ import java.util.Map;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.conversion.TransformerRegulatingControlMapping.RegulatingDataTapChanger;
+import com.powsybl.cgmes.conversion.TransformerRegulatingControlMapping.RegulatingDataPhase;
+import com.powsybl.cgmes.conversion.TransformerRegulatingControlMapping.RegulatingDataRatio;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
@@ -62,8 +63,8 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
         double ratedU = winding.asDouble(STRING_RATEDU);
         double x = winding.asDouble(STRING_X);
 
-        TapChanger ratioTapChanger = getRatioTapChanger(rtc, terminal);
-        TapChanger phaseTapChanger = getPhaseTapChanger(ptc, terminal, ratedU, x);
+        TapChanger ratioTapChanger = getRatioTapChanger(rtc, terminal, 1);
+        TapChanger phaseTapChanger = getPhaseTapChanger(ptc, terminal, ratedU, x, 1);
 
         cgmesModelWinding.r = winding.asDouble(STRING_R);
         cgmesModelWinding.x = x;
@@ -358,17 +359,17 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
     }
 
     private void setRegulatingControlContext(Connectable<?> tx, ConvertedModel convertedModel) {
-        RegulatingDataTapChanger rdRtc1 = buildContextRegulatingDataTapChanger(
+        RegulatingDataRatio rdRtc1 = buildContextRegulatingDataRatio(
             convertedModel.winding1.end1.ratioTapChanger);
-        RegulatingDataTapChanger rdPtc1 = buildContextRegulatingDataTapChanger(
+        RegulatingDataPhase rdPtc1 = buildContextRegulatingDataPhase(
             convertedModel.winding1.end1.phaseTapChanger);
-        RegulatingDataTapChanger rdRtc2 = buildContextRegulatingDataTapChanger(
+        RegulatingDataRatio rdRtc2 = buildContextRegulatingDataRatio(
             convertedModel.winding2.end1.ratioTapChanger);
-        RegulatingDataTapChanger rdPtc2 = buildContextRegulatingDataTapChanger(
+        RegulatingDataPhase rdPtc2 = buildContextRegulatingDataPhase(
             convertedModel.winding2.end1.phaseTapChanger);
-        RegulatingDataTapChanger rdRtc3 = buildContextRegulatingDataTapChanger(
+        RegulatingDataRatio rdRtc3 = buildContextRegulatingDataRatio(
             convertedModel.winding3.end1.ratioTapChanger);
-        RegulatingDataTapChanger rdPtc3 = buildContextRegulatingDataTapChanger(
+        RegulatingDataPhase rdPtc3 = buildContextRegulatingDataPhase(
             convertedModel.winding3.end1.phaseTapChanger);
         context.transformerRegulatingControlMapping().add(tx.getId(), rdRtc1, rdPtc1, rdRtc2, rdPtc2, rdRtc3, rdPtc3);
     }

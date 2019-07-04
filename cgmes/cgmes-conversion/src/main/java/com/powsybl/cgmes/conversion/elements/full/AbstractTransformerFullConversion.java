@@ -7,7 +7,8 @@ import org.apache.commons.math3.complex.Complex;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.RegulatingControlMapping.TapChangerRegulatingControl;
-import com.powsybl.cgmes.conversion.TransformerRegulatingControlMapping.RegulatingDataTapChanger;
+import com.powsybl.cgmes.conversion.TransformerRegulatingControlMapping.RegulatingDataPhase;
+import com.powsybl.cgmes.conversion.TransformerRegulatingControlMapping.RegulatingDataRatio;
 import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion;
 import com.powsybl.cgmes.conversion.elements.full.TapChanger.StepAdder;
 import com.powsybl.cgmes.model.CgmesNames;
@@ -54,6 +55,8 @@ public abstract class AbstractTransformerFullConversion
     protected static final String STRING_SYMMETRICAL = "symmetrical";
     protected static final String STRING_ASYMMETRICAL = "asymmetrical";
     protected static final String STRING_TABULAR = "tabular";
+    protected static final String STRING_TCUL_CONTROL_MODE = "tculControlMode";
+    protected static final String STRING_TAP_CHANGER_CONTROL_ENABLED = "tapChangerControlEnabled";
 
     protected enum TapChangerType {
         NULL, FIXED, NON_REGULATING, REGULATING
@@ -251,16 +254,24 @@ public abstract class AbstractTransformerFullConversion
 
     private TapChanger baseCloneTapChanger(TapChanger rtc) {
         TapChanger tapChanger = new TapChanger();
+        String id = rtc.getId();
         boolean isLtcFlag = rtc.isLtcFlag();
         boolean isRegulating = rtc.isRegulating();
         String regulatingControlId = rtc.getRegulatingControlId();
+        int side = rtc.getSide();
+        String tculControlMode = rtc.getTculControlMode();
+        boolean isTapChangerControlEnabled = rtc.isTapChangerControlEnabled();
         int lowStep = rtc.getLowTapPosition();
         int position = rtc.getTapPosition();
         tapChanger.setLowTapPosition(lowStep)
             .setTapPosition((int) position)
             .setLtcFlag(isLtcFlag)
+            .setId(id)
             .setRegulating(isRegulating)
-            .setRegulatingControlId(regulatingControlId);
+            .setRegulatingControlId(regulatingControlId)
+            .setSide(side)
+            .setTculControlMode(tculControlMode)
+            .setTapChangerControlEnabled(isTapChangerControlEnabled);
         return tapChanger;
     }
 
@@ -294,6 +305,8 @@ public abstract class AbstractTransformerFullConversion
     private void resetTapChangerRegulation(TapChanger tapChanger) {
         tapChanger.setRegulating(false);
         tapChanger.setRegulatingControlId(null);
+        tapChanger.setTculControlMode(null);
+        tapChanger.setTapChangerControlEnabled(false);
     }
 
     private TapChangerStepConversion calculateConversionStep(double ratio, double angle, double r,
@@ -433,7 +446,7 @@ public abstract class AbstractTransformerFullConversion
         return tc;
     }
 
-    protected TapChanger getRatioTapChanger(PropertyBag ratioTapChanger, String rtcTerminal) {
+    protected TapChanger getRatioTapChanger(PropertyBag ratioTapChanger, String rtcTerminal, int side) {
         if (ratioTapChanger == null) {
             return null;
         }
@@ -450,7 +463,7 @@ public abstract class AbstractTransformerFullConversion
         boolean ltcFlag = ratioTapChanger.asBoolean(STRING_LTC_FLAG, false);
         tapChanger.setLtcFlag(ltcFlag);
 
-        addRatioRegulationData(ratioTapChanger, rtcTerminal, tapChanger);
+        addRatioRegulationData(ratioTapChanger, rtcTerminal, tapChanger, side);
 
         addRatioSteps(ratioTapChanger, tapChanger);
         return tapChanger;
@@ -501,15 +514,19 @@ public abstract class AbstractTransformerFullConversion
     }
 
     private void addRatioRegulationData(PropertyBag ratioTapChanger, String rtcTerminal,
-        TapChanger tapChanger) {
+        TapChanger tapChanger, int side) {
         TapChangerRegulatingControl tcrc = context.regulatingControlMapping()
             .getTapChangerRegulatingControl(ratioTapChanger);
-        tapChanger.setRegulating(tcrc.regulating)
-            .setRegulatingControlId(tcrc.regulatingControlId);
+        tapChanger.setId(ratioTapChanger.getId(STRING_RATIO_TAP_CHANGER))
+        .setRegulating(tcrc.regulating)
+            .setRegulatingControlId(tcrc.regulatingControlId)
+            .setSide(side)
+            .setTculControlMode(ratioTapChanger.get(STRING_TCUL_CONTROL_MODE))
+            .setTapChangerControlEnabled(ratioTapChanger.asBoolean(STRING_TAP_CHANGER_CONTROL_ENABLED, false));
     }
 
     protected TapChanger getPhaseTapChanger(PropertyBag phaseTapChanger, String ptcTerminal,
-        double ratedU, double xtx) {
+        double ratedU, double xtx, int side) {
         if (phaseTapChanger == null) {
             return null;
         }
@@ -526,7 +543,7 @@ public abstract class AbstractTransformerFullConversion
         boolean ltcFlag = phaseTapChanger.asBoolean(STRING_LTC_FLAG, false);
         tapChanger.setLtcFlag(ltcFlag);
 
-        addPhaseRegulationData(phaseTapChanger, tapChanger);
+        addPhaseRegulationData(phaseTapChanger, tapChanger, side);
 
         addPhaseSteps(phaseTapChanger, tapChanger, xtx);
         return tapChanger;
@@ -659,11 +676,13 @@ public abstract class AbstractTransformerFullConversion
             + (xStepMax - xStepMin) * Math.pow(Math.sin(alpha / 2) / Math.sin(alphaMax / 2), 2);
     }
 
-    private void addPhaseRegulationData(PropertyBag ratioTapChanger, TapChanger tapChanger) {
+    private void addPhaseRegulationData(PropertyBag phaseTapChanger, TapChanger tapChanger, int side) {
         TapChangerRegulatingControl tcrc = context.regulatingControlMapping()
-            .getTapChangerRegulatingControl(ratioTapChanger);
-        tapChanger.setRegulating(tcrc.regulating)
-            .setRegulatingControlId(tcrc.regulatingControlId);
+            .getTapChangerRegulatingControl(phaseTapChanger);
+        tapChanger.setId(phaseTapChanger.getId(STRING_PHASE_TAP_CHANGER))
+            .setRegulating(tcrc.regulating)
+            .setRegulatingControlId(tcrc.regulatingControlId)
+            .setSide(side);
     }
 
     private boolean isSymmetrical(String tapChangerType) {
@@ -717,12 +736,21 @@ public abstract class AbstractTransformerFullConversion
         rtca.add();
     }
 
-    protected RegulatingDataTapChanger buildContextRegulatingDataTapChanger(TapChanger tc) {
+    protected RegulatingDataRatio buildContextRegulatingDataRatio(TapChanger tc) {
         if (tc != null) {
-            return context.transformerRegulatingControlMapping().buildRegulatingDataTapChanger(tc.isRegulating(),
-                tc.getRegulatingControlId());
+            return context.transformerRegulatingControlMapping().buildRegulatingDataRatio(tc.getId(), tc.isRegulating(),
+                tc.getRegulatingControlId(), tc.getSide(), tc.getTculControlMode(), tc.isTapChangerControlEnabled());
         } else {
-            return context.transformerRegulatingControlMapping().buildEmptyRegulatingDataTapChanger();
+            return context.transformerRegulatingControlMapping().buildEmptyRegulatingDataRatio();
+        }
+    }
+
+    protected RegulatingDataPhase buildContextRegulatingDataPhase(TapChanger tc) {
+        if (tc != null) {
+            return context.transformerRegulatingControlMapping().buildRegulatingDataPhase(tc.getId(), tc.isRegulating(),
+                tc.getRegulatingControlId(), tc.getSide());
+        } else {
+            return context.transformerRegulatingControlMapping().buildEmptyRegulatingDataPhase();
         }
     }
 

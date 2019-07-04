@@ -14,8 +14,12 @@ public class TapChanger {
     private Integer tapPosition;
     private final List<StepAdder> steps = new ArrayList<>();
     private boolean ltcFlag = false;
+    private String id = null;
     private boolean regulating = false;
     private String regulatingControlId;
+    private int side = 1;
+    private String tculControlMode = null;
+    private boolean tapChangerControlEnabled = false;
 
     class StepAdder {
 
@@ -121,6 +125,11 @@ public class TapChanger {
         return this;
     }
 
+    public TapChanger setId(String id) {
+        this.id = id;
+        return this;
+    }
+
     public TapChanger setRegulating(boolean regulating) {
         this.regulating = regulating;
         return this;
@@ -128,6 +137,21 @@ public class TapChanger {
 
     public TapChanger setRegulatingControlId(String regulatingControlId) {
         this.regulatingControlId = regulatingControlId;
+        return this;
+    }
+
+    public TapChanger setSide(int side) {
+        this.side = side;
+        return this;
+    }
+
+    public TapChanger setTculControlMode(String tculControlMode) {
+        this.tculControlMode = tculControlMode;
+        return this;
+    }
+
+    public TapChanger setTapChangerControlEnabled(boolean tapChangerControlEnabled) {
+        this.tapChangerControlEnabled = tapChangerControlEnabled;
         return this;
     }
 
@@ -155,11 +179,27 @@ public class TapChanger {
         return ltcFlag;
     }
 
+    public String getId() {
+        return id;
+    }
+
     public boolean isRegulating() {
         return regulating;
     }
 
     public String getRegulatingControlId() {
         return regulatingControlId;
+    }
+
+    public int getSide() {
+        return side;
+    }
+
+    public String getTculControlMode() {
+        return tculControlMode;
+    }
+
+    public boolean isTapChangerControlEnabled() {
+        return tapChangerControlEnabled;
     }
 }

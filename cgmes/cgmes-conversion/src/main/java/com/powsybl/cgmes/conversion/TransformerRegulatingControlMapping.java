@@ -11,7 +11,7 @@ public class TransformerRegulatingControlMapping {
         threeWinding = new HashMap<>();
     }
 
-    public void add(String transformerId, RegulatingDataTapChanger rdRtc, RegulatingDataTapChanger rdPtc) {
+    public void add(String transformerId, RegulatingDataRatio rdRtc, RegulatingDataPhase rdPtc) {
         if (twoWinding.containsKey(transformerId)) {
             throw new CgmesModelException("Transformer already added, Transformer id : " + transformerId);
         }
@@ -22,9 +22,9 @@ public class TransformerRegulatingControlMapping {
         twoWinding.put(transformerId, rd);
     }
 
-    public void add(String transformerId, RegulatingDataTapChanger rdRtc1, RegulatingDataTapChanger rdPtc1,
-        RegulatingDataTapChanger rdRtc2, RegulatingDataTapChanger rdPtc2, RegulatingDataTapChanger rdRtc3,
-        RegulatingDataTapChanger rdPtc3) {
+    public void add(String transformerId, RegulatingDataRatio rdRtc1, RegulatingDataPhase rdPtc1,
+        RegulatingDataRatio rdRtc2, RegulatingDataPhase rdPtc2, RegulatingDataRatio rdRtc3,
+        RegulatingDataPhase rdPtc3) {
         if (threeWinding.containsKey(transformerId)) {
             throw new CgmesModelException("Transformer already added, Transformer id : " + transformerId);
         }
@@ -48,18 +48,48 @@ public class TransformerRegulatingControlMapping {
         threeWinding.put(transformerId, rdThree);
     }
 
-    public RegulatingDataTapChanger buildEmptyRegulatingDataTapChanger() {
-        RegulatingDataTapChanger rtc = new RegulatingDataTapChanger();
+    public RegulatingDataRatio buildEmptyRegulatingDataRatio() {
+        RegulatingDataRatio rtc = new RegulatingDataRatio();
+        rtc.id = null;
         rtc.regulating = false;
         rtc.regulatingControlId = null;
+        rtc.side = 0;
+        rtc.tculControlMode = null;
+        rtc.tapChangerControlEnabled = false;
 
         return rtc;
     }
 
-    public RegulatingDataTapChanger buildRegulatingDataTapChanger(boolean regulating, String regulatingControlId) {
-        RegulatingDataTapChanger rtc = new RegulatingDataTapChanger();
+    public RegulatingDataRatio buildRegulatingDataRatio(String id, boolean regulating, String regulatingControlId,
+        int side, String tculControlMode, boolean tapChangerControlEnabled) {
+        RegulatingDataRatio rtc = new RegulatingDataRatio();
+        rtc.id = id;
         rtc.regulating = regulating;
         rtc.regulatingControlId = regulatingControlId;
+        rtc.side = side;
+        rtc.tculControlMode = tculControlMode;
+        rtc.tapChangerControlEnabled = tapChangerControlEnabled;
+
+        return rtc;
+    }
+
+    public RegulatingDataPhase buildEmptyRegulatingDataPhase() {
+        RegulatingDataPhase rtc = new RegulatingDataPhase();
+        rtc.id = null;
+        rtc.regulating = false;
+        rtc.regulatingControlId = null;
+        rtc.side = 0;
+
+        return rtc;
+    }
+
+    public RegulatingDataPhase buildRegulatingDataPhase(String id, boolean regulating, String regulatingControlId,
+        int side) {
+        RegulatingDataPhase rtc = new RegulatingDataPhase();
+        rtc.id = id;
+        rtc.regulating = regulating;
+        rtc.regulatingControlId = regulatingControlId;
+        rtc.side = side;
 
         return rtc;
     }
@@ -72,14 +102,25 @@ public class TransformerRegulatingControlMapping {
         return threeWinding.get(transformerId);
     }
 
-    public static class RegulatingDataTapChanger {
+    public static class RegulatingDataRatio {
+        String id;
         boolean regulating;
         String regulatingControlId;
+        int side;
+        String tculControlMode;
+        boolean tapChangerControlEnabled;
+    }
+
+    public static class RegulatingDataPhase {
+        String id;
+        boolean regulating;
+        String regulatingControlId;
+        int side;
     }
 
     public static class RegulatingData {
-        RegulatingDataTapChanger ratioTapChanger;
-        RegulatingDataTapChanger phaseTapChanger;
+        RegulatingDataRatio ratioTapChanger;
+        RegulatingDataPhase phaseTapChanger;
     }
 
     public static class RegulatingDataThree {

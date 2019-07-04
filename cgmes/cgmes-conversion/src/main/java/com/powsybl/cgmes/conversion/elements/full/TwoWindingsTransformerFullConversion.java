@@ -4,8 +4,8 @@ import java.util.Map;
 
 import com.powsybl.cgmes.conversion.Context;
 import com.powsybl.cgmes.conversion.Conversion;
-import com.powsybl.cgmes.conversion.TransformerRegulatingControlMapping.RegulatingDataTapChanger;
-import com.powsybl.cgmes.conversion.elements.full.ThreeWindingsTransformerFullConversion.ConvertedModel;
+import com.powsybl.cgmes.conversion.TransformerRegulatingControlMapping.RegulatingDataPhase;
+import com.powsybl.cgmes.conversion.TransformerRegulatingControlMapping.RegulatingDataRatio;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.iidm.network.Connectable;
 import com.powsybl.iidm.network.PhaseTapChangerAdder;
@@ -61,10 +61,10 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
         double ratedU1 = end1.asDouble(STRING_RATEDU);
         double ratedU2 = end2.asDouble(STRING_RATEDU);
 
-        TapChanger ratioTapChanger1 = getRatioTapChanger(rtc1, terminal1);
-        TapChanger ratioTapChanger2 = getRatioTapChanger(rtc2, terminal2);
-        TapChanger phaseTapChanger1 = getPhaseTapChanger(ptc1, terminal1, ratedU1, x);
-        TapChanger phaseTapChanger2 = getPhaseTapChanger(ptc2, terminal2, ratedU2, x);
+        TapChanger ratioTapChanger1 = getRatioTapChanger(rtc1, terminal1, 1);
+        TapChanger ratioTapChanger2 = getRatioTapChanger(rtc2, terminal2, 2);
+        TapChanger phaseTapChanger1 = getPhaseTapChanger(ptc1, terminal1, ratedU1, x, 1);
+        TapChanger phaseTapChanger2 = getPhaseTapChanger(ptc2, terminal2, ratedU2, x, 2);
 
         CgmesModel cgmesModel = new CgmesModel();
         cgmesModel.end1.g = end1.asDouble(STRING_G, 0);
@@ -356,8 +356,8 @@ public class TwoWindingsTransformerFullConversion extends AbstractTransformerFul
     }
 
     private void setRegulatingControlContext(Connectable<?> tx, ConvertedModel convertedModel) {
-        RegulatingDataTapChanger rdRtc = buildContextRegulatingDataTapChanger(convertedModel.end1.ratioTapChanger);
-        RegulatingDataTapChanger rdPtc = buildContextRegulatingDataTapChanger(convertedModel.end1.phaseTapChanger);
+        RegulatingDataRatio rdRtc = buildContextRegulatingDataRatio(convertedModel.end1.ratioTapChanger);
+        RegulatingDataPhase rdPtc = buildContextRegulatingDataPhase(convertedModel.end1.phaseTapChanger);
         context.transformerRegulatingControlMapping().add(tx.getId(), rdRtc, rdPtc);
     }
 
