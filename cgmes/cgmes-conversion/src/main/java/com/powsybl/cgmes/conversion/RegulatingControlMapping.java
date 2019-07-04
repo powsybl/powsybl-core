@@ -434,9 +434,11 @@ public class RegulatingControlMapping {
         if (control.targetValue <= 0) {
             context.ignored(rtcId,
                 String.format("Regulating control has a bad target voltage %f", control.targetValue));
-            rtc.setRegulating(false).setTargetV(Double.NaN);
+            rtc.setRegulating(false).setTargetDeadband(Double.NaN).setTargetV(Double.NaN);
         } else {
-            rtc.setRegulating(control.enabled || tapChangerControlEnabled).setTargetV(control.targetValue);
+            rtc.setRegulating(control.enabled || tapChangerControlEnabled)
+                .setTargetDeadband(control.targetDeadband)
+                .setTargetV(control.targetValue);
         }
 
         if (context.terminalMapping().find(control.cgmesTerminal) != null) {
@@ -477,6 +479,7 @@ public class RegulatingControlMapping {
         int targetValueSigne, PhaseTapChanger ptc, Context context) {
         ptc.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
             .setRegulating(control.enabled)
+            .setTargetDeadband(control.targetDeadband)
             .setRegulationValue(getTargetValue(control.targetValue, targetValueSigne));
 
         setRegulatingTerminal(defaultTerminal, control, ptc);
@@ -486,6 +489,7 @@ public class RegulatingControlMapping {
         int targetValueSigne, PhaseTapChanger ptc, Context context) {
         ptc.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
             .setRegulating(control.enabled)
+            .setTargetDeadband(control.targetDeadband)
             .setRegulationValue(getTargetValue(-control.targetValue, targetValueSigne));
 
         setRegulatingTerminal(defaultTerminal, control, ptc);
