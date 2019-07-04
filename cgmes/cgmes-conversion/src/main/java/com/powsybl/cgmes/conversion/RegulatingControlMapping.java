@@ -298,9 +298,10 @@ public class RegulatingControlMapping {
     private void setTwoWindingsTransformerRegulatingControls(TwoWindingsTransformer twt) {
         RegulatingData rd = context.transformerRegulatingControlMapping().findTwo(twt.getId());
         if (rd != null) {
-            setRtcRegulatingControl(twt.getRatioTapChanger(), rd.ratioTapChanger);
 
             Terminal defaultTerminal = getT2wDefaultTerminal(twt, rd.phaseTapChanger);
+            setRtcRegulatingControl(defaultTerminal, twt.getRatioTapChanger(), rd.ratioTapChanger);
+
             int targetValueSigne = getT2wPtcTargetValueSigne(twt, rd.phaseTapChanger, context);
             setPtcRegulatingControl(defaultTerminal, targetValueSigne, twt.getPhaseTapChanger(), rd.phaseTapChanger);
         }
@@ -350,26 +351,29 @@ public class RegulatingControlMapping {
         if (rd != null) {
             RegulatingData rd1 = rd.winding1;
             if (rd1 != null) {
-                setRtcRegulatingControl(twt.getLeg1().getRatioTapChanger(), rd1.ratioTapChanger);
+                setRtcRegulatingControl(twt.getLeg1().getTerminal(), twt.getLeg1().getRatioTapChanger(),
+                    rd1.ratioTapChanger);
                 setPtcRegulatingControl(twt.getLeg1().getTerminal(), 1, twt.getLeg1().getPhaseTapChanger(),
                     rd1.phaseTapChanger);
             }
             RegulatingData rd2 = rd.winding2;
             if (rd2 != null) {
-                setRtcRegulatingControl(twt.getLeg2().getRatioTapChanger(), rd2.ratioTapChanger);
+                setRtcRegulatingControl(twt.getLeg2().getTerminal(), twt.getLeg2().getRatioTapChanger(),
+                    rd2.ratioTapChanger);
                 setPtcRegulatingControl(twt.getLeg2().getTerminal(), 1, twt.getLeg2().getPhaseTapChanger(),
                     rd2.phaseTapChanger);
             }
             RegulatingData rd3 = rd.winding3;
             if (rd3 != null) {
-                setRtcRegulatingControl(twt.getLeg3().getRatioTapChanger(), rd3.ratioTapChanger);
+                setRtcRegulatingControl(twt.getLeg3().getTerminal(), twt.getLeg3().getRatioTapChanger(),
+                    rd3.ratioTapChanger);
                 setPtcRegulatingControl(twt.getLeg3().getTerminal(), 1, twt.getLeg3().getPhaseTapChanger(),
                     rd3.phaseTapChanger);
             }
         }
     }
 
-    private void setRtcRegulatingControl(RatioTapChanger rtc,
+    private void setRtcRegulatingControl(Terminal defaultTerminal, RatioTapChanger rtc,
         RegulatingDataTapChanger rd) {
         if (rd == null || !rd.regulating) {
             return;
@@ -387,34 +391,51 @@ public class RegulatingControlMapping {
             return;
         }
 
-        // if (control.mode.endsWith("voltage") || (p.containsKey("tculControlMode") &&
-        // p.get("tculControlMode").endsWith("volt"))) {
-        if (control.mode.endsWith("voltage")) {
-            setRtcRegulatingControlVoltage(control, rtc, context);
-            // addRegulatingControlVoltage(p, control, adder, defaultTerminal, context);
-        } else if (!control.mode.endsWith("fixed")) {
+        String tculControlMode = null;
+        String rtcId = "TODO-JAM";
+        boolean tapChangerControlEnabled = false;
+
+        if (isControlModeVoltage(control.mode, tculControlMode)) {
+            setRtcRegulatingControlVoltage(defaultTerminal, rtcId, tapChangerControlEnabled, control, rtc, context);
+        } else if (!isControlModeFixed(control.mode)) {
             context.fixed(control.mode,
                 "Unsupported regulation mode for Ratio tap changer. Considered as a fixed ratio tap changer.");
         }
     }
 
-    private void setRtcRegulatingControlVoltage(RegulatingControl control, RatioTapChanger rtc, Context context) {
+    private boolean isControlModeVoltage(String controlMode, String tculControlMode) {
+        if (controlMode != null && controlMode.endsWith("voltage")) {
+            return true;
+        }
+        if (tculControlMode != null && tculControlMode.endsWith("volt")) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isControlModeFixed(String controlMode) {
+        if (controlMode != null && controlMode.endsWith("fixed")) {
+            return true;
+        }
+        return false;
+    }
+
+    private void setRtcRegulatingControlVoltage(Terminal defaultTerminal, String rtcId,
+        boolean tapChangerControlEnabled, RegulatingControl control,
+        RatioTapChanger rtc, Context context) {
         // Even if regulating is false, we reset the target voltage if it is not valid
         if (control.targetValue <= 0) {
-            // TODO JAM
-            // context.ignored(p.getId(TAP_CHANGER_CONTROL),
-            // String.format("Regulating control has a bad target voltage %f",
-            // control.targetValue));
+            context.ignored(rtcId,
+                String.format("Regulating control has a bad target voltage %f", control.targetValue));
             rtc.setRegulating(false).setTargetV(Double.NaN);
         } else {
-            rtc.setRegulating(control.enabled).setTargetV(control.targetValue);
+            rtc.setRegulating(control.enabled || tapChangerControlEnabled).setTargetV(control.targetValue);
         }
 
         if (context.terminalMapping().find(control.cgmesTerminal) != null) {
             rtc.setRegulationTerminal(context.terminalMapping().find(control.cgmesTerminal));
-            // control.idsEq.put(p.getId("RatioTapChanger"), true);
         } else {
-            rtc.setRegulating(false);
+            rtc.setRegulationTerminal(defaultTerminal);
         }
     }
 
@@ -506,8 +527,8 @@ public class RegulatingControlMapping {
     private void setPtcRegulatingControlCurrentFlow(Terminal defaultTerminal, RegulatingControl control,
         int targetValueSigne, PhaseTapChanger ptc, Context context) {
         ptc.setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
-            .setRegulationValue(getTargetValue(control.targetValue, targetValueSigne))
-            .setRegulating(control.enabled);
+            .setRegulating(control.enabled)
+            .setRegulationValue(getTargetValue(control.targetValue, targetValueSigne));
 
         setRegulatingTerminal(defaultTerminal, control, ptc);
     }
@@ -516,8 +537,7 @@ public class RegulatingControlMapping {
         int targetValueSigne, PhaseTapChanger ptc, Context context) {
         ptc.setRegulationMode(PhaseTapChanger.RegulationMode.ACTIVE_POWER_CONTROL)
             .setRegulating(control.enabled)
-            .setRegulationValue(
-                getTargetValue(-control.targetValue, targetValueSigne));
+            .setRegulationValue(getTargetValue(-control.targetValue, targetValueSigne));
 
         setRegulatingTerminal(defaultTerminal, control, ptc);
     }
@@ -525,15 +545,8 @@ public class RegulatingControlMapping {
     private void setRegulatingTerminal(Terminal defaultTerminal, RegulatingControl control, PhaseTapChanger ptc) {
         if (context.terminalMapping().find(control.cgmesTerminal) != null) {
             ptc.setRegulationTerminal(context.terminalMapping().find(control.cgmesTerminal));
-            // String phaseTapChangerId,
-            // control.idsEq.put(p.getId("PhaseTapChanger"), true);
         } else {
             ptc.setRegulationTerminal(defaultTerminal);
-            // ptc.setRegulationTerminal(defaultTerminal);
-            // if (!context.terminalMapping().areAssociated(p.getId(TERMINAL),
-            // control.topologicalNode)) {
-            // control.idsEq.put(p.getId("PhaseTapChanger"), false);
-            // ptc.setRegulating(false); // Evitar errores
         }
     }
 
