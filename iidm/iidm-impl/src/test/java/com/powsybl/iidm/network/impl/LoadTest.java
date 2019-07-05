@@ -13,6 +13,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
@@ -60,6 +61,47 @@ public class LoadTest {
         thrown.expect(ValidationException.class);
         thrown.expectMessage("q0 is invalid");
         createLoad("invalid", 20.0, Double.NaN);
+    }
+
+    @Test
+    public void testChangesNotification() {
+        // Changes listener
+        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        // Add observer changes to current network
+        network.addListener(mockedListener);
+
+        // Tested instance
+        Load load = network.getLoad("CE");
+        // Get initial values
+        double p0OldValue = load.getP0();
+        double q0OldValue = load.getQ0();
+        // Change values P0 & Q0
+        load.setP0(-1.0);
+        load.setQ0(-2.0);
+
+        // Check update notification
+        Mockito.verify(mockedListener, Mockito.times(1))
+               .onUpdate(load, "p0", VariantManagerConstants.INITIAL_VARIANT_ID, p0OldValue, -1.0);
+        Mockito.verify(mockedListener, Mockito.times(1))
+               .onUpdate(load, "q0", VariantManagerConstants.INITIAL_VARIANT_ID, q0OldValue, -2.0);
+
+        // At this point
+        // no more changes is taking into account
+
+        // Simulate exception for onUpdate calls
+        Mockito.doThrow(new PowsyblException()).when(mockedListener)
+               .onUpdate(load, "p0", VariantManagerConstants.INITIAL_VARIANT_ID, p0OldValue, -1.0);
+
+        // Case when same values P0 & Q0 are set
+        load.setP0(-1.0);
+        load.setQ0(-2.0);
+        // Case when no listener is registered
+        network.removeListener(mockedListener);
+        load.setP0(1.0);
+        load.setQ0(0.0);
+
+        // Check no notification
+        Mockito.verifyNoMoreInteractions(mockedListener);
     }
 
     @Test
@@ -112,6 +154,12 @@ public class LoadTest {
 
     @Test
     public void testSetterGetterInMultiVariants() {
+        // Changes listener
+        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        // Set observer changes
+        network.addListener(mockedListener);
+
+        // Init variant manager
         VariantManager variantManager = network.getVariantManager();
         createLoad("testMultiVariant", 0.6d, 0.7d);
         Load load = network.getLoad("testMultiVariant");
@@ -125,6 +173,9 @@ public class LoadTest {
         // change values in s4
         load.setP0(3.0);
         load.setQ0(2.0);
+        // Check P0 & Q0 update notification
+        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(load, "p0", "s4", 0.6d, 3.0);
+        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(load, "q0", "s4", 0.7d, 2.0);
 
         // remove s2
         variantManager.removeVariant("s2");
@@ -147,6 +198,9 @@ public class LoadTest {
             fail();
         } catch (Exception ignored) {
         }
+
+        // Remove observer changes
+        network.removeListener(mockedListener);
     }
 
     private void createLoad(String id, double p0, double q0) {

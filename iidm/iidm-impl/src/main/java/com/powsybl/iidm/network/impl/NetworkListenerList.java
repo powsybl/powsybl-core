@@ -6,7 +6,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.Identifiable;
+import com.powsybl.iidm.network.NetworkListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +38,18 @@ class NetworkListenerList {
                 try {
                     listener.onUpdate(identifiable, attribute, oldValue, newValue);
                 } catch (Throwable t) {
+                    LOGGER.error(t.toString(), t);
+                }
+            }
+        }
+    }
+
+    void notifyUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
+        if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
+            for (NetworkListener listener : listeners) {
+                try {
+                    listener.onUpdate(identifiable, attribute, variantId, oldValue, newValue);
+                } catch (Exception t) {
                     LOGGER.error(t.toString(), t);
                 }
             }
