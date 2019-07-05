@@ -178,7 +178,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     @Override
     public void update(String query) {
         // TODO elena
-        // clone a new rdf repository to update
+        // clone a new rdf repository to update, remove logging
         if (repoClone == null) {
             repoClone = clone();
         }
@@ -188,6 +188,18 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
 
             Update updateQuery = connClone.prepareUpdate(QueryLanguage.SPARQL, updateStatement);
             updateQuery.execute();
+            // test 2 DEL
+            RepositoryResult<Resource> contexts1 = repoClone.getConnection().getContextIDs();
+            while (contexts1.hasNext()) {
+                Resource context = contexts1.next();
+                RepositoryResult<Statement> statements1;
+                statements1 = connClone.getStatements(null, null, null, context);
+                while (statements1.hasNext()) {
+                    Statement statement = statements1.next();
+//                    LOGGER.info("Running from triplestore new clone ....******************");
+//                    LOGGER.info(statement.toString());
+                }
+            } // test 2 DEL
         } catch (UpdateExecutionException e) {
             LOGGER.debug(e.toString());
         }
@@ -197,7 +209,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         // TODO elena clone rdf repository
         try (RepositoryConnection conn = repo.getConnection()) {
 
-            Repository repoClone = new SailRepository(new MemoryStore());
+            repoClone = new SailRepository(new MemoryStore());
             repoClone.initialize();
             RepositoryConnection connClone = repoClone.getConnection();
             // get existing statements
@@ -215,6 +227,11 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
             }
             return repoClone;
         }
+    }
+    
+    @Override
+    public void cloneRepo() {
+        clone();
     }
 
     @Override

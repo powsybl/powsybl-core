@@ -38,6 +38,11 @@ import org.apache.jena.update.UpdateAction;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateRequest;
 import org.apache.jena.vocabulary.RDF;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryResult;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.sail.memory.MemoryStore;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
@@ -159,6 +164,11 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
         String updateStatement = adjustedQuery(query);
         UpdateRequest request = UpdateFactory.create(updateStatement);
         UpdateAction.execute(request, dataset);
+    }
+
+    @Override
+    public void cloneRepo() {
+        // TODO elena
     }
 
     @Override

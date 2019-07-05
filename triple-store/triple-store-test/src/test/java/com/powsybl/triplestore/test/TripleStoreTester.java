@@ -75,6 +75,16 @@ public class TripleStoreTester {
             tripleStores.get(impl).update(queryText);
         }
     }
+    
+    void testClone() {
+        // TODO elena
+        for (String impl : implementations) {
+            start = System.currentTimeMillis();
+            tripleStores.get(impl).cloneRepo();
+            end = System.currentTimeMillis();
+            LOG.info(String.format("Clone repository by statementes for %s took: %d milliseconds", impl, end - start));
+        }
+    }
 
     public void testClear(String contextName, String namespace) {
         for (String impl : implementations) {
@@ -132,6 +142,8 @@ public class TripleStoreTester {
     private final String base;
     private final String[] inputResourceNames;
     private final Map<String, TripleStore> tripleStores;
+    private static long start;
+    private static long end;
 
     private static final Logger LOG = LoggerFactory.getLogger(TripleStoreTester.class);
 }

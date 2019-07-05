@@ -39,4 +39,6 @@ public interface TripleStore {
 
     // TODO elena
     void update(String queryText);
+
+    void cloneRepo();
 }

@@ -358,15 +358,6 @@ WHERE {	?x cim:IdentifiedObject.name ?y .
 	    FILTER (?y = "{1}")
 }
 
-
-# query: copyCgmesGraph
-COPY {0} TO <contexts:case1_EQ_copy.xml>
-
-# query: getCgmesCopiedGraph
-SELECT ?element ?property ?value
-FROM  <contexts:case1_EQ_copy.xml>
-WHERE {?element ?property  ?value}
-
 # query: getCgmesUpdated
 prefix case:<http://case1/#>
 SELECT *

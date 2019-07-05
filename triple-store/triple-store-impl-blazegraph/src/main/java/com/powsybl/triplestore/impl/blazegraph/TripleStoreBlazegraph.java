@@ -62,7 +62,7 @@ import com.powsybl.triplestore.api.TripleStoreException;
 public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
 
     public TripleStoreBlazegraph() {
-        final Properties props = new Properties();
+        props = new Properties();
         props.put(Options.BUFFER_MODE, "MemStore");
         props.put(AbstractTripleStore.Options.QUADS_MODE, "true");
         props.put(BigdataSail.Options.TRUTH_MAINTENANCE, "false");
@@ -278,6 +278,48 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         }
     }
 
+    public Repository clone() {
+        // TODO elena clone rdf repository
+        RepositoryConnection conn = null;
+        try { conn = repo.getConnection();
+
+            BigdataSail sailClone = new BigdataSail(props); // instantiate a sail
+            repoClone = new BigdataSailRepository(sailClone); // create a Sesame repository
+            repoClone.initialize();
+            RepositoryConnection connClone = repoClone.getConnection();
+            // get existing statements
+            RepositoryResult<Resource> contexts = conn.getContextIDs();
+            while (contexts.hasNext()) {
+                Resource context = contexts.next();
+                LOG.info("Statements for {} context", context);
+                RepositoryResult<Statement> statements;
+                statements = conn.getStatements(null, null, null, true, context);
+                // add statements to the new repository
+                while (statements.hasNext()) {
+                    Statement statement = statements.next();
+                    connClone.add(statement);
+                }
+            }
+            return repoClone;
+        } catch (RepositoryException x) {
+            LOG.error("getting context names : {}", x.getMessage());
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (RepositoryException x) {
+                    LOG.error("closing when getting context names : {}", x.getMessage());
+                }
+            }
+        }
+        return repoClone;
+    }
+
+    public void cloneRepo() {
+        // TODO elena
+        clone();
+    }
+
     @Override
     public void add(String graph, String objType, PropertyBags statements) {
         RepositoryConnection cnx = null;
@@ -419,6 +461,10 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     }
 
     private final Repository repo;
+
+    private Repository repoClone;
+    
+    private final Properties props;
 
     private static final Logger LOG = LoggerFactory.getLogger(TripleStoreBlazegraph.class);
 

@@ -405,10 +405,11 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     // update()
     // from each TripleStore... in impl (e.g. TripleStoreRDF4J)
     @Override
-    public PropertyBags updateCgmesfromIidmBySparql(String context, String identifiable, String newValue,
+    public PropertyBags updateCgmes(String context, String identifiable, String newValue,
         String oldValue) {
         // namedQueryFordUpdate("updateCgmesfromIidm", newValue, oldValue);
-        return namedQuery("getCgmesUpdated", context, identifiable, newValue, oldValue);
+        //return namedQuery("getCgmesUpdated", context, identifiable, newValue, oldValue);
+        return namedQuery("energyConsumers");
     }
 
     public PropertyBags namedQuery(String name, String... params) {
