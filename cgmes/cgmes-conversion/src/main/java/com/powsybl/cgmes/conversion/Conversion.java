@@ -125,9 +125,12 @@ public class Conversion {
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
         context.currentLimitsMapping().addAll();
 
-        // set all remote regulating terminals
-        context.regulatingControlMapping().setAllRemoteRegulatingTerminals();
-        context.regulatingControlMapping().setAllRegulatingControls(network);
+        if (EXTENDED_CGMES_CONVERSION) {
+            context.regulatingControlMapping().setAllRegulatingControls(network);
+        } else {
+            // set all remote regulating terminals
+            context.regulatingControlMapping().setAllRemoteRegulatingTerminals();
+        }
 
         voltageAngles(nodes, context);
         if (context.config().debugTopology()) {

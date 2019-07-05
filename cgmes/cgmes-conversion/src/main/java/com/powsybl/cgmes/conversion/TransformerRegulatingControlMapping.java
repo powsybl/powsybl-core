@@ -34,12 +34,12 @@ public class TransformerRegulatingControlMapping {
         rd1.phaseTapChanger = rdPtc1;
 
         RegulatingData rd2 = new RegulatingData();
-        rd1.ratioTapChanger = rdRtc2;
-        rd1.phaseTapChanger = rdPtc2;
+        rd2.ratioTapChanger = rdRtc2;
+        rd2.phaseTapChanger = rdPtc2;
 
         RegulatingData rd3 = new RegulatingData();
-        rd1.ratioTapChanger = rdRtc3;
-        rd1.phaseTapChanger = rdPtc3;
+        rd3.ratioTapChanger = rdRtc3;
+        rd3.phaseTapChanger = rdPtc3;
 
         RegulatingDataThree rdThree = new RegulatingDataThree();
         rdThree.winding1 = rd1;

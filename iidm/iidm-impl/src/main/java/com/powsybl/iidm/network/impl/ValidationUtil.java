@@ -299,20 +299,24 @@ public final class ValidationUtil {
     static void checkPhaseTapChangerRegulation(Validable validable, PhaseTapChanger.RegulationMode regulationMode,
                                                double regulationValue, boolean regulating, Terminal regulationTerminal,
                                                Network network) {
-        if (regulationMode == null) {
-            throw new ValidationException(validable, "phase regulation mode is not set");
-        }
-        if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && Double.isNaN(regulationValue)) {
-            throw new ValidationException(validable, "phase regulation is on and threshold/setpoint value is not set");
-        }
-        if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && regulationTerminal == null) {
-            throw new ValidationException(validable, "phase regulation is on and regulated terminal is not set");
-        }
-        if (regulationTerminal != null && regulationTerminal.getVoltageLevel().getSubstation().getNetwork() != network) {
-            throw new ValidationException(validable, "phase regulation terminal is not part of the network");
-        }
-        if (regulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP && regulating) {
-            throw new ValidationException(validable, "phase regulation cannot be on if mode is FIXED");
+        if (regulating) {
+            if (regulationMode == null) {
+                throw new ValidationException(validable, "phase regulation mode is not set");
+            }
+            if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && Double.isNaN(regulationValue)) {
+                throw new ValidationException(validable,
+                    "phase regulation is on and threshold/setpoint value is not set");
+            }
+            if (regulationMode != PhaseTapChanger.RegulationMode.FIXED_TAP && regulationTerminal == null) {
+                throw new ValidationException(validable, "phase regulation is on and regulated terminal is not set");
+            }
+            if (regulationTerminal != null
+                && regulationTerminal.getVoltageLevel().getSubstation().getNetwork() != network) {
+                throw new ValidationException(validable, "phase regulation terminal is not part of the network");
+            }
+            if (regulationMode == PhaseTapChanger.RegulationMode.FIXED_TAP && regulating) {
+                throw new ValidationException(validable, "phase regulation cannot be on if mode is FIXED");
+            }
         }
     }
 

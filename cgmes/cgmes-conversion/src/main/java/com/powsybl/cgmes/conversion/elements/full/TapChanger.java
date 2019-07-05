@@ -16,7 +16,7 @@ public class TapChanger {
     private boolean ltcFlag = false;
     private String id = null;
     private boolean regulating = false;
-    private String regulatingControlId;
+    private String regulatingControlId = null;
     private int side = 1;
     private String tculControlMode = null;
     private boolean tapChangerControlEnabled = false;
