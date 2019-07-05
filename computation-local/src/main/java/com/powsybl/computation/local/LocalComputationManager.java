@@ -1,5 +1,6 @@
 /**
  * Copyright (c) 2016, All partners of the iTesla project (http://www.itesla-project.eu/consortium)
+ * Copyright (c) 2016-2019, RTE (http://www.rte-france.com)
  * This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -40,6 +41,8 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 public class LocalComputationManager implements ComputationManager {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LocalComputationManager.class);
+
+    private static final String CANCEL_BY_CALLER_MSG = "Cancelled by submitter";
 
     private final LocalComputationConfig config;
 
@@ -322,14 +325,18 @@ public class LocalComputationManager implements ComputationManager {
     public <R> CompletableFuture<R> execute(ExecutionEnvironment environment, ExecutionHandler<R> handler, ComputationParameters parameters) {
         Objects.requireNonNull(environment);
         Objects.requireNonNull(handler);
-        MyCf<R> f = new MyCf<>();
+        LocalCompletableFuture<R> f = new LocalCompletableFuture<>();
         threadPools.execute(() -> {
             f.setThread(Thread.currentThread());
             try {
                 try (WorkingDirectory workingDir = new WorkingDirectory(config.getLocalDir(), environment.getWorkingDirPrefix(), environment.isDebug())) {
                     f.setWorkingDir(workingDir.toPath());
                     List<CommandExecution> commandExecutionList = handler.before(workingDir.toPath());
+                    f.checkCancellation();
                     ExecutionReport report = execute(workingDir.toPath(), commandExecutionList, environment.getVariables(), parameters, handler::onExecutionCompletion);
+                    if (f.isCancelled()) {
+                        throw new CancellationException(CANCEL_BY_CALLER_MSG);
+                    }
                     R result = handler.after(workingDir.toPath(), report);
                     f.complete(result);
                 }
@@ -340,21 +347,36 @@ public class LocalComputationManager implements ComputationManager {
         return f;
     }
 
-    private class MyCf<R> extends ThreadInterruptedCompletableFuture<R> {
+    private class LocalCompletableFuture<R> extends ThreadInterruptedCompletableFuture<R> {
 
         private Path workingDir;
+        private volatile boolean cancel = false;
 
         private void setWorkingDir(Path workingDir) {
             this.workingDir = workingDir;
         }
 
+        /**
+         * Throws a {@link CancellationException} if cancel has been requested.
+         */
+        private synchronized void checkCancellation() {
+            if (isCancelled()) {
+                throw new CancellationException("Cancellation before starting the command.");
+            }
+        }
+
         @Override
         public boolean cancel(boolean mayInterruptIfRunning) {
-            super.cancel(mayInterruptIfRunning);
+            cancel = true;
             if (mayInterruptIfRunning) {
                 localCommandExecutor.stop(workingDir);
             }
             return true;
+        }
+
+        @Override
+        public boolean isCancelled() {
+            return cancel;
         }
     }
 
