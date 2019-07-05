@@ -288,7 +288,7 @@ public class RegulatingControlMapping {
     public void setAllRegulatingControls(Network network) {
         setTwoWindingsTransformersRegulatingControls(network);
         setThreeWindingsTransformersRegulatingControls(network);
-        
+
         cachedRegulatingControls.clear();
     }
 
@@ -404,7 +404,7 @@ public class RegulatingControlMapping {
             context.missing(String.format("Regulating control %s", controlId));
             return;
         }
-        
+
         if (isControlModeVoltage(control.mode, rd.tculControlMode)) {
             setRtcRegulatingControlVoltage(defaultTerminal, rd.id, rd.tapChangerControlEnabled, control, rtc, context);
         } else if (!isControlModeFixed(control.mode)) {
