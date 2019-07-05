@@ -61,7 +61,7 @@ public class CommandLineToolsTest extends AbstractToolTest {
         }
 
         @Override
-        public void run(CommandLine line, ToolRunningContext context) throws Exception {
+        public void run(CommandLine line, ToolRunningContext context) {
             context.getOutputStream().print("result1");
         }
     }
@@ -105,7 +105,7 @@ public class CommandLineToolsTest extends AbstractToolTest {
         }
 
         @Override
-        public void run(CommandLine line, ToolRunningContext context) throws Exception {
+        public void run(CommandLine line, ToolRunningContext context) {
             throw new PowsyblException("error2");
         }
     }
@@ -132,8 +132,7 @@ public class CommandLineToolsTest extends AbstractToolTest {
     @Test
     public void test() throws IOException {
         String scriptOptions = "Available options are:" + System.lineSeparator() +
-            "    --config-name <CONFIG_NAME>   Override configuration file name" + System.lineSeparator() +
-            "    --parallel                    Run command in parallel mode" + System.lineSeparator();
+            "    --config-name <CONFIG_NAME>   Override configuration file name" + System.lineSeparator();
 
         // usage when no command is specified
         String usage = "usage: itools [OPTIONS] COMMAND [ARGS]" + System.lineSeparator() +
