@@ -75,7 +75,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         ValidationUtil.checkP0(this, p0);
         ValidationUtil.checkActivePowerLimits(this, minP, maxP, p0);
         double oldValue = this.p0.set(variantIndex, p0);
-        notifyUpdate("p0", oldValue, p0);
+        notifyUpdate(() -> "p0", oldValue, p0);
         return this;
     }
 
@@ -95,7 +95,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         int variantIndex = getNetwork().getVariantIndex();
         ValidationUtil.checkQ0(this, q0);
         double oldValue = this.q0.set(variantIndex, q0);
-        notifyUpdate("q0", oldValue, q0);
+        notifyUpdate(() -> "q0", oldValue, q0);
         return this;
     }
 
@@ -116,7 +116,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         ValidationUtil.checkActivePowerLimits(this, minP, maxP, getP0());
         double oldValue = this.minP;
         this.minP = minP;
-        notifyUpdate("minP", oldValue, minP);
+        notifyUpdate(() -> "minP", oldValue, minP);
         return this;
     }
 
@@ -137,7 +137,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
         ValidationUtil.checkActivePowerLimits(this, minP, maxP, getP0());
         double oldValue = this.maxP;
         this.maxP = maxP;
-        notifyUpdate("maxP", oldValue, maxP);
+        notifyUpdate(() -> "maxP", oldValue, maxP);
         return this;
     }
 

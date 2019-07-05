@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Connectable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  *
@@ -52,10 +53,26 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         network.getListeners().notifyRemoval(this);
     }
 
+    protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
+        getNetwork().getListeners().notifyUpdate(this, attribute, oldValue, newValue);
+    }
+
+    protected void notifyUpdate(Supplier<String> attribute, String variantId, Object oldValue, Object newValue) {
+        getNetwork().getListeners().notifyUpdate(this, attribute, variantId, oldValue, newValue);
+    }
+
+    /**
+     * @deprecated Use {@link AbstractConnectable#notifyUpdate(Supplier<String>, Object, Object)} instead.
+     */
+    @Deprecated
     protected void notifyUpdate(String attribute, Object oldValue, Object newValue) {
         getNetwork().getListeners().notifyUpdate(this, attribute, oldValue, newValue);
     }
 
+    /**
+     * @deprecated Use {@link AbstractConnectable#notifyUpdate(Supplier<String>, String, Object, Object)} instead.
+     */
+    @Deprecated
     protected void notifyUpdate(String attribute, String variantId, Object oldValue, Object newValue) {
         getNetwork().getListeners().notifyUpdate(this, attribute, variantId, oldValue, newValue);
     }

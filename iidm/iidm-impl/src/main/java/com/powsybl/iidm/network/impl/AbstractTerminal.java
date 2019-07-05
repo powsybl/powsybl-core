@@ -81,7 +81,7 @@ abstract class AbstractTerminal implements TerminalExt {
             throw new ValidationException(connectable, "cannot set active power on a shunt compensator");
         }
         double oldValue = this.p.set(network.get().getVariantIndex(), p);
-        getConnectable().notifyUpdate("p" + (num != -1 ? num : ""), oldValue, p);
+        getConnectable().notifyUpdate(() -> "p" + (num != -1 ? num : ""), oldValue, p);
         return this;
     }
 
@@ -96,7 +96,7 @@ abstract class AbstractTerminal implements TerminalExt {
             throw new ValidationException(connectable, "cannot set reactive power on a busbar section");
         }
         double oldValue = this.q.set(network.get().getVariantIndex(), q);
-        getConnectable().notifyUpdate("q" + (num != -1 ? num : ""), oldValue, q);
+        getConnectable().notifyUpdate(() -> "q" + (num != -1 ? num : ""), oldValue, q);
         return this;
     }
 

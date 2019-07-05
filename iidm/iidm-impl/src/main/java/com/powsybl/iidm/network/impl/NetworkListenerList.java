@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -32,6 +33,34 @@ class NetworkListenerList {
         listeners.remove(listener);
     }
 
+    void notifyUpdate(Identifiable identifiable, Supplier<String> attribute, Object oldValue, Object newValue) {
+        if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
+            for (NetworkListener listener : listeners) {
+                try {
+                    listener.onUpdate(identifiable, attribute.get(), oldValue, newValue);
+                } catch (Throwable t) {
+                    LOGGER.error(t.toString(), t);
+                }
+            }
+        }
+    }
+
+    void notifyUpdate(Identifiable identifiable, Supplier<String> attribute, String variantId, Object oldValue, Object newValue) {
+        if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
+            for (NetworkListener listener : listeners) {
+                try {
+                    listener.onUpdate(identifiable, attribute.get(), variantId, oldValue, newValue);
+                } catch (Exception t) {
+                    LOGGER.error(t.toString(), t);
+                }
+            }
+        }
+    }
+
+    /**
+     * @deprecated Use {@link NetworkListenerList#notifyUpdate(Identifiable, Supplier<String>, Object, Object)} instead.
+     */
+    @Deprecated
     void notifyUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
         if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
             for (NetworkListener listener : listeners) {
@@ -44,6 +73,10 @@ class NetworkListenerList {
         }
     }
 
+    /**
+     * @deprecated Use {@link NetworkListenerList#notifyUpdate(Identifiable, Supplier<String>, String, Object, Object)} instead.
+     */
+    @Deprecated
     void notifyUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
         if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
             for (NetworkListener listener : listeners) {

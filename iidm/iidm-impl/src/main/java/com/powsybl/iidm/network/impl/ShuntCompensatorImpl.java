@@ -64,7 +64,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         ValidationUtil.checkbPerSection(this, bPerSection);
         double oldValue = this.bPerSection;
         this.bPerSection = bPerSection;
-        notifyUpdate("bPerSection", oldValue, bPerSection);
+        notifyUpdate(() -> "bPerSection", oldValue, bPerSection);
         return this;
     }
 
@@ -78,7 +78,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
         ValidationUtil.checkSections(this, getCurrentSectionCount(), maximumSectionCount);
         int oldValue = this.maximumSectionCount;
         this.maximumSectionCount = maximumSectionCount;
-        notifyUpdate("maximumSectionCount", oldValue, maximumSectionCount);
+        notifyUpdate(() -> "maximumSectionCount", oldValue, maximumSectionCount);
         return this;
     }
 
@@ -91,7 +91,7 @@ class ShuntCompensatorImpl extends AbstractConnectable<ShuntCompensator> impleme
     public ShuntCompensatorImpl setCurrentSectionCount(int currentSectionCount) {
         ValidationUtil.checkSections(this, currentSectionCount, maximumSectionCount);
         int oldValue = this.currentSectionCount.set(network.get().getVariantIndex(), currentSectionCount);
-        notifyUpdate("currentSectionCount", oldValue, currentSectionCount);
+        notifyUpdate(() -> "currentSectionCount", oldValue, currentSectionCount);
         return this;
     }
 

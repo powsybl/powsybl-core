@@ -52,7 +52,7 @@ class LineImpl extends AbstractBranch<Line> implements Line {
         ValidationUtil.checkR(this, r);
         double oldValue = this.r;
         this.r = r;
-        notifyUpdate("r", oldValue, r);
+        notifyUpdate(() -> "r", oldValue, r);
         return this;
     }
 
@@ -66,7 +66,7 @@ class LineImpl extends AbstractBranch<Line> implements Line {
         ValidationUtil.checkX(this, x);
         double oldValue = this.x;
         this.x = x;
-        notifyUpdate("x", oldValue, x);
+        notifyUpdate(() -> "x", oldValue, x);
         return this;
     }
 
@@ -80,7 +80,7 @@ class LineImpl extends AbstractBranch<Line> implements Line {
         ValidationUtil.checkG1(this, g1);
         double oldValue = this.g1;
         this.g1 = g1;
-        notifyUpdate("g1", oldValue, g1);
+        notifyUpdate(() -> "g1", oldValue, g1);
         return this;
     }
 
@@ -94,7 +94,7 @@ class LineImpl extends AbstractBranch<Line> implements Line {
         ValidationUtil.checkB1(this, b1);
         double oldValue = this.b1;
         this.b1 = b1;
-        notifyUpdate("b1", oldValue, b1);
+        notifyUpdate(() -> "b1", oldValue, b1);
         return this;
     }
 
@@ -108,7 +108,7 @@ class LineImpl extends AbstractBranch<Line> implements Line {
         ValidationUtil.checkG2(this, g2);
         double oldValue = this.g2;
         this.g2 = g2;
-        notifyUpdate("g2", oldValue, g2);
+        notifyUpdate(() -> "g2", oldValue, g2);
         return this;
     }
 
@@ -122,7 +122,7 @@ class LineImpl extends AbstractBranch<Line> implements Line {
         ValidationUtil.checkB2(this, b2);
         double oldValue = this.b2;
         this.b2 = b2;
-        notifyUpdate("b2", oldValue, b2);
+        notifyUpdate(() -> "b2", oldValue, b2);
         return this;
     }
 

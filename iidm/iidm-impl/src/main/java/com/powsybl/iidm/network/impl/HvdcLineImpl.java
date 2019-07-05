@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.impl.util.Ref;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -58,7 +59,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, M
         this.networkRef = networkRef;
     }
 
-    protected void notifyUpdate(String attribute, Object oldValue, Object newValue) {
+    protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
         getNetwork().getListeners().notifyUpdate(this, attribute, oldValue, newValue);
     }
 
@@ -86,7 +87,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, M
         int variantIndex = getNetwork().getVariantIndex();
         boolean oldValue = this.convertersMode.get(variantIndex);
         this.convertersMode.set(variantIndex, fromEnum(Objects.requireNonNull(convertersMode)));
-        notifyUpdate("convertersMode", toEnum(oldValue), convertersMode);
+        notifyUpdate(() -> "convertersMode", toEnum(oldValue), convertersMode);
         return this;
     }
 
@@ -100,7 +101,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, M
         ValidationUtil.checkR(this, r);
         double oldValue = this.r;
         this.r = r;
-        notifyUpdate("r", oldValue, r);
+        notifyUpdate(() -> "r", oldValue, r);
         return this;
     }
 
@@ -114,7 +115,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, M
         ValidationUtil.checkNominalV(this, nominalV);
         double oldValue = this.nominalV;
         this.nominalV = nominalV;
-        notifyUpdate("nominalV", oldValue, nominalV);
+        notifyUpdate(() -> "nominalV", oldValue, nominalV);
         return this;
     }
 
@@ -128,7 +129,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, M
         ValidationUtil.checkMaxP(this, maxP);
         double oldValue = this.maxP;
         this.maxP = maxP;
-        notifyUpdate("maxP", oldValue, maxP);
+        notifyUpdate(() -> "maxP", oldValue, maxP);
         return this;
     }
 
@@ -141,7 +142,7 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, M
     public HvdcLineImpl setActivePowerSetpoint(double activePowerSetpoint) {
         ValidationUtil.checkActivePowerSetpoint(this, activePowerSetpoint);
         double oldValue = this.activePowerSetpoint.set(getNetwork().getVariantIndex(), activePowerSetpoint);
-        notifyUpdate("activePowerSetpoint", oldValue, activePowerSetpoint);
+        notifyUpdate(() -> "activePowerSetpoint", oldValue, activePowerSetpoint);
         return this;
     }
 
