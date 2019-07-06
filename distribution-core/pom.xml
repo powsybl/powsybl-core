@@ -227,6 +227,12 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-extensions</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -392,7 +398,6 @@
                     <copyToLib>
                         <files>
                             <file>${project.basedir}/../build/lib/libmaster.so</file>
-                            <file>${project.basedir}/../build/lib/libmathjni.so</file>
                         </files>
                     </copyToLib>
                     <copyToEtc>
