@@ -10,8 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.update.IidmChangesObject;
-import com.powsybl.cgmes.update.CgmesFromIidmModifier;
+import com.powsybl.cgmes.update.IidmChangeOnUpdate;
+import com.powsybl.cgmes.update.IidmToCgmes;
+import com.powsybl.cgmes.update.CgmesUpdater;
 import com.powsybl.iidm.network.Network;
 
 public class ChangeTestIidmModel {
@@ -19,14 +20,14 @@ public class ChangeTestIidmModel {
     public ChangeTestIidmModel(Network network) {
         this.network = network;
         changes = new ArrayList<>();
-        update = new CgmesFromIidmModifier(network, changes);
+        cgmesUpdater = new CgmesUpdater(network, changes);
     }
 
     public Network updateImportedTestModel() throws IOException {
 
-        LOGGER.info("IidmChangesObject list size is 0");
+        LOGGER.info("IidmChangeOnUpdate list size is 0");
 
-        update.addListenerForUpdates();
+        cgmesUpdater.addListenerForUpdates();
 
         /**
          * Test onCreation
@@ -58,7 +59,7 @@ public class ChangeTestIidmModel {
 //            .add();
 //
 //        assertTrue(changes.size() == 4);
-//        LOGGER.info("IidmChangesObject list size is {}", changes.size());
+//        LOGGER.info("IidmChangeOnUpdate list size is {}", changes.size());
 //
 //        /**
 //         * Test onUpdate
@@ -69,19 +70,21 @@ public class ChangeTestIidmModel {
 //        lccConverterStation.getTerminal().setQ(q1);
 
         // assertTrue(changes.size() == 6);
-        network.getTwoWindingsTransformer("_GEN_____-GRID____-1_PT").setB(0.001);
+        //network.getTwoWindingsTransformer("_GEN_____-GRID____-1_PT").setB(0.001);
+        network.getGenerator("_GEN____3_SM").setRatedS(100);
         assertTrue(changes.size() == 1);
-        LOGGER.info("IidmChangesObject list size is {}", changes.size());
+        LOGGER.info("IidmChangeOnUpdate list size is {}", changes.size());
 
         return network;
     }
 
     public CgmesModel mapIidmChangesToCgmesTester() {
-        return update.mapIidmChangesToCgmesModel();
+        return cgmesUpdater.mapIidmChangesToCgmesModel();
     }
 
     private Network network;
-    List<IidmChangesObject> changes;
-    CgmesFromIidmModifier update;
+    List<IidmChangeOnUpdate> changes;
+    IidmToCgmes iidmToCgmes;
+    CgmesUpdater cgmesUpdater;
     private static final Logger LOGGER = LoggerFactory.getLogger(ChangeTestIidmModel.class);
 }

@@ -10,15 +10,15 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBags;
 
-public class CgmesFromIidmModifier {
+public class CgmesUpdater {
 
-    public CgmesFromIidmModifier(Network network, List<IidmChangesObject> changes) {
+    public CgmesUpdater(Network network, List<IidmChangeOnUpdate> changes) {
         this.network = network;
         this.changes = changes;
     }
 
     public void addListenerForUpdates() {
-        LOGGER.info("Calling addListener on changes...");
+        LOG.info("Calling addListener on changes...");
 
         ChangesListener changeListener = new ChangesListener(network, changes);
         network.addListener(changeListener);
@@ -27,37 +27,46 @@ public class CgmesFromIidmModifier {
     public CgmesModel mapIidmChangesToCgmesModel() {
         if (network.getExtension(CgmesModelExtension.class) != null) {
             CgmesModel cgmes = network.getExtension(CgmesModelExtension.class).getCgmesModel();
-            cgmes.print(LOGGER::info);
-            applyIidmChangesToCgmes(cgmes);
+            LOG.info("RUNNING FROM CgmesUpdater.mapIidmChangesToCgmesModel(");
+            cgmes.print(LOG::info);
+            iidmToCgmes = new IidmToCgmes(changes);
+            cgmesChanges = iidmToCgmes.convert(changes);
+            applyIidmChangesToCgmes(cgmes, cgmesChanges);
         } else {
-            LOGGER.info("No cgmes reference is available.");
+            LOG.info("No cgmes reference is available.");
         }
         return cgmes;
     }
 
-    private void applyIidmChangesToCgmes(CgmesModel cgmes) {
-        LOGGER.info("Applyong IIDM changes to CGMES...");
+    private void applyIidmChangesToCgmes(CgmesModel cgmes, List<String> cgmesChanges) {
+        LOG.info("Applying IIDM changes to CGMES...");
 
         String contextName = "<contexts:case1_EQ.xml>";
 
-        for (IidmChangesObject change : changes) {
-            PropertyBags result = cgmes.updateCgmesfromIidmBySparql(contextName,
+        for (IidmChangeOnUpdate change : changes) {
+            PropertyBags result = cgmes.updateCgmes(contextName,
                 change.getIdentifiable().toString(),
                 change.getOldValueString(),
                 change.getNewValueString());
-            LOGGER.info("getting result......");
-            LOGGER.info(result.tabulateLocals());
-            LOGGER.info(contextName);
-            LOGGER.info(change.getIdentifiable() + " " + change.getOldValueString()
-                + " " + change.getNewValueString());
+            LOG.info("Getting result......");
+            LOG.info(result.tabulateLocals());
+            LOG.info(contextName);
+            LOG.info(change.getIdentifiable() + " " + change.getOldValueString()
+                + " " + change.getNewValueString() + " " + cgmesChanges);
         }
-        if (LOGGER.isInfoEnabled()) {
-            LOGGER.info(cgmes.created().toString("yyyy-MM-dd HH:mm:ss"));
+        if (LOG.isInfoEnabled()) {
+            LOG.info(cgmes.created().toString("yyyy-MM-dd HH:mm:ss"));
         }
+    }
+
+    public List<IidmChangeOnUpdate> getChanges() {
+        return changes;
     }
 
     private Network network;
     private CgmesModel cgmes;
-    private List<IidmChangesObject> changes;
-    private static final Logger LOGGER = LoggerFactory.getLogger(CgmesFromIidmModifier.class);
+    private List<IidmChangeOnUpdate> changes;
+    private IidmToCgmes iidmToCgmes;
+    private List<String> cgmesChanges;
+    private static final Logger LOG = LoggerFactory.getLogger(CgmesUpdater.class);
 }

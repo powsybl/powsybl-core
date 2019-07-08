@@ -17,42 +17,51 @@ public class ChangesListener implements NetworkListener {
      * @param changeList is an empty list to ctore iidm changes
      */
 
-    public ChangesListener(Network network, List<IidmChangesObject> changeList) {
+    public ChangesListener(Network network, List<IidmChangeOnUpdate> changeList) {
         this.network = network;
         this.changeList = changeList;
     }
 
     @Override
     public void onCreation(Identifiable identifiable) {
-        LOGGER.info("Calling onCreation method...");
+        LOG.info("Calling onCreation method...");
         String variant = network.getVariantManager().getWorkingVariantId();
-        IidmChangesObject change = new IidmChangesObject(identifiable, variant);
-        changeList.add(change);
+        IidmChangeOnCreate change = new IidmChangeOnCreate(identifiable, variant);
+        changeListCreate.add(change);
         // TODO remove prints
-        System.out.println("variant is " + change.getVariant() + "\nattribute is " + change.getAttribute());
+        System.out.println("variant is " + change.getVariant()
+            + "\nidentifiableName " + identifiable.getName()
+            + "\nidentifiableID " + identifiable.getId()
+            + "\nattribute is " + change.getAttribute());
     }
 
     @Override
     public void onRemoval(Identifiable identifiable) {
-        LOGGER.info("Calling onRemoval method...");
+        LOG.info("Calling onRemoval method...");
         String variant = network.getVariantManager().getWorkingVariantId();
-        IidmChangesObject change = new IidmChangesObject(identifiable, variant);
-        changeList.add(change);
+        IidmChangeOnRemove change = new IidmChangeOnRemove(identifiable, variant);
+        changeListRemove.add(change);
     }
 
     @Override
     public void onUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
-        LOGGER.info("Calling onUpdate method...");
+        LOG.info("Calling onUpdate method...");
         String variant = network.getVariantManager().getWorkingVariantId();
-        IidmChangesObject change = new IidmChangesObject(identifiable, attribute, oldValue, newValue, variant);
+        IidmChangeOnUpdate change = new IidmChangeOnUpdate(identifiable, attribute, oldValue, newValue, variant);
         changeList.add(change);
         // TODO remove prints
-        System.out.println("variant is " + change.getVariant() + "\nidentifiable " + identifiable.getName()
+        System.out.println("variant is " + change.getVariant()
+            + "\nidentifiableName " + change.getIdentifiableName()
+            + "\nidentifiableID " + change.getIdentifiableId()
             + "\nattribute is " + change.getAttribute()
-            + "\noldValue " + oldValue.toString() + "\nnewValue " + newValue.toString());
+            + "\noldValue " + change.getOldValue()
+            + "\nnewValue " + change.getNewValue());
     }
 
     private final Network network;
-    private List<IidmChangesObject> changeList;
-    private static final Logger LOGGER = LoggerFactory.getLogger(ChangesListener.class);
+    private List<IidmChangeOnCreate> changeListCreate;
+    private List<IidmChangeOnUpdate> changeList;
+    private List<IidmChangeOnRemove> changeListRemove;
+
+    private static final Logger LOG = LoggerFactory.getLogger(ChangesListener.class);
 }

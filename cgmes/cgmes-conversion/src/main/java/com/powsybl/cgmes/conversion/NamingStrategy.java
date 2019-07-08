@@ -18,6 +18,10 @@ public interface NamingStrategy {
 
     String getName(String type, String name);
 
+    String getCgmesId(String id);
+
+    String getCgmesName(String name);
+
     final class Identity implements NamingStrategy {
 
         @Override
@@ -32,6 +36,16 @@ public interface NamingStrategy {
 
         @Override
         public String getName(String type, String name) {
+            return name;
+        }
+
+        @Override
+        public String getCgmesId(String id) {
+            return id;
+        }
+
+        @Override
+        public String getCgmesName(String name) {
             return name;
         }
     }

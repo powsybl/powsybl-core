@@ -198,15 +198,8 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         // TODO elena
         //https://stackoverflow.com/questions/31284464/copy-a-sesame-repository-into-a-new-one
         //http://graphdb.ontotext.com/documentation/free/backing-up-and-recovering-repo.html
-        try (RepositoryConnection conn = repo.getConnection()) {
 
-            repoClone = new SailRepository(new MemoryStore());
-            repoClone.initialize();
-            RepositoryConnection connClone = repoClone.getConnection();
-            // get existing statements
-
-            return repoClone;
-        }
+        return repoClone;
     }
     
     public void duplicateRepo() {
@@ -240,6 +233,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
 
     @Override
     public void duplicate() {
+        // TODO elena
         // Need void method to call from all triplestore implementatons
         cloneByStatements();
     }

@@ -12,7 +12,7 @@ import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.cgmes.model.test.cim14.Cim14SmallCasesCatalog;
 import com.powsybl.iidm.network.Network;
 
-public class MapIidmChangesTest {
+public class CgmesUpdaterTester {
 
     private static boolean modelNotEmpty(Network network) {
         if (network.getSubstationCount() == 0) {
@@ -25,12 +25,13 @@ public class MapIidmChangesTest {
 
     @BeforeClass
     public static void setUp() throws IOException {
-        TestGridModel testGridModel = smallCasesCatalog.small1();
+        // TestGridModel testGridModel = smallCasesCatalog.small1();
+        TestGridModel testGridModel = smallCasesCatalog.ieee14();
         iidmTestImportFromCgmes = new IidmTestImportFromCgmes(testGridModel);
     }
 
     // @Test
-    public void changeIidmModelTest() throws IOException {
+    public void changeTestIidmModelTest() throws IOException {
         Network network = iidmTestImportFromCgmes.importTestModelFromCgmes();
         if (modelNotEmpty(network)) {
             ChangeTestIidmModel changeTestIidmModel = new ChangeTestIidmModel(network);
@@ -40,16 +41,6 @@ public class MapIidmChangesTest {
 
     @Test
     public void mapIidmChangesToCgmesTest() throws IOException {
-        Network network = iidmTestImportFromCgmes.importTestModelFromCgmes();
-        if (modelNotEmpty(network)) {
-            ChangeTestIidmModel changeTestIidmModel = new ChangeTestIidmModel(network);
-            changeTestIidmModel.updateImportedTestModel();
-            CgmesModel cgmes = changeTestIidmModel.mapIidmChangesToCgmesTester();
-        }
-    }
-
-    @Test
-    public void copyCgmesGraphBySparqlTest() throws IOException {
         Network network = iidmTestImportFromCgmes.importTestModelFromCgmes();
         if (modelNotEmpty(network)) {
             ChangeTestIidmModel changeTestIidmModel = new ChangeTestIidmModel(network);

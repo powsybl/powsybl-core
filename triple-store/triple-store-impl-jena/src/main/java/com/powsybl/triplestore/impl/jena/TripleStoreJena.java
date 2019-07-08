@@ -210,22 +210,22 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
             }
         }
         // check for datasets independance:
-//        Iterator<String> names = datasetClone.listNames();
-//        while (names.hasNext()) {
-//            String name = names.next();
-//            dataset.removeNamedModel(namedModelFromName(name));
-//            LOGGER.info("CHECK IF DATASET IS EMPTY *********");
-//            if(dataset.containsNamedModel(namedModelFromName(name))) {
-//                Model m = dataset.getNamedModel(name);
-//                LOGGER.info("dataset contains  " + name + " size : " + m.size());
-//            } else if (datasetClone.containsNamedModel(namedModelFromName(name))) {
-//                Model m = datasetClone.getNamedModel(name);
-//                LOGGER.info("datasetClone contains  " + name + " size : " + m.size()+
-//                    "\n But dataset does not --> they are independent");
-//            } else {
-//                LOGGER.info("Neither dataset nor datasetClone contains "+name);
-//            }
-//        }
+        Iterator<String> names = datasetClone.listNames();
+        while (names.hasNext()) {
+            String name = names.next();
+            dataset.removeNamedModel(namedModelFromName(name));
+            LOGGER.info("CHECK IF DATASET IS EMPTY *********");
+            if(dataset.containsNamedModel(namedModelFromName(name))) {
+                Model m = dataset.getNamedModel(name);
+                LOGGER.info("dataset contains  " + name + " size : " + m.size());
+            } else if (datasetClone.containsNamedModel(namedModelFromName(name))) {
+                Model m = datasetClone.getNamedModel(name);
+                LOGGER.info("datasetClone contains  " + name + " size : " + m.size()+
+                    "\n But dataset does not --> they are independent");
+            } else {
+                LOGGER.info("Neither dataset nor datasetClone contains "+name);
+            }
+        }
 
 //        Iterator<String> names = dataset.listNames();
 //        while (names.hasNext()) {
