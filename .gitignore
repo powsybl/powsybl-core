@@ -33,8 +33,6 @@
 /cim1/target/
 /commons/target/
 /computation-local/target/
-/computation-mpi/target/
-/computation-mpi-util/target/
 /computation/target/
 /contingency/target/
 /contingency/contingency-api/target/
@@ -77,10 +75,6 @@
 /ucte/ucte-converter/target/
 /ucte/ucte-network/target/
 /ucte/target/
-
-# CMake projects
-/build/
-/thirdparty/build/
 
 # IntelliJ
 /.idea
