@@ -42,6 +42,7 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.helpers.BasicParserSettings;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.eclipse.rdf4j.rio.helpers.XMLParserSettings;
+import org.eclipse.rdf4j.sail.Sail;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -180,7 +181,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         // TODO elena
         // clone a new rdf repository to update, remove logging
         if (repoClone == null) {
-            repoClone = clone();
+            repoClone = cloneByStatements();
         }
 
         String updateStatement = adjustedQuery(query);
@@ -188,24 +189,32 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
 
             Update updateQuery = connClone.prepareUpdate(QueryLanguage.SPARQL, updateStatement);
             updateQuery.execute();
-            // test 2 DEL
-            RepositoryResult<Resource> contexts1 = repoClone.getConnection().getContextIDs();
-            while (contexts1.hasNext()) {
-                Resource context = contexts1.next();
-                RepositoryResult<Statement> statements1;
-                statements1 = connClone.getStatements(null, null, null, context);
-                while (statements1.hasNext()) {
-                    Statement statement = statements1.next();
-//                    LOGGER.info("Running from triplestore new clone ....******************");
-//                    LOGGER.info(statement.toString());
-                }
-            } // test 2 DEL
         } catch (UpdateExecutionException e) {
             LOGGER.debug(e.toString());
         }
     }
+    
+    public Repository cloneByRepo(){
+        // TODO elena
+        //https://stackoverflow.com/questions/31284464/copy-a-sesame-repository-into-a-new-one
+        //http://graphdb.ontotext.com/documentation/free/backing-up-and-recovering-repo.html
+        try (RepositoryConnection conn = repo.getConnection()) {
 
-    public Repository clone() {
+            repoClone = new SailRepository(new MemoryStore());
+            repoClone.initialize();
+            RepositoryConnection connClone = repoClone.getConnection();
+            // get existing statements
+
+            return repoClone;
+        }
+    }
+    
+    public void duplicateRepo() {
+        // TODO elena --> used to call from tester
+        cloneByRepo();
+    }
+
+    public Repository cloneByStatements() {
         // TODO elena clone rdf repository
         try (RepositoryConnection conn = repo.getConnection()) {
 
@@ -228,10 +237,11 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
             return repoClone;
         }
     }
-    
+
     @Override
-    public void cloneRepo() {
-        clone();
+    public void duplicate() {
+        // Need void method to call from all triplestore implementatons
+        cloneByStatements();
     }
 
     @Override

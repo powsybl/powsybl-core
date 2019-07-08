@@ -251,6 +251,9 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     @Override
     public void update(String query) {
         // TODO elena
+//        if (repoClone == null) {
+//            repoClone = clone();
+//        }
         RepositoryConnection cnx;
         String updateStatement = adjustedQuery(query);
         try {
@@ -277,11 +280,22 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
             throw new TripleStoreException(String.format("Opening repo to update using blazergraph"), e);
         }
     }
+    
+    public Repository cloneByRepo(){
+        // TODO elena
+        return repoClone;
+    }
+    
+    public void duplicateRepo() {
+        // TODO elena --> used to call from tester
+        cloneByRepo();
+    }
 
-    public Repository clone() {
+    public Repository cloneByStatements() {
         // TODO elena clone rdf repository
         RepositoryConnection conn = null;
-        try { conn = repo.getConnection();
+        try {
+            conn = repo.getConnection();
 
             BigdataSail sailClone = new BigdataSail(props); // instantiate a sail
             repoClone = new BigdataSailRepository(sailClone); // create a Sesame repository
@@ -314,10 +328,10 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         }
         return repoClone;
     }
-
-    public void cloneRepo() {
+    @Override
+    public void duplicate() {
         // TODO elena
-        clone();
+        cloneByStatements();
     }
 
     @Override
@@ -463,7 +477,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     private final Repository repo;
 
     private Repository repoClone;
-    
+
     private final Properties props;
 
     private static final Logger LOG = LoggerFactory.getLogger(TripleStoreBlazegraph.class);

@@ -9,6 +9,7 @@ package com.powsybl.triplestore.impl.jena;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -31,6 +32,7 @@ import org.apache.jena.rdf.model.RDFWriter;
 import org.apache.jena.rdf.model.ResIterator;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.rdf.model.impl.Util;
 import org.apache.jena.shared.PropertyNotFoundException;
 import org.apache.jena.shared.uuid.JenaUUID;
@@ -38,11 +40,8 @@ import org.apache.jena.update.UpdateAction;
 import org.apache.jena.update.UpdateFactory;
 import org.apache.jena.update.UpdateRequest;
 import org.apache.jena.vocabulary.RDF;
-import org.eclipse.rdf4j.repository.Repository;
-import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.eclipse.rdf4j.repository.RepositoryResult;
-import org.eclipse.rdf4j.repository.sail.SailRepository;
-import org.eclipse.rdf4j.sail.memory.MemoryStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
@@ -166,9 +165,91 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
         UpdateAction.execute(request, dataset);
     }
 
-    @Override
-    public void cloneRepo() {
+    public Dataset cloneByStatements() {
         // TODO elena
+        Dataset datasetClone = DatasetFactory.createMem();
+        Iterator<String> names = dataset.listNames();
+        while (names.hasNext()) {
+            List<Statement> listStatements = new ArrayList<Statement>();
+            String name = names.next();
+            Model modelClone = datasetClone.getNamedModel(name);// creates model if not exist
+            if (dataset.containsNamedModel(namedModelFromName(name))) {
+                Model m = dataset.getNamedModel(namedModelFromName(name));
+                StmtIterator statements = m.listStatements();
+                while (statements.hasNext()) {
+                    Statement statement = statements.next();
+                    listStatements.add(statement);
+                }
+                modelClone.add(listStatements);
+                LOGGER.info(name+" model size after adding statements: " + modelClone.size());
+            }
+        }
+        return datasetClone;
+    }
+
+    @Override
+    public void duplicate() {
+        // TODO elena
+        cloneByStatements();
+    }
+
+    public Dataset cloneByRepo() {
+        // TODO elena
+        Dataset datasetClone = DatasetFactory.createMem();
+
+        Iterator<String> k = dataset.listNames();
+        while (k.hasNext()) {
+            String n = k.next();
+            if (dataset.containsNamedModel(namedModelFromName(n))) {
+                Model m = dataset.getNamedModel(namedModelFromName(n));
+                datasetClone.addNamedModel(namedModelFromName(n), m);
+                if (datasetClone.containsNamedModel(namedModelFromName(n))) {
+                    Model mClone = datasetClone.getNamedModel(namedModelFromName(n));
+                    LOGGER.info("datasetClone model " + n + " size : " + mClone.size());
+                }
+            }
+        }
+        // check for datasets independance:
+//        Iterator<String> names = datasetClone.listNames();
+//        while (names.hasNext()) {
+//            String name = names.next();
+//            dataset.removeNamedModel(namedModelFromName(name));
+//            LOGGER.info("CHECK IF DATASET IS EMPTY *********");
+//            if(dataset.containsNamedModel(namedModelFromName(name))) {
+//                Model m = dataset.getNamedModel(name);
+//                LOGGER.info("dataset contains  " + name + " size : " + m.size());
+//            } else if (datasetClone.containsNamedModel(namedModelFromName(name))) {
+//                Model m = datasetClone.getNamedModel(name);
+//                LOGGER.info("datasetClone contains  " + name + " size : " + m.size()+
+//                    "\n But dataset does not --> they are independent");
+//            } else {
+//                LOGGER.info("Neither dataset nor datasetClone contains "+name);
+//            }
+//        }
+
+//        Iterator<String> names = dataset.listNames();
+//        while (names.hasNext()) {
+//            String name = names.next();
+//            datasetClone.removeNamedModel(namedModelFromName(name));
+//            LOGGER.info("CHECK IF DATASETCLONE IS EMPTY *********");
+//            if(datasetClone.containsNamedModel(namedModelFromName(name))) {
+//                Model m = datasetClone.getNamedModel(name);
+//                LOGGER.info("datasetClone contains  " + name + " size : " + m.size());
+//            } else if (dataset.containsNamedModel(namedModelFromName(name))) {
+//                Model m = dataset.getNamedModel(name);
+//                LOGGER.info("dataset contains  " + name + " size : " + m.size()+
+//                    "\n But datasetClone does not --> they are independent");
+//            } else {
+//                LOGGER.info("Neither dataset nor datasetClone contains "+name);
+//            }
+//        }
+        // end check 2 del
+        return datasetClone;
+    }
+
+    public void duplicateRepo() {
+        // TODO elena --> used to call from tester
+        cloneByRepo();
     }
 
     @Override
@@ -301,4 +382,5 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     private final Dataset dataset;
     private Model union;
     private RDFWriter writer;
+    private static final Logger LOGGER = LoggerFactory.getLogger(TripleStoreJena.class);
 }

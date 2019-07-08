@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.openrdf.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,13 +77,44 @@ public class TripleStoreTester {
         }
     }
     
-    void testClone() {
+    void testPerformanceCloneRepo(){
         // TODO elena
         for (String impl : implementations) {
             start = System.currentTimeMillis();
-            tripleStores.get(impl).cloneRepo();
+            tripleStores.get(impl).duplicateRepo();
+            end = System.currentTimeMillis();
+            LOG.info(String.format("Clone repository by Repo for %s took: %d milliseconds", impl, end - start));
+        }
+    }
+
+    void testPerformanceCloneByStatements() {
+        // TODO elena
+        for (String impl : implementations) {
+            start = System.currentTimeMillis();
+            tripleStores.get(impl).duplicate();
             end = System.currentTimeMillis();
             LOG.info(String.format("Clone repository by statementes for %s took: %d milliseconds", impl, end - start));
+        }
+    }
+
+    void testPerformanceImportFiles() {
+        // TODO elena
+        // Load the model for every triple store implementation
+        for (String impl : implementations) {
+            start = System.currentTimeMillis();
+            TripleStore ts = TripleStoreFactory.create(impl);
+            assertNotNull(ts);
+            for (String r : inputResourceNames) {
+                try (InputStream is = resourceStream(r)) {
+                    ts.read(base, r, is);
+                } catch (IOException e) {
+                    throw new TripleStoreException(String.format("Reading %s %s", base, r), e);
+                }
+            }
+            // ts.print(LOG::info);
+            tripleStores.put(impl, ts);
+            end = System.currentTimeMillis();
+            LOG.info(String.format("Load XML files for %s took: %d milliseconds", impl, end - start));
         }
     }
 
