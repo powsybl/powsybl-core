@@ -58,7 +58,7 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
     public SubstationImpl setCountry(Country country) {
         String oldValue = Optional.ofNullable(this.country).map(Enum::toString).orElse("");
         this.country = country;
-        getNetwork().getListeners().notifyUpdate(this, () -> "country", oldValue, Optional.ofNullable(country).map(Enum::toString).orElse(""));
+        getNetwork().getListeners().notifyUpdate(this, "country", oldValue, Optional.ofNullable(country).map(Enum::toString).orElse(""));
         return this;
     }
 
@@ -71,7 +71,7 @@ class SubstationImpl extends AbstractIdentifiable<Substation> implements Substat
     public SubstationImpl setTso(String tso) {
         String oldValue = this.tso;
         this.tso = tso;
-        getNetwork().getListeners().notifyUpdate(this, () -> "tso", oldValue, tso);
+        getNetwork().getListeners().notifyUpdate(this, "tso", oldValue, tso);
         return this;
     }
 

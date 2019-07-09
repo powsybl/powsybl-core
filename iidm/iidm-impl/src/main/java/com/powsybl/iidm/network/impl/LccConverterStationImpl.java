@@ -43,7 +43,7 @@ class LccConverterStationImpl extends AbstractHvdcConverterStation<LccConverterS
         ValidationUtil.checkPowerFactor(this, powerFactor);
         float oldValue = this.powerFactor;
         this.powerFactor = powerFactor;
-        notifyUpdate(() -> "powerFactor", oldValue, powerFactor);
+        notifyUpdate("powerFactor", oldValue, powerFactor);
         return this;
     }
 }

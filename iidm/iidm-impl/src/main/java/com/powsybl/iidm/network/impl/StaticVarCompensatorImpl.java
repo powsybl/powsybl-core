@@ -96,7 +96,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     public StaticVarCompensatorImpl setVoltageSetPoint(double voltageSetPoint) {
         ValidationUtil.checkSvcRegulator(this, voltageSetPoint, getReactivePowerSetPoint(), getRegulationMode());
         double oldValue = this.voltageSetPoint.set(getNetwork().getVariantIndex(), voltageSetPoint);
-        notifyUpdate(() -> "voltageSetPoint", oldValue, voltageSetPoint);
+        notifyUpdate("voltageSetPoint", oldValue, voltageSetPoint);
         return this;
     }
 
@@ -109,7 +109,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     public StaticVarCompensatorImpl setReactivePowerSetPoint(double reactivePowerSetPoint) {
         ValidationUtil.checkSvcRegulator(this, getVoltageSetPoint(), reactivePowerSetPoint, getRegulationMode());
         double oldValue = this.reactivePowerSetPoint.set(getNetwork().getVariantIndex(), reactivePowerSetPoint);
-        notifyUpdate(() -> "reactivePowerSetPoint", oldValue, reactivePowerSetPoint);
+        notifyUpdate("reactivePowerSetPoint", oldValue, reactivePowerSetPoint);
         return this;
     }
 
@@ -122,7 +122,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     public StaticVarCompensatorImpl setRegulationMode(RegulationMode regulationMode) {
         ValidationUtil.checkSvcRegulator(this, getVoltageSetPoint(), getReactivePowerSetPoint(), regulationMode);
         RegulationMode oldValue = RegulationMode.values()[this.regulationMode.set(getNetwork().getVariantIndex(), regulationMode.ordinal())];
-        notifyUpdate(() -> "regulationMode", oldValue, regulationMode);
+        notifyUpdate("regulationMode", oldValue, regulationMode);
         return this;
     }
 

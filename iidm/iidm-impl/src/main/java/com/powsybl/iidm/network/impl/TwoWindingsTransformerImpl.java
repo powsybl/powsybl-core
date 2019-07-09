@@ -67,7 +67,7 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
         ValidationUtil.checkR(this, r);
         double oldValue = this.r;
         this.r = r;
-        notifyUpdate(() -> "r", oldValue, r);
+        notifyUpdate("r", oldValue, r);
         return this;
     }
 
@@ -81,7 +81,7 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
         ValidationUtil.checkX(this, x);
         double oldValue = this.x;
         this.x = x;
-        notifyUpdate(() -> "x", oldValue, x);
+        notifyUpdate("x", oldValue, x);
         return this;
     }
 
@@ -95,7 +95,7 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
         ValidationUtil.checkG(this, g);
         double oldValue = this.g;
         this.g = g;
-        notifyUpdate(() -> "g", oldValue, g);
+        notifyUpdate("g", oldValue, g);
         return this;
     }
 
@@ -109,7 +109,7 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
         ValidationUtil.checkB(this, b);
         double oldValue = this.b;
         this.b = b;
-        notifyUpdate(() -> "b", oldValue, b);
+        notifyUpdate("b", oldValue, b);
         return this;
     }
 
@@ -123,7 +123,7 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
         ValidationUtil.checkRatedU1(this, ratedU1);
         double oldValue = this.ratedU1;
         this.ratedU1 = ratedU1;
-        notifyUpdate(() -> "ratedU1", oldValue, ratedU1);
+        notifyUpdate("ratedU1", oldValue, ratedU1);
         return this;
     }
 
@@ -137,7 +137,7 @@ class TwoWindingsTransformerImpl extends AbstractBranch<TwoWindingsTransformer> 
         ValidationUtil.checkRatedU2(this, ratedU2);
         double oldValue = this.ratedU2;
         this.ratedU2 = ratedU2;
-        notifyUpdate(() -> "ratedU2", oldValue, ratedU2);
+        notifyUpdate("ratedU2", oldValue, ratedU2);
         return this;
     }
 
