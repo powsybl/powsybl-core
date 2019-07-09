@@ -38,18 +38,6 @@ class NetworkListenerList {
             for (NetworkListener listener : listeners) {
                 try {
                     listener.onUpdate(identifiable, attribute.get(), oldValue, newValue);
-                } catch (Throwable t) {
-                    LOGGER.error(t.toString(), t);
-                }
-            }
-        }
-    }
-
-    void notifyUpdate(Identifiable identifiable, Supplier<String> attribute, String variantId, Object oldValue, Object newValue) {
-        if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
-            for (NetworkListener listener : listeners) {
-                try {
-                    listener.onUpdate(identifiable, attribute.get(), variantId, oldValue, newValue);
                 } catch (Exception t) {
                     LOGGER.error(t.toString(), t);
                 }
