@@ -45,7 +45,7 @@ public class CgmesUpdaterTester {
         if (modelNotEmpty(network)) {
             ChangeTestIidmModel changeTestIidmModel = new ChangeTestIidmModel(network);
             changeTestIidmModel.updateImportedTestModel();
-            CgmesModel cgmes = changeTestIidmModel.mapIidmChangesToCgmesTester();
+            CgmesModel cgmes = changeTestIidmModel.updateTester();
         }
     }
 

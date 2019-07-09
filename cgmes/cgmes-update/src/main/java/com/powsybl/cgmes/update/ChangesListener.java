@@ -49,13 +49,6 @@ public class ChangesListener implements NetworkListener {
         String variant = network.getVariantManager().getWorkingVariantId();
         IidmChangeOnUpdate change = new IidmChangeOnUpdate(identifiable, attribute, oldValue, newValue, variant);
         changeList.add(change);
-        // TODO remove prints
-        System.out.println("variant is " + change.getVariant()
-            + "\nidentifiableName " + change.getIdentifiableName()
-            + "\nidentifiableID " + change.getIdentifiableId()
-            + "\nattribute is " + change.getAttribute()
-            + "\noldValue " + change.getOldValue()
-            + "\nnewValue " + change.getNewValue());
     }
 
     private final Network network;

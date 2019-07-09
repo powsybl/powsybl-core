@@ -9,6 +9,7 @@ package com.powsybl.cgmes.model.triplestore;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -401,15 +402,14 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         return namedQuery("dcTerminalsTP");
     }
 
-    // TODO elena: add to CgmesModel interface, add namedQueryFordUpdate() to call
-    // update()
-    // from each TripleStore... in impl (e.g. TripleStoreRDF4J)
     @Override
-    public PropertyBags updateCgmes(String context, String identifiable, String newValue,
-        String oldValue) {
-        // namedQueryFordUpdate("updateCgmesfromIidm", newValue, oldValue);
-        //return namedQuery("getCgmesUpdated", context, identifiable, newValue, oldValue);
-        return namedQuery("energyConsumers");
+    public PropertyBags updateCgmes(String context, Map<String, String> cgmesChanges) {
+        // TODO elena
+        String subject = cgmesChanges.get("cgmesSubject");
+        String predicate = cgmesChanges.get("cgmesPredicate");
+        String newValue = cgmesChanges.get("cgmesNewValue");
+        namedQueryFordUpdate("updateCgmesfromIidm", context, subject, predicate, newValue);
+        return namedQuery("checkCgmesUpdated", context, subject, predicate);
     }
 
     public PropertyBags namedQuery(String name, String... params) {

@@ -70,16 +70,17 @@ public class ChangeTestIidmModel {
 //        lccConverterStation.getTerminal().setQ(q1);
 
         // assertTrue(changes.size() == 6);
-        //network.getTwoWindingsTransformer("_GEN_____-GRID____-1_PT").setB(0.001);
+        // network.getTwoWindingsTransformer("_GEN_____-GRID____-1_PT").setB(0.001);
         network.getGenerator("_GEN____3_SM").setRatedS(100);
-        assertTrue(changes.size() == 1);
+        network.getGenerator("_GEN____2_SM").setRatedS(50);
+        assertTrue(changes.size() == 2);
         LOGGER.info("IidmChangeOnUpdate list size is {}", changes.size());
 
         return network;
     }
 
-    public CgmesModel mapIidmChangesToCgmesTester() {
-        return cgmesUpdater.mapIidmChangesToCgmesModel();
+    public CgmesModel updateTester() {
+        return cgmesUpdater.update();
     }
 
     private Network network;

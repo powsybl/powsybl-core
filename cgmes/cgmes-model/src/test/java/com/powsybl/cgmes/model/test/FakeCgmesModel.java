@@ -240,7 +240,7 @@ public final class FakeCgmesModel implements CgmesModel {
     }
 
     private void fakeObjectsFromIdentifiers(String propertyNameId, String[] ids, PropertyBags objects) {
-        String[] propertyNames = {propertyNameId};
+        String[] propertyNames = { propertyNameId };
         for (String id : ids) {
             PropertyBag p = new PropertyBag(Arrays.asList(propertyNames));
             p.put(propertyNameId, id);
@@ -538,7 +538,7 @@ public final class FakeCgmesModel implements CgmesModel {
 
     // TODO elena
     @Override
-    public PropertyBags updateCgmesfromIidmBySparql(String context, String identifiable, String newValue, String oldValue) {
+    public PropertyBags updateCgmes(String context, Map<String, String> cgmesChange) {
         return null;
     }
 }

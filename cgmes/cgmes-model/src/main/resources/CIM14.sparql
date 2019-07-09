@@ -351,51 +351,32 @@ WHERE {
 
 
 # query: updateCgmesfromIidm
+WITH <{0}> 
+DELETE { ?subject ?predicate ?value }
+INSERT {?subject ?predicate "{3}" }
+WHERE {
+	?subject ?predicate ?value
+	FILTER (STRENDS(STR(?subject), "{1}") &&
+			STRENDS(STR(?predicate), "{2}") )
+}
+
+# query: checkCgmesUpdated
+SELECT *
+WHERE {
+{ GRAPH <{0}> {
+	?subject ?predicate ?value
+	FILTER (STRENDS(STR(?subject), "{1}") &&
+			STRENDS(STR(?predicate), "{2}") )
+}}
+}
+
+
+
+# query: tmp
 WITH <contexts:case1_EQ.xml> 
 DELETE { ?x cim:IdentifiedObject.name ?y }
 INSERT {?x cim:IdentifiedObject.name "{0}" }
 WHERE {	?x cim:IdentifiedObject.name ?y .
 	    FILTER (?y = "{1}")
 }
-
-# query: getCgmesUpdated
-prefix case:<http://case1/#>
-SELECT *
-WHERE {
-{ GRAPH {0} {
-    ?PowerTransformer
-        a cim:PowerTransformer ;
-        cim:IdentifiedObject.name ?name .
-    ?TransformerWinding
-        a cim:TransformerWinding ;
-        cim:TransformerWinding.MemberOf_PowerTransformer ?PowerTransformer ;
-        cim:TransformerWinding.windingType ?windingType ;
-        cim:TransformerWinding.g ?g ;
-        cim:TransformerWinding.b ?b ;
-        cim:TransformerWinding.r ?r ;
-        cim:TransformerWinding.x ?x ;
-        cim:TransformerWinding.ratedU ?ratedU .
-    ?Terminal cim:Terminal.ConductingEquipment ?TransformerWinding .
-    FILTER ( CONTAINS(STR(?PowerTransformer), "{1}")) .
-    OPTIONAL { ?RatioTapChanger cim:RatioTapChanger.TransformerWinding ?TransformerWinding }
-    OPTIONAL { ?PhaseTapChanger cim:PhaseTapChanger.TransformerWinding ?TransformerWinding }
-}}
-BIND ( ?TransformerWinding AS ?TransformerEnd )
-}
-
-
-# query: tmp
-prefix case:<http://case1/#>
-SELECT ?element ?property  ?value
-WHERE
-{ GRAPH <contexts:case1_EQ.xml> {
-		 {?element ?property  ?value .
-		 FILTER (
-		 ?element = <http://case1/#_GEN_____-GRID____-1_PT>) .}
-		 UNION
-		 {?element ?property  ?value ;
-		 		   ?property  ?value1 .
-		 FILTER (
-		 ?value = <http://case1/#_GEN_____-GRID____-1_PT>) .}
-}}
 
