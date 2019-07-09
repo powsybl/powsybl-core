@@ -251,9 +251,6 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     @Override
     public void update(String query) {
         // TODO elena
-//        if (repoClone == null) {
-//            repoClone = clone();
-//        }
         RepositoryConnection cnx;
         String updateStatement = adjustedQuery(query);
         try {
@@ -280,19 +277,17 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
             throw new TripleStoreException(String.format("Opening repo to update using blazergraph"), e);
         }
     }
-    
-    public Repository cloneByRepo(){
-        // TODO elena
-        return repoClone;
-    }
-    
+
+    @Override
     public void duplicateRepo() {
-        // TODO elena --> used to call from tester
-        cloneByRepo();
+        // TODO elena
+        // clone by Repo
     }
 
-    public Repository cloneByStatements() {
-        // TODO elena clone rdf repository
+    @Override
+    public void duplicate() {
+        // TODO elena
+        // clone by statements
         RepositoryConnection conn = null;
         try {
             conn = repo.getConnection();
@@ -314,7 +309,6 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
                     connClone.add(statement);
                 }
             }
-            return repoClone;
         } catch (RepositoryException x) {
             LOG.error("getting context names : {}", x.getMessage());
         } finally {
@@ -326,12 +320,6 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
                 }
             }
         }
-        return repoClone;
-    }
-    @Override
-    public void duplicate() {
-        // TODO elena
-        cloneByStatements();
     }
 
     @Override

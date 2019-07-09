@@ -123,7 +123,7 @@ public interface CgmesModel {
     PropertyBags dcTerminalsTP();
 
     // TODO (elena) implement method
-    PropertyBags updateCgmesfromIidmBySparql(String context, String identifiable, String newValue, String oldValue);
+    PropertyBags updateCgmes(String context, String identifiable, String newValue, String oldValue);
 
     void clear(Subset subset);
 

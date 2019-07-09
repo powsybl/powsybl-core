@@ -179,13 +179,8 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
     @Override
     public void update(String query) {
         // TODO elena
-        // clone a new rdf repository to update, remove logging
-        if (repoClone == null) {
-            repoClone = cloneByStatements();
-        }
-
         String updateStatement = adjustedQuery(query);
-        try (RepositoryConnection connClone = repoClone.getConnection()) {
+        try (RepositoryConnection connClone = repo.getConnection()) {
 
             Update updateQuery = connClone.prepareUpdate(QueryLanguage.SPARQL, updateStatement);
             updateQuery.execute();
@@ -193,22 +188,16 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
             LOGGER.debug(e.toString());
         }
     }
-    
-    public Repository cloneByRepo(){
-        // TODO elena
-        //https://stackoverflow.com/questions/31284464/copy-a-sesame-repository-into-a-new-one
-        //http://graphdb.ontotext.com/documentation/free/backing-up-and-recovering-repo.html
 
-        return repoClone;
-    }
-    
     public void duplicateRepo() {
-        // TODO elena --> used to call from tester
-        cloneByRepo();
+        // TODO elena
+        // https://stackoverflow.com/questions/31284464/copy-a-sesame-repository-into-a-new-one
+        // http://graphdb.ontotext.com/documentation/free/backing-up-and-recovering-repo.html
     }
 
-    public Repository cloneByStatements() {
-        // TODO elena clone rdf repository
+    @Override
+    public void duplicate() {
+        // TODO elena clone by statements
         try (RepositoryConnection conn = repo.getConnection()) {
 
             repoClone = new SailRepository(new MemoryStore());
@@ -227,15 +216,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
                     connClone.add(statement);
                 }
             }
-            return repoClone;
         }
-    }
-
-    @Override
-    public void duplicate() {
-        // TODO elena
-        // Need void method to call from all triplestore implementatons
-        cloneByStatements();
     }
 
     @Override

@@ -165,8 +165,10 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
         UpdateAction.execute(request, dataset);
     }
 
-    public Dataset cloneByStatements() {
+    @Override
+    public void duplicate() {
         // TODO elena
+        // Clone by statements
         Dataset datasetClone = DatasetFactory.createMem();
         Iterator<String> names = dataset.listNames();
         while (names.hasNext()) {
@@ -181,20 +183,15 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
                     listStatements.add(statement);
                 }
                 modelClone.add(listStatements);
-                LOGGER.info(name+" model size after adding statements: " + modelClone.size());
+                LOGGER.info(name + " model size after adding statements: " + modelClone.size());
             }
         }
-        return datasetClone;
     }
 
     @Override
-    public void duplicate() {
+    public void duplicateRepo() {
         // TODO elena
-        cloneByStatements();
-    }
-
-    public Dataset cloneByRepo() {
-        // TODO elena
+        // clone by repo
         Dataset datasetClone = DatasetFactory.createMem();
 
         Iterator<String> k = dataset.listNames();
@@ -214,16 +211,15 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
         while (names.hasNext()) {
             String name = names.next();
             dataset.removeNamedModel(namedModelFromName(name));
-            LOGGER.info("CHECK IF DATASET IS EMPTY *********");
-            if(dataset.containsNamedModel(namedModelFromName(name))) {
+            if (dataset.containsNamedModel(namedModelFromName(name))) {
                 Model m = dataset.getNamedModel(name);
                 LOGGER.info("dataset contains  " + name + " size : " + m.size());
             } else if (datasetClone.containsNamedModel(namedModelFromName(name))) {
                 Model m = datasetClone.getNamedModel(name);
-                LOGGER.info("datasetClone contains  " + name + " size : " + m.size()+
+                LOGGER.info("datasetClone contains  " + name + " size : " + m.size() +
                     "\n But dataset does not --> they are independent");
             } else {
-                LOGGER.info("Neither dataset nor datasetClone contains "+name);
+                LOGGER.info("Neither dataset nor datasetClone contains " + name);
             }
         }
 
@@ -231,7 +227,6 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
 //        while (names.hasNext()) {
 //            String name = names.next();
 //            datasetClone.removeNamedModel(namedModelFromName(name));
-//            LOGGER.info("CHECK IF DATASETCLONE IS EMPTY *********");
 //            if(datasetClone.containsNamedModel(namedModelFromName(name))) {
 //                Model m = datasetClone.getNamedModel(name);
 //                LOGGER.info("datasetClone contains  " + name + " size : " + m.size());
@@ -244,12 +239,6 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
 //            }
 //        }
         // end check 2 del
-        return datasetClone;
-    }
-
-    public void duplicateRepo() {
-        // TODO elena --> used to call from tester
-        cloneByRepo();
     }
 
     @Override
