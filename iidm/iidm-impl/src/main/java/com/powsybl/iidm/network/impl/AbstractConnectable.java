@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Connectable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  *
@@ -50,6 +51,14 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
             vl.clean();
         }
         network.getListeners().notifyRemoval(this);
+    }
+
+    protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
+        getNetwork().getListeners().notifyUpdate(this, attribute, oldValue, newValue);
+    }
+
+    protected void notifyUpdate(Supplier<String> attribute, String variantId, Object oldValue, Object newValue) {
+        getNetwork().getListeners().notifyUpdate(this, attribute, variantId, oldValue, newValue);
     }
 
     protected void notifyUpdate(String attribute, Object oldValue, Object newValue) {
