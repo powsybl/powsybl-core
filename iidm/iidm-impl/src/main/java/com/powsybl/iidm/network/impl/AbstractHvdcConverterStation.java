@@ -42,7 +42,7 @@ abstract class AbstractHvdcConverterStation<T extends HvdcConverterStation<T>> e
         ValidationUtil.checkLossFactor(this, lossFactor);
         float oldValue = this.lossFactor;
         this.lossFactor = lossFactor;
-        notifyUpdate("lossFactor", oldValue, lossFactor);
+        notifyUpdate(() -> "lossFactor", oldValue, lossFactor);
         return (T) this;
     }
 

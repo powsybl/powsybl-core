@@ -84,7 +84,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         ValidationUtil.checkEnergySource(this, energySource);
         EnergySource oldValue = this.energySource;
         this.energySource = energySource;
-        notifyUpdate("energySource", oldValue.toString(), energySource.toString());
+        notifyUpdate(() -> "energySource", oldValue.toString(), energySource.toString());
         return this;
     }
 
@@ -99,7 +99,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         double oldValue = this.maxP;
         this.maxP = maxP;
-        notifyUpdate("maxP", oldValue, maxP);
+        notifyUpdate(() -> "maxP", oldValue, maxP);
         return this;
     }
 
@@ -114,7 +114,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         ValidationUtil.checkActivePowerLimits(this, minP, maxP);
         double oldValue = this.minP;
         this.minP = minP;
-        notifyUpdate("minP", oldValue, minP);
+        notifyUpdate(() -> "minP", oldValue, minP);
         return this;
     }
 
@@ -128,7 +128,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         int variantIndex = getNetwork().getVariantIndex();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, targetV.get(variantIndex), targetQ.get(variantIndex));
         boolean oldValue = this.voltageRegulatorOn.set(variantIndex, voltageRegulatorOn);
-        notifyUpdate("voltageRegulatorOn", oldValue, voltageRegulatorOn);
+        notifyUpdate(() -> "voltageRegulatorOn", oldValue, voltageRegulatorOn);
         return this;
     }
 
@@ -153,7 +153,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
     public GeneratorImpl setTargetP(double targetP) {
         ValidationUtil.checkActivePowerSetpoint(this, targetP);
         double oldValue = this.targetP.set(getNetwork().getVariantIndex(), targetP);
-        notifyUpdate("targetP", oldValue, targetP);
+        notifyUpdate(() -> "targetP", oldValue, targetP);
         return this;
     }
 
@@ -167,7 +167,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         int variantIndex = getNetwork().getVariantIndex();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex), targetV.get(variantIndex), targetQ);
         double oldValue = this.targetQ.set(variantIndex, targetQ);
-        notifyUpdate("targetQ", oldValue, targetQ);
+        notifyUpdate(() -> "targetQ", oldValue, targetQ);
         return this;
     }
 
@@ -181,7 +181,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         int variantIndex = getNetwork().getVariantIndex();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex), targetV, targetQ.get(variantIndex));
         double oldValue = this.targetV.set(variantIndex, targetV);
-        notifyUpdate("targetV", oldValue, targetV);
+        notifyUpdate(() -> "targetV", oldValue, targetV);
         return this;
     }
 
@@ -195,7 +195,7 @@ class GeneratorImpl extends AbstractConnectable<Generator> implements Generator,
         ValidationUtil.checkRatedS(this, ratedS);
         double oldValue = this.ratedS;
         this.ratedS = ratedS;
-        notifyUpdate("ratedS", oldValue, ratedS);
+        notifyUpdate(() -> "ratedS", oldValue, ratedS);
         return this;
     }
 

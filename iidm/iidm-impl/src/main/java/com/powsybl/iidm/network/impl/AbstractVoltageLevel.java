@@ -12,6 +12,7 @@ import com.powsybl.iidm.network.*;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
@@ -52,7 +53,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         return substation.getNetwork();
     }
 
-    private void notifyUpdate(String attribute, Object oldValue, Object newValue) {
+    private void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
         getNetwork().getListeners().notifyUpdate(this, attribute, oldValue, newValue);
     }
 
@@ -66,7 +67,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         ValidationUtil.checkNominalV(this, nominalV);
         double oldValue = this.nominalV;
         this.nominalV = nominalV;
-        notifyUpdate("nominalV", oldValue, nominalV);
+        notifyUpdate(() -> "nominalV", oldValue, nominalV);
         return this;
     }
 
@@ -80,7 +81,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         ValidationUtil.checkVoltageLimits(this, lowVoltageLimit, highVoltageLimit);
         double oldValue = this.lowVoltageLimit;
         this.lowVoltageLimit = lowVoltageLimit;
-        notifyUpdate("lowVoltageLimit", oldValue, lowVoltageLimit);
+        notifyUpdate(() -> "lowVoltageLimit", oldValue, lowVoltageLimit);
         return this;
     }
 
@@ -94,7 +95,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         ValidationUtil.checkVoltageLimits(this, lowVoltageLimit, highVoltageLimit);
         double oldValue = this.highVoltageLimit;
         this.highVoltageLimit = highVoltageLimit;
-        notifyUpdate("highVoltageLimit", oldValue, highVoltageLimit);
+        notifyUpdate(() -> "highVoltageLimit", oldValue, highVoltageLimit);
         return this;
     }
 

@@ -79,7 +79,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     public DanglingLineImpl setP0(double p0) {
         ValidationUtil.checkP0(this, p0);
         double oldValue = this.p0.set(network.get().getVariantIndex(), p0);
-        notifyUpdate("p0", oldValue, p0);
+        notifyUpdate(() -> "p0", oldValue, p0);
         return this;
     }
 
@@ -92,7 +92,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     public DanglingLineImpl setQ0(double q0) {
         ValidationUtil.checkQ0(this, q0);
         double oldValue = this.q0.set(network.get().getVariantIndex(), q0);
-        notifyUpdate("q0", oldValue, q0);
+        notifyUpdate(() -> "q0", oldValue, q0);
         return this;
     }
 
@@ -106,7 +106,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         ValidationUtil.checkR(this, r);
         double oldValue = this.r;
         this.r = r;
-        notifyUpdate("r", oldValue, r);
+        notifyUpdate(() -> "r", oldValue, r);
         return this;
     }
 
@@ -120,7 +120,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         ValidationUtil.checkX(this, x);
         double oldValue = this.x;
         this.x = x;
-        notifyUpdate("x", oldValue, x);
+        notifyUpdate(() -> "x", oldValue, x);
         return this;
     }
 
@@ -134,7 +134,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         ValidationUtil.checkG(this, g);
         double oldValue = this.g;
         this.g = g;
-        notifyUpdate("g", oldValue, g);
+        notifyUpdate(() -> "g", oldValue, g);
         return this;
     }
 
@@ -148,7 +148,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
         ValidationUtil.checkB(this, b);
         double oldValue = this.b;
         this.b = b;
-        notifyUpdate("b", oldValue, b);
+        notifyUpdate(() -> "b", oldValue, b);
         return this;
     }
 

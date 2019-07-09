@@ -14,6 +14,7 @@ import gnu.trove.list.array.TIntArrayList;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -90,7 +91,7 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, MultiVaria
         }
     }
 
-    protected void notifyUpdate(String attribute, Object oldValue, Object newValue) {
+    protected void notifyUpdate(Supplier<String> attribute, Object oldValue, Object newValue) {
         network.get().getListeners().notifyUpdate(this, attribute, oldValue, newValue);
     }
 
@@ -105,7 +106,7 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, MultiVaria
             throw new ValidationException(this, "voltage cannot be < 0");
         }
         double oldValue = this.v.set(network.get().getVariantIndex(), v);
-        notifyUpdate("v", oldValue, v);
+        notifyUpdate(() -> "v", oldValue, v);
         return this;
     }
 
@@ -117,7 +118,7 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, MultiVaria
     @Override
     public BusExt setAngle(double angle) {
         double oldValue = this.angle.set(network.get().getVariantIndex(), angle);
-        notifyUpdate("angle", oldValue, angle);
+        notifyUpdate(() -> "angle", oldValue, angle);
         return this;
     }
 
