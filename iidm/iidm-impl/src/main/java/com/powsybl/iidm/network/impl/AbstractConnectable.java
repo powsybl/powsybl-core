@@ -61,6 +61,10 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         getNetwork().getListeners().notifyUpdate(this, attribute, oldValue, newValue);
     }
 
+    protected void notifyUpdate(Supplier<String> attribute, String variantId, Object oldValue, Object newValue) {
+        getNetwork().getListeners().notifyUpdate(this, attribute, variantId, oldValue, newValue);
+    }
+
     protected void notifyUpdate(String attribute, String variantId, Object oldValue, Object newValue) {
         getNetwork().getListeners().notifyUpdate(this, attribute, variantId, oldValue, newValue);
     }

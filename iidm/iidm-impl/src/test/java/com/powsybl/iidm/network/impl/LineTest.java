@@ -15,6 +15,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
+import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static org.junit.Assert.*;
 
 public class LineTest {
@@ -172,8 +173,8 @@ public class LineTest {
         acLine.getTerminal1().setQ(Math.sqrt(2.0));
 
         // Check update notification
-        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(acLine, "p1", p0OldValue, 1.0);
-        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(acLine, "q1", q0OldValue, Math.sqrt(2.0));
+        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(acLine, "p1", INITIAL_VARIANT_ID, p0OldValue, 1.0);
+        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(acLine, "q1", INITIAL_VARIANT_ID, q0OldValue, Math.sqrt(2.0));
 
         // Simulate exception for onUpdate calls
         Mockito.doThrow(new PowsyblException())
@@ -182,7 +183,7 @@ public class LineTest {
         // Change P1 value
         try {
             acLine.getTerminal1().setP(1.1);
-            Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(acLine, "p1", 1.0, 1.1);
+            Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(acLine, "p1", INITIAL_VARIANT_ID, 1.0, 1.1);
         } catch (PowsyblException notExpected) {
             fail();
         }
