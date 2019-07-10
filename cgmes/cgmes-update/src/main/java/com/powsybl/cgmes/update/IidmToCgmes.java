@@ -18,7 +18,6 @@ public class IidmToCgmes {
     // responsible for mapping back identifiers and attribute names.
 
     public IidmToCgmes(IidmChangeOnUpdate change) {
-        super();
         this.change = change;
         this.namingStrategy = new NamingStrategy.Identity();
     }
@@ -27,11 +26,13 @@ public class IidmToCgmes {
 
         cgmesChanges = new HashMap<String, String>();
 
-        // map Identifiable Instance with its method for IIDM - CGMES mapping
+        // map Identifiable Instance with its method for IIDM - CGMES conversion
         Map<String, Callable<Map<Object, String>>> getConversionMapper = new HashMap<>();
         getConversionMapper.put("GeneratorImpl", () -> generatorToSynchronousMachine());
         getConversionMapper.put("LoadImpl", () -> loadToEnergyConsumer());
+        getConversionMapper.put("LoadImpl", () -> substationToSubstation());
 
+        // Getting IIDM - CGMES conversion mapper:
         iidmInstance = getIidmInstanceName();
         iidmToCgmesMapper = getConversionMapper.get(iidmInstance).call();
         LOG.info("The iidmToCgmesMapper result is: " + iidmToCgmesMapper.entrySet().toString());
@@ -44,12 +45,12 @@ public class IidmToCgmes {
             entry("cgmesSubject", cgmesSubject),
             entry("cgmesPredicate", cgmesPredicate),
             entry("cgmesNewValue", cgmesNewValue)).collect(entriesToMap()));
-        
+
         return cgmesChanges;
     }
 
     private String getIidmInstanceName() {
-        LOG.info("IIDM instance coming is: " + change.getIdentifiable().getClass().getSimpleName());
+        LOG.info("IIDM instance is: " + change.getIdentifiable().getClass().getSimpleName());
         return change.getIdentifiable().getClass().getSimpleName();
     }
 
@@ -63,8 +64,14 @@ public class IidmToCgmes {
 
     public static Map<Object, String> loadToEnergyConsumer() {
         return Collections.unmodifiableMap(Stream.of(
-            entry("minP", "minP"),
-            entry("ratedS", "ratedS")).collect(entriesToMap()));
+            entry("p0", "pfixed"),
+            entry("q0", "qfixed")).collect(entriesToMap()));
+    }
+
+    public static Map<Object, String> substationToSubstation() {
+        return Collections.unmodifiableMap(Stream.of(
+            entry("SubRegion", "SubRegion"),
+            entry("subRegionName", "subRegionName")).collect(entriesToMap()));
     }
 
     // http://minborgsjavapot.blogspot.com/2014/12/java-8-initializing-maps-in-smartest-way.html

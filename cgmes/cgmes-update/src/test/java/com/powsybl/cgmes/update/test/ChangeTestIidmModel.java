@@ -25,8 +25,6 @@ public class ChangeTestIidmModel {
 
     public Network updateImportedTestModel() throws IOException {
 
-        LOGGER.info("IidmChangeOnUpdate list size is 0");
-
         cgmesUpdater.addListenerForUpdates();
 
         /**
@@ -80,7 +78,13 @@ public class ChangeTestIidmModel {
     }
 
     public CgmesModel updateTester() {
-        return cgmesUpdater.update();
+        try {
+            return cgmesUpdater.update();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private Network network;

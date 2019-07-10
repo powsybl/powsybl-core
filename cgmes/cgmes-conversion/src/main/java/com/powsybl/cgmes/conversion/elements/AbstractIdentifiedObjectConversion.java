@@ -53,20 +53,34 @@ public abstract class AbstractIdentifiedObjectConversion extends AbstractObjectC
         return context.namingStrategy().getName(type, name);
     }
 
+    // TODO elena
+    public String cgmesId() {
+        return context.namingStrategy().getCgmesId(id);
+    }
+
+    // TODO elena
+    public String cgmesName() {
+        return context.namingStrategy().getCgmesName(name);
+    }
+
     // Identification
 
     public void identify(IdentifiableAdder<?> adder) {
         adder
-                .setId(iidmId())
-                .setName(iidmName())
-                .setEnsureIdUnicity(true);
+            .setId(iidmId())
+            .setName(iidmName())
+            .setEnsureIdUnicity(true);
     }
 
     public void identify(IdentifiableAdder<?> adder, String id, String name) {
         adder
-                .setId(id)
-                .setName(name)
-                .setEnsureIdUnicity(true);
+            .setId(id)
+            .setName(name)
+            .setEnsureIdUnicity(true);
+    }
+
+    public void identifyCgmes(String id, String name) {
+        cgmesId();
     }
 
     @Override
