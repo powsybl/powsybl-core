@@ -125,11 +125,12 @@ public class Conversion {
         convert(cgmes.operationalLimits(), l -> new OperationalLimitConversion(l, context));
         context.currentLimitsMapping().addAll();
 
+        context.regulatingControlMapping().setAllRemoteRegulatingTerminals();
         if (EXTENDED_CGMES_CONVERSION) {
             context.regulatingControlMapping().setAllRegulatingControls(network);
         } else {
             // set all remote regulating terminals
-            context.regulatingControlMapping().setAllRemoteRegulatingTerminals();
+            //context.regulatingControlMapping().setAllRemoteRegulatingTerminals();
         }
 
         voltageAngles(nodes, context);
@@ -525,6 +526,32 @@ public class Conversion {
             this.xfmr2PhaseAngleClock2Negate = xfmr2PhaseAngleClock2Negate;
         }
 
+        public Config setXfmr2StructuralRatio(String value) {
+            if (value.equals("end1")) {
+                setXfmr2Ratio0End1(true);
+                setXfmr2Ratio0End2(false);
+                setXfmr2Ratio0Rtc(false);
+                setXfmr2Ratio0X(false);
+            } else if (value.equals("end2")) {
+                setXfmr2Ratio0End1(false);
+                setXfmr2Ratio0End2(true);
+                setXfmr2Ratio0Rtc(false);
+                setXfmr2Ratio0X(false);
+            } else if (value.equals("rtc")) {
+                setXfmr2Ratio0End1(false);
+                setXfmr2Ratio0End2(false);
+                setXfmr2Ratio0Rtc(true);
+                setXfmr2Ratio0X(false);
+
+            } else if (value.equals("x")) {
+                setXfmr2Ratio0End1(false);
+                setXfmr2Ratio0End2(false);
+                setXfmr2Ratio0Rtc(false);
+                setXfmr2Ratio0X(true);
+            }
+            return this;
+        }
+
         public boolean isXfmr2Ratio0End1() {
             return xfmr2Ratio0End1;
         }
@@ -687,13 +714,11 @@ public class Conversion {
         // Default configuration
         private boolean xfmr2RatioPhaseEnd1 = false;
         private boolean xfmr2RatioPhaseEnd2 = false;
-        // private boolean xfmr2RatioPhaseEnd1End2 = true;
         private boolean xfmr2RatioPhaseEnd1End2 = true;
         private boolean xfmr2RatioPhaseRtc = false;
         private boolean xfmr2Phase1Negate = false;
         private boolean xfmr2Phase2Negate = false;
         private boolean xfmr2ShuntEnd1 = true;
-        // private boolean xfmr2ShuntEnd1 = false;
         private boolean xfmr2ShuntEnd2 = false;
         private boolean xfmr2ShuntEnd1End2 = false;
         private boolean xfmr2ShuntSplit = false;
@@ -701,21 +726,17 @@ public class Conversion {
         private boolean xfmr2PhaseAngleClock1Negate = false;
         private boolean xfmr2PhaseAngleClock2Negate = false;
         private boolean xfmr2Ratio0End1 = false;
-        // private boolean xfmr2Ratio0End2 = true;
-        private boolean xfmr2Ratio0End2 = false;
+        private boolean xfmr2Ratio0End2 = true;
         private boolean xfmr2Ratio0Rtc = false;
         private boolean xfmr2Ratio0X = false;
 
         private boolean xfmr3RatioPhaseNetworkSide = true;
-        // private boolean xfmr3RatioPhaseNetworkSide = false;
         private boolean xfmr3ShuntNetworkSide = true;
-        // private boolean xfmr3ShuntNetworkSide = false;
         private boolean xfmr3ShuntStarBusSide = false;
         private boolean xfmr3ShuntSplit = false;
         private boolean xfmr3PhaseAngleClockNetworkSide = false;
         private boolean xfmr3PhaseAngleClockStarBusSide = false;
         private boolean xfmr3Ratio0StarBusSide = true;
-        // private boolean xfmr3Ratio0StarBusSide = false;
         private boolean xfmr3Ratio0NetworkSide = false;
         private boolean xfmr3Ratio0End1 = false;
         private boolean xfmr3Ratio0End2 = false;

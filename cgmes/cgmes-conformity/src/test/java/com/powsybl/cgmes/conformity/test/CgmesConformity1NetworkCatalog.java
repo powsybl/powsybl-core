@@ -922,8 +922,8 @@ public class CgmesConformity1NetworkCatalog {
             alphas.add(alpha);
             rhos.add(rho);
         }
-        double alphaMax = alphas.stream()
-                .mapToDouble(Double::doubleValue)
+        double alphaMax = alphas.stream() // Take ratio, not rho to get max
+                .mapToDouble(v -> -v) //.mapToDouble(Double::doubleValue)
                 .max()
                 .orElse(Double.NaN);
         LOG.debug("EXPECTED    alphaMax {}", alphaMax);
@@ -936,10 +936,11 @@ public class CgmesConformity1NetworkCatalog {
             // x for current k
             double xn;
             if (type == PhaseTapChangerType.ASYMMETRICAL) {
+                double ratioAlpha = -alpha; // ratio = 1.0 / rho (as complex)
                 double numer = Math.sin(theta) - Math.tan(alphaMax) * Math.cos(theta);
-                double denom = Math.sin(theta) - Math.tan(alpha) * Math.cos(theta);
+                double denom = Math.sin(theta) - Math.tan(ratioAlpha) * Math.cos(theta);
                 xn = xmin + (xmax - xmin)
-                        * Math.pow(Math.tan(alpha) / Math.tan(alphaMax) * numer / denom, 2);
+                        * Math.pow(Math.tan(ratioAlpha) / Math.tan(alphaMax) * numer / denom, 2);
             } else if (type == PhaseTapChangerType.SYMMETRICAL) {
                 xn = xmin + (xmax - xmin)
                         * Math.pow(Math.sin(alpha / 2) / Math.sin(alphaMax / 2), 2);

@@ -203,7 +203,7 @@ public class RegulatingControlMapping {
         cachedRegulatingControls.entrySet().removeIf(this::setRemoteRegulatingTerminal);
         cachedRegulatingControls.forEach((key, value) -> context.pending("Regulating terminal",
                 String.format("The setting of the regulating terminal of the regulating control %s is not entirely handled.", key)));
-        cachedRegulatingControls.clear();
+        //cachedRegulatingControls.clear();
     }
 
     private boolean setRemoteRegulatingTerminal(Map.Entry<String, RegulatingControl> entry) {

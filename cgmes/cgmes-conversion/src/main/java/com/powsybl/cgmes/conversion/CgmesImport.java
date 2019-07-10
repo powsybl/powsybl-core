@@ -148,30 +148,36 @@ public class CgmesImport implements Importer {
 
     private Conversion.Config config(Properties p) {
         return new Conversion.Config()
-                .setAllowUnsupportedTapChangers(
-                    ConversionParameters.readBooleanParameter(
-                            getFormat(),
-                            p,
-                            ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
-                            defaultValueConfig))
-                .setChangeSignForShuntReactivePowerFlowInitialState(
-                        ConversionParameters.readBooleanParameter(
-                                getFormat(),
-                                p,
-                                CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
-                                defaultValueConfig))
-                .setConvertBoundary(
-                        ConversionParameters.readBooleanParameter(
-                                getFormat(),
-                                p,
-                                CONVERT_BOUNDARY_PARAMETER,
-                                defaultValueConfig))
-                .setCreateBusbarSectionForEveryConnectivityNode(
-                        ConversionParameters.readBooleanParameter(
-                                getFormat(),
-                                p,
-                                CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
-                                defaultValueConfig));
+            .setAllowUnsupportedTapChangers(
+                ConversionParameters.readBooleanParameter(
+                    getFormat(),
+                    p,
+                    ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
+                    defaultValueConfig))
+            .setChangeSignForShuntReactivePowerFlowInitialState(
+                ConversionParameters.readBooleanParameter(
+                    getFormat(),
+                    p,
+                    CHANGE_SIGN_FOR_SHUNT_REACTIVE_POWER_FLOW_INITIAL_STATE_PARAMETER,
+                    defaultValueConfig))
+            .setConvertBoundary(
+                ConversionParameters.readBooleanParameter(
+                    getFormat(),
+                    p,
+                    CONVERT_BOUNDARY_PARAMETER,
+                    defaultValueConfig))
+            .setCreateBusbarSectionForEveryConnectivityNode(
+                ConversionParameters.readBooleanParameter(
+                    getFormat(),
+                    p,
+                    CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
+                    defaultValueConfig))
+            .setXfmr2StructuralRatio(
+                ConversionParameters.readStringParameter(
+                    getFormat(),
+                    p,
+                    CONVERSION_ALTERNATIVE_XFMR2_STRUCTURAL_RATIO_PARAMETER,
+                    defaultValueConfig));
     }
 
     private List<CgmesImportPostProcessor> activatedPostProcessors(Properties p) {
@@ -216,6 +222,7 @@ public class CgmesImport implements Importer {
     public static final String STORE_CGMES_MODEL_AS_NETWORK_EXTENSION = "iidm.import.cgmes.store-cgmes-model-as-network-extension";
     public static final String POST_PROCESSORS = "iidm.import.cgmes.post-processors";
     public static final String BOUNDARY_LOCATION = "iidm.import.cgmes.boundary-location";
+    public static final String CONVERSION_ALTERNATIVE_XFMR2_STRUCTURAL_RATIO = "iidm.import.cgmes.xfmr2.structural-ratio.alternative";
 
     private static final Parameter ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER = new Parameter(
             ALLOW_UNSUPPORTED_TAP_CHANGERS,
@@ -257,6 +264,11 @@ public class CgmesImport implements Importer {
             ParameterType.STRING_LIST,
             "Post processors",
             Collections.emptyList());
+    private static final Parameter CONVERSION_ALTERNATIVE_XFMR2_STRUCTURAL_RATIO_PARAMETER = new Parameter(
+        CONVERSION_ALTERNATIVE_XFMR2_STRUCTURAL_RATIO,
+        ParameterType.STRING,
+        "Conversion Alternative Xfmr2 Structural Ratio",
+        "end2");
 
     private static final List<Parameter> STATIC_PARAMETERS = ImmutableList.of(
             ALLOW_UNSUPPORTED_TAP_CHANGERS_PARAMETER,
@@ -265,7 +277,8 @@ public class CgmesImport implements Importer {
             CREATE_BUSBAR_SECTION_FOR_EVERY_CONNECTIVITY_NODE_PARAMETER,
             POWSYBL_TRIPLESTORE_PARAMETER,
             STORE_CGMES_MODEL_AS_NETWORK_EXTENSION_PARAMETER,
-            POST_PROCESSORS_PARAMETER);
+            POST_PROCESSORS_PARAMETER,
+            CONVERSION_ALTERNATIVE_XFMR2_STRUCTURAL_RATIO_PARAMETER);
 
     private final Parameter boundaryLocationParameter;
     private final Map<String, CgmesImportPostProcessor> postProcessors;

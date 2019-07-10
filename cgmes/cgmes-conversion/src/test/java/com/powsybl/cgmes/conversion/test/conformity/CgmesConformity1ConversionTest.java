@@ -28,7 +28,6 @@ import com.powsybl.commons.config.PlatformConfig;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -115,7 +114,6 @@ public class CgmesConformity1ConversionTest {
         t.testConversion(expected, actuals.microGridBaseCaseBE());
     }
 
-    @Ignore("Test cgmes extended conversion ")
     @Test
     public void microGridBaseCaseBERoundtrip() throws IOException {
         // TODO When we convert boundaries values for P0, Q0 at dangling lines
@@ -127,7 +125,6 @@ public class CgmesConformity1ConversionTest {
         t.testConversion(expecteds.microBaseCaseBE(), actuals.microGridBaseCaseBE());
     }
 
-    @Ignore("Test cgmes extended conversion ")
     @Test
     public void microGridBaseCaseBEWithoutUnsupportedTapChangersRoundtrip() throws IOException {
         // TODO When we convert boundaries values for P0, Q0 at dangling lines
@@ -142,13 +139,12 @@ public class CgmesConformity1ConversionTest {
         t.testConversion(expecteds.microBaseCaseBE(), actuals.microGridBaseCaseBE());
     }
 
-    @Ignore("Test cgmes extended conversion ")
     @Test
     public void microGridBaseCaseBE() throws IOException {
         tester.testConversion(expecteds.microBaseCaseBE(), actuals.microGridBaseCaseBE());
     }
 
-    @Ignore("Test cgmes extended conversion ")
+    //@Ignore("Test cgmes extended conversion ")
     @Test
     public void microGridType4BE() throws IOException {
         tester.testConversion(expecteds.microType4BE(), actuals.microGridType4BE());
@@ -179,7 +175,11 @@ public class CgmesConformity1ConversionTest {
         // This test will check that IIDM buses,
         // that will be computed by IIDM from CGMES node-breaker ConnectivityNodes,
         // have proper balances
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.CONVERSION_ALTERNATIVE_XFMR2_STRUCTURAL_RATIO, "x");
+
         ConversionTester t = new ConversionTester(
+            importParams,
             TripleStoreFactory.onlyDefaultImplementation(),
             new ComparisonConfig());
         t.setValidateBusBalances(true);
