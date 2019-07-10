@@ -186,7 +186,7 @@ public class LineTest {
         } catch (PowsyblException notExpected) {
             fail();
         }
-        
+
         // At this point
         // no more changes is taking into account
 
@@ -201,7 +201,7 @@ public class LineTest {
         // Check no notification
         Mockito.verifyNoMoreInteractions(mockedListener);
     }
-    
+
     @Test
     public void invalidR() {
         thrown.expect(ValidationException.class);
