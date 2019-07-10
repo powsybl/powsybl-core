@@ -11,7 +11,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,7 +38,10 @@ import org.eclipse.rdf4j.query.UpdateExecutionException;
 import org.eclipse.rdf4j.query.algebra.evaluation.function.rdfterm.UUID;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.RepositoryResult;
+import org.eclipse.rdf4j.repository.config.RepositoryConfigException;
+import org.eclipse.rdf4j.repository.manager.RepositoryManager;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFWriter;
@@ -42,7 +49,6 @@ import org.eclipse.rdf4j.rio.Rio;
 import org.eclipse.rdf4j.rio.helpers.BasicParserSettings;
 import org.eclipse.rdf4j.rio.helpers.BasicWriterSettings;
 import org.eclipse.rdf4j.rio.helpers.XMLParserSettings;
-import org.eclipse.rdf4j.sail.Sail;
 import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -189,10 +195,18 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         }
     }
 
+    @Override
     public void duplicateRepo() {
         // TODO elena
-        // https://stackoverflow.com/questions/31284464/copy-a-sesame-repository-into-a-new-one
-        // http://graphdb.ontotext.com/documentation/free/backing-up-and-recovering-repo.html
+        RepositoryConnection conn = repo.getConnection();
+        Repository repoClone = conn.getRepository();
+        RepositoryConnection connClone = repoClone.getConnection();
+        RepositoryResult<Resource> contexts = connClone.getContextIDs();
+        while (contexts.hasNext()) {
+            Resource context = contexts.next();
+            int size = statementsCount(conn, context);
+            LOGGER.info("Statements for {} context: {}", context, size);
+        }
     }
 
     @Override
