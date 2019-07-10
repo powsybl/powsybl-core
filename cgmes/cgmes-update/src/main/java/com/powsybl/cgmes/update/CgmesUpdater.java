@@ -25,7 +25,7 @@ public class CgmesUpdater {
         network.addListener(changeListener);
     }
 
-    public CgmesModel update() {
+    public CgmesModel update() throws Exception {
         if (network.getExtension(CgmesModelExtension.class) != null) {
             CgmesModel cgmes = network.getExtension(CgmesModelExtension.class).getCgmesModel();
 
