@@ -81,6 +81,16 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         }
     }
 
+    private void closeConnection(RepositoryConnection cnx, String operation) {
+        if (cnx != null) {
+            try {
+                cnx.close();
+            } catch (RepositoryException x) {
+                LOG.error("{}. Error closing repository connection: {}", operation, x.getMessage());
+            }
+        }
+    }
+
     @Override
     public void read(InputStream is, String base, String name) {
         RepositoryConnection cnx = null;
@@ -94,13 +104,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         } catch (RepositoryException x) {
             throw new TripleStoreException(String.format("Reading. Repo problem %s %s", name, base), x);
         } finally {
-            if (cnx != null) {
-                try {
-                    cnx.close();
-                } catch (RepositoryException x) {
-                    LOG.error("Reading. Closing repo connection {} {}", name, base);
-                }
-            }
+            closeConnection(cnx, "Reading");
         }
     }
 
@@ -145,13 +149,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         } catch (RepositoryException x) {
             throw new TripleStoreException(String.format("Writing on %s", ds), x);
         } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (RepositoryException x) {
-                    LOG.error("Writing on {}. Closing repository connection", ds);
-                }
-            }
+            closeConnection(conn, "Writing on " + ds);
         }
     }
 
@@ -177,7 +175,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
                     }
                 }
             } finally {
-                conn.close();
+                closeConnection(conn, "Printing");
             }
         } catch (RepositoryException e) {
             LOG.error(e.getMessage());
@@ -198,13 +196,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         } catch (RepositoryException x) {
             LOG.error("getting context names : {}", x.getMessage());
         } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (RepositoryException x) {
-                    LOG.error("closing when getting context names : {}", x.getMessage());
-                }
-            }
+            closeConnection(conn, "Getting context names");
         }
         return names;
     }
@@ -218,13 +210,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         } catch (RepositoryException x) {
             LOG.error("clearing context {} : {}", contextName, x.getMessage());
         } finally {
-            if (cnx != null) {
-                try {
-                    cnx.close();
-                } catch (RepositoryException x) {
-                    LOG.error(x.getMessage());
-                }
-            }
+            closeConnection(cnx, "Clearing context " + contextName);
         }
     }
 
@@ -238,13 +224,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
             LOG.error(x.getMessage());
             return null;
         } finally {
-            if (cnx != null) {
-                try {
-                    cnx.close();
-                } catch (RepositoryException x) {
-                    LOG.error(x.getMessage());
-                }
-            }
+            closeConnection(cnx, "Querying");
         }
     }
 
@@ -258,13 +238,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         } catch (RepositoryException x) {
             throw new TripleStoreException(String.format("Adding statements for graph %s", contextName), x);
         } finally {
-            if (cnx != null) {
-                try {
-                    cnx.close();
-                } catch (RepositoryException x) {
-                    LOG.error("Adding statements for graph {}. Closing repository connection", contextName);
-                }
-            }
+            closeConnection(cnx, "Adding statements to context " + contextName);
         }
     }
 
@@ -277,13 +251,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         } catch (RepositoryException x) {
             throw new TripleStoreException(String.format("Adding statements for graph %s", contextName), x);
         } finally {
-            if (cnx != null) {
-                try {
-                    cnx.close();
-                } catch (RepositoryException x) {
-                    LOG.error("Adding statements for graph {}. Closing repository connection", contextName);
-                }
-            }
+            closeConnection(cnx, "Adding statements to context " + contextName);
         }
     }
 
@@ -414,13 +382,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         } catch (RepositoryException x) {
             throw new TripleStoreException(String.format("Adding namespace %s", namespace), x);
         } finally {
-            if (cnx != null) {
-                try {
-                    cnx.close();
-                } catch (RepositoryException x) {
-                    LOG.error(x.getMessage());
-                }
-            }
+            closeConnection(cnx, "Adding namespace " + namespace);
         }
     }
 
@@ -438,13 +400,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         } catch (RepositoryException x) {
             throw new TripleStoreException("Getting namespaces", x);
         } finally {
-            if (cnx != null) {
-                try {
-                    cnx.close();
-                } catch (RepositoryException x) {
-                    LOG.error(x.getMessage());
-                }
-            }
+            closeConnection(cnx, "Getting namespaces");
         }
         return namespaces;
     }

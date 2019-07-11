@@ -32,7 +32,7 @@ public enum CgmesSubset {
     DIAGRAM_LAYOUT("DL"),
     GEOGRAPHICAL_LOCATION("GL"),
     EQUIPMENT_BOUNDARY("EQ_BD"),
-    TOPOLOGY_BOUNDAARY("TP_BD");
+    TOPOLOGY_BOUNDARY("TP_BD");
 
     private final String identifier;
 

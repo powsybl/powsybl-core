@@ -134,7 +134,7 @@ public interface CgmesModel {
 
     // read/write
 
-    public static String baseName(ReadOnlyDataSource ds) {
+    static String baseName(ReadOnlyDataSource ds) {
         return new CgmesOnDataSource(ds).baseName();
     }
 

@@ -353,7 +353,7 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- In provided scope, so that covergae is correctly reported but the jar is not packaged for distribution -->
+        <!-- In provided scope, so that coverage is correctly reported but the jar is not packaged for distribution -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-triple-store-test</artifactId>
