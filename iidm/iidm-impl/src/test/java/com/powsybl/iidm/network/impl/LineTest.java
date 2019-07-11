@@ -143,8 +143,13 @@ public class LineTest {
     @Test
     public void testChangesNotification() {
         // Changes listener
+        NetworkListener exceptionListener = Mockito.mock(DefaultNetworkListener.class);
+        Mockito.doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.any());
+        Mockito.doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.any());
+
         NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
         // Add observer changes to current network
+        network.addListener(exceptionListener);
         network.addListener(mockedListener);
 
         // Tested instance
