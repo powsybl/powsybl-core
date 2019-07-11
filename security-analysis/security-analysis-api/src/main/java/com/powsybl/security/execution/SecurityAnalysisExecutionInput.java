@@ -42,11 +42,11 @@ public class SecurityAnalysisExecutionInput {
     }
 
     public List<String> getResultExtensions() {
-        return resultExtensions;
+        return Collections.unmodifiableList(resultExtensions);
     }
 
     public Set<LimitViolationType> getViolationTypes() {
-        return violationTypes;
+        return Collections.unmodifiableSet(violationTypes);
     }
 
     public SecurityAnalysisParameters getParameters() {

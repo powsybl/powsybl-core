@@ -18,6 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.zip.GZIPInputStream;
 
@@ -153,5 +154,17 @@ public class ZipPackager {
 
     public static byte[] archiveFilesToZipBytes(Path workingDir, String... fileNames) {
         return archiveFilesToZipBytes(workingDir, Arrays.asList(fileNames));
+    }
+
+    /**
+     * Generates a zip file's bytes
+     * @param bytesByName map's {@literal key} as entry name, {@literal value} as content in the zip file
+     * @return a zip file in bytes
+     */
+    public static byte[] archiveBytesByNameToZipBytes(Map<String, byte[]> bytesByName) {
+        Objects.requireNonNull(bytesByName);
+        ZipPackager zipPackager = new ZipPackager();
+        bytesByName.forEach(zipPackager::addBytes);
+        return zipPackager.toZipBytes();
     }
 }
