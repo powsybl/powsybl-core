@@ -176,6 +176,10 @@ public class LineTest {
         Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(acLine, "p1", INITIAL_VARIANT_ID, p0OldValue, 1.0);
         Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(acLine, "q1", INITIAL_VARIANT_ID, q0OldValue, Math.sqrt(2.0));
 
+        // Change values that not depend on the variant
+        acLine.setR(1.5);
+        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(acLine, "r", 1.0, 1.5);
+
         // Simulate exception for onUpdate calls
         Mockito.doThrow(new PowsyblException())
                .when(mockedListener)
