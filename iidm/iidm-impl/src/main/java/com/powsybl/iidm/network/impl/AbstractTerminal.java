@@ -80,8 +80,10 @@ abstract class AbstractTerminal implements TerminalExt {
         if (!Double.isNaN(p) && connectable.getType() == ConnectableType.SHUNT_COMPENSATOR) {
             throw new ValidationException(connectable, "cannot set active power on a shunt compensator");
         }
-        double oldValue = this.p.set(network.get().getVariantIndex(), p);
-        getConnectable().notifyUpdate("p" + (num != -1 ? num : ""), oldValue, p);
+        int variantIndex = network.get().getVariantIndex();
+        double oldValue = this.p.set(variantIndex, p);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        getConnectable().notifyUpdate(() -> "p" + (num != -1 ? num : ""), variantId, oldValue, p);
         return this;
     }
 
@@ -95,8 +97,10 @@ abstract class AbstractTerminal implements TerminalExt {
         if (connectable.getType() == ConnectableType.BUSBAR_SECTION) {
             throw new ValidationException(connectable, "cannot set reactive power on a busbar section");
         }
-        double oldValue = this.q.set(network.get().getVariantIndex(), q);
-        getConnectable().notifyUpdate("q" + (num != -1 ? num : ""), oldValue, q);
+        int variantIndex = network.get().getVariantIndex();
+        double oldValue = this.q.set(variantIndex, q);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        getConnectable().notifyUpdate(() -> "q" + (num != -1 ? num : ""), variantId, oldValue, q);
         return this;
     }
 

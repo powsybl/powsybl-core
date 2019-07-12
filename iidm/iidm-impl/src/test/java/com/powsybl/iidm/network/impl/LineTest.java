@@ -13,7 +13,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
+import static com.powsybl.iidm.network.VariantManagerConstants.INITIAL_VARIANT_ID;
 import static org.junit.Assert.*;
 
 public class LineTest {
@@ -136,6 +138,78 @@ public class LineTest {
         assertFalse(acLine.checkPermanentLimit2());
         assertNull(acLine.checkTemporaryLimits(Branch.Side.TWO, 0.9f));
         assertNull(acLine.checkTemporaryLimits(Branch.Side.TWO));
+    }
+
+    @Test
+    public void testChangesNotification() {
+        // Changes listener
+        NetworkListener exceptionListener = Mockito.mock(DefaultNetworkListener.class);
+        Mockito.doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.any());
+        Mockito.doThrow(new UnsupportedOperationException()).when(exceptionListener).onUpdate(Mockito.any(), Mockito.any(), Mockito.anyString(), Mockito.any(), Mockito.any());
+
+        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        // Add observer changes to current network
+        network.addListener(exceptionListener);
+        network.addListener(mockedListener);
+
+        // Tested instance
+        Line acLine = network.newLine()
+            .setId("line")
+            .setName("lineName")
+            .setR(1.0)
+            .setX(2.0)
+            .setG1(3.0)
+            .setG2(3.5)
+            .setB1(4.0)
+            .setB2(4.5)
+            .setVoltageLevel1("vl1")
+            .setVoltageLevel2("vl2")
+            .setBus1("busA")
+            .setBus2("busB")
+            .setConnectableBus1("busA")
+            .setConnectableBus2("busB")
+            .add();
+        Mockito.verify(mockedListener, Mockito.times(1)).onCreation(acLine);
+        // Get initial values
+        double p0OldValue = acLine.getTerminal1().getP();
+        double q0OldValue = acLine.getTerminal1().getQ();
+        // Change values P1 & Q1
+        acLine.getTerminal1().setP(1.0);
+        acLine.getTerminal1().setQ(Math.sqrt(2.0));
+
+        // Check update notification
+        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(acLine, "p1", INITIAL_VARIANT_ID, p0OldValue, 1.0);
+        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(acLine, "q1", INITIAL_VARIANT_ID, q0OldValue, Math.sqrt(2.0));
+
+        // Change values that not depend on the variant
+        acLine.setR(1.5);
+        Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(acLine, "r", 1.0, 1.5);
+
+        // Simulate exception for onUpdate calls
+        Mockito.doThrow(new PowsyblException())
+               .when(mockedListener)
+               .onUpdate(Mockito.any(LineImpl.class), Mockito.anyString(), Mockito.anyDouble(), Mockito.anyDouble());
+        // Change P1 value
+        try {
+            acLine.getTerminal1().setP(1.1);
+            Mockito.verify(mockedListener, Mockito.times(1)).onUpdate(acLine, "p1", INITIAL_VARIANT_ID, 1.0, 1.1);
+        } catch (PowsyblException notExpected) {
+            fail();
+        }
+
+        // At this point
+        // no more changes is taking into account
+
+        // Case when same values P1 & Q1 are set
+        acLine.getTerminal1().setP(1.1);
+        acLine.getTerminal1().setQ(Math.sqrt(2.0));
+        // Case when no listener is registered
+        network.removeListener(mockedListener);
+        acLine.getTerminal1().setP(2.0);
+        acLine.getTerminal1().setQ(1.0);
+
+        // Check no notification
+        Mockito.verifyNoMoreInteractions(mockedListener);
     }
 
     @Test
