@@ -28,7 +28,7 @@ public class ActivePowerControl<T extends Injection> extends AbstractExtension<T
         this((T) battery, participate, droop);
     }
 
-    protected ActivePowerControl(T component, boolean participate, float droop) {
+    ActivePowerControl(T component, boolean participate, float droop) {
         super(component);
         this.participate = participate;
         this.droop = droop;
