@@ -231,7 +231,7 @@ public class VariantManagerImpl implements VariantManager {
 
     @Override
     public void allowVariantMultiThreadAccess(boolean allow) {
-        if (allow) {
+        if (allow && !(variantContext instanceof ThreadLocalMultiVariantContext)) {
             VariantContext newVariantContext = new ThreadLocalMultiVariantContext();
             // For multithreaded VariantContext, don't set the variantIndex to a default
             // value if it is not set, so that missing initializations fail fast.
@@ -239,7 +239,7 @@ public class VariantManagerImpl implements VariantManager {
                 newVariantContext.setVariantIndex(variantContext.getVariantIndex());
             }
             variantContext = newVariantContext;
-        } else {
+        } else if (!allow && !(variantContext instanceof MultiVariantContext)) {
             if (variantContext.isIndexSet()) {
                 variantContext = new MultiVariantContext(variantContext.getVariantIndex());
             } else {

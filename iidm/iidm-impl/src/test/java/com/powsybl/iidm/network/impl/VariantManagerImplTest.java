@@ -326,6 +326,28 @@ public class VariantManagerImplTest {
     }
 
     @Test
+    public void testVariantIndexKept() throws Exception {
+        NetworkIndex index = new NetworkIndex();
+        VariantManager variantManager = new VariantManagerImpl(index);
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "ClonedVariant1");
+        variantManager.setWorkingVariant("ClonedVariant1");
+        variantManager.allowVariantMultiThreadAccess(true);
+        assertEquals(variantManager.getWorkingVariantId(), "ClonedVariant1");
+        CountDownLatch cdl1 = new CountDownLatch(1);
+        (new Thread() {
+            public void run() {
+                try {
+                    variantManager.allowVariantMultiThreadAccess(true);
+                } finally {
+                    cdl1.countDown();
+                }
+            }
+        }).start();
+        cdl1.await();
+        assertEquals(variantManager.getWorkingVariantId(), "ClonedVariant1");
+    }
+
+    @Test
     public void testMultipleSetAllowMultiThreadTrue() throws Exception {
         NetworkIndex index = new NetworkIndex();
         VariantManager variantManager = new VariantManagerImpl(index);
