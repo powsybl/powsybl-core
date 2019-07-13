@@ -85,7 +85,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
                     + getHighTapPosition() + "]");
         }
         int oldValue = this.tapPosition.set(network.get().getVariantIndex(), tapPosition);
-        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), getTapChangerAttribute() + ".tapPosition", oldValue, tapPosition);
+        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".tapPosition", oldValue, tapPosition);
         return (C) this;
     }
 

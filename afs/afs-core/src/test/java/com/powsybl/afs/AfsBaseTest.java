@@ -205,4 +205,35 @@ public class AfsBaseTest {
         assertEquals(1, test2.getChildren().size());
     }
 
+    @Test
+    public void findProjectFolderTest() {
+
+        Project project = afs.getRootFolder().createProject("test");
+        ProjectFolder test1 = project.getRootFolder().createFolder("test1");
+        ProjectFolder projectFolderResult = afs.findProjectFolder(test1.getId());
+        assertNotNull(projectFolderResult);
+        assertEquals(test1.getId(), projectFolderResult.getId());
+        assertEquals(test1.getParentInfo(), projectFolderResult.getParentInfo());
+        assertEquals(test1.getCreationDate(), projectFolderResult.getCreationDate());
+        assertEquals(test1.getModificationDate(), projectFolderResult.getModificationDate());
+
+    }
+
+    @Test
+    public void findProjectFileTest() {
+        Project project = afs.getRootFolder().createProject("test");
+        FooFile createdFile = project.getRootFolder().fileBuilder(FooFileBuilder.class)
+                .withName("foo")
+                .build();
+        ProjectFile foundFile = afs.findProjectFile(createdFile.getId(), FooFile.class);
+        assertNotNull(foundFile);
+        assertEquals(createdFile.getId(), foundFile.getId());
+        assertEquals(createdFile.getName(), foundFile.getName());
+        assertEquals(createdFile.getDescription(), foundFile.getDescription());
+        assertEquals(createdFile.getCreationDate(), foundFile.getCreationDate());
+        assertEquals(createdFile.getModificationDate(), foundFile.getModificationDate());
+        assertEquals(createdFile.getFileSystem(), foundFile.getFileSystem());
+        assertEquals(createdFile.getDependencies(), foundFile.getDependencies());
+        assertEquals(createdFile.getCodeVersion(), foundFile.getCodeVersion());
+    }
 }

@@ -53,7 +53,6 @@ usage: itools [OPTIONS] loadflow-validation --case-file <FILE>
 
 Available options are:
     --config-name <CONFIG_NAME>   Override configuration file name
-    --parallel                    Run command in parallel mode
 
 Available arguments are:
     --case-file <FILE>                              case file path

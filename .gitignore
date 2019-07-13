@@ -33,8 +33,6 @@
 /cim1/target/
 /commons/target/
 /computation-local/target/
-/computation-mpi/target/
-/computation-mpi-util/target/
 /computation/target/
 /contingency/target/
 /contingency/contingency-api/target/
@@ -45,6 +43,7 @@
 /iidm/target/
 /iidm/iidm-api/target
 /iidm/iidm-converter-api/target/
+/iidm/iidm-extensions/target/
 /iidm/iidm-impl/target/
 /iidm/iidm-reducer/target/
 /iidm/iidm-test/target/
@@ -76,10 +75,6 @@
 /ucte/ucte-converter/target/
 /ucte/ucte-network/target/
 /ucte/target/
-
-# CMake projects
-/build/
-/thirdparty/build/
 
 # IntelliJ
 /.idea

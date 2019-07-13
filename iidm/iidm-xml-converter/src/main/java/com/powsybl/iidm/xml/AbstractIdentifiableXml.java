@@ -13,9 +13,9 @@ import com.powsybl.iidm.network.IdentifiableAdder;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import java.util.Properties;
 
 import static com.powsybl.iidm.xml.IidmXmlConstants.IIDM_URI;
+
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -43,15 +43,9 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
             context.getWriter().writeAttribute("name", context.getAnonymizer().anonymizeString(identifiable.getName()));
         }
         writeRootElementAttributes(identifiable, parent, context);
-        if (identifiable.hasProperty()) {
-            Properties props = identifiable.getProperties();
-            for (String name : props.stringPropertyNames()) {
-                String value = props.getProperty(name);
-                context.getWriter().writeEmptyElement(IIDM_URI, "property");
-                context.getWriter().writeAttribute("name", name);
-                context.getWriter().writeAttribute("value", value);
-            }
-        }
+
+        PropertiesXml.write(identifiable, context);
+
         writeSubElements(identifiable, parent, context);
         if (hasSubElements || identifiable.hasProperty()) {
             context.getWriter().writeEndElement();
@@ -70,9 +64,7 @@ abstract class AbstractIdentifiableXml<T extends Identifiable, A extends Identif
 
     protected void readSubElements(T identifiable, NetworkXmlReaderContext context) throws XMLStreamException {
         if (context.getReader().getLocalName().equals("property")) {
-            String name = context.getReader().getAttributeValue(null, "name");
-            String value = context.getReader().getAttributeValue(null, "value");
-            identifiable.getProperties().put(name, value);
+            PropertiesXml.read(identifiable, context);
         } else {
             throw new PowsyblException("Unknown element name <" + context.getReader().getLocalName() + "> in <" + identifiable.getId() + ">");
         }

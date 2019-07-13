@@ -329,6 +329,8 @@ public final class NetworkXml {
         // Consider the network has been exported so its extensions will be written also
         context.addExportedEquipment(n);
 
+        PropertiesXml.write(n, context);
+
         for (Substation s : n.getSubstations()) {
             SubstationXml.INSTANCE.write(s, null, context);
         }
@@ -487,6 +489,10 @@ public final class NetworkXml {
 
             XmlUtil.readUntilEndElement(NETWORK_ROOT_ELEMENT_NAME, reader, () -> {
                 switch (reader.getLocalName()) {
+                    case PropertiesXml.PROPERTY:
+                        PropertiesXml.read(network, context);
+                        break;
+
                     case SubstationXml.ROOT_ELEMENT_NAME:
                         SubstationXml.INSTANCE.read(network, context);
                         break;
