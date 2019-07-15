@@ -327,8 +327,8 @@ public class VariantManagerImplTest {
 
     @Test
     public void testVariantIndexKept() throws Exception {
-        NetworkIndex index = new NetworkIndex();
-        VariantManager variantManager = new VariantManagerImpl(index);
+        NetworkImpl network = (NetworkImpl) Network.create("testVariantIndexKept", "no-format");
+        VariantManager variantManager = new VariantManagerImpl(network);
         variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID, "ClonedVariant1");
         variantManager.setWorkingVariant("ClonedVariant1");
         variantManager.allowVariantMultiThreadAccess(true);
@@ -349,8 +349,8 @@ public class VariantManagerImplTest {
 
     @Test
     public void testMultipleSetAllowMultiThreadTrue() throws Exception {
-        NetworkIndex index = new NetworkIndex();
-        VariantManager variantManager = new VariantManagerImpl(index);
+        NetworkImpl network = (NetworkImpl) Network.create("testMultipleSetAllowMultiThreadTrue", "no-format");
+        VariantManager variantManager = new VariantManagerImpl(network);
         variantManager.allowVariantMultiThreadAccess(true);
         CountDownLatch cdl1 = new CountDownLatch(1);
         Exception[] exceptionThrown = new Exception[1];
@@ -370,5 +370,36 @@ public class VariantManagerImplTest {
         if (exceptionThrown[0] != null) {
             throw new AssertionError(exceptionThrown[0]);
         }
+    }
+
+    @Test
+    public void testVariantIndexSwitch() throws Exception {
+        NetworkImpl network = (NetworkImpl) Network.create("testVariantIndexSwitch", "no-format");
+        VariantManager variantManager = new VariantManagerImpl(network);
+        assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID,  variantManager.getWorkingVariantId());
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID,  "ClonedVariant1");
+        variantManager.setWorkingVariant("ClonedVariant1");
+        assertEquals("ClonedVariant1", variantManager.getWorkingVariantId());
+        variantManager.allowVariantMultiThreadAccess(false);
+        assertEquals("ClonedVariant1", variantManager.getWorkingVariantId());
+        variantManager.allowVariantMultiThreadAccess(true);
+        assertTrue(variantManager.isVariantMultiThreadAccessAllowed());
+        assertEquals("ClonedVariant1", variantManager.getWorkingVariantId());
+        variantManager.allowVariantMultiThreadAccess(true);
+        assertTrue(variantManager.isVariantMultiThreadAccessAllowed());
+        assertEquals("ClonedVariant1", variantManager.getWorkingVariantId());
+        variantManager.allowVariantMultiThreadAccess(false);
+        variantManager.removeVariant("ClonedVariant1");
+        variantManager.allowVariantMultiThreadAccess(false);
+        variantManager.allowVariantMultiThreadAccess(true);
+        assertTrue(variantManager.isVariantMultiThreadAccessAllowed());
+        variantManager.allowVariantMultiThreadAccess(false);
+        assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, variantManager.getWorkingVariantId());
+        variantManager.cloneVariant(VariantManagerConstants.INITIAL_VARIANT_ID,  "ClonedVariant2");
+        variantManager.allowVariantMultiThreadAccess(true);
+        assertTrue(variantManager.isVariantMultiThreadAccessAllowed());
+        variantManager.removeVariant("ClonedVariant2");
+        variantManager.allowVariantMultiThreadAccess(false);
+        assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, variantManager.getWorkingVariantId());
     }
 }
