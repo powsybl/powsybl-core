@@ -8,7 +8,6 @@ package com.powsybl.afs.ext.base.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.powsybl.afs.storage.events.NodeEvent;
 import com.powsybl.afs.storage.events.NodeEventType;
 
 import java.util.Objects;
@@ -16,32 +15,11 @@ import java.util.Objects;
 /**
  * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
  */
-public class ScriptModified extends NodeEvent {
-
-    @JsonProperty("parentId")
-    protected final String parentId;
-
-    @JsonProperty("path")
-    protected final String path;
+public class ScriptModified extends BusinessEvent {
 
     @JsonCreator
     public ScriptModified(@JsonProperty("id") String id, @JsonProperty("parentId") String parentId, @JsonProperty("path") String path) {
-        super(id, NodeEventType.SCRIPT_MODIFIED);
-        this.parentId = parentId;
-        this.path = path;
-    }
-
-    public String getParentId() {
-        return parentId;
-    }
-
-    public String getPath() {
-        return path;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, parentId);
+        super(id, parentId, path, NodeEventType.SCRIPT_MODIFIED);
     }
 
     @Override
@@ -51,6 +29,11 @@ public class ScriptModified extends NodeEvent {
             return id.equals(other.id) && Objects.equals(parentId, other.parentId) && path.equals(other.path);
         }
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, parentId);
     }
 
     @Override

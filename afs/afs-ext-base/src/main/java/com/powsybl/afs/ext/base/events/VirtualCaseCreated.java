@@ -8,7 +8,6 @@ package com.powsybl.afs.ext.base.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.powsybl.afs.storage.events.NodeEvent;
 import com.powsybl.afs.storage.events.NodeEventType;
 
 import java.util.Objects;
@@ -16,24 +15,12 @@ import java.util.Objects;
 /**
  * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
  */
-public class VirtualCaseCreated extends NodeEvent {
-
-    @JsonProperty("parentId")
-    protected final String parentId;
+public class VirtualCaseCreated extends BusinessEvent {
 
     @JsonCreator
-    public VirtualCaseCreated(@JsonProperty("id") String id, @JsonProperty("parentId") String parentId) {
-        super(id, NodeEventType.VIRTUAL_CASE_CREATED);
-        this.parentId = parentId;
-    }
-
-    public String getParentId() {
-        return parentId;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, parentId);
+    public VirtualCaseCreated(@JsonProperty("id") String id, @JsonProperty("parentId") String parentId,
+                              @JsonProperty("path") String path) {
+        super(id, parentId, path, NodeEventType.VIRTUAL_CASE_CREATED);
     }
 
     @Override
@@ -43,6 +30,11 @@ public class VirtualCaseCreated extends NodeEvent {
             return id.equals(other.id) && Objects.equals(parentId, other.parentId);
         }
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, parentId);
     }
 
     @Override

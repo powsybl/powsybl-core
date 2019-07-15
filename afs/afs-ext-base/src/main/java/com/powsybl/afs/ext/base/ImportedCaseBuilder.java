@@ -53,8 +53,6 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
     private String name;
 
-    private Path file;
-
     private ReadOnlyDataSource dataSource;
 
     private Importer importer;
@@ -88,7 +86,6 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
     }
 
     public ImportedCaseBuilder withFile(Path file) {
-        this.file = file;
         withDatasource(Importers.createDataSource(file));
         if (name == null) {
             name = DataSourceUtil.getBaseName(file);

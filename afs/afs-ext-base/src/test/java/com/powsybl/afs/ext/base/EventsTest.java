@@ -54,13 +54,14 @@ public class EventsTest {
 
     @Test
     public void virtualCaseCreatedTest() throws IOException {
-        VirtualCaseCreated virtualCaseCreated = new VirtualCaseCreated("a", "b");
+        VirtualCaseCreated virtualCaseCreated = new VirtualCaseCreated("a", "b", Paths.get("/tmp/foo").toString());
         assertEquals("a", virtualCaseCreated.getId());
         assertEquals(NodeEventType.VIRTUAL_CASE_CREATED, virtualCaseCreated.getType());
         assertEquals("b", virtualCaseCreated.getParentId());
         assertNotNull(virtualCaseCreated.toString());
+        assertEquals(Paths.get("/tmp/foo").toString(), virtualCaseCreated.getPath());
 
-        VirtualCaseCreated virtualCaseCreated2 = new VirtualCaseCreated("a", "c");
+        VirtualCaseCreated virtualCaseCreated2 = new VirtualCaseCreated("a", "c", Paths.get("/tmp/foo").toString());
         assertNotEquals(virtualCaseCreated, virtualCaseCreated2);
         assertNotEquals(virtualCaseCreated.hashCode(), virtualCaseCreated2.hashCode());
         assertNotEquals(virtualCaseCreated, new CaseImported("", "", Paths.get("/tmp/foo").toString()));
