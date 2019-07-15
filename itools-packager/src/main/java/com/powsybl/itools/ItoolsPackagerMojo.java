@@ -27,7 +27,6 @@ import java.nio.file.attribute.PosixFilePermission;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -50,12 +49,6 @@ public class ItoolsPackagerMojo extends AbstractMojo {
 
     @Parameter(defaultValue = "config")
     private String configName;
-
-    @Parameter(defaultValue = "2")
-    private Integer mpiTasks;
-
-    @Parameter
-    private String[] mpiHosts;
 
     public static class CopyTo {
 
@@ -133,16 +126,6 @@ public class ItoolsPackagerMojo extends AbstractMojo {
         writer.write("java_xmx=");
         writer.write(javaXmx);
         writer.newLine();
-        writer.write("mpi_tasks=");
-        writer.write(Integer.toString(mpiTasks));
-        writer.newLine();
-        writer.write("mpi_hosts=");
-        if (mpiHosts == null) {
-            writer.write("localhost");
-        } else {
-            writer.write(Arrays.stream(mpiHosts).collect(Collectors.joining(",")));
-        }
-        writer.newLine();
     }
 
     @Override
@@ -164,7 +147,7 @@ public class ItoolsPackagerMojo extends AbstractMojo {
             // create bin directory and add scripts
             Path binDir = packageDir.resolve("bin");
             Files.createDirectories(binDir);
-            for (String script : Arrays.asList("itools", "itools.bat", "powsyblsh", "tools-mpi-task.sh")) {
+            for (String script : Arrays.asList("itools", "itools.bat", "powsyblsh")) {
                 getLog().info("Add script " + script + " to package");
                 Path file = binDir.resolve(script);
                 Files.copy(ItoolsPackagerMojo.class.getResourceAsStream("/" + script), file, StandardCopyOption.REPLACE_EXISTING);
