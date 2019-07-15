@@ -12,6 +12,7 @@ import com.powsybl.afs.AppFileSystemProvider;
 import com.powsybl.afs.AppFileSystemProviderContext;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.EventsBus;
+import com.powsybl.commons.util.TriFunction;
 
 import java.nio.file.Path;
 import java.util.List;

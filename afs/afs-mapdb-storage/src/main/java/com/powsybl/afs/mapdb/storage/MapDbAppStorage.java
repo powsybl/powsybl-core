@@ -157,7 +157,7 @@ public class MapDbAppStorage extends AbstractAppStorage {
                 .hashMap("backwardDependencyNodes", UuidSerializer.INSTANCE, UuidListSerializer.INSTANCE)
                 .createOrOpen();
 
-        this.eventsBus = eventsBus;
+        this.eventsBus = Objects.requireNonNull(eventsBus);
     }
 
     private static <K, V> Map<K, Set<V>> addToSet(Map<K, Set<V>> map, K key, V value) {

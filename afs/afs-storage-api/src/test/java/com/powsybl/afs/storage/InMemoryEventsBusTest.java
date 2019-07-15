@@ -20,19 +20,19 @@ import static org.junit.Assert.*;
  */
 public class InMemoryEventsBusTest {
 
-    private InMemoryEventsBus eventsStore;
+    private InMemoryEventsBus eventsBus;
 
     @Before
     public void setUp() throws Exception {
-        eventsStore = new InMemoryEventsBus();
+        eventsBus = new InMemoryEventsBus();
     }
 
     @Test
     public void eventsStoreTest() throws IOException {
         NodeEvent nodeEvent = new NodeCreated("id", "parentId");
-        eventsStore.pushEvent(nodeEvent, String.valueOf(nodeEvent.getType()));
-        assertEquals(1, eventsStore.getTopics().size());
-        assertNotNull(eventsStore.getTopics().get(String.valueOf(nodeEvent.getType())));
+        eventsBus.pushEvent(nodeEvent, String.valueOf(nodeEvent.getType()));
+        assertEquals(1, eventsBus.getTopics().size());
+        assertNotNull(eventsBus.getTopics().get(String.valueOf(nodeEvent.getType())));
     }
 }
 

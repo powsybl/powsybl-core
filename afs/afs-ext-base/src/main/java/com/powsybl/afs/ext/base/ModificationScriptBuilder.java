@@ -85,9 +85,11 @@ public class ModificationScriptBuilder implements ProjectFileBuilder<Modificatio
 
         context.getStorage().flush();
 
-        context.getStorage().getEventsBus().pushEvent(new ScriptModified(info.getId(),
-                context.getFolderInfo().getId()), NodeEventType.SCRIPT_MODIFIED.name());
+        ModificationScript modificationScript = new ModificationScript(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));
 
-        return new ModificationScript(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));
+        context.getStorage().getEventsBus().pushEvent(new ScriptModified(info.getId(),
+                context.getFolderInfo().getId(), modificationScript.getPath().toString()), NodeEventType.SCRIPT_MODIFIED.name());
+
+        return modificationScript;
     }
 }

@@ -65,7 +65,7 @@ public class AppData implements AutoCloseable {
 
     private final Set<Class<? extends ProjectFile>> projectFileClasses = new HashSet<>();
 
-    private EventsBus eventsBus;
+    private final EventsBus eventsBus;
 
     private Map<ServiceExtension.ServiceKey, Object> services;
 
@@ -105,8 +105,7 @@ public class AppData implements AutoCloseable {
         Objects.requireNonNull(fileSystemProviders);
         Objects.requireNonNull(fileExtensions);
         Objects.requireNonNull(projectFileExtensions);
-        Objects.requireNonNull(eventsBus);
-        this.eventsBus = eventsBus;
+        this.eventsBus = Objects.requireNonNull(eventsBus);
         this.shortTimeExecutionComputationManager = Objects.requireNonNull(shortTimeExecutionComputationManager);
         this.longTimeExecutionComputationManager = longTimeExecutionComputationManager;
         this.fileSystemProviders = Objects.requireNonNull(fileSystemProviders);

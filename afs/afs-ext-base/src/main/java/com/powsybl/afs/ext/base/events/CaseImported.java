@@ -11,7 +11,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.afs.storage.events.NodeEvent;
 import com.powsybl.afs.storage.events.NodeEventType;
 
-import java.nio.file.Path;
 import java.util.Objects;
 
 /**
@@ -23,11 +22,11 @@ public class CaseImported extends NodeEvent {
     protected final String parentId;
 
     @JsonProperty("path")
-    protected final Path path;
+    protected final String path;
 
     @JsonCreator
     public CaseImported(@JsonProperty("id") String id, @JsonProperty("parentId") String parentId,
-                        @JsonProperty("path") Path path) {
+                        @JsonProperty("path") String path) {
         super(id, NodeEventType.CASE_IMPORTED);
         this.parentId = parentId;
         this.path = path;
@@ -37,7 +36,7 @@ public class CaseImported extends NodeEvent {
         return parentId;
     }
 
-    public Path getPath() {
+    public String getPath() {
         return path;
     }
 

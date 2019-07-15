@@ -23,10 +23,9 @@ public class AppFileSystemProviderContext {
     private final EventsBus eventsBus;
 
     public AppFileSystemProviderContext(ComputationManager computationManager, String token, EventsBus eventsBus) {
-        Objects.requireNonNull(eventsBus);
         this.computationManager = Objects.requireNonNull(computationManager);
         this.token = token;
-        this.eventsBus = eventsBus;
+        this.eventsBus = Objects.requireNonNull(eventsBus);
     }
 
     public ComputationManager getComputationManager() {

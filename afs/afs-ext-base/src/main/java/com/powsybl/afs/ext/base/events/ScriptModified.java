@@ -21,14 +21,22 @@ public class ScriptModified extends NodeEvent {
     @JsonProperty("parentId")
     protected final String parentId;
 
+    @JsonProperty("path")
+    protected final String path;
+
     @JsonCreator
-    public ScriptModified(@JsonProperty("id") String id, @JsonProperty("parentId") String parentId) {
+    public ScriptModified(@JsonProperty("id") String id, @JsonProperty("parentId") String parentId, @JsonProperty("path") String path) {
         super(id, NodeEventType.SCRIPT_MODIFIED);
         this.parentId = parentId;
+        this.path = path;
     }
 
     public String getParentId() {
         return parentId;
+    }
+
+    public String getPath() {
+        return path;
     }
 
     @Override
@@ -40,13 +48,13 @@ public class ScriptModified extends NodeEvent {
     public boolean equals(Object obj) {
         if (obj instanceof ScriptModified) {
             ScriptModified other = (ScriptModified) obj;
-            return id.equals(other.id) && Objects.equals(parentId, other.parentId);
+            return id.equals(other.id) && Objects.equals(parentId, other.parentId) && path.equals(other.path);
         }
         return false;
     }
 
     @Override
     public String toString() {
-        return "ScriptModified(id=" + id + ", parentId=" + parentId + ")";
+        return "ScriptModified(id=" + id + ", parentId=" + parentId + " path=" + path + ")";
     }
 }

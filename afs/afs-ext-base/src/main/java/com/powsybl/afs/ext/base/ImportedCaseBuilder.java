@@ -156,10 +156,12 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
 
         context.getStorage().flush();
 
-        context.getStorage().getEventsBus().pushEvent(new CaseImported(info.getId(),
-                context.getFolderInfo().getId(), file), NodeEventType.CASE_IMPORTED.name());
-
-        return new ImportedCase(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()),
+        ImportedCase ic = new ImportedCase(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()),
                                 importersLoader);
+
+        context.getStorage().getEventsBus().pushEvent(new CaseImported(info.getId(),
+                context.getFolderInfo().getId(), ic.getPath().toString()), NodeEventType.CASE_IMPORTED.name());
+
+        return ic;
     }
 }
