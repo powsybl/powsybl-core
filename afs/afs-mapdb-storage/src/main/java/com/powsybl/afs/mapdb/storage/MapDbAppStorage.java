@@ -705,6 +705,16 @@ public class MapDbAppStorage implements AppStorage {
         }
     }
 
+    private <P extends AbstractPoint, C extends DataChunk<P, C>> void clearTimeSeriesData(String nodeId,
+                                                                                          ConcurrentMap<TimeSeriesChunkKey, C> map) {
+        UUID nodeUuid = checkNodeId(nodeId);
+        Objects.requireNonNull(map);
+        List<TimeSeriesChunkKey> keys = map.keySet().stream()
+                .filter(chunkKey -> chunkKey.getTimeSeriesKey().getNodeUuid().compareTo(nodeUuid) == 0)
+                .collect(Collectors.toList());
+        keys.forEach(key -> map.remove(key));
+    }
+
     @Override
     public Map<String, List<DoubleDataChunk>> getDoubleTimeSeriesData(String nodeId, Set<String> timeSeriesNames, int version) {
         return getTimeSeriesData(nodeId, timeSeriesNames, version, doubleTimeSeriesChunksMap);
@@ -733,6 +743,12 @@ public class MapDbAppStorage implements AppStorage {
             names.forEach(name -> timeSeriesMetadataMap.remove(new NamedLink(nodeUuid, name)));
             timeSeriesNamesMap.remove(nodeUuid);
         }
+        List<TimeSeriesKey> keys = timeSeriesLastChunkMap.keySet().stream()
+                .filter(key -> key.getNodeUuid().compareTo(nodeUuid) == 0)
+                .collect(Collectors.toList());
+        keys.forEach(key -> timeSeriesLastChunkMap.remove(key));
+        clearTimeSeriesData(nodeId, doubleTimeSeriesChunksMap);
+        clearTimeSeriesData(nodeId, stringTimeSeriesChunksMap);
     }
 
     @Override
