@@ -52,12 +52,15 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
         double ratedU1 = end1.asDouble("ratedU");
         double ratedU2 = end2.asDouble("ratedU");
 
-        double rho0 = ratedU2 / ratedU1;
-        double rho0Square = rho0 * rho0;
-        double r0 = r1 * rho0Square + r2;
-        double x0 = x1 * rho0Square + x2;
-        double g0 = g1 / rho0Square + g2;
-        double b0 = b1 / rho0Square + b2;
+        double vNomi = context.network().getVoltageLevel(iidmVoltageLevelId(2)).getNominalV();
+        double rho01 = vNomi / ratedU1;
+        double rh02 = vNomi / ratedU2;
+        double rho01Square = rho01 * rho01;
+        double rh02Square = rh02 * rh02;
+        double r0 = r1 * rho01Square + r2 * rh02Square;
+        double x0 = x1 * rho01Square + x2 * rh02Square;
+        double g0 = g1 / rho01Square + g2 / rh02Square;
+        double b0 = b1 / rho01Square + b2 / rh02Square;
 
         TwoWindingsTransformerAdder adder = substation().newTwoWindingsTransformer()
                 .setR(r0)
