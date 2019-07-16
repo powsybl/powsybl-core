@@ -90,22 +90,6 @@ public class MapDbAppStorage extends AbstractAppStorage {
 
     private final ConcurrentMap<UUID, List<UUID>> backwardDependencyNodesMap;
 
-    private static final String  NODE_CREATED = "NODE_CREATED";
-    private static final String  NODE_REMOVED = "NODE_REMOVED";
-    private static final String  NODE_DESCRIPTION_UPDATED = "NODE_DESCRIPTION_UPDATED";
-    private static final String  NODE_NAME_UPDATED = "NODE_NAME_UPDATED";
-    private static final String  NODE_DATA_UPDATED = "NODE_DATA_UPDATED";
-    private static final String  NODE_DATA_REMOVED = "NODE_DATA_REMOVED";
-    private static final String  NODE_CONSISTENT = "NODE_CONSISTENT";
-    private static final String  PARENT_CHANGED = "PARENT_CHANGED";
-    private static final String  DEPENDENCY_ADDED = "DEPENDENCY_ADDED";
-    private static final String  DEPENDENCY_REMOVED = "DEPENDENCY_REMOVED";
-    private static final String  BACKWARD_DEPENDENCY_ADDED = "BACKWARD_DEPENDENCY_ADDED";
-    private static final String  BACKWARD_DEPENDENCY_REMOVED = "BACKWARD_DEPENDENCY_REMOVED";
-    private static final String  TIME_SERIES_CREATED = "TIME_SERIES_CREATED";
-    private static final String  TIME_SERIES_DATA_UPDATED = "TIME_SERIES_DATA_UPDATED";
-    private static final String  TIME_SERIES_CLEARED = "TIME_SERIES_CLEARED";
-
     protected MapDbAppStorage(String fileSystemName, Supplier<DB> db, EventsBus eventsBus) {
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
         this.db = db.get();
