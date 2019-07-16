@@ -16,13 +16,15 @@ import java.util.Objects;
  */
 public class DependencyAdded extends NodeEvent implements DependencyEvent {
 
+    private static final String DEPENDENCY_ADDED = "DEPENDENCY_ADDED";
+
     @JsonProperty("dependencyName")
     private final String dependencyName;
 
     @JsonCreator
     public DependencyAdded(@JsonProperty("id") String id,
                            @JsonProperty("dependencyName") String dependencyName) {
-        super(id, NodeEventType.DEPENDENCY_ADDED);
+        super(id, DEPENDENCY_ADDED);
         this.dependencyName = Objects.requireNonNull(dependencyName);
     }
 

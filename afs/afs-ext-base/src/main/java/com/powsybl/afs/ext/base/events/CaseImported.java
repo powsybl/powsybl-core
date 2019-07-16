@@ -8,7 +8,6 @@ package com.powsybl.afs.ext.base.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.powsybl.afs.storage.events.NodeEventType;
 
 import java.util.Objects;
 
@@ -17,10 +16,12 @@ import java.util.Objects;
  */
 public class CaseImported extends BusinessEvent {
 
+    private static final String CASE_IMPORTED = "CASE_IMPORTED";
+
     @JsonCreator
     public CaseImported(@JsonProperty("id") String id, @JsonProperty("parentId") String parentId,
                         @JsonProperty("path") String path) {
-        super(id, parentId, path, NodeEventType.CASE_IMPORTED);
+        super(id, parentId, path, CASE_IMPORTED);
     }
 
     @Override

@@ -22,6 +22,11 @@ import java.util.stream.Collectors;
  */
 public class ProjectFile extends ProjectNode {
 
+    private static final String  DEPENDENCY_ADDED = "DEPENDENCY_ADDED";
+    private static final String  DEPENDENCY_REMOVED = "DEPENDENCY_REMOVED";
+    private static final String  BACKWARD_DEPENDENCY_ADDED = "BACKWARD_DEPENDENCY_ADDED";
+    private static final String  BACKWARD_DEPENDENCY_REMOVED = "BACKWARD_DEPENDENCY_REMOVED";
+
     private final WeakListenerList<ProjectFileListener> listeners = new WeakListenerList<>();
 
     private final AppStorageListener l = eventList -> {

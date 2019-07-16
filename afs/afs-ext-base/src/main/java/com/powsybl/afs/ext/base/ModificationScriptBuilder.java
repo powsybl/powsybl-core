@@ -14,7 +14,6 @@ import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.ext.base.events.ScriptModified;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
-import com.powsybl.afs.storage.events.NodeEventType;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -24,6 +23,8 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class ModificationScriptBuilder implements ProjectFileBuilder<ModificationScript> {
+
+    private static final String SCRIPT_MODIFIED = "SCRIPT_MODIFIED";
 
     private final ProjectFileBuildContext context;
 
@@ -88,7 +89,7 @@ public class ModificationScriptBuilder implements ProjectFileBuilder<Modificatio
         ModificationScript modificationScript = new ModificationScript(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));
 
         context.getStorage().getEventsBus().pushEvent(new ScriptModified(info.getId(),
-                context.getFolderInfo().getId(), modificationScript.getPath().toString()), NodeEventType.SCRIPT_MODIFIED.name());
+                context.getFolderInfo().getId(), modificationScript.getPath().toString()), SCRIPT_MODIFIED);
 
         return modificationScript;
     }

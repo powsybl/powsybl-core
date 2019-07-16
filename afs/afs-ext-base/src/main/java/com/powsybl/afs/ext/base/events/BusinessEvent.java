@@ -9,7 +9,6 @@ package com.powsybl.afs.ext.base.events;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.powsybl.afs.storage.events.NodeEvent;
-import com.powsybl.afs.storage.events.NodeEventType;
 /**
  * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
  */
@@ -24,7 +23,7 @@ public class BusinessEvent extends NodeEvent {
 
     @JsonCreator
     public BusinessEvent(@JsonProperty("id") String id, @JsonProperty("parentId") String parentId,
-                         @JsonProperty("path") String path, NodeEventType nodeEventType) {
+                         @JsonProperty("path") String path, String nodeEventType) {
         super(id, nodeEventType);
         this.parentId = parentId;
         this.path = path;

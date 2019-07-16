@@ -10,7 +10,6 @@ import com.powsybl.afs.*;
 import com.powsybl.afs.ext.base.events.VirtualCaseCreated;
 import com.powsybl.afs.storage.NodeGenericMetadata;
 import com.powsybl.afs.storage.NodeInfo;
-import com.powsybl.afs.storage.events.NodeEventType;
 
 import java.util.Objects;
 
@@ -18,6 +17,8 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class VirtualCaseBuilder implements ProjectFileBuilder<VirtualCase> {
+
+    private static final String  VIRTUAL_CASE_CREATED = "VIRTUAL_CASE_CREATED";
 
     private final ProjectFileBuildContext context;
 
@@ -95,7 +96,7 @@ public class VirtualCaseBuilder implements ProjectFileBuilder<VirtualCase> {
         VirtualCase virtualCase = new VirtualCase(new ProjectFileCreationContext(info, context.getStorage(), context.getProject()));
 
         context.getStorage().getEventsBus().pushEvent(new VirtualCaseCreated(info.getId(),
-                context.getFolderInfo().getId(), virtualCase.getPath().toString()), NodeEventType.VIRTUAL_CASE_CREATED.name());
+                context.getFolderInfo().getId(), virtualCase.getPath().toString()), VIRTUAL_CASE_CREATED);
 
         return virtualCase;
     }

@@ -22,9 +22,9 @@ public class NodeEvent {
     protected final String id;
 
     @JsonIgnore
-    protected final NodeEventType type;
+    protected final String type;
 
-    protected NodeEvent(String id, NodeEventType type) {
+    protected NodeEvent(String id, String type) {
         this.id = Objects.requireNonNull(id);
         this.type = Objects.requireNonNull(type);
     }
@@ -33,7 +33,7 @@ public class NodeEvent {
         return id;
     }
 
-    public NodeEventType getType() {
+    public String getType() {
         return type;
     }
 }

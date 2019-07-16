@@ -90,6 +90,22 @@ public class MapDbAppStorage extends AbstractAppStorage {
 
     private final ConcurrentMap<UUID, List<UUID>> backwardDependencyNodesMap;
 
+    private static final String  NODE_CREATED = "NODE_CREATED";
+    private static final String  NODE_REMOVED = "NODE_REMOVED";
+    private static final String  NODE_DESCRIPTION_UPDATED = "NODE_DESCRIPTION_UPDATED";
+    private static final String  NODE_NAME_UPDATED = "NODE_NAME_UPDATED";
+    private static final String  NODE_DATA_UPDATED = "NODE_DATA_UPDATED";
+    private static final String  NODE_DATA_REMOVED = "NODE_DATA_REMOVED";
+    private static final String  NODE_CONSISTENT = "NODE_CONSISTENT";
+    private static final String  PARENT_CHANGED = "PARENT_CHANGED";
+    private static final String  DEPENDENCY_ADDED = "DEPENDENCY_ADDED";
+    private static final String  DEPENDENCY_REMOVED = "DEPENDENCY_REMOVED";
+    private static final String  BACKWARD_DEPENDENCY_ADDED = "BACKWARD_DEPENDENCY_ADDED";
+    private static final String  BACKWARD_DEPENDENCY_REMOVED = "BACKWARD_DEPENDENCY_REMOVED";
+    private static final String  TIME_SERIES_CREATED = "TIME_SERIES_CREATED";
+    private static final String  TIME_SERIES_DATA_UPDATED = "TIME_SERIES_DATA_UPDATED";
+    private static final String  TIME_SERIES_CLEARED = "TIME_SERIES_CLEARED";
+
     protected MapDbAppStorage(String fileSystemName, Supplier<DB> db, EventsBus eventsBus) {
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
         this.db = db.get();
@@ -309,16 +325,14 @@ public class MapDbAppStorage extends AbstractAppStorage {
         NodeInfo nodeInfo = getNodeInfo(nodeId);
         nodeInfo.setDescription(description);
         nodeInfoMap.put(nodeUuid, nodeInfo);
-        pushEvent(new NodeDescriptionUpdated(nodeId, description),
-                String.valueOf(NodeEventType.NODE_DESCRIPTION_UPDATED));
+        pushEvent(new NodeDescriptionUpdated(nodeId, description), NODE_DESCRIPTION_UPDATED);
     }
 
     @Override
     public void setConsistent(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
         nodeConsistencyMap.put(nodeUuid, true);
-        pushEvent(new NodeConsistent(nodeId),
-                String.valueOf(NodeEventType.NODE_CONSISTENT));
+        pushEvent(new NodeConsistent(nodeId), NODE_CONSISTENT);
     }
 
     @Override
@@ -425,7 +439,7 @@ public class MapDbAppStorage extends AbstractAppStorage {
         childNodeMap.put(new NamedLink(newParentNodeUuid, name), nodeUuid);
 
         pushEvent(new ParentChanged(nodeId),
-                String.valueOf(NodeEventType.PARENT_CHANGED));
+                String.valueOf(PARENT_CHANGED));
     }
 
     @Override
@@ -455,8 +469,7 @@ public class MapDbAppStorage extends AbstractAppStorage {
         dependencyNodesMap.put(nodeUuid, new ArrayList<>());
         backwardDependencyNodesMap.put(nodeUuid, new ArrayList<>());
         nodeConsistencyMap.put(nodeUuid, false);
-        pushEvent(new NodeCreated(nodeUuid.toString(), parentNodeId),
-                String.valueOf(NodeEventType.NODE_CREATED));
+        pushEvent(new NodeCreated(nodeUuid.toString(), parentNodeId), NODE_CREATED);
         return nodeInfo;
     }
 
@@ -471,16 +484,14 @@ public class MapDbAppStorage extends AbstractAppStorage {
         });
         nodeInfo.setName(name);
         nodeInfoMap.put(nodeUuid, nodeInfo);
-        pushEvent(new NodeNameUpdated(nodeId, name),
-                String.valueOf(NodeEventType.NODE_NAME_UPDATED));
+        pushEvent(new NodeNameUpdated(nodeId, name), NODE_NAME_UPDATED);
     }
 
     @Override
     public String deleteNode(String nodeId) {
         UUID nodeUuid = checkNodeId(nodeId);
         UUID parentNodeUuid = deleteNode(nodeUuid);
-        pushEvent(new NodeRemoved(nodeId, parentNodeUuid.toString()),
-                String.valueOf(NodeEventType.NODE_REMOVED));
+        pushEvent(new NodeRemoved(nodeId, parentNodeUuid.toString()), NODE_REMOVED);
         return parentNodeUuid.toString();
     }
 
@@ -552,8 +563,7 @@ public class MapDbAppStorage extends AbstractAppStorage {
                 // store the byte array
                 dataMap.put(new NamedLink(nodeUuid, name), toByteArray());
                 addToSet(dataNamesMap, nodeUuid, name);
-                pushEvent(new NodeDataUpdated(nodeId, name),
-                        String.valueOf(NodeEventType.NODE_DATA_UPDATED));
+                pushEvent(new NodeDataUpdated(nodeId, name), NODE_DATA_UPDATED);
             }
         };
     }
@@ -578,8 +588,7 @@ public class MapDbAppStorage extends AbstractAppStorage {
         boolean removed = removeFromSet(dataNamesMap, nodeUuid, name);
         dataMap.remove(new NamedLink(nodeUuid, name));
         if (removed) {
-            pushEvent(new NodeDataRemoved(nodeId, name),
-                    String.valueOf(NodeEventType.NODE_DATA_REMOVED));
+            pushEvent(new NodeDataRemoved(nodeId, name), NODE_DATA_REMOVED);
         }
         return removed;
     }
@@ -595,8 +604,7 @@ public class MapDbAppStorage extends AbstractAppStorage {
         }
         addToSet(timeSeriesNamesMap, nodeUuid, metadata.getName());
         timeSeriesMetadataMap.put(new NamedLink(nodeUuid, metadata.getName()), metadata);
-        pushEvent(new TimeSeriesCreated(nodeId, metadata.getName()),
-                String.valueOf(NodeEventType.TIME_SERIES_CREATED));
+        pushEvent(new TimeSeriesCreated(nodeId, metadata.getName()), TIME_SERIES_CREATED);
     }
 
     @Override
@@ -737,8 +745,7 @@ public class MapDbAppStorage extends AbstractAppStorage {
     @Override
     public void addDoubleTimeSeriesData(String nodeId, int version, String timeSeriesName, List<DoubleDataChunk> chunks) {
         addTimeSeriesData(nodeId, version, timeSeriesName, chunks, doubleTimeSeriesChunksMap);
-        pushEvent(new TimeSeriesDataUpdated(nodeId, timeSeriesName),
-                String.valueOf(NodeEventType.TIME_SERIES_DATA_UPDATED));
+        pushEvent(new TimeSeriesDataUpdated(nodeId, timeSeriesName), TIME_SERIES_DATA_UPDATED);
     }
 
     @Override
@@ -749,8 +756,7 @@ public class MapDbAppStorage extends AbstractAppStorage {
     @Override
     public void addStringTimeSeriesData(String nodeId, int version, String timeSeriesName, List<StringDataChunk> chunks) {
         addTimeSeriesData(nodeId, version, timeSeriesName, chunks, stringTimeSeriesChunksMap);
-        pushEvent(new TimeSeriesDataUpdated(nodeId, timeSeriesName),
-                String.valueOf(NodeEventType.TIME_SERIES_DATA_UPDATED));
+        pushEvent(new TimeSeriesDataUpdated(nodeId, timeSeriesName), TIME_SERIES_DATA_UPDATED);
     }
 
     @Override
@@ -761,8 +767,7 @@ public class MapDbAppStorage extends AbstractAppStorage {
             names.forEach(name -> timeSeriesMetadataMap.remove(new NamedLink(nodeUuid, name)));
             timeSeriesNamesMap.remove(nodeUuid);
         }
-        pushEvent(new TimeSeriesCleared(nodeId),
-                String.valueOf(NodeEventType.TIME_SERIES_CLEARED));
+        pushEvent(new TimeSeriesCleared(nodeId), TIME_SERIES_CLEARED);
     }
 
     @Override
@@ -775,10 +780,8 @@ public class MapDbAppStorage extends AbstractAppStorage {
         addToList(dependencyNodesMap, nodeUuid, new NamedLink(toNodeUuid, name));
         addToList(dependencyNodesByNameMap, new NamedLink(nodeUuid, name), toNodeUuid);
         addToList(backwardDependencyNodesMap, toNodeUuid, nodeUuid);
-        pushEvent(new DependencyAdded(nodeId, name),
-                String.valueOf(NodeEventType.DEPENDENCY_ADDED));
-        pushEvent(new BackwardDependencyAdded(toNodeId, name),
-                String.valueOf(NodeEventType.BACKWARD_DEPENDENCY_ADDED));
+        pushEvent(new DependencyAdded(nodeId, name), DEPENDENCY_ADDED);
+        pushEvent(new BackwardDependencyAdded(toNodeId, name), BACKWARD_DEPENDENCY_ADDED);
     }
 
     @Override
@@ -832,10 +835,8 @@ public class MapDbAppStorage extends AbstractAppStorage {
         removeFromList(dependencyNodesMap, nodeUuid, new NamedLink(toNodeUuid, name));
         removeFromList(dependencyNodesByNameMap, new NamedLink(nodeUuid, name), toNodeUuid);
         removeFromList(backwardDependencyNodesMap, toNodeUuid, nodeUuid);
-        pushEvent(new DependencyRemoved(nodeId, name),
-                String.valueOf(NodeEventType.DEPENDENCY_REMOVED));
-        pushEvent(new BackwardDependencyRemoved(toNodeId, name),
-                String.valueOf(NodeEventType.BACKWARD_DEPENDENCY_REMOVED));
+        pushEvent(new DependencyRemoved(nodeId, name), DEPENDENCY_REMOVED);
+        pushEvent(new BackwardDependencyRemoved(toNodeId, name), BACKWARD_DEPENDENCY_REMOVED);
     }
 
     @Override

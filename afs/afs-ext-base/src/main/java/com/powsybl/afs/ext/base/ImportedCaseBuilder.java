@@ -12,7 +12,6 @@ import com.powsybl.afs.ProjectFileBuilder;
 import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.ext.base.events.CaseImported;
 import com.powsybl.afs.storage.*;
-import com.powsybl.afs.storage.events.NodeEventType;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.commons.datasource.DataSourceUtil;
 import com.powsybl.commons.datasource.MemDataSource;
@@ -42,6 +41,8 @@ import java.util.Properties;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
+
+    private static final String CASE_IMPORTED = "CASE_IMPORTED";
 
     private final ProjectFileBuildContext context;
 
@@ -157,7 +158,7 @@ public class ImportedCaseBuilder implements ProjectFileBuilder<ImportedCase> {
                                 importersLoader);
 
         context.getStorage().getEventsBus().pushEvent(new CaseImported(info.getId(),
-                context.getFolderInfo().getId(), ic.getPath().toString()), NodeEventType.CASE_IMPORTED.name());
+                context.getFolderInfo().getId(), ic.getPath().toString()), CASE_IMPORTED);
 
         return ic;
     }

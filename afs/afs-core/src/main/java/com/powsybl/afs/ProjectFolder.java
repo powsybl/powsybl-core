@@ -32,6 +32,8 @@ public class ProjectFolder extends ProjectNode implements FolderBase<ProjectNode
 
     public static final String PSEUDO_CLASS = "projectFolder";
     public static final int VERSION = 0;
+    private static final String  NODE_CREATED = "NODE_CREATED";
+    private static final String  NODE_REMOVED = "NODE_REMOVED";
 
     private final WeakListenerList<ProjectFolderListener> listeners = new WeakListenerList<>();
 

@@ -12,7 +12,6 @@ import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.storage.events.AppStorageListener;
 import com.powsybl.afs.storage.events.NodeDataUpdated;
 import com.powsybl.afs.storage.events.NodeEvent;
-import com.powsybl.afs.storage.events.NodeEventType;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -24,6 +23,8 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public abstract class AbstractModificationScript extends ProjectFile implements StorableScript {
+
+    private static final String  NODE_DATA_UPDATED = "NODE_DATA_UPDATED";
 
     private final String scriptContentName;
 
@@ -39,7 +40,7 @@ public abstract class AbstractModificationScript extends ProjectFile implements 
 
     private void processEvents(List<NodeEvent> events, String nodeId, List<ScriptListener> listeners) {
         for (NodeEvent event : events) {
-            if (event.getType() == NodeEventType.NODE_DATA_UPDATED) {
+            if (event.getType().equals(NODE_DATA_UPDATED)) {
                 NodeDataUpdated dataUpdated = (NodeDataUpdated) event;
                 if (dataUpdated.getId().equals(nodeId) && scriptContentName.equals(dataUpdated.getDataName())) {
                     for (ScriptListener listener : listeners) {

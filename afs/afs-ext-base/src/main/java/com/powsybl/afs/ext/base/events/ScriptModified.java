@@ -8,7 +8,6 @@ package com.powsybl.afs.ext.base.events;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.powsybl.afs.storage.events.NodeEventType;
 
 import java.util.Objects;
 
@@ -17,9 +16,11 @@ import java.util.Objects;
  */
 public class ScriptModified extends BusinessEvent {
 
+    private static final String SCRIPT_MODIFIED = "SCRIPT_MODIFIED";
+
     @JsonCreator
     public ScriptModified(@JsonProperty("id") String id, @JsonProperty("parentId") String parentId, @JsonProperty("path") String path) {
-        super(id, parentId, path, NodeEventType.SCRIPT_MODIFIED);
+        super(id, parentId, path, SCRIPT_MODIFIED);
     }
 
     @Override

@@ -16,12 +16,14 @@ import java.util.Objects;
  */
 public class NodeRemoved extends NodeEvent {
 
+    private static final String NODE_REMOVED = "NODE_REMOVED";
+
     @JsonProperty("parentId")
     protected final String parentId;
 
     @JsonCreator
     public NodeRemoved(@JsonProperty("id") String id, @JsonProperty("parentId") String parentId) {
-        super(id, NodeEventType.NODE_REMOVED);
+        super(id, NODE_REMOVED);
         this.parentId = Objects.requireNonNull(parentId);
     }
 
