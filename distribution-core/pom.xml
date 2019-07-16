@@ -185,12 +185,6 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-computation-mpi</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-contingency-api</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -222,6 +216,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-converter-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-extensions</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -384,16 +384,6 @@
                 <configuration>
                     <packageName>powsybl</packageName>
                     <javaXmx>8G</javaXmx>
-                    <copyToBin>
-                        <files>
-                            <file>${project.basedir}/../build/bin/slave</file>
-                        </files>
-                    </copyToBin>
-                    <copyToLib>
-                        <files>
-                            <file>${project.basedir}/../build/lib/libmaster.so</file>
-                        </files>
-                    </copyToLib>
                     <copyToEtc>
                         <files>
                             <file>${project.basedir}/../iidm/iidm-xml-converter/src/main/resources/xsd/iidm.xsd</file>

@@ -165,7 +165,10 @@ WHERE {
 	OPTIONAL { ?ConnectivityNode entsoe:ConnectivityNode.toEndIsoCode ?toEndIsoCode }
 }}
 OPTIONAL { GRAPH ?graphTPCN {
-	?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode 
+	?ConnectivityNode
+	    cim:ConnectivityNode.TopologicalNode ?TopologicalNode .
+	?TopologicalNode
+	    cim:TopologicalNode.BaseVoltage ?BaseVoltage
 	OPTIONAL { GRAPH ?graphSVT {
 		?SvVoltageT 
 			a cim:SvVoltage ;

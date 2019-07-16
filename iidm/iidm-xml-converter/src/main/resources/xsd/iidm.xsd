@@ -20,6 +20,7 @@
     <xs:element name="network">
         <xs:complexType>
              <xs:sequence>
+                 <xs:element name="property" type="iidm:Property" minOccurs="0" maxOccurs="unbounded" />
                  <xs:element name="substation" type="iidm:Substation" minOccurs="0" maxOccurs="unbounded"/>
                  <xs:choice minOccurs="0" maxOccurs="unbounded">
                      <xs:element name="line" type="iidm:Line"/>

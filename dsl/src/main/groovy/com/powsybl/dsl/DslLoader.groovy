@@ -34,6 +34,8 @@ class DslLoader {
         def imports = new ImportCustomizer()
         def config = new CompilerConfiguration()
         config.addCompilationCustomizers(astCustomizer, imports)
+
+        ExpressionDslLoader.prepareClosures(binding)
         new GroovyShell(binding, config)
     }
 
