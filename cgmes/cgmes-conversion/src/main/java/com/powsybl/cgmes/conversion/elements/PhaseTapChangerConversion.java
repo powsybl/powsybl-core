@@ -145,8 +145,8 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         Comparator<PropertyBag> byStep = Comparator.comparingInt((PropertyBag p) -> p.asInt("step"));
         table.sort(byStep);
         for (PropertyBag point : table) {
-            double alpha = point.asDouble("angle");
-            double rho = point.asDouble("ratio", 1.0);
+            double alpha = -point.asDouble("angle");
+            double rho = 1 / point.asDouble("ratio", 1.0);
             // When given in PhaseTapChangerTablePoint
             // r, x, g, b of the step are already percentage deviations of nominal values
             int step = point.asInt("step");
