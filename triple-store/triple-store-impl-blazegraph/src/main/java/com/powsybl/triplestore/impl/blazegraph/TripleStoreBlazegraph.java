@@ -70,7 +70,6 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         props.put(Options.BUFFER_MODE, "MemStore");
         props.put(AbstractTripleStore.Options.QUADS_MODE, "true");
         props.put(BigdataSail.Options.TRUTH_MAINTENANCE, "false");
-        props.put(BigdataSail.Options.ISOLATABLE_INDICES, "true");
         // Quiet
         System.getProperties().setProperty("com.bigdata.Banner.quiet", "true");
         System.getProperties().setProperty("com.bigdata.util.config.LogUtil.quiet", "true");
@@ -292,7 +291,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
             RepositoryResult<Resource> contexts = conn.getContextIDs();
             Properties props = setPropertiesForClone();
             BigdataSail sailClone = new BigdataSail(props); // instantiate a new sail, otherwise complains foe already
-                                                            // instantiated
+            // instantiated
             Repository repoClone = new BigdataSailRepository(sailClone);
             try {
                 repoClone.initialize();
@@ -305,20 +304,17 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
                 while (contexts.hasNext()) {
                     Resource context = contexts.next();
                     LOG.info("Writing context {}", context);
-                    RepositoryResult<Statement> statements;
-//                    statements = conn.getStatements(null, null, null, true, context);
-////                    Model model = new LinkedHashModel();
-////                    Iterations.addAll(statements, model);
-////                    copyNamespacesToModel(conn, model);
-//                    Graph model = Iterations.addAll(statements, new GraphImpl());
-//                    connClone.add(model, context);
-                    connClone.add(conn.getStatements(null, null, null, true, context),context);
+                    RepositoryResult<Statement> statements = conn.getStatements(null, null, null, true, context);
+                    Model model = new LinkedHashModel();
+                    Iterations.addAll(statements, model);
+                    copyNamespacesToModel(conn, model);
+                    // Graph model = Iterations.addAll(statements, new GraphImpl());
+                    connClone.add(model, context);
                 }
                 connClone.commit();
-                LOG.info("GETTING SIZE OF CLONE {}",connClone.size());
-                checkClonedRepo(conn, connClone);
+                // checkClonedRepo(conn, connClone);
             } catch (Exception x) {
-                LOG.error("Exception while adding model to connClone. {}", x.getMessage());
+                LOG.error("Exception while adding statements to connClone. {}", x.getMessage());
             } finally {
                 if (connClone != null) {
                     try {

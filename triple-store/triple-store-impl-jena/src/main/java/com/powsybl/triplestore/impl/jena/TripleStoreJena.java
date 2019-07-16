@@ -20,6 +20,7 @@ import java.util.stream.StreamSupport;
 
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
+import org.apache.jena.query.LabelExistsException;
 import org.apache.jena.query.QueryExecution;
 import org.apache.jena.query.QueryExecutionFactory;
 import org.apache.jena.query.QuerySolution;
@@ -168,42 +169,58 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     @Override
     public void duplicate() {
         // TODO elena Clone by statements
-        Dataset datasetClone = DatasetFactory.createMem();
-        Iterator<String> names = dataset.listNames();
-        while (names.hasNext()) {
-            List<Statement> listStatements = new ArrayList<Statement>();
-            String name = names.next();
-            Model modelClone = datasetClone.getNamedModel(name);
-            if (dataset.containsNamedModel(namedModelFromName(name))) {
-                Model m = dataset.getNamedModel(namedModelFromName(name));
-                StmtIterator statements = m.listStatements();
-                while (statements.hasNext()) {
-                    Statement statement = statements.next();
-                    listStatements.add(statement);
+        Dataset datasetClone = null;
+        try {
+            datasetClone = DatasetFactory.createMem();
+            Iterator<String> names = dataset.listNames();
+            while (names.hasNext()) {
+                List<Statement> listStatements = new ArrayList<Statement>();
+                String name = names.next();
+                Model modelClone = datasetClone.getNamedModel(name);
+                if (dataset.containsNamedModel(namedModelFromName(name))) {
+                    Model m = dataset.getNamedModel(namedModelFromName(name));
+                    StmtIterator statements = m.listStatements();
+                    while (statements.hasNext()) {
+                        Statement statement = statements.next();
+                        listStatements.add(statement);
+                    }
+                    modelClone.add(listStatements);
                 }
-                modelClone.add(listStatements);
+            }
+            checkClonedRepo(dataset, datasetClone);
+        } finally {
+            dataset.close();
+            if (datasetClone != null) {
+                datasetClone.close();
             }
         }
-        checkClonedRepo(dataset, datasetClone);
     }
 
     @Override
     public void duplicateRepo() {
         // TODO elena clone by repo
-        Dataset datasetClone = DatasetFactory.createMem();
+        Dataset datasetClone = null;
+        try {
+            datasetClone = DatasetFactory.createMem();
 
-        Iterator<String> k = dataset.listNames();
-        while (k.hasNext()) {
-            String n = k.next();
-            if (dataset.containsNamedModel(namedModelFromName(n))) {
-                Model m = dataset.getNamedModel(namedModelFromName(n));
-                datasetClone.addNamedModel(namedModelFromName(n), m);
-                if (datasetClone.containsNamedModel(namedModelFromName(n))) {
-                    Model mClone = datasetClone.getNamedModel(namedModelFromName(n));
+            Iterator<String> k = dataset.listNames();
+            while (k.hasNext()) {
+                String n = k.next();
+                if (dataset.containsNamedModel(namedModelFromName(n))) {
+                    Model m = dataset.getNamedModel(namedModelFromName(n));
+                    datasetClone.addNamedModel(namedModelFromName(n), m);
+                    if (datasetClone.containsNamedModel(namedModelFromName(n))) {
+                        Model mClone = datasetClone.getNamedModel(namedModelFromName(n));
+                    }
                 }
             }
+            checkClonedRepo(dataset, datasetClone);
+        } finally {
+            dataset.close();
+            if (datasetClone != null) {
+                datasetClone.close();
+            }
         }
-        checkClonedRepo(dataset, datasetClone);
     }
 
     private void checkClonedRepo(Dataset dataset, Dataset datasetClone) {
