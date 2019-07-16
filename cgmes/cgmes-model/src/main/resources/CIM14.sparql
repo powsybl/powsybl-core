@@ -349,7 +349,6 @@ WHERE {
 }}
 }
 
-
 # query: updateCgmesfromIidm
 WITH <{0}> 
 DELETE { ?subject ?predicate ?value }
@@ -369,14 +368,3 @@ WHERE {
 			STRENDS(STR(?predicate), "{2}") )
 }}
 }
-
-
-
-# query: tmp
-WITH <contexts:case1_EQ.xml> 
-DELETE { ?x cim:IdentifiedObject.name ?y }
-INSERT {?x cim:IdentifiedObject.name "{0}" }
-WHERE {	?x cim:IdentifiedObject.name ?y .
-	    FILTER (?y = "{1}")
-}
-

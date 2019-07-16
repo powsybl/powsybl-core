@@ -11,22 +11,20 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.eclipse.rdf4j.IsolationLevels;
 import org.eclipse.rdf4j.common.iteration.Iterations;
+import org.eclipse.rdf4j.model.Graph;
 import org.eclipse.rdf4j.model.IRI;
 import org.eclipse.rdf4j.model.Literal;
 import org.eclipse.rdf4j.model.Model;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Resource;
 import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.impl.GraphImpl;
 import org.eclipse.rdf4j.model.vocabulary.RDF;
 import org.eclipse.rdf4j.query.BindingSet;
 import org.eclipse.rdf4j.query.QueryLanguage;
@@ -38,10 +36,7 @@ import org.eclipse.rdf4j.query.UpdateExecutionException;
 import org.eclipse.rdf4j.query.algebra.evaluation.function.rdfterm.UUID;
 import org.eclipse.rdf4j.repository.Repository;
 import org.eclipse.rdf4j.repository.RepositoryConnection;
-import org.eclipse.rdf4j.repository.RepositoryException;
 import org.eclipse.rdf4j.repository.RepositoryResult;
-import org.eclipse.rdf4j.repository.config.RepositoryConfigException;
-import org.eclipse.rdf4j.repository.manager.RepositoryManager;
 import org.eclipse.rdf4j.repository.sail.SailRepository;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFWriter;
@@ -106,7 +101,7 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
             RepositoryResult<Resource> contexts = conn.getContextIDs();
             while (contexts.hasNext()) {
                 Resource context = contexts.next();
-                LOGGER.info("Writing context {}", context);
+                LOG.info("Writing context {}", context);
 
                 RepositoryResult<Statement> statements;
                 statements = conn.getStatements(null, null, null, context);
@@ -191,21 +186,29 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
             Update updateQuery = connClone.prepareUpdate(QueryLanguage.SPARQL, updateStatement);
             updateQuery.execute();
         } catch (UpdateExecutionException e) {
-            LOGGER.debug(e.toString());
+            LOG.debug(e.toString());
         }
     }
 
     @Override
     public void duplicateRepo() {
         // TODO elena
-        RepositoryConnection conn = repo.getConnection();
-        Repository repoClone = conn.getRepository();
-        RepositoryConnection connClone = repoClone.getConnection();
-        RepositoryResult<Resource> contexts = connClone.getContextIDs();
-        while (contexts.hasNext()) {
-            Resource context = contexts.next();
-            int size = statementsCount(conn, context);
-            LOGGER.info("Statements for {} context: {}", context, size);
+        try (RepositoryConnection conn = repo.getConnection()) {
+            repoClone = new SailRepository(new MemoryStore());
+            repoClone.initialize();
+
+            try (RepositoryConnection connClone = repoClone.getConnection()) {
+                RepositoryResult<Resource> contexts = conn.getContextIDs();
+
+                while (contexts.hasNext()) {
+                    Resource context = contexts.next();
+                    RepositoryResult<Statement> statements = conn.getStatements(null, null, null, context);
+//                    //Model asGraph = QueryResults.asModel(statements);
+                    Graph asGraph = Iterations.addAll(statements, new GraphImpl());
+                    connClone.add(asGraph, context);
+                }
+                checkClonedRepo(conn, connClone);
+            }
         }
     }
 
@@ -216,20 +219,32 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
 
             repoClone = new SailRepository(new MemoryStore());
             repoClone.initialize();
-            RepositoryConnection connClone = repoClone.getConnection();
-            // get existing statements
-            RepositoryResult<Resource> contexts = conn.getContextIDs();
-            while (contexts.hasNext()) {
-                Resource context = contexts.next();
-                LOGGER.info("Statements for {} context", context);
-                RepositoryResult<Statement> statements;
-                statements = conn.getStatements(null, null, null, context);
-                // add statements to the new repository
-                while (statements.hasNext()) {
-                    Statement statement = statements.next();
-                    connClone.add(statement);
+            try (RepositoryConnection connClone = repoClone.getConnection()) {
+                RepositoryResult<Resource> contexts = conn.getContextIDs();
+                while (contexts.hasNext()) {
+                    Resource context = contexts.next();
+                    LOG.info("Statements for {} context", context);
+                    RepositoryResult<Statement> statements;
+                    statements = conn.getStatements(null, null, null, context);
+                    // add statements to the new repository
+                    while (statements.hasNext()) {
+                        Statement statement = statements.next();
+                        connClone.add(statement);
+                    }
                 }
+                checkClonedRepo(conn, connClone);
             }
+        }
+    }
+
+    private void checkClonedRepo(RepositoryConnection conn, RepositoryConnection connClone) {
+        RepositoryResult<Resource> contexts = connClone.getContextIDs();
+        while (contexts.hasNext()) {
+            Resource context = contexts.next();
+            RepositoryResult<Statement> statements = connClone.getStatements(null, null, null, true, context);
+            conn.remove(statements, context);
+            LOG.info("***checkClonedRepo***\n repo Statements for {} is: {}", context, statementsCount(conn, context));
+            LOG.info("repoClone Statements for {} is: {}", context, statementsCount(connClone, context));
         }
     }
 
@@ -316,5 +331,5 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
 
     private final Repository repo;
     private Repository repoClone;
-    private static final Logger LOGGER = LoggerFactory.getLogger(TripleStoreRDF4J.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TripleStoreRDF4J.class);
 }

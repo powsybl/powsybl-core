@@ -7,8 +7,9 @@
 
 package com.powsybl.triplestore.test;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -20,7 +21,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.openrdf.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,8 +76,8 @@ public class TripleStoreTester {
             tripleStores.get(impl).update(queryText);
         }
     }
-    
-    void testPerformanceCloneRepo(){
+
+    void testPerformanceCloneRepo() {
         // TODO elena
         for (String impl : implementations) {
             start = System.currentTimeMillis();

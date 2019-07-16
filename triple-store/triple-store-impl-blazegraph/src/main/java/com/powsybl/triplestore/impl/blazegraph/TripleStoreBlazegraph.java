@@ -16,14 +16,14 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Set;
 
-import org.openrdf.query.Update;
-import org.openrdf.query.UpdateExecutionException;
+import org.openrdf.model.Graph;
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.impl.GraphImpl;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.BindingSet;
@@ -33,6 +33,8 @@ import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.QueryResults;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
+import org.openrdf.query.Update;
+import org.openrdf.query.UpdateExecutionException;
 import org.openrdf.query.algebra.evaluation.function.rdfterm.UUID;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
@@ -56,6 +58,8 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStoreException;
 
+import info.aduna.iteration.Iterations;
+
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
  */
@@ -66,7 +70,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         props.put(Options.BUFFER_MODE, "MemStore");
         props.put(AbstractTripleStore.Options.QUADS_MODE, "true");
         props.put(BigdataSail.Options.TRUTH_MAINTENANCE, "false");
-
+        props.put(BigdataSail.Options.ISOLATABLE_INDICES, "true");
         // Quiet
         System.getProperties().setProperty("com.bigdata.Banner.quiet", "true");
         System.getProperties().setProperty("com.bigdata.util.config.LogUtil.quiet", "true");
@@ -280,33 +284,102 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
 
     @Override
     public void duplicateRepo() {
-        // TODO elena
-        // clone by Repo
+        // TODO elena clone by Repo
+        RepositoryConnection conn = null;
+        RepositoryConnection connClone = null;
+        try {
+            conn = repo.getConnection();
+            RepositoryResult<Resource> contexts = conn.getContextIDs();
+            Properties props = setPropertiesForClone();
+            BigdataSail sailClone = new BigdataSail(props); // instantiate a new sail, otherwise complains foe already
+                                                            // instantiated
+            Repository repoClone = new BigdataSailRepository(sailClone);
+            try {
+                repoClone.initialize();
+            } catch (Exception e) {
+                LOG.error("Clone Repository could not be created {}", e.getMessage());
+            }
+            try {
+                connClone = repoClone.getConnection();
+                connClone.begin();
+                while (contexts.hasNext()) {
+                    Resource context = contexts.next();
+                    LOG.info("Writing context {}", context);
+                    RepositoryResult<Statement> statements;
+//                    statements = conn.getStatements(null, null, null, true, context);
+////                    Model model = new LinkedHashModel();
+////                    Iterations.addAll(statements, model);
+////                    copyNamespacesToModel(conn, model);
+//                    Graph model = Iterations.addAll(statements, new GraphImpl());
+//                    connClone.add(model, context);
+                    connClone.add(conn.getStatements(null, null, null, true, context),context);
+                }
+                connClone.commit();
+                LOG.info("GETTING SIZE OF CLONE {}",connClone.size());
+                checkClonedRepo(conn, connClone);
+            } catch (Exception x) {
+                LOG.error("Exception while adding model to connClone. {}", x.getMessage());
+            } finally {
+                if (connClone != null) {
+                    try {
+                        connClone.close();
+                    } catch (RepositoryException x) {
+                        LOG.error("Exception closing connClone. {}", x.getMessage());
+                    }
+                }
+            }
+        } catch (RepositoryException x) {
+            LOG.error("Exception while duplicating repo. {}", x.getMessage());
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (RepositoryException x) {
+                    LOG.error("Closing repository connection. {}", x.getMessage());
+                }
+            }
+        }
     }
 
     @Override
     public void duplicate() {
-        // TODO elena
-        // clone by statements
+        // TODO elena clone by statements
         RepositoryConnection conn = null;
+        RepositoryConnection connClone = null;
         try {
             conn = repo.getConnection();
-
+            Properties props = setPropertiesForClone();
             BigdataSail sailClone = new BigdataSail(props); // instantiate a sail
-            repoClone = new BigdataSailRepository(sailClone); // create a Sesame repository
-            repoClone.initialize();
-            RepositoryConnection connClone = repoClone.getConnection();
-            // get existing statements
-            RepositoryResult<Resource> contexts = conn.getContextIDs();
-            while (contexts.hasNext()) {
-                Resource context = contexts.next();
-                LOG.info("Statements for {} context", context);
-                RepositoryResult<Statement> statements;
-                statements = conn.getStatements(null, null, null, true, context);
-                // add statements to the new repository
-                while (statements.hasNext()) {
-                    Statement statement = statements.next();
-                    connClone.add(statement);
+            Repository repoClone = new BigdataSailRepository(sailClone); // create a Sesame repository
+            try {
+                repoClone.initialize();
+            } catch (Exception e) {
+                LOG.error("Repository could not be created {}", e.getMessage());
+            }
+
+            try {
+                connClone = repoClone.getConnection();
+                RepositoryResult<Resource> contexts = conn.getContextIDs();
+                while (contexts.hasNext()) {
+                    Resource context = contexts.next();
+                    LOG.info("Statements for {}", context);
+                    RepositoryResult<Statement> statements;
+                    statements = conn.getStatements(null, null, null, true, context);
+                    while (statements.hasNext()) {
+                        Statement statement = statements.next();
+                        connClone.add(statement, context);
+                    }
+                }
+                checkClonedRepo(conn, connClone);
+            } catch (Exception x) {
+                LOG.error("Working with clone repo : {}", x.getMessage());
+            } finally {
+                if (connClone != null) {
+                    try {
+                        connClone.close();
+                    } catch (RepositoryException x) {
+                        LOG.error("Closing repoClone : {}", x.getMessage());
+                    }
                 }
             }
         } catch (RepositoryException x) {
@@ -320,6 +393,34 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
                 }
             }
         }
+    }
+
+    private void checkClonedRepo(RepositoryConnection conn, RepositoryConnection connClone) {
+        try {
+            RepositoryResult<Resource> contexts = connClone.getContextIDs();
+            while (contexts.hasNext()) {
+                Resource context = contexts.next();
+                RepositoryResult<Statement> statements = connClone.getStatements(null, null, null, true, context);
+                conn.remove(statements, context);
+                LOG.info("repo Statements for {} is: {}", context, statementsCount(conn, context));
+                LOG.info("repoClone Statements for {} is: {}", context, statementsCount(connClone, context));
+
+            }
+        } catch (RepositoryException e) {
+            LOG.error("closing when getting context names : {}", e.getMessage());
+        }
+    }
+
+    private Properties setPropertiesForClone() {
+        Properties props = new Properties();
+        props.put(Options.BUFFER_MODE, "MemStore");
+        props.put(AbstractTripleStore.Options.QUADS_MODE, "true");
+        props.put(BigdataSail.Options.TRUTH_MAINTENANCE, "false");
+
+        // Quiet
+        System.getProperties().setProperty("com.bigdata.Banner.quiet", "true");
+        System.getProperties().setProperty("com.bigdata.util.config.LogUtil.quiet", "true");
+        return props;
     }
 
     @Override
@@ -463,8 +564,6 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     }
 
     private final Repository repo;
-
-    private Repository repoClone;
 
     private final Properties props;
 

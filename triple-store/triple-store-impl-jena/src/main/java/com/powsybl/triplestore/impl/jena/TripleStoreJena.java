@@ -167,14 +167,13 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
 
     @Override
     public void duplicate() {
-        // TODO elena
-        // Clone by statements
+        // TODO elena Clone by statements
         Dataset datasetClone = DatasetFactory.createMem();
         Iterator<String> names = dataset.listNames();
         while (names.hasNext()) {
             List<Statement> listStatements = new ArrayList<Statement>();
             String name = names.next();
-            Model modelClone = datasetClone.getNamedModel(name);// creates model if not exist
+            Model modelClone = datasetClone.getNamedModel(name);
             if (dataset.containsNamedModel(namedModelFromName(name))) {
                 Model m = dataset.getNamedModel(namedModelFromName(name));
                 StmtIterator statements = m.listStatements();
@@ -183,15 +182,14 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
                     listStatements.add(statement);
                 }
                 modelClone.add(listStatements);
-                LOGGER.info(name + " model size after adding statements: " + modelClone.size());
             }
         }
+        checkClonedRepo(dataset, datasetClone);
     }
 
     @Override
     public void duplicateRepo() {
-        // TODO elena
-        // clone by repo
+        // TODO elena clone by repo
         Dataset datasetClone = DatasetFactory.createMem();
 
         Iterator<String> k = dataset.listNames();
@@ -202,43 +200,28 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
                 datasetClone.addNamedModel(namedModelFromName(n), m);
                 if (datasetClone.containsNamedModel(namedModelFromName(n))) {
                     Model mClone = datasetClone.getNamedModel(namedModelFromName(n));
-                    LOGGER.info("datasetClone model " + n + " size : " + mClone.size());
                 }
             }
         }
-        // check for datasets independance:
+        checkClonedRepo(dataset, datasetClone);
+    }
+
+    private void checkClonedRepo(Dataset dataset, Dataset datasetClone) {
         Iterator<String> names = datasetClone.listNames();
         while (names.hasNext()) {
             String name = names.next();
             dataset.removeNamedModel(namedModelFromName(name));
             if (dataset.containsNamedModel(namedModelFromName(name))) {
                 Model m = dataset.getNamedModel(name);
-                LOGGER.info("dataset contains  " + name + " size : " + m.size());
+                LOGGER.info("***checkClonedRepo***\n dataset contains  " + name + " size : " + m.size());
             } else if (datasetClone.containsNamedModel(namedModelFromName(name))) {
                 Model m = datasetClone.getNamedModel(name);
-                LOGGER.info("datasetClone contains  " + name + " size : " + m.size() +
+                LOGGER.info("***checkClonedRepo***\n datasetClone contains  " + name + " size : " + m.size() +
                     "\n But dataset does not --> they are independent");
             } else {
                 LOGGER.info("Neither dataset nor datasetClone contains " + name);
             }
         }
-
-//        Iterator<String> names = dataset.listNames();
-//        while (names.hasNext()) {
-//            String name = names.next();
-//            datasetClone.removeNamedModel(namedModelFromName(name));
-//            if(datasetClone.containsNamedModel(namedModelFromName(name))) {
-//                Model m = datasetClone.getNamedModel(name);
-//                LOGGER.info("datasetClone contains  " + name + " size : " + m.size());
-//            } else if (dataset.containsNamedModel(namedModelFromName(name))) {
-//                Model m = dataset.getNamedModel(name);
-//                LOGGER.info("dataset contains  " + name + " size : " + m.size()+
-//                    "\n But datasetClone does not --> they are independent");
-//            } else {
-//                LOGGER.info("Neither dataset nor datasetClone contains "+name);
-//            }
-//        }
-        // end check 2 del
     }
 
     @Override

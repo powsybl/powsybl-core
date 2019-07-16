@@ -1,0 +1,40 @@
+#
+# Copyright (c) 2017, RTE (http://www.rte-france.com)
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+#
+
+# query: tapChangerControls
+prefix cim: <http://iec.ch/TC57/2013/CIM-schema-cim16#>
+SELECT * 
+{ GRAPH ?graph {
+    ?TapChangerControl
+        a cim:TapChangerControl ;
+        cim:RegulatingControl.targetValue ?targetValue ;
+}}
+
+# query: updateTtapChangerControls
+prefix cim: <http://iec.ch/TC57/2013/CIM-schema-cim16#>
+WITH <contexts:cgmes-rtcs/rtc-SSH.xml> 
+DELETE { ?TapChangerControl cim:RegulatingControl.targetValue ?targetValue .}
+INSERT {?TapChangerControl cim:RegulatingControl.targetValue "1e+000" }
+WHERE {	?TapChangerControl cim:RegulatingControl.targetValue ?targetValue .
+	    FILTER (?targetValue = "0e+000")
+}
+
+# query: selectNationalGrid
+prefix cim: <http://iec.ch/TC57/2013/CIM-schema-cim16#>
+SELECT * {
+GRAPH <contexts:cgmes-national-grid/20190312T2330Z_1D_NG_SV_001.xml>
+	{ ?SvVoltage cim:SvVoltage.v ?value }
+		}
+LIMIT 1
+
+# query: updateNationalGrid
+prefix cim: <http://iec.ch/TC57/2013/CIM-schema-cim16#>
+WITH <contexts:cgmes-national-grid/20190312T2330Z_1D_NG_SV_001.xml> 
+DELETE { ?SvVoltage cim:SvVoltage.v ?value .}
+INSERT {?SvVoltage cim:SvVoltage.v "20.089" }
+WHERE {	?SvVoltage cim:SvVoltage.v ?value .
+	    FILTER (?value = "11.089")
+}
