@@ -143,7 +143,7 @@ public abstract class AbstractConductingEquipmentConversion extends AbstractIden
             : terminals[0].t.topologicalNode();
     }
 
-    String nodeId(int n) {
+    protected String nodeId(int n) {
         return context.nodeBreaker()
             ? terminals[n - 1].t.connectivityNode()
             : terminals[n - 1].t.topologicalNode();
