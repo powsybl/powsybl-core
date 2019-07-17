@@ -53,21 +53,19 @@ public class UcteWriter {
         LOGGER.trace("Writing node block");
         writer.writeString("##N", 0, 3);
         writer.newLine();
-        Map<UcteCountryCode, List<UcteNode>> nodesByCountry = new EnumMap<>(UcteCountryCode.class);
+        Map<UcteCountryCode, TreeSet<UcteNode>> nodesByCountry = new EnumMap<>(UcteCountryCode.class);
         for (UcteNode node : network.getNodes()) {
-            List<UcteNode> nodes = nodesByCountry.get(node.getCode().getUcteCountryCode());
+            TreeSet<UcteNode> nodes = nodesByCountry.get(node.getCode().getUcteCountryCode());
             if (nodes == null) {
-                nodes = new ArrayList<>();
+                nodes = new TreeSet<>();
                 nodesByCountry.put(node.getCode().getUcteCountryCode(), nodes);
             }
             nodes.add(node);
         }
 
-        nodesByCountry.forEach((ucteCountryCode, ucteNodes) ->
-                ucteNodes.sort(Comparator.comparing(UcteNode::getCode)));
-        for (Map.Entry<UcteCountryCode, List<UcteNode>> entry : nodesByCountry.entrySet()) {
+        for (Map.Entry<UcteCountryCode, TreeSet<UcteNode>> entry : nodesByCountry.entrySet()) {
             UcteCountryCode countryCode = entry.getKey();
-            List<UcteNode> nodes = entry.getValue();
+            TreeSet<UcteNode> nodes = entry.getValue();
             writer.writeString("##Z" + countryCode, 0, 5);
             writer.newLine();
             for (UcteNode node : nodes) {
@@ -104,22 +102,17 @@ public class UcteWriter {
         LOGGER.trace("Writing line block");
         writer.writeString("##L", 0, 3);
         writer.newLine();
-        List<UcteLine> lines = new ArrayList<>(network.getLines());
-        lines.sort(Comparator.comparing(UcteLine::getId));
+        List<UcteLine> lines = network.getLines().stream().sorted(Comparator.comparing(UcteElement::getId)).collect(Collectors.toList());
         for (UcteLine ucteLine : lines) {
-            writeLine(writer, ucteLine);
+            writeElementId(ucteLine.getId(), writer);
+            writer.writeInteger(ucteLine.getStatus().getCode(), 20);
+            writer.writeFloat(ucteLine.getResistance(), 22, 28);
+            writer.writeFloat(ucteLine.getReactance(), 29, 35);
+            writer.writeFloat((float) (ucteLine.getSusceptance() / Math.pow(10, -6)), 36, 44);
+            writer.writeInteger(ucteLine.getCurrentLimit(), 45, 51);
+            writer.writeString(ucteLine.getElementName(), 52, 64);
+            writer.newLine();
         }
-    }
-
-    private void writeLine(UcteRecordWriter writer, UcteLine ucteLine) throws IOException {
-        writeElementId(ucteLine.getId(), writer);
-        writer.writeInteger(ucteLine.getStatus().getCode(), 20);
-        writer.writeFloat(ucteLine.getResistance(), 22, 28);
-        writer.writeFloat(ucteLine.getReactance(), 29, 35);
-        writer.writeFloat((float) (ucteLine.getSusceptance() / Math.pow(10, -6)), 36, 44);
-        writer.writeInteger(ucteLine.getCurrentLimit(), 45, 51);
-        writer.writeString(ucteLine.getElementName(), 52, 64);
-        writer.newLine();
     }
 
     private void writeTransformerBlock(UcteRecordWriter writer) throws IOException {
@@ -176,7 +169,6 @@ public class UcteWriter {
         writePhaseRegulation(ucteRegulation.getPhaseRegulation(), writer);
         writeAngleRegulation(ucteRegulation.getAngleRegulation(), writer);
         writer.newLine();
-
     }
 
     public void write(BufferedWriter bw) throws IOException {

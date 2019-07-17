@@ -65,9 +65,7 @@ public class UcteElementId implements Comparable<UcteElementId> {
     public boolean equals(Object obj) {
         if (obj instanceof UcteElementId) {
             UcteElementId id = (UcteElementId) obj;
-            return id.nodeCode1.equals(nodeCode1)
-                    && id.nodeCode2.equals(nodeCode2)
-                    && id.orderCode == orderCode;
+            return this.compareTo(id) == 0;
         }
         return false;
     }
@@ -80,7 +78,7 @@ public class UcteElementId implements Comparable<UcteElementId> {
     @Override
     public int compareTo(UcteElementId ucteElementId) {
         if (ucteElementId == null) {
-            throw new IllegalArgumentException("ucteElementId should not be null");
+            throw new NullPointerException("ucteElementId should not be null");
         }
         return this.toString().compareTo(ucteElementId.toString());
     }

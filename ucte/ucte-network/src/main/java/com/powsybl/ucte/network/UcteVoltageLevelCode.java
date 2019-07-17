@@ -6,11 +6,13 @@
  */
 package com.powsybl.ucte.network;
 
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
-import java.util.Objects;
-import java.util.Properties;
+import java.util.*;
 
 /**
  *
@@ -68,74 +70,83 @@ public enum UcteVoltageLevelCode {
     VL_500(500);
 
     private final int voltageLevel;
+    private static final Supplier<Map<String, Double>> SUPPLIER =
+            Suppliers.memoize(UcteVoltageLevelCode::initializeBoundaries);
 
     UcteVoltageLevelCode(int voltageLevel) {
         this.voltageLevel = voltageLevel;
     }
 
     public static UcteVoltageLevelCode voltageLevelCodeFromChar(char code) {
-        if (code == '0') {
-            return UcteVoltageLevelCode.VL_750;
-        } else if (code == '1') {
-            return UcteVoltageLevelCode.VL_380;
-        } else if (code == '2') {
-            return UcteVoltageLevelCode.VL_220;
-        } else if (code == '3') {
-            return UcteVoltageLevelCode.VL_150;
-        } else if (code == '4') {
-            return UcteVoltageLevelCode.VL_120;
-        } else if (code == '5') {
-            return UcteVoltageLevelCode.VL_110;
-        } else if (code == '6') {
-            return UcteVoltageLevelCode.VL_70;
-        } else if (code == '7') {
-            return UcteVoltageLevelCode.VL_27;
-        } else if (code == '8') {
-            return UcteVoltageLevelCode.VL_330;
-        } else if (code == '9') {
-            return UcteVoltageLevelCode.VL_500;
-        } else {
+        if (code < '0' || code > '9') {
             throw new IllegalArgumentException("'" + code + "' doesn't refer to a voltage level");
         }
+        return UcteVoltageLevelCode.values()[code - '0'];
     }
 
     public static UcteVoltageLevelCode voltageLevelCodeFromIidmVoltage(double nominalV) {
-        Properties prop = new Properties();
-        try {
-            ClassLoader classLoader = ClassLoader.getSystemClassLoader();
-            InputStream inputStream = Objects.requireNonNull(classLoader.getResource("voltageConversion.properties")).openStream();
-            prop.load(inputStream);
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
-
-        if (nominalV >= Double.valueOf(prop.getProperty("VL27.min")) && nominalV <= Double.valueOf(prop.getProperty("VL27.max"))) {
+        Map<String, Double> voltageLevelCodeBoundary = UcteVoltageLevelCode.SUPPLIER.get();
+        if (nominalV >= voltageLevelCodeBoundary.get("VL27.min") && nominalV <= voltageLevelCodeBoundary.get("VL27.max")) {
             return UcteVoltageLevelCode.VL_27;
-        } else if (nominalV > Double.valueOf(prop.getProperty("VL70.min")) && nominalV <= Double.valueOf(prop.getProperty("VL70.max"))) {
+        } else if (nominalV > voltageLevelCodeBoundary.get("VL70.min") && nominalV <= voltageLevelCodeBoundary.get("VL70.max")) {
             return UcteVoltageLevelCode.VL_70;
-        } else if (nominalV > Double.valueOf(prop.getProperty("VL110.min")) && nominalV <= Double.valueOf(prop.getProperty("VL110.max"))) {
+        } else if (nominalV > voltageLevelCodeBoundary.get("VL110.min") && nominalV <= voltageLevelCodeBoundary.get("VL110.max")) {
             return UcteVoltageLevelCode.VL_110;
-        } else if (nominalV > Double.valueOf(prop.getProperty("VL120.min")) && nominalV <= Double.valueOf(prop.getProperty("VL120.max"))) {
+        } else if (nominalV > voltageLevelCodeBoundary.get("VL120.min") && nominalV <= voltageLevelCodeBoundary.get("VL120.max")) {
             return UcteVoltageLevelCode.VL_120;
-        } else if (nominalV > Double.valueOf(prop.getProperty("VL150.min")) && nominalV <= Double.valueOf(prop.getProperty("VL150.max"))) {
+        } else if (nominalV > voltageLevelCodeBoundary.get("VL150.min") && nominalV <= voltageLevelCodeBoundary.get("VL150.max")) {
             return UcteVoltageLevelCode.VL_150;
-        } else if (nominalV > Double.valueOf(prop.getProperty("VL220.min")) && nominalV <= Double.valueOf(prop.getProperty("VL220.max"))) {
+        } else if (nominalV > voltageLevelCodeBoundary.get("VL220.min") && nominalV <= voltageLevelCodeBoundary.get("VL220.max")) {
             return UcteVoltageLevelCode.VL_220;
-        } else if (nominalV > Double.valueOf(prop.getProperty("VL330.min")) && nominalV <= Double.valueOf(prop.getProperty("VL330.max"))) {
+        } else if (nominalV > voltageLevelCodeBoundary.get("VL330.min") && nominalV <= voltageLevelCodeBoundary.get("VL330.max")) {
             return UcteVoltageLevelCode.VL_330;
-        } else if (nominalV > Double.valueOf(prop.getProperty("VL380.min")) && nominalV <= Double.valueOf(prop.getProperty("VL380.max"))) {
+        } else if (nominalV > voltageLevelCodeBoundary.get("VL380.min") && nominalV <= voltageLevelCodeBoundary.get("VL380.max")) {
             return UcteVoltageLevelCode.VL_380;
-        } else if (nominalV > Double.valueOf(prop.getProperty("VL500.min")) && nominalV <= Double.valueOf(prop.getProperty("VL500.max"))) {
+        } else if (nominalV > voltageLevelCodeBoundary.get("VL500.min") && nominalV <= voltageLevelCodeBoundary.get("VL500.max")) {
             return UcteVoltageLevelCode.VL_500;
-        } else if (nominalV > Double.valueOf(prop.getProperty("VL750.min")) && nominalV <= Double.valueOf(prop.getProperty("VL750.max"))) {
+        } else if (nominalV > voltageLevelCodeBoundary.get("VL750.min") && nominalV <= voltageLevelCodeBoundary.get("VL750.max")) {
             return UcteVoltageLevelCode.VL_750;
         } else {
             throw new IllegalArgumentException("'" + nominalV + "' doesn't refer to a voltage level");
         }
     }
 
-    public static boolean isVoltageLevel(char character) {
-        return (int) character >= '0' && (int) character <= '9';
+    private static Map<String, Double> initializeBoundaries() {
+        Properties prop = new Properties();
+        try {
+            ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+            InputStream inputStream = Objects.requireNonNull(UcteVoltageLevelCode.class.getClassLoader()
+                    .getResource("voltageConversion.properties")).openStream();
+            prop.load(inputStream);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
+        HashMap<String, Double> boundaries = new HashMap<>();
+        boundaries.put("VL27.min", Double.valueOf(prop.getProperty("VL27.min")));
+        boundaries.put("VL27.max", Double.valueOf(prop.getProperty("VL27.max")));
+        boundaries.put("VL70.min", Double.valueOf(prop.getProperty("VL70.min")));
+        boundaries.put("VL70.max", Double.valueOf(prop.getProperty("VL70.max")));
+        boundaries.put("VL110.min", Double.valueOf(prop.getProperty("VL110.min")));
+        boundaries.put("VL110.max", Double.valueOf(prop.getProperty("VL110.max")));
+        boundaries.put("VL120.min", Double.valueOf(prop.getProperty("VL120.min")));
+        boundaries.put("VL120.max", Double.valueOf(prop.getProperty("VL120.max")));
+        boundaries.put("VL150.min", Double.valueOf(prop.getProperty("VL150.min")));
+        boundaries.put("VL150.max", Double.valueOf(prop.getProperty("VL150.max")));
+        boundaries.put("VL220.min", Double.valueOf(prop.getProperty("VL220.min")));
+        boundaries.put("VL220.max", Double.valueOf(prop.getProperty("VL220.max")));
+        boundaries.put("VL330.min", Double.valueOf(prop.getProperty("VL330.min")));
+        boundaries.put("VL330.max", Double.valueOf(prop.getProperty("VL330.max")));
+        boundaries.put("VL380.min", Double.valueOf(prop.getProperty("VL380.min")));
+        boundaries.put("VL380.max", Double.valueOf(prop.getProperty("VL380.max")));
+        boundaries.put("VL500.min", Double.valueOf(prop.getProperty("VL500.min")));
+        boundaries.put("VL500.max", Double.valueOf(prop.getProperty("VL500.max")));
+        boundaries.put("VL750.min", Double.valueOf(prop.getProperty("VL750.min")));
+        boundaries.put("VL750.max", Double.valueOf(prop.getProperty("VL750.max")));
+        return boundaries;
+    }
+
+    public static boolean isVoltageLevelCode(char character) {
+        return character >= '0' && character <= '9';
     }
 
     /**

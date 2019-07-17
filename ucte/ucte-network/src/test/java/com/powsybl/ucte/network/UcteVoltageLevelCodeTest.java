@@ -39,10 +39,10 @@ public class UcteVoltageLevelCodeTest {
 
     @Test
     public void isVoltageLevelTest() {
-        assertTrue(isVoltageLevel('0'));
-        assertTrue(isVoltageLevel('9'));
-        assertFalse(isVoltageLevel('_'));
-        assertFalse(isVoltageLevel('&'));
+        assertTrue(isVoltageLevelCode('0'));
+        assertTrue(isVoltageLevelCode('9'));
+        assertFalse(isVoltageLevelCode('_'));
+        assertFalse(isVoltageLevelCode('&'));
     }
 
     @Test

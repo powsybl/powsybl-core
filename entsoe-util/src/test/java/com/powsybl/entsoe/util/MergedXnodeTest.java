@@ -20,7 +20,8 @@ public class MergedXnodeTest {
     @Test
     public void test() {
         Line line = Mockito.mock(Line.class);
-        MergedXnode xnode = new MergedXnode(line, 0.5f, 0.5f, 1.0, 2.0, 3.0, 4.0, "XXXXXX11");
+        MergedXnode xnode = new MergedXnode(line, 0.5f, 0.5f, 1.0, 2.0,
+                3.0, 4.0, "", "", "XXXXXX11");
 
         assertEquals("mergedXnode", xnode.getName());
         assertSame(line, xnode.getExtendable());

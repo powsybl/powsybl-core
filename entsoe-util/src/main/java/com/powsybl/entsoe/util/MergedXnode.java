@@ -36,17 +36,6 @@ public class MergedXnode extends AbstractExtension<Line> {
 
     private String code;
 
-    public MergedXnode(Line line, float rdp, float xdp, double xnodeP1, double xnodeQ1, double xnodeP2, double xnodeQ2, String code) {
-        this.line = Objects.requireNonNull(line);
-        this.rdp = checkDividerPosition(rdp);
-        this.xdp = checkDividerPosition(xdp);
-        this.xnodeP1 = checkPowerFlow(xnodeP1);
-        this.xnodeQ1 = checkPowerFlow(xnodeQ1);
-        this.xnodeP2 = checkPowerFlow(xnodeP2);
-        this.xnodeQ2 = checkPowerFlow(xnodeQ2);
-        this.code = Objects.requireNonNull(code);
-    }
-
     public MergedXnode(Line line, float rdp, float xdp, double xnodeP1, double xnodeQ1, double xnodeP2, double xnodeQ2,
                        String line1Name, String line2Name, String code) {
         this.line = Objects.requireNonNull(line);

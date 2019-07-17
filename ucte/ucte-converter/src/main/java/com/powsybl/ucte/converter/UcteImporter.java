@@ -31,7 +31,7 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static com.powsybl.ucte.converter.UcteConstants.*;
+import static com.powsybl.ucte.converter.util.UcteConstants.*;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -735,6 +735,7 @@ public class UcteImporter implements Importer {
 
             addElementNameProperty(ucteTransfo, transformer);
             addTapChangers(ucteNetwork, ucteTransfo, transformer);
+            addNominalPowerProperty(ucteTransfo, transformer);
 
         }
 
@@ -746,7 +747,11 @@ public class UcteImporter implements Importer {
 
     private static DanglingLine getMatchingDanglingLine(DanglingLine dl1, Multimap<String, DanglingLine> danglingLinesByXnodeCode) {
         DanglingLine dl2 = null;
-        String otherXnodeCode = dl1.getExtension(Xnode.class).getCode();
+        Xnode xnodExtension = dl1.getExtension(Xnode.class);
+        if (xnodExtension == null) {
+            throw new UcteException("Dangling line " + dl1.getName() + " doesn't have the Xnode extension");
+        }
+        String otherXnodeCode = xnodExtension.getCode();
         Iterator<DanglingLine> it = danglingLinesByXnodeCode.get(otherXnodeCode).iterator();
         DanglingLine first = it.next();
         if (it.hasNext()) {
@@ -797,19 +802,23 @@ public class UcteImporter implements Importer {
         Optional<UcteNodeCode> optUcteNodeCode1 = UcteNodeCode.parseUcteNodeCode(dl1.getUcteXnodeCode());
         Optional<UcteNodeCode> optUcteNodeCode2 = UcteNodeCode.parseUcteNodeCode(dl2.getUcteXnodeCode());
 
-        if (optUcteNodeCode1.isPresent()) {
+        if (optUcteNodeCode1.isPresent() && optUcteNodeCode2.isPresent()) {
             UcteNode ucteNode = ucteNetwork.getNode(optUcteNodeCode1.get());
             tieLine.getProperties().setProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, ucteNode.getGeographicalName());
-        }
-
-        if (optUcteNodeCode2.isPresent()) {
-            UcteNode ucteNode = ucteNetwork.getNode(optUcteNodeCode2.get());
+            ucteNode = ucteNetwork.getNode(optUcteNodeCode2.get());
             tieLine.getProperties().setProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, ucteNode.getGeographicalName());
+        } else {
+            throw new UcteException(NOT_POSSIBLE_TO_IMPORT);
         }
     }
 
     private static void addOrderCodeProperty(UcteLine ucteLine, Switch sw) {
-        sw.getProperties().setProperty(ORDER_CODE, String.valueOf(ucteLine.getId().toString().charAt(ucteLine.getId().toString().length() - 1)));
+        String ucteLineId = ucteLine.getId().toString();
+        sw.getProperties().setProperty(ORDER_CODE, String.valueOf(ucteLineId.charAt(ucteLineId.length() - 1)));
+    }
+
+    private static void addNominalPowerProperty(UcteTransformer transformer, TwoWindingsTransformer twoWindingsTransformer) {
+        twoWindingsTransformer.getProperties().setProperty(NOMINAL_POWER_KEY, String.valueOf(transformer.getNominalPower()));
     }
 
     @Override

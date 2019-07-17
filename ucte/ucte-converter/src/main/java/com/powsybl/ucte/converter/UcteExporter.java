@@ -7,7 +7,6 @@
 package com.powsybl.ucte.converter;
 
 import com.google.auto.service.AutoService;
-import com.google.common.primitives.Doubles;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.entsoe.util.MergedXnode;
 import com.powsybl.iidm.export.Exporter;
@@ -18,13 +17,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import static com.powsybl.ucte.converter.UcteConstants.*;
-import static com.powsybl.ucte.network.UcteNode.DEFAULT_POWER_LIMIT;
+import static com.powsybl.ucte.converter.util.UcteConstants.*;
+import static com.powsybl.ucte.converter.util.UcteConverterHelper.*;
 import static com.powsybl.ucte.network.UcteNodeCode.isUcteNodeId;
 import static com.powsybl.ucte.network.UcteNodeCode.parseUcteNodeCode;
 import static com.powsybl.ucte.network.UcteVoltageLevelCode.voltageLevelCodeFromIidmVoltage;
@@ -36,15 +33,7 @@ import static com.powsybl.ucte.network.UcteVoltageLevelCode.voltageLevelCodeFrom
 public class UcteExporter implements Exporter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UcteExporter.class);
-    private static final ArrayList POSSIBLE_CHARACTER = new ArrayList(Arrays.asList(
-            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-            '1', '2', '3', '4', '5', '6', '7', '8', '9'));
-    private String generatedGeographicalName = "aaaa";
     private static final String NO_COUNTRY_FOUND = ": No country found";
-
-    Map<String, UcteNodeCode> iidmIdToUcteNodeCodeId = new HashMap<>();
-    Map<String, UcteElementId> iidmIdToUcteElementId = new HashMap<>();
 
     @Override
     public String getFormat() {
@@ -61,7 +50,10 @@ public class UcteExporter implements Exporter {
         if (network == null) {
             throw new IllegalArgumentException("network is null");
         }
-        UcteNetwork ucteNetwork = createUcteNetwork(network);
+        Map<String, UcteNodeCode> iidmIdToUcteNodeCodeId = new HashMap<>();
+        Map<String, UcteElementId> iidmIdToUcteElementId = new HashMap<>();
+
+        UcteNetwork ucteNetwork = createUcteNetwork(network, iidmIdToUcteNodeCodeId, iidmIdToUcteElementId);
 
         try (OutputStream os = dataSource.newOutputStream("", "uct", false);
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8))) {
@@ -73,25 +65,29 @@ public class UcteExporter implements Exporter {
 
     /**
      * @param network the model
+     * @param iidmIdToUcteNodeCodeId the mapping between the iidm ids and the UcteNodeCode ids
+     * @param iidmIdToUcteElementId the mapping between the iidm ids and the UcteElement ids
      * @return the UcteNetwork corresponding to the iidm network
      */
-    private UcteNetwork createUcteNetwork(Network network) {
-        UcteNetwork ucteNetwork = new UcteNetworkImpl();
-        ucteNetwork.setVersion(UcteFormatVersion.SECOND);
-        network.getSubstationStream().forEach(substation ->
-                substation.getVoltageLevelStream().forEach(voltageLevel -> {
-                    convertBuses(ucteNetwork, voltageLevel);
-                    convertSwitches(ucteNetwork, voltageLevel);
-                    voltageLevel.getDanglingLineStream().forEach(danglingLine -> convertDanglingLine(ucteNetwork, danglingLine));
-                })
-        );
-        convertLines(ucteNetwork, network);
-        convertTwoWindingsTransformers(network, ucteNetwork);
+    private UcteNetwork createUcteNetwork(Network network, Map<String, UcteNodeCode> iidmIdToUcteNodeCodeId,
+                                          Map<String, UcteElementId> iidmIdToUcteElementId) {
         if (network.getHvdcConverterStationCount() > 0 || network.getShuntCompensatorCount() > 0
                 || network.getStaticVarCompensatorCount() > 0 || network.getBatteryCount() > 0
                 || network.getHvdcLineCount() > 0 || network.getVscConverterStationCount() > 0) {
             throw new UcteException("This network contains unknown equipments");
         }
+        UcteNetwork ucteNetwork = new UcteNetworkImpl();
+        ucteNetwork.setVersion(UcteFormatVersion.SECOND);
+        network.getSubstationStream().forEach(substation ->
+                substation.getVoltageLevelStream().forEach(voltageLevel -> {
+                    convertBuses(ucteNetwork, voltageLevel, iidmIdToUcteNodeCodeId);
+                    convertSwitches(ucteNetwork, voltageLevel, iidmIdToUcteNodeCodeId, iidmIdToUcteElementId);
+                    voltageLevel.getDanglingLineStream().forEach(danglingLine ->
+                            convertDanglingLine(ucteNetwork, danglingLine));
+                })
+        );
+        convertLines(ucteNetwork, network, iidmIdToUcteNodeCodeId, iidmIdToUcteElementId);
+        convertTwoWindingsTransformers(network, ucteNetwork, iidmIdToUcteNodeCodeId, iidmIdToUcteElementId);
         return ucteNetwork;
     }
 
@@ -100,13 +96,14 @@ public class UcteExporter implements Exporter {
      *
      * @param ucteNetwork the target network in ucte
      * @param voltageLevel the iidm VoltageLevel containing the buses we want to convert
-     * @see UcteExporter#convertBus(UcteNetwork, Bus)
+     * @param iidmIdToUcteNodeCodeId the mapping between the iidm ids and the UcteNodeCode ids
+     * @see UcteExporter#convertBus(UcteNetwork, Bus, Map)
      */
-    private void convertBuses(UcteNetwork ucteNetwork, VoltageLevel voltageLevel) {
+    private void convertBuses(UcteNetwork ucteNetwork, VoltageLevel voltageLevel, Map<String, UcteNodeCode> iidmIdToUcteNodeCodeId) {
         VoltageLevel.BusBreakerView busBreakerView = voltageLevel.getBusBreakerView();
         busBreakerView.getBusStream().forEach(bus -> {
             LOGGER.trace("Converting bus {}", bus.getId());
-            convertBus(ucteNetwork, bus);
+            convertBus(ucteNetwork, bus, iidmIdToUcteNodeCodeId);
         });
     }
 
@@ -116,39 +113,25 @@ public class UcteExporter implements Exporter {
      *
      * @param ucteNetwork the target network in ucte
      * @param bus the bus to convert to UCTE
+     * @param iidmIdToUcteNodeCodeId the mapping between the iidm ids and the UcteNodeCode ids
      */
-    private void convertBus(UcteNetwork ucteNetwork, Bus bus) {
+    private void convertBus(UcteNetwork ucteNetwork, Bus bus, Map<String, UcteNodeCode> iidmIdToUcteNodeCodeId) {
         VoltageLevel voltageLevel = bus.getVoltageLevel();
         Optional<Country> country = voltageLevel.getSubstation().getCountry();
         if (!country.isPresent()) {
             throw new UcteException("Bus " + bus.getId() + NO_COUNTRY_FOUND);
         }
 
-        Load load = null;
-        Optional<Load> optLoad = bus.getLoadStream().findFirst();
-        if (optLoad.isPresent()) {
-            load = optLoad.get();
-        }
-
-        float p0 = 0;
-        float q0 = 0;
-
-        if (load == null) {
-            p0 = DEFAULT_MAX_CURRENT;
-            q0 = DEFAULT_MAX_CURRENT;
-        } else {
-            Iterable<Load> loads = bus.getLoads();
-            for (Load currentLoad : loads) {
-                p0 += currentLoad.getP0();
-                q0 += currentLoad.getQ0();
-            }
-        }
+        float[] powerArray = sumBusActiveAndReactivePower(bus);
+        float p0 = powerArray[0];
+        float q0 = powerArray[1];
 
         Iterable<Generator> generators = bus.getGenerators();
-        ArrayList<Float> minimumPermissibleActivePowerGenerationList = new ArrayList<>();
-        ArrayList<Float> maximumPermissibleActivePowerGenerationList = new ArrayList<>();
-        ArrayList<Float> minimumPermissibleReactivePowerGenerationList = new ArrayList<>();
-        ArrayList<Float> maximumPermissibleReactivePowerGenerationList = new ArrayList<>();
+        Double currentMinimumPermissibleActivePower = null;
+        Double currentMaximumPermissibleActivePower = null;
+        Double currentMinimumPermissibleReactivePower = null;
+        Double currentMaximumPermissibleReactivePower = null;
+
         float activePowerGeneration = 0;
         float reactivePowerGeneration = 0;
         float voltageReference = Float.NaN;
@@ -156,18 +139,43 @@ public class UcteExporter implements Exporter {
         UcteNodeTypeCode ucteNodeTypeCode = UcteNodeTypeCode.PQ;
 
         if (!generators.iterator().hasNext()) {
-            activePowerGeneration = DEFAULT_MAX_CURRENT;
-            reactivePowerGeneration = DEFAULT_POWER_LIMIT;
+            activePowerGeneration = DEFAULT_MAX_POWER;
+            reactivePowerGeneration = DEFAULT_MAX_POWER;
         }
         for (Generator currentGenerator : generators) {
-            activePowerGeneration += (float) -currentGenerator.getTargetP();
-            reactivePowerGeneration += (float) -currentGenerator.getTargetQ();
-            voltageReference = (float) currentGenerator.getTargetV();
+            if (!Double.isNaN(-currentGenerator.getTargetP())) {
+                activePowerGeneration += (float) -currentGenerator.getTargetP();
+            }
+            if (!Double.isNaN(-currentGenerator.getTargetQ())) {
+                reactivePowerGeneration += (float) -currentGenerator.getTargetQ();
+            }
+            if (!Double.isNaN(currentGenerator.getTargetV())) {
+                voltageReference = (float) currentGenerator.getTargetV();
+            }
 
-            minimumPermissibleActivePowerGenerationList.add((float) -currentGenerator.getMinP());
-            maximumPermissibleActivePowerGenerationList.add((float) -currentGenerator.getMaxP());
-            minimumPermissibleReactivePowerGenerationList.add((float) -currentGenerator.getReactiveLimits().getMinQ(activePowerGeneration));
-            maximumPermissibleReactivePowerGenerationList.add((float) -currentGenerator.getReactiveLimits().getMaxQ(activePowerGeneration));
+            if (currentMinimumPermissibleActivePower == null) {
+                currentMinimumPermissibleActivePower = -currentGenerator.getMinP();
+            } else if (currentMinimumPermissibleActivePower > -currentGenerator.getMinP()) {
+                currentMinimumPermissibleActivePower = -currentGenerator.getMinP();
+            }
+
+            if (currentMaximumPermissibleActivePower == null) {
+                currentMaximumPermissibleActivePower = -currentGenerator.getMaxP();
+            } else if (currentMaximumPermissibleActivePower < -currentGenerator.getMaxP()) {
+                currentMaximumPermissibleActivePower = -currentGenerator.getMaxP();
+            }
+
+            if (currentMinimumPermissibleReactivePower == null) {
+                currentMinimumPermissibleReactivePower = -currentGenerator.getReactiveLimits().getMinQ(activePowerGeneration);
+            } else if (currentMinimumPermissibleReactivePower > -currentGenerator.getReactiveLimits().getMinQ(activePowerGeneration)) {
+                currentMinimumPermissibleReactivePower = -currentGenerator.getReactiveLimits().getMinQ(activePowerGeneration);
+            }
+
+            if (currentMaximumPermissibleReactivePower == null) {
+                currentMaximumPermissibleReactivePower = -currentGenerator.getReactiveLimits().getMaxQ(activePowerGeneration);
+            } else if (currentMaximumPermissibleReactivePower < -currentGenerator.getReactiveLimits().getMaxQ(activePowerGeneration)) {
+                currentMaximumPermissibleReactivePower = -currentGenerator.getReactiveLimits().getMaxQ(activePowerGeneration);
+            }
 
             if (currentGenerator.isVoltageRegulatorOn()
                     && currentGenerator.getRegulatingTerminal().isConnected()) {
@@ -176,34 +184,31 @@ public class UcteExporter implements Exporter {
             uctePowerPlantType = energySourceToUctePowerPlantType(currentGenerator.getEnergySource());
         }
 
-        Float minimumPermissibleActivePowerGeneration = Float.NaN;
-        Float maximumPermissibleActivePowerGeneration = Float.NaN;
-        Float minimumPermissibleReactivePowerGeneration = Float.NaN;
-        Float maximumPermissibleReactivePowerGeneration = Float.NaN;
+        float minimumPermissibleActivePowerGeneration = Float.NaN;
+        float maximumPermissibleActivePowerGeneration = Float.NaN;
+        float minimumPermissibleReactivePowerGeneration = Float.NaN;
+        float maximumPermissibleReactivePowerGeneration = Float.NaN;
 
-        if (!minimumPermissibleActivePowerGenerationList.isEmpty()) {
-            minimumPermissibleActivePowerGeneration = Collections.min(minimumPermissibleActivePowerGenerationList) >= DEFAULT_POWER_LIMIT ?
-                    Float.NaN : Collections.min(minimumPermissibleActivePowerGenerationList);
+        if (currentMinimumPermissibleActivePower != null) {
+            minimumPermissibleActivePowerGeneration = currentMinimumPermissibleActivePower >= DEFAULT_POWER_LIMIT ?
+                    Float.NaN : currentMinimumPermissibleActivePower.floatValue();
         }
-        if (!maximumPermissibleActivePowerGenerationList.isEmpty()) {
-            maximumPermissibleActivePowerGeneration = Collections.max(maximumPermissibleActivePowerGenerationList) <= -DEFAULT_POWER_LIMIT ?
-                    Float.NaN : Collections.max(maximumPermissibleActivePowerGenerationList);
+        if (currentMaximumPermissibleActivePower != null) {
+            maximumPermissibleActivePowerGeneration = currentMaximumPermissibleActivePower <= -DEFAULT_POWER_LIMIT ?
+                    Float.NaN : currentMaximumPermissibleActivePower.floatValue();
         }
-        if (!minimumPermissibleReactivePowerGenerationList.isEmpty()) {
-            minimumPermissibleReactivePowerGeneration = Collections.min(minimumPermissibleReactivePowerGenerationList) >= DEFAULT_POWER_LIMIT ?
-                    Float.NaN : Collections.min(minimumPermissibleReactivePowerGenerationList);
+        if (currentMinimumPermissibleReactivePower != null) {
+            minimumPermissibleReactivePowerGeneration = currentMinimumPermissibleReactivePower >= DEFAULT_POWER_LIMIT ?
+                    Float.NaN : currentMinimumPermissibleReactivePower.floatValue();
         }
-        if (!maximumPermissibleReactivePowerGenerationList.isEmpty()) {
-            maximumPermissibleReactivePowerGeneration = Collections.max(maximumPermissibleReactivePowerGenerationList) <= -DEFAULT_POWER_LIMIT ?
-                    Float.NaN : Collections.min(maximumPermissibleReactivePowerGenerationList);
-        }
-
-        String geographicalName = null;
-        if (bus.getProperties().containsKey(GEOGRAPHICAL_NAME_PROPERTY_KEY)) {
-            geographicalName = bus.getProperties().getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY);
+        if (currentMaximumPermissibleReactivePower != null) {
+            maximumPermissibleReactivePowerGeneration = currentMaximumPermissibleReactivePower <= -DEFAULT_POWER_LIMIT ?
+                    Float.NaN : currentMaximumPermissibleReactivePower.floatValue();
         }
 
-        UcteNodeCode ucteNodeCode = createUcteNodeCode(bus.getId(), voltageLevel, country.get().toString());
+        String geographicalName = bus.getProperties().getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, null);
+
+        UcteNodeCode ucteNodeCode = createUcteNodeCode(bus.getId(), voltageLevel, country.get().toString(), iidmIdToUcteNodeCodeId);
 
         UcteNode ucteNode = new UcteNode(
                 ucteNodeCode,
@@ -234,25 +239,30 @@ public class UcteExporter implements Exporter {
      *
      * @param ucteNetwork the target network in ucte
      * @param network the iidm network containing the buses we want to convert
-     * @see UcteExporter#convertLine(UcteNetwork, Line)
+     * @see UcteExporter#convertLine(UcteNetwork, Line, Map, Map)
+     * @param iidmIdToUcteNodeCodeId the mapping between the iidm ids and the UcteNodeCode ids
+     * @param iidmIdToUcteElementId the mapping between the iidm ids and the UcteElement ids
      */
-    private void convertLines(UcteNetwork ucteNetwork, Network network) {
-        network.getLineStream().forEach(line -> convertLine(ucteNetwork, line));
+    private void convertLines(UcteNetwork ucteNetwork, Network network, Map<String, UcteNodeCode> iidmIdToUcteNodeCodeId, Map<String, UcteElementId> iidmIdToUcteElementId) {
+        network.getLineStream().forEach(line -> convertLine(ucteNetwork, line, iidmIdToUcteNodeCodeId, iidmIdToUcteElementId));
     }
 
     /**
      * Checks if the line is a regular line and if so, get the needed information to create the corresponding {@link UcteLine}
      * and adds it to the {@link UcteNetwork}. Otherwise, if the line is a {@link TieLine} calls another method to convert it
-     * ({@link UcteExporter#convertTieLine(UcteNetwork, Line)})
+     * ({@link UcteExporter#convertTieLine(UcteNetwork, Line, Map, Map)}
      *
      * @param ucteNetwork The target network in ucte
      * @param line The line to convert to {@link UcteLine}
-     * @see UcteExporter#convertTieLine(UcteNetwork, Line)
+     * @param iidmIdToUcteNodeCodeId the mapping between the iidm ids and the UcteNodeCode ids
+     * @param iidmIdToUcteElementId the mapping between the iidm ids and the UcteElement ids
+     * @see UcteExporter#convertTieLine(UcteNetwork, Line, Map, Map)
      */
-    private void convertLine(UcteNetwork ucteNetwork, Line line) {
+    private void convertLine(UcteNetwork ucteNetwork, Line line, Map<String, UcteNodeCode> iidmIdToUcteNodeCodeId,
+                             Map<String, UcteElementId> iidmIdToUcteElementId) {
         if (line.isTieLine()) {
             LOGGER.trace("exporting tie line {}", line.getId());
-            convertTieLine(ucteNetwork, line);
+            convertTieLine(ucteNetwork, line, iidmIdToUcteNodeCodeId, iidmIdToUcteElementId);
             return;
         }
 
@@ -268,16 +278,18 @@ public class UcteExporter implements Exporter {
         UcteNodeCode ucteTerminal1NodeCode = createUcteNodeCode(
                 terminal1.getBusBreakerView().getConnectableBus().getId(),
                 terminal1.getVoltageLevel(),
-                country1.get().toString());
+                country1.get().toString(),
+                iidmIdToUcteNodeCodeId);
 
         UcteNodeCode ucteTerminal2NodeCode = createUcteNodeCode(
                 terminal2.getBusBreakerView().getConnectableBus().getId(),
                 terminal2.getVoltageLevel(),
-                country2.get().toString());
+                country2.get().toString(),
+                iidmIdToUcteNodeCodeId);
 
         String elementName = line.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
 
-        UcteElementId lineId = convertUcteElementId(ucteTerminal1NodeCode, ucteTerminal2NodeCode, line.getId(), terminal1, terminal2);
+        UcteElementId lineId = convertUcteElementId(ucteTerminal1NodeCode, ucteTerminal2NodeCode, line.getId(), terminal1, terminal2, iidmIdToUcteElementId);
         UcteLine ucteLine = new UcteLine(lineId, UcteElementStatus.REAL_ELEMENT_IN_OPERATION,
                 (float) line.getR(), (float) line.getX(), (float) line.getB1() + (float) line.getB2(),
                 (int) line.getCurrentLimits1().getPermanentLimit(), elementName);
@@ -287,7 +299,7 @@ public class UcteExporter implements Exporter {
 
     /**
      * Gets the needed information from the dangling line to create the Xnode ({@link UcteNode} and then calls
-     * {@link UcteExporter#createLineFromDanglingLine(UcteNetwork, DanglingLine)} to create the {@link UcteLine} and to add it to
+     * {@link UcteExporter#createLineFromDanglingLine(UcteNetwork, DanglingLine)}
      * the given ucteNetwork
      *
      * @param ucteNetwork The target network in ucte
@@ -327,12 +339,11 @@ public class UcteExporter implements Exporter {
 
     /**
      * Checks if the dangling line given contains an UCTE-compliant id. If it's the case, it creates the dangling line
-     * and adds it to the ucteNetwork. Otherwise, it calls {@link UcteExporter#createLineFromNonCompliantIdDanglingLine(UcteNetwork, DanglingLine)}
+     * and adds it to the ucteNetwork. Otherwise, it throws an UcteException
      * to do specific handling to convert the dangling line
      *
      * @param ucteNetwork The target network in ucte
      * @param danglingLine The danglingLine to convert to UCTE
-     * @see UcteExporter#createLineFromNonCompliantIdDanglingLine(UcteNetwork, DanglingLine)
      */
     private void createLineFromDanglingLine(UcteNetwork ucteNetwork, DanglingLine danglingLine) {
         if (danglingLine.getId().length() == 19) { // It's probably a ucte id
@@ -350,51 +361,11 @@ public class UcteExporter implements Exporter {
                         elementName);
                 ucteNetwork.addLine(ucteLine);
             } else { // It is not a ucte id
-                createLineFromNonCompliantIdDanglingLine(ucteNetwork, danglingLine);
+                throw new UcteException(NOT_POSSIBLE_TO_EXPORT);
             }
         } else {  // It is not a ucte id
-            createLineFromNonCompliantIdDanglingLine(ucteNetwork, danglingLine);
+            throw new UcteException(NOT_POSSIBLE_TO_EXPORT);
         }
-    }
-
-    void createLineFromNonCompliantIdDanglingLine(UcteNetwork ucteNetwork, DanglingLine danglingLine) {
-        String ucteXnodeCode;
-        if (danglingLine.getUcteXnodeCode() != null) {
-            ucteXnodeCode = danglingLine.getUcteXnodeCode();
-        } else {
-            LOGGER.warn("The dangling line {} will be ignored: no ucteXnodeCode found", danglingLine.getId());
-            return;
-        }
-
-        Optional<Country> country = danglingLine.getTerminal().getBusBreakerView().getConnectableBus().getVoltageLevel().getSubstation().getCountry();
-        if (!country.isPresent()) {
-            throw new UcteException("Dangling line " + danglingLine.getId() + NO_COUNTRY_FOUND);
-        }
-
-        UcteNodeCode ucteNodeCode1 = createUcteNodeCode(ucteXnodeCode,
-                danglingLine.getTerminal().getVoltageLevel(),
-                UcteCountryCode.XX.toString());
-        UcteNodeCode ucteNodeCode2 = createUcteNodeCode(danglingLine.getTerminal().getBusBreakerView().getConnectableBus().getId(),
-                danglingLine.getTerminal().getBusBreakerView().getConnectableBus().getVoltageLevel(),
-                country.get().toString());
-        UcteElementId ucteElementId = generateUcteElementId(danglingLine.getId(), ucteNodeCode1, ucteNodeCode2, null);
-
-        int currentLimit;
-        if (danglingLine.getCurrentLimits() == null) {
-            currentLimit = DEFAULT_MAX_CURRENT;
-            LOGGER.warn("The dangling line {} current limit is undefined, set value to {}", danglingLine.getId(), DEFAULT_MAX_CURRENT);
-        } else {
-            currentLimit = (int) danglingLine.getCurrentLimits().getPermanentLimit();
-        }
-
-        UcteLine ucteLine = new UcteLine(ucteElementId,
-                UcteElementStatus.EQUIVALENT_ELEMENT_IN_OPERATION,
-                (float) danglingLine.getR(),
-                (float) danglingLine.getX(),
-                (float) danglingLine.getB(),
-                currentLimit,
-                null);
-        ucteNetwork.addLine(ucteLine);
     }
 
     /**
@@ -404,10 +375,13 @@ public class UcteExporter implements Exporter {
      *
      * @param ucteNetwork The target UcteNetwork
      * @param voltageLevel The VoltageLevel containing the switches we want to convert.
-     * @see UcteExporter#createUcteNodeCode(String, VoltageLevel, String)
-     * @see UcteExporter#generateUcteElementId(String, UcteNodeCode, UcteNodeCode, Character)
+     * @param iidmIdToUcteNodeCodeId the mapping between the iidm ids and the UcteNodeCode ids
+     * @param iidmIdToUcteElementId the mapping between the iidm ids and the UcteElement ids
+     * @see UcteExporter#createUcteNodeCode(String, VoltageLevel, String, Map)
+     * @see UcteExporter#generateUcteElementId(String, UcteNodeCode, UcteNodeCode, Character, Map)
      */
-    void convertSwitches(UcteNetwork ucteNetwork, VoltageLevel voltageLevel) {
+    void convertSwitches(UcteNetwork ucteNetwork, VoltageLevel voltageLevel,
+                         Map<String, UcteNodeCode> iidmIdToUcteNodeCodeId, Map<String, UcteElementId> iidmIdToUcteElementId) {
         for (Switch sw : voltageLevel.getBusBreakerView().getSwitches()) {
             LOGGER.trace("Converting switch {}", sw.getId());
             String orderCodeProperty = sw.getProperties().getProperty(ORDER_CODE, null);
@@ -417,19 +391,21 @@ public class UcteExporter implements Exporter {
             }
             UcteElementStatus switchStatus = sw.isOpen() ? UcteElementStatus.BUSBAR_COUPLER_OUT_OF_OPERATION :
                     UcteElementStatus.BUSBAR_COUPLER_IN_OPERATION;
-            generateUcteLineFromSwitch(ucteNetwork, switchStatus, voltageLevel, sw, orderCode);
+            generateUcteLineFromSwitch(ucteNetwork, switchStatus, voltageLevel, sw, orderCode, iidmIdToUcteNodeCodeId, iidmIdToUcteElementId);
         }
     }
 
-    void generateUcteLineFromSwitch(UcteNetwork ucteNetwork, UcteElementStatus switchStatus, VoltageLevel voltageLevel, Switch sw, Character propertyOrderCode) {
+    void generateUcteLineFromSwitch(UcteNetwork ucteNetwork, UcteElementStatus switchStatus,
+                                    VoltageLevel voltageLevel, Switch sw, Character propertyOrderCode,
+                                    Map<String, UcteNodeCode> iidmIdToUcteNodeCodeId, Map<String, UcteElementId> iidmIdToUcteElementId) {
         Optional<Country> country = voltageLevel.getSubstation().getCountry();
 
         if (country.isPresent()) {
             Bus bus1 = voltageLevel.getBusBreakerView().getBus1(sw.getId());
             Bus bus2 = voltageLevel.getBusBreakerView().getBus2(sw.getId());
-            UcteNodeCode ucteNodeCode1 = createUcteNodeCode(bus1.getId(), voltageLevel, country.get().toString());
-            UcteNodeCode ucteNodeCode2 = createUcteNodeCode(bus2.getId(), voltageLevel, country.get().toString());
-            UcteElementId ucteElementId = generateUcteElementId(sw.getId(), ucteNodeCode1, ucteNodeCode2, propertyOrderCode);
+            UcteNodeCode ucteNodeCode1 = createUcteNodeCode(bus1.getId(), voltageLevel, country.get().toString(), iidmIdToUcteNodeCodeId);
+            UcteNodeCode ucteNodeCode2 = createUcteNodeCode(bus2.getId(), voltageLevel, country.get().toString(), iidmIdToUcteNodeCodeId);
+            UcteElementId ucteElementId = generateUcteElementId(sw.getId(), ucteNodeCode1, ucteNodeCode2, propertyOrderCode, iidmIdToUcteElementId);
             String elementName = sw.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
             UcteLine ucteLine = new UcteLine(ucteElementId, switchStatus, 0, 0, 0, null, elementName);
             setSwitchCurrentLimit(ucteLine, sw);
@@ -439,7 +415,7 @@ public class UcteExporter implements Exporter {
         }
     }
 
-    String xnodeCodeForLine(Line line) {
+    private static String xnodeCodeForLine(Line line) {
         MergedXnode mergedXnode = line.getExtension(MergedXnode.class);
         if (mergedXnode != null) {
             return mergedXnode.getCode();
@@ -453,15 +429,18 @@ public class UcteExporter implements Exporter {
      * Converts the {@link Line} (being a {@link TieLine}) to two {@link UcteLine}
      * and a Xnode ({@link UcteExporter#createXnodeFromTieLine(UcteNetwork, UcteNodeCode, Line)}.
      * Then, adds them in the UcteNetwork.
-     * If the tie line has a non-compliant UCTE id, calls {@link UcteExporter#createTieLineWithGeneratedIds(UcteNetwork, Line)}
+     * If the tie line has a non-compliant UCTE id, calls {@link UcteExporter#createTieLineWithGeneratedIds(UcteNetwork, Line, Map, Map)}
      * to do the specific handling
      *
      * @param ucteNetwork The target UcteNetwork
      * @param line The TieLine we want to convert
+     * @param iidmIdToUcteNodeCodeId the mapping between the iidm ids and the UcteNodeCode ids
+     * @param iidmIdToUcteElementId the mapping between the iidm ids and the UcteElement ids
      * @see UcteExporter#createXnodeFromTieLine(UcteNetwork, UcteNodeCode, Line)
-     * @see UcteExporter#createTieLineWithGeneratedIds(UcteNetwork, Line)
+     * @see UcteExporter#createTieLineWithGeneratedIds(UcteNetwork, Line, Map, Map)
      */
-    private void convertTieLine(UcteNetwork ucteNetwork, Line line) {
+    private void convertTieLine(UcteNetwork ucteNetwork, Line line, Map<String, UcteNodeCode> iidmIdToUcteNodeCodeId,
+                                Map<String, UcteElementId> iidmIdToUcteElementId) {
         if (isUcteTieLineId(line)) {
             MergedXnode mergedXnode = line.getExtension(MergedXnode.class);
             String id1 = mergedXnode.getLine1Name().substring(0, 8); // First node line 1
@@ -508,10 +487,10 @@ public class UcteExporter implements Exporter {
                 ucteNetwork.addLine(ucteLine1);
                 ucteNetwork.addLine(ucteLine2);
             } else {
-                createTieLineWithGeneratedIds(ucteNetwork, line);
+                createTieLineWithGeneratedIds(ucteNetwork, line, iidmIdToUcteNodeCodeId, iidmIdToUcteElementId);
             }
         } else {
-            createTieLineWithGeneratedIds(ucteNetwork, line);
+            createTieLineWithGeneratedIds(ucteNetwork, line, iidmIdToUcteNodeCodeId, iidmIdToUcteElementId);
         }
     }
 
@@ -520,10 +499,13 @@ public class UcteExporter implements Exporter {
      *
      * @param ucteNetwork The target UcteNetwork
      * @param line The Tie line with the non-compliant UCTE id
+     * @param iidmIdToUcteNodeCodeId the mapping between the iidm ids and the UcteNodeCode ids
+     * @param iidmIdToUcteElementId the mapping between the iidm ids and the UcteElement ids
      * @see UcteExporter#createUcteNodeCode
-     * @see UcteExporter#generateUcteElementId(String, UcteNodeCode, UcteNodeCode, Character)
+     * @see UcteExporter#generateUcteElementId(String, UcteNodeCode, UcteNodeCode, Character, Map)
      */
-    void createTieLineWithGeneratedIds(UcteNetwork ucteNetwork, Line line) {
+    private static void createTieLineWithGeneratedIds(UcteNetwork ucteNetwork, Line line,
+                                       Map<String, UcteNodeCode> iidmIdToUcteNodeCodeId, Map<String, UcteElementId> iidmIdToUcteElementId) {
         String xnodeCode = xnodeCodeForLine(line);
         VoltageLevel voltageLevel1 = line.getTerminal1().getVoltageLevel();
         VoltageLevel voltageLevel2 = line.getTerminal2().getVoltageLevel();
@@ -536,16 +518,19 @@ public class UcteExporter implements Exporter {
 
         UcteNodeCode ucteNodeCode1 = createUcteNodeCode(line.getTerminal1().getBusBreakerView().getConnectableBus().getId(),
                 voltageLevel1,
-                country1.get().toString());
+                country1.get().toString(),
+                iidmIdToUcteNodeCodeId);
         UcteNodeCode ucteNodeCode2 = createUcteNodeCode(line.getTerminal2().getBusBreakerView().getConnectableBus().getId(),
                 voltageLevel2,
-                country2.get().toString());
+                country2.get().toString(),
+                iidmIdToUcteNodeCodeId);
         UcteNodeCode ucteNodeCodeXnode = createUcteNodeCode(xnodeCode,
                 voltageLevel1,
-                UcteCountryCode.XX.toString());
+                UcteCountryCode.XX.toString(),
+                iidmIdToUcteNodeCodeId);
         createXnodeFromTieLine(ucteNetwork, ucteNodeCodeXnode, line);
-        UcteElementId ucteElementId1 = generateUcteElementId(line.getId() + "_1", ucteNodeCodeXnode, ucteNodeCode1, null);
-        UcteElementId ucteElementId2 = generateUcteElementId(line.getId() + "_2", ucteNodeCodeXnode, ucteNodeCode2, null);
+        UcteElementId ucteElementId1 = generateUcteElementId(line.getId() + "_1", ucteNodeCodeXnode, ucteNodeCode1, null, iidmIdToUcteElementId);
+        UcteElementId ucteElementId2 = generateUcteElementId(line.getId() + "_2", ucteNodeCodeXnode, ucteNodeCode2, null, iidmIdToUcteElementId);
 
         UcteLine ucteLine1 = new UcteLine(
                 ucteElementId1,
@@ -571,13 +556,13 @@ public class UcteExporter implements Exporter {
     /**
      * Checks if the ucteNodeCode is the NodeCode corresponding to a Xnode. If so, create the Xnode and adds it to the ucteNetwork
      * We only want to add the xnodes here since the other "regular" nodes are already created and put in the network with the
-     * {@link UcteExporter#convertBus(UcteNetwork, Bus)}.
+     * {@link UcteExporter#convertBus(UcteNetwork, Bus, Map)}.
      *
      * @param ucteNetwork The target UcteNetwork
      * @param ucteNodeCode the UcteNodeCode needed to create a UcteNode
      * @param line The tie line related to the Xnode
      */
-    private void createXnodeFromTieLine(UcteNetwork ucteNetwork, UcteNodeCode ucteNodeCode, Line line) {
+    private static void createXnodeFromTieLine(UcteNetwork ucteNetwork, UcteNodeCode ucteNodeCode, Line line) {
         if (ucteNodeCode.getUcteCountryCode() == UcteCountryCode.XX) {
             String geographicalName = null;
             String xnodeCode = xnodeCodeForLine(line);
@@ -610,14 +595,18 @@ public class UcteExporter implements Exporter {
 
     /**
      * Iterates through the {@link TwoWindingsTransformer}s and call the method to convert them
-     * ({@link UcteExporter#convertTwoWindingsTransformer(UcteNetwork, TwoWindingsTransformer)})
+     * ({@link UcteExporter#convertTwoWindingsTransformer(UcteNetwork, TwoWindingsTransformer, Map, Map)}
      *
      * @param network the iidm Network containing the TwoWindingsTransformers we want to convert
      * @param ucteNetwork The target UcteNetwork
+     * @param iidmIdToUcteNodeCodeId the mapping between the iidm ids and the UcteNodeCode ids
+     * @param iidmIdToUcteElementId the mapping between the iidm ids and the UcteElement ids
      */
-    private void convertTwoWindingsTransformers(Network network, UcteNetwork ucteNetwork) {
+    private void convertTwoWindingsTransformers(Network network, UcteNetwork ucteNetwork,
+                                                Map<String, UcteNodeCode> iidmIdToUcteNodeCodeId, Map<String, UcteElementId> iidmIdToUcteElementId) {
         network.getTwoWindingsTransformerStream()
-                .forEach(twoWindingsTransformer -> convertTwoWindingsTransformer(ucteNetwork, twoWindingsTransformer));
+                .forEach(twoWindingsTransformer -> convertTwoWindingsTransformer(ucteNetwork, twoWindingsTransformer,
+                        iidmIdToUcteNodeCodeId, iidmIdToUcteElementId));
     }
 
     /**
@@ -626,9 +615,12 @@ public class UcteExporter implements Exporter {
      *
      * @param ucteNetwork The target UcteNetwork
      * @param twoWindingsTransformer The two windings transformer we want to convert
+     * @param iidmIdToUcteNodeCodeId the mapping between the iidm ids and the UcteNodeCode ids
+     * @param iidmIdToUcteElementId the mapping between the iidm ids and the UcteElement ids
      * @see UcteExporter#convertRegulation(UcteNetwork, UcteElementId, TwoWindingsTransformer)
      */
-    private void convertTwoWindingsTransformer(UcteNetwork ucteNetwork, TwoWindingsTransformer twoWindingsTransformer) {
+    private void convertTwoWindingsTransformer(UcteNetwork ucteNetwork, TwoWindingsTransformer twoWindingsTransformer,
+                                               Map<String, UcteNodeCode> iidmIdToUcteNodeCodeId, Map<String, UcteElementId> iidmIdToUcteElementId) {
         Terminal terminal1 = twoWindingsTransformer.getTerminal1();
         Terminal terminal2 = twoWindingsTransformer.getTerminal2();
 
@@ -642,17 +634,21 @@ public class UcteExporter implements Exporter {
         UcteNodeCode ucteNodeCode1 = createUcteNodeCode(
                 terminal1.getBusBreakerView().getConnectableBus().getId(),
                 terminal1.getVoltageLevel(),
-                country1.get().toString()
+                country1.get().toString(),
+                iidmIdToUcteNodeCodeId
         );
 
         UcteNodeCode ucteNodeCode2 = createUcteNodeCode(
                 terminal2.getBusBreakerView().getConnectableBus().getId(),
                 terminal2.getVoltageLevel(),
-                country2.get().toString()
+                country2.get().toString(),
+                iidmIdToUcteNodeCodeId
         );
 
-        UcteElementId ucteElementId = convertUcteElementId(ucteNodeCode2, ucteNodeCode1, twoWindingsTransformer.getId(), terminal1, terminal2);
+        UcteElementId ucteElementId = convertUcteElementId(ucteNodeCode2, ucteNodeCode1, twoWindingsTransformer.getId(),
+                terminal1, terminal2, iidmIdToUcteElementId);
         String elementName = twoWindingsTransformer.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
+        Float nominalPower = Float.valueOf(twoWindingsTransformer.getProperties().getProperty(NOMINAL_POWER_KEY, null));
         UcteTransformer ucteTransformer = new UcteTransformer(
                 ucteElementId,
                 UcteElementStatus.fromCode(1),
@@ -663,7 +659,7 @@ public class UcteExporter implements Exporter {
                 elementName,
                 (float) twoWindingsTransformer.getRatedU2(),
                 (float) twoWindingsTransformer.getRatedU1(),
-                100,        //TODO Find a representation for the nominal power
+                nominalPower,
                 (float) twoWindingsTransformer.getG());
         convertRegulation(ucteNetwork, ucteElementId, twoWindingsTransformer);
         ucteNetwork.addTransformer(ucteTransformer);
@@ -699,9 +695,9 @@ public class UcteExporter implements Exporter {
      *
      * @param twoWindingsTransformer The TwoWindingsTransformers containing the RatioTapChanger we want to convert
      * @return the UctePhaseRegulation needed to create a {@link UcteRegulation}
-     * @see UcteExporter#calculatePhaseDu(TwoWindingsTransformer)
+     * @see com.powsybl.ucte.converter.util.UcteConverterHelper#calculatePhaseDu(TwoWindingsTransformer)
      */
-    private UctePhaseRegulation convertRatioTapChanger(TwoWindingsTransformer twoWindingsTransformer) {
+    private static UctePhaseRegulation convertRatioTapChanger(TwoWindingsTransformer twoWindingsTransformer) {
         LOGGER.trace("Converting iidm ratio tap changer of transformer {}", twoWindingsTransformer.getId());
 
         float du = (float) calculatePhaseDu(twoWindingsTransformer);
@@ -724,7 +720,7 @@ public class UcteExporter implements Exporter {
      * @see UcteAngleRegulation
      * @see UcteExporter#findRegulationType(TwoWindingsTransformer)
      */
-    private UcteAngleRegulation convertPhaseTapChanger(TwoWindingsTransformer twoWindingsTransformer) {
+    private static UcteAngleRegulation convertPhaseTapChanger(TwoWindingsTransformer twoWindingsTransformer) {
         LOGGER.trace("Converting iidm Phase tap changer of transformer {}", twoWindingsTransformer.getId());
         UcteAngleRegulationType ucteAngleRegulationType = findRegulationType(twoWindingsTransformer);
         if (ucteAngleRegulationType == UcteAngleRegulationType.SYMM) {
@@ -745,101 +741,10 @@ public class UcteExporter implements Exporter {
     }
 
     /**
-     * calculate the δu(%) for the phase regulation of the two windings transformer
-     *
-     * @param twoWindingsTransformer The TwoWindingsTransformers containing the RatioTapChanger we want to convert
-     * @return the δu needed to create a {@link UctePhaseRegulation}
-     */
-    double calculatePhaseDu(TwoWindingsTransformer twoWindingsTransformer) {
-        double rhoMax = 0;
-        double rhoMin = 0;
-        int tapCount =  twoWindingsTransformer.getRatioTapChanger().getStepCount();
-        double[] rhoList = new double[tapCount];
-        int j = 0;
-        for (int i = twoWindingsTransformer.getRatioTapChanger().getLowTapPosition();
-             i <= twoWindingsTransformer.getRatioTapChanger().getHighTapPosition(); i++, j++) {
-            rhoList[j] = twoWindingsTransformer.getRatioTapChanger().getStep(i).getRho();
-        }
-        rhoMax = Doubles.max(rhoList);
-        rhoMin = Doubles.min(rhoList);
-        double res = 100 * (1 / rhoMin - 1 / rhoMax) / (tapCount - 1);
-        return BigDecimal.valueOf(res).setScale(4, RoundingMode.HALF_UP).doubleValue();
-    }
-
-    /**
-     * Calculate the δu(%) for the angle regulation of the two windings transformer
-     * This computation only work for an angle regulation with the type symmetrical
-     *
-     * @param twoWindingsTransformer The twoWindingsTransformer containing the PhaseTapChanger we want to convert
-     * @return the δu needed to create a {@link UcteAngleRegulation}
-     */
-    private double calculateSymmAngleDu(TwoWindingsTransformer twoWindingsTransformer) {
-        double alphaMin = 0;
-        double alphaMax = 0;
-        int tabCount = twoWindingsTransformer.getPhaseTapChanger().getStepCount();
-        double[] alphaList = new double[tabCount];
-        int j = 0;
-        for (int i = twoWindingsTransformer.getPhaseTapChanger().getLowTapPosition();
-             i <= twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition(); i++, j++) {
-            alphaList[j] = twoWindingsTransformer.getPhaseTapChanger().getStep(i).getAlpha();
-        }
-        alphaMin = Math.toRadians(Doubles.min(alphaList));
-        alphaMax = Math.toRadians(Doubles.max(alphaList));
-
-        return 100 * (2 * (Math.tan(alphaMax / 2) - Math.tan(alphaMin / 2)) / (tabCount - 1));
-    }
-
-    /**
-     * Calculate the δu(%) for the angle regulation of the two windings transformer
-     * This computation only work for an angle regulation with the type asymmetrical
-     *
-     * @param twoWindingsTransformer The twoWindingsTransformer containing the PhaseTapChanger we want to convert
-     * @return the δu needed to create a {@link UcteAngleRegulation}
-     */
-    private double calculateAsymmAngleDu(TwoWindingsTransformer twoWindingsTransformer) {
-        PhaseTapChanger phaseTapChanger = twoWindingsTransformer.getPhaseTapChanger();
-        int lowTapPosition = phaseTapChanger.getLowTapPosition();
-        int highTapPosition = phaseTapChanger.getHighTapPosition();
-        int tapNumber = phaseTapChanger.getStepCount();
-        double lowPositionAlpha = Math.toRadians(-phaseTapChanger.getStep(lowTapPosition).getAlpha());
-        double lowPositionRho = 1 / phaseTapChanger.getStep(lowTapPosition).getRho();
-        double highPositionAlpha = Math.toRadians(-phaseTapChanger.getStep(highTapPosition).getAlpha());
-        double highPositionRho = 1 / phaseTapChanger.getStep(highTapPosition).getRho();
-        double xa = lowPositionRho * Math.cos(lowPositionAlpha);
-        double ya = lowPositionRho * Math.sin(lowPositionAlpha);
-        double xb = highPositionRho * Math.cos(highPositionAlpha);
-        double yb = highPositionRho * Math.sin(highPositionAlpha);
-        double distance = Math.sqrt(Math.pow(xb - xa, 2) + Math.pow(yb - ya, 2));
-        double du = 100 * distance / (tapNumber - 1);
-        return BigDecimal.valueOf(du).setScale(4, RoundingMode.HALF_UP).doubleValue();
-    }
-
-    /**
-     * Calculate the Θ for the angle regulation of the two windings transformer
-     *
-     * @param twoWindingsTransformer The twoWindingsTransformer containing the PhaseTapChanger we want to convert
-     * @return the Θ needed to create a {@link UcteAngleRegulation}
-     */
-    private double calculateAsymmAngleTheta(TwoWindingsTransformer twoWindingsTransformer) {
-        PhaseTapChanger phaseTapChanger = twoWindingsTransformer.getPhaseTapChanger();
-        int lowTapPosition = phaseTapChanger.getLowTapPosition();
-        int highTapPosition = phaseTapChanger.getHighTapPosition();
-        double lowPositionAlpha = Math.toRadians(-phaseTapChanger.getStep(lowTapPosition).getAlpha());
-        double lowPositionRho = 1 / phaseTapChanger.getStep(lowTapPosition).getRho();
-        double highPositionAlpha = Math.toRadians(-phaseTapChanger.getStep(highTapPosition).getAlpha());
-        double highPositionRho = 1 / phaseTapChanger.getStep(highTapPosition).getRho();
-        double xa = lowPositionRho * Math.cos(lowPositionAlpha);
-        double ya = lowPositionRho * Math.sin(lowPositionAlpha);
-        double xb = highPositionRho * Math.cos(highPositionAlpha);
-        double yb = highPositionRho * Math.sin(highPositionAlpha);
-        return Math.toDegrees(Math.atan((yb - ya) / (xb - xa)));
-    }
-
-    /**
      * @param twoWindingsTransformer The twoWindingsTransformer containing the PhaseTapChanger we want to convert
      * @return P (MW) of the angle regulation for the two windings transformer
      */
-    private float calculateAngleP(TwoWindingsTransformer twoWindingsTransformer) {
+    private static float calculateAngleP(TwoWindingsTransformer twoWindingsTransformer) {
         return (float) twoWindingsTransformer.getPhaseTapChanger().getRegulationValue();
     }
 
@@ -849,7 +754,7 @@ public class UcteExporter implements Exporter {
      * @param twoWindingsTransformer containing the PhaseTapChanger we want to convert
      * @return The type of the UcteAngleRegulation
      */
-    private UcteAngleRegulationType findRegulationType(TwoWindingsTransformer twoWindingsTransformer) {
+    private static UcteAngleRegulationType findRegulationType(TwoWindingsTransformer twoWindingsTransformer) {
         if (isSymm(twoWindingsTransformer)) {
             return UcteAngleRegulationType.SYMM;
         } else {
@@ -857,7 +762,7 @@ public class UcteExporter implements Exporter {
         }
     }
 
-    private boolean isSymm(TwoWindingsTransformer twoWindingsTransformer) {
+    private static boolean isSymm(TwoWindingsTransformer twoWindingsTransformer) {
         for (int i = twoWindingsTransformer.getPhaseTapChanger().getLowTapPosition();
              i < twoWindingsTransformer.getPhaseTapChanger().getHighTapPosition(); i++) {
             if (twoWindingsTransformer.getPhaseTapChanger().getStep(i).getRho() != 1) {
@@ -867,7 +772,7 @@ public class UcteExporter implements Exporter {
         return true;
     }
 
-    public UcteNodeCode createUcteNodeCode(String id, VoltageLevel voltageLevel, String country) {
+    private static UcteNodeCode createUcteNodeCode(String id, VoltageLevel voltageLevel, String country, Map<String, UcteNodeCode> iidmIdToUcteNodeCodeId) {
         UcteNodeCode ucteNodeCode;
         if (iidmIdToUcteNodeCodeId.containsKey(id)) {
             return iidmIdToUcteNodeCodeId.get(id);
@@ -877,7 +782,7 @@ public class UcteExporter implements Exporter {
             iidmIdToUcteNodeCodeId.put(id, optionalUcteNodeCode.get());
             return optionalUcteNodeCode.get();
         } else {
-            convertIidmIdToUcteNodeCode(id, voltageLevel, country);
+            convertIidmIdToUcteNodeCode(id, voltageLevel, country, iidmIdToUcteNodeCodeId);
             ucteNodeCode = iidmIdToUcteNodeCodeId.get(id);
         }
         return ucteNodeCode;
@@ -885,14 +790,15 @@ public class UcteExporter implements Exporter {
 
     /**
      * create a unique UcteNodeCode using the voltage level and the country given and
-     * store it to {@link UcteExporter#iidmIdToUcteNodeCodeId} so we don't need to create it every time
+     * store it to so we don't need to create it every time
      * and ensure  its uniqueness
      *
      * @param id the orignal id of the iidm component we want to convert
      * @param voltageLevel the {@link VoltageLevel} of the component we want to convert
      * @param country the string corresponding to the country where the iidm component is
+     * @param iidmIdToUcteNodeCodeId the mapping between the iidm ids and the UcteNodeCode ids
      */
-    void convertIidmIdToUcteNodeCode(String id, VoltageLevel voltageLevel, String country) {
+    private static void convertIidmIdToUcteNodeCode(String id, VoltageLevel voltageLevel, String country, Map<String, UcteNodeCode> iidmIdToUcteNodeCodeId) {
         UcteNodeCode ucteNodeCode = null;
         String voltageNameOrId = voltageLevel.getName() != null ? voltageLevel.getName() : voltageLevel.getId();
         char busbar = 'a';
@@ -906,42 +812,9 @@ public class UcteExporter implements Exporter {
                 );
             } else {
                 LOGGER.warn("There is more than 26 nodes with the id starting by '{}'", ucteNodeCode);
-                generateUcteNodeCode(id, voltageLevel, country);
-                return;
+                throw new UcteException(NOT_POSSIBLE_TO_EXPORT); //FIXME: handle this case
             }
             busbar++;
-        } while (iidmIdToUcteNodeCodeId.values().contains(ucteNodeCode));
-        iidmIdToUcteNodeCodeId.put(id, ucteNodeCode);
-    }
-
-    /**
-     * create a unique UcteNodeCode using the voltage level and the country given and
-     * store it to {@link UcteExporter#iidmIdToUcteNodeCodeId} so we don't need to create it every time
-     * and ensure  its uniqueness.
-     * UcteNodeCode id = 1 character representing the country + 2 characters for the substation (or "aa" if the substation
-     * doesn't have a name) + 3 character generated from "aaa" to "zzz" + 1 character for the voltage level code and a character
-     * generated from "a" to "z". The goal is to create a ucte compliant id from any iidm component with non ucte compliant ids
-     *
-     * @param id the orignal id of the iidm component we want to convert
-     * @param voltageLevel the {@link VoltageLevel} of the component we want to convert
-     * @param country the string corresponding to the country where the iidm component is
-     */
-    void generateUcteNodeCode(String id, VoltageLevel voltageLevel, String country) {
-        String substationName = null;
-        if (voltageLevel.getSubstation().getName() != null && voltageLevel.getSubstation().getName().length() >= 2) {
-            substationName = voltageLevel.getSubstation().getName().substring(0, 2);
-        } else {
-            substationName = "aa";
-        }
-        UcteNodeCode ucteNodeCode = null;
-        do {
-            generatedGeographicalName = incrementGeneratedGeographicalName(generatedGeographicalName);
-            ucteNodeCode = new UcteNodeCode(
-                    UcteCountryCode.valueOf(country),
-                    substationName + generatedGeographicalName.substring(0, 3),
-                    voltageLevelCodeFromIidmVoltage(voltageLevel.getNominalV()),
-                    generatedGeographicalName.charAt(3)
-            );
         } while (iidmIdToUcteNodeCodeId.values().contains(ucteNodeCode));
         iidmIdToUcteNodeCodeId.put(id, ucteNodeCode);
     }
@@ -950,7 +823,8 @@ public class UcteExporter implements Exporter {
      * create a unique UcteElementId with the given information in parameters
      *
      */
-    UcteElementId convertUcteElementId(UcteNodeCode ucteNodeCode1, UcteNodeCode ucteNodeCode2, String id, Terminal terminal1, Terminal terminal2) {
+    UcteElementId convertUcteElementId(UcteNodeCode ucteNodeCode1, UcteNodeCode ucteNodeCode2, String id, Terminal terminal1,
+                                       Terminal terminal2, Map<String, UcteElementId> iidmIdToUcteElementId) {
         if (isUcteNodeId(terminal1.getBusBreakerView().getConnectableBus().getId()) &&
                 isUcteNodeId(terminal2.getBusBreakerView().getConnectableBus().getId())) {
             return new UcteElementId(
@@ -958,9 +832,27 @@ public class UcteExporter implements Exporter {
                     ucteNodeCode2,
                     id.charAt(18));
         } else {
-            return generateUcteElementId(id, ucteNodeCode1, ucteNodeCode2, null);
+            return generateUcteElementId(id, ucteNodeCode1, ucteNodeCode2, null, iidmIdToUcteElementId);
         }
     }
+
+    private static float[] sumBusActiveAndReactivePower(Bus bus) {
+        Iterable<Load> loads = bus.getLoads();
+        float p0 = 0;
+        float q0 = 0;
+        if (!loads.iterator().hasNext()) {
+            p0 = (float) DEFAULT_MAX_POWER;
+            q0 = (float) DEFAULT_MAX_POWER;
+        } else {
+            for (Load currentLoad : loads) {
+                p0 += (float) currentLoad.getP0();
+                q0 += (float) currentLoad.getQ0();
+            }
+        }
+        return new float[]{p0, q0};
+    }
+
+
 
     /**
      * increment the last character of the id from 'a' to 'z' until the id is unique, and return it
@@ -968,9 +860,11 @@ public class UcteExporter implements Exporter {
      * @param id the id of the original iidm component to convert
      * @param ucteNodeCode1 the ucteNodeCode used to create the UcteElementId
      * @param ucteNodeCode2 the ucteNodeCode used to create the UcteElementId
+     * @param iidmIdToUcteElementId the mapping between the iidm ids and the UcteElement ids
      * @return the generated UcteElementId
      */
-    UcteElementId generateUcteElementId(String id, UcteNodeCode ucteNodeCode1, UcteNodeCode ucteNodeCode2, Character propertyOrderCode) {
+    private static UcteElementId generateUcteElementId(String id, UcteNodeCode ucteNodeCode1, UcteNodeCode ucteNodeCode2,
+                                        Character propertyOrderCode, Map<String, UcteElementId> iidmIdToUcteElementId) {
         if (iidmIdToUcteElementId.containsKey(id)) {
             return iidmIdToUcteElementId.get(id);
         } else {
@@ -987,10 +881,10 @@ public class UcteExporter implements Exporter {
 
             do {
                 if (orderCode <= 'z') {
-                    ucteElementId = new UcteElementId(ucteNodeCode1, ucteNodeCode2, (char) orderCode);
+                    ucteElementId = new UcteElementId(ucteNodeCode1, ucteNodeCode2, orderCode);
                 } else {
                     LOGGER.warn("There is more than 26 element with the id starting by '{}'", ucteElementId);
-                    return null;
+                    throw new UcteException(NOT_POSSIBLE_TO_EXPORT); //FIXME: handle this case
                 }
                 orderCode++;
             } while (iidmIdToUcteElementId.values().contains(ucteElementId));
@@ -1005,10 +899,8 @@ public class UcteExporter implements Exporter {
      * @param line is a tie line ?
      * @return true if the parameter is a tie line
      */
-    boolean isUcteTieLineId(Line line) {
-
+    private static boolean isUcteTieLineId(Line line) {
         MergedXnode mergedXnode = line.getExtension(MergedXnode.class);
-
         return mergedXnode != null
                 && mergedXnode.getLine1Name() != null
                 && mergedXnode.getLine2Name() != null
@@ -1020,7 +912,7 @@ public class UcteExporter implements Exporter {
                 && isUcteNodeId(mergedXnode.getLine2Name().substring(9, 17));
     }
 
-    private void setSwitchCurrentLimit(UcteLine ucteLine, Switch sw) {
+    private static void setSwitchCurrentLimit(UcteLine ucteLine, Switch sw) {
         if (sw.getProperties().containsKey(CURRENT_LIMIT_PROPERTY_KEY)) {
             try {
                 ucteLine.setCurrentLimit(Integer.parseInt(sw.getProperties().getProperty(CURRENT_LIMIT_PROPERTY_KEY)));
@@ -1034,11 +926,11 @@ public class UcteExporter implements Exporter {
         }
     }
 
-    String getGeographicalNameProperty(Line line) {
+    private static String getGeographicalNameProperty(Line line) {
         return line.getProperties().getProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, "");
     }
 
-    UctePowerPlantType energySourceToUctePowerPlantType(EnergySource energySource) {
+    private static UctePowerPlantType energySourceToUctePowerPlantType(EnergySource energySource) {
         switch (energySource) {
             case HYDRO:
                 return UctePowerPlantType.H;
@@ -1053,44 +945,4 @@ public class UcteExporter implements Exporter {
         }
     }
 
-    /**
-     * "increment" the string given in parameter by 1 : "aaaa" gives "aaab", "aaaz" gives "aaaA" etc...
-     * It goes from a -> z -> A -> Z -> 0 -> 9 and it's used to generate a random geographicalName.
-     * @param toIncrement the string to increment
-     * @return a string "incremented" by 1
-     */
-    String incrementGeneratedGeographicalName(String toIncrement) {
-        if (toIncrement.length() < 4) {
-            throw new IllegalArgumentException("The string to increment is not long enough (should be at least 4)");
-        }
-        char charAt3 = toIncrement.charAt(3);
-        char charAt2 = toIncrement.charAt(2);
-        char charAt1 = toIncrement.charAt(1);
-        char charAt0 = toIncrement.charAt(0);
-
-        if (POSSIBLE_CHARACTER.indexOf(charAt3) == POSSIBLE_CHARACTER.size() - 1) {
-            if (POSSIBLE_CHARACTER.indexOf(charAt2) == POSSIBLE_CHARACTER.size() - 1) {
-                if (POSSIBLE_CHARACTER.indexOf(charAt1) == POSSIBLE_CHARACTER.size() - 1) {
-                    if (POSSIBLE_CHARACTER.indexOf(charAt0) == POSSIBLE_CHARACTER.size() - 1) {
-                        return "aaaa";
-                    } else {
-                        charAt3 = (char) POSSIBLE_CHARACTER.get(0);
-                        charAt2 = (char) POSSIBLE_CHARACTER.get(0);
-                        charAt1 = (char) POSSIBLE_CHARACTER.get(0);
-                        charAt0 = (char) POSSIBLE_CHARACTER.get(POSSIBLE_CHARACTER.indexOf(charAt0) + 1);
-                    }
-                } else {
-                    charAt3 = (char) POSSIBLE_CHARACTER.get(0);
-                    charAt2 = (char) POSSIBLE_CHARACTER.get(0);
-                    charAt1 = (char) POSSIBLE_CHARACTER.get(POSSIBLE_CHARACTER.indexOf(charAt1) + 1);
-                }
-            } else {
-                charAt3 = (char) POSSIBLE_CHARACTER.get(0);
-                charAt2 = (char) POSSIBLE_CHARACTER.get(POSSIBLE_CHARACTER.indexOf(charAt2) + 1);
-            }
-        } else {
-            charAt3 = (char) POSSIBLE_CHARACTER.get(POSSIBLE_CHARACTER.indexOf(charAt3) + 1);
-        }
-        return String.format("%s%s%s%s", charAt0, charAt1, charAt2, charAt3);
-    }
 }

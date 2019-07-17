@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import static com.powsybl.ucte.network.UcteCountryCode.isUcteCountryCode;
-import static com.powsybl.ucte.network.UcteVoltageLevelCode.isVoltageLevel;
+import static com.powsybl.ucte.network.UcteVoltageLevelCode.isVoltageLevelCode;
 
 /**
  *
@@ -119,7 +119,7 @@ public class UcteNodeCode implements Comparable<UcteNodeCode> {
         return id != null &&
                 id.length() == 8 &&
                 isUcteCountryCode(id.charAt(0)) &&
-                isVoltageLevel(id.charAt(6));
+                isVoltageLevelCode(id.charAt(6));
     }
 
     @Override

@@ -15,7 +15,7 @@ import java.util.Objects;
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class UcteNode implements UcteRecord {
+public class UcteNode implements UcteRecord, Comparable<UcteNode> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UcteNode.class);
 
@@ -534,4 +534,28 @@ public class UcteNode implements UcteRecord {
         return code.toString();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj instanceof UcteNode) {
+            UcteNode ucteNode = (UcteNode) obj;
+            return this.compareTo(ucteNode) == 0;
+        }
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(code);
+    }
+
+    @Override
+    public int compareTo(UcteNode ucteNode) {
+        if (ucteNode == null) {
+            throw new IllegalArgumentException("ucteNode should not be null");
+        }
+        return this.getCode().toString().compareTo(ucteNode.getCode().toString());
+    }
 }
