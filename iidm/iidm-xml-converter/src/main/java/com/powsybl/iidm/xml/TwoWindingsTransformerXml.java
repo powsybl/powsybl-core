@@ -42,6 +42,12 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
         XmlUtil.writeDouble("b", twt.getB(), context.getWriter());
         XmlUtil.writeDouble("ratedU1", twt.getRatedU1(), context.getWriter());
         XmlUtil.writeDouble("ratedU2", twt.getRatedU2(), context.getWriter());
+        if (twt.getPhaseAngleClock1() != 0) {
+            XmlUtil.writeInt("phaseAngleClock1", twt.getPhaseAngleClock1(), context.getWriter());
+        }
+        if (twt.getPhaseAngleClock2() != 0) {
+            XmlUtil.writeInt("phaseAngleClock2", twt.getPhaseAngleClock2(), context.getWriter());
+        }
         writeNodeOrBus(1, twt.getTerminal1(), context);
         writeNodeOrBus(2, twt.getTerminal2(), context);
         if (context.getOptions().isWithBranchSV()) {
@@ -81,12 +87,16 @@ class TwoWindingsTransformerXml extends AbstractTransformerXml<TwoWindingsTransf
         double b = XmlUtil.readDoubleAttribute(context.getReader(), "b");
         double ratedU1 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU1");
         double ratedU2 = XmlUtil.readDoubleAttribute(context.getReader(), "ratedU2");
+        int phaseAngleClock1 = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "phaseAngleClock1", 0);
+        int phaseAngleClock2 = XmlUtil.readOptionalIntegerAttribute(context.getReader(), "phaseAngleClock2", 0);
         adder.setR(r)
                 .setX(x)
                 .setG(g)
                 .setB(b)
                 .setRatedU1(ratedU1)
-                .setRatedU2(ratedU2);
+                .setRatedU2(ratedU2)
+                .setPhaseAngleClock1(phaseAngleClock1)
+                .setPhaseAngleClock2(phaseAngleClock2);
         readNodeOrBus(adder, context);
         TwoWindingsTransformer twt = adder.add();
         readPQ(1, twt.getTerminal1(), context.getReader());
