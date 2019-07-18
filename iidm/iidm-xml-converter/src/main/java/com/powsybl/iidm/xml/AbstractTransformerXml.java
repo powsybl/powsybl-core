@@ -144,15 +144,14 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         context.getWriter().writeEndElement();
     }
 
-    protected static void readPhaseTapChanger(TwoWindingsTransformer twt, NetworkXmlReaderContext context) throws XMLStreamException {
+    protected static void readPhaseTapChanger(String elementName, PhaseTapChangerAdder adder, Terminal terminal, NetworkXmlReaderContext context) throws XMLStreamException {
         int lowTapPosition = XmlUtil.readIntAttribute(context.getReader(), ATTR_LOW_TAP_POSITION);
         int tapPosition = XmlUtil.readIntAttribute(context.getReader(), ATTR_TAP_POSITION);
         double targetDeadband = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "targetDeadband");
         PhaseTapChanger.RegulationMode regulationMode = PhaseTapChanger.RegulationMode.valueOf(context.getReader().getAttributeValue(null, "regulationMode"));
         double regulationValue = XmlUtil.readOptionalDoubleAttribute(context.getReader(), "regulationValue");
         boolean regulating = XmlUtil.readOptionalBoolAttribute(context.getReader(), ATTR_REGULATING, false);
-        PhaseTapChangerAdder adder = twt.newPhaseTapChanger()
-                .setLowTapPosition(lowTapPosition)
+        adder.setLowTapPosition(lowTapPosition)
                 .setTapPosition(tapPosition)
                 .setTargetDeadband(targetDeadband)
                 .setRegulationMode(regulationMode)
@@ -165,7 +164,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                     String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
                     String side = context.getReader().getAttributeValue(null, "side");
                     context.getEndTasks().add(() ->  {
-                        adder.setRegulationTerminal(TerminalRefXml.readTerminalRef(twt.getTerminal1().getVoltageLevel().getSubstation().getNetwork(), id, side));
+                        adder.setRegulationTerminal(TerminalRefXml.readTerminalRef(terminal.getVoltageLevel().getSubstation().getNetwork(), id, side));
                         adder.add();
                     });
                     hasTerminalRef[0] = true;
@@ -195,5 +194,15 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
         if (!hasTerminalRef[0]) {
             adder.add();
         }
+    }
+
+    protected static void readPhaseTapChanger(TwoWindingsTransformer twt, NetworkXmlReaderContext context)
+        throws XMLStreamException {
+        readPhaseTapChanger("phaseTapChanger", twt.newPhaseTapChanger(), twt.getTerminal1(), context);
+    }
+
+    protected static void readPhaseTapChanger(int leg, ThreeWindingsTransformer.LegBase twl,
+        NetworkXmlReaderContext context) throws XMLStreamException {
+        readPhaseTapChanger("phaseTapChanger" + leg, twl.newPhaseTapChanger(), twl.getTerminal(), context);
     }
 }
