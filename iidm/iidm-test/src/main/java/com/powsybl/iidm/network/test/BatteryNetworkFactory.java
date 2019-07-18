@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.test;
 import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 
+import java.util.Objects;
+
 /**
  * @author Ghiles Abdellah <ghiles.abdellah at rte-france.com>
  */
@@ -21,7 +23,13 @@ public final class BatteryNetworkFactory {
     }
 
     public static Network create() {
-        Network network = NetworkFactory.create("fictitious", "test");
+        return create(NetworkFactory.findDefault());
+    }
+
+    public static Network create(NetworkFactory networkFactory) {
+        Objects.requireNonNull(networkFactory);
+
+        Network network = networkFactory.createNetwork("fictitious", "test");
         network.setCaseDate(DateTime.parse("2017-06-25T17:43:00.000+01:00"));
         network.setForecastDistance(0);
 

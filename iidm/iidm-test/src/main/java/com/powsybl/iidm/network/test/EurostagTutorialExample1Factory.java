@@ -22,7 +22,11 @@ public final class EurostagTutorialExample1Factory {
     }
 
     public static Network create() {
-        Network network = NetworkFactory.create("sim1", "test");
+        return create(NetworkFactory.findDefault());
+    }
+
+    public static Network create(NetworkFactory networkFactory) {
+        Network network = networkFactory.createNetwork("sim1", "test");
         Substation p1 = network.newSubstation()
                 .setId("P1")
                 .setCountry(Country.FR)
@@ -184,7 +188,11 @@ public final class EurostagTutorialExample1Factory {
     }
 
     public static Network createWithMoreGenerators() {
-        Network network = create();
+        return createWithMoreGenerators(NetworkFactory.findDefault());
+    }
+
+    public static Network createWithMoreGenerators(NetworkFactory networkFactory) {
+        Network network = create(networkFactory);
 
         VoltageLevel vlgen = network.getVoltageLevel(VLGEN);
         Bus ngen = vlgen.getBusBreakerView().getBus("NGEN");
@@ -259,7 +267,12 @@ public final class EurostagTutorialExample1Factory {
     }
 
     public static Network createWithFixedCurrentLimits() {
-        Network network = EurostagTutorialExample1Factory.create();
+        return createWithFixedCurrentLimits(NetworkFactory.findDefault());
+    }
+
+    public static Network createWithFixedCurrentLimits(NetworkFactory networkFactory) {
+        Network network = create(networkFactory);
+
         network.setCaseDate(DateTime.parse("2018-01-01T11:00:00+01:00"));
 
         network.getSubstation("P2").setCountry(Country.BE);
@@ -324,7 +337,11 @@ public final class EurostagTutorialExample1Factory {
     }
 
     public static Network createWithMultipleConnectedComponents() {
-        Network network = create();
+        return createWithMultipleConnectedComponents(NetworkFactory.findDefault());
+    }
+
+    public static Network createWithMultipleConnectedComponents(NetworkFactory networkFactory) {
+        Network network = create(networkFactory);
 
         Substation p3 = network.newSubstation()
                 .setId("P3")
@@ -380,6 +397,21 @@ public final class EurostagTutorialExample1Factory {
                 .setCurrentSectionCount(1)
                 .setbPerSection(1e-5)
                 .add();
+
+        return network;
+    }
+
+    public static Network createWithTerminalMockExt() {
+        return createWithTerminalMockExt(NetworkFactory.findDefault());
+    }
+
+    public static Network createWithTerminalMockExt(NetworkFactory networkFactory) {
+        Network network = create(networkFactory);
+        network.setCaseDate(DateTime.parse("2013-01-15T18:45:00.000+01:00"));
+
+        Load load = network.getLoad("LOAD");
+        TerminalMockExt terminalMockExt = new TerminalMockExt(load);
+        load.addExtension(TerminalMockExt.class, terminalMockExt);
 
         return network;
     }

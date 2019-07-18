@@ -26,6 +26,19 @@ public class TwoWindingsTransformerConversion extends AbstractConductingEquipmen
     }
 
     @Override
+    public boolean valid() {
+        if (!super.valid()) {
+            return false;
+        }
+        if (context.boundary().containsNode(nodeId(1))
+                || context.boundary().containsNode(nodeId(2))) {
+            invalid("2 windings transformer end point at boundary is not supported");
+            return false;
+        }
+        return true;
+    }
+
+    @Override
     public void convert() {
 
         double r1 = end1.asDouble("r");

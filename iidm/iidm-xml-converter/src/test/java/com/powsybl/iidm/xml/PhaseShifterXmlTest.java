@@ -19,7 +19,7 @@ public class PhaseShifterXmlTest extends AbstractConverterTest {
 
     @Test
     public void roundTripTest() throws IOException {
-        roundTripXmlTest(PhaseShifterTestCaseFactory.create(),
+        roundTripXmlTest(PhaseShifterTestCaseFactory.createWithTargetDeadband(),
                 NetworkXml::writeAndValidate,
                 NetworkXml::read,
                 "/phaseShifterRoundTripRef.xml");

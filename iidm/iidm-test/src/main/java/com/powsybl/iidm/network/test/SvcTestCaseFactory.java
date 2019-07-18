@@ -9,6 +9,8 @@ package com.powsybl.iidm.network.test;
 import com.powsybl.iidm.network.*;
 import org.joda.time.DateTime;
 
+import java.util.Objects;
+
 /**
  * A very small network to test SVC modeling. 2 buses B1 and B2. A generator G1 regulating voltage is connected to B1.
  * B1 and B2 are connected by a line with a high reactance to cause an important voltage drop.
@@ -28,7 +30,13 @@ public final class SvcTestCaseFactory {
     }
 
     public static Network create() {
-        Network network = NetworkFactory.create("svcTestCase", "code");
+        return create(NetworkFactory.findDefault());
+    }
+
+    public static Network create(NetworkFactory networkFactory) {
+        Objects.requireNonNull(networkFactory);
+
+        Network network = networkFactory.createNetwork("svcTestCase", "code");
         network.setCaseDate(DateTime.parse("2016-06-29T14:54:03.427+02:00"));
         Substation s1 = network.newSubstation()
                 .setId("S1")
@@ -99,7 +107,11 @@ public final class SvcTestCaseFactory {
     }
 
     public static Network createWithMoreSVCs() {
-        Network network = create();
+        return createWithMoreSVCs(NetworkFactory.findDefault());
+    }
+
+    public static Network createWithMoreSVCs(NetworkFactory networkFactory) {
+        Network network = create(networkFactory);
 
         network.getVoltageLevel("VL2").newStaticVarCompensator()
                 .setId("SVC3")

@@ -6,37 +6,28 @@
  */
 package com.powsybl.loadflow.resultscompletion;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import com.google.common.jimfs.Configuration;
+import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.config.InMemoryPlatformConfig;
+import com.powsybl.commons.config.MapModuleConfig;
+import com.powsybl.commons.io.table.TableFormatterConfig;
+import com.powsybl.iidm.network.*;
+import com.powsybl.loadflow.LoadFlowParameters;
+import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
+import com.powsybl.loadflow.validation.CandidateComputation;
+import com.powsybl.loadflow.validation.ValidationConfig;
+import com.powsybl.loadflow.validation.ValidationType;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.nio.file.FileSystem;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import com.powsybl.commons.io.table.TableFormatterConfig;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
-import com.google.common.jimfs.Configuration;
-import com.google.common.jimfs.Jimfs;
-import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.commons.config.MapModuleConfig;
-import com.powsybl.iidm.network.Country;
-import com.powsybl.iidm.network.Generator;
-import com.powsybl.iidm.network.Line;
-import com.powsybl.iidm.network.Load;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.iidm.network.NetworkFactory;
-import com.powsybl.iidm.network.Substation;
-import com.powsybl.iidm.network.TopologyKind;
-import com.powsybl.iidm.network.VoltageLevel;
-import com.powsybl.loadflow.LoadFlowParameters;
-import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
-import com.powsybl.loadflow.validation.CandidateComputation;
-import com.powsybl.loadflow.validation.ValidationConfig;
-import com.powsybl.loadflow.validation.ValidationType;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author Marcos De Miguel <demiguelm at aia.es>
@@ -109,7 +100,7 @@ public class LoadFlowResultsCompletionZ0FlowsTest {
         // we convert to engineering units when adding elements to IIDM
         double zpu = sbase / Math.pow(vbase, 2);
 
-        Network network = NetworkFactory.create("test", "test");
+        Network network = Network.create("test", "test");
         Substation s = network.newSubstation()
                 .setId("S")
                 .setCountry(Country.FR)
