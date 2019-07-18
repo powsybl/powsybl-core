@@ -217,14 +217,26 @@ public abstract class AbstractTransformerFullConversion
             tapChanger.beginStep()
                 .setRatio(na.abs())
                 .setAngle(Math.toDegrees(na.getArgument()))
-                .setR(r * rFixed)
-                .setX(x * xFixed)
-                .setG1(g1 * g1Fixed)
-                .setB1(b1 * b1Fixed)
-                .setG2(g2 * g2Fixed)
-                .setB2(b2 * b2Fixed)
+                .setR(combineTapChangerCorrection(rFixed, r))
+                .setX(combineTapChangerCorrection(xFixed, x))
+                .setG1(combineTapChangerCorrection(g1Fixed, g1))
+                .setB1(combineTapChangerCorrection(b1Fixed, b1))
+                .setG2(combineTapChangerCorrection(g2Fixed, g2))
+                .setB2(combineTapChangerCorrection(b2Fixed, b2))
                 .endStep();
         });
+    }
+
+    private double combineTapChangerCorrection(double fixedCorrection, double correction) {
+        if (fixedCorrection != 0.0 && correction != 0.0) {
+            return fixedCorrection * correction;
+        } else if (fixedCorrection != 0.0) {
+            return fixedCorrection;
+        } else if (correction != 0.0) {
+            return correction;
+        } else {
+            return 0.0;
+        }
     }
 
     private void moveTapChangerSteps(TapChanger tapChanger, TapChanger tc) {
@@ -651,6 +663,7 @@ public abstract class AbstractTransformerFullConversion
                 angle = Math.toDegrees(2 * Math.asin(dy / 2));
             }
             tapChanger.beginStep()
+                .setRatio(1.0)
                 .setAngle(angle)
                 .endStep();
         }
