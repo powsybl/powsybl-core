@@ -32,6 +32,8 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
 
     private double targetV = Double.NaN;
 
+    private double targetDeadband = Double.NaN;
+
     private TerminalExt regulationTerminal;
 
     class StepAdderImpl implements StepAdder {
@@ -139,6 +141,12 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
     }
 
     @Override
+    public RatioTapChangerAdder setTargetDeadband(double targetDeadband) {
+        this.targetDeadband = targetDeadband;
+        return this;
+    }
+
+    @Override
     public RatioTapChangerAdder setRegulationTerminal(Terminal regulationTerminal) {
         this.regulationTerminal = (TerminalExt) regulationTerminal;
         return this;
@@ -164,9 +172,12 @@ class RatioTapChangerAdderImpl implements RatioTapChangerAdder {
                     + highTapPosition + "]");
         }
         ValidationUtil.checkRatioTapChangerRegulation(parent, loadTapChangingCapabilities, regulating, regulationTerminal, targetV, getNetwork());
+        if (!Double.isNaN(targetDeadband) && targetDeadband < 0) {
+            throw new ValidationException(parent, "Unexpected value for target deadband of ratio tap changer: " + targetDeadband);
+        }
         RatioTapChangerImpl tapChanger
                 = new RatioTapChangerImpl(parent, lowTapPosition, steps, regulationTerminal, loadTapChangingCapabilities,
-                                          tapPosition, regulating, targetV);
+                                          tapPosition, regulating, targetV, targetDeadband);
         parent.setRatioTapChanger(tapChanger);
         return tapChanger;
     }

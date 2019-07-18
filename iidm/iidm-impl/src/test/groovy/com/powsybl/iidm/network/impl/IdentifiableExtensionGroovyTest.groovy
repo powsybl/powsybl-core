@@ -9,7 +9,6 @@ package com.powsybl.iidm.network.impl
 import com.powsybl.commons.extensions.AbstractExtension
 import com.powsybl.iidm.network.Country
 import com.powsybl.iidm.network.Network
-import com.powsybl.iidm.network.NetworkFactory
 import com.powsybl.iidm.network.Substation
 import org.junit.Before
 import org.junit.Test
@@ -35,7 +34,7 @@ class IdentifiableExtensionGroovyTest {
 
     @Before
     void setUp() throws Exception {
-        Network network = NetworkFactory.create("test", "test")
+        Network network = Network.create("test", "test")
         s = network.newSubstation()
                 .setId("S")
                 .setCountry(Country.FR)

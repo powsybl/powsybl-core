@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
 public class SwitchSetRetainedTest {
 
     private Network createNetwork() {
-        Network network = NetworkFactory.create("test", "test");
+        Network network = Network.create("test", "test");
         Substation s = network.newSubstation()
                 .setId("S")
                 .setCountry(Country.FR)

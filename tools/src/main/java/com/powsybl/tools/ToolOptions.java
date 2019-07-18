@@ -28,9 +28,13 @@ public class ToolOptions {
     private final CommandLine line;
     private final FileSystem fileSystem;
 
-    public ToolOptions(CommandLine line, ToolRunningContext context) {
+    public ToolOptions(CommandLine line, FileSystem fileSystem) {
         this.line = Objects.requireNonNull(line);
-        this.fileSystem = Objects.requireNonNull(context).getFileSystem();
+        this.fileSystem = Objects.requireNonNull(fileSystem);
+    }
+
+    public ToolOptions(CommandLine line, ToolRunningContext context) {
+        this(line, context.getFileSystem());
     }
 
     /**

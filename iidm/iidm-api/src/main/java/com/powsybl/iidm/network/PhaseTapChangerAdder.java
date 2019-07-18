@@ -41,6 +41,10 @@ public interface PhaseTapChangerAdder {
 
     PhaseTapChangerAdder setRegulationTerminal(Terminal regulationTerminal);
 
+    default PhaseTapChangerAdder setTargetDeadband(double targetDeadband) {
+        throw new UnsupportedOperationException();
+    }
+
     StepAdder beginStep();
 
     PhaseTapChanger add();

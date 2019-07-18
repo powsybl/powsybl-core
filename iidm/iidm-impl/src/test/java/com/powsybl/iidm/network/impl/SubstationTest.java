@@ -7,13 +7,17 @@
 package com.powsybl.iidm.network.impl;
 
 import com.powsybl.commons.PowsyblException;
-import com.powsybl.iidm.network.*;
+import com.powsybl.iidm.network.ContainerType;
+import com.powsybl.iidm.network.Country;
+import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.Substation;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class SubstationTest {
 
@@ -24,7 +28,7 @@ public class SubstationTest {
 
     @Before
     public void initNetwork() {
-        network = NetworkFactory.create("test", "test");
+        network = Network.create("test", "test");
     }
 
     @Test

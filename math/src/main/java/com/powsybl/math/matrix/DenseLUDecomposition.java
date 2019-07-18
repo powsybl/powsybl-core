@@ -15,33 +15,32 @@ import java.util.Objects;
  */
 class DenseLUDecomposition implements LUDecomposition {
 
-    private final Jama.LUDecomposition decomposition;
+    private final DenseMatrix matrix;
 
-    DenseLUDecomposition(Jama.LUDecomposition decomposition) {
-        this.decomposition = Objects.requireNonNull(decomposition);
+    private Jama.LUDecomposition decomposition;
+
+    DenseLUDecomposition(DenseMatrix matrix) {
+        this.matrix = Objects.requireNonNull(matrix);
+        decomposition = matrix.toJamaMatrix().lu();
     }
 
-    /**
-     * {@inheritDoc}
-     */
+    @Override
+    public void update() {
+        decomposition = matrix.toJamaMatrix().lu();
+    }
+
     @Override
     public void solve(double[] b) {
         Jama.Matrix x = decomposition.solve(new Jama.Matrix(b, b.length));
         System.arraycopy(x.getColumnPackedCopy(), 0, b, 0, b.length);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void solve(DenseMatrix b) {
         Jama.Matrix x = decomposition.solve(b.toJamaMatrix());
         b.setValues(x.getColumnPackedCopy());
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
     public void close() {
         // nothing to close

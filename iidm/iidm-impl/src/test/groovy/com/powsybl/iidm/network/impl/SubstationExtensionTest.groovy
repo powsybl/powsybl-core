@@ -7,10 +7,11 @@
 package com.powsybl.iidm.network.impl
 
 import com.powsybl.iidm.network.Country
-import com.powsybl.iidm.network.NetworkFactory;
+import com.powsybl.iidm.network.Network;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals
+import static org.junit.Assert.assertNull;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
@@ -19,7 +20,7 @@ class SubstationExtensionTest {
 
     @Test
     void nullCountryTest() {
-        def network = NetworkFactory.create("test", "")
+        def network = Network.create("test", "")
         def s = network.newSubstation()
                 .setId("s")
                 .add()
@@ -28,7 +29,7 @@ class SubstationExtensionTest {
 
     @Test
     void nonNullCountryTest() {
-        def network = NetworkFactory.create("test", "")
+        def network = Network.create("test", "")
         def s = network.newSubstation()
                 .setId("s")
                 .setCountry(Country.BD)

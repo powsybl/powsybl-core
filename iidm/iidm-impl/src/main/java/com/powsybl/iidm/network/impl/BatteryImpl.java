@@ -73,6 +73,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     public Battery setP0(double p0) {
         int variantIndex = getNetwork().getVariantIndex();
         ValidationUtil.checkP0(this, p0);
+        ValidationUtil.checkActivePowerLimits(this, minP, maxP, p0);
         double oldValue = this.p0.set(variantIndex, p0);
         notifyUpdate("p0", oldValue, p0);
         return this;
@@ -112,7 +113,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     @Override
     public Battery setMinP(double minP) {
         ValidationUtil.checkMinP(this, minP);
-        ValidationUtil.checkActiveLimits(this, minP, maxP);
+        ValidationUtil.checkActivePowerLimits(this, minP, maxP, getP0());
         double oldValue = this.minP;
         this.minP = minP;
         notifyUpdate("minP", oldValue, minP);
@@ -133,7 +134,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     @Override
     public Battery setMaxP(double maxP) {
         ValidationUtil.checkMaxP(this, maxP);
-        ValidationUtil.checkActiveLimits(this, minP, maxP);
+        ValidationUtil.checkActivePowerLimits(this, minP, maxP, getP0());
         double oldValue = this.maxP;
         this.maxP = maxP;
         notifyUpdate("maxP", oldValue, maxP);
@@ -186,5 +187,41 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
     @Override
     public MinMaxReactiveLimitsAdder newMinMaxReactiveLimits() {
         return new MinMaxReactiveLimitsAdderImpl(this);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void extendVariantArraySize(int initVariantArraySize, int number, int sourceIndex) {
+        super.extendVariantArraySize(initVariantArraySize, number, sourceIndex);
+        p0.ensureCapacity(p0.size() + number);
+        q0.ensureCapacity(q0.size() + number);
+        for (int i = 0; i < number; i++) {
+            p0.add(p0.get(sourceIndex));
+            q0.add(q0.get(sourceIndex));
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void reduceVariantArraySize(int number) {
+        super.reduceVariantArraySize(number);
+        p0.remove(p0.size() - number, number);
+        q0.remove(q0.size() - number, number);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void allocateVariantArrayElement(int[] indexes, int sourceIndex) {
+        super.allocateVariantArrayElement(indexes, sourceIndex);
+        for (int index : indexes) {
+            p0.set(index, p0.get(sourceIndex));
+            q0.set(index, q0.get(sourceIndex));
+        }
     }
 }
