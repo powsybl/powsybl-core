@@ -125,6 +125,8 @@ public interface ThreeWindingsTransformer extends Connectable<ThreeWindingsTrans
 
     }
 
+    void setRatedU0(double ratedU0);
+
     double getRatedU0();
 
     Terminal getTerminal(Side side);
