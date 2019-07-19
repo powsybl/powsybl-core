@@ -90,8 +90,8 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, MultiVaria
         }
     }
 
-    protected void notifyUpdate(String attribute, Object oldValue, Object newValue) {
-        network.get().getListeners().notifyUpdate(this, attribute, oldValue, newValue);
+    protected void notifyUpdate(String attribute, String variantId, Object oldValue, Object newValue) {
+        network.get().getListeners().notifyUpdate(this, attribute, variantId, oldValue, newValue);
     }
 
     @Override
@@ -104,8 +104,10 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, MultiVaria
         if (v < 0) {
             throw new ValidationException(this, "voltage cannot be < 0");
         }
-        double oldValue = this.v.set(network.get().getVariantIndex(), v);
-        notifyUpdate("v", oldValue, v);
+        int variantIndex = network.get().getVariantIndex();
+        double oldValue = this.v.set(variantIndex, v);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("v", variantId, oldValue, v);
         return this;
     }
 
@@ -116,14 +118,19 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, MultiVaria
 
     @Override
     public BusExt setAngle(double angle) {
-        double oldValue = this.angle.set(network.get().getVariantIndex(), angle);
-        notifyUpdate("angle", oldValue, angle);
+        int variantIndex = network.get().getVariantIndex();
+        double oldValue = this.angle.set(variantIndex, angle);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("angle", variantId, oldValue, angle);
         return this;
     }
 
     @Override
     public void setConnectedComponentNumber(int connectedComponentNumber) {
-        this.connectedComponentNumber.set(network.get().getVariantIndex(), connectedComponentNumber);
+        int variantIndex = network.get().getVariantIndex();
+        int oldValue = this.connectedComponentNumber.set(variantIndex, connectedComponentNumber);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("connectedComponentNumber", variantId, oldValue, connectedComponentNumber);
     }
 
     @Override
@@ -135,7 +142,10 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, MultiVaria
 
     @Override
     public void setSynchronousComponentNumber(int componentNumber) {
-        this.synchronousComponentNumber.set(network.get().getVariantIndex(), componentNumber);
+        int variantIndex = network.get().getVariantIndex();
+        int oldValue = this.synchronousComponentNumber.set(variantIndex, componentNumber);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("componentNumber", variantId, oldValue, componentNumber);
     }
 
     @Override

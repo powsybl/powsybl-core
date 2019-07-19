@@ -82,7 +82,8 @@ class BusTerminal extends AbstractTerminal {
     }
 
     void setConnectableBusId(String connectableBusId) {
-        this.connectableBusId.set(network.get().getVariantIndex(), connectableBusId);
+        int variantIndex = network.get().getVariantIndex();
+        this.connectableBusId.set(variantIndex, connectableBusId);
     }
 
     String getConnectableBusId() {
@@ -90,7 +91,10 @@ class BusTerminal extends AbstractTerminal {
     }
 
     void setConnected(boolean connected) {
-        this.connected.set(network.get().getVariantIndex(), connected);
+        int variantIndex = network.get().getVariantIndex();
+        boolean oldValue = this.connected.set(variantIndex, connected);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        getConnectable().notifyUpdate("connected", variantId, oldValue, connectableBusId);
     }
 
     @Override
