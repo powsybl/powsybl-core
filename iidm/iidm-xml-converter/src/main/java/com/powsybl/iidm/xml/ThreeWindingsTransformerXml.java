@@ -55,12 +55,8 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         }
         XmlUtil.writeDouble("r2", twt.getLeg2().getR(), context.getWriter());
         XmlUtil.writeDouble("x2", twt.getLeg2().getX(), context.getWriter());
-        if (twt.getLeg2().getG() != 0.0) {
-            XmlUtil.writeDouble("g2", twt.getLeg2().getG(), context.getWriter());
-        }
-        if (twt.getLeg2().getB() != 0.0) {
-            XmlUtil.writeDouble("b2", twt.getLeg2().getB(), context.getWriter());
-        }
+        XmlUtil.writeDouble("g2", twt.getLeg2().getG(), context.getWriter());
+        XmlUtil.writeDouble("b2", twt.getLeg2().getB(), context.getWriter());
         XmlUtil.writeDouble("ratedU2", twt.getLeg2().getRatedU(), context.getWriter());
         if (twt.getLeg2().getPhaseAngleClock1() != 0) {
             XmlUtil.writeInt("phaseAngleClock21", twt.getLeg2().getPhaseAngleClock1(), context.getWriter());
@@ -70,12 +66,8 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
         }
         XmlUtil.writeDouble("r3", twt.getLeg3().getR(), context.getWriter());
         XmlUtil.writeDouble("x3", twt.getLeg3().getX(), context.getWriter());
-        if (twt.getLeg3().getG() != 0.0) {
-            XmlUtil.writeDouble("g3", twt.getLeg3().getG(), context.getWriter());
-        }
-        if (twt.getLeg3().getB() != 0.0) {
-            XmlUtil.writeDouble("b3", twt.getLeg3().getB(), context.getWriter());
-        }
+        XmlUtil.writeDouble("g3", twt.getLeg3().getG(), context.getWriter());
+        XmlUtil.writeDouble("b3", twt.getLeg3().getB(), context.getWriter());
         XmlUtil.writeDouble("ratedU3", twt.getLeg3().getRatedU(), context.getWriter());
         if (twt.getLeg3().getPhaseAngleClock1() != 0) {
             XmlUtil.writeInt("phaseAngleClock31", twt.getLeg3().getPhaseAngleClock1(), context.getWriter());
