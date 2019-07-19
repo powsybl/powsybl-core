@@ -346,6 +346,8 @@
                 <xs:attribute name="b" use="required" type="xs:double"/>
                 <xs:attribute name="ratedU1" use="required" type="xs:double"/>
                 <xs:attribute name="ratedU2" use="required" type="xs:double"/>
+                <xs:attribute name="phaseAngleClock1" use="optional" type="xs:int"/>
+                <xs:attribute name="phaseAngleClock2" use="optional" type="xs:int"/>
             </xs:extension>
         </xs:complexContent>
     </xs:complexType>
