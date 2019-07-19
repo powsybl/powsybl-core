@@ -364,6 +364,7 @@
                 <xs:attribute name="ratedU1" use="required" type="xs:double"/>
                 <xs:attribute name="ratedU2" use="required" type="xs:double"/>
                 <xs:attribute name="ratedU3" use="required" type="xs:double"/>
+                <xs:attribute name="ratedU0" use="optional" type="xs:double"/>
                 <xs:attribute name="r1" use="required" type="xs:double"/>
                 <xs:attribute name="r2" use="required" type="xs:double"/>
                 <xs:attribute name="r3" use="required" type="xs:double"/>
@@ -371,8 +372,18 @@
                 <xs:attribute name="x2" use="required" type="xs:double"/>
                 <xs:attribute name="x3" use="required" type="xs:double"/>
                 <xs:attribute name="g1" use="required" type="xs:double"/>
+                <xs:attribute name="g2" use="required" type="xs:double"/>
+                <xs:attribute name="g3" use="required" type="xs:double"/>
                 <xs:attribute name="b1" use="required" type="xs:double"/>
+                <xs:attribute name="b2" use="required" type="xs:double"/>
+                <xs:attribute name="b3" use="required" type="xs:double"/>
                 <xs:attribute name="node1" use="optional" type="xs:int"/>
+                <xs:attribute name="phaseAngleClock11" use="optional" type="xs:int"/>
+                <xs:attribute name="phaseAngleClock12" use="optional" type="xs:int"/>
+                <xs:attribute name="phaseAngleClock21" use="optional" type="xs:int"/>
+                <xs:attribute name="phaseAngleClock22" use="optional" type="xs:int"/>
+                <xs:attribute name="phaseAngleClock31" use="optional" type="xs:int"/>
+                <xs:attribute name="phaseAngleClock32" use="optional" type="xs:int"/>
                 <xs:attribute name="bus1" use="optional" type="iidm:nonEmptyString"/>
                 <xs:attribute name="voltageLevelId1" use="required" type="iidm:nonEmptyString"/>
                 <xs:attribute name="connectableBus1" use="optional" type="iidm:nonEmptyString"/>
