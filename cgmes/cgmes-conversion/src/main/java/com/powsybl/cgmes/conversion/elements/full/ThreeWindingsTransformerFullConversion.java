@@ -189,8 +189,11 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
     private double ratedUfAlternative(CgmesModel cgmesModel, Conversion.Config alternative) {
 
         double ratedUf = 1.0;
-
-        if (alternative.isXfmr3Ratio0End1()) {
+        if (alternative.isXfmr3Ratio0StarBusSide()) {
+            ratedUf = selectRatedUf(cgmesModel);
+        } else if (alternative.isXfmr3Ratio0NetworkSide()) {
+            ratedUf = 1.0;
+        } else if (alternative.isXfmr3Ratio0End1()) {
             ratedUf = cgmesModel.winding1.ratedU;
         } else if (alternative.isXfmr3Ratio0End2()) {
             ratedUf = cgmesModel.winding2.ratedU;
@@ -198,6 +201,11 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
             ratedUf = cgmesModel.winding3.ratedU;
         }
         return ratedUf;
+    }
+
+    // Select the ratedUf voltage
+    private double selectRatedUf(CgmesModel cgmesModel) {
+        return cgmesModel.winding1.ratedU;
     }
 
     private boolean ratio0Alternative(CgmesWinding cgmesWinding, Conversion.Config alternative) {
@@ -261,6 +269,7 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
 
     private RatioConversion rc0Winding(InterpretedWinding interpretedWinding, double ratedUf) {
         RatioConversion rc0;
+        // IIDM: Structural ratio always at network side
         if (interpretedWinding.ratio0AtEnd2) {
             double a0 = ratedUf / interpretedWinding.end1.ratedU;
             rc0 = moveRatioFrom2To1(a0, 0.0, interpretedWinding.r, interpretedWinding.x,
@@ -273,7 +282,6 @@ public class ThreeWindingsTransformerFullConversion extends AbstractTransformerF
         }
 
         return rc0;
-
     }
 
     private void setToIidm(ConvertedModel convertedModel) {
