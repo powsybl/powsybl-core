@@ -286,13 +286,14 @@ public class UcteExporter implements Exporter {
                 terminal2.getVoltageLevel(),
                 country2.get().toString(),
                 iidmIdToUcteNodeCodeId);
-
         String elementName = line.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
-
+        LOGGER.info(elementName);
+        double permanentLimit = getPermanentLimit(line);
         UcteElementId lineId = convertUcteElementId(ucteTerminal1NodeCode, ucteTerminal2NodeCode, line.getId(), terminal1, terminal2, iidmIdToUcteElementId);
         UcteLine ucteLine = new UcteLine(lineId, UcteElementStatus.REAL_ELEMENT_IN_OPERATION,
                 (float) line.getR(), (float) line.getX(), (float) line.getB1() + (float) line.getB2(),
-                (int) line.getCurrentLimits1().getPermanentLimit(), elementName);
+                (int) permanentLimit,
+                elementName);
 
         ucteNetwork.addLine(ucteLine);
     }
@@ -350,6 +351,7 @@ public class UcteExporter implements Exporter {
             Optional<UcteNodeCode> optUcteNodeCode1 = parseUcteNodeCode(danglingLine.getId().substring(0, 8));
             Optional<UcteNodeCode> optUcteNodeCode2 = parseUcteNodeCode(danglingLine.getId().substring(9, 17));
             if (optUcteNodeCode1.isPresent() && optUcteNodeCode2.isPresent()) { // It is a ucte id
+                double permanentLimit = danglingLine.getCurrentLimits() == null ? DEFAULT_MAX_CURRENT : danglingLine.getCurrentLimits().getPermanentLimit();
                 String elementName = danglingLine.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
                 UcteElementId ucteElementId = new UcteElementId(optUcteNodeCode1.get(), optUcteNodeCode2.get(), danglingLine.getId().charAt(18));
                 UcteLine ucteLine = new UcteLine(ucteElementId,
@@ -357,7 +359,7 @@ public class UcteExporter implements Exporter {
                         (float) danglingLine.getR(),
                         (float) danglingLine.getX(),
                         (float) danglingLine.getB(),
-                        (int) danglingLine.getCurrentLimits().getPermanentLimit(),
+                        (int) permanentLimit,
                         elementName);
                 ucteNetwork.addLine(ucteLine);
             } else { // It is not a ucte id
@@ -644,7 +646,7 @@ public class UcteExporter implements Exporter {
                 country2.get().toString(),
                 iidmIdToUcteNodeCodeId
         );
-
+        double currentLimits = getPermanentLimit(twoWindingsTransformer);
         UcteElementId ucteElementId = convertUcteElementId(ucteNodeCode2, ucteNodeCode1, twoWindingsTransformer.getId(),
                 terminal1, terminal2, iidmIdToUcteElementId);
         String elementName = twoWindingsTransformer.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
@@ -655,7 +657,7 @@ public class UcteExporter implements Exporter {
                 (float) twoWindingsTransformer.getR(),
                 (float) twoWindingsTransformer.getX(),
                 (float) twoWindingsTransformer.getB(),
-                (int) twoWindingsTransformer.getCurrentLimits2().getPermanentLimit(),
+                (int) currentLimits,
                 elementName,
                 (float) twoWindingsTransformer.getRatedU2(),
                 (float) twoWindingsTransformer.getRatedU1(),
@@ -943,6 +945,26 @@ public class UcteExporter implements Exporter {
             default:
                 return UctePowerPlantType.F;
         }
+    }
+
+    private static double getPermanentLimit(TwoWindingsTransformer twoWindingsTransformer) {
+        if (twoWindingsTransformer.getCurrentLimits2() == null) {
+            if (twoWindingsTransformer.getCurrentLimits1() == null) {
+                return DEFAULT_MAX_CURRENT;
+            }
+            return  twoWindingsTransformer.getCurrentLimits1().getPermanentLimit();
+        }
+        return  twoWindingsTransformer.getCurrentLimits2().getPermanentLimit();
+    }
+
+    private static double getPermanentLimit(Line line) {
+        if (line.getCurrentLimits2() == null) {
+            if (line.getCurrentLimits1() == null) {
+                return DEFAULT_MAX_CURRENT;
+            }
+            return  line.getCurrentLimits1().getPermanentLimit();
+        }
+        return  line.getCurrentLimits2().getPermanentLimit();
     }
 
 }
