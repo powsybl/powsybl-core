@@ -287,7 +287,6 @@ public class UcteExporter implements Exporter {
                 country2.get().toString(),
                 iidmIdToUcteNodeCodeId);
         String elementName = line.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
-        LOGGER.info(elementName);
         double permanentLimit = getPermanentLimit(line);
         UcteElementId lineId = convertUcteElementId(ucteTerminal1NodeCode, ucteTerminal2NodeCode, line.getId(), terminal1, terminal2, iidmIdToUcteElementId);
         UcteLine ucteLine = new UcteLine(lineId, UcteElementStatus.REAL_ELEMENT_IN_OPERATION,
@@ -365,6 +364,8 @@ public class UcteExporter implements Exporter {
             } else { // It is not a ucte id
                 throw new UcteException(NOT_POSSIBLE_TO_EXPORT);
             }
+        } else if (isYDanglingLine(danglingLine)) {
+            return; //We don't want to recreate it
         } else {  // It is not a ucte id
             throw new UcteException(NOT_POSSIBLE_TO_EXPORT);
         }
@@ -965,6 +966,13 @@ public class UcteExporter implements Exporter {
             return  line.getCurrentLimits1().getPermanentLimit();
         }
         return  line.getCurrentLimits2().getPermanentLimit();
+    }
+
+    private static boolean isYDanglingLine(DanglingLine danglingLine) {
+        String id = danglingLine.getId();
+        return id.length() == 16 &&
+                id.charAt(0) == 'X' &&
+                id.charAt(8) == 'Y';
     }
 
 }
