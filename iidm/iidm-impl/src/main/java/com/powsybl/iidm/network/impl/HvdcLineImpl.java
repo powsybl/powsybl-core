@@ -58,11 +58,11 @@ class HvdcLineImpl extends AbstractIdentifiable<HvdcLine> implements HvdcLine, M
         this.networkRef = networkRef;
     }
 
-    protected void notifyUpdate(String attribute, Object oldValue, Object newValue) {
+    protected <S, T extends S> void notifyUpdate(String attribute, S oldValue, T newValue) {
         getNetwork().getListeners().notifyUpdate(this, attribute, oldValue, newValue);
     }
 
-    protected void notifyUpdate(String attribute, String variantId, Object oldValue, Object newValue) {
+    protected <S, T extends S> void notifyUpdate(String attribute, String variantId, S oldValue, T newValue) {
         getNetwork().getListeners().notifyUpdate(this, attribute, variantId, oldValue, newValue);
     }
 

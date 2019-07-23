@@ -49,12 +49,12 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     }
 
     @Override
-    protected void notifyUpdate(String attribute, Object oldValue, Object newValue) {
+    protected <S, T extends S> void notifyUpdate(String attribute, S oldValue, T newValue) {
         getNetwork().getListeners().notifyUpdate(this, attribute, oldValue, newValue);
     }
 
     @Override
-    protected void notifyUpdate(String attribute, String variantId, Object oldValue, Object newValue) {
+    protected <S, T extends S> void notifyUpdate(String attribute, String variantId, S oldValue, T newValue) {
         getNetwork().getListeners().notifyUpdate(this, attribute, variantId, oldValue, newValue);
     }
 
@@ -112,7 +112,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
         int variantIndex = getNetwork().getVariantIndex();
         double oldValue = this.voltageSetPoint.set(variantIndex, voltageSetPoint);
         String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
-        notifyUpdate("voltageSetPoint", variantId, oldValue, voltageSetPoint);
+        notifyUpdate("voltageSetpoint", variantId, oldValue, voltageSetPoint);
         return this;
     }
 
@@ -127,7 +127,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
         int variantIndex = getNetwork().getVariantIndex();
         double oldValue = this.reactivePowerSetPoint.set(variantIndex, reactivePowerSetPoint);
         String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
-        notifyUpdate("reactivePowerSetPoint", variantId, oldValue, reactivePowerSetPoint);
+        notifyUpdate("reactivePowerSetpoint", variantId, oldValue, reactivePowerSetPoint);
         return this;
     }
 

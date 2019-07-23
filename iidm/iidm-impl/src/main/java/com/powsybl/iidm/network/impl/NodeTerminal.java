@@ -90,7 +90,7 @@ class NodeTerminal extends AbstractTerminal {
         }
     }
 
-    protected void notifyUpdate(String attribute, String variantId, Object oldValue, Object newValue) {
+    protected <S, T extends S> void notifyUpdate(String attribute, String variantId, S oldValue, T newValue) {
         getConnectable().notifyUpdate(attribute, variantId, oldValue, newValue);
     }
 

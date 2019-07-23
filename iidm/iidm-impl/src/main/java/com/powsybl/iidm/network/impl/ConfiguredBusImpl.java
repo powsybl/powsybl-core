@@ -90,7 +90,7 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, MultiVaria
         }
     }
 
-    protected void notifyUpdate(String attribute, String variantId, Object oldValue, Object newValue) {
+    protected <S, T extends S> void notifyUpdate(String attribute, String variantId, S oldValue, T newValue) {
         network.get().getListeners().notifyUpdate(this, attribute, variantId, oldValue, newValue);
     }
 
@@ -145,7 +145,7 @@ class ConfiguredBusImpl extends AbstractBus implements ConfiguredBus, MultiVaria
         int variantIndex = network.get().getVariantIndex();
         int oldValue = this.synchronousComponentNumber.set(variantIndex, componentNumber);
         String variantId = network.get().getVariantManager().getVariantId(variantIndex);
-        notifyUpdate("componentNumber", variantId, oldValue, componentNumber);
+        notifyUpdate("synchronousComponentNumber", variantId, oldValue, componentNumber);
     }
 
     @Override
