@@ -15,6 +15,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conversion.CgmesImport;
+import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;
@@ -44,12 +46,12 @@ public class IidmTestImportFromCgmes {
                 fail("Model is empty");
             }
             network.setCaseDate(DateTime.parse(dateFormat.format(date)));
-            LOGGER.info("Imported TestModel From Cgmes method on {}", network.getCaseDate());
+            LOG.info("Imported TestModel From Cgmes method on {}", network.getCaseDate());
 
             return network;
         }
     }
 
     private final TestGridModel gridModel;
-    private static final Logger LOGGER = LoggerFactory.getLogger(IidmTestImportFromCgmes.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IidmTestImportFromCgmes.class);
 }

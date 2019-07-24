@@ -11,7 +11,7 @@ public class IidmChangeOnCreate implements IidmChange {
         this.variant = Objects.requireNonNull(variant);
     }
 
-    // TODO remove get methods
+    // TODO elena
     @Override
     public String getVariant() {
         return variant;

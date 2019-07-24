@@ -11,13 +11,13 @@ import com.powsybl.iidm.network.NetworkListener;
 
 public class ChangesListener implements NetworkListener {
     /**
-     * *class to register network changes, and add to changeList
+     * *class to register network changes, and add to changeListUpdate
      *
-     * @param network    represent a grid network object
-     * @param changeList is an empty list to ctore iidm changes
+     * @param network          represent a grid network object
+     * @param changeListUpdate is an empty list to ctore iidm changes
      */
 
-    public ChangesListener(Network network, List<IidmChangeOnUpdate> changeList) {
+    public ChangesListener(Network network, List<IidmChange> changeList) {
         this.network = network;
         this.changeList = changeList;
     }
@@ -27,7 +27,7 @@ public class ChangesListener implements NetworkListener {
         LOG.info("Calling onCreation method...");
         String variant = network.getVariantManager().getWorkingVariantId();
         IidmChangeOnCreate change = new IidmChangeOnCreate(identifiable, variant);
-        changeListCreate.add(change);
+        changeList.add(change);
         // TODO remove prints
         System.out.println("variant is " + change.getVariant()
             + "\nidentifiableName " + identifiable.getName()
@@ -40,7 +40,7 @@ public class ChangesListener implements NetworkListener {
         LOG.info("Calling onRemoval method...");
         String variant = network.getVariantManager().getWorkingVariantId();
         IidmChangeOnRemove change = new IidmChangeOnRemove(identifiable, variant);
-        changeListRemove.add(change);
+        changeList.add(change);
     }
 
     @Override
@@ -49,12 +49,14 @@ public class ChangesListener implements NetworkListener {
         String variant = network.getVariantManager().getWorkingVariantId();
         IidmChangeOnUpdate change = new IidmChangeOnUpdate(identifiable, attribute, oldValue, newValue, variant);
         changeList.add(change);
+        System.out.println("variant is " + change.getVariant()
+            + "\nidentifiableName " + identifiable.getName()
+            + "\nidentifiableID " + identifiable.getId()
+            + "\nattribute is " + change.getAttribute());
     }
 
     private final Network network;
-    private List<IidmChangeOnCreate> changeListCreate;
-    private List<IidmChangeOnUpdate> changeList;
-    private List<IidmChangeOnRemove> changeListRemove;
+    private List<IidmChange> changeList;
 
     private static final Logger LOG = LoggerFactory.getLogger(ChangesListener.class);
 }

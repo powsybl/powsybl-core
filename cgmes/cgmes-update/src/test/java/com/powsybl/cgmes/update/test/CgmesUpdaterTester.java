@@ -30,7 +30,7 @@ public class CgmesUpdaterTester {
         iidmTestImportFromCgmes = new IidmTestImportFromCgmes(testGridModel);
     }
 
-    // @Test
+    //@Test
     public void changeTestIidmModelTest() throws IOException {
         Network network = iidmTestImportFromCgmes.importTestModelFromCgmes();
         if (modelNotEmpty(network)) {
