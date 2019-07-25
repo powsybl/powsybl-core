@@ -189,14 +189,16 @@ public class VariantManagerImpl implements VariantManager {
         if (index == variantArraySize - 1) {
             // remove consecutive unsused index starting from the end
             int number = 0; // number of elements to remove
+            Set<Integer> removed = new HashSet<>();
             for (int j = index; j >= 0; j--) {
                 if (id2index.containsValue(j)) {
                     break;
                 } else {
                     number++;
-                    unusedIndexes.remove(j);
+                    removed.add(j);
                 }
             }
+            unusedIndexes.removeAll(removed);
             // reduce variant array size
             for (MultiVariantObject obj : getStafulObjects()) {
                 obj.reduceVariantArraySize(number);
