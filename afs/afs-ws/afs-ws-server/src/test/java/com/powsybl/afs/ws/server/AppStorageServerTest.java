@@ -11,7 +11,7 @@ import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.ws.client.utils.ClientUtils;
 import com.powsybl.afs.ws.client.utils.UserSession;
 import com.powsybl.afs.ws.storage.RemoteAppStorage;
-import com.powsybl.afs.ws.storage.WebSocketEventBus;
+import com.powsybl.afs.ws.storage.WebSocketEventsBus;
 import com.powsybl.commons.exceptions.UncheckedUriSyntaxException;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
@@ -98,6 +98,6 @@ public class AppStorageServerTest extends AbstractAppStorageTest {
         URI restUri = getRestUri();
         RemoteAppStorage storage = new RemoteAppStorage(AppDataBeanMock.TEST_FS_NAME, restUri,
                 userSession.getToken());
-        assertEquals(0, ((WebSocketEventBus) storage.getEventsBus()).getTopics().size());
+        assertEquals(0, ((WebSocketEventsBus) storage.getEventsBus()).getTopics().size());
     }
 }

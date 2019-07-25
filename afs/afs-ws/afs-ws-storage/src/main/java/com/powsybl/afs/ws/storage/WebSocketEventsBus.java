@@ -25,7 +25,7 @@ import java.util.*;
 /**
  * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
  */
-public class WebSocketEventBus implements EventsBus {
+public class WebSocketEventsBus implements EventsBus {
 
     // To trace events per topic locally
     private final Map<String, List<NodeEvent>> topics = new HashMap<>();
@@ -36,7 +36,7 @@ public class WebSocketEventBus implements EventsBus {
 
     private AppStorage storage;
 
-    public WebSocketEventBus(AppStorage storage, URI restUri) {
+    public WebSocketEventsBus(AppStorage storage, URI restUri) {
         URI wsUri = SocketsUtils.getWebSocketUri(restUri);
         this.storage = Objects.requireNonNull(storage);
         URI endPointUri = URI.create(wsUri + "/messages/" + AfsRestApi.RESOURCE_ROOT + "/" +
