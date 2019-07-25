@@ -16,7 +16,7 @@ import java.util.Objects;
  */
 public class DependencyRemoved extends NodeEvent implements DependencyEvent {
 
-    private static final String DEPENDENCY_REMOVED = "DEPENDENCY_REMOVED";
+    public static final String DEPENDENCY_REMOVED = "DEPENDENCY_REMOVED";
 
     @JsonProperty("dependencyName")
     private final String dependencyName;

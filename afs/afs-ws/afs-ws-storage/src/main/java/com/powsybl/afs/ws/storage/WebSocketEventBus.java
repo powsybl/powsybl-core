@@ -20,29 +20,32 @@ import javax.websocket.WebSocketContainer;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author Chamseddine Benhamed <chamseddine.benhamed at rte-france.com>
  */
-public class RemoteEventsBus implements EventsBus {
+public class WebSocketEventBus implements EventsBus {
 
     // To trace events per topic locally
     private final Map<String, List<NodeEvent>> topics = new HashMap<>();
 
     private final WeakListenerList<AppStorageListener> listeners = new WeakListenerList<>();
 
-    public RemoteEventsBus(AppStorage storage, URI restUri) {
+    private NodeEventClient nodeEventClient;
+
+    private AppStorage storage;
+
+    public WebSocketEventBus(AppStorage storage, URI restUri) {
         URI wsUri = SocketsUtils.getWebSocketUri(restUri);
+        this.storage = Objects.requireNonNull(storage);
         URI endPointUri = URI.create(wsUri + "/messages/" + AfsRestApi.RESOURCE_ROOT + "/" +
                 AfsRestApi.VERSION + "/node_events/" + storage.getFileSystemName());
 
         WebSocketContainer container = ContainerProvider.getWebSocketContainer();
         try {
-            container.connectToServer(new NodeEventClient(storage.getFileSystemName(), listeners), endPointUri);
+            nodeEventClient = new NodeEventClient(storage.getFileSystemName(), listeners);
+            container.connectToServer(nodeEventClient, endPointUri);
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         } catch (DeploymentException e) {
@@ -54,6 +57,7 @@ public class RemoteEventsBus implements EventsBus {
     public void pushEvent(NodeEvent event, String topic) {
         topics.computeIfAbsent(topic, k -> new ArrayList<>());
         topics.get(topic).add(event);
+        nodeEventClient.pushEvent(event, storage.getFileSystemName(), topic);
     }
 
     public Map<String, List<NodeEvent>> getTopics() {

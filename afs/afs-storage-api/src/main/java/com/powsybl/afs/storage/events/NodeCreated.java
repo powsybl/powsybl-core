@@ -16,7 +16,7 @@ import java.util.Objects;
  */
 public class NodeCreated extends NodeEvent {
 
-    private static final String NODE_CREATED = "NODE_CREATED";
+    public static final String NODE_CREATED = "NODE_CREATED";
 
     @JsonProperty("parentId")
     protected final String parentId;

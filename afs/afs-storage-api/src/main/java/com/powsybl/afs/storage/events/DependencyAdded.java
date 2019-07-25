@@ -16,7 +16,7 @@ import java.util.Objects;
  */
 public class DependencyAdded extends NodeEvent implements DependencyEvent {
 
-    private static final String DEPENDENCY_ADDED = "DEPENDENCY_ADDED";
+    public static final String DEPENDENCY_ADDED = "DEPENDENCY_ADDED";
 
     @JsonProperty("dependencyName")
     private final String dependencyName;

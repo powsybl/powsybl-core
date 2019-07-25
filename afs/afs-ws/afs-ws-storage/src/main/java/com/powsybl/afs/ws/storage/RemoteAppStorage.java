@@ -72,7 +72,7 @@ public class RemoteAppStorage extends AbstractAppStorage {
     public RemoteAppStorage(String fileSystemName, URI baseUri, String token) {
         this.fileSystemName = Objects.requireNonNull(fileSystemName);
         this.token = token;
-        this.eventsBus = new RemoteEventsBus(this, baseUri);
+        this.eventsBus = new WebSocketEventBus(this, baseUri);
 
         client = createClient();
 

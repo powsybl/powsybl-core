@@ -17,7 +17,7 @@ import java.util.Objects;
  */
 public class NodeNameUpdated extends NodeEvent {
 
-    private static final String NODE_NAME_UPDATED = "NODE_NAME_UPDATED";
+    public static final String NODE_NAME_UPDATED = "NODE_NAME_UPDATED";
 
     @JsonProperty("name")
     private final String name;

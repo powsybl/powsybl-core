@@ -8,11 +8,10 @@ package com.powsybl.afs.ws.server;
 
 import com.powsybl.afs.storage.AbstractAppStorageTest;
 import com.powsybl.afs.storage.AppStorage;
-import com.powsybl.afs.storage.events.NodeCreated;
 import com.powsybl.afs.ws.client.utils.ClientUtils;
 import com.powsybl.afs.ws.client.utils.UserSession;
 import com.powsybl.afs.ws.storage.RemoteAppStorage;
-import com.powsybl.afs.ws.storage.RemoteEventsBus;
+import com.powsybl.afs.ws.storage.WebSocketEventBus;
 import com.powsybl.commons.exceptions.UncheckedUriSyntaxException;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
@@ -95,14 +94,10 @@ public class AppStorageServerTest extends AbstractAppStorageTest {
     }
 
     @Test
-    public void testRemoteEventsStore() {
+    public void testRemoteEventsStore() throws InterruptedException {
         URI restUri = getRestUri();
         RemoteAppStorage storage = new RemoteAppStorage(AppDataBeanMock.TEST_FS_NAME, restUri,
                 userSession.getToken());
-        assertEquals(0, ((RemoteEventsBus) storage.getEventsBus()).getTopics().size());
-        storage.getEventsBus().pushEvent(new NodeCreated("id", "parentId"), "topic");
-        assertEquals(1, ((RemoteEventsBus) storage.getEventsBus()).getTopics().size());
-        storage.getEventsBus().flush();
-        assertEquals(0, ((RemoteEventsBus) storage.getEventsBus()).getTopics().size());
+        assertEquals(0, ((WebSocketEventBus) storage.getEventsBus()).getTopics().size());
     }
 }

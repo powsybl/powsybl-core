@@ -16,7 +16,7 @@ import java.util.Objects;
  */
 public class NodeRemoved extends NodeEvent {
 
-    private static final String NODE_REMOVED = "NODE_REMOVED";
+    public static final String NODE_REMOVED = "NODE_REMOVED";
 
     @JsonProperty("parentId")
     protected final String parentId;

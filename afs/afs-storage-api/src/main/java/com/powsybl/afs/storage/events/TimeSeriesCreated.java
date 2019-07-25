@@ -16,7 +16,7 @@ import java.util.Objects;
  */
 public class TimeSeriesCreated extends NodeEvent {
 
-    private static final String TIME_SERIES_CREATED = "TIME_SERIES_CREATED";
+    public static final String TIME_SERIES_CREATED = "TIME_SERIES_CREATED";
 
     @JsonProperty("timeSeriesName")
     private final String timeSeriesName;

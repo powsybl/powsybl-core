@@ -16,7 +16,7 @@ import java.util.Objects;
  */
 public class TimeSeriesDataUpdated extends NodeEvent {
 
-    private static final String TIME_SERIES_DATA_UPDATED = "TIME_SERIES_DATA_UPDATED";
+    public static final String TIME_SERIES_DATA_UPDATED = "TIME_SERIES_DATA_UPDATED";
 
     @JsonProperty("timeSeriesName")
     private final String timeSeriesName;

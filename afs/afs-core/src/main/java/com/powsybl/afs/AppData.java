@@ -72,7 +72,7 @@ public class AppData implements AutoCloseable {
     private SecurityTokenProvider tokenProvider = () -> null;
 
     public AppData(ComputationManager shortTimeExecutionComputationManager, ComputationManager longTimeExecutionComputationManager) {
-        this(shortTimeExecutionComputationManager, longTimeExecutionComputationManager, getDefaultEventsStore());
+        this(shortTimeExecutionComputationManager, longTimeExecutionComputationManager, getDefaultEventsBus());
     }
 
     public AppData(ComputationManager shortTimeExecutionComputationManager, ComputationManager longTimeExecutionComputationManager, EventsBus eventsBus) {
@@ -83,7 +83,7 @@ public class AppData implements AutoCloseable {
     public AppData(ComputationManager shortTimeExecutionComputationManager,
                    ComputationManager longTimeExecutionComputationManager, List<AppFileSystemProvider> fileSystemProviders) {
         this(shortTimeExecutionComputationManager, longTimeExecutionComputationManager,
-                fileSystemProviders, getDefaultEventsStore());
+                fileSystemProviders, getDefaultEventsBus());
     }
 
     public AppData(ComputationManager shortTimeExecutionComputationManager,
@@ -96,7 +96,7 @@ public class AppData implements AutoCloseable {
                    List<AppFileSystemProvider> fileSystemProviders, List<FileExtension> fileExtensions,
                    List<ProjectFileExtension> projectFileExtensions, List<ServiceExtension> serviceExtensions) {
         this(shortTimeExecutionComputationManager, longTimeExecutionComputationManager, fileSystemProviders, fileExtensions,
-                projectFileExtensions, serviceExtensions, getDefaultEventsStore());
+                projectFileExtensions, serviceExtensions, getDefaultEventsBus());
     }
 
     public AppData(ComputationManager shortTimeExecutionComputationManager, ComputationManager longTimeExecutionComputationManager,
@@ -134,7 +134,7 @@ public class AppData implements AutoCloseable {
         return new ServiceLoaderCache<>(ProjectFileExtension.class).getServices();
     }
 
-    private static EventsBus getDefaultEventsStore() {
+    private static EventsBus getDefaultEventsBus() {
         return new InMemoryEventsBus();
     }
 
