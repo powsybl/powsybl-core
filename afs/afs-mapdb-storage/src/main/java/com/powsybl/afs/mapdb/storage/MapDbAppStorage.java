@@ -30,6 +30,11 @@ import java.util.stream.Stream;
  */
 public class MapDbAppStorage extends AbstractAppStorage {
 
+    @FunctionalInterface
+    public interface MapDbAppStorageProvider<F, S, T, R> {
+        public R apply(F first, S second, T third);
+    }
+
     public static MapDbAppStorage createMem(String fileSystemName, EventsBus eventsBus) {
         DBMaker.Maker maker = DBMaker.memoryDB();
         return new MapDbAppStorage(fileSystemName, maker::make, eventsBus);

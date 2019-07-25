@@ -12,7 +12,6 @@ import com.powsybl.afs.AppFileSystemProvider;
 import com.powsybl.afs.AppFileSystemProviderContext;
 import com.powsybl.afs.mapdb.storage.MapDbAppStorage;
 import com.powsybl.afs.storage.EventsBus;
-import com.powsybl.commons.util.TriFunction;
 
 import java.nio.file.Path;
 import java.util.List;
@@ -27,14 +26,14 @@ public class MapDbAppFileSystemProvider implements AppFileSystemProvider {
 
     private final List<MapDbAppFileSystemConfig> configs;
 
-    private TriFunction<String, Path, EventsBus, MapDbAppStorage> storageProvider;
+    private MapDbAppStorage.MapDbAppStorageProvider<String, Path, EventsBus, MapDbAppStorage> storageProvider;
 
     public MapDbAppFileSystemProvider() {
         this(MapDbAppFileSystemConfig.load(), (name, path, eventsStore) -> MapDbAppStorage.createMmapFile(name, path.toFile(), eventsStore));
     }
 
     public MapDbAppFileSystemProvider(List<MapDbAppFileSystemConfig> configs,
-                                      TriFunction<String, Path, EventsBus, MapDbAppStorage> storageProvider) {
+                                      MapDbAppStorage.MapDbAppStorageProvider<String, Path, EventsBus, MapDbAppStorage> storageProvider) {
         this.configs = Objects.requireNonNull(configs);
         this.storageProvider = Objects.requireNonNull(storageProvider);
     }
