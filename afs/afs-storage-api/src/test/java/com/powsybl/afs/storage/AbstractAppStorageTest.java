@@ -533,5 +533,7 @@ public abstract class AbstractAppStorageTest {
 
         // 19 check that eventsBus is not null
         assertNotNull(storage.getEventsBus());
+
+        storage.getEventsBus().pushEvent(new NodeCreated("test", "test"), "test useful for RemoteStorage event push");
     }
 }
