@@ -358,12 +358,12 @@ INSERT { GRAPH ?graph
 	}
 WHERE
 {     
-    { { GRAPH ?graph
+    { GRAPH ?graph
           { ?subject  ?predicate  ?value .
-            FILTER ( STRENDS(STR(?subject), "{1}") && STRENDS(STR(?predicate), "{2}") )
+            FILTER ( STRENDS(STR(?subject), "{1}") && STRENDS(STR(?predicate), STRAFTER( "{2}", "cim:")) )
           }
       }
-    }
+    
     UNION
 	{ GRAPH ?graph
         { ?subject  ?predicate  ?value .
@@ -376,21 +376,43 @@ WHERE
                 }
               }
           }
-          FILTER STRENDS(STR(?predicate), "{2}")
+          FILTER (STRENDS(STR(?predicate), STRAFTER( "{2}", "cim:")))
         }
     }
 }
 
+# query: updateCgmesfromIidmCreate
+INSERT { GRAPH <{0}> {
+		?subject  {2} ?value .
+}}
+WHERE {
+    SELECT ?subject ?value
+    WHERE { GRAPH <{0}> {
+    	?subjectIn  ?predicate  ?v ;
+    	BIND ( CONCAT(STRBEFORE(STR(?subjectIn),"/#"),"/#") AS ?resource ).
+    	BIND ( IRI(CONCAT(?resource,"{1}")) AS ?subject ).
+    	{BIND ("{3}" AS ?parameter)}
+    	{BIND ( ?parameter AS ?valueLiteral ) }
+    	{BIND ( IRI(STR(?parameter)) AS ?valueResource ) }
+    	{BIND ( IF( STRSTARTS(STR(?parameter), "cim:"), ?valueResource,?valueLiteral)  AS ?value)}
+    	#BIND( IF(isLiteral("{3}"), "{3}", IRI(STR("{3}")) ) AS ?value) .
+    	#BIND( IF( STRSTARTS("{3}", "cim:"), IRI(STR("{3}")), "{3}") AS ?value).
+    }}
+    LIMIT 1
+}
+
+# query: updateCgmesfromIidmRemove
+
 # query: checkCgmesUpdated
-SELECT  ?subject  ?predicate  ?value
+SELECT ?subject  ?predicate  ?value 
 WHERE
 {     
-    { { GRAPH <{0}>
+    { GRAPH ?graph
           { ?subject  ?predicate  ?value .
-            FILTER ( STRENDS(STR(?subject), "{1}") && STRENDS(STR(?predicate), "{2}") )
+            FILTER ( STRENDS(STR(?subject), "{1}") && STRENDS(STR(?predicate), STRAFTER( "{2}", "cim:")) )
           }
       }
-    }
+    
     UNION
 	{ GRAPH ?graph
         { ?subject  ?predicate  ?value .
@@ -403,10 +425,19 @@ WHERE
                 }
               }
           }
-          FILTER STRENDS(STR(?predicate), "{2}")
+          FILTER (STRENDS(STR(?predicate), STRAFTER( "{2}", "cim:")))
         }
     }
 }
+
+# query: tmp2
+SELECT *
+WHERE
+{ GRAPH <{0}> {
+    ?subject  ?predicate  ?value .
+    FILTER(CONTAINS(STR(?subject), "{1}"))
+}}
+
 
 # query: tmp
 SELECT *

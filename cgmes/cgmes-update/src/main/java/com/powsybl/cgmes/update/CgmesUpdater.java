@@ -1,5 +1,7 @@
 package com.powsybl.cgmes.update;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -7,15 +9,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.conversion.CgmesModelExtension;
+import com.powsybl.cgmes.conversion.NamingStrategy;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.triplestore.api.PropertyBags;
 
 public class CgmesUpdater {
 
-    public CgmesUpdater(Network network, List<IidmChangeOnUpdate> changes) {
+    public CgmesUpdater(Network network, List<IidmChange> changes) {
         this.network = network;
         this.changes = changes;
+        this.namingStrategy = new NamingStrategy.Identity();
     }
 
     public void addListenerForUpdates() {
@@ -29,16 +33,40 @@ public class CgmesUpdater {
         if (network.getExtension(CgmesModelExtension.class) != null) {
             CgmesModel cgmes = network.getExtension(CgmesModelExtension.class).getCgmesModel();
 
-            for (IidmChangeOnUpdate change : changes) {
-                for (String context : cgmes.tripleStore().contextNames()) {
-                    LOG.info("Update cgmes for: " + context);
+            for (IidmChange change : changes) {
 
-                    iidmToCgmes = new IidmToCgmes(change);
-                    cgmesChanges = iidmToCgmes.convert(change);
-                    String contextName = context;
+                cgmesSubject = namingStrategy.getCgmesId(change.getIdentifiableId());
+                String instanceClassOfIidmChange = instanceClassOfIidmChange(change);
+                
+                IidmToCgmes iidmToCgmes = new IidmToCgmes(change);
+                mapContextAttributesValuesOfIidmChange = iidmToCgmes.convert();
+                // we need to iterate over the above map, as for onCreate call there will be
+                // multiples attributes-values pairs.
+                Iterator entries = mapContextAttributesValuesOfIidmChange.entrySet().iterator();
+                while (entries.hasNext()) {
+                    Map.Entry entry = (Map.Entry) entries.next();
+                    MapTriplestorePredicateToContext map = (MapTriplestorePredicateToContext) entry.getKey();
+                    cgmesPredicate = map.getAttributeName();
+                    cgmesValue = (String) entry.getValue();
+                    currentContext = map.getContext();
 
-                    PropertyBags result = cgmes.updateCgmes(contextName, cgmesChanges);
-                    LOG.info(result.tabulate());
+                    for (String context : cgmes.tripleStore().contextNames()) {
+
+                        cgmesChanges = new HashMap<>();
+                        cgmesChanges.put("cgmesSubject", cgmesSubject);
+                        cgmesChanges.put("cgmesPredicate", cgmesPredicate);
+                        cgmesChanges.put("cgmesNewValue", cgmesValue);
+
+                        // check if the current triplestore context contains the context-string mapped
+                        // in the IidmToCgmes class converter. If yes - call update.
+                        if (context.toUpperCase().contains(currentContext)) {
+
+                            PropertyBags result = cgmes.updateCgmes(context, cgmesChanges,
+                                instanceClassOfIidmChange);
+
+                            LOG.info(result.tabulate());
+                        }
+                    }
                 }
             }
 
@@ -48,10 +76,20 @@ public class CgmesUpdater {
         return cgmes;
     }
 
+    private String instanceClassOfIidmChange(IidmChange change) {
+        return change.getClass().getSimpleName();
+    }
+
     private Network network;
     private CgmesModel cgmes;
-    private List<IidmChangeOnUpdate> changes;
-    private IidmToCgmes iidmToCgmes;
+    private List<IidmChange> changes;
+    private NamingStrategy namingStrategy;
+    private String cgmesSubject;
+    private String cgmesPredicate;
+    private String cgmesValue;
+    private String currentContext;
     private Map<String, String> cgmesChanges;
+    private Map<MapTriplestorePredicateToContext, String> mapContextAttributesValuesOfIidmChange;
+
     private static final Logger LOG = LoggerFactory.getLogger(CgmesUpdater.class);
 }
