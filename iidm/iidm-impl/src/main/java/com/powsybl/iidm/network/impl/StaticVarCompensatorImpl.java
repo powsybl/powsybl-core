@@ -49,16 +49,6 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
     }
 
     @Override
-    protected <S, T extends S> void notifyUpdate(String attribute, S oldValue, T newValue) {
-        getNetwork().getListeners().notifyUpdate(this, attribute, oldValue, newValue);
-    }
-
-    @Override
-    protected <S, T extends S> void notifyUpdate(String attribute, String variantId, S oldValue, T newValue) {
-        getNetwork().getListeners().notifyUpdate(this, attribute, variantId, oldValue, newValue);
-    }
-
-    @Override
     public Terminal getTerminal() {
         return terminals.get(0);
     }

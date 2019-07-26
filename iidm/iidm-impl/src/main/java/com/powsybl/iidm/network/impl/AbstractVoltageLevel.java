@@ -52,7 +52,7 @@ abstract class AbstractVoltageLevel extends AbstractIdentifiable<VoltageLevel> i
         return substation.getNetwork();
     }
 
-    private <S, T extends S> void notifyUpdate(String attribute, S oldValue, T newValue) {
+    private void notifyUpdate(String attribute, Object oldValue, Object newValue) {
         getNetwork().getListeners().notifyUpdate(this, attribute, oldValue, newValue);
     }
 

@@ -39,7 +39,8 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         if (terminals.isEmpty()) {
             throw new PowsyblException(id + " is not attached to a network");
         }
-        // Avoid NetworkRemoveTest::removeLineTest to fail
+
+        // During the removal of a multi terminals component (Line, 2WT or 3WT), terminals are detached from the voltage level
         return terminals.stream()
                         .map(TerminalExt::getVoltageLevel)
                         .filter(Objects::nonNull)
@@ -60,15 +61,15 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         network.getListeners().notifyRemoval(this);
     }
 
-    protected <S, T extends S> void notifyUpdate(String attribute, S oldValue, T newValue) {
+    protected void notifyUpdate(String attribute, Object oldValue, Object newValue) {
         getNetwork().getListeners().notifyUpdate(this, attribute, oldValue, newValue);
     }
 
-    protected <S, T extends S> void notifyUpdate(Supplier<String> attribute, String variantId, S oldValue, T newValue) {
+    protected void notifyUpdate(Supplier<String> attribute, String variantId, Object oldValue, Object newValue) {
         getNetwork().getListeners().notifyUpdate(this, attribute, variantId, oldValue, newValue);
     }
 
-    protected <S, T extends S> void notifyUpdate(String attribute, String variantId, S oldValue, T newValue) {
+    protected void notifyUpdate(String attribute, String variantId, Object oldValue, Object newValue) {
         getNetwork().getListeners().notifyUpdate(this, attribute, variantId, oldValue, newValue);
     }
 

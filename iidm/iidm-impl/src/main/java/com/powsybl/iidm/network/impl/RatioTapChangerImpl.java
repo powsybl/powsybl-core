@@ -36,7 +36,7 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
         }
     }
 
-    protected <S, T extends S> void notifyUpdate(Supplier<String> attribute, String variantId, S oldValue, T newValue) {
+    protected void notifyUpdate(Supplier<String> attribute, String variantId, Object oldValue, Object newValue) {
         parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), attribute, variantId, oldValue, newValue);
     }
 

@@ -33,13 +33,13 @@ class NetworkListenerList {
         listeners.remove(listener);
     }
 
-    <S, T extends S> void notifyUpdate(Identifiable identifiable, Supplier<String> attribute, S oldValue, T newValue) {
+    void notifyUpdate(Identifiable identifiable, Supplier<String> attribute, Object oldValue, Object newValue) {
         if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
             notifyListeners(identifiable, attribute.get(), oldValue, newValue);
         }
     }
 
-    <S, T extends S> void notifyUpdate(Identifiable identifiable, String attribute, S oldValue, T newValue) {
+    void notifyUpdate(Identifiable identifiable, String attribute, Object oldValue, Object newValue) {
         if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
             notifyListeners(identifiable, attribute, oldValue, newValue);
         }
@@ -55,19 +55,19 @@ class NetworkListenerList {
         }
     }
 
-    <S, T extends S> void notifyUpdate(Identifiable identifiable, Supplier<String> attribute, String variantId, S oldValue, T newValue) {
+    void notifyUpdate(Identifiable identifiable, Supplier<String> attribute, String variantId, Object oldValue, Object newValue) {
         if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
             notifyListeners(identifiable, attribute.get(), variantId, oldValue, newValue);
         }
     }
 
-    <S, T extends S> void notifyUpdate(Identifiable identifiable, String attribute, String variantId, S oldValue, T newValue) {
+    void notifyUpdate(Identifiable identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
         if (!listeners.isEmpty() && !Objects.equals(oldValue, newValue)) {
             notifyListeners(identifiable, attribute, variantId, oldValue, newValue);
         }
     }
 
-    private <S, T extends S> void notifyListeners(Identifiable identifiable, String attribute, String variantId, S oldValue, T newValue) {
+    private void notifyListeners(Identifiable identifiable, String attribute, String variantId, Object oldValue, Object newValue) {
         for (NetworkListener listener : listeners) {
             try {
                 listener.onUpdate(identifiable, attribute, variantId, oldValue, newValue);

@@ -46,8 +46,6 @@ class BusTerminal extends AbstractTerminal {
             int variantIndex = network.get().getVariantIndex();
             String oldValue = BusTerminal.this.connectableBusId.set(variantIndex, busId);
             vl.attach(BusTerminal.this, false);
-            // Keep connectableBusId update notification after attach method
-            // Avoid NetworkRemoveTest:moveLoadToNewBus to fail
             String variantId = network.get().getVariantManager().getVariantId(variantIndex);
             getConnectable().notifyUpdate("connectableBusId", variantId, oldValue, busId);
         }
