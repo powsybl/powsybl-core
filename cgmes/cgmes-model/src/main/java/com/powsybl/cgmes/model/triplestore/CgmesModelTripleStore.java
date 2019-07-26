@@ -21,7 +21,7 @@ import com.powsybl.cgmes.model.AbstractCgmesModel;
 import com.powsybl.cgmes.model.CgmesModelException;
 import com.powsybl.cgmes.model.CgmesNames;
 import com.powsybl.cgmes.model.CgmesNamespace;
-import com.powsybl.cgmes.model.Subset;
+import com.powsybl.cgmes.model.CgmesSubset;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -43,8 +43,9 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         Objects.requireNonNull(queryCatalog);
     }
 
-    public void read(String base, String contextName, InputStream is) {
-        tripleStore.read(base, contextName, is);
+    @Override
+    public void read(InputStream is, String baseName, String contextName) {
+        tripleStore.read(is, baseName, contextName);
     }
 
     @Override
@@ -85,7 +86,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
                     return true;
                 }
             }
-            return false; // If we have a query for model profiles but none of the profiles contains "EquipmentCore", equipment core is not available
+            return false; // If we have a query for model profiles but none of the profiles contains
+                          // "EquipmentCore", equipment core is not available
         }
         // If we do not have a query for model profiles we assume equipment core is
         // available
@@ -431,7 +433,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     // Updates
 
     @Override
-    public void clear(Subset subset) {
+    public void clear(CgmesSubset subset) {
         // TODO Remove all contexts that are related to the profile of the subset
         // For example for state variables:
         // <md:Model.profile>http://entsoe.eu/CIM/StateVariables/4/1</md:Model.profile>
@@ -445,16 +447,38 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public void add(String contextName, String type, PropertyBags objects) {
+    public void add(CgmesSubset subset, String type, PropertyBags objects) {
+        String contextName = contextNameFor(subset);
         try {
-            tripleStore.add(contextName, cimNamespace + type, objects);
+            tripleStore.add(contextName, cimNamespace, type, objects);
         } catch (TripleStoreException x) {
-            String msg = String.format("Adding objects of type %s to context %s", type, contextName);
+            String msg = String.format("Adding objects of type %s to subset %s, context %s", type, subset, contextName);
             throw new CgmesModelException(msg, x);
         }
     }
 
-    // Private
+    private String contextNameFor(CgmesSubset subset) {
+        String contextNameEQ = contextNameForEquipmentSubset();
+        return contextNameEQ != null
+            ? buildContextNameForSubsetFrom(contextNameEQ, subset)
+            : modelId() + "_" + subset + ".xml";
+    }
+
+    private String contextNameForEquipmentSubset() {
+        String eq = CgmesSubset.EQUIPMENT.getIdentifier();
+        String eqBD = CgmesSubset.EQUIPMENT_BOUNDARY.getIdentifier();
+        for (String contextName : tripleStore.contextNames()) {
+            if (contextName.contains(eq) && !contextName.contains(eqBD)) {
+                return contextName;
+            }
+        }
+        return null;
+    }
+
+    private String buildContextNameForSubsetFrom(String contextNameEQ, CgmesSubset subset) {
+        String eq = CgmesSubset.EQUIPMENT.getIdentifier();
+        return contextNameEQ.replace(eq, subset.getIdentifier());
+    }
 
     private QueryCatalog queryCatalogFor(String cimNamespace) {
         QueryCatalog qc = null;
