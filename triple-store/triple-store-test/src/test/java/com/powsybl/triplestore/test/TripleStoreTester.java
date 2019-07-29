@@ -7,8 +7,9 @@
 
 package com.powsybl.triplestore.test;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -33,9 +34,9 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
  */
 public class TripleStoreTester {
 
-    public TripleStoreTester(List<String> implementations, String base, String... inputResourceNames) {
+    public TripleStoreTester(List<String> implementations, String baseName, String... inputResourceNames) {
         this.implementations = implementations;
-        this.base = base;
+        this.baseName = baseName;
         this.inputResourceNames = inputResourceNames;
         this.tripleStores = new HashMap<>(implementations.size());
     }
@@ -47,9 +48,9 @@ public class TripleStoreTester {
             assertNotNull(ts);
             for (String r : inputResourceNames) {
                 try (InputStream is = resourceStream(r)) {
-                    ts.read(base, r, is);
+                    ts.read(is, baseName, r);
                 } catch (IOException e) {
-                    throw new TripleStoreException(String.format("Reading %s %s", base, r), e);
+                    throw new TripleStoreException(String.format("Reading %s %s", baseName, r), e);
                 }
             }
             ts.print(LOG::info);
@@ -65,7 +66,7 @@ public class TripleStoreTester {
             int size = expected.values().iterator().next().size();
             assertEquals(size, results.size());
             expected.keySet()
-                    .forEach(property -> assertEquals(expected.get(property), results.pluckLocals(property)));
+                .forEach(property -> assertEquals(expected.get(property), results.pluckLocals(property)));
         }
     }
 
@@ -122,7 +123,7 @@ public class TripleStoreTester {
     }
 
     private final List<String> implementations;
-    private final String base;
+    private final String baseName;
     private final String[] inputResourceNames;
     private final Map<String, TripleStore> tripleStores;
 

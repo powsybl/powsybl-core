@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Terminal;
 import gnu.trove.list.array.TDoubleArrayList;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  *
@@ -35,6 +36,10 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
         for (int i = 0; i < variantArraySize; i++) {
             this.regulationValue.add(regulationValue);
         }
+    }
+
+    protected void notifyUpdate(Supplier<String> attribute, String variantId, Object oldValue, Object newValue) {
+        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), attribute, variantId, oldValue, newValue);
     }
 
     @Override
@@ -62,7 +67,10 @@ class PhaseTapChangerImpl extends AbstractTapChanger<PhaseTapChangerParent, Phas
     @Override
     public PhaseTapChangerImpl setRegulationValue(double regulationValue) {
         ValidationUtil.checkPhaseTapChangerRegulation(parent, regulationMode, regulationValue, isRegulating(), getRegulationTerminal(), getNetwork());
-        this.regulationValue.set(network.get().getVariantIndex(), regulationValue);
+        int variantIndex = network.get().getVariantIndex();
+        double oldValue = this.regulationValue.set(variantIndex, regulationValue);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        notifyUpdate(() -> getTapChangerAttribute() + ".regulationValue", variantId, oldValue, regulationValue);
         return this;
     }
 

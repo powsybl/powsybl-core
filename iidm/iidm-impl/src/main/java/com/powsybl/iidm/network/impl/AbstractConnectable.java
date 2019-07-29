@@ -11,6 +11,7 @@ import com.powsybl.iidm.network.Connectable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
@@ -38,7 +39,14 @@ abstract class AbstractConnectable<I extends Connectable<I>> extends AbstractIde
         if (terminals.isEmpty()) {
             throw new PowsyblException(id + " is not attached to a network");
         }
-        return terminals.get(0).getVoltageLevel().getNetwork();
+
+        // During the removal of a multi terminals component (Line, 2WT or 3WT), terminals are detached from the voltage level
+        return terminals.stream()
+                        .map(TerminalExt::getVoltageLevel)
+                        .filter(Objects::nonNull)
+                        .map(VoltageLevelExt::getNetwork)
+                        .findFirst()
+                        .orElse(null);
     }
 
     @Override
