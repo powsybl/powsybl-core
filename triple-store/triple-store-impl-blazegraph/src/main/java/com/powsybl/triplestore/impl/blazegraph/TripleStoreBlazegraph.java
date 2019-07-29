@@ -312,7 +312,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
                     connClone.add(model, context);
                 }
                 connClone.commit();
-                // checkClonedRepo(conn, connClone);
+                checkClonedRepo(conn, connClone);
             } catch (Exception x) {
                 LOG.error("Exception while adding statements to connClone. {}", x.getMessage());
             } finally {
@@ -402,8 +402,8 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
                 LOG.info("repoClone Statements for {} is: {}", context, statementsCount(connClone, context));
 
             }
-        } catch (RepositoryException e) {
-            LOG.error("closing when getting context names : {}", e.getMessage());
+        } catch (RepositoryException|IllegalArgumentException e) {
+            LOG.warn("closing when checkClonedRepo : {}", e.getMessage());
         }
     }
 

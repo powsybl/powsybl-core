@@ -382,24 +382,32 @@ WHERE
 }
 
 # query: updateCgmesfromIidmCreate
+# this will construct resource iri for subject ID;
+# it will add cim prefix if required, and 
+# create value as object or literal, depending on the "valueIsNode".
 INSERT { GRAPH <{0}> {
-		?subject  {2} ?value .
+	?subject  {2} ?value .
 }}
 WHERE {
-    SELECT ?subject ?value
+    SELECT ?subject ?value 
     WHERE { GRAPH <{0}> {
-    	?subjectIn  ?predicate  ?v ;
-    	BIND ( CONCAT(STRBEFORE(STR(?subjectIn),"/#"),"/#") AS ?resource ).
-    	BIND ( IRI(CONCAT(?resource,"{1}")) AS ?subject ).
-    	{BIND ("{3}" AS ?parameter)}
-    	{BIND ( ?parameter AS ?valueLiteral ) }
-    	{BIND ( IRI(STR(?parameter)) AS ?valueResource ) }
-    	{BIND ( IF( STRSTARTS(STR(?parameter), "cim:"), ?valueResource,?valueLiteral)  AS ?value)}
-    	#BIND( IF(isLiteral("{3}"), "{3}", IRI(STR("{3}")) ) AS ?value) .
-    	#BIND( IF( STRSTARTS("{3}", "cim:"), IRI(STR("{3}")), "{3}") AS ?value).
+	{
+	BIND ("{3}" AS ?object) 
+	BIND ( STRAFTER( STR("{3}"), "cim:") AS ?object_value)
+	BIND ( IRI( CONCAT( "{5}", ?object_value ) ) AS ?object_iri)
+	BIND ( IF( STRSTARTS(STR(?object), "cim:"),?object_iri , IF( "{6}"="true", IRI(CONCAT("{4}",?object)), ?object ) )  AS ?value).
+	}
+    BIND ( IRI(CONCAT("{4}","{1}")) AS ?subject ).
     }}
-    LIMIT 1
 }
+
+# query: getCurrentResource
+SELECT ?resource
+WHERE { GRAPH <{0}> {
+	?s  ?p ?v ;
+	BIND ( CONCAT(STRBEFORE(STR(?s),"/#"),"/#") AS ?resource ).
+}}
+LIMIT 1
 
 # query: updateCgmesfromIidmRemove
 
@@ -409,7 +417,8 @@ WHERE
 {     
     { GRAPH ?graph
           { ?subject  ?predicate  ?value .
-            FILTER ( STRENDS(STR(?subject), "{1}") && STRENDS(STR(?predicate), STRAFTER( "{2}", "cim:")) )
+            FILTER ( STRENDS(STR(?subject), "{1}") #&& STRENDS(STR(?predicate), STRAFTER( "{2}", "cim:")) 
+            )
           }
       }
     
@@ -425,21 +434,12 @@ WHERE
                 }
               }
           }
-          FILTER (STRENDS(STR(?predicate), STRAFTER( "{2}", "cim:")))
+          #FILTER (STRENDS(STR(?predicate), STRAFTER( "{2}", "cim:")))
         }
     }
 }
 
 # query: tmp2
-SELECT *
-WHERE
-{ GRAPH <{0}> {
-    ?subject  ?predicate  ?value .
-    FILTER(CONTAINS(STR(?subject), "{1}"))
-}}
-
-
-# query: tmp
 SELECT *
 WHERE {
 { GRAPH <{0}> {

@@ -2,10 +2,10 @@ package com.powsybl.cgmes.update.elements;
 
 import java.util.Map;
 
-import com.powsybl.cgmes.update.MapTriplestorePredicateToContext;
+import com.powsybl.cgmes.update.CgmesPredicateDetails;
 
 public interface ConversionOnCreate {
 
-    public Map<MapTriplestorePredicateToContext, String> getIdentifiableAttributes();
+    public Map<CgmesPredicateDetails, String> getIdentifiableAttributes();
 
 }

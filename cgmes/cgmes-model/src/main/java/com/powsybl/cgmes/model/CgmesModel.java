@@ -123,7 +123,7 @@ public interface CgmesModel {
     PropertyBags dcTerminalsTP();
 
     // TODO (elena) implement method
-    PropertyBags updateCgmes(String context, Map<String, String> cgmesChanges);
+    PropertyBags updateCgmes(String context, Map<String, String> cgmesChanges,String changeInstanceName);
 
     void clear(Subset subset);
 

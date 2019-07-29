@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.powsybl.cgmes.update.IidmChange;
 import com.powsybl.cgmes.update.IidmToCgmes;
-import com.powsybl.cgmes.update.MapTriplestorePredicateToContext;
+import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.iidm.network.Generator;
 
 public class GeneratorOnCreate extends IidmToCgmes implements ConversionOnCreate {
@@ -14,25 +14,25 @@ public class GeneratorOnCreate extends IidmToCgmes implements ConversionOnCreate
     }
 
     @Override
-    public Map<MapTriplestorePredicateToContext, String> getIdentifiableAttributes() {
+    public Map<CgmesPredicateDetails, String> getIdentifiableAttributes() {
 
-        Map<MapTriplestorePredicateToContext, String> mapContextPredicateValue = new HashMap<MapTriplestorePredicateToContext, String>();
+        Map<CgmesPredicateDetails, String> mapContextPredicateValue = new HashMap<CgmesPredicateDetails, String>();
 
         Generator newGenerator = (Generator) change.getIdentifiable();
         Map<String, Object> iidmToCgmesMapper = generatorToSynchronousMachine();
 
-        mapContextPredicateValue.put((MapTriplestorePredicateToContext) iidmToCgmesMapper.get("rdfType"),
+        mapContextPredicateValue.put((CgmesPredicateDetails) iidmToCgmesMapper.get("rdfType"),
             "SynchronousMachine");
 
         String name = newGenerator.getName();
         if (name != null) {
-            mapContextPredicateValue.put((MapTriplestorePredicateToContext) iidmToCgmesMapper.get("name"),
+            mapContextPredicateValue.put((CgmesPredicateDetails) iidmToCgmesMapper.get("name"),
                 name);
         }
 
         Double ratedS = newGenerator.getRatedS();
         if (ratedS != null) {
-            mapContextPredicateValue.put((MapTriplestorePredicateToContext) iidmToCgmesMapper.get("ratedS"),
+            mapContextPredicateValue.put((CgmesPredicateDetails) iidmToCgmesMapper.get("ratedS"),
                 ratedS.toString());
         }
 

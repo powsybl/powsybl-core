@@ -22,12 +22,12 @@ public class IidmToCgmes {
         this.change = change;
     }
 
-    public Map<MapTriplestorePredicateToContext, String> convert() throws Exception {
+    public Map<CgmesPredicateDetails, String> convert() throws Exception {
 
         // map Identifiable Instance with its method for IIDM - CGMES conversion
         Map<String, Callable<Map<String, Object>>> getConversionMapper = new HashMap<>();
-         getConversionMapper.put("GeneratorImpl", () -> generatorToSynchronousMachine());
-        // getConversionMapper.put("LoadImpl", () -> loadToEnergyConsumer());
+        getConversionMapper.put("GeneratorImpl", () -> generatorToSynchronousMachine());
+        getConversionMapper.put("LoadImpl", () -> loadToEnergyConsumer());
         getConversionMapper.put("SubstationImpl", () -> substationToSubstation());
         getConversionMapper.put("BusBreakerVoltageLevel", () -> voltageLevelToVoltageLevel());
 
@@ -35,14 +35,14 @@ public class IidmToCgmes {
         iidmInstanceName = getIidmInstanceName();
 
         iidmToCgmesMapper = getConversionMapper.get(iidmInstanceName).call();
-        mapContextAttributesValuesOfIidmChange = new HashMap<>();
+        mapChangeDetails = new HashMap<>();
 
         if (change.getAttribute() != null && change.getNewValueString() != null) {
             String cgmesNewValue = change.getNewValueString();
-            MapTriplestorePredicateToContext predicateToContext = (MapTriplestorePredicateToContext) iidmToCgmesMapper
+            CgmesPredicateDetails predicateToContext = (CgmesPredicateDetails) iidmToCgmesMapper
                 .get(change.getAttribute());
 
-            mapContextAttributesValuesOfIidmChange.put(predicateToContext, cgmesNewValue);
+            mapChangeDetails.put(predicateToContext, cgmesNewValue);
 
         } else {
             // for onCreate all fields are inside the Identifiable object.
@@ -51,23 +51,23 @@ public class IidmToCgmes {
             switch (iidmInstanceName) {
                 case "SubstationImpl":
                     SubstationOnCreate sub = new SubstationOnCreate(change);
-                    mapContextAttributesValuesOfIidmChange = sub.getIdentifiableAttributes();
+                    mapChangeDetails = sub.getIdentifiableAttributes();
                     break;
                 case "BusBreakerVoltageLevel":
                     VoltageLevelOnCreate vl = new VoltageLevelOnCreate(change);
-                    mapContextAttributesValuesOfIidmChange = vl.getIdentifiableAttributes();
+                    mapChangeDetails = vl.getIdentifiableAttributes();
                     break;
                 case "GeneratorImpl":
                     GeneratorOnCreate gr = new GeneratorOnCreate(change);
-                    mapContextAttributesValuesOfIidmChange = gr.getIdentifiableAttributes();
+                    mapChangeDetails = gr.getIdentifiableAttributes();
                     break;
                 default:
-                    LOG.info("DEFAULT FROM SWITCH IidmToCgmes ");
+                    LOG.info("This element is not convertable to CGMES");
             }
 
         }
 
-        return mapContextAttributesValuesOfIidmChange;
+        return mapChangeDetails;
     }
 
     public String getIidmInstanceName() {
@@ -77,46 +77,50 @@ public class IidmToCgmes {
 
     public static Map<String, Object> generatorToSynchronousMachine() {
         return Collections.unmodifiableMap(Stream.of(
-            entry("rdfType", new MapTriplestorePredicateToContext("rdf:type", "_EQ")),
-            entry("name", new MapTriplestorePredicateToContext("cim:IdentifiedObject.name", "_EQ")),
-            entry("minQ", new MapTriplestorePredicateToContext("cim:SynchronousMachine.minQ", "_EQ")),
-            entry("maxQ", new MapTriplestorePredicateToContext("cim:SynchronousMachine.maxQ", "_EQ")),
-            entry("qPercent", new MapTriplestorePredicateToContext("cim:SynchronousMachine.qPercent", "_EQ")),
-            entry("ratedS", new MapTriplestorePredicateToContext("cim:SynchronousMachine.ratedS", "_EQ")),
-            entry("targetP", new MapTriplestorePredicateToContext("cim:GeneratingUnit.nominalP", "_EQ")),
-            entry("minP", new MapTriplestorePredicateToContext("cim:GeneratingUnit.minOperatingP", "_EQ")),
-            entry("maxP", new MapTriplestorePredicateToContext("cim:GeneratingUnit.maxOperatingP", "_EQ")),
+            entry("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ",false)),
+            entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ",false)),
+            entry("minQ", new CgmesPredicateDetails("cim:SynchronousMachine.minQ", "_EQ",false)),
+            entry("maxQ", new CgmesPredicateDetails("cim:SynchronousMachine.maxQ", "_EQ",false)),
+            entry("qPercent", new CgmesPredicateDetails("cim:SynchronousMachine.qPercent", "_EQ",false)),
+            entry("ratedS", new CgmesPredicateDetails("cim:SynchronousMachine.ratedS", "_EQ",false)),
+            entry("targetP", new CgmesPredicateDetails("cim:GeneratingUnit.initialP", "_EQ",false)),
+            entry("minP", new CgmesPredicateDetails("cim:GeneratingUnit.minOperatingP", "_EQ",false)),
+            entry("maxP", new CgmesPredicateDetails("cim:GeneratingUnit.maxOperatingP", "_EQ",false)),
             entry("GeneratingUnit",
-                new MapTriplestorePredicateToContext("cim:SynchronousMachine.MemberOf_GeneratingUnit", "_EQ")))
+                new CgmesPredicateDetails("cim:SynchronousMachine.MemberOf_GeneratingUnit", "_EQ",true)))
             .collect(entriesToMap()));
     }
 
-//    public static Map<Object, String> loadToEnergyConsumer() {
-//        return Collections.unmodifiableMap(Stream.of(
-//            entry("name", "name"),
-//            entry("p0", "pfixed"),
-//            entry("q0", "qfixed"),
-//            entry("VoltageLevel", "MemberOf_EquipmentContainer")).collect(entriesToMap()));
-//    }
+    public static Map<String, Object> loadToEnergyConsumer() {
+        return Collections.unmodifiableMap(Stream.of(
+            entry("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ",false)),
+            entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ",false)),
+            entry("p0", new CgmesPredicateDetails("cim:EnergyConsumer.pfixed", "_EQ",false)),
+            entry("q0", new CgmesPredicateDetails("cim:EnergyConsumer.qfixed", "_EQ",false)),
+            entry("p", new CgmesPredicateDetails("cim:EnergyConsumer.p", "_SSH",false)),
+            entry("q", new CgmesPredicateDetails("cim:EnergyConsumer.q", "_SSH",false)),
+            entry("VoltageLevel", new CgmesPredicateDetails("cim:Equipment.MemberOf_EquipmentContainer", "_EQ",true)))
+            .collect(entriesToMap()));
+    }
 
     public static Map<String, Object> substationToSubstation() {
         return Collections.unmodifiableMap(Stream.of(
-            entry("rdfType", new MapTriplestorePredicateToContext("rdf:type", "_EQ")),
-            entry("name", new MapTriplestorePredicateToContext("cim:IdentifiedObject.name", "_EQ")),
-            entry("subRegionName", new MapTriplestorePredicateToContext("cim:SubGeographicalRegion.Region", "_EQ")),
-            entry("country", new MapTriplestorePredicateToContext("cim:Substation.Region", "_EQ")))
+            entry("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ",false)),
+            entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ",false)),
+            entry("subRegionName", new CgmesPredicateDetails("cim:SubGeographicalRegion.Region", "_EQ",true)),
+            entry("country", new CgmesPredicateDetails("cim:Substation.Region", "_EQ",true)))
             .collect(entriesToMap()));
     }
 
     public static Map<String, Object> voltageLevelToVoltageLevel() {
         return Collections.unmodifiableMap(Stream.of(
-            entry("rdfType", new MapTriplestorePredicateToContext("rdf:type", "_EQ")),
-            entry("name", new MapTriplestorePredicateToContext("cim:IdentifiedObject.name", "_EQ")),
-            entry("BaseVoltage", new MapTriplestorePredicateToContext("cim:VoltageLevel.BaseVoltage", "_EQ")),
-            entry("highVoltageLimit", new MapTriplestorePredicateToContext("cim:VoltageLevel.highVoltageLimit", "_EQ")),
-            entry("lowVoltageLimit", new MapTriplestorePredicateToContext("cim:VoltageLevel.lowVoltageLimit", "_EQ")),
-            entry("Substation", new MapTriplestorePredicateToContext("cim:VoltageLevel.MemberOf_Substation", "_EQ")),
-            entry("nominalV", new MapTriplestorePredicateToContext("cim:BaseVoltage.nominalVoltage", "_EQ")))
+            entry("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ",false)),
+            entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ",false)),
+            entry("BaseVoltage", new CgmesPredicateDetails("cim:VoltageLevel.BaseVoltage", "_EQ",true)),
+            entry("highVoltageLimit", new CgmesPredicateDetails("cim:VoltageLevel.highVoltageLimit", "_EQ",false)),
+            entry("lowVoltageLimit", new CgmesPredicateDetails("cim:VoltageLevel.lowVoltageLimit", "_EQ",false)),
+            entry("Substation", new CgmesPredicateDetails("cim:VoltageLevel.MemberOf_Substation", "_EQ",true)),
+            entry("nominalV", new CgmesPredicateDetails("cim:BaseVoltage.nominalVoltage", "_EQ",false)))
             .collect(entriesToMap()));
     }
 
@@ -133,7 +137,7 @@ public class IidmToCgmes {
     private Map<String, Object> iidmToCgmesMapper;
     public String iidmInstanceName;
 
-    public Map<MapTriplestorePredicateToContext, String> mapContextAttributesValuesOfIidmChange;
+    public Map<CgmesPredicateDetails, String> mapChangeDetails;
 
     private static final Logger LOG = LoggerFactory.getLogger(IidmToCgmes.class);
 }

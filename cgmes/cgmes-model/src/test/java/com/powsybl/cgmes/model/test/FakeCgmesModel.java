@@ -538,7 +538,7 @@ public final class FakeCgmesModel implements CgmesModel {
 
     // TODO elena
     @Override
-    public PropertyBags updateCgmes(String context, Map<String, String> cgmesChange) {
+    public PropertyBags updateCgmes(String context, Map<String, String> cgmesChange,String instanceClassOfIidmChang) {
         return null;
     }
 }
