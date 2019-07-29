@@ -94,7 +94,7 @@ public class PowsyblWriter extends RDFXMLWriter {
         writeNewLine();
         writeStartOfStartTag(objNamespace, objLocalName);
 
-        // TODO This is hard-coded logic for processing CGMES data
+        // FIXME This is hard-coded logic for processing CGMES data
         IRI uri = (IRI) subj;
         String attName = "ID";
         String value = uri.toString();
@@ -150,7 +150,7 @@ public class PowsyblWriter extends RDFXMLWriter {
             IRI uri = (IRI) objRes;
             String value = uri.toString();
             String prefix = namespaceTable.get(uri.getNamespace());
-            // TODO review the use of hard-coded literal "data" for CGMES
+            // FIXME review the use of hard-coded literal "data" for CGMES
             if (prefix != null && prefix.equals("data")) {
                 value = "#" + uri.getLocalName();
             }
