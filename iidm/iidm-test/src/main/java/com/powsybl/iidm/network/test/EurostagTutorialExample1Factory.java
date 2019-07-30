@@ -175,10 +175,10 @@ public final class EurostagTutorialExample1Factory {
                 .setConnectableBus(ngen.getId())
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
+                .setTargetV(24.5)
+                .setVoltageRegulatorOn(true)
             .add();
         generator.newMinMaxReactiveLimits()
                 .setMinQ(-9999.99)
@@ -203,10 +203,10 @@ public final class EurostagTutorialExample1Factory {
                 .setConnectableBus(ngen.getId())
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
+                .setTargetV(24.5)
+                .setVoltageRegulatorOn(true)
                 .add();
         generator2.newReactiveCapabilityCurve()
                 .beginPoint()
@@ -283,10 +283,10 @@ public final class EurostagTutorialExample1Factory {
                 .setConnectableBus("NGEN")
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
+                .setTargetV(24.5)
+                .setVoltageRegulatorOn(true)
                 .add();
 
         ((Bus) network.getIdentifiable("NHV1")).setV(380).getVoltageLevel().setLowVoltageLimit(400).setHighVoltageLimit(500);
@@ -375,19 +375,19 @@ public final class EurostagTutorialExample1Factory {
                 .setConnectableBus(nconnected.getId())
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
+                .setTargetV(24.5)
+                .setVoltageRegulatorOn(true)
                 .add();
         vlhv3.newGenerator().setId("GEN3")
                 .setConnectableBus(ndisconnected.getId())
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
+                .setTargetV(24.5)
+                .setVoltageRegulatorOn(true)
                 .add();
 
         vlhv3.newShuntCompensator()

@@ -183,7 +183,6 @@ public class GeneratorTest {
     public void testAdder() {
         voltageLevel.newGenerator()
                 .setId("gen_id")
-                .setVoltageRegulatorOn(true)
                 .setEnergySource(EnergySource.NUCLEAR)
                 .setMaxP(100.0)
                 .setMinP(10.0)
@@ -192,6 +191,7 @@ public class GeneratorTest {
                 .setTargetQ(20.0)
                 .setNode(1)
                 .setTargetV(31.0)
+                .setVoltageRegulatorOn(true)
                 .add();
         Generator generator = network.getGenerator("gen_id");
         assertNotNull(generator);
@@ -235,10 +235,10 @@ public class GeneratorTest {
         assertEquals(40.0, generator.getTargetQ(), 0.0);
         assertEquals(2.0, generator.getTargetV(), 0.0);
         // change values in s4
-        generator.setVoltageRegulatorOn(false);
         generator.setTargetP(12.1);
         generator.setTargetQ(9.2);
         generator.setTargetV(9.3);
+        generator.setVoltageRegulatorOn(false);
 
         // remove s2
         variantManager.removeVariant("s2");
@@ -272,7 +272,6 @@ public class GeneratorTest {
                                  double activePowerSetpoint, double reactivePowerSetpoint, boolean regulatorOn, double voltageSetpoint) {
         return voltageLevel.newGenerator()
                 .setId(id)
-                .setVoltageRegulatorOn(regulatorOn)
                 .setEnergySource(source)
                 .setMaxP(maxP)
                 .setMinP(minP)
@@ -281,6 +280,7 @@ public class GeneratorTest {
                 .setTargetQ(reactivePowerSetpoint)
                 .setNode(1)
                 .setTargetV(voltageSetpoint)
+                .setVoltageRegulatorOn(regulatorOn)
                 .add();
     }
 }

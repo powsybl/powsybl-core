@@ -39,8 +39,8 @@ public final class ScalableTestNetwork {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(0.0)
-                .setVoltageRegulatorOn(false)
                 .setTargetQ(0.0)
+                .setVoltageRegulatorOn(false)
                 .add();
         vl.newGenerator()
                 .setId("g2")
@@ -49,8 +49,8 @@ public final class ScalableTestNetwork {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(0.0)
-                .setVoltageRegulatorOn(false)
                 .setTargetQ(0.0)
+                .setVoltageRegulatorOn(false)
                 .add();
         vl.newGenerator()
                 .setId("g3")
@@ -58,8 +58,8 @@ public final class ScalableTestNetwork {
                 .setMinP(0.0)
                 .setMaxP(100.0)
                 .setTargetP(0.0)
-                .setVoltageRegulatorOn(true)
                 .setTargetV(1.0)
+                .setVoltageRegulatorOn(true)
                 .add();
         vl.newLoad()
                 .setId("l1")

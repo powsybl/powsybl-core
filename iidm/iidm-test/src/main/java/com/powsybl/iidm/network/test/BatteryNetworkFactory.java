@@ -107,10 +107,10 @@ public final class BatteryNetworkFactory {
                 .setEnergySource(EnergySource.OTHER)
                 .setMinP(-9999.99)
                 .setMaxP(9999.99)
-                .setVoltageRegulatorOn(true)
-                .setTargetV(24.5)
                 .setTargetP(607.0)
                 .setTargetQ(301.0)
+                .setTargetV(24.5)
+                .setVoltageRegulatorOn(true)
                 .add();
         generator.getTerminal().setP(-605);
         generator.getTerminal().setQ(-225);

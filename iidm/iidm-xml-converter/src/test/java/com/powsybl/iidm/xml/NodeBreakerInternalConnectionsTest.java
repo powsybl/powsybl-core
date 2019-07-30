@@ -49,8 +49,8 @@ public class NodeBreakerInternalConnectionsTest extends AbstractConverterTest {
                 .setMinP(0)
                 .setMaxP(100)
                 .setTargetP(10)
-                .setVoltageRegulatorOn(true)
                 .setTargetV(400)
+                .setVoltageRegulatorOn(true)
                 .add();
         n1.newInternalConnection().setNode1(0).setNode2(1).add();
         n1.newSwitch().setId("br1").setNode1(1).setNode2(2).setKind(SwitchKind.BREAKER).add();

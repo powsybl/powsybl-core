@@ -52,11 +52,11 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
         GeneratorAdder adder = voltageLevel().newGenerator()
                 .setMinP(minP)
                 .setMaxP(maxP)
-                .setVoltageRegulatorOn(regulationStatus)
                 // .setRegulatingTerminal(regulatingTerminal)
                 .setTargetP(targetP)
                 .setTargetQ(targetQ)
                 .setTargetV(targetV)
+                .setVoltageRegulatorOn(regulationStatus)
                 // .setRatedS(ratedS)
                 .setEnergySource(energySource);
         identify(adder);

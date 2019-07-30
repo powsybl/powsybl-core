@@ -76,10 +76,10 @@ class GeneratorXml extends AbstractConnectableXml<Generator, GeneratorAdder, Vol
                 .setMinP(minP)
                 .setMaxP(maxP)
                 .setRatedS(ratedS)
-                .setVoltageRegulatorOn(voltageRegulatorOn)
                 .setTargetP(targetP)
-                .setTargetV(targetV)
                 .setTargetQ(targetQ)
+                .setTargetV(targetV)
+                .setVoltageRegulatorOn(voltageRegulatorOn)
                 .add();
         readPQ(null, g.getTerminal(), context.getReader());
         return g;
