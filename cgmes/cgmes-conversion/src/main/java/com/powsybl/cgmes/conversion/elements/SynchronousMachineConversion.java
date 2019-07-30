@@ -43,16 +43,15 @@ public class SynchronousMachineConversion extends AbstractReactiveLimitsOwnerCon
         }
 
         GeneratorAdder adder = voltageLevel().newGenerator();
-        if (!context.isExtendedCgmesConversion()) {
-            context.regulatingControlMapping().setRegulatingControl(iidmId(), p, adder, voltageLevel());
-        }
-
         adder.setMinP(minP)
                 .setMaxP(maxP)
                 .setTargetP(targetP)
                 .setTargetQ(targetQ)
                 .setEnergySource(fromGeneratingUnitType(generatingUnitType))
                 .setRatedS(ratedS);
+        if (!context.isExtendedCgmesConversion()) {
+            context.regulatingControlMapping().setRegulatingControl(iidmId(), p, adder, voltageLevel());
+        }
         identify(adder);
         connect(adder);
         Generator g = adder.add();
