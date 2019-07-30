@@ -15,7 +15,7 @@ public class CgmesPredicateDetails {
     public String getContext() {
         return context;
     }
-    
+
     public boolean valueIsNode() {
         return valueIsNode;
     }

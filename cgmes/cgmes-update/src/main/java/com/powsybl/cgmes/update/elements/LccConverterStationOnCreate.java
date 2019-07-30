@@ -3,13 +3,14 @@ package com.powsybl.cgmes.update.elements;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.IidmChange;
 import com.powsybl.cgmes.update.IidmToCgmes;
-import com.powsybl.cgmes.update.CgmesPredicateDetails;
-import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.LccConverterStation;
 
-public class GeneratorOnCreate extends IidmToCgmes implements ConversionOnCreate {
-    public GeneratorOnCreate(IidmChange change) {
+public class LccConverterStationOnCreate extends IidmToCgmes implements ConversionOnCreate {
+
+    public LccConverterStationOnCreate(IidmChange change) {
         super(change);
     }
 
@@ -18,24 +19,17 @@ public class GeneratorOnCreate extends IidmToCgmes implements ConversionOnCreate
 
         Map<CgmesPredicateDetails, String> mapCgmesPredicateDetails = new HashMap<CgmesPredicateDetails, String>();
 
-        Generator newGenerator = (Generator) change.getIdentifiable();
-        Map<String, Object> iidmToCgmesMapper = generatorToSynchronousMachine();
+        LccConverterStation newLccConverterStation = (LccConverterStation) change.getIdentifiable();
+        Map<String, Object> iidmToCgmesMapper = lccConverterStationToAcdcConverter();
 
         mapCgmesPredicateDetails.put((CgmesPredicateDetails) iidmToCgmesMapper.get("rdfType"),
-            "SynchronousMachine");
+            "cim:ACDCConverter");
 
-        String name = newGenerator.getName();
+        String name = newLccConverterStation.getName();
         if (name != null) {
             mapCgmesPredicateDetails.put((CgmesPredicateDetails) iidmToCgmesMapper.get("name"),
                 name);
         }
-
-        double ratedS = newGenerator.getRatedS();
-        if (!String.valueOf(ratedS).equals("NaN")) {
-            mapCgmesPredicateDetails.put((CgmesPredicateDetails) iidmToCgmesMapper.get("ratedS"),
-                String.valueOf(ratedS));
-        }
-
         return mapCgmesPredicateDetails;
     }
 

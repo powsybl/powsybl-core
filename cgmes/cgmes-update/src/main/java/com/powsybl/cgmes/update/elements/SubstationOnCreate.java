@@ -19,9 +19,8 @@ public class SubstationOnCreate extends IidmToCgmes implements ConversionOnCreat
     @Override
     public Map<CgmesPredicateDetails, String> getIdentifiableAttributes() {
 
-        Map<CgmesPredicateDetails, String> mapCgmesPredicateDetails =
-            new HashMap<CgmesPredicateDetails, String>();
-        
+        Map<CgmesPredicateDetails, String> mapCgmesPredicateDetails = new HashMap<CgmesPredicateDetails, String>();
+
         Substation newSubstation = (Substation) change.getIdentifiable();
         Map<String, Object> iidmToCgmesMapper = substationToSubstation();
 

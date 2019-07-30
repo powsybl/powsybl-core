@@ -31,16 +31,16 @@ public class VoltageLevelOnCreate extends IidmToCgmes implements ConversionOnCre
                 name);
         }
 
-        Double highVoltageLimit = newVoltageLevel.getHighVoltageLimit();
-        if (highVoltageLimit != null) {
+        double highVoltageLimit = newVoltageLevel.getHighVoltageLimit();
+        if (!String.valueOf(highVoltageLimit).equals("NaN")) {
             mapCgmesPredicateDetails.put((CgmesPredicateDetails) iidmToCgmesMapper.get("highVoltageLimit"),
-                highVoltageLimit.toString());
+                String.valueOf(highVoltageLimit));
         }
 
-        Double lowVoltageLimit = newVoltageLevel.getLowVoltageLimit();
-        if (!lowVoltageLimit.toString().equals("NaN")) {
+        double lowVoltageLimit = newVoltageLevel.getLowVoltageLimit();
+        if (!String.valueOf(lowVoltageLimit).equals("NaN")) {
             mapCgmesPredicateDetails.put((CgmesPredicateDetails) iidmToCgmesMapper.get("lowVoltageLimit"),
-                lowVoltageLimit.toString());
+                String.valueOf(lowVoltageLimit));
         }
 
         String substation = newVoltageLevel.getSubstation().getId();

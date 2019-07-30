@@ -14,23 +14,33 @@ import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.update.elements.*;
 
+/**
+ * The Class IidmToCgmes is responsible for mapping back identifiers and
+ * attribute names, from Iidm to Cgmes.
+ */
 public class IidmToCgmes {
-    // responsible for mapping back identifiers and attribute names.
+
     public IidmToCgmes(IidmChange change) {
         this.change = change;
     }
 
+    /**
+     * Convert. Maps Identifiable Instance with its method for IIDM - CGMES
+     * conversion
+     *
+     * @return the map
+     */
     public Map<CgmesPredicateDetails, String> convert() throws Exception {
 
-        // map Identifiable Instance with its method for IIDM - CGMES conversion
         Map<String, Callable<Map<String, Object>>> getConversionMapper = new HashMap<>();
         getConversionMapper.put("SubstationImpl", () -> substationToSubstation());
         getConversionMapper.put("BusBreakerVoltageLevel", () -> voltageLevelToVoltageLevel());
         getConversionMapper.put("ConfiguredBusImpl", () -> busToTopologicalNode());
         getConversionMapper.put("GeneratorImpl", () -> generatorToSynchronousMachine());
         getConversionMapper.put("LoadImpl", () -> loadToEnergyConsumer());
+        getConversionMapper.put("LccConverterStationImpl", () -> lccConverterStationToAcdcConverter());
+        getConversionMapper.put("LineImpl", () -> lineToACLineSegment());
 
-        // Getting IIDM - CGMES conversion mapper:
         iidmInstanceName = getIidmInstanceName();
 
         iidmToCgmesMapper = getConversionMapper.get(iidmInstanceName).call();
@@ -38,15 +48,15 @@ public class IidmToCgmes {
 
         if (change.getAttribute() != null && change.getNewValueString() != null) {
             String cgmesNewValue = change.getNewValueString();
-            CgmesPredicateDetails predicateToContext = (CgmesPredicateDetails) iidmToCgmesMapper
+            CgmesPredicateDetails mapCgmesPredicateDetails = (CgmesPredicateDetails) iidmToCgmesMapper
                 .get(change.getAttribute());
 
-            mapChangeDetails.put(predicateToContext, cgmesNewValue);
+            mapChangeDetails.put(mapCgmesPredicateDetails, cgmesNewValue);
 
         } else {
             // for onCreate all fields are inside the Identifiable object.
-            // We dont know which they are. So we will itearte over the corresponding
-            // element mapper, to get all informed fields.
+            // We dont know which they are. So we will get all informed fields from special
+            // special OnCreate classes.
             switch (iidmInstanceName) {
                 case "SubstationImpl":
                     SubstationOnCreate sub = new SubstationOnCreate(change);
@@ -67,6 +77,14 @@ public class IidmToCgmes {
                 case "LoadImpl":
                     LoadOnCreate load = new LoadOnCreate(change);
                     mapChangeDetails = load.getIdentifiableAttributes();
+                    break;
+                case "LccConverterStationImpl":
+                    LccConverterStationOnCreate lcc = new LccConverterStationOnCreate(change);
+                    mapChangeDetails = lcc.getIdentifiableAttributes();
+                    break;
+                case "LineImpl":
+                    LineOnCreate line = new LineOnCreate(change);
+                    mapChangeDetails = line.getIdentifiableAttributes();
                     break;
                 default:
                     LOG.info("This element is not convertable to CGMES");
@@ -135,6 +153,31 @@ public class IidmToCgmes {
             entry("p", new CgmesPredicateDetails("cim:EnergyConsumer.p", "_SSH", false)),
             entry("q", new CgmesPredicateDetails("cim:EnergyConsumer.q", "_SSH", false)),
             entry("VoltageLevel", new CgmesPredicateDetails("cim:Equipment.MemberOf_EquipmentContainer", "_EQ", true)))
+            .collect(entriesToMap()));
+    }
+
+    public static Map<String, Object> lccConverterStationToAcdcConverter() {
+        return Collections.unmodifiableMap(Stream.of(
+            entry("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false)),
+            entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false)))
+            .collect(entriesToMap()));
+    }
+
+    public static Map<String, Object> lineToACLineSegment() {
+        return Collections.unmodifiableMap(Stream.of(
+            entry("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false)),
+            entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false)),
+            entry("r", new CgmesPredicateDetails("cim:ACLineSegment.r", "_EQ", false)),
+            entry("x", new CgmesPredicateDetails("cim:ACLineSegment.x", "_EQ", false)),
+            entry("bch", new CgmesPredicateDetails("cim:ACLineSegment.bch", "_EQ", false)),
+            entry("gch", new CgmesPredicateDetails("cim:ACLineSegment.gch", "_EQ", false)))
+            .collect(entriesToMap()));
+    }
+
+    public static Map<String, Object> terminalToTerminal() {
+        return Collections.unmodifiableMap(Stream.of(
+            entry("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false)),
+            entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false)))
             .collect(entriesToMap()));
     }
 
