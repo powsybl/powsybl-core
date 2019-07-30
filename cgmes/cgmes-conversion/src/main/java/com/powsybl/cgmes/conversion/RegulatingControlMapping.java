@@ -6,10 +6,11 @@
  */
 package com.powsybl.cgmes.conversion;
 
-import com.powsybl.cgmes.conversion.TransformerRegulatingControlMapping.RegulatingData;
 import com.powsybl.cgmes.conversion.TransformerRegulatingControlMapping.RegulatingDataRatio;
+import com.powsybl.cgmes.conversion.TransformerRegulatingControlMapping.ThreeWindingTransformerRegulatingData;
+import com.powsybl.cgmes.conversion.GeneratorRegulatingControlMapping.GeneratorRegulatingData;
 import com.powsybl.cgmes.conversion.TransformerRegulatingControlMapping.RegulatingDataPhase;
-import com.powsybl.cgmes.conversion.TransformerRegulatingControlMapping.RegulatingDataThree;
+import com.powsybl.cgmes.conversion.TransformerRegulatingControlMapping.TwoWindingTransformerRegulatingData;
 import com.powsybl.iidm.network.*;
 import com.powsybl.triplestore.api.PropertyBag;
 
@@ -286,20 +287,88 @@ public class RegulatingControlMapping {
     }
 
     public void setAllRegulatingControls(Network network) {
-        setTwoWindingsTransformersRegulatingControls(network);
-        setThreeWindingsTransformersRegulatingControls(network);
+        setGeneratorsRegulatingControl(network);
+        setTwoWindingsTransformersRegulatingControl(network);
+        setThreeWindingsTransformersRegulatingControl(network);
 
         cachedRegulatingControls.clear();
     }
 
-    private void setTwoWindingsTransformersRegulatingControls(Network network) {
-        network.getTwoWindingsTransformerStream().forEach(twt -> {
-            setTwoWindingsTransformerRegulatingControls(twt);
+    private void setGeneratorsRegulatingControl(Network network) {
+        network.getGeneratorStream().forEach(gen -> {
+            setGeneratorRegulatingControl(gen);
         });
     }
 
-    private void setTwoWindingsTransformerRegulatingControls(TwoWindingsTransformer twt) {
-        RegulatingData rd = context.transformerRegulatingControlMapping().findTwo(twt.getId());
+    private void setGeneratorRegulatingControl(Generator gen) {
+        GeneratorRegulatingData rd = context.generatorRegulatingControlMapping().find(gen.getId());
+        Terminal defaultTerminal = getGeneratorDefaultTerminal(gen);
+        setGeneratorRegulatingControl(gen.getId(), defaultTerminal, rd, gen);
+    }
+
+    private Terminal getGeneratorDefaultTerminal(Generator gen) {
+        return gen.getTerminal();
+    }
+
+    private void setGeneratorRegulatingControl(String genId, Terminal defaultTerminal, GeneratorRegulatingData rd,
+        Generator gen) {
+        if (rd == null || !rd.regulating) {
+            return;
+        }
+
+        String controlId = rd.regulatingControlId;
+        if (controlId == null) {
+            context.missing(String.format("Regulating control Id not defined"));
+            return;
+        }
+
+        RegulatingControl control = cachedRegulatingControls.get(controlId);
+        if (control == null) {
+            context.missing(String.format("Regulating control %s", controlId));
+            return;
+        }
+
+        if (isControlModeVoltage(control.mode)) {
+            setGeneratorRegulatingControlVoltage(controlId, defaultTerminal, rd.nominalVoltage, control, context, gen);
+        } else {
+            context.ignored(control.mode, String.format("Unsupported regulation mode for generator %s", genId));
+        }
+    }
+
+    private void setGeneratorRegulatingControlVoltage(String controlId, Terminal defaultTerminal, double nominalVoltage,
+        RegulatingControl control, Context context, Generator gen) {
+
+        Terminal terminal = findRegulatingTerminal(control.cgmesTerminal, control.topologicalNode);
+        if (terminal == null) {
+            terminal = defaultTerminal;
+        }
+        gen.setRegulatingTerminal(terminal);
+
+        double targetV = Double.NaN;
+        if (control.targetValue <= 0.0 || Double.isNaN(control.targetValue)) {
+            targetV = nominalVoltage;
+            context.fixed(controlId, "Invalid value for regulating target value", control.targetValue, nominalVoltage);
+        } else {
+            targetV = control.targetValue;
+        }
+        gen.setTargetV(targetV);
+
+        boolean voltageRegulatorOn = false;
+        if (control.enabled) {
+            voltageRegulatorOn = true;
+        }
+
+        gen.setVoltageRegulatorOn(voltageRegulatorOn);
+    }
+
+    private void setTwoWindingsTransformersRegulatingControl(Network network) {
+        network.getTwoWindingsTransformerStream().forEach(twt -> {
+            setTwoWindingsTransformerRegulatingControl(twt);
+        });
+    }
+
+    private void setTwoWindingsTransformerRegulatingControl(TwoWindingsTransformer twt) {
+        TwoWindingTransformerRegulatingData rd = context.transformerRegulatingControlMapping().findTwo(twt.getId());
 
         if (rd != null) {
             Terminal defaultTerminalRatio = getT2wDefaultTerminalRatio(twt, rd.ratioTapChanger);
@@ -354,30 +423,30 @@ public class RegulatingControlMapping {
         return 1;
     }
 
-    private void setThreeWindingsTransformersRegulatingControls(Network network) {
+    private void setThreeWindingsTransformersRegulatingControl(Network network) {
         network.getThreeWindingsTransformerStream().forEach(twt -> {
-            setThreeWindingsTransformerRegulatingControls(twt);
+            setThreeWindingsTransformerRegulatingControl(twt);
         });
     }
 
-    private void setThreeWindingsTransformerRegulatingControls(ThreeWindingsTransformer twt) {
-        RegulatingDataThree rd = context.transformerRegulatingControlMapping().findThree(twt.getId());
+    private void setThreeWindingsTransformerRegulatingControl(ThreeWindingsTransformer twt) {
+        ThreeWindingTransformerRegulatingData rd = context.transformerRegulatingControlMapping().findThree(twt.getId());
         if (rd != null) {
-            RegulatingData rd1 = rd.winding1;
+            TwoWindingTransformerRegulatingData rd1 = rd.winding1;
             if (rd1 != null) {
                 setRtcRegulatingControl(twt.getLeg1().getTerminal(), twt.getLeg1().getRatioTapChanger(),
                     rd1.ratioTapChanger);
                 setPtcRegulatingControl(twt.getLeg1().getTerminal(), 1, twt.getLeg1().getPhaseTapChanger(),
                     rd1.phaseTapChanger);
             }
-            RegulatingData rd2 = rd.winding2;
+            TwoWindingTransformerRegulatingData rd2 = rd.winding2;
             if (rd2 != null) {
                 setRtcRegulatingControl(twt.getLeg2().getTerminal(), twt.getLeg2().getRatioTapChanger(),
                     rd2.ratioTapChanger);
                 setPtcRegulatingControl(twt.getLeg2().getTerminal(), 1, twt.getLeg2().getPhaseTapChanger(),
                     rd2.phaseTapChanger);
             }
-            RegulatingData rd3 = rd.winding3;
+            TwoWindingTransformerRegulatingData rd3 = rd.winding3;
             if (rd3 != null) {
                 setRtcRegulatingControl(twt.getLeg3().getTerminal(), twt.getLeg3().getRatioTapChanger(),
                     rd3.ratioTapChanger);
@@ -413,8 +482,15 @@ public class RegulatingControlMapping {
         }
     }
 
-    private boolean isControlModeVoltage(String controlMode, String tculControlMode) {
+    private boolean isControlModeVoltage(String controlMode) {
         if (controlMode != null && controlMode.endsWith("voltage")) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isControlModeVoltage(String controlMode, String tculControlMode) {
+        if (isControlModeVoltage(controlMode)) {
             return true;
         }
         if (tculControlMode != null && tculControlMode.endsWith("volt")) {
@@ -521,7 +597,7 @@ public class RegulatingControlMapping {
             .orElseGet(() -> context.terminalMapping().findFromTopologicalNode(topologicalNode));
     }
 
-    public TapChangerRegulatingControl getTapChangerRegulatingControl(PropertyBag p) {
+    public RegulatingControlId getTapChangerRegulatingControl(PropertyBag p) {
         boolean regulating = false;
         String regulatingControlId = null;
 
@@ -535,14 +611,33 @@ public class RegulatingControlMapping {
             }
         }
 
-        TapChangerRegulatingControl trc = new TapChangerRegulatingControl();
-        trc.regulating = regulating;
-        trc.regulatingControlId = regulatingControlId;
+        RegulatingControlId rci = new RegulatingControlId();
+        rci.regulating = regulating;
+        rci.regulatingControlId = regulatingControlId;
 
-        return trc;
+        return rci;
     }
 
-    public static class TapChangerRegulatingControl {
+    public RegulatingControlId getGeneratorRegulatingControl(PropertyBag p) {
+        boolean regulating = false;
+        String regulatingControlId = null;
+
+        if (p.containsKey(REGULATING_CONTROL)) {
+            String controlId = p.getId(REGULATING_CONTROL);
+            RegulatingControl control = cachedRegulatingControls.get(controlId);
+            if (control != null) {
+                regulating = true;
+                regulatingControlId = controlId;
+            }
+        }
+        RegulatingControlId rci = new RegulatingControlId();
+        rci.regulating = regulating;
+        rci.regulatingControlId = regulatingControlId;
+
+        return rci;
+    }
+
+    public static class RegulatingControlId {
         public boolean regulating;
         public String regulatingControlId;
     }

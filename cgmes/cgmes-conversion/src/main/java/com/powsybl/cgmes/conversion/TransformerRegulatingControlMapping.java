@@ -4,6 +4,11 @@ import java.util.HashMap;
 import java.util.Map;
 import com.powsybl.cgmes.model.CgmesModelException;
 
+/**
+ * @author José Antonio Marqués <marquesja at aia.es>
+ * @author Marcos de Miguel <demiguelm at aia.es>
+ */
+
 public class TransformerRegulatingControlMapping {
 
     public TransformerRegulatingControlMapping() {
@@ -16,7 +21,7 @@ public class TransformerRegulatingControlMapping {
             throw new CgmesModelException("Transformer already added, Transformer id : " + transformerId);
         }
 
-        RegulatingData rd = new RegulatingData();
+        TwoWindingTransformerRegulatingData rd = new TwoWindingTransformerRegulatingData();
         rd.ratioTapChanger = rdRtc;
         rd.phaseTapChanger = rdPtc;
         twoWinding.put(transformerId, rd);
@@ -29,19 +34,19 @@ public class TransformerRegulatingControlMapping {
             throw new CgmesModelException("Transformer already added, Transformer id : " + transformerId);
         }
 
-        RegulatingData rd1 = new RegulatingData();
+        TwoWindingTransformerRegulatingData rd1 = new TwoWindingTransformerRegulatingData();
         rd1.ratioTapChanger = rdRtc1;
         rd1.phaseTapChanger = rdPtc1;
 
-        RegulatingData rd2 = new RegulatingData();
+        TwoWindingTransformerRegulatingData rd2 = new TwoWindingTransformerRegulatingData();
         rd2.ratioTapChanger = rdRtc2;
         rd2.phaseTapChanger = rdPtc2;
 
-        RegulatingData rd3 = new RegulatingData();
+        TwoWindingTransformerRegulatingData rd3 = new TwoWindingTransformerRegulatingData();
         rd3.ratioTapChanger = rdRtc3;
         rd3.phaseTapChanger = rdPtc3;
 
-        RegulatingDataThree rdThree = new RegulatingDataThree();
+        ThreeWindingTransformerRegulatingData rdThree = new ThreeWindingTransformerRegulatingData();
         rdThree.winding1 = rd1;
         rdThree.winding2 = rd2;
         rdThree.winding3 = rd3;
@@ -94,11 +99,11 @@ public class TransformerRegulatingControlMapping {
         return rtc;
     }
 
-    public RegulatingData findTwo(String transformerId) {
+    public TwoWindingTransformerRegulatingData findTwo(String transformerId) {
         return twoWinding.get(transformerId);
     }
 
-    public RegulatingDataThree findThree(String transformerId) {
+    public ThreeWindingTransformerRegulatingData findThree(String transformerId) {
         return threeWinding.get(transformerId);
     }
 
@@ -118,17 +123,17 @@ public class TransformerRegulatingControlMapping {
         int side;
     }
 
-    public static class RegulatingData {
+    public static class TwoWindingTransformerRegulatingData {
         RegulatingDataRatio ratioTapChanger;
         RegulatingDataPhase phaseTapChanger;
     }
 
-    public static class RegulatingDataThree {
-        RegulatingData winding1;
-        RegulatingData winding2;
-        RegulatingData winding3;
+    public static class ThreeWindingTransformerRegulatingData {
+        TwoWindingTransformerRegulatingData winding1;
+        TwoWindingTransformerRegulatingData winding2;
+        TwoWindingTransformerRegulatingData winding3;
     }
 
-    private final Map<String, RegulatingData> twoWinding;
-    private final Map<String, RegulatingDataThree> threeWinding;
+    private final Map<String, TwoWindingTransformerRegulatingData> twoWinding;
+    private final Map<String, ThreeWindingTransformerRegulatingData> threeWinding;
 }

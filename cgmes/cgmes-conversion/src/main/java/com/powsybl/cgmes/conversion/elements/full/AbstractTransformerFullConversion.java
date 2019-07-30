@@ -6,7 +6,7 @@ import java.util.Map;
 import org.apache.commons.math3.complex.Complex;
 
 import com.powsybl.cgmes.conversion.Context;
-import com.powsybl.cgmes.conversion.RegulatingControlMapping.TapChangerRegulatingControl;
+import com.powsybl.cgmes.conversion.RegulatingControlMapping.RegulatingControlId;
 import com.powsybl.cgmes.conversion.TransformerRegulatingControlMapping.RegulatingDataPhase;
 import com.powsybl.cgmes.conversion.TransformerRegulatingControlMapping.RegulatingDataRatio;
 import com.powsybl.cgmes.conversion.elements.AbstractConductingEquipmentConversion;
@@ -527,11 +527,11 @@ public abstract class AbstractTransformerFullConversion
 
     private void addRatioRegulationData(PropertyBag ratioTapChanger, String rtcTerminal,
         TapChanger tapChanger, int side) {
-        TapChangerRegulatingControl tcrc = context.regulatingControlMapping()
+        RegulatingControlId rci = context.regulatingControlMapping()
             .getTapChangerRegulatingControl(ratioTapChanger);
         tapChanger.setId(ratioTapChanger.getId(STRING_RATIO_TAP_CHANGER))
-        .setRegulating(tcrc.regulating)
-            .setRegulatingControlId(tcrc.regulatingControlId)
+        .setRegulating(rci.regulating)
+            .setRegulatingControlId(rci.regulatingControlId)
             .setSide(side)
             .setTculControlMode(ratioTapChanger.get(STRING_TCUL_CONTROL_MODE))
             .setTapChangerControlEnabled(ratioTapChanger.asBoolean(STRING_TAP_CHANGER_CONTROL_ENABLED, false));
@@ -690,11 +690,11 @@ public abstract class AbstractTransformerFullConversion
     }
 
     private void addPhaseRegulationData(PropertyBag phaseTapChanger, TapChanger tapChanger, int side) {
-        TapChangerRegulatingControl tcrc = context.regulatingControlMapping()
+        RegulatingControlId rci = context.regulatingControlMapping()
             .getTapChangerRegulatingControl(phaseTapChanger);
         tapChanger.setId(phaseTapChanger.getId(STRING_PHASE_TAP_CHANGER))
-            .setRegulating(tcrc.regulating)
-            .setRegulatingControlId(tcrc.regulatingControlId)
+            .setRegulating(rci.regulating)
+            .setRegulatingControlId(rci.regulatingControlId)
             .setSide(side);
     }
 

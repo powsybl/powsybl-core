@@ -46,6 +46,7 @@ public class Context {
         regulatingControlMapping = new RegulatingControlMapping(this);
         nodeMapping = new NodeMapping();
         transformerRegulatingControlMapping = new TransformerRegulatingControlMapping();
+        generatorRegulatingControlMapping = new GeneratorRegulatingControlMapping();
 
         ratioTapChangerTables = new HashMap<>();
         phaseTapChangerTables = new HashMap<>();
@@ -82,6 +83,10 @@ public class Context {
 
     public TransformerRegulatingControlMapping transformerRegulatingControlMapping() {
         return transformerRegulatingControlMapping;
+    }
+
+    public GeneratorRegulatingControlMapping generatorRegulatingControlMapping() {
+        return generatorRegulatingControlMapping;
     }
 
     public TapChangerTransformers tapChangerTransformers() {
@@ -212,6 +217,14 @@ public class Context {
         LOG.warn("Missing {}. Used default value {}", what, defaultValue);
     }
 
+    public void setExtendedCgmesConversion(boolean extended) {
+        extendedCgmesConversion = extended;
+    }
+
+    public boolean isExtendedCgmesConversion() {
+        return extendedCgmesConversion;
+    }
+
     private final CgmesModel cgmes;
     private final Network network;
     private final Config config;
@@ -226,6 +239,7 @@ public class Context {
     private final CurrentLimitsMapping currentLimitsMapping;
     private final RegulatingControlMapping regulatingControlMapping;
     private final TransformerRegulatingControlMapping transformerRegulatingControlMapping;
+    private final GeneratorRegulatingControlMapping generatorRegulatingControlMapping;
 
     private final Map<String, PropertyBags> ratioTapChangerTables;
     private final Map<String, PropertyBags> phaseTapChangerTables;
@@ -234,5 +248,6 @@ public class Context {
     private int countLines;
     private int countLinesWithSvPowerFlowsAtEnds;
 
+    private boolean extendedCgmesConversion;
     private static final Logger LOG = LoggerFactory.getLogger(Context.class);
 }

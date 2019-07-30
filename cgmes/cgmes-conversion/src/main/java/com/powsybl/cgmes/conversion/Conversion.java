@@ -74,6 +74,8 @@ public class Conversion {
         Context context = createContext(network);
         assignNetworkProperties(context);
 
+        context.setExtendedCgmesConversion(EXTENDED_CGMES_CONVERSION); // JAM TODO Eliminar
+
         Function<PropertyBag, AbstractObjectConversion> convf;
 
         cgmes.terminals().forEach(p -> context.terminalMapping().buildTopologicalNodesMapping(p));
