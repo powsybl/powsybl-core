@@ -19,28 +19,28 @@ public class SubstationOnCreate extends IidmToCgmes implements ConversionOnCreat
     @Override
     public Map<CgmesPredicateDetails, String> getIdentifiableAttributes() {
 
-        Map<CgmesPredicateDetails, String> mapContextPredicateValue =
+        Map<CgmesPredicateDetails, String> mapCgmesPredicateDetails =
             new HashMap<CgmesPredicateDetails, String>();
         
         Substation newSubstation = (Substation) change.getIdentifiable();
         Map<String, Object> iidmToCgmesMapper = substationToSubstation();
 
-        mapContextPredicateValue.put((CgmesPredicateDetails) iidmToCgmesMapper.get("rdfType"),
+        mapCgmesPredicateDetails.put((CgmesPredicateDetails) iidmToCgmesMapper.get("rdfType"),
             "cim:Substation");
 
         String name = newSubstation.getName();
         if (name != null) {
-            mapContextPredicateValue.put((CgmesPredicateDetails) iidmToCgmesMapper.get("name"),
+            mapCgmesPredicateDetails.put((CgmesPredicateDetails) iidmToCgmesMapper.get("name"),
                 name);
         }
 
         Optional<Country> country = newSubstation.getCountry();
         if (country.isPresent()) {
-            mapContextPredicateValue
+            mapCgmesPredicateDetails
                 .put((CgmesPredicateDetails) iidmToCgmesMapper.get("country"), country.get().toString());
         }
 
-        return mapContextPredicateValue;
+        return mapCgmesPredicateDetails;
     }
 
 }
