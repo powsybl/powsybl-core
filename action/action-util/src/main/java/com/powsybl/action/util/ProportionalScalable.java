@@ -6,15 +6,89 @@
  */
 package com.powsybl.action.util;
 
+import com.google.common.util.concurrent.AtomicDouble;
 import com.powsybl.iidm.network.Network;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
- * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
+ * Scalable that divides scale proportionally between multiple scalable.
+ * Scale may be iterative or not.
+ * If the iterative mode is activated, the residues due to scalable saturation is divided between the
+ * other scalable composing the ProportionalScalable.
+ *
+ * @author Geoffroy Jamgotchian {@literal <geoffroy.jamgotchian at rte-france.com>}
+ * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 class ProportionalScalable extends AbstractCompoundScalable {
+
+    private final class ScalablePercentage {
+        private final Scalable scalable;
+        private final float percentage;
+        private boolean saturated;
+        private double iterationPercentage;
+
+        private ScalablePercentage(Scalable scalable, float percentage) {
+            this.scalable = scalable;
+            this.percentage = percentage;
+            this.saturated = false;
+            this.iterationPercentage = percentage;
+        }
+
+        Scalable getScalable() {
+            return scalable;
+        }
+
+        float getPercentage() {
+            return percentage;
+        }
+
+        boolean isSaturated() {
+            return saturated;
+        }
+
+        boolean notSaturated() {
+            return !saturated;
+        }
+
+        void setSaturated(boolean saturated) {
+            this.saturated = saturated;
+        }
+
+        double getIterationPercentage() {
+            return iterationPercentage;
+        }
+
+        void setIterationPercentage(double iterationPercentage) {
+            this.iterationPercentage = iterationPercentage;
+        }
+    }
+
+    private final List<ScalablePercentage> scalablePercentageList;
+
+    private boolean iterative;
+
+    ProportionalScalable(List<Float> percentages, List<Scalable> scalables) {
+        this(percentages, scalables, false);
+    }
+
+    ProportionalScalable(List<Float> percentages, List<Scalable> scalables, boolean iterative) {
+        super();
+        checkPercentages(percentages, scalables);
+        this.scalablePercentageList = new ArrayList<>();
+        for (int i = 0; i < scalables.size(); i++) {
+            this.scalablePercentageList.add(new ScalablePercentage(scalables.get(i), percentages.get(i)));
+        }
+        this.iterative = iterative;
+    }
+
+    Collection<Scalable> getScalables() {
+        return scalablePercentageList.stream().map(ScalablePercentage::getScalable).collect(Collectors.toList());
+    }
 
     private static void checkPercentages(List<Float> percentages, List<Scalable> scalables) {
         Objects.requireNonNull(percentages);
@@ -25,30 +99,65 @@ class ProportionalScalable extends AbstractCompoundScalable {
         }
         double sum = percentages.stream().mapToDouble(Double::valueOf).sum();
         if (Math.abs(100 - sum) > 0.01) {
-            throw new IllegalArgumentException("Sum of percentages must be equals to 100 (" + sum + ")");
+            throw new IllegalArgumentException(String.format("Sum of percentages must be equals to 100 (%.2f)", sum));
         }
     }
 
-    private final List<Float> percentages;
+    private boolean notSaturated() {
+        return scalablePercentageList.stream().anyMatch(ScalablePercentage::notSaturated);
+    }
 
-    ProportionalScalable(List<Float> percentages, List<Scalable> scalables) {
-        super(scalables);
-        checkPercentages(percentages, scalables);
-        this.percentages = Objects.requireNonNull(percentages);
+    private void checkIterationPercentages() {
+        double iterationPercentagesSum = scalablePercentageList.stream().mapToDouble(ScalablePercentage::getIterationPercentage).sum();
+        if (Math.abs(100 - iterationPercentagesSum) > 0.01) {
+            throw new AssertionError(String.format("Error in proportional scalable ventilation. Sum of percentages must be equals to 100 (%.2f)", iterationPercentagesSum));
+        }
+    }
+
+    private void updateIterationPercentages() {
+        double unsaturatedPercentagesSum = scalablePercentageList.stream().filter(ScalablePercentage::notSaturated).mapToDouble(ScalablePercentage::getIterationPercentage).sum();
+        scalablePercentageList.forEach(scalablePercentage -> {
+            if (scalablePercentage.isSaturated()) {
+                scalablePercentage.setIterationPercentage(0);
+            } else {
+                scalablePercentage.setIterationPercentage(scalablePercentage.getPercentage() / unsaturatedPercentagesSum * 100);
+            }
+        });
+    }
+
+    private double iterativeScale(Network n, double asked, ScalingConvention scalingConvention) {
+        double done = 0;
+        while (Math.abs(asked - done) > 1e-5 && notSaturated()) {
+            checkIterationPercentages();
+            done += atomicScale(n, asked - done, scalingConvention);
+            updateIterationPercentages();
+        }
+        return done;
+    }
+
+    private double atomicScale(Network n, double asked, ScalingConvention scalingConvention) {
+        AtomicDouble done = new AtomicDouble(0);
+        scalablePercentageList.forEach(scalablePercentage -> {
+            Scalable s = scalablePercentage.getScalable();
+            double p = scalablePercentage.getIterationPercentage();
+            double doneOnScalable = s.scale(n, p / 100 * asked, scalingConvention);
+            if (Math.abs(doneOnScalable - p) > 1e-2) {
+                scalablePercentage.setSaturated(true);
+            }
+            done.getAndAdd(doneOnScalable);
+        });
+        return done.get();
     }
 
     @Override
     public double scale(Network n, double asked, ScalingConvention scalingConvention) {
         Objects.requireNonNull(n);
         Objects.requireNonNull(scalingConvention);
-
-        double done = 0;
-        for (int i = 0; i < scalables.size(); i++) {
-            Scalable s = scalables.get(i);
-            double p = percentages.get(i);
-            done += s.scale(n, p / 100 * asked, scalingConvention);
+        if (iterative) {
+            return iterativeScale(n, asked, scalingConvention);
+        } else {
+            return atomicScale(n, asked, scalingConvention);
         }
-        return done;
     }
 
 }
