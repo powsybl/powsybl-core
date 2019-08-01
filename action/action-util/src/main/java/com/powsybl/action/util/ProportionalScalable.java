@@ -77,12 +77,6 @@ class ProportionalScalable extends AbstractCompoundScalable {
     }
 
     ProportionalScalable(List<Float> percentages, List<Scalable> scalables, boolean iterative) {
-        Objects.requireNonNull(percentages);
-        Objects.requireNonNull(scalables);
-        if (percentages.size() != scalables.size()) {
-            throw new IllegalArgumentException(String.format("Percentages list size (%d) should be equals to scalables list one (%d)", percentages.size(), scalables.size()));
-        }
-
         checkPercentages(percentages, scalables);
         this.scalablePercentageList = new ArrayList<>();
         for (int i = 0; i < scalables.size(); i++) {
@@ -134,13 +128,13 @@ class ProportionalScalable extends AbstractCompoundScalable {
         double done = 0;
         while (Math.abs(asked - done) > EPSILON && notSaturated()) {
             checkIterationPercentages();
-            done += atomicScale(n, asked - done, scalingConvention);
+            done += scaleIteration(n, asked - done, scalingConvention);
             updateIterationPercentages();
         }
         return done;
     }
 
-    private double atomicScale(Network n, double asked, ScalingConvention scalingConvention) {
+    private double scaleIteration(Network n, double asked, ScalingConvention scalingConvention) {
         double done = 0;
         for (ScalablePercentage scalablePercentage : scalablePercentageList) {
             Scalable s = scalablePercentage.getScalable();
@@ -161,7 +155,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
         if (iterative) {
             return iterativeScale(n, asked, scalingConvention);
         } else {
-            return atomicScale(n, asked, scalingConvention);
+            return scaleIteration(n, asked, scalingConvention);
         }
     }
 
