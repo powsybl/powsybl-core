@@ -4,6 +4,7 @@ import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -35,6 +36,8 @@ public class IidmToCgmes {
         Map<String, Callable<Map<String, Object>>> getConversionMapper = new HashMap<>();
         getConversionMapper.put("SubstationImpl", () -> substationToSubstation());
         getConversionMapper.put("BusBreakerVoltageLevel", () -> voltageLevelToVoltageLevel());
+        getConversionMapper.put("TwoWindingsTransformerImpl",
+            () -> TwoWindingsTransformerToPowerTransformer.mapIidmToCgmesPredicates());
         getConversionMapper.put("ConfiguredBusImpl", () -> busToTopologicalNode());
         getConversionMapper.put("GeneratorImpl", () -> generatorToSynchronousMachine());
         getConversionMapper.put("LoadImpl", () -> loadToEnergyConsumer());
@@ -44,14 +47,14 @@ public class IidmToCgmes {
         iidmInstanceName = getIidmInstanceName();
 
         iidmToCgmesMapper = getConversionMapper.get(iidmInstanceName).call();
-        mapChangeDetails = new HashMap<>();
+        mapDetailsOfChange = new HashMap<>();
 
         if (change.getAttribute() != null && change.getNewValueString() != null) {
             String cgmesNewValue = change.getNewValueString();
             CgmesPredicateDetails mapCgmesPredicateDetails = (CgmesPredicateDetails) iidmToCgmesMapper
                 .get(change.getAttribute());
 
-            mapChangeDetails.put(mapCgmesPredicateDetails, cgmesNewValue);
+            mapDetailsOfChange.put(mapCgmesPredicateDetails, cgmesNewValue);
 
         } else {
             // for onCreate all fields are inside the Identifiable object.
@@ -60,31 +63,35 @@ public class IidmToCgmes {
             switch (iidmInstanceName) {
                 case "SubstationImpl":
                     SubstationOnCreate sub = new SubstationOnCreate(change);
-                    mapChangeDetails = sub.getIdentifiableAttributes();
-                    break;
-                case "ConfiguredBusImpl":
-                    BusOnCreate bus = new BusOnCreate(change);
-                    mapChangeDetails = bus.getIdentifiableAttributes();
+                    mapDetailsOfChange = sub.getIdentifiableAttributes();
                     break;
                 case "BusBreakerVoltageLevel":
                     VoltageLevelOnCreate vl = new VoltageLevelOnCreate(change);
-                    mapChangeDetails = vl.getIdentifiableAttributes();
+                    mapDetailsOfChange = vl.getIdentifiableAttributes();
+                    break;
+                case "ConfiguredBusImpl":
+                    BusOnCreate bus = new BusOnCreate(change);
+                    mapDetailsOfChange = bus.getIdentifiableAttributes();
+                    break;
+                case "TwoWindingsTransformerImpl":
+                    TwoWindingsTransformerToPowerTransformer twt = new TwoWindingsTransformerToPowerTransformer(change);
+                    mapDetailsOfChange = twt.getIdentifiableAttributes();
                     break;
                 case "GeneratorImpl":
                     GeneratorOnCreate gr = new GeneratorOnCreate(change);
-                    mapChangeDetails = gr.getIdentifiableAttributes();
+                    mapDetailsOfChange = gr.getIdentifiableAttributes();
                     break;
                 case "LoadImpl":
                     LoadOnCreate load = new LoadOnCreate(change);
-                    mapChangeDetails = load.getIdentifiableAttributes();
+                    mapDetailsOfChange = load.getIdentifiableAttributes();
                     break;
                 case "LccConverterStationImpl":
                     LccConverterStationOnCreate lcc = new LccConverterStationOnCreate(change);
-                    mapChangeDetails = lcc.getIdentifiableAttributes();
+                    mapDetailsOfChange = lcc.getIdentifiableAttributes();
                     break;
                 case "LineImpl":
                     LineOnCreate line = new LineOnCreate(change);
-                    mapChangeDetails = line.getIdentifiableAttributes();
+                    mapDetailsOfChange = line.getIdentifiableAttributes();
                     break;
                 default:
                     LOG.info("This element is not convertable to CGMES");
@@ -92,7 +99,7 @@ public class IidmToCgmes {
 
         }
 
-        return mapChangeDetails;
+        return mapDetailsOfChange;
     }
 
     public String getIidmInstanceName() {
@@ -127,6 +134,13 @@ public class IidmToCgmes {
             entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_TP", false)))
             .collect(entriesToMap()));
     }
+
+//    public static Map<String, Object> busbarSectionToBusbarSection() {
+//        return Collections.unmodifiableMap(Stream.of(
+//            entry("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false)),
+//            entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false)))
+//            .collect(entriesToMap()));
+//    }
 
     public static Map<String, Object> generatorToSynchronousMachine() {
         return Collections.unmodifiableMap(Stream.of(
@@ -163,6 +177,23 @@ public class IidmToCgmes {
             .collect(entriesToMap()));
     }
 
+//    public static Map<String, Object> twoWindingsTransformerToPowerTransformer() {
+//        String newIdEnd1 = UUID.randomUUID().toString();
+//        String newIdEnd2 = UUID.randomUUID().toString();
+//
+//        return Collections.unmodifiableMap(Stream.of(
+//            entry("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false)),
+//            entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false)),
+//            entry("rdfTypeEnd1", new CgmesPredicateDetails("rdf:type", "_EQ", false, newIdEnd1)),
+//            entry("rdfTypeEnd2", new CgmesPredicateDetails("rdf:type", "_EQ", false, newIdEnd2)),
+//            entry("b", new CgmesPredicateDetails("cim:PowerTransformerEnd.b", "_EQ", false)),
+//            entry("r", new CgmesPredicateDetails("cim:PowerTransformerEnd.r", "_EQ", false)),
+//            entry("x", new CgmesPredicateDetails("cim:PowerTransformerEnd.x", "_EQ", false)),
+//            entry("g", new CgmesPredicateDetails("cim:PowerTransformerEnd.g", "_EQ", false)),
+//            entry("ratedU", new CgmesPredicateDetails("cim:PowerTransformerEnd.ratedU", "_EQ", false)))
+//            .collect(entriesToMap()));
+//    }
+
     public static Map<String, Object> lineToACLineSegment() {
         return Collections.unmodifiableMap(Stream.of(
             entry("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false)),
@@ -194,7 +225,7 @@ public class IidmToCgmes {
     private Map<String, Object> iidmToCgmesMapper;
     public String iidmInstanceName;
 
-    public Map<CgmesPredicateDetails, String> mapChangeDetails;
+    public Map<CgmesPredicateDetails, String> mapDetailsOfChange;
 
     private static final Logger LOG = LoggerFactory.getLogger(IidmToCgmes.class);
 }

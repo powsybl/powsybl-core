@@ -22,7 +22,7 @@ public class GeneratorOnCreate extends IidmToCgmes implements ConversionOnCreate
         Map<String, Object> iidmToCgmesMapper = generatorToSynchronousMachine();
 
         mapCgmesPredicateDetails.put((CgmesPredicateDetails) iidmToCgmesMapper.get("rdfType"),
-            "SynchronousMachine");
+            "cim:SynchronousMachine");
 
         String name = newGenerator.getName();
         if (name != null) {

@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,23 +30,36 @@ public class CgmesUpdater {
         network.addListener(changeListener);
     }
 
+    /**
+     * Update. Prepare triple to pass to SPARQL statement. For cgmesSubject we might
+     * need Id diferent from the incoming Identifiable, e.g. for
+     * TwoWindingsTransformer, where End1 and End2 have their oun Ids.
+     *
+     * @return the cgmes model
+     * @throws Exception the exception
+     */
     public CgmesModel update() throws Exception {
         if (network.getExtension(CgmesModelExtension.class) != null) {
             CgmesModel cgmes = network.getExtension(CgmesModelExtension.class).getCgmesModel();
+            LOG.info("{}", cgmes.isNodeBreaker());
 
             for (IidmChange change : changes) {
 
-                cgmesSubject = namingStrategy.getCgmesId(change.getIdentifiableId());
                 String instanceClassOfIidmChange = instanceClassOfIidmChange(change);
 
                 IidmToCgmes iidmToCgmes = new IidmToCgmes(change);
-                mapChangeDetails = iidmToCgmes.convert();
+                mapDetailsOfChange = iidmToCgmes.convert();
+
                 // we need to iterate over the above map, as for onCreate call there will be
                 // multiples attributes-values pairs.
-                Iterator entries = mapChangeDetails.entrySet().iterator();
+                Iterator entries = mapDetailsOfChange.entrySet().iterator();
                 while (entries.hasNext()) {
                     Map.Entry entry = (Map.Entry) entries.next();
                     CgmesPredicateDetails map = (CgmesPredicateDetails) entry.getKey();
+
+                    cgmesSubject = (map.getNewSubject() != null) ? map.getNewSubject()
+                        : namingStrategy.getCgmesId(change.getIdentifiableId());
+
                     cgmesPredicate = map.getAttributeName();
                     cgmesValue = (String) entry.getValue();
                     currentContext = map.getContext();
@@ -59,8 +73,7 @@ public class CgmesUpdater {
                         cgmesChanges.put("cgmesNewValue", cgmesValue);
                         cgmesChanges.put("valueIsNode", valueIsNode);
 
-                        // check if the current triplestore context contains the context-string mapped
-                        // in the IidmToCgmes class converter. If yes - call update.
+                        // check if the current triplestore context is correct. If yes - call update.
                         if (context.toUpperCase().contains(currentContext)) {
 
                             PropertyBags result = cgmes.updateCgmes(context, cgmesChanges,
@@ -92,7 +105,7 @@ public class CgmesUpdater {
     private String currentContext;
     private String valueIsNode;
     private Map<String, String> cgmesChanges;
-    private Map<CgmesPredicateDetails, String> mapChangeDetails;
+    private Map<CgmesPredicateDetails, String> mapDetailsOfChange;
 
     private static final Logger LOG = LoggerFactory.getLogger(CgmesUpdater.class);
 }
