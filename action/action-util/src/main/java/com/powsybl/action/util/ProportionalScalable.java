@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
  * @author Sebastien Murgey {@literal <sebastien.murgey at rte-france.com>}
  */
 class ProportionalScalable extends AbstractCompoundScalable {
+    private static final double EPSILON = 1e-2;
 
     private final class ScalablePercentage {
         private final Scalable scalable;
@@ -102,7 +103,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
             throw new IllegalArgumentException("percentage and scalable list must have the same size");
         }
         double sum = percentages.stream().mapToDouble(Double::valueOf).sum();
-        if (Math.abs(100 - sum) > 0.01) {
+        if (Math.abs(100 - sum) > EPSILON) {
             throw new IllegalArgumentException(String.format("Sum of percentages must be equals to 100 (%.2f)", sum));
         }
     }
@@ -113,7 +114,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
 
     private void checkIterationPercentages() {
         double iterationPercentagesSum = scalablePercentageList.stream().mapToDouble(ScalablePercentage::getIterationPercentage).sum();
-        if (Math.abs(100 - iterationPercentagesSum) > 0.01) {
+        if (Math.abs(100 - iterationPercentagesSum) > EPSILON) {
             throw new AssertionError(String.format("Error in proportional scalable ventilation. Sum of percentages must be equals to 100 (%.2f)", iterationPercentagesSum));
         }
     }
@@ -131,7 +132,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
 
     private double iterativeScale(Network n, double asked, ScalingConvention scalingConvention) {
         double done = 0;
-        while (Math.abs(asked - done) > 1e-5 && notSaturated()) {
+        while (Math.abs(asked - done) > EPSILON && notSaturated()) {
             checkIterationPercentages();
             done += atomicScale(n, asked - done, scalingConvention);
             updateIterationPercentages();
@@ -145,7 +146,7 @@ class ProportionalScalable extends AbstractCompoundScalable {
             Scalable s = scalablePercentage.getScalable();
             double p = scalablePercentage.getIterationPercentage();
             double doneOnScalable = s.scale(n, p / 100 * asked, scalingConvention);
-            if (Math.abs(doneOnScalable - p) > 1e-2) {
+            if (Math.abs(doneOnScalable - p) > EPSILON) {
                 scalablePercentage.setSaturated(true);
             }
             done += doneOnScalable;
