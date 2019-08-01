@@ -6,7 +6,6 @@
  */
 package com.powsybl.action.util;
 
-import com.google.common.util.concurrent.AtomicDouble;
 import com.powsybl.iidm.network.Network;
 
 import java.util.ArrayList;
@@ -70,14 +69,19 @@ class ProportionalScalable extends AbstractCompoundScalable {
 
     private final List<ScalablePercentage> scalablePercentageList;
 
-    private boolean iterative;
+    private final boolean iterative;
 
     ProportionalScalable(List<Float> percentages, List<Scalable> scalables) {
         this(percentages, scalables, false);
     }
 
     ProportionalScalable(List<Float> percentages, List<Scalable> scalables, boolean iterative) {
-        super();
+        Objects.requireNonNull(percentages);
+        Objects.requireNonNull(scalables);
+        if (percentages.size() != scalables.size()) {
+            throw new IllegalArgumentException(String.format("Percentages list size (%d) should be equals to scalables list one (%d)", percentages.size(), scalables.size()));
+        }
+
         checkPercentages(percentages, scalables);
         this.scalablePercentageList = new ArrayList<>();
         for (int i = 0; i < scalables.size(); i++) {
@@ -136,17 +140,17 @@ class ProportionalScalable extends AbstractCompoundScalable {
     }
 
     private double atomicScale(Network n, double asked, ScalingConvention scalingConvention) {
-        AtomicDouble done = new AtomicDouble(0);
-        scalablePercentageList.forEach(scalablePercentage -> {
+        double done = 0;
+        for (ScalablePercentage scalablePercentage : scalablePercentageList) {
             Scalable s = scalablePercentage.getScalable();
             double p = scalablePercentage.getIterationPercentage();
             double doneOnScalable = s.scale(n, p / 100 * asked, scalingConvention);
             if (Math.abs(doneOnScalable - p) > 1e-2) {
                 scalablePercentage.setSaturated(true);
             }
-            done.getAndAdd(doneOnScalable);
-        });
-        return done.get();
+            done += doneOnScalable;
+        }
+        return done;
     }
 
     @Override

@@ -17,15 +17,16 @@ import java.util.Objects;
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 class StackScalable extends AbstractCompoundScalable {
-    private final List<Scalable> scalables;
     private static final double EPSILON = 1e-5;
+
+    private final List<Scalable> scalables;
 
     StackScalable(Scalable... scalables) {
         this(Arrays.asList(scalables));
     }
 
     StackScalable(List<Scalable> scalables) {
-        super();
+        Objects.requireNonNull(scalables);
         this.scalables = scalables;
     }
 

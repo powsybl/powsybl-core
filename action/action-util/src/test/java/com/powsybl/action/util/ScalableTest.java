@@ -531,4 +531,28 @@ public class ScalableTest {
         assertEquals(80.0, network.getGenerator("g3").getTargetP(), 1e-5);
     }
 
+    @Test
+    public void testExceptionWhenIncorrectArgumentsInProportionalScalableConstructor() {
+        try {
+            Scalable.proportional(null, Arrays.asList(g1, g2, g3));
+            fail();
+        } catch (NullPointerException e) {
+            // Exception thrown
+        }
+
+        try {
+            Scalable.proportional(Arrays.asList(50.f, 50.f), null);
+            fail();
+        } catch (NullPointerException e) {
+            // Exception thrown
+        }
+
+        try {
+            Scalable.proportional(Arrays.asList(50.f, 50.f), Arrays.asList(g1, g2, g3));
+            fail();
+        } catch (IllegalArgumentException e) {
+            // Exception thrown
+        }
+    }
+
 }
