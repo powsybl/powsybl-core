@@ -541,4 +541,9 @@ public final class FakeCgmesModel implements CgmesModel {
     public PropertyBags updateCgmes(String context, Map<String, String> cgmesChange,String instanceClassOfIidmChang) {
         return null;
     }
+    @Override
+    public String getCimNamespace() {
+        return null;
+    }
 }
+

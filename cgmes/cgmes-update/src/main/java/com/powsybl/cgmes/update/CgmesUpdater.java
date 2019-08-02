@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,13 +40,23 @@ public class CgmesUpdater {
     public CgmesModel update() throws Exception {
         if (network.getExtension(CgmesModelExtension.class) != null) {
             CgmesModel cgmes = network.getExtension(CgmesModelExtension.class).getCgmesModel();
-            LOG.info("{}", cgmes.isNodeBreaker());
+
+            String cimNamespace = cgmes.getCimNamespace();
+            cimVersion = cimNamespace.substring(cimNamespace.lastIndexOf("cim"));
+            //cimVersion = "cim16#";
 
             for (IidmChange change : changes) {
 
                 String instanceClassOfIidmChange = instanceClassOfIidmChange(change);
 
-                IidmToCgmes iidmToCgmes = new IidmToCgmes(change);
+                if (cimVersion.equals("cim14#")) {
+                    iidmToCgmes = new IidmToCgmes(change);
+                } else if (cimVersion.equals("cim16#")) {
+                    iidmToCgmes = new IidmToCgmes16(change);
+                } else {
+                    LOG.info("Incoming cim verson must be checked. Implemented versions are: \ncim14# ; cim16# ");
+                }
+
                 mapDetailsOfChange = iidmToCgmes.convert();
 
                 // we need to iterate over the above map, as for onCreate call there will be
@@ -97,6 +106,8 @@ public class CgmesUpdater {
 
     private Network network;
     private CgmesModel cgmes;
+    private IidmToCgmes iidmToCgmes;
+    private String cimVersion;
     private List<IidmChange> changes;
     private NamingStrategy namingStrategy;
     private String cgmesSubject;

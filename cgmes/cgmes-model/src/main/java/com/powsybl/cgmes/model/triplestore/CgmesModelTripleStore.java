@@ -403,7 +403,8 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
     }
 
     @Override
-    public PropertyBags updateCgmes(String context, Map<String, String> cgmesChanges, String instanceClassOfIidmChange) {
+    public PropertyBags updateCgmes(String context, Map<String, String> cgmesChanges,
+        String instanceClassOfIidmChange) {
         // TODO elena
         Objects.requireNonNull(cimNamespace);
         String subject = cgmesChanges.get("cgmesSubject");
@@ -411,16 +412,17 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         String value = cgmesChanges.get("cgmesNewValue");
         String valueIsNode = cgmesChanges.get("valueIsNode");
         String resource = namedQuery("getCurrentResource", context).get(0).get("resource").trim();
-        LOG.info("\n*****{}, {}, {}, {}******",context,subject,predicate, value);
+        LOG.info("\n*****{}, {}, {}, {}******", context, subject, predicate, value);
         if (instanceClassOfIidmChange.equals("IidmChangeOnUpdate")) {
             namedQueryFordUpdate("updateCgmesfromIidm", context, subject, predicate, value);
         } else if (instanceClassOfIidmChange.equals("IidmChangeOnCreate")) {
-            namedQueryFordUpdate("updateCgmesfromIidmCreate", context, subject, predicate, value,resource,cimNamespace,valueIsNode);
-        } else if(instanceClassOfIidmChange.equals("IidmChangeOnRemove")) {
+            namedQueryFordUpdate("updateCgmesfromIidmCreate", context, subject, predicate, value, resource,
+                cimNamespace, valueIsNode);
+        } else if (instanceClassOfIidmChange.equals("IidmChangeOnRemove")) {
             namedQueryFordUpdate("updateCgmesfromIidmRemove", context, subject, predicate);
         }
 
-        return namedQuery("checkCgmesUpdated", context, subject, predicate,value,resource);
+        return namedQuery("checkCgmesUpdated", context, subject, predicate, value, resource);
     }
 
     public PropertyBags namedQuery(String name, String... params) {
@@ -453,6 +455,12 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         update(queryText);
         final long t1 = System.currentTimeMillis();
         LOG.info("Query {} took {} ms", name, t1 - t0);
+    }
+
+    // TODO elena
+    @Override
+    public String getCimNamespace() {
+        return cimNamespace;
     }
 
     public PropertyBags query(String queryText) {

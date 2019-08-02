@@ -15,8 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conversion.CgmesImport;
-import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.model.CgmesModelFactory;
 import com.powsybl.cgmes.model.test.TestGridModel;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.PlatformConfig;

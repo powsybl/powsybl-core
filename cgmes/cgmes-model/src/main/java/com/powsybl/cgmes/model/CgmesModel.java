@@ -124,6 +124,8 @@ public interface CgmesModel {
 
     // TODO (elena) implement method
     PropertyBags updateCgmes(String context, Map<String, String> cgmesChanges,String changeInstanceName);
+    
+    String getCimNamespace();
 
     void clear(Subset subset);
 

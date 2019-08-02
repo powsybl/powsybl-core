@@ -12,16 +12,16 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.powsybl.cgmes.update.elements.*;
+import com.powsybl.cgmes.update.elements16.*;
 
 /**
  * The Class IidmToCgmes is responsible for mapping back identifiers and
  * attribute names, from Iidm to Cgmes.
  */
-public class IidmToCgmes {
+public class IidmToCgmes16 extends IidmToCgmes {
 
-    public IidmToCgmes(IidmChange change) {
-        this.change = change;
+    public IidmToCgmes16(IidmChange change) {
+        super(change);
     }
 
     /**
@@ -150,5 +150,5 @@ public class IidmToCgmes {
     private final String LCCCONVERTER_STATION_IMPL = "LccConverterStationImpl";
     private final String LINE_IMPL = "LineImpl";
 
-    private static final Logger LOG = LoggerFactory.getLogger(IidmToCgmes.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IidmToCgmes16.class);
 }
