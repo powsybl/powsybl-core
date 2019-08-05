@@ -174,7 +174,7 @@ public class UcteExporter implements Exporter {
      * Initialize the power generation fields from the generators connected to the specified bus.
      *
      * @param ucteNode The UCTE node to fill
-     * @param bus The bus the loads are connected to
+     * @param bus The bus the generators are connected to
      */
     private static void convertGenerators(UcteNode ucteNode, Bus bus) {
         float activePowerGeneration = -0.0f;
