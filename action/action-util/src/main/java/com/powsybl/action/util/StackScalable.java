@@ -26,8 +26,7 @@ class StackScalable extends AbstractCompoundScalable {
     }
 
     StackScalable(List<Scalable> scalables) {
-        Objects.requireNonNull(scalables);
-        this.scalables = scalables;
+        this.scalables = Objects.requireNonNull(scalables);
     }
 
     @Override
