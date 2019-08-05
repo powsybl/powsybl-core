@@ -15,7 +15,13 @@ public class PhaseTapChangerToPhaseTapChanger extends IidmToCgmes implements Con
     }
 
     @Override
-    public Map<CgmesPredicateDetails, String> getAllCgmesDetails() {
+    public Map<String, Object> mapIidmToCgmesPredicatesOnUpdate() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Map<CgmesPredicateDetails, String> getAllCgmesDetailsOnCreate() {
 
         Map<CgmesPredicateDetails, String> mapCgmesPredicateDetails = new HashMap<CgmesPredicateDetails, String>();
 

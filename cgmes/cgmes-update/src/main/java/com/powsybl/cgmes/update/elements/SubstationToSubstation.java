@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 
 import com.powsybl.cgmes.update.IidmChange;
 import com.powsybl.cgmes.update.IidmToCgmes;
+import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.ConversionMapper;
 import com.powsybl.iidm.network.Country;
@@ -19,7 +20,8 @@ public class SubstationToSubstation extends IidmToCgmes implements ConversionMap
         super(change);
     }
 
-    public static Map<String, Object> mapIidmToCgmesPredicates() {
+    @Override
+    public Map<String, Object> mapIidmToCgmesPredicatesOnUpdate() {
         return Collections.unmodifiableMap(Stream.of(
             entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false)),
             entry("subRegionName", new CgmesPredicateDetails("cim:SubGeographicalRegion.Region", "_EQ", true)),
@@ -28,7 +30,7 @@ public class SubstationToSubstation extends IidmToCgmes implements ConversionMap
     }
 
     @Override
-    public Map<CgmesPredicateDetails, String> getAllCgmesDetails() {
+    public Map<CgmesPredicateDetails, String> getAllCgmesDetailsOnCreate() {
 
         Map<CgmesPredicateDetails, String> allCgmesDetails = new HashMap<CgmesPredicateDetails, String>();
 
@@ -39,14 +41,15 @@ public class SubstationToSubstation extends IidmToCgmes implements ConversionMap
 
         String name = newSubstation.getName();
         if (name != null) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("name"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("name"),
                 name);
         }
 
         Optional<Country> country = newSubstation.getCountry();
         if (country.isPresent()) {
             allCgmesDetails
-                .put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("country"), country.get().toString());
+                .put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("country"),
+                    country.get().toString());
         }
 
         return allCgmesDetails;

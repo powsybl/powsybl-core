@@ -16,7 +16,13 @@ public class PhaseTapChangerToPhaseTapChanger extends IidmToCgmes implements Con
     }
 
     @Override
-    public Map<CgmesPredicateDetails, String> getAllCgmesDetails() {
+    public Map<String, Object> mapIidmToCgmesPredicatesOnUpdate() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Map<CgmesPredicateDetails, String> getAllCgmesDetailsOnCreate() {
 
         Map<CgmesPredicateDetails, String> mapCgmesPredicateDetails = new HashMap<CgmesPredicateDetails, String>();
 
@@ -26,7 +32,7 @@ public class PhaseTapChangerToPhaseTapChanger extends IidmToCgmes implements Con
 //        mapCgmesPredicateDetails.put((CgmesPredicateDetails) iidmToCgmesMapper.get("rdfType"),
 //            "cim:PhaseTapChangerTabular");
 
-        //String name = newPhaseTapChanger.;
+        // String name = newPhaseTapChanger.;
 //        if (name != null) {
 //            mapCgmesPredicateDetails.put((CgmesPredicateDetails) iidmToCgmesMapper.get("name"),
 //                name);

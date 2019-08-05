@@ -17,7 +17,8 @@ public class LoadToEnergyConsumer extends IidmToCgmes implements ConversionMappe
         super(change);
     }
 
-    public static Map<String, Object> mapIidmToCgmesPredicates() {
+    @Override
+    public Map<String, Object> mapIidmToCgmesPredicatesOnUpdate() {
         return Collections.unmodifiableMap(Stream.of(
             entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false)),
             entry("p0", new CgmesPredicateDetails("cim:EnergyConsumer.pfixed", "_EQ", false)),
@@ -29,7 +30,7 @@ public class LoadToEnergyConsumer extends IidmToCgmes implements ConversionMappe
     }
 
     @Override
-    public Map<CgmesPredicateDetails, String> getAllCgmesDetails() {
+    public Map<CgmesPredicateDetails, String> getAllCgmesDetailsOnCreate() {
 
         Map<CgmesPredicateDetails, String> allCgmesDetails = new HashMap<CgmesPredicateDetails, String>();
         Load newLoad = (Load) change.getIdentifiable();
@@ -39,19 +40,19 @@ public class LoadToEnergyConsumer extends IidmToCgmes implements ConversionMappe
 
         String name = newLoad.getName();
         if (name != null) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("name"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("name"),
                 name);
         }
 
         double p0 = newLoad.getP0();
         if (!String.valueOf(p0).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("p0"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("p0"),
                 String.valueOf(p0));
         }
 
         double q0 = newLoad.getQ0();
         if (!String.valueOf(q0).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("q0"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("q0"),
                 String.valueOf(q0));
         }
 

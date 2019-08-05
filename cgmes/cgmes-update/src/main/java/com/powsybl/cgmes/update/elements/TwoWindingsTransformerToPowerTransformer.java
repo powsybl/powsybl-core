@@ -23,7 +23,8 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes implem
         super(change);
     }
 
-    public static Map<String, Object> mapIidmToCgmesPredicates() {
+    @Override
+    public Map<String, Object> mapIidmToCgmesPredicatesOnUpdate() {
         return Collections.unmodifiableMap(Stream.of(
             entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false)),
             entry("b", new CgmesPredicateDetails("cim:TransformerWinding.b", "_EQ", false, idEnd1)),
@@ -36,7 +37,7 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes implem
     }
 
     @Override
-    public Map<CgmesPredicateDetails, String> getAllCgmesDetails() {
+    public Map<CgmesPredicateDetails, String> getAllCgmesDetailsOnCreate() {
 
         Map<CgmesPredicateDetails, String> allCgmesDetails = new HashMap<CgmesPredicateDetails, String>();
 
@@ -48,7 +49,7 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes implem
         allCgmesDetails.put(rdfType, "cim:PowerTransformer");
 
         String name = newTwoWindingsTransformer.getName();
-        allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("name"),
+        allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("name"),
             name);
 
         /**
@@ -64,31 +65,31 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes implem
 
         double b = newTwoWindingsTransformer.getB();
         if (!String.valueOf(b).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("b"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("b"),
                 String.valueOf(b));
         }
 
         double r = newTwoWindingsTransformer.getR();
         if (!String.valueOf(r).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("r"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("r"),
                 String.valueOf(r));
         }
 
         double x = newTwoWindingsTransformer.getX();
         if (!String.valueOf(x).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("x"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("x"),
                 String.valueOf(x));
         }
 
         double g = newTwoWindingsTransformer.getG();
         if (!String.valueOf(g).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("g"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("g"),
                 String.valueOf(g));
         }
 
         double ratedU1 = newTwoWindingsTransformer.getRatedU1();
         if (!String.valueOf(ratedU1).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("ratedU1"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("ratedU1"),
                 String.valueOf(ratedU1));
         }
 
@@ -118,7 +119,7 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes implem
 
         double ratedU2 = newTwoWindingsTransformer.getRatedU2();
         if (!String.valueOf(ratedU1).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("ratedU2"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("ratedU2"),
                 String.valueOf(ratedU2));
         }
 

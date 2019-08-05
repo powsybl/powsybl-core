@@ -17,7 +17,8 @@ public class LineToACLineSegment extends IidmToCgmes implements ConversionMapper
         super(change);
     }
 
-    public static Map<String, Object> mapIidmToCgmesPredicates() {
+    @Override
+    public Map<String, Object> mapIidmToCgmesPredicatesOnUpdate() {
         return Collections.unmodifiableMap(Stream.of(
             entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false)),
             entry("r", new CgmesPredicateDetails("cim:ACLineSegment.r", "_EQ", false)),
@@ -28,7 +29,7 @@ public class LineToACLineSegment extends IidmToCgmes implements ConversionMapper
     }
 
     @Override
-    public Map<CgmesPredicateDetails, String> getAllCgmesDetails() {
+    public Map<CgmesPredicateDetails, String> getAllCgmesDetailsOnCreate() {
 
         Map<CgmesPredicateDetails, String> allCgmesDetails = new HashMap<CgmesPredicateDetails, String>();
         Line newLine = (Line) change.getIdentifiable();
@@ -38,31 +39,31 @@ public class LineToACLineSegment extends IidmToCgmes implements ConversionMapper
 
         String name = newLine.getName();
         if (name != null) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("name"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("name"),
                 name);
         }
 
         double r = newLine.getR();
         if (!String.valueOf(r).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("r"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("r"),
                 String.valueOf(r));
         }
 
         double x = newLine.getX();
         if (!String.valueOf(x).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("x"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("x"),
                 String.valueOf(x));
         }
 
         double bch = newLine.getB1();
         if (!String.valueOf(bch).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("bch"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("bch"),
                 String.valueOf(bch));
         }
 
         double gch = newLine.getG1();
         if (!String.valueOf(bch).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("gch"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("gch"),
                 String.valueOf(gch));
         }
 

@@ -43,16 +43,16 @@ public class CgmesUpdater {
 
             String cimNamespace = cgmes.getCimNamespace();
             cimVersion = cimNamespace.substring(cimNamespace.lastIndexOf("cim"));
-            //cimVersion = "cim16#";
+            // cimVersion = "cim16#";
 
             for (IidmChange change : changes) {
 
                 String instanceClassOfIidmChange = instanceClassOfIidmChange(change);
 
                 if (cimVersion.equals("cim14#")) {
-                    iidmToCgmes = new IidmToCgmes(change);
+                    iidmToCgmes = new IidmToCgmes(change, cgmes);
                 } else if (cimVersion.equals("cim16#")) {
-                    iidmToCgmes = new IidmToCgmes16(change);
+                    iidmToCgmes = new IidmToCgmes16(change, cgmes);
                 } else {
                     LOG.info("Incoming cim verson must be checked. Implemented versions are: \ncim14# ; cim16# ");
                 }

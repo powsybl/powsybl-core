@@ -16,7 +16,8 @@ public class GeneratorToSynchronousMachine extends IidmToCgmes implements Conver
         super(change);
     }
 
-    public static Map<String, Object> mapIidmToCgmesPredicates() {
+    @Override
+    public Map<String, Object> mapIidmToCgmesPredicatesOnUpdate() {
         return Collections.unmodifiableMap(Stream.of(
             entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false)),
             entry("minQ", new CgmesPredicateDetails("cim:SynchronousMachine.minQ", "_EQ", false)),
@@ -32,7 +33,7 @@ public class GeneratorToSynchronousMachine extends IidmToCgmes implements Conver
     }
 
     @Override
-    public Map<CgmesPredicateDetails, String> getAllCgmesDetails() {
+    public Map<CgmesPredicateDetails, String> getAllCgmesDetailsOnCreate() {
 
         Map<CgmesPredicateDetails, String> allCgmesDetails = new HashMap<CgmesPredicateDetails, String>();
 
@@ -43,13 +44,13 @@ public class GeneratorToSynchronousMachine extends IidmToCgmes implements Conver
 
         String name = newGenerator.getName();
         if (name != null) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("name"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("name"),
                 name);
         }
 
         double ratedS = newGenerator.getRatedS();
         if (!String.valueOf(ratedS).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("ratedS"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("ratedS"),
                 String.valueOf(ratedS));
         }
 

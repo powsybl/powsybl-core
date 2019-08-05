@@ -42,111 +42,111 @@ public class ChangeTestIidmModel {
         /**
          * Test onCreation
          */
-        Substation substation = network.newSubstation()
-            .setCountry(Country.FI)
-            .setTso("tso")
-            .setName("BUS   15_SS")
-            .setId("_BUS____15_SS")
-            .add();
-        VoltageLevel voltageLevel = substation.newVoltageLevel()
-            .setTopologyKind(TopologyKind.BUS_BREAKER)
-            .setId("_BUS____15_VL")
-            .setName("BUS   15_VL")
-            .setHighVoltageLimit(380.0)
-            .setNominalV(200.0f)
-            .add();
-        VoltageLevel voltageLevel2 = substation.newVoltageLevel()
-            .setTopologyKind(TopologyKind.BUS_BREAKER)
-            .setId("_BUS____25_VL")
-            .setName("BUS   25_VL")
-            .setHighVoltageLimit(385.0)
-            .setNominalV(205.0f)
-            .add();
-        Bus bus = voltageLevel.getBusBreakerView()
-            .newBus()
-            .setName("bus1Name")
-            .setId("bus1")
-            .add();
-        Bus bus2 = voltageLevel2.getBusBreakerView()
-            .newBus()
-            .setName("bus2Name")
-            .setId("bus2")
-            .add();
-        TwoWindingsTransformer tWTransformer = substation.newTwoWindingsTransformer()
-            .setId("_BUS____4-BUS____15-1_PT")
-            .setName("BUS    4-BUS    15-1")
-            .setVoltageLevel1("_BUS____15_VL")
-            .setVoltageLevel2("_BUS____25_VL")
-            .setConnectableBus1("bus1")
-            .setConnectableBus2("bus2")
-            .setR(2.0)
-            .setX(14.745)
-            .setG(0.0)
-            .setB(3.2E-5)
-            .setRatedU1(225.0)
-            .setRatedU2(225.0)
-            .add();
-        tWTransformer.newCurrentLimits1()
-            .setPermanentLimit(931.0)
-            .add();
-        tWTransformer.newCurrentLimits2()
-            .setPermanentLimit(931.0)
-            .add();
-        PhaseTapChanger phaseTapChanger = tWTransformer.newPhaseTapChanger()
-            .setLowTapPosition(0)
-            .setTapPosition(1)
-            .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
-            .setRegulationValue(930.6667)
-            .setRegulating(false)
-            .setRegulationTerminal(tWTransformer.getTerminal(Branch.Side.ONE))
-            .beginStep().setR(-28.091503).setX(-28.091503).setG(0.0).setB(0.0).setRho(1.0).setAlpha(5.42).endStep()
-            .beginStep().setR(39.78473).setX(39.784725).setG(0.0).setB(0.0).setRho(1.0).setAlpha(-42.8).endStep()
-            .add();
-//        BusbarSection busbarSection = voltageLevel.getNodeBreakerView().newBusbarSection()
-//            .setId("_64901aec-5a8a-4bcb-8ca7-a3ddbfcd0e6c")
-//            .setName("BE-Busbar_1")
+//        Substation substation = network.newSubstation()
+//            .setCountry(Country.FI)
+//            .setTso("tso")
+//            .setName("BUS   15_SS")
+//            .setId("_BUS____15_SS")
 //            .add();
-        Load load = voltageLevel.newLoad()
-            .setId("_LOAD___15_EC")
-            .setName("LOAD  15")
-            .setBus("bus1")
-            .setP0(20.0)
-            .setQ0(15.0)
-            .add();
-        Generator generator = voltageLevel.newGenerator()
-            .setId("_GEN____15_SM")
-            .setName("GEN    15")
-            .setBus("bus1")
-            .setVoltageRegulatorOn(false)
-            // .setRegulatingTerminal(regulatingTerminal)
-            .setRatedS(150.0)
-            .setTargetP(0.0)
-            .setTargetQ(0.0)
-            .setMaxP(300.0)
-            .setMinP(-300.0)
-            .add();
-        LccConverterStation lccConverterStation = voltageLevel.newLccConverterStation()
-            .setId("lcc")
-            .setName("lcc")
-            .setBus("bus1")
-            .setLossFactor(0.011f)
-            .setPowerFactor(0.5f)
-            .setConnectableBus("bus1")
-            .add();
-        Line line = network.newLine()
-            .setId("_27086487-56ba-4979-b8de-064025a6b4da")
-            .setName("BE-Line_9")
-            .setVoltageLevel1("_BUS____15_VL")
-            .setVoltageLevel2("_BUS____9_VL")
-            .setBus1("bus1")
-            .setBus2("_BUS____9_TN")
-            .setR(2.2)
-            .setX(68.1)
-            .setG1(0.01)
-            .setG2(0.02)
-            .setB1(0.03)
-            .setB2(0.04)
-            .add();
+//        VoltageLevel voltageLevel = substation.newVoltageLevel()
+//            .setTopologyKind(TopologyKind.BUS_BREAKER)
+//            .setId("_BUS____15_VL")
+//            .setName("BUS   15_VL")
+//            .setHighVoltageLimit(380.0)
+//            .setNominalV(200.0f)
+//            .add();
+//        VoltageLevel voltageLevel2 = substation.newVoltageLevel()
+//            .setTopologyKind(TopologyKind.BUS_BREAKER)
+//            .setId("_BUS____25_VL")
+//            .setName("BUS   25_VL")
+//            .setHighVoltageLimit(385.0)
+//            .setNominalV(205.0f)
+//            .add();
+//        Bus bus = voltageLevel.getBusBreakerView()
+//            .newBus()
+//            .setName("bus1Name")
+//            .setId("bus1")
+//            .add();
+//        Bus bus2 = voltageLevel2.getBusBreakerView()
+//            .newBus()
+//            .setName("bus2Name")
+//            .setId("bus2")
+//            .add();
+//        TwoWindingsTransformer tWTransformer = substation.newTwoWindingsTransformer()
+//            .setId("_BUS____4-BUS____15-1_PT")
+//            .setName("BUS    4-BUS    15-1")
+//            .setVoltageLevel1("_BUS____15_VL")
+//            .setVoltageLevel2("_BUS____25_VL")
+//            .setConnectableBus1("bus1")
+//            .setConnectableBus2("bus2")
+//            .setR(2.0)
+//            .setX(14.745)
+//            .setG(0.0)
+//            .setB(3.2E-5)
+//            .setRatedU1(225.0)
+//            .setRatedU2(225.0)
+//            .add();
+//        tWTransformer.newCurrentLimits1()
+//            .setPermanentLimit(931.0)
+//            .add();
+//        tWTransformer.newCurrentLimits2()
+//            .setPermanentLimit(931.0)
+//            .add();
+//        PhaseTapChanger phaseTapChanger = tWTransformer.newPhaseTapChanger()
+//            .setLowTapPosition(0)
+//            .setTapPosition(1)
+//            .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
+//            .setRegulationValue(930.6667)
+//            .setRegulating(false)
+//            .setRegulationTerminal(tWTransformer.getTerminal(Branch.Side.ONE))
+//            .beginStep().setR(-28.091503).setX(-28.091503).setG(0.0).setB(0.0).setRho(1.0).setAlpha(5.42).endStep()
+//            .beginStep().setR(39.78473).setX(39.784725).setG(0.0).setB(0.0).setRho(1.0).setAlpha(-42.8).endStep()
+//            .add();
+////        BusbarSection busbarSection = voltageLevel.getNodeBreakerView().newBusbarSection()
+////            .setId("_64901aec-5a8a-4bcb-8ca7-a3ddbfcd0e6c")
+////            .setName("BE-Busbar_1")
+////            .add();
+//        Load load = voltageLevel.newLoad()
+//            .setId("_LOAD___15_EC")
+//            .setName("LOAD  15")
+//            .setBus("bus1")
+//            .setP0(20.0)
+//            .setQ0(15.0)
+//            .add();
+//        Generator generator = voltageLevel.newGenerator()
+//            .setId("_GEN____15_SM")
+//            .setName("GEN    15")
+//            .setBus("bus1")
+//            .setVoltageRegulatorOn(false)
+//            // .setRegulatingTerminal(regulatingTerminal)
+//            .setRatedS(150.0)
+//            .setTargetP(0.0)
+//            .setTargetQ(0.0)
+//            .setMaxP(300.0)
+//            .setMinP(-300.0)
+//            .add();
+//        LccConverterStation lccConverterStation = voltageLevel.newLccConverterStation()
+//            .setId("lcc")
+//            .setName("lcc")
+//            .setBus("bus1")
+//            .setLossFactor(0.011f)
+//            .setPowerFactor(0.5f)
+//            .setConnectableBus("bus1")
+//            .add();
+//        Line line = network.newLine()
+//            .setId("_27086487-56ba-4979-b8de-064025a6b4da")
+//            .setName("BE-Line_9")
+//            .setVoltageLevel1("_BUS____15_VL")
+//            .setVoltageLevel2("_BUS____9_VL")
+//            .setBus1("bus1")
+//            .setBus2("_BUS____9_TN")
+//            .setR(2.2)
+//            .setX(68.1)
+//            .setG1(0.01)
+//            .setG2(0.02)
+//            .setB1(0.03)
+//            .setB2(0.04)
+//            .add();
 
 //        assertTrue(changes.size() == 1);
 //
@@ -162,9 +162,9 @@ public class ChangeTestIidmModel {
 //        network.getTwoWindingsTransformer("_BUS____4-BUS____7-1_PT").setB(0.001);
 //        network.getGenerator("_GEN____3_SM").setRatedS(100).setMaxP(200.0).setMinP(-200.0);
 //        network.getGenerator("_GEN____2_SM").setTargetP(1.0);
-//        network.getSubstation("_BUS___10_SS").setCountry(Country.RU);
-//        network.getLoad("_LOAD__10_EC").setP0(100.0).setQ0(0.0);
-//        network.getVoltageLevel("_BUS___10_VL").setHighVoltageLimit(1.2 * 380.0).setNominalV(10.50);
+        network.getSubstation("_BUS___10_SS").setCountry(Country.GR);
+        network.getLoad("_LOAD__10_EC").setP0(100.0).setQ0(0.0);
+        network.getVoltageLevel("_BUS___10_VL").setHighVoltageLimit(1.2 * 380.0).setNominalV(10.50);
         Bus checkBusBreakerView = network.getLoad("_LOAD__10_EC").getTerminal().getBusBreakerView().getBus();
         Bus checkBusView = network.getLoad("_LOAD__10_EC").getTerminal().getBusView().getBus();
 
