@@ -21,8 +21,8 @@ import com.powsybl.cgmes.update.elements16.*;
  */
 public class IidmToCgmes16 extends IidmToCgmes {
 
-    public IidmToCgmes16(IidmChange change,CgmesModel cgmes) {
-        super(change,cgmes);
+    public IidmToCgmes16(IidmChange change, CgmesModel cgmes) {
+        super(change, cgmes);
     }
 
     /**
@@ -116,8 +116,8 @@ public class IidmToCgmes16 extends IidmToCgmes {
         LOG.info("IIDM instance is: " + change.getIdentifiable().getClass().getSimpleName());
         return change.getIdentifiable().getClass().getSimpleName();
     }
-    
-    //TODO elena move to its own element.
+
+    // TODO elena move to its own element.
     public static Map<String, Object> terminalToTerminal() {
         return Collections.unmodifiableMap(Stream.of(
             entry("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false)),
@@ -141,14 +141,14 @@ public class IidmToCgmes16 extends IidmToCgmes {
 
     public Map<CgmesPredicateDetails, String> mapDetailsOfChange;
 
-    private final String SUBSTATION_IMPL = "SubstationImpl";
-    private final String BUSBREAKER_VOLTAGELEVEL = "BusBreakerVoltageLevel";
-    private final String TWOWINDINGS_TRANSFORMER_IMPL = "TwoWindingsTransformerImpl";
-    private final String CONFIGUREDBUS_IMPL = "ConfiguredBusImpl";
-    private final String GENERATOR_IMPL = "GeneratorImpl";
-    private final String LOAD_IMPL = "LoadImpl";
-    private final String LCCCONVERTER_STATION_IMPL = "LccConverterStationImpl";
-    private final String LINE_IMPL = "LineImpl";
+    private static final String SUBSTATION_IMPL = "SubstationImpl";
+    private static final String BUSBREAKER_VOLTAGELEVEL = "BusBreakerVoltageLevel";
+    private static final String TWOWINDINGS_TRANSFORMER_IMPL = "TwoWindingsTransformerImpl";
+    private static final String CONFIGUREDBUS_IMPL = "ConfiguredBusImpl";
+    private static final String GENERATOR_IMPL = "GeneratorImpl";
+    private static final String LOAD_IMPL = "LoadImpl";
+    private static final String LCCCONVERTER_STATION_IMPL = "LccConverterStationImpl";
+    private static final String LINE_IMPL = "LineImpl";
 
     private static final Logger LOG = LoggerFactory.getLogger(IidmToCgmes16.class);
 }

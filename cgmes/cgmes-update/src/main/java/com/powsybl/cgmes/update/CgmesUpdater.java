@@ -66,31 +66,36 @@ public class CgmesUpdater {
                     Map.Entry entry = (Map.Entry) entries.next();
                     CgmesPredicateDetails map = (CgmesPredicateDetails) entry.getKey();
 
-                    cgmesSubject = (map.getNewSubject() != null) ? map.getNewSubject()
-                        : namingStrategy.getCgmesId(change.getIdentifiableId());
+                    try {
+                        for (String context : cgmes.tripleStore().contextNames()) {
 
-                    cgmesPredicate = map.getAttributeName();
-                    cgmesValue = (String) entry.getValue();
-                    currentContext = map.getContext();
-                    valueIsNode = String.valueOf(map.valueIsNode());
+                            cgmesSubject = (map.getNewSubject() != null) ? map.getNewSubject()
+                                : namingStrategy.getCgmesId(change.getIdentifiableId());
 
-                    for (String context : cgmes.tripleStore().contextNames()) {
+                            cgmesPredicate = map.getAttributeName();
+                            cgmesValue = (String) entry.getValue();
+                            currentContext = map.getContext();
+                            valueIsNode = String.valueOf(map.valueIsNode());
 
-                        cgmesChanges = new HashMap<>();
-                        cgmesChanges.put("cgmesSubject", cgmesSubject);
-                        cgmesChanges.put("cgmesPredicate", cgmesPredicate);
-                        cgmesChanges.put("cgmesNewValue", cgmesValue);
-                        cgmesChanges.put("valueIsNode", valueIsNode);
+                            if (context.toUpperCase().contains(currentContext)) {
 
-                        // check if the current triplestore context is correct. If yes - call update.
-                        if (context.toUpperCase().contains(currentContext)) {
+                                cgmesChanges = new HashMap<>();
+                                cgmesChanges.put("cgmesSubject", cgmesSubject);
+                                cgmesChanges.put("cgmesPredicate", cgmesPredicate);
+                                cgmesChanges.put("cgmesNewValue", cgmesValue);
+                                cgmesChanges.put("valueIsNode", valueIsNode);
 
-                            PropertyBags result = cgmes.updateCgmes(context, cgmesChanges,
-                                instanceClassOfIidmChange);
+                                PropertyBags result = cgmes.updateCgmes(context, cgmesChanges,
+                                    instanceClassOfIidmChange);
 
-                            LOG.info(result.tabulate());
+                                LOG.info(result.tabulate());
+                            }
                         }
+                    } catch (java.lang.NullPointerException e) {
+                        LOG.error("Requested attribute {} is not available for conversion\n{}", change.getAttribute(),
+                            e.toString());
                     }
+
                 }
             }
 

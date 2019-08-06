@@ -89,10 +89,11 @@ public class IidmToCgmes {
                     mapDetailsOfChange = ((VoltageLevelToVoltageLevel) element).getAllCgmesDetailsOnCreate();
                     break;
                 case CONFIGUREDBUS_IMPL:
-                    mapDetailsOfChange = ((LineToACLineSegment) element).getAllCgmesDetailsOnCreate();
+                    mapDetailsOfChange = ((BusToTopologicalNode) element).getAllCgmesDetailsOnCreate();
                     break;
                 case TWOWINDINGS_TRANSFORMER_IMPL:
-                    mapDetailsOfChange = ((TwoWindingsTransformerToPowerTransformer) element).getAllCgmesDetailsOnCreate();
+                    mapDetailsOfChange = ((TwoWindingsTransformerToPowerTransformer) element)
+                        .getAllCgmesDetailsOnCreate();
                     break;
                 case GENERATOR_IMPL:
                     mapDetailsOfChange = ((GeneratorToSynchronousMachine) element).getAllCgmesDetailsOnCreate();
@@ -135,10 +136,10 @@ public class IidmToCgmes {
                 element = new TwoWindingsTransformerToPowerTransformer(change);
                 break;
             case GENERATOR_IMPL:
-                element = new GeneratorToSynchronousMachine(change);
+                element = new GeneratorToSynchronousMachine(change, cgmes);
                 break;
             case LOAD_IMPL:
-                element = new LoadToEnergyConsumer(change,cgmes);
+                element = new LoadToEnergyConsumer(change, cgmes);
                 break;
             case LCCCONVERTER_STATION_IMPL:
                 element = new LccConverterStationToAcdcConverter(change);

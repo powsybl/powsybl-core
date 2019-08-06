@@ -6,11 +6,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import com.powsybl.cgmes.update.IidmChange;
-import com.powsybl.cgmes.update.IidmToCgmes;
-import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.ConversionMapper;
+import com.powsybl.cgmes.update.IidmChange;
+import com.powsybl.cgmes.update.IidmToCgmes;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Substation;
 

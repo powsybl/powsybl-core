@@ -2,6 +2,7 @@ package com.powsybl.cgmes.update.elements;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -97,14 +98,16 @@ public class VoltageLevelToVoltageLevel extends IidmToCgmes implements Conversio
     private String getBaseVoltageId() {
 
         PropertyBags voltageLevels = cgmes.voltageLevels();
-        for (PropertyBag vl : voltageLevels) {
-            if (vl.getId("VoltageLevel").equals(change.getIdentifiableId())) {
-                return vl.getId("BaseVoltage");
+        Iterator i = voltageLevels.iterator();
+        while (i.hasNext()) {
+            PropertyBag pb = (PropertyBag) i.next();
+            if (pb.getId("VoltageLevel").equals(change.getIdentifiableId())) {
+                return pb.getId("BaseVoltage");
             } else {
-                return UUID.randomUUID().toString();
+                continue;
             }
         }
-        return "";
+        return UUID.randomUUID().toString();
     }
 
     private String baseVoltageId = getBaseVoltageId();

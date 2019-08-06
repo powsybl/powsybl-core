@@ -2,6 +2,7 @@ package com.powsybl.cgmes.update.elements;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
@@ -30,8 +31,7 @@ public class LoadToEnergyConsumer extends IidmToCgmes implements ConversionMappe
                     loadResponseCharacteristicId)),
             entry("q0",
                 new CgmesPredicateDetails("cim:LoadResponseCharacteristic.qConstantPower", "_EQ", false,
-                    loadResponseCharacteristicId)),
-            entry("VoltageLevel", new CgmesPredicateDetails("cim:Equipment.MemberOf_EquipmentContainer", "_EQ", true)))
+                    loadResponseCharacteristicId)))
             .collect(entriesToMap()));
     }
 
@@ -48,6 +48,13 @@ public class LoadToEnergyConsumer extends IidmToCgmes implements ConversionMappe
         if (name != null) {
             allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("name"),
                 name);
+        }
+
+        String voltageLevelId = newLoad.getTerminal().getVoltageLevel().getId();
+        CgmesPredicateDetails equipmentContainer = new CgmesPredicateDetails(
+            "cim:Equipment.MemberOf_EquipmentContainer", "_EQ", true);
+        if (!voltageLevelId.equals("NaN")) {
+            allCgmesDetails.put(equipmentContainer, voltageLevelId);
         }
 
         CgmesPredicateDetails energyConsumerLoadResponse = new CgmesPredicateDetails("cim:EnergyConsumer.LoadResponse",
@@ -85,19 +92,20 @@ public class LoadToEnergyConsumer extends IidmToCgmes implements ConversionMappe
      * Check if EnergyConsumer.LoadResponse element already exists in grid, if yes -
      * returns the id
      *
-     * @return the base voltage id
      */
     private String getLoadResponseCharacteristicId() {
 
-        PropertyBags energyConsumer = cgmes.energyConsumers();
-        for (PropertyBag ec : energyConsumer) {
-            if (ec.getId("EnergyConsumer").equals(change.getIdentifiableId())) {
-                return ec.getId("LoadResponse");
+        PropertyBags energyConsumers = cgmes.energyConsumers();
+        Iterator i = energyConsumers.iterator();
+        while (i.hasNext()) {
+            PropertyBag pb = (PropertyBag) i.next();
+            if (pb.getId("EnergyConsumer").equals(change.getIdentifiableId())) {
+                return pb.getId("LoadResponse");
             } else {
-                return UUID.randomUUID().toString();
+                continue;
             }
         }
-        return "";
+        return UUID.randomUUID().toString();
     }
 
     private String loadResponseCharacteristicId = getLoadResponseCharacteristicId();
