@@ -15,7 +15,7 @@ public class PhaseTapChangerToPhaseTapChanger extends IidmToCgmes implements Con
     }
 
     @Override
-    public Map<String, Object> mapIidmToCgmesPredicatesOnUpdate() {
+    public Map<String, Object> mapIidmToCgmesPredicates() {
         // TODO Auto-generated method stub
         return null;
     }

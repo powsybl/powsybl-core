@@ -49,21 +49,21 @@ public class IidmToCgmes {
 
         // for onUpdate we only need to map incoming attribute to cgmes predicate:
         getConversionMapper.put(SUBSTATION_IMPL,
-            () -> ((SubstationToSubstation) element).mapIidmToCgmesPredicatesOnUpdate());
+            () -> ((SubstationToSubstation) element).mapIidmToCgmesPredicates());
         getConversionMapper.put(BUSBREAKER_VOLTAGELEVEL,
-            () -> ((VoltageLevelToVoltageLevel) element).mapIidmToCgmesPredicatesOnUpdate());
+            () -> ((VoltageLevelToVoltageLevel) element).mapIidmToCgmesPredicates());
         getConversionMapper.put(TWOWINDINGS_TRANSFORMER_IMPL,
-            () -> ((TwoWindingsTransformerToPowerTransformer) element).mapIidmToCgmesPredicatesOnUpdate());
+            () -> ((TwoWindingsTransformerToPowerTransformer) element).mapIidmToCgmesPredicates());
         getConversionMapper.put(CONFIGUREDBUS_IMPL,
-            () -> ((BusToTopologicalNode) element).mapIidmToCgmesPredicatesOnUpdate());
+            () -> ((BusToTopologicalNode) element).mapIidmToCgmesPredicates());
         getConversionMapper.put(GENERATOR_IMPL,
-            () -> ((GeneratorToSynchronousMachine) element).mapIidmToCgmesPredicatesOnUpdate());
+            () -> ((GeneratorToSynchronousMachine) element).mapIidmToCgmesPredicates());
         getConversionMapper.put(LOAD_IMPL,
-            () -> ((LoadToEnergyConsumer) element).mapIidmToCgmesPredicatesOnUpdate());
+            () -> ((LoadToEnergyConsumer) element).mapIidmToCgmesPredicates());
         getConversionMapper.put(LCCCONVERTER_STATION_IMPL,
-            () -> ((LccConverterStationToAcdcConverter) element).mapIidmToCgmesPredicatesOnUpdate());
+            () -> ((LccConverterStationToAcdcConverter) element).mapIidmToCgmesPredicates());
         getConversionMapper.put(LINE_IMPL,
-            () -> ((LineToACLineSegment) element).mapIidmToCgmesPredicatesOnUpdate());
+            () -> ((LineToACLineSegment) element).mapIidmToCgmesPredicates());
 
         iidmToCgmesMapper = getConversionMapper.get(iidmInstanceName).call();
         mapDetailsOfChange = new HashMap<>();
@@ -133,7 +133,7 @@ public class IidmToCgmes {
                 element = new BusToTopologicalNode(change);
                 break;
             case TWOWINDINGS_TRANSFORMER_IMPL:
-                element = new TwoWindingsTransformerToPowerTransformer(change);
+                element = new TwoWindingsTransformerToPowerTransformer(change,cgmes);
                 break;
             case GENERATOR_IMPL:
                 element = new GeneratorToSynchronousMachine(change, cgmes);

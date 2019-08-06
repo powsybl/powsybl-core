@@ -19,7 +19,7 @@ public class VoltageLevelToVoltageLevel extends IidmToCgmes implements Conversio
     }
 
     @Override
-    public Map<String, Object> mapIidmToCgmesPredicatesOnUpdate() {
+    public Map<String, Object> mapIidmToCgmesPredicates() {
         return Collections.unmodifiableMap(Stream.of(
             entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false)),
             entry("highVoltageLimit", new CgmesPredicateDetails("cim:VoltageLevel.highVoltageLimit", "_EQ", false)),
@@ -41,25 +41,25 @@ public class VoltageLevelToVoltageLevel extends IidmToCgmes implements Conversio
 
         String name = newVoltageLevel.getName();
         if (name != null) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("name"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("name"),
                 name);
         }
 
         double highVoltageLimit = newVoltageLevel.getHighVoltageLimit();
         if (!String.valueOf(highVoltageLimit).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("highVoltageLimit"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("highVoltageLimit"),
                 String.valueOf(highVoltageLimit));
         }
 
         double lowVoltageLimit = newVoltageLevel.getLowVoltageLimit();
         if (!String.valueOf(lowVoltageLimit).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("lowVoltageLimit"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("lowVoltageLimit"),
                 String.valueOf(lowVoltageLimit));
         }
 
         String substation = newVoltageLevel.getSubstation().getId();
         if (substation != null) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("Substation"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("Substation"),
                 substation.toString());
         }
 
@@ -79,7 +79,7 @@ public class VoltageLevelToVoltageLevel extends IidmToCgmes implements Conversio
 
         double nominalVoltage = newVoltageLevel.getNominalV();
         if (!String.valueOf(nominalVoltage).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("nominalV"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("nominalV"),
                 String.valueOf(nominalVoltage));
         }
 

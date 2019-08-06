@@ -20,7 +20,7 @@ public class SubstationToSubstation extends IidmToCgmes implements ConversionMap
     }
 
     @Override
-    public Map<String, Object> mapIidmToCgmesPredicatesOnUpdate() {
+    public Map<String, Object> mapIidmToCgmesPredicates() {
         return Collections.unmodifiableMap(Stream.of(
             entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false)),
             entry("subRegionName", new CgmesPredicateDetails("cim:SubGeographicalRegion.Region", "_EQ", true)),
@@ -40,14 +40,14 @@ public class SubstationToSubstation extends IidmToCgmes implements ConversionMap
 
         String name = newSubstation.getName();
         if (name != null) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("name"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("name"),
                 name);
         }
 
         Optional<Country> country = newSubstation.getCountry();
         if (country.isPresent()) {
             allCgmesDetails
-                .put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("country"),
+                .put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("country"),
                     country.get().toString());
         }
 

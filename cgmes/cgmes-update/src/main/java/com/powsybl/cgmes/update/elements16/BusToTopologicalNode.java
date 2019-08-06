@@ -18,7 +18,7 @@ public class BusToTopologicalNode extends IidmToCgmes implements ConversionMappe
     }
 
     @Override
-    public Map<String, Object> mapIidmToCgmesPredicatesOnUpdate() {
+    public Map<String, Object> mapIidmToCgmesPredicates() {
         return Collections.unmodifiableMap(Stream.of(
             entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_TP", false)))
             .collect(entriesToMap()));
@@ -35,7 +35,7 @@ public class BusToTopologicalNode extends IidmToCgmes implements ConversionMappe
 
         String name = newBus.getName();
         if (name != null) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("name"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("name"),
                 name);
         }
         return allCgmesDetails;

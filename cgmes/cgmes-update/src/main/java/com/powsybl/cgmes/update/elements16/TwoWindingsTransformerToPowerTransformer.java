@@ -24,7 +24,7 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes implem
     }
 
     @Override
-    public Map<String, Object> mapIidmToCgmesPredicatesOnUpdate() {
+    public Map<String, Object> mapIidmToCgmesPredicates() {
         return Collections.unmodifiableMap(Stream.of(
             entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false)),
             entry("b", new CgmesPredicateDetails("cim:PowerTransformerEnd.b", "_EQ", false, idEnd1)),
@@ -42,7 +42,7 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes implem
         Map<CgmesPredicateDetails, String> allCgmesDetails = new HashMap<CgmesPredicateDetails, String>();
 
         TwoWindingsTransformer newTwoWindingsTransformer = (TwoWindingsTransformer) change.getIdentifiable();
-        Map<String, Object> iidmToCgmesMapper = mapIidmToCgmesPredicatesOnUpdate();
+        Map<String, Object> iidmToCgmesMapper = mapIidmToCgmesPredicates();
 
         String ptId = newTwoWindingsTransformer.getId();
 

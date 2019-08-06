@@ -22,7 +22,7 @@ public class GeneratorToSynchronousMachine extends IidmToCgmes implements Conver
     }
 
     @Override
-    public Map<String, Object> mapIidmToCgmesPredicatesOnUpdate() {
+    public Map<String, Object> mapIidmToCgmesPredicates() {
         return Collections.unmodifiableMap(Stream.of(
             entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false)),
             entry("minQ", new CgmesPredicateDetails("cim:SynchronousMachine.minQ", "_EQ", false)),
@@ -49,13 +49,13 @@ public class GeneratorToSynchronousMachine extends IidmToCgmes implements Conver
 
         String name = newGenerator.getName();
         if (name != null) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("name"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("name"),
                 name);
         }
 
         double ratedS = newGenerator.getRatedS();
         if (!String.valueOf(ratedS).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("ratedS"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("ratedS"),
                 String.valueOf(ratedS));
         }
 
@@ -76,19 +76,19 @@ public class GeneratorToSynchronousMachine extends IidmToCgmes implements Conver
 
         double targetP = newGenerator.getTargetP();
         if (!String.valueOf(targetP).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("targetP"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("targetP"),
                 String.valueOf(targetP));
         }
 
         double maxP = newGenerator.getMaxP();
         if (!String.valueOf(maxP).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("maxP"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("maxP"),
                 String.valueOf(maxP));
         }
 
         double minP = newGenerator.getMinP();
         if (!String.valueOf(minP).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("minP"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("minP"),
                 String.valueOf(minP));
         }
 

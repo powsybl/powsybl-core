@@ -21,6 +21,7 @@ import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.Substation;
 import com.powsybl.iidm.network.TopologyKind;
+import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.VoltageLevel;
 
 public class ChangeTestIidmModel {
@@ -68,20 +69,20 @@ public class ChangeTestIidmModel {
             .setName("bus2Name")
             .setId("bus2")
             .add();
-////        TwoWindingsTransformer tWTransformer = substation.newTwoWindingsTransformer()
-////            .setId("_BUS____4-BUS____15-1_PT")
-////            .setName("BUS    4-BUS    15-1")
-////            .setVoltageLevel1("_BUS____15_VL")
-////            .setVoltageLevel2("_BUS____25_VL")
-////            .setConnectableBus1("bus1")
-////            .setConnectableBus2("bus2")
-////            .setR(2.0)
-////            .setX(14.745)
-////            .setG(0.0)
-////            .setB(3.2E-5)
-////            .setRatedU1(225.0)
-////            .setRatedU2(225.0)
-////            .add();
+        TwoWindingsTransformer tWTransformer = substation.newTwoWindingsTransformer()
+            .setId("_BUS____4-BUS____15-1_PT")
+            .setName("BUS    4-BUS    15-1")
+            .setVoltageLevel1("_BUS____15_VL")
+            .setVoltageLevel2("_BUS____25_VL")
+            .setConnectableBus1("bus1")
+            .setConnectableBus2("bus2")
+            .setR(2.0)
+            .setX(14.745)
+            .setG(4.0)
+            .setB(3.2E-5)
+            .setRatedU1(111.0)
+            .setRatedU2(222.0)
+            .add();
 ////        tWTransformer.newCurrentLimits1()
 ////            .setPermanentLimit(931.0)
 ////            .add();
@@ -130,20 +131,20 @@ public class ChangeTestIidmModel {
 ////            .setPowerFactor(0.5f)
 ////            .setConnectableBus("bus1")
 ////            .add();
-        Line line = network.newLine()
-            .setId("_27086487-56ba-4979-b8de-064025a6b4da")
-            .setName("BE-Line_9")
-            .setVoltageLevel1("_BUS____15_VL")
-            .setVoltageLevel2("_BUS____9_VL")
-            .setBus1("bus1")
-            .setBus2("_BUS____9_TN")
-            .setR(2.2)
-            .setX(68.1)
-            .setG1(0.01)
-            .setG2(0.02)
-            .setB1(0.03)
-            .setB2(0.04)
-            .add();
+//        Line line = network.newLine()
+//            .setId("_27086487-56ba-4979-b8de-064025a6b4da")
+//            .setName("BE-Line_9")
+//            .setVoltageLevel1("_BUS____15_VL")
+//            .setVoltageLevel2("_BUS____9_VL")
+//            .setBus1("bus1")
+//            .setBus2("_BUS____9_TN")
+//            .setR(2.2)
+//            .setX(68.1)
+//            .setG1(0.01)
+//            .setG2(0.02)
+//            .setB1(0.03)
+//            .setB2(0.04)
+//            .add();
 
 //        assertTrue(changes.size() == 1);
 //
@@ -156,7 +157,8 @@ public class ChangeTestIidmModel {
 //        lccConverterStation.getTerminal().setQ(q1);
 
         // assertTrue(changes.size() == 6);
-//        network.getTwoWindingsTransformer("_BUS____4-BUS____7-1_PT").setB(0.001);
+        network.getTwoWindingsTransformer("_BUS____4-BUS____7-1_PT").setB(1.0).setG(2.0).setR(3.0)
+            .setX(4.0).setRatedU1(11.1).setRatedU2(22.2);
 //        network.getGenerator("_GEN____3_SM").setRatedS(100).setMaxP(200.0).setMinP(-200.0);
 //        network.getGenerator("_GEN____2_SM").setTargetP(1.0);
 //        network.getSubstation("_BUS___10_SS").setCountry(Country.GR);

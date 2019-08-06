@@ -18,7 +18,7 @@ public class LineToACLineSegment extends IidmToCgmes implements ConversionMapper
     }
 
     @Override
-    public Map<String, Object> mapIidmToCgmesPredicatesOnUpdate() {
+    public Map<String, Object> mapIidmToCgmesPredicates() {
         return Collections.unmodifiableMap(Stream.of(
             entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false)),
             entry("r", new CgmesPredicateDetails("cim:Conductor.r", "_EQ", false)),
@@ -41,33 +41,33 @@ public class LineToACLineSegment extends IidmToCgmes implements ConversionMapper
 
         String name = newLine.getName();
         if (name != null) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("name"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("name"),
                 name);
         }
 
         double r = newLine.getR();
         if (!String.valueOf(r).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("r"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("r"),
                 String.valueOf(r));
         }
 
         double x = newLine.getX();
         if (!String.valueOf(x).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("x"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("x"),
                 String.valueOf(x));
         }
 
         double b1 = newLine.getB1();
         double b2 = newLine.getB2();
         if (!String.valueOf(b1).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("b1"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("b1"),
                 String.valueOf(b1 + b2));
         }
 
         double g1 = newLine.getG1();
         double g2 = newLine.getG2();
         if (!String.valueOf(g1).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("g1"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("g1"),
                 String.valueOf(g1 + g2));
         }
 

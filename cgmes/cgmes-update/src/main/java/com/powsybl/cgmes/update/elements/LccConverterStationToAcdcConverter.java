@@ -18,7 +18,7 @@ public class LccConverterStationToAcdcConverter extends IidmToCgmes implements C
     }
 
     @Override
-    public Map<String, Object> mapIidmToCgmesPredicatesOnUpdate() {
+    public Map<String, Object> mapIidmToCgmesPredicates() {
         return Collections.unmodifiableMap(Stream.of(
             entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false)))
             .collect(entriesToMap()));
@@ -36,7 +36,7 @@ public class LccConverterStationToAcdcConverter extends IidmToCgmes implements C
 
         String name = newLccConverterStation.getName();
         if (name != null) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("name"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("name"),
                 name);
         }
         return allCgmesDetails;

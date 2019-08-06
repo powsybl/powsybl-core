@@ -278,6 +278,7 @@ GRAPH ?graph {
         cim:IdentifiedObject.name ?name ;
         cim:Equipment.MemberOf_EquipmentContainer ?VoltageLevel .
     ?Terminal cim:Terminal.ConductingEquipment ?EnergyConsumer .
+    OPTIONAL { ?EnergyConsumer cim:EnergyConsumer.LoadResponse  ?LoadResponse }
 }
 }
 
@@ -438,15 +439,4 @@ WHERE
         }
     }
 }
-
-# query: tmp2
-SELECT *
-WHERE {
-{ GRAPH <{0}> {
-	?subject ?predicate ?value
-	FILTER (STRENDS(STR(?subject), "{1}") &&
-			STRENDS(STR(?predicate), "{2}"))
-}}
-}
-
 

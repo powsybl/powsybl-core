@@ -2,15 +2,19 @@ package com.powsybl.cgmes.update.elements;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.ConversionMapper;
 import com.powsybl.cgmes.update.IidmChange;
 import com.powsybl.cgmes.update.IidmToCgmes;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
+import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
 
 /**
  * For conversion of TwoWindingsTransformer we need to create two additional
@@ -19,12 +23,12 @@ import com.powsybl.iidm.network.TwoWindingsTransformer;
  */
 public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes implements ConversionMapper {
 
-    public TwoWindingsTransformerToPowerTransformer(IidmChange change) {
-        super(change);
+    public TwoWindingsTransformerToPowerTransformer(IidmChange change, CgmesModel cgmes) {
+        super(change, cgmes);
     }
 
     @Override
-    public Map<String, Object> mapIidmToCgmesPredicatesOnUpdate() {
+    public Map<String, Object> mapIidmToCgmesPredicates() {
         return Collections.unmodifiableMap(Stream.of(
             entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false)),
             entry("b", new CgmesPredicateDetails("cim:TransformerWinding.b", "_EQ", false, idEnd1)),
@@ -49,7 +53,7 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes implem
         allCgmesDetails.put(rdfType, "cim:PowerTransformer");
 
         String name = newTwoWindingsTransformer.getName();
-        allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("name"),
+        allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("name"),
             name);
 
         /**
@@ -63,33 +67,38 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes implem
             "_EQ", true, idEnd1);
         allCgmesDetails.put(powerTransformerEnd1, ptId);
 
+        CgmesPredicateDetails end1Type = new CgmesPredicateDetails(
+            "cim:TransformerWinding.windingType",
+            "_EQ", false, idEnd1);
+        allCgmesDetails.put(end1Type, "cim:WindingType.primary");
+
         double b = newTwoWindingsTransformer.getB();
         if (!String.valueOf(b).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("b"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("b"),
                 String.valueOf(b));
         }
 
         double r = newTwoWindingsTransformer.getR();
         if (!String.valueOf(r).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("r"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("r"),
                 String.valueOf(r));
         }
 
         double x = newTwoWindingsTransformer.getX();
         if (!String.valueOf(x).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("x"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("x"),
                 String.valueOf(x));
         }
 
         double g = newTwoWindingsTransformer.getG();
         if (!String.valueOf(g).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("g"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("g"),
                 String.valueOf(g));
         }
 
         double ratedU1 = newTwoWindingsTransformer.getRatedU1();
         if (!String.valueOf(ratedU1).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("ratedU1"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("ratedU1"),
                 String.valueOf(ratedU1));
         }
 
@@ -105,6 +114,11 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes implem
             "_EQ", true, idEnd2);
         allCgmesDetails.put(powerTransformerEnd2, ptId);
 
+        CgmesPredicateDetails end2Type = new CgmesPredicateDetails(
+            "cim:TransformerWinding.windingType",
+            "_EQ", false, idEnd2);
+        allCgmesDetails.put(end2Type, "cim:WindingType.secondary");
+
         CgmesPredicateDetails bEnd2 = new CgmesPredicateDetails("cim:TransformerWinding.b", "_EQ", false, idEnd2);
         allCgmesDetails.put(bEnd2, String.valueOf(0.0));
 
@@ -119,14 +133,42 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes implem
 
         double ratedU2 = newTwoWindingsTransformer.getRatedU2();
         if (!String.valueOf(ratedU1).equals("NaN")) {
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicatesOnUpdate().get("ratedU2"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("ratedU2"),
                 String.valueOf(ratedU2));
         }
 
         return allCgmesDetails;
     }
 
-    private static String idEnd1 = UUID.randomUUID().toString();
-    private static String idEnd2 = UUID.randomUUID().toString();
+    /**
+     * Check if TransformerWinding element already exist in grid, if yes - returns
+     * the id.
+     *
+     */
+    private Map<String, String> getEndsId() {
+        PropertyBags transformerEnds = cgmes.transformerEnds();
+        Map<String, String> ids = new HashMap<>();
+        Iterator i = transformerEnds.iterator();
+        while (i.hasNext()) {
+            PropertyBag pb = (PropertyBag) i.next();
+            String windingType = pb.get("windingType");
+            if (pb.getId("PowerTransformer").equals(change.getIdentifiableId())
+                && windingType.endsWith("primary")) {
+                idEnd1 = pb.getId("TransformerWinding");
+                ids.put("idEnd1", idEnd1);
+            } else if (pb.getId("PowerTransformer").equals(change.getIdentifiableId())
+                && windingType.endsWith("secondary")) {
+                idEnd2 = pb.getId("TransformerWinding");
+                ids.put("idEnd2", idEnd2);
+            } else {
+                continue;
+            }
+        }
+        return ids;
+    }
 
+    private String idEnd1 = (getEndsId().get("idEnd1") != null) ? getEndsId().get("idEnd1")
+        : UUID.randomUUID().toString();
+    private String idEnd2 = (getEndsId().get("idEnd2") != null) ? getEndsId().get("idEnd2")
+        : UUID.randomUUID().toString();
 }
