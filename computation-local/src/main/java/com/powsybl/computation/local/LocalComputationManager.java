@@ -325,59 +325,52 @@ public class LocalComputationManager implements ComputationManager {
     public <R> CompletableFuture<R> execute(ExecutionEnvironment environment, ExecutionHandler<R> handler, ComputationParameters parameters) {
         Objects.requireNonNull(environment);
         Objects.requireNonNull(handler);
-        LocalCompletableFuture<R> f = new LocalCompletableFuture<>();
-        threadPools.execute(() -> {
-            f.setThread(Thread.currentThread());
-            try {
-                try (WorkingDirectory workingDir = new WorkingDirectory(config.getLocalDir(), environment.getWorkingDirPrefix(), environment.isDebug())) {
-                    f.setWorkingDir(workingDir.toPath());
-                    List<CommandExecution> commandExecutionList = handler.before(workingDir.toPath());
-                    f.checkCancellation();
-                    ExecutionReport report = execute(workingDir.toPath(), commandExecutionList, environment.getVariables(), parameters, handler::onExecutionCompletion);
-                    if (f.isCancelled()) {
-                        throw new CancellationException(CANCEL_BY_CALLER_MSG);
-                    }
-                    R result = handler.after(workingDir.toPath(), report);
-                    f.complete(result);
-                }
-            } catch (Throwable t) {
-                f.completeExceptionally(t);
-            }
-        });
+        CompletableFuture<R> f = new CompletableFuture<>();
+        threadPools.execute(() -> doExecute(f, environment, handler, parameters));
         return f;
     }
 
-    private class LocalCompletableFuture<R> extends ThreadInterruptedCompletableFuture<R> {
+    /**
+     * Executes commands described by the specified handler,
+     * checking for cancel at various execution points.
+     */
+    private <R> void doExecute(CompletableFuture<R> future, ExecutionEnvironment environment, ExecutionHandler<R> handler, ComputationParameters parameters) {
 
-        private Path workingDir;
-        private volatile boolean cancel = false;
-
-        private void setWorkingDir(Path workingDir) {
-            this.workingDir = workingDir;
+        if (future.isCancelled()) {
+            return;
         }
 
-        /**
-         * Throws a {@link CancellationException} if cancel has been requested.
-         */
-        private synchronized void checkCancellation() {
-            if (isCancelled()) {
-                throw new CancellationException("Cancellation before starting the command.");
+        try (WorkingDirectory workingDir = new WorkingDirectory(config.getLocalDir(), environment.getWorkingDirPrefix(), environment.isDebug())) {
+
+            List<CommandExecution> commandExecutionList = handler.before(workingDir.toPath());
+
+            //From this point, we want to cancel the command execution if it has started
+            //TODO: there is a small gap where cancel could be called after this point and before command is actually started,
+            //      where the cancel will not be able to cancel the command execution
+            //      To handle this completely, we need to change the command executor API
+            registerExecutionStopOnCancellation(future, workingDir);
+            if (future.isCancelled()) {
+                return;
             }
-        }
+            ExecutionReport report = execute(workingDir.toPath(), commandExecutionList, environment.getVariables(), parameters, handler::onExecutionCompletion);
 
-        @Override
-        public boolean cancel(boolean mayInterruptIfRunning) {
-            cancel = true;
-            if (mayInterruptIfRunning) {
-                localCommandExecutor.stop(workingDir);
+            //Post processing will not be executed in case of cancel
+            if (future.isCancelled()) {
+                return;
             }
-            return true;
+            R result = handler.after(workingDir.toPath(), report);
+            future.complete(result);
+        } catch (Throwable t) {
+            future.completeExceptionally(t);
         }
+    }
 
-        @Override
-        public boolean isCancelled() {
-            return cancel;
-        }
+    private <T> void registerExecutionStopOnCancellation(CompletableFuture<T> future, WorkingDirectory workingDir) {
+        future.whenComplete((r, ex) -> {
+            if (ex instanceof CancellationException) {
+                localCommandExecutor.stop(workingDir.toPath());
+            }
+        });
     }
 
     @Override
