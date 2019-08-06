@@ -707,18 +707,23 @@ public final class NetworkXml {
     private static void readExtensions(Identifiable identifiable, NetworkXmlReaderContext context,
                                        Set<String> extensionNamesNotFound) throws XMLStreamException {
 
-        XmlUtil.readUntilEndElement(EXTENSION_ELEMENT_NAME, context.getReader(), () -> {
-            String extensionName = context.getReader().getLocalName();
-            if (!context.getOptions().withExtension(extensionName)) {
-                return;
-            }
+        XmlUtil.readUntilEndElement(EXTENSION_ELEMENT_NAME, context.getReader(), elementDepth -> {
+            // extensions root elements are nested directly in 'extension' element, so there is no need
+            // to check for an extensions to exist if depth is greater than zero. Furthermore in case of
+            // missing extension serializer, we must not check for en extension in sub elements.
+            if (elementDepth == 0) {
+                String extensionName = context.getReader().getLocalName();
+                if (!context.getOptions().withExtension(extensionName)) {
+                    return;
+                }
 
-            ExtensionXmlSerializer extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
-            if (extensionXmlSerializer != null) {
-                Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
-                identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
-            } else {
-                extensionNamesNotFound.add(extensionName);
+                ExtensionXmlSerializer extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
+                if (extensionXmlSerializer != null) {
+                    Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
+                    identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
+                } else {
+                    extensionNamesNotFound.add(extensionName);
+                }
             }
         });
     }
