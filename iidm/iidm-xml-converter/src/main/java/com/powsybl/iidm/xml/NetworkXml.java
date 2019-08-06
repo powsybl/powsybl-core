@@ -709,8 +709,8 @@ public final class NetworkXml {
 
         XmlUtil.readUntilEndElement(EXTENSION_ELEMENT_NAME, context.getReader(), elementDepth -> {
             // extensions root elements are nested directly in 'extension' element, so there is no need
-            // to check for an extensions to exist if depth is greater than zero. Furthermore in case of
-            // missing extension serializer, we must not check for en extension in sub elements.
+            // to check for an extension to exist if depth is greater than zero. Furthermore in case of
+            // missing extension serializer, we must not check for an extension in sub elements.
             if (elementDepth == 0) {
                 String extensionName = context.getReader().getLocalName();
                 if (!context.getOptions().withExtension(extensionName)) {
