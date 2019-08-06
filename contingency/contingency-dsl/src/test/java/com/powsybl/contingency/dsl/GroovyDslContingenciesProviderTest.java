@@ -43,7 +43,7 @@ public class GroovyDslContingenciesProviderTest {
     private Network network;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         fileSystem = Jimfs.newFileSystem(Configuration.unix());
         dslFile = fileSystem.getPath("/test.dsl");
         network = EurostagTutorialExample1Factory.create();
@@ -54,14 +54,17 @@ public class GroovyDslContingenciesProviderTest {
         fileSystem.close();
     }
 
+    private void writeToDslFile(String... lines) throws IOException {
+        try (Writer writer = Files.newBufferedWriter(dslFile, StandardCharsets.UTF_8)) {
+            writer.write(String.join(System.lineSeparator(), lines));
+        }
+    }
+
     @Test
     public void test() throws IOException {
-        try (Writer writer = Files.newBufferedWriter(dslFile, StandardCharsets.UTF_8)) {
-            writer.write(String.join(System.lineSeparator(),
-                    "contingency('c1') {",
-                    "    equipments 'NHV1_NHV2_1'",
-                    "}"));
-        }
+        writeToDslFile("contingency('c1') {",
+                "    equipments 'NHV1_NHV2_1'",
+                "}");
         List<Contingency> contingencies = new GroovyDslContingenciesProvider(dslFile)
                 .getContingencies(network);
         assertEquals(1, contingencies.size());
@@ -75,15 +78,12 @@ public class GroovyDslContingenciesProviderTest {
 
     @Test
     public void testOrder() throws IOException {
-        try (Writer writer = Files.newBufferedWriter(dslFile, StandardCharsets.UTF_8)) {
-            writer.write(String.join(System.lineSeparator(),
-                    "contingency('c1') {",
-                    "    equipments 'NHV1_NHV2_1'",
-                    "}",
-                    "contingency('c2') {",
-                    "    equipments 'NHV1_NHV2_2'",
-                    "}"));
-        }
+        writeToDslFile("contingency('c1') {",
+                "    equipments 'NHV1_NHV2_1'",
+                "}",
+                "contingency('c2') {",
+                "    equipments 'NHV1_NHV2_2'",
+                "}");
         List<Contingency> contingencies = new GroovyDslContingenciesProvider(dslFile)
                 .getContingencies(network);
         assertEquals(2, contingencies.size());
@@ -97,14 +97,11 @@ public class GroovyDslContingenciesProviderTest {
 
     @Test
     public void testAutomaticList() throws IOException {
-        try (Writer writer = Files.newBufferedWriter(dslFile, StandardCharsets.UTF_8)) {
-            writer.write(String.join(System.lineSeparator(),
-                    "for (l in network.lines) {",
-                    "    contingency(l.id) {",
-                    "        equipments l.id",
-                    "    }",
-                    "}"));
-        }
+        writeToDslFile("for (l in network.lines) {",
+                "    contingency(l.id) {",
+                "        equipments l.id",
+                "    }",
+                "}");
         List<Contingency> contingencies = new GroovyDslContingenciesProvider(dslFile)
                 .getContingencies(network);
         assertEquals(2, contingencies.size());
@@ -159,5 +156,27 @@ public class GroovyDslContingenciesProviderTest {
         assertEquals(4, contingencies2.size());
 
         assertEquals(getContingenciesNames(contingencies1), getContingenciesNames(contingencies2));
+    }
+
+    @Test
+    public void withComparison() throws IOException {
+        writeToDslFile("for (l in network.lines) {",
+                "    if (l.terminal1.voltageLevel.nominalV >= 380) {",
+                "        contingency(l.id) { equipments l.id }",
+                "    }",
+                "}");
+        List<Contingency> contingencies = new GroovyDslContingenciesProvider(dslFile)
+                .getContingencies(network);
+        assertEquals(2, contingencies.size());
+        assertEquals(Sets.newHashSet("NHV1_NHV2_1", "NHV1_NHV2_2"), getContingenciesNames(contingencies));
+
+        writeToDslFile("for (l in network.lines) {",
+                "    if (l.terminal1.voltageLevel.nominalV >= 500) {",
+                "        contingency(l.id) { equipments l.id }",
+                "    }",
+                "}");
+        contingencies = new GroovyDslContingenciesProvider(dslFile)
+                .getContingencies(network);
+        assertTrue(contingencies.isEmpty());
     }
 }

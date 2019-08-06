@@ -6,21 +6,22 @@
  */
 package com.powsybl.cgmes.conversion.test.conformity.modified;
 
-import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-import java.nio.file.FileSystem;
-
-import com.powsybl.iidm.network.*;
-import org.junit.*;
-
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
 import com.powsybl.cgmes.conversion.CgmesImport;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
-import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.iidm.network.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.nio.file.FileSystem;
+
+import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
+import static org.junit.Assert.*;
 
 /**
  * @author Luma Zamarreño <zamarrenolm at aia.es>
@@ -224,9 +225,25 @@ public class CgmesConformity1ModifiedConversionTest {
         assertNull(tx1s.getCurrentLimits2());
     }
 
+    @Test
+    public void miniNodeBreakerInvalidT2w() {
+        platformConfig.createModuleConfig("import-export-parameters-default-value")
+                .setStringProperty("iidm.import.cgmes.convert-boundary", "true");
+
+        Network network = new CgmesImport(platformConfig).importData(catalog.miniNodeBreaker().dataSource(),
+                NetworkFactory.findDefault(), null);
+        TwoWindingsTransformer transformer = network.getTwoWindingsTransformer("_ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
+        assertNotNull(transformer);
+
+        Network invalidNetwork = new CgmesImport(platformConfig).importData(catalogModified.miniNodeBreakerInvalidT2w().dataSource(),
+                NetworkFactory.findDefault(), null);
+        TwoWindingsTransformer invalid = invalidNetwork.getTwoWindingsTransformer("_ceb5d06a-a7ff-4102-a620-7f3ea5fb4a51");
+        assertNull(invalid);
+    }
+
     private static CgmesConformity1Catalog catalog;
     private static CgmesConformity1ModifiedCatalog catalogModified;
 
     private FileSystem fileSystem;
-    private PlatformConfig platformConfig;
+    private InMemoryPlatformConfig platformConfig;
 }

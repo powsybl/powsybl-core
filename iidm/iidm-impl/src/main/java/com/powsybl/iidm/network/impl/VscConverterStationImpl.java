@@ -62,7 +62,8 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn, voltageSetpoint.get(variantIndex), reactivePowerSetpoint.get(variantIndex));
         boolean oldValue = this.voltageRegulatorOn.get(variantIndex);
         this.voltageRegulatorOn.set(variantIndex, voltageRegulatorOn);
-        notifyUpdate("voltageRegulatorOn", oldValue, voltageRegulatorOn);
+        String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("voltageRegulatorOn", variantId, oldValue, voltageRegulatorOn);
         return this;
     }
 
@@ -76,7 +77,8 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         int variantIndex = getNetwork().getVariantIndex();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex), voltageSetpoint, reactivePowerSetpoint.get(variantIndex));
         double oldValue = this.voltageSetpoint.set(variantIndex, voltageSetpoint);
-        notifyUpdate("voltageSetpoint", oldValue, voltageSetpoint);
+        String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("voltageSetpoint", variantId, oldValue, voltageSetpoint);
         return this;
     }
 
@@ -90,7 +92,8 @@ class VscConverterStationImpl extends AbstractHvdcConverterStation<VscConverterS
         int variantIndex = getNetwork().getVariantIndex();
         ValidationUtil.checkVoltageControl(this, voltageRegulatorOn.get(variantIndex), voltageSetpoint.get(variantIndex), reactivePowerSetpoint);
         double oldValue = this.reactivePowerSetpoint.set(variantIndex, reactivePowerSetpoint);
-        notifyUpdate("reactivePowerSetpoint", oldValue, reactivePowerSetpoint);
+        String variantId = getNetwork().getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("reactivePowerSetpoint", variantId, oldValue, reactivePowerSetpoint);
         return this;
     }
 

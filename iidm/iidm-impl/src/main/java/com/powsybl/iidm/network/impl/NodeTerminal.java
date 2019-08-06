@@ -90,6 +90,10 @@ class NodeTerminal extends AbstractTerminal {
         }
     }
 
+    protected void notifyUpdate(String attribute, String variantId, Object oldValue, Object newValue) {
+        getConnectable().notifyUpdate(attribute, variantId, oldValue, newValue);
+    }
+
     public int getNode() {
         return node;
     }
@@ -103,7 +107,10 @@ class NodeTerminal extends AbstractTerminal {
         if (v < 0) {
             throw new ValidationException(connectable, "voltage cannot be < 0");
         }
-        this.v.set(network.get().getVariantIndex(), v);
+        int variantIndex = network.get().getVariantIndex();
+        double oldValue = this.v.set(variantIndex, v);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("v", variantId, oldValue, v);
     }
 
     double getAngle() {
@@ -111,7 +118,10 @@ class NodeTerminal extends AbstractTerminal {
     }
 
     void setAngle(double angle) {
-        this.angle.set(network.get().getVariantIndex(), angle);
+        int variantIndex = network.get().getVariantIndex();
+        double oldValue = this.angle.set(variantIndex, angle);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("angle", variantId, oldValue, angle);
     }
 
     int getConnectedComponentNumber() {
@@ -119,7 +129,10 @@ class NodeTerminal extends AbstractTerminal {
     }
 
     void setConnectedComponentNumber(int connectedComponentNumber) {
-        this.connectedComponentNumber.set(network.get().getVariantIndex(), connectedComponentNumber);
+        int variantIndex = network.get().getVariantIndex();
+        int oldValue = this.connectedComponentNumber.set(variantIndex, connectedComponentNumber);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("connectedComponentNumber", variantId, oldValue, connectedComponentNumber);
     }
 
     int getSynchronousComponentNumber() {
@@ -127,7 +140,10 @@ class NodeTerminal extends AbstractTerminal {
     }
 
     void setSynchronousComponentNumber(int componentNumber) {
-        this.synchronousComponentNumber.set(network.get().getVariantIndex(), componentNumber);
+        int variantIndex = network.get().getVariantIndex();
+        int oldValue = this.synchronousComponentNumber.set(variantIndex, componentNumber);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        notifyUpdate("synchronousComponentNumber", variantId, oldValue, componentNumber);
     }
 
     @Override

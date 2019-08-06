@@ -65,7 +65,8 @@ public class MergedXnodeXmlSerializerTest extends AbstractConverterTest {
 
         // extends line
         Line line = network.getLine("L");
-        MergedXnode xnode = new MergedXnode(line, 0.5f, 0.5f, 1.0, 2.0, 3.0, 4.0, "XXXXXX11");
+        MergedXnode xnode = new MergedXnode(line, 0.5f, 0.5f, 1.0, 2.0,
+                3.0, 4.0, "", "", "XXXXXX11");
         line.addExtension(MergedXnode.class, xnode);
 
         Network network2 = roundTripXmlTest(network,
