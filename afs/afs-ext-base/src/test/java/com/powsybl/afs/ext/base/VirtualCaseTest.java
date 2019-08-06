@@ -149,6 +149,21 @@ public class VirtualCaseTest extends AbstractProjectFileTest {
                 .withScript(scriptWithError)
                 .build();
 
+        // test depedency's key name
+        ModificationScript modifScript = folder.fileBuilder(ModificationScriptBuilder.class)
+                .withName("modifScript")
+                .withType(ScriptType.GROOVY)
+                .withContent("print 'hello'")
+                .build();
+
+        VirtualCase virtualCase1 = folder.fileBuilder(VirtualCaseBuilder.class)
+                .withName("virtualCase1")
+                .withCase(importedCase)
+                .withScript(modifScript)
+                .build();
+
+        assertEquals("script", virtualCase1.getDependencyKeyName(modifScript.getId()));
+
         try {
             virtualCaseWithError.getNetwork();
             fail();
