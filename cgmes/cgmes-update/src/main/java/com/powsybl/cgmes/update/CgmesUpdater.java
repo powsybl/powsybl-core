@@ -47,8 +47,6 @@ public class CgmesUpdater {
 
             for (IidmChange change : changes) {
 
-                String instanceClassOfIidmChange = instanceClassOfIidmChange(change);
-
                 if (cimVersion.equals("cim14#")) {
                     iidmToCgmes = new IidmToCgmes(change, cgmes);
                 } else if (cimVersion.equals("cim16#")) {
@@ -57,7 +55,7 @@ public class CgmesUpdater {
                     LOG.info("Incoming cim verson must be checked. Implemented versions are: \ncim14# ; cim16# ");
                 }
 
-                mapDetailsOfChange = iidmToCgmes.convert();
+                mapDetailsOfChange = iidmToCgmes.convert(instanceClassOfIidmChange(change));
 
                 // we need to iterate over the above map, as for onCreate call there will be
                 // multiples attributes-values pairs.
@@ -86,7 +84,7 @@ public class CgmesUpdater {
                                 cgmesChanges.put("valueIsNode", valueIsNode);
 
                                 PropertyBags result = cgmes.updateCgmes(context, cgmesChanges,
-                                    instanceClassOfIidmChange);
+                                    instanceClassOfIidmChange(change));
 
                                 LOG.info(result.tabulate());
                             }

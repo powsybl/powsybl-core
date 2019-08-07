@@ -12,14 +12,15 @@ import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.ConversionMapper;
 import com.powsybl.cgmes.update.IidmChange;
 import com.powsybl.cgmes.update.IidmToCgmes;
+import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
 /**
- * For conversion of TwoWindingsTransformer we need to create two additional
- * elements End1 and End2. Both have distinct ID (Subject) and contain reference
- * to the parent PowerTransformer element.
+ * For conversion onCreate of TwoWindingsTransformer we need to create two
+ * additional elements End1 and End2. Both have distinct ID (Subject) and
+ * contain reference to the parent PowerTransformer element.
  */
 public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes implements ConversionMapper {
 
@@ -137,6 +138,30 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes implem
                 String.valueOf(ratedU2));
         }
 
+        /**
+         * RatioTapChanger
+         */
+        RatioTapChanger newRatioTapChanger = newTwoWindingsTransformer.getRatioTapChanger();
+
+        CgmesPredicateDetails rdfTypeRTCH = new CgmesPredicateDetails("rdf:type", "_EQ", false, idRTCH);
+        allCgmesDetails.put(rdfTypeRTCH, "cim:RatioTapChanger");
+
+        CgmesPredicateDetails nameRTCH = new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false, idRTCH);
+        allCgmesDetails.put(nameRTCH, name);
+        
+        CgmesPredicateDetails TransformerWindingRTCH = new CgmesPredicateDetails(
+            "cim:RatioTapChanger.TransformerWinding",
+            "_EQ", true, idRTCH);
+        allCgmesDetails.put(TransformerWindingRTCH, idEnd1);
+        
+        int lowTapPosition = newRatioTapChanger.getLowTapPosition();
+        CgmesPredicateDetails lowStepRTCH = new CgmesPredicateDetails("cim:TapChanger.lowStep", "_EQ", false, idRTCH);
+        allCgmesDetails.put(lowStepRTCH, String.valueOf(lowTapPosition));
+        
+        int tapPosition = newRatioTapChanger.getTapPosition();
+        CgmesPredicateDetails tapPositionRTCH = new CgmesPredicateDetails("cim:TapChanger.neutralStep", "_EQ", false, idRTCH);
+        allCgmesDetails.put(tapPositionRTCH, String.valueOf(tapPosition));
+
         return allCgmesDetails;
     }
 
@@ -171,4 +196,6 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes implem
         : UUID.randomUUID().toString();
     private String idEnd2 = (getEndsId().get("idEnd2") != null) ? getEndsId().get("idEnd2")
         : UUID.randomUUID().toString();
+    private String idRTCH = UUID.randomUUID().toString();
+
 }

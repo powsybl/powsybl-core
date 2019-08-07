@@ -4,7 +4,6 @@ import java.util.AbstractMap;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -20,8 +19,6 @@ import com.powsybl.cgmes.update.elements.*;
  * attribute names, from Iidm to Cgmes.
  */
 public class IidmToCgmes {
-
-    private Object element;
 
     public IidmToCgmes(IidmChange change, CgmesModel cgmes) {
         this.change = change;
@@ -39,81 +36,26 @@ public class IidmToCgmes {
      *
      * @return the map
      */
-    public Map<CgmesPredicateDetails, String> convert() throws Exception {
+    public Map<CgmesPredicateDetails, String> convert(String instanceClassOfIidmChange) throws Exception {
 
-        iidmInstanceName = getIidmInstanceName();
+        if (instanceClassOfIidmChange.equals("IidmChangeOnUpdate")) {
 
-        Map<String, Callable<Map<String, Object>>> getConversionMapper = new HashMap<>();
-
-        Object element = switcher();
-
-        // for onUpdate we only need to map incoming attribute to cgmes predicate:
-        getConversionMapper.put(SUBSTATION_IMPL,
-            () -> ((SubstationToSubstation) element).mapIidmToCgmesPredicates());
-        getConversionMapper.put(BUSBREAKER_VOLTAGELEVEL,
-            () -> ((VoltageLevelToVoltageLevel) element).mapIidmToCgmesPredicates());
-        getConversionMapper.put(TWOWINDINGS_TRANSFORMER_IMPL,
-            () -> ((TwoWindingsTransformerToPowerTransformer) element).mapIidmToCgmesPredicates());
-        getConversionMapper.put(CONFIGUREDBUS_IMPL,
-            () -> ((BusToTopologicalNode) element).mapIidmToCgmesPredicates());
-        getConversionMapper.put(GENERATOR_IMPL,
-            () -> ((GeneratorToSynchronousMachine) element).mapIidmToCgmesPredicates());
-        getConversionMapper.put(LOAD_IMPL,
-            () -> ((LoadToEnergyConsumer) element).mapIidmToCgmesPredicates());
-        getConversionMapper.put(LCCCONVERTER_STATION_IMPL,
-            () -> ((LccConverterStationToAcdcConverter) element).mapIidmToCgmesPredicates());
-        getConversionMapper.put(LINE_IMPL,
-            () -> ((LineToACLineSegment) element).mapIidmToCgmesPredicates());
-
-        iidmToCgmesMapper = getConversionMapper.get(iidmInstanceName).call();
-        mapDetailsOfChange = new HashMap<>();
-
-        if (change.getAttribute() != null && change.getNewValueString() != null) {
-            // ths is change onUpdate
+            mapIidmToCgmesPredicates = switcher().getMapIidmToCgmesPredicates();
             String cgmesNewValue = change.getNewValueString();
 
-            CgmesPredicateDetails mapCgmesPredicateDetails = (CgmesPredicateDetails) iidmToCgmesMapper
+            CgmesPredicateDetails mapCgmesPredicateDetails = (CgmesPredicateDetails) mapIidmToCgmesPredicates
                 .get(change.getAttribute());
 
-            mapDetailsOfChange.put(mapCgmesPredicateDetails, cgmesNewValue);
+            allCgmesDetails = new HashMap<>();
+            allCgmesDetails.put(mapCgmesPredicateDetails, cgmesNewValue);
 
-        } else {
+        } else if (instanceClassOfIidmChange.equals("IidmChangeOnCreate")) {
             // for onCreate all fields are inside the Identifiable object.
-            // We dont know which they are. So we will get all informed fields from special
-            // special OnCreate classes.
-            switch (iidmInstanceName) {
-                case SUBSTATION_IMPL:
-                    mapDetailsOfChange = ((SubstationToSubstation) element).getAllCgmesDetailsOnCreate();
-                    break;
-                case BUSBREAKER_VOLTAGELEVEL:
-                    mapDetailsOfChange = ((VoltageLevelToVoltageLevel) element).getAllCgmesDetailsOnCreate();
-                    break;
-                case CONFIGUREDBUS_IMPL:
-                    mapDetailsOfChange = ((BusToTopologicalNode) element).getAllCgmesDetailsOnCreate();
-                    break;
-                case TWOWINDINGS_TRANSFORMER_IMPL:
-                    mapDetailsOfChange = ((TwoWindingsTransformerToPowerTransformer) element)
-                        .getAllCgmesDetailsOnCreate();
-                    break;
-                case GENERATOR_IMPL:
-                    mapDetailsOfChange = ((GeneratorToSynchronousMachine) element).getAllCgmesDetailsOnCreate();
-                    break;
-                case LOAD_IMPL:
-                    mapDetailsOfChange = ((LoadToEnergyConsumer) element).getAllCgmesDetailsOnCreate();
-                    break;
-                case LCCCONVERTER_STATION_IMPL:
-                    mapDetailsOfChange = ((LccConverterStationToAcdcConverter) element).getAllCgmesDetailsOnCreate();
-                    break;
-                case LINE_IMPL:
-                    mapDetailsOfChange = ((LineToACLineSegment) element).getAllCgmesDetailsOnCreate();
-                    break;
-                default:
-                    LOG.info("This element is not convertable to CGMES");
-            }
-
+            allCgmesDetails = switcher().getAllCgmesDetails();
+        } else {
         }
 
-        return mapDetailsOfChange;
+        return allCgmesDetails;
     }
 
     public String getIidmInstanceName() {
@@ -121,36 +63,65 @@ public class IidmToCgmes {
         return change.getIdentifiable().getClass().getSimpleName();
     }
 
-    public Object switcher() {
-        switch (iidmInstanceName) {
+    public TwoMaps switcher() {
+        switch (getIidmInstanceName()) {
             case SUBSTATION_IMPL:
-                element = new SubstationToSubstation(change);
+                SubstationToSubstation sb = new SubstationToSubstation(change);
+                mapIidmToCgmesPredicates = sb.mapIidmToCgmesPredicates();
+                allCgmesDetails = sb.getAllCgmesDetailsOnCreate();
                 break;
             case BUSBREAKER_VOLTAGELEVEL:
-                element = new VoltageLevelToVoltageLevel(change, cgmes);
+                VoltageLevelToVoltageLevel vl = new VoltageLevelToVoltageLevel(change, cgmes);
+                mapIidmToCgmesPredicates = vl.mapIidmToCgmesPredicates();
+                allCgmesDetails = vl.getAllCgmesDetailsOnCreate();
                 break;
             case CONFIGUREDBUS_IMPL:
-                element = new BusToTopologicalNode(change);
+                BusToTopologicalNode btn = new BusToTopologicalNode(change);
+                mapIidmToCgmesPredicates = btn.mapIidmToCgmesPredicates();
+                allCgmesDetails = btn.getAllCgmesDetailsOnCreate();
                 break;
             case TWOWINDINGS_TRANSFORMER_IMPL:
-                element = new TwoWindingsTransformerToPowerTransformer(change,cgmes);
+                TwoWindingsTransformerToPowerTransformer twpt = new TwoWindingsTransformerToPowerTransformer(change,
+                    cgmes);
+                mapIidmToCgmesPredicates = twpt.mapIidmToCgmesPredicates();
+                allCgmesDetails = twpt.getAllCgmesDetailsOnCreate();
                 break;
             case GENERATOR_IMPL:
-                element = new GeneratorToSynchronousMachine(change, cgmes);
+                GeneratorToSynchronousMachine gsm = new GeneratorToSynchronousMachine(change, cgmes);
+                mapIidmToCgmesPredicates = gsm.mapIidmToCgmesPredicates();
+                allCgmesDetails = gsm.getAllCgmesDetailsOnCreate();
                 break;
             case LOAD_IMPL:
-                element = new LoadToEnergyConsumer(change, cgmes);
+                LoadToEnergyConsumer lec = new LoadToEnergyConsumer(change, cgmes);
+                mapIidmToCgmesPredicates = lec.mapIidmToCgmesPredicates();
+                allCgmesDetails = lec.getAllCgmesDetailsOnCreate();
                 break;
             case LCCCONVERTER_STATION_IMPL:
-                element = new LccConverterStationToAcdcConverter(change);
+                LccConverterStationToAcdcConverter lcc = new LccConverterStationToAcdcConverter(change);
+                mapIidmToCgmesPredicates = lcc.mapIidmToCgmesPredicates();
+                allCgmesDetails = lcc.getAllCgmesDetailsOnCreate();
                 break;
             case LINE_IMPL:
-                element = new LineToACLineSegment(change);
+                LineToACLineSegment lac = new LineToACLineSegment(change);
+                mapIidmToCgmesPredicates = lac.mapIidmToCgmesPredicates();
+                allCgmesDetails = lac.getAllCgmesDetailsOnCreate();
                 break;
+            case PHASETAPCHANGER_IMPL:
+                PhaseTapChangerToPhaseTapChanger ptch = new PhaseTapChangerToPhaseTapChanger(change);
+                mapIidmToCgmesPredicates = ptch.mapIidmToCgmesPredicates();
+                allCgmesDetails = ptch.getAllCgmesDetailsOnCreate();
+                break;
+            case RATIOTAPCHANGER_IMPL:
+                RatioTapChangerToRatioTapChanger rtch = new RatioTapChangerToRatioTapChanger(change);
+                mapIidmToCgmesPredicates = rtch.mapIidmToCgmesPredicates();
+                allCgmesDetails = rtch.getAllCgmesDetailsOnCreate();
+                break;
+            // RatioTapChangerStepImpl
             default:
                 LOG.info("This element is not convertable to CGMES");
         }
-        return element;
+        TwoMaps result = new TwoMaps(mapIidmToCgmesPredicates, allCgmesDetails);
+        return result;
     }
 
     // TODO elena move to its own element.
@@ -173,11 +144,9 @@ public class IidmToCgmes {
 
     public IidmChange change;
     public CgmesModel cgmes;
-    private String cimVersion;
-    private Map<String, Object> iidmToCgmesMapper;
-    public String iidmInstanceName;
 
-    public Map<CgmesPredicateDetails, String> mapDetailsOfChange;
+    private Map<String, Object> mapIidmToCgmesPredicates;
+    private Map<CgmesPredicateDetails, String> allCgmesDetails;
 
     public static final String SUBSTATION_IMPL = "SubstationImpl";
     public static final String BUSBREAKER_VOLTAGELEVEL = "BusBreakerVoltageLevel";
@@ -187,8 +156,27 @@ public class IidmToCgmes {
     public static final String LOAD_IMPL = "LoadImpl";
     public static final String LCCCONVERTER_STATION_IMPL = "LccConverterStationImpl";
     public static final String LINE_IMPL = "LineImpl";
-
-    private VoltageLevelToVoltageLevel vl;
+    public static final String PHASETAPCHANGER_IMPL = "PhaseTapChangerImpl";
+    public static final String RATIOTAPCHANGER_IMPL = "RatioTapChangerImpl";
 
     private static final Logger LOG = LoggerFactory.getLogger(IidmToCgmes.class);
+}
+
+class TwoMaps {
+    TwoMaps(Map<String, Object> mapIidmToCgmesPredicates,
+        Map<CgmesPredicateDetails, String> allCgmesDetails) {
+        this.mapIidmToCgmesPredicates = mapIidmToCgmesPredicates;
+        this.allCgmesDetails = allCgmesDetails;
+    }
+
+    Map<String, Object> getMapIidmToCgmesPredicates() {
+        return mapIidmToCgmesPredicates;
+    }
+
+    Map<CgmesPredicateDetails, String> getAllCgmesDetails() {
+        return allCgmesDetails;
+    }
+
+    private Map<String, Object> mapIidmToCgmesPredicates;
+    private Map<CgmesPredicateDetails, String> allCgmesDetails;
 }
