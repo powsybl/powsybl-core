@@ -28,20 +28,20 @@ public final class XmlUtil {
     /**
      * An richer event handler which give element depth with each start event.
      */
-    public interface XmlEventHandler2 {
+    public interface XmlEventHandlerWithDepth {
 
         void onStartElement(int elementDepth) throws XMLStreamException;
     }
 
     public static String readUntilEndElement(String endElementName, XMLStreamReader reader, XmlEventHandler eventHandler) throws XMLStreamException {
-        return readUntilEndElement(endElementName, reader, elementDepth -> {
+        return readUntilEndElementWithDepth(endElementName, reader, elementDepth -> {
             if (eventHandler != null) {
                 eventHandler.onStartElement();
             }
         });
     }
 
-    public static String readUntilEndElement(String endElementName, XMLStreamReader reader, XmlEventHandler2 eventHandler) throws XMLStreamException {
+    public static String readUntilEndElementWithDepth(String endElementName, XMLStreamReader reader, XmlEventHandlerWithDepth eventHandler) throws XMLStreamException {
         Objects.requireNonNull(endElementName);
         Objects.requireNonNull(reader);
 

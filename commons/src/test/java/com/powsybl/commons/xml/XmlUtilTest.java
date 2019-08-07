@@ -24,7 +24,7 @@ import static org.junit.Assert.assertEquals;
 public class XmlUtilTest {
 
     @Test
-    public void readUntilEndElementTest() throws XMLStreamException {
+    public void readUntilEndElementWithDepthTest() throws XMLStreamException {
         String xml = String.join(System.lineSeparator(),
                 "<a>",
                 "    <b>",
@@ -36,7 +36,7 @@ public class XmlUtilTest {
         try (StringReader reader = new StringReader(xml)) {
             XMLStreamReader xmlReader = XMLInputFactory.newInstance().createXMLStreamReader(reader);
             try {
-                XmlUtil.readUntilEndElement("a", xmlReader, elementDepth -> depths.put(xmlReader.getLocalName(), elementDepth));
+                XmlUtil.readUntilEndElementWithDepth("a", xmlReader, elementDepth -> depths.put(xmlReader.getLocalName(), elementDepth));
             } finally {
                 xmlReader.close();
             }

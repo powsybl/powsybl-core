@@ -34,7 +34,7 @@ public class EntsoeAreaXmlSerializer extends AbstractExtensionXmlSerializer<Subs
 
     @Override
     public EntsoeArea read(Substation substation, XmlReaderContext context) throws XMLStreamException {
-        EntsoeGeographicalCode code = EntsoeGeographicalCode.valueOf(XmlUtil.readUntilEndElement(getExtensionName(), context.getReader(), (XmlUtil.XmlEventHandler) null));
+        EntsoeGeographicalCode code = EntsoeGeographicalCode.valueOf(XmlUtil.readUntilEndElement(getExtensionName(), context.getReader(), null));
         return new EntsoeArea(substation, code);
     }
 }
