@@ -84,8 +84,10 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
                     + tapPosition + " [" + lowTapPosition + ", "
                     + getHighTapPosition() + "]");
         }
-        int oldValue = this.tapPosition.set(network.get().getVariantIndex(), tapPosition);
-        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".tapPosition", oldValue, tapPosition);
+        int variantIndex = network.get().getVariantIndex();
+        int oldValue = this.tapPosition.set(variantIndex, tapPosition);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".tapPosition", variantId, oldValue, tapPosition);
         return (C) this;
     }
 
@@ -107,7 +109,10 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
     }
 
     public C setRegulating(boolean regulating) {
-        this.regulating.set(network.get().getVariantIndex(), regulating);
+        int variantIndex = network.get().getVariantIndex();
+        boolean oldValue = this.regulating.set(variantIndex, regulating);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".regulating", variantId, oldValue, tapPosition);
         return (C) this;
     }
 
@@ -131,7 +136,10 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         if (!Double.isNaN(targetDeadband) && targetDeadband < 0) {
             throw new ValidationException(parent, "Unexpected value for target deadband of phase tap changer: " + targetDeadband);
         }
-        this.targetDeadband.set(network.get().getVariantIndex(), targetDeadband);
+        int variantIndex = network.get().getVariantIndex();
+        double oldValue = this.targetDeadband.set(variantIndex, targetDeadband);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".targetDeadband", variantId, oldValue, tapPosition);
         return (C) this;
     }
 

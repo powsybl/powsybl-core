@@ -20,7 +20,8 @@ public class MergedXnodeTest {
     @Test
     public void test() {
         Line line = Mockito.mock(Line.class);
-        MergedXnode xnode = new MergedXnode(line, 0.5f, 0.5f, 1.0, 2.0, 3.0, 4.0, "XXXXXX11");
+        MergedXnode xnode = new MergedXnode(line, 0.5f, 0.5f, 1.0, 2.0,
+                3.0, 4.0, "", "", "XXXXXX11");
 
         assertEquals("mergedXnode", xnode.getName());
         assertSame(line, xnode.getExtendable());
@@ -48,6 +49,16 @@ public class MergedXnodeTest {
             fail();
         } catch (IllegalArgumentException ignored) {
         }
+        try {
+            xnode.setLine1Name(null);
+            fail();
+        } catch (NullPointerException ignored) {
+        }
+        try {
+            xnode.setLine2Name(null);
+            fail();
+        } catch (NullPointerException ignored) {
+        }
 
         xnode.setRdp(0.6f);
         xnode.setXdp(0.6f);
@@ -56,6 +67,8 @@ public class MergedXnodeTest {
         xnode.setXnodeP2(12.0);
         xnode.setXnodeQ2(13.0);
         xnode.setCode("XXXXXX21");
+        xnode.setLine1Name("Line1");
+        xnode.setLine2Name("Line2");
 
         assertEquals(0.6f, xnode.getRdp(), 0f);
         assertEquals(0.6f, xnode.getXdp(), 0f);
@@ -63,6 +76,9 @@ public class MergedXnodeTest {
         assertEquals(11.0, xnode.getXnodeQ1(), 0.0);
         assertEquals(12.0, xnode.getXnodeP2(), 0.0);
         assertEquals(13.0, xnode.getXnodeQ2(), 0.0);
-        assertEquals("XXXXXX21", xnode.getCode());
+        assertEquals("Line1", xnode.getLine1Name());
+        assertEquals("Line2", xnode.getLine2Name());
+
     }
+
 }

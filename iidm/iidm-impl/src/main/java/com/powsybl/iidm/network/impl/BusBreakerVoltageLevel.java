@@ -737,9 +737,6 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
     public void detach(final TerminalExt terminal) {
         assert terminal instanceof BusTerminal;
 
-        // remove the link terminal -> voltage level
-        terminal.setVoltageLevel(null);
-
         // remove the link bus -> terminal
         String connectableBusId = ((BusTerminal) terminal).getConnectableBusId();
 
@@ -751,6 +748,8 @@ class BusBreakerVoltageLevel extends AbstractVoltageLevel {
 
             invalidateCache();
         });
+        // remove the link terminal -> voltage level
+        terminal.setVoltageLevel(null);
     }
 
     @Override

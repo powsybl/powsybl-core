@@ -43,8 +43,11 @@ class BusTerminal extends AbstractTerminal {
             Objects.requireNonNull(busId);
             VoltageLevelExt vl = voltageLevel;
             voltageLevel.detach(BusTerminal.this);
-            setConnectableBusId(busId);
+            int variantIndex = network.get().getVariantIndex();
+            String oldValue = BusTerminal.this.connectableBusId.set(variantIndex, busId);
             vl.attach(BusTerminal.this, false);
+            String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+            getConnectable().notifyUpdate("connectableBusId", variantId, oldValue, busId);
         }
     };
 
@@ -82,7 +85,10 @@ class BusTerminal extends AbstractTerminal {
     }
 
     void setConnectableBusId(String connectableBusId) {
-        this.connectableBusId.set(network.get().getVariantIndex(), connectableBusId);
+        int variantIndex = network.get().getVariantIndex();
+        String oldValue = this.connectableBusId.set(variantIndex, connectableBusId);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        getConnectable().notifyUpdate("connectableBusId", variantId, oldValue, connectableBusId);
     }
 
     String getConnectableBusId() {
@@ -90,7 +96,10 @@ class BusTerminal extends AbstractTerminal {
     }
 
     void setConnected(boolean connected) {
-        this.connected.set(network.get().getVariantIndex(), connected);
+        int variantIndex = network.get().getVariantIndex();
+        boolean oldValue = this.connected.set(variantIndex, connected);
+        String variantId = network.get().getVariantManager().getVariantId(variantIndex);
+        getConnectable().notifyUpdate("connected", variantId, oldValue, connected);
     }
 
     @Override
