@@ -1,12 +1,10 @@
 package com.powsybl.cgmes.update;
 
 import java.util.AbstractMap;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,10 +12,6 @@ import org.slf4j.LoggerFactory;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.update.elements.*;
 
-/**
- * The Class IidmToCgmes is responsible for mapping back identifiers and
- * attribute names, from Iidm to Cgmes.
- */
 public class IidmToCgmes {
 
     public IidmToCgmes(IidmChange change, CgmesModel cgmes) {
@@ -30,12 +24,6 @@ public class IidmToCgmes {
         this.cgmes = null;
     }
 
-    /**
-     * Convert. Maps Identifiable Instance with its method for IIDM - CGMES
-     * conversion
-     *
-     * @return the map
-     */
     public Map<CgmesPredicateDetails, String> convert(String instanceClassOfIidmChange) throws Exception {
 
         if (instanceClassOfIidmChange.equals("IidmChangeOnUpdate")) {
@@ -53,6 +41,7 @@ public class IidmToCgmes {
             // for onCreate all fields are inside the Identifiable object.
             allCgmesDetails = switcher().getAllCgmesDetails();
         } else {
+            // here onRemove will go
         }
 
         return allCgmesDetails;
@@ -76,7 +65,7 @@ public class IidmToCgmes {
                 allCgmesDetails = vl.getAllCgmesDetailsOnCreate();
                 break;
             case CONFIGUREDBUS_IMPL:
-                BusToTopologicalNode btn = new BusToTopologicalNode(change);
+                BusToTopologicalNode btn = new BusToTopologicalNode(change,cgmes);
                 mapIidmToCgmesPredicates = btn.mapIidmToCgmesPredicates();
                 allCgmesDetails = btn.getAllCgmesDetailsOnCreate();
                 break;
@@ -106,30 +95,16 @@ public class IidmToCgmes {
                 mapIidmToCgmesPredicates = lac.mapIidmToCgmesPredicates();
                 allCgmesDetails = lac.getAllCgmesDetailsOnCreate();
                 break;
-            case PHASETAPCHANGER_IMPL:
-                PhaseTapChangerToPhaseTapChanger ptch = new PhaseTapChangerToPhaseTapChanger(change);
-                mapIidmToCgmesPredicates = ptch.mapIidmToCgmesPredicates();
-                allCgmesDetails = ptch.getAllCgmesDetailsOnCreate();
+            case SHUNTCOMPENSATOR_IMPL:
+                ShuntCompensatorToShuntCompensator sc = new ShuntCompensatorToShuntCompensator(change);
+                mapIidmToCgmesPredicates = sc.mapIidmToCgmesPredicates();
+                allCgmesDetails = sc.getAllCgmesDetailsOnCreate();
                 break;
-            case RATIOTAPCHANGER_IMPL:
-                RatioTapChangerToRatioTapChanger rtch = new RatioTapChangerToRatioTapChanger(change);
-                mapIidmToCgmesPredicates = rtch.mapIidmToCgmesPredicates();
-                allCgmesDetails = rtch.getAllCgmesDetailsOnCreate();
-                break;
-            // RatioTapChangerStepImpl
             default:
                 LOG.info("This element is not convertable to CGMES");
         }
         TwoMaps result = new TwoMaps(mapIidmToCgmesPredicates, allCgmesDetails);
         return result;
-    }
-
-    // TODO elena move to its own element.
-    public static Map<String, Object> terminalToTerminal() {
-        return Collections.unmodifiableMap(Stream.of(
-            entry("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false)),
-            entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false)))
-            .collect(entriesToMap()));
     }
 
     // http://minborgsjavapot.blogspot.com/2014/12/java-8-initializing-maps-in-smartest-way.html
@@ -156,8 +131,7 @@ public class IidmToCgmes {
     public static final String LOAD_IMPL = "LoadImpl";
     public static final String LCCCONVERTER_STATION_IMPL = "LccConverterStationImpl";
     public static final String LINE_IMPL = "LineImpl";
-    public static final String PHASETAPCHANGER_IMPL = "PhaseTapChangerImpl";
-    public static final String RATIOTAPCHANGER_IMPL = "RatioTapChangerImpl";
+    public static final String SHUNTCOMPENSATOR_IMPL = "ShuntCompensatorImpl";
 
     private static final Logger LOG = LoggerFactory.getLogger(IidmToCgmes.class);
 }
