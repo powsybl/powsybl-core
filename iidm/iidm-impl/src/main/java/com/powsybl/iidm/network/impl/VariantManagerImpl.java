@@ -81,10 +81,14 @@ public class VariantManagerImpl implements VariantManager {
         return index;
     }
 
+    public String getVariantId(int variantIndex) {
+        return id2index.inverse().get(variantIndex);
+    }
+
     @Override
     public String getWorkingVariantId() {
         int index = variantContext.getVariantIndex();
-        return id2index.inverse().get(index);
+        return getVariantId(index);
     }
 
     @Override
@@ -185,14 +189,16 @@ public class VariantManagerImpl implements VariantManager {
         if (index == variantArraySize - 1) {
             // remove consecutive unsused index starting from the end
             int number = 0; // number of elements to remove
+            Set<Integer> removed = new HashSet<>();
             for (int j = index; j >= 0; j--) {
                 if (id2index.containsValue(j)) {
                     break;
                 } else {
                     number++;
-                    unusedIndexes.remove(j);
+                    removed.add(j);
                 }
             }
+            unusedIndexes.removeAll(removed);
             // reduce variant array size
             for (MultiVariantObject obj : getStafulObjects()) {
                 obj.reduceVariantArraySize(number);
@@ -239,5 +245,4 @@ public class VariantManagerImpl implements VariantManager {
             variantContext.setVariantIndex(currentVariantIndex);
         }
     }
-
 }

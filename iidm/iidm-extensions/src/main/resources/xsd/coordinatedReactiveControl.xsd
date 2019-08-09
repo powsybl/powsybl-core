@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema version="1.0"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:crc="http://www.powsybl.org/schema/iidm/ext/coordinated_reactive_control/1_0"
+           targetNamespace="http://www.powsybl.org/schema/iidm/ext/coordinated_reactive_control/1_0"
+           elementFormDefault="qualified">
+    <xs:simpleType name="percent">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0.0"/>
+            <xs:maxInclusive value="100.0"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:element name="coordinatedReactiveControl">
+        <xs:complexType>
+            <xs:attribute name="qPercent" use="required" type="crc:percent"/>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

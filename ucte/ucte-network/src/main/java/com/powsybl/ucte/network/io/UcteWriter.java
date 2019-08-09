@@ -6,24 +6,14 @@
  */
 package com.powsybl.ucte.network.io;
 
-import com.powsybl.ucte.network.UcteAngleRegulation;
-import com.powsybl.ucte.network.UcteElementId;
-import com.powsybl.ucte.network.UcteLine;
-import com.powsybl.ucte.network.UcteTransformer;
-import com.powsybl.ucte.network.UcteCountryCode;
-import com.powsybl.ucte.network.UcteNode;
-import com.powsybl.ucte.network.UcteNetwork;
-import com.powsybl.ucte.network.UcteNodeCode;
-import com.powsybl.ucte.network.UctePhaseRegulation;
-import com.powsybl.ucte.network.UcteRegulation;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
+import com.powsybl.ucte.network.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -63,18 +53,14 @@ public class UcteWriter {
         LOGGER.trace("Writing node block");
         writer.writeString("##N", 0, 3);
         writer.newLine();
-        Map<UcteCountryCode, List<UcteNode>> nodesByCountry = new EnumMap<>(UcteCountryCode.class);
+        Map<UcteCountryCode, TreeSet<UcteNode>> nodesByCountry = new EnumMap<>(UcteCountryCode.class);
         for (UcteNode node : network.getNodes()) {
-            List<UcteNode> nodes = nodesByCountry.get(node.getCode().getUcteCountryCode());
-            if (nodes == null) {
-                nodes = new ArrayList<>();
-                nodesByCountry.put(node.getCode().getUcteCountryCode(), nodes);
-            }
-            nodes.add(node);
+            nodesByCountry.computeIfAbsent(node.getCode().getUcteCountryCode(), k -> new TreeSet<>()).add(node);
         }
-        for (Map.Entry<UcteCountryCode, List<UcteNode>> entry : nodesByCountry.entrySet()) {
+
+        for (Map.Entry<UcteCountryCode, TreeSet<UcteNode>> entry : nodesByCountry.entrySet()) {
             UcteCountryCode countryCode = entry.getKey();
-            List<UcteNode> nodes = entry.getValue();
+            TreeSet<UcteNode> nodes = entry.getValue();
             writer.writeString("##Z" + countryCode, 0, 5);
             writer.newLine();
             for (UcteNode node : nodes) {
@@ -111,14 +97,15 @@ public class UcteWriter {
         LOGGER.trace("Writing line block");
         writer.writeString("##L", 0, 3);
         writer.newLine();
-        for (UcteLine l : network.getLines()) {
-            writeElementId(l.getId(), writer);
-            writer.writeInteger(l.getStatus().getCode(), 20);
-            writer.writeFloat(l.getResistance(), 22, 28);
-            writer.writeFloat(l.getReactance(), 29, 35);
-            writer.writeFloat((float) (l.getSusceptance() / Math.pow(10, -6)), 36, 44);
-            writer.writeInteger(l.getCurrentLimit(), 45, 51);
-            writer.writeString(l.getElementName(), 52, 64);
+        List<UcteLine> lines = network.getLines().stream().sorted(Comparator.comparing(UcteElement::getId)).collect(Collectors.toList());
+        for (UcteLine ucteLine : lines) {
+            writeElementId(ucteLine.getId(), writer);
+            writer.writeInteger(ucteLine.getStatus().getCode(), 20);
+            writer.writeFloat(ucteLine.getResistance(), 22, 28);
+            writer.writeFloat(ucteLine.getReactance(), 29, 35);
+            writer.writeFloat((float) (ucteLine.getSusceptance() / Math.pow(10, -6)), 36, 44);
+            writer.writeInteger(ucteLine.getCurrentLimit(), 45, 51);
+            writer.writeString(ucteLine.getElementName(), 52, 64);
             writer.newLine();
         }
     }
@@ -127,7 +114,9 @@ public class UcteWriter {
         LOGGER.trace("Writing transformer block");
         writer.writeString("##T", 0, 3);
         writer.newLine();
-        for (UcteTransformer t : network.getTransformers()) {
+        List<UcteTransformer> transformersList =
+                network.getTransformers().stream().sorted(Comparator.comparing(UcteTransformer::getId)).collect(Collectors.toList());
+        for (UcteTransformer t : transformersList) {
             writeElementId(t.getId(), writer);
             writer.writeInteger(t.getStatus().getCode(), 20);
             writer.writeFloat(t.getRatedVoltage1(), 22, 27);
@@ -163,12 +152,17 @@ public class UcteWriter {
         LOGGER.trace("Writing regulation block");
         writer.writeString("##R", 0, 3);
         writer.newLine();
-        for (UcteRegulation r : network.getRegulations()) {
-            writeElementId(r.getTransfoId(), writer);
-            writePhaseRegulation(r.getPhaseRegulation(), writer);
-            writeAngleRegulation(r.getAngleRegulation(), writer);
-            writer.newLine();
+        List<UcteRegulation> regulations = network.getRegulations().stream().sorted(Comparator.comparing(UcteRegulation::getTransfoId)).collect(Collectors.toList());
+        for (UcteRegulation ucteRegulation : regulations) {
+            writeRegulation(writer, ucteRegulation);
         }
+    }
+
+    private void writeRegulation(UcteRecordWriter writer, UcteRegulation ucteRegulation) throws IOException {
+        writeElementId(ucteRegulation.getTransfoId(), writer);
+        writePhaseRegulation(ucteRegulation.getPhaseRegulation(), writer);
+        writeAngleRegulation(ucteRegulation.getAngleRegulation(), writer);
+        writer.newLine();
     }
 
     public void write(BufferedWriter bw) throws IOException {
@@ -181,5 +175,4 @@ public class UcteWriter {
         writeRegulationBlock(rw);
         LOGGER.debug("UCTE file written in {} ms", System.currentTimeMillis() - start);
     }
-
 }

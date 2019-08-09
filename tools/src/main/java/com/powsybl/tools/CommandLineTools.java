@@ -88,11 +88,6 @@ public class CommandLineTools {
             .hasArg()
             .argName("CONFIG_NAME")
             .build());
-        options.addOption(Option.builder()
-            .longOpt("parallel")
-            .desc("Run command in parallel mode")
-            .required(false)
-            .build());
 
         return options;
     }
