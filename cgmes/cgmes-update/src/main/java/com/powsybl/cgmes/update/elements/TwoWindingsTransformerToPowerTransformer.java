@@ -67,6 +67,12 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes implem
         allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("name"),
             name);
 
+        String substationId = newTwoWindingsTransformer.getSubstation().getId();
+        CgmesPredicateDetails equipmentContainer = new CgmesPredicateDetails(
+            "cim:Equipment.MemberOf_EquipmentContainer", "_EQ",
+            true);
+        allCgmesDetails.put(equipmentContainer, substationId);
+
         /**
          * PowerTransformerEnd1
          */
@@ -162,29 +168,18 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes implem
             allCgmesDetails.put(namePHTC, name);
 
             CgmesPredicateDetails TransformerWindingPHTC = new CgmesPredicateDetails(
-                "cim:RatioTapChanger.TransformerWinding",
+                "cim:PhaseTapChanger.TransformerWinding",
                 "_EQ", true, idPHTC);
             allCgmesDetails.put(TransformerWindingPHTC, idEnd1);
 
             int lowTapPositionPHTC = newPhaseTapChanger.getLowTapPosition();
             allCgmesDetails.put(
-                (CgmesPredicateDetails) mapIidmToCgmesPredicates().get("ratioTapChanger.lowTapPosition"),
+                (CgmesPredicateDetails) mapIidmToCgmesPredicates().get("phaseTapChanger.lowTapPosition"),
                 String.valueOf(lowTapPositionPHTC));
 
             int tapPositionPHTC = newPhaseTapChanger.getTapPosition();
-            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("ratioTapChanger.tapPosition"),
+            allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("phaseTapChanger.tapPosition"),
                 String.valueOf(tapPositionPHTC + 1));
-
-//            int lowTapPositionPHTC = newPhaseTapChanger.getLowTapPosition();
-//            CgmesPredicateDetails lowStepPHTC = new CgmesPredicateDetails("cim:TapChanger.lowStep", "_EQ", false,
-//                idPHTC);
-//            allCgmesDetails.put(lowStepPHTC, String.valueOf(lowTapPositionPHTC));
-//
-//            int tapPositionPHTC = newPhaseTapChanger.getTapPosition();
-//            CgmesPredicateDetails neutralStepPHTC = new CgmesPredicateDetails("cim:TapChanger.neutralStep", "_EQ",
-//                false,
-//                idPHTC);
-//            allCgmesDetails.put(neutralStepPHTC, String.valueOf(tapPositionPHTC + 1));
         }
         /**
          * RatioTapChanger

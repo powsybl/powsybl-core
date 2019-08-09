@@ -13,103 +13,47 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.model.CgmesModel;
+import com.powsybl.cgmes.update.elements.BusToTopologicalNode;
+import com.powsybl.cgmes.update.elements.GeneratorToSynchronousMachine;
+import com.powsybl.cgmes.update.elements.LineToACLineSegment;
+import com.powsybl.cgmes.update.elements.LoadToEnergyConsumer;
+import com.powsybl.cgmes.update.elements.ShuntCompensatorToShuntCompensator;
+import com.powsybl.cgmes.update.elements.SubstationToSubstation;
+import com.powsybl.cgmes.update.elements.TwoWindingsTransformerToPowerTransformer;
+import com.powsybl.cgmes.update.elements.VoltageLevelToVoltageLevel;
 import com.powsybl.cgmes.update.elements16.*;
 
-/**
- * The Class IidmToCgmes is responsible for mapping back identifiers and
- * attribute names, from Iidm to Cgmes.
- */
 public class IidmToCgmes16 extends IidmToCgmes {
 
     public IidmToCgmes16(IidmChange change, CgmesModel cgmes) {
         super(change, cgmes);
     }
 
-    /**
-     * Convert. Maps Identifiable Instance with its method for IIDM - CGMES
-     * conversion
-     *
-     * @return the map
-     */
-    public Map<CgmesPredicateDetails, String> convert() throws Exception {
+    public IidmToCgmes16(IidmChange change) {
+        super(change);
+    }
 
-        Map<String, Callable<Map<String, Object>>> getConversionMapper = new HashMap<>();
-        // for onUpdate we only need to map incoming attribute to cgmes predicate:
-//        getConversionMapper.put(SUBSTATION_IMPL,
-//            () -> SubstationToSubstation.mapIidmToCgmesPredicates());
-//        getConversionMapper.put(BUSBREAKER_VOLTAGELEVEL,
-//            () -> VoltageLevelToVoltageLevel.mapIidmToCgmesPredicates());
-//        getConversionMapper.put(TWOWINDINGS_TRANSFORMER_IMPL,
-//            () -> TwoWindingsTransformerToPowerTransformer.mapIidmToCgmesPredicates());
-//        getConversionMapper.put(CONFIGUREDBUS_IMPL,
-//            () -> BusToTopologicalNode.mapIidmToCgmesPredicates());
-//        getConversionMapper.put(GENERATOR_IMPL,
-//            () -> GeneratorToSynchronousMachine.mapIidmToCgmesPredicates());
-//        getConversionMapper.put(LOAD_IMPL,
-//            () -> LoadToEnergyConsumer.mapIidmToCgmesPredicates());
-//        getConversionMapper.put(LCCCONVERTER_STATION_IMPL,
-//            () -> LccConverterStationToAcdcConverter.mapIidmToCgmesPredicates());
-//        getConversionMapper.put(LINE_IMPL,
-//            () -> LineToACLineSegment.mapIidmToCgmesPredicates());
+    public Map<CgmesPredicateDetails, String> convert(String instanceClassOfIidmChange) throws Exception {
 
-        iidmInstanceName = getIidmInstanceName();
+        if (instanceClassOfIidmChange.equals("IidmChangeOnUpdate")) {
 
-        iidmToCgmesMapper = getConversionMapper.get(iidmInstanceName).call();
-        mapDetailsOfChange = new HashMap<>();
-
-        if (change.getAttribute() != null && change.getNewValueString() != null) {
-            // ths is change onUpdate
+            mapIidmToCgmesPredicates = switcher().getMapIidmToCgmesPredicates();
             String cgmesNewValue = change.getNewValueString();
 
-            CgmesPredicateDetails mapCgmesPredicateDetails = (CgmesPredicateDetails) iidmToCgmesMapper
+            CgmesPredicateDetails mapCgmesPredicateDetails = (CgmesPredicateDetails) mapIidmToCgmesPredicates
                 .get(change.getAttribute());
 
-            mapDetailsOfChange.put(mapCgmesPredicateDetails, cgmesNewValue);
+            allCgmesDetails = new HashMap<>();
+            allCgmesDetails.put(mapCgmesPredicateDetails, cgmesNewValue);
 
-        } else {
+        } else if (instanceClassOfIidmChange.equals("IidmChangeOnCreate")) {
             // for onCreate all fields are inside the Identifiable object.
-            // We dont know which they are. So we will get all informed fields from special
-            // special OnCreate classes.
-            switch (iidmInstanceName) {
-                case SUBSTATION_IMPL:
-                    SubstationToSubstation sub = new SubstationToSubstation(change);
-                    mapDetailsOfChange = sub.getAllCgmesDetailsOnCreate();
-                    break;
-                case BUSBREAKER_VOLTAGELEVEL:
-                    VoltageLevelToVoltageLevel vl = new VoltageLevelToVoltageLevel(change);
-                    mapDetailsOfChange = vl.getAllCgmesDetailsOnCreate();
-                    break;
-                case CONFIGUREDBUS_IMPL:
-                    BusToTopologicalNode bus = new BusToTopologicalNode(change);
-                    mapDetailsOfChange = bus.getAllCgmesDetailsOnCreate();
-                    break;
-                case TWOWINDINGS_TRANSFORMER_IMPL:
-                    TwoWindingsTransformerToPowerTransformer twt = new TwoWindingsTransformerToPowerTransformer(change);
-                    mapDetailsOfChange = twt.getAllCgmesDetailsOnCreate();
-                    break;
-                case GENERATOR_IMPL:
-                    GeneratorToSynchronousMachine gr = new GeneratorToSynchronousMachine(change);
-                    mapDetailsOfChange = gr.getAllCgmesDetailsOnCreate();
-                    break;
-                case LOAD_IMPL:
-                    LoadToEnergyConsumer load = new LoadToEnergyConsumer(change);
-                    mapDetailsOfChange = load.getAllCgmesDetailsOnCreate();
-                    break;
-                case LCCCONVERTER_STATION_IMPL:
-                    LccConverterStationToAcdcConverter lcc = new LccConverterStationToAcdcConverter(change);
-                    mapDetailsOfChange = lcc.getAllCgmesDetailsOnCreate();
-                    break;
-                case LINE_IMPL:
-                    LineToACLineSegment line = new LineToACLineSegment(change);
-                    mapDetailsOfChange = line.getAllCgmesDetailsOnCreate();
-                    break;
-                default:
-                    LOG.info("This element is not convertable to CGMES");
-            }
-
+            allCgmesDetails = switcher().getAllCgmesDetails();
+        } else {
+            // here onRemove will go
         }
 
-        return mapDetailsOfChange;
+        return allCgmesDetails;
     }
 
     public String getIidmInstanceName() {
@@ -117,12 +61,59 @@ public class IidmToCgmes16 extends IidmToCgmes {
         return change.getIdentifiable().getClass().getSimpleName();
     }
 
-    // TODO elena move to its own element.
-    public static Map<String, Object> terminalToTerminal() {
-        return Collections.unmodifiableMap(Stream.of(
-            entry("rdfType", new CgmesPredicateDetails("rdf:type", "_EQ", false)),
-            entry("name", new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false)))
-            .collect(entriesToMap()));
+    public TwoMaps switcher() {
+        switch (getIidmInstanceName()) {
+            case SUBSTATION_IMPL:
+                SubstationToSubstation sb = new SubstationToSubstation(change);
+                mapIidmToCgmesPredicates = sb.mapIidmToCgmesPredicates();
+                allCgmesDetails = sb.getAllCgmesDetailsOnCreate();
+                break;
+            case BUSBREAKER_VOLTAGELEVEL:
+                VoltageLevelToVoltageLevel vl = new VoltageLevelToVoltageLevel(change, cgmes);
+                mapIidmToCgmesPredicates = vl.mapIidmToCgmesPredicates();
+                allCgmesDetails = vl.getAllCgmesDetailsOnCreate();
+                break;
+            case CONFIGUREDBUS_IMPL:
+                BusToTopologicalNode btn = new BusToTopologicalNode(change, cgmes);
+                mapIidmToCgmesPredicates = btn.mapIidmToCgmesPredicates();
+                allCgmesDetails = btn.getAllCgmesDetailsOnCreate();
+                break;
+            case TWOWINDINGS_TRANSFORMER_IMPL:
+                TwoWindingsTransformerToPowerTransformer twpt = new TwoWindingsTransformerToPowerTransformer(change,
+                    cgmes);
+                mapIidmToCgmesPredicates = twpt.mapIidmToCgmesPredicates();
+                allCgmesDetails = twpt.getAllCgmesDetailsOnCreate();
+                break;
+            case GENERATOR_IMPL:
+                GeneratorToSynchronousMachine gsm = new GeneratorToSynchronousMachine(change, cgmes);
+                mapIidmToCgmesPredicates = gsm.mapIidmToCgmesPredicates();
+                allCgmesDetails = gsm.getAllCgmesDetailsOnCreate();
+                break;
+            case LOAD_IMPL:
+                LoadToEnergyConsumer lec = new LoadToEnergyConsumer(change, cgmes);
+                mapIidmToCgmesPredicates = lec.mapIidmToCgmesPredicates();
+                allCgmesDetails = lec.getAllCgmesDetailsOnCreate();
+                break;
+            case LCCCONVERTER_STATION_IMPL:
+                LccConverterStationToAcdcConverter lcc = new LccConverterStationToAcdcConverter(change);
+                mapIidmToCgmesPredicates = lcc.mapIidmToCgmesPredicates();
+                allCgmesDetails = lcc.getAllCgmesDetailsOnCreate();
+                break;
+            case LINE_IMPL:
+                LineToACLineSegment lac = new LineToACLineSegment(change);
+                mapIidmToCgmesPredicates = lac.mapIidmToCgmesPredicates();
+                allCgmesDetails = lac.getAllCgmesDetailsOnCreate();
+                break;
+            case SHUNTCOMPENSATOR_IMPL:
+                ShuntCompensatorToShuntCompensator sc = new ShuntCompensatorToShuntCompensator(change);
+                mapIidmToCgmesPredicates = sc.mapIidmToCgmesPredicates();
+                allCgmesDetails = sc.getAllCgmesDetailsOnCreate();
+                break;
+            default:
+                LOG.info("This element is not convertable to CGMES");
+        }
+        TwoMaps result = new TwoMaps(mapIidmToCgmesPredicates, allCgmesDetails);
+        return result;
     }
 
     // http://minborgsjavapot.blogspot.com/2014/12/java-8-initializing-maps-in-smartest-way.html
@@ -135,20 +126,40 @@ public class IidmToCgmes16 extends IidmToCgmes {
         return Collectors.toMap(e -> e.getKey(), e -> e.getValue());
     }
 
-    private String cimVersion;
-    private Map<String, Object> iidmToCgmesMapper;
-    public String iidmInstanceName;
+    public IidmChange change;
+    public CgmesModel cgmes;
 
-    public Map<CgmesPredicateDetails, String> mapDetailsOfChange;
+    private Map<String, Object> mapIidmToCgmesPredicates;
+    private Map<CgmesPredicateDetails, String> allCgmesDetails;
 
-    private static final String SUBSTATION_IMPL = "SubstationImpl";
-    private static final String BUSBREAKER_VOLTAGELEVEL = "BusBreakerVoltageLevel";
-    private static final String TWOWINDINGS_TRANSFORMER_IMPL = "TwoWindingsTransformerImpl";
-    private static final String CONFIGUREDBUS_IMPL = "ConfiguredBusImpl";
-    private static final String GENERATOR_IMPL = "GeneratorImpl";
-    private static final String LOAD_IMPL = "LoadImpl";
-    private static final String LCCCONVERTER_STATION_IMPL = "LccConverterStationImpl";
-    private static final String LINE_IMPL = "LineImpl";
+//    public static final String SUBSTATION_IMPL = "SubstationImpl";
+//    public static final String BUSBREAKER_VOLTAGELEVEL = "BusBreakerVoltageLevel";
+//    public static final String TWOWINDINGS_TRANSFORMER_IMPL = "TwoWindingsTransformerImpl";
+//    public static final String CONFIGUREDBUS_IMPL = "ConfiguredBusImpl";
+//    public static final String GENERATOR_IMPL = "GeneratorImpl";
+//    public static final String LOAD_IMPL = "LoadImpl";
+//    public static final String LCCCONVERTER_STATION_IMPL = "LccConverterStationImpl";
+//    public static final String LINE_IMPL = "LineImpl";
+//    public static final String SHUNTCOMPENSATOR_IMPL = "ShuntCompensatorImpl";
 
-    private static final Logger LOG = LoggerFactory.getLogger(IidmToCgmes16.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IidmToCgmes.class);
 }
+
+//class TwoMaps {
+//    TwoMaps(Map<String, Object> mapIidmToCgmesPredicates,
+//        Map<CgmesPredicateDetails, String> allCgmesDetails) {
+//        this.mapIidmToCgmesPredicates = mapIidmToCgmesPredicates;
+//        this.allCgmesDetails = allCgmesDetails;
+//    }
+//
+//    Map<String, Object> getMapIidmToCgmesPredicates() {
+//        return mapIidmToCgmesPredicates;
+//    }
+//
+//    Map<CgmesPredicateDetails, String> getAllCgmesDetails() {
+//        return allCgmesDetails;
+//    }
+//
+//    private Map<String, Object> mapIidmToCgmesPredicates;
+//    private Map<CgmesPredicateDetails, String> allCgmesDetails;
+//}

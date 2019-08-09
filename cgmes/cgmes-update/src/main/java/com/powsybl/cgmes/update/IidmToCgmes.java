@@ -85,11 +85,6 @@ public class IidmToCgmes {
                 mapIidmToCgmesPredicates = lec.mapIidmToCgmesPredicates();
                 allCgmesDetails = lec.getAllCgmesDetailsOnCreate();
                 break;
-            case LCCCONVERTER_STATION_IMPL:
-                LccConverterStationToAcdcConverter lcc = new LccConverterStationToAcdcConverter(change);
-                mapIidmToCgmesPredicates = lcc.mapIidmToCgmesPredicates();
-                allCgmesDetails = lcc.getAllCgmesDetailsOnCreate();
-                break;
             case LINE_IMPL:
                 LineToACLineSegment lac = new LineToACLineSegment(change);
                 mapIidmToCgmesPredicates = lac.mapIidmToCgmesPredicates();

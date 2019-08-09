@@ -2,20 +2,24 @@ package com.powsybl.cgmes.update.elements16;
 
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
 import com.powsybl.cgmes.update.IidmChange;
 import com.powsybl.cgmes.update.IidmToCgmes;
+import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.ConversionMapper;
 import com.powsybl.iidm.network.VoltageLevel;
+import com.powsybl.triplestore.api.PropertyBag;
+import com.powsybl.triplestore.api.PropertyBags;
 
 public class VoltageLevelToVoltageLevel extends IidmToCgmes implements ConversionMapper {
 
-    public VoltageLevelToVoltageLevel(IidmChange change) {
-        super(change);
+    public VoltageLevelToVoltageLevel(IidmChange change, CgmesModel cgmes) {
+        super(change, cgmes);
     }
 
     @Override
@@ -86,6 +90,25 @@ public class VoltageLevelToVoltageLevel extends IidmToCgmes implements Conversio
         return allCgmesDetails;
     }
 
-    private static String baseVoltageId = UUID.randomUUID().toString();
+    /**
+     * Check if BaseVoltage element already exists in grid, if yes - returns the id
+     *
+     * @return the base voltage id
+     */
+    private String getBaseVoltageId() {
 
+        PropertyBags voltageLevels = cgmes.voltageLevels();
+        Iterator i = voltageLevels.iterator();
+        while (i.hasNext()) {
+            PropertyBag pb = (PropertyBag) i.next();
+            if (pb.getId("VoltageLevel").equals(change.getIdentifiableId())) {
+                return pb.getId("BaseVoltage");
+            } else {
+                continue;
+            }
+        }
+        return UUID.randomUUID().toString();
+    }
+
+    private String baseVoltageId = getBaseVoltageId();
 }

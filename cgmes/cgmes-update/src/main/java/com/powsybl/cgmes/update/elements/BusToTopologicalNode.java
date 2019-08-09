@@ -46,10 +46,20 @@ public class BusToTopologicalNode extends IidmToCgmes implements ConversionMappe
 
         String baseVoltageId = getBaseVoltageId(newBus);
         CgmesPredicateDetails baseVoltage = new CgmesPredicateDetails(
-            "cim:TopologicalNode.BaseVoltage", "_EQ", true);
+            "cim:TopologicalNode.BaseVoltage", "_TP", true);
         if (!baseVoltageId.equals("NaN")) {
             allCgmesDetails.put(baseVoltage, baseVoltageId);
         }
+        
+        //TODO elena fix ConnectivityNodeContainer, might be: cim:VoltageLevel cim:Line 
+        String connectivityNodeContainerId = getBaseVoltageId(newBus);
+        CgmesPredicateDetails connectivityNode = new CgmesPredicateDetails(
+            "cim:TopologicalNode.ConnectivityNodeContainer", "_TP", true);
+        if (!connectivityNodeContainerId.equals("NaN")) {
+            allCgmesDetails.put(connectivityNode, connectivityNodeContainerId);
+        }
+
+        
         return allCgmesDetails;
     }
 

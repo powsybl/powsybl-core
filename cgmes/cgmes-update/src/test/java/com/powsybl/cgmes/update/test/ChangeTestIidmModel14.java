@@ -17,6 +17,7 @@ import com.powsybl.iidm.network.Branch;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Generator;
+import com.powsybl.iidm.network.LccConverterStation;
 import com.powsybl.iidm.network.Line;
 import com.powsybl.iidm.network.Load;
 import com.powsybl.iidm.network.Network;
@@ -29,9 +30,9 @@ import com.powsybl.iidm.network.TopologyKind;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
 import com.powsybl.iidm.network.VoltageLevel;
 
-public class ChangeTestIidmModel {
+public class ChangeTestIidmModel14 {
 
-    public ChangeTestIidmModel(Network network) {
+    public ChangeTestIidmModel14(Network network) {
         this.network = network;
         changes = new ArrayList<>();
         cgmesUpdater = new CgmesUpdater(network, changes);
@@ -46,7 +47,6 @@ public class ChangeTestIidmModel {
          */
         Substation substation = network.newSubstation()
             .setCountry(Country.FI)
-            .setTso("tso")
             .setName("BUS   15_SS")
             .setId("_BUS____15_SS")
             .add();
@@ -85,50 +85,50 @@ public class ChangeTestIidmModel {
             .setMaxP(300.0)
             .setMinP(-300.0)
             .add();
-        Terminal terminal = generator.getTerminal();
-        generator.setRegulatingTerminal(terminal);
-//        ShuntCompensator shuntCompensator = voltageLevel.newShuntCompensator()
-//            .setId("_BANK___15_SC")
-//            .setName("BANK   15")
-//            .setbPerSection(1)
-//            .setMaximumSectionCount(2)
-//            .setBus("bus1")
-//            .setCurrentSectionCount(1)
-//            .add();
-//        TwoWindingsTransformer tWTransformer = substation.newTwoWindingsTransformer()
-//            .setId("_BUS____4-BUS____15-1_PT")
-//            .setName("BUS    4-BUS    15-1")
-//            .setVoltageLevel1("_BUS____15_VL")
-//            .setVoltageLevel2("_BUS____25_VL")
-//            .setConnectableBus1("bus1")
-//            .setConnectableBus2("bus2")
-//            .setR(2.0)
-//            .setX(14.745)
-//            .setG(4.0)
-//            .setB(3.2E-5)
-//            .setRatedU1(111.0)
-//            .setRatedU2(222.0)
-//            .add();
-//        RatioTapChanger ratioTapChanger = tWTransformer.newRatioTapChanger()
-//            .setLowTapPosition(0)
-//            .setTapPosition(1)
-//            .setRegulating(false)
-//            .setRegulationTerminal(tWTransformer.getTerminal(Branch.Side.ONE))
-//            .setTargetV(3)
-//            .setLoadTapChangingCapabilities(false)
-//            .beginStep().setR(-28.1).setX(-28.2).setG(0.1).setB(0.2).setRho(1.1).endStep()
-//            .beginStep().setR(-28.3).setX(-28.4).setG(0.2).setB(0.3).setRho(1.3).endStep()
-//            .add();
-//        PhaseTapChanger phaseTapChanger = tWTransformer.newPhaseTapChanger()
-//            .setLowTapPosition(0)
-//            .setTapPosition(1)
-//            .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
-//            .setRegulationValue(930.6667)
-//            .setRegulating(false)
-//            .setRegulationTerminal(tWTransformer.getTerminal(Branch.Side.ONE))
-//            .beginStep().setR(-28.091503).setX(-28.091503).setG(0.0).setB(0.0).setRho(1.0).setAlpha(5.42).endStep()
-//            .beginStep().setR(39.78473).setX(39.784725).setG(0.0).setB(0.0).setRho(1.0).setAlpha(-42.8).endStep()
-//            .add();
+//        Terminal terminal = generator.getTerminal();
+//        generator.setRegulatingTerminal(terminal);
+        ShuntCompensator shuntCompensator = voltageLevel.newShuntCompensator()
+            .setId("_BANK___15_SC")
+            .setName("BANK   15")
+            .setbPerSection(1)
+            .setMaximumSectionCount(2)
+            .setBus("bus1")
+            .setCurrentSectionCount(1)
+            .add();
+        TwoWindingsTransformer tWTransformer = substation.newTwoWindingsTransformer()
+            .setId("_BUS____4-BUS____15-1_PT")
+            .setName("BUS    4-BUS    15-1")
+            .setVoltageLevel1("_BUS____15_VL")
+            .setVoltageLevel2("_BUS____25_VL")
+            .setConnectableBus1("bus1")
+            .setConnectableBus2("bus2")
+            .setR(2.0)
+            .setX(14.745)
+            .setG(4.0)
+            .setB(3.2E-5)
+            .setRatedU1(111.0)
+            .setRatedU2(222.0)
+            .add();
+        RatioTapChanger ratioTapChanger = tWTransformer.newRatioTapChanger()
+            .setLowTapPosition(0)
+            .setTapPosition(1)
+            .setRegulating(false)
+            .setRegulationTerminal(tWTransformer.getTerminal(Branch.Side.ONE))
+            .setTargetV(3)
+            .setLoadTapChangingCapabilities(false)
+            .beginStep().setR(-28.1).setX(-28.2).setG(0.1).setB(0.2).setRho(1.1).endStep()
+            .beginStep().setR(-28.3).setX(-28.4).setG(0.2).setB(0.3).setRho(1.3).endStep()
+            .add();
+        PhaseTapChanger phaseTapChanger = tWTransformer.newPhaseTapChanger()
+            .setLowTapPosition(0)
+            .setTapPosition(1)
+            .setRegulationMode(PhaseTapChanger.RegulationMode.CURRENT_LIMITER)
+            .setRegulationValue(930.6667)
+            .setRegulating(false)
+            .setRegulationTerminal(tWTransformer.getTerminal(Branch.Side.ONE))
+            .beginStep().setR(-28.091503).setX(-28.091503).setG(0.0).setB(0.0).setRho(1.0).setAlpha(5.42).endStep()
+            .beginStep().setR(39.78473).setX(39.784725).setG(0.0).setB(0.0).setRho(1.0).setAlpha(-42.8).endStep()
+            .add();
 ////        tWTransformer.newCurrentLimits1()
 ////            .setPermanentLimit(931.0)
 ////            .add();
@@ -139,22 +139,13 @@ public class ChangeTestIidmModel {
 //            .setId("_64901aec-5a8a-4bcb-8ca7-a3ddbfcd0e6c")
 //            .setName("BE-Busbar_1")
 //            .add();
-//        Load load = voltageLevel.newLoad()
-//            .setId("_LOAD___15_EC")
-//            .setName("LOAD  15")
-//            .setBus("bus1")
-//            .setP0(20.0)
-//            .setQ0(15.0)
-//            .add();
-//        // the ACDCConverter not present in cim14
-////        LccConverterStation lccConverterStation = voltageLevel.newLccConverterStation()
-////            .setId("lcc")
-////            .setName("lcc")
-////            .setBus("bus1")
-////            .setLossFactor(0.011f)
-////            .setPowerFactor(0.5f)
-////            .setConnectableBus("bus1")
-////            .add();
+        Load load = voltageLevel.newLoad()
+            .setId("_LOAD___15_EC")
+            .setName("LOAD  15")
+            .setBus("bus1")
+            .setP0(20.0)
+            .setQ0(15.0)
+            .add();
         Line line = network.newLine()
             .setId("_27086487-56ba-4979-b8de-064025a6b4da")
             .setName("BE-Line_9")
@@ -221,5 +212,5 @@ public class ChangeTestIidmModel {
     List<IidmChange> changes;
     IidmToCgmes iidmToCgmes;
     CgmesUpdater cgmesUpdater;
-    private static final Logger LOGGER = LoggerFactory.getLogger(ChangeTestIidmModel.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChangeTestIidmModel14.class);
 }
