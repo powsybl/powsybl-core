@@ -2,21 +2,17 @@ package com.powsybl.cgmes.update.elements16;
 
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.ConversionMapper;
 import com.powsybl.cgmes.update.IidmChange;
-import com.powsybl.cgmes.update.IidmToCgmes;
+import com.powsybl.cgmes.update.IidmToCgmes16;
 import com.powsybl.iidm.network.Load;
-import com.powsybl.triplestore.api.PropertyBag;
-import com.powsybl.triplestore.api.PropertyBags;
 
-public class LoadToEnergyConsumer extends IidmToCgmes implements ConversionMapper {
+public class LoadToEnergyConsumer extends IidmToCgmes16 implements ConversionMapper {
 
     public LoadToEnergyConsumer(IidmChange change, CgmesModel cgmes) {
         super(change, cgmes);
@@ -55,7 +51,7 @@ public class LoadToEnergyConsumer extends IidmToCgmes implements ConversionMappe
         if (!voltageLevelId.equals("NaN")) {
             allCgmesDetails.put(equipmentContainer, voltageLevelId);
         }
-        
+
         double p0 = newLoad.getP0();
         if (!String.valueOf(p0).equals("NaN")) {
             allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("p0"),
@@ -86,7 +82,7 @@ public class LoadToEnergyConsumer extends IidmToCgmes implements ConversionMappe
 
         return allCgmesDetails;
     }
-    
+
 //    /**
 //     * Check if EnergyConsumer.LoadResponse element already exists in grid, if yes -
 //     * returns the id

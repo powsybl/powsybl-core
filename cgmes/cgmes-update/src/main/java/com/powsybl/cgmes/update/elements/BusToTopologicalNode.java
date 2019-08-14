@@ -11,15 +11,15 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.ConversionMapper;
 import com.powsybl.cgmes.update.IidmChange;
-import com.powsybl.cgmes.update.IidmToCgmes;
+import com.powsybl.cgmes.update.IidmToCgmes14;
 import com.powsybl.iidm.network.Bus;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
-public class BusToTopologicalNode extends IidmToCgmes implements ConversionMapper {
+public class BusToTopologicalNode extends IidmToCgmes14 implements ConversionMapper {
 
     public BusToTopologicalNode(IidmChange change, CgmesModel cgmes) {
-        super(change,cgmes);
+        super(change, cgmes);
     }
 
     @Override
@@ -50,8 +50,7 @@ public class BusToTopologicalNode extends IidmToCgmes implements ConversionMappe
         if (!baseVoltageId.equals("NaN")) {
             allCgmesDetails.put(baseVoltage, baseVoltageId);
         }
-        
-        //TODO elena fix ConnectivityNodeContainer, might be: cim:VoltageLevel cim:Line 
+        // TODO elena fix ConnectivityNodeContainer, might be: cim:VoltageLevel cim:Line
         String connectivityNodeContainerId = getBaseVoltageId(newBus);
         CgmesPredicateDetails connectivityNode = new CgmesPredicateDetails(
             "cim:TopologicalNode.ConnectivityNodeContainer", "_TP", true);
@@ -59,7 +58,6 @@ public class BusToTopologicalNode extends IidmToCgmes implements ConversionMappe
             allCgmesDetails.put(connectivityNode, connectivityNodeContainerId);
         }
 
-        
         return allCgmesDetails;
     }
 

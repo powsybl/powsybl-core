@@ -65,7 +65,7 @@ public class IidmToCgmes {
                 allCgmesDetails = vl.getAllCgmesDetailsOnCreate();
                 break;
             case CONFIGUREDBUS_IMPL:
-                BusToTopologicalNode btn = new BusToTopologicalNode(change,cgmes);
+                BusToTopologicalNode btn = new BusToTopologicalNode(change, cgmes);
                 mapIidmToCgmesPredicates = btn.mapIidmToCgmesPredicates();
                 allCgmesDetails = btn.getAllCgmesDetailsOnCreate();
                 break;

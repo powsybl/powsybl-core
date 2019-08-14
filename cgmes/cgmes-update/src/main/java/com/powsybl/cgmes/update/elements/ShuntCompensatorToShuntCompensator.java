@@ -8,10 +8,10 @@ import java.util.stream.Stream;
 import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.ConversionMapper;
 import com.powsybl.cgmes.update.IidmChange;
-import com.powsybl.cgmes.update.IidmToCgmes;
+import com.powsybl.cgmes.update.IidmToCgmes14;
 import com.powsybl.iidm.network.ShuntCompensator;
 
-public class ShuntCompensatorToShuntCompensator extends IidmToCgmes implements ConversionMapper {
+public class ShuntCompensatorToShuntCompensator extends IidmToCgmes14 implements ConversionMapper {
 
     public ShuntCompensatorToShuntCompensator(IidmChange change) {
         super(change);
@@ -42,7 +42,7 @@ public class ShuntCompensatorToShuntCompensator extends IidmToCgmes implements C
             allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("name"),
                 name);
         }
-        
+
         String voltageLevelId = newShuntCompensator.getTerminal().getVoltageLevel().getId();
         CgmesPredicateDetails equipmentContainer = new CgmesPredicateDetails(
             "cim:Equipment.MemberOf_EquipmentContainer", "_EQ", true);

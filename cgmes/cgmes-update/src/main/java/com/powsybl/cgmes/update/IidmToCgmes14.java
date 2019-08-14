@@ -4,15 +4,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.update.elements16.*;
+import com.powsybl.cgmes.update.elements.*;
 
-public class IidmToCgmes16 extends IidmToCgmesAbstract {
+public class IidmToCgmes14 extends IidmToCgmesAbstract {
 
-    public IidmToCgmes16(IidmChange change, CgmesModel cgmes) {
+    public IidmToCgmes14(IidmChange change, CgmesModel cgmes) {
         super(change, cgmes);
     }
 
-    public IidmToCgmes16(IidmChange change) {
+    public IidmToCgmes14(IidmChange change) {
         super(change);
     }
 
@@ -51,11 +51,6 @@ public class IidmToCgmes16 extends IidmToCgmesAbstract {
                 mapIidmToCgmesPredicates = lec.mapIidmToCgmesPredicates();
                 allCgmesDetails = lec.getAllCgmesDetailsOnCreate();
                 break;
-            case LCCCONVERTER_STATION_IMPL:
-                LccConverterStationToAcdcConverter lcc = new LccConverterStationToAcdcConverter(change);
-                mapIidmToCgmesPredicates = lcc.mapIidmToCgmesPredicates();
-                allCgmesDetails = lcc.getAllCgmesDetailsOnCreate();
-                break;
             case LINE_IMPL:
                 LineToACLineSegment lac = new LineToACLineSegment(change);
                 mapIidmToCgmesPredicates = lac.mapIidmToCgmesPredicates();
@@ -73,5 +68,5 @@ public class IidmToCgmes16 extends IidmToCgmesAbstract {
         return result;
     }
 
-    private static final Logger LOG = LoggerFactory.getLogger(IidmToCgmes16.class);
+    private static final Logger LOG = LoggerFactory.getLogger(IidmToCgmes14.class);
 }

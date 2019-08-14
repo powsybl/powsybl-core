@@ -8,10 +8,10 @@ import java.util.stream.Stream;
 import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.ConversionMapper;
 import com.powsybl.cgmes.update.IidmChange;
-import com.powsybl.cgmes.update.IidmToCgmes;
+import com.powsybl.cgmes.update.IidmToCgmes14;
 import com.powsybl.iidm.network.Line;
 
-public class LineToACLineSegment extends IidmToCgmes implements ConversionMapper {
+public class LineToACLineSegment extends IidmToCgmes14 implements ConversionMapper {
 
     public LineToACLineSegment(IidmChange change) {
         super(change);

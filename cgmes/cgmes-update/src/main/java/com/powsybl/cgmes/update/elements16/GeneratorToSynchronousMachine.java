@@ -7,16 +7,16 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import com.powsybl.cgmes.update.IidmChange;
-import com.powsybl.cgmes.update.IidmToCgmes;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.ConversionMapper;
+import com.powsybl.cgmes.update.IidmChange;
+import com.powsybl.cgmes.update.IidmToCgmes16;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 
-public class GeneratorToSynchronousMachine extends IidmToCgmes implements ConversionMapper {
+public class GeneratorToSynchronousMachine extends IidmToCgmes16 implements ConversionMapper {
     public GeneratorToSynchronousMachine(IidmChange change, CgmesModel cgmes) {
         super(change, cgmes);
     }

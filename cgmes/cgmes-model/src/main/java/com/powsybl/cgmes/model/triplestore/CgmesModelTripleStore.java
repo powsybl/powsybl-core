@@ -414,7 +414,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         String resource = namedQuery("getCurrentResource", context).get(0).get("resource").trim();
         LOG.info("\n*****{}, {}, {}, {}******", context, subject, predicate, value);
         if (instanceClassOfIidmChange.equals("IidmChangeOnUpdate")) {
-            namedQueryFordUpdate("updateCgmesfromIidm", context, subject, predicate, value);
+            namedQueryFordUpdate("updateCgmesfromIidm", context, subject, predicate, value,resource);
         } else if (instanceClassOfIidmChange.equals("IidmChangeOnCreate")) {
             namedQueryFordUpdate("updateCgmesfromIidmCreate", context, subject, predicate, value, resource,
                 cimNamespace, valueIsNode);

@@ -11,7 +11,7 @@ import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.ConversionMapper;
 import com.powsybl.cgmes.update.IidmChange;
-import com.powsybl.cgmes.update.IidmToCgmes;
+import com.powsybl.cgmes.update.IidmToCgmes16;
 import com.powsybl.iidm.network.PhaseTapChanger;
 import com.powsybl.iidm.network.RatioTapChanger;
 import com.powsybl.iidm.network.TwoWindingsTransformer;
@@ -24,7 +24,7 @@ import com.powsybl.triplestore.api.PropertyBags;
  * have distinct ID (Subject) and contain reference to the parent
  * PowerTransformer element.
  */
-public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes implements ConversionMapper {
+public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes16 implements ConversionMapper {
 
     public TwoWindingsTransformerToPowerTransformer(IidmChange change, CgmesModel cgmes) {
         super(change, cgmes);
@@ -211,8 +211,8 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes implem
     }
 
     /**
-     * Check if TransformerEnd elements already exist in grid, if yes - returns
-     * the id.
+     * Check if TransformerEnd elements already exist in grid, if yes - returns the
+     * id.
      *
      */
     private Map<String, String> getEndsId() {

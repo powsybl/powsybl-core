@@ -8,10 +8,10 @@ import java.util.stream.Stream;
 import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.ConversionMapper;
 import com.powsybl.cgmes.update.IidmChange;
-import com.powsybl.cgmes.update.IidmToCgmes;
+import com.powsybl.cgmes.update.IidmToCgmes16;
 import com.powsybl.iidm.network.LccConverterStation;
 
-public class LccConverterStationToAcdcConverter extends IidmToCgmes implements ConversionMapper {
+public class LccConverterStationToAcdcConverter extends IidmToCgmes16 implements ConversionMapper {
 
     public LccConverterStationToAcdcConverter(IidmChange change) {
         super(change);

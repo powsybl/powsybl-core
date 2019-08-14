@@ -9,11 +9,11 @@ import java.util.stream.Stream;
 import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.ConversionMapper;
 import com.powsybl.cgmes.update.IidmChange;
-import com.powsybl.cgmes.update.IidmToCgmes;
+import com.powsybl.cgmes.update.IidmToCgmes14;
 import com.powsybl.iidm.network.Country;
 import com.powsybl.iidm.network.Substation;
 
-public class SubstationToSubstation extends IidmToCgmes implements ConversionMapper {
+public class SubstationToSubstation extends IidmToCgmes14 implements ConversionMapper {
 
     public SubstationToSubstation(IidmChange change) {
         super(change);

@@ -43,19 +43,19 @@ public class CgmesUpdater {
 
             String cimNamespace = cgmes.getCimNamespace();
             cimVersion = cimNamespace.substring(cimNamespace.lastIndexOf("cim"));
-            // cimVersion = "cim16#";
 
             for (IidmChange change : changes) {
 
                 if (cimVersion.equals("cim14#")) {
-                    iidmToCgmes = new IidmToCgmes(change, cgmes);
+                    iidmToCgmes = new IidmToCgmes14(change, cgmes);
                 } else if (cimVersion.equals("cim16#")) {
                     iidmToCgmes = new IidmToCgmes16(change, cgmes);
                 } else {
                     LOG.info("Incoming cim verson must be checked. Implemented versions are: \ncim14# ; cim16# ");
                 }
 
-                mapDetailsOfChange = iidmToCgmes.convert(instanceClassOfIidmChange(change));
+                String instanceClassOfIidmChange = instanceClassOfIidmChange(change);
+                mapDetailsOfChange = iidmToCgmes.convert(instanceClassOfIidmChange);
 
                 // we need to iterate over the above map, as for onCreate call there will be
                 // multiples attributes-values pairs.
@@ -67,15 +67,15 @@ public class CgmesUpdater {
                     try {
                         for (String context : cgmes.tripleStore().contextNames()) {
 
-                            cgmesSubject = (map.getNewSubject() != null) ? map.getNewSubject()
-                                : namingStrategy.getCgmesId(change.getIdentifiableId());
-
-                            cgmesPredicate = map.getAttributeName();
-                            cgmesValue = (String) entry.getValue();
                             currentContext = map.getContext();
-                            valueIsNode = String.valueOf(map.valueIsNode());
 
                             if (context.toUpperCase().contains(currentContext)) {
+                                cgmesSubject = (map.getNewSubject() != null) ? map.getNewSubject()
+                                    : namingStrategy.getCgmesId(change.getIdentifiableId());
+
+                                cgmesPredicate = map.getAttributeName();
+                                cgmesValue = (String) entry.getValue();
+                                valueIsNode = String.valueOf(map.valueIsNode());
 
                                 cgmesChanges = new HashMap<>();
                                 cgmesChanges.put("cgmesSubject", cgmesSubject);
@@ -109,7 +109,7 @@ public class CgmesUpdater {
 
     private Network network;
     private CgmesModel cgmes;
-    private IidmToCgmes iidmToCgmes;
+    private IidmToCgmesAbstract iidmToCgmes;
     private String cimVersion;
     private List<IidmChange> changes;
     private NamingStrategy namingStrategy;
