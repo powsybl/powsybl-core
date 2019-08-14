@@ -28,12 +28,11 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
 
     private final ComputationManager computationManager;
 
-    private final LoadFlow loadFlow;
+    private final LoadFlowBasedPhaseShifterOptimizerConfig config;
 
     public LoadFlowBasedPhaseShifterOptimizer(ComputationManager computationManager, LoadFlowBasedPhaseShifterOptimizerConfig config) {
         this.computationManager = Objects.requireNonNull(computationManager);
-        Objects.requireNonNull(config);
-        loadFlow = config.getLoadFlowName().map(LoadFlow::find).orElseGet(LoadFlow::findDefault);
+        this.config = Objects.requireNonNull(config);
     }
 
     public LoadFlowBasedPhaseShifterOptimizer(ComputationManager computationManager) {
@@ -42,7 +41,8 @@ public class LoadFlowBasedPhaseShifterOptimizer implements PhaseShifterOptimizer
 
     private void runLoadFlow(Network network, String workingStateId) {
         try {
-            LoadFlowResult result = loadFlow.run(network, workingStateId, computationManager, LoadFlowParameters.load());
+            String loadFlowName = config.getLoadFlowName().orElse(null);
+            LoadFlowResult result = LoadFlow.named(loadFlowName).run(network, workingStateId, computationManager, LoadFlowParameters.load());
             if (!result.isOk()) {
                 throw new PowsyblException("Load flow diverged during phase shifter optimization");
             }

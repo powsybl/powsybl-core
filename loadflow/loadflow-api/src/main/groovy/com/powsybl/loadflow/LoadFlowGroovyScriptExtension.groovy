@@ -31,7 +31,7 @@ class LoadFlowGroovyScriptExtension implements GroovyScriptExtension {
     @Override
     void load(Binding binding, ComputationManager computationManager) {
         binding.loadFlow = { Network network, LoadFlowParameters parameters = this.parameters ->
-            LoadFlow.findDefault().run(network, network.getVariantManager().getWorkingVariantId(), computationManager, parameters)
+            LoadFlow.run(network, network.getVariantManager().getWorkingVariantId(), computationManager, parameters)
         }
     }
 }
