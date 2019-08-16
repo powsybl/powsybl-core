@@ -37,7 +37,8 @@ public class LoadFlowComputation implements CandidateComputation {
 
         LoadFlowParameters parameters = LoadFlowParameters.load();
         String loadFlowName = ValidationConfig.load().getLoadFlowName().orElse(null);
-        LoadFlowResult result = LoadFlow.named(loadFlowName).run(network, VariantManagerConstants.INITIAL_VARIANT_ID, computationManager, parameters);
+        LoadFlowResult result = LoadFlow.find(loadFlowName)
+                                        .run(network, VariantManagerConstants.INITIAL_VARIANT_ID, computationManager, parameters);
         if (!result.isOk()) {
             throw new PowsyblException("Loadflow on network " + network.getId() + " does not converge");
         }

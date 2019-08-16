@@ -318,7 +318,7 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         LoadFlowResult result;
         try {
             String loadFlowName = loadFlowActionSimulatorConfig.getLoadFlowName().orElse(null);
-            result = LoadFlow.named(loadFlowName).run(context.getNetwork(), context.getNetwork().getVariantManager().getWorkingVariantId(), computationManager, parameters);
+            result = LoadFlow.find(loadFlowName).run(context.getNetwork(), context.getNetwork().getVariantManager().getWorkingVariantId(), computationManager, parameters);
         } catch (Exception e) {
             throw new PowsyblException(e);
         }
@@ -414,7 +414,8 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         try {
             observers.forEach(o -> o.beforeTest(context, actionId));
             String loadFlowName = loadFlowActionSimulatorConfig.getLoadFlowName().orElse(null);
-            LoadFlowResult testResult = LoadFlow.named(loadFlowName).run(networkForTry, networkForTry.getVariantManager().getWorkingVariantId(), computationManager, parameters);
+            LoadFlowResult testResult = LoadFlow.find(loadFlowName)
+                                                .run(networkForTry, networkForTry.getVariantManager().getWorkingVariantId(), computationManager, parameters);
             observers.forEach(o -> o.afterTest(context, actionId));
             return testResult;
         } catch (Exception e) {

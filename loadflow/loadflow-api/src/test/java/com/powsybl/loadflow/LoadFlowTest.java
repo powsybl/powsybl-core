@@ -58,7 +58,7 @@ public class LoadFlowTest {
     @Test
     public void testDefaultOneProvider() {
         // case with only one provider, no need for config
-        LoadFlowRunner defaultLoadFlow = LoadFlow.defaultRunner(ImmutableList.of(new LoadFlowProviderMock()), platformConfig);
+        LoadFlow.Runner defaultLoadFlow = LoadFlow.find(null, ImmutableList.of(new LoadFlowProviderMock()), platformConfig);
         assertEquals("LoadFlowMock", defaultLoadFlow.getName());
         LoadFlowResult result = defaultLoadFlow.run(network, computationManager, new LoadFlowParameters());
         assertNotNull(result);
@@ -68,7 +68,7 @@ public class LoadFlowTest {
     public void testDefaultTwoProviders() {
         // case with 2 providers without any config, an exception is expected
         try {
-            LoadFlow.defaultRunner(ImmutableList.of(new LoadFlowProviderMock(), new AnotherLoadFlowProviderMock()), platformConfig);
+            LoadFlow.find(null, ImmutableList.of(new LoadFlowProviderMock(), new AnotherLoadFlowProviderMock()), platformConfig);
             fail();
         } catch (PowsyblException ignored) {
         }
@@ -78,7 +78,7 @@ public class LoadFlowTest {
     public void testDefaultNoProvider() {
         // case without any provider
         try {
-            LoadFlow.defaultRunner(ImmutableList.of(), platformConfig);
+            LoadFlow.find(null, ImmutableList.of(), platformConfig);
             fail();
         } catch (PowsyblException ignored) {
         }
@@ -87,7 +87,7 @@ public class LoadFlowTest {
     @Test
     public void testTwoProviders() {
         // case with 2 providers without any config but specifying which one to use programmatically
-        LoadFlowRunner otherLoadFlow = LoadFlow.named("AnotherLoadFlowMock", ImmutableList.of(new LoadFlowProviderMock(), new AnotherLoadFlowProviderMock()), platformConfig);
+        LoadFlow.Runner otherLoadFlow = LoadFlow.find("AnotherLoadFlowMock", ImmutableList.of(new LoadFlowProviderMock(), new AnotherLoadFlowProviderMock()), platformConfig);
         assertEquals("AnotherLoadFlowMock", otherLoadFlow.getName());
     }
 
@@ -95,7 +95,7 @@ public class LoadFlowTest {
     public void testDefaultTwoProvidersPlatformConfig() {
         // case with 2 providers without any config but specifying which one to use in platform config
         platformConfig.createModuleConfig("load-flow").setStringProperty("default", "AnotherLoadFlowMock");
-        LoadFlowRunner otherLoadFlow2 = LoadFlow.defaultRunner(ImmutableList.of(new LoadFlowProviderMock(), new AnotherLoadFlowProviderMock()), platformConfig);
+        LoadFlow.Runner otherLoadFlow2 = LoadFlow.find(null, ImmutableList.of(new LoadFlowProviderMock(), new AnotherLoadFlowProviderMock()), platformConfig);
         assertEquals("AnotherLoadFlowMock", otherLoadFlow2.getName());
     }
 
@@ -103,6 +103,6 @@ public class LoadFlowTest {
     public void testOneProviderAndMistakeInPlatformConfig() {
         // case with 1 provider with config but with a name that is not the one of provider.
         platformConfig.createModuleConfig("load-flow").setStringProperty("default", "AnotherLoadFlowMock");
-        LoadFlow.defaultRunner(ImmutableList.of(new LoadFlowProviderMock()), platformConfig);
+        LoadFlow.find(null, ImmutableList.of(new LoadFlowProviderMock()), platformConfig);
     }
 }
