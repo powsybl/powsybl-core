@@ -43,7 +43,7 @@ public class CgmesUpdaterTester {
         }
     }
 
-    @Test
+    //@Test
     public void mapIidmChangesToCgmesTest14() throws IOException {
         Network network = iidmTestImportFromCgmes14.importTestModelFromCgmes();
         if (modelNotEmpty(network)) {
@@ -53,7 +53,7 @@ public class CgmesUpdaterTester {
         }
     }
 
-    //@Test
+    @Test
     public void mapIidmChangesToCgmesTest16() throws IOException {
         Network network = iidmTestImportFromCgmes16.importTestModelFromCgmes();
         if (modelNotEmpty(network)) {

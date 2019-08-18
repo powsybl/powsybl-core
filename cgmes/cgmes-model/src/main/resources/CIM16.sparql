@@ -856,34 +856,28 @@ WHERE {
 }
 
 # query: updateCgmesfromIidm
-DELETE { GRAPH ?graph
+DELETE { GRAPH <{0}>
 	{ ?subject ?predicate ?value }
 	}
-INSERT { GRAPH ?graph
-	{?subject ?predicate "{3}" }
+INSERT { GRAPH <{0}>
+	{?subjectIn {2} ?valueIn }
 	}
 WHERE
 {     
-    { GRAPH ?graph
+    { GRAPH <{0}>
           { ?subject  ?predicate  ?value .
             FILTER ( STRENDS(STR(?subject), "{1}") && STRENDS(STR(?predicate), STRAFTER( "{2}", "cim:")) )
           }
       }
-    
-    UNION
-	{ GRAPH ?graph
-        { ?subject  ?predicate  ?value .
-          { SELECT  ?subject
-            WHERE
-              { { GRAPH <{0}>
-                    { ?outsubject  ?outpredicate  ?subject
-                      FILTER STRENDS(STR(?outsubject), "{1}")
-                    }
-                }
-              }
+	  UNION
+	{ GRAPH <{0}>
+          { 
+		    BIND ("{3}" AS ?object) 
+	        BIND ( STRAFTER( STR("{3}"), "cim:") AS ?object_value)
+	        BIND ( IRI( CONCAT( "{5}", ?object_value ) ) AS ?object_iri)
+	        BIND ( IF( STRSTARTS(STR(?object), "cim:"),?object_iri , IF( "{6}"="true", IRI(CONCAT("{4}",?object)), ?object ) )  AS ?valueIn).
+            BIND(IF(BOUND(?subject),?subject,IRI(CONCAT("{4}","{1}"))) AS ?subjectIn)
           }
-          FILTER (STRENDS(STR(?predicate), STRAFTER( "{2}", "cim:")))
-        }
     }
 }
 
@@ -911,6 +905,7 @@ WHERE {
 SELECT ?resource
 WHERE { GRAPH <{0}> {
 	?s  ?p ?v ;
+	FILTER ( CONTAINS(STR(?s), "/#"))
 	BIND ( CONCAT(STRBEFORE(STR(?s),"/#"),"/#") AS ?resource ).
 }}
 LIMIT 1

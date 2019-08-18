@@ -355,7 +355,7 @@ DELETE { GRAPH <{0}>
 	{ ?subject ?predicate ?value }
 	}
 INSERT { GRAPH <{0}>
-	{?subjectIn {2} "{3}" }
+	{?subjectIn {2} ?valueIn }
 	}
 WHERE
 {     
@@ -367,7 +367,11 @@ WHERE
 	  UNION
 	{ GRAPH <{0}>
           { 
-            BIND(IRI(CONCAT("{4}","{1}")) AS ?subjectIn)
+		    BIND ("{3}" AS ?object) 
+	        BIND ( STRAFTER( STR("{3}"), "cim:") AS ?object_value)
+	        BIND ( IRI( CONCAT( "{5}", ?object_value ) ) AS ?object_iri)
+	        BIND ( IF( STRSTARTS(STR(?object), "cim:"),?object_iri , IF( "{6}"="true", IRI(CONCAT("{4}",?object)), ?object ) )  AS ?valueIn).
+            BIND(IF(BOUND(?subject),?subject,IRI(CONCAT("{4}","{1}"))) AS ?subjectIn)
           }
     }
 }
@@ -396,6 +400,7 @@ WHERE {
 SELECT ?resource
 WHERE { GRAPH <{0}> {
 	?s  ?p ?v ;
+	FILTER ( CONTAINS(STR(?s), "/#"))
 	BIND ( CONCAT(STRBEFORE(STR(?s),"/#"),"/#") AS ?resource ).
 }}
 LIMIT 1
@@ -427,15 +432,3 @@ WHERE
         }
     }
 }
-
-# query: checkCgmesUpdatedTmp
-SELECT ?subject ?predicate ?value
-WHERE
-{     { GRAPH <{0}>
-          { ?subject  ?predicate  ?value .
-            FILTER ( STRENDS(STR(?subject), "{1}") )
-          }
-      }
-}
-
-

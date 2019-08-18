@@ -8,13 +8,13 @@ import java.util.stream.Collectors;
 
 import com.powsybl.cgmes.model.CgmesModel;
 
-public abstract class IidmToCgmesAbstract {
-    public IidmToCgmesAbstract(IidmChange change, CgmesModel cgmes) {
+public abstract class AbstractIidmToCgmes {
+    public AbstractIidmToCgmes(IidmChange change, CgmesModel cgmes) {
         this.change = change;
         this.cgmes = cgmes;
     }
 
-    public IidmToCgmesAbstract(IidmChange change) {
+    public AbstractIidmToCgmes(IidmChange change) {
         this.change = change;
         this.cgmes = null;
     }

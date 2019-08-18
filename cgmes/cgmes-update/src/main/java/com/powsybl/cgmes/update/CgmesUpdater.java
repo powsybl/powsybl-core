@@ -109,7 +109,7 @@ public class CgmesUpdater {
 
     private Network network;
     private CgmesModel cgmes;
-    private IidmToCgmesAbstract iidmToCgmes;
+    private AbstractIidmToCgmes iidmToCgmes;
     private String cimVersion;
     private List<IidmChange> changes;
     private NamingStrategy namingStrategy;

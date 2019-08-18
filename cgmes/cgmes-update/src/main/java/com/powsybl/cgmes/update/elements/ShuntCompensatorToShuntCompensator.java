@@ -54,7 +54,7 @@ public class ShuntCompensatorToShuntCompensator extends IidmToCgmes14 implements
         allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("bPerSection"),
             String.valueOf(bPerSection));
 
-        double maximumSectionCount = newShuntCompensator.getbPerSection();
+        double maximumSectionCount = newShuntCompensator.getMaximumSectionCount();
         allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("maximumSectionCount"),
             String.valueOf(maximumSectionCount));
 

@@ -411,10 +411,12 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
         String predicate = cgmesChanges.get("cgmesPredicate");
         String value = cgmesChanges.get("cgmesNewValue");
         String valueIsNode = cgmesChanges.get("valueIsNode");
-        String resource = namedQuery("getCurrentResource", context).get(0).get("resource").trim();
+        String resource = namedQuery("getCurrentResource",
+            context).get(0).get("resource").trim();
         LOG.info("\n*****{}, {}, {}, {}******", context, subject, predicate, value);
         if (instanceClassOfIidmChange.equals("IidmChangeOnUpdate")) {
-            namedQueryFordUpdate("updateCgmesfromIidm", context, subject, predicate, value,resource);
+            namedQueryFordUpdate("updateCgmesfromIidm", context, subject, predicate, value, resource,
+                cimNamespace, valueIsNode);
         } else if (instanceClassOfIidmChange.equals("IidmChangeOnCreate")) {
             namedQueryFordUpdate("updateCgmesfromIidmCreate", context, subject, predicate, value, resource,
                 cimNamespace, valueIsNode);
@@ -422,7 +424,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
             namedQueryFordUpdate("updateCgmesfromIidmRemove", context, subject, predicate);
         }
 
-        return namedQuery("checkCgmesUpdated", context, subject, predicate, value, resource);
+        return namedQuery("checkCgmesUpdated", context, subject);
     }
 
     public PropertyBags namedQuery(String name, String... params) {

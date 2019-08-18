@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.update.elements.*;
 
-public class IidmToCgmes14 extends IidmToCgmesAbstract {
+public class IidmToCgmes14 extends AbstractIidmToCgmes {
 
     public IidmToCgmes14(IidmChange change, CgmesModel cgmes) {
         super(change, cgmes);

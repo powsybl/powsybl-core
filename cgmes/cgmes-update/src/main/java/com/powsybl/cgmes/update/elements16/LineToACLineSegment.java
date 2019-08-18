@@ -63,7 +63,7 @@ public class LineToACLineSegment extends IidmToCgmes16 implements ConversionMapp
                 String.valueOf(b1));
         }
 
-        double b2 = newLine.getB1();
+        double b2 = newLine.getB2();
         if (!String.valueOf(b2).equals("NaN")) {
             allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("b2"),
                 String.valueOf(b2));
@@ -75,7 +75,7 @@ public class LineToACLineSegment extends IidmToCgmes16 implements ConversionMapp
                 String.valueOf(g1));
         }
 
-        double g2 = newLine.getG1();
+        double g2 = newLine.getG2();
         if (!String.valueOf(g2).equals("NaN")) {
             allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("g2"),
                 String.valueOf(g2));
