@@ -9,6 +9,7 @@ package com.powsybl.action.util;
 import com.powsybl.iidm.network.Injection;
 import com.powsybl.iidm.network.Network;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,18 +18,14 @@ import java.util.Objects;
  */
 abstract class AbstractCompoundScalable extends AbstractScalable {
 
-    protected final List<Scalable> scalables;
-
-    protected AbstractCompoundScalable(List<Scalable> scalables) {
-        this.scalables = Objects.requireNonNull(scalables);
-    }
+    abstract Collection<Scalable> getScalables();
 
     @Override
     public double initialValue(Network n) {
         Objects.requireNonNull(n);
 
         double value = 0;
-        for (Scalable scalable : scalables) {
+        for (Scalable scalable : getScalables()) {
             value += scalable.initialValue(n);
         }
         return value;
@@ -38,7 +35,7 @@ abstract class AbstractCompoundScalable extends AbstractScalable {
     public void reset(Network n) {
         Objects.requireNonNull(n);
 
-        scalables.forEach(scalable -> scalable.reset(n));
+        getScalables().forEach(scalable -> scalable.reset(n));
     }
 
     @Override
@@ -52,7 +49,7 @@ abstract class AbstractCompoundScalable extends AbstractScalable {
         Objects.requireNonNull(powerConvention);
 
         double value = 0;
-        for (Scalable scalable : scalables) {
+        for (Scalable scalable : getScalables()) {
             value += scalable.maximumValue(n, powerConvention);
         }
         return value;
@@ -68,7 +65,7 @@ abstract class AbstractCompoundScalable extends AbstractScalable {
         Objects.requireNonNull(n);
 
         double value = 0;
-        for (Scalable scalable : scalables) {
+        for (Scalable scalable : getScalables()) {
             value += scalable.minimumValue(n, powerConvention);
         }
         return value;
@@ -81,7 +78,7 @@ abstract class AbstractCompoundScalable extends AbstractScalable {
 
     @Override
     public void filterInjections(Network n, List<Injection> injections, List<String> notFoundInjections) {
-        for (Scalable scalable : scalables) {
+        for (Scalable scalable : getScalables()) {
             scalable.filterInjections(n, injections, notFoundInjections);
         }
     }
