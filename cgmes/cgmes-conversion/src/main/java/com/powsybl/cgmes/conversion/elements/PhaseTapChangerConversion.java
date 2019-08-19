@@ -145,8 +145,8 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         Comparator<PropertyBag> byStep = Comparator.comparingInt((PropertyBag p) -> p.asInt("step"));
         table.sort(byStep);
         for (PropertyBag point : table) {
-            double alpha = -point.asDouble("angle");
-            double rho = 1 / point.asDouble("ratio", 1.0);
+            double alpha = -point.asDouble("angle"); // CGMES and IIDM conventions are opposed for alpha
+            double rho = 1 / point.asDouble("ratio", 1.0); // CGMES and IIDM conventions are inversed for rho
             // When given in PhaseTapChangerTablePoint
             // r, x, g, b of the step are already percentage deviations of nominal values
             int step = point.asInt("step");
@@ -334,8 +334,8 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             }
             double dx = (x - tx.getX()) / tx.getX() * 100;
             ptca.beginStep()
-                    .setAlpha(Math.toDegrees(-alpha)) // alpha
-                    .setRho(1 / rho)
+                    .setAlpha(Math.toDegrees(-alpha)) // CGMES and IIDM conventions are opposed for alpha
+                    .setRho(1 / rho) // CGMES and IIDM conventions are inversed for rho
                     .setR(0)
                     .setX(dx)
                     .setG(0)

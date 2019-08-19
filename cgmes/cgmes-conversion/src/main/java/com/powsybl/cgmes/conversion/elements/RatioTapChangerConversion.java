@@ -124,7 +124,10 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         table.sort(byStep);
         boolean rtcAtSide1 = rtcAtSide1();
         for (PropertyBag point : table) {
+
+            // CGMES and IIDM conventions are inversed for rho
             double rho = 1 / point.asDouble("ratio", 1.0);
+
             // When given in RatioTapChangerTablePoint
             // r, x, g, b of the step are already percentage deviations of nominal values
             int step = point.asInt("step");
