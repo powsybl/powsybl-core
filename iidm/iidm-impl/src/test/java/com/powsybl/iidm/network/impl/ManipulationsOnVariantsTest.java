@@ -75,8 +75,14 @@ public class ManipulationsOnVariantsTest {
 
     @Test
     public void baseTests() {
+        NetworkListener exceptionListener = Mockito.mock(DefaultNetworkListener.class);
+        Mockito.doThrow(new UnsupportedOperationException()).when(exceptionListener).onVariantCreated(Mockito.any(), Mockito.anyString());
+        Mockito.doThrow(new UnsupportedOperationException()).when(exceptionListener).onVariantOverwritten(Mockito.any(), Mockito.any());
+        Mockito.doThrow(new UnsupportedOperationException()).when(exceptionListener).onVariantRemoved(Mockito.any());
+
         NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
         // Add observer changes to current network
+        network.addListener(exceptionListener);
         network.addListener(mockedListener);
 
         List<String> variantsToAdd = Arrays.asList("s1", "s2", "s3", "s4");
