@@ -257,7 +257,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             double dx = (n * du - du0) * Math.cos(theta);
             double dy = (n * du - du0) * Math.sin(theta);
             double alpha = Math.atan2(dy, 1 + dx);
-            double rho = 1 / Math.hypot(dy, 1 + dx);
+            double rho = Math.hypot(dy, 1 + dx);
             alphas.add(alpha);
             rhos.add(rho);
 
@@ -334,8 +334,8 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             }
             double dx = (x - tx.getX()) / tx.getX() * 100;
             ptca.beginStep()
-                    .setAlpha(Math.toDegrees(alpha))
-                    .setRho(rho)
+                    .setAlpha(Math.toDegrees(-alpha)) // alpha
+                    .setRho(1 / rho)
                     .setR(0)
                     .setX(dx)
                     .setG(0)
