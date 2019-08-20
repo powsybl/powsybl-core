@@ -6,13 +6,19 @@
  */
 package com.powsybl.ucte.network;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  *
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class UcteElementId {
+public class UcteElementId implements Comparable<UcteElementId> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UcteElementId.class);
 
     private final UcteNodeCode nodeCode1;
     private final UcteNodeCode nodeCode2;
@@ -53,6 +59,9 @@ public class UcteElementId {
      * @param orderCode order code
      */
     public void setOrderCode(char orderCode) {
+        if (!isOrderCode(orderCode)) {
+            throw new IllegalArgumentException("Invalid order code: " + orderCode);
+        }
         this.orderCode = orderCode;
     }
 
@@ -65,9 +74,7 @@ public class UcteElementId {
     public boolean equals(Object obj) {
         if (obj instanceof UcteElementId) {
             UcteElementId id = (UcteElementId) obj;
-            return id.nodeCode1.equals(nodeCode1)
-                    && id.nodeCode2.equals(nodeCode2)
-                    && id.orderCode == orderCode;
+            return this.compareTo(id) == 0;
         }
         return false;
     }
@@ -77,4 +84,39 @@ public class UcteElementId {
         return nodeCode1.toString() + " " + nodeCode2.toString() + " " + orderCode;
     }
 
+    @Override
+    public int compareTo(UcteElementId ucteElementId) {
+        if (ucteElementId == null) {
+            throw new NullPointerException("ucteElementId should not be null");
+        }
+        return this.toString().compareTo(ucteElementId.toString());
+    }
+
+    public static Optional<UcteElementId> parseUcteElementId(String id) {
+        UcteElementId elementId = null;
+        if (isUcteElementId(id)) {
+            UcteNodeCode node1 = UcteNodeCode.parseUcteNodeCode(id.substring(0, 8)).orElseThrow(AssertionError::new);
+            UcteNodeCode node2 = UcteNodeCode.parseUcteNodeCode(id.substring(9, 17)).orElseThrow(AssertionError::new);
+
+            elementId = new UcteElementId(node1, node2, id.charAt(18));
+        }
+        return Optional.ofNullable(elementId);
+    }
+
+    public static boolean isUcteElementId(String id) {
+        return id != null &&
+                id.length() == 19 &&
+                UcteNodeCode.isUcteNodeId(id.substring(0, 8)) &&
+                id.charAt(8) == ' ' &&
+                UcteNodeCode.isUcteNodeId(id.substring(9, 17)) &&
+                id.charAt(17) == ' ' &&
+                isOrderCode(id.charAt(18));
+    }
+
+    private static boolean isOrderCode(char orderCode) {
+        if (orderCode == '0') {
+            LOGGER.warn("Invalid order code: {}", orderCode);
+        }
+        return (orderCode >= '0' && orderCode <= '9') || (orderCode >= 'A' && orderCode <= 'Z');
+    }
 }

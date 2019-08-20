@@ -198,6 +198,10 @@ public interface Scalable {
         return new ProportionalScalable(percentages, scalables);
     }
 
+    static ProportionalScalable proportional(List<Float> percentages, List<Scalable> scalables, boolean iterative) {
+        return new ProportionalScalable(percentages, scalables, iterative);
+    }
+
     static ProportionalScalable proportional(float percentage, Scalable scalable) {
         return new ProportionalScalable(Collections.singletonList(percentage), Collections.singletonList(scalable));
     }

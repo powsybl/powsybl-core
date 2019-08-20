@@ -216,7 +216,6 @@ public class ScalableTest {
         done = Scalable.proportional(Arrays.asList(70.f, 20.f, 10.f), Arrays.asList(g1, s, unknownGenerator)).scale(network, 100.0);
         assertEquals(70.0, done, 0.0);
         assertEquals(70.0, network.getGenerator("g1").getTargetP(), 1e-5);
-
     }
 
     @Test
@@ -494,6 +493,66 @@ public class ScalableTest {
         assertEquals(2, notFoundInjections.size());
         assertEquals("unknown", notFoundInjections.get(0));
         assertSame("s", notFoundInjections.get(1));
+    }
+
+    @Test
+    public void testProportionalScalableIterativeMode() {
+        double done = Scalable.proportional(Arrays.asList(70.f, 20.f, 10.f), Arrays.asList(g1, s, unknownGenerator)).scale(network, 100.0);
+        assertEquals(70.0, done, 0.0);
+        assertEquals(70.0, network.getGenerator("g1").getTargetP(), 1e-5);
+
+        reset();
+        done = Scalable.proportional(Arrays.asList(70.f, 20.f, 10.f), Arrays.asList(g1, s, unknownGenerator), true).scale(network, 100.0);
+        assertEquals(100.0, done, 0.0);
+        assertEquals(100.0, network.getGenerator("g1").getTargetP(), 1e-5);
+
+        reset();
+        done = Scalable.proportional(Arrays.asList(2.5f, 7.5f, 90.f), Arrays.asList(g1, g2, g3)).scale(network, 100.0);
+        assertEquals(90.0, done, 0.0);
+        assertEquals(2.5, network.getGenerator("g1").getTargetP(), 1e-5);
+        assertEquals(7.5, network.getGenerator("g2").getTargetP(), 1e-5);
+        assertEquals(80.0, network.getGenerator("g3").getTargetP(), 1e-5);
+
+        reset();
+        done = Scalable.proportional(Arrays.asList(2.5f, 7.5f, 90.f), Arrays.asList(g1, g2, g3), true).scale(network, 100.0);
+        assertEquals(100.0, done, 0.0);
+        assertEquals(5, network.getGenerator("g1").getTargetP(), 1e-5);
+        assertEquals(15.0, network.getGenerator("g2").getTargetP(), 1e-5);
+        assertEquals(80.0, network.getGenerator("g3").getTargetP(), 1e-5);
+
+        reset();
+        done = Scalable.proportional(Arrays.asList(70.f, 10.f, 20.f), Arrays.asList(g3, s, unknownGenerator)).scale(network, 100.0);
+        assertEquals(70.0, done, 0.0);
+        assertEquals(70.0, network.getGenerator("g3").getTargetP(), 1e-5);
+
+        reset();
+        done = Scalable.proportional(Arrays.asList(70.f, 10.f, 20.f), Arrays.asList(g3, s, unknownGenerator), true).scale(network, 100.0);
+        assertEquals(80.0, done, 0.0);
+        assertEquals(80.0, network.getGenerator("g3").getTargetP(), 1e-5);
+    }
+
+    @Test
+    public void testExceptionWhenIncorrectArgumentsInProportionalScalableConstructor() {
+        try {
+            Scalable.proportional(null, Arrays.asList(g1, g2, g3));
+            fail();
+        } catch (NullPointerException e) {
+            // Exception thrown
+        }
+
+        try {
+            Scalable.proportional(Arrays.asList(50.f, 50.f), null);
+            fail();
+        } catch (NullPointerException e) {
+            // Exception thrown
+        }
+
+        try {
+            Scalable.proportional(Arrays.asList(50.f, 50.f), Arrays.asList(g1, g2, g3));
+            fail();
+        } catch (IllegalArgumentException e) {
+            // Exception thrown
+        }
     }
 
 }

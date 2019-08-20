@@ -463,7 +463,6 @@
                                 <configuration>
                                     <fail>false</fail>
                                     <rules>
-                                        <dependencyConvergence/>
                                         <requireMavenVersion>
                                             <version>${maven.core.version}</version>
                                         </requireMavenVersion>
