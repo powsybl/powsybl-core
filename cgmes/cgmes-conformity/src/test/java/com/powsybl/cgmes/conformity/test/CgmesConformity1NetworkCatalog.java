@@ -908,7 +908,7 @@ public class CgmesConformity1NetworkCatalog {
                 double dx = (n * du - du0) * Math.cos(theta);
                 double dy = (n * du - du0) * Math.sin(theta);
                 alpha = Math.atan2(dy, 1 + dx);
-                rho = 1 / Math.hypot(dy, 1 + dx);
+                rho = Math.hypot(dy, 1 + dx);
                 LOG.debug("EXPECTED    n,dx,dy,alpha,rho  {} {} {} {} {}", n, dx, dy, alpha, rho);
             } else if (type == PhaseTapChangerType.SYMMETRICAL) {
                 double dy = (n * du / 2 - du0) * Math.sin(theta);
@@ -919,8 +919,8 @@ public class CgmesConformity1NetworkCatalog {
                 alpha = Double.NaN;
                 rho = Double.NaN;
             }
-            alphas.add(alpha);
-            rhos.add(rho);
+            alphas.add(-alpha);
+            rhos.add(1 / rho);
         }
         double alphaMax = alphas.stream()
                 .mapToDouble(Double::doubleValue)
