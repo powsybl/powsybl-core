@@ -258,8 +258,8 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             double dy = (n * du - du0) * Math.sin(theta);
             double alpha = Math.atan2(dy, 1 + dx);
             double rho = Math.hypot(dy, 1 + dx);
-            alphas.add(alpha);
-            rhos.add(rho);
+            alphas.add(-alpha); // CGMES and IIDM conventions are opposed for alpha
+            rhos.add(1 / rho); // CGMES and IIDM conventions are inversed for rho
 
             LOG.debug("ACTUAL    n,dx,dy,alpha,rho  {} {} {} {} {}", n, dx, dy, alpha, rho);
         }
@@ -278,8 +278,8 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                         (configIsInvertVoltageStepIncrementOutOfPhase ? -1 : 1)
                                 * stepPhaseShiftIncrement);
                 double rho = 1.0;
-                alphas.add(alpha);
-                rhos.add(rho);
+                alphas.add(-alpha); // CGMES and IIDM conventions are opposed for alpha
+                rhos.add(1 / rho); // CGMES and IIDM conventions are inversed for rho
             }
         } else {
             for (int step = lowStep; step <= highStep; step++) {
@@ -287,8 +287,8 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                 double dy = (n * du / 2 - du0) * Math.sin(theta);
                 double alpha = 2 * Math.asin(dy);
                 double rho = 1.0;
-                alphas.add(alpha);
-                rhos.add(rho);
+                alphas.add(-alpha); // CGMES and IIDM conventions are opposed for alpha
+                rhos.add(1 / rho); // CGMES and IIDM conventions are inversed for rho
 
                 LOG.debug("ACTUAL    n,dy,alpha,rho  {} {} {} {}", n, dy, alpha, rho);
             }
@@ -320,7 +320,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
 
         for (int i = 0; i < alphas.size(); i++) {
             double alpha = alphas.get(i);
-            double rho = rhos.get(i);
+            double rho =  rhos.get(i);
             double x = 0.0;
             if (!xStepRangeIsConsistent || alphaMax == 0) {
                 x = tx.getX();
@@ -334,8 +334,8 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             }
             double dx = (x - tx.getX()) / tx.getX() * 100;
             ptca.beginStep()
-                    .setAlpha(Math.toDegrees(-alpha)) // CGMES and IIDM conventions are opposed for alpha
-                    .setRho(1 / rho) // CGMES and IIDM conventions are inversed for rho
+                    .setAlpha(Math.toDegrees(alpha))
+                    .setRho(rho)
                     .setR(0)
                     .setX(dx)
                     .setG(0)
