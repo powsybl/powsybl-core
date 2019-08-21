@@ -15,7 +15,7 @@ import java.util.Objects;
  */
 class ReactiveLimitsHolderImpl implements ReactiveLimitsOwner {
 
-    private Validable validable;
+    private final Validable validable;
 
     private ReactiveLimits reactiveLimits;
 

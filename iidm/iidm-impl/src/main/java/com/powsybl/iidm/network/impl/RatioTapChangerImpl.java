@@ -18,7 +18,7 @@ import java.util.function.Supplier;
  */
 class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, RatioTapChangerImpl, RatioTapChangerStepImpl> implements RatioTapChanger {
 
-    private boolean loadTapChangingCapabilities;
+    private final boolean loadTapChangingCapabilities;
 
     // attributes depending on the variant
 

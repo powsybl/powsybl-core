@@ -24,7 +24,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
 
     protected final H parent;
 
-    protected int lowTapPosition;
+    protected final int lowTapPosition;
 
     protected final List<S> steps;
 
@@ -124,7 +124,9 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         if (regulationTerminal != null && ((TerminalExt) regulationTerminal).getVoltageLevel().getNetwork() != getNetwork()) {
             throw new ValidationException(parent, "regulation terminal is not part of the network");
         }
+        Terminal oldValue = this.regulationTerminal;
         this.regulationTerminal = (TerminalExt) regulationTerminal;
+        parent.getNetwork().getListeners().notifyUpdate(parent.getTransformer(), () -> getTapChangerAttribute() + ".regulationTerminal", oldValue, regulationTerminal);
         return (C) this;
     }
 

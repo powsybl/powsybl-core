@@ -17,9 +17,9 @@ import java.util.*;
  */
 abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractExtendable<I> implements Identifiable<I>, Validable, MultiVariantObject {
 
-    protected String id;
+    protected final String id;
 
-    protected String name;
+    protected final String name;
 
     protected Properties properties;
 
