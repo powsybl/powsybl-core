@@ -526,6 +526,8 @@ public final class NetworkXml {
                 }
             });
 
+            checkExtensionsNotFound(context, extensionNamesNotFound);
+
             if (modeWarn[0]) {
                 LOGGER.warn("Mode isn't UNIQUE_FILE and some extensions was found in the base file!, some extensions may be overwritten later when reading extensions files");
             }
@@ -534,6 +536,17 @@ public final class NetworkXml {
             return network;
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
+        }
+    }
+
+    private static void checkExtensionsNotFound(NetworkXmlReaderContext context, Set<String> extensionNamesNotFound) {
+        if (!extensionNamesNotFound.isEmpty()) {
+            if (context.getOptions().isThrowExceptionIfExtensionNotFound()) {
+                throw new PowsyblException("Extensions " + extensionNamesNotFound + " " +
+                        "not found !");
+            } else {
+                LOGGER.error("Extensions {} not found", extensionNamesNotFound);
+            }
         }
     }
 
@@ -682,6 +695,9 @@ public final class NetworkXml {
                     throw new PowsyblException("Unexpected element: " +  reader.getLocalName());
                 }
             });
+
+            checkExtensionsNotFound(context, extensionNamesNotFound);
+
             return network;
         } catch (XMLStreamException e) {
             throw new UncheckedXmlStreamException(e);
@@ -691,39 +707,25 @@ public final class NetworkXml {
     private static void readExtensions(Identifiable identifiable, NetworkXmlReaderContext context,
                                        Set<String> extensionNamesNotFound) throws XMLStreamException {
 
-        XmlUtil.readUntilEndElement(EXTENSION_ELEMENT_NAME, context.getReader(), new XmlUtil.XmlEventHandler() {
+        XmlUtil.readUntilEndElementWithDepth(EXTENSION_ELEMENT_NAME, context.getReader(), elementDepth -> {
+            // extensions root elements are nested directly in 'extension' element, so there is no need
+            // to check for an extension to exist if depth is greater than zero. Furthermore in case of
+            // missing extension serializer, we must not check for an extension in sub elements.
+            if (elementDepth == 0) {
+                String extensionName = context.getReader().getLocalName();
+                if (!context.getOptions().withExtension(extensionName)) {
+                    return;
+                }
 
-            private boolean topLevel = true;
-
-            @Override
-            public void onStartElement() throws XMLStreamException {
-                if (topLevel) {
-                    String extensionName = context.getReader().getLocalName();
-                    if (!context.getOptions().withExtension(extensionName)) {
-                        return;
-                    }
-
-                    ExtensionXmlSerializer extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
-                    if (extensionXmlSerializer != null) {
-                        Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
-                        identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
-                        topLevel = true;
-                    } else {
-                        extensionNamesNotFound.add(extensionName);
-                        topLevel = false;
-                    }
+                ExtensionXmlSerializer extensionXmlSerializer = EXTENSIONS_SUPPLIER.get().findProvider(extensionName);
+                if (extensionXmlSerializer != null) {
+                    Extension<? extends Identifiable<?>> extension = extensionXmlSerializer.read(identifiable, context);
+                    identifiable.addExtension(extensionXmlSerializer.getExtensionClass(), extension);
+                } else {
+                    extensionNamesNotFound.add(extensionName);
                 }
             }
         });
-
-        if (!extensionNamesNotFound.isEmpty()) {
-            if (context.getOptions().isThrowExceptionIfExtensionNotFound()) {
-                throw new PowsyblException("Extensions " + extensionNamesNotFound + " " +
-                        "not found !");
-            } else {
-                LOGGER.error("Extensions {} not found", extensionNamesNotFound);
-            }
-        }
     }
 
     public static void update(Network network, InputStream is) {
