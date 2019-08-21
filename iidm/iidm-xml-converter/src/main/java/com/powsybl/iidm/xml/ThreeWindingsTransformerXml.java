@@ -33,8 +33,12 @@ class ThreeWindingsTransformerXml extends AbstractTransformerXml<ThreeWindingsTr
 
     @Override
     protected boolean hasSubElements(ThreeWindingsTransformer twt) {
-        return twt.getLeg2().getRatioTapChanger() != null
+        return twt.getLeg1().getRatioTapChanger() != null 
+                || twt.getLeg2().getRatioTapChanger() != null
                 || twt.getLeg3().getRatioTapChanger() != null
+                || twt.getLeg1().getPhaseTapChanger() != null
+                || twt.getLeg2().getPhaseTapChanger() != null
+                || twt.getLeg3().getPhaseTapChanger() != null
                 || twt.getLeg1().getCurrentLimits() != null
                 || twt.getLeg2().getCurrentLimits() != null
                 || twt.getLeg3().getCurrentLimits() != null;

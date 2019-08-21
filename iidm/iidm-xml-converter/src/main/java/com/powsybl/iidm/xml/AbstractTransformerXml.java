@@ -158,7 +158,7 @@ abstract class AbstractTransformerXml<T extends Connectable, A extends Identifia
                 .setRegulationValue(regulationValue)
                 .setRegulating(regulating);
         boolean[] hasTerminalRef = new boolean[1];
-        XmlUtil.readUntilEndElement("phaseTapChanger", context.getReader(), () -> {
+        XmlUtil.readUntilEndElement(elementName, context.getReader(), () -> {
             switch (context.getReader().getLocalName()) {
                 case ELEM_TERMINAL_REF:
                     String id = context.getAnonymizer().deanonymizeString(context.getReader().getAttributeValue(null, "id"));
