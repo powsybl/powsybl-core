@@ -9,6 +9,7 @@ package com.powsybl.ucte.network;
 import com.google.common.testing.EqualsTester;
 import org.junit.Test;
 
+import static com.powsybl.ucte.network.UcteNodeCode.isUcteNodeId;
 import static org.junit.Assert.*;
 
 /**
@@ -58,5 +59,15 @@ public class UcteNodeCodeTest {
                 .addEqualityGroup(node1)
                 .addEqualityGroup(node2)
                 .testEquals();
+    }
+
+    @Test
+    public void isUcteNodeIdTest() {
+        assertTrue(isUcteNodeId("B_SU1_11"));
+        assertTrue(isUcteNodeId("B_SU1_1 "));
+        assertTrue(isUcteNodeId("7efG8411"));
+        assertFalse(isUcteNodeId("        "));
+        assertFalse(isUcteNodeId("B_SU1_"));
+        assertFalse(isUcteNodeId("&ezrt874g"));
     }
 }

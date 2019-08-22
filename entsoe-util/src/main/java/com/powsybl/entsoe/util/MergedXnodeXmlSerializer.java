@@ -47,6 +47,6 @@ public class MergedXnodeXmlSerializer extends AbstractExtensionXmlSerializer<Lin
         double xnodeP2 = XmlUtil.readDoubleAttribute(context.getReader(), "xnodeP2");
         double xnodeQ2 = XmlUtil.readDoubleAttribute(context.getReader(), "xnodeQ2");
         String code = context.getReader().getAttributeValue(null, "code");
-        return new MergedXnode(line, rdp, xdp, xnodeP1, xnodeQ1, xnodeP2, xnodeQ2, code);
+        return new MergedXnode(line, rdp, xdp, xnodeP1, xnodeQ1, xnodeP2, xnodeQ2, "", "", code);
     }
 }
