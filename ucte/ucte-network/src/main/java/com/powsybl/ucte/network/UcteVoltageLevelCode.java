@@ -67,6 +67,17 @@ public enum UcteVoltageLevelCode {
         this.voltageLevel = voltageLevel;
     }
 
+    public static UcteVoltageLevelCode voltageLevelCodeFromChar(char code) {
+        if (code < '0' || code > '9') {
+            throw new IllegalArgumentException("'" + code + "' doesn't refer to a voltage level");
+        }
+        return UcteVoltageLevelCode.values()[code - '0'];
+    }
+
+    public static boolean isVoltageLevelCode(char character) {
+        return character >= '0' && character <= '9';
+    }
+
     /**
      * Gets the voltage level (kV).
      * @return the voltage level (kV)

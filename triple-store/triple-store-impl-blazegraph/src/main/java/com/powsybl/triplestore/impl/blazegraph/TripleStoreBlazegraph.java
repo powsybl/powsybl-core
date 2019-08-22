@@ -11,10 +11,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.UUID;
 
 import org.openrdf.model.Literal;
 import org.openrdf.model.Model;
@@ -31,7 +33,6 @@ import org.openrdf.query.QueryLanguage;
 import org.openrdf.query.QueryResults;
 import org.openrdf.query.TupleQuery;
 import org.openrdf.query.TupleQueryResult;
-import org.openrdf.query.algebra.evaluation.function.rdfterm.UUID;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.RepositoryException;
@@ -50,6 +51,7 @@ import com.bigdata.rdf.sail.BigdataSailRepository;
 import com.bigdata.rdf.store.AbstractTripleStore;
 import com.powsybl.commons.datasource.DataSource;
 import com.powsybl.triplestore.api.AbstractPowsyblTripleStore;
+import com.powsybl.triplestore.api.PrefixNamespace;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStoreException;
@@ -79,33 +81,37 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         }
     }
 
+    private void closeConnection(RepositoryConnection cnx, String operation) {
+        if (cnx != null) {
+            try {
+                cnx.close();
+            } catch (RepositoryException x) {
+                LOG.error("{}. Error closing repository connection: {}", operation, x.getMessage());
+            }
+        }
+    }
+
     @Override
-    public void read(String base, String name, InputStream is) {
+    public void read(InputStream is, String base, String name) {
         RepositoryConnection cnx = null;
         try {
             cnx = repo.getConnection();
             cnx.begin();
             Resource context = context(cnx, name);
-            read(base, name, is, cnx, context);
+            read(is, base, name, cnx, context);
             cnx.commit();
             addNamespaceForBase(cnx, base);
         } catch (RepositoryException x) {
             throw new TripleStoreException(String.format("Reading. Repo problem %s %s", name, base), x);
         } finally {
-            if (cnx != null) {
-                try {
-                    cnx.close();
-                } catch (RepositoryException x) {
-                    LOG.error("Reading. Closing repo connection {} {}", name, base);
-                }
-            }
+            closeConnection(cnx, "Reading");
         }
     }
 
-    private static void read(String base, String name, InputStream is, RepositoryConnection cnx, Resource context)
-            throws RepositoryException {
+    private static void read(InputStream is, String base, String name, RepositoryConnection cnx, Resource context)
+        throws RepositoryException {
         try {
-            cnx.add(is, base, formatFromName(name), context);
+            cnx.add(is, base, guessFormatFromName(name), context);
         } catch (IOException x) {
             LOG.error("Reading. IO problem {}", x.getMessage());
         } catch (RDFParseException x) {
@@ -113,7 +119,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         }
     }
 
-    private static RDFFormat formatFromName(String name) {
+    private static RDFFormat guessFormatFromName(String name) {
         if (name.endsWith(".ttl")) {
             return RDFFormat.TURTLE;
         } else if (name.endsWith(".xml")) {
@@ -143,13 +149,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         } catch (RepositoryException x) {
             throw new TripleStoreException(String.format("Writing on %s", ds), x);
         } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (RepositoryException x) {
-                    LOG.error("Writing on {}. Closing repository connection", ds);
-                }
-            }
+            closeConnection(conn, "Writing on " + ds);
         }
     }
 
@@ -170,12 +170,12 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
                         while (statements.hasNext()) {
                             Statement statement = statements.next();
                             out.println("        " + statement.getSubject() + " " + statement.getPredicate() + " "
-                                    + statement.getObject());
+                                + statement.getObject());
                         }
                     }
                 }
             } finally {
-                conn.close();
+                closeConnection(conn, "Printing");
             }
         } catch (RepositoryException e) {
             LOG.error(e.getMessage());
@@ -196,13 +196,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         } catch (RepositoryException x) {
             LOG.error("getting context names : {}", x.getMessage());
         } finally {
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (RepositoryException x) {
-                    LOG.error("closing when getting context names : {}", x.getMessage());
-                }
-            }
+            closeConnection(conn, "Getting context names");
         }
         return names;
     }
@@ -216,13 +210,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         } catch (RepositoryException x) {
             LOG.error("clearing context {} : {}", contextName, x.getMessage());
         } finally {
-            if (cnx != null) {
-                try {
-                    cnx.close();
-                } catch (RepositoryException x) {
-                    LOG.error(x.getMessage());
-                }
-            }
+            closeConnection(cnx, "Clearing context " + contextName);
         }
     }
 
@@ -236,71 +224,69 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
             LOG.error(x.getMessage());
             return null;
         } finally {
-            if (cnx != null) {
-                try {
-                    cnx.close();
-                } catch (RepositoryException x) {
-                    LOG.error(x.getMessage());
-                }
-            }
+            closeConnection(cnx, "Querying");
         }
     }
 
     @Override
-    public void add(String graph, String objType, PropertyBags statements) {
+    public void add(String contextName, String objNs, String objType, PropertyBags statements) {
         RepositoryConnection cnx = null;
         try {
             cnx = repo.getConnection();
-            addStatements(cnx, graph, objType, statements);
+            addStatements(cnx, contextName, objNs, objType, statements);
 
         } catch (RepositoryException x) {
-            throw new TripleStoreException(String.format("Adding statements for graph %s", graph), x);
+            throw new TripleStoreException(String.format("Adding statements for graph %s", contextName), x);
         } finally {
-            if (cnx != null) {
-                try {
-                    cnx.close();
-                } catch (RepositoryException x) {
-                    LOG.error("Adding statements for graph {}. Closing repository connection", graph);
-                }
-            }
+            closeConnection(cnx, "Adding statements to context " + contextName);
         }
     }
 
-    private void addStatements(RepositoryConnection cnx, String graph, String objType, PropertyBags statements)
-            throws RepositoryException {
+    @Override
+    public String add(String contextName, String objNs, String objType, PropertyBag properties) {
+        RepositoryConnection cnx = null;
+        try {
+            cnx = repo.getConnection();
+            return addStatement(cnx, contextName, objNs, objType, properties);
+        } catch (RepositoryException x) {
+            throw new TripleStoreException(String.format("Adding statements for graph %s", contextName), x);
+        } finally {
+            closeConnection(cnx, "Adding statements to context " + contextName);
+        }
+    }
+
+    private void addStatements(RepositoryConnection cnx, String contextName, String objNs, String objType,
+        PropertyBags statements)
+        throws RepositoryException {
 
         cnx.begin();
-
-        String name = null;
-        RepositoryResult<Resource> ctxs = cnx.getContextIDs();
-        while (ctxs.hasNext()) {
-            String ctx = ctxs.next().stringValue();
-            if (ctx.contains("EQ")) {
-                name = ctx.replace("EQ", graph);
-                break;
-            }
-        }
-
-        Resource context = cnx.getValueFactory().createURI(name);
         for (PropertyBag statement : statements) {
-            createStatements(cnx, objType, statement, context);
+            createStatements(cnx, objNs, objType, statement, context(cnx, contextName));
         }
-
         cnx.commit();
     }
 
-    private static void createStatements(RepositoryConnection cnx, String objType, PropertyBag statement,
-            Resource context) {
+    private String addStatement(RepositoryConnection cnx, String contextName, String objNs, String objType,
+        PropertyBag properties) throws RepositoryException {
+        cnx.begin();
+        String id = createStatements(cnx, objNs, objType, properties, context(cnx, contextName));
+        cnx.commit();
+        return id;
+    }
+
+    private static String createStatements(RepositoryConnection cnx, String objNs, String objType,
+        PropertyBag statement,
+        Resource context) {
         try {
-            UUID uuid = new UUID();
-            URI resource = uuid.evaluate(cnx.getValueFactory());
+            URI resource = cnx.getValueFactory().createURI(cnx.getNamespace("data"), "_" + UUID.randomUUID().toString());
             URI parentPredicate = RDF.TYPE;
-            Literal parentObject = cnx.getValueFactory().createLiteral(objType);
+            URI parentObject = cnx.getValueFactory().createURI(objNs + objType);
             Statement parentSt = cnx.getValueFactory().createStatement(resource, parentPredicate, parentObject);
             cnx.add(parentSt, context);
 
             for (String name : statement.propertyNames()) {
-                URI predicate = cnx.getValueFactory().createURI(objType + "." + name);
+                String property = statement.isClassProperty(name) ? name : objType + "." + name;
+                URI predicate = cnx.getValueFactory().createURI(objNs + property);
                 Statement st;
                 if (statement.isResource(name)) {
                     String namespace = cnx.getNamespace(statement.namespacePrefix(name));
@@ -312,8 +298,9 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
                 }
                 cnx.add(st, context);
             }
+            return resource.getLocalName();
         } catch (Exception x) {
-            throw new TripleStoreException(String.format("Creating statements for object type %s", objType), x);
+            throw new TripleStoreException(String.format("Creating statements for object type %s", objNs + objType), x);
         }
     }
 
@@ -378,7 +365,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
     }
 
     private static void addNamespaceForBase(RepositoryConnection cnx, String base) throws RepositoryException {
-        cnx.setNamespace("data", base + "#");
+        cnx.setNamespace("data", base + "/#");
     }
 
     private Resource context(RepositoryConnection conn, String contextName) {
@@ -386,9 +373,42 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         return conn.getValueFactory().createURI(namespaceForContexts(), name1);
     }
 
+    @Override
+    public void addNamespace(String prefix, String namespace) {
+        RepositoryConnection cnx = null;
+        try {
+            cnx = repo.getConnection();
+            cnx.setNamespace(prefix, namespace);
+        } catch (RepositoryException x) {
+            throw new TripleStoreException(String.format("Adding namespace %s", namespace), x);
+        } finally {
+            closeConnection(cnx, "Adding namespace " + namespace);
+        }
+    }
+
+    @Override
+    public List<PrefixNamespace> getNamespaces() {
+        List<PrefixNamespace> namespaces = new ArrayList<>();
+        RepositoryConnection cnx = null;
+        try {
+            cnx = repo.getConnection();
+            RepositoryResult<Namespace> ns = cnx.getNamespaces();
+            while (ns.hasNext()) {
+                Namespace namespace = ns.next();
+                namespaces.add(new PrefixNamespace(namespace.getPrefix(), namespace.getName()));
+            }
+        } catch (RepositoryException x) {
+            throw new TripleStoreException("Getting namespaces", x);
+        } finally {
+            closeConnection(cnx, "Getting namespaces");
+        }
+        return namespaces;
+    }
+
     private final Repository repo;
 
     private static final Logger LOG = LoggerFactory.getLogger(TripleStoreBlazegraph.class);
 
     private static final boolean PRINT_ALL_STATEMENTS = false;
+
 }

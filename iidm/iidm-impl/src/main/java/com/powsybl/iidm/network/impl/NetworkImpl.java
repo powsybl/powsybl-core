@@ -120,7 +120,7 @@ class NetworkImpl extends AbstractIdentifiable<Network> implements Network, Vari
         super(id, name);
         Objects.requireNonNull(sourceFormat, "source format is null");
         this.sourceFormat = sourceFormat;
-        variantManager = new VariantManagerImpl(index);
+        variantManager = new VariantManagerImpl(this);
         variants = new VariantArray<>(ref, VariantImpl::new);
         // add the network the object list as it is a multi variant object
         // and it needs to be notified when and extension or a reduction of

@@ -185,12 +185,6 @@
 
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>powsybl-computation-mpi</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-contingency-api</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -222,6 +216,12 @@
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-iidm-converter-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-iidm-extensions</artifactId>
             <version>${project.version}</version>
         </dependency>
 
@@ -353,6 +353,14 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- In provided scope, so that coverage is correctly reported but the jar is not packaged for distribution -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>powsybl-triple-store-test</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+       </dependency>
+
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>powsybl-ucte-converter</artifactId>
@@ -384,16 +392,6 @@
                 <configuration>
                     <packageName>powsybl</packageName>
                     <javaXmx>8G</javaXmx>
-                    <copyToBin>
-                        <files>
-                            <file>${project.basedir}/../build/bin/slave</file>
-                        </files>
-                    </copyToBin>
-                    <copyToLib>
-                        <files>
-                            <file>${project.basedir}/../build/lib/libmaster.so</file>
-                        </files>
-                    </copyToLib>
                     <copyToEtc>
                         <files>
                             <file>${project.basedir}/../iidm/iidm-xml-converter/src/main/resources/xsd/iidm.xsd</file>
@@ -405,6 +403,35 @@
     </build>
 
     <profiles>
+        <profile>
+            <id>checks</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-enforcer-plugin</artifactId>
+                        <version>${maven.enforcer.version}</version>
+                        <executions>
+                            <execution>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>enforce</goal>
+                                </goals>
+                                <configuration>
+                                    <fail>false</fail>
+                                    <rules>
+                                      <dependencyConvergence/>
+                                    </rules>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
         <profile>
             <id>jacoco</id>
             <activation>
