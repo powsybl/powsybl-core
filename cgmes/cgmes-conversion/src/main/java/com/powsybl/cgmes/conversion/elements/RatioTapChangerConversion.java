@@ -125,7 +125,10 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         boolean rtcAtSide1 = rtcAtSide1();
         for (PropertyBag point : table) {
 
-            // CGMES and IIDM conventions are inversed for rho
+            // CGMES uses ratio to define the relationship between voltage ends while IIDM uses rho
+            // ratio and rho as complex numbers are reciprocals. Given V1 and V2 the complex voltages at end 1 and end 2 of a branch we have:
+            // V2 = V1 * rho and V2 = V1 / ratio
+            // This is why we have: rho=1/ratio
             double rho = 1 / point.asDouble("ratio", 1.0);
 
             // When given in RatioTapChangerTablePoint

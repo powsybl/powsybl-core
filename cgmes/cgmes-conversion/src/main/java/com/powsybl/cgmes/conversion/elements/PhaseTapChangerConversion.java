@@ -145,8 +145,14 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         Comparator<PropertyBag> byStep = Comparator.comparingInt((PropertyBag p) -> p.asInt("step"));
         table.sort(byStep);
         for (PropertyBag point : table) {
-            double alpha = -point.asDouble("angle"); // CGMES and IIDM conventions are opposed for alpha
-            double rho = 1 / point.asDouble("ratio", 1.0); // CGMES and IIDM conventions are inversed for rho
+
+            // CGMES uses ratio to define the relationship between voltage ends while IIDM uses rho
+            // ratio and rho as complex numbers are reciprocals. Given V1 and V2 the complex voltages at end 1 and end 2 of a branch we have:
+            // V2 = V1 * rho and V2 = V1 / ratio
+            // This is why we have: rho=1/ratio and alpha=-angle
+            double alpha = -point.asDouble("angle");
+            double rho = 1 / point.asDouble("ratio", 1.0);
+
             // When given in PhaseTapChangerTablePoint
             // r, x, g, b of the step are already percentage deviations of nominal values
             int step = point.asInt("step");
@@ -258,8 +264,13 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             double dy = (n * du - du0) * Math.sin(theta);
             double alpha = Math.atan2(dy, 1 + dx);
             double rho = Math.hypot(dy, 1 + dx);
-            alphas.add(-alpha); // CGMES and IIDM conventions are opposed for alpha
-            rhos.add(1 / rho); // CGMES and IIDM conventions are inversed for rho
+
+            // CGMES uses ratio to define the relationship between voltage ends while IIDM uses rho
+            // ratio and rho as complex numbers are reciprocals. Given V1 and V2 the complex voltages at end 1 and end 2 of a branch we have:
+            // V2 = V1 * rho and V2 = V1 / ratio
+            // This is why we have: rho=1/ratio and alpha=-angle
+            alphas.add(-alpha);
+            rhos.add(1 / rho);
 
             LOG.debug("ACTUAL    n,dx,dy,alpha,rho  {} {} {} {} {}", n, dx, dy, alpha, rho);
         }
@@ -278,8 +289,13 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                         (configIsInvertVoltageStepIncrementOutOfPhase ? -1 : 1)
                                 * stepPhaseShiftIncrement);
                 double rho = 1.0;
-                alphas.add(-alpha); // CGMES and IIDM conventions are opposed for alpha
-                rhos.add(1 / rho); // CGMES and IIDM conventions are inversed for rho
+
+                // CGMES uses ratio to define the relationship between voltage ends while IIDM uses rho
+                // ratio and rho as complex numbers are reciprocals. Given V1 and V2 the complex voltages at end 1 and end 2 of a branch we have:
+                // V2 = V1 * rho and V2 = V1 / ratio
+                // This is why we have: rho=1/ratio and alpha=-angle
+                alphas.add(-alpha);
+                rhos.add(1 / rho);
             }
         } else {
             for (int step = lowStep; step <= highStep; step++) {
@@ -287,8 +303,13 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                 double dy = (n * du / 2 - du0) * Math.sin(theta);
                 double alpha = 2 * Math.asin(dy);
                 double rho = 1.0;
-                alphas.add(-alpha); // CGMES and IIDM conventions are opposed for alpha
-                rhos.add(1 / rho); // CGMES and IIDM conventions are inversed for rho
+
+                // CGMES uses ratio to define the relationship between voltage ends while IIDM uses rho
+                // ratio and rho as complex numbers are reciprocals. Given V1 and V2 the complex voltages at end 1 and end 2 of a branch we have:
+                // V2 = V1 * rho and V2 = V1 / ratio
+                // This is why we have: rho=1/ratio and alpha=-angle
+                alphas.add(-alpha);
+                rhos.add(1 / rho);
 
                 LOG.debug("ACTUAL    n,dy,alpha,rho  {} {} {} {}", n, dy, alpha, rho);
             }
