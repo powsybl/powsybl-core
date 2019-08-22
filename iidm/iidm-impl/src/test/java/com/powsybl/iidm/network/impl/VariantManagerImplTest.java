@@ -147,10 +147,11 @@ public class VariantManagerImplTest {
 
     @Test
     public void test() {
-        NetworkIndex index = new NetworkIndex();
+        NetworkImpl network = (NetworkImpl) Network.create("test", "no-format");
+        NetworkIndex index = network.getIndex();
         IdentifiableMock identifiable1 = new IdentifiableMock("1");
         index.checkAndAdd(identifiable1);
-        VariantManagerImpl variantManager = new VariantManagerImpl(index);
+        VariantManagerImpl variantManager = network.getVariantManager();
         // initial variant test
         assertEquals(1, variantManager.getVariantArraySize());
         assertEquals(Collections.singleton(VariantManagerConstants.INITIAL_VARIANT_ID), variantManager.getVariantIds());
@@ -220,13 +221,14 @@ public class VariantManagerImplTest {
 
     @Test
     public void testMultipleNetworks() {
-        NetworkIndex index = new NetworkIndex();
+        Network network1 = Network.create("network1", "no-format");
+        Network network2 = Network.create("network2", "no-format");
 
-        VariantManager variantManager1 = new VariantManagerImpl(index);
+        VariantManager variantManager1 = network1.getVariantManager();
         variantManager1.allowVariantMultiThreadAccess(true);
         assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, variantManager1.getWorkingVariantId());
 
-        VariantManager variantManager2 = new VariantManagerImpl(index);
+        VariantManager variantManager2 = network2.getVariantManager();
         variantManager2.allowVariantMultiThreadAccess(true);
         assertEquals(VariantManagerConstants.INITIAL_VARIANT_ID, variantManager1.getWorkingVariantId());
 
