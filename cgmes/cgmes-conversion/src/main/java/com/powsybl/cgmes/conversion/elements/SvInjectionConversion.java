@@ -19,52 +19,29 @@ public class SvInjectionConversion extends AbstractIdentifiedObjectConversion {
     public SvInjectionConversion(PropertyBag p, Context context) {
         super("SvInjection", p, context);
         String tn = p.getId("TopologicalNode");
-        Terminal associatedTerminal = context.terminalMapping().findFromTopologicalNode(tn);
-        if (associatedTerminal == null) {
-            cgmesTerminal = context.cgmes()
-                .terminal(context.terminalMapping().findCgmesTerminalFromTopologicalNode(tn));
-            if (cgmesTerminal == null || context.cgmes().voltageLevel(cgmesTerminal) == null) {
-                context.invalid(id,
-                    String.format(
-                        "The CGMES terminal and/or the voltage level associated to the topological node %s linked to the SV injection %s is missing",
-                        tn, id));
-                return;
-            }
-            voltageLevel = context.network().getVoltageLevel(context.cgmes().voltageLevel(cgmesTerminal));
-            if (context.nodeBreaker()) {
-                node = context.nodeMapping().iidmNodeForTerminal(cgmesTerminal, voltageLevel);
-            }
-        } else {
-            voltageLevel = associatedTerminal.getVoltageLevel();
-            if (context.nodeBreaker()) {
-                VoltageLevel vl = associatedTerminal.getVoltageLevel();
-                VoltageLevel.NodeBreakerView nb = vl.getNodeBreakerView();
-                node = nb.getNodeCount();
-                nb.setNodeCount(nb.getNodeCount() + 1);
-                vl.getNodeBreakerView().newInternalConnection()
-                    .setNode1(node)
-                    .setNode2(associatedTerminal.getNodeBreakerView().getNode())
-                    .add();
-            }
+        if (!findVoltageLevel(tn)) {
+            return;
         }
-        if (!context.nodeBreaker()) {
-            busId = context.namingStrategy().getId("Bus", tn);
+        if (context.nodeBreaker()) {
+            findNode(tn);
+        } else {
+            findBusId(tn);
         }
     }
 
     @Override
     public boolean valid() {
         return voltageLevel != null
-            && ((context.nodeBreaker() && node != -1)
+                && ((context.nodeBreaker() && node != -1)
                 || (!context.nodeBreaker() && voltageLevel.getBusBreakerView().getBus(busId) != null));
     }
 
     @Override
     public void convert() {
         LoadAdder adder = voltageLevel.newLoad()
-            .setP0(p.asDouble("pInjection"))
-            .setQ0(p.asDouble("qInjection", 0.0))
-            .setLoadType(LoadType.FICTITIOUS);
+                .setP0(p.asDouble("pInjection"))
+                .setQ0(p.asDouble("qInjection", 0.0))
+                .setLoadType(LoadType.FICTITIOUS);
         identify(adder);
         connect(adder);
         Load load = adder.add();
@@ -79,6 +56,44 @@ public class SvInjectionConversion extends AbstractIdentifiedObjectConversion {
         } else {
             adder.setConnectableBus(busId).setBus(busId);
         }
+    }
+
+    private boolean findVoltageLevel(String topologicalNode) {
+        Terminal associatedTerminal = context.terminalMapping().findFromTopologicalNode(topologicalNode);
+        if (associatedTerminal == null) {
+            cgmesTerminal = context.cgmes().terminal(context.terminalMapping().findCgmesTerminalFromTopologicalNode(topologicalNode));
+            if (cgmesTerminal == null || context.cgmes().voltageLevel(cgmesTerminal) == null) {
+                context.invalid(id,
+                        String.format("The CGMES terminal and/or the voltage level associated to the topological node %slinked to the SV injection %s is missing",
+                                topologicalNode, id));
+                return false;
+            }
+            voltageLevel = context.network().getVoltageLevel(context.cgmes().voltageLevel(cgmesTerminal));
+        } else {
+            voltageLevel = associatedTerminal.getVoltageLevel();
+        }
+        return true;
+    }
+
+    private void findBusId(String topologicalNode) {
+        busId = context.namingStrategy().getId("Bus", topologicalNode);
+    }
+
+    private void findNode(String topologicalNode) {
+        Terminal associatedTerminal = context.terminalMapping().findFromTopologicalNode(topologicalNode);
+        if (associatedTerminal == null) {
+            findNodeFromUnmappedCgmesTerminal();
+        } else {
+            findNodeFromMappedCgmesTerminal(associatedTerminal, topologicalNode);
+        }
+    }
+
+    private void findNodeFromUnmappedCgmesTerminal() {
+        node = context.nodeMapping().iidmNodeForTerminal(cgmesTerminal, voltageLevel);
+    }
+
+    private void findNodeFromMappedCgmesTerminal(Terminal associatedTerminal, String topologicalNode) {
+        node = context.nodeMapping().iidmNodeForTopologicalNode(topologicalNode, associatedTerminal.getNodeBreakerView().getNode(), associatedTerminal.getVoltageLevel());
     }
 
     private VoltageLevel voltageLevel;

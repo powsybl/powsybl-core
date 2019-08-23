@@ -24,6 +24,21 @@ public class NodeMapping {
         voltageLevelNumNodes = new HashMap<>(100);
     }
 
+    public int iidmNodeForTopologicalNode(String id, int associatedNode, VoltageLevel vl) {
+        String uniqueId;
+        int i = 0;
+        do {
+            uniqueId = id + "#" + Integer.toString(i++);
+        } while (cgmes2iidm.containsKey(uniqueId) && i < Integer.MAX_VALUE);
+        int iidmNodeForTopologicalNode = newNode(vl);
+        cgmes2iidm.put(uniqueId, iidmNodeForTopologicalNode);
+        vl.getNodeBreakerView().newInternalConnection()
+                .setNode1(iidmNodeForTopologicalNode)
+                .setNode2(associatedNode)
+                .add();
+        return iidmNodeForTopologicalNode;
+    }
+
     public int iidmNodeForTerminal(CgmesTerminal t, VoltageLevel vl) {
         int iidmNodeForConductingEquipment = cgmes2iidm.computeIfAbsent(t.id(), id -> newNode(vl));
         // Add internal connection from terminal to connectivity node
