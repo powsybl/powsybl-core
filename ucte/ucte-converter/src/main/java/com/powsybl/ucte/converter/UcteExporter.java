@@ -487,17 +487,28 @@ public class UcteExporter implements Exporter {
         String elementName = danglingLine.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY, null);
         double permanentLimit = danglingLine.getCurrentLimits() == null ? DEFAULT_MAX_CURRENT : danglingLine.getCurrentLimits().getPermanentLimit();
 
-        UcteElementStatus status = danglingLine.getTerminal().isConnected() ? EQUIVALENT_ELEMENT_IN_OPERATION : EQUIVALENT_ELEMENT_OUT_OF_OPERATION;
-
         UcteLine ucteLine = new UcteLine(
                 elementId,
-                status,
+                getStatus(danglingLine),
                 (float) danglingLine.getR(),
                 (float) danglingLine.getX(),
                 (float) danglingLine.getB(),
                 (int) permanentLimit,
                 elementName);
         ucteNetwork.addLine(ucteLine);
+    }
+
+    /**
+     * Convert the connection status to an UcteElementStatus value.
+     * Some dangling lines are defined as coupler in the original UCTE file. In that case, the R and X of the dangling line are set to 0.
+     * @param dl The dangling line.
+     * @return The connection status of the specified dangling line.
+     */
+    private static UcteElementStatus getStatus(DanglingLine dl) {
+        if (dl.getR() == 0.0 && dl.getX() == 0.0) {
+            return dl.getTerminal().isConnected() ? BUSBAR_COUPLER_IN_OPERATION : BUSBAR_COUPLER_OUT_OF_OPERATION;
+        }
+        return dl.getTerminal().isConnected() ? EQUIVALENT_ELEMENT_IN_OPERATION : EQUIVALENT_ELEMENT_OUT_OF_OPERATION;
     }
 
     /**
