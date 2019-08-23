@@ -277,6 +277,7 @@ public class CgmesConformity1NetworkCatalog {
         busBrussels21.setAngle(-6.650800);
         {
             double p = -118;
+            double targetQ = 18.720301;
             double q = -92.612077;
             Generator genBrussels21 = vlBrussels21.newGenerator()
                     .setId("_550ebe0d-f2b2-48c1-991f-cebea43a21aa")
@@ -286,7 +287,7 @@ public class CgmesConformity1NetworkCatalog {
                     .setMinP(50)
                     .setMaxP(200)
                     .setTargetP(-p)
-                    .setTargetQ(-q)
+                    .setTargetQ(targetQ)
                     .setTargetV(21.987)
                     .setVoltageRegulatorOn(true)
                     .setRatedS(300)
@@ -427,7 +428,7 @@ public class CgmesConformity1NetworkCatalog {
             Branch.Side side = Branch.Side.TWO;
             RatioTapChangerAdder rtca = tx.newRatioTapChanger()
                     .setLowTapPosition(low)
-                    .setTapPosition(18)
+                    .setTapPosition(14)
                     .setTargetDeadband(0.5);
             for (int k = low; k <= high; k++) {
                 int n = k - neutral;
@@ -553,7 +554,7 @@ public class CgmesConformity1NetworkCatalog {
             int low = 1;
             int high = 25;
             int neutral = 13;
-            int position = 16;
+            int position = 10;
             double xmin = 14.518904;
             double xmax = 14.518904;
             double voltageInc = 1.25;
@@ -568,6 +569,7 @@ public class CgmesConformity1NetworkCatalog {
         }
         {
             double p = -90;
+            double targetQ = 100.256;
             double q = 51.115627;
             Generator genBrussels10 = vlBrussels10.newGenerator()
                     .setId("_3a3b27be-b18b-4385-b557-6735d733baf0")
@@ -577,7 +579,7 @@ public class CgmesConformity1NetworkCatalog {
                     .setMinP(50)
                     .setMaxP(200)
                     .setTargetP(-p)
-                    .setTargetQ(-q)
+                    .setTargetQ(targetQ)
                     .setTargetV(115.5)
                     .setVoltageRegulatorOn(true)
                     // This generator regulates one end point of a power transformer
@@ -736,19 +738,21 @@ public class CgmesConformity1NetworkCatalog {
                 .add();
 
         double p = -118.0;
+        double targetQ = 18.720301;
         double q = -85.603401;
         Generator genBrussels21 = network
                 .getGenerator("_550ebe0d-f2b2-48c1-991f-cebea43a21aa")
                 .setTargetP(-p)
-                .setTargetQ(-q);
+                .setTargetQ(targetQ);
         genBrussels21.getTerminal().setP(p).setQ(q);
 
         p = -90.0;
+        targetQ = 100.256;
         q = 84.484905;
         Generator genBrussels10 = network
                 .getGenerator("_3a3b27be-b18b-4385-b557-6735d733baf0")
                 .setTargetP(-p)
-                .setTargetQ(-q);
+                .setTargetQ(targetQ);
         genBrussels10.getTerminal().setP(p).setQ(q);
 
         // Line _df16b3dd comes from a SeriesCompensator in CGMES model
@@ -770,7 +774,7 @@ public class CgmesConformity1NetworkCatalog {
                 .add();
 
         network.getTwoWindingsTransformer("_e482b89a-fa84-4ea9-8e70-a83d44790957")
-                .getRatioTapChanger().setTapPosition(20);
+                .getRatioTapChanger().setTapPosition(14);
 
         TwoWindingsTransformer txBE22 = network.getTwoWindingsTransformer("_b94318f6-6d24-4f56-96b9-df2531ad6543");
         txBE22.getRatioTapChanger().remove();
@@ -810,7 +814,7 @@ public class CgmesConformity1NetworkCatalog {
             int low = 1;
             int high = 25;
             int neutral = 13;
-            int position = 13;
+            int position = 10;
             double xmin = 12.099087;
             double xmax = 16.938722;
             double voltageInc = 1.25;
