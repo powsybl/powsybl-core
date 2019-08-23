@@ -145,8 +145,14 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
         Comparator<PropertyBag> byStep = Comparator.comparingInt((PropertyBag p) -> p.asInt("step"));
         table.sort(byStep);
         for (PropertyBag point : table) {
-            double alpha = point.asDouble("angle");
-            double rho = point.asDouble("ratio", 1.0);
+
+            // CGMES uses ratio to define the relationship between voltage ends while IIDM uses rho
+            // ratio and rho as complex numbers are reciprocals. Given V1 and V2 the complex voltages at end 1 and end 2 of a branch we have:
+            // V2 = V1 * rho and V2 = V1 / ratio
+            // This is why we have: rho=1/ratio and alpha=-angle
+            double alpha = -point.asDouble("angle");
+            double rho = 1 / point.asDouble("ratio", 1.0);
+
             // When given in PhaseTapChangerTablePoint
             // r, x, g, b of the step are already percentage deviations of nominal values
             int step = point.asInt("step");
@@ -257,9 +263,14 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
             double dx = (n * du - du0) * Math.cos(theta);
             double dy = (n * du - du0) * Math.sin(theta);
             double alpha = Math.atan2(dy, 1 + dx);
-            double rho = 1 / Math.hypot(dy, 1 + dx);
-            alphas.add(alpha);
-            rhos.add(rho);
+            double rho = Math.hypot(dy, 1 + dx);
+
+            // CGMES uses ratio to define the relationship between voltage ends while IIDM uses rho
+            // ratio and rho as complex numbers are reciprocals. Given V1 and V2 the complex voltages at end 1 and end 2 of a branch we have:
+            // V2 = V1 * rho and V2 = V1 / ratio
+            // This is why we have: rho=1/ratio and alpha=-angle
+            alphas.add(-alpha);
+            rhos.add(1 / rho);
 
             LOG.debug("ACTUAL    n,dx,dy,alpha,rho  {} {} {} {} {}", n, dx, dy, alpha, rho);
         }
@@ -278,8 +289,13 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                         (configIsInvertVoltageStepIncrementOutOfPhase ? -1 : 1)
                                 * stepPhaseShiftIncrement);
                 double rho = 1.0;
-                alphas.add(alpha);
-                rhos.add(rho);
+
+                // CGMES uses ratio to define the relationship between voltage ends while IIDM uses rho
+                // ratio and rho as complex numbers are reciprocals. Given V1 and V2 the complex voltages at end 1 and end 2 of a branch we have:
+                // V2 = V1 * rho and V2 = V1 / ratio
+                // This is why we have: rho=1/ratio and alpha=-angle
+                alphas.add(-alpha);
+                rhos.add(1 / rho);
             }
         } else {
             for (int step = lowStep; step <= highStep; step++) {
@@ -287,8 +303,13 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
                 double dy = (n * du / 2 - du0) * Math.sin(theta);
                 double alpha = 2 * Math.asin(dy);
                 double rho = 1.0;
-                alphas.add(alpha);
-                rhos.add(rho);
+
+                // CGMES uses ratio to define the relationship between voltage ends while IIDM uses rho
+                // ratio and rho as complex numbers are reciprocals. Given V1 and V2 the complex voltages at end 1 and end 2 of a branch we have:
+                // V2 = V1 * rho and V2 = V1 / ratio
+                // This is why we have: rho=1/ratio and alpha=-angle
+                alphas.add(-alpha);
+                rhos.add(1 / rho);
 
                 LOG.debug("ACTUAL    n,dy,alpha,rho  {} {} {} {}", n, dy, alpha, rho);
             }
@@ -320,7 +341,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
 
         for (int i = 0; i < alphas.size(); i++) {
             double alpha = alphas.get(i);
-            double rho = rhos.get(i);
+            double rho =  rhos.get(i);
             double x = 0.0;
             if (!xStepRangeIsConsistent || alphaMax == 0) {
                 x = tx.getX();
