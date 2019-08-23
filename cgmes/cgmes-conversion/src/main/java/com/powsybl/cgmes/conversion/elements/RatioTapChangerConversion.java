@@ -34,7 +34,8 @@ public class RatioTapChangerConversion extends AbstractIdentifiedObjectConversio
         lowStep = rtc.asInt("lowStep");
         highStep = rtc.asInt("highStep");
         neutralStep = rtc.asInt("neutralStep");
-        position = fromContinuous(p.asDouble("SVtapStep", neutralStep));
+        int defaultStep = rtc.asInt("normalStep", neutralStep);
+        position = fromContinuous(rtc.asDouble("step", rtc.asDouble("SVtapStep", defaultStep)));
         ltcFlag = rtc.asBoolean("ltcFlag", false);
     }
 

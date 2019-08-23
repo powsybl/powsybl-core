@@ -101,7 +101,7 @@ public class PhaseTapChangerConversion extends AbstractIdentifiedObjectConversio
 
     @Override
     public void convert() {
-        int position = fromContinuous(p.asDouble("SVtapStep", defaultStep));
+        int position = fromContinuous(p.asDouble("step", p.asDouble("SVtapStep", defaultStep)));
         PhaseTapChangerAdder ptca = tx.newPhaseTapChanger()
             .setLowTapPosition(lowStep)
             .setTapPosition(position);

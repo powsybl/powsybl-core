@@ -436,7 +436,9 @@ WHERE {
 OPTIONAL { GRAPH ?graphSSH {
     # ??? FIXME Difference between TapChanger.controlEnabled and TapChangerControl.enabled ???
     # When controlEnabled is set to false there is no additional data
-    ?RatioTapChanger cim:TapChanger.controlEnabled ?tapChangerControlEnabled
+    ?RatioTapChanger
+        cim:TapChanger.controlEnabled ?tapChangerControlEnabled ;
+        cim:TapChanger.step ?step
 }}
 OPTIONAL { GRAPH ?graphSV {
     ?SvTapStep
@@ -508,6 +510,13 @@ WHERE {
         ?PhaseTapChanger
             cim:TapChanger.TapChangerControl ?TapChangerControl
     }
+}}
+OPTIONAL { GRAPH ?graphSSH {
+    # ??? FIXME Difference between TapChanger.controlEnabled and TapChangerControl.enabled ???
+    # When controlEnabled is set to false there is no additional data
+    ?PhaseTapChanger
+        cim:TapChanger.controlEnabled ?tapChangerControlEnabled ;
+        cim:TapChanger.step ?step
 }}
 OPTIONAL { GRAPH ?graphSV {
     ?SVTapStep
