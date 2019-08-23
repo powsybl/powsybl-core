@@ -224,7 +224,7 @@ public class RegulatingControlMapping {
         if (p.getId("controlMode").toLowerCase().endsWith("voltage")) {
             adder.setRegulationMode(StaticVarCompensator.RegulationMode.VOLTAGE)
                     .setVoltageSetPoint(p.asDouble("voltageSetPoint"));
-        } else if (p.getId("controlMode").toLowerCase().endsWith("reactivePower")) {
+        } else if (p.getId("controlMode").toLowerCase().endsWith("reactivepower")) {
             adder.setRegulationMode(StaticVarCompensator.RegulationMode.REACTIVE_POWER)
                     .setReactivePowerSetPoint(p.asDouble("q"));
         } else {

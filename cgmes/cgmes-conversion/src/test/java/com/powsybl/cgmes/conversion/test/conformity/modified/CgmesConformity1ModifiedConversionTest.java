@@ -224,6 +224,21 @@ public class CgmesConformity1ModifiedConversionTest {
     }
 
     @Test
+    public void microT4ReactivePowerSvcWithMissingRegulatingControl() {
+        Network network = new CgmesImport(platformConfig).importData(catalog.microGridType4BE().dataSource(), NetworkFactory.findDefault(), null);
+        StaticVarCompensator svc = network.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
+        assertNotNull(svc);
+        assertEquals(VOLTAGE, svc.getRegulationMode());
+        assertEquals(229.5, svc.getVoltageSetPoint(), 0.0);
+
+        Network modified = new CgmesImport(platformConfig).importData(catalogModified.microT4BeBbMissingRegControlReactivePowerSvc().dataSource(), NetworkFactory.findDefault(), null);
+        StaticVarCompensator modifiedSvc = modified.getStaticVarCompensator("_3c69652c-ff14-4550-9a87-b6fdaccbb5f4");
+        assertNotNull(modifiedSvc);
+        assertEquals(REACTIVE_POWER, modifiedSvc.getRegulationMode());
+        assertEquals(0.0, modifiedSvc.getReactivePowerSetPoint(), 0.0);
+    }
+
+    @Test
     public void miniBusBranchRtcRemoteRegulation() {
         Network network = new CgmesImport(platformConfig).importData(catalogModified.miniBusBranchRtcRemoteRegulation().dataSource(), null);
 
