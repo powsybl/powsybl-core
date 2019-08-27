@@ -39,6 +39,7 @@ import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.datasource.FileDataSource;
 import com.powsybl.commons.datasource.ReadOnlyDataSource;
 import com.powsybl.iidm.network.Network;
+import com.powsybl.iidm.network.impl.NetworkFactoryImpl;
 import com.powsybl.iidm.xml.XMLExporter;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
@@ -136,7 +137,7 @@ public class ConversionTester {
             PlatformConfig platformConfig = new InMemoryPlatformConfig(fs);
             CgmesImport i = new CgmesImport(platformConfig);
             ReadOnlyDataSource ds = gm.dataSource();
-            Network network = i.importData(ds, iparams);
+            Network network = i.importData(ds, new NetworkFactoryImpl(), iparams);
             if (network.getSubstationCount() == 0) {
                 fail("Model is empty");
             }
@@ -173,7 +174,7 @@ public class ConversionTester {
             params.put("powsyblTripleStore", impl);
             ReadOnlyDataSource ds = gm.dataSource();
             LOG.info("Importer.exists() == {}", i.exists(ds));
-            Network n = i.importData(ds, params);
+            Network n = i.importData(ds, new NetworkFactoryImpl(), params);
             CgmesModel m = n.getExtension(CgmesModelExtension.class).getCgmesModel();
             new Conversion(m).report(reportConsumer);
         }
@@ -207,7 +208,7 @@ public class ConversionTester {
         new CgmesExport().export(network, null, new FileDataSource(path, "bar"));
 
         ReadOnlyDataSource ds = new FileDataSource(path, "bar");
-        Network actual = i.importData(ds, iparams);
+        Network actual = i.importData(ds, new NetworkFactoryImpl(), iparams);
         Network expected = network;
         new Comparison(expected, actual, config).compare();
     }
