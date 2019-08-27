@@ -87,7 +87,7 @@ class StaticVarCompensatorImpl extends AbstractConnectable<StaticVarCompensator>
         ValidationUtil.checkBmax(this, bMax);
         double oldValue = this.bMax;
         this.bMax = bMax;
-        notifyUpdate("bMax", oldValue, bMin);
+        notifyUpdate("bMax", oldValue, bMax);
         return this;
     }
 
