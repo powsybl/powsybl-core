@@ -12,9 +12,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 import java.util.Set;
+import java.util.concurrent.Future;
 
 import org.openrdf.model.Graph;
 import org.openrdf.model.Literal;
@@ -23,8 +25,11 @@ import org.openrdf.model.Namespace;
 import org.openrdf.model.Resource;
 import org.openrdf.model.Statement;
 import org.openrdf.model.URI;
+import org.openrdf.model.Value;
+import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.GraphImpl;
 import org.openrdf.model.impl.LinkedHashModel;
+import org.openrdf.model.impl.ValueFactoryImpl;
 import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.query.BindingSet;
 import org.openrdf.query.MalformedQueryException;
@@ -58,6 +63,7 @@ import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
 import com.powsybl.triplestore.api.TripleStoreException;
 
+import info.aduna.iteration.Iteration;
 import info.aduna.iteration.Iterations;
 
 /**
@@ -288,33 +294,56 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         RepositoryConnection connClone = null;
         try {
             conn = repo.getConnection();
-            RepositoryResult<Resource> contexts = conn.getContextIDs();
             Properties props = setPropertiesForClone();
             BigdataSail sailClone = new BigdataSail(props); // instantiate a new sail, otherwise complains foe already
             // instantiated
             Repository repoClone = new BigdataSailRepository(sailClone);
             try {
                 repoClone.initialize();
-            } catch (Exception e) {
+            } catch (RepositoryException e) {
                 LOG.error("Clone Repository could not be created {}", e.getMessage());
             }
             try {
                 connClone = repoClone.getConnection();
-                connClone.begin();
+                ValueFactory vfac = connClone.getValueFactory();
+                RepositoryResult<Namespace> ns = conn.getNamespaces();
+                while (ns.hasNext()) {
+                    Namespace n = ns.next();
+                    String prefix = n.getPrefix();
+                    String name = n.getName();
+                    connClone.setNamespace(prefix, name);
+                }
+                RepositoryResult<Resource> contexts = conn.getContextIDs();
                 while (contexts.hasNext()) {
                     Resource context = contexts.next();
-                    LOG.info("Writing context {}", context);
                     RepositoryResult<Statement> statements = conn.getStatements(null, null, null, true, context);
                     Model model = new LinkedHashModel();
-                    Iterations.addAll(statements, model);
-                    copyNamespacesToModel(conn, model);
-                    // Graph model = Iterations.addAll(statements, new GraphImpl());
-                    connClone.add(model, context);
+                    // we need to get StringValue from each item, to get rid of original conn
+                    // references.
+                    while (statements.hasNext()) {
+                        Statement st = statements.next();
+                        String s = st.getSubject().stringValue();
+                        String p = st.getPredicate().stringValue();
+                        String o = st.getObject().stringValue();
+                        String c = st.getContext().stringValue();
+                        URI sClone = vfac.createURI(s);
+                        URI pClone = vfac.createURI(p);
+                        Resource contextClone = vfac.createURI(c);
+                        if (o.contains("http://")) {
+                            URI oClone = vfac.createURI(o);
+                            Statement statementClone = vfac.createStatement(sClone, pClone, oClone, contextClone);
+                            model.add(statementClone);
+                        } else {
+                            Literal oClone = vfac.createLiteral(o);
+                            Statement statementClone = vfac.createStatement(sClone, pClone, oClone, contextClone);
+                            model.add(statementClone);
+                        }
+                    }
+                    connClone.add(model);
                 }
-                connClone.commit();
                 checkClonedRepo(conn, connClone);
             } catch (Exception x) {
-                LOG.error("Exception while adding statements to connClone. {}", x.getMessage());
+                LOG.error("Exception while cloning to connClone. {}", x.getMessage());
             } finally {
                 if (connClone != null) {
                     try {
@@ -355,15 +384,38 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
 
             try {
                 connClone = repoClone.getConnection();
+                ValueFactory vfac = connClone.getValueFactory();
+                RepositoryResult<Namespace> ns = conn.getNamespaces();
+                while (ns.hasNext()) {
+                    Namespace n = ns.next();
+                    String prefix = n.getPrefix();
+                    String name = n.getName();
+                    connClone.setNamespace(prefix, name);
+                }
                 RepositoryResult<Resource> contexts = conn.getContextIDs();
                 while (contexts.hasNext()) {
                     Resource context = contexts.next();
-                    LOG.info("Statements for {}", context);
-                    RepositoryResult<Statement> statements;
-                    statements = conn.getStatements(null, null, null, true, context);
+                    RepositoryResult<Statement> statements = conn.getStatements(null, null, null, true, context);
+                    // we need to get StringValue from each item, to get rid of original conn
+                    // references.
                     while (statements.hasNext()) {
-                        Statement statement = statements.next();
-                        connClone.add(statement, context);
+                        Statement st = statements.next();
+                        String s = st.getSubject().stringValue();
+                        String p = st.getPredicate().stringValue();
+                        String o = st.getObject().stringValue();
+                        String c = st.getContext().stringValue();
+                        URI sClone = vfac.createURI(s);
+                        URI pClone = vfac.createURI(p);
+                        Resource contextClone = vfac.createURI(c);
+                        if (o.contains("http://")) {
+                            URI oClone = vfac.createURI(o);
+                            Statement statementClone = vfac.createStatement(sClone, pClone, oClone, contextClone);
+                            connClone.add(statementClone);
+                        } else {
+                            Literal oClone = vfac.createLiteral(o);
+                            Statement statementClone = vfac.createStatement(sClone, pClone, oClone, contextClone);
+                            connClone.add(statementClone);
+                        }
                     }
                 }
                 checkClonedRepo(conn, connClone);
@@ -396,13 +448,13 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
             RepositoryResult<Resource> contexts = connClone.getContextIDs();
             while (contexts.hasNext()) {
                 Resource context = contexts.next();
-                RepositoryResult<Statement> statements = connClone.getStatements(null, null, null, true, context);
-                conn.remove(statements, context);
-                LOG.info("repo Statements for {} is: {}", context, statementsCount(conn, context));
-                LOG.info("repoClone Statements for {} is: {}", context, statementsCount(connClone, context));
+                conn.clear(context);
+                LOG.info("***checkClonedRepo***\n For repo # statements for {} is: {}", context,
+                    statementsCount(conn, context));
+                LOG.info("\n For repoClone # statements for {} is: {}", context, statementsCount(connClone, context));
 
             }
-        } catch (RepositoryException|IllegalArgumentException e) {
+        } catch (RepositoryException | IllegalArgumentException e) {
             LOG.warn("closing when checkClonedRepo : {}", e.getMessage());
         }
     }
@@ -412,6 +464,7 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
         props.put(Options.BUFFER_MODE, "MemStore");
         props.put(AbstractTripleStore.Options.QUADS_MODE, "true");
         props.put(BigdataSail.Options.TRUTH_MAINTENANCE, "false");
+        props.put(BigdataSail.Options.ALLOW_AUTO_COMMIT, "true");
 
         // Quiet
         System.getProperties().setProperty("com.bigdata.Banner.quiet", "true");

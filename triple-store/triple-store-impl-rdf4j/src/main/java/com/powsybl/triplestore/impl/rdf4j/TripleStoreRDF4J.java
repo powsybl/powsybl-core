@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -199,13 +200,12 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
 
             try (RepositoryConnection connClone = repoClone.getConnection()) {
                 RepositoryResult<Resource> contexts = conn.getContextIDs();
-
                 while (contexts.hasNext()) {
                     Resource context = contexts.next();
                     RepositoryResult<Statement> statements = conn.getStatements(null, null, null, context);
 //                    //Model asGraph = QueryResults.asModel(statements);
-                    Graph asGraph = Iterations.addAll(statements, new GraphImpl());
-                    connClone.add(asGraph, context);
+                    Graph model = QueryResults.addAll(statements, new GraphImpl());
+                    connClone.add(model);
                 }
                 checkClonedRepo(conn, connClone);
             }
@@ -241,10 +241,10 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
         RepositoryResult<Resource> contexts = connClone.getContextIDs();
         while (contexts.hasNext()) {
             Resource context = contexts.next();
-            RepositoryResult<Statement> statements = connClone.getStatements(null, null, null, true, context);
-            conn.remove(statements, context);
-            LOG.info("***checkClonedRepo***\n repo Statements for {} is: {}", context, statementsCount(conn, context));
-            LOG.info("repoClone Statements for {} is: {}", context, statementsCount(connClone, context));
+            conn.clear(context);
+            LOG.info("***checkClonedRepo***\n For repo # statements for {} is: {}", context,
+                statementsCount(conn, context));
+            LOG.info("\n For repoClone # statements for {} is: {}", context, statementsCount(connClone, context));
         }
     }
 

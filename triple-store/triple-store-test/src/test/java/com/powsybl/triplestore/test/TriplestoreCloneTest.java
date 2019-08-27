@@ -6,15 +6,15 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
 
 public class TriplestoreCloneTest {
 
-//    @Test
-//    public void testCgmesRtcsClone() {
-//        String base = "foo:cgmes-rtcs";
-//        String[] inputs = {"cgmes-rtcs/rtc-EQ.xml", "cgmes-rtcs/rtc-SSH.xml" };
-//        tester = new TripleStoreTester(
-//            TripleStoreFactory.allImplementations(), base, inputs);
-//        tester.load();
-//        tester.testPerformanceCloneRepo();
-//    }
+    //@Test
+    public void testCgmesRtcsClone() {
+        String base = "foo:cgmes-rtcs";
+        String[] inputs = {"cgmes-rtcs/rtc-EQ.xml", "cgmes-rtcs/rtc-SSH.xml" };
+        tester = new TripleStoreTester(
+            TripleStoreFactory.allImplementations(), base, inputs);
+        tester.load();
+        tester.testPerformanceCloneRepo();
+    }
     
   @Test
   public void testNationalGridCloneByRepo() {
