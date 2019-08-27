@@ -182,7 +182,7 @@ public class Conversion {
 
     private void assignNetworkProperties(Context context) {
         profiling.start();
-        context.network().getProperties().put(NETWORK_PS_CGMES_MODEL_DETAIL,
+        context.network().setProperty(NETWORK_PS_CGMES_MODEL_DETAIL,
                 context.nodeBreaker()
                         ? NETWORK_PS_CGMES_MODEL_DETAIL_NODE_BREAKER
                         : NETWORK_PS_CGMES_MODEL_DETAIL_BUS_BRANCH);

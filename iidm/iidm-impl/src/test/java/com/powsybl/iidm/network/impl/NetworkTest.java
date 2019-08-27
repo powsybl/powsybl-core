@@ -135,6 +135,18 @@ public class NetworkTest {
         assertSame(busCalc, load1.getTerminal().getBusView().getBus());
         assertSame(busCalc, generator1.getTerminal().getBusView().getBus());
         assertEquals(0, busCalc.getConnectedComponent().getNum());
+
+        // Identifiable properties
+        String key = "keyTest";
+        String value = "ValueTest";
+        assertFalse(busCalc.hasProperty());
+        assertTrue(busCalc.getPropertyNames().isEmpty());
+        busCalc.setProperty(key, value);
+        assertTrue(busCalc.hasProperty());
+        assertTrue(busCalc.hasProperty(key));
+        assertEquals(value, busCalc.getProperty(key));
+        assertEquals("default", busCalc.getProperty("invalid", "default"));
+        assertEquals(1, busCalc.getPropertyNames().size());
     }
 
     @Test
