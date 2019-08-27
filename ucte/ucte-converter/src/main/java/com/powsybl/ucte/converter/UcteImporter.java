@@ -771,30 +771,30 @@ public class UcteImporter implements Importer {
     }
 
     private static void addElementNameProperty(TieLine tieLine, DanglingLine dl1, DanglingLine dl2) {
-        if (dl1.getProperties().containsKey(ELEMENT_NAME_PROPERTY_KEY)) {
-            tieLine.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", dl1.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY));
+        if (dl1.hasProperty(ELEMENT_NAME_PROPERTY_KEY)) {
+            tieLine.setProperty(ELEMENT_NAME_PROPERTY_KEY + "_1", dl1.getProperty(ELEMENT_NAME_PROPERTY_KEY));
         }
 
-        if (dl2.getProperties().containsKey(ELEMENT_NAME_PROPERTY_KEY)) {
-            tieLine.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", dl2.getProperties().getProperty(ELEMENT_NAME_PROPERTY_KEY));
+        if (dl2.hasProperty(ELEMENT_NAME_PROPERTY_KEY)) {
+            tieLine.setProperty(ELEMENT_NAME_PROPERTY_KEY + "_2", dl2.getProperty(ELEMENT_NAME_PROPERTY_KEY));
         }
     }
 
     private static void addElementNameProperty(UcteElement ucteElement, Identifiable identifiable) {
         if (ucteElement.getElementName() != null) {
-            identifiable.getProperties().setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteElement.getElementName());
+            identifiable.setProperty(ELEMENT_NAME_PROPERTY_KEY, ucteElement.getElementName());
         }
     }
 
     private static void addCurrentLimitProperty(UcteLine ucteLine, Switch aSwitch) {
         if (ucteLine.getCurrentLimit() != null) {
-            aSwitch.getProperties().setProperty(CURRENT_LIMIT_PROPERTY_KEY, String.valueOf(ucteLine.getCurrentLimit()));
+            aSwitch.setProperty(CURRENT_LIMIT_PROPERTY_KEY, String.valueOf(ucteLine.getCurrentLimit()));
         }
     }
 
     private static void addGeographicalNameProperty(UcteNode ucteNode, Identifiable identifiable) {
         if (ucteNode.getGeographicalName() != null) {
-            identifiable.getProperties().setProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, ucteNode.getGeographicalName());
+            identifiable.setProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, ucteNode.getGeographicalName());
         }
     }
 
@@ -803,7 +803,7 @@ public class UcteImporter implements Importer {
 
         if (optUcteNodeCode.isPresent()) {
             UcteNode ucteNode = ucteNetwork.getNode(optUcteNodeCode.get());
-            tieLine.getProperties().setProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, ucteNode.getGeographicalName());
+            tieLine.setProperty(GEOGRAPHICAL_NAME_PROPERTY_KEY, ucteNode.getGeographicalName());
         } else {
             throw new UcteException(NOT_POSSIBLE_TO_IMPORT);
         }
@@ -811,11 +811,11 @@ public class UcteImporter implements Importer {
 
     private static void addOrderCodeProperty(UcteLine ucteLine, Switch sw) {
         String ucteLineId = ucteLine.getId().toString();
-        sw.getProperties().setProperty(ORDER_CODE, String.valueOf(ucteLineId.charAt(ucteLineId.length() - 1)));
+        sw.setProperty(ORDER_CODE, String.valueOf(ucteLineId.charAt(ucteLineId.length() - 1)));
     }
 
     private static void addNominalPowerProperty(UcteTransformer transformer, TwoWindingsTransformer twoWindingsTransformer) {
-        twoWindingsTransformer.getProperties().setProperty(NOMINAL_POWER_KEY, String.valueOf(transformer.getNominalPower()));
+        twoWindingsTransformer.setProperty(NOMINAL_POWER_KEY, String.valueOf(transformer.getNominalPower()));
     }
 
     @Override
