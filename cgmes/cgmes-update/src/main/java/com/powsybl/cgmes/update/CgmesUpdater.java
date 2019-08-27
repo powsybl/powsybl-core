@@ -30,10 +30,8 @@ public class CgmesUpdater {
     }
 
     /**
-     * Update. Prepare triple to pass to SPARQL statement. For cgmesSubject we might
-     * need Id diferent from the incoming Identifiable, e.g. for
-     * TwoWindingsTransformer, where End1 and End2 have their oun Ids.
-     *
+     * Update. Prepare triple to pass to SPARQL statement.
+     * 
      * @return the cgmes model
      * @throws Exception the exception
      */
@@ -70,6 +68,10 @@ public class CgmesUpdater {
                             currentContext = map.getContext();
 
                             if (context.toUpperCase().contains(currentContext)) {
+                                /**
+                                 * For cgmesSubject we might need Id diferent from the incoming Identifiable,
+                                 * e.g. for TwoWindingsTransformer, where End1 and End2 have their oun Ids.
+                                 */
                                 cgmesSubject = (map.getNewSubject() != null) ? map.getNewSubject()
                                     : namingStrategy.getCgmesId(change.getIdentifiableId());
 

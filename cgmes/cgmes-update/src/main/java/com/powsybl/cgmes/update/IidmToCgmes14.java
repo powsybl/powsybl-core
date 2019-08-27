@@ -4,7 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.powsybl.cgmes.model.CgmesModel;
-import com.powsybl.cgmes.update.elements.*;
+import com.powsybl.cgmes.update.elements14.*;
 
 public class IidmToCgmes14 extends AbstractIidmToCgmes {
 

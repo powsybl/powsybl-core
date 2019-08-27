@@ -1,4 +1,4 @@
-package com.powsybl.cgmes.update.elements;
+package com.powsybl.cgmes.update.elements14;
 
 import java.util.Collections;
 import java.util.HashMap;
