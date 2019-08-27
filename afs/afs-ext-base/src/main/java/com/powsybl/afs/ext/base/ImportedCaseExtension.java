@@ -17,6 +17,7 @@ import com.powsybl.iidm.import_.ImportersLoader;
 import com.powsybl.iidm.import_.ImportersServiceLoader;
 
 import java.util.Objects;
+import java.util.ResourceBundle;
 
 /**
  * Defines the new type of project file {@link ImportedCase}.
@@ -25,6 +26,8 @@ import java.util.Objects;
  */
 @AutoService(ProjectFileExtension.class)
 public class ImportedCaseExtension implements ProjectFileExtension<ImportedCase, ImportedCaseBuilder> {
+
+    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("lang.ImportedCaseExtension");
 
     private final ExportersLoader exportersLoader;
 
@@ -49,6 +52,11 @@ public class ImportedCaseExtension implements ProjectFileExtension<ImportedCase,
     @Override
     public Class<ImportedCase> getProjectFileClass() {
         return ImportedCase.class;
+    }
+
+    @Override
+    public String getProjectFileTrivialName() {
+        return RESOURCE_BUNDLE.getString("ImportedCase");
     }
 
     @Override

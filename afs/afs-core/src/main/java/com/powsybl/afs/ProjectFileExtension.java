@@ -60,6 +60,13 @@ public interface ProjectFileExtension<T extends ProjectFile, U extends ProjectFi
     Class<T> getProjectFileClass();
 
     /**
+     * A trivial name for the new type.
+     */
+    default String getProjectFileTrivialName() {
+        return getProjectFileClass().getSimpleName();
+    }
+
+    /**
      * A "pseudo class" name for the new type.
      */
     String getProjectFilePseudoClass();

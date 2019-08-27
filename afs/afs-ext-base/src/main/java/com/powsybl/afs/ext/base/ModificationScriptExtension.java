@@ -11,14 +11,24 @@ import com.powsybl.afs.ProjectFileBuildContext;
 import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.ProjectFileExtension;
 
+import java.util.ResourceBundle;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ProjectFileExtension.class)
 public class ModificationScriptExtension implements ProjectFileExtension<ModificationScript, ModificationScriptBuilder> {
+
+    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("lang.ModificationScriptExtension");
+
     @Override
     public Class<ModificationScript> getProjectFileClass() {
         return ModificationScript.class;
+    }
+
+    @Override
+    public String getProjectFileTrivialName() {
+        return RESOURCE_BUNDLE.getString("ModificationScript");
     }
 
     @Override

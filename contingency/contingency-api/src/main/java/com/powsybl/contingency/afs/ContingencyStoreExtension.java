@@ -11,15 +11,24 @@ import com.powsybl.afs.ProjectFileBuildContext;
 import com.powsybl.afs.ProjectFileCreationContext;
 import com.powsybl.afs.ProjectFileExtension;
 
+import java.util.ResourceBundle;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ProjectFileExtension.class)
 public class ContingencyStoreExtension implements ProjectFileExtension<ContingencyStore, ContingencyStoreBuilder> {
 
+    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("lang.ContingencyStoreExtension");
+
     @Override
     public Class<ContingencyStore> getProjectFileClass() {
         return ContingencyStore.class;
+    }
+
+    @Override
+    public String getProjectFileTrivialName() {
+        return RESOURCE_BUNDLE.getString("ContingencyStore");
     }
 
     @Override

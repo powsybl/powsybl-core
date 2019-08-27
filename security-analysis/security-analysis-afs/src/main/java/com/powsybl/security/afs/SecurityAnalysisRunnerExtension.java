@@ -13,12 +13,15 @@ import com.powsybl.afs.ProjectFileExtension;
 import com.powsybl.security.SecurityAnalysisParameters;
 
 import java.util.Objects;
+import java.util.ResourceBundle;
 
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 @AutoService(ProjectFileExtension.class)
 public class SecurityAnalysisRunnerExtension implements ProjectFileExtension<SecurityAnalysisRunner, SecurityAnalysisRunnerBuilder> {
+
+    private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle.getBundle("lang.SecurityAnalysisRunnerExtension");
 
     private final SecurityAnalysisParameters parameters;
 
@@ -38,6 +41,11 @@ public class SecurityAnalysisRunnerExtension implements ProjectFileExtension<Sec
     @Override
     public String getProjectFilePseudoClass() {
         return SecurityAnalysisRunner.PSEUDO_CLASS;
+    }
+
+    @Override
+    public String getProjectFileTrivialName() {
+        return RESOURCE_BUNDLE.getString("SecurityAnalysis");
     }
 
     @Override
