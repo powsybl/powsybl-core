@@ -57,7 +57,8 @@ public class XmlUtilTest {
                     // consume b and c
                     if (xmlReader.getLocalName().equals("b")) {
                         try {
-                            XmlUtil.readUntilEndElement("b", xmlReader, () -> {});
+                            XmlUtil.readUntilEndElement("b", xmlReader, () -> {
+                            });
                         } catch (XMLStreamException e) {
                             throw new UncheckedXmlStreamException(e);
                         }
