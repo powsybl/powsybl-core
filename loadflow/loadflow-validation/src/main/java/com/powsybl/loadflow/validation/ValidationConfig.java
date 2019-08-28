@@ -10,7 +10,6 @@ import com.powsybl.commons.config.ModuleConfig;
 import com.powsybl.commons.config.PlatformConfig;
 import com.powsybl.commons.io.table.CsvTableFormatterFactory;
 import com.powsybl.commons.io.table.TableFormatterFactory;
-import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 
 import java.util.Objects;
@@ -213,15 +212,6 @@ public class ValidationConfig {
 
     public void setNoRequirementIfSetpointOutsidePowerBounds(boolean noRequirementIfSetpointOutsidePowerBounds) {
         this.noRequirementIfSetpointOutsidePowerBounds = noRequirementIfSetpointOutsidePowerBounds;
-    }
-
-    /**
-     * Returns the loadflow configured or else the default platform loadflow.
-     */
-    public LoadFlow findLoadFlow() {
-        return getLoadFlowName()
-                .map(LoadFlow::find)
-                .orElseGet(LoadFlow::findDefault);
     }
 
     @Override

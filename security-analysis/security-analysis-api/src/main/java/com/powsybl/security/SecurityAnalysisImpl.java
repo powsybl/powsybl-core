@@ -66,14 +66,12 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
 
         LoadFlowParameters loadFlowParameters = securityAnalysisParameters.getLoadFlowParameters();
 
-        LoadFlow loadFlow = LoadFlow.findDefault();
-
         // start post contingency LF from pre-contingency state variables
         LoadFlowParameters postContParameters = loadFlowParameters.copy().setVoltageInitMode(LoadFlowParameters.VoltageInitMode.PREVIOUS_VALUES);
 
         network.getVariantManager().allowVariantMultiThreadAccess(true);
 
-        return loadFlow.runAsync(network, workingStateId, computationManager, loadFlowParameters) // run base load flow
+        return LoadFlow.runAsync(network, workingStateId, computationManager, loadFlowParameters) // run base load flow
                 .thenComposeAsync(loadFlowResult -> {
                     network.getVariantManager().setWorkingVariant(workingStateId);
 
@@ -109,7 +107,7 @@ public class SecurityAnalysisImpl extends AbstractSecurityAnalysis {
 
                                         return null;
                                     }, computationManager.getExecutor())
-                                    .thenComposeAsync(aVoid -> loadFlow.runAsync(network, postContStateId, computationManager, postContParameters), computationManager.getExecutor())
+                                    .thenComposeAsync(aVoid -> LoadFlow.runAsync(network, postContStateId, computationManager, postContParameters), computationManager.getExecutor())
                                     .handleAsync((lfResult, throwable) -> {
                                         network.getVariantManager().setWorkingVariant(postContStateId);
 

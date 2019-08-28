@@ -244,8 +244,9 @@ public class ValidationTool implements Tool {
     private void runLoadflow(Network network, ValidationConfig config, ToolRunningContext context) {
         context.getOutputStream().println("Running loadflow on network " + network.getId());
         LoadFlowParameters parameters = LoadFlowParameters.load();
-        LoadFlow loadFlow = config.findLoadFlow();
-        loadFlow.runAsync(network, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), parameters)
+        String loadFlowName = config.getLoadFlowName().orElse(null);
+        LoadFlow.find(loadFlowName)
+                .runAsync(network, VariantManagerConstants.INITIAL_VARIANT_ID, context.getShortTimeExecutionComputationManager(), parameters)
                 .thenAccept(loadFlowResult -> {
                     if (!loadFlowResult.isOk()) {
                         throw new PowsyblException("Loadflow on network " + network.getId() + " does not converge");

@@ -11,6 +11,7 @@ import com.powsybl.commons.PowsyblException;
 import com.powsybl.computation.ComputationManager;
 import com.powsybl.iidm.network.Network;
 import com.powsybl.iidm.network.VariantManagerConstants;
+import com.powsybl.loadflow.LoadFlow;
 import com.powsybl.loadflow.LoadFlowParameters;
 import com.powsybl.loadflow.LoadFlowResult;
 
@@ -35,7 +36,9 @@ public class LoadFlowComputation implements CandidateComputation {
         Objects.requireNonNull(computationManager);
 
         LoadFlowParameters parameters = LoadFlowParameters.load();
-        LoadFlowResult result = ValidationConfig.load().findLoadFlow().run(network, VariantManagerConstants.INITIAL_VARIANT_ID, computationManager, parameters);
+        String loadFlowName = ValidationConfig.load().getLoadFlowName().orElse(null);
+        LoadFlowResult result = LoadFlow.find(loadFlowName)
+                                        .run(network, VariantManagerConstants.INITIAL_VARIANT_ID, computationManager, parameters);
         if (!result.isOk()) {
             throw new PowsyblException("Loadflow on network " + network.getId() + " does not converge");
         }

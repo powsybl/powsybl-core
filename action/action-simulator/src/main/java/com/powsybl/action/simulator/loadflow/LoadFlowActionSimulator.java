@@ -50,8 +50,6 @@ public class LoadFlowActionSimulator implements ActionSimulator {
 
     private final boolean applyIfSolvedViolations;
 
-    private final LoadFlow loadFlow;
-
     private final LoadFlowParameters parameters;
 
     private final List<LoadFlowActionSimulatorObserver> observers;
@@ -94,7 +92,6 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         this.observers = Objects.requireNonNull(observers);
         this.applyIfSolvedViolations = applyIfSolvedViolations;
         this.parameters = Objects.requireNonNull(parameters);
-        loadFlow = loadFlowActionSimulatorConfig.getLoadFlowName().map(LoadFlow::find).orElseGet(LoadFlow::findDefault);
     }
 
     @Override
@@ -317,10 +314,11 @@ public class LoadFlowActionSimulator implements ActionSimulator {
     private boolean next(ActionDb actionDb, RunningContext context) {
         observers.forEach(o -> o.roundBegin(context));
 
-        LOGGER.info("Running loadflow ({})", loadFlow.getName());
+        LOGGER.info("Running loadflow");
         LoadFlowResult result;
         try {
-            result = loadFlow.run(context.getNetwork(), context.getNetwork().getVariantManager().getWorkingVariantId(), computationManager, parameters);
+            String loadFlowName = loadFlowActionSimulatorConfig.getLoadFlowName().orElse(null);
+            result = LoadFlow.find(loadFlowName).run(context.getNetwork(), context.getNetwork().getVariantManager().getWorkingVariantId(), computationManager, parameters);
         } catch (Exception e) {
             throw new PowsyblException(e);
         }
@@ -415,7 +413,9 @@ public class LoadFlowActionSimulator implements ActionSimulator {
         action.run(networkForTry, computationManager);
         try {
             observers.forEach(o -> o.beforeTest(context, actionId));
-            LoadFlowResult testResult = loadFlow.run(networkForTry, networkForTry.getVariantManager().getWorkingVariantId(), computationManager, parameters);
+            String loadFlowName = loadFlowActionSimulatorConfig.getLoadFlowName().orElse(null);
+            LoadFlowResult testResult = LoadFlow.find(loadFlowName)
+                                                .run(networkForTry, networkForTry.getVariantManager().getWorkingVariantId(), computationManager, parameters);
             observers.forEach(o -> o.afterTest(context, actionId));
             return testResult;
         } catch (Exception e) {
