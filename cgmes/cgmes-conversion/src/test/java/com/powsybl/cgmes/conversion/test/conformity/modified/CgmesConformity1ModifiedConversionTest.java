@@ -6,18 +6,6 @@
  */
 package com.powsybl.cgmes.conversion.test.conformity.modified;
 
-import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
-import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.OFF;
-import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.REACTIVE_POWER;
-import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.VOLTAGE;
-import static org.junit.Assert.*;
-
-import java.io.IOException;
-import java.nio.file.FileSystem;
-
-import com.powsybl.iidm.network.*;
-import org.junit.*;
-
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1Catalog;
 import com.powsybl.cgmes.conformity.test.CgmesConformity1ModifiedCatalog;
@@ -33,6 +21,7 @@ import java.io.IOException;
 import java.nio.file.FileSystem;
 
 import static com.powsybl.iidm.network.PhaseTapChanger.RegulationMode.CURRENT_LIMITER;
+import static com.powsybl.iidm.network.StaticVarCompensator.RegulationMode.*;
 import static org.junit.Assert.*;
 
 /**
