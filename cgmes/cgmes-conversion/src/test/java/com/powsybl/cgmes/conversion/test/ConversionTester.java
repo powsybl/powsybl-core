@@ -210,7 +210,7 @@ public class ConversionTester {
         new Comparison(expected, actual, config).compare();
     }
 
-    private void validateBusBalances(Network network) throws IOException {
+    public static void validateBusBalances(Network network) throws IOException {
         // Precision required on bus balances (MVA)
         double threshold = 0.01;
         try (FileSystem fs = Jimfs.newFileSystem(Configuration.unix())) {
@@ -223,7 +223,7 @@ public class ConversionTester {
         }
     }
 
-    private ValidationConfig loadFlowValidationConfig(FileSystem fs, double threshold) {
+    private static ValidationConfig loadFlowValidationConfig(FileSystem fs, double threshold) {
         InMemoryPlatformConfig pconfig = new InMemoryPlatformConfig(fs);
         pconfig
                 .createModuleConfig("componentDefaultConfig")
@@ -237,7 +237,7 @@ public class ConversionTester {
         return config;
     }
 
-    private void computeMissingFlows(Network network, LoadFlowParameters lfparams) {
+    public static void computeMissingFlows(Network network, LoadFlowParameters lfparams) {
         LoadFlowResultsCompletionParameters p = new LoadFlowResultsCompletionParameters(
                 LoadFlowResultsCompletionParameters.EPSILON_X_DEFAULT,
                 LoadFlowResultsCompletionParameters.APPLY_REACTANCE_CORRECTION_DEFAULT,
