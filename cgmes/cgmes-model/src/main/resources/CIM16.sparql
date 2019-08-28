@@ -165,7 +165,10 @@ WHERE {
 	OPTIONAL { ?ConnectivityNode entsoe:ConnectivityNode.toEndIsoCode ?toEndIsoCode }
 }}
 OPTIONAL { GRAPH ?graphTPCN {
-	?ConnectivityNode cim:ConnectivityNode.TopologicalNode ?TopologicalNode 
+	?ConnectivityNode
+	    cim:ConnectivityNode.TopologicalNode ?TopologicalNode .
+	?TopologicalNode
+	    cim:TopologicalNode.BaseVoltage ?BaseVoltage
 	OPTIONAL { GRAPH ?graphSVT {
 		?SvVoltageT 
 			a cim:SvVoltage ;
@@ -680,9 +683,9 @@ WHERE {
 OPTIONAL { GRAPH ?graphSSH  {
     ?EquivalentInjection
         cim:EquivalentInjection.p ?p ;
-        cim:EquivalentInjection.q ?q ;
-        cim:EquivalentInjection.regulationStatus ?regulationStatus ;
-        cim:EquivalentInjection.regulationTarget ?regulationTarget .
+        cim:EquivalentInjection.q ?q .
+    OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.regulationStatus ?regulationStatus }
+    OPTIONAL { ?EquivalentInjection cim:EquivalentInjection.regulationTarget ?regulationTarget }
 }}
 }
 
@@ -735,7 +738,7 @@ WHERE {
         ?StaticVarCompensator cim:RegulatingCondEq.RegulatingControl ?RegulatingControl
     }
 }}
-OPTIONAL { GRAPH ?graphSSH  {
+{ GRAPH ?graphSSH  {
     ?StaticVarCompensator
         cim:StaticVarCompensator.q ?q ;
         cim:RegulatingCondEq.controlEnabled ?controlEnabled

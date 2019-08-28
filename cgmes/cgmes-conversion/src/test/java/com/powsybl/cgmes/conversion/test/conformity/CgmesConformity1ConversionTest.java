@@ -166,7 +166,7 @@ public class CgmesConformity1ConversionTest {
     }
 
     @Test
-    public void miniNodeBreakerBoundary() throws IOException {
+    public void microNodeBreakerBoundary() throws IOException {
         Properties importParams = new Properties();
         importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
         ConversionTester t = new ConversionTester(
@@ -186,6 +186,24 @@ public class CgmesConformity1ConversionTest {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toSet()));
+    }
+
+    @Test
+    public void miniNodeBreakerBoundary() throws IOException {
+        Properties importParams = new Properties();
+        importParams.put(CgmesImport.CONVERT_BOUNDARY, "true");
+        ConversionTester t = new ConversionTester(
+                importParams,
+                TripleStoreFactory.onlyDefaultImplementation(),
+                new ComparisonConfig());
+        Network expected = null;
+        t.testConversion(expected, actuals.miniNodeBreaker());
+        Substation substation = t.lastConvertedNetwork().getSubstation("_183d126d-2522-4ff2-a8cd-c5016cf09c1b_S");
+        assertNotNull(substation);
+        assertEquals("boundary", substation.getName());
+        VoltageLevel voltageLevel = t.lastConvertedNetwork().getVoltageLevel("_183d126d-2522-4ff2-a8cd-c5016cf09c1b_VL");
+        assertNotNull(voltageLevel);
+        assertEquals("boundary", voltageLevel.getName());
     }
 
     @Test
