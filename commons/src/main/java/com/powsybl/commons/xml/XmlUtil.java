@@ -54,7 +54,12 @@ public final class XmlUtil {
             switch (event) {
                 case XMLStreamConstants.START_ELEMENT:
                     if (eventHandler != null) {
+                        String startLocalName = reader.getLocalName();
                         eventHandler.onStartElement(depth);
+                        // if handler has already consumed end element we must decrease the depth
+                        if (reader.getEventType() == XMLStreamConstants.END_ELEMENT && reader.getLocalName().equals(startLocalName)) {
+                            depth--;
+                        }
                     }
                     depth++;
                     break;
