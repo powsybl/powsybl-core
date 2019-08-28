@@ -19,6 +19,7 @@ import com.powsybl.iidm.network.Network;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 /**
  * LoadFlow main API. It is a utility class (so with only static methods) used as an entry point for running
@@ -42,7 +43,7 @@ public final class LoadFlow {
 
         private final LoadFlowProvider provider;
 
-        Runner(LoadFlowProvider provider) {
+        public Runner(LoadFlowProvider provider) {
             this.provider = Objects.requireNonNull(provider);
         }
 
@@ -146,7 +147,9 @@ public final class LoadFlow {
             if (providers.size() > 1 && loadFlowName == null) {
                 // several providers and no information to select which one to choose, we can only throw
                 // an exception
-                throw new PowsyblException("Loadflow configuration not found");
+                List<String> loadFlowNames = providers.stream().map(LoadFlowProvider::getName).collect(Collectors.toList());
+                throw new PowsyblException("Several loadflow implementations found (" + loadFlowNames
+                        + "), you must add configuration to select the implementation");
             }
             provider = providers.stream()
                     .filter(p -> p.getName().equals(loadFlowName))
