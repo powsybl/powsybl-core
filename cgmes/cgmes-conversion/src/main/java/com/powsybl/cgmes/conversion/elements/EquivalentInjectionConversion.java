@@ -36,8 +36,14 @@ public class EquivalentInjectionConversion extends AbstractReactiveLimitsOwnerCo
             targetP = -f.p();
             targetQ = -f.q();
         }
+
         boolean regulationCapability = p.asBoolean("regulationCapability", false);
-        boolean regulationStatus = p.asBoolean("regulationStatus", regulationCapability);
+        boolean regulationStatus = p.asBoolean("regulationStatus", false) || regulationCapability;
+        if (!p.containsKey("regulationStatus") || !p.containsKey("regulationTarget")) {
+            context.missing(String.format("Missing regulationStatus or regulationTarget for EI %s. Voltage regulation is considered as off.", id));
+            regulationStatus = false;
+        }
+
         regulationStatus = regulationStatus && terminalConnected();
         double targetV = Double.NaN;
         if (terminalConnected() && regulationStatus) {
