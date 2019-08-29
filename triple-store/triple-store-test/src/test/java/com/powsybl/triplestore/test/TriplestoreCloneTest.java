@@ -6,7 +6,7 @@ import com.powsybl.triplestore.api.TripleStoreFactory;
 
 public class TriplestoreCloneTest {
 
-    //@Test
+    @Test
     public void testCgmesRtcsClone() {
         String base = "foo:cgmes-rtcs";
         String[] inputs = {"cgmes-rtcs/rtc-EQ.xml", "cgmes-rtcs/rtc-SSH.xml" };
@@ -16,7 +16,7 @@ public class TriplestoreCloneTest {
         tester.testPerformanceCloneRepo();
     }
     
-  @Test
+  //@Test
   public void testNationalGridCloneByRepo() {
       String base = "foo:cgmes-national-grid";
       String[] inputs = { "cgmes-national-grid/20190312T2330Z_1D_NG_SSH_001.xml",
@@ -29,7 +29,7 @@ public class TriplestoreCloneTest {
       tester.testPerformanceCloneRepo();
   }
 
-    @Test
+    //@Test
     public void testNationalGridCloneByStatements() {
         String base = "foo:cgmes-national-grid";
         String[] inputs = { "cgmes-national-grid/20190312T2330Z_1D_NG_SSH_001.xml",
@@ -42,7 +42,7 @@ public class TriplestoreCloneTest {
         tester.testPerformanceCloneByStatements();
     }
 
-    @Test
+    //@Test
     public void testNationalGridImportFiles() {
         String base = "foo:cgmes-national-grid";
         String[] inputs = { "cgmes-national-grid/20190312T2330Z_1D_NG_SSH_001.xml",
