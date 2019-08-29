@@ -107,7 +107,7 @@ public class VoltageLevelToVoltageLevel extends IidmToCgmes16 implements Convers
                 continue;
             }
         }
-        return UUID.randomUUID().toString();
+        return change.getIdentifiableId().concat("_BV");
     }
 
     private String baseVoltageId = getBaseVoltageId();

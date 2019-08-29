@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 import com.powsybl.cgmes.model.CgmesModel;
@@ -107,7 +106,7 @@ public class VoltageLevelToVoltageLevel extends IidmToCgmes14 implements Convers
                 continue;
             }
         }
-        return UUID.randomUUID().toString();
+        return change.getIdentifiableId().concat("_BV");
     }
 
     private String baseVoltageId = getBaseVoltageId();
