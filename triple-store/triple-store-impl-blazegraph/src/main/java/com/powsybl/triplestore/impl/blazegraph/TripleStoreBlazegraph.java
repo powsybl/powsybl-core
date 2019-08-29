@@ -340,8 +340,9 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
                         }
                     }
                     connClone.add(model);
+                    statements.close();
                 }
-                checkClonedRepo(conn, connClone);
+                //checkClonedRepo(conn, connClone);
             } catch (Exception x) {
                 LOG.error("Exception while cloning to connClone. {}", x.getMessage());
             } finally {
@@ -417,8 +418,9 @@ public class TripleStoreBlazegraph extends AbstractPowsyblTripleStore {
                             connClone.add(statementClone);
                         }
                     }
+                    statements.close();
                 }
-                checkClonedRepo(conn, connClone);
+                //checkClonedRepo(conn, connClone);
             } catch (Exception x) {
                 LOG.error("Working with clone repo : {}", x.getMessage());
             } finally {

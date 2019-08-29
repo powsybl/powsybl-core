@@ -206,8 +206,9 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
 //                    //Model asGraph = QueryResults.asModel(statements);
                     Graph model = QueryResults.addAll(statements, new GraphImpl());
                     connClone.add(model);
+                    statements.close();
                 }
-                checkClonedRepo(conn, connClone);
+                //checkClonedRepo(conn, connClone);
             }
         }
     }
@@ -223,7 +224,6 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
                 RepositoryResult<Resource> contexts = conn.getContextIDs();
                 while (contexts.hasNext()) {
                     Resource context = contexts.next();
-                    LOG.info("Statements for {} context", context);
                     RepositoryResult<Statement> statements;
                     statements = conn.getStatements(null, null, null, context);
                     // add statements to the new repository
@@ -231,8 +231,9 @@ public class TripleStoreRDF4J extends AbstractPowsyblTripleStore {
                         Statement statement = statements.next();
                         connClone.add(statement);
                     }
+                    statements.close();
                 }
-                checkClonedRepo(conn, connClone);
+                //checkClonedRepo(conn, connClone);
             }
         }
     }

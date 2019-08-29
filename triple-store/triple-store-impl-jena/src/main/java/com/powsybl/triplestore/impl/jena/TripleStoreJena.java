@@ -9,6 +9,11 @@ package com.powsybl.triplestore.impl.jena;
 
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.nio.Buffer;
+import java.nio.ByteBuffer;
+import java.nio.MappedByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -189,7 +194,9 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
             }
             checkClonedRepo(dataset, datasetClone);
         } finally {
-            dataset.close();
+            if (dataset != null) {
+                dataset.close();
+            }
             if (datasetClone != null) {
                 datasetClone.close();
             }
@@ -211,12 +218,15 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
                     datasetClone.addNamedModel(namedModelFromName(n), m);
                     if (datasetClone.containsNamedModel(namedModelFromName(n))) {
                         Model mClone = datasetClone.getNamedModel(namedModelFromName(n));
+                        LOG.info("Jena cloned model size : {}", mClone.size());
                     }
                 }
             }
             checkClonedRepo(dataset, datasetClone);
         } finally {
-            dataset.close();
+            if (dataset != null) {
+                dataset.close();
+            }
             if (datasetClone != null) {
                 datasetClone.close();
             }
@@ -230,13 +240,13 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
             dataset.removeNamedModel(namedModelFromName(name));
             if (dataset.containsNamedModel(namedModelFromName(name))) {
                 Model m = dataset.getNamedModel(name);
-                LOGGER.info("***checkClonedRepo***\n dataset contains  " + name + " size : " + m.size());
+                LOG.info("***checkClonedRepo***\n dataset contains  " + name + " size : " + m.size());
             } else if (datasetClone.containsNamedModel(namedModelFromName(name))) {
                 Model m = datasetClone.getNamedModel(name);
-                LOGGER.info("***checkClonedRepo***\n datasetClone contains  " + name + " size : " + m.size() +
+                LOG.info("***checkClonedRepo***\n datasetClone contains  " + name + " size : " + m.size() +
                     "\n But dataset does not --> they are independent");
             } else {
-                LOGGER.info("Neither dataset nor datasetClone contains " + name);
+                LOG.info("Neither dataset nor datasetClone contains " + name);
             }
         }
     }
@@ -371,5 +381,5 @@ public class TripleStoreJena extends AbstractPowsyblTripleStore {
     private final Dataset dataset;
     private Model union;
     private RDFWriter writer;
-    private static final Logger LOGGER = LoggerFactory.getLogger(TripleStoreJena.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TripleStoreJena.class);
 }
