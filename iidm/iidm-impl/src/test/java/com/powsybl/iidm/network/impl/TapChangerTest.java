@@ -12,6 +12,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.List;
@@ -118,6 +119,31 @@ public class TapChangerTest {
         } catch (Exception ignored) {
         }
 
+        // Changes listener
+        NetworkListener mockedListener = Mockito.mock(DefaultNetworkListener.class);
+        // Add observer changes to current network
+        network.addListener(mockedListener);
+        // Changes will raise notifications
+        PhaseTapChangerStep currentStep = phaseTapChanger.getCurrentStep();
+        currentStep.setR(2.0);
+        currentStep.setX(3.0);
+        currentStep.setG(4.0);
+        currentStep.setB(5.0);
+        currentStep.setAlpha(6.0);
+        currentStep.setRho(7.0);
+        Mockito.verify(mockedListener, Mockito.times(6))
+               .onUpdate(Mockito.any(Identifiable.class), Mockito.anyString(), Mockito.any(), Mockito.any());
+        // Remove observer
+        network.removeListener(mockedListener);
+        // Cancel modification
+        currentStep.setR(1.0);
+        currentStep.setX(2.0);
+        currentStep.setG(3.0);
+        currentStep.setB(4.0);
+        currentStep.setAlpha(5.0);
+        currentStep.setRho(6.0);
+        // Check no notification
+        Mockito.verifyNoMoreInteractions(mockedListener);
         // remove
         phaseTapChanger.remove();
         assertNull(twt.getPhaseTapChanger());

@@ -12,6 +12,10 @@ package com.powsybl.iidm.network.impl;
  */
 class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
 
+    private AbstractTapChanger<?, ?, ?> parent;
+
+    private int position;
+
     private double rho;
 
     private double r;
@@ -30,12 +34,26 @@ class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
         this.b = b;
     }
 
+    protected void setPosition(int position) {
+        this.position = position;
+    }
+
+    protected void setParent(AbstractTapChanger<?, ?, ?> parent) {
+        this.parent = parent;
+    }
+
+    protected void notifyUpdate(String attribute, Object oldValue, Object newValue) {
+        this.parent.getNetwork().getListeners().notifyUpdate(this.parent.parent.getTransformer(), () -> this.parent.getTapChangerAttribute() + ".step[" + position + "]." + attribute, oldValue, newValue);
+    }
+
     public double getRho() {
         return rho;
     }
 
     public S setRho(double rho) {
+        double oldValue = this.rho;
         this.rho = rho;
+        notifyUpdate("rho", oldValue, rho);
         return (S) this;
     }
 
@@ -44,7 +62,9 @@ class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
     }
 
     public S setR(double r) {
+        double oldValue = this.r;
         this.r = r;
+        notifyUpdate("r", oldValue, r);
         return (S) this;
     }
 
@@ -53,7 +73,9 @@ class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
     }
 
     public S setX(double x) {
+        double oldValue = this.x;
         this.x = x;
+        notifyUpdate("x", oldValue, x);
         return (S) this;
     }
 
@@ -62,7 +84,9 @@ class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
     }
 
     public S setB(double b) {
+        double oldValue = this.b;
         this.b = b;
+        notifyUpdate("b", oldValue, b);
         return (S) this;
     }
 
@@ -71,7 +95,9 @@ class TapChangerStepImpl<S extends TapChangerStepImpl<S>> {
     }
 
     public S setG(double g) {
+        double oldValue = this.g;
         this.g = g;
+        notifyUpdate("g", oldValue, g);
         return (S) this;
     }
 

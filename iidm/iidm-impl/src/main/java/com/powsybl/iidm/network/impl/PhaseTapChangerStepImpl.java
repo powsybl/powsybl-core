@@ -29,7 +29,9 @@ class PhaseTapChangerStepImpl extends TapChangerStepImpl<PhaseTapChangerStepImpl
 
     @Override
     public PhaseTapChangerStep setAlpha(double alpha) {
+        double oldValue = this.alpha;
         this.alpha = alpha;
+        notifyUpdate("alpha", oldValue, alpha);
         return this;
     }
 

@@ -107,6 +107,7 @@ class PhaseTapChangerAdderImpl implements PhaseTapChangerAdder {
                 throw new ValidationException(transformer, "step b is not set");
             }
             PhaseTapChangerStepImpl step = new PhaseTapChangerStepImpl(alpha, rho, r, x, g, b);
+            step.setPosition(steps.size());
             steps.add(step);
             return PhaseTapChangerAdderImpl.this;
         }

@@ -45,6 +45,7 @@ abstract class AbstractTapChanger<H extends TapChangerParent, C extends Abstract
         this.parent = parent;
         this.lowTapPosition = lowTapPosition;
         this.steps = steps;
+        steps.stream().forEach(s -> s.setParent(this));
         this.regulationTerminal = regulationTerminal;
         int variantArraySize = network.get().getVariantManager().getVariantArraySize();
         this.tapPosition = new TIntArrayList(variantArraySize);
