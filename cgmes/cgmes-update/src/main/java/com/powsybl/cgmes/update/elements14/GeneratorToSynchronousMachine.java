@@ -4,14 +4,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Stream;
 
-import com.powsybl.cgmes.update.IidmChange;
-import com.powsybl.cgmes.update.IidmToCgmes14;
 import com.powsybl.cgmes.model.CgmesModel;
 import com.powsybl.cgmes.update.CgmesPredicateDetails;
 import com.powsybl.cgmes.update.ConversionMapper;
+import com.powsybl.cgmes.update.IidmChange;
+import com.powsybl.cgmes.update.IidmToCgmes14;
 import com.powsybl.iidm.network.Generator;
 import com.powsybl.triplestore.api.PropertyBag;
 import com.powsybl.triplestore.api.PropertyBags;
@@ -101,18 +100,18 @@ public class GeneratorToSynchronousMachine extends IidmToCgmes14 implements Conv
      *
      */
     private String getGeneratingUnitId() {
-
+        String currId = change.getIdentifiableId();
         PropertyBags synchronousMachines = cgmes.synchronousMachines();
         Iterator i = synchronousMachines.iterator();
         while (i.hasNext()) {
             PropertyBag pb = (PropertyBag) i.next();
-            if (pb.getId("SynchronousMachine").equals(change.getIdentifiableId())) {
+            if (pb.getId("SynchronousMachine").equals(currId)) {
                 return pb.getId("GeneratingUnit");
             } else {
                 continue;
             }
         }
-        return UUID.randomUUID().toString();
+        return currId.concat("_GU");
     }
 
     private String generatingUnitId = getGeneratingUnitId();

@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 import com.powsybl.cgmes.model.CgmesModel;
@@ -224,11 +223,11 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes14 impl
         while (i.hasNext()) {
             PropertyBag pb = (PropertyBag) i.next();
             String windingType = pb.get("windingType");
-            if (pb.getId("PowerTransformer").equals(change.getIdentifiableId())
+            if (pb.getId("PowerTransformer").equals(currId)
                 && windingType.endsWith("primary")) {
                 idEnd1 = pb.getId("TransformerWinding");
                 ids.put("idEnd1", idEnd1);
-            } else if (pb.getId("PowerTransformer").equals(change.getIdentifiableId())
+            } else if (pb.getId("PowerTransformer").equals(currId)
                 && windingType.endsWith("secondary")) {
                 idEnd2 = pb.getId("TransformerWinding");
                 ids.put("idEnd2", idEnd2);
@@ -256,13 +255,14 @@ public class TwoWindingsTransformerToPowerTransformer extends IidmToCgmes14 impl
                 continue;
             }
         }
-        return UUID.randomUUID().toString();
+        return idEnd1.concat("_TC");
     }
 
+    private String currId = change.getIdentifiableId();
     private String idEnd1 = (getEndsId().get("idEnd1") != null) ? getEndsId().get("idEnd1")
-        : UUID.randomUUID().toString();
+        : currId.concat("_OR");
     private String idEnd2 = (getEndsId().get("idEnd2") != null) ? getEndsId().get("idEnd2")
-        : UUID.randomUUID().toString();
+        : currId.concat("_CL");
     private String idRTCH = getTapChangerId("RatioTapChanger");
     private String idPHTC = getTapChangerId("PhaseTapChanger");
 }

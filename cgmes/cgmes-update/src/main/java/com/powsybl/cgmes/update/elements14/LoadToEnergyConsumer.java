@@ -4,7 +4,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 import com.powsybl.cgmes.model.CgmesModel;
@@ -64,7 +63,6 @@ public class LoadToEnergyConsumer extends IidmToCgmes14 implements ConversionMap
         /**
          * Create LoadResponseCharacteristic element
          */
-
         CgmesPredicateDetails rdfTypeLRC = new CgmesPredicateDetails("rdf:type", "_EQ", false,
             loadResponseCharacteristicId);
         allCgmesDetails.put(rdfTypeLRC, "cim:LoadResponseCharacteristic");
@@ -72,6 +70,11 @@ public class LoadToEnergyConsumer extends IidmToCgmes14 implements ConversionMap
         CgmesPredicateDetails nameLRC = new CgmesPredicateDetails("cim:IdentifiedObject.name", "_EQ", false,
             loadResponseCharacteristicId);
         allCgmesDetails.put(nameLRC, name.concat("_LRC"));
+
+        CgmesPredicateDetails exponentModelLRC = new CgmesPredicateDetails(
+            "cim:LoadResponseCharacteristic.exponentModel", "_EQ", false,
+            loadResponseCharacteristicId);
+        allCgmesDetails.put(exponentModelLRC, "false");
 
         double p0 = newLoad.getP0();
         if (!String.valueOf(p0).equals("NaN")) {
@@ -94,18 +97,18 @@ public class LoadToEnergyConsumer extends IidmToCgmes14 implements ConversionMap
      *
      */
     private String getLoadResponseCharacteristicId() {
-
+        String currId = change.getIdentifiableId();
         PropertyBags energyConsumers = cgmes.energyConsumers();
         Iterator i = energyConsumers.iterator();
         while (i.hasNext()) {
             PropertyBag pb = (PropertyBag) i.next();
-            if (pb.getId("EnergyConsumer").equals(change.getIdentifiableId())) {
+            if (pb.getId("EnergyConsumer").equals(currId)) {
                 return pb.getId("LoadResponse");
             } else {
                 continue;
             }
         }
-        return UUID.randomUUID().toString();
+        return currId.concat("_LRC");
     }
 
     private String loadResponseCharacteristicId = getLoadResponseCharacteristicId();

@@ -35,8 +35,15 @@ public abstract class AbstractIidmToCgmes {
         } else if (instanceClassOfIidmChange.equals("IidmChangeOnCreate")) {
             // for onCreate all fields are inside the Identifiable object.
             allCgmesDetails = switcher().getAllCgmesDetails();
+
+        } else if (instanceClassOfIidmChange.equals("IidmChangeOnRemove")) {
+            // onRemove is pending
+            allCgmesDetails = new HashMap<>();
+            CgmesPredicateDetails mapCgmesPredicateDetails = new CgmesPredicateDetails(null, "_EQ", false);
+            allCgmesDetails.put(mapCgmesPredicateDetails, null);
+
         } else {
-            // here onRemove will go
+
         }
 
         return allCgmesDetails;

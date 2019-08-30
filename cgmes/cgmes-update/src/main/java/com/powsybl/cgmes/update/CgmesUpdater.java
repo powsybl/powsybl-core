@@ -31,7 +31,7 @@ public class CgmesUpdater {
 
     /**
      * Update. Prepare triple to pass to SPARQL statement.
-     * 
+     *
      * @return the cgmes model
      * @throws Exception the exception
      */
@@ -76,7 +76,8 @@ public class CgmesUpdater {
                                     : namingStrategy.getCgmesId(change.getIdentifiableId());
 
                                 cgmesPredicate = map.getAttributeName();
-                                cgmesValue = (String) entry.getValue();
+                                cgmesValue = (map.getComputedValue() != null) ? map.getComputedValue()
+                                    : (String) entry.getValue();
                                 valueIsNode = String.valueOf(map.valueIsNode());
 
                                 cgmesChanges = new HashMap<>();

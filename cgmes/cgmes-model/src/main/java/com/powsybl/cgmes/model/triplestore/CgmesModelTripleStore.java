@@ -421,7 +421,7 @@ public class CgmesModelTripleStore extends AbstractCgmesModel {
             namedQueryFordUpdate("updateCgmesfromIidmCreate", context, subject, predicate, value, resource,
                 cimNamespace, valueIsNode);
         } else if (instanceClassOfIidmChange.equals("IidmChangeOnRemove")) {
-            namedQueryFordUpdate("updateCgmesfromIidmRemove", context, subject, predicate);
+            namedQueryFordUpdate("updateCgmesfromIidmRemove", context, subject);
         }
 
         return namedQuery("checkCgmesUpdated", context, subject);

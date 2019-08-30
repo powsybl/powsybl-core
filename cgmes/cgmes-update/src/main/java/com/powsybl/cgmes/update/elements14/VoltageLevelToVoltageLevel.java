@@ -100,14 +100,15 @@ public class VoltageLevelToVoltageLevel extends IidmToCgmes14 implements Convers
         Iterator i = voltageLevels.iterator();
         while (i.hasNext()) {
             PropertyBag pb = (PropertyBag) i.next();
-            if (pb.getId("VoltageLevel").equals(change.getIdentifiableId())) {
+            if (pb.getId("VoltageLevel").equals(currId)) {
                 return pb.getId("BaseVoltage");
             } else {
                 continue;
             }
         }
-        return change.getIdentifiableId().concat("_BV");
+        return currId.concat("_BV");
     }
 
+    private String currId = change.getIdentifiableId();
     private String baseVoltageId = getBaseVoltageId();
 }

@@ -8,19 +8,30 @@ package com.powsybl.cgmes.update;
  */
 public class CgmesPredicateDetails {
 
-    public CgmesPredicateDetails(String attributeName, String triplestoreContext, boolean valueIsNode) {
-        this.attributeName = attributeName;
-        this.context = triplestoreContext;
-        this.valueIsNode = valueIsNode;
-        this.newSubject = null;
-    }
-
     public CgmesPredicateDetails(String attributeName, String triplestoreContext, boolean valueIsNode,
         String newSubject) {
         this.attributeName = attributeName;
         this.context = triplestoreContext;
         this.valueIsNode = valueIsNode;
         this.newSubject = newSubject;
+        this.computedValue = null;
+    }
+
+    public CgmesPredicateDetails(String attributeName, String triplestoreContext, boolean valueIsNode,
+        String newSubject, String computedValue) {
+        this.attributeName = attributeName;
+        this.context = triplestoreContext;
+        this.valueIsNode = valueIsNode;
+        this.newSubject = null;
+        this.computedValue = computedValue;
+    }
+
+    public CgmesPredicateDetails(String attributeName, String triplestoreContext, boolean valueIsNode) {
+        this.attributeName = attributeName;
+        this.context = triplestoreContext;
+        this.valueIsNode = valueIsNode;
+        this.newSubject = null;
+        this.computedValue = null;
     }
 
     public String getAttributeName() {
@@ -39,8 +50,13 @@ public class CgmesPredicateDetails {
         return newSubject;
     }
 
+    public String getComputedValue() {
+        return computedValue;
+    }
+
     private String attributeName;
     private String context;
     private boolean valueIsNode;
     private String newSubject;
+    private String computedValue;
 }

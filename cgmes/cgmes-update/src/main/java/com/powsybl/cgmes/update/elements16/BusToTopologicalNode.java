@@ -68,7 +68,7 @@ public class BusToTopologicalNode extends IidmToCgmes16 implements ConversionMap
 
         CgmesPredicateDetails topologicalNodeSvVoltage = new CgmesPredicateDetails("cim:SvVoltage.TopologicalNode",
             "_SV", true, svVoltageId);
-        allCgmesDetails.put(topologicalNodeSvVoltage, busId);
+        allCgmesDetails.put(topologicalNodeSvVoltage, currId);
 
         allCgmesDetails.put((CgmesPredicateDetails) mapIidmToCgmesPredicates().get("v"), "0.0");
 
@@ -93,7 +93,7 @@ public class BusToTopologicalNode extends IidmToCgmes16 implements ConversionMap
                 continue;
             }
         }
-        return voltageLevelId.concat("_BV");
+        return "NaN";
     }
 
     private String getSvVoltageId() {
@@ -101,18 +101,18 @@ public class BusToTopologicalNode extends IidmToCgmes16 implements ConversionMap
         Iterator i = topologicalNodes.iterator();
         while (i.hasNext()) {
             PropertyBag pb = (PropertyBag) i.next();
-            if (pb.getId("TopologicalNode").equals(busId)) {
+            if (pb.getId("TopologicalNode").equals(currId)) {
                 String svVoltageId = (pb.getId("SvVoltageT") != null) ? pb.getId("SvVoltageT")
-                    : busId.concat("_SvVoltage");
+                    : currId.concat("_SvVoltage");
                 return svVoltageId;
             } else {
                 continue;
             }
         }
-        return busId.concat("_SvVoltage");
+        return currId.concat("_SvVoltage");
     }
 
-    private String busId = change.getIdentifiableId();
+    private String currId = change.getIdentifiableId();
     private String svVoltageId = getSvVoltageId();
 
 }
