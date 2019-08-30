@@ -6,6 +6,8 @@
  */
 package com.powsybl.iidm.network.impl;
 
+import java.util.Objects;
+
 import com.powsybl.iidm.network.TieLine;
 
 /**
@@ -15,6 +17,7 @@ class TieLineImpl extends LineImpl implements TieLine {
 
     static class HalfLineImpl implements HalfLine {
 
+        TieLineImpl parent;
         String id;
         String name;
         double xnodeP = Double.NaN;
@@ -26,13 +29,25 @@ class TieLineImpl extends LineImpl implements TieLine {
         double b1 = Double.NaN;
         double b2 = Double.NaN;
 
+        public void setParent(TieLineImpl parent) {
+            this.parent = parent;
+        }
+
+        private void notifyUpdate(String attribute, Object oldValue, Object newValue) {
+            if (Objects.nonNull(parent)) {
+                parent.notifyUpdate(() -> getHalfLineAttribute() + "." + attribute, oldValue, newValue);
+            }
+        }
+
         @Override
         public String getId() {
             return id;
         }
 
         void setId(String id) {
+            String oldValue = this.id;
             this.id = id;
+            notifyUpdate("id", oldValue, id);
         }
 
         @Override
@@ -41,7 +56,9 @@ class TieLineImpl extends LineImpl implements TieLine {
         }
 
         void setName(String name) {
+            String oldValue = this.name;
             this.name = name;
+            notifyUpdate("name", oldValue, name);
         }
 
         @Override
@@ -51,7 +68,9 @@ class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public HalfLineImpl setXnodeP(double xnodeP) {
+            double oldValue = this.xnodeP;
             this.xnodeP = xnodeP;
+            notifyUpdate("xnodeP", oldValue, xnodeP);
             return this;
         }
 
@@ -62,7 +81,9 @@ class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public HalfLineImpl setXnodeQ(double xnodeQ) {
+            double oldValue = this.xnodeQ;
             this.xnodeQ = xnodeQ;
+            notifyUpdate("xnodeQ", oldValue, xnodeQ);
             return this;
         }
 
@@ -73,7 +94,9 @@ class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public HalfLineImpl setR(double r) {
+            double oldValue = this.r;
             this.r = r;
+            notifyUpdate("r", oldValue, r);
             return this;
         }
 
@@ -84,7 +107,9 @@ class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public HalfLineImpl setX(double x) {
+            double oldValue = this.x;
             this.x = x;
+            notifyUpdate("x", oldValue, x);
             return this;
         }
 
@@ -95,7 +120,9 @@ class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public HalfLineImpl setG1(double g1) {
+            double oldValue = this.g1;
             this.g1 = g1;
+            notifyUpdate("g1", oldValue, g1);
             return this;
         }
 
@@ -106,7 +133,9 @@ class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public HalfLineImpl setG2(double g2) {
+            double oldValue = this.g2;
             this.g2 = g2;
+            notifyUpdate("g2", oldValue, g2);
             return this;
         }
 
@@ -117,7 +146,9 @@ class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public HalfLineImpl setB1(double b1) {
+            double oldValue = this.b1;
             this.b1 = b1;
+            notifyUpdate("b1", oldValue, b1);
             return this;
         }
 
@@ -128,8 +159,14 @@ class TieLineImpl extends LineImpl implements TieLine {
 
         @Override
         public HalfLineImpl setB2(double b2) {
+            double oldValue = this.b2;
             this.b2 = b2;
+            notifyUpdate("b2", oldValue, b2);
             return this;
+        }
+
+        private String getHalfLineAttribute() {
+            return this == parent.half1 ? "1" : "2";
         }
     }
 
@@ -142,8 +179,13 @@ class TieLineImpl extends LineImpl implements TieLine {
     TieLineImpl(String id, String name, String ucteXnodeCode, HalfLineImpl half1, HalfLineImpl half2) {
         super(id, name, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN);
         this.ucteXnodeCode = ucteXnodeCode;
-        this.half1 = half1;
-        this.half2 = half2;
+        this.half1 = attach(half1);
+        this.half2 = attach(half2);
+    }
+
+    private HalfLineImpl attach(HalfLineImpl half) {
+        half.setParent(this);
+        return half;
     }
 
     @Override
