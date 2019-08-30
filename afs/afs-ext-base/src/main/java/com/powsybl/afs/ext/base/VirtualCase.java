@@ -6,10 +6,7 @@
  */
 package com.powsybl.afs.ext.base;
 
-import com.powsybl.afs.AfsException;
-import com.powsybl.afs.DependencyCache;
-import com.powsybl.afs.ProjectFile;
-import com.powsybl.afs.ProjectFileCreationContext;
+import com.powsybl.afs.*;
 import com.powsybl.iidm.network.Network;
 
 import java.util.Collections;
@@ -19,7 +16,7 @@ import java.util.Optional;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class VirtualCase extends ProjectFile implements ProjectCase {
+public class VirtualCase extends ProjectFile implements ProjectCase, Dependent {
 
     public static final String PSEUDO_CLASS = "virtualCase";
     public static final int VERSION = 0;
@@ -92,5 +89,10 @@ public class VirtualCase extends ProjectFile implements ProjectCase {
         findService(NetworkCacheService.class).invalidateCache(this);
 
         super.invalidate();
+    }
+
+    @Override
+    public boolean dependenciesAreMissing() {
+        return !getCase().isPresent() || !getScript().isPresent();
     }
 }

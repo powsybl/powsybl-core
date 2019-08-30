@@ -6,10 +6,7 @@
  */
 package com.powsybl.security.afs;
 
-import com.powsybl.afs.AfsException;
-import com.powsybl.afs.DependencyCache;
-import com.powsybl.afs.ProjectFile;
-import com.powsybl.afs.ProjectFileCreationContext;
+import com.powsybl.afs.*;
 import com.powsybl.afs.ext.base.ProjectCase;
 import com.powsybl.afs.storage.AppStorage;
 import com.powsybl.afs.storage.NodeInfo;
@@ -30,7 +27,7 @@ import java.util.Optional;
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
-public class SecurityAnalysisRunner extends ProjectFile {
+public class SecurityAnalysisRunner extends ProjectFile implements Dependent {
 
     static final String PSEUDO_CLASS = "securityAnalysisRunner";
 
@@ -128,5 +125,10 @@ public class SecurityAnalysisRunner extends ProjectFile {
             throw new UncheckedIOException(e);
         }
         storage.flush();
+    }
+
+    @Override
+    public boolean dependenciesAreMissing() {
+        return !getCase().isPresent() || !getContingencyStore().isPresent();
     }
 }
