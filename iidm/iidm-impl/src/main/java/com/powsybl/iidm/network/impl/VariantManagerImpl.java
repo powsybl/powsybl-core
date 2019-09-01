@@ -38,9 +38,12 @@ public class VariantManagerImpl implements VariantManager {
 
     private final Deque<Integer> unusedIndexes = new ArrayDeque<>();
 
-    VariantManagerImpl(NetworkIndex networkIndex) {
+    private final NetworkImpl network;
+
+    VariantManagerImpl(NetworkImpl network) {
+        this.network = network;
         this.variantContext = new MultiVariantContext(INITIAL_VARIANT_INDEX);
-        this.networkIndex = networkIndex;
+        this.networkIndex = network.getIndex();
         // the network has always a zero index initial variant
         id2index.put(VariantManagerConstants.INITIAL_VARIANT_ID, INITIAL_VARIANT_INDEX);
         variantArraySize = INITIAL_VARIANT_INDEX + 1;
@@ -131,6 +134,8 @@ public class VariantManagerImpl implements VariantManager {
             if (id2index.containsKey(targetVariantId)) {
                 if (mayOverwrite) {
                     overwritten.add(id2index.get(targetVariantId));
+
+                    network.getListeners().notifyVariantOverwritten(sourceVariantId, targetVariantId);
                 } else {
                     throw new PowsyblException("Target variant '" + targetVariantId + "' already exists");
                 }
@@ -139,11 +144,15 @@ public class VariantManagerImpl implements VariantManager {
                 id2index.put(targetVariantId, variantArraySize);
                 variantArraySize++;
                 extendedCount++;
+
+                network.getListeners().notifyVariantCreated(sourceVariantId, targetVariantId);
             } else {
                 // recycle an index
                 int index = unusedIndexes.pollLast();
                 id2index.put(targetVariantId, index);
                 recycled.add(index);
+
+                network.getListeners().notifyVariantCreated(sourceVariantId, targetVariantId);
             }
         }
 
@@ -216,6 +225,8 @@ public class VariantManagerImpl implements VariantManager {
         }
         // if the removed variant is the working variant, unset the working variant
         variantContext.resetIfVariantIndexIs(index);
+
+        network.getListeners().notifyVariantRemoved(variantId);
     }
 
     @Override

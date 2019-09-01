@@ -97,4 +97,34 @@ class NetworkListenerList {
         }
     }
 
+    void notifyVariantCreated(String sourceVariantId, String targetVariantId) {
+        for (NetworkListener listener : listeners) {
+            try {
+                listener.onVariantCreated(sourceVariantId, targetVariantId);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
+    void notifyVariantOverwritten(String sourceVariantId, String targetVariantId) {
+        for (NetworkListener listener : listeners) {
+            try {
+                listener.onVariantOverwritten(sourceVariantId, targetVariantId);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
+    void notifyVariantRemoved(String variantId) {
+        for (NetworkListener listener : listeners) {
+            try {
+                listener.onVariantRemoved(variantId);
+            } catch (Exception t) {
+                LOGGER.error(t.toString(), t);
+            }
+        }
+    }
+
 }
