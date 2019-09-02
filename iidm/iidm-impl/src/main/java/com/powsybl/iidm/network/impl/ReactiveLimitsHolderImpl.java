@@ -15,12 +15,12 @@ import java.util.Objects;
  */
 class ReactiveLimitsHolderImpl implements ReactiveLimitsOwner {
 
-    private final Validable validable;
+    private final AbstractConnectable<?> connectable;
 
     private ReactiveLimits reactiveLimits;
 
-    public ReactiveLimitsHolderImpl(Validable validable, ReactiveLimits reactiveLimits) {
-        this.validable = Objects.requireNonNull(validable);
+    public ReactiveLimitsHolderImpl(AbstractConnectable<?> connectable, ReactiveLimits reactiveLimits) {
+        this.connectable = Objects.requireNonNull(connectable);
         this.reactiveLimits = Objects.requireNonNull(reactiveLimits);
     }
 
@@ -35,13 +35,15 @@ class ReactiveLimitsHolderImpl implements ReactiveLimitsOwner {
         if (type.isInstance(reactiveLimits)) {
             return type.cast(reactiveLimits);
         } else {
-            throw new ValidationException(validable, "incorrect reactive limits type "
+            throw new ValidationException(connectable, "incorrect reactive limits type "
                     + type.getName() + ", expected " + reactiveLimits.getClass());
         }
     }
 
     @Override
     public void setReactiveLimits(ReactiveLimits reactiveLimits) {
+        ReactiveLimits oldValue = this.reactiveLimits;
         this.reactiveLimits = Objects.requireNonNull(reactiveLimits);
+        connectable.notifyUpdate("reactiveLimits", oldValue, reactiveLimits);
     }
 }

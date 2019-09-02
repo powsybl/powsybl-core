@@ -28,7 +28,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
 
     private double b;
 
-    private final String ucteXnodeCode;
+    private String ucteXnodeCode;
 
     private CurrentLimitsImpl limits;
 
@@ -165,7 +165,7 @@ class DanglingLineImpl extends AbstractConnectable<DanglingLine> implements Dang
     public void setCurrentLimits(Void side, CurrentLimitsImpl limits) {
         CurrentLimitsImpl oldValue = limits;
         this.limits = limits;
-        notifyUpdate("limits", oldValue, limits);
+        notifyUpdate("currentlimits", oldValue, limits);
     }
 
     @Override

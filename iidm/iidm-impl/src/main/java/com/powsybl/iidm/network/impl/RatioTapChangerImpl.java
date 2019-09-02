@@ -18,7 +18,7 @@ import java.util.function.Supplier;
  */
 class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, RatioTapChangerImpl, RatioTapChangerStepImpl> implements RatioTapChanger {
 
-    private final boolean loadTapChangingCapabilities;
+    private boolean loadTapChangingCapabilities;
 
     // attributes depending on the variant
 
@@ -54,6 +54,12 @@ class RatioTapChangerImpl extends AbstractTapChanger<RatioTapChangerParent, Rati
     @Override
     public boolean hasLoadTapChangingCapabilities() {
         return loadTapChangingCapabilities;
+    }
+
+    @Override
+    public void setLoadTapChangingCapabilities(boolean loadTapChangingCapabilities) {
+        ValidationUtil.checkRatioTapChangerRegulation(parent, loadTapChangingCapabilities, isRegulating(), regulationTerminal, getTargetV(), getNetwork());
+        this.loadTapChangingCapabilities = loadTapChangingCapabilities;
     }
 
     @Override

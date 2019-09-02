@@ -19,7 +19,7 @@ abstract class AbstractIdentifiable<I extends Identifiable<I>> extends AbstractE
 
     protected final String id;
 
-    protected final String name;
+    protected String name;
 
     protected Properties properties;
 

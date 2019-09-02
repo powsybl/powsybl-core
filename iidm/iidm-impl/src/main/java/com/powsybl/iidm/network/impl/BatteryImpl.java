@@ -164,9 +164,7 @@ public class BatteryImpl extends AbstractConnectable<Battery> implements Battery
      */
     @Override
     public void setReactiveLimits(ReactiveLimits reactiveLimits) {
-        ReactiveLimits oldValue = this.reactiveLimits.getReactiveLimits();
         this.reactiveLimits.setReactiveLimits(reactiveLimits);
-        notifyUpdate("reactiveLimits", oldValue, reactiveLimits);
     }
 
     /**

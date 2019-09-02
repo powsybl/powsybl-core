@@ -34,4 +34,8 @@ public interface RatioTapChanger extends TapChanger<RatioTapChanger, RatioTapCha
      */
     boolean hasLoadTapChangingCapabilities();
 
+    /**
+     * Set the load tap changing capabilities status.
+     */
+    void setLoadTapChangingCapabilities(boolean status);
 }
