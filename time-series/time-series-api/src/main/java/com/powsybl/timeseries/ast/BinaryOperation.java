@@ -11,7 +11,11 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.powsybl.timeseries.TimeSeriesException;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -118,8 +122,14 @@ public class BinaryOperation implements NodeCalc {
     }
 
     @Override
-    public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg) {
-        return visitor.visit(this, arg);
+    public <R, A> R acceptVisit(NodeCalcVisitor<R, A> visitor, A arg, List<R> children) {
+        return visitor.visit(this, arg, children.get(0), children.get(1));
+    }
+
+    @Override
+    public <R, A> List<NodeCalc> acceptIterate(NodeCalcVisitor<R, A> visitor, A arg) {
+        Pair<NodeCalc, NodeCalc> p = visitor.iterate(this, arg);
+        return Arrays.asList(p.getLeft(), p.getRight());
     }
 
     @Override

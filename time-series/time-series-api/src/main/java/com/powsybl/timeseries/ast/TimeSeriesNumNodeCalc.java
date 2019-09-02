@@ -6,6 +6,9 @@
  */
 package com.powsybl.timeseries.ast;
 
+import java.util.Collections;
+import java.util.List;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.powsybl.timeseries.TimeSeriesException;
 
@@ -28,8 +31,13 @@ public class TimeSeriesNumNodeCalc implements NodeCalc {
     }
 
     @Override
-    public <R, A> R accept(NodeCalcVisitor<R, A> visitor, A arg) {
+    public <R, A> R acceptVisit(NodeCalcVisitor<R, A> visitor, A arg, List<R> children) {
         return visitor.visit(this, arg);
+    }
+
+    @Override
+    public <R, A> List<NodeCalc> acceptIterate(NodeCalcVisitor<R, A> visitor, A arg) {
+        return Collections.emptyList();
     }
 
     @Override
