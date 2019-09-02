@@ -8,13 +8,15 @@ package com.powsybl.timeseries.ast;
 
 import com.powsybl.timeseries.DoubleMultiPoint;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
 public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoint> {
 
     public static double eval(NodeCalc nodeCalc, DoubleMultiPoint multiPoint) {
-        return nodeCalc.accept(new NodeCalcEvaluator(), multiPoint);
+        return NodeCalcVisitors.visit(nodeCalc, multiPoint, new NodeCalcEvaluator());
     }
 
     @Override
@@ -38,9 +40,9 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
     }
 
     @Override
-    public Double visit(BinaryOperation nodeCalc, DoubleMultiPoint multiPoint) {
-        double leftValue = nodeCalc.getLeft().accept(this, multiPoint);
-        double rightValue = nodeCalc.getRight().accept(this, multiPoint);
+    public Double visit(BinaryOperation nodeCalc, DoubleMultiPoint multiPoint, Double left, Double right) {
+        double leftValue = left;
+        double rightValue = right;
         switch (nodeCalc.getOperator()) {
             case PLUS: return leftValue + rightValue;
             case MINUS: return leftValue - rightValue;
@@ -57,8 +59,13 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
     }
 
     @Override
-    public Double visit(UnaryOperation nodeCalc, DoubleMultiPoint multiPoint) {
-        double childValue = nodeCalc.getChild().accept(this, multiPoint);
+    public Pair<NodeCalc, NodeCalc> iterate(BinaryOperation nodeCalc, DoubleMultiPoint multiPoint) {
+        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
+    }
+
+    @Override
+    public Double visit(UnaryOperation nodeCalc, DoubleMultiPoint multiPoint, Double child) {
+        double childValue = child;
         switch (nodeCalc.getOperator()) {
             case ABS: return Math.abs(childValue);
             case NEGATIVE: return -childValue;
@@ -68,20 +75,40 @@ public class NodeCalcEvaluator implements NodeCalcVisitor<Double, DoubleMultiPoi
     }
 
     @Override
-    public Double visit(MinNodeCalc nodeCalc, DoubleMultiPoint multiPoint) {
-        double childValue = nodeCalc.getChild().accept(this, multiPoint);
+    public NodeCalc iterate(UnaryOperation nodeCalc, DoubleMultiPoint multiPoint) {
+        return nodeCalc.getChild();
+    }
+
+    @Override
+    public Double visit(MinNodeCalc nodeCalc, DoubleMultiPoint multiPoint, Double child) {
+        double childValue = child;
         return Math.min(childValue, nodeCalc.getMin());
     }
 
     @Override
-    public Double visit(MaxNodeCalc nodeCalc, DoubleMultiPoint multiPoint) {
-        double childValue = nodeCalc.getChild().accept(this, multiPoint);
+    public NodeCalc iterate(MinNodeCalc nodeCalc, DoubleMultiPoint multiPoint) {
+        return nodeCalc.getChild();
+    }
+
+    @Override
+    public Double visit(MaxNodeCalc nodeCalc, DoubleMultiPoint multiPoint, Double child) {
+        double childValue = child;
         return Math.max(childValue, nodeCalc.getMax());
     }
 
     @Override
-    public Double visit(TimeNodeCalc nodeCalc, DoubleMultiPoint multiPoint) {
+    public NodeCalc iterate(MaxNodeCalc nodeCalc, DoubleMultiPoint multiPoint) {
+        return nodeCalc.getChild();
+    }
+
+    @Override
+    public Double visit(TimeNodeCalc nodeCalc, DoubleMultiPoint multiPoint, Double child) {
         return (double) multiPoint.getTime();
+    }
+
+    @Override
+    public NodeCalc iterate(TimeNodeCalc nodeCalc, DoubleMultiPoint multiPoint) {
+        return null;
     }
 
     @Override
