@@ -4,12 +4,13 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.commons.config;
+package com.powsybl.config.classic;
 
 import static org.junit.Assert.assertEquals;
 
 import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
+import com.powsybl.commons.config.ModuleConfigRepository;
 
 import org.junit.After;
 import org.junit.Before;
