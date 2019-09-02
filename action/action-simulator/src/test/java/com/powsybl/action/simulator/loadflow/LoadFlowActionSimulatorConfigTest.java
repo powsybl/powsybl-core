@@ -10,11 +10,6 @@ import com.google.common.jimfs.Configuration;
 import com.google.common.jimfs.Jimfs;
 import com.powsybl.commons.config.InMemoryPlatformConfig;
 import com.powsybl.commons.config.MapModuleConfig;
-import com.powsybl.computation.ComputationManager;
-import com.powsybl.iidm.network.Network;
-import com.powsybl.loadflow.LoadFlow;
-import com.powsybl.loadflow.LoadFlowFactory;
-import com.powsybl.loadflow.mock.LoadFlowFactoryMock;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -28,29 +23,21 @@ import static org.junit.Assert.*;
  */
 public class LoadFlowActionSimulatorConfigTest {
 
-    private static class AnotherLoadFlowFactoryMock implements LoadFlowFactory {
-
-        @Override
-        public LoadFlow create(Network network, ComputationManager computationManager, int priority) {
-            return null;
-        }
-    }
-
     @Test
     public void test() throws IOException {
         try (FileSystem fileSystem = Jimfs.newFileSystem(Configuration.unix())) {
             InMemoryPlatformConfig platformConfig = new InMemoryPlatformConfig(fileSystem);
             MapModuleConfig moduleConfig = platformConfig.createModuleConfig("load-flow-action-simulator");
-            moduleConfig.setClassProperty("load-flow-factory", LoadFlowFactoryMock.class);
+            moduleConfig.setStringProperty("load-flow-name", "LoadFlowMock");
             moduleConfig.setStringProperty("max-iterations", "15");
             moduleConfig.setStringProperty("ignore-pre-contingency-violations", "true");
             moduleConfig.setStringProperty("copy-strategy", CopyStrategy.DEEP.name());
 
             LoadFlowActionSimulatorConfig config = LoadFlowActionSimulatorConfig.load(platformConfig);
 
-            assertEquals(LoadFlowFactoryMock.class, config.getLoadFlowFactoryClass());
-            config.setLoadFlowFactoryClass(AnotherLoadFlowFactoryMock.class);
-            assertEquals(AnotherLoadFlowFactoryMock.class, config.getLoadFlowFactoryClass());
+            assertEquals("LoadFlowMock", config.getLoadFlowName().orElseThrow(AssertionError::new));
+            config.setLoadFlowName("AnotherLoadFlowMock");
+            assertEquals("AnotherLoadFlowMock", config.getLoadFlowName().orElseThrow(AssertionError::new));
 
             assertEquals(15, config.getMaxIterations());
             config.setMaxIterations(10);
