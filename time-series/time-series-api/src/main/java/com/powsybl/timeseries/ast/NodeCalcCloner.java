@@ -6,6 +6,8 @@
  */
 package com.powsybl.timeseries.ast;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 /**
  * @author Geoffroy Jamgotchian <geoffroy.jamgotchian at rte-france.com>
  */
@@ -31,30 +33,53 @@ public class NodeCalcCloner<A> implements NodeCalcVisitor<NodeCalc, A> {
     }
 
     @Override
-    public NodeCalc visit(BinaryOperation nodeCalc, A arg) {
-        return new BinaryOperation(nodeCalc.getLeft().accept(this, arg),
-                                   nodeCalc.getRight().accept(this, arg),
-                                   nodeCalc.getOperator());
+    public NodeCalc visit(BinaryOperation nodeCalc, A arg, NodeCalc left, NodeCalc right) {
+        return new BinaryOperation(left, right, nodeCalc.getOperator());
     }
 
     @Override
-    public NodeCalc visit(UnaryOperation nodeCalc, A arg) {
-        return new UnaryOperation(nodeCalc.getChild().accept(this, arg), nodeCalc.getOperator());
+    public Pair<NodeCalc, NodeCalc> iterate(BinaryOperation nodeCalc, A arg) {
+        return Pair.of(nodeCalc.getLeft(), nodeCalc.getRight());
     }
 
     @Override
-    public NodeCalc visit(MinNodeCalc nodeCalc, A arg) {
-        return new MinNodeCalc(nodeCalc.getChild().accept(this, arg), nodeCalc.getMin());
+    public NodeCalc visit(UnaryOperation nodeCalc, A arg, NodeCalc child) {
+        return new UnaryOperation(child, nodeCalc.getOperator());
     }
 
     @Override
-    public NodeCalc visit(MaxNodeCalc nodeCalc, A arg) {
-        return new MaxNodeCalc(nodeCalc.getChild().accept(this, arg), nodeCalc.getMax());
+    public NodeCalc iterate(UnaryOperation nodeCalc, A arg) {
+        return nodeCalc.getChild();
     }
 
     @Override
-    public NodeCalc visit(TimeNodeCalc nodeCalc, A arg) {
-        return new TimeNodeCalc(nodeCalc.getChild().accept(this, arg));
+    public NodeCalc visit(MinNodeCalc nodeCalc, A arg, NodeCalc child) {
+        return new MinNodeCalc(child, nodeCalc.getMin());
+    }
+
+    @Override
+    public NodeCalc iterate(MinNodeCalc nodeCalc, A arg) {
+        return nodeCalc.getChild();
+    }
+
+    @Override
+    public NodeCalc visit(MaxNodeCalc nodeCalc, A arg, NodeCalc child) {
+        return new MaxNodeCalc(child, nodeCalc.getMax());
+    }
+
+    @Override
+    public NodeCalc iterate(MaxNodeCalc nodeCalc, A arg) {
+        return nodeCalc.getChild();
+    }
+
+    @Override
+    public NodeCalc visit(TimeNodeCalc nodeCalc, A arg, NodeCalc child) {
+        return new TimeNodeCalc(child);
+    }
+
+    @Override
+    public NodeCalc iterate(TimeNodeCalc nodeCalc, A arg) {
+        return nodeCalc.getChild();
     }
 
     @Override
