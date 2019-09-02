@@ -225,9 +225,6 @@ public class ConversionTester {
 
     private static ValidationConfig loadFlowValidationConfig(FileSystem fs, double threshold) {
         InMemoryPlatformConfig pconfig = new InMemoryPlatformConfig(fs);
-        pconfig
-                .createModuleConfig("componentDefaultConfig")
-                .setStringProperty("LoadFlowFactory", "LoadFlowMock");
         ValidationConfig config = ValidationConfig.load(pconfig);
         config.setVerbose(true);
         config.setThreshold(threshold);
