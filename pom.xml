@@ -58,6 +58,7 @@
         <module>commons</module>
         <module>computation</module>
         <module>computation-local</module>
+        <module>config-classic</module>
         <module>config-test</module>
         <module>contingency</module>
         <module>distribution-core</module>
@@ -220,15 +221,6 @@
                 <version>${maven.versions.version}</version>
                 <configuration>
                     <generateBackupPoms>false</generateBackupPoms>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <configuration>
-                  <systemPropertyVariables>
-                    <powsybl.config.provider>test</powsybl.config.provider>
-                  </systemPropertyVariables>
                 </configuration>
             </plugin>
         </plugins>

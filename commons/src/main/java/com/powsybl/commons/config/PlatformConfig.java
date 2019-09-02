@@ -18,7 +18,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.ServiceLoader;
-import java.util.stream.Collectors;
 
 /**
  *
@@ -27,8 +26,6 @@ import java.util.stream.Collectors;
 public class PlatformConfig {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PlatformConfig.class);
-
-    private static final String KEY = "powsybl.config.provider";
 
     private static PlatformConfig defaultConfig;
 
@@ -67,30 +64,18 @@ public class PlatformConfig {
 
     public static synchronized PlatformConfig defaultConfig() {
         if (defaultConfig == null) {
-            String configName = System.getProperty(KEY);
-            if (configName != null) {
-                List<PlatformConfigProvider> platformConfigProviders = Lists
-                        .newArrayList(ServiceLoader.load(PlatformConfigProvider.class));
-                Optional<PlatformConfigProvider> foundProvider = platformConfigProviders.stream()
-                        .filter(platformConfigProvider -> configName.equals(platformConfigProvider.getName()))
-                        .findFirst();
-                if (!foundProvider.isPresent()) {
-                    if (LOGGER.isErrorEnabled()) {
-                        List<String> available = platformConfigProviders.stream().map(PlatformConfigProvider::getName)
-                                .collect(Collectors.toList());
-                        LOGGER.error("Requested platform configuration provider {} = {} not found; available: {}", KEY,
-                                configName, available);
-                    }
-                } else {
-                    LOGGER.info("Using platform configuration provider {} = {}", KEY, configName);
-                    defaultConfig = foundProvider.get().getPlatformConfig();
-                }
+            List<PlatformConfigProvider> providers = Lists.newArrayList(ServiceLoader.load(PlatformConfigProvider.class));
+            if (providers.isEmpty()) {
+                LOGGER.error("Platform configuration provider not found. For tests, consider using TestPlatformConfigProvider in powsybl-config-test. Otherwise, consider using ClassicPlatformConfigProvider from powsybl-config-classic.");
+                throw new PowsyblException("Platform configuration provider not found");
             }
-            if (defaultConfig == null) {
-                LOGGER.info("Using default platform configuration provider {}",
-                        ClassicPlatformConfigProvider.class.getSimpleName());
-                defaultConfig = new ClassicPlatformConfigProvider().getPlatformConfig();
+            if (providers.size() > 1) {
+                LOGGER.error("Multiple platform configuration providers found: {}", providers);
+                throw new PowsyblException("Multiple platform configuration providers found");
             }
+            PlatformConfigProvider p = providers.get(0);
+            LOGGER.info("Using platform configuration provider {}", p.getName());
+            defaultConfig = p.getPlatformConfig();
         }
         return defaultConfig;
     }
@@ -123,4 +108,5 @@ public class PlatformConfig {
     public Optional<ModuleConfig> getOptionalModuleConfig(String name) {
         return getRepository().getModuleConfig(name);
     }
+
 }

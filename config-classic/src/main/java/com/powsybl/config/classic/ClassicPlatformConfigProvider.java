@@ -4,7 +4,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
-package com.powsybl.commons.config;
+package com.powsybl.config.classic;
 
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -14,6 +14,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import com.powsybl.commons.config.ModuleConfigRepository;
+import com.powsybl.commons.config.PlatformConfig;
+import com.powsybl.commons.config.PlatformConfigProvider;
+import com.powsybl.commons.config.PlatformEnv;
+import com.powsybl.commons.config.EnvironmentModuleConfigRepository;
+import com.powsybl.commons.config.StackedModuleConfigRepository;
 
 import com.google.auto.service.AutoService;
 
