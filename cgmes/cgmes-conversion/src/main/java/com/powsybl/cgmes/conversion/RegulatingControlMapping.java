@@ -458,7 +458,7 @@ public class RegulatingControlMapping {
 
     private void setRtcRegulatingControl(Terminal defaultTerminal, RatioTapChanger rtc,
         RegulatingDataRatio rd) {
-        if (rd == null || !rd.regulating) {
+        if (rd == null || !rd.regulating || rtc == null) {
             return;
         }
 
@@ -532,7 +532,7 @@ public class RegulatingControlMapping {
 
     private void setPtcRegulatingControl(Terminal defaultTerminal, int targetValueSigne, PhaseTapChanger ptc,
         RegulatingDataPhase rd) {
-        if (rd == null || !rd.regulating) {
+        if (rd == null || !rd.regulating || ptc == null) {
             return;
         }
 
