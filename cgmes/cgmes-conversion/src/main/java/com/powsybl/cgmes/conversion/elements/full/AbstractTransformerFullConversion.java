@@ -28,8 +28,8 @@ public abstract class AbstractTransformerFullConversion
     protected static final String STRING_POWER_TRANSFORMER = "PowerTransformer";
     protected static final String STRING_R = "r";
     protected static final String STRING_X = "x";
-    protected static final String STRING_RATIO_TAP_CHANGER  = "RatioTapChanger";
-    protected static final String STRING_PHASE_TAP_CHANGER  = "PhaseTapChanger";
+    protected static final String STRING_RATIO_TAP_CHANGER = "RatioTapChanger";
+    protected static final String STRING_PHASE_TAP_CHANGER = "PhaseTapChanger";
     protected static final String STRING_RATEDU = "ratedU";
     protected static final String STRING_G = "g";
     protected static final String STRING_B = "b";
@@ -276,7 +276,7 @@ public abstract class AbstractTransformerFullConversion
         int lowStep = rtc.getLowTapPosition();
         int position = rtc.getTapPosition();
         tapChanger.setLowTapPosition(lowStep)
-            .setTapPosition((int) position)
+            .setTapPosition(position)
             .setLtcFlag(isLtcFlag)
             .setId(id)
             .setRegulating(isRegulating)
@@ -466,11 +466,12 @@ public abstract class AbstractTransformerFullConversion
         int lowStep = ratioTapChanger.asInt(STRING_LOW_STEP);
         int highStep = ratioTapChanger.asInt(STRING_HIGH_STEP);
         int neutralStep = ratioTapChanger.asInt(STRING_NEUTRAL_STEP);
-        double position = ratioTapChanger.asDouble(STRING_SV_TAP_STEP, neutralStep);
+        double fposition = ratioTapChanger.asDouble(STRING_SV_TAP_STEP, neutralStep);
+        int position = (int) Math.round(fposition);
         if (position > highStep || position < lowStep) {
             position = neutralStep;
         }
-        tapChanger.setLowTapPosition(lowStep).setTapPosition((int) position);
+        tapChanger.setLowTapPosition(lowStep).setTapPosition(position);
 
         boolean ltcFlag = ratioTapChanger.asBoolean(STRING_LTC_FLAG, false);
         tapChanger.setLtcFlag(ltcFlag);
@@ -530,7 +531,7 @@ public abstract class AbstractTransformerFullConversion
         RegulatingControlId rci = context.regulatingControlMapping()
             .getTapChangerRegulatingControl(ratioTapChanger);
         tapChanger.setId(ratioTapChanger.getId(STRING_RATIO_TAP_CHANGER))
-        .setRegulating(rci.regulating)
+            .setRegulating(rci.regulating)
             .setRegulatingControlId(rci.regulatingControlId)
             .setSide(side)
             .setTculControlMode(ratioTapChanger.get(STRING_TCUL_CONTROL_MODE))
@@ -546,11 +547,12 @@ public abstract class AbstractTransformerFullConversion
         int lowStep = phaseTapChanger.asInt(STRING_LOW_STEP);
         int highStep = phaseTapChanger.asInt(STRING_HIGH_STEP);
         int neutralStep = phaseTapChanger.asInt(STRING_NEUTRAL_STEP);
-        double position = phaseTapChanger.asDouble(STRING_SV_TAP_STEP, neutralStep);
+        double fposition = phaseTapChanger.asDouble(STRING_SV_TAP_STEP, neutralStep);
+        int position = (int) Math.round(fposition);
         if (position > highStep || position < lowStep) {
             position = neutralStep;
         }
-        tapChanger.setLowTapPosition(lowStep).setTapPosition((int) position);
+        tapChanger.setLowTapPosition(lowStep).setTapPosition(position);
 
         boolean ltcFlag = phaseTapChanger.asBoolean(STRING_LTC_FLAG, false);
         tapChanger.setLtcFlag(ltcFlag);
